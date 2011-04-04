@@ -14,7 +14,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.pages.TreePage;
 
-
 public class PathBreadcrumbsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -26,14 +25,16 @@ public class PathBreadcrumbsPanel extends Panel {
 		List<BreadCrumb> crumbs = new ArrayList<BreadCrumb>();
 		crumbs.add(new BreadCrumb("[" + repositoryName + "]", ROOT, false));
 
-		String[] paths = pathName.split("/");
-		StringBuilder sb = new StringBuilder();
-		
-		for (int i = 0; i < paths.length; i++) {
-			String path = paths[i];
-			sb.append(path);
-			crumbs.add(new BreadCrumb(path, sb.toString(), (i == (paths.length - 1))));
-			sb.append("/");
+		if (pathName != null && pathName.length() > 0) {
+			String[] paths = pathName.split("/");
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = 0; i < paths.length; i++) {
+				String path = paths[i];
+				sb.append(path);
+				crumbs.add(new BreadCrumb(path, sb.toString(), (i == (paths.length - 1))));
+				sb.append("/");
+			}
 		}
 
 		ListDataProvider<BreadCrumb> crumbsDp = new ListDataProvider<BreadCrumb>(crumbs);
@@ -49,20 +50,20 @@ public class PathBreadcrumbsPanel extends Panel {
 				}
 
 				item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, new PageParameters(parameters)));
-				item.add(new Label("pathSeparator", entry.isLeaf ? "":"/"));
+				item.add(new Label("pathSeparator", entry.isLeaf ? "" : "/"));
 			}
 		};
 		add(pathsView);
 	}
 
 	private class BreadCrumb implements Serializable {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		final String name;
 		final String path;
 		final boolean isLeaf;
-		
+
 		BreadCrumb(String name, String path, boolean isLeaf) {
 			this.name = name;
 			this.path = path;

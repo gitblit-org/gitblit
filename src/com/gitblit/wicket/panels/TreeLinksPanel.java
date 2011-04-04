@@ -19,11 +19,11 @@ public class TreeLinksPanel extends Panel {
 		if (path.isTree()) {
 			add(new LinkPanel("link", null, "tree", TreePage.class, new PageParameters("p=" + repositoryName + ",h=" + path.commitId + ",f=" + path.path)));
 			add(new Label("history", "history"));
-			add(new Label("raw", "").setVisible(false));
+			add(new Label("raw", ""));
 		} else {
-			add(new LinkPanel("link", null, "blob", BlobPage.class, new PageParameters("p=" + repositoryName + ",h=" + path.commitId + ",f=" + path.path)));
+			add(new LinkPanel("link", null, "view", BlobPage.class, new PageParameters("p=" + repositoryName + ",h=" + path.commitId + ",f=" + path.path)));
 			add(new Label("history", "history"));
-			add(new Label("raw", "raw"));
+			add(new Label("raw", "download"));
 		}
 	}
 }

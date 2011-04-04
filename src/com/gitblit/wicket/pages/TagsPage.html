@@ -8,19 +8,15 @@
 	<div wicket:id="pageLinks"></div>
 
 	<!-- shortlog -->	
-	<div class="header" wicket:id="summary"></div>
-	
-	<table class="tags">
+	<div class="header" wicket:id="summary"></div>	
+	<table>
 		<tbody>
        		<tr wicket:id="tag">
-         		<td><i><span wicket:id="tagDate"></span></i></td>
-         		<td><div wicket:id="tagName"></div></td>
+         		<td class="date"><span wicket:id="tagDate"></span></td>
+         		<td><b><div wicket:id="tagName"></div></b></td>
          		<td><div wicket:id="tagDescription"></div></td>
          		<td><span wicket:id="tagLinks"></span></td>
        		</tr>
-       		<tr>   	
-				<td colspan="4"><div wicket:id="navigator"></div></td>	
-       		</tr>   		    	
     	</tbody>
 	</table>	
 	

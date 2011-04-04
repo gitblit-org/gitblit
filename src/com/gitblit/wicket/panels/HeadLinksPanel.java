@@ -6,7 +6,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.models.RefModel;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 
 
@@ -17,7 +16,6 @@ public class HeadLinksPanel extends Panel {
 	public HeadLinksPanel(String id, String repositoryName, RefModel tag) {
 		super(id);
 		add(new LinkPanel("shortlog", null, "shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName + ",h=" + tag.getName())));
-		add(new LinkPanel("log", null, "log", LogPage.class, new PageParameters("p=" + repositoryName + ",h=" + tag.getName())));
 		add(new Label("tree", "tree"));
 	}
 }

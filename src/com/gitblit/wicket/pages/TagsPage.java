@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.models.RefModel;
@@ -54,9 +52,7 @@ public class TagsPage extends RepositoryPage {
 				counter++;
 			}
 		};
-		tagView.setItemsPerPage(GitBlitWebApp.PAGING_ITEM_COUNT);
 		add(tagView);
-		add(new PagingNavigator("navigator", tagView));
 
 		// footer
 		addFooter();

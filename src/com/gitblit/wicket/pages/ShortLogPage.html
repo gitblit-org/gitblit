@@ -8,22 +8,19 @@
 	<div wicket:id="pageLinks"></div>
 	
 	<!-- shortlog -->	
-	<div class="header" wicket:id="summary"></div>
-	
-	<table class="project_list">
+	<div style="margin-top:5px;" class="header" wicket:id="summary"></div>	
+	<table class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
-         		<td><span wicket:id="commitDate"></span></td>
-         		<td><i><span wicket:id="commitAuthor"></span></i></td>
+         		<td class="date"><span wicket:id="commitDate"></span></td>
+         		<td class="author"><span wicket:id="commitAuthor"></span></td>
          		<td><div wicket:id="commitShortMessage"></div></td>
          		<td><div wicket:id="commitRefs"></div></td>         		
          		<td><span wicket:id="commitLinks"></span></td>
        		</tr>
-       		<tr>   	
-				<td colspan="4"><div wicket:id="navigator"></div></td>	
-       		</tr>   		    	
     	</tbody>
 	</table>	
+	<div class="pager" wicket:id="navigator"></div>
 	
 	<!-- footer -->
 	<div wicket:id="pageFooter"></div>

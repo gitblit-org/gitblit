@@ -1,12 +1,9 @@
 package com.gitblit.wicket.panels;
 
-import java.util.Date;
-
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
 import com.gitblit.StoredSettings;
-import com.gitblit.wicket.GitBlitWebSession;
 
 
 public class PageFooter extends Panel {
@@ -18,8 +15,7 @@ public class PageFooter extends Panel {
 	}
 
 	public PageFooter(String id, String description) {
-		super(id);
-		add(new Label("cacheTime", "Page Last Updated: " + GitBlitWebSession.get().formatDateTimeLong(new Date())));
+		super(id);		
 		add(new Label("footerText", description));
 		if (StoredSettings.getBoolean("aggressiveGC", false)) {
 			System.gc();

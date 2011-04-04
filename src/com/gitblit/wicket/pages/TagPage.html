@@ -11,16 +11,14 @@
 	<div class="header" wicket:id="commit"></div>
 	
 	<!-- commit info -->
-	<div class="title_text">
-	<table class="object_header">
-		<tr><td>object</td><td><span wicket:id="tagId">Message goes here</span></td></tr>
-		<tr><td>author</td><td><span wicket:id="tagAuthor">Message goes here</span></td></tr>
-		<tr><td></td><td><span wicket:id="tagDate">Message goes here</span></td></tr>
+	<table>
+		<tr><th>object</th><td><span wicket:id="tagId">Message goes here</span></td></tr>
+		<tr><th>author</th><td><span wicket:id="tagAuthor">Message goes here</span></td></tr>
+		<tr><th></th><td><span wicket:id="tagDate">Message goes here</span></td></tr>
 	</table>
-	</div>
 	
 	<!--  full message -->
-	<div class="page_body" wicket:id="fullMessage"></div>
+	<div class="commit_message" wicket:id="fullMessage"></div>
 	
 	<!-- footer -->
 	<div wicket:id="pageFooter"></div>

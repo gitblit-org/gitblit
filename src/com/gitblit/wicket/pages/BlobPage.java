@@ -20,7 +20,7 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 public class BlobPage extends RepositoryPage {
 
 	public BlobPage(PageParameters params) {
-		super(params, "blob");
+		super(params, "view");
 
 		final String blobPath = params.getString("f", null);
 
@@ -29,7 +29,7 @@ public class BlobPage extends RepositoryPage {
 
 		// blob page links
 		add(new Label("historyLink", "history"));
-		add(new Label("rawLink", "raw"));
+		add(new Label("rawLink", "download"));
 		add(new Label("headLink", "HEAD"));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));

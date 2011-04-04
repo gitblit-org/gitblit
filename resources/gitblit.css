@@ -1,16 +1,74 @@
 /*
- JGitWeb css.
+ Git:Blit css.
 */
-body, table, tr, th, td { font-size: 13px; }
-
-table.object_header td, div.page_body, table.diff_tree td {
+html, body, table, dl, dt, dd, ol, ul, li, form, a, span, tr, th, td, div, em {
+	font-family: verdana, sans-serif;
 	font-size: 12px;
+	line-height: 15px;
 }
 
-table.diff_tree td div.link {
-	padding: 2px 5px;
-	font-family: sans-serif;
-	font-size: 9px;
+body {
+	margin: 5px;
+	background-color: #ffffff;
+	color: #000000;
+}
+
+pre.prettyprint, pre.plainprint {
+	color: black;
+	font-size:12px;
+	border:0px;
+}
+
+/* age0: age < 60*60*2 */
+.age0 {
+	color: #009900;
+	font-style: italic;
+	font-weight: bold;
+}
+
+/* age1: 60*60*2 <= age < 60*60*24*2 */
+.age1 {
+	color: #009900;
+	font-style: italic;
+}
+
+/* age2: 60*60*24*2 <= age */
+.age2 {
+	font-style: italic;
+}
+
+
+a {
+	color: #0000cc;
+}
+
+a:hover, a:visited, a:active {
+	color: #880000;
+}
+
+img.logo {
+	float: right;
+	border-width: 0px;
+}
+
+div.header {
+	background-color: #D2C3AF;
+	padding: 3px;
+	border: 1px solid #808080;
+}
+
+div.header a {
+	color: black;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+div.header a:hover {
+	text-decoration: underline;
+}
+
+div.pager {
+	padding: 0px 0px 15px 5px;
 }
 
 div.link {
@@ -19,38 +77,222 @@ div.link {
 	font-size: 9px;
 }
 
-pre.prettyprint, pre.plainprint {
-	font-size:12px;
-	border:0px;
+div.link a {
+	font-size: 9px;
+}
+
+div.page_header {
+	height: 25px;
+	padding: 5px;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 150%;
+	color: #ccc;
+	background-color: #ffffff;
+}
+
+div.page_header span {	
+	font-family: inherit;
+	font-size: inherit;	
+}
+
+div.page_header a  {
+	font-size: inherit;	
+	font-family: inherit;
+	text-decoration: none;
+}
+
+div.page_header a:visited {
+	color: #000000;
+}
+
+div.page_header a:hover {
+	color: E66C2C;
+	text-decoration: underline;
+}
+
+div.page_footer {
+	color: black;
+	background-color: #ffffff;
+	padding: 5px;
+	border-top: 1px solid #bbb;
+	font-style: italic;
+}
+
+div.page_nav {
+	color: #ccc;
+	background-color: #000070;
+	padding: 5px;
+}
+
+div.page_nav a {
+	color: yellow;
+	text-decoration: none;
+}
+
+div.page_nav a:hover {	
+	text-decoration: underline;
 }
 
 div.page_nav2 {
-	padding: 0px 8px 8px 8px;	
+	padding: 2px 5px 7px 5px;	
 }
 
-table.project_list tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
-table.project_list tr th.wicket_orderDown a {font-weight: bold; background-image: url(arrow_down.png); }
-table.project_list tr th.wicket_orderUp a { font-weight: bold; background-image: url(arrow_up.png); }
-table.project_list tr th.wicket_orderNone a { font-weight: normal; background-image: url(arrow_off.png); }
+.repositories_message {
+	border: solid #bbb;
+	border-width: 0px 0px 1px;
+	padding: 8px;
+}
 
-/* age0: age < 60*60*2 */
-table.project_list .age0 {
-	color: #009900;
-	font-style: italic;
+div.page_path {
+	padding: 8px;
 	font-weight: bold;
+	border: solid #bbb;
+	border-width: 0px 0px 1px;
 }
 
-/* age1: 60*60*2 <= age < 60*60*24*2 */
-table.project_list .age1 {
-	color: #009900;
+div.commit_message {
+	padding: 8px;
+	border: solid #bbb;
+	border-width: 1px 0px 1px;
+}
+
+a.list {
+	text-decoration: none;
+	color: #000000;
+}
+
+a.list:hover {
+	text-decoration: underline;
+	color: #880000;
+}
+
+table {
+	border-spacing: 0px;
+}
+
+th {
+	padding: 2px 5px;
+	font-size: 100%;
+	text-align: left;
+}
+
+table.plain {
+	padding: 8px;
+}
+
+table.pretty, table.repositories {
+	margin-top:5px;
+	margin-bottom:5px;
+	border-spacing: 0px;
+	border-top: 1px solid #bbb;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;	
+}
+
+table.repositories {
+	width:100%;	
+}
+
+table.repositories th {
+	background-color:#D3BDA1;
+	padding: 5px;
+	border-bottom: 1px solid #bbb;
+}
+
+tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
+tr th.wicket_orderDown a {font-weight: bold; background-image: url(arrow_down.png); }
+tr th.wicket_orderUp a { font-weight: bold; background-image: url(arrow_up.png); }
+tr th.wicket_orderNone a { font-weight: normal; background-image: url(arrow_off.png); }
+
+tr.light {
+	background-color: #ffffff;
+}
+
+tr.light td {
+	border-bottom: 1px solid #bbb;	
+}
+
+tr.dark {
+	background-color: #faf8dc;
+	border-bottom: 1px solid #bbb;	
+}
+
+tr.dark td {
+	border-bottom: 1px solid #bbb;	
+}
+
+/* currently both use the same, but it can change */
+tr.light:hover,
+tr.dark:hover {
+	background-color: #f6a234;
+}
+
+td {
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+td.author {
 	font-style: italic;
 }
 
-/* age2: 60*60*24*2 <= age */
-table.project_list .age2 {
+td.date {
+	font-style: italic;
+	width:90px;
+}
+
+td.sha1, td.sha1 span {
+	font-family: monospace;
+	font-size: 13px;
+}
+
+td.mode {
+	font-family: monospace;
+	width:90px;
+	padding-right:15px;
+}
+
+td.size {
+	text-align: right;
+	width:100px;	
+	padding-right:15px;
+}
+
+span.refs span {
+	padding: 0px 4px;
+	font-family: sans-serif;
+	font-size: 70%;
+	font-weight: normal;
+	border: 1px solid;
+	background-color: #ffaaff;
+	border-color: #ffccff #ff00ee #ff00ee #ffccff;
+}
+
+span.refs span a {
+	text-decoration: none;
+	color: inherit;
+}
+
+span.refs span a:hover {
+	text-decoration: underline;
+}
+
+span.refs span.indirect {
 	font-style: italic;
 }
 
-table.diff_tree td.size {
-	width:80px;
+span.refs span.ref {
+	background-color: #aaaaff;
+	border-color: #ccccff #0033cc #0033cc #ccccff;
+}
+
+span.refs span.tag {
+	background-color: #ffffaa;
+	border-color: #ffffcc #ffee00 #ffee00 #ffffcc;
+}
+
+span.refs span.head {
+	background-color: #aaffaa;
+	border-color: #ccffcc #00cc33 #00cc33 #ccffcc;
 }

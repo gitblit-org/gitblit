@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="src" path="contrib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/jgit-0.11.3.jar" sourcepath="/org.eclipse.jgit"/>
 	<classpathentry kind="lib" path="lib/jgit-http-0.11.3.jar" sourcepath="/org.eclipse.jgit.http.server"/>

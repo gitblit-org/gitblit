@@ -1,11 +1,13 @@
 package com.gitblit.wicket.pages;
 
+import java.awt.Dimension;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -13,18 +15,26 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.codecommit.wicket.AbstractChartData;
+import com.codecommit.wicket.Chart;
+import com.codecommit.wicket.ChartAxis;
+import com.codecommit.wicket.ChartAxisType;
+import com.codecommit.wicket.ChartProvider;
+import com.codecommit.wicket.ChartType;
+import com.codecommit.wicket.IChartData;
+import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.RefModel;
 import com.gitblit.wicket.panels.HeadLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 import com.gitblit.wicket.panels.ShortLogLinksPanel;
 import com.gitblit.wicket.panels.TagLinksPanel;
-
 
 public class SummaryPage extends RepositoryPage {
 
@@ -82,7 +92,7 @@ public class SummaryPage extends RepositoryPage {
 			}
 		};
 		add(shortlogView);
-		add(new LinkPanel("shortlogMore", "link", "...", ShortLogPage.class, newRepositoryParameter()));
+		add(new LinkPanel("shortlogMore", "link", "more...", ShortLogPage.class, newRepositoryParameter()));
 
 		// tags
 		List<RefModel> tags = JGitUtils.getTags(r, summaryCount);
@@ -115,7 +125,8 @@ public class SummaryPage extends RepositoryPage {
 			}
 		};
 		add(tagView);
-		add(new LinkPanel("tagsMore", "link", "...", TagsPage.class, newRepositoryParameter()));
+		add(new LinkPanel("tagsMore", "link", "more...", TagsPage.class, newRepositoryParameter()));
+
 		// heads
 		List<RefModel> heads = JGitUtils.getHeads(r, summaryCount);
 		add(new LinkPanel("heads", "title", "heads", HeadsPage.class, newRepositoryParameter()));
@@ -140,10 +151,74 @@ public class SummaryPage extends RepositoryPage {
 		};
 		add(headsView);
 
+		// Display an activity line graph
+		insertActivityGraph(r);
+
 		// close the repository
 		r.close();
 
 		// footer
 		addFooter();
+	}
+
+	private void insertActivityGraph(Repository r) {
+		if (StoredSettings.getBoolean("generateActivityGraph", true)) {
+			List<Metric> dates = JGitUtils.getDateMetrics(r);
+			IChartData data = getChartData(dates);
+
+			ChartProvider provider = new ChartProvider(new Dimension(400, 80), ChartType.LINE, data);
+			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
+			dateAxis.setLabels(new String[] { dates.get(0).name, dates.get(dates.size() / 2).name, dates.get(dates.size() - 1).name });
+			provider.addAxis(dateAxis);
+
+			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
+			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(dates)) });
+			provider.addAxis(commitAxis);
+
+			add(new Chart("commitsChart", provider));
+		} else {
+			add(new ContextImage("commitsChart", "blank.png"));			
+		}
+	}
+
+	protected IChartData getChartData(List<Metric> results) {
+		final double[] counts = new double[results.size()];
+		int i = 0;
+		double max = 0;
+		for (Metric m : results) {
+			counts[i++] = m.count;
+			max = Math.max(max, m.count);
+		}
+		final double dmax = max;
+		IChartData data = new AbstractChartData() {
+			private static final long serialVersionUID = 1L;
+
+			public double[][] getData() {
+				return new double[][] { counts };
+			}
+
+			public double getMax() {
+				return dmax;
+			}
+		};
+		return data;
+	}
+
+	protected String[] getNames(List<Metric> results) {
+		String[] names = new String[results.size()];
+		for (int i = 0; i < results.size(); i++) {
+			names[i] = results.get(i).name;
+		}
+		return names;
+	}
+
+	protected double maxValue(List<Metric> metrics) {
+		double max = Double.MIN_VALUE;
+		for (Metric m : metrics) {
+			if (m.count > max) {
+				max = m.count;
+			}
+		}
+		return max;
 	}
 }

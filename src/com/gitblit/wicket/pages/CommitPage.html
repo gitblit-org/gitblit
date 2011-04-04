@@ -9,38 +9,32 @@
 	
 	<!-- commit nav links -->	
 	<div class="page_nav2">
-		(parent: <span wicket:id="parentLink"></span>) | <span wicket:id="patchLink"></span>
+		parent: <span wicket:id="parentLink"></span> | <span wicket:id="patchLink"></span>
 	</div>	
 	
 	<!-- shortlog header -->
 	<div class="header" wicket:id="shortlog"></div>
 	
-	<!-- Refs -->
-	<div wicket:id="refsPanel"></div>
-	
 	<!-- commit info -->
-	<div class="title_text">
-	<table class="object_header">
-		<tr><td>author</td><td><span wicket:id="commitAuthor">Message goes here</span></td></tr>
-		<tr><td></td><td><span wicket:id="commitAuthorDate">Message goes here</span></td></tr>
-		<tr><td>committer</td><td><span wicket:id="commitCommitter">Message goes here</span></td></tr>
-		<tr><td></td><td><span wicket:id="commitCommitterDate">Message goes here</span></td></tr>
-		<tr><td>commit</td><td class="sha1"><span wicket:id="commitId">Message goes here</span></td></tr>
-		<tr><td>tree</td><td class="sha1"><span wicket:id="commitTree">Message goes here</span></td></tr>
-		<tr><td>parent</td><td class="sha1"><span wicket:id="commitParents">
+	<table class="plain">
+		<tr><th>refs</th><td><div wicket:id="refsPanel"></div></td></tr>
+		<tr><th>author</th><td><span wicket:id="commitAuthor">Message goes here</span></td></tr>
+		<tr><th></th><td><span wicket:id="commitAuthorDate">Message goes here</span></td></tr>
+		<tr><th>committer</th><td><span wicket:id="commitCommitter">Message goes here</span></td></tr>
+		<tr><th></th><td><span wicket:id="commitCommitterDate">Message goes here</span></td></tr>
+		<tr><th>commit</th><td class="sha1"><span wicket:id="commitId">Message goes here</span></td></tr>
+		<tr><th>tree</th><td class="sha1"><span wicket:id="commitTree">Message goes here</span></td></tr>
+		<tr><th>parent</th><td class="sha1"><span wicket:id="commitParents">
 			<div wicket:id="commitParent">Message goes here</div></span></td></tr>
 	</table>
-	</div>
 	
 	<!-- full message -->
-	<div class="page_body" wicket:id="fullMessage"></div>
+	<div class="commit_message" wicket:id="fullMessage"></div>
 	
 	<!-- changed paths -->
-	<div class="list_head"></div>
-	<table class="diff_tree">
+	<table class="pretty">
 		<tr wicket:id="changedPath">
-			<td class="path"><span wicket:id="pathName"></span></td>
-			<td></td>
+			<td class="path"><span wicket:id="pathName"></span></td>			
 			<td><span wicket:id="pathLinks"></span></td>
 		</tr>
 	</table>

@@ -7,70 +7,76 @@
 	<!-- page nav links -->	
 	<div wicket:id="pageLinks"></div>
 	
-	<!-- repository info -->
-    <div class="title">&nbsp;</div>
-	<table class="projects_list">
-		<tr id="metadata_desc"><td>description</td><td><span wicket:id="repositoryDescription">Message goes here</span></td></tr>
-		<tr id="metadata_owner"><td>owner</td><td><span wicket:id="repositoryOwner">Message goes here</span></td></tr>
-		<tr id="metadata_lchange"><td>last change</td><td><span wicket:id="repositoryLastChange">Message goes here</span></td></tr>
-		<tr class="metadata_url"><td>URL</td><td><span wicket:id="repositoryCloneUrl">Message goes here</span></td></tr>
-	</table>
-
-
-	<!-- shortlog -->	
-	<div class="header" wicket:id="shortlog"></div>
+	<div>
+		<!-- Repository Activity Chart -->	
+		<div style="width:50%;float:right;">
+			<img style="padding-top:8px;" wicket:id="commitsChart" />
+		</div>	
 	
-	<table class="project_list">
+		<!-- Repository info -->
+		<div style="width:50%;"> 
+			<table class="plain">
+				<tr><th>description</th><td><span wicket:id="repositoryDescription">Message goes here</span></td></tr>
+				<tr><th>owner</th><td><span wicket:id="repositoryOwner">Message goes here</span></td></tr>
+				<tr><th>last change</th><td><span wicket:id="repositoryLastChange">Message goes here</span></td></tr>
+				<tr><th>URL</th><td><span wicket:id="repositoryCloneUrl">Message goes here</span></td></tr>
+			</table>
+		</div>
+	</div>
+
+	<!-- shortlog -->
+	<div class="header" wicket:id="shortlog"></div>	
+	<table style="width:100%" class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
-         		<td><span wicket:id="commitDate"></span></td>
-         		<td><i><span wicket:id="commitAuthor"></span></i></td>
+         		<td class="date"><span wicket:id="commitDate"></span></td>
+         		<td class="author"><span wicket:id="commitAuthor"></span></td>
          		<td><div wicket:id="commitShortMessage"></div></td>
          		<td><div wicket:id="commitRefs"></div></td>
          		<td><span wicket:id="commitLinks"></span></td>
        		</tr>
-       		
-       		<tr>
-				<td colspan="4"><div wicket:id="shortlogMore"></div></td>
-			</tr>       		
     	</tbody>
 	</table>	
+	<div class="pager" wicket:id="shortlogMore"></div>
 
-
-	<!-- tags -->
-	<div class="header" wicket:id="tags"></div>
+	<!-- Open additional graphs body -->
+	<div style="width:25%;float:right;">
+	</div>
 	
-	<table class="project_list">
-		<tbody>
-       		<tr wicket:id="tag">
-         		<td><i><span wicket:id="tagDate"></span></i></td>
-         		<td><div wicket:id="tagName"></div></td>
-         		<td><div wicket:id="tagDescription"></div></td>
-         		<td><span wicket:id="tagLinks"></span></td>
-       		</tr>
-       		
-			<tr>
-				<td colspan="4"><div wicket:id="tagsMore"></div></td>
-			</tr>
-    	</tbody>
-	</table>
+	<!-- Open Tags and Heads body -->
+	<div style="width:65%">
+	
+	<!-- tags -->
+	<div class="header" wicket:id="tags"></div>	
+		<table style="width:100%" class="pretty">
+			<tbody>
+       			<tr wicket:id="tag">
+         			<td class="date"><span wicket:id="tagDate"></span></td>
+         			<td><b><div wicket:id="tagName"></div></b></td>
+         			<td><div wicket:id="tagDescription"></div></td>
+         			<td><span wicket:id="tagLinks"></span></td>
+       			</tr>
+    		</tbody>
+		</table>
+	<div class="pager" wicket:id="tagsMore"></div>
 
 
 	<!-- heads -->
-	<div class="header" wicket:id="heads"></div>
-	
-	<table class="heads">
+	<div class="header" wicket:id="heads"></div>	
+	<table style="width:100%" class="pretty">
 		<tbody>
-       		<tr wicket:id="head">
-         		<td><i><span wicket:id="headDate"></span></i></td>
-         		<td><div wicket:id="headName"></div></td>
-         		<td><span wicket:id="headLinks"></span></td>
-       		</tr>
-    	</tbody>
+   			<tr wicket:id="head">
+       			<td class="date"><span wicket:id="headDate"></span></td>
+       			<td><div wicket:id="headName"></div></td>
+       			<td><span wicket:id="headLinks"></span></td>
+   			</tr>
+   		</tbody>
 	</table>
-
-
+	
+	<!-- Close Tags and Heads Body -->
+	</div>
+	
 	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+	<div style="clear:both;" wicket:id="pageFooter"></div>
 </body>
 </html>

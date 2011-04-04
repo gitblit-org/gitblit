@@ -6,7 +6,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
@@ -30,13 +29,6 @@ public class PageLinksPanel extends Panel {
 			add(new Label("shortlog", pageName));
 		} else {
 			add(new LinkPanel("shortlog", null, "shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName)));
-		}
-
-		// log
-		if (pageName.equals("log")) {
-			add(new Label("log", pageName));
-		} else {
-			add(new LinkPanel("log", null, "log", LogPage.class, new PageParameters("p=" + repositoryName)));
 		}
 
 		// commit

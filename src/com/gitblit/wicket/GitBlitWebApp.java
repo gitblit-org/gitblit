@@ -32,7 +32,6 @@ import com.gitblit.wicket.pages.AboutPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HeadsPage;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -64,7 +63,6 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/about", AboutPage.class, new String[] { }));
 		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/shortlog", ShortLogPage.class, new String[] { "p", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/log", LogPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/heads", HeadsPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "p", "h" }));

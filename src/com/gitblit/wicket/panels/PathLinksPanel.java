@@ -16,7 +16,7 @@ public class PathLinksPanel extends Panel {
 	public PathLinksPanel(String id, String repositoryName, PathModel path) {
 		super(id);
 		add(new Label("diff", "diff"));
-		add(new LinkPanel("blob", null, "blob", BlobPage.class, new PageParameters("p=" + repositoryName + ",h=" + path.commitId + ",f=" + path.path)));
+		add(new LinkPanel("blob", null, "view", BlobPage.class, new PageParameters("p=" + repositoryName + ",h=" + path.commitId + ",f=" + path.path)));
 		add(new Label("history", "history"));
 	}
 }

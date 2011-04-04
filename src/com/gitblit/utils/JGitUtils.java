@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -35,9 +37,9 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
-
 
 public class JGitUtils {
 
@@ -204,7 +206,7 @@ public class JGitUtils {
 
 	public static List<PathModel> getFilesInPath(Repository r, String basePath, RevCommit commit) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		final TreeWalk walk = new TreeWalk(r);		
+		final TreeWalk walk = new TreeWalk(r);
 		try {
 			walk.addTree(commit.getTree());
 			if (basePath != null && basePath.length() > 0) {
@@ -214,7 +216,7 @@ public class JGitUtils {
 				boolean foundFolder = false;
 				while (walk.next()) {
 					if (!foundFolder && walk.isSubtree()) {
-						walk.enterSubtree();						
+						walk.enterSubtree();
 					}
 					if (walk.getPathString().equals(basePath)) {
 						foundFolder = true;
@@ -264,7 +266,7 @@ public class JGitUtils {
 		return list;
 	}
 
-	private static PathModel getPathModel(TreeWalk walk, String basePath, RevCommit commit) {		
+	private static PathModel getPathModel(TreeWalk walk, String basePath, RevCommit commit) {
 		String name;
 		long size = 0;
 		if (basePath == null) {
@@ -310,7 +312,6 @@ public class JGitUtils {
 		return FileMode.TREE.equals(mode);
 	}
 
-	
 	public static List<RevCommit> getRevLog(Repository r, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		try {
@@ -426,5 +427,30 @@ public class JGitUtils {
 			return c;
 		}
 		return null;
+	}
+
+	public static List<Metric> getDateMetrics(Repository r) {
+		final Map<String, Metric> map = new HashMap<String, Metric>();
+		try {
+			DateFormat df = new SimpleDateFormat("yyyy-MM");
+			Git git = new Git(r);
+			Iterable<RevCommit> revlog = git.log().call();
+			for (RevCommit rev : revlog) {
+				Date d = getCommitDate(rev);
+				String p = df.format(d);
+				if (!map.containsKey(p))
+					map.put(p, new Metric(p));
+				map.get(p).count++;
+			}
+		} catch (Throwable t) {
+			LOGGER.error("Failed to mine log history for metrics", t);
+		}
+		List<String> keys = new ArrayList<String>(map.keySet());
+		Collections.sort(keys);
+		List<Metric> metrics = new ArrayList<Metric>();
+		for (String key:keys) {
+			metrics.add(map.get(key));
+		}		
+		return metrics;
 	}
 }

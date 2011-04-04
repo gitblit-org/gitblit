@@ -63,7 +63,7 @@ public class RepositoriesPage extends BasePage {
 		add(newSort("orderByOwner", SortBy.owner, dp, dataView));
 		add(newSort("orderByDate", SortBy.date, dp, dataView));
 
-		add(new PageFooter("pageFooter"));
+		add(new PageFooter("pageFooter", ""));
 	}
 
 	protected enum SortBy {

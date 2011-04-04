@@ -40,6 +40,15 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 
 	@Override
 	public int compareTo(PathModel o) {
-		return path.compareTo(o.path);
+		boolean isTree = isTree();
+		boolean otherTree = o.isTree();
+		if (isTree && otherTree) {
+			return path.compareTo(o.path);
+		} else if (!isTree && !otherTree) {
+			return path.compareTo(o.path);
+		} else if (isTree && !otherTree) {
+			return -1;
+		}
+		return 1;
 	}
 }

@@ -38,10 +38,8 @@ public class TreePage extends RepositoryPage {
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		// breadcrumbs
-		if (basePath == null || basePath.trim().length() == 0) {
-			add(new Label("breadcrumbs", "").setVisible(false));
-		} else {
-			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, basePath, commitId));
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, basePath, commitId));			
+		if (basePath != null && basePath.trim().length() > 0) {
 			paths.add(0, PathModel.getParentPath(basePath, commitId));
 		}
 
@@ -58,13 +56,13 @@ public class TreePage extends RepositoryPage {
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
 				if (entry.isParentPath) {
 					// parent .. path
-					item.add(new Label("pathSize", "").setVisible(false));
+					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
-					item.add(new Label("treeLinks", "").setVisible(false));
+					item.add(new Label("treeLinks", ""));
 				} else {
 					if (entry.isTree()) {
 						// folder/tree link
-						item.add(new Label("pathSize", "-"));
+						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
 					} else {
 						// blob link
