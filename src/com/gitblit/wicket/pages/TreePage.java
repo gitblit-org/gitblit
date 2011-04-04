@@ -17,6 +17,7 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
+import com.gitblit.wicket.panels.TreeBlobLinksPanel;
 import com.gitblit.wicket.panels.TreeLinksPanel;
 
 
@@ -64,12 +65,13 @@ public class TreePage extends RepositoryPage {
 						// folder/tree link
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
+						item.add(new TreeLinksPanel("treeLinks", repositoryName, entry));
 					} else {
 						// blob link
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
+						item.add(new TreeBlobLinksPanel("treeLinks", repositoryName, entry));
 					}
-					item.add(new TreeLinksPanel("treeLinks", repositoryName, entry));
 				}
 				String clazz = counter % 2 == 0 ? "dark" : "light";
 				WicketUtils.setCssClass(item, clazz);

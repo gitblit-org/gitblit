@@ -29,7 +29,7 @@ public class BlobPage extends RepositoryPage {
 
 		// blob page links
 		add(new Label("historyLink", "history"));
-		add(new Label("rawLink", "download"));
+		add(new Label("rawLink", "raw"));
 		add(new Label("headLink", "HEAD"));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));

@@ -10,7 +10,7 @@
 	<div>
 		<!-- Repository Activity Chart -->	
 		<div style="width:50%;float:right;">
-			<img style="padding-top:8px;" wicket:id="commitsChart" />
+			<img class="activityGraph" wicket:id="commitsChart" />
 		</div>	
 	
 		<!-- Repository info -->
@@ -32,48 +32,46 @@
          		<td class="date"><span wicket:id="commitDate"></span></td>
          		<td class="author"><span wicket:id="commitAuthor"></span></td>
          		<td><div wicket:id="commitShortMessage"></div></td>
-         		<td><div wicket:id="commitRefs"></div></td>
-         		<td><span wicket:id="commitLinks"></span></td>
+         		<td class="rightAlign"><div wicket:id="commitRefs"></div></td>
+         		<td class="rightAlign"><span wicket:id="commitLinks"></span></td>
        		</tr>
     	</tbody>
 	</table>	
 	<div class="pager" wicket:id="shortlogMore"></div>
 
-	<!-- Open additional graphs body -->
-	<div style="width:25%;float:right;">
-	</div>
-	
-	<!-- Open Tags and Heads body -->
-	<div style="width:65%">
-	
-	<!-- tags -->
-	<div class="header" wicket:id="tags"></div>	
+	<!-- Open Heads Body -->
+	<div style="width:34%;float:right;">
+		<!-- heads -->
+		<div class="header" wicket:id="heads"></div>	
 		<table style="width:100%" class="pretty">
 			<tbody>
-       			<tr wicket:id="tag">
-         			<td class="date"><span wicket:id="tagDate"></span></td>
-         			<td><b><div wicket:id="tagName"></div></b></td>
-         			<td><div wicket:id="tagDescription"></div></td>
-         			<td><span wicket:id="tagLinks"></span></td>
-       			</tr>
-    		</tbody>
+   				<tr wicket:id="head">
+       				<td class="date"><span wicket:id="headDate"></span></td>
+       				<td><div wicket:id="headName"></div></td>
+       				<td class="rightAlign"><span wicket:id="headLinks"></span></td>
+   				</tr>
+   			</tbody>
 		</table>
-	<div class="pager" wicket:id="tagsMore"></div>
-
-
-	<!-- heads -->
-	<div class="header" wicket:id="heads"></div>	
-	<table style="width:100%" class="pretty">
-		<tbody>
-   			<tr wicket:id="head">
-       			<td class="date"><span wicket:id="headDate"></span></td>
-       			<td><div wicket:id="headName"></div></td>
-       			<td><span wicket:id="headLinks"></span></td>
-   			</tr>
-   		</tbody>
-	</table>
+		<div class="pager" wicket:id="allHeads"></div>
+		<!-- Close Heads Body -->
+	</div>
 	
-	<!-- Close Tags and Heads Body -->
+	<!-- Open Tags body -->
+	<div style="width:65%">
+		<!-- tags -->
+		<div class="header" wicket:id="tags"></div>	
+			<table style="width:100%" class="pretty">
+				<tbody>
+       				<tr wicket:id="tag">
+         				<td class="date"><span wicket:id="tagDate"></span></td>
+         				<td><b><div wicket:id="tagName"></div></b></td>
+         				<td><div wicket:id="tagDescription"></div></td>
+         				<td class="rightAlign"><span wicket:id="tagLinks"></span></td>
+       				</tr>
+    			</tbody>
+			</table>
+		<div class="pager" wicket:id="allTags"></div>	
+	<!-- Close Tags Body -->
 	</div>
 	
 	<!-- footer -->

@@ -349,7 +349,7 @@ public class JGitUtils {
 			Collections.sort(list);
 			Collections.reverse(list);
 			if (maxCount > 0 && list.size() > maxCount) {
-				list = list.subList(0, maxCount);
+				list = new ArrayList<RefModel>(list.subList(0, maxCount));
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to retrieve " + refs, e);

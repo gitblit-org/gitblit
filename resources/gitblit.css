@@ -51,6 +51,12 @@ img.logo {
 	border-width: 0px;
 }
 
+img.activityGraph {
+	float: right;
+	border-width: 0px;
+	padding: 8px;
+}
+
 div.header {
 	background-color: #D2C3AF;
 	padding: 3px;
@@ -74,11 +80,17 @@ div.pager {
 div.link {
 	padding: 2px 5px;
 	font-family: sans-serif;
-	font-size: 9px;
+	font-size: 11px;
+}
+
+div.link span {
+	font-family: inherit;
+	font-size: inherit;
 }
 
 div.link a {
-	font-size: 9px;
+	font-family: inherit;
+	font-size: inherit;
 }
 
 div.page_header {
@@ -87,7 +99,7 @@ div.page_header {
 	font-family: sans-serif;
 	font-weight: bold;
 	font-size: 150%;
-	color: #ccc;
+	color: #bbb;
 	background-color: #ffffff;
 }
 
@@ -112,6 +124,7 @@ div.page_header a:hover {
 }
 
 div.page_footer {
+	height: 17px;
 	color: black;
 	background-color: #ffffff;
 	padding: 5px;
@@ -120,7 +133,7 @@ div.page_footer {
 }
 
 div.page_nav {
-	color: #ccc;
+	color: #ddd;
 	background-color: #000070;
 	padding: 5px;
 }
@@ -195,15 +208,33 @@ table.repositories {
 }
 
 table.repositories th {
-	background-color:#D3BDA1;
-	padding: 5px;
+	background-color:#000070;
+	padding: 4px;
 	border-bottom: 1px solid #bbb;
 }
 
+table.repositories td {
+	padding: 4px;
+}
+
+table.repositories th a {
+	color:#ddd;
+	text-decoration: none;
+	font-weight: normal;
+}
+
+table.repositories th a:hover {
+	text-decoration: underline;
+}
+
+table.repositories th.wicket_orderDown a, table.repositories th.wicket_orderUp a {
+	color: yellow;
+}
+
 tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
-tr th.wicket_orderDown a {font-weight: bold; background-image: url(arrow_down.png); }
-tr th.wicket_orderUp a { font-weight: bold; background-image: url(arrow_up.png); }
-tr th.wicket_orderNone a { font-weight: normal; background-image: url(arrow_off.png); }
+tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
+tr th.wicket_orderUp a { background-image: url(arrow_up.png); }
+tr th.wicket_orderNone a { background-image: url(arrow_off.png); }
 
 tr.light {
 	background-color: #ffffff;
@@ -225,7 +256,14 @@ tr.dark td {
 /* currently both use the same, but it can change */
 tr.light:hover,
 tr.dark:hover {
-	background-color: #f6a234;
+	/*background-color: #0099b7;*/
+	background-color: #000070;
+	color: white;
+}
+
+tr.light:hover a,
+tr.dark:hover a {
+	color: white;	
 }
 
 td {
@@ -259,6 +297,10 @@ td.size {
 	padding-right:15px;
 }
 
+td.rightAlign {
+	text-align: right;
+}
+
 span.refs span {
 	padding: 0px 4px;
 	font-family: sans-serif;
@@ -267,6 +309,7 @@ span.refs span {
 	border: 1px solid;
 	background-color: #ffaaff;
 	border-color: #ffccff #ff00ee #ff00ee #ffccff;
+	color: black;
 }
 
 span.refs span a {

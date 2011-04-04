@@ -13,6 +13,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.panels.AnnotatedTagLinksPanel;
 import com.gitblit.wicket.panels.TagLinksPanel;
 
 
@@ -39,14 +40,14 @@ public class TagsPage extends RepositoryPage {
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, newCommitParameter(entry.getObjectId().getName())));
 
 				if (entry.getCommitId().equals(entry.getObjectId())) {
-					// lightweight tag on commit object
+					// simple tag on commit object
 					item.add(new Label("tagDescription", ""));
+					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 				} else {
-					// tag object
+					// annotated tag
 					item.add(new LinkPanel("tagDescription", "list subject", entry.getShortLog(), TagPage.class, newCommitParameter(entry.getObjectId().getName())));
+					item.add(new AnnotatedTagLinksPanel("tagLinks", repositoryName, entry));
 				}
-
-				item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 
 				setAlternatingBackground(item, counter);
 				counter++;

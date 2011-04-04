@@ -31,6 +31,7 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.panels.AnnotatedTagLinksPanel;
 import com.gitblit.wicket.panels.HeadLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 import com.gitblit.wicket.panels.ShortLogLinksPanel;
@@ -40,7 +41,20 @@ public class SummaryPage extends RepositoryPage {
 
 	public SummaryPage(PageParameters params) {
 		super(params, "summary");
+		
+		int numCommitsDef = 20;
+		int numRefsDef = 5;
+		
+		int numberCommits = StoredSettings.getInteger("summaryCommitCount", numCommitsDef);
+		if (numberCommits <= 0) {
+			numberCommits = numCommitsDef;
+		}
 
+		int numberRefs = StoredSettings.getInteger("summaryRefsCount", numRefsDef);
+		if (numberRefs <= 0) {
+			numberRefs = numRefsDef;
+		}
+		
 		Repository r = getRepository();
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 
@@ -55,12 +69,10 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryLastChange", lastchange));
 		add(new Label("repositoryCloneUrl", cloneurl));
 
-		int summaryCount = 16;
-
 		// shortlog
 		add(new LinkPanel("shortlog", "title", "shortlog", ShortLogPage.class, newRepositoryParameter()));
 
-		List<RevCommit> commits = JGitUtils.getRevLog(r, summaryCount);
+		List<RevCommit> commits = JGitUtils.getRevLog(r, numberCommits);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> shortlogView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
@@ -92,10 +104,14 @@ public class SummaryPage extends RepositoryPage {
 			}
 		};
 		add(shortlogView);
-		add(new LinkPanel("shortlogMore", "link", "more...", ShortLogPage.class, newRepositoryParameter()));
+		if (commits.size() < numberCommits) {
+			add(new Label("shortlogMore", "").setVisible(false));
+		} else {
+			add(new LinkPanel("shortlogMore", "link", "more...", ShortLogPage.class, newRepositoryParameter()));
+		}
 
 		// tags
-		List<RefModel> tags = JGitUtils.getTags(r, summaryCount);
+		List<RefModel> tags = JGitUtils.getTags(r, numberRefs);
 		add(new LinkPanel("tags", "title", "tags", TagsPage.class, newRepositoryParameter()));
 
 		ListDataProvider<RefModel> tagsDp = new ListDataProvider<RefModel>(tags);
@@ -111,24 +127,28 @@ public class SummaryPage extends RepositoryPage {
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, newCommitParameter(entry.getCommitId().getName())));
 
 				if (entry.getCommitId().equals(entry.getObjectId())) {
-					// lightweight tag on commit object
+					// simple tag
 					item.add(new Label("tagDescription", ""));
+					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 				} else {
-					// tag object
+					// annotated tag
 					item.add(new LinkPanel("tagDescription", "list subject", entry.getShortLog(), TagPage.class, newCommitParameter(entry.getObjectId().getName())));
+					item.add(new AnnotatedTagLinksPanel("tagLinks", repositoryName, entry));
 				}
-
-				item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 
 				setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};
 		add(tagView);
-		add(new LinkPanel("tagsMore", "link", "more...", TagsPage.class, newRepositoryParameter()));
+		if (tags.size() < numberRefs) {
+			add(new Label("allTags", "").setVisible(false));
+		} else {
+			add(new LinkPanel("allTags", "link", "all tags...", TagsPage.class, newRepositoryParameter()));
+		}
 
 		// heads
-		List<RefModel> heads = JGitUtils.getHeads(r, summaryCount);
+		List<RefModel> heads = JGitUtils.getHeads(r, numberRefs);
 		add(new LinkPanel("heads", "title", "heads", HeadsPage.class, newRepositoryParameter()));
 
 		ListDataProvider<RefModel> headsDp = new ListDataProvider<RefModel>(heads);
@@ -150,7 +170,12 @@ public class SummaryPage extends RepositoryPage {
 			}
 		};
 		add(headsView);
-
+		if (heads.size() < numberRefs) {
+			add(new Label("allHeads", "").setVisible(false));
+		} else {
+			add(new LinkPanel("allHeads", "link", "all heads...", HeadsPage.class, newRepositoryParameter()));
+		}
+		
 		// Display an activity line graph
 		insertActivityGraph(r);
 
