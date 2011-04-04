@@ -63,7 +63,7 @@ public final class GitBlitWebSession extends WebSession {
 	}
 
 	public String formatDateTimeLong(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampLongFormat", "EEEE, MMMM d, yyyy h:mm a"));
+		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampLongFormat", "EEEE, MMMM d, yyyy h:mm a z"));
 		df.setTimeZone(getTimezone());
 		return df.format(date);
 	}
