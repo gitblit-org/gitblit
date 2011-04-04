@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+	<!-- page header -->
+	<div wicket:id="pageHeader"></div>
+	
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks"></div>
+	
+	<!-- repository info -->
+    <div class="title">&nbsp;</div>
+	<table class="projects_list">
+		<tr id="metadata_desc"><td>description</td><td><span wicket:id="repositoryDescription">Message goes here</span></td></tr>
+		<tr id="metadata_owner"><td>owner</td><td><span wicket:id="repositoryOwner">Message goes here</span></td></tr>
+		<tr id="metadata_lchange"><td>last change</td><td><span wicket:id="repositoryLastChange">Message goes here</span></td></tr>
+		<tr class="metadata_url"><td>URL</td><td><span wicket:id="repositoryCloneUrl">Message goes here</span></td></tr>
+	</table>
+
+
+	<!-- shortlog -->	
+	<div class="header" wicket:id="shortlog"></div>
+	
+	<table class="project_list">
+		<tbody>
+       		<tr wicket:id="commit">
+         		<td><span wicket:id="commitDate"></span></td>
+         		<td><i><span wicket:id="commitAuthor"></span></i></td>
+         		<td><div wicket:id="commitShortMessage"></div></td>
+         		<td><div wicket:id="commitRefs"></div></td>
+         		<td><span wicket:id="commitLinks"></span></td>
+       		</tr>
+       		
+       		<tr>
+				<td colspan="4"><div wicket:id="shortlogMore"></div></td>
+			</tr>       		
+    	</tbody>
+	</table>	
+
+
+	<!-- tags -->
+	<div class="header" wicket:id="tags"></div>
+	
+	<table class="project_list">
+		<tbody>
+       		<tr wicket:id="tag">
+         		<td><i><span wicket:id="tagDate"></span></i></td>
+         		<td><div wicket:id="tagName"></div></td>
+         		<td><div wicket:id="tagDescription"></div></td>
+         		<td><span wicket:id="tagLinks"></span></td>
+       		</tr>
+       		
+			<tr>
+				<td colspan="4"><div wicket:id="tagsMore"></div></td>
+			</tr>
+    	</tbody>
+	</table>
+
+
+	<!-- heads -->
+	<div class="header" wicket:id="heads"></div>
+	
+	<table class="heads">
+		<tbody>
+       		<tr wicket:id="head">
+         		<td><i><span wicket:id="headDate"></span></i></td>
+         		<td><div wicket:id="headName"></div></td>
+         		<td><span wicket:id="headLinks"></span></td>
+       		</tr>
+    	</tbody>
+	</table>
+
+
+	<!-- footer -->
+	<div wicket:id="pageFooter"></div>
+</body>
+</html>

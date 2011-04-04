@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="gitblit" default="main" basedir=".">
+
+	<!-- Project Properties -->
+	<property name="project.jar" value="gitblit.jar" />
+	<property name="project.mainclass" value="com.gitblit.Launcher" />
+	<property name="distribution.zipfile" value="gitblit.zip" />
+	<property name="project.build.dir" value="${basedir}/build" />
+
+	<target name="main">
+
+		<!-- Compile the build tool and execute it.
+			 This downloads missing compile-time dependencies from Maven. -->
+
+		<delete dir="${project.build.dir}" />
+		<mkdir dir="${project.build.dir}" />
+		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
+			<include name="com/gitblit/Build.java" />
+		</javac>
+		<java classpath="${project.build.dir}" classname="com.gitblit.Build" />
+
+		<!-- Compile Project -->
+		<path id="master-classpath">
+			<fileset dir="${basedir}/lib">
+				<include name="*.jar" />
+			</fileset>
+			<fileset dir="${basedir}/ext">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+		<javac destdir="${project.build.dir}">
+			<src path="${basedir}/src" />
+			<classpath refid="master-classpath" />
+		</javac>
+		<copy todir="${project.build.dir}">
+			<fileset dir="${basedir}/src" excludes="**/*.java,**/thumbs.db" />
+			<fileset dir="${basedir}/resources" excludes="**/thumbs.db" />
+		</copy>
+
+		<!-- Build jar -->
+		<delete file="${project.jar}" />
+		<jar index="true" jarfile="${project.jar}">
+			<fileset dir="${project.build.dir}">
+				<include name="**/*" />
+			</fileset>
+			<manifest>
+				<attribute name="Main-Class" value="${project.mainclass}" />
+			</manifest>
+			<indexjars>
+				<fileset dir="${basedir}/lib" />
+			</indexjars>
+		</jar>
+
+		<!-- Delete the deploy folder -->
+		<delete dir="${basedir}/deploy" />
+
+		<!-- Create deployment folder structure -->
+		<mkdir dir="${basedir}/deploy" />
+		<copy todir="${basedir}/deploy" file="${project.jar}" />
+		<copy todir="${basedir}/deploy/lib">
+			<fileset dir="${basedir}/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</copy>
+		<copy todir="${basedir}/deploy">
+			<fileset dir="${basedir}/service">
+				<include name="**/*" />
+			</fileset>
+			<fileset dir="${basedir}">
+				<include name="*.cmd" />
+				<include name="*.properties" />
+			</fileset>
+		</copy>
+
+		<!-- Create Zip deployment -->
+		<zip destfile="${distribution.zipfile}">
+			<fileset dir="${basedir}/deploy">
+				<include name="**/*" />
+			</fileset>
+		</zip>
+
+		<!-- Delete the deploy folder -->
+		<delete dir="${basedir}/deploy" />
+
+		<!-- Cleanup builds -->
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="${project.jar}" />
+			</fileset>
+		</delete>
+	</target>
+</project>

@@ -1,0 +1,1 @@
+javaservice -uninstall gitblit

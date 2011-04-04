@@ -1,0 +1,56 @@
+/*
+ JGitWeb css.
+*/
+body, table, tr, th, td { font-size: 13px; }
+
+table.object_header td, div.page_body, table.diff_tree td {
+	font-size: 12px;
+}
+
+table.diff_tree td div.link {
+	padding: 2px 5px;
+	font-family: sans-serif;
+	font-size: 9px;
+}
+
+div.link {
+	padding: 2px 5px;
+	font-family: sans-serif;
+	font-size: 9px;
+}
+
+pre.prettyprint, pre.plainprint {
+	font-size:12px;
+	border:0px;
+}
+
+div.page_nav2 {
+	padding: 0px 8px 8px 8px;	
+}
+
+table.project_list tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
+table.project_list tr th.wicket_orderDown a {font-weight: bold; background-image: url(arrow_down.png); }
+table.project_list tr th.wicket_orderUp a { font-weight: bold; background-image: url(arrow_up.png); }
+table.project_list tr th.wicket_orderNone a { font-weight: normal; background-image: url(arrow_off.png); }
+
+/* age0: age < 60*60*2 */
+table.project_list .age0 {
+	color: #009900;
+	font-style: italic;
+	font-weight: bold;
+}
+
+/* age1: 60*60*2 <= age < 60*60*24*2 */
+table.project_list .age1 {
+	color: #009900;
+	font-style: italic;
+}
+
+/* age2: 60*60*24*2 <= age */
+table.project_list .age2 {
+	font-style: italic;
+}
+
+table.diff_tree td.size {
+	width:80px;
+}

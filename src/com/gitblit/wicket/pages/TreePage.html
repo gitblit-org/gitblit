@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+	<!-- page header -->
+	<div wicket:id="pageHeader"></div>
+
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks"></div>
+	
+	<!-- blob nav links -->	
+	<div class="page_nav2">
+		<span wicket:id="historyLink"></span> | <span wicket:id="headLink"></span>
+	</div>	
+	
+	<!-- shortlog header -->
+	<div class="header" wicket:id="shortlog"></div>
+
+	<!-- breadcrumbs -->
+	<div wicket:id="breadcrumbs"></div>
+		
+	<!-- changed paths -->
+	<div class="list_head"></div>
+	<table class="diff_tree">
+		<tr wicket:id="changedPath">
+			<td class="mode"><span wicket:id="pathPermissions"></span></td>
+			<td class="size"><span wicket:id="pathSize"></span></td>
+			<td><span wicket:id="pathName"></span></td>			
+			<td><span wicket:id="treeLinks"></span></td>
+		</tr>
+	</table>
+	
+	<!-- footer -->
+	<div wicket:id="pageFooter"></div>
+</body>
+</html>

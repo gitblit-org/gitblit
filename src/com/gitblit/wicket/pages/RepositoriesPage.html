@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+	<div wicket:id="pageHeader"></div>
+	<div class="index_include" wicket:id="indexInclude"></div>
+	
+	<table class="project_list">
+		<tr>
+			<th wicket:id="orderByRepository">Repository</th>
+			<th wicket:id="orderByDescription">Description</th>
+			<th wicket:id="orderByOwner">Owner</th>
+			<th wicket:id="orderByDate">Last Change</th>
+			<th></th>
+		</tr>
+		<tbody>
+       		<tr wicket:id="repository">
+         		<td><div class="list" wicket:id="repositoryName"></div></td>
+         		<td><div class="list" wicket:id="repositoryDescription"></div></td>
+         		<td><i><span wicket:id="repositoryOwner"></span></i></td>
+         		<td><span wicket:id="repositoryLastChange"></span></td>
+         		<td></td>
+       		</tr>
+    	</tbody>
+	</table>
+	
+	<!-- footer -->
+	<div wicket:id="pageFooter"></div>
+</body>
+</html>
