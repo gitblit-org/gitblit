@@ -28,7 +28,6 @@ import com.gitblit.GitBlitServer;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.pages.AboutPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HeadsPage;
@@ -60,7 +59,6 @@ public class GitBlitWebApp extends WebApplication {
 		getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 
 		// setup the url paths
-		mount(new MixedParamUrlCodingStrategy("/about", AboutPage.class, new String[] { }));
 		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/shortlog", ShortLogPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "p" }));

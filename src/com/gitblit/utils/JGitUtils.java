@@ -283,7 +283,7 @@ public class JGitUtils {
 				size = walk.getObjectReader().getObjectSize(walk.getObjectId(0), Constants.OBJ_BLOB);
 			}
 		} catch (Throwable t) {
-			LOGGER.error("Failed to retrieve blobl size", t);
+			LOGGER.error("Failed to retrieve blob size", t);
 		}
 		return new PathModel(name, walk.getPathString(), size, walk.getFileMode(0).getBits(), commit.getName());
 	}
