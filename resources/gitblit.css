@@ -18,8 +18,9 @@ body {
     padding: 0px;
 }
 
-pre.prettyprint, pre.plainprint {
+pre, pre.prettyprint, pre.plainprint {
 	color: black;
+	font-family: monospace;
 	font-size:12px;
 	border:0px;
 }
@@ -199,6 +200,70 @@ div.bug_hold {
 	padding: 2px;
 	background-color: orange;
 	text-align: center;
+}
+
+div.diff {
+	font-family: monospace;
+}
+
+div.diff.header {
+	-moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #EDECE6;
+    border-color: #D9D8D1;
+    border-style: solid;
+    border-width: 1px 0;
+    font-weight: bold;
+    margin-top: 4px;
+    padding: 4px 0 2px;
+}
+
+div.diff.extended_header {
+	background-color: #F6F5EE;
+    padding: 2px 0;
+    font-family: inherit;
+}
+
+div.diff.add {
+	color: #008800;
+	font-family: inherit;
+}
+
+div.diff.remove {
+	color: #cc0000;
+	font-family: inherit;
+}
+
+div.diff.unchanged {
+	color: inherit;
+	font-family: inherit;
+}
+
+div.diff.hunk_header {
+	-moz-border-bottom-colors: none;
+    -moz-border-image: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    border-color: #FFE0FF;
+    border-style: dotted;
+    border-width: 1px 0 0;
+    margin-top: 2px;
+    font-family: inherit;
+}
+
+span.diff.hunk_info {
+	background-color: #FFEEFF;	
+	color: #990099;
+	font-family: inherit;
+}
+
+span.diff.hunk_section {	
+	color: #AA22AA;
+	font-family: inherit;
 }
 
 a.list {

@@ -76,7 +76,7 @@ public class CommitPage extends RepositoryPage {
 		addFullText("fullMessage", c.getFullMessage(), true);
 
 		// changed paths list
-		List<PathModel> paths  = JGitUtils.getCommitChangedPaths(r, c);
+		List<PathModel> paths  = JGitUtils.getFilesInCommit(r, c);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;

@@ -16,50 +16,50 @@ import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.TicGitTicket;
+import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
 
-
 public class JGitUtilsTest extends TestCase {
-	
+
 	private File repositoriesFolder = new File("c:/projects/git");
 	private boolean exportAll = true;
 	private boolean readNested = true;
-	
+
 	private List<String> getRepositories() {
 		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll, readNested);
 	}
-	
+
 	private Repository getRepository() throws Exception {
 		return new FileRepository(new File(repositoriesFolder, getRepositories().get(0)) + "/" + Constants.DOT_GIT);
 	}
-	
+
 	public void testFindRepositories() {
 		List<String> list = getRepositories();
 		assertTrue("No repositories found in " + repositoriesFolder, list.size() > 0);
 	}
-	
-	public void testOpenRepository() throws Exception {		
+
+	public void testOpenRepository() throws Exception {
 		Repository r = getRepository();
 		r.close();
 		assertTrue("Could not find repository!", r != null);
 	}
-	
-	public void testLastChangeRepository() throws Exception {		
+
+	public void testLastChangeRepository() throws Exception {
 		Repository r = getRepository();
 		Date date = JGitUtils.getLastChange(r);
 		r.close();
 		assertTrue("Could not get last repository change date!", date != null);
 	}
-	
+
 	public void testRetrieveRevObject() throws Exception {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
 		RevTree tree = commit.getTree();
-		RevObject object = JGitUtils.getRevObject(r, tree, "AUTHORS");		
+		RevObject object = JGitUtils.getRevObject(r, tree, "AUTHORS");
 		r.close();
 		assertTrue("Object is null!", object != null);
 	}
-	
+
 	public void testRetrieveStringContent() throws Exception {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
@@ -69,7 +69,7 @@ public class JGitUtilsTest extends TestCase {
 		r.close();
 		assertTrue("Content is null!", content != null);
 	}
-	
+
 	public void testTicGit() throws Exception {
 		Repository r = new FileRepository(new File(repositoriesFolder, "ticgit") + "/" + Constants.DOT_GIT);
 		RefModel ticgit = JGitUtils.getTicGitBranch(r);
@@ -77,6 +77,22 @@ public class JGitUtilsTest extends TestCase {
 		List<TicGitTicket> tickets = JGitUtils.getTicGitTickets(r);
 		assertTrue("No tickets found!", tickets.size() > 0);
 		r.close();
+	}
+
+	public void testFilesInCommit() throws Exception {
+		Repository r = getRepository();
+		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
+		List<PathModel> paths = JGitUtils.getFilesInCommit(r, commit);
+		r.close();
+		assertTrue("No changed paths found!", paths.size() > 0);
+	}
+	
+	public void testCommitDiff() throws Exception {
+		Repository r = getRepository();
+		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
+		String diff = JGitUtils.getCommitDiff(r, commit, false);
+		r.close();
+		System.out.println(diff);
 	}
 
 }

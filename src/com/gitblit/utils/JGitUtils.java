@@ -17,6 +17,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
@@ -35,6 +38,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,29 +248,89 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<PathModel> getCommitChangedPaths(Repository r, String commitId) {
+	public static List<PathModel> getFilesInCommit(Repository r, String commitId) {
 		RevCommit commit = getCommit(r, commitId);
-		return getCommitChangedPaths(r, commit);
+		return getFilesInCommit(r, commit);
 	}
 
-	public static List<PathModel> getCommitChangedPaths(Repository r, RevCommit commit) {
+	public static List<PathModel> getFilesInCommit(Repository r, RevCommit commit) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		final TreeWalk walk = new TreeWalk(r);
-		walk.setRecursive(false);
 		try {
-			walk.addTree(commit.getTree());
-			while (walk.next()) {
-				list.add(getPathModel(walk, null, commit));
-			}
+			final RevWalk rw = new RevWalk(r);
+			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+			RevTree parentTree = parent.getTree();
+			RevTree commitTree = commit.getTree();
 
-		} catch (IOException e) {
-			LOGGER.error("Failed to get files for commit " + commit.getName(), e);
-		} finally {
-			if (walk != null) {
-				walk.release();
+			final TreeWalk walk = new TreeWalk(r);
+			walk.reset();
+			walk.setRecursive(true);
+			walk.addTree(parentTree);
+			walk.addTree(commitTree);
+			walk.setFilter(TreeFilter.ANY_DIFF);
+
+			RawTextComparator cmp = RawTextComparator.DEFAULT;
+			DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+			df.setRepository(r);
+			df.setDiffComparator(cmp);
+			df.setDetectRenames(true);
+			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+			for (DiffEntry diff : diffs) {
+				list.add(new PathModel(diff.getNewPath(), diff.getNewPath(), 0, diff.getNewMode().getBits(), commit.getId().getName()));
 			}
+		} catch (Throwable t) {
+			LOGGER.error("failed to determine files in commit!", t);
 		}
 		return list;
+	}
+
+	public static String getCommitDiff(Repository r, RevCommit commit, boolean outputHtml) {
+		return getCommitDiff(r, commit, null, outputHtml);
+	}
+	
+	public static String getCommitDiff(Repository r, RevCommit commit, String path, boolean outputHtml) {
+		try {
+			final RevWalk rw = new RevWalk(r);
+			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+			RevTree parentTree = parent.getTree();
+			RevTree commitTree = commit.getTree();
+
+			final TreeWalk walk = new TreeWalk(r);
+			walk.reset();
+			walk.setRecursive(true);
+			walk.addTree(parentTree);
+			walk.addTree(commitTree);
+			if (path != null && path.trim().length() > 0) {
+				walk.setFilter(PathFilter.create(path));
+			} else {
+				walk.setFilter(TreeFilter.ANY_DIFF);
+			}
+
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			RawTextComparator cmp = RawTextComparator.DEFAULT;
+			DiffFormatter df;
+			if (outputHtml) {
+				df = new HtmlDiffFormatter(os);
+			} else {
+				df = new DiffFormatter(os);
+			}
+			df.setRepository(r);
+			df.setDiffComparator(cmp);
+			df.setDetectRenames(true);
+			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+			df.format(diffs);
+			String diff;
+			if (outputHtml) {
+				// workaround for complex private methods in DiffFormatter
+				diff = ((HtmlDiffFormatter) df).getHtml();
+			} else {
+				diff = os.toString();
+			}
+			df.flush();
+			return diff;
+		} catch (Throwable t) {
+			LOGGER.error("failed to generate commit diff!", t);
+		}
+		return null;
 	}
 
 	private static PathModel getPathModel(TreeWalk walk, String basePath, RevCommit commit) {
@@ -519,7 +584,7 @@ public class JGitUtils {
 		}
 		return null;
 	}
-	
+
 	private static void readTicketContents(Repository r, RefModel ticgitBranch, TicGitTicket ticket) {
 		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticgitBranch.getCommit());
 		for (PathModel file : ticketFiles) {

@@ -1,0 +1,128 @@
+package com.gitblit.utils;
+
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
+
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawText;
+
+public class HtmlDiffFormatter extends DiffFormatter {
+	private final OutputStream os;
+
+	public HtmlDiffFormatter(OutputStream os) {
+		super(os);
+		this.os = os;
+	}
+
+	/**
+	 * Output a hunk header
+	 * 
+	 * @param aStartLine
+	 *            within first source
+	 * @param aEndLine
+	 *            within first source
+	 * @param bStartLine
+	 *            within second source
+	 * @param bEndLine
+	 *            within second source
+	 * @throws IOException
+	 */
+	@Override
+	protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine) throws IOException {
+		os.write("<div class=\"diff hunk_header\"><span class=\"diff hunk_info\">".getBytes());
+		os.write('@');
+		os.write('@');
+		writeRange('-', aStartLine + 1, aEndLine - aStartLine);
+		writeRange('+', bStartLine + 1, bEndLine - bStartLine);
+		os.write(' ');
+		os.write('@');
+		os.write('@');
+		// TODO not sure if JGit can determine hunk section
+		//os.write("<span class=\"diff hunk_section\">".getBytes());
+		//os.write("</span>".getBytes());
+		os.write("</span></div>".getBytes());
+	}
+
+	private void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
+		os.write(' ');
+		os.write(prefix);
+		switch (cnt) {
+		case 0:
+			// If the range is empty, its beginning number must
+			// be the
+			// line just before the range, or 0 if the range is
+			// at the
+			// start of the file stream. Here, begin is always 1
+			// based,
+			// so an empty file would produce "0,0".
+			//
+			os.write(encodeASCII(begin - 1));
+			os.write(',');
+			os.write('0');
+			break;
+
+		case 1:
+			// If the range is exactly one line, produce only
+			// the number.
+			//
+			os.write(encodeASCII(begin));
+			break;
+
+		default:
+			os.write(encodeASCII(begin));
+			os.write(',');
+			os.write(encodeASCII(cnt));
+			break;
+		}
+	}
+
+	@Override
+	protected void writeLine(final char prefix, final RawText text, final int cur) throws IOException {
+		switch (prefix) {
+		case '+':
+			os.write("<div class=\"diff add\">".getBytes());
+			break;
+		case '-':
+			os.write("<div class=\"diff remove\">".getBytes());
+			break;
+		}
+		os.write(prefix);
+		text.writeLine(os, cur);
+		switch (prefix) {
+		case '+':
+		case '-':
+			os.write("</div>".getBytes());
+			break;
+		default:
+			os.write('\n');
+		}
+	}
+
+	/**
+	 * Workaround function for complex private methods in DiffFormatter. This
+	 * sets the html for the diff headers.
+	 * 
+	 * @return
+	 */
+	public String getHtml() {
+		String html = os.toString();
+		String[] lines = html.split("\n");
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"diff\">");
+		for (String line : lines) {
+			if (line.startsWith("diff")) {
+				sb.append("<div class=\"diff header\">").append(line).append("</div>");
+			} else if (line.startsWith("---")) {
+				sb.append("<div class=\"diff remove\">").append(line).append("</div>");
+			} else if (line.startsWith("+++")) {
+				sb.append("<div class=\"diff add\">").append(line).append("</div>");
+			} else {
+				sb.append(line).append('\n');
+			}
+		}
+		sb.append("</div>");
+		return sb.toString();
+	}
+}

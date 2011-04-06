@@ -31,6 +31,7 @@ import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
+import com.gitblit.wicket.pages.DiffPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -69,6 +70,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "p", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "p", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/diff", DiffPage.class, new String[] { "p", "h", "f" }));
 		
 		// setup extended urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "p" }));
