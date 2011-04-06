@@ -29,13 +29,15 @@ import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BlobPage;
+import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.HeadsPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TicGitPage;
+import com.gitblit.wicket.pages.TicGitTicketPage;
 import com.gitblit.wicket.pages.TreePage;
 
 
@@ -58,15 +60,19 @@ public class GitBlitWebApp extends WebApplication {
 		// Grab Browser info (like timezone, etc)
 		getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 
-		// setup the url paths
+		// setup the standard gitweb-ish urls
 		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/shortlog", ShortLogPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/heads", HeadsPage.class, new String[] { "p" }));
+		mount(new MixedParamUrlCodingStrategy("/branches", BranchesPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "p", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "p", "h", "f" }));
+		
+		// setup extended urls
+		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "p" }));
+		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "p", "f" }));
 		
 		repositories = new File(StoredSettings.getString("repositoriesFolder", "repos"));
 		exportAll = StoredSettings.getBoolean("exportAll", true);

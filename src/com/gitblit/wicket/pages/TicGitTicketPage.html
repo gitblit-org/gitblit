@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<body>
+	<!-- page header -->
+	<div wicket:id="pageHeader"></div>
+
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks"></div>
+	
+	<!-- ticket title -->
+	<div style="font-size:150%;padding-top:5px;" wicket:id="ticketTitle"></div>
+		
+	<!-- ticket info -->
+	<table class="plain">
+		<tr><th>ticket id</th><td class="sha1"><span wicket:id="ticketId">Message goes here</span></td></tr>
+		<tr><th>assigned</th><td><span wicket:id=ticketHandler>Message goes here</span></td></tr>
+		<tr><th>open date</th><td><span wicket:id="ticketOpenDate">Message goes here</span></td></tr>
+		<tr><th>state</th><td><span wicket:id="ticketState">Message goes here</span></td></tr>
+		<tr><th>tags</th><td><span wicket:id="ticketTags">Message goes here</span></td></tr>
+	</table>
+	
+	<!-- comments header -->
+	<div class="header">Comments</div>
+	
+	<!-- comments -->
+	<table style="width:100%;" class="pretty">
+		<tbody>
+			<tr wicket:id="comment">
+         		<td class="date"><span wicket:id="commentDate"></span></td>
+         		<td><b><div wicket:id="commentAuthor"></div></b></td>
+         		<td><div wicket:id="commentText"></div></td>
+       		</tr>
+       	</tbody>
+    </table>
+    
+	<!-- footer -->
+	<div wicket:id="pageFooter"></div>
+</body>
+</html>

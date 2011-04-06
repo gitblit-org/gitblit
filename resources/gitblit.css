@@ -175,6 +175,32 @@ div.commit_message {
 	border-width: 1px 0px 1px;
 }
 
+div.bug_open {
+	padding: 2px;
+	background-color: #800000;
+	color: white;	
+	text-align: center;
+}
+
+div.bug_resolved {
+	padding: 2px;
+	background-color: #008000;
+	color: white;
+	text-align: center;
+}
+
+div.bug_invalid {
+	padding: 2px;
+	background-color: gray;
+	text-align: center;
+}
+
+div.bug_hold {
+	padding: 2px;
+	background-color: orange;
+	text-align: center;
+}
+
 a.list {
 	text-decoration: none;
 	color: #000000;

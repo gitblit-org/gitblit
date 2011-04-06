@@ -39,14 +39,14 @@ public class TagsPage extends RepositoryPage {
 
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, newCommitParameter(entry.getObjectId().getName())));
 
-				if (entry.getCommitId().equals(entry.getObjectId())) {
-					// simple tag on commit object
-					item.add(new Label("tagDescription", ""));
-					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
-				} else {
+				if (entry.isAnnotatedTag()) {
 					// annotated tag
 					item.add(new LinkPanel("tagDescription", "list subject", entry.getShortLog(), TagPage.class, newCommitParameter(entry.getObjectId().getName())));
 					item.add(new AnnotatedTagLinksPanel("tagLinks", repositoryName, entry));
+				} else {
+					// simple tag on commit object
+					item.add(new Label("tagDescription", ""));
+					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 				}
 
 				setAlternatingBackground(item, counter);

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.TicGitTicket.Comment;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
@@ -333,8 +335,12 @@ public class JGitUtils {
 		return getRefs(r, Constants.R_TAGS, maxCount);
 	}
 
-	public static List<RefModel> getHeads(Repository r, int maxCount) {
+	public static List<RefModel> getLocalBranches(Repository r, int maxCount) {
 		return getRefs(r, Constants.R_HEADS, maxCount);
+	}
+
+	public static List<RefModel> getRemoteBranches(Repository r, int maxCount) {
+		return getRefs(r, Constants.R_REMOTES, maxCount);
 	}
 
 	public static List<RefModel> getRefs(Repository r, String refs, int maxCount) {
@@ -448,9 +454,110 @@ public class JGitUtils {
 		List<String> keys = new ArrayList<String>(map.keySet());
 		Collections.sort(keys);
 		List<Metric> metrics = new ArrayList<Metric>();
-		for (String key:keys) {
+		for (String key : keys) {
 			metrics.add(map.get(key));
-		}		
+		}
 		return metrics;
+	}
+
+	public static RefModel getTicGitBranch(Repository r) {
+		RefModel ticgitBranch = null;
+		try {
+			// search for ticgit branch in local heads
+			for (RefModel ref : getLocalBranches(r, -1)) {
+				if (ref.getDisplayName().endsWith("ticgit") || ref.getDisplayName().endsWith("ticgit-ng")) {
+					ticgitBranch = ref;
+					break;
+				}
+			}
+
+			// search for ticgit branch in remote heads
+			if (ticgitBranch == null) {
+				for (RefModel ref : getRemoteBranches(r, -1)) {
+					if (ref.getDisplayName().endsWith("ticgit") || ref.getDisplayName().endsWith("ticgit-ng")) {
+						ticgitBranch = ref;
+						break;
+					}
+				}
+			}
+		} catch (Throwable t) {
+			LOGGER.error("Failed to find ticgit branch!", t);
+		}
+		return ticgitBranch;
+	}
+
+	public static List<TicGitTicket> getTicGitTickets(Repository r) {
+		RefModel ticgitBranch = getTicGitBranch(r);
+		List<PathModel> paths = getFilesInPath(r, null, ticgitBranch.getCommit());
+		List<TicGitTicket> tickets = new ArrayList<TicGitTicket>();
+		for (PathModel ticketFolder : paths) {
+			if (ticketFolder.isTree()) {
+				try {
+					TicGitTicket t = new TicGitTicket(ticketFolder.name);
+					readTicketContents(r, ticgitBranch, t);
+					tickets.add(t);
+				} catch (Throwable t) {
+					LOGGER.error("Failed to get a ticgit ticket!", t);
+				}
+			}
+		}
+		Collections.sort(tickets);
+		Collections.reverse(tickets);
+		return tickets;
+	}
+
+	public static TicGitTicket getTicGitTicket(Repository r, String ticketFolder) {
+		RefModel ticgitBranch = getTicGitBranch(r);
+		if (ticgitBranch != null) {
+			try {
+				TicGitTicket ticket = new TicGitTicket(ticketFolder);
+				readTicketContents(r, ticgitBranch, ticket);
+				return ticket;
+			} catch (Throwable t) {
+				LOGGER.error("Failed to get ticgit ticket " + ticketFolder, t);
+			}
+		}
+		return null;
+	}
+	
+	private static void readTicketContents(Repository r, RefModel ticgitBranch, TicGitTicket ticket) {
+		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticgitBranch.getCommit());
+		for (PathModel file : ticketFiles) {
+			String content = getRawContentAsString(r, ticgitBranch.getCommit(), file.path).trim();
+			if (file.name.equals("TICKET_ID")) {
+				ticket.id = content;
+			} else if (file.name.equals("TITLE")) {
+				ticket.title = content;
+			} else {
+				String[] chunks = file.name.split("_");
+				if (chunks[0].equals("ASSIGNED")) {
+					ticket.handler = content;
+				} else if (chunks[0].equals("COMMENT")) {
+					try {
+						Comment c = new Comment(file.name, content);
+						ticket.comments.add(c);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else if (chunks[0].equals("TAG")) {
+					if (content.startsWith("TAG_")) {
+						ticket.tags.add(content.substring(4));
+					} else {
+						ticket.tags.add(content);
+					}
+				} else if (chunks[0].equals("STATE")) {
+					ticket.state = content;
+				}
+			}
+		}
+		Collections.sort(ticket.comments);
+	}
+
+	public static String getTicGitContent(Repository r, String filePath) {
+		RefModel ticgitBranch = getTicGitBranch(r);
+		if (ticgitBranch != null) {
+			return getRawContentAsString(r, ticgitBranch.getCommit(), filePath);
+		}
+		return "";
 	}
 }

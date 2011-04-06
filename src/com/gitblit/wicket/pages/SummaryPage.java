@@ -1,6 +1,8 @@
 package com.gitblit.wicket.pages;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +34,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.RefModel;
 import com.gitblit.wicket.panels.AnnotatedTagLinksPanel;
-import com.gitblit.wicket.panels.HeadLinksPanel;
+import com.gitblit.wicket.panels.BranchLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 import com.gitblit.wicket.panels.ShortLogLinksPanel;
 import com.gitblit.wicket.panels.TagLinksPanel;
@@ -126,14 +128,14 @@ public class SummaryPage extends RepositoryPage {
 
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, newCommitParameter(entry.getCommitId().getName())));
 
-				if (entry.getCommitId().equals(entry.getObjectId())) {
-					// simple tag
-					item.add(new Label("tagDescription", ""));
-					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
-				} else {
+				if (entry.isAnnotatedTag()) {
 					// annotated tag
 					item.add(new LinkPanel("tagDescription", "list subject", entry.getShortLog(), TagPage.class, newCommitParameter(entry.getObjectId().getName())));
 					item.add(new AnnotatedTagLinksPanel("tagLinks", repositoryName, entry));
+				} else {
+					// simple tag on commit object
+					item.add(new Label("tagDescription", ""));
+					item.add(new TagLinksPanel("tagLinks", repositoryName, entry));
 				}
 
 				setAlternatingBackground(item, counter);
@@ -147,33 +149,41 @@ public class SummaryPage extends RepositoryPage {
 			add(new LinkPanel("allTags", "link", "all tags...", TagsPage.class, newRepositoryParameter()));
 		}
 
-		// heads
-		List<RefModel> heads = JGitUtils.getHeads(r, numberRefs);
-		add(new LinkPanel("heads", "title", "heads", HeadsPage.class, newRepositoryParameter()));
+		// branches
+		List<RefModel> branches = new ArrayList<RefModel>();
+		branches.addAll(JGitUtils.getLocalBranches(r, numberRefs));
+		branches.addAll(JGitUtils.getRemoteBranches(r, numberRefs));
+		Collections.sort(branches);
+		Collections.reverse(branches);
+		if (numberRefs > 0 && branches.size() > numberRefs) {
+			branches = new ArrayList<RefModel>(branches.subList(0, numberRefs));
+		}
 
-		ListDataProvider<RefModel> headsDp = new ListDataProvider<RefModel>(heads);
-		DataView<RefModel> headsView = new DataView<RefModel>("head", headsDp) {
+		add(new LinkPanel("branches", "title", "branches", BranchesPage.class, newRepositoryParameter()));
+
+		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
+		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
-				item.add(createDateLabel("headDate", entry.getDate()));
+				item.add(createDateLabel("branchDate", entry.getDate()));
 
-				item.add(new LinkPanel("headName", "list name", entry.getDisplayName(), ShortLogPage.class, newCommitParameter(entry.getName())));
+				item.add(new LinkPanel("branchName", "list name", trimString(entry.getDisplayName(), 28), ShortLogPage.class, newCommitParameter(entry.getName())));
 
-				item.add(new HeadLinksPanel("headLinks", repositoryName, entry));
+				item.add(new BranchLinksPanel("branchLinks", repositoryName, entry));
 
 				setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};
-		add(headsView);
-		if (heads.size() < numberRefs) {
-			add(new Label("allHeads", "").setVisible(false));
+		add(branchesView);
+		if (branches.size() < numberRefs) {
+			add(new Label("allBranches", "").setVisible(false));
 		} else {
-			add(new LinkPanel("allHeads", "link", "all heads...", HeadsPage.class, newRepositoryParameter()));
+			add(new LinkPanel("allBranches", "link", "all branches...", BranchesPage.class, newRepositoryParameter()));
 		}
 		
 		// Display an activity line graph

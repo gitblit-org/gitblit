@@ -15,6 +15,8 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.TicGitTicket;
+import com.gitblit.wicket.models.RefModel;
 
 
 public class JGitUtilsTest extends TestCase {
@@ -66,6 +68,15 @@ public class JGitUtilsTest extends TestCase {
 		String content = JGitUtils.getRawContentAsString(r, blob);
 		r.close();
 		assertTrue("Content is null!", content != null);
+	}
+	
+	public void testTicGit() throws Exception {
+		Repository r = new FileRepository(new File(repositoriesFolder, "ticgit") + "/" + Constants.DOT_GIT);
+		RefModel ticgit = JGitUtils.getTicGitBranch(r);
+		assertTrue("Ticgit branch does not exist!", ticgit != null);
+		List<TicGitTicket> tickets = JGitUtils.getTicGitTickets(r);
+		assertTrue("No tickets found!", tickets.size() > 0);
+		r.close();
 	}
 
 }

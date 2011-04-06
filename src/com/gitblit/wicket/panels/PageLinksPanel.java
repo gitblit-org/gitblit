@@ -5,6 +5,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
 import com.gitblit.wicket.LinkPanel;
+import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ShortLogPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -32,25 +33,20 @@ public class PageLinksPanel extends Panel {
 			add(new LinkPanel("shortlog", null, "shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName)));
 		}
 		
+		// branches
+		if (pageName.equals("branches")) {
+			add(new Label("branches", pageName));
+		} else {
+			add(new LinkPanel("branches", null, "branches", BranchesPage.class, new PageParameters("p=" + repositoryName)));
+		}
+		
 		// tags
 		if (pageName.equals("tags")) {
 			add(new Label("tags", pageName));
 		} else {
 			add(new LinkPanel("tags", null, "tags", TagsPage.class, new PageParameters("p=" + repositoryName)));
 		}
-
-		// commit
-		if (pageName.equals("commit")) {
-			add(new Label("commit", pageName));
-		} else {
-			add(new LinkPanel("commit", null, "commit", CommitPage.class, new PageParameters("p=" + repositoryName + ",h=HEAD")));
-		}
-		// commitdiff
-		if (pageName.equals("commitdiff")) {
-			add(new Label("commitdiff", pageName));
-		} else {
-			add(new Label("commitdiff", "commitdiff"));
-		}
+		
 		// tree
 		if (pageName.equals("tree")) {
 			add(new Label("tree", pageName));

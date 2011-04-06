@@ -34,6 +34,10 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public String getName() {
 		return ref.getName();
 	}
+	
+	public RevCommit getCommit() {
+		return commit;
+	}
 
 	public ObjectId getCommitId() {
 		return commit.getId();
@@ -46,7 +50,11 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public ObjectId getObjectId() {
 		return ref.getObjectId();
 	}
-
+	
+	public boolean isAnnotatedTag() {
+		return ref.isPeeled();
+	}
+		
 	@Override
 	public int compareTo(RefModel o) {
 		return getDate().compareTo(o.getDate());

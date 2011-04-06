@@ -56,10 +56,14 @@ public abstract class BasePage extends WebPage {
 	}
 
 	protected String trimShortLog(String string) {
-		if (string.length() > 60) {
-			return string.substring(0, 60) + "...";
+		return trimString(string, 60);
+	}
+	
+	protected String trimString(String value, int max) {
+		if (value.length() <= max) {
+			return value;
 		}
-		return string;
+		return value.substring(0, max - 3) + "...";
 	}
 
 	public void error(String message, Throwable t) {
