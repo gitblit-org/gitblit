@@ -19,7 +19,7 @@ public class PageFooter extends Panel {
 		super(id);		
 		add(new Label("footerText", description));
 		add(new Label("gbVersion", "v" + Constants.VERSION));
-		if (StoredSettings.getBoolean("aggressiveGC", false)) {
+		if (StoredSettings.getBoolean("aggressiveHeapManagement", false)) {
 			System.gc();
 		}
 	}

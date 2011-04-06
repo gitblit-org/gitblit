@@ -20,12 +20,13 @@ import com.gitblit.wicket.panels.PageHeader;
 import com.gitblit.wicket.panels.PageLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
-
 public abstract class RepositoryPage extends BasePage {
 
 	protected final String repositoryName;
 	protected final String commitId;
 	protected String description;
+
+	private transient Repository r = null;
 
 	public RepositoryPage(PageParameters params, String pageName) {
 		super(params);
@@ -36,23 +37,28 @@ public abstract class RepositoryPage extends BasePage {
 		repositoryName = params.getString("p", "");
 		commitId = params.getString("h", "");
 
+		Repository r = getRepository();
+
 		add(new PageHeader("pageHeader", repositoryName, "/ " + pageName));
-		add(new PageLinksPanel("pageLinks", repositoryName, pageName));
+		add(new PageLinksPanel("pageLinks", r, repositoryName, pageName));
 		setStatelessHint(true);
 	}
 
 	protected Repository getRepository() {
-		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-		req.getServerName();
-
-		Repository r = GitBlitWebApp.get().getRepository(req, repositoryName);
 		if (r == null) {
-			error("Can not load repository " + repositoryName);
-			redirectToInterceptPage(new RepositoriesPage());
-			return null;
+			ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
+			HttpServletRequest req = servletWebRequest.getHttpServletRequest();
+			req.getServerName();
+
+			Repository r = GitBlitWebApp.get().getRepository(req, repositoryName);
+			if (r == null) {
+				error("Can not load repository " + repositoryName);
+				redirectToInterceptPage(new RepositoriesPage());
+				return null;
+			}
+			description = JGitUtils.getRepositoryDescription(r);
+			this.r = r;
 		}
-		description = JGitUtils.getRepositoryDescription(r);
 		return r;
 	}
 
@@ -64,22 +70,22 @@ public abstract class RepositoryPage extends BasePage {
 		String html = WicketUtils.breakLines(text);
 		if (substituteRegex) {
 			Map<String, String> map = new HashMap<String, String>();
-			// global regex keys			
+			// global regex keys
 			for (String key : StoredSettings.getAllKeys("regex.global")) {
 				String subKey = key.substring(key.lastIndexOf('.') + 1);
 				map.put(subKey, StoredSettings.getString(key, ""));
 			}
-			
+
 			// repository-specific regex keys
 			List<String> keys = StoredSettings.getAllKeys("regex." + repositoryName.toLowerCase());
 			for (String key : keys) {
 				String subKey = key.substring(key.lastIndexOf('.') + 1);
 				map.put(subKey, StoredSettings.getString(key, ""));
 			}
-			
+
 			for (String key : map.keySet()) {
 				String definition = map.get(key).trim();
-				String [] chunks = definition.split("!!!");
+				String[] chunks = definition.split("!!!");
 				if (chunks.length == 2) {
 					html = html.replaceAll(chunks[0], chunks[1]);
 				} else {
@@ -91,28 +97,29 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addFooter() {
+		r.close();
 		add(new PageFooter("pageFooter", description));
 	}
 
 	protected PageParameters newRepositoryParameter() {
-		return new PageParameters("p=" + repositoryName);	
+		return new PageParameters("p=" + repositoryName);
 	}
-	
+
 	protected PageParameters newCommitParameter() {
 		return newCommitParameter(commitId);
 	}
-	
+
 	protected PageParameters newCommitParameter(String commitId) {
 		if (commitId == null || commitId.trim().length() == 0) {
-			return newRepositoryParameter();	
+			return newRepositoryParameter();
 		}
 		return new PageParameters("p=" + repositoryName + ",h=" + commitId);
 	}
 
-	protected PageParameters newPathParameter(String path) {		
+	protected PageParameters newPathParameter(String path) {
 		if (path == null || path.trim().length() == 0) {
 			return newCommitParameter();
 		}
 		return new PageParameters("p=" + repositoryName + ",h=" + commitId + ",f=" + path);
-	}	
+	}
 }

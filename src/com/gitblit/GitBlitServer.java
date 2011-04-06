@@ -40,7 +40,6 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.http.server.GitServlet;
 
-
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
@@ -134,7 +133,7 @@ public class GitBlitServer {
 			Connector httpConnector = createConnector(params.useNIO, params.port);
 			connectors.add(httpConnector);
 		}
-		
+
 		if (params.securePort > 0) {
 			if (new File("keystore").exists()) {
 				Connector secureConnector = createSSLConnector(params.useNIO, params.securePort, params.storePassword);
@@ -176,51 +175,58 @@ public class GitBlitServer {
 		wicketFilter.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, wicketPathSpec);
 		rootContext.addFilter(wicketFilter, wicketPathSpec, FilterMapping.DEFAULT);
 
-		// GIT Servlet
-		String gitServletPathSpec = "/git/*";
-		ServletHolder gitServlet = rootContext.addServlet(GitServlet.class, gitServletPathSpec);
-		gitServlet.setInitParameter("base-path", params.repositoriesFolder);
-		gitServlet.setInitParameter("export-all", params.exportAll ? "1" : "0");
-
-		String realmUsers = params.realmFile;
-
-		// Authentication Realm
 		Handler handler;
-		if (realmUsers != null && new File(realmUsers).exists() && params.authenticateAccess) {
-			List<String> list = StoredSettings.getStrings("gitRoles");
-			String[] roles;
-			if (list.size() == 0) {
-				roles = new String[] { "*" };
+
+		// Git Servlet
+		ServletHolder gitServlet = null;
+		String gitServletPathSpec = "/git/*";
+		if (StoredSettings.getBoolean("allowPushPull", true)) {
+			gitServlet = rootContext.addServlet(GitServlet.class, gitServletPathSpec);
+			gitServlet.setInitParameter("base-path", params.repositoriesFolder);
+			gitServlet.setInitParameter("export-all", params.exportAll ? "1" : "0");
+			String realmUsers = params.realmFile;
+
+			if (realmUsers != null && new File(realmUsers).exists() && params.authenticatePushPull) {
+				// Authenticate Pull/Push
+				List<String> list = StoredSettings.getStrings("gitRoles");
+				String[] roles;
+				if (list.size() == 0) {
+					roles = new String[] { "*" };
+				} else {
+					roles = list.toArray(new String[list.size()]);
+				}
+				logger.info("Authentication required for git servlet pull/push access");
+				logger.info("Setting up realm from " + realmUsers);
+				HashLoginService loginService = new HashLoginService(Constants.NAME, realmUsers);
+
+				Constraint constraint = new Constraint();
+				constraint.setName("auth");
+				constraint.setAuthenticate(true);
+				constraint.setRoles(roles);
+
+				ConstraintMapping mapping = new ConstraintMapping();
+				mapping.setPathSpec(gitServletPathSpec);
+				mapping.setConstraint(constraint);
+
+				ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+				security.addConstraintMapping(mapping);
+				for (String role : roles) {
+					security.addRole(role);
+				}
+				security.setAuthenticator(new BasicAuthenticator());
+				security.setLoginService(loginService);
+				security.setStrict(false);
+
+				security.setHandler(rootContext);
+
+				handler = security;
 			} else {
-				roles = list.toArray(new String[list.size()]);
+				// Anonymous Pull/Push
+				logger.info("Setting up anonymous git servlet pull/push access");
+				handler = rootContext;
 			}
-			logger.info("Authentication required for GIT access");
-			logger.info("Setting up realm from " + realmUsers);
-			HashLoginService loginService = new HashLoginService(Constants.NAME, realmUsers);
-
-			Constraint constraint = new Constraint();
-			constraint.setName("auth");
-			constraint.setAuthenticate(true);
-			constraint.setRoles(roles);
-
-			ConstraintMapping mapping = new ConstraintMapping();
-			mapping.setPathSpec(gitServletPathSpec);
-			mapping.setConstraint(constraint);
-
-			ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-			security.addConstraintMapping(mapping);
-			for (String role : roles) {
-				security.addRole(role);
-			}
-			security.setAuthenticator(new BasicAuthenticator());
-			security.setLoginService(loginService);
-			security.setStrict(false);
-
-			security.setHandler(rootContext);
-
-			handler = security;
 		} else {
-			logger.info("Setting up anonymous access");
+			logger.info("Git servlet pull/push disabled");
 			handler = rootContext;
 		}
 
@@ -356,7 +362,7 @@ public class GitBlitServer {
 		/*
 		 * GIT Servlet Parameters
 		 */
-		@Parameter(names = { "--repos" }, description = "GIT Repositories Folder")
+		@Parameter(names = { "--repos" }, description = "Git Repositories Folder")
 		public String repositoriesFolder = StoredSettings.getString("repositoriesFolder", "repos");
 
 		@Parameter(names = { "--exportAll" }, description = "Export All Found Repositories")
@@ -365,8 +371,8 @@ public class GitBlitServer {
 		/*
 		 * Authentication Parameters
 		 */
-		@Parameter(names = { "--authenticateAccess" }, description = "Authenticate GIT access")
-		public Boolean authenticateAccess = StoredSettings.getBoolean("authenticateAccess", true);
+		@Parameter(names = { "--authenticatePushPull" }, description = "Authenticate Git Push/Pull access")
+		public Boolean authenticatePushPull = StoredSettings.getBoolean("authenticatePushPull", true);
 
 		@Parameter(names = { "--realm" }, description = "Users Realm Hash File")
 		public String realmFile = StoredSettings.getString("realmFile", "users.properties");

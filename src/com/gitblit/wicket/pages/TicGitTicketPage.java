@@ -19,7 +19,7 @@ import com.gitblit.wicket.WicketUtils;
 public class TicGitTicketPage extends RepositoryPage {
 
 	public TicGitTicketPage(PageParameters params) {
-		super(params, "ticgit ticket");
+		super(params, "ticket");
 
 		final String ticketFolder = params.getString("f", "");
 
@@ -32,7 +32,21 @@ public class TicGitTicketPage extends RepositoryPage {
 		add(new Label("ticketHandler", t.handler));
 		String openDate = GitBlitWebSession.get().formatDateTimeLong(t.date);
 		add(new Label("ticketOpenDate", openDate));
-		add(new Label("ticketState", t.state));
+		Label stateLabel = new Label("ticketState", t.state);
+		String css = null;
+		if (t.state.equals("open")) {
+			css = "bug_open";
+		} else if (t.state.equals("hold")) {
+			css = "bug_hold";
+		} else if (t.state.equals("resolved")) {
+			css = "bug_resolved";
+		} else if (t.state.equals("invalid")) {
+			css = "bug_invalid";
+		}
+		if (css != null) {
+			WicketUtils.setCssClass(stateLabel, css);
+		}
+		add(stateLabel);
 		add(new Label("ticketTags", flattenStrings(t.tags)));
 
 		ListDataProvider<Comment> commentsDp = new ListDataProvider<Comment>(t.comments);

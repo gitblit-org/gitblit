@@ -63,6 +63,10 @@ img.activityGraph {
 	padding: 8px;
 }
 
+div.repositories_message {
+	line-height: inherit;
+}
+
 div.header {
 	background-color: #D2C3AF;
 	padding: 3px;
@@ -176,27 +180,27 @@ div.commit_message {
 	border-width: 1px 0px 1px;
 }
 
-div.bug_open {
+div.bug_open, span.bug_open {
 	padding: 2px;
 	background-color: #800000;
 	color: white;	
 	text-align: center;
 }
 
-div.bug_resolved {
+div.bug_resolved, span.bug_resolved {
 	padding: 2px;
 	background-color: #008000;
 	color: white;
 	text-align: center;
 }
 
-div.bug_invalid {
+div.bug_invalid, span.bug_invalid {
 	padding: 2px;
 	background-color: gray;
 	text-align: center;
 }
 
-div.bug_hold {
+div.bug_hold, span.bug_hold {
 	padding: 2px;
 	background-color: orange;
 	text-align: center;
@@ -304,9 +308,9 @@ table.repositories {
 }
 
 table.repositories th {
-	background-color:#000070;
+	background-color:#D2C3AF;
 	padding: 4px;
-	border-bottom: 1px solid #bbb;
+	border-bottom: 1px solid #808080;
 }
 
 table.repositories td {
@@ -314,7 +318,7 @@ table.repositories td {
 }
 
 table.repositories th a {
-	color:#ddd;
+	color:black;/*#ddd;*/
 	text-decoration: none;
 	font-weight: normal;
 }
@@ -324,7 +328,8 @@ table.repositories th a:hover {
 }
 
 table.repositories th.wicket_orderDown a, table.repositories th.wicket_orderUp a {
-	color: yellow;
+	color: black;
+	font-weight: bold;
 }
 
 tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }

@@ -22,6 +22,7 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
+import com.gitblit.wicket.panels.AdminLinksPanel;
 import com.gitblit.wicket.panels.PageFooter;
 import com.gitblit.wicket.panels.PageHeader;
 
@@ -31,7 +32,9 @@ public class RepositoriesPage extends BasePage {
 	public RepositoriesPage() {
 		add(new PageHeader("pageHeader"));
 
-		add(new Label("indexInclude", StoredSettings.getString("indexMessage", "")).setEscapeModelStrings(false));
+		add(new AdminLinksPanel("adminPanel").setVisible(StoredSettings.getBoolean("allowAdministration", false)));
+		
+		add(new Label("repositoriesMessage", StoredSettings.getString("repositoriesMessage", "")).setEscapeModelStrings(false));
 
 		List<RepositoryModel> rows = GitBlitWebApp.get().getRepositories(getRequest());
 		DataProvider dp = new DataProvider(rows);
