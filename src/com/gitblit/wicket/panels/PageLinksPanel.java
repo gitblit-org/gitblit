@@ -1,11 +1,14 @@
 package com.gitblit.wicket.panels;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -20,47 +23,33 @@ import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TicGitPage;
 import com.gitblit.wicket.pages.TreePage;
 
-public class PageLinksPanel extends Panel {
+public class PageLinksPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+
+	private final Map<String, String> knownPages = new HashMap<String, String>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put("summary", "gb.summary");
+			put("shortlog", "gb.shortlog");
+			put("branches", "gb.branches");
+			put("tags", "gb.tags");
+			put("tree", "gb.tree");
+			put("ticgit", "gb.ticgit");
+		}
+	};
 
 	public PageLinksPanel(String id, Repository r, final String repositoryName, String pageName) {
 		super(id);
 
 		// summary
-		if (pageName.equals("summary")) {
-			add(new Label("summary", pageName));
-		} else {
-			add(new LinkPanel("summary", null, "summary", SummaryPage.class, new PageParameters("p=" + repositoryName)));
-		}
-
-		// shortlog
-		if (pageName.equals("shortlog")) {
-			add(new Label("shortlog", pageName));
-		} else {
-			add(new LinkPanel("shortlog", null, "shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName)));
-		}
-
-		// branches
-		if (pageName.equals("branches")) {
-			add(new Label("branches", pageName));
-		} else {
-			add(new LinkPanel("branches", null, "branches", BranchesPage.class, new PageParameters("p=" + repositoryName)));
-		}
-
-		// tags
-		if (pageName.equals("tags")) {
-			add(new Label("tags", pageName));
-		} else {
-			add(new LinkPanel("tags", null, "tags", TagsPage.class, new PageParameters("p=" + repositoryName)));
-		}
-
-		// tree
-		if (pageName.equals("tree")) {
-			add(new Label("tree", pageName));
-		} else {
-			add(new LinkPanel("tree", null, "tree", TreePage.class, new PageParameters("p=" + repositoryName + ",h=HEAD")));
-		}
+		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, new PageParameters("p=" + repositoryName)));
+		add(new BookmarkablePageLink<Void>("shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName)));
+		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class, new PageParameters("p=" + repositoryName)));
+		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, new PageParameters("p=" + repositoryName)));
+		add(new BookmarkablePageLink<Void>("tree", TreePage.class, new PageParameters("p=" + repositoryName + ",h=HEAD")));
 
 		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
@@ -81,5 +70,17 @@ public class PageLinksPanel extends Panel {
 			}
 		};
 		add(extrasView);
+	}
+
+	public void disablePageLink(String pageName) {
+		for (String wicketId : knownPages.keySet()) {
+			String key = knownPages.get(wicketId);
+			String linkName = getString(key);
+			if (linkName.equals(pageName)) {
+				Component c = get(wicketId);
+				c.setEnabled(false);
+				break;
+			}
+		}
 	}
 }

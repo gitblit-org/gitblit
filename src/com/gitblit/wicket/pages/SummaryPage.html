@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
 <body>
 <wicket:extend>
 
@@ -15,10 +19,10 @@
 		<!-- Repository info -->
 		<div style="margin-right:410px;"> 
 			<table class="plain">
-				<tr><th>description</th><td><span wicket:id="repositoryDescription">[repository description]</span></td></tr>
-				<tr><th>owner</th><td><span wicket:id="repositoryOwner">[repository owner]</span></td></tr>
-				<tr><th>last change</th><td><span wicket:id="repositoryLastChange">[repository last change]</span></td></tr>
-				<tr><th>URL</th><td><span wicket:id="repositoryCloneUrl">[repository clone url]</span></td></tr>
+				<tr><th><wicket:message key="gb.description">description</wicket:message></th><td><span wicket:id="repositoryDescription">[repository description]</span></td></tr>
+				<tr><th><wicket:message key="gb.owner">owner</wicket:message></th><td><span wicket:id="repositoryOwner">[repository owner]</span></td></tr>
+				<tr><th><wicket:message key="gb.lastChange">last change</wicket:message></th><td><span wicket:id="repositoryLastChange">[repository last change]</span></td></tr>
+				<tr><th><wicket:message key="gb.url">URL</wicket:message></th><td><span wicket:id="repositoryCloneUrl">[repository clone url]</span></td></tr>
 			</table>
 		</div>
 	</div>

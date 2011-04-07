@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
 <body>
 <wicket:extend>
 
@@ -11,15 +15,15 @@
 		
 	<!-- ticket info -->
 	<table class="plain">
-		<tr><th>ticket id</th><td class="sha1"><span wicket:id="ticketId">[ticket id]</span></td></tr>
-		<tr><th>assigned</th><td><span wicket:id=ticketHandler>[ticket title]</span></td></tr>
-		<tr><th>open date</th><td><span wicket:id="ticketOpenDate">[ticket open date]</span></td></tr>
-		<tr><th>state</th><td><span wicket:id="ticketState">[ticket state]</span></td></tr>
-		<tr><th>tags</th><td><span wicket:id="ticketTags">[ticket tags]</span></td></tr>
+		<tr><th><wicket:message key="gb.ticketId">ticket id</wicket:message></th><td class="sha1"><span wicket:id="ticketId">[ticket id]</span></td></tr>
+		<tr><th><wicket:message key="gb.ticketAssigned">assigned</wicket:message></th><td><span wicket:id=ticketHandler>[ticket title]</span></td></tr>
+		<tr><th><wicket:message key="gb.ticketOpenDate">open date</wicket:message></th><td><span wicket:id="ticketOpenDate">[ticket open date]</span></td></tr>
+		<tr><th><wicket:message key="gb.ticketState">state</wicket:message></th><td><span wicket:id="ticketState">[ticket state]</span></td></tr>
+		<tr><th><wicket:message key="gb.tags">tags</wicket:message></th><td><span wicket:id="ticketTags">[ticket tags]</span></td></tr>
 	</table>
 	
 	<!-- comments header -->
-	<div class="header">Comments</div>
+	<div class="header"><wicket:message key="gb.ticketComments">comments</wicket:message></div>
 	
 	<!-- comments -->
 	<table style="width:100%;" class="pretty">

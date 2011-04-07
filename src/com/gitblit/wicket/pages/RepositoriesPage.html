@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
 <body>
 <wicket:extend>
 	<div wicket:id="adminPanel">[admin links]</div>
@@ -8,10 +12,10 @@
 		
 	<table class="repositories">
 		<tr>
-			<th wicket:id="orderByRepository">Repository</th>
-			<th wicket:id="orderByDescription">Description</th>
-			<th wicket:id="orderByOwner">Owner</th>
-			<th wicket:id="orderByDate">Last Change</th>
+			<th wicket:id="orderByRepository"><wicket:message key="gb.repository">Repository</wicket:message></th>
+			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
+			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
+			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 		</tr>
 		<tbody>
        		<tr wicket:id="repository">

@@ -37,7 +37,11 @@ public abstract class RepositoryPage extends BasePage {
 
 		Repository r = getRepository();
 
-		add(new PageLinksPanel("pageLinks", r, repositoryName, getPageName()));
+		// setup the page links and disable this page's link
+		PageLinksPanel pageLinks = new PageLinksPanel("pageLinks", r, repositoryName, getPageName());
+		add(pageLinks);
+		pageLinks.disablePageLink(getPageName());
+
 		setStatelessHint(true);
 	}
 
@@ -92,12 +96,19 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
 	}
-	
+
 	protected abstract String getPageName();
 
-	protected void addFooter() {
-		r.close();
+	@Override
+	protected void onBeforeRender() {
+		// dispose of repository object
+		if (r != null) {
+			r.close();
+			r = null;
+		}
+		// setup page header and footer
 		setupPage(repositoryName, "/ " + getPageName());
+		super.onBeforeRender();
 	}
 
 	protected PageParameters newRepositoryParameter() {

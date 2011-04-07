@@ -34,19 +34,7 @@ public class TicGitPage extends RepositoryPage {
 			public void populateItem(final Item<TicGitTicket> item) {
 				final TicGitTicket entry = item.getModelObject();
 				Label stateLabel = new Label("ticketState", entry.state);
-				String css = null;
-				if (entry.state.equals("open")) {
-					css = "bug_open";
-				} else if (entry.state.equals("hold")) {
-					css = "bug_hold";
-				} else if (entry.state.equals("resolved")) {
-					css = "bug_resolved";
-				} else if (entry.state.equals("invalid")) {
-					css = "bug_invalid";
-				}
-				if (css != null) {
-					WicketUtils.setCssClass(stateLabel, css);
-				}
+				WicketUtils.setTicketCssClass(stateLabel, entry.state);
 				item.add(stateLabel);
 				item.add(createDateLabel("ticketDate", entry.date));
 				item.add(new Label("ticketHandler", trimString(entry.handler, 30)));
@@ -57,13 +45,10 @@ public class TicGitPage extends RepositoryPage {
 			}
 		};
 		add(ticketsView);
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "ticgit";
+		return getString("gb.ticgit");
 	}
 }

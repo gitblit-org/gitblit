@@ -33,7 +33,7 @@ public class TreePage extends RepositoryPage {
 		List<PathModel> paths = JGitUtils.getFilesInPath(r, basePath, commit);
 
 		// tree page links
-		add(new Label("historyLink", "history"));
+		add(new Label("historyLink", getString("gb.history")));
 		add(new Label("headLink", "HEAD"));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
@@ -79,13 +79,10 @@ public class TreePage extends RepositoryPage {
 			}
 		};
 		add(pathsView);
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "tree";
+		return getString("gb.tree");
 	}
 }

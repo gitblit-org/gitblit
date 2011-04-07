@@ -29,7 +29,7 @@ public abstract class BasePage extends WebPage {
 	public BasePage(PageParameters params) {
 		super(params);
 	}
-	
+		
 	protected void setupPage(String repositoryName, String pageName) {
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", getServerName() + " - " + repositoryName));
@@ -37,7 +37,11 @@ public abstract class BasePage extends WebPage {
 			add(new Label("title", getServerName()));
 		}
 		// header
-		add(new Label("siteName", StoredSettings.getString("siteName", Constants.NAME)));
+		String siteName = StoredSettings.getString("siteName", Constants.NAME);
+		if (siteName == null || siteName.trim().length() == 0) {
+			siteName = Constants.NAME;
+		}
+		add(new Label("siteName", siteName));
 		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, new PageParameters("p=" + repositoryName)));
 		add(new Label("pageName", pageName));
 		

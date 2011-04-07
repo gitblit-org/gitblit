@@ -43,7 +43,7 @@ public class CommitPage extends RepositoryPage {
 		} else {
 			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class, newCommitParameter(parents.get(0))));
 		}
-		add(new Label("patchLink", "patch"));
+		add(new Label("patchLink", getString("gb.patch")));
 		
 		add(new LinkPanel("shortlog", "title", c.getShortMessage(), ShortLogPage.class, newRepositoryParameter()));
 		
@@ -96,13 +96,10 @@ public class CommitPage extends RepositoryPage {
 			}
 		};
 		add(pathsView);
-		
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "commit";
+		return getString("gb.commit");
 	}
 }

@@ -27,13 +27,10 @@ public class TagPage extends RepositoryPage {
 		add(new Label("tagDate", authorDate));
 
 		addFullText("fullMessage", c.getFullMessage(), true);
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "tag";
+		return getString("gb.tag");
 	}
 }

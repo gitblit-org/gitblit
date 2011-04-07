@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<html xmlns="http://www.w3.org/1999/xhtml" >
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
 <body>
 <wicket:extend>
 
@@ -16,14 +20,14 @@
 	
 	<!-- commit info -->
 	<table class="plain">
-		<tr><th>refs</th><td><div wicket:id="refsPanel">[references]</div></td></tr>
-		<tr><th>author</th><td><span wicket:id="commitAuthor">[author</span></td></tr>
+		<tr><th><wicket:message key="gb.refs">refs</wicket:message></th><td><div wicket:id="refsPanel">[references]</div></td></tr>
+		<tr><th><wicket:message key="gb.author">author</wicket:message></th><td><span wicket:id="commitAuthor">[author</span></td></tr>
 		<tr><th></th><td><span wicket:id="commitAuthorDate">[author date]</span></td></tr>
-		<tr><th>committer</th><td><span wicket:id="commitCommitter">[committer]</span></td></tr>
+		<tr><th><wicket:message key="gb.committer">committer</wicket:message></th><td><span wicket:id="commitCommitter">[committer]</span></td></tr>
 		<tr><th></th><td><span wicket:id="commitCommitterDate">[commit date]</span></td></tr>
-		<tr><th>commit</th><td class="sha1"><span wicket:id="commitId">[commit id]</span></td></tr>
-		<tr><th>tree</th><td class="sha1"><span wicket:id="commitTree">[commit tree]</span></td></tr>
-		<tr><th>parent</th><td class="sha1"><span wicket:id="commitParents">
+		<tr><th><wicket:message key="gb.commit">commit</wicket:message></th><td class="sha1"><span wicket:id="commitId">[commit id]</span></td></tr>
+		<tr><th><wicket:message key="gb.tree">tree</wicket:message></th><td class="sha1"><span wicket:id="commitTree">[commit tree]</span></td></tr>
+		<tr><th><wicket:message key="gb.parent">parent</wicket:message></th><td class="sha1"><span wicket:id="commitParents">
 			<div wicket:id="commitParent">[commit parents]</div></span></td></tr>
 	</table>
 	

@@ -53,7 +53,7 @@ public class BranchesPage extends RepositoryPage {
 				item.add(new LinkPanel("branchName", "list name", entry.getDisplayName(), ShortLogPage.class, newCommitParameter(entry.getName())));
 
 				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);
-				item.add(new Label("branchType", remote ? "remote":"local"));
+				item.add(new Label("branchType", remote ? getString("gb.remote"):getString("gb.local")));
 				
 				item.add(new BranchLinksPanel("branchLinks", repositoryName, entry));
 				
@@ -63,13 +63,10 @@ public class BranchesPage extends RepositoryPage {
 			}
 		};
 		add(branchView);
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "branches";
+		return getString("gb.branches");
 	}
 }

@@ -53,13 +53,10 @@ public class TagsPage extends RepositoryPage {
 			}
 		};
 		add(tagView);
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "tags";
+		return getString("gb.tags");
 	}
 }

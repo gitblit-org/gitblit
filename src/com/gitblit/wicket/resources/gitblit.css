@@ -377,8 +377,7 @@ td.author {
 }
 
 td.date {
-	font-style: italic;
-	width:90px;
+	font-style: italic;	
 }
 
 td.sha1, td.sha1 span {

@@ -68,13 +68,10 @@ public class ShortLogPage extends RepositoryPage {
 		shortlogView.setItemsPerPage(GitBlitWebApp.PAGING_ITEM_COUNT);
 		add(shortlogView);
 		add(new PagingNavigator("navigator", shortlogView));
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "shortlog";
+		return getString("gb.shortlog");
 	}
 }

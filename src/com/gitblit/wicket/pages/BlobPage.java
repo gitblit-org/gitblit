@@ -28,8 +28,8 @@ public class BlobPage extends RepositoryPage {
 		RevCommit commit = JGitUtils.getCommit(r, commitId);
 
 		// blob page links
-		add(new Label("historyLink", "history"));
-		add(new Label("rawLink", "raw"));
+		add(new Label("historyLink", getString("gb.history")));
+		add(new Label("rawLink", getString("gb.raw")));
 		add(new Label("headLink", "HEAD"));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
@@ -84,13 +84,10 @@ public class BlobPage extends RepositoryPage {
 			WicketUtils.setCssClass(blobLabel, "plainprint");
 			add(blobLabel);
 		}
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "view";
+		return getString("gb.view");
 	}
 }

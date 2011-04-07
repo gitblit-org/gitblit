@@ -72,7 +72,7 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryCloneUrl", cloneurl));
 
 		// shortlog
-		add(new LinkPanel("shortlog", "title", "shortlog", ShortLogPage.class, newRepositoryParameter()));
+		add(new LinkPanel("shortlog", "title", getString("gb.shortlog"), ShortLogPage.class, newRepositoryParameter()));
 
 		List<RevCommit> commits = JGitUtils.getRevLog(r, numberCommits);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
@@ -109,12 +109,12 @@ public class SummaryPage extends RepositoryPage {
 		if (commits.size() < numberCommits) {
 			add(new Label("shortlogMore", "").setVisible(false));
 		} else {
-			add(new LinkPanel("shortlogMore", "link", "more...", ShortLogPage.class, newRepositoryParameter()));
+			add(new LinkPanel("shortlogMore", "link", getString("gb.more") + "...", ShortLogPage.class, newRepositoryParameter()));
 		}
 
 		// tags
 		List<RefModel> tags = JGitUtils.getTags(r, numberRefs);
-		add(new LinkPanel("tags", "title", "tags", TagsPage.class, newRepositoryParameter()));
+		add(new LinkPanel("tags", "title", getString("gb.tags"), TagsPage.class, newRepositoryParameter()));
 
 		ListDataProvider<RefModel> tagsDp = new ListDataProvider<RefModel>(tags);
 		DataView<RefModel> tagView = new DataView<RefModel>("tag", tagsDp) {
@@ -146,7 +146,7 @@ public class SummaryPage extends RepositoryPage {
 		if (tags.size() < numberRefs) {
 			add(new Label("allTags", "").setVisible(false));
 		} else {
-			add(new LinkPanel("allTags", "link", "all tags...", TagsPage.class, newRepositoryParameter()));
+			add(new LinkPanel("allTags", "link", getString("gb.allTags") + "...", TagsPage.class, newRepositoryParameter()));
 		}
 
 		// branches
@@ -159,7 +159,7 @@ public class SummaryPage extends RepositoryPage {
 			branches = new ArrayList<RefModel>(branches.subList(0, numberRefs));
 		}
 
-		add(new LinkPanel("branches", "title", "branches", BranchesPage.class, newRepositoryParameter()));
+		add(new LinkPanel("branches", "title", getString("gb.branches"), BranchesPage.class, newRepositoryParameter()));
 
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
@@ -183,22 +183,16 @@ public class SummaryPage extends RepositoryPage {
 		if (branches.size() < numberRefs) {
 			add(new Label("allBranches", "").setVisible(false));
 		} else {
-			add(new LinkPanel("allBranches", "link", "all branches...", BranchesPage.class, newRepositoryParameter()));
+			add(new LinkPanel("allBranches", "link", getString("gb.allBranches") + "...", BranchesPage.class, newRepositoryParameter()));
 		}
 		
 		// Display an activity line graph
 		insertActivityGraph(r);
-
-		// close the repository
-		r.close();
-
-		// footer
-		addFooter();
 	}
 	
 	@Override
 	protected String getPageName() {
-		return "summary";
+		return getString("gb.summary");
 	}
 
 	private void insertActivityGraph(Repository r) {
