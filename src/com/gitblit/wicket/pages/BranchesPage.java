@@ -23,13 +23,12 @@ import com.gitblit.wicket.panels.BranchLinksPanel;
 public class BranchesPage extends RepositoryPage {
 
 	public BranchesPage(PageParameters params) {
-		super(params, "branches");
+		super(params);
 
 		Repository r = getRepository();
 		List<RefModel> branches = new ArrayList<RefModel>();
 		branches.addAll(JGitUtils.getLocalBranches(r, -1));
 		branches.addAll(JGitUtils.getRemoteBranches(r, -1));
-		r.close();
 
 		// shortlog
 		add(new LinkPanel("summary", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
@@ -67,5 +66,10 @@ public class BranchesPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "branches";
 	}
 }

@@ -2,14 +2,20 @@ package com.gitblit.wicket;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
+import com.gitblit.StoredSettings;
 import com.gitblit.utils.Utils;
+import com.gitblit.wicket.pages.SummaryPage;
 
 
 public abstract class BasePage extends WebPage {
@@ -22,6 +28,31 @@ public abstract class BasePage extends WebPage {
 
 	public BasePage(PageParameters params) {
 		super(params);
+	}
+	
+	protected void setupPage(String repositoryName, String pageName) {
+		if (repositoryName != null && repositoryName.trim().length() > 0) {
+			add(new Label("title", getServerName() + " - " + repositoryName));
+		} else {
+			add(new Label("title", getServerName()));
+		}
+		// header
+		add(new Label("siteName", StoredSettings.getString("siteName", Constants.NAME)));
+		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, new PageParameters("p=" + repositoryName)));
+		add(new Label("pageName", pageName));
+		
+		// footer
+		add(new Label("footerText", ""));
+		add(new Label("gbVersion", "v" + Constants.VERSION));
+		if (StoredSettings.getBoolean("aggressiveHeapManagement", false)) {
+			System.gc();
+		}
+	}
+	
+	protected String getServerName() {
+		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
+		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
+		return req.getServerName();
 	}
 
 	protected Label createAuthorLabel(String wicketId, String author) {

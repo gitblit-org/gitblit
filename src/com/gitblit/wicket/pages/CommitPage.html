@@ -1,45 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
+<wicket:extend>
 
 	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+	<div wicket:id="pageLinks">[page links]</div>
 	
 	<!-- commit nav links -->	
 	<div class="page_nav2">
-		parent: <span wicket:id="parentLink"></span> | <span wicket:id="patchLink"></span>
+		parent: <span wicket:id="parentLink">[parent link]</span> | <span wicket:id="patchLink">[patch link]</span>
 	</div>	
 	
 	<!-- shortlog header -->
-	<div class="header" wicket:id="shortlog"></div>
+	<div class="header" wicket:id="shortlog">[shortlog header]</div>
 	
 	<!-- commit info -->
 	<table class="plain">
-		<tr><th>refs</th><td><div wicket:id="refsPanel"></div></td></tr>
-		<tr><th>author</th><td><span wicket:id="commitAuthor">Message goes here</span></td></tr>
-		<tr><th></th><td><span wicket:id="commitAuthorDate">Message goes here</span></td></tr>
-		<tr><th>committer</th><td><span wicket:id="commitCommitter">Message goes here</span></td></tr>
-		<tr><th></th><td><span wicket:id="commitCommitterDate">Message goes here</span></td></tr>
-		<tr><th>commit</th><td class="sha1"><span wicket:id="commitId">Message goes here</span></td></tr>
-		<tr><th>tree</th><td class="sha1"><span wicket:id="commitTree">Message goes here</span></td></tr>
+		<tr><th>refs</th><td><div wicket:id="refsPanel">[references]</div></td></tr>
+		<tr><th>author</th><td><span wicket:id="commitAuthor">[author</span></td></tr>
+		<tr><th></th><td><span wicket:id="commitAuthorDate">[author date]</span></td></tr>
+		<tr><th>committer</th><td><span wicket:id="commitCommitter">[committer]</span></td></tr>
+		<tr><th></th><td><span wicket:id="commitCommitterDate">[commit date]</span></td></tr>
+		<tr><th>commit</th><td class="sha1"><span wicket:id="commitId">[commit id]</span></td></tr>
+		<tr><th>tree</th><td class="sha1"><span wicket:id="commitTree">[commit tree]</span></td></tr>
 		<tr><th>parent</th><td class="sha1"><span wicket:id="commitParents">
-			<div wicket:id="commitParent">Message goes here</div></span></td></tr>
+			<div wicket:id="commitParent">[commit parents]</div></span></td></tr>
 	</table>
 	
 	<!-- full message -->
-	<div class="commit_message" wicket:id="fullMessage"></div>
+	<div class="commit_message" wicket:id="fullMessage">[commit message]</div>
 	
 	<!-- changed paths -->
 	<table class="pretty">
 		<tr wicket:id="changedPath">
-			<td class="path"><span wicket:id="pathName"></span></td>			
-			<td><span wicket:id="pathLinks"></span></td>
+			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+			<td><span wicket:id="pathLinks">[path links]</span></td>
 		</tr>
 	</table>
 	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+</wicket:extend>
 </body>
 </html>

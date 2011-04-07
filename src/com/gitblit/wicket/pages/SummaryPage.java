@@ -42,7 +42,7 @@ import com.gitblit.wicket.panels.TagLinksPanel;
 public class SummaryPage extends RepositoryPage {
 
 	public SummaryPage(PageParameters params) {
-		super(params, "summary");
+		super(params);
 		
 		int numCommitsDef = 20;
 		int numRefsDef = 5;
@@ -194,6 +194,11 @@ public class SummaryPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "summary";
 	}
 
 	private void insertActivityGraph(Repository r) {

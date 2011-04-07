@@ -15,8 +15,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.pages.RepositoriesPage;
-import com.gitblit.wicket.panels.PageFooter;
-import com.gitblit.wicket.panels.PageHeader;
 import com.gitblit.wicket.panels.PageLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
@@ -28,7 +26,7 @@ public abstract class RepositoryPage extends BasePage {
 
 	private transient Repository r = null;
 
-	public RepositoryPage(PageParameters params, String pageName) {
+	public RepositoryPage(PageParameters params) {
 		super(params);
 		if (!params.containsKey("p")) {
 			error("Repository not specified!");
@@ -39,8 +37,7 @@ public abstract class RepositoryPage extends BasePage {
 
 		Repository r = getRepository();
 
-		add(new PageHeader("pageHeader", repositoryName, "/ " + pageName));
-		add(new PageLinksPanel("pageLinks", r, repositoryName, pageName));
+		add(new PageLinksPanel("pageLinks", r, repositoryName, getPageName()));
 		setStatelessHint(true);
 	}
 
@@ -95,10 +92,12 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
 	}
+	
+	protected abstract String getPageName();
 
 	protected void addFooter() {
 		r.close();
-		add(new PageFooter("pageFooter", description));
+		setupPage(repositoryName, "/ " + getPageName());
 	}
 
 	protected PageParameters newRepositoryParameter() {

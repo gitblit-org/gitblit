@@ -20,10 +20,9 @@ import com.gitblit.wicket.panels.TagLinksPanel;
 public class TagsPage extends RepositoryPage {
 
 	public TagsPage(PageParameters params) {
-		super(params, "tags");
+		super(params);
 		Repository r = getRepository();
 		List<RefModel> tags = JGitUtils.getTags(r, -1);
-		r.close();
 
 		// shortlog
 		add(new LinkPanel("summary", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
@@ -57,5 +56,10 @@ public class TagsPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "tags";
 	}
 }

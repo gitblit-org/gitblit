@@ -14,7 +14,7 @@ import com.gitblit.wicket.RepositoryPage;
 public class TagPage extends RepositoryPage {
 
 	public TagPage(PageParameters params) {
-		super(params, "tag");
+		super(params);
 
 		Repository r = getRepository();
 		RevCommit c = JGitUtils.getCommit(r, commitId);
@@ -28,9 +28,12 @@ public class TagPage extends RepositoryPage {
 
 		addFullText("fullMessage", c.getFullMessage(), true);
 
-		r.close();
-
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "tag";
 	}
 }

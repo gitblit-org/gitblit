@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
+<wicket:extend>
 	
 	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+	<div wicket:id="pageLinks">[page links]</div>
 
 	<!-- summary header -->
-	<div style="padding-top: 5px;" class="header" wicket:id="commit"></div>
+	<div style="padding-top: 5px;" class="header" wicket:id="commit">[shortlog header]</div>
 	
 	<!-- commit info -->
 	<table class="plain">
-		<tr><th>object</th><td><span wicket:id="tagId">Message goes here</span></td></tr>
-		<tr><th>author</th><td><span wicket:id="tagAuthor">Message goes here</span></td></tr>
-		<tr><th></th><td><span wicket:id="tagDate">Message goes here</span></td></tr>
+		<tr><th>object</th><td><span wicket:id="tagId">[tag id]</span></td></tr>
+		<tr><th>author</th><td><span wicket:id="tagAuthor">[tag author]</span></td></tr>
+		<tr><th></th><td><span wicket:id="tagDate">[tag date]</span></td></tr>
 	</table>
 	
 	<!--  full message -->
-	<div style="border-bottom:0px;" class="commit_message" wicket:id="fullMessage"></div>
+	<div style="border-bottom:0px;" class="commit_message" wicket:id="fullMessage">[tag full message]</div>
 	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+</wicket:extend>
 </body>
 </html>

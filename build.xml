@@ -34,7 +34,6 @@
 		</javac>
 		<copy todir="${project.build.dir}">
 			<fileset dir="${basedir}/src" excludes="**/*.java,**/thumbs.db" />
-			<fileset dir="${basedir}/resources" excludes="**/thumbs.db" />
 		</copy>
 
 		<!-- Build jar -->

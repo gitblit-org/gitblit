@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<div wicket:id="pageHeader"></div>
+<wicket:extend>
+	<div wicket:id="adminPanel">[admin links]</div>
 	
-	<div wicket:id="adminPanel"></div>
-	
-	<div class="repositories_message" wicket:id="repositoriesMessage"></div>
+	<div class="repositories_message" wicket:id="repositoriesMessage">[repositories message]</div>
 		
 	<table class="repositories">
 		<tr>
@@ -16,15 +15,13 @@
 		</tr>
 		<tbody>
        		<tr wicket:id="repository">
-         		<td><div class="list" wicket:id="repositoryName"></div></td>
-         		<td><div class="list" wicket:id="repositoryDescription"></div></td>
-         		<td><i><span wicket:id="repositoryOwner"></span></i></td>
-         		<td><span wicket:id="repositoryLastChange"></span></td>
+         		<td><div class="list" wicket:id="repositoryName">[repository name]</div></td>
+         		<td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
+         		<td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
+         		<td><span wicket:id="repositoryLastChange">[last change]</span></td>
        		</tr>
     	</tbody>
 	</table>
-	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+</wicket:extend>
 </body>
 </html>

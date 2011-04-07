@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
+<wicket:extend>
 
 	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+	<div wicket:id="pageLinks">[page links]</div>
 	
 	<!-- shortlog -->	
-	<div style="margin-top:5px;" class="header" wicket:id="summary"></div>	
+	<div style="margin-top:5px;" class="header" wicket:id="summary">[header]</div>	
 	<table class="pretty">
 		<tbody>
        		<tr wicket:id="branch">
-         		<td><i><span wicket:id="branchDate"></span></i></td>
-         		<td><div wicket:id="branchName"></div></td>
-         		<td><div wicket:id="branchType"></div></td>
-         		<td class="rightAlign"><span wicket:id="branchLinks"></span></td>
+         		<td class="date"><span wicket:id="branchDate">[branch date]</span></td>
+         		<td><div wicket:id="branchName">[branch name]</div></td>
+         		<td><div wicket:id="branchType">[branch type]</div></td>
+         		<td class="rightAlign"><span wicket:id="branchLinks">[branch links]</span></td>
        		</tr>
     	</tbody>
 	</table>	
-	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+
+</wicket:extend>
 </body>
 </html>

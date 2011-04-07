@@ -24,7 +24,7 @@ import com.gitblit.wicket.panels.TreeLinksPanel;
 public class TreePage extends RepositoryPage {
 
 	public TreePage(PageParameters params) {
-		super(params, "tree");
+		super(params);
 
 		final String basePath = params.getString("f", null);
 
@@ -80,10 +80,12 @@ public class TreePage extends RepositoryPage {
 		};
 		add(pathsView);
 
-		// close repository
-		r.close();
-
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "tree";
 	}
 }

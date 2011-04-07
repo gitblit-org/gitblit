@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+	<!-- Head with Wicket-controlled resources in this package -->
+	<wicket:head>
+   		<title wicket:id="title">[page title]</title>
+   		<wicket:link>
+   			<link rel="stylesheet" type="text/css" href="resources/gitblit.css"/>
+   			<link rel="shortcut icon" href="resources/gitblt-favicon.png" type="image/png" />
+   		</wicket:link>
+	</wicket:head>
+
+	<body>
+		<!-- page header -->
+		<div class="page_header">
+			<a title="gitblit homepage" href="http://gitblit.com/">
+				<wicket:link>
+					<img src="resources/gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>
+				</wicket:link>
+			</a>
+			<a href="/"><span wicket:id="siteName">[site name]</span></a> / <span wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span> 
+		</div>
+
+		<!-- page content -->
+		<wicket:child />
+		
+		<!-- page footer -->
+		<div class="page_footer">
+			<div style="float:right">
+				<a href="http://gitblit.com"><span wicket:id="gbVersion"></span></a> 
+			</div>
+			<div wicket:id="footerText">[footer text]</div>
+		</div>
+	</body>
+</html>

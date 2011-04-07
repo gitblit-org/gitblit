@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
-	
+<wicket:extend>
+
 	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+	<div wicket:id="pageLinks">[page links]</div>
 	
 	<div>
 		<!-- Repository Activity Chart -->	
@@ -16,65 +15,64 @@
 		<!-- Repository info -->
 		<div style="margin-right:410px;"> 
 			<table class="plain">
-				<tr><th>description</th><td><span wicket:id="repositoryDescription">Message goes here</span></td></tr>
-				<tr><th>owner</th><td><span wicket:id="repositoryOwner">Message goes here</span></td></tr>
-				<tr><th>last change</th><td><span wicket:id="repositoryLastChange">Message goes here</span></td></tr>
-				<tr><th>URL</th><td><span wicket:id="repositoryCloneUrl">Message goes here</span></td></tr>
+				<tr><th>description</th><td><span wicket:id="repositoryDescription">[repository description]</span></td></tr>
+				<tr><th>owner</th><td><span wicket:id="repositoryOwner">[repository owner]</span></td></tr>
+				<tr><th>last change</th><td><span wicket:id="repositoryLastChange">[repository last change]</span></td></tr>
+				<tr><th>URL</th><td><span wicket:id="repositoryCloneUrl">[repository clone url]</span></td></tr>
 			</table>
 		</div>
 	</div>
 
 	<!-- shortlog -->
-	<div class="header" wicket:id="shortlog"></div>	
+	<div class="header" wicket:id="shortlog">[shortlog header]</div>	
 	<table style="width:100%" class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
-         		<td class="date"><span wicket:id="commitDate"></span></td>
-         		<td class="author"><span wicket:id="commitAuthor"></span></td>
-         		<td><div wicket:id="commitShortMessage"></div></td>
-         		<td class="rightAlign"><div wicket:id="commitRefs"></div></td>
-         		<td class="rightAlign"><span wicket:id="commitLinks"></span></td>
+         		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
+         		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
+         		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
+         		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>
+         		<td class="rightAlign"><span wicket:id="commitLinks">[commit links]</span></td>
        		</tr>
     	</tbody>
 	</table>	
-	<div class="pager" wicket:id="shortlogMore"></div>
+	<div class="pager" wicket:id="shortlogMore">[more shortlogs]</div>
 
 	<!-- Open Branches Body -->
 	<div style="width:400px; float:left;">
 		<!-- heads -->
-		<div class="header" wicket:id="branches"></div>	
+		<div class="header" wicket:id="branches">[branches header]</div>	
 		<table style="width:100%" class="pretty">
 			<tbody>
    				<tr wicket:id="branch">
-       				<td class="date"><span wicket:id="branchDate"></span></td>
-       				<td><div wicket:id="branchName"></div></td>
-       				<td class="rightAlign"><span wicket:id="branchLinks"></span></td>
+       				<td class="date"><span wicket:id="branchDate">[branch date]</span></td>
+       				<td><div wicket:id="branchName">[branch name]</div></td>
+       				<td class="rightAlign"><span wicket:id="branchLinks">[branch links]</span></td>
    				</tr>
    			</tbody>
 		</table>
-		<div class="pager" wicket:id="allBranches"></div>
+		<div class="pager" wicket:id="allBranches">[all branches]</div>
 		<!-- Close Branches Body -->
 	</div>
 
 	<!-- Open Tags body -->
 	<div style="margin-left:405px;">
 		<!-- tags -->
-		<div class="header" wicket:id="tags"></div>	
+		<div class="header" wicket:id="tags">[tags header]</div>	
 			<table style="width:100%" class="pretty">
 				<tbody>
        				<tr wicket:id="tag">
-         				<td class="date"><span wicket:id="tagDate"></span></td>
-         				<td><b><div wicket:id="tagName"></div></b></td>
-         				<td><div wicket:id="tagDescription"></div></td>
-         				<td class="rightAlign"><span wicket:id="tagLinks"></span></td>
+         				<td class="date"><span wicket:id="tagDate">[tag date]</span></td>
+         				<td><b><div wicket:id="tagName">[tag name]</div></b></td>
+         				<td><div wicket:id="tagDescription">[tag description]</div></td>
+         				<td class="rightAlign"><span wicket:id="tagLinks">[tag links]</span></td>
        				</tr>
     			</tbody>
 			</table>
-		<div class="pager" wicket:id="allTags"></div>	
+		<div class="pager" wicket:id="allTags">[all tags]</div>	
 	<!-- Close Tags Body -->
 	</div>
 	
-	<!-- footer -->
-	<div style="clear:both;" wicket:id="pageFooter"></div>
+</wicket:extend>	
 </body>
 </html>

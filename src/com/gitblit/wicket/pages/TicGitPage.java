@@ -18,11 +18,10 @@ import com.gitblit.wicket.WicketUtils;
 public class TicGitPage extends RepositoryPage {
 
 	public TicGitPage(PageParameters params) {
-		super(params, "ticgit");
+		super(params);
 
 		Repository r = getRepository();
 		List<TicGitTicket> tickets = JGitUtils.getTicGitTickets(r);
-		r.close();
 
 		// shortlog
 		add(new LinkPanel("summary", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
@@ -61,5 +60,10 @@ public class TicGitPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "ticgit";
 	}
 }

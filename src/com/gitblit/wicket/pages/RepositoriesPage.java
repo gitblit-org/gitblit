@@ -23,15 +23,14 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.panels.AdminLinksPanel;
-import com.gitblit.wicket.panels.PageFooter;
-import com.gitblit.wicket.panels.PageHeader;
 
 
 public class RepositoriesPage extends BasePage {
 
 	public RepositoriesPage() {
-		add(new PageHeader("pageHeader"));
-
+		super();
+		setupPage("", "");
+		
 		add(new AdminLinksPanel("adminPanel").setVisible(StoredSettings.getBoolean("allowAdministration", false)));
 		
 		add(new Label("repositoriesMessage", StoredSettings.getString("repositoriesMessage", "")).setEscapeModelStrings(false));
@@ -65,8 +64,6 @@ public class RepositoriesPage extends BasePage {
 		add(newSort("orderByDescription", SortBy.description, dp, dataView));
 		add(newSort("orderByOwner", SortBy.owner, dp, dataView));
 		add(newSort("orderByDate", SortBy.date, dp, dataView));
-
-		add(new PageFooter("pageFooter", ""));
 	}
 
 	protected enum SortBy {

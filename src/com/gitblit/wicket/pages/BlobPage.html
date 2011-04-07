@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
-<head>
+
+<!-- contribute google-code-prettify resources to the page header -->
+<wicket:head>
+  <wicket:link>
    	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
 	<script type="text/javascript" src="prettify/prettify.js"></script>
-</head>
+  </wicket:link>
+</wicket:head>
+
+<wicket:extend>
+<!-- need to specify body.onload -->
 <body onload="prettyPrint()">
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
 
-	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+		<!-- page nav links -->	
+		<div wicket:id="pageLinks">[page links]</div>
 	
-	<!-- blob nav links -->	
-	<div class="page_nav2">
-		<span wicket:id="historyLink"></span> | <span wicket:id="rawLink"></span> | <span wicket:id="headLink"></span>
-	</div>	
+		<!-- blob nav links -->	
+		<div class="page_nav2">
+			<span wicket:id="historyLink">[history link]</span> | <span wicket:id="rawLink">[raw link]</span> | <span wicket:id="headLink">[head link]</span>
+		</div>	
 	
-	<!-- shortlog header -->
-	<div class="header" wicket:id="shortlog"></div>
+		<!-- shortlog header -->
+		<div class="header" wicket:id="shortlog">[shortlog header]</div>
 
-	<!-- breadcrumbs -->
-	<div wicket:id="breadcrumbs"></div>
+		<!-- breadcrumbs -->
+		<div wicket:id="breadcrumbs">[breadcrumbs]</div>
 		
-	<!--  blob content -->
-	<pre wicket:id="blobText"></pre>
+		<!--  blob content -->
+		<pre wicket:id="blobText">[blob content]</pre>
 	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
 </body>
+</wicket:extend>
 </html>

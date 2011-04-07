@@ -19,13 +19,12 @@ import com.gitblit.wicket.WicketUtils;
 public class TicGitTicketPage extends RepositoryPage {
 
 	public TicGitTicketPage(PageParameters params) {
-		super(params, "ticket");
+		super(params);
 
 		final String ticketFolder = params.getString("f", "");
 
 		Repository r = getRepository();
 		TicGitTicket t = JGitUtils.getTicGitTicket(r, ticketFolder);
-		r.close();
 
 		add(new Label("ticketTitle", t.title));
 		add(new Label("ticketId", t.id));
@@ -67,6 +66,11 @@ public class TicGitTicketPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "ticket";
 	}
 
 	private String prepareComment(String comment) {

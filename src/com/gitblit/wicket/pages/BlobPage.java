@@ -20,7 +20,7 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 public class BlobPage extends RepositoryPage {
 
 	public BlobPage(PageParameters params) {
-		super(params, "view");
+		super(params);
 
 		final String blobPath = params.getString("f", null);
 
@@ -85,10 +85,12 @@ public class BlobPage extends RepositoryPage {
 			add(blobLabel);
 		}
 
-		// close repository
-		r.close();
-
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "view";
 	}
 }

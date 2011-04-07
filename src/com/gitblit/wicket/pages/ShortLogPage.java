@@ -25,12 +25,11 @@ import com.gitblit.wicket.panels.ShortLogLinksPanel;
 public class ShortLogPage extends RepositoryPage {
 
 	public ShortLogPage(PageParameters params) {
-		super(params, "shortlog");
+		super(params);
 
 		Repository r = getRepository();
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits = JGitUtils.getRevLog(r, 100);
-		r.close();
 
 		// shortlog
 		add(new LinkPanel("summary", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
@@ -72,5 +71,10 @@ public class ShortLogPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "shortlog";
 	}
 }

@@ -23,7 +23,7 @@ import com.gitblit.wicket.panels.PathLinksPanel;
 public class CommitPage extends RepositoryPage {
 
 	public CommitPage(PageParameters params) {
-		super(params, "commit");
+		super(params);
 
 		final String commitId = params.getString("h", "");
 
@@ -97,10 +97,12 @@ public class CommitPage extends RepositoryPage {
 		};
 		add(pathsView);
 		
-		// close repository
-		r.close();
-
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "commit";
 	}
 }

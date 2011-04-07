@@ -13,7 +13,7 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 public class DiffPage extends RepositoryPage {
 
 	public DiffPage(PageParameters params) {
-		super(params, "diff");
+		super(params);
 
 		final String blobPath = params.getString("f", null);
 
@@ -27,7 +27,6 @@ public class DiffPage extends RepositoryPage {
 			// commit diff
 			diff = JGitUtils.getCommitDiff(r, commit, true);
 		}
-		r.close();
 
 		// diff page links
 		add(new Label("historyLink", "history"));
@@ -42,5 +41,10 @@ public class DiffPage extends RepositoryPage {
 
 		// footer
 		addFooter();
+	}
+	
+	@Override
+	protected String getPageName() {
+		return "diff";
 	}
 }

@@ -1,28 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <body>
-	<!-- page header -->
-	<div wicket:id="pageHeader"></div>
+<wicket:extend>
 
 	<!-- page nav links -->	
-	<div wicket:id="pageLinks"></div>
+	<div wicket:id="pageLinks">[page links]</div>
 	
 	<!-- shortlog -->	
-	<div style="margin-top:5px;" class="header" wicket:id="summary"></div>	
+	<div style="margin-top:5px;" class="header" wicket:id="summary">[shortlog header]</div>	
 	<table style="width:100%" "class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
-         		<td class="date"><span wicket:id="commitDate"></span></td>
-         		<td class="author"><span wicket:id="commitAuthor"></span></td>
-         		<td><div wicket:id="commitShortMessage"></div></td>
-         		<td class="rightAlign"><div wicket:id="commitRefs"></div></td>         		
-         		<td class="rightAlign"><span wicket:id="commitLinks"></span></td>
+         		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
+         		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
+         		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
+         		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>         		
+         		<td class="rightAlign"><span wicket:id="commitLinks">[commit links]</span></td>
        		</tr>
     	</tbody>
 	</table>	
-	<div class="pager" wicket:id="navigator"></div>
+	<div class="pager" wicket:id="navigator">[pager]</div>
 	
-	<!-- footer -->
-	<div wicket:id="pageFooter"></div>
+</wicket:extend>
 </body>
 </html>
