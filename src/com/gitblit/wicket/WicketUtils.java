@@ -1,9 +1,18 @@
 package com.gitblit.wicket;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.markup.html.basic.Label;
+
+import com.gitblit.StoredSettings;
+import com.gitblit.utils.Utils;
 
 public class WicketUtils {
 
@@ -45,5 +54,63 @@ public class WicketUtils {
 			sb.append(value).append(" ");
 		}
 		return sb.toString().trim();
+	}
+	
+	public static void setAlternatingBackground(Component c, int i) {
+		String clazz = i % 2 == 0 ? "dark" : "light";
+		setCssClass(c, clazz);
+	}
+	
+	public static Label createAuthorLabel(String wicketId, String author) {
+		Label label = new Label(wicketId, author);
+		WicketUtils.setHtmlTitle(label, author);
+		return label;
+	}
+
+	public static String trimShortLog(String string) {
+		return trimString(string, 60);
+	}
+	
+	public static String trimString(String value, int max) {
+		if (value.length() <= max) {
+			return value;
+		}
+		return value.substring(0, max - 3) + "...";
+	}
+	
+	public static PageParameters newRepositoryParameter(String repositoryName) {
+		return new PageParameters("p=" + repositoryName);
+	}
+
+	public static PageParameters newCommitParameter(String repositoryName, String commitId) {
+		if (commitId == null || commitId.trim().length() == 0) {
+			return newRepositoryParameter(repositoryName);
+		}
+		return new PageParameters("p=" + repositoryName + ",h=" + commitId);
+	}
+
+	public static PageParameters newPathParameter(String repositoryName, String commitId, String path) {
+		if (path == null || path.trim().length() == 0) {
+			return newCommitParameter(repositoryName, commitId);
+		}
+		return new PageParameters("p=" + repositoryName + ",h=" + commitId + ",f=" + path);
+	}
+	
+	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
+		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datestampShortFormat", "MM/dd/yy"));
+		if (timeZone != null) {
+			df.setTimeZone(timeZone);
+		}
+		String dateString = df.format(date);
+		String title = Utils.timeAgo(date);
+		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000l) {
+			String tmp = dateString;
+			dateString = title;
+			title = tmp;
+		}
+		Label label = new Label(wicketId, dateString);
+		WicketUtils.setCssClass(label, Utils.timeAgoCss(date));
+		WicketUtils.setHtmlTitle(label, title);
+		return label;
 	}
 }

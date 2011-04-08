@@ -38,7 +38,11 @@
 	<table class="pretty">
 		<tr wicket:id="changedPath">
 			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
-			<td><span wicket:id="pathLinks">[path links]</span></td>
+			<td>
+				<div class="link">
+					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+				</div>
+			</td>
 		</tr>
 	</table>
 	

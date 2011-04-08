@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -17,7 +18,6 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
-import com.gitblit.wicket.panels.PathLinksPanel;
 
 
 public class CommitPage extends RepositoryPage {
@@ -45,7 +45,7 @@ public class CommitPage extends RepositoryPage {
 		}
 		add(new Label("patchLink", getString("gb.patch")));
 		
-		add(new LinkPanel("shortlog", "title", c.getShortMessage(), ShortLogPage.class, newRepositoryParameter()));
+		add(new LinkPanel("shortlog", "title", c.getShortMessage(), LogPage.class, newRepositoryParameter()));
 		
 		addRefs(r, c);
 
@@ -89,9 +89,12 @@ public class CommitPage extends RepositoryPage {
 				} else {
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
 				}
-				item.add(new PathLinksPanel("pathLinks", repositoryName, entry));
-				String clazz = counter % 2 == 0 ? "dark" : "light";
-				WicketUtils.setCssClass(item, clazz);
+				
+				item.add(new BookmarkablePageLink<Void>("diff", DiffPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
+
+				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};

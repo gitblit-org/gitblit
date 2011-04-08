@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -12,6 +11,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.wicket.LinkPanel;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.TreePage;
 
 public class PathBreadcrumbsPanel extends Panel {
@@ -49,7 +49,7 @@ public class PathBreadcrumbsPanel extends Panel {
 					parameters += ",f=" + path;
 				}
 
-				item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, new PageParameters(parameters)));
+				item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, WicketUtils.newPathParameter(repositoryName, commitId, path)));
 				item.add(new Label("pathSeparator", entry.isLeaf ? "" : "/"));
 			}
 		};

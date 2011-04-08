@@ -33,7 +33,7 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DiffPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
-import com.gitblit.wicket.pages.ShortLogPage;
+import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -63,7 +63,7 @@ public class GitBlitWebApp extends WebApplication {
 
 		// setup the standard gitweb-ish urls
 		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/shortlog", ShortLogPage.class, new String[] { "p", "h" }));
+		mount(new MixedParamUrlCodingStrategy("/shortlog", LogPage.class, new String[] { "p", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/branches", BranchesPage.class, new String[] { "p" }));
 		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "p", "h" }));

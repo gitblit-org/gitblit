@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -16,14 +16,15 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
-import com.gitblit.wicket.pages.ShortLogPage;
+import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TicGitPage;
 import com.gitblit.wicket.pages.TreePage;
 
-public class PageLinksPanel extends BasePanel {
+public class PageLinksPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,7 +34,7 @@ public class PageLinksPanel extends BasePanel {
 
 		{
 			put("summary", "gb.summary");
-			put("shortlog", "gb.shortlog");
+			put("log", "gb.log");
 			put("branches", "gb.branches");
 			put("tags", "gb.tags");
 			put("tree", "gb.tree");
@@ -45,11 +46,11 @@ public class PageLinksPanel extends BasePanel {
 		super(id);
 
 		// summary
-		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, new PageParameters("p=" + repositoryName)));
-		add(new BookmarkablePageLink<Void>("shortlog", ShortLogPage.class, new PageParameters("p=" + repositoryName)));
-		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class, new PageParameters("p=" + repositoryName)));
-		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, new PageParameters("p=" + repositoryName)));
-		add(new BookmarkablePageLink<Void>("tree", TreePage.class, new PageParameters("p=" + repositoryName + ",h=HEAD")));
+		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
 		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
@@ -65,7 +66,7 @@ public class PageLinksPanel extends BasePanel {
 				String extra = item.getModelObject();
 				if (extra.equals("ticgit")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, "ticgit", TicGitPage.class, new PageParameters("p=" + repositoryName)));
+					item.add(new LinkPanel("extraLink", null, "ticgit", TicGitPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};
@@ -77,8 +78,10 @@ public class PageLinksPanel extends BasePanel {
 			String key = knownPages.get(wicketId);
 			String linkName = getString(key);
 			if (linkName.equals(pageName)) {
-				Component c = get(wicketId);
-				c.setEnabled(false);
+				Component c = get(wicketId);				
+				if (c != null) {
+					c.setEnabled(false);
+				}
 				break;
 			}
 		}

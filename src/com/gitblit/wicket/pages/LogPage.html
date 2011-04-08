@@ -4,9 +4,15 @@
       xml:lang="en"  
       lang="en"> 
 
-<wicket:panel>
-	<div class="link">
-		<a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="shortlog"><wicket:message key="gb.shortlog"></wicket:message></a>
-	</div>	
-</wicket:panel>
+<body>
+<wicket:extend>
+
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks">[page links]</div>
+
+	<!-- log -->
+	<div style="margin-top:5px;" wicket:id="logPanel">[log panel]</div>
+	
+</wicket:extend>
+</body>
 </html>

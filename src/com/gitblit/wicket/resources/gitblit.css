@@ -103,6 +103,12 @@ div.link a {
 	font-size: inherit;
 }
 
+div.link em, div.link span em {
+	font-style: normal;
+	font-family: inherit;
+	font-size: inherit;
+}
+
 div.page_header {
 	height: 25px;
 	padding: 5px;
@@ -155,6 +161,10 @@ div.page_nav a {
 
 div.page_nav a:hover {	
 	text-decoration: underline;
+}
+
+div.page_nav em {
+	font-style: normal;
 }
 
 div.page_nav2 {

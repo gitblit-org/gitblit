@@ -33,7 +33,7 @@ public abstract class RepositoryPage extends BasePage {
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 		repositoryName = params.getString("p", "");
-		commitId = params.getString("h", "");
+		commitId = params.getString("h", "HEAD");
 
 		Repository r = getRepository();
 
@@ -112,24 +112,18 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected PageParameters newRepositoryParameter() {
-		return new PageParameters("p=" + repositoryName);
+		return WicketUtils.newRepositoryParameter(repositoryName);
 	}
 
 	protected PageParameters newCommitParameter() {
-		return newCommitParameter(commitId);
+		return WicketUtils.newCommitParameter(repositoryName, commitId);
 	}
 
 	protected PageParameters newCommitParameter(String commitId) {
-		if (commitId == null || commitId.trim().length() == 0) {
-			return newRepositoryParameter();
-		}
-		return new PageParameters("p=" + repositoryName + ",h=" + commitId);
+		return WicketUtils.newCommitParameter(repositoryName, commitId);
 	}
 
 	protected PageParameters newPathParameter(String path) {
-		if (path == null || path.trim().length() == 0) {
-			return newCommitParameter();
-		}
-		return new PageParameters("p=" + repositoryName + ",h=" + commitId + ",f=" + path);
+		return WicketUtils.newPathParameter(repositoryName, commitId, path);
 	}
 }

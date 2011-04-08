@@ -41,10 +41,10 @@ public class TicGitTicketPage extends RepositoryPage {
 
 			public void populateItem(final Item<Comment> item) {
 				final Comment entry = item.getModelObject();
-				item.add(createDateLabel("commentDate", entry.date));
+				item.add(WicketUtils.createDateLabel("commentDate", entry.date, GitBlitWebSession.get().getTimezone()));
 				item.add(new Label("commentAuthor", entry.author));
 				item.add(new Label("commentText", prepareComment(entry.text)).setEscapeModelStrings(false));
-				setAlternatingBackground(item, counter);
+				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};

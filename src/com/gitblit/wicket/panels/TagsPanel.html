@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<!-- tags -->
+	<div class="header" wicket:id="header">[tags header]</div>	
+	<table style="width:100%" class="pretty">
+		<tbody>
+    		<tr wicket:id="tag">
+    			<td class="date"><span wicket:id="tagDate">[tag date]</span></td>
+    			<td><b><span wicket:id="tagName">[tag name]</span></b></td>
+    			<td><span wicket:id="tagDescription">[tag description]</span></td>
+    			<td class="rightAlign">
+    				<div class="link">
+						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+					</div>
+				</td>
+    		</tr>
+    	</tbody>
+	</table>
+	
+	<div wicket:id="allTags">[all tags]</div>	
+		
+	<!-- spacer -->
+	<div style="padding:5px;"></div>
+</wicket:panel>
+</body>
+</html>

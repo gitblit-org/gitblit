@@ -52,7 +52,8 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	}
 	
 	public boolean isAnnotatedTag() {
-		return ref.isPeeled();
+		// ref.isPeeled() ??
+		return !getCommitId().equals(getObjectId());
 	}
 		
 	@Override

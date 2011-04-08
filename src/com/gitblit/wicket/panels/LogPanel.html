@@ -5,26 +5,30 @@
       lang="en"> 
 
 <body>
-<wicket:extend>
+<wicket:panel>
 
-	<!-- page nav links -->	
-	<div wicket:id="pageLinks">[page links]</div>
-	
-	<!-- shortlog -->	
-	<div style="margin-top:5px;" class="header" wicket:id="summary">[shortlog header]</div>	
-	<table style="width:100%" "class="pretty">
+	<!-- header -->	
+	<div class="header" wicket:id="header">[log header]</div>
+		
+	<table style="width:100%" class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
          		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
          		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
          		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
          		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>         		
-         		<td class="rightAlign"><span wicket:id="commitLinks">[commit links]</span></td>
+         		<td class="rightAlign"><div class="link">
+					<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+					</div>
+				</td>
        		</tr>
     	</tbody>
 	</table>	
-	<div class="pager" wicket:id="navigator">[pager]</div>
+	<div class="pager" wicket:id="pageLogs">[pager]</div>
+	<div wicket:id="moreLogs">[more...]</div>
 	
-</wicket:extend>
+	<!-- spacer -->
+	<div style="padding:5px;"></div>
+</wicket:panel>
 </body>
 </html>

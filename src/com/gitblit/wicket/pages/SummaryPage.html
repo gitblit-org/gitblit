@@ -27,54 +27,17 @@
 		</div>
 	</div>
 
-	<!-- shortlog -->
-	<div class="header" wicket:id="shortlog">[shortlog header]</div>	
-	<table style="width:100%" class="pretty">
-		<tbody>
-       		<tr wicket:id="commit">
-         		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
-         		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
-         		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
-         		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>
-         		<td class="rightAlign"><span wicket:id="commitLinks">[commit links]</span></td>
-       		</tr>
-    	</tbody>
-	</table>	
-	<div class="pager" wicket:id="shortlogMore">[more shortlogs]</div>
+	<!-- commits -->
+	<div wicket:id="commitsPanel">[commits panel]</div>	
 
-	<!-- Open Branches Body -->
+	<!-- branches -->
 	<div style="width:400px; float:left;">
-		<!-- heads -->
-		<div class="header" wicket:id="branches">[branches header]</div>	
-		<table style="width:100%" class="pretty">
-			<tbody>
-   				<tr wicket:id="branch">
-       				<td class="date"><span wicket:id="branchDate">[branch date]</span></td>
-       				<td><div wicket:id="branchName">[branch name]</div></td>
-       				<td class="rightAlign"><span wicket:id="branchLinks">[branch links]</span></td>
-   				</tr>
-   			</tbody>
-		</table>
-		<div class="pager" wicket:id="allBranches">[all branches]</div>
-		<!-- Close Branches Body -->
+		<div wicket:id="branchesPanel">[branches panel]</div>
 	</div>
 
-	<!-- Open Tags body -->
+	<!-- tags -->
 	<div style="margin-left:405px;">
-		<!-- tags -->
-		<div class="header" wicket:id="tags">[tags header]</div>	
-			<table style="width:100%" class="pretty">
-				<tbody>
-       				<tr wicket:id="tag">
-         				<td class="date"><span wicket:id="tagDate">[tag date]</span></td>
-         				<td><b><div wicket:id="tagName">[tag name]</div></b></td>
-         				<td><div wicket:id="tagDescription">[tag description]</div></td>
-         				<td class="rightAlign"><span wicket:id="tagLinks">[tag links]</span></td>
-       				</tr>
-    			</tbody>
-			</table>
-		<div class="pager" wicket:id="allTags">[all tags]</div>	
-	<!-- Close Tags Body -->
+		<div wicket:id="tagsPanel">[tags panel]</div>
 	</div>
 	
 </wicket:extend>	
