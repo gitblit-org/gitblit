@@ -20,7 +20,7 @@ public class PathBreadcrumbsPanel extends Panel {
 
 	private final String ROOT = "--ROOT--";
 
-	public PathBreadcrumbsPanel(String id, final String repositoryName, String pathName, final String commitId) {
+	public PathBreadcrumbsPanel(String id, final String repositoryName, String pathName, final String objectId) {
 		super(id);
 		List<BreadCrumb> crumbs = new ArrayList<BreadCrumb>();
 		crumbs.add(new BreadCrumb("[" + repositoryName + "]", ROOT, false));
@@ -44,13 +44,13 @@ public class PathBreadcrumbsPanel extends Panel {
 			public void populateItem(final Item<BreadCrumb> item) {
 				final BreadCrumb entry = item.getModelObject();
 				String path = entry.getPath();
-				String parameters = "p=" + repositoryName + ",h=" + commitId;
-				if (path != null) {
-					parameters += ",f=" + path;
+				if (entry.isLeaf) {
+					item.add(new Label("pathLink", entry.name));
+					item.add(new Label("pathSeparator", "").setVisible(false));
+				} else {
+					item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
+					item.add(new Label("pathSeparator", "/"));
 				}
-
-				item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, WicketUtils.newPathParameter(repositoryName, commitId, path)));
-				item.add(new Label("pathSeparator", entry.isLeaf ? "" : "/"));
 			}
 		};
 		add(pathsView);

@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -17,8 +19,6 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
-import com.gitblit.wicket.panels.TreeBlobLinksPanel;
-import com.gitblit.wicket.panels.TreeLinksPanel;
 
 
 public class TreePage extends RepositoryPage {
@@ -59,22 +59,32 @@ public class TreePage extends RepositoryPage {
 					// parent .. path
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
-					item.add(new Label("treeLinks", ""));
+					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
 						// folder/tree link
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
-						item.add(new TreeLinksPanel("treeLinks", repositoryName, entry));
+						
+						// links
+						Fragment links = new Fragment("pathLinks", "treeLinks", this);
+						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new BookmarkablePageLink<Void>("history", TreePage.class).setEnabled(false));
+						item.add(links);
 					} else {
 						// blob link
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
-						item.add(new TreeBlobLinksPanel("treeLinks", repositoryName, entry));
+						
+						// links
+						Fragment links = new Fragment("pathLinks", "blobLinks", this);
+						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new BookmarkablePageLink<Void>("raw", BlobPage.class).setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
+						item.add(links);
 					}
 				}
-				String clazz = counter % 2 == 0 ? "dark" : "light";
-				WicketUtils.setCssClass(item, clazz);
+				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};

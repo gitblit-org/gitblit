@@ -10,6 +10,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
@@ -22,7 +24,6 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.panels.AdminLinksPanel;
 
 
 public class RepositoriesPage extends BasePage {
@@ -31,7 +32,10 @@ public class RepositoriesPage extends BasePage {
 		super();
 		setupPage("", "");
 		
-		add(new AdminLinksPanel("adminPanel").setVisible(StoredSettings.getBoolean("allowAdministration", false)));
+		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
+		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", RepositoriesPage.class));
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
+		add(adminLinks.setVisible(StoredSettings.getBoolean("allowAdministration", false)));
 		
 		add(new Label("repositoriesMessage", StoredSettings.getString("repositoriesMessage", "")).setEscapeModelStrings(false));
 

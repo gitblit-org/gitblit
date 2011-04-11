@@ -27,10 +27,24 @@
 			<td><span wicket:id="pathName"></span></td>			
 			<td class="size"><span wicket:id="pathSize">[path size]</span></td>
 			<td class="mode"><span wicket:id="pathPermissions">[path permissions]</span></td>
-			<td class="rightAlign"><span wicket:id="treeLinks">[path links]</span></td>
+			<td class="rightAlign"><span wicket:id="pathLinks">[path links]</span></td>
 		</tr>
 	</table>
 
+	<!--  tree links -->
+	<wicket:fragment wicket:id="treeLinks">
+		<div class="link">
+			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+		</div>
+	</wicket:fragment>
+	
+	<!-- blob links -->
+	<wicket:fragment wicket:id="blobLinks">
+		<div class="link">
+			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+		</div>	
+	</wicket:fragment>
+	
 </wicket:extend>	
 </body>
 </html>

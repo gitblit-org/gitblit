@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -25,10 +26,8 @@ public class CommitPage extends RepositoryPage {
 	public CommitPage(PageParameters params) {
 		super(params);
 
-		final String commitId = params.getString("h", "");
-
 		Repository r = getRepository();
-		RevCommit c = JGitUtils.getCommit(r, commitId);
+		RevCommit c = JGitUtils.getCommit(r, objectId);
 		
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
@@ -40,8 +39,10 @@ public class CommitPage extends RepositoryPage {
 		// commit page links
 		if (parents.size() == 0) {
 			add(new Label("parentLink", "none"));
+			add(new Label("commitdiffLink", getString("gb.commitdiff")));
 		} else {
 			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class, newCommitParameter(parents.get(0))));
+			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff", this, null), DiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		}
 		add(new Label("patchLink", getString("gb.patch")));
 		
