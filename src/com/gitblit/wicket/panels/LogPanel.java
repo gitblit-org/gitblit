@@ -34,6 +34,10 @@ public class LogPanel extends Panel {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = StoredSettings.getInteger("logPageCommitsCount", 50);
+		if (itemsPerPage <= 1) {
+			itemsPerPage = 50;
+		}
+		
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
