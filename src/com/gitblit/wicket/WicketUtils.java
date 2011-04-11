@@ -103,6 +103,22 @@ public class WicketUtils {
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
 	
+	public static String getRepositoryName(PageParameters params) {
+		return params.getString("r", "");
+	}
+
+	public static String getObject(PageParameters params) {
+		return params.getString("h", "");
+	}
+
+	public static String getPath(PageParameters params) {
+		return params.getString("f", null);
+	}
+
+	public static int getPage(PageParameters params) {
+		return params.getInt("page", 1); // index from 1
+	}
+
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
 		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datestampShortFormat", "MM/dd/yy"));
 		if (timeZone != null) {

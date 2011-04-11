@@ -22,7 +22,7 @@ public class BlobPage extends RepositoryPage {
 	public BlobPage(PageParameters params) {
 		super(params);
 
-		final String blobPath = params.getString("f", null);
+		final String blobPath = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);

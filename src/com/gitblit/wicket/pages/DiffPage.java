@@ -8,6 +8,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class DiffPage extends RepositoryPage {
@@ -15,7 +16,7 @@ public class DiffPage extends RepositoryPage {
 	public DiffPage(PageParameters params) {
 		super(params);
 
-		final String blobPath = params.getString("f", null);
+		final String blobPath = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);

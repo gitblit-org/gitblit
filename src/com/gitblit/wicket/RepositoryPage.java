@@ -32,8 +32,8 @@ public abstract class RepositoryPage extends BasePage {
 			error("Repository not specified!");
 			redirectToInterceptPage(new RepositoriesPage());
 		}
-		repositoryName = params.getString("r", "");
-		objectId = params.getString("h", "HEAD");
+		repositoryName = WicketUtils.getRepositoryName(params);
+		objectId = WicketUtils.getObject(params);
 
 		Repository r = getRepository();
 
@@ -64,7 +64,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
-		add(new RefsPanel("refsPanel", r, c));
+		add(new RefsPanel("refsPanel", repositoryName,  c, JGitUtils.getAllRefs(r)));
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {

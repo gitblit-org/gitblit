@@ -19,7 +19,7 @@ public class TicGitTicketPage extends RepositoryPage {
 	public TicGitTicketPage(PageParameters params) {
 		super(params);
 
-		final String ticketFolder = params.getString("f", "");
+		final String ticketFolder = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		TicGitTicket t = JGitUtils.getTicGitTicket(r, ticketFolder);

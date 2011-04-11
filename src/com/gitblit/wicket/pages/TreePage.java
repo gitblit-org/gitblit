@@ -26,7 +26,7 @@ public class TreePage extends RepositoryPage {
 	public TreePage(PageParameters params) {
 		super(params);
 
-		final String basePath = params.getString("f", null);
+		final String basePath = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);

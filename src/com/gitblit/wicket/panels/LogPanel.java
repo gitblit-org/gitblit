@@ -33,7 +33,7 @@ public class LogPanel extends Panel {
 	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = StoredSettings.getInteger("logPageCommitsCount", 50);
+		int itemsPerPage = StoredSettings.getInteger("logPageCommitCount", 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -81,7 +81,7 @@ public class LogPanel extends Panel {
 				}
 				item.add(shortlog);
 
-				item.add(new RefsPanel("commitRefs", entry, allRefs));
+				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("diff", DiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
