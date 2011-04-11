@@ -17,7 +17,7 @@ public class TagPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit c = JGitUtils.getCommit(r, commitId);
+		RevCommit c = JGitUtils.getCommit(r, objectId);
 
 		add(new LinkPanel("commit", "title", c.getName(), CommitPage.class, newCommitParameter()));
 

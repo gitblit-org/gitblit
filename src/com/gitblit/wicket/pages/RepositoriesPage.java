@@ -43,7 +43,7 @@ public class RepositoriesPage extends BasePage {
 
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
-				PageParameters pp = new PageParameters("p=" + entry.name);
+				PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 				item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
 				item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
 				item.add(new Label("repositoryOwner", entry.owner));
@@ -53,8 +53,7 @@ public class RepositoriesPage extends BasePage {
 				item.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, Utils.timeAgoCss(entry.lastChange));
 
-				String clazz = counter % 2 == 0 ? "dark" : "light";
-				WicketUtils.setCssClass(item, clazz);
+				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};

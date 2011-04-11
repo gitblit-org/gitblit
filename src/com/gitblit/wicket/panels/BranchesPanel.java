@@ -61,14 +61,14 @@ public class BranchesPanel extends Panel {
 
 				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), GitBlitWebSession.get().getTimezone()));
 
-				item.add(new LinkPanel("branchName", "list name", WicketUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
+				item.add(new LinkPanel("branchName", "list name", WicketUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				
 				// only show branch type on the branches page
 				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);
 				item.add(new Label("branchType", remote ? getString("gb.remote"):getString("gb.local")).setVisible(maxCount <= 0));
 				
-				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

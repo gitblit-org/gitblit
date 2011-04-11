@@ -21,19 +21,19 @@ import com.gitblit.wicket.panels.RefsPanel;
 public abstract class RepositoryPage extends BasePage {
 
 	protected final String repositoryName;
-	protected final String commitId;
+	protected final String objectId;
 	protected String description;
 
 	private transient Repository r = null;
 
 	public RepositoryPage(PageParameters params) {
 		super(params);
-		if (!params.containsKey("p")) {
+		if (!params.containsKey("r")) {
 			error("Repository not specified!");
 			redirectToInterceptPage(new RepositoriesPage());
 		}
-		repositoryName = params.getString("p", "");
-		commitId = params.getString("h", "HEAD");
+		repositoryName = params.getString("r", "");
+		objectId = params.getString("h", "HEAD");
 
 		Repository r = getRepository();
 
@@ -116,14 +116,14 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected PageParameters newCommitParameter() {
-		return WicketUtils.newCommitParameter(repositoryName, commitId);
+		return WicketUtils.newObjectParameter(repositoryName, objectId);
 	}
 
 	protected PageParameters newCommitParameter(String commitId) {
-		return WicketUtils.newCommitParameter(repositoryName, commitId);
+		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
 	protected PageParameters newPathParameter(String path) {
-		return WicketUtils.newPathParameter(repositoryName, commitId, path);
+		return WicketUtils.newPathParameter(repositoryName, objectId, path);
 	}
 }

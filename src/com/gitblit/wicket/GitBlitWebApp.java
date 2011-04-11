@@ -62,15 +62,15 @@ public class GitBlitWebApp extends WebApplication {
 		getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 
 		// setup the standard gitweb-ish urls
-		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/shortlog", LogPage.class, new String[] { "p", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/branches", BranchesPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "p", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "p", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "p", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "p", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/diff", DiffPage.class, new String[] { "p", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "r" }));
+		mount(new MixedParamUrlCodingStrategy("/log", LogPage.class, new String[] { "r", "h" }));
+		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "r" }));
+		mount(new MixedParamUrlCodingStrategy("/branches", BranchesPage.class, new String[] { "r" }));
+		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "r", "h" }));
+		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "r", "h" }));
+		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/diff", DiffPage.class, new String[] { "r", "h", "f" }));
 		
 		// setup extended urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "p" }));

@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
@@ -286,7 +285,7 @@ public class JGitUtils {
 	public static String getCommitDiff(Repository r, RevCommit commit, boolean outputHtml) {
 		return getCommitDiff(r, commit, null, outputHtml);
 	}
-	
+
 	public static String getCommitDiff(Repository r, RevCommit commit, String path, boolean outputHtml) {
 		try {
 			final RevWalk rw = new RevWalk(r);
@@ -380,16 +379,39 @@ public class JGitUtils {
 	}
 
 	public static List<RevCommit> getRevLog(Repository r, int maxCount) {
+		return getRevLog(r, Constants.HEAD, 0, maxCount);
+	}
+
+	public static List<RevCommit> getRevLog(Repository r, String objectId, int offset, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		try {
-			Git git = new Git(r);
-			Iterable<RevCommit> revlog = git.log().call();
-			for (RevCommit rev : revlog) {
-				list.add(rev);
-				if (maxCount > 0 && list.size() == maxCount) {
-					break;
+			if (objectId == null || objectId.trim().length() == 0) {
+				objectId = Constants.HEAD;
+			}
+			RevWalk walk = new RevWalk(r);
+			ObjectId object = r.resolve(objectId);
+			walk.markStart(walk.parseCommit(object));
+			Iterable<RevCommit> revlog = walk;
+			if (offset > 0) {
+				int count = 0;
+				for (RevCommit rev : revlog) {
+					count++;
+					if (count > offset) {
+						list.add(rev);
+						if (maxCount > 0 && list.size() == maxCount) {
+							break;
+						}
+					}
+				}
+			} else {
+				for (RevCommit rev : revlog) {
+					list.add(rev);
+					if (maxCount > 0 && list.size() == maxCount) {
+						break;
+					}
 				}
 			}
+			walk.dispose();
 		} catch (Throwable t) {
 			LOGGER.error("Failed to determine last change", t);
 		}
@@ -504,8 +526,10 @@ public class JGitUtils {
 		final Map<String, Metric> map = new HashMap<String, Metric>();
 		try {
 			DateFormat df = new SimpleDateFormat("yyyy-MM");
-			Git git = new Git(r);
-			Iterable<RevCommit> revlog = git.log().call();
+			RevWalk walk = new RevWalk(r);
+			ObjectId object = r.resolve(Constants.HEAD);
+			walk.markStart(walk.parseCommit(object));
+			Iterable<RevCommit> revlog = walk;
 			for (RevCommit rev : revlog) {
 				Date d = getCommitDate(rev);
 				String p = df.format(d);

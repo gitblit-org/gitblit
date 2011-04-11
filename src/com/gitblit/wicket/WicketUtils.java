@@ -79,21 +79,28 @@ public class WicketUtils {
 	}
 	
 	public static PageParameters newRepositoryParameter(String repositoryName) {
-		return new PageParameters("p=" + repositoryName);
+		return new PageParameters("r=" + repositoryName);
 	}
 
-	public static PageParameters newCommitParameter(String repositoryName, String commitId) {
-		if (commitId == null || commitId.trim().length() == 0) {
+	public static PageParameters newObjectParameter(String repositoryName, String objectId) {
+		if (objectId == null || objectId.trim().length() == 0) {
 			return newRepositoryParameter(repositoryName);
 		}
-		return new PageParameters("p=" + repositoryName + ",h=" + commitId);
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId);
 	}
 
-	public static PageParameters newPathParameter(String repositoryName, String commitId, String path) {
+	public static PageParameters newPathParameter(String repositoryName, String objectId, String path) {
 		if (path == null || path.trim().length() == 0) {
-			return newCommitParameter(repositoryName, commitId);
+			return newObjectParameter(repositoryName, objectId);
 		}
-		return new PageParameters("p=" + repositoryName + ",h=" + commitId + ",f=" + path);
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path);
+	}
+	
+	public static PageParameters newLogPageParameter(String repositoryName, String objectId, int pageNumber) {
+		if (pageNumber <= 1) {
+			return newObjectParameter(repositoryName, objectId);
+		}
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
 	
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {

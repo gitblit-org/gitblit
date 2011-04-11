@@ -18,7 +18,7 @@ public class DiffPage extends RepositoryPage {
 		final String blobPath = params.getString("f", null);
 
 		Repository r = getRepository();
-		RevCommit commit = JGitUtils.getCommit(r, commitId);
+		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		String diff;
 		if (blobPath != null && blobPath.length() > 0) {
 			// blob diff
@@ -35,7 +35,7 @@ public class DiffPage extends RepositoryPage {
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, commitId));
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 
 		add(new Label("diffText", diff).setEscapeModelStrings(false));
 	}

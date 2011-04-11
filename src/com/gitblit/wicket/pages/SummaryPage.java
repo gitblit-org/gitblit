@@ -44,6 +44,12 @@ public class SummaryPage extends RepositoryPage {
 		}
 		
 		Repository r = getRepository();		
+		List<Metric> metrics = JGitUtils.getDateMetrics(r);
+		
+		long numberOfCommits = 0;
+		for (Metric m : metrics) {
+			numberOfCommits += m.count;
+		}
 
 		String owner = JGitUtils.getRepositoryOwner(r);
 		GitBlitWebSession session = GitBlitWebSession.get();
@@ -56,12 +62,12 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryLastChange", lastchange));
 		add(new Label("repositoryCloneUrl", cloneurl));
 
-		add(new LogPanel("commitsPanel", repositoryName, r, numberCommits, false));
+		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
 		add(new BranchesPanel("branchesPanel", repositoryName, r, numberRefs));
 		
 		// Display an activity line graph
-		insertActivityGraph(r);
+		insertActivityGraph(metrics);
 	}
 	
 	@Override
@@ -69,18 +75,17 @@ public class SummaryPage extends RepositoryPage {
 		return getString("gb.summary");
 	}
 
-	private void insertActivityGraph(Repository r) {
-		if (StoredSettings.getBoolean("generateActivityGraph", true)) {
-			List<Metric> dates = JGitUtils.getDateMetrics(r);
-			IChartData data = getChartData(dates);
+	private void insertActivityGraph(List<Metric> metrics) {
+		if (StoredSettings.getBoolean("generateActivityGraph", true)) {			
+			IChartData data = getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(400, 80), ChartType.LINE, data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
-			dateAxis.setLabels(new String[] { dates.get(0).name, dates.get(dates.size() / 2).name, dates.get(dates.size() - 1).name });
+			dateAxis.setLabels(new String[] { metrics.get(0).name, metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
 			provider.addAxis(dateAxis);
 
 			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
-			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(dates)) });
+			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
 			add(new Chart("commitsChart", provider));
@@ -89,11 +94,11 @@ public class SummaryPage extends RepositoryPage {
 		}
 	}
 
-	protected IChartData getChartData(List<Metric> results) {
-		final double[] counts = new double[results.size()];
+	protected IChartData getChartData(List<Metric> metrics) {
+		final double[] counts = new double[metrics.size()];
 		int i = 0;
 		double max = 0;
-		for (Metric m : results) {
+		for (Metric m : metrics) {
 			counts[i++] = m.count;
 			max = Math.max(max, m.count);
 		}

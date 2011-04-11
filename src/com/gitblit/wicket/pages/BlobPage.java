@@ -25,7 +25,7 @@ public class BlobPage extends RepositoryPage {
 		final String blobPath = params.getString("f", null);
 
 		Repository r = getRepository();
-		RevCommit commit = JGitUtils.getCommit(r, commitId);
+		RevCommit commit = JGitUtils.getCommit(r, objectId);
 
 		// blob page links
 		add(new Label("historyLink", getString("gb.history")));
@@ -34,7 +34,7 @@ public class BlobPage extends RepositoryPage {
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, commitId));
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 		String extension = null;
 		if (blobPath.lastIndexOf('.') > -1) {
 			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1);

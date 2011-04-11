@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -31,17 +31,26 @@ public class LogPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public LogPanel(String wicketId, final String repositoryName, Repository r, int maxCount, boolean showPager) {
+	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
 		super(wicketId);
-
+		boolean pageResults = limit <= 0;	
+		setOutputMarkupId(pageResults);
+		
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
-		List<RevCommit> commits = JGitUtils.getRevLog(r, maxCount);
+		List<RevCommit> commits;
+		if (pageResults) {
+			// Paging result set
+			commits = JGitUtils.getRevLog(r, objectId, pageOffset*GitBlitWebApp.PAGING_ITEM_COUNT, GitBlitWebApp.PAGING_ITEM_COUNT);
+		} else {
+			// Fixed size result set
+			commits = JGitUtils.getRevLog(r, objectId, 0, limit);
+		}
 
 		// header
-		if (showPager) {
+		if (pageResults) {
 			// shortlog page
 			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));			
+			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		} else {
 			// summary page
 			// show shortlog page link
@@ -64,7 +73,7 @@ public class LogPanel extends Panel {
 
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = WicketUtils.trimShortLog(shortMessage);
-				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName()));
+				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTitle(shortlog, shortMessage);
 				}
@@ -72,32 +81,29 @@ public class LogPanel extends Panel {
 
 				item.add(new RefsPanel("commitRefs", entry, allRefs));
 
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("diff", DiffPage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newCommitParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("diff", DiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};
-		add(logView);
+		add(logView);		
 
 		// determine to show pager, more, or neither
-		if (maxCount <= 0) {
+		if (limit <= 0) {
 			// no display limit
 			add(new Label("moreLogs", "").setVisible(false));
 			add(new Label("pageLogs", "").setVisible(false));
-		} else {
-			if (commits.size() == maxCount) {
-
-			}
-			if (showPager) {
+		} else {			
+			if (pageResults) {
 				// paging
 				add(new Label("moreLogs", "").setVisible(false));
-				if (commits.size() == maxCount) {
+				if (commits.size() == limit) {
 					// show pager
 					logView.setItemsPerPage(GitBlitWebApp.PAGING_ITEM_COUNT);
-					add(new PagingNavigator("pageLogs", logView));
+					add(new AjaxPagingNavigator("pageLogs", logView));
 				} else {
 					// nothing to page
 					add(new Label("pageLogs", "").setVisible(false));
@@ -105,7 +111,7 @@ public class LogPanel extends Panel {
 			} else {
 				// more
 				add(new Label("pageLogs", "").setVisible(false));
-				if (commits.size() == maxCount) {
+				if (commits.size() == limit) {
 					// show more
 					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				} else {
