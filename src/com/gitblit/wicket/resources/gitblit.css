@@ -187,7 +187,7 @@ div.page_path {
 div.commit_message {
 	padding: 8px;
 	border: solid #bbb;
-	border-width: 1px 0px 1px;
+	border-width: 1px 0px 0px;
 }
 
 div.bug_open, span.bug_open {
@@ -305,10 +305,8 @@ table.plain {
 }
 
 table.pretty, table.repositories {
-	margin-top:5px;
 	margin-bottom:5px;
 	border-spacing: 0px;
-	border-top: 1px solid #bbb;
 	border-left: 1px solid #bbb;
 	border-right: 1px solid #bbb;	
 }

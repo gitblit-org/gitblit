@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -16,8 +15,8 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
@@ -33,14 +32,13 @@ public class LogPanel extends Panel {
 
 	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
 		super(wicketId);
-		boolean pageResults = limit <= 0;	
-		setOutputMarkupId(pageResults);
-		
+		boolean pageResults = limit <= 0;
+		int itemsPerPage = StoredSettings.getInteger("logPageCommitsCount", 50);
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set
-			commits = JGitUtils.getRevLog(r, objectId, pageOffset*GitBlitWebApp.PAGING_ITEM_COUNT, GitBlitWebApp.PAGING_ITEM_COUNT);
+			commits = JGitUtils.getRevLog(r, objectId, pageOffset * itemsPerPage, itemsPerPage);
 		} else {
 			// Fixed size result set
 			commits = JGitUtils.getRevLog(r, objectId, 0, limit);
@@ -89,28 +87,18 @@ public class LogPanel extends Panel {
 				counter++;
 			}
 		};
-		add(logView);		
+		add(logView);
 
 		// determine to show pager, more, or neither
 		if (limit <= 0) {
 			// no display limit
 			add(new Label("moreLogs", "").setVisible(false));
-			add(new Label("pageLogs", "").setVisible(false));
-		} else {			
+		} else {
 			if (pageResults) {
 				// paging
 				add(new Label("moreLogs", "").setVisible(false));
-				if (commits.size() == limit) {
-					// show pager
-					logView.setItemsPerPage(GitBlitWebApp.PAGING_ITEM_COUNT);
-					add(new AjaxPagingNavigator("pageLogs", logView));
-				} else {
-					// nothing to page
-					add(new Label("pageLogs", "").setVisible(false));
-				}
 			} else {
 				// more
-				add(new Label("pageLogs", "").setVisible(false));
 				if (commits.size() == limit) {
 					// show more
 					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
