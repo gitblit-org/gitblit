@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -15,7 +14,6 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RefModel;
@@ -24,7 +22,7 @@ import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
-public class BranchesPanel extends Panel {
+public class BranchesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,7 +57,7 @@ public class BranchesPanel extends Panel {
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
-				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), GitBlitWebSession.get().getTimezone()));
+				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone()));
 
 				item.add(new LinkPanel("branchName", "list name", WicketUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				

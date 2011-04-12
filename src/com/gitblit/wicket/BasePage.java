@@ -1,5 +1,7 @@
 package com.gitblit.wicket;
 
+import java.util.TimeZone;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
@@ -46,6 +48,10 @@ public abstract class BasePage extends WebPage {
 		if (StoredSettings.getBoolean("aggressiveHeapManagement", false)) {
 			System.gc();
 		}
+	}
+	
+	protected TimeZone getTimeZone() {
+		return StoredSettings.getBoolean("useClientTimezone", false) ? GitBlitWebSession.get().getTimezone() : TimeZone.getDefault();
 	}
 	
 	protected String getServerName() {

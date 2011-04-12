@@ -409,38 +409,45 @@ td.rightAlign {
 	text-align: right;
 }
 
-span .tag, span .head, span .ref {
+span .tagRef, span .headRef, span .remoteRef, span .otherRef {	
 	padding: 0px 4px;
+	margin-right:2px;
 	font-family: sans-serif;
+	font-size: 9px;
 	font-weight: normal;
 	border: 1px solid;
 	color: black;
 }
 
-span .tag a, span .head a, span .ref a {
+span .tagRef a span, span .headRef a span, span .remoteRef a span, span .otherRef a span {
+	font-size: 9px;
+}
+
+span .tagRef a, span .headRef a, span .remoteRef a, span .otherRef a {
 	text-decoration: none;
 	color: inherit;
 }
 
-span .tag a:hover, span .head a:hover, span .ref a:hover {
+span .tagRef a:hover, span .headRef a:hover, span .remoteRef a:hover, span .otherRef a:hover {
 	color: inherit;
 }
 
-span .tag a span, span .head a span, span .ref a span {
-	font-size: 9px;
+span .otherRef {
+	background-color: #ffaaff;
+	border-color: #ffccff #ff00ee #ff00ee #ffccff;
 }
 
-span .ref {
+span .remoteRef {
 	background-color: #aaaaff;
 	border-color: #ccccff #0033cc #0033cc #ccccff;
 }
 
-span .tag {
+span .tagRef {
 	background-color: #ffffaa;
 	border-color: #ffffcc #ffee00 #ffee00 #ffffcc;
 }
 
-span .head {
+span .headRef {
 	background-color: #aaffaa;
 	border-color: #ccffcc #00cc33 #00cc33 #ccffcc;
 }

@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -51,12 +50,10 @@ public class CommitPage extends RepositoryPage {
 		addRefs(r, c);
 
 		add(new Label("commitAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
-		String authorDate = GitBlitWebSession.get().formatDateTimeLong(c.getAuthorIdent().getWhen());
-		add(new Label("commitAuthorDate", authorDate));
+		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
 		add(new Label("commitCommitter", JGitUtils.getDisplayName(c.getCommitterIdent())));
-		String comitterDate = GitBlitWebSession.get().formatDateTimeLong(c.getCommitterIdent().getWhen());
-		add(new Label("commitCommitterDate", comitterDate));
+		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone()));
 
 		add(new Label("commitId", c.getName()));
 

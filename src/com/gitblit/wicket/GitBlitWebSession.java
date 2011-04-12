@@ -1,17 +1,11 @@
 package com.gitblit.wicket;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
-
-import com.gitblit.StoredSettings;
-
 
 public final class GitBlitWebSession extends WebSession {
 
@@ -36,36 +30,6 @@ public final class GitBlitWebSession extends WebSession {
 			timezone = TimeZone.getDefault();
 		}
 		return timezone;
-	}
-
-	public String formatTime(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("timestampFormat", "h:mm a"));
-		df.setTimeZone(getTimezone());
-		return df.format(date);
-	}
-
-	public String formatDate(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datestampShortFormat", "MM/dd/yy"));
-		df.setTimeZone(getTimezone());
-		return df.format(date);
-	}
-
-	public String formatDateLong(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datestampLongFormat", "EEEE, MMMM d, yyyy"));
-		df.setTimeZone(getTimezone());
-		return df.format(date);
-	}
-
-	public String formatDateTime(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampShortFormat", "MM/dd/yy h:mm a"));
-		df.setTimeZone(getTimezone());
-		return df.format(date);
-	}
-
-	public String formatDateTimeLong(Date date) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampLongFormat", "EEEE, MMMM d, yyyy h:mm a z"));
-		df.setTimeZone(getTimezone());
-		return df.format(date);
 	}
 
 	public static GitBlitWebSession get() {

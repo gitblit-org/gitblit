@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -17,7 +16,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
@@ -26,7 +24,7 @@ import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
-public class LogPanel extends Panel {
+public class LogPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +35,7 @@ public class LogPanel extends Panel {
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
-		
+
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
@@ -68,7 +66,7 @@ public class LogPanel extends Panel {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
 
-				item.add(WicketUtils.createDateLabel("commitDate", date, GitBlitWebSession.get().getTimezone()));
+				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone()));
 
 				String author = entry.getAuthorIdent().getName();
 				item.add(WicketUtils.createAuthorLabel("commitAuthor", author));

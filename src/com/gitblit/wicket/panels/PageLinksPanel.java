@@ -1,5 +1,6 @@
 package com.gitblit.wicket.panels;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
@@ -52,9 +54,13 @@ public class PageLinksPanel extends Panel {
 		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
+		// Get the repository ticgit setting
+		boolean checkTicgit = StoredSettings.getBoolean("ticgit.global", false);
+		checkTicgit |= StoredSettings.getBoolean(MessageFormat.format("ticgit.{0}", repositoryName), false);
+		
 		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
-		if (JGitUtils.getTicGitBranch(r) != null) {
+		if (checkTicgit && JGitUtils.getTicGitBranch(r) != null) {
 			extras.add("ticgit");
 		}
 

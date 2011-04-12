@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -17,6 +16,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.TagPage;
 
@@ -32,7 +32,7 @@ public class RefsPanel extends Panel {
 			refNames = new ArrayList<String>();
 		}
 		Collections.sort(refNames);
-		refNames.remove(Constants.HEAD);
+//		refNames.remove(Constants.HEAD);
 		
 		ListDataProvider<String> refsDp = new ListDataProvider<String>(refNames);
 		DataView<String> refsView = new DataView<String>("ref", refsDp) {
@@ -43,22 +43,19 @@ public class RefsPanel extends Panel {
 				if (entry.startsWith(Constants.R_HEADS)) {
 					// local head
 					c = new LinkPanel("refName", null, entry.substring(Constants.R_HEADS.length()), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
-//					c = new Label("refName", entry.substring(Constants.R_HEADS.length()));
-					WicketUtils.setCssClass(c, "head");
+					WicketUtils.setCssClass(c, "headRef");
 				} else if (entry.startsWith(Constants.R_REMOTES)) {
 					// remote head
 					c = new LinkPanel("refName", null, entry.substring(Constants.R_REMOTES.length()), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
-//					c = new Label("refName", entry.substring(Constants.R_REMOTES.length()));
-					WicketUtils.setCssClass(c, "ref");
+					WicketUtils.setCssClass(c, "remoteRef");
 				} else if (entry.startsWith(Constants.R_TAGS)) {
 					// tag
-//					c = new BookmarkablePageLink<Void>("refName", TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
 					c = new LinkPanel("refName", null, entry.substring(Constants.R_TAGS.length()), TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
-					//c = new Label("refName", entry.substring(Constants.R_TAGS.length()));
-					WicketUtils.setCssClass(c, "tag");
+					WicketUtils.setCssClass(c, "tagRef");
 				} else {
 					// other
-					c = new Label("refName", entry);
+					c = new LinkPanel("refName", null, entry, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					WicketUtils.setCssClass(c, "otherRef");
 				}
 				WicketUtils.setHtmlTitle(c, entry);
 				item.add(c);

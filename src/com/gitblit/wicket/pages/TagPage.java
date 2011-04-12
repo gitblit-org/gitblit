@@ -6,9 +6,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
+import com.gitblit.wicket.WicketUtils;
 
 
 public class TagPage extends RepositoryPage {
@@ -23,8 +23,7 @@ public class TagPage extends RepositoryPage {
 
 		add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
 		add(new Label("tagAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
-		String authorDate = GitBlitWebSession.get().formatDateTimeLong(c.getAuthorIdent().getWhen());
-		add(new Label("tagDate", authorDate));
+		add(WicketUtils.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
 		addFullText("fullMessage", c.getFullMessage(), true);
 	}

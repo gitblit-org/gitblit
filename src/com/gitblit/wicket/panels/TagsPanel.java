@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -12,7 +11,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RefModel;
@@ -22,7 +20,7 @@ import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
 
-public class TagsPanel extends Panel {
+public class TagsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -49,7 +47,7 @@ public class TagsPanel extends Panel {
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 
-				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), GitBlitWebSession.get().getTimezone()));
+				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone()));
 
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
 				String message;

@@ -27,8 +27,7 @@ public class TicGitTicketPage extends RepositoryPage {
 		add(new Label("ticketTitle", t.title));
 		add(new Label("ticketId", t.id));
 		add(new Label("ticketHandler", t.handler));
-		String openDate = GitBlitWebSession.get().formatDateTimeLong(t.date);
-		add(new Label("ticketOpenDate", openDate));
+		add(WicketUtils.createTimestampLabel("ticketOpendate", t.date, getTimeZone()));
 		Label stateLabel = new Label("ticketState", t.state);
 		WicketUtils.setTicketCssClass(stateLabel, t.state);
 		add(stateLabel);

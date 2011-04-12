@@ -18,8 +18,8 @@ import com.codecommit.wicket.IChartData;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.GitBlitWebApp;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.RepositoryPage;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LogPanel;
@@ -51,16 +51,12 @@ public class SummaryPage extends RepositoryPage {
 			numberOfCommits += m.count;
 		}
 
-		String owner = JGitUtils.getRepositoryOwner(r);
-		GitBlitWebSession session = GitBlitWebSession.get();
-		String lastchange = session.formatDateTimeLong(JGitUtils.getLastChange(r));
-		String cloneurl = GitBlitWebApp.get().getCloneUrl(repositoryName);
-
 		// repository description
 		add(new Label("repositoryDescription", description));
-		add(new Label("repositoryOwner", owner));
-		add(new Label("repositoryLastChange", lastchange));
-		add(new Label("repositoryCloneUrl", cloneurl));
+		add(new Label("repositoryOwner", JGitUtils.getRepositoryOwner(r)));
+		
+		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r), getTimeZone()));
+		add(new Label("repositoryCloneUrl", GitBlitWebApp.get().getCloneUrl(repositoryName)));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));

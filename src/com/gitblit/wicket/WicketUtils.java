@@ -136,4 +136,16 @@ public class WicketUtils {
 		WicketUtils.setHtmlTitle(label, title);
 		return label;
 	}
+	
+	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone) {
+		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampLongFormat", "EEEE, MMMM d, yyyy h:mm a z"));
+		if (timeZone != null) {
+			df.setTimeZone(timeZone);
+		}
+		String dateString = df.format(date);
+		String title = Utils.timeAgo(date);
+		Label label = new Label(wicketId, dateString);
+		WicketUtils.setHtmlTitle(label, title);
+		return label;
+	}
 }
