@@ -26,12 +26,12 @@
 	<div class="header"><wicket:message key="gb.ticketComments">comments</wicket:message></div>
 	
 	<!-- comments -->
-	<table style="width:100%;" class="pretty">
+	<table style="width:100%;" class="comments">
 		<tbody>
-			<tr wicket:id="comment">
-         		<td class="date"><span wicket:id="commentDate">[comment date]</span></td>
-         		<td class="author"><span wicket:id="commentAuthor">[comment author]</span></td>
-         		<td><div wicket:id="commentText">[comment text]</div></td>
+			<tr valign="top" wicket:id="comment">
+         		<td><span class="date" wicket:id="commentDate">[comment date]</span><br/>
+         		<span class="author" wicket:id="commentAuthor">[comment author]</span></td>
+         		<td><span wicket:id="commentText">[comment text]</span></td>
        		</tr>
        	</tbody>
     </table>

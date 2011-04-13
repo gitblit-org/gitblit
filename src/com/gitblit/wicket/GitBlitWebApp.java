@@ -79,8 +79,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
 		
 		// setup extended urls
-		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "p" }));
-		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "p", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "r" }));
+		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "r", "h", "f" }));
 		
 		repositories = new File(StoredSettings.getString("repositoriesFolder", "repos"));
 		exportAll = StoredSettings.getBoolean("exportAll", true);

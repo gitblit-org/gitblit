@@ -293,7 +293,7 @@ table.plain {
 	padding: 8px;
 }
 
-table.pretty, table.repositories {
+table.pretty, table.repositories, table.comments {
 	margin-bottom:5px;
 	border-spacing: 0px;
 	border-left: 1px solid #bbb;
@@ -302,6 +302,11 @@ table.pretty, table.repositories {
 
 table.pretty td {
 	padding: 2px 4px;
+}
+
+table.comments td {
+	padding: 4px;
+	line-height: 17px;
 }
 
 table.repositories {
