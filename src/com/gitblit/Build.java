@@ -100,7 +100,7 @@ public class Build {
 	 *            the byte array
 	 * @return the SHA1 checksum
 	 */
-	private static String getSHA1(byte[] data) {
+	public static String getSHA1(byte[] data) {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("SHA-1");

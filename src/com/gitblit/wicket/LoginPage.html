@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+      
+	<!-- Head with Wicket-controlled resources in this package -->
+	<wicket:head>
+   		<title wicket:id="title">[page title]</title>
+   		<wicket:link>
+   			<link rel="stylesheet" type="text/css" href="resources/gitblit.css"/>
+   			<link rel="shortcut icon" href="resources/gitblt-favicon.png" type="image/png" />
+   		</wicket:link>
+	</wicket:head>
+	
+
+	<body onload="document.getElementById('username').focus();">
+	<div>
+		<center>
+			<img wicket:id="logo" /><br/>
+			<span style="font-weight:bold;" wicket:id="name">[name]</span><br/>
+
+			<div>
+				<form style="text-align:center;" wicket:id="loginForm">
+					<p/>
+					Username <input type="text" id="username" wicket:id="username" value=""/>
+					<p/>
+					Password <input type="password"  wicket:id="password" value=""/>
+					<p/>
+					<input type="submit" value="Login" />
+					<div style="background-color:#c7c7c7" wicket:id="feedback"></div>
+				</form>
+			</div>
+		</center>
+	</div>
+	</body>
+</html>

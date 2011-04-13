@@ -26,7 +26,7 @@ public abstract class BasePage extends WebPage {
 	public BasePage(PageParameters params) {
 		super(params);
 	}
-		
+	
 	protected void setupPage(String repositoryName, String pageName) {
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", getServerName() + " - " + repositoryName));
@@ -43,7 +43,13 @@ public abstract class BasePage extends WebPage {
 		add(new Label("pageName", pageName));
 		
 		// footer
-		add(new Label("footerText", ""));
+		User user = null;
+		if (StoredSettings.getBoolean("authenticateWebUI", true)) {
+			user = GitBlitWebSession.get().getUser();
+			add(new Label("userText", "Logout " + user.toString()));
+		} else {
+			add(new Label("userText", ""));
+		}
 		add(new Label("gbVersion", "v" + Constants.VERSION));
 		if (StoredSettings.getBoolean("aggressiveHeapManagement", false)) {
 			System.gc();

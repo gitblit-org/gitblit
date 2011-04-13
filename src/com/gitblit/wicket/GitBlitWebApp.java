@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
@@ -13,6 +14,7 @@ import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebRequestProcessor;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.IRequestCycleProcessor;
@@ -24,6 +26,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlitServer;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
@@ -31,8 +34,8 @@ import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
-import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
+import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
@@ -44,10 +47,7 @@ import com.gitblit.wicket.pages.TicGitPage;
 import com.gitblit.wicket.pages.TicGitTicketPage;
 import com.gitblit.wicket.pages.TreePage;
 
-
 public class GitBlitWebApp extends WebApplication {
-
-	public static int PAGING_ITEM_COUNT = 50;
 
 	Logger logger = LoggerFactory.getLogger(GitBlitWebApp.class);
 
@@ -61,8 +61,17 @@ public class GitBlitWebApp extends WebApplication {
 	public void init() {
 		super.init();
 
+		// Setup page authorization mechanism
+		if (StoredSettings.getBoolean("authenticateWebUI", false)) {
+			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
+			getSecuritySettings().setAuthorizationStrategy(authStrategy);
+			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
+		}
+
 		// Grab Browser info (like timezone, etc)
-		getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
+		if (StoredSettings.getBoolean("useClientTimezone", false)) {
+			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
+		}
 
 		// setup the standard gitweb-ish urls
 		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "r" }));
@@ -77,11 +86,13 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/blobdiff", BlobDiffPage.class, new String[] { "r", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
-		
+
 		// setup extended urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "r" }));
 		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "r", "h", "f" }));
-		
+
+		mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));
+
 		repositories = new File(StoredSettings.getString("repositoriesFolder", "repos"));
 		exportAll = StoredSettings.getBoolean("exportAll", true);
 		repositoryResolver = new FileResolver(repositories, exportAll);
@@ -107,6 +118,28 @@ public class GitBlitWebApp extends WebApplication {
 		if (GitBlitServer.isDebugMode())
 			return Application.DEVELOPMENT;
 		return Application.DEPLOYMENT;
+	}
+
+	public User authenticate(String username, char [] password) {
+		return new User(username, password);
+	}
+
+	public User authenticate(Cookie[] cookies) {
+		if (cookies != null && cookies.length > 0) {
+			for (Cookie cookie:cookies) {
+				if (cookie.getName().equals(Constants.NAME)) {
+					String value = cookie.getValue();
+				}
+			}
+		}
+		return null;
+	}
+	
+	public void setCookie(WebResponse response, User user) {
+		Cookie userCookie = new Cookie(Constants.NAME, user.getCookie());
+		userCookie.setMaxAge(Integer.MAX_VALUE);
+		userCookie.setPath("/");
+		response.addCookie(userCookie);
 	}
 
 	public List<String> getRepositoryList() {
