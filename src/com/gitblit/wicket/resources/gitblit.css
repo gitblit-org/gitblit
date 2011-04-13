@@ -229,9 +229,9 @@ div.diff.header {
     background-color: #EDECE6;
     border-color: #D9D8D1;
     border-style: solid;
-    border-width: 1px 0;
+    border-width: 1px;
     font-weight: bold;
-    margin-top: 4px;
+    margin-top: 10px;
     padding: 4px 0 2px;
 }
 
@@ -241,17 +241,17 @@ div.diff.extended_header {
     font-family: inherit;
 }
 
-div.diff.add {
+span.diff.add {
 	color: #008800;
 	font-family: inherit;
 }
 
-div.diff.remove {
+span.diff.remove {
 	color: #cc0000;
 	font-family: inherit;
 }
 
-div.diff.unchanged {
+span.diff.unchanged {
 	color: inherit;
 	font-family: inherit;
 }
@@ -425,11 +425,12 @@ span .tagRef a span, span .headRef a span, span .remoteRef a span, span .otherRe
 
 span .tagRef a, span .headRef a, span .remoteRef a, span .otherRef a {
 	text-decoration: none;
-	color: inherit;
+	color: black;
 }
 
 span .tagRef a:hover, span .headRef a:hover, span .remoteRef a:hover, span .otherRef a:hover {
-	color: inherit;
+	color: black;
+	text-decoration: underline;
 }
 
 span .otherRef {

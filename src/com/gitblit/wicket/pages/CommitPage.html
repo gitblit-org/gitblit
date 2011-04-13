@@ -12,7 +12,7 @@
 	
 	<!-- commit nav links -->	
 	<div class="page_nav2">
-		<wicket:message key="gb.parent"></wicket:message>: <span wicket:id="parentLink">[parent link]</span> | <span wicket:id="patchLink">[patch link]</span> | <span wicket:id="commitdiffLink">[commitdiff link]</span>
+		<wicket:message key="gb.parent"></wicket:message>: <span wicket:id="parentLink">[parent link]</span> | <a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> | <span wicket:id="commitdiffLink">[commitdiff link]</span>
 	</div>	
 	
 	<!-- shortlog header -->
@@ -40,7 +40,7 @@
 			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
 			<td>
 				<div class="link">
-					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
 				</div>
 			</td>
 		</tr>

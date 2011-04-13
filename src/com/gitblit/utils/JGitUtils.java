@@ -42,10 +42,11 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.utils.TicGitTicket.Comment;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.models.TicGitTicket;
+import com.gitblit.wicket.models.TicGitTicket.Comment;
 
 public class JGitUtils {
 
@@ -98,12 +99,15 @@ public class JGitUtils {
 		return getCommitDate(commit);
 	}
 
-	public static RevCommit getCommit(Repository r, String commitId) {
+	public static RevCommit getCommit(Repository r, String objectId) {
 		RevCommit commit = null;
 		try {
-			ObjectId objectId = r.resolve(commitId);
+			if (objectId == null || objectId.trim().length() == 0) {
+				objectId = Constants.HEAD;
+			}
+			ObjectId object = r.resolve(objectId);
 			RevWalk walk = new RevWalk(r);
-			RevCommit rev = walk.parseCommit(objectId);
+			RevCommit rev = walk.parseCommit(object);
 			commit = rev;
 			walk.dispose();
 		} catch (Throwable t) {
@@ -205,8 +209,8 @@ public class JGitUtils {
 		return new String(getRawContent(r, (RevBlob) obj));
 	}
 
-	public static List<PathModel> getFilesInPath(Repository r, String basePath, String commitId) {
-		RevCommit commit = getCommit(r, commitId);
+	public static List<PathModel> getFilesInPath(Repository r, String basePath, String objectId) {
+		RevCommit commit = getCommit(r, objectId);
 		return getFilesInPath(r, basePath, commit);
 	}
 
@@ -298,11 +302,7 @@ public class JGitUtils {
 			walk.setRecursive(true);
 			walk.addTree(parentTree);
 			walk.addTree(commitTree);
-			if (path != null && path.trim().length() > 0) {
-				walk.setFilter(PathFilter.create(path));
-			} else {
-				walk.setFilter(TreeFilter.ANY_DIFF);
-			}
+			walk.setFilter(TreeFilter.ANY_DIFF);
 
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
@@ -316,7 +316,16 @@ public class JGitUtils {
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);
 			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
-			df.format(diffs);
+			if (path != null && path.length() > 0) {
+				for (DiffEntry diff : diffs) {
+					if (diff.getNewPath().equalsIgnoreCase(path)) {
+						df.format(diff);
+						break;
+					}
+				}
+			} else {
+				df.format(diffs);
+			}
 			String diff;
 			if (outputHtml) {
 				// workaround for complex private methods in DiffFormatter
@@ -324,6 +333,50 @@ public class JGitUtils {
 			} else {
 				diff = os.toString();
 			}
+			df.flush();
+			return diff;
+		} catch (Throwable t) {
+			LOGGER.error("failed to generate commit diff!", t);
+		}
+		return null;
+	}
+	
+	public static String getCommitPatch(Repository r, RevCommit commit) {
+		return getCommitPatch(r, commit);
+	}
+	
+	public static String getCommitPatch(Repository r, RevCommit commit, String path) {
+		try {
+			final RevWalk rw = new RevWalk(r);
+			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+			RevTree parentTree = parent.getTree();
+			RevTree commitTree = commit.getTree();
+
+			final TreeWalk walk = new TreeWalk(r);
+			walk.reset();
+			walk.setRecursive(true);
+			walk.addTree(parentTree);
+			walk.addTree(commitTree);
+			walk.setFilter(TreeFilter.ANY_DIFF);
+
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			RawTextComparator cmp = RawTextComparator.DEFAULT;
+			PatchFormatter df = new PatchFormatter(os);
+			df.setRepository(r);
+			df.setDiffComparator(cmp);
+			df.setDetectRenames(true);
+			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+			if (path != null && path.length() > 0) {
+				for (DiffEntry diff : diffs) {
+					if (diff.getNewPath().equalsIgnoreCase(path)) {
+						df.format(diff);
+						break;
+					}
+				}
+			} else {
+				df.format(diffs);
+			}
+			String diff = df.getPatch(commit);
 			df.flush();
 			return diff;
 		} catch (Throwable t) {
@@ -523,6 +576,7 @@ public class JGitUtils {
 	}
 
 	public static List<Metric> getDateMetrics(Repository r) {
+		final List<RefModel> tags = getTags(r, -1);
 		final Map<String, Metric> map = new HashMap<String, Metric>();
 		try {
 			DateFormat df = new SimpleDateFormat("yyyy-MM");

@@ -28,12 +28,15 @@ import com.gitblit.GitBlitServer;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.models.RepositoryModel;
+import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.DiffPage;
-import com.gitblit.wicket.pages.RepositoriesPage;
+import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.PatchPage;
+import com.gitblit.wicket.pages.RawPage;
+import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -70,7 +73,10 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "r", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "r", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/diff", DiffPage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/raw", RawPage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/blobdiff", BlobDiffPage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
+		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
 		
 		// setup extended urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "p" }));

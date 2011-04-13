@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -34,7 +35,8 @@ public class TreePage extends RepositoryPage {
 
 		// tree page links
 		add(new Label("historyLink", getString("gb.history")));
-		add(new Label("headLink", "HEAD"));
+		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, basePath)));
+
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
@@ -79,7 +81,7 @@ public class TreePage extends RepositoryPage {
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("raw", BlobPage.class).setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
 						item.add(links);
 					}

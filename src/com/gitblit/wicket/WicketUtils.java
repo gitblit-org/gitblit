@@ -10,6 +10,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
+import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.Utils;
@@ -108,7 +109,7 @@ public class WicketUtils {
 	}
 
 	public static String getObject(PageParameters params) {
-		return params.getString("h", "");
+		return params.getString("h", Constants.HEAD);
 	}
 
 	public static String getPath(PageParameters params) {

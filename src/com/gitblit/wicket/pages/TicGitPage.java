@@ -9,11 +9,11 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.TicGitTicket;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.models.TicGitTicket;
 
 public class TicGitPage extends RepositoryPage {
 

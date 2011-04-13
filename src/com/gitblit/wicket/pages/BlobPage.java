@@ -6,6 +6,8 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -28,9 +30,10 @@ public class BlobPage extends RepositoryPage {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 
 		// blob page links
+		add(new Label("blameLink", getString("gb.blame")));
 		add(new Label("historyLink", getString("gb.history")));
-		add(new Label("rawLink", getString("gb.raw")));
-		add(new Label("headLink", "HEAD"));
+		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 

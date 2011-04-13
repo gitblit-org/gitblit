@@ -19,7 +19,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.DiffPage;
+import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
@@ -82,7 +82,7 @@ public class LogPanel extends BasePanel {
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("diff", DiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);

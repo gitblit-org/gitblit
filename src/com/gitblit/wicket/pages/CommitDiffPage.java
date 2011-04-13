@@ -9,7 +9,6 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -19,18 +18,18 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
 
+public class CommitDiffPage extends RepositoryPage {
 
-public class CommitPage extends RepositoryPage {
-
-	public CommitPage(PageParameters params) {
+	public CommitDiffPage(PageParameters params) {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit c = JGitUtils.getCommit(r, objectId);
+		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		String diff = JGitUtils.getCommitDiff(r, commit, true);		
 		
 		List<String> parents = new ArrayList<String>();
-		if (c.getParentCount() > 0) {
-			for (RevCommit parent : c.getParents()) {
+		if (commit.getParentCount() > 0) {
+			for (RevCommit parent : commit.getParents()) {
 				parents.add(parent.name());
 			}
 		}
@@ -38,43 +37,16 @@ public class CommitPage extends RepositoryPage {
 		// commit page links
 		if (parents.size() == 0) {
 			add(new Label("parentLink", "none"));
-			add(new Label("commitdiffLink", getString("gb.commitdiff")));
 		} else {
-			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class, newCommitParameter(parents.get(0))));
-			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff", this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitDiffPage.class, newCommitParameter(parents.get(0))));
 		}
 		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		
-		add(new LinkPanel("shortlog", "title", c.getShortMessage(), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		
-		addRefs(r, c);
+		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 
-		add(new Label("commitAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
-		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone()));
-
-		add(new Label("commitCommitter", JGitUtils.getDisplayName(c.getCommitterIdent())));
-		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone()));
-
-		add(new Label("commitId", c.getName()));
-
-		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class, newCommitParameter()));
-
-		// Parent Commits
-		ListDataProvider<String> parentsDp = new ListDataProvider<String>(parents);
-		DataView<String> parentsView = new DataView<String>("commitParents", parentsDp) {
-			private static final long serialVersionUID = 1L;
-
-			public void populateItem(final Item<String> item) {
-				String entry = item.getModelObject();
-				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class, newCommitParameter(entry)));
-			}
-		};
-		add(parentsView);
-
-		addFullText("fullMessage", c.getFullMessage(), true);
+		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		// changed paths list
-		List<PathModel> paths  = JGitUtils.getFilesInCommit(r, c);
+		List<PathModel> paths  = JGitUtils.getFilesInCommit(r, commit);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -88,7 +60,7 @@ public class CommitPage extends RepositoryPage {
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
 				}
 				
-				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
 				item.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
@@ -98,10 +70,11 @@ public class CommitPage extends RepositoryPage {
 			}
 		};
 		add(pathsView);
+		add(new Label("diffText", diff).setEscapeModelStrings(false));
 	}
 	
 	@Override
 	protected String getPageName() {
-		return getString("gb.commit");
+		return getString("gb.commitdiff");
 	}
 }

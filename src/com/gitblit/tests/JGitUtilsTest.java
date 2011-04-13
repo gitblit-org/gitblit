@@ -15,9 +15,9 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.TicGitTicket;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.models.TicGitTicket;
 
 public class JGitUtilsTest extends TestCase {
 

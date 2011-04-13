@@ -8,11 +8,11 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.TicGitTicket;
-import com.gitblit.utils.TicGitTicket.Comment;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.models.TicGitTicket;
+import com.gitblit.wicket.models.TicGitTicket.Comment;
 
 public class TicGitTicketPage extends RepositoryPage {
 

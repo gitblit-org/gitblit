@@ -1,13 +1,10 @@
-package com.gitblit.utils;
+package com.gitblit.wicket.models;
 
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import com.gitblit.wicket.models.PathModel;
 
 public class TicGitTicket implements Serializable, Comparable<TicGitTicket> {
 

@@ -2,6 +2,7 @@ package com.gitblit.utils;
 
 import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -9,6 +10,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 
 public class HtmlDiffFormatter extends DiffFormatter {
+		
 	private final OutputStream os;
 
 	public HtmlDiffFormatter(OutputStream os) {
@@ -39,9 +41,6 @@ public class HtmlDiffFormatter extends DiffFormatter {
 		os.write(' ');
 		os.write('@');
 		os.write('@');
-		// TODO not sure if JGit can determine hunk section
-		//os.write("<span class=\"diff hunk_section\">".getBytes());
-		//os.write("</span>".getBytes());
 		os.write("</span></div>".getBytes());
 	}
 
@@ -82,18 +81,22 @@ public class HtmlDiffFormatter extends DiffFormatter {
 	protected void writeLine(final char prefix, final RawText text, final int cur) throws IOException {
 		switch (prefix) {
 		case '+':
-			os.write("<div class=\"diff add\">".getBytes());
+			os.write("<span class=\"diff add\">".getBytes());
 			break;
 		case '-':
-			os.write("<div class=\"diff remove\">".getBytes());
+			os.write("<span class=\"diff remove\">".getBytes());
 			break;
 		}
 		os.write(prefix);
-		text.writeLine(os, cur);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		text.writeLine(bos, cur);
+		String line = bos.toString();
+		line = Utils.escapeForHtml(line, false);
+		os.write(line.getBytes());
 		switch (prefix) {
 		case '+':
 		case '-':
-			os.write("</div>".getBytes());
+			os.write("</span>\n".getBytes());
 			break;
 		default:
 			os.write('\n');
@@ -115,14 +118,14 @@ public class HtmlDiffFormatter extends DiffFormatter {
 			if (line.startsWith("diff")) {
 				sb.append("<div class=\"diff header\">").append(line).append("</div>");
 			} else if (line.startsWith("---")) {
-				sb.append("<div class=\"diff remove\">").append(line).append("</div>");
+				sb.append("<span class=\"diff remove\">").append(line).append("</span><br/>");
 			} else if (line.startsWith("+++")) {
-				sb.append("<div class=\"diff add\">").append(line).append("</div>");
+				sb.append("<span class=\"diff add\">").append(line).append("</span><br/>");
 			} else {
 				sb.append(line).append('\n');
 			}
 		}
-		sb.append("</div>");
+		sb.append("</div>\n");
 		return sb.toString();
 	}
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks">[page links]</div>
+	
+	<!-- commitdiff nav links -->	
+	<div class="page_nav2">
+		<wicket:message key="gb.parent"></wicket:message>: <span wicket:id="parentLink">[parent link]</span> | <a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> | <a wicket:id="commitLink"><wicket:message key="gb.commit"></wicket:message></a>
+	</div>	
+	
+	<!-- shortlog header -->
+	<div class="header" wicket:id="shortlog">[shortlog header]</div>
+
+	<!-- changed paths -->
+	<table style="margin-top:10px;border-top:1px solid #bbb;" class="pretty">
+		<tr wicket:id="changedPath">
+			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+			<td>
+				<div class="link">
+					<a wicket:id="patch"><wicket:message key="gb.patch"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+				</div>
+			</td>
+		</tr>
+	</table>
+	
+	<!--  diff content -->
+	<pre wicket:id="diffText">[diff text]</pre>
+	
+</wicket:extend>
+</body>
+</html>

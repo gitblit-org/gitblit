@@ -116,4 +116,51 @@ public class Utils {
 		}
 		return ago;
 	}
+	
+	public static String leftPad(String input, int length, char pad) {
+		if (input.length() < length) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0, len = length - input.length(); i < len; i++) {
+				sb.append(pad);
+			}
+			sb.append(input);
+			return sb.toString();
+		}
+		return input;
+	}
+	
+	public static String rightPad(String input, int length, char pad) {
+		if (input.length() < length) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(input);
+			for (int i = 0, len = length - input.length(); i < len; i++) {
+				sb.append(pad);
+			}			
+			return sb.toString();
+		}
+		return input;
+	}
+	
+	public static String escapeForHtml(String inStr, boolean changeSpace) {
+		StringBuffer retStr = new StringBuffer();
+		int i = 0;
+		while (i < inStr.length()) {
+			if (inStr.charAt(i) == '&') {
+				retStr.append("&amp;");
+			} else if (inStr.charAt(i) == '<') {
+				retStr.append("&lt;");
+			} else if (inStr.charAt(i) == '>') {
+				retStr.append("&gt;");
+			} else if (inStr.charAt(i) == '\"') {
+				retStr.append("&quot;");
+			} else if (changeSpace && inStr.charAt(i) == ' ') {
+				retStr.append("&nbsp;");
+			} else if (changeSpace && inStr.charAt(i) == '\t') {
+				retStr.append(" &nbsp; &nbsp;");
+			} else
+				retStr.append(inStr.charAt(i));
+			i++;
+		}
+		return retStr.toString();
+	}
 }
