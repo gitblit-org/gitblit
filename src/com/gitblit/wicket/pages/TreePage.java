@@ -82,6 +82,7 @@ public class TreePage extends RepositoryPage {
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
 						links.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
 						item.add(links);
 					}

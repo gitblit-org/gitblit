@@ -39,7 +39,7 @@ public abstract class BasePage extends WebPage {
 			siteName = Constants.NAME;
 		}
 		add(new Label("siteName", siteName));
-		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, new PageParameters("p=" + repositoryName)));
+		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
 		
 		// footer

@@ -23,16 +23,25 @@ public class TagPage extends RepositoryPage {
 		List<RefModel> tags = JGitUtils.getTags(r, -1);
 		RevCommit c = JGitUtils.getCommit(r, objectId);
 		
-		String name = c.getName();
+		RefModel tagRef = null;
+		// determine tag
 		for (RefModel tag:tags) {
-			if (tag.getName().equals(objectId)) {
-				name = tag.getDisplayName();
+			if (tag.getName().equals(objectId) || tag.getObjectId().getName().equals(objectId)) {
+				tagRef = tag;
+				break;
 			}
 		}
 
-		add(new LinkPanel("commit", "title", name, CommitPage.class, newCommitParameter()));
-
-		add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
+		if (tagRef == null) {
+			// point to commit
+			add(new LinkPanel("commit", "title", c.getShortMessage(), CommitPage.class, newCommitParameter()));
+			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));			
+		} else {
+			// TODO commit or tree or blob?
+			add(new LinkPanel("commit", "title", tagRef.getDisplayName(), CommitPage.class, newCommitParameter()));
+			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
+		}		
+		
 		add(new Label("tagAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
 		add(WicketUtils.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 

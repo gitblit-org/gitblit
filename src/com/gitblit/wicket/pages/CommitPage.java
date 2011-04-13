@@ -67,6 +67,8 @@ public class CommitPage extends RepositoryPage {
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
 				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class, newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, newCommitParameter(entry)));
 			}
 		};
 		add(parentsView);

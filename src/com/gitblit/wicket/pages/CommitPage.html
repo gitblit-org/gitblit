@@ -25,10 +25,18 @@
 		<tr><th></th><td><span wicket:id="commitAuthorDate">[author date]</span></td></tr>
 		<tr><th><wicket:message key="gb.committer">committer</wicket:message></th><td><span wicket:id="commitCommitter">[committer]</span></td></tr>
 		<tr><th></th><td><span wicket:id="commitCommitterDate">[commit date]</span></td></tr>
-		<tr><th><wicket:message key="gb.commit">commit</wicket:message></th><td class="sha1"><span wicket:id="commitId">[commit id]</span></td></tr>
-		<tr><th><wicket:message key="gb.tree">tree</wicket:message></th><td class="sha1"><span wicket:id="commitTree">[commit tree]</span></td></tr>
-		<tr><th><wicket:message key="gb.parent">parent</wicket:message></th><td class="sha1"><span wicket:id="commitParents">
-			<div wicket:id="commitParent">[commit parents]</div></span></td></tr>
+		<tr><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
+		<tr><th><wicket:message key="gb.tree">tree</wicket:message></th><td><span class="sha1" wicket:id="commitTree">[commit tree]</span></td></tr>
+		<tr><th><wicket:message key="gb.parent">parent</wicket:message></th>
+			<td>
+				<span wicket:id="commitParents">
+					<span class="sha1" wicket:id="commitParent">[commit parents]</span>
+					<span class="link">
+						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a>
+					</span>					
+				</span>
+			</td>
+		</tr>
 	</table>
 	
 	<!-- full message -->
@@ -39,9 +47,9 @@
 		<tr wicket:id="changedPath">
 			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
 			<td>
-				<div class="link">
+				<span class="link">
 					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
-				</div>
+				</span>
 			</td>
 		</tr>
 	</table>

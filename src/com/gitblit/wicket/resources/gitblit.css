@@ -87,26 +87,15 @@ div.pager {
 	padding: 0px 0px 15px 5px;
 }
 
-div.link {
-	padding: 2px 5px;
+span.link, span.link a {
 	font-family: sans-serif;
 	font-size: 11px;
 }
 
-div.link span {
-	font-family: inherit;
-	font-size: inherit;
-}
-
-div.link a {
-	font-family: inherit;
-	font-size: inherit;
-}
-
-div.link em, div.link span em {
+span.link em, div.link span em {
 	font-style: normal;
-	font-family: inherit;
-	font-size: inherit;
+	font-family: sans-serif;
+	font-size: 11px;
 }
 
 div.page_header {
@@ -311,6 +300,10 @@ table.pretty, table.repositories {
 	border-right: 1px solid #bbb;	
 }
 
+table.pretty td {
+	padding: 2px 4px;
+}
+
 table.repositories {
 	width:100%;	
 }
@@ -388,7 +381,7 @@ td.date {
 	font-style: italic;	
 }
 
-td.sha1, td.sha1 span {
+span.sha1, span.sha1 a, span.sha1 a span {
 	font-family: monospace;
 	font-size: 13px;
 }
