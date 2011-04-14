@@ -28,6 +28,13 @@ public final class GitBlitWebSession extends WebSession {
 		return user != null;
 	}
 	
+	public boolean canAdmin() {
+		if (user == null) {
+			return false;			
+		}
+		return user.canAdmin();
+	}
+	
 	public User getUser() {
 		return user;
 	}

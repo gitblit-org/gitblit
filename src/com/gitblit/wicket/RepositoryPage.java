@@ -12,6 +12,7 @@ import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.pages.RepositoriesPage;
@@ -51,7 +52,7 @@ public abstract class RepositoryPage extends BasePage {
 			HttpServletRequest req = servletWebRequest.getHttpServletRequest();
 			req.getServerName();
 
-			Repository r = GitBlitWebApp.get().getRepository(req, repositoryName);
+			Repository r = GitBlit.self().getRepository(req, repositoryName);
 			if (r == null) {
 				error("Can not load repository " + repositoryName);
 				redirectToInterceptPage(new RepositoriesPage());

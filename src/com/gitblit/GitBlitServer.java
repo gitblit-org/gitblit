@@ -21,7 +21,7 @@ import org.apache.wicket.protocol.http.WicketFilter;
 import org.eclipse.jetty.http.security.Constraint;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -50,11 +50,6 @@ public class GitBlitServer {
 
 	private final static Logger logger = Log.getLogger(GitBlitServer.class.getSimpleName());
 	private final static String border_star = "***********************************************************";
-	private static boolean debugMode = false;
-
-	public static boolean isDebugMode() {
-		return debugMode;
-	}
 
 	public static void main(String[] args) {
 		Params params = new Params();
@@ -111,6 +106,9 @@ public class GitBlitServer {
 	 * Start Server.
 	 */
 	private static void start(Params params) {
+		// instantiate GitBlit
+		GitBlit.self();
+		
 		PatternLayout layout = new PatternLayout(StoredSettings.getString("log4jPattern", "%-5p %d{MM-dd HH:mm:ss.SSS}  %-20.20c{1}  %m%n"));
 		org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
 		rootLogger.addAppender(new ConsoleAppender(layout));
@@ -123,7 +121,7 @@ public class GitBlitServer {
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
 
-		if (params.debug) {
+		if (StoredSettings.getBoolean("debugMode", false)) {
 			logger.warn("DEBUG Mode");
 		}
 
@@ -173,9 +171,8 @@ public class GitBlitServer {
 		FilterHolder wicketFilter = new FilterHolder(WicketFilter.class);
 		wicketFilter.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM, GitBlitWebApp.class.getName());
 		wicketFilter.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, wicketPathSpec);
+		wicketFilter.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "git/");
 		rootContext.addFilter(wicketFilter, wicketPathSpec, FilterMapping.DEFAULT);
-
-		Handler handler;
 
 		// Git Servlet
 		ServletHolder gitServlet = null;
@@ -184,20 +181,25 @@ public class GitBlitServer {
 			gitServlet = rootContext.addServlet(GitServlet.class, gitServletPathSpec);
 			gitServlet.setInitParameter("base-path", params.repositoriesFolder);
 			gitServlet.setInitParameter("export-all", params.exportAll ? "1" : "0");
-			String realmUsers = params.realmFile;
-
-			if (realmUsers != null && new File(realmUsers).exists() && params.authenticatePushPull) {
+		}
+		
+		// Login Service
+		LoginService loginService = null;
+		String realmUsers = params.realmFile;
+		if (realmUsers != null && new File(realmUsers).exists()) {
+			logger.info("Setting up login service from " + realmUsers);
+			JettyLoginService jettyLoginService = new JettyLoginService(realmUsers);
+			GitBlit.self().setLoginService(jettyLoginService);
+			loginService = jettyLoginService;
+		}
+		
+		// Determine what handler to use
+		Handler handler;
+		if (gitServlet != null) {
+			if (loginService != null && params.authenticatePushPull) {
 				// Authenticate Pull/Push
-				List<String> list = StoredSettings.getStrings("gitRoles");
-				String[] roles;
-				if (list.size() == 0) {
-					roles = new String[] { "*" };
-				} else {
-					roles = list.toArray(new String[list.size()]);
-				}
+				String[] roles = new String[] { Constants.PULL_ROLE, Constants.PUSH_ROLE };
 				logger.info("Authentication required for git servlet pull/push access");
-				logger.info("Setting up realm from " + realmUsers);
-				HashLoginService loginService = new HashLoginService(Constants.NAME, realmUsers);
 
 				Constraint constraint = new Constraint();
 				constraint.setName("auth");
@@ -355,9 +357,6 @@ public class GitBlitServer {
 
 		@Parameter(names = { "--temp" }, description = "Server temp folder")
 		public String temp = StoredSettings.getString("tempFolder", "temp");
-
-		@Parameter(names = { "--debug" }, description = "Run server in DEBUG mode")
-		public Boolean debug = StoredSettings.getBoolean("debug", false);
 
 		/*
 		 * GIT Servlet Parameters

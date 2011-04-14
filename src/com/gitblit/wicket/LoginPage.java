@@ -18,6 +18,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 
 import com.gitblit.Constants;
+import com.gitblit.GitBlit;
 
 public class LoginPage extends WebPage {
 
@@ -58,7 +59,7 @@ public class LoginPage extends WebPage {
 			String username = LoginPage.this.username.getObject();
 			char [] password = LoginPage.this.password.getObject().toCharArray();
 
-			User user = GitBlitWebApp.get().authenticate(username, password);
+			User user = GitBlit.self().authenticate(username, password);
 			if (user == null)
 				error("Invalid username or password!");
 			else
@@ -72,7 +73,7 @@ public class LoginPage extends WebPage {
 		// Grab cookie from Browser Session
 		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
 		if (cookies != null && cookies.length > 0) {
-			user = GitBlitWebApp.get().authenticate(cookies);
+			user = GitBlit.self().authenticate(cookies);
 		}
 
 		// Login the user
@@ -85,7 +86,7 @@ public class LoginPage extends WebPage {
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			GitBlitWebApp.get().setCookie(response, user);
+			GitBlit.self().setCookie(response, user);
 			
 			// track user object so that we do not have to continue
 			// re-authenticating on each request.

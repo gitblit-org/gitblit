@@ -5,6 +5,12 @@ public class Constants {
 	public final static String NAME = "Git:Blit";
 
 	public final static String VERSION = "0.0.1";
+	
+	public final static String ADMIN_ROLE = "admin";
+	
+	public final static String PULL_ROLE = "pull";
+	
+	public final static String PUSH_ROLE = "push";
 
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
