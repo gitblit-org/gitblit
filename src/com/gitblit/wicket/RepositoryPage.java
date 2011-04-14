@@ -65,7 +65,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
-		add(new RefsPanel("refsPanel", repositoryName,  c, JGitUtils.getAllRefs(r)));
+		add(new RefsPanel("refsPanel", repositoryName, c, JGitUtils.getAllRefs(r)));
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {

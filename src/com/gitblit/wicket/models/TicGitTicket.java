@@ -38,13 +38,13 @@ public class TicGitTicket implements Serializable, Comparable<TicGitTicket> {
 		if (chunks.length == 3) {
 			date = new Date(Long.parseLong(chunks[0]) * 1000l);
 			title = chunks[1].replace('-', ' ');
-		}		
+		}
 	}
 
 	public static class Comment implements Serializable, Comparable<Comment> {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public String text;
 		public String author;
 		public Date date;

@@ -10,7 +10,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 
 public class HtmlDiffFormatter extends DiffFormatter {
-		
+
 	private final OutputStream os;
 
 	public HtmlDiffFormatter(OutputStream os) {

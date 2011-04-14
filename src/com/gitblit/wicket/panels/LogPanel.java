@@ -14,12 +14,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
+import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
@@ -31,7 +32,7 @@ public class LogPanel extends BasePanel {
 	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = StoredSettings.getInteger("logPageCommitCount", 50);
+		int itemsPerPage = StoredSettings.getInteger(Keys.web_logPageCommitCount, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}

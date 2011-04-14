@@ -48,7 +48,7 @@ public class BranchesPanel extends BasePanel {
 			// show repository summary page link
 			add(new LinkPanel("branches", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		}
-		
+
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
@@ -60,11 +60,11 @@ public class BranchesPanel extends BasePanel {
 				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone()));
 
 				item.add(new LinkPanel("branchName", "list name", WicketUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				
+
 				// only show branch type on the branches page
 				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);
-				item.add(new Label("branchType", remote ? getString("gb.remote"):getString("gb.local")).setVisible(maxCount <= 0));
-				
+				item.add(new Label("branchType", remote ? getString("gb.remote") : getString("gb.local")).setVisible(maxCount <= 0));
+
 				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 

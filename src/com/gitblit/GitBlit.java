@@ -46,12 +46,12 @@ public class GitBlit {
 	}
 
 	private GitBlit() {
-		repositories = new File(StoredSettings.getString("repositoriesFolder", "repos"));
-		exportAll = StoredSettings.getBoolean("exportAll", true);
+		repositories = new File(StoredSettings.getString(Keys.git_repositoriesFolder, "repos"));
+		exportAll = StoredSettings.getBoolean(Keys.git_exportAll, true);
 		repositoryResolver = new FileResolver(repositories, exportAll);
-		debugMode = StoredSettings.getBoolean("debugMode", false);
+		debugMode = StoredSettings.getBoolean(Keys.server_debugMode, false);
 	}
-	
+
 	public boolean isDebugMode() {
 		return debugMode;
 	}
@@ -88,9 +88,9 @@ public class GitBlit {
 		userCookie.setPath("/");
 		response.addCookie(userCookie);
 	}
-	
+
 	public List<String> getRepositoryList() {
-		return JGitUtils.getRepositoryList(repositories, exportAll, StoredSettings.getBoolean("nestedRepositories", true));
+		return JGitUtils.getRepositoryList(repositories, exportAll, StoredSettings.getBoolean(Keys.git_nestedRepositories, true));
 	}
 
 	public List<RepositoryModel> getRepositories(Request request) {

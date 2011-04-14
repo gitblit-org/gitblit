@@ -9,7 +9,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
 
-
 public class RefModel implements Serializable, Comparable<RefModel> {
 
 	private static final long serialVersionUID = 1L;
@@ -34,7 +33,7 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public String getName() {
 		return ref.getName();
 	}
-	
+
 	public RevCommit getCommit() {
 		return commit;
 	}
@@ -50,12 +49,12 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public ObjectId getObjectId() {
 		return ref.getObjectId();
 	}
-	
+
 	public boolean isAnnotatedTag() {
 		// ref.isPeeled() ??
 		return !getCommitId().equals(getObjectId());
 	}
-		
+
 	@Override
 	public int compareTo(RefModel o) {
 		return getDate().compareTo(o.getDate());

@@ -25,15 +25,15 @@ public class CommitDiffPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		String diff = JGitUtils.getCommitDiff(r, commit, true);		
-		
+		String diff = JGitUtils.getCommitDiff(r, commit, true);
+
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
 			for (RevCommit parent : commit.getParents()) {
 				parents.add(parent.name());
 			}
 		}
-		
+
 		// commit page links
 		if (parents.size() == 0) {
 			add(new Label("parentLink", "none"));
@@ -46,7 +46,7 @@ public class CommitDiffPage extends RepositoryPage {
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		// changed paths list
-		List<PathModel> paths  = JGitUtils.getFilesInCommit(r, commit);
+		List<PathModel> paths = JGitUtils.getFilesInCommit(r, commit);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -59,7 +59,7 @@ public class CommitDiffPage extends RepositoryPage {
 				} else {
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
 				}
-				
+
 				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
@@ -72,7 +72,7 @@ public class CommitDiffPage extends RepositoryPage {
 		add(pathsView);
 		add(new Label("diffText", diff).setEscapeModelStrings(false));
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.commitdiff");

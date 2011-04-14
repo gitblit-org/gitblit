@@ -50,7 +50,7 @@ public class TicGitTicketPage extends RepositoryPage {
 		};
 		add(commentsView);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.ticket");
@@ -58,7 +58,7 @@ public class TicGitTicketPage extends RepositoryPage {
 
 	private String prepareComment(String comment) {
 		String html = Utils.escapeForHtml(comment, false);
-		html = WicketUtils.breakLines(comment).trim();		
+		html = WicketUtils.breakLines(comment).trim();
 		return html.replaceAll("\\bcommit\\s*([A-Za-z0-9]*)\\b", "<a href=\"/commit/" + repositoryName + "/$1\">commit $1</a>");
 	}
 }

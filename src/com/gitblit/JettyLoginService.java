@@ -10,7 +10,7 @@ public class JettyLoginService extends HashLoginService implements ILoginService
 	public JettyLoginService(String realmFile) {
 		super(Constants.NAME, realmFile);
 	}
-	
+
 	@Override
 	public User authenticate(String username, char[] password) {
 		UserIdentity identity = login(username, new String(password));
@@ -25,7 +25,7 @@ public class JettyLoginService extends HashLoginService implements ILoginService
 	}
 
 	@Override
-	public User authenticate(char [] cookie) {
+	public User authenticate(char[] cookie) {
 		// TODO cookie login
 		return null;
 	}

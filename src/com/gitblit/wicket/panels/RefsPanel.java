@@ -20,7 +20,6 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.TagPage;
 
-
 public class RefsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -32,11 +31,12 @@ public class RefsPanel extends Panel {
 			refNames = new ArrayList<String>();
 		}
 		Collections.sort(refNames);
-//		refNames.remove(Constants.HEAD);
-		
+		// refNames.remove(Constants.HEAD);
+
 		ListDataProvider<String> refsDp = new ListDataProvider<String>(refNames);
 		DataView<String> refsView = new DataView<String>("ref", refsDp) {
 			private static final long serialVersionUID = 1L;
+
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
 				Component c = null;

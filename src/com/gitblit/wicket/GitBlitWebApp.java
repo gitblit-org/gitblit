@@ -11,6 +11,7 @@ import org.apache.wicket.request.IRequestCycleProcessor;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -35,14 +36,14 @@ public class GitBlitWebApp extends WebApplication {
 		super.init();
 
 		// Setup page authorization mechanism
-		if (StoredSettings.getBoolean("authenticateWebUI", false)) {
+		if (StoredSettings.getBoolean(Keys.web_authenticate, false)) {
 			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
 		}
 
 		// Grab Browser info (like timezone, etc)
-		if (StoredSettings.getBoolean("useClientTimezone", false)) {
+		if (StoredSettings.getBoolean(Keys.web_useClientTimezone, false)) {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
@@ -90,7 +91,7 @@ public class GitBlitWebApp extends WebApplication {
 	}
 
 	public String getCloneUrl(String repositoryName) {
-		return StoredSettings.getString("cloneUrl", "https://localhost/git/") + repositoryName;
+		return StoredSettings.getString(Keys.git_cloneUrl, "https://localhost/git/") + repositoryName;
 	}
 
 	public static GitBlitWebApp get() {

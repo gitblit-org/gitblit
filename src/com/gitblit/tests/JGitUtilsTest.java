@@ -86,7 +86,7 @@ public class JGitUtilsTest extends TestCase {
 		r.close();
 		assertTrue("No changed paths found!", paths.size() > 0);
 	}
-	
+
 	public void testCommitDiff() throws Exception {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);

@@ -21,7 +21,6 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
-
 public class TreePage extends RepositoryPage {
 
 	public TreePage(PageParameters params) {
@@ -37,18 +36,17 @@ public class TreePage extends RepositoryPage {
 		add(new Label("historyLink", getString("gb.history")));
 		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, basePath)));
 
-
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		// breadcrumbs
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, basePath, objectId));			
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, basePath, objectId));
 		if (basePath != null && basePath.trim().length() > 0) {
 			paths.add(0, PathModel.getParentPath(basePath, objectId));
 		}
 
 		final ByteFormat byteFormat = new ByteFormat();
-		
-		// changed paths list		
+
+		// changed paths list
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -67,7 +65,7 @@ public class TreePage extends RepositoryPage {
 						// folder/tree link
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
-						
+
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
@@ -77,7 +75,7 @@ public class TreePage extends RepositoryPage {
 						// blob link
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
-						
+
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
@@ -93,7 +91,7 @@ public class TreePage extends RepositoryPage {
 		};
 		add(pathsView);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.tree");

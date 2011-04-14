@@ -3,18 +3,25 @@ package com.gitblit;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 public class Build {
 
 	public static void main(String... args) {
 		runtime();
 		compiletime();
+		buildSettingKeys();
 	}
 
 	public static void runtime() {
@@ -31,6 +38,40 @@ public class Build {
 
 	public static void compiletime() {
 		downloadFromMaven(MavenObject.JUNIT);
+	}
+
+	public static void buildSettingKeys() {
+		Properties properties = new Properties();
+		try {
+			properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		List<String> keys = new ArrayList<String>(properties.stringPropertyNames());
+		Collections.sort(keys);
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("package com.gitblit;\n");
+		sb.append("\n");
+		sb.append("/*\n");
+		sb.append(" * This class is auto-generated from the properties file.\n");
+		sb.append(" * Do not version control!\n");
+		sb.append(" */\n");
+		sb.append("public final class Keys {\n");
+		sb.append("\n");
+		for (String key : keys) {
+			sb.append(MessageFormat.format("\tpublic static final String {0} = \"{1}\";\n\n", key.replace('.', '_'), key));
+		}
+		sb.append("}");
+		try {
+			File file = new File("src/com/gitblit/Keys.java");
+			file.delete();
+			RandomAccessFile raf = new RandomAccessFile(file, "rw");
+			raf.writeBytes(sb.toString());
+			raf.close();
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 	}
 
 	/**
@@ -135,7 +176,7 @@ public class Build {
 		public static final MavenObject WICKET_EXT = new MavenObject("Apache Wicket Extensions", "org/apache/wicket", "wicket-extensions", "1.4.17", "01111d0dbffdc425581b006a43864c22797ce72a");
 
 		public static final MavenObject WICKET_AUTH_ROLES = new MavenObject("Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.17", "86d20ff32f62d3026213ff11a78555da643bc676");
-		
+
 		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "3.8.2", "07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060");
 
 		public final String name;

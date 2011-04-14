@@ -40,7 +40,7 @@ public class LoginPage extends WebPage {
 		loginForm.add(new FeedbackPanel("feedback"));
 		add(loginForm);
 	}
-	
+
 	protected String getServerName() {
 		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
 		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
@@ -57,7 +57,7 @@ public class LoginPage extends WebPage {
 		@Override
 		public void onSubmit() {
 			String username = LoginPage.this.username.getObject();
-			char [] password = LoginPage.this.password.getObject().toCharArray();
+			char[] password = LoginPage.this.password.getObject().toCharArray();
 
 			User user = GitBlit.self().authenticate(username, password);
 			if (user == null)
@@ -87,7 +87,7 @@ public class LoginPage extends WebPage {
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
 			GitBlit.self().setCookie(response, user);
-			
+
 			// track user object so that we do not have to continue
 			// re-authenticating on each request.
 			session.setUser(user);

@@ -12,6 +12,7 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.Utils;
 
@@ -32,7 +33,7 @@ public class WicketUtils {
 	public static String breakLines(String string) {
 		return string.replace("\r", "<br/>").replace("\n", "<br/>");
 	}
-	
+
 	public static void setTicketCssClass(Component container, String state) {
 		String css = null;
 		if (state.equals("open")) {
@@ -48,7 +49,7 @@ public class WicketUtils {
 			setCssClass(container, css);
 		}
 	}
-	
+
 	public static String flattenStrings(List<String> values) {
 		StringBuilder sb = new StringBuilder();
 		for (String value : values) {
@@ -56,12 +57,12 @@ public class WicketUtils {
 		}
 		return sb.toString().trim();
 	}
-	
+
 	public static void setAlternatingBackground(Component c, int i) {
 		String clazz = i % 2 == 0 ? "dark" : "light";
 		setCssClass(c, clazz);
 	}
-	
+
 	public static Label createAuthorLabel(String wicketId, String author) {
 		Label label = new Label(wicketId, author);
 		WicketUtils.setHtmlTitle(label, author);
@@ -71,14 +72,14 @@ public class WicketUtils {
 	public static String trimShortLog(String string) {
 		return trimString(string, 60);
 	}
-	
+
 	public static String trimString(String value, int max) {
 		if (value.length() <= max) {
 			return value;
 		}
 		return value.substring(0, max - 3) + "...";
 	}
-	
+
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		return new PageParameters("r=" + repositoryName);
 	}
@@ -96,14 +97,14 @@ public class WicketUtils {
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path);
 	}
-	
+
 	public static PageParameters newLogPageParameter(String repositoryName, String objectId, int pageNumber) {
 		if (pageNumber <= 1) {
 			return newObjectParameter(repositoryName, objectId);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
-	
+
 	public static String getRepositoryName(PageParameters params) {
 		return params.getString("r", "");
 	}
@@ -121,7 +122,7 @@ public class WicketUtils {
 	}
 
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datestampShortFormat", "MM/dd/yy"));
+		DateFormat df = new SimpleDateFormat(StoredSettings.getString(Keys.web_datestampShortFormat, "MM/dd/yy"));
 		if (timeZone != null) {
 			df.setTimeZone(timeZone);
 		}
@@ -137,9 +138,9 @@ public class WicketUtils {
 		WicketUtils.setHtmlTitle(label, title);
 		return label;
 	}
-	
+
 	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone) {
-		DateFormat df = new SimpleDateFormat(StoredSettings.getString("datetimestampLongFormat", "EEEE, MMMM d, yyyy h:mm a z"));
+		DateFormat df = new SimpleDateFormat(StoredSettings.getString(Keys.web_datetimestampLongFormat, "EEEE, MMMM d, yyyy h:mm a z"));
 		if (timeZone != null) {
 			df.setTimeZone(timeZone);
 		}

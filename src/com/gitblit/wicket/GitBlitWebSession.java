@@ -12,7 +12,7 @@ public final class GitBlitWebSession extends WebSession {
 	private static final long serialVersionUID = 1L;
 
 	protected TimeZone timezone = null;
-	
+
 	private User user = null;
 
 	public GitBlitWebSession(Request request) {
@@ -23,22 +23,22 @@ public final class GitBlitWebSession extends WebSession {
 		super.invalidate();
 		user = null;
 	}
-	
+
 	public boolean isLoggedIn() {
 		return user != null;
 	}
-	
+
 	public boolean canAdmin() {
 		if (user == null) {
-			return false;			
+			return false;
 		}
 		return user.canAdmin();
 	}
-	
+
 	public User getUser() {
 		return user;
 	}
-	
+
 	public void setUser(User user) {
 		this.user = user;
 	}

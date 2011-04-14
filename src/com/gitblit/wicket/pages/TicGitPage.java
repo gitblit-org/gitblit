@@ -45,7 +45,7 @@ public class TicGitPage extends RepositoryPage {
 		};
 		add(ticketsView);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.ticgit");

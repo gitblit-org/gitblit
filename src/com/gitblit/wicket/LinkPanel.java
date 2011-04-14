@@ -31,7 +31,7 @@ public class LinkPanel extends Panel {
 		}
 		if (linkCssClass != null) {
 			link.add(new SimpleAttributeModifier("class", linkCssClass));
-		}		
+		}
 		link.add(new Label("label", labelModel));
 		add(link);
 	}

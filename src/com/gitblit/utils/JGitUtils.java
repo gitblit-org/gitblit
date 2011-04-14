@@ -340,11 +340,11 @@ public class JGitUtils {
 		}
 		return null;
 	}
-	
+
 	public static String getCommitPatch(Repository r, RevCommit commit) {
 		return getCommitPatch(r, commit);
 	}
-	
+
 	public static String getCommitPatch(Repository r, RevCommit commit, String path) {
 		try {
 			final RevWalk rw = new RevWalk(r);

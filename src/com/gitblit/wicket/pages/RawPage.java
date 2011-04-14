@@ -14,10 +14,10 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
-
 
 public class RawPage extends WebPage {
 
@@ -29,7 +29,7 @@ public class RawPage extends WebPage {
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 		final String repositoryName = WicketUtils.getRepositoryName(params);
-		final String objectId = WicketUtils.getObject(params);		
+		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
 		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
@@ -52,10 +52,10 @@ public class RawPage extends WebPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : StoredSettings.getStrings("imageExtensions")) {
+		for (String ext : StoredSettings.getStrings(Keys.web_imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : StoredSettings.getStrings("binaryExtensions")) {
+		for (String ext : StoredSettings.getStrings(Keys.web_binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 
@@ -87,5 +87,5 @@ public class RawPage extends WebPage {
 			add(blobLabel);
 		}
 		r.close();
-	}	
+	}
 }

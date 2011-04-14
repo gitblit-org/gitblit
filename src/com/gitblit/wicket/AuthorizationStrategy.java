@@ -23,8 +23,8 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 
 	@Override
 	public void onUnauthorizedInstantiation(Component component) {
-		if (component instanceof BasePage) {			
-			GitBlitWebSession session = GitBlitWebSession.get();			
+		if (component instanceof BasePage) {
+			GitBlitWebSession session = GitBlitWebSession.get();
 			if (!session.isLoggedIn())
 				throw new RestartResponseAtInterceptPageException(LoginPage.class);
 			else
@@ -38,7 +38,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 			return false;
 		User user = session.getUser();
 		if (pageClass.isAnnotationPresent(AdminPage.class)) {
-			
+
 		}
 		return true;
 	}

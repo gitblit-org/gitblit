@@ -33,10 +33,10 @@ public class BlobDiffPage extends RepositoryPage {
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
-		
+
 		add(new Label("diffText", diff).setEscapeModelStrings(false));
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.diff");

@@ -11,13 +11,13 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
-
 
 public class BlobPage extends RepositoryPage {
 
@@ -45,13 +45,13 @@ public class BlobPage extends RepositoryPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : StoredSettings.getStrings("prettyPrintExtensions")) {
+		for (String ext : StoredSettings.getStrings(Keys.web_prettyPrintExtensions)) {
 			map.put(ext.toLowerCase(), 1);
 		}
-		for (String ext : StoredSettings.getStrings("imageExtensions")) {
+		for (String ext : StoredSettings.getStrings(Keys.web_imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : StoredSettings.getStrings("binaryExtensions")) {
+		for (String ext : StoredSettings.getStrings(Keys.web_binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 
@@ -88,7 +88,7 @@ public class BlobPage extends RepositoryPage {
 			add(blobLabel);
 		}
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.view");

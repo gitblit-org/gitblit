@@ -15,6 +15,7 @@ import com.codecommit.wicket.ChartAxisType;
 import com.codecommit.wicket.ChartProvider;
 import com.codecommit.wicket.ChartType;
 import com.codecommit.wicket.IChartData;
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.GitBlitWebApp;
@@ -29,23 +30,23 @@ public class SummaryPage extends RepositoryPage {
 
 	public SummaryPage(PageParameters params) {
 		super(params);
-		
+
 		int numCommitsDef = 20;
 		int numRefsDef = 5;
-		
-		int numberCommits = StoredSettings.getInteger("summaryCommitCount", numCommitsDef);
+
+		int numberCommits = StoredSettings.getInteger(Keys.web_summaryCommitCount, numCommitsDef);
 		if (numberCommits <= 0) {
 			numberCommits = numCommitsDef;
 		}
 
-		int numberRefs = StoredSettings.getInteger("summaryRefsCount", numRefsDef);
+		int numberRefs = StoredSettings.getInteger(Keys.web_summaryRefsCount, numRefsDef);
 		if (numberRefs <= 0) {
 			numberRefs = numRefsDef;
 		}
-		
-		Repository r = getRepository();		
+
+		Repository r = getRepository();
 		List<Metric> metrics = JGitUtils.getDateMetrics(r);
-		
+
 		long numberOfCommits = 0;
 		for (Metric m : metrics) {
 			numberOfCommits += m.count;
@@ -54,25 +55,25 @@ public class SummaryPage extends RepositoryPage {
 		// repository description
 		add(new Label("repositoryDescription", description));
 		add(new Label("repositoryOwner", JGitUtils.getRepositoryOwner(r)));
-		
+
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r), getTimeZone()));
 		add(new Label("repositoryCloneUrl", GitBlitWebApp.get().getCloneUrl(repositoryName)));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
 		add(new BranchesPanel("branchesPanel", repositoryName, r, numberRefs));
-		
+
 		// Display an activity line graph
 		insertActivityGraph(metrics);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.summary");
 	}
 
 	private void insertActivityGraph(List<Metric> metrics) {
-		if (StoredSettings.getBoolean("generateActivityGraph", true)) {			
+		if (StoredSettings.getBoolean(Keys.web_generateActivityGraph, true)) {
 			IChartData data = getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(400, 80), ChartType.LINE, data);
@@ -86,7 +87,7 @@ public class SummaryPage extends RepositoryPage {
 
 			add(new Chart("commitsChart", provider));
 		} else {
-			add(new ContextImage("commitsChart", "blank.png"));			
+			add(new ContextImage("commitsChart", "blank.png"));
 		}
 	}
 

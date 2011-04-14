@@ -116,7 +116,7 @@ public class Utils {
 		}
 		return ago;
 	}
-	
+
 	public static String leftPad(String input, int length, char pad) {
 		if (input.length() < length) {
 			StringBuilder sb = new StringBuilder();
@@ -128,19 +128,19 @@ public class Utils {
 		}
 		return input;
 	}
-	
+
 	public static String rightPad(String input, int length, char pad) {
 		if (input.length() < length) {
 			StringBuilder sb = new StringBuilder();
 			sb.append(input);
 			for (int i = 0, len = length - input.length(); i < len; i++) {
 				sb.append(pad);
-			}			
+			}
 			return sb.toString();
 		}
 		return input;
 	}
-	
+
 	public static String escapeForHtml(String inStr, boolean changeSpace) {
 		StringBuffer retStr = new StringBuffer();
 		int i = 0;

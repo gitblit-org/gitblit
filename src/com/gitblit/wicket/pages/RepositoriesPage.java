@@ -18,6 +18,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.StoredSettings;
 import com.gitblit.utils.Utils;
 import com.gitblit.wicket.BasePage;
@@ -26,27 +27,26 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
 
-
 public class RepositoriesPage extends BasePage {
 
 	public RepositoriesPage() {
 		super();
 		setupPage("", "");
-		
+
 		boolean showAdmin = false;
-		if (StoredSettings.getBoolean("authenticateWebUI", true)) {
-			boolean allowAdmin = StoredSettings.getBoolean("allowAdministration", false);
-			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin(); 
+		if (StoredSettings.getBoolean(Keys.web_authenticate, true)) {
+			boolean allowAdmin = StoredSettings.getBoolean(Keys.web_allowAdministration, false);
+			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
-			showAdmin = StoredSettings.getBoolean("allowAdministration", false);
+			showAdmin = StoredSettings.getBoolean(Keys.web_allowAdministration, false);
 		}
-		
+
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", RepositoriesPage.class));
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));		
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
-		
-		add(new Label("repositoriesMessage", StoredSettings.getString("repositoriesMessage", "")).setEscapeModelStrings(false));
+
+		add(new Label("repositoriesMessage", StoredSettings.getString(Keys.web_repositoriesMessage, "")).setEscapeModelStrings(false));
 
 		List<RepositoryModel> rows = GitBlit.self().getRepositories(getRequest());
 		DataProvider dp = new DataProvider(rows);

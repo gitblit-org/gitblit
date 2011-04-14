@@ -19,7 +19,6 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
 
-
 public class CommitPage extends RepositoryPage {
 
 	public CommitPage(PageParameters params) {
@@ -27,14 +26,14 @@ public class CommitPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit c = JGitUtils.getCommit(r, objectId);
-		
+
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
 			for (RevCommit parent : c.getParents()) {
 				parents.add(parent.name());
 			}
 		}
-		
+
 		// commit page links
 		if (parents.size() == 0) {
 			add(new Label("parentLink", "none"));
@@ -44,9 +43,9 @@ public class CommitPage extends RepositoryPage {
 			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff", this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		}
 		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		
+
 		add(new LinkPanel("shortlog", "title", c.getShortMessage(), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		
+
 		addRefs(r, c);
 
 		add(new Label("commitAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
@@ -76,7 +75,7 @@ public class CommitPage extends RepositoryPage {
 		addFullText("fullMessage", c.getFullMessage(), true);
 
 		// changed paths list
-		List<PathModel> paths  = JGitUtils.getFilesInCommit(r, c);
+		List<PathModel> paths = JGitUtils.getFilesInCommit(r, c);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -89,7 +88,7 @@ public class CommitPage extends RepositoryPage {
 				} else {
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
 				}
-				
+
 				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
@@ -101,7 +100,7 @@ public class CommitPage extends RepositoryPage {
 		};
 		add(pathsView);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.commit");

@@ -27,7 +27,7 @@ public class StoredSettings {
 		List<String> keys = new ArrayList<String>();
 		Properties props = read();
 		for (Object o : props.keySet()) {
-			String key = o.toString().toLowerCase(); 
+			String key = o.toString().toLowerCase();
 			if (key.startsWith(startingWith)) {
 				keys.add(key);
 			}
@@ -114,11 +114,11 @@ public class StoredSettings {
 	}
 
 	private static synchronized Properties read() {
-		File file = new File("gitblit.properties");
+		File file = new File(Constants.PROPERTIES_FILE);
 		if (file.exists() && (file.lastModified() > lastread)) {
 			try {
 				properties = new Properties();
-				properties.load(new FileInputStream("gitblit.properties"));
+				properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
 				lastread = file.lastModified();
 			} catch (FileNotFoundException f) {
 			} catch (Throwable t) {

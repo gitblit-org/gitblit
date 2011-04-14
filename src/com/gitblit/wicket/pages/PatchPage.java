@@ -13,7 +13,6 @@ import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
 
-
 public class PatchPage extends WebPage {
 
 	public PatchPage(PageParameters params) {
@@ -24,7 +23,7 @@ public class PatchPage extends WebPage {
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 		final String repositoryName = WicketUtils.getRepositoryName(params);
-		final String objectId = WicketUtils.getObject(params);		
+		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
 		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
@@ -42,5 +41,5 @@ public class PatchPage extends WebPage {
 		String patch = JGitUtils.getCommitPatch(r, commit, blobPath);
 		add(new Label("patchText", patch));
 		r.close();
-	}	
+	}
 }

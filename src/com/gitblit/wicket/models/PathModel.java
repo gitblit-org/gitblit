@@ -4,18 +4,17 @@ import java.io.Serializable;
 
 import com.gitblit.utils.JGitUtils;
 
-
 public class PathModel implements Serializable, Comparable<PathModel> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public final String name;
 	public final String path;
 	public final long size;
-	public final int  mode;
+	public final int mode;
 	public final String commitId;
 	public boolean isParentPath;
-	
+
 	public PathModel(String name, String path, long size, int mode, String commitId) {
 		this.name = name;
 		this.path = path;
@@ -23,11 +22,11 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		this.mode = mode;
 		this.commitId = commitId;
 	}
-	
+
 	public boolean isTree() {
 		return JGitUtils.isTreeFromMode(mode);
 	}
-	
+
 	public static PathModel getParentPath(String basePath, String commitId) {
 		String parentPath = null;
 		if (basePath.lastIndexOf('/') > -1) {

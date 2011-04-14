@@ -57,7 +57,7 @@ public class PageLinksPanel extends Panel {
 		// Get the repository ticgit setting
 		boolean checkTicgit = StoredSettings.getBoolean("ticgit.global", false);
 		checkTicgit |= StoredSettings.getBoolean(MessageFormat.format("ticgit.{0}", repositoryName), false);
-		
+
 		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
 		if (checkTicgit && JGitUtils.getTicGitBranch(r) != null) {
@@ -84,7 +84,7 @@ public class PageLinksPanel extends Panel {
 			String key = knownPages.get(wicketId);
 			String linkName = getString(key);
 			if (linkName.equals(pageName)) {
-				Component c = get(wicketId);				
+				Component c = get(wicketId);
 				if (c != null) {
 					c.setEnabled(false);
 				}
