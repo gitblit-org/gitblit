@@ -27,13 +27,13 @@
 		<tr><th></th><td><span wicket:id="commitCommitterDate">[commit date]</span></td></tr>
 		<tr><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
 		<tr><th><wicket:message key="gb.tree">tree</wicket:message></th><td><span class="sha1" wicket:id="commitTree">[commit tree]</span></td></tr>
-		<tr><th><wicket:message key="gb.parent">parent</wicket:message></th>
+		<tr><th valign="top"><wicket:message key="gb.parent">parent</wicket:message></th>
 			<td>
 				<span wicket:id="commitParents">
 					<span class="sha1" wicket:id="commitParent">[commit parents]</span>
 					<span class="link">
 						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a>
-					</span>					
+					</span><br/>			
 				</span>
 			</td>
 		</tr>
