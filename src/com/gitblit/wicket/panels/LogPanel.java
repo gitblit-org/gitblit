@@ -14,9 +14,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
@@ -32,7 +33,7 @@ public class LogPanel extends BasePanel {
 	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = StoredSettings.getInteger(Keys.web_logPageCommitCount, 50);
+		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.logPageCommitCount, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -73,7 +74,7 @@ public class LogPanel extends BasePanel {
 				item.add(WicketUtils.createAuthorLabel("commitAuthor", author));
 
 				String shortMessage = entry.getShortMessage();
-				String trimmedMessage = WicketUtils.trimShortLog(shortMessage);
+				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTitle(shortlog, shortMessage);

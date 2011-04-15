@@ -12,7 +12,6 @@ import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
@@ -36,14 +35,14 @@ public class GitBlitWebApp extends WebApplication {
 		super.init();
 
 		// Setup page authorization mechanism
-		if (StoredSettings.getBoolean(Keys.web_authenticate, false)) {
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, false)) {
 			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
 		}
 
 		// Grab Browser info (like timezone, etc)
-		if (StoredSettings.getBoolean(Keys.web_useClientTimezone, false)) {
+		if (GitBlit.self().settings().getBoolean(Keys.web.useClientTimezone, false)) {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
@@ -61,11 +60,15 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
 
-		// setup extended urls
+		// setup ticgit urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "r" }));
 		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "r", "h", "f" }));
 
-		mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));
+		// setup login/logout urls, if we are using authentication
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, true)) {
+			mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));
+			mount(new MixedParamUrlCodingStrategy("/logout", LogoutPage.class, new String[] {}));
+		}
 	}
 
 	@Override
@@ -88,10 +91,6 @@ public class GitBlitWebApp extends WebApplication {
 		if (GitBlit.self().isDebugMode())
 			return Application.DEVELOPMENT;
 		return Application.DEPLOYMENT;
-	}
-
-	public String getCloneUrl(String repositoryName) {
-		return StoredSettings.getString(Keys.git_cloneUrl, "https://localhost/git/") + repositoryName;
 	}
 
 	public static GitBlitWebApp get() {

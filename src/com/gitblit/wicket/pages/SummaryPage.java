@@ -15,10 +15,9 @@ import com.codecommit.wicket.ChartAxisType;
 import com.codecommit.wicket.ChartProvider;
 import com.codecommit.wicket.ChartType;
 import com.codecommit.wicket.IChartData;
+import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.Metric;
@@ -34,12 +33,12 @@ public class SummaryPage extends RepositoryPage {
 		int numCommitsDef = 20;
 		int numRefsDef = 5;
 
-		int numberCommits = StoredSettings.getInteger(Keys.web_summaryCommitCount, numCommitsDef);
+		int numberCommits = GitBlit.self().settings().getInteger(Keys.web.summaryCommitCount, numCommitsDef);
 		if (numberCommits <= 0) {
 			numberCommits = numCommitsDef;
 		}
 
-		int numberRefs = StoredSettings.getInteger(Keys.web_summaryRefsCount, numRefsDef);
+		int numberRefs = GitBlit.self().settings().getInteger(Keys.web.summaryRefsCount, numRefsDef);
 		if (numberRefs <= 0) {
 			numberRefs = numRefsDef;
 		}
@@ -57,7 +56,7 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryOwner", JGitUtils.getRepositoryOwner(r)));
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r), getTimeZone()));
-		add(new Label("repositoryCloneUrl", GitBlitWebApp.get().getCloneUrl(repositoryName)));
+		add(new Label("repositoryCloneUrl", GitBlit.self().getCloneUrl(repositoryName)));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
@@ -73,7 +72,7 @@ public class SummaryPage extends RepositoryPage {
 	}
 
 	private void insertActivityGraph(List<Metric> metrics) {
-		if (StoredSettings.getBoolean(Keys.web_generateActivityGraph, true)) {
+		if (GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(400, 80), ChartType.LINE, data);

@@ -1,10 +1,14 @@
 package com.gitblit.wicket;
 
-import com.gitblit.Build;
+import java.io.Serializable;
+
 import com.gitblit.Constants;
+import com.gitblit.utils.StringUtils;
 
-public class User {
+public class User implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private String username;
 	private String cookie;
 	private boolean canAdmin = false;
@@ -13,7 +17,7 @@ public class User {
 
 	public User(String username, char[] password) {
 		this.username = username;
-		this.cookie = Build.getSHA1((Constants.NAME + username + new String(password)).getBytes());
+		this.cookie = StringUtils.getSHA1((Constants.NAME + username + new String(password)));
 	}
 
 	public void canAdmin(boolean value) {

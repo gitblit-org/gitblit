@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RefModel;
@@ -59,7 +60,7 @@ public class BranchesPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone()));
 
-				item.add(new LinkPanel("branchName", "list name", WicketUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new LinkPanel("branchName", "list name", StringUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 
 				// only show branch type on the branches page
 				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);

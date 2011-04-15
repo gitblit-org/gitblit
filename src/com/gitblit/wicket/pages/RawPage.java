@@ -15,7 +15,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
 
@@ -52,10 +51,10 @@ public class RawPage extends WebPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : StoredSettings.getStrings(Keys.web_imageExtensions)) {
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : StoredSettings.getStrings(Keys.web_binaryExtensions)) {
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 

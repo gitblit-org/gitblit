@@ -15,9 +15,15 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
-		if (BasePage.class.isAssignableFrom(pageClass))
-			return isAuthorized(pageClass);
-		// Return contruction by default
+		if (BasePage.class.isAssignableFrom(pageClass)) {
+			GitBlitWebSession session = GitBlitWebSession.get();
+			if (!session.isLoggedIn())
+				return false;
+			User user = session.getUser();
+			if (pageClass.isAnnotationPresent(AdminPage.class)) {
+				return user.canAdmin();
+			}
+		}
 		return true;
 	}
 
@@ -30,16 +36,5 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 			else
 				throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
 		}
-	}
-
-	protected boolean isAuthorized(Class<? extends BasePage> pageClass) {
-		GitBlitWebSession session = GitBlitWebSession.get();
-		if (!session.isLoggedIn())
-			return false;
-		User user = session.getUser();
-		if (pageClass.isAnnotationPresent(AdminPage.class)) {
-
-		}
-		return true;
 	}
 }

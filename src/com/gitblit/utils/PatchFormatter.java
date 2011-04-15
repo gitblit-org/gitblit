@@ -78,7 +78,7 @@ public class PatchFormatter extends DiffFormatter {
 		}
 		for (String path : changes.keySet()) {
 			PatchTouple touple = changes.get(path);
-			patch.append("\n " + Utils.rightPad(path, maxPathLen, ' ') + " | " + Utils.leftPad("" + touple.total(), 4, ' ') + " " + touple.relativeScale(unit));
+			patch.append("\n " + StringUtils.rightPad(path, maxPathLen, ' ') + " | " + StringUtils.leftPad("" + touple.total(), 4, ' ') + " " + touple.relativeScale(unit));
 		}
 		patch.append(MessageFormat.format("\n {0} files changed, {1} insertions(+), {2} deletions(-)\n\n", files, insertions, deletions));
 		patch.append(os.toString());

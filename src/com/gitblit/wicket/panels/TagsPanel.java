@@ -11,6 +11,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RefModel;
@@ -52,7 +53,7 @@ public class TagsPanel extends BasePanel {
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
 				String message;
 				if (maxCount > 0) {
-					message = WicketUtils.trimString(entry.getShortLog(), 40);
+					message = StringUtils.trimString(entry.getShortLog(), 40);
 				} else {
 					message = entry.getShortLog();
 				}

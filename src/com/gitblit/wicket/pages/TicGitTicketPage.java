@@ -8,7 +8,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.Utils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -32,7 +32,7 @@ public class TicGitTicketPage extends RepositoryPage {
 		Label stateLabel = new Label("ticketState", t.state);
 		WicketUtils.setTicketCssClass(stateLabel, t.state);
 		add(stateLabel);
-		add(new Label("ticketTags", WicketUtils.flattenStrings(t.tags)));
+		add(new Label("ticketTags", StringUtils.flattenStrings(t.tags)));
 
 		ListDataProvider<Comment> commentsDp = new ListDataProvider<Comment>(t.comments);
 		DataView<Comment> commentsView = new DataView<Comment>("comment", commentsDp) {
@@ -57,8 +57,8 @@ public class TicGitTicketPage extends RepositoryPage {
 	}
 
 	private String prepareComment(String comment) {
-		String html = Utils.escapeForHtml(comment, false);
-		html = WicketUtils.breakLines(comment).trim();
+		String html = StringUtils.escapeForHtml(comment, false);
+		html = StringUtils.breakLinesForHtml(comment).trim();
 		return html.replaceAll("\\bcommit\\s*([A-Za-z0-9]*)\\b", "<a href=\"/commit/" + repositoryName + "/$1\">commit $1</a>");
 	}
 }

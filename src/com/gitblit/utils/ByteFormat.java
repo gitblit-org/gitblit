@@ -1,8 +1,3 @@
-/*
- * Copyright 2011 Squeal Group.  Licensed under the Eclipse Public License, 
- * Version 1.0 (http://www.eclipse.org/legal/epl-v10.html).
- * Initial Developer: Squeal Group
- */
 package com.gitblit.utils;
 
 import java.text.DecimalFormat;

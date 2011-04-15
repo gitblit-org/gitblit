@@ -19,8 +19,7 @@ import org.apache.wicket.model.Model;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
-import com.gitblit.utils.Utils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
@@ -34,11 +33,11 @@ public class RepositoriesPage extends BasePage {
 		setupPage("", "");
 
 		boolean showAdmin = false;
-		if (StoredSettings.getBoolean(Keys.web_authenticate, true)) {
-			boolean allowAdmin = StoredSettings.getBoolean(Keys.web_allowAdministration, false);
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, true)) {
+			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
-			showAdmin = StoredSettings.getBoolean(Keys.web_allowAdministration, false);
+			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
@@ -46,7 +45,7 @@ public class RepositoriesPage extends BasePage {
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		add(new Label("repositoriesMessage", StoredSettings.getString(Keys.web_repositoriesMessage, "")).setEscapeModelStrings(false));
+		add(new Label("repositoriesMessage", GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "")).setEscapeModelStrings(false));
 
 		List<RepositoryModel> rows = GitBlit.self().getRepositories(getRequest());
 		DataProvider dp = new DataProvider(rows);
@@ -61,10 +60,10 @@ public class RepositoriesPage extends BasePage {
 				item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
 				item.add(new Label("repositoryOwner", entry.owner));
 
-				String lastChange = Utils.timeAgo(entry.lastChange);
+				String lastChange = TimeUtils.timeAgo(entry.lastChange);
 				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
 				item.add(lastChangeLabel);
-				WicketUtils.setCssClass(lastChangeLabel, Utils.timeAgoCss(entry.lastChange));
+				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

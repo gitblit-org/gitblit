@@ -17,6 +17,7 @@
 		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
 			<include name="com/gitblit/Build.java" />
 			<include name="com/gitblit/Constants.java" />
+			<include name="com/gitblit/utils/StringUtils.java" />
 		</javac>
 		<java classpath="${project.build.dir}" classname="com.gitblit.Build" />
 

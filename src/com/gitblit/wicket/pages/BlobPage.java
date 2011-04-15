@@ -11,8 +11,8 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.StoredSettings;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
@@ -45,13 +45,13 @@ public class BlobPage extends RepositoryPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : StoredSettings.getStrings(Keys.web_prettyPrintExtensions)) {
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.prettyPrintExtensions)) {
 			map.put(ext.toLowerCase(), 1);
 		}
-		for (String ext : StoredSettings.getStrings(Keys.web_imageExtensions)) {
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : StoredSettings.getStrings(Keys.web_binaryExtensions)) {
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 

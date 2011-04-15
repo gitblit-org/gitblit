@@ -9,6 +9,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
@@ -36,8 +37,8 @@ public class TicGitPage extends RepositoryPage {
 				WicketUtils.setTicketCssClass(stateLabel, entry.state);
 				item.add(stateLabel);
 				item.add(WicketUtils.createDateLabel("ticketDate", entry.date, GitBlitWebSession.get().getTimezone()));
-				item.add(new Label("ticketHandler", WicketUtils.trimString(entry.handler.toLowerCase(), 30)));
-				item.add(new LinkPanel("ticketTitle", "list subject", WicketUtils.trimString(entry.title, 80), TicGitTicketPage.class, newPathParameter(entry.name)));
+				item.add(new Label("ticketHandler", StringUtils.trimString(entry.handler.toLowerCase(), 30)));
+				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(entry.title, 80), TicGitTicketPage.class, newPathParameter(entry.name)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

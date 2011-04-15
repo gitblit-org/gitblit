@@ -11,10 +11,13 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
-import com.gitblit.StoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.panels.PageLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -27,6 +30,8 @@ public abstract class RepositoryPage extends BasePage {
 
 	private transient Repository r = null;
 
+	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
+	
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		if (!params.containsKey("r")) {
@@ -69,20 +74,24 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
-		String html = WicketUtils.breakLines(text);
+		String html = StringUtils.breakLinesForHtml(text);
 		if (substituteRegex) {
 			Map<String, String> map = new HashMap<String, String>();
 			// global regex keys
-			for (String key : StoredSettings.getAllKeys("regex.global")) {
-				String subKey = key.substring(key.lastIndexOf('.') + 1);
-				map.put(subKey, StoredSettings.getString(key, ""));
+			if (GitBlit.self().settings().getBoolean(Keys.regex.global, false)) {
+				for (String key : GitBlit.self().settings().getAllKeys(Keys.regex.global)) {
+					if (!key.equals(Keys.regex.global)) {
+						String subKey = key.substring(key.lastIndexOf('.') + 1);
+						map.put(subKey, GitBlit.self().settings().getString(key, ""));
+					}
+				}
 			}
 
 			// repository-specific regex keys
-			List<String> keys = StoredSettings.getAllKeys("regex." + repositoryName.toLowerCase());
+			List<String> keys = GitBlit.self().settings().getAllKeys(Keys.regex._ROOT + "." + repositoryName.toLowerCase());
 			for (String key : keys) {
 				String subKey = key.substring(key.lastIndexOf('.') + 1);
-				map.put(subKey, StoredSettings.getString(key, ""));
+				map.put(subKey, GitBlit.self().settings().getString(key, ""));
 			}
 
 			for (String key : map.keySet()) {

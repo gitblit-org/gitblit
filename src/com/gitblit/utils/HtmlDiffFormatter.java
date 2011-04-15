@@ -91,7 +91,7 @@ public class HtmlDiffFormatter extends DiffFormatter {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		text.writeLine(bos, cur);
 		String line = bos.toString();
-		line = Utils.escapeForHtml(line, false);
+		line = StringUtils.escapeForHtml(line, false);
 		os.write(line.getBytes());
 		switch (prefix) {
 		case '+':

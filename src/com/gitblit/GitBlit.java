@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,38 +24,43 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.User;
 import com.gitblit.wicket.models.RepositoryModel;
 
-public class GitBlit {
+public class GitBlit implements ServletContextListener {
 
-	private static GitBlit gitblit;
+	private final static GitBlit gitblit;
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
-	private final boolean debugMode;
+	private FileResolver repositoryResolver;
 
-	private final FileResolver repositoryResolver;
+	private File repositories;
 
-	private final File repositories;
-
-	private final boolean exportAll;
+	private boolean exportAll;
 
 	private ILoginService loginService;
 
+	private IStoredSettings storedSettings;
+
+	static {
+		gitblit = new GitBlit();
+	}
+
 	public static GitBlit self() {
-		if (gitblit == null) {
-			gitblit = new GitBlit();
-		}
 		return gitblit;
 	}
 
 	private GitBlit() {
-		repositories = new File(StoredSettings.getString(Keys.git_repositoriesFolder, "repos"));
-		exportAll = StoredSettings.getBoolean(Keys.git_exportAll, true);
-		repositoryResolver = new FileResolver(repositories, exportAll);
-		debugMode = StoredSettings.getBoolean(Keys.server_debugMode, false);
+	}
+
+	public IStoredSettings settings() {
+		return storedSettings;
 	}
 
 	public boolean isDebugMode() {
-		return debugMode;
+		return storedSettings.getBoolean(Keys.web.debugMode, false);
+	}
+
+	public String getCloneUrl(String repositoryName) {
+		return storedSettings.getString(Keys.git.cloneUrl, "https://localhost/git/") + repositoryName;
 	}
 
 	public void setLoginService(ILoginService loginService) {
@@ -90,7 +97,7 @@ public class GitBlit {
 	}
 
 	public List<String> getRepositoryList() {
-		return JGitUtils.getRepositoryList(repositories, exportAll, StoredSettings.getBoolean(Keys.git_nestedRepositories, true));
+		return JGitUtils.getRepositoryList(repositories, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
 	}
 
 	public List<RepositoryModel> getRepositories(Request request) {
@@ -123,5 +130,29 @@ public class GitBlit {
 			e.printStackTrace();
 		}
 		return r;
+	}
+
+	public void setupContext(IStoredSettings settings) {
+		logger.info("Setting up GitBlit context from " + settings.toString());
+		this.storedSettings = settings;
+		repositories = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
+		exportAll = settings.getBoolean(Keys.git.exportAll, true);
+		repositoryResolver = new FileResolver(repositories, exportAll);
+	}
+
+	@Override
+	public void contextInitialized(ServletContextEvent contextEvent) {
+		logger.info("GitBlit context initialization by servlet container...");
+		if (storedSettings == null) {
+			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
+			setupContext(webxmlSettings);
+		} else {
+			logger.info("GitBlit context already setup by " + storedSettings.toString());	
+		}
+	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent contextEvent) {
+		logger.info("GitBlit context destroyed by servlet container.");
 	}
 }

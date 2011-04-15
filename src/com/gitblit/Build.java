@@ -8,13 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+
+import com.gitblit.utils.StringUtils;
 
 public class Build {
 
@@ -41,6 +43,7 @@ public class Build {
 	}
 
 	public static void buildSettingKeys() {
+		// Load all keys
 		Properties properties = new Properties();
 		try {
 			properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
@@ -50,6 +53,23 @@ public class Build {
 		List<String> keys = new ArrayList<String>(properties.stringPropertyNames());
 		Collections.sort(keys);
 
+		// Determine static key group classes
+		Map<String, List<String>> staticClasses = new HashMap<String, List<String>>();
+		staticClasses.put("", new ArrayList<String>());
+		for (String key : keys) {
+			String clazz = "";
+			String field = key;
+			if (key.indexOf('.') > -1) {
+				clazz = key.substring(0, key.indexOf('.'));
+				field = key.substring(key.indexOf('.') + 1);
+			}
+			if (!staticClasses.containsKey(clazz)) {
+				staticClasses.put(clazz, new ArrayList<String>());
+			}
+			staticClasses.get(clazz).add(field);
+		}
+
+		// Assemble Keys source file
 		StringBuilder sb = new StringBuilder();
 		sb.append("package com.gitblit;\n");
 		sb.append("\n");
@@ -59,10 +79,28 @@ public class Build {
 		sb.append(" */\n");
 		sb.append("public final class Keys {\n");
 		sb.append("\n");
-		for (String key : keys) {
-			sb.append(MessageFormat.format("\tpublic static final String {0} = \"{1}\";\n\n", key.replace('.', '_'), key));
+		List<String> classSet = new ArrayList<String>(staticClasses.keySet());
+		Collections.sort(classSet);
+		for (String clazz : classSet) {
+			List<String> keySet = staticClasses.get(clazz);
+			if (clazz.equals("")) {
+				// root keys
+				for (String key : keySet) {
+					sb.append(MessageFormat.format("\tpublic static final String {0} = \"{1}\";\n\n", key.replace('.', '_'), key));
+				}
+			} else {
+				// class keys
+				sb.append(MessageFormat.format("\tpublic static final class {0} '{'\n\n", clazz));
+				sb.append(MessageFormat.format("\t\tpublic static final String _ROOT = \"{0}\";\n\n", clazz));
+				for (String key : keySet) {
+					sb.append(MessageFormat.format("\t\tpublic static final String {0} = \"{1}\";\n\n", key.replace('.', '_'), clazz + "." + key));
+				}
+				sb.append("\t}\n\n");
+			}
 		}
 		sb.append("}");
+
+		// Save Keys class definition
 		try {
 			File file = new File("src/com/gitblit/Keys.java");
 			file.delete();
@@ -119,7 +157,7 @@ public class Build {
 			throw new RuntimeException("Error downloading " + mavenURL + " to " + targetFile, e);
 		}
 		byte[] data = buff.toByteArray();
-		String got = getSHA1(data);
+		String got = StringUtils.getSHA1(data);
 		if (mo.sha1 != null && !got.equals(mo.sha1)) {
 			throw new RuntimeException("SHA1 checksum mismatch; got: " + got);
 		}
@@ -132,29 +170,6 @@ public class Build {
 			throw new RuntimeException("Error writing to file " + targetFile, e);
 		}
 		return targetFile;
-	}
-
-	/**
-	 * Generate the SHA1 checksum of a byte array.
-	 * 
-	 * @param data
-	 *            the byte array
-	 * @return the SHA1 checksum
-	 */
-	public static String getSHA1(byte[] data) {
-		MessageDigest md;
-		try {
-			md = MessageDigest.getInstance("SHA-1");
-			byte[] value = md.digest(data);
-			StringBuilder buff = new StringBuilder(value.length * 2);
-			for (byte c : value) {
-				int x = c & 0xff;
-				buff.append(Integer.toString(x >> 4, 16)).append(Integer.toString(x & 0xf, 16));
-			}
-			return buff.toString();
-		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private static class MavenObject {

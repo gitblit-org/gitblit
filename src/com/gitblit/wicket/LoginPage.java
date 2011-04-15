@@ -1,24 +1,23 @@
 package com.gitblit.wicket;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 
 public class LoginPage extends WebPage {
 
@@ -30,8 +29,7 @@ public class LoginPage extends WebPage {
 
 		tryAutomaticLogin();
 
-		add(new Label("title", getServerName()));
-		add(new ContextImage("logo", "gitblt2.png"));
+		add(new Label("title", GitBlit.self().settings().getString(Keys.web.siteName, Constants.NAME)));
 		add(new Label("name", Constants.NAME));
 
 		Form<Void> loginForm = new LoginForm("loginForm");
@@ -41,17 +39,20 @@ public class LoginPage extends WebPage {
 		add(loginForm);
 	}
 
-	protected String getServerName() {
-		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-		return req.getServerName();
-	}
-
-	class LoginForm extends Form<Void> {
+	class LoginForm extends StatelessForm<Void> {
 		private static final long serialVersionUID = 1L;
 
 		public LoginForm(String id) {
 			super(id);
+
+			// If we are already logged in because user directly accessed
+			// the login url, redirect to the home page
+			if (GitBlitWebSession.get().isLoggedIn()) {
+				setRedirect(true);
+				setResponsePage(getApplication().getHomePage());
+			}
+			
+			tryAutomaticLogin();
 		}
 
 		@Override
@@ -82,20 +83,16 @@ public class LoginPage extends WebPage {
 
 	private void loginUser(User user) {
 		if (user != null) {
-			GitBlitWebSession session = GitBlitWebSession.get();
+			// Set the user into the session
+			GitBlitWebSession.get().setUser(user);
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
 			GitBlit.self().setCookie(response, user);
 
-			// track user object so that we do not have to continue
-			// re-authenticating on each request.
-			session.setUser(user);
-
-			// Redirect to original page OR to first available tab
 			if (!continueToOriginalDestination()) {
 				// Redirect to home page
-				setResponsePage(session.getApplication().getHomePage());
+				setResponsePage(getApplication().getHomePage());
 			}
 		}
 	}

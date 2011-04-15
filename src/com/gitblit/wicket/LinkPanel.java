@@ -16,6 +16,10 @@ public class LinkPanel extends Panel {
 
 	private final IModel<String> labelModel;
 
+	public LinkPanel(String wicketId, String linkCssClass, String label, Class<? extends WebPage> clazz) {
+		this(wicketId, linkCssClass, new Model<String>(label), clazz, null);
+	}
+	
 	public LinkPanel(String wicketId, String linkCssClass, String label, Class<? extends WebPage> clazz, PageParameters parameters) {
 		this(wicketId, linkCssClass, new Model<String>(label), clazz, parameters);
 	}

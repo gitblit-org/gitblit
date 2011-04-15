@@ -17,17 +17,21 @@
 	<body onload="document.getElementById('username').focus();">
 	<div>
 		<center>
-			<img wicket:id="logo" /><br/>
+			<wicket:link>
+				<img src="resources/gitblt2.png" alt="Git:Blit"/><br/>
+			</wicket:link>
 			<span style="font-weight:bold;" wicket:id="name">[name]</span><br/>
 
 			<div>
 				<form style="text-align:center;" wicket:id="loginForm">
 					<p/>
-					Username <input type="text" id="username" wicket:id="username" value=""/>
+					<wicket:message key="gb.username"></wicket:message>
+					<input type="text" id="username" wicket:id="username" value=""/>
 					<p/>
-					Password <input type="password"  wicket:id="password" value=""/>
+					<wicket:message key="gb.password"></wicket:message>
+					<input type="password"  wicket:id="password" value=""/>
 					<p/>
-					<input type="submit" value="Login" />
+					<input type="submit" value="Login" wicket:message="value:gb.login" />
 					<div style="background-color:#c7c7c7" wicket:id="feedback"></div>
 				</form>
 			</div>
