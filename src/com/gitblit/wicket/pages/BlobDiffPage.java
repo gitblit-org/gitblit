@@ -28,7 +28,7 @@ public class BlobDiffPage extends RepositoryPage {
 
 		// diff page links
 		add(new Label("blameLink", getString("gb.blame")));
-		add(new Label("historyLink", getString("gb.history")));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 

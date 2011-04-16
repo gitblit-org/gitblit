@@ -31,7 +31,7 @@ public class BlobPage extends RepositoryPage {
 
 		// blob page links
 		add(new Label("blameLink", getString("gb.blame")));
-		add(new Label("historyLink", getString("gb.history")));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 

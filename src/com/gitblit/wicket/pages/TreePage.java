@@ -33,7 +33,7 @@ public class TreePage extends RepositoryPage {
 		List<PathModel> paths = JGitUtils.getFilesInPath(r, path, commit);
 
 		// tree page links
-		add(new Label("historyLink", getString("gb.history")));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, commit.getName(), path)));
 		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
