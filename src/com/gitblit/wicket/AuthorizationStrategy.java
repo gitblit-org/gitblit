@@ -5,6 +5,8 @@ import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements IUnauthorizedComponentInstantiationListener {
@@ -16,12 +18,34 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
 		if (BasePage.class.isAssignableFrom(pageClass)) {
-			GitBlitWebSession session = GitBlitWebSession.get();
-			if (!session.isLoggedIn())
+			boolean authenticateView = GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true);
+			boolean authenticateAdmin = GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true);
+			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, true);
+			
+			GitBlitWebSession session = GitBlitWebSession.get();			
+			if (authenticateView && !session.isLoggedIn()) {
+				// authentication required
 				return false;
+			}
+			
 			User user = session.getUser();
 			if (pageClass.isAnnotationPresent(AdminPage.class)) {
-				return user.canAdmin();
+				// admin page
+				if (allowAdmin) {
+					if (authenticateAdmin) {
+						// authenticate admin
+						if (user != null) {
+							return user.canAdmin();
+						}
+						return false;
+					} else {
+						// no admin authentication required
+						return true;
+					}
+				} else {
+					//admin prohibited
+					return false;
+				}
 			}
 		}
 		return true;

@@ -33,7 +33,7 @@ public class RepositoriesPage extends BasePage {
 		setupPage("", "");
 
 		boolean showAdmin = false;
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, true)) {
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {

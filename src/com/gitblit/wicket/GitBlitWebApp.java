@@ -35,7 +35,8 @@ public class GitBlitWebApp extends WebApplication {
 		super.init();
 
 		// Setup page authorization mechanism
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, false)) {
+		boolean useAuthentication = GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, false) || GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, false);
+		if (useAuthentication) {
 			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
@@ -65,7 +66,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "r", "h", "f" }));
 
 		// setup login/logout urls, if we are using authentication
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, true)) {
+		if (useAuthentication) {
 			mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));
 			mount(new MixedParamUrlCodingStrategy("/logout", LogoutPage.class, new String[] {}));
 		}

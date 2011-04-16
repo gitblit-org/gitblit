@@ -46,10 +46,15 @@ public abstract class BasePage extends WebPage {
 		add(new Label("pageName", pageName));
 
 		// footer
-		User user = null;
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticate, true)) {
-			user = GitBlitWebSession.get().getUser();
-			add(new LinkPanel("userPanel", null, getString("gb.logout") + " " + user.toString(), LogoutPage.class));
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true)
+				|| GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+			if (GitBlitWebSession.get().isLoggedIn()) {
+				// logout
+				add(new LinkPanel("userPanel", null, getString("gb.logout") + " " + GitBlitWebSession.get().getUser().toString(), LogoutPage.class));
+			} else {
+				// login
+				add(new LinkPanel("userPanel", null, getString("gb.login"), LoginPage.class));				
+			}
 		} else {
 			add(new Label("userPanel", ""));
 		}
