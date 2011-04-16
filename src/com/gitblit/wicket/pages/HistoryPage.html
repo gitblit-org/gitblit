@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks">[page links]</div>
+
+	<!-- pager links -->
+	<div style="padding-top:5px;padding-bottom:5px;">
+		<a wicket:id="firstPageTop"><wicket:message key="gb.pageFirst"></wicket:message></a> | <a wicket:id="prevPageTop"><wicket:message key="gb.pagePrevious"></wicket:message></a> | <a wicket:id="nextPageTop"><wicket:message key="gb.pageNext"></wicket:message></a> 
+	</div>
+	
+	<!-- history -->
+	<div style="margin-top:5px;" wicket:id="historyPanel">[history panel]</div>
+
+	<!-- pager links -->
+	<div style="padding-bottom:5px;">
+		<a wicket:id="firstPageBottom"><wicket:message key="gb.pageFirst"></wicket:message></a> | <a wicket:id="prevPageBottom"><wicket:message key="gb.pagePrevious"></wicket:message></a> | <a wicket:id="nextPageBottom"><wicket:message key="gb.pageNext"></wicket:message></a> 
+	</div>
+
+</wicket:extend>
+</body>
+</html>

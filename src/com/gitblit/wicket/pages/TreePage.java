@@ -26,22 +26,22 @@ public class TreePage extends RepositoryPage {
 	public TreePage(PageParameters params) {
 		super(params);
 
-		final String basePath = WicketUtils.getPath(params);
+		final String path = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		List<PathModel> paths = JGitUtils.getFilesInPath(r, basePath, commit);
+		List<PathModel> paths = JGitUtils.getFilesInPath(r, path, commit);
 
 		// tree page links
 		add(new Label("historyLink", getString("gb.history")));
-		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, basePath)));
+		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
 
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		// breadcrumbs
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, basePath, objectId));
-		if (basePath != null && basePath.trim().length() > 0) {
-			paths.add(0, PathModel.getParentPath(basePath, objectId));
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
+		if (path != null && path.trim().length() > 0) {
+			paths.add(0, PathModel.getParentPath(path, objectId));
 		}
 
 		final ByteFormat byteFormat = new ByteFormat();
@@ -69,7 +69,7 @@ public class TreePage extends RepositoryPage {
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("history", TreePage.class).setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						item.add(links);
 					} else {
 						// blob link
@@ -81,7 +81,7 @@ public class TreePage extends RepositoryPage {
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
-						links.add(new BookmarkablePageLink<Void>("history", BlobPage.class).setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						item.add(links);
 					}
 				}

@@ -17,6 +17,7 @@ import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
+import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
@@ -60,6 +61,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/blobdiff", BlobDiffPage.class, new String[] { "r", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
+		mount(new MixedParamUrlCodingStrategy("/history", HistoryPage.class, new String[] { "r", "h", "f" }));
 
 		// setup ticgit urls
 		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "r" }));

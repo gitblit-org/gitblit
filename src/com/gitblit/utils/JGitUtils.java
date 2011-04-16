@@ -35,6 +35,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -436,6 +437,10 @@ public class JGitUtils {
 	}
 
 	public static List<RevCommit> getRevLog(Repository r, String objectId, int offset, int maxCount) {
+		return getRevLog(r, objectId, null, offset, maxCount);
+	}
+	
+	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		try {
 			if (objectId == null || objectId.trim().length() == 0) {
@@ -444,6 +449,12 @@ public class JGitUtils {
 			RevWalk walk = new RevWalk(r);
 			ObjectId object = r.resolve(objectId);
 			walk.markStart(walk.parseCommit(object));
+			if (!StringUtils.isEmpty(path)) {
+				TreeFilter filter = AndTreeFilter.create(PathFilterGroup
+						.createFromStrings(Collections.singleton(path)),
+						TreeFilter.ANY_DIFF);
+				walk.setTreeFilter(filter);
+			}
 			Iterable<RevCommit> revlog = walk;
 			if (offset > 0) {
 				int count = 0;

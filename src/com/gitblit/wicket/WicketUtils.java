@@ -80,6 +80,13 @@ public class WicketUtils {
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
+	
+	public static PageParameters newHistoryPageParameter(String repositoryName, String objectId, String path, int pageNumber) {
+		if (pageNumber <= 1) {
+			return newObjectParameter(repositoryName, objectId);
+		}
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path + ",page=" + pageNumber);
+	}
 
 	public static String getRepositoryName(PageParameters params) {
 		return params.getString("r", "");

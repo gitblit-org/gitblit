@@ -20,50 +20,54 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
+import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
-import com.gitblit.wicket.pages.SummaryPage;
-import com.gitblit.wicket.pages.TreePage;
 
-public class LogPanel extends BasePanel {
+public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 	
 	private boolean hasMore = false;
 
-	public LogPanel(String wicketId, final String repositoryName, String objectId, Repository r, int limit, int pageOffset) {
+	public HistoryPanel(String wicketId, final String repositoryName, String objectId, final String path, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.logPageCommitCount, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
-
+		
+		RevCommit commit = JGitUtils.getCommit(r, objectId);		
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set
-			commits = JGitUtils.getRevLog(r, objectId, pageOffset * itemsPerPage, itemsPerPage);
+			commits = JGitUtils.getRevLog(r, objectId, path, pageOffset * itemsPerPage, itemsPerPage);
 		} else {
 			// Fixed size result set
-			commits = JGitUtils.getRevLog(r, objectId, 0, limit);
+			commits = JGitUtils.getRevLog(r, objectId, path, 0, limit);
 		}
-
+		
 		// inaccurate way to determine if there are more commits.
 		// works unless commits.size() represents the exact end. 
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
 		if (pageResults) {
-			// shortlog page
-			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			// history page
+			// show commit page link
+			add(new LinkPanel("header", "title", commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName())));
 		} else {
 			// summary page
-			// show shortlog page link
-			add(new LinkPanel("header", "title", new StringResourceModel("gb.log", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			// show history page link
+			add(new LinkPanel("header", "title", new StringResourceModel("gb.history", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		}
+
+		// breadcrumbs
+		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
@@ -90,8 +94,8 @@ public class LogPanel extends BasePanel {
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newPathParameter(repositoryName, entry.getName(), path)).setEnabled(counter > 0));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -102,19 +106,19 @@ public class LogPanel extends BasePanel {
 		// determine to show pager, more, or neither
 		if (limit <= 0) {
 			// no display limit
-			add(new Label("moreLogs", "").setVisible(false));
+			add(new Label("moreHistory", "").setVisible(false));
 		} else {
 			if (pageResults) {
 				// paging
-				add(new Label("moreLogs", "").setVisible(false));
+				add(new Label("moreHistory", "").setVisible(false));
 			} else {
 				// more
 				if (commits.size() == limit) {
 					// show more
-					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					add(new LinkPanel("moreHistory", "link", new StringResourceModel("gb.moreHistory", this, null), HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
 				} else {
 					// no more
-					add(new Label("moreLogs", "").setVisible(false));
+					add(new Label("moreHistory", "").setVisible(false));
 				}
 			}
 		}

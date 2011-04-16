@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<!-- header -->	
+	<div class="header" wicket:id="header">[history header]</div>
+
+	<!-- breadcrumbs -->
+	<div wicket:id="breadcrumbs">[breadcrumbs]</div>
+		
+	<table style="width:100%" class="pretty">
+		<tbody>
+       		<tr wicket:id="commit">
+         		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
+         		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
+         		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
+         		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>         		
+         		<td class="rightAlign">
+         			<span class="link">
+						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a> | <a wicket:id="difftocurrent"><wicket:message key="gb.difftocurrent"></wicket:message></a>
+					</span>
+				</td>
+       		</tr>
+    	</tbody>
+	</table>	
+	<div wicket:id="moreHistory">[more...]</div>
+	
+</wicket:panel>
+</body>
+</html>
