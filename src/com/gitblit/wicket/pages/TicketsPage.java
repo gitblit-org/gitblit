@@ -14,31 +14,31 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.TicGitTicket;
+import com.gitblit.wicket.models.TicketModel;
 
-public class TicGitPage extends RepositoryPage {
+public class TicketsPage extends RepositoryPage {
 
-	public TicGitPage(PageParameters params) {
+	public TicketsPage(PageParameters params) {
 		super(params);
 
-		List<TicGitTicket> tickets = JGitUtils.getTicGitTickets(getRepository());
+		List<TicketModel> tickets = JGitUtils.getTickets(getRepository());
 
 		// header
 		add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
 
-		ListDataProvider<TicGitTicket> ticketsDp = new ListDataProvider<TicGitTicket>(tickets);
-		DataView<TicGitTicket> ticketsView = new DataView<TicGitTicket>("ticket", ticketsDp) {
+		ListDataProvider<TicketModel> ticketsDp = new ListDataProvider<TicketModel>(tickets);
+		DataView<TicketModel> ticketsView = new DataView<TicketModel>("ticket", ticketsDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 
-			public void populateItem(final Item<TicGitTicket> item) {
-				final TicGitTicket entry = item.getModelObject();
+			public void populateItem(final Item<TicketModel> item) {
+				final TicketModel entry = item.getModelObject();
 				Label stateLabel = new Label("ticketState", entry.state);
 				WicketUtils.setTicketCssClass(stateLabel, entry.state);
 				item.add(stateLabel);
 				item.add(WicketUtils.createDateLabel("ticketDate", entry.date, GitBlitWebSession.get().getTimezone()));
 				item.add(new Label("ticketHandler", StringUtils.trimString(entry.handler.toLowerCase(), 30)));
-				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(entry.title, 80), TicGitTicketPage.class, newPathParameter(entry.name)));
+				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(entry.title, 80), TicketPage.class, newPathParameter(entry.name)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -49,6 +49,6 @@ public class TicGitPage extends RepositoryPage {
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.ticgit");
+		return getString("gb.tickets");
 	}
 }

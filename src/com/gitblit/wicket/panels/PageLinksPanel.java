@@ -24,7 +24,7 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagsPage;
-import com.gitblit.wicket.pages.TicGitPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class PageLinksPanel extends Panel {
@@ -41,7 +41,7 @@ public class PageLinksPanel extends Panel {
 			put("branches", "gb.branches");
 			put("tags", "gb.tags");
 			put("tree", "gb.tree");
-			put("ticgit", "gb.ticgit");
+			put("tickets", "gb.tickets");
 		}
 	};
 
@@ -55,14 +55,14 @@ public class PageLinksPanel extends Panel {
 		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
-		// Get the repository ticgit setting
-		boolean checkTicgit = GitBlit.self().settings().getBoolean(Keys.ticgit.global, false);
-		checkTicgit |= GitBlit.self().settings().getBoolean(MessageFormat.format(Keys.ticgit._ROOT + ".{0}", repositoryName), false);
+		// Get the repository tickets setting
+		boolean checkTicgit = GitBlit.self().settings().getBoolean(Keys.tickets.global, false);
+		checkTicgit |= GitBlit.self().settings().getBoolean(MessageFormat.format(Keys.tickets._ROOT + ".{0}", repositoryName), false);
 
 		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
-		if (checkTicgit && JGitUtils.getTicGitBranch(r) != null) {
-			extras.add("ticgit");
+		if (checkTicgit && JGitUtils.getTicketsBranch(r) != null) {
+			extras.add("tickets");
 		}
 
 		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extras);
@@ -71,9 +71,9 @@ public class PageLinksPanel extends Panel {
 
 			public void populateItem(final Item<String> item) {
 				String extra = item.getModelObject();
-				if (extra.equals("ticgit")) {
+				if (extra.equals("tickets")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, "ticgit", TicGitPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, "tickets", TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};

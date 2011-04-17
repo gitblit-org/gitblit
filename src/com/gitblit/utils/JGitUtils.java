@@ -46,8 +46,8 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.models.RefModel;
-import com.gitblit.wicket.models.TicGitTicket;
-import com.gitblit.wicket.models.TicGitTicket.Comment;
+import com.gitblit.wicket.models.TicketModel;
+import com.gitblit.wicket.models.TicketModel.Comment;
 
 public class JGitUtils {
 
@@ -614,12 +614,12 @@ public class JGitUtils {
 		return metrics;
 	}
 
-	public static RefModel getTicGitBranch(Repository r) {
+	public static RefModel getTicketsBranch(Repository r) {
 		RefModel ticgitBranch = null;
 		try {
 			// search for ticgit branch in local heads
 			for (RefModel ref : getLocalBranches(r, -1)) {
-				if (ref.getDisplayName().endsWith("ticgit") || ref.getDisplayName().endsWith("ticgit-ng")) {
+				if (ref.getDisplayName().endsWith("ticgit")) {
 					ticgitBranch = ref;
 					break;
 				}
@@ -628,7 +628,7 @@ public class JGitUtils {
 			// search for ticgit branch in remote heads
 			if (ticgitBranch == null) {
 				for (RefModel ref : getRemoteBranches(r, -1)) {
-					if (ref.getDisplayName().endsWith("ticgit") || ref.getDisplayName().endsWith("ticgit-ng")) {
+					if (ref.getDisplayName().endsWith("ticgit")) {
 						ticgitBranch = ref;
 						break;
 					}
@@ -640,18 +640,18 @@ public class JGitUtils {
 		return ticgitBranch;
 	}
 
-	public static List<TicGitTicket> getTicGitTickets(Repository r) {
-		RefModel ticgitBranch = getTicGitBranch(r);
+	public static List<TicketModel> getTickets(Repository r) {
+		RefModel ticgitBranch = getTicketsBranch(r);
 		List<PathModel> paths = getFilesInPath(r, null, ticgitBranch.getCommit());
-		List<TicGitTicket> tickets = new ArrayList<TicGitTicket>();
+		List<TicketModel> tickets = new ArrayList<TicketModel>();
 		for (PathModel ticketFolder : paths) {
 			if (ticketFolder.isTree()) {
 				try {
-					TicGitTicket t = new TicGitTicket(ticketFolder.name);
+					TicketModel t = new TicketModel(ticketFolder.name);
 					readTicketContents(r, ticgitBranch, t);
 					tickets.add(t);
 				} catch (Throwable t) {
-					LOGGER.error("Failed to get a ticgit ticket!", t);
+					LOGGER.error("Failed to get a ticket!", t);
 				}
 			}
 		}
@@ -660,24 +660,24 @@ public class JGitUtils {
 		return tickets;
 	}
 
-	public static TicGitTicket getTicGitTicket(Repository r, String ticketFolder) {
-		RefModel ticgitBranch = getTicGitBranch(r);
-		if (ticgitBranch != null) {
+	public static TicketModel getTicket(Repository r, String ticketFolder) {
+		RefModel ticketsBranch = getTicketsBranch(r);
+		if (ticketsBranch != null) {
 			try {
-				TicGitTicket ticket = new TicGitTicket(ticketFolder);
-				readTicketContents(r, ticgitBranch, ticket);
+				TicketModel ticket = new TicketModel(ticketFolder);
+				readTicketContents(r, ticketsBranch, ticket);
 				return ticket;
 			} catch (Throwable t) {
-				LOGGER.error("Failed to get ticgit ticket " + ticketFolder, t);
+				LOGGER.error("Failed to get ticket " + ticketFolder, t);
 			}
 		}
 		return null;
 	}
 
-	private static void readTicketContents(Repository r, RefModel ticgitBranch, TicGitTicket ticket) {
-		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticgitBranch.getCommit());
+	private static void readTicketContents(Repository r, RefModel ticketsBranch, TicketModel ticket) {
+		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticketsBranch.getCommit());
 		for (PathModel file : ticketFiles) {
-			String content = getRawContentAsString(r, ticgitBranch.getCommit(), file.path).trim();
+			String content = getRawContentAsString(r, ticketsBranch.getCommit(), file.path).trim();
 			if (file.name.equals("TICKET_ID")) {
 				ticket.id = content;
 			} else if (file.name.equals("TITLE")) {
@@ -707,10 +707,10 @@ public class JGitUtils {
 		Collections.sort(ticket.comments);
 	}
 
-	public static String getTicGitContent(Repository r, String filePath) {
-		RefModel ticgitBranch = getTicGitBranch(r);
-		if (ticgitBranch != null) {
-			return getRawContentAsString(r, ticgitBranch.getCommit(), filePath);
+	public static String getTicketContent(Repository r, String filePath) {
+		RefModel ticketsBranch = getTicketsBranch(r);
+		if (ticketsBranch != null) {
+			return getRawContentAsString(r, ticketsBranch.getCommit(), filePath);
 		}
 		return "";
 	}

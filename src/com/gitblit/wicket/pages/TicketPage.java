@@ -12,18 +12,18 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.TicGitTicket;
-import com.gitblit.wicket.models.TicGitTicket.Comment;
+import com.gitblit.wicket.models.TicketModel;
+import com.gitblit.wicket.models.TicketModel.Comment;
 
-public class TicGitTicketPage extends RepositoryPage {
+public class TicketPage extends RepositoryPage {
 
-	public TicGitTicketPage(PageParameters params) {
+	public TicketPage(PageParameters params) {
 		super(params);
 
 		final String ticketFolder = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
-		TicGitTicket t = JGitUtils.getTicGitTicket(r, ticketFolder);
+		TicketModel t = JGitUtils.getTicket(r, ticketFolder);
 
 		add(new Label("ticketTitle", t.title));
 		add(new Label("ticketId", t.id));

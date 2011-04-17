@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TicGitTicket implements Serializable, Comparable<TicGitTicket> {
+public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,13 +22,13 @@ public class TicGitTicket implements Serializable, Comparable<TicGitTicket> {
 	public List<Comment> comments;
 	public List<String> tags;
 
-	public TicGitTicket() {
+	public TicketModel() {
 		state = "open";
 		comments = new ArrayList<Comment>();
 		tags = new ArrayList<String>();
 	}
 
-	public TicGitTicket(String ticketName) throws ParseException {
+	public TicketModel(String ticketName) throws ParseException {
 		state = "";
 		name = ticketName;
 		comments = new ArrayList<Comment>();
@@ -68,7 +68,7 @@ public class TicGitTicket implements Serializable, Comparable<TicGitTicket> {
 	}
 
 	@Override
-	public int compareTo(TicGitTicket o) {
+	public int compareTo(TicketModel o) {
 		return date.compareTo(o.date);
 	}
 }

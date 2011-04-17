@@ -25,8 +25,8 @@ import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
-import com.gitblit.wicket.pages.TicGitPage;
-import com.gitblit.wicket.pages.TicGitTicketPage;
+import com.gitblit.wicket.pages.TicketsPage;
+import com.gitblit.wicket.pages.TicketPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class GitBlitWebApp extends WebApplication {
@@ -63,9 +63,9 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/history", HistoryPage.class, new String[] { "r", "h", "f" }));
 
-		// setup ticgit urls
-		mount(new MixedParamUrlCodingStrategy("/ticgit", TicGitPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/ticgittkt", TicGitTicketPage.class, new String[] { "r", "h", "f" }));
+		// setup ticket urls
+		mount(new MixedParamUrlCodingStrategy("/tickets", TicketsPage.class, new String[] { "r" }));
+		mount(new MixedParamUrlCodingStrategy("/ticket", TicketPage.class, new String[] { "r", "h", "f" }));
 
 		// setup login/logout urls, if we are using authentication
 		if (useAuthentication) {

@@ -93,6 +93,7 @@ public class HistoryPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
+				// TODO links for folder
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newPathParameter(repositoryName, entry.getName(), path)).setEnabled(counter > 0));
