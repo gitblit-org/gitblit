@@ -28,13 +28,14 @@ public class BlobDiffPage extends RepositoryPage {
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
 			diff = JGitUtils.getCommitDiff(r, commit, blobPath, true);
+			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
 			diff = JGitUtils.getCommitDiff(r, baseCommit, commit, blobPath, true);
+			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId, blobPath)));
 		}
 		
-		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 

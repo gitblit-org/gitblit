@@ -11,6 +11,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class PatchPage extends WebPage {
@@ -23,6 +24,7 @@ public class PatchPage extends WebPage {
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 		final String repositoryName = WicketUtils.getRepositoryName(params);
+		final String baseObjectId = WicketUtils.getBaseObjectId(params);
 		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
@@ -38,7 +40,13 @@ public class PatchPage extends WebPage {
 		}
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		String patch = JGitUtils.getCommitPatch(r, commit, blobPath);
+		String patch;
+		if (StringUtils.isEmpty(baseObjectId)) {
+			patch = JGitUtils.getCommitPatch(r, commit, blobPath);
+		} else {
+			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
+			patch = JGitUtils.getCommitPatch(r, baseCommit, commit, blobPath);			
+		}
 		add(new Label("patchText", patch));
 		r.close();
 	}
