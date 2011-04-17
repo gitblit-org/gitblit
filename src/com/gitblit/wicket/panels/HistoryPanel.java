@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -20,16 +21,19 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.pages.BlobDiffPage;
+import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.TreePage;
 
 public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private boolean hasMore = false;
 
 	public HistoryPanel(String wicketId, final String repositoryName, final String objectId, final String path, Repository r, int limit, int pageOffset) {
@@ -39,8 +43,19 @@ public class HistoryPanel extends BasePanel {
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
-		
-		RevCommit commit = JGitUtils.getCommit(r, objectId);		
+
+		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		List<PathModel> paths = JGitUtils.getFilesInCommit(r, commit);
+
+		PathModel matchingPath = null;
+		for (PathModel p : paths) {
+			if (p.path.equals(path)) {
+				matchingPath = p;
+				break;
+			}
+		}
+		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
+
 		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
@@ -50,9 +65,9 @@ public class HistoryPanel extends BasePanel {
 			// Fixed size result set
 			commits = JGitUtils.getRevLog(r, objectId, path, 0, limit);
 		}
-		
+
 		// inaccurate way to determine if there are more commits.
-		// works unless commits.size() represents the exact end. 
+		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
@@ -93,10 +108,18 @@ public class HistoryPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
-				// TODO links for folder
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newBlobDiffParameter(repositoryName, entry.getName(), objectId, path)).setEnabled(counter > 0));
+				if (isTree) {
+					Fragment links = new Fragment("historyLinks", "treeLinks", this);
+					links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					item.add(links);
+				} else {
+					Fragment links = new Fragment("historyLinks", "blobLinks", this);
+					links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.getName(), path)));
+					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newBlobDiffParameter(repositoryName, entry.getName(), objectId, path)).setEnabled(counter > 0));
+					item.add(links);
+				}
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -124,7 +147,7 @@ public class HistoryPanel extends BasePanel {
 			}
 		}
 	}
-	
+
 	public boolean hasMore() {
 		return hasMore;
 	}

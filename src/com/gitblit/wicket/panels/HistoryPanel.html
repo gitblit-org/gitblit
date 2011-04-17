@@ -21,14 +21,26 @@
          		<td><div wicket:id="commitShortMessage">[commit short message]</div></td>
          		<td class="rightAlign"><div wicket:id="commitRefs">[commit refs]</div></td>         		
          		<td class="rightAlign">
-         			<span class="link">
-						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a> | <a wicket:id="difftocurrent"><wicket:message key="gb.difftocurrent"></wicket:message></a>
-					</span>
+         			<span wicket:id="historyLinks">[history links]</span>
 				</td>
        		</tr>
     	</tbody>
 	</table>	
 	<div wicket:id="moreHistory">[more...]</div>
+	
+	<!--  tree links -->
+	<wicket:fragment wicket:id="treeLinks">
+		<span class="link">
+			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+	
+	<!-- blob links -->
+	<wicket:fragment wicket:id="blobLinks">
+		<span class="link">
+			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a> | <a wicket:id="difftocurrent"><wicket:message key="gb.difftocurrent"></wicket:message></a>
+		</span>	
+	</wicket:fragment>
 	
 </wicket:panel>
 </body>
