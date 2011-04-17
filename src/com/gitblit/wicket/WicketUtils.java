@@ -13,6 +13,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
 public class WicketUtils {
@@ -61,14 +62,14 @@ public class WicketUtils {
 	}
 
 	public static PageParameters newObjectParameter(String repositoryName, String objectId) {
-		if (objectId == null || objectId.trim().length() == 0) {
+		if (StringUtils.isEmpty(objectId)) {
 			return newRepositoryParameter(repositoryName);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId);
 	}
 
 	public static PageParameters newPathParameter(String repositoryName, String objectId, String path) {
-		if (path == null || path.trim().length() == 0) {
+		if (StringUtils.isEmpty(path)) {
 			return newObjectParameter(repositoryName, objectId);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path);
@@ -88,6 +89,11 @@ public class WicketUtils {
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path + ",page=" + pageNumber);
 	}
 
+	public static PageParameters newBlobDiffParameter(String repositoryName, String baseCommitId, String commitId, String path) {
+		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",f=" + path + ",hb=" + baseCommitId);
+	}
+
+	
 	public static String getRepositoryName(PageParameters params) {
 		return params.getString("r", "");
 	}
@@ -98,6 +104,10 @@ public class WicketUtils {
 
 	public static String getPath(PageParameters params) {
 		return params.getString("f", null);
+	}
+	
+	public static String getBaseObjectId(PageParameters params) {
+		return params.getString("hb", null);
 	}
 
 	public static int getPage(PageParameters params) {

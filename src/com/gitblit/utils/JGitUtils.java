@@ -288,20 +288,35 @@ public class JGitUtils {
 	}
 
 	public static String getCommitDiff(Repository r, RevCommit commit, boolean outputHtml) {
-		return getCommitDiff(r, commit, null, outputHtml);
+		return getCommitDiff(r, null, commit, null, outputHtml);
 	}
 
 	public static String getCommitDiff(Repository r, RevCommit commit, String path, boolean outputHtml) {
+		return getCommitDiff(r, null, commit, path, outputHtml);
+	}
+
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, boolean outputHtml) {
+		return getCommitDiff(r, baseCommit, commit, null, outputHtml);
+	}
+
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path, boolean outputHtml) {
 		try {
-			final RevWalk rw = new RevWalk(r);
-			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-			RevTree parentTree = parent.getTree();
+			RevTree baseTree;
+			if (baseCommit == null) {
+				final RevWalk rw = new RevWalk(r);
+				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+				rw.dispose();
+				baseTree = parent.getTree();	
+			} else {
+				baseTree = baseCommit.getTree();
+			}
+
 			RevTree commitTree = commit.getTree();
 
 			final TreeWalk walk = new TreeWalk(r);
 			walk.reset();
 			walk.setRecursive(true);
-			walk.addTree(parentTree);
+			walk.addTree(baseTree);
 			walk.addTree(commitTree);
 			walk.setFilter(TreeFilter.ANY_DIFF);
 
@@ -316,7 +331,7 @@ public class JGitUtils {
 			df.setRepository(r);
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+			List<DiffEntry> diffs = df.scan(baseTree, commitTree);
 			if (path != null && path.length() > 0) {
 				for (DiffEntry diff : diffs) {
 					if (diff.getNewPath().equalsIgnoreCase(path)) {

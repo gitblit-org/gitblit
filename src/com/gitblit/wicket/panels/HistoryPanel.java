@@ -32,7 +32,7 @@ public class HistoryPanel extends BasePanel {
 	
 	private boolean hasMore = false;
 
-	public HistoryPanel(String wicketId, final String repositoryName, String objectId, final String path, Repository r, int limit, int pageOffset) {
+	public HistoryPanel(String wicketId, final String repositoryName, final String objectId, final String path, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.logPageCommitCount, 50);
@@ -96,7 +96,7 @@ public class HistoryPanel extends BasePanel {
 				// TODO links for folder
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newPathParameter(repositoryName, entry.getName(), path)).setEnabled(counter > 0));
+				item.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newBlobDiffParameter(repositoryName, entry.getName(), objectId, path)).setEnabled(counter > 0));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
