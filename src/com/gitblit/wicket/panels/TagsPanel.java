@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -58,13 +59,19 @@ public class TagsPanel extends BasePanel {
 					message = entry.getShortLog();
 				}
 				if (entry.isAnnotatedTag()) {
-					item.add(new LinkPanel("tagDescription", "list subject", message, TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					item.add(new LinkPanel("tagDescription", "list", message, TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
+					fragment.add(new BookmarkablePageLink<Void>("view", TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())).setEnabled(entry.isAnnotatedTag()));
+					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					item.add(fragment);
 				} else {
-					item.add(new LinkPanel("tagDescription", "list subject", message, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
+					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					item.add(fragment);
 				}
-				item.add(new BookmarkablePageLink<Void>("view", TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())).setEnabled(entry.isAnnotatedTag()));
-				item.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
-				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

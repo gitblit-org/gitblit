@@ -13,6 +13,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
@@ -81,7 +82,7 @@ public class WicketUtils {
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
-	
+
 	public static PageParameters newHistoryPageParameter(String repositoryName, String objectId, String path, int pageNumber) {
 		if (pageNumber <= 1) {
 			return newObjectParameter(repositoryName, objectId);
@@ -93,7 +94,17 @@ public class WicketUtils {
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",f=" + path + ",hb=" + baseCommitId);
 	}
 
-	
+	public static PageParameters newSearchParameter(String repositoryName, String commitId, String search, SearchType type) {
+		if (StringUtils.isEmpty(commitId)) {
+			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name());	
+		}
+		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search + ",st=" + type.name());
+	}
+
+	public static PageParameters newSearchParameter(String repositoryName, String commitId, String search, SearchType type, int pageNumber) {
+		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search + ",st=" + type.name() + ",page=" + pageNumber);
+	}
+
 	public static String getRepositoryName(PageParameters params) {
 		return params.getString("r", "");
 	}
@@ -105,9 +116,17 @@ public class WicketUtils {
 	public static String getPath(PageParameters params) {
 		return params.getString("f", null);
 	}
-	
+
 	public static String getBaseObjectId(PageParameters params) {
 		return params.getString("hb", null);
+	}
+
+	public static String getSearchString(PageParameters params) {
+		return params.getString("s", null);
+	}
+
+	public static String getSearchType(PageParameters params) {
+		return params.getString("st", null);
 	}
 
 	public static int getPage(PageParameters params) {

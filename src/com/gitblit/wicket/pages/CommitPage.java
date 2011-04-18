@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -48,10 +49,12 @@ public class CommitPage extends RepositoryPage {
 
 		addRefs(r, c);
 
-		add(new Label("commitAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
+		// author
+		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
-		add(new Label("commitCommitter", JGitUtils.getDisplayName(c.getCommitterIdent())));
+		// committer
+		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), SearchType.COMMITTER));		
 		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone()));
 
 		add(new Label("commitId", c.getName()));
@@ -100,7 +103,7 @@ public class CommitPage extends RepositoryPage {
 		};
 		add(pathsView);
 	}
-
+	
 	@Override
 	protected String getPageName() {
 		return getString("gb.commit");

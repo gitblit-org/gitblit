@@ -4,7 +4,7 @@ public class Constants {
 
 	public final static String NAME = "Git:Blit";
 
-	public final static String VERSION = "0.0.1";
+	public final static String VERSION = "0.1.0-SNAPSHOT";
 
 	public final static String ADMIN_ROLE = "admin";
 

@@ -20,6 +20,9 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -34,6 +37,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
@@ -306,7 +310,7 @@ public class JGitUtils {
 				final RevWalk rw = new RevWalk(r);
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				rw.dispose();
-				baseTree = parent.getTree();	
+				baseTree = parent.getTree();
 			} else {
 				baseTree = baseCommit.getTree();
 			}
@@ -364,7 +368,7 @@ public class JGitUtils {
 	public static String getCommitPatch(Repository r, RevCommit commit, String path) {
 		return getCommitPatch(r, null, commit, path);
 	}
-	
+
 	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit, String path) {
 		try {
 			RevTree baseTree;
@@ -463,7 +467,7 @@ public class JGitUtils {
 	public static List<RevCommit> getRevLog(Repository r, String objectId, int offset, int maxCount) {
 		return getRevLog(r, objectId, null, offset, maxCount);
 	}
-	
+
 	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		try {
@@ -474,11 +478,80 @@ public class JGitUtils {
 			ObjectId object = r.resolve(objectId);
 			walk.markStart(walk.parseCommit(object));
 			if (!StringUtils.isEmpty(path)) {
-				TreeFilter filter = AndTreeFilter.create(PathFilterGroup
-						.createFromStrings(Collections.singleton(path)),
-						TreeFilter.ANY_DIFF);
+				TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(Collections.singleton(path)), TreeFilter.ANY_DIFF);
 				walk.setTreeFilter(filter);
 			}
+			Iterable<RevCommit> revlog = walk;
+			if (offset > 0) {
+				int count = 0;
+				for (RevCommit rev : revlog) {
+					count++;
+					if (count > offset) {
+						list.add(rev);
+						if (maxCount > 0 && list.size() == maxCount) {
+							break;
+						}
+					}
+				}
+			} else {
+				for (RevCommit rev : revlog) {
+					list.add(rev);
+					if (maxCount > 0 && list.size() == maxCount) {
+						break;
+					}
+				}
+			}
+			walk.dispose();
+		} catch (Throwable t) {
+			LOGGER.error("Failed to determine last change", t);
+		}
+		return list;
+	}
+
+	public static enum SearchType {
+		AUTHOR, COMMITTER, COMMIT;
+
+		public static SearchType forName(String name) {
+			for (SearchType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return null;
+		}
+	}
+
+	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value, final SearchType type, int offset, int maxCount) {
+		final String lcValue = value.toLowerCase();
+		List<RevCommit> list = new ArrayList<RevCommit>();
+		try {
+			if (objectId == null || objectId.trim().length() == 0) {
+				objectId = Constants.HEAD;
+			}
+			RevWalk walk = new RevWalk(r);
+			walk.setRevFilter(new RevFilter() {
+
+				@Override
+				public RevFilter clone() {
+					return this;
+				}
+
+				@Override
+				public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException, MissingObjectException, IncorrectObjectTypeException, IOException {
+					switch (type) {
+					case AUTHOR:
+						return (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1) || (commit.getAuthorIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
+					case COMMITTER:
+						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1)|| (commit.getCommitterIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
+					case COMMIT:
+						return commit.getFullMessage().toLowerCase().indexOf(lcValue) > -1;
+					}
+					return false;
+				}
+
+			});
+			ObjectId object = r.resolve(objectId);
+			walk.markStart(walk.parseCommit(object));
 			Iterable<RevCommit> revlog = walk;
 			if (offset > 0) {
 				int count = 0;

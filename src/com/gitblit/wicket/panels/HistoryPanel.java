@@ -19,6 +19,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
@@ -28,6 +29,7 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class HistoryPanel extends BasePanel {
@@ -95,9 +97,12 @@ public class HistoryPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone()));
 
+				// author search link
 				String author = entry.getAuthorIdent().getName();
-				item.add(WicketUtils.createAuthorLabel("commitAuthor", author));
-
+				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, author, SearchType.AUTHOR));
+				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
+				item.add(authorLink);
+				
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));

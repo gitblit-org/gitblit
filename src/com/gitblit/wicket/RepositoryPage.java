@@ -6,9 +6,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
@@ -18,7 +21,9 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.pages.RepositoriesPage;
+import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.panels.PageLinksPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
@@ -109,6 +114,38 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected abstract String getPageName();
 
+	
+	protected Component createPersonPanel(String wicketId, PersonIdent identity, SearchType searchType) {
+		if (StringUtils.isEmpty(identity.getName()) || StringUtils.isEmpty(identity.getEmailAddress())) {
+			String value = identity.getName();
+			if (StringUtils.isEmpty(value)) {
+				value = identity.getEmailAddress();
+			}
+			Fragment partial = new Fragment(wicketId, "partialPersonIdent", this);
+			LinkPanel link = new LinkPanel("personName", "list", value, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));
+			setPersonSearchTooltip(link, value, searchType);
+			partial.add(link);
+			return partial;
+		} else {
+			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", this);
+			LinkPanel nameLink = new LinkPanel("personName", "list", identity.getName(), SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getName(), searchType));
+			setPersonSearchTooltip(nameLink, identity.getName(), searchType);
+			fullPerson.add(nameLink);
+			
+			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + identity.getEmailAddress() + ">", SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getEmailAddress(), searchType));
+			setPersonSearchTooltip(addressLink, identity.getEmailAddress(), searchType);
+			fullPerson.add(addressLink);
+			return fullPerson;
+		}
+	}
+	
+	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
+		if (searchType.equals(SearchType.AUTHOR)) {
+			WicketUtils.setHtmlTitle(component, getString("gb.searchForAuthor") + " " + value);
+		} else if (searchType.equals(SearchType.COMMITTER)) {
+			WicketUtils.setHtmlTitle(component, getString("gb.searchForCommitter") + " " + value);
+		}
+	}
 	@Override
 	protected void onBeforeRender() {
 		// dispose of repository object

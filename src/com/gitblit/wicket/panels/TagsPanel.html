@@ -16,9 +16,7 @@
     			<td><b><span wicket:id="tagName">[tag name]</span></b></td>
     			<td><span wicket:id="tagDescription">[tag description]</span></td>
     			<td class="rightAlign">
-    				<span class="link">
-						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
-					</span>
+    				<span wicket:id="tagLinks"></span>
 				</td>
     		</tr>
     	</tbody>
@@ -26,6 +24,20 @@
 	
 	<div wicket:id="allTags">[all tags]</div>	
 
+	<!--  annotated tag links -->
+	<wicket:fragment wicket:id="annotatedLinks">
+		<span class="link">
+			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+	
+	<!-- lightweight tag links -->
+	<wicket:fragment wicket:id="lightweightLinks">
+		<span class="link">
+			<a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+	
 </wicket:panel>
 </body>
 </html>

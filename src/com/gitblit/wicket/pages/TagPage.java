@@ -3,11 +3,11 @@ package com.gitblit.wicket.pages;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -41,7 +41,7 @@ public class TagPage extends RepositoryPage {
 			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
 		}
 
-		add(new Label("tagAuthor", JGitUtils.getDisplayName(c.getAuthorIdent())));
+		add(createPersonPanel("tagAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
 		addFullText("fullMessage", c.getFullMessage(), true);

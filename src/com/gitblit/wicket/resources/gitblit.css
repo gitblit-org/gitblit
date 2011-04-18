@@ -104,7 +104,7 @@ div.page_header {
 	font-family: sans-serif;
 	font-weight: bold;
 	font-size: 150%;
-	color: #bbb;
+	color: #888;
 	background-color: #ffffff;
 }
 
@@ -129,6 +129,7 @@ div.page_header a:hover {
 }
 
 div.page_footer {
+	clear: both;
 	height: 17px;
 	color: black;
 	background-color: #ffffff;
@@ -272,6 +273,14 @@ span.diff.hunk_section {
 a.list {
 	text-decoration: none;
 	color: #000000;
+}
+
+a.list.subject {
+	font-weight: bold;
+}
+
+a.list.name {
+	font-weight: bold;	
 }
 
 a.list:hover {
