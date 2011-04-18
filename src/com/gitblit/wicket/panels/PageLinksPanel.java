@@ -2,26 +2,34 @@ package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TicketsPage;
@@ -78,6 +86,8 @@ public class PageLinksPanel extends Panel {
 			}
 		};
 		add(extrasView);
+
+		add(new SearchForm("searchForm", repositoryName));
 	}
 
 	public void disablePageLink(String pageName) {
@@ -91,6 +101,32 @@ public class PageLinksPanel extends Panel {
 				}
 				break;
 			}
+		}
+	}
+
+	class SearchForm extends StatelessForm<Void> {
+		private static final long serialVersionUID = 1L;
+
+		private final String repositoryName;
+
+		private final IModel<String> searchBoxModel = new Model<String>("");
+		
+		private final IModel<SearchType> searchTypeModel = new Model<SearchType>(SearchType.COMMIT);
+
+		public SearchForm(String id, String repositoryName) {
+			super(id);
+			this.repositoryName = repositoryName;
+			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType", Arrays.asList(SearchType.values()));
+			searchType.setModel(searchTypeModel);
+			add(searchType);
+			add(new TextField<String>("searchBox", searchBoxModel));
+		}
+
+		@Override
+		public void onSubmit() {
+			SearchType searchType = searchTypeModel.getObject();
+			String searchString = searchBoxModel.getObject();
+			setResponsePage(SearchPage.class, WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
 		}
 	}
 }

@@ -519,6 +519,10 @@ public class JGitUtils {
 			}
 			return null;
 		}
+		
+		public String toString() {
+			return name().toLowerCase();
+		}
 	}
 
 	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value, final SearchType type, int offset, int maxCount) {

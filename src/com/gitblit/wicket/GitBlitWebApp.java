@@ -6,8 +6,6 @@ import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.request.urlcompressing.UrlCompressingWebRequestProcessor;
-import org.apache.wicket.request.IRequestCycleProcessor;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;
@@ -84,11 +82,6 @@ public class GitBlitWebApp extends WebApplication {
 	@Override
 	public final Session newSession(Request request, Response response) {
 		return new GitBlitWebSession(request);
-	}
-
-	@Override
-	protected final IRequestCycleProcessor newRequestCycleProcessor() {
-		return new UrlCompressingWebRequestProcessor();
 	}
 
 	@Override
