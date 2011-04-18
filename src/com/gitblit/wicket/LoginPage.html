@@ -13,17 +13,17 @@
    		</wicket:link>
 	</wicket:head>
 	
-
 	<body onload="document.getElementById('username').focus();">
-	<div>
-		<center>
-			<wicket:link>
-				<img src="resources/gitblt2.png" alt="Git:Blit"/><br/>
-			</wicket:link>
-			<span style="font-weight:bold;" wicket:id="name">[name]</span><br/>
+		<div>
+			<div style="text-align:center;">
+				<wicket:link>
+					<img src="resources/gitblt2.png" alt="Git:Blit"/><br/>
+				</wicket:link>
+				<span style="font-weight:bold;" wicket:id="name">[name]</span><br/>
+			</div>
 
-			<div>
-				<form style="text-align:center;" wicket:id="loginForm">
+			<form style="text-align:center;" wicket:id="loginForm">
+				<div>
 					<p/>
 					<wicket:message key="gb.username"></wicket:message>
 					<input type="text" id="username" wicket:id="username" value=""/>
@@ -33,9 +33,8 @@
 					<p/>
 					<input type="submit" value="Login" wicket:message="value:gb.login" />
 					<div style="background-color:#c7c7c7" wicket:id="feedback"></div>
-				</form>
-			</div>
-		</center>
-	</div>
+				</div>
+			</form>
+		</div>
 	</body>
 </html>
