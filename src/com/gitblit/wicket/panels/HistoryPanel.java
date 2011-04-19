@@ -18,11 +18,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
@@ -47,7 +48,7 @@ public class HistoryPanel extends BasePanel {
 		}
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		List<PathModel> paths = JGitUtils.getFilesInCommit(r, commit);
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
 
 		PathModel matchingPath = null;
 		for (PathModel p : paths) {

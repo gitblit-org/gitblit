@@ -15,7 +15,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.models.RefModel;
 import com.gitblit.wicket.models.TicketModel;
 
@@ -82,7 +82,7 @@ public class JGitUtilsTest extends TestCase {
 	public void testFilesInCommit() throws Exception {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
-		List<PathModel> paths = JGitUtils.getFilesInCommit(r, commit);
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
 		r.close();
 		assertTrue("No changed paths found!", paths.size() > 0);
 	}

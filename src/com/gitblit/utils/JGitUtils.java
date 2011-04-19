@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -49,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.wicket.models.Metric;
 import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.models.RefModel;
 import com.gitblit.wicket.models.TicketModel;
 import com.gitblit.wicket.models.TicketModel.Comment;
@@ -256,13 +258,13 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<PathModel> getFilesInCommit(Repository r, String commitId) {
+	public static List<PathChangeModel> getFilesInCommit(Repository r, String commitId) {
 		RevCommit commit = getCommit(r, commitId);
 		return getFilesInCommit(r, commit);
 	}
 
-	public static List<PathModel> getFilesInCommit(Repository r, RevCommit commit) {
-		List<PathModel> list = new ArrayList<PathModel>();
+	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
+		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
 		try {
 			final RevWalk rw = new RevWalk(r);
 			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
@@ -283,7 +285,11 @@ public class JGitUtils {
 			df.setDetectRenames(true);
 			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
 			for (DiffEntry diff : diffs) {
-				list.add(new PathModel(diff.getNewPath(), diff.getNewPath(), 0, diff.getNewMode().getBits(), commit.getId().getName()));
+				if (diff.getChangeType().equals(ChangeType.DELETE)) {
+					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
+				} else {
+					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
+				}
 			}
 		} catch (Throwable t) {
 			LOGGER.error("failed to determine files in commit!", t);

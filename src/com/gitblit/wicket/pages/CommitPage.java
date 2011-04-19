@@ -18,7 +18,7 @@ import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.models.PathModel.PathChangeModel;
 
 public class CommitPage extends RepositoryPage {
 
@@ -78,14 +78,18 @@ public class CommitPage extends RepositoryPage {
 		addFullText("fullMessage", c.getFullMessage(), true);
 
 		// changed paths list
-		List<PathModel> paths = JGitUtils.getFilesInCommit(r, c);
-		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
-		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
+		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
+		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 
-			public void populateItem(final Item<PathModel> item) {
-				final PathModel entry = item.getModelObject();
+			public void populateItem(final Item<PathChangeModel> item) {
+				final PathChangeModel entry = item.getModelObject();
+				Label changeType = new Label("changeType", "");
+				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
+				setChangeTypeTooltip(changeType, entry.changeType);
+				item.add(changeType);
 				if (entry.isTree()) {
 					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class, newPathParameter(entry.path)));
 				} else {

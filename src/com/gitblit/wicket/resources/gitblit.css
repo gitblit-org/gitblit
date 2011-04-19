@@ -169,7 +169,7 @@ div.search {
 	color:yellow;
 	text-align:right;
 	float:right;
-	padding:3px;
+	padding:3px 4px 3px 3px;	
 }
 
 .repositories_message {
@@ -279,6 +279,31 @@ span.diff.hunk_info {
 span.diff.hunk_section {	
 	color: #AA22AA;
 	font-family: inherit;
+}
+
+span.addition, span.modification, span.deletion, span.rename {
+	border: 1px solid #888;
+	float: left;
+	height: 0.8em;
+	margin: 0.2em 0.5em 0 0;
+	overflow: hidden;
+	width: 0.8em;
+}
+
+span.addition {
+	background-color: #bbffbb;
+}
+
+span.modification {
+	background-color: #ffdd88;
+}
+
+span.deletion {
+	background-color: #ff8888;
+}
+
+span.rename {
+	background-color: #8888ff;
 }
 
 a.list {

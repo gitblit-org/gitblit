@@ -11,6 +11,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -146,6 +147,25 @@ public abstract class RepositoryPage extends BasePage {
 			WicketUtils.setHtmlTitle(component, getString("gb.searchForCommitter") + " " + value);
 		}
 	}
+	
+	protected void setChangeTypeTooltip(Component container, ChangeType type) {
+		switch (type) {
+		case ADD:
+			WicketUtils.setHtmlTitle(container, getString("gb.addition"));
+			break;
+		case COPY:
+		case RENAME:
+			WicketUtils.setHtmlTitle(container, getString("gb.rename"));
+			break;
+		case DELETE:
+			WicketUtils.setHtmlTitle(container, getString("gb.deletion"));
+			break;
+		case MODIFY:
+			WicketUtils.setHtmlTitle(container, getString("gb.modification"));
+			break;
+		}
+	}
+	
 	@Override
 	protected void onBeforeRender() {
 		// dispose of repository object

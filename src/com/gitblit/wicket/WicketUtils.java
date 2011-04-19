@@ -9,6 +9,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
@@ -29,6 +30,24 @@ public class WicketUtils {
 
 	public static void setHtmlTitle(Component container, String value) {
 		container.add(new SimpleAttributeModifier("title", value));
+	}
+
+	public static void setChangeTypeCssClass(Component container, ChangeType type) {
+		switch (type) {
+		case ADD:
+			setCssClass(container, "addition");
+			break;
+		case COPY:
+		case RENAME:
+			setCssClass(container, "rename");
+			break;
+		case DELETE:
+			setCssClass(container, "deletion");
+			break;
+		case MODIFY:
+			setCssClass(container, "modification");
+			break;
+		}
 	}
 
 	public static void setTicketCssClass(Component container, String state) {
@@ -96,7 +115,7 @@ public class WicketUtils {
 
 	public static PageParameters newSearchParameter(String repositoryName, String commitId, String search, SearchType type) {
 		if (StringUtils.isEmpty(commitId)) {
-			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name());	
+			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name());
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search + ",st=" + type.name());
 	}

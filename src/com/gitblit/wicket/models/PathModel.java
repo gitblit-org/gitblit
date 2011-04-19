@@ -2,6 +2,8 @@ package com.gitblit.wicket.models;
 
 import java.io.Serializable;
 
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+
 import com.gitblit.utils.JGitUtils;
 
 public class PathModel implements Serializable, Comparable<PathModel> {
@@ -49,5 +51,17 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 			return -1;
 		}
 		return 1;
+	}
+
+	public static class PathChangeModel extends PathModel {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public final ChangeType changeType;
+
+		public PathChangeModel(String name, String path, long size, int mode, String commitId, ChangeType type) {
+			super(name, path, size, mode, commitId);
+			this.changeType = type;
+		}
 	}
 }
