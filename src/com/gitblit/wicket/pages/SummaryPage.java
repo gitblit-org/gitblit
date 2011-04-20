@@ -1,6 +1,8 @@
 package com.gitblit.wicket.pages;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -15,9 +17,13 @@ import com.codecommit.wicket.ChartAxisType;
 import com.codecommit.wicket.ChartProvider;
 import com.codecommit.wicket.ChartType;
 import com.codecommit.wicket.IChartData;
+import com.codecommit.wicket.LineStyle;
+import com.codecommit.wicket.MarkerType;
+import com.codecommit.wicket.ShapeMarker;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.Metric;
@@ -44,11 +50,11 @@ public class SummaryPage extends RepositoryPage {
 		}
 
 		Repository r = getRepository();
-		List<Metric> metrics = JGitUtils.getDateMetrics(r);
-
-		long numberOfCommits = 0;
-		for (Metric m : metrics) {
-			numberOfCommits += m.count;
+		List<Metric> metrics = null;
+		Metric metricsTotal = null;
+		if (GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+			metrics = JGitUtils.getDateMetrics(r);
+			metricsTotal = metrics.remove(0);
 		}
 
 		// repository description
@@ -56,6 +62,11 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryOwner", JGitUtils.getRepositoryOwner(r)));
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r), getTimeZone()));
+		if (metricsTotal == null) {
+			add(new Label("repositoryStats", ""));
+		} else {
+			add(new Label("repositoryStats", MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
+		}
 		add(new Label("repositoryCloneUrl", GitBlit.self().getCloneUrl(repositoryName)));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
@@ -75,7 +86,7 @@ public class SummaryPage extends RepositoryPage {
 		if (GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(400, 80), ChartType.LINE, data);
+			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE, data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			dateAxis.setLabels(new String[] { metrics.get(0).name, metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
 			provider.addAxis(dateAxis);
@@ -84,6 +95,9 @@ public class SummaryPage extends RepositoryPage {
 			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
+			provider.setLineStyles(new LineStyle[] {new LineStyle(2, 4, 0), new LineStyle(0, 4, 1)});	
+			provider.addShapeMarker(new ShapeMarker(MarkerType.DIAMOND, Color.BLUE, 1, -1, 5));
+			
 			add(new Chart("commitsChart", provider));
 		} else {
 			add(new ContextImage("commitsChart", "blank.png"));
@@ -91,23 +105,25 @@ public class SummaryPage extends RepositoryPage {
 	}
 
 	protected IChartData getChartData(List<Metric> metrics) {
-		final double[] counts = new double[metrics.size()];
+		final double[] commits = new double[metrics.size()];
+		final double[] tags = new double[metrics.size()];
 		int i = 0;
 		double max = 0;
 		for (Metric m : metrics) {
-			counts[i++] = m.count;
+			commits[i] = m.count;
+			if (m.tag > 0) {
+				tags[i] = m.count;
+			} else {
+				tags[i] = -1d;
+			}
 			max = Math.max(max, m.count);
+			i++;
 		}
-		final double dmax = max;
-		IChartData data = new AbstractChartData() {
+		IChartData data = new AbstractChartData(max) {
 			private static final long serialVersionUID = 1L;
 
 			public double[][] getData() {
-				return new double[][] { counts };
-			}
-
-			public double getMax() {
-				return dmax;
+				return new double[][] { commits, tags };
 			}
 		};
 		return data;

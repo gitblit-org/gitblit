@@ -3,10 +3,12 @@
  */
 package com.codecommit.wicket;
 
+import java.io.Serializable;
+
 /**
  * @author Daniel Spiewak
  */
-public enum MarkerType {
+public enum MarkerType implements Serializable {
 	ARROW("a"),
 	CROSS("c"),
 	DIAMOND("d"),

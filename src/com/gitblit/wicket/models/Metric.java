@@ -8,6 +8,8 @@ public class Metric implements Serializable {
 
 	public String name;
 	public double count;
+	public double tag;
+	public int duration;
 
 	public Metric(String name) {
 		this.name = name;

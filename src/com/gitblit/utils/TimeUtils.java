@@ -23,6 +23,40 @@ public class TimeUtils {
 		return now.getDate() == (date.getDate() + 1) && now.getMonth() == date.getMonth() && now.getYear() == date.getYear();
 	}
 
+	public static String duration(int days) {
+		if (days <= 60) {
+			return days + (days > 1 ? " days" : " day");
+		} else if (days <= 365) {
+			int rem = days % 30;
+			return (days / 30) + " months, " + rem + (rem > 1 ? " days" : " day");
+		} else {
+			int years = days / 365;
+			int rem = days % 365;
+			String yearsString = years + (years > 1 ? " years" : " year");
+			if (rem < 30) {
+				if (rem == 0) {
+					return yearsString;
+				} else {
+					return yearsString + ", " + rem + (rem > 1 ? " days" : " day");
+				}
+			} else {
+				int months = rem / 30;
+				int remDays = (rem % 30);
+				String monthsString;
+				if (months == 0) {
+					monthsString = yearsString;
+				} else {
+					monthsString = yearsString + ", " + months + (months > 1 ? " months" : " month");
+				}
+				if (remDays == 0) {
+					return  monthsString;
+				} else {
+					return monthsString + ", " + remDays + (remDays > 1 ? " days":" day");
+				}
+			}
+		}
+	}
+
 	public static int minutesAgo(Date date, long endTime, boolean roundup) {
 		long diff = endTime - date.getTime();
 		int mins = (int) (diff / min);

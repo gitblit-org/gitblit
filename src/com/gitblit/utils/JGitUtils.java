@@ -36,6 +36,7 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
@@ -99,6 +100,34 @@ public class JGitUtils {
 			}
 		}
 		return list;
+	}
+
+	public static RevCommit getFirstCommit(Repository r, String branch) {
+		if (StringUtils.isEmpty(branch)) {
+			branch = Constants.HEAD;
+		}
+		try {
+			RevWalk walk = new RevWalk(r);
+			walk.sort(RevSort.REVERSE);
+			RevCommit head = walk.parseCommit(r.resolve(branch));
+			walk.markStart(head);
+			RevCommit commit = walk.next();
+			walk.dispose();
+			return commit;
+		} catch (Throwable t) {
+			LOGGER.error("Failed to determine first commit", t);
+		}
+		return null;
+	}
+
+	public static Date getFirstChange(Repository r, String branch) {
+		try {
+			RevCommit commit = getFirstCommit(r, branch);
+			return getCommitDate(commit);
+		} catch (Throwable t) {
+			LOGGER.error("Failed to determine first change", t);
+		}
+		return null;
 	}
 
 	public static Date getLastChange(Repository r) {
@@ -525,7 +554,7 @@ public class JGitUtils {
 			}
 			return null;
 		}
-		
+
 		public String toString() {
 			return name().toLowerCase();
 		}
@@ -552,7 +581,7 @@ public class JGitUtils {
 					case AUTHOR:
 						return (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1) || (commit.getAuthorIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
 					case COMMITTER:
-						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1)|| (commit.getCommitterIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
+						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1) || (commit.getCommitterIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
 					case COMMIT:
 						return commit.getFullMessage().toLowerCase().indexOf(lcValue) > -1;
 					}
@@ -695,29 +724,57 @@ public class JGitUtils {
 
 	public static List<Metric> getDateMetrics(Repository r) {
 		final List<RefModel> tags = getTags(r, -1);
-		final Map<String, Metric> map = new HashMap<String, Metric>();
+		final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
+		for (RefModel tag : tags) {
+			tagMap.put(tag.getCommitId(), tag);
+		}
+		Metric total = new Metric("TOTAL");
+		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 		try {
-			DateFormat df = new SimpleDateFormat("yyyy-MM");
 			RevWalk walk = new RevWalk(r);
 			ObjectId object = r.resolve(Constants.HEAD);
-			walk.markStart(walk.parseCommit(object));
+
+			RevCommit firstCommit = getFirstCommit(r, Constants.HEAD);
+			RevCommit lastCommit = walk.parseCommit(object);
+			int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime()) / (60 * 60 * 24);
+			total.duration = diffDays;
+			DateFormat df;
+			if (diffDays <= 90) {
+				// Days
+				df = new SimpleDateFormat("yyyy-MM-dd");
+			} else if (diffDays > 90 && diffDays < 365) {
+				// Weeks
+				df = new SimpleDateFormat("yyyy-MM (w)");
+			} else {
+				// Months
+				df = new SimpleDateFormat("yyyy-MM");
+			}
+			walk.markStart(lastCommit);
+			
 			Iterable<RevCommit> revlog = walk;
 			for (RevCommit rev : revlog) {
 				Date d = getCommitDate(rev);
 				String p = df.format(d);
-				if (!map.containsKey(p))
-					map.put(p, new Metric(p));
-				map.get(p).count++;
-			}
+				if (!metricMap.containsKey(p))
+					metricMap.put(p, new Metric(p));
+				Metric m = metricMap.get(p); 
+				m.count++;
+				total.count++;
+				if (tagMap.containsKey(rev.getId())) {
+					m.tag++;
+					total.tag++;
+				}
+			}			
 		} catch (Throwable t) {
 			LOGGER.error("Failed to mine log history for metrics", t);
 		}
-		List<String> keys = new ArrayList<String>(map.keySet());
+		List<String> keys = new ArrayList<String>(metricMap.keySet());
 		Collections.sort(keys);
 		List<Metric> metrics = new ArrayList<Metric>();
 		for (String key : keys) {
-			metrics.add(map.get(key));
+			metrics.add(metricMap.get(key));
 		}
+		metrics.add(0, total);
 		return metrics;
 	}
 

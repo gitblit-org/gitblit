@@ -50,6 +50,14 @@ public class JGitUtilsTest extends TestCase {
 		r.close();
 		assertTrue("Could not get last repository change date!", date != null);
 	}
+	
+	public void testFirstCommit() throws Exception {
+		Repository r = getRepository();
+		RevCommit commit = JGitUtils.getFirstCommit(r, null);
+		r.close();
+		assertTrue("Could not get first commit!", commit != null);
+		System.out.println(commit.getName() + " " + commit.getShortMessage());
+	}
 
 	public void testRetrieveRevObject() throws Exception {
 		Repository r = getRepository();
