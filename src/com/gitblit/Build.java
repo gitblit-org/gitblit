@@ -36,6 +36,8 @@ public class Build {
 		downloadFromMaven(MavenObject.WICKET);
 		downloadFromMaven(MavenObject.WICKET_EXT);
 		downloadFromMaven(MavenObject.WICKET_AUTH_ROLES);
+		downloadFromMaven(MavenObject.WICKET_GOOGLE_CHARTS);
+		downloadFromMaven(MavenObject.MARKDOWNPAPERS);
 	}
 
 	public static void compiletime() {
@@ -192,7 +194,11 @@ public class Build {
 
 		public static final MavenObject WICKET_AUTH_ROLES = new MavenObject("Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.17", "86d20ff32f62d3026213ff11a78555da643bc676");
 
+		public static final MavenObject WICKET_GOOGLE_CHARTS = new MavenObject("Apache Wicket Google Charts Add-On", "org/wicketstuff", "googlecharts", "1.4.17", "c567b98b0c5efe4147e77ef2d0d3c2d45c49dea5");
+
 		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "3.8.2", "07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060");
+
+		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers", "org/tautua/markdownpapers", "markdownpapers-core", "1.0.0", "feda63bd149f3315da210e397d45d02277038ad5");
 
 		public final String name;
 		public final String group;

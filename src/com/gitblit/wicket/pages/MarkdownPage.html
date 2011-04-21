@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+      
+<!-- contribute markdown css to the page header -->
+<wicket:head>
+  <wicket:link>
+   	<link href="/com/gitblit/wicket/resources/markdown.css" type="text/css" rel="stylesheet" />
+  </wicket:link>
+</wicket:head>
+
+<body>
+<wicket:extend>
+		<!-- page nav links -->	
+		<div wicket:id="pageLinks">[page links]</div>
+	
+		<!-- markdown nav links -->	
+		<div class="page_nav2">
+			<span wicket:id="blameLink">[blame link]</span> | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="headLink"><wicket:message key="gb.head"></wicket:message></a>
+		</div>	
+	
+		<!--  markdown content -->
+		<div class="markdown" wicket:id="markdownText">[markdown content]</div>
+</wicket:extend>
+</body>
+</html>

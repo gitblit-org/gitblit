@@ -26,6 +26,20 @@ public class BlobPage extends RepositoryPage {
 
 		final String blobPath = WicketUtils.getPath(params);
 
+		String extension = null;
+		if (blobPath.lastIndexOf('.') > -1) {
+			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
+		}
+		
+		// see if we should redirect to the markdown page
+		for (String ext : GitBlit.self().settings().getStrings(Keys.web.markdownExtensions)) {
+			if (ext.equals(extension)) {
+				setResponsePage(MarkdownPage.class, params);
+				return;
+			}
+		}
+		
+		// standard blob view
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 
@@ -38,10 +52,6 @@ public class BlobPage extends RepositoryPage {
 		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
-		String extension = null;
-		if (blobPath.lastIndexOf('.') > -1) {
-			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1);
-		}
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();

@@ -17,6 +17,7 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
@@ -67,6 +68,9 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/tickets", TicketsPage.class, new String[] { "r" }));
 		mount(new MixedParamUrlCodingStrategy("/ticket", TicketPage.class, new String[] { "r", "h", "f" }));
 
+		// setup the markdown urls
+		mount(new MixedParamUrlCodingStrategy("/markdown", MarkdownPage.class, new String[] { "r", "h", "f" }));
+		
 		// setup login/logout urls, if we are using authentication
 		if (useAuthentication) {
 			mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));

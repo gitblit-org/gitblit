@@ -32,7 +32,6 @@
 		</path>
 		<javac destdir="${project.build.dir}">
 			<src path="${basedir}/src" />
-			<src path="${basedir}/contrib" />
 			<classpath refid="master-classpath" />
 		</javac>
 		<copy todir="${project.build.dir}">

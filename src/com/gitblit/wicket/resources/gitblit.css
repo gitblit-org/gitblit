@@ -4,7 +4,7 @@
 html, body, table, dl, dt, dd, ol, ul, li, form, a, span, tr, th, td, div, em {
 	font-family: verdana, sans-serif;
 	font-size: 12px;
-	line-height: 15px;
+	line-height: 1.35em;
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -22,7 +22,7 @@ body {
     padding: 0px;
 }
 
-pre, pre.prettyprint, pre.plainprint {
+pre, code, pre.prettyprint, pre.plainprint {
 	color: black;
 	font-family: monospace;
 	font-size:12px;
@@ -75,6 +75,7 @@ div.header {
 	background-color: #D2C3AF;
 	padding: 3px;
 	border: 1px solid #808080;
+	border-radius: 3px 3px 0 0;
 }
 
 div.header a {
@@ -146,6 +147,7 @@ div.page_nav {
 	color: #ddd;
 	background-color: #000070;
 	padding: 7px;
+	border-radius: 3px;
 }
 
 div.page_nav a {
@@ -169,7 +171,7 @@ div.search {
 	color:yellow;
 	text-align:right;
 	float:right;
-	padding:3px 4px 3px 3px;	
+	padding:4px 4px 3px 3px;	
 }
 
 .repositories_message {
