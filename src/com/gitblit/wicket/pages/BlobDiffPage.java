@@ -6,8 +6,11 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.JGitUtils.DiffOutputType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -24,15 +27,17 @@ public class BlobDiffPage extends RepositoryPage {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		
+		DiffOutputType diffType = DiffOutputType.forName(GitBlit.self().settings().getString(Keys.web.diffStyle, DiffOutputType.GITBLIT.name()));
+
 		String diff;
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
-			diff = JGitUtils.getCommitDiff(r, commit, blobPath, true);
+			diff = JGitUtils.getCommitDiff(r, commit, blobPath, diffType);
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			diff = JGitUtils.getCommitDiff(r, baseCommit, commit, blobPath, true);
+			diff = JGitUtils.getCommitDiff(r, baseCommit, commit, blobPath, diffType);
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId, blobPath)));
 		}
 		

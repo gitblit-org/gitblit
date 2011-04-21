@@ -9,11 +9,11 @@ import java.io.OutputStream;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 
-public class HtmlDiffFormatter extends DiffFormatter {
+public class GitWebDiffFormatter extends DiffFormatter {
 
 	private final OutputStream os;
 
-	public HtmlDiffFormatter(OutputStream os) {
+	public GitWebDiffFormatter(OutputStream os) {
 		super(os);
 		this.os = os;
 	}
@@ -44,7 +44,7 @@ public class HtmlDiffFormatter extends DiffFormatter {
 		os.write("</span></div>".getBytes());
 	}
 
-	private void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
+	protected void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
 		os.write(' ');
 		os.write(prefix);
 		switch (cnt) {

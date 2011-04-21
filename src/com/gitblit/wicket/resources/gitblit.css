@@ -221,6 +221,7 @@ div.bug_hold, span.bug_hold {
 
 div.diff {
 	font-family: monospace;
+	overflow: auto;
 }
 
 div.diff.header {
@@ -281,6 +282,59 @@ span.diff.hunk_info {
 span.diff.hunk_section {	
 	color: #AA22AA;
 	font-family: inherit;
+}
+
+div.diff.add2 {
+	background-color: #DDFFDD;
+    font-family: inherit;
+}
+
+div.diff.remove2 {
+	background-color: #FFDDDD;
+    font-family: inherit;
+}
+
+div.diff table {
+	border-right: 1px solid #bbb;
+	border-bottom: 1px solid #bbb;
+	width: 100%;
+}
+
+div.diff table th, div.diff table td {
+	margin: 0px;
+	padding: 0px;
+	font-family: monospace;	
+}
+
+div.diff table th {
+	background-color: #faf8dc;
+	border-left: 1px solid #bbb;	
+	text-align: center;
+	color: #999;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+div.diff table th.header {
+	background-color: #D2C3AF;
+	border-right: 0px;
+	border-bottom: 1px solid #808080;
+	font-family: inherit;
+	font-size:0.9em;
+	color: black;
+	padding: 2px;
+	text-align: left;
+}
+
+div.diff table td.hunk_header {
+	background-color: #dAe2e5 !important;	
+	border-bottom: 1px solid #bac2c5;
+	color: #555;
+}
+
+div.diff table td {
+	border-left: 1px solid #bbb;
+	background-color: #fbfbfb;
 }
 
 span.addition, span.modification, span.deletion, span.rename {

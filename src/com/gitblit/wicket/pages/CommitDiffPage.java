@@ -12,7 +12,10 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.DiffOutputType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -25,7 +28,8 @@ public class CommitDiffPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		String diff = JGitUtils.getCommitDiff(r, commit, true);
+		DiffOutputType diffType = DiffOutputType.forName(GitBlit.self().settings().getString(Keys.web.diffStyle, DiffOutputType.GITBLIT.name()));
+		String diff = JGitUtils.getCommitDiff(r, commit, diffType);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {

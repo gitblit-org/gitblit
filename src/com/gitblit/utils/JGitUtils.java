@@ -326,19 +326,32 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit commit, boolean outputHtml) {
-		return getCommitDiff(r, null, commit, null, outputHtml);
+	public static enum DiffOutputType {
+		PLAIN, GITWEB, GITBLIT;
+
+		public static DiffOutputType forName(String name) {
+			for (DiffOutputType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return null;
+		}
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit commit, String path, boolean outputHtml) {
-		return getCommitDiff(r, null, commit, path, outputHtml);
+	public static String getCommitDiff(Repository r, RevCommit commit, DiffOutputType outputType) {
+		return getCommitDiff(r, null, commit, null, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, boolean outputHtml) {
-		return getCommitDiff(r, baseCommit, commit, null, outputHtml);
+	public static String getCommitDiff(Repository r, RevCommit commit, String path, DiffOutputType outputType) {
+		return getCommitDiff(r, null, commit, path, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path, boolean outputHtml) {
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, DiffOutputType outputType) {
+		return getCommitDiff(r, baseCommit, commit, null, outputType);
+	}
+
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path, DiffOutputType outputType) {
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {
@@ -362,10 +375,17 @@ public class JGitUtils {
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
 			DiffFormatter df;
-			if (outputHtml) {
-				df = new HtmlDiffFormatter(os);
-			} else {
+			switch (outputType) {
+			case GITWEB:
+				df = new GitWebDiffFormatter(os);
+				break;
+			case GITBLIT:
+				df = new GitBlitDiffFormatter(os);
+				break;
+			case PLAIN:
+			default:
 				df = new DiffFormatter(os);
+				break;
 			}
 			df.setRepository(r);
 			df.setDiffComparator(cmp);
@@ -382,9 +402,9 @@ public class JGitUtils {
 				df.format(diffs);
 			}
 			String diff;
-			if (outputHtml) {
+			if (df instanceof GitWebDiffFormatter) {
 				// workaround for complex private methods in DiffFormatter
-				diff = ((HtmlDiffFormatter) df).getHtml();
+				diff = ((GitWebDiffFormatter) df).getHtml();
 			} else {
 				diff = os.toString();
 			}
@@ -750,21 +770,21 @@ public class JGitUtils {
 				df = new SimpleDateFormat("yyyy-MM");
 			}
 			walk.markStart(lastCommit);
-			
+
 			Iterable<RevCommit> revlog = walk;
 			for (RevCommit rev : revlog) {
 				Date d = getCommitDate(rev);
 				String p = df.format(d);
 				if (!metricMap.containsKey(p))
 					metricMap.put(p, new Metric(p));
-				Metric m = metricMap.get(p); 
+				Metric m = metricMap.get(p);
 				m.count++;
 				total.count++;
 				if (tagMap.containsKey(rev.getId())) {
 					m.tag++;
 					total.tag++;
 				}
-			}			
+			}
 		} catch (Throwable t) {
 			LOGGER.error("Failed to mine log history for metrics", t);
 		}

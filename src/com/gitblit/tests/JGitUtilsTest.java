@@ -15,6 +15,7 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.DiffOutputType;
 import com.gitblit.wicket.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.models.RefModel;
 import com.gitblit.wicket.models.TicketModel;
@@ -98,7 +99,7 @@ public class JGitUtilsTest extends TestCase {
 	public void testCommitDiff() throws Exception {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, Constants.HEAD);
-		String diff = JGitUtils.getCommitDiff(r, commit, false);
+		String diff = JGitUtils.getCommitDiff(r, commit, DiffOutputType.PLAIN);
 		r.close();
 		System.out.println(diff);
 	}
