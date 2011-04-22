@@ -1,10 +1,16 @@
 package com.gitblit.wicket.pages;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -16,9 +22,12 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.resource.ContextRelativeResource;
+import org.tautua.markdownpapers.Markdown;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -45,7 +54,52 @@ public class RepositoriesPage extends BasePage {
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		add(new Label("repositoriesMessage", GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "")).setEscapeModelStrings(false));
+		// Load the markdown welcome message
+		String messageSource = GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "gitblit");
+		String message = "";
+		if (messageSource.equalsIgnoreCase("gitblit")) {
+			// Read default welcome message
+			try {
+				ContextRelativeResource res = new ContextRelativeResource("/com/gitblit/wicket/resources/welcome.mkd");
+				InputStream is = res.getResourceStream().getInputStream();
+				InputStreamReader reader = new InputStreamReader(is);
+				StringWriter writer = new StringWriter();
+				Markdown markdown = new Markdown();
+				markdown.transform(reader, writer);
+				message = writer.toString().trim();
+				reader.close();
+				writer.close();
+			} catch (Throwable t) {
+				message = "Failed to read default welcome message!";
+				error(message, t);
+			}
+		} else {
+			// Read user-supplied welcome message
+			if (!StringUtils.isEmpty(messageSource)) {
+				File file = new File(messageSource);
+				if (file.exists()) {
+					try {
+						FileReader reader = new FileReader(file);
+						StringWriter writer = new StringWriter();
+						Markdown markdown = new Markdown();
+						markdown.transform(reader, writer);
+						message = writer.toString().trim();
+						reader.close();
+						writer.close();
+					} catch (Throwable t) {
+						message = "Failed to read " + file;
+						error(message, t);
+					}
+				} else {
+					message = messageSource + " is not a valid file.";
+				}
+			}
+		}
+		Component repositoriesMessage = new Label("repositoriesMessage", message).setEscapeModelStrings(false);
+		if (!showAdmin) {
+			WicketUtils.setCssStyle(repositoriesMessage, "padding-top:10px");
+		}
+		add(repositoriesMessage);
 
 		List<RepositoryModel> rows = GitBlit.self().getRepositories(getRequest());
 		DataProvider dp = new DataProvider(rows);

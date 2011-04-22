@@ -1,0 +1,5 @@
+## Welcome to Git:Blit ##
+
+A quick and easy way to host your own Git repositories.
+
+Built with [JGit](http://eclipse.org/jgit) [Wicket](http://wicket.apache.org) [WicketStuff GoogleCharts](https://github.com/wicketstuff/core/wiki/GoogleCharts) [MarkdownPapers](http://markdown.tautua.org) [Jetty](http://eclipse.org/jetty) [SLF4J](http://www.slf4j.org) [Log4j](http://logging.apache.org/log4j) [google-code-prettify](http://code.google.com/p/google-code-prettify) [JCommander](http://jcommander.org)

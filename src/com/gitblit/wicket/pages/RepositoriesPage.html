@@ -3,12 +3,17 @@
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
       lang="en"> 
+<wicket:head>
+  <wicket:link>
+   	<link href="/com/gitblit/wicket/resources/markdown.css" type="text/css" rel="stylesheet" />
+  </wicket:link>
+</wicket:head>
 
 <body>
 <wicket:extend>
 	<div wicket:id="adminPanel">[admin links]</div>
 	
-	<div class="repositories_message" wicket:id="repositoriesMessage">[repositories message]</div>
+	<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
 		
 	<table class="repositories">
 		<tr>
