@@ -19,6 +19,7 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel.PathChangeModel;
+import com.gitblit.wicket.panels.CommitLegendPanel;
 
 public class CommitPage extends RepositoryPage {
 
@@ -54,7 +55,7 @@ public class CommitPage extends RepositoryPage {
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
 		// committer
-		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), SearchType.COMMITTER));		
+		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), SearchType.COMMITTER));
 		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone()));
 
 		add(new Label("commitId", c.getName()));
@@ -78,7 +79,8 @@ public class CommitPage extends RepositoryPage {
 		addFullText("fullMessage", c.getFullMessage(), true);
 
 		// changed paths list
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);	
+		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -107,7 +109,7 @@ public class CommitPage extends RepositoryPage {
 		};
 		add(pathsView);
 	}
-	
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.commit");

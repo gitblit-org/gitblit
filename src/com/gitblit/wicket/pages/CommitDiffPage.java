@@ -20,6 +20,7 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel.PathChangeModel;
+import com.gitblit.wicket.panels.CommitLegendPanel;
 
 public class CommitDiffPage extends RepositoryPage {
 
@@ -51,6 +52,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
+		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;

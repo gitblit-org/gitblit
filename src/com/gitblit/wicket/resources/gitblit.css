@@ -20,6 +20,7 @@ body {
     margin-left: auto;
     margin-top: none;
     padding: 0px;
+    background: url(background.png) repeat-x scroll 0 0 #FFFFFF;
 }
 
 pre, code, pre.prettyprint, pre.plainprint {
@@ -110,7 +111,7 @@ div.page_header {
 	font-weight: bold;
 	font-size: 150%;
 	color: #888;
-	background-color: #ffffff;
+	background: transparent;
 }
 
 div.page_header span {	
@@ -313,6 +314,7 @@ div.diff table th {
 	color: #999;
 	padding-left: 5px;
 	padding-right: 5px;
+	width: 30px;
 }
 
 div.diff table th.header {
@@ -335,6 +337,10 @@ div.diff table td.hunk_header {
 div.diff table td {
 	border-left: 1px solid #bbb;
 	background-color: #fbfbfb;
+}
+
+td.changeType {
+	width: 15px;
 }
 
 span.addition, span.modification, span.deletion, span.rename {
@@ -360,6 +366,22 @@ span.deletion {
 
 span.rename {
 	background-color: #8888ff;
+}
+
+div.commitLegend {
+	float: right;
+	padding: 0.4em;
+	vertical-align:top;
+}
+
+div.commitLegend span {
+	font-size: 0.9em;
+	vertical-align: top;
+}
+
+div.references {
+	float: right;
+	text-align: right;
 }
 
 a.list {
@@ -401,6 +423,9 @@ table.pretty, table.repositories, table.comments {
 	border-right: 1px solid #bbb;	
 }
 
+table.pretty, table.comments, table.repositories {
+	width:100%;
+}
 table.pretty td {
 	padding: 2px 4px;
 }
@@ -408,10 +433,6 @@ table.pretty td {
 table.comments td {
 	padding: 4px;
 	line-height: 17px;
-}
-
-table.repositories {
-	width:100%;	
 }
 
 table.repositories th {
@@ -509,13 +530,13 @@ td.rightAlign {
 }
 
 span .tagRef, span .headRef, span .remoteRef, span .otherRef {	
-	padding: 0px 4px;
+	padding: 0px 3px;
 	margin-right:2px;
 	font-family: sans-serif;
 	font-size: 9px;
 	font-weight: normal;
 	border: 1px solid;
-	color: black;
+	color: black;	
 }
 
 span .tagRef a span, span .headRef a span, span .remoteRef a span, span .otherRef a span {
@@ -524,11 +545,11 @@ span .tagRef a span, span .headRef a span, span .remoteRef a span, span .otherRe
 
 span .tagRef a, span .headRef a, span .remoteRef a, span .otherRef a {
 	text-decoration: none;
-	color: black;
+	color: black !important;
 }
 
 span .tagRef a:hover, span .headRef a:hover, span .remoteRef a:hover, span .otherRef a:hover {
-	color: black;
+	color: black !important;
 	text-decoration: underline;
 }
 

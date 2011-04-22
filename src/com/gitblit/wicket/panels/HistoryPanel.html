@@ -13,13 +13,13 @@
 	<!-- breadcrumbs -->
 	<div wicket:id="breadcrumbs">[breadcrumbs]</div>
 		
-	<table style="width:100%" class="pretty">
+	<table class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
          		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
+         		<td><img wicket:id="commitIcon" /></td>
          		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
-         		<td><span wicket:id="commitShortMessage">[commit short message]</span></td>
-         		<td class="rightAlign"><span wicket:id="commitRefs">[commit refs]</span></td>         		
+         		<td><div class="references" wicket:id="commitRefs">[commit refs]</div><span wicket:id="commitShortMessage">[commit short message]</span></td>
          		<td class="rightAlign">
          			<span wicket:id="historyLinks">[history links]</span>
 				</td>

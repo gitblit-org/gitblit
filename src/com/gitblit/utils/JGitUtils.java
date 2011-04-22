@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -324,6 +325,17 @@ public class JGitUtils {
 			LOGGER.error("failed to determine files in commit!", t);
 		}
 		return list;
+	}
+
+	public static Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
+		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
+		for (PathChangeModel path : paths) {
+			if (!stats.containsKey(path.changeType)) {
+				stats.put(path.changeType, new AtomicInteger(0));
+			}
+			stats.get(path.changeType).incrementAndGet();
+		}
+		return stats;
 	}
 
 	public static enum DiffOutputType {

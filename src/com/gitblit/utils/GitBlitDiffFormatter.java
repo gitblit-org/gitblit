@@ -97,6 +97,10 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				// skip index lines
 			} else if (line.startsWith("new file")) {
 				// skip new file lines
+			} else if (line.startsWith("\\ No newline")) {
+				// skip no new line
+			} else if (line.startsWith("---") || line.startsWith("+++")) {
+				// skip --- +++ lines
 			} else if (line.startsWith("diff")) {
 				if (line.indexOf(oldnull) > -1) {
 					// a is null, use b
@@ -115,8 +119,6 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				sb.append("<div class=\"diff\">");	
 				sb.append("<table><tbody>");
 				inFile = true;
-			} else if (line.startsWith("---") || line.startsWith("+++")) {
-				// skip --- +++ lines
 			} else {
 				sb.append(line).append('\n');
 			}

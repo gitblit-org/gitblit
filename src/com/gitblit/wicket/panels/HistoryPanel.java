@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -104,6 +105,13 @@ public class HistoryPanel extends BasePanel {
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
 				
+				// merge icon
+				if (entry.getParentCount() > 1) {
+					item.add(new ContextImage("commitIcon", "/com/gitblit/wicket/resources/commit_merge_16x16.png"));
+				} else {
+					item.add(new ContextImage("commitIcon", "/com/gitblit/wicket/resources/blank.png"));
+				}
+
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
