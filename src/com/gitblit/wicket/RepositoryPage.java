@@ -4,13 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -21,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.panels.PageLinksPanel;
@@ -59,11 +56,7 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected Repository getRepository() {
 		if (r == null) {
-			ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-			HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-			req.getServerName();
-
-			Repository r = GitBlit.self().getRepository(req, repositoryName);
+			Repository r = GitBlit.self().getRepository(repositoryName);
 			if (r == null) {
 				error("Can not load repository " + repositoryName);
 				redirectToInterceptPage(new RepositoriesPage());
@@ -117,10 +110,15 @@ public abstract class RepositoryPage extends BasePage {
 
 	
 	protected Component createPersonPanel(String wicketId, PersonIdent identity, SearchType searchType) {
-		if (StringUtils.isEmpty(identity.getName()) || StringUtils.isEmpty(identity.getEmailAddress())) {
+		boolean showEmail = GitBlit.self().settings().getBoolean(Keys.web.showEmailAddresses, false);
+		if (!showEmail || StringUtils.isEmpty(identity.getName()) || StringUtils.isEmpty(identity.getEmailAddress())) {
 			String value = identity.getName();
 			if (StringUtils.isEmpty(value)) {
-				value = identity.getEmailAddress();
+				if (showEmail) {
+					value = identity.getEmailAddress();
+				} else {
+					value = getString("gb.missingUsername");
+				}
 			}
 			Fragment partial = new Fragment(wicketId, "partialPersonIdent", this);
 			LinkPanel link = new LinkPanel("personName", "list", value, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));

@@ -6,10 +6,13 @@ import java.util.Date;
 public class RepositoryModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	public final String name;
-	public final String description;
-	public final String owner;
-	public final Date lastChange;
+	public String name;
+	public String description;
+	public String owner;
+	public Date lastChange;
+	public boolean useTickets;
+	public boolean useDocs;
+	public boolean useNamedUsers;
 
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {
 		this.name = name;

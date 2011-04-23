@@ -78,7 +78,7 @@ public class HistoryPanel extends BasePanel {
 		if (pageResults) {
 			// history page
 			// show commit page link
-			add(new LinkPanel("header", "title", commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName())));
+			add(new LinkPanel("header", "title", commit == null ? "" : commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		} else {
 			// summary page
 			// show history page link
@@ -104,7 +104,7 @@ public class HistoryPanel extends BasePanel {
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, author, SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
-				
+
 				// merge icon
 				if (entry.getParentCount() > 1) {
 					item.add(new ContextImage("commitIcon", "/com/gitblit/wicket/resources/commit_merge_16x16.png"));

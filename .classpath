@@ -12,9 +12,9 @@
 	<classpathentry kind="lib" path="ext/wicket-1.4.17.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.17.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.17.jar"/>
-	<classpathentry kind="lib" path="lib/jgit-0.11.3.jar"/>
-	<classpathentry kind="lib" path="lib/jgit-http-0.11.3.jar"/>
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.0.0.jar"/>
 	<classpathentry kind="lib" path="ext/googlecharts-1.4.17.jar"/>
+	<classpathentry kind="lib" path="lib/jgit-0.12-stable.jar"/>
+	<classpathentry kind="lib" path="lib/jgit-http-0.12-stable.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -3,13 +3,10 @@ package com.gitblit.wicket.pages;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -31,11 +28,7 @@ public class RawPage extends WebPage {
 		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
 
-		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-		req.getServerName();
-
-		Repository r = GitBlit.self().getRepository(req, repositoryName);
+		Repository r = GitBlit.self().getRepository(repositoryName);
 		if (r == null) {
 			error("Can not load repository " + repositoryName);
 			redirectToInterceptPage(new RepositoriesPage());

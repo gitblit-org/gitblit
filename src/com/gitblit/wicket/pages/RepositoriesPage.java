@@ -41,16 +41,16 @@ public class RepositoriesPage extends BasePage {
 		super();
 		setupPage("", "");
 
-		boolean showAdmin = false;
+		final boolean showAdmin;
 		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
 			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
-
+		
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", RepositoriesPage.class));
+		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
@@ -101,7 +101,7 @@ public class RepositoriesPage extends BasePage {
 		}
 		add(repositoriesMessage);
 
-		List<RepositoryModel> rows = GitBlit.self().getRepositories(getRequest());
+		List<RepositoryModel> rows = GitBlit.self().getRepositories();
 		DataProvider dp = new DataProvider(rows);
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
 			private static final long serialVersionUID = 1L;
@@ -119,6 +119,8 @@ public class RepositoriesPage extends BasePage {
 				item.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
 
+				item.add(new BookmarkablePageLink<Void>("repositoryLinks", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setVisible(showAdmin));
+				
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

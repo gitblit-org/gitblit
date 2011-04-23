@@ -3,6 +3,7 @@ package com.gitblit.wicket.panels;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -51,6 +52,13 @@ public class TagsPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone()));
 
+				// tag icon
+				if (entry.isAnnotatedTag()) {
+					item.add(new ContextImage("tagIcon", "/com/gitblit/wicket/resources/tag_16x16.png"));
+				} else {
+					item.add(new ContextImage("tagIcon", "/com/gitblit/wicket/resources/blank.png"));
+				}
+				
 				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
 				String message;
 				if (maxCount > 0) {

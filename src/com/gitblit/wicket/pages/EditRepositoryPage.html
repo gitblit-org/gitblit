@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	<!-- Push content down to preserve header image -->
+	<div style="padding-top:20px"></div>
+	
+	<!-- Repository Table -->
+	<form wicket:id="editForm">
+		<table class="plain">
+			<tbody>
+				<tr><th>Name</th><td><input type="text" wicket:id="name" size="30" /></td></tr>
+				<tr><th>Description</th><td><input type="text" wicket:id="description" size="80" /></td></tr>
+				<tr><th>Owner</th><td><input type="text" wicket:id="owner" size="30" /></td></tr>
+				<tr><th>Use Git:Blit Tickets</th><td><input type="checkbox" wicket:id="useTickets"/>distributed Git:Blit ticketing</td></tr>
+				<tr><th>Use Git:Blit Docs</th><td><input type="checkbox" wicket:id="useDocs"/>distributed Git:Blit documentation</td></tr>
+				<tr><th>Named User Access</th><td><input type="checkbox" wicket:id="useNamedUsers"/>not implemented</td></tr>
+				<tr><td colspan="2"><input type="submit" value="Submit"/></td></tr>
+			</tbody>
+		</table>
+	</form>	
+</wicket:extend>
+</body>
+</html>

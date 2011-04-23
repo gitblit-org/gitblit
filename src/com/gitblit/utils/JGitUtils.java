@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,10 +16,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -66,6 +66,11 @@ public class JGitUtils {
 	public static final String R_NOTES_COMMITS = R_NOTES + "commits";
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+	
+	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
+		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
+		return git.getRepository();
+	}
 
 	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll, boolean readNested) {
 		List<String> list = new ArrayList<String>();
@@ -80,8 +85,18 @@ public class JGitUtils {
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory() && !file.getName().equalsIgnoreCase(Constants.DOT_GIT)) {
 				// if this is a git repository add it to the list
+				//
+				// first look for standard folder/.git structure
 				File gitFolder = new File(file, Constants.DOT_GIT);
 				boolean isGitRepository = gitFolder.exists() && gitFolder.isDirectory();
+				
+				// then look for folder.git/HEAD
+				if (!isGitRepository) {
+					if (file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists()) {
+						gitFolder = file;
+						isGitRepository = true;
+					}
+				}
 				boolean exportRepository = isGitRepository && (exportAll || new File(gitFolder, "git-daemon-export-ok").exists());
 
 				if (exportRepository) {
@@ -124,6 +139,10 @@ public class JGitUtils {
 	public static Date getFirstChange(Repository r, String branch) {
 		try {
 			RevCommit commit = getFirstCommit(r, branch);
+			if (commit == null) {
+				// fresh repository
+				return new Date(r.getDirectory().lastModified());			
+			}
 			return getCommitDate(commit);
 		} catch (Throwable t) {
 			LOGGER.error("Failed to determine first change", t);
@@ -131,8 +150,12 @@ public class JGitUtils {
 		return null;
 	}
 
-	public static Date getLastChange(Repository r) {
+	public static Date getLastChange(Repository r) {		
 		RevCommit commit = getCommit(r, Constants.HEAD);
+		if (commit == null) {
+			// fresh repository
+			return new Date(r.getDirectory().lastModified());			
+		}
 		return getCommitDate(commit);
 	}
 
@@ -253,6 +276,9 @@ public class JGitUtils {
 
 	public static List<PathModel> getFilesInPath(Repository r, String basePath, RevCommit commit) {
 		List<PathModel> list = new ArrayList<PathModel>();
+		if (commit == null) {
+			return list;
+		}
 		final TreeWalk walk = new TreeWalk(r);
 		try {
 			walk.addTree(commit.getTree());
@@ -708,35 +734,86 @@ public class JGitUtils {
 	}
 
 	public static String getRepositoryDescription(Repository r) {
-		File dir = r.getDirectory();
-		if (dir.exists()) {
-			File description = new File(dir, "description");
-			if (description.exists() && description.length() > 0) {
-				RandomAccessFile raf = null;
-				try {
-					raf = new RandomAccessFile(description, "r");
-					byte[] buffer = new byte[(int) description.length()];
-					raf.readFully(buffer);
-					return new String(buffer);
-				} catch (Throwable t) {
-				} finally {
-					try {
-						raf.close();
-					} catch (Throwable t) {
-					}
-				}
-			}
-		}
-		return "";
+		return getRepositoryConfigString(r, "description");
+	}
+	
+	public static void setRepositoryDescription(Repository r, String value) {
+		setRepositoryConfigString(r, "description", value);
 	}
 
 	public static String getRepositoryOwner(Repository r) {
+		return getRepositoryConfigString(r, "owner");
+	}
+	
+	public static void setRepositoryOwner(Repository r, String owner) {
+		setRepositoryConfigString(r, "owner", owner);
+	}
+	
+	public static boolean getRepositoryUseTickets(Repository r) {
+		return getRepositoryConfigBoolean(r, "useTickets", false);
+	}
+	
+	public static void setRepositoryUseTickets(Repository r, boolean value) {
+		setRepositoryConfigBoolean(r, "useTickets", value);
+	}
+	
+	public static boolean getRepositoryUseDocs(Repository r) {
+		return getRepositoryConfigBoolean(r, "useDocs", false);
+	}
+	
+	public static void setRepositoryUseDocs(Repository r, boolean value) {
+		setRepositoryConfigBoolean(r, "useDocs", value);
+	}
+	
+	public static boolean getRepositoryUseNamedUsers(Repository r) {
+		return getRepositoryConfigBoolean(r, "useNamedUsers", false);
+	}
+	
+	public static void setRepositoryUseNamedUsers(Repository r, boolean value) {
+		setRepositoryConfigBoolean(r, "useNamedUsers", value);
+	}	
+	
+	public static String getRepositoryConfigString(Repository r, String field) {
 		StoredConfig c = readConfig(r);
 		if (c == null) {
 			return "";
 		}
-		String o = c.getString("gitweb", null, "owner");
+		String o = c.getString("gitblit", null, field);
 		return o == null ? "" : o;
+	}
+	
+	public static void setRepositoryConfigString(Repository r, String field, String value) {
+		StoredConfig c = readConfig(r);
+		if (c == null) {
+			throw new RuntimeException("Can't find stored config for " + r);
+		}
+		c.setString("gitblit", null, field, value);
+		try {
+			c.save();
+		} catch (IOException e) {
+			LOGGER.error("Failed to save repository config field " + field, e);
+		}
+	}
+	
+	public static boolean getRepositoryConfigBoolean(Repository r, String field, boolean defaultValue) {
+		StoredConfig c = readConfig(r);
+		if (c == null) {
+			return defaultValue;
+		}
+		return c.getBoolean("gitblit", null, field, defaultValue);		
+	}
+	
+	public static void setRepositoryConfigBoolean(Repository r, String field, boolean value) {
+		StoredConfig c = readConfig(r);
+		if (c == null) {
+			throw new RuntimeException("Can't find stored config for " + r);
+		}
+		c.setBoolean("gitblit", null, field, value);
+		try {
+			c.save();
+		} catch (IOException e) {
+			LOGGER.error("Failed to save repository config field " + field, e);
+		}		
 	}
 
 	private static StoredConfig readConfig(Repository r) {

@@ -9,7 +9,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.eclipse.jgit.lib.Repository;
-
 import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.Chart;
 import org.wicketstuff.googlecharts.ChartAxis;
@@ -20,6 +19,7 @@ import org.wicketstuff.googlecharts.IChartData;
 import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
+
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
@@ -83,7 +83,7 @@ public class SummaryPage extends RepositoryPage {
 	}
 
 	private void insertActivityGraph(List<Metric> metrics) {
-		if (GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+		if (metrics.size() > 0 && GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE, data);
@@ -96,7 +96,7 @@ public class SummaryPage extends RepositoryPage {
 			provider.addAxis(commitAxis);
 
 			provider.setLineStyles(new LineStyle[] {new LineStyle(2, 4, 0), new LineStyle(0, 4, 1)});	
-			provider.addShapeMarker(new ShapeMarker(MarkerType.DIAMOND, Color.BLUE, 1, -1, 5));
+			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.BLUE, 1, -1, 5));
 			
 			add(new Chart("commitsChart", provider));
 		} else {

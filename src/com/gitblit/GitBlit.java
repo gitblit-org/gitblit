@@ -8,15 +8,12 @@ import java.util.List;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
-import org.apache.wicket.Request;
 import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.http.server.resolver.FileResolver;
-import org.eclipse.jgit.http.server.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.resolver.FileResolver;
+import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +27,7 @@ public class GitBlit implements ServletContextListener {
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
-	private FileResolver repositoryResolver;
+	private FileResolver<Void> repositoryResolver;
 
 	private File repositories;
 
@@ -96,18 +93,41 @@ public class GitBlit implements ServletContextListener {
 		response.addCookie(userCookie);
 	}
 
+	public void editRepository(RepositoryModel repository, boolean isCreate) {
+		Repository r = null;
+		if (isCreate) {
+			// create repository
+			logger.info("create repository " + repository.name);
+			r = JGitUtils.createRepository(repositories, repository.name, true);
+		} else {
+			// load repository
+			logger.info("edit repository " + repository.name);
+			try {
+				r = repositoryResolver.open(null, repository.name);
+			} catch (RepositoryNotFoundException e) {
+				logger.error("Repository not found", e);
+			} catch (ServiceNotEnabledException e) {
+				logger.error("Service not enabled", e);
+			}
+		}		
+				
+		// update settings
+		JGitUtils.setRepositoryDescription(r, repository.description);
+		JGitUtils.setRepositoryOwner(r, repository.owner);
+		JGitUtils.setRepositoryUseTickets(r, repository.useTickets);
+		JGitUtils.setRepositoryUseDocs(r, repository.useDocs);
+		JGitUtils.setRepositoryUseNamedUsers(r, repository.useNamedUsers);
+	}
+
 	public List<String> getRepositoryList() {
 		return JGitUtils.getRepositoryList(repositories, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
 	}
 
-	public List<RepositoryModel> getRepositories(Request request) {
+	public List<RepositoryModel> getRepositories() {
 		List<String> list = getRepositoryList();
-		ServletWebRequest servletWebRequest = (ServletWebRequest) request;
-		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
-
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
 		for (String repo : list) {
-			Repository r = getRepository(req, repo);
+			Repository r = getRepository(repo);
 			String description = JGitUtils.getRepositoryDescription(r);
 			String owner = JGitUtils.getRepositoryOwner(r);
 			Date lastchange = JGitUtils.getLastChange(r);
@@ -117,10 +137,10 @@ public class GitBlit implements ServletContextListener {
 		return repositories;
 	}
 
-	public Repository getRepository(HttpServletRequest req, String repositoryName) {
+	public Repository getRepository(String repositoryName) {
 		Repository r = null;
 		try {
-			r = repositoryResolver.open(req, repositoryName);
+			r = repositoryResolver.open(null, repositoryName);
 		} catch (RepositoryNotFoundException e) {
 			r = null;
 			logger.error("Failed to find repository " + repositoryName);
@@ -147,7 +167,7 @@ public class GitBlit implements ServletContextListener {
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			setupContext(webxmlSettings);
 		} else {
-			logger.info("GitBlit context already setup by " + storedSettings.toString());	
+			logger.info("GitBlit context already setup by " + storedSettings.toString());
 		}
 	}
 

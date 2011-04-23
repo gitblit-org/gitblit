@@ -196,14 +196,14 @@ div.commit_message {
 
 div.bug_open, span.bug_open {
 	padding: 2px;
-	background-color: #800000;
+	background-color: #803333;
 	color: white;	
 	text-align: center;
 }
 
 div.bug_resolved, span.bug_resolved {
 	padding: 2px;
-	background-color: #008000;
+	background-color: #408040;
 	color: white;
 	text-align: center;
 }
@@ -426,6 +426,16 @@ table.pretty, table.repositories, table.comments {
 table.pretty, table.comments, table.repositories {
 	width:100%;
 }
+
+table.pretty td.icon {
+	padding: 0px;
+	width: 20px;
+}
+
+table.pretty td.icon img {
+	vertical-align: top;
+}
+
 table.pretty td {
 	padding: 2px 4px;
 }
