@@ -175,10 +175,18 @@ div.search {
 	padding:4px 4px 3px 3px;	
 }
 
-.repositories_message {
-	border: solid #bbb;
-	border-width: 0px 0px 1px;
-	padding: 8px;
+div.search input {
+	background: url(/com/gitblit/wicket/resources/search-icon.png) no-repeat 4px center;
+	color: #ddd;
+	background-color: #000070;
+	border: 1px solid transparent;
+	padding: 0px 2px 2px 22px;	
+}
+
+div.search input:hover, div.search input:focus {
+	color: white;
+	border-bottom: 1px solid orange;	
+	outline: none;
 }
 
 div.page_path {

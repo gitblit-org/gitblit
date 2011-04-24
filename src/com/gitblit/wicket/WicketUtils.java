@@ -32,6 +32,10 @@ public class WicketUtils {
 		container.add(new SimpleAttributeModifier("title", value));
 	}
 
+	public static void setInputPlaceholder(Component container, String value) {
+		container.add(new SimpleAttributeModifier("placeholder", value));
+	}
+
 	public static void setChangeTypeCssClass(Component container, ChangeType type) {
 		switch (type) {
 		case ADD:

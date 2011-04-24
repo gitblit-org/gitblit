@@ -118,8 +118,12 @@ public class PageLinksPanel extends Panel {
 			this.repositoryName = repositoryName;
 			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType", Arrays.asList(SearchType.values()));
 			searchType.setModel(searchTypeModel);
+			WicketUtils.setHtmlTitle(searchType, getString("gb.searchTypeTooltip"));
 			add(searchType);
-			add(new TextField<String>("searchBox", searchBoxModel));
+			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
+			add(searchBox);
+			WicketUtils.setHtmlTitle(searchBox, getString("gb.searchTooltip"));
+			WicketUtils.setInputPlaceholder(searchBox, getString("gb.search"));
 		}
 
 		@Override
