@@ -27,6 +27,7 @@ import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
+import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -72,7 +73,7 @@ public class PageLinksPanel extends Panel {
 
 		// Get the repository docs setting
 		boolean checkDocs = JGitUtils.getRepositoryUseDocs(r);
-		if (checkDocs && JGitUtils.getDocumentsBranch(r) != null) {
+		if (checkDocs) {
 			extras.add("docs");
 		}
 
@@ -87,7 +88,7 @@ public class PageLinksPanel extends Panel {
 					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				} else if (extra.equals("docs")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};

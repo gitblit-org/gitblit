@@ -20,6 +20,7 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel.PathChangeModel;
+import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
 
 public class CommitDiffPage extends RepositoryPage {
@@ -48,7 +49,7 @@ public class CommitDiffPage extends RepositoryPage {
 		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 
-		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);

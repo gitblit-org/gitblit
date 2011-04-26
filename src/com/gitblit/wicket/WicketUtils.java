@@ -3,6 +3,7 @@ package com.gitblit.wicket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.wicket.Component;
@@ -83,10 +84,55 @@ public class WicketUtils {
 		return label;
 	}
 
+	public static ContextImage getFileImage(String wicketId, String filename) {
+		filename = filename.toLowerCase();
+		if (filename.endsWith(".java")) {
+			return newImage(wicketId, "file_java_16x16.png");
+		} else if (filename.endsWith(".rb")) {
+			return newImage(wicketId, "file_ruby_16x16.png");
+		} else if (filename.endsWith(".php")) {
+			return newImage(wicketId, "file_php_16x16.png");
+		} else if (filename.endsWith(".cs")) {
+			return newImage(wicketId, "file_cs_16x16.png");
+		} else if (filename.endsWith(".cpp")) {
+			return newImage(wicketId, "file_cpp_16x16.png");
+		} else if (filename.endsWith(".c")) {
+			return newImage(wicketId, "file_c_16x16.png");
+		} else if (filename.endsWith(".h")) {
+			return newImage(wicketId, "file_h_16x16.png");
+		} else if (filename.endsWith(".sln")) {
+			return newImage(wicketId, "file_vs_16x16.png");
+		} else if (filename.endsWith(".csv") || filename.endsWith(".xls") || filename.endsWith(".xlsx")) {
+			return newImage(wicketId, "file_excel_16x16.png");
+		} else if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
+			return newImage(wicketId, "file_word_16x16.png");
+		} else if (filename.endsWith(".ppt")) {
+			return newImage(wicketId, "file_ppt_16x16.png");
+		} else if (filename.endsWith(".zip")) {
+			return newImage(wicketId, "file_zip_16x16.png");
+		} else if (filename.endsWith(".pdf")) {
+			return newImage(wicketId, "file_acrobat_16x16.png");
+		} else if (filename.endsWith(".htm") || filename.endsWith(".html")) {
+			return newImage(wicketId, "file_world_16x16.png");
+		} else if (filename.endsWith(".xml")) {
+			return newImage(wicketId, "file_code_16x16.png");
+		} else if (filename.endsWith(".properties")) {
+			return newImage(wicketId, "file_settings_16x16.png");
+		}
+
+		List<String> mdExtensions = GitBlit.self().settings().getStrings(Keys.web.markdownExtensions);
+		for (String ext : mdExtensions) {
+			if (filename.endsWith('.' + ext.toLowerCase())) {
+				return newImage(wicketId, "file_world_16x16.png");
+			}
+		}
+		return newImage(wicketId, "file_16x16.png");
+	}
+
 	public static ContextImage newClearPixel(String wicketId) {
 		return newImage(wicketId, "pixel.png");
 	}
-	
+
 	public static ContextImage newBlankImage(String wicketId) {
 		return newImage(wicketId, "blank.png");
 	}
@@ -102,7 +148,7 @@ public class WicketUtils {
 		}
 		return img;
 	}
-	
+
 	public static ContextRelativeResource getResource(String file) {
 		return new ContextRelativeResource("/com/gitblit/wicket/resources/" + file);
 	}

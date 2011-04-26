@@ -11,9 +11,9 @@ import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.DiffOutputType;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class BlobDiffPage extends RepositoryPage {
@@ -48,7 +48,7 @@ public class BlobDiffPage extends RepositoryPage {
 		add(new Label("blameLink", getString("gb.blame")));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 
-		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 

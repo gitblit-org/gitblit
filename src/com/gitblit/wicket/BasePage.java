@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,9 @@ public abstract class BasePage extends WebPage {
 		add(new Label("siteName", siteName));
 		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
+
+		// Feedback panel for info, warning, and non-fatal error messages
+		add(new FeedbackPanel("feedback"));
 
 		// footer
 		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true)

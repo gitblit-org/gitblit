@@ -13,12 +13,12 @@
 	<form wicket:id="editForm">
 		<table class="plain">
 			<tbody>
-				<tr><th>Name</th><td class="edit"><input type="text" wicket:id="name" size="30" tabindex="1" /></td></tr>
-				<tr><th>Description</th><td class="edit"><input type="text" wicket:id="description" size="80" tabindex="2" /></td></tr>
-				<tr><th>Owner</th><td class="edit"><input type="text" wicket:id="owner" size="30" tabindex="3" /></td></tr>
-				<tr><th>Group</th><td class="edit"><input type="text" wicket:id="group" size="30" tabindex="4" /></td></tr>
-				<tr><th>Enable Tickets</th><td class="edit"><input type="checkbox" wicket:id="useTickets" tabindex="5" /> <i>distributed Ticgit ticketing</i></td></tr>
-				<tr><th>Enable Docs</th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> <i>distributed Markdown documentation</i></td></tr>
+				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input type="text" wicket:id="name" size="30" tabindex="1" /></td></tr>
+				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input type="text" wicket:id="description" size="80" tabindex="2" /></td></tr>
+				<tr><th><wicket:message key="gb.owner"></wicket:message></th><td class="edit"><input type="text" wicket:id="owner" size="30" tabindex="3" /></td></tr>
+				<tr><th><wicket:message key="gb.group"></wicket:message></th><td class="edit"><input type="text" wicket:id="group" size="30" tabindex="4" /></td></tr>
+				<tr><th><wicket:message key="gb.enableTickets"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useTickets" tabindex="5" /> &nbsp;<i>distributed Ticgit issues</i></td></tr>
+				<tr><th><wicket:message key="gb.enableDocs"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> &nbsp;<i>enumerates repository Markdown documentation</i></td></tr>
 				<tr><td class="edit" colspan="2"><input type="submit" value="Submit" tabindex="7" /></td></tr>
 			</tbody>
 		</table>

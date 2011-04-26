@@ -14,14 +14,17 @@
 	<div class="page_nav2">
 		<wicket:message key="gb.parent"></wicket:message>: <span wicket:id="parentLink">[parent link]</span> | <a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> | <a wicket:id="commitLink"><wicket:message key="gb.commit"></wicket:message></a>
 	</div>	
-
-	<!-- commit legend -->
-	<div style="text-align:right;" wicket:id="commitLegend"></div>
 	
-	<!-- shortlog header -->
-	<div class="header" wicket:id="shortlog">[shortlog header]</div>
+	<!-- commit header -->
+	<div wicket:id="commitHeader">[commit header]</div>
 
 	<!-- changed paths -->
+	<div style="padding-top:15px;">
+		<!-- commit legend -->
+		<div style="text-align:right;" wicket:id="commitLegend"></div>
+	
+		<div class="header"><wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
+	</div>
 	<table class="pretty">
 		<tr wicket:id="changedPath">
 			<td class="changeType"><span wicket:id="changeType">[change type]</span></td>		

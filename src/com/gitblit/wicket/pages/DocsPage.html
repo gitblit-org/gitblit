@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	
+	<!-- page nav links -->	
+	<div wicket:id="pageLinks">[page links]</div>
+	
+	<!-- header -->
+	<div style="margin-top:5px;" class="header"><span wicket:id="header">[header]</span></div>
+	
+	<!-- documents -->	
+	<table style="width:100%" class="pretty">
+		<tr wicket:id="document">
+			<td class="icon"><img wicket:id="docIcon" /></td>
+			<td><span wicket:id="docName"></span></td>			
+			<td class="size"><span wicket:id="docSize">[doc size]</span></td>
+			<td class="treeLinks">
+				<span class="link">
+					<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+				</span>	
+			</td>
+		</tr>
+	</table>	
+</wicket:extend>	
+</body>
+</html>

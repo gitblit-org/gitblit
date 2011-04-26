@@ -72,20 +72,27 @@ div.repositories_message {
 	line-height: inherit;
 }
 
-div.header {
+div.header, div.commitHeader {
 	background-color: #D2C3AF;
 	padding: 3px;
 	border: 1px solid #808080;
+}
+
+div.header {
 	border-radius: 3px 3px 0 0;
 }
 
-div.header a {
+div.commitHeader {
+	border-radius: 3px;
+}
+
+div.header a, div.commitHeader a {
 	color: black;
 	text-decoration: none;
 	font-weight: bold;
 }
 
-div.header a:hover {
+div.header a:hover, div.commitHeader a:hover {
 	text-decoration: underline;
 }
 
@@ -558,19 +565,25 @@ span.sha1, span.sha1 a, span.sha1 a span {
 }
 
 td.mode {
+	text-align: right;
 	font-family: monospace;
-	width:90px;
+	width: 8em;
 	padding-right:15px;
 }
 
 td.size {
 	text-align: right;
-	width:100px;	
+	width: 8em;	
 	padding-right:15px;
 }
 
 td.rightAlign {
 	text-align: right;
+}
+
+td.treeLinks {
+	text-align: right;
+	width: 13em;
 }
 
 span .tagRef, span .headRef, span .remoteRef, span .otherRef {	

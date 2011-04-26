@@ -19,6 +19,7 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel.PathChangeModel;
+import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
 
 public class CommitPage extends RepositoryPage {
@@ -46,7 +47,7 @@ public class CommitPage extends RepositoryPage {
 		}
 		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
 
-		add(new LinkPanel("shortlog", "title", c.getShortMessage(), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, c));
 
 		addRefs(r, c);
 

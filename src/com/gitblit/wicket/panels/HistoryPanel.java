@@ -29,7 +29,6 @@ import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.HistoryPage;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.TreePage;
 
@@ -73,16 +72,7 @@ public class HistoryPanel extends BasePanel {
 		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
 
-		// header
-		if (pageResults) {
-			// history page
-			// show commit page link
-			add(new LinkPanel("header", "title", commit == null ? "" : commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		} else {
-			// summary page
-			// show history page link
-			add(new LinkPanel("header", "title", new StringResourceModel("gb.history", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		}
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));

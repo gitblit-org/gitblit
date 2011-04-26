@@ -19,6 +19,7 @@ import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class TreePage extends RepositoryPage {
@@ -36,7 +37,7 @@ public class TreePage extends RepositoryPage {
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
 		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
 
-		add(new LinkPanel("shortlog", "title", commit == null ? "" : commit.getShortMessage(), CommitPage.class, newCommitParameter()));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
@@ -66,7 +67,7 @@ public class TreePage extends RepositoryPage {
 						// folder/tree link
 						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
-						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
+						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class, newPathParameter(entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
@@ -75,7 +76,7 @@ public class TreePage extends RepositoryPage {
 						item.add(links);
 					} else {
 						// blob link
-						item.add(WicketUtils.newImage("pathIcon", "file_16x16.png"));
+						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
 

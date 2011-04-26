@@ -14,9 +14,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class BlobPage extends RepositoryPage {
@@ -49,7 +49,7 @@ public class BlobPage extends RepositoryPage {
 		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 
-		add(new LinkPanel("shortlog", "title", commit.getShortMessage(), CommitPage.class, newCommitParameter()));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 

@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,8 +44,10 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
+import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
+import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
@@ -350,6 +353,42 @@ public class JGitUtils {
 		} catch (Throwable t) {
 			LOGGER.error("failed to determine files in commit!", t);
 		}
+		return list;
+	}
+	
+	public static List<PathModel> getDocuments(Repository r, List<String> extensions) {
+		List<PathModel> list = new ArrayList<PathModel>();
+		RevCommit commit = getCommit(r, Constants.HEAD);		
+		final TreeWalk walk = new TreeWalk(r);
+		try {
+			walk.addTree(commit.getTree());
+			if (extensions != null && extensions.size() > 0) {
+				Collection<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
+				for (String extension:extensions) {
+					if (extension.charAt(0) == '.') {
+						suffixFilters.add(PathSuffixFilter.create(extension));
+					} else {
+						// escape the . since this is a regexp filter
+						suffixFilters.add(PathSuffixFilter.create("\\." + extension));
+					}
+				}
+				TreeFilter filter = OrTreeFilter.create(suffixFilters);
+				walk.setFilter(filter);
+				walk.setRecursive(true);
+				while (walk.next()) {
+					list.add(getPathModel(walk, null, commit));
+				}
+			} else {
+				while (walk.next()) {
+					list.add(getPathModel(walk, null, commit));
+				}
+			}
+		} catch (IOException e) {
+			LOGGER.error("Failed to get files for commit " + commit.getName(), e);
+		} finally {
+			walk.release();
+		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -895,10 +934,6 @@ public class JGitUtils {
 		return metrics;
 	}
 	
-	public static RefModel getDocumentsBranch(Repository r) {
-		return getTicketsBranch(r);
-	}
-
 	public static RefModel getTicketsBranch(Repository r) {
 		RefModel ticgitBranch = null;
 		try {
