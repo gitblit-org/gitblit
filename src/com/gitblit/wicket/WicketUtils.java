@@ -9,6 +9,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 
@@ -28,7 +30,7 @@ public class WicketUtils {
 		container.add(new SimpleAttributeModifier("style", value));
 	}
 
-	public static void setHtmlTitle(Component container, String value) {
+	public static void setHtmlTooltip(Component container, String value) {
 		container.add(new SimpleAttributeModifier("title", value));
 	}
 
@@ -77,8 +79,32 @@ public class WicketUtils {
 
 	public static Label createAuthorLabel(String wicketId, String author) {
 		Label label = new Label(wicketId, author);
-		WicketUtils.setHtmlTitle(label, author);
+		WicketUtils.setHtmlTooltip(label, author);
 		return label;
+	}
+
+	public static ContextImage newClearPixel(String wicketId) {
+		return newImage(wicketId, "pixel.png");
+	}
+	
+	public static ContextImage newBlankImage(String wicketId) {
+		return newImage(wicketId, "blank.png");
+	}
+
+	public static ContextImage newImage(String wicketId, String file) {
+		return newImage(wicketId, file, null);
+	}
+
+	public static ContextImage newImage(String wicketId, String file, String tooltip) {
+		ContextImage img = new ContextImage(wicketId, "/com/gitblit/wicket/resources/" + file);
+		if (!StringUtils.isEmpty(tooltip)) {
+			setHtmlTooltip(img, tooltip);
+		}
+		return img;
+	}
+	
+	public static ContextRelativeResource getResource(String file) {
+		return new ContextRelativeResource("/com/gitblit/wicket/resources/" + file);
 	}
 
 	public static PageParameters newRepositoryParameter(String repositoryName) {
@@ -170,7 +196,7 @@ public class WicketUtils {
 		}
 		Label label = new Label(wicketId, dateString);
 		WicketUtils.setCssClass(label, TimeUtils.timeAgoCss(date));
-		WicketUtils.setHtmlTitle(label, title);
+		WicketUtils.setHtmlTooltip(label, title);
 		return label;
 	}
 
@@ -182,7 +208,7 @@ public class WicketUtils {
 		String dateString = df.format(date);
 		String title = TimeUtils.timeAgo(date);
 		Label label = new Label(wicketId, dateString);
-		WicketUtils.setHtmlTitle(label, title);
+		WicketUtils.setHtmlTooltip(label, title);
 		return label;
 	}
 }

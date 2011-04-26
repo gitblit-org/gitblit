@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.eclipse.jgit.lib.Repository;
 import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.Chart;
@@ -100,7 +99,7 @@ public class SummaryPage extends RepositoryPage {
 			
 			add(new Chart("commitsChart", provider));
 		} else {
-			add(new ContextImage("commitsChart", "blank.png"));
+			add(WicketUtils.newBlankImage("commitsChart"));
 		}
 	}
 

@@ -140,26 +140,26 @@ public abstract class RepositoryPage extends BasePage {
 	
 	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
 		if (searchType.equals(SearchType.AUTHOR)) {
-			WicketUtils.setHtmlTitle(component, getString("gb.searchForAuthor") + " " + value);
+			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
 		} else if (searchType.equals(SearchType.COMMITTER)) {
-			WicketUtils.setHtmlTitle(component, getString("gb.searchForCommitter") + " " + value);
+			WicketUtils.setHtmlTooltip(component, getString("gb.searchForCommitter") + " " + value);
 		}
 	}
 	
 	protected void setChangeTypeTooltip(Component container, ChangeType type) {
 		switch (type) {
 		case ADD:
-			WicketUtils.setHtmlTitle(container, getString("gb.addition"));
+			WicketUtils.setHtmlTooltip(container, getString("gb.addition"));
 			break;
 		case COPY:
 		case RENAME:
-			WicketUtils.setHtmlTitle(container, getString("gb.rename"));
+			WicketUtils.setHtmlTooltip(container, getString("gb.rename"));
 			break;
 		case DELETE:
-			WicketUtils.setHtmlTitle(container, getString("gb.deletion"));
+			WicketUtils.setHtmlTooltip(container, getString("gb.deletion"));
 			break;
 		case MODIFY:
-			WicketUtils.setHtmlTitle(container, getString("gb.modification"));
+			WicketUtils.setHtmlTooltip(container, getString("gb.modification"));
 			break;
 		}
 	}

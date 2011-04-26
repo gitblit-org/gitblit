@@ -20,6 +20,7 @@
 			<th wicket:id="orderByRepository"><wicket:message key="gb.repository">Repository</wicket:message></th>
 			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
 			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
+			<th></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 			<th></th>
 		</tr>
@@ -28,8 +29,9 @@
          		<td><div class="list" wicket:id="repositoryName">[repository name]</div></td>
          		<td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
          		<td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
+         		<td class="icon"><img wicket:id="ticketsIcon" /><img wicket:id="docsIcon" /><img wicket:id="restrictedAccessIcon" /></td>
          		<td><span wicket:id="repositoryLastChange">[last change]</span></td>
-         		<td><a wicket:id="repositoryLinks"><wicket:message key="gb.edit">[edit]</wicket:message></a></td>
+         		<td class="rightAlign"><span wicket:id="repositoryLinks"></span></td>
        		</tr>
     	</tbody>
 	</table>
@@ -39,6 +41,10 @@
 		<div class="page_nav">
 			<a wicket:id="newRepository"><wicket:message key="gb.newRepository"></wicket:message></a> | <a wicket:id="newUser"><wicket:message key="gb.newUser"></wicket:message></a>
 		</div>	
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="repositoryAdminLinks">
+		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="renameRepository"><wicket:message key="gb.rename">[rename]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
 	</wicket:fragment>
 </wicket:extend>
 </body>

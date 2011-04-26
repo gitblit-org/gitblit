@@ -116,7 +116,7 @@ public class GitBlit implements ServletContextListener {
 		JGitUtils.setRepositoryOwner(r, repository.owner);
 		JGitUtils.setRepositoryUseTickets(r, repository.useTickets);
 		JGitUtils.setRepositoryUseDocs(r, repository.useDocs);
-		JGitUtils.setRepositoryUseNamedUsers(r, repository.useNamedUsers);
+		JGitUtils.setRepositoryRestrictedAccess(r, repository.useRestrictedAccess);
 	}
 
 	public List<String> getRepositoryList() {
@@ -130,9 +130,15 @@ public class GitBlit implements ServletContextListener {
 			Repository r = getRepository(repo);
 			String description = JGitUtils.getRepositoryDescription(r);
 			String owner = JGitUtils.getRepositoryOwner(r);
+			String group = JGitUtils.getRepositoryGroup(r);
 			Date lastchange = JGitUtils.getLastChange(r);
+			RepositoryModel model = new RepositoryModel(repo, description, owner, lastchange);
+			model.group = group;
+			model.useTickets = JGitUtils.getRepositoryUseTickets(r);
+			model.useDocs = JGitUtils.getRepositoryUseDocs(r);
+			model.useRestrictedAccess = JGitUtils.getRepositoryRestrictedAccess(r);
 			r.close();
-			repositories.add(new RepositoryModel(repo, description, owner, lastchange));
+			repositories.add(model);
 		}
 		return repositories;
 	}

@@ -9,10 +9,11 @@ public class RepositoryModel implements Serializable {
 	public String name;
 	public String description;
 	public String owner;
+	public String group;
 	public Date lastChange;
 	public boolean useTickets;
 	public boolean useDocs;
-	public boolean useNamedUsers;
+	public boolean useRestrictedAccess;
 
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {
 		this.name = name;

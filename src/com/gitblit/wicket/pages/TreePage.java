@@ -57,12 +57,14 @@ public class TreePage extends RepositoryPage {
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
 				if (entry.isParentPath) {
 					// parent .. path
+					item.add(WicketUtils.newBlankImage("pathIcon"));
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
 						// folder/tree link
+						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
 
@@ -73,6 +75,7 @@ public class TreePage extends RepositoryPage {
 						item.add(links);
 					} else {
 						// blob link
+						item.add(WicketUtils.newImage("pathIcon", "file_16x16.png"));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
 

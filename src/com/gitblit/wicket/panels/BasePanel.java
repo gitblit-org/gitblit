@@ -25,9 +25,9 @@ public abstract class BasePanel extends Panel {
 
 	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
 		if (searchType.equals(SearchType.AUTHOR)) {
-			WicketUtils.setHtmlTitle(component, getString("gb.searchForAuthor") + " " + value);
+			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
 		} else if (searchType.equals(SearchType.COMMITTER)) {
-			WicketUtils.setHtmlTitle(component, getString("gb.searchForCommitter") + " " + value);
+			WicketUtils.setHtmlTooltip(component, getString("gb.searchForCommitter") + " " + value);
 		}
 	}
 }

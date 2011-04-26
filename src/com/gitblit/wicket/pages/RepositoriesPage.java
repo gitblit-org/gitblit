@@ -48,7 +48,7 @@ public class RepositoriesPage extends BasePage {
 		} else {
 			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
-		
+
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
@@ -60,7 +60,7 @@ public class RepositoriesPage extends BasePage {
 		if (messageSource.equalsIgnoreCase("gitblit")) {
 			// Read default welcome message
 			try {
-				ContextRelativeResource res = new ContextRelativeResource("/com/gitblit/wicket/resources/welcome.mkd");
+				ContextRelativeResource res = WicketUtils.getResource("welcome.mkd");
 				InputStream is = res.getResourceStream().getInputStream();
 				InputStreamReader reader = new InputStreamReader(is);
 				StringWriter writer = new StringWriter();
@@ -112,6 +112,25 @@ public class RepositoriesPage extends BasePage {
 				PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 				item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
 				item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
+
+				if (entry.useTickets) {
+					item.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
+				} else {
+					item.add(WicketUtils.newClearPixel("ticketsIcon"));
+				}
+				
+				if (entry.useDocs) {
+					item.add(WicketUtils.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
+				} else {
+					item.add(WicketUtils.newClearPixel("docsIcon"));
+				}
+				
+				if (entry.useRestrictedAccess) {
+					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_16x16.png", getString("gb.restrictedAccess")));
+				} else {
+					item.add(WicketUtils.newClearPixel("restrictedAccessIcon"));
+				}
+				
 				item.add(new Label("repositoryOwner", entry.owner));
 
 				String lastChange = TimeUtils.timeAgo(entry.lastChange);
@@ -119,8 +138,15 @@ public class RepositoriesPage extends BasePage {
 				item.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
 
-				item.add(new BookmarkablePageLink<Void>("repositoryLinks", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setVisible(showAdmin));
-				
+				if (showAdmin) {
+					Fragment repositoryLinks = new Fragment("repositoryLinks", "repositoryAdminLinks", this);
+					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)));
+					repositoryLinks.add(new BookmarkablePageLink<Void>("renameRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setEnabled(false));
+					repositoryLinks.add(new BookmarkablePageLink<Void>("deleteRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setEnabled(false));
+					item.add(repositoryLinks);
+				} else {
+					item.add(new Label("repositoryLinks"));
+				}
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

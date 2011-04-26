@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -43,7 +42,7 @@ public class HistoryPanel extends BasePanel {
 	public HistoryPanel(String wicketId, final String repositoryName, final String objectId, final String path, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.logPageCommitCount, 50);
+		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -107,16 +106,16 @@ public class HistoryPanel extends BasePanel {
 
 				// merge icon
 				if (entry.getParentCount() > 1) {
-					item.add(new ContextImage("commitIcon", "/com/gitblit/wicket/resources/commit_merge_16x16.png"));
+					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
 				} else {
-					item.add(new ContextImage("commitIcon", "/com/gitblit/wicket/resources/blank.png"));
+					item.add(WicketUtils.newBlankImage("commitIcon"));
 				}
 
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
-					WicketUtils.setHtmlTitle(shortlog, shortMessage);
+					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
 				item.add(shortlog);
 

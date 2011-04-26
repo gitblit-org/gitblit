@@ -7,8 +7,10 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
+import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.AdminPage;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.WicketUtils;
@@ -30,8 +32,17 @@ public class EditRepositoryPage extends BasePage {
 		// edit constructor
 		super(params);
 		isCreate = false;
-		String repositoryName = WicketUtils.getRepositoryName(params);
-		setupPage(new RepositoryModel(repositoryName, "", "", new Date()));
+		String name = WicketUtils.getRepositoryName(params);
+		Repository r = GitBlit.self().getRepository(name);
+		String description = JGitUtils.getRepositoryDescription(r);
+		String owner = JGitUtils.getRepositoryOwner(r);
+		String group = JGitUtils.getRepositoryGroup(r);
+		RepositoryModel model = new RepositoryModel(name, description, owner, new Date());
+		model.group = group;
+		model.useTickets = JGitUtils.getRepositoryUseTickets(r);
+		model.useDocs = JGitUtils.getRepositoryUseDocs(r);
+		model.useRestrictedAccess = JGitUtils.getRepositoryRestrictedAccess(r);
+		setupPage(model);
 	}
 
 	protected void setupPage(final RepositoryModel repository) {
@@ -55,9 +66,9 @@ public class EditRepositoryPage extends BasePage {
 		form.add(new TextField<String>("name").setEnabled(isCreate));
 		form.add(new TextField<String>("description"));
 		form.add(new TextField<String>("owner"));
+		form.add(new TextField<String>("group"));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
-		form.add(new CheckBox("useNamedUsers"));
 
 		add(form);
 	}

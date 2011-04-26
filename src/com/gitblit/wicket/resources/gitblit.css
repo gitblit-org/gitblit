@@ -172,15 +172,20 @@ div.search {
 	color:yellow;
 	text-align:right;
 	float:right;
-	padding:4px 4px 3px 3px;	
+	padding:4px 4px 3px 3px;
+	border-left: 1px solid #8080f0;
+	margin: 0px;
+	height: 23px;
 }
 
 div.search input {
+	vertical-align: top;
 	background: url(/com/gitblit/wicket/resources/search-icon.png) no-repeat 4px center;
 	color: #ddd;
 	background-color: #000070;
 	border: 1px solid transparent;
-	padding: 0px 2px 2px 22px;	
+	padding: 2px 2px 2px 22px;
+	margin: 0px;
 }
 
 div.search input:hover, div.search input:focus {
@@ -380,6 +385,7 @@ div.commitLegend {
 	float: right;
 	padding: 0.4em;
 	vertical-align:top;
+	margin: 0px;
 }
 
 div.commitLegend span {
@@ -424,6 +430,21 @@ table.plain {
 	padding: 8px;
 }
 
+table.plain td.edit {
+	padding: 3px;
+}
+
+table.plain td.edit input {
+	margin: 0px;
+	outline: 1px solid transparent;
+	border: 1px solid #ccc;	
+	padding-left:5px;
+}
+
+table.plain td.edit input:focus, table.plain td.edit input:hover{
+	border: 1px solid orange;
+}
+
 table.pretty, table.repositories, table.comments {
 	margin-bottom:5px;
 	border-spacing: 0px;
@@ -436,8 +457,8 @@ table.pretty, table.comments, table.repositories {
 }
 
 table.pretty td.icon {
-	padding: 0px;
-	width: 20px;
+	padding: 0px 0px 0px 2px;	
+	width: 18px;
 }
 
 table.pretty td.icon img {
@@ -456,11 +477,16 @@ table.comments td {
 table.repositories th {
 	background-color:#D2C3AF;
 	padding: 4px;
+	border-top: 1px solid #808080;
 	border-bottom: 1px solid #808080;
 }
 
 table.repositories td {
-	padding: 4px;
+	padding: 2px;
+}
+
+table.repositories td.icon img {
+	vertical-align: top;
 }
 
 table.repositories th a {

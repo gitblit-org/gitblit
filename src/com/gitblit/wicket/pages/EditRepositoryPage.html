@@ -13,13 +13,13 @@
 	<form wicket:id="editForm">
 		<table class="plain">
 			<tbody>
-				<tr><th>Name</th><td><input type="text" wicket:id="name" size="30" /></td></tr>
-				<tr><th>Description</th><td><input type="text" wicket:id="description" size="80" /></td></tr>
-				<tr><th>Owner</th><td><input type="text" wicket:id="owner" size="30" /></td></tr>
-				<tr><th>Use Git:Blit Tickets</th><td><input type="checkbox" wicket:id="useTickets"/>distributed Git:Blit ticketing</td></tr>
-				<tr><th>Use Git:Blit Docs</th><td><input type="checkbox" wicket:id="useDocs"/>distributed Git:Blit documentation</td></tr>
-				<tr><th>Named User Access</th><td><input type="checkbox" wicket:id="useNamedUsers"/>not implemented</td></tr>
-				<tr><td colspan="2"><input type="submit" value="Submit"/></td></tr>
+				<tr><th>Name</th><td class="edit"><input type="text" wicket:id="name" size="30" tabindex="1" /></td></tr>
+				<tr><th>Description</th><td class="edit"><input type="text" wicket:id="description" size="80" tabindex="2" /></td></tr>
+				<tr><th>Owner</th><td class="edit"><input type="text" wicket:id="owner" size="30" tabindex="3" /></td></tr>
+				<tr><th>Group</th><td class="edit"><input type="text" wicket:id="group" size="30" tabindex="4" /></td></tr>
+				<tr><th>Enable Tickets</th><td class="edit"><input type="checkbox" wicket:id="useTickets" tabindex="5" /> <i>distributed Ticgit ticketing</i></td></tr>
+				<tr><th>Enable Docs</th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> <i>distributed Markdown documentation</i></td></tr>
+				<tr><td class="edit" colspan="2"><input type="submit" value="Submit" tabindex="7" /></td></tr>
 			</tbody>
 		</table>
 	</form>	

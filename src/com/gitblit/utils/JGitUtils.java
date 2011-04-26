@@ -749,6 +749,14 @@ public class JGitUtils {
 		setRepositoryConfigString(r, "owner", owner);
 	}
 	
+	public static String getRepositoryGroup(Repository r) {
+		return getRepositoryConfigString(r, "group");
+	}
+	
+	public static void setRepositoryGroup(Repository r, String group) {
+		setRepositoryConfigString(r, "group", group);
+	} 
+	
 	public static boolean getRepositoryUseTickets(Repository r) {
 		return getRepositoryConfigBoolean(r, "useTickets", false);
 	}
@@ -765,12 +773,12 @@ public class JGitUtils {
 		setRepositoryConfigBoolean(r, "useDocs", value);
 	}
 	
-	public static boolean getRepositoryUseNamedUsers(Repository r) {
-		return getRepositoryConfigBoolean(r, "useNamedUsers", false);
+	public static boolean getRepositoryRestrictedAccess(Repository r) {
+		return getRepositoryConfigBoolean(r, "restrictedAccess", false);
 	}
 	
-	public static void setRepositoryUseNamedUsers(Repository r, boolean value) {
-		setRepositoryConfigBoolean(r, "useNamedUsers", value);
+	public static void setRepositoryRestrictedAccess(Repository r, boolean value) {
+		setRepositoryConfigBoolean(r, "restrictedAccess", value);
 	}	
 	
 	public static String getRepositoryConfigString(Repository r, String field) {
@@ -885,6 +893,10 @@ public class JGitUtils {
 		}
 		metrics.add(0, total);
 		return metrics;
+	}
+	
+	public static RefModel getDocumentsBranch(Repository r) {
+		return getTicketsBranch(r);
 	}
 
 	public static RefModel getTicketsBranch(Repository r) {

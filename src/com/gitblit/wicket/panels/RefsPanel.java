@@ -57,7 +57,7 @@ public class RefsPanel extends Panel {
 					c = new LinkPanel("refName", null, entry, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
 					WicketUtils.setCssClass(c, "otherRef");
 				}
-				WicketUtils.setHtmlTitle(c, entry);
+				WicketUtils.setHtmlTooltip(c, entry);
 				item.add(c);
 			}
 		};

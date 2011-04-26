@@ -1,6 +1,5 @@
 package com.gitblit.wicket.panels;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,14 +62,18 @@ public class PageLinksPanel extends Panel {
 		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
-		// Get the repository tickets setting
-		boolean checkTicgit = GitBlit.self().settings().getBoolean(Keys.tickets.global, false);
-		checkTicgit |= GitBlit.self().settings().getBoolean(MessageFormat.format(Keys.tickets._ROOT + ".{0}", repositoryName), false);
-
-		// Add dynamic repository extras
 		List<String> extras = new ArrayList<String>();
-		if (checkTicgit && JGitUtils.getTicketsBranch(r) != null) {
+
+		// Get the repository tickets setting
+		boolean checkTickets = JGitUtils.getRepositoryUseTickets(r);
+		if (checkTickets && JGitUtils.getTicketsBranch(r) != null) {
 			extras.add("tickets");
+		}
+
+		// Get the repository docs setting
+		boolean checkDocs = JGitUtils.getRepositoryUseDocs(r);
+		if (checkDocs && JGitUtils.getDocumentsBranch(r) != null) {
+			extras.add("docs");
 		}
 
 		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extras);
@@ -81,7 +84,10 @@ public class PageLinksPanel extends Panel {
 				String extra = item.getModelObject();
 				if (extra.equals("tickets")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, "tickets", TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+				} else if (extra.equals("docs")) {
+					item.add(new Label("extraSeparator", " | "));
+					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};
@@ -110,7 +116,7 @@ public class PageLinksPanel extends Panel {
 		private final String repositoryName;
 
 		private final IModel<String> searchBoxModel = new Model<String>("");
-		
+
 		private final IModel<SearchType> searchTypeModel = new Model<SearchType>(SearchType.COMMIT);
 
 		public SearchForm(String id, String repositoryName) {
@@ -118,11 +124,11 @@ public class PageLinksPanel extends Panel {
 			this.repositoryName = repositoryName;
 			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType", Arrays.asList(SearchType.values()));
 			searchType.setModel(searchTypeModel);
-			WicketUtils.setHtmlTitle(searchType, getString("gb.searchTypeTooltip"));
-			add(searchType);
+			WicketUtils.setHtmlTooltip(searchType, getString("gb.searchTypeTooltip"));
+			add(searchType.setVisible(GitBlit.self().settings().getBoolean(Keys.web.showSearchTypeSelection, false)));
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
 			add(searchBox);
-			WicketUtils.setHtmlTitle(searchBox, getString("gb.searchTooltip"));
+			WicketUtils.setHtmlTooltip(searchBox, getString("gb.searchTooltip"));
 			WicketUtils.setInputPlaceholder(searchBox, getString("gb.search"));
 		}
 
@@ -130,6 +136,13 @@ public class PageLinksPanel extends Panel {
 		public void onSubmit() {
 			SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
+			for (SearchType type : SearchType.values()) {
+				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
+					searchType = type;
+					searchString = searchString.substring(type.name().toLowerCase().length() + 1).trim();
+					break;
+				}
+			}
 			setResponsePage(SearchPage.class, WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
 		}
 	}
