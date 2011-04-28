@@ -7,10 +7,8 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.AdminPage;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.WicketUtils;
@@ -33,36 +31,30 @@ public class EditRepositoryPage extends BasePage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getRepositoryName(params);
-		Repository r = GitBlit.self().getRepository(name);
-		String description = JGitUtils.getRepositoryDescription(r);
-		String owner = JGitUtils.getRepositoryOwner(r);
-		String group = JGitUtils.getRepositoryGroup(r);
-		RepositoryModel model = new RepositoryModel(name, description, owner, new Date());
-		model.group = group;
-		model.useTickets = JGitUtils.getRepositoryUseTickets(r);
-		model.useDocs = JGitUtils.getRepositoryUseDocs(r);
-		model.useRestrictedAccess = JGitUtils.getRepositoryRestrictedAccess(r);
+		RepositoryModel model = GitBlit.self().getRepositoryModel(name);
 		setupPage(model);
 	}
 
-	protected void setupPage(final RepositoryModel repository) {
+	protected void setupPage(final RepositoryModel repositoryModel) {
 		if (isCreate) {
 			super.setupPage("", getString("gb.newRepository"));
 		} else {
 			super.setupPage("", getString("gb.edit"));
 		}
-		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(repository);
+		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(repositoryModel);
 		Form<RepositoryModel> form = new Form<RepositoryModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onSubmit() {
-				GitBlit.self().editRepository(repository, isCreate);
+				GitBlit.self().editRepositoryModel(repositoryModel, isCreate);
 				setRedirect(true);
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
+		
+		// field names reflective match RepositoryModel fields
 		form.add(new TextField<String>("name").setEnabled(isCreate));
 		form.add(new TextField<String>("description"));
 		form.add(new TextField<String>("owner"));

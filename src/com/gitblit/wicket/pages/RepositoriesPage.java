@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -23,7 +22,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.resource.ContextRelativeResource;
-import org.tautua.markdownpapers.Markdown;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -63,12 +61,7 @@ public class RepositoriesPage extends BasePage {
 				ContextRelativeResource res = WicketUtils.getResource("welcome.mkd");
 				InputStream is = res.getResourceStream().getInputStream();
 				InputStreamReader reader = new InputStreamReader(is);
-				StringWriter writer = new StringWriter();
-				Markdown markdown = new Markdown();
-				markdown.transform(reader, writer);
-				message = writer.toString().trim();
-				reader.close();
-				writer.close();
+				message = StringUtils.transformMarkdown(reader);
 			} catch (Throwable t) {
 				message = "Failed to read default welcome message!";
 				error(message, t);
@@ -80,12 +73,7 @@ public class RepositoriesPage extends BasePage {
 				if (file.exists()) {
 					try {
 						FileReader reader = new FileReader(file);
-						StringWriter writer = new StringWriter();
-						Markdown markdown = new Markdown();
-						markdown.transform(reader, writer);
-						message = writer.toString().trim();
-						reader.close();
-						writer.close();
+						message = StringUtils.transformMarkdown(reader);
 					} catch (Throwable t) {
 						message = "Failed to read " + file;
 						error(message, t);

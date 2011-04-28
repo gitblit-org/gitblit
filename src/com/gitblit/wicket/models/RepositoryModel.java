@@ -15,6 +15,10 @@ public class RepositoryModel implements Serializable {
 	public boolean useDocs;
 	public boolean useRestrictedAccess;
 
+	public RepositoryModel() {
+	
+	}
+	
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {
 		this.name = name;
 		this.description = description;

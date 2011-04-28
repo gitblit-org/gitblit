@@ -31,6 +31,7 @@ import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -45,10 +46,11 @@ import com.gitblit.wicket.panels.RefsPanel;
 public abstract class RepositoryPage extends BasePage {
 
 	protected final String repositoryName;
-	protected final String objectId;
-	protected String description;
+	protected final String objectId;	
 
 	private transient Repository r = null;
+	
+	private RepositoryModel m = null;
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
 
@@ -88,14 +90,12 @@ public abstract class RepositoryPage extends BasePage {
 		List<String> extraPageLinks = new ArrayList<String>();
 
 		// Conditionally add tickets page
-		boolean checkTickets = JGitUtils.getRepositoryUseTickets(r);
-		if (checkTickets && JGitUtils.getTicketsBranch(r) != null) {
+		if (getRepositoryModel().useTickets && JGitUtils.getTicketsBranch(r) != null) {
 			extraPageLinks.add("tickets");
 		}
 
 		// Conditionally add docs page
-		boolean checkDocs = JGitUtils.getRepositoryUseDocs(r);
-		if (checkDocs) {
+		if (getRepositoryModel().useDocs) {
 			extraPageLinks.add("docs");
 		}
 
@@ -150,10 +150,16 @@ public abstract class RepositoryPage extends BasePage {
 				redirectToInterceptPage(new RepositoriesPage());
 				return null;
 			}
-			description = JGitUtils.getRepositoryDescription(r);
 			this.r = r;
 		}
 		return r;
+	}
+	
+	protected RepositoryModel getRepositoryModel() {
+		if (m == null) {
+			m = GitBlit.self().getRepositoryModel(repositoryName);
+		}
+		return m;
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {

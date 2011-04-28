@@ -1,8 +1,8 @@
 package com.gitblit;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletContextEvent;
@@ -12,6 +12,7 @@ import javax.servlet.http.Cookie;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
@@ -93,7 +94,7 @@ public class GitBlit implements ServletContextListener {
 		response.addCookie(userCookie);
 	}
 
-	public void editRepository(RepositoryModel repository, boolean isCreate) {
+	public void editRepositoryModel(RepositoryModel repository, boolean isCreate) {
 		Repository r = null;
 		if (isCreate) {
 			// create repository
@@ -109,14 +110,21 @@ public class GitBlit implements ServletContextListener {
 			} catch (ServiceNotEnabledException e) {
 				logger.error("Service not enabled", e);
 			}
-		}		
-				
+		}
+
 		// update settings
-		JGitUtils.setRepositoryDescription(r, repository.description);
-		JGitUtils.setRepositoryOwner(r, repository.owner);
-		JGitUtils.setRepositoryUseTickets(r, repository.useTickets);
-		JGitUtils.setRepositoryUseDocs(r, repository.useDocs);
-		JGitUtils.setRepositoryRestrictedAccess(r, repository.useRestrictedAccess);
+		StoredConfig config = JGitUtils.readConfig(r);
+		config.setString("gitblit", null, "description", repository.description);
+		config.setString("gitblit", null, "owner", repository.owner);
+		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
+		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
+		config.setBoolean("gitblit", null, "restrictedAccess", repository.useRestrictedAccess);
+		try {
+			config.save();
+		} catch (IOException e) {
+			logger.error("Failed to save repository config!", e);
+		}
+		r.close();
 	}
 
 	public List<String> getRepositoryList() {
@@ -127,17 +135,7 @@ public class GitBlit implements ServletContextListener {
 		List<String> list = getRepositoryList();
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
 		for (String repo : list) {
-			Repository r = getRepository(repo);
-			String description = JGitUtils.getRepositoryDescription(r);
-			String owner = JGitUtils.getRepositoryOwner(r);
-			String group = JGitUtils.getRepositoryGroup(r);
-			Date lastchange = JGitUtils.getLastChange(r);
-			RepositoryModel model = new RepositoryModel(repo, description, owner, lastchange);
-			model.group = group;
-			model.useTickets = JGitUtils.getRepositoryUseTickets(r);
-			model.useDocs = JGitUtils.getRepositoryUseDocs(r);
-			model.useRestrictedAccess = JGitUtils.getRepositoryRestrictedAccess(r);
-			r.close();
+			RepositoryModel model = getRepositoryModel(repo);
 			repositories.add(model);
 		}
 		return repositories;
@@ -156,6 +154,24 @@ public class GitBlit implements ServletContextListener {
 			e.printStackTrace();
 		}
 		return r;
+	}
+
+	public RepositoryModel getRepositoryModel(String repositoryName) {
+		Repository r = getRepository(repositoryName);
+		RepositoryModel model = new RepositoryModel();
+		model.name = repositoryName;
+		model.lastChange = JGitUtils.getLastChange(r);
+		StoredConfig config = JGitUtils.readConfig(r);
+		if (config != null) {
+			model.description = config.getString("gitblit", null, "description");
+			model.owner = config.getString("gitblit", null, "owner");
+			model.group = config.getString("gitblit", null, "group");
+			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
+			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
+			model.useRestrictedAccess = config.getBoolean("gitblit", "restrictedAccess", false);
+		}
+		r.close();
+		return model;
 	}
 
 	public void setupContext(IStoredSettings settings) {
