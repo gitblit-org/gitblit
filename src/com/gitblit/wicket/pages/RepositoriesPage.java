@@ -89,7 +89,7 @@ public class RepositoriesPage extends BasePage {
 		}
 		add(repositoriesMessage);
 
-		List<RepositoryModel> rows = GitBlit.self().getRepositories();
+		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels();
 		DataProvider dp = new DataProvider(rows);
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
 			private static final long serialVersionUID = 1L;

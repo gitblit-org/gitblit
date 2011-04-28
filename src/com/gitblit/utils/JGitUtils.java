@@ -94,9 +94,10 @@ public class JGitUtils {
 				File gitFolder = new File(file, Constants.DOT_GIT);
 				boolean isGitRepository = gitFolder.exists() && gitFolder.isDirectory();
 				
-				// then look for folder.git/HEAD
+				// then look for folder.git/HEAD or folder/HEAD and folder/config
 				if (!isGitRepository) {
-					if (file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists()) {
+					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists())
+							|| (new File(file, "config").exists() && new File(file, Constants.HEAD).exists())) {
 						gitFolder = file;
 						isGitRepository = true;
 					}
@@ -266,13 +267,13 @@ public class JGitUtils {
 
 	public static String getRawContentAsString(Repository r, RevBlob blob) {
 		byte [] content = getRawContent(r, blob);
-		return new String(content, Charset.forName("UTF-8"));
+		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
 	public static String getRawContentAsString(Repository r, RevCommit commit, String blobPath) {
 		RevObject obj = getRevObject(r, commit.getTree(), blobPath);
 		byte [] content = getRawContent(r, (RevBlob) obj);
-		return new String(content, Charset.forName("UTF-8"));
+		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
 	public static List<PathModel> getFilesInPath(Repository r, String basePath, String objectId) {

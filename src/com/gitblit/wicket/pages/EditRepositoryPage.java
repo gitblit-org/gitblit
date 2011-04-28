@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import com.gitblit.GitBlit;
+import com.gitblit.GitBlitException;
 import com.gitblit.wicket.AdminPage;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.WicketUtils;
@@ -48,7 +49,12 @@ public class EditRepositoryPage extends BasePage {
 
 			@Override
 			protected void onSubmit() {
-				GitBlit.self().editRepositoryModel(repositoryModel, isCreate);
+				try {
+					GitBlit.self().editRepositoryModel(repositoryModel, isCreate);
+				} catch (GitBlitException e) {
+					error(e.getMessage());
+					return;
+				}
 				setRedirect(true);
 				setResponsePage(RepositoriesPage.class);
 			}

@@ -629,3 +629,22 @@ span .headRef {
 	background-color: #ccffcc;
 	border-color: #ccffcc #00cc33 #00cc33 #ccffcc;
 }
+
+.feedbackPanelERROR {	
+	color: red;
+	list-style-image: url(bullet_error.png);
+	font-weight: bold;
+	text-align:left;
+	vertical-align: top;
+	padding:0;	
+	margin:0;	
+}
+
+.feedbackPanelINFO {
+	color: green;
+	list-style: none;
+	font-weight: bold;
+	text-align:center;
+	padding:0;
+	margin:0;
+}

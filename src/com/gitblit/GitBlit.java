@@ -2,6 +2,7 @@ package com.gitblit;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class GitBlit implements ServletContextListener {
 
 	private FileResolver<Void> repositoryResolver;
 
-	private File repositories;
+	private File repositoriesFolder;
 
 	private boolean exportAll;
 
@@ -93,13 +94,63 @@ public class GitBlit implements ServletContextListener {
 		userCookie.setPath("/");
 		response.addCookie(userCookie);
 	}
+	
+	public List<String> getRepositoryList() {
+		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
+	}
 
-	public void editRepositoryModel(RepositoryModel repository, boolean isCreate) {
+	public Repository getRepository(String repositoryName) {
+		Repository r = null;
+		try {
+			r = repositoryResolver.open(null, repositoryName);
+		} catch (RepositoryNotFoundException e) {
+			r = null;
+			logger.error("Failed to find repository " + repositoryName);
+			e.printStackTrace();
+		} catch (ServiceNotEnabledException e) {
+			r = null;
+			e.printStackTrace();
+		}
+		return r;
+	}
+	
+	public List<RepositoryModel> getRepositoryModels() {
+		List<String> list = getRepositoryList();
+		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
+		for (String repo : list) {
+			RepositoryModel model = getRepositoryModel(repo);
+			repositories.add(model);
+		}
+		return repositories;
+	}
+	
+	public RepositoryModel getRepositoryModel(String repositoryName) {
+		Repository r = getRepository(repositoryName);
+		RepositoryModel model = new RepositoryModel();
+		model.name = repositoryName;
+		model.lastChange = JGitUtils.getLastChange(r);
+		StoredConfig config = JGitUtils.readConfig(r);
+		if (config != null) {
+			model.description = config.getString("gitblit", null, "description");
+			model.owner = config.getString("gitblit", null, "owner");
+			model.group = config.getString("gitblit", null, "group");
+			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
+			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
+			model.useRestrictedAccess = config.getBoolean("gitblit", "restrictedAccess", false);
+		}
+		r.close();
+		return model;
+	}
+
+	public void editRepositoryModel(RepositoryModel repository, boolean isCreate) throws GitBlitException {
 		Repository r = null;
 		if (isCreate) {
-			// create repository
+			if (new File(repositoriesFolder, repository.name).exists()) {
+				throw new GitBlitException(MessageFormat.format("Can not create repository {0} because it already exists.", repository.name));
+			}
+			// create repository			
 			logger.info("create repository " + repository.name);
-			r = JGitUtils.createRepository(repositories, repository.name, true);
+			r = JGitUtils.createRepository(repositoriesFolder, repository.name, true);
 		} else {
 			// load repository
 			logger.info("edit repository " + repository.name);
@@ -127,59 +178,12 @@ public class GitBlit implements ServletContextListener {
 		r.close();
 	}
 
-	public List<String> getRepositoryList() {
-		return JGitUtils.getRepositoryList(repositories, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
-	}
-
-	public List<RepositoryModel> getRepositories() {
-		List<String> list = getRepositoryList();
-		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
-		for (String repo : list) {
-			RepositoryModel model = getRepositoryModel(repo);
-			repositories.add(model);
-		}
-		return repositories;
-	}
-
-	public Repository getRepository(String repositoryName) {
-		Repository r = null;
-		try {
-			r = repositoryResolver.open(null, repositoryName);
-		} catch (RepositoryNotFoundException e) {
-			r = null;
-			logger.error("Failed to find repository " + repositoryName);
-			e.printStackTrace();
-		} catch (ServiceNotEnabledException e) {
-			r = null;
-			e.printStackTrace();
-		}
-		return r;
-	}
-
-	public RepositoryModel getRepositoryModel(String repositoryName) {
-		Repository r = getRepository(repositoryName);
-		RepositoryModel model = new RepositoryModel();
-		model.name = repositoryName;
-		model.lastChange = JGitUtils.getLastChange(r);
-		StoredConfig config = JGitUtils.readConfig(r);
-		if (config != null) {
-			model.description = config.getString("gitblit", null, "description");
-			model.owner = config.getString("gitblit", null, "owner");
-			model.group = config.getString("gitblit", null, "group");
-			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
-			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
-			model.useRestrictedAccess = config.getBoolean("gitblit", "restrictedAccess", false);
-		}
-		r.close();
-		return model;
-	}
-
 	public void setupContext(IStoredSettings settings) {
 		logger.info("Setting up GitBlit context from " + settings.toString());
 		this.storedSettings = settings;
-		repositories = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
+		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
 		exportAll = settings.getBoolean(Keys.git.exportAll, true);
-		repositoryResolver = new FileResolver(repositories, exportAll);
+		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
 	}
 
 	@Override
