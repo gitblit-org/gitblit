@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -264,12 +265,14 @@ public class JGitUtils {
 	}
 
 	public static String getRawContentAsString(Repository r, RevBlob blob) {
-		return new String(getRawContent(r, blob));
+		byte [] content = getRawContent(r, blob);
+		return new String(content, Charset.forName("UTF-8"));
 	}
 
 	public static String getRawContentAsString(Repository r, RevCommit commit, String blobPath) {
 		RevObject obj = getRevObject(r, commit.getTree(), blobPath);
-		return new String(getRawContent(r, (RevBlob) obj));
+		byte [] content = getRawContent(r, (RevBlob) obj);
+		return new String(content, Charset.forName("UTF-8"));
 	}
 
 	public static List<PathModel> getFilesInPath(Repository r, String basePath, String objectId) {

@@ -1,5 +1,7 @@
 package com.gitblit.wicket;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +9,16 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -20,9 +31,15 @@ import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.pages.BranchesPage;
+import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.panels.PageLinksPanel;
+import com.gitblit.wicket.pages.SummaryPage;
+import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TicketsPage;
+import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends BasePage {
@@ -34,7 +51,21 @@ public abstract class RepositoryPage extends BasePage {
 	private transient Repository r = null;
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
-	
+
+	private final Map<String, String> knownPages = new HashMap<String, String>() {
+
+		private static final long serialVersionUID = 1L;
+
+		{
+			put("summary", "gb.summary");
+			put("log", "gb.log");
+			put("branches", "gb.branches");
+			put("tags", "gb.tags");
+			put("tree", "gb.tree");
+			put("tickets", "gb.tickets");
+		}
+	};
+
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		if (!params.containsKey("r")) {
@@ -46,12 +77,69 @@ public abstract class RepositoryPage extends BasePage {
 
 		Repository r = getRepository();
 
-		// setup the page links and disable this page's link
-		PageLinksPanel pageLinks = new PageLinksPanel("pageLinks", r, repositoryName, getPageName());
-		add(pageLinks);
-		pageLinks.disablePageLink(getPageName());
+		// standard page links
+		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
+		// per-repository extra page links 
+		List<String> extraPageLinks = new ArrayList<String>();
+
+		// Conditionally add tickets page
+		boolean checkTickets = JGitUtils.getRepositoryUseTickets(r);
+		if (checkTickets && JGitUtils.getTicketsBranch(r) != null) {
+			extraPageLinks.add("tickets");
+		}
+
+		// Conditionally add docs page
+		boolean checkDocs = JGitUtils.getRepositoryUseDocs(r);
+		if (checkDocs) {
+			extraPageLinks.add("docs");
+		}
+
+		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extraPageLinks);
+		DataView<String> extrasView = new DataView<String>("extra", extrasDp) {
+			private static final long serialVersionUID = 1L;
+
+			public void populateItem(final Item<String> item) {
+				String extra = item.getModelObject();
+				if (extra.equals("tickets")) {
+					item.add(new Label("extraSeparator", " | "));
+					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+				} else if (extra.equals("docs")) {
+					item.add(new Label("extraSeparator", " | "));
+					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+				}
+			}
+		};
+		add(extrasView);
+		
+		// disable current page
+		disablePageLink(getPageName());
+
+		// add floating search form
+		SearchForm searchForm = new SearchForm("searchForm", repositoryName);
+		add(searchForm);
+		searchForm.setTranslatedAttributes();
+		
+		// set stateless page preference
 		setStatelessHint(true);
+	}
+
+	public void disablePageLink(String pageName) {
+		for (String wicketId : knownPages.keySet()) {
+			String key = knownPages.get(wicketId);
+			String linkName = getString(key);
+			if (linkName.equals(pageName)) {
+				Component c = get(wicketId);
+				if (c != null) {
+					c.setEnabled(false);
+				}
+				break;
+			}
+		}
 	}
 
 	protected Repository getRepository() {
@@ -108,7 +196,6 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected abstract String getPageName();
 
-	
 	protected Component createPersonPanel(String wicketId, PersonIdent identity, SearchType searchType) {
 		boolean showEmail = GitBlit.self().settings().getBoolean(Keys.web.showEmailAddresses, false);
 		if (!showEmail || StringUtils.isEmpty(identity.getName()) || StringUtils.isEmpty(identity.getEmailAddress())) {
@@ -130,14 +217,14 @@ public abstract class RepositoryPage extends BasePage {
 			LinkPanel nameLink = new LinkPanel("personName", "list", identity.getName(), SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getName(), searchType));
 			setPersonSearchTooltip(nameLink, identity.getName(), searchType);
 			fullPerson.add(nameLink);
-			
+
 			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + identity.getEmailAddress() + ">", SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getEmailAddress(), searchType));
 			setPersonSearchTooltip(addressLink, identity.getEmailAddress(), searchType);
 			fullPerson.add(addressLink);
 			return fullPerson;
 		}
 	}
-	
+
 	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
 		if (searchType.equals(SearchType.AUTHOR)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
@@ -145,7 +232,7 @@ public abstract class RepositoryPage extends BasePage {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForCommitter") + " " + value);
 		}
 	}
-	
+
 	protected void setChangeTypeTooltip(Component container, ChangeType type) {
 		switch (type) {
 		case ADD:
@@ -163,7 +250,7 @@ public abstract class RepositoryPage extends BasePage {
 			break;
 		}
 	}
-	
+
 	@Override
 	protected void onBeforeRender() {
 		// dispose of repository object
@@ -190,5 +277,45 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected PageParameters newPathParameter(String path) {
 		return WicketUtils.newPathParameter(repositoryName, objectId, path);
+	}
+
+	class SearchForm extends StatelessForm<Void> {
+		private static final long serialVersionUID = 1L;
+
+		private final String repositoryName;
+
+		private final IModel<String> searchBoxModel = new Model<String>("");
+
+		private final IModel<SearchType> searchTypeModel = new Model<SearchType>(SearchType.COMMIT);
+
+		public SearchForm(String id, String repositoryName) {
+			super(id);
+			this.repositoryName = repositoryName;
+			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType", Arrays.asList(SearchType.values()));
+			searchType.setModel(searchTypeModel);
+			add(searchType.setVisible(GitBlit.self().settings().getBoolean(Keys.web.showSearchTypeSelection, false)));
+			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
+			add(searchBox);
+		}
+		
+		void setTranslatedAttributes() {			
+			WicketUtils.setHtmlTooltip(get("searchType"), getString("gb.searchTypeTooltip"));
+			WicketUtils.setHtmlTooltip(get("searchBox"), getString("gb.searchTooltip"));
+			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));			
+		}
+
+		@Override
+		public void onSubmit() {
+			SearchType searchType = searchTypeModel.getObject();
+			String searchString = searchBoxModel.getObject();
+			for (SearchType type : SearchType.values()) {
+				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
+					searchType = type;
+					searchString = searchString.substring(type.name().toLowerCase().length() + 1).trim();
+					break;
+				}
+			}
+			setResponsePage(SearchPage.class, WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
+		}
 	}
 }

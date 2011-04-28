@@ -32,14 +32,14 @@ pre, code, pre.prettyprint, pre.plainprint {
 
 /* age0: age < 60*60*2 */
 .age0 {
-	color: #009900;
+	color: #008000;
 	font-style: italic;
 	font-weight: bold;
 }
 
 /* age1: 60*60*2 <= age < 60*60*24*2 */
 .age1 {
-	color: #009900;
+	color: #008000;
 	font-style: italic;
 }
 
@@ -272,7 +272,7 @@ span.diff.add {
 }
 
 span.diff.remove {
-	color: #cc0000;
+	color: #FFDDDD;
 	font-family: inherit;
 }
 
@@ -373,7 +373,7 @@ span.addition, span.modification, span.deletion, span.rename {
 }
 
 span.addition {
-	background-color: #bbffbb;
+	background-color: #ccffcc;
 }
 
 span.modification {
@@ -381,11 +381,11 @@ span.modification {
 }
 
 span.deletion {
-	background-color: #ff8888;
+	background-color: #f8bbbb;
 }
 
 span.rename {
-	background-color: #8888ff;
+	background-color: #cAc2f5;
 }
 
 div.commitLegend {
@@ -616,16 +616,16 @@ span .otherRef {
 }
 
 span .remoteRef {
-	background-color: #aaaaff;
+	background-color: #cAc2f5;
 	border-color: #ccccff #0033cc #0033cc #ccccff;
 }
 
 span .tagRef {
 	background-color: #ffffaa;
-	border-color: #ffffcc #ffee00 #ffee00 #ffffcc;
+	border-color: #ffcc00 #ffcc00 #ffcc00 #ffcc00;
 }
 
 span .headRef {
-	background-color: #aaffaa;
+	background-color: #ccffcc;
 	border-color: #ccffcc #00cc33 #00cc33 #ccffcc;
 }

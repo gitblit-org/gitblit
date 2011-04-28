@@ -1,12 +1,18 @@
 package com.gitblit.utils;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.tautua.markdownpapers.Markdown;
+import org.tautua.markdownpapers.parser.ParseException;
+
 public class StringUtils {
-	
+
 	public static boolean isEmpty(String value) {
 		return value == null || value.trim().length() == 0;
 	}
@@ -107,4 +113,22 @@ public class StringUtils {
 		}
 	}
 
+	public static String transformMarkdown(String markdown) throws java.text.ParseException {
+		// Read raw markdown content and transform it to html		
+		StringReader reader = new StringReader(markdown);
+		StringWriter writer = new StringWriter();
+		try {
+			Markdown md = new Markdown();
+			md.transform(reader, writer);
+			return writer.toString();
+		} catch (ParseException p) {			
+			throw new java.text.ParseException(p.getMessage(), 0);
+		} finally {
+			reader.close();
+			try {
+				writer.close();
+			} catch (IOException e) {
+			}
+		}
+	}
 }
