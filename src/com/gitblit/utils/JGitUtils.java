@@ -70,7 +70,7 @@ public class JGitUtils {
 	public static final String R_NOTES_COMMITS = R_NOTES + "commits";
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
-	
+
 	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
 		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
 		return git.getRepository();
@@ -93,11 +93,11 @@ public class JGitUtils {
 				// first look for standard folder/.git structure
 				File gitFolder = new File(file, Constants.DOT_GIT);
 				boolean isGitRepository = gitFolder.exists() && gitFolder.isDirectory();
-				
-				// then look for folder.git/HEAD or folder/HEAD and folder/config
+
+				// then look for folder.git/HEAD or folder/HEAD and
+				// folder/config
 				if (!isGitRepository) {
-					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists())
-							|| (new File(file, "config").exists() && new File(file, Constants.HEAD).exists())) {
+					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists()) || (new File(file, "config").exists() && new File(file, Constants.HEAD).exists())) {
 						gitFolder = file;
 						isGitRepository = true;
 					}
@@ -124,6 +124,9 @@ public class JGitUtils {
 	}
 
 	public static RevCommit getFirstCommit(Repository r, String branch) {
+		if (!hasCommits(r)) {
+			return null;
+		}
 		if (StringUtils.isEmpty(branch)) {
 			branch = Constants.HEAD;
 		}
@@ -146,7 +149,7 @@ public class JGitUtils {
 			RevCommit commit = getFirstCommit(r, branch);
 			if (commit == null) {
 				// fresh repository
-				return new Date(r.getDirectory().lastModified());			
+				return new Date(r.getDirectory().lastModified());
 			}
 			return getCommitDate(commit);
 		} catch (Throwable t) {
@@ -155,17 +158,24 @@ public class JGitUtils {
 		return null;
 	}
 
-	public static Date getLastChange(Repository r) {		
-		RevCommit commit = getCommit(r, Constants.HEAD);
-		if (commit == null) {
+	public static boolean hasCommits(Repository r) {
+		return new File(r.getDirectory(), Constants.R_HEADS).list().length > 0;
+	}
+
+	public static Date getLastChange(Repository r) {
+		if (!hasCommits(r)) {
 			// fresh repository
-			return new Date(r.getDirectory().lastModified());			
+			return new Date(r.getDirectory().lastModified());
 		}
+		RevCommit commit = getCommit(r, Constants.HEAD);
 		return getCommitDate(commit);
 	}
 
 	public static RevCommit getCommit(Repository r, String objectId) {
 		RevCommit commit = null;
+		if (!hasCommits(r)) {
+			return null;
+		}
 		try {
 			if (objectId == null || objectId.trim().length() == 0) {
 				objectId = Constants.HEAD;
@@ -176,7 +186,7 @@ public class JGitUtils {
 			commit = rev;
 			walk.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to determine last change", t);
+			LOGGER.error("Failed to get commit " + objectId, t);
 		}
 		return commit;
 	}
@@ -266,13 +276,13 @@ public class JGitUtils {
 	}
 
 	public static String getRawContentAsString(Repository r, RevBlob blob) {
-		byte [] content = getRawContent(r, blob);
+		byte[] content = getRawContent(r, blob);
 		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
 	public static String getRawContentAsString(Repository r, RevCommit commit, String blobPath) {
 		RevObject obj = getRevObject(r, commit.getTree(), blobPath);
-		byte [] content = getRawContent(r, (RevBlob) obj);
+		byte[] content = getRawContent(r, (RevBlob) obj);
 		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
@@ -328,6 +338,10 @@ public class JGitUtils {
 
 	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
+		if (commit == null) {
+			LOGGER.warn("getFilesInCommit for NULL commit");
+			return list;
+		}
 		try {
 			final RevWalk rw = new RevWalk(r);
 			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
@@ -359,16 +373,16 @@ public class JGitUtils {
 		}
 		return list;
 	}
-	
+
 	public static List<PathModel> getDocuments(Repository r, List<String> extensions) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		RevCommit commit = getCommit(r, Constants.HEAD);		
+		RevCommit commit = getCommit(r, Constants.HEAD);
 		final TreeWalk walk = new TreeWalk(r);
 		try {
 			walk.addTree(commit.getTree());
 			if (extensions != null && extensions.size() > 0) {
 				Collection<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
-				for (String extension:extensions) {
+				for (String extension : extensions) {
 					if (extension.charAt(0) == '.') {
 						suffixFilters.add(PathSuffixFilter.create(extension));
 					} else {
@@ -606,6 +620,9 @@ public class JGitUtils {
 
 	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (!hasCommits(r)) {
+			return list;
+		}
 		try {
 			if (objectId == null || objectId.trim().length() == 0) {
 				objectId = Constants.HEAD;
@@ -664,6 +681,9 @@ public class JGitUtils {
 	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value, final SearchType type, int offset, int maxCount) {
 		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (!hasCommits(r)) {
+			return list;
+		}
 		try {
 			if (objectId == null || objectId.trim().length() == 0) {
 				objectId = Constants.HEAD;
@@ -792,50 +812,53 @@ public class JGitUtils {
 	}
 
 	public static List<Metric> getDateMetrics(Repository r) {
-		final List<RefModel> tags = getTags(r, -1);
-		final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
-		for (RefModel tag : tags) {
-			tagMap.put(tag.getCommitId(), tag);
-		}
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-		try {
-			RevWalk walk = new RevWalk(r);
-			ObjectId object = r.resolve(Constants.HEAD);
-
-			RevCommit firstCommit = getFirstCommit(r, Constants.HEAD);
-			RevCommit lastCommit = walk.parseCommit(object);
-			int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime()) / (60 * 60 * 24);
-			total.duration = diffDays;
-			DateFormat df;
-			if (diffDays <= 90) {
-				// Days
-				df = new SimpleDateFormat("yyyy-MM-dd");
-			} else if (diffDays > 90 && diffDays < 365) {
-				// Weeks
-				df = new SimpleDateFormat("yyyy-MM (w)");
-			} else {
-				// Months
-				df = new SimpleDateFormat("yyyy-MM");
+		
+		if (hasCommits(r)) {
+			final List<RefModel> tags = getTags(r, -1);
+			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
+			for (RefModel tag : tags) {
+				tagMap.put(tag.getCommitId(), tag);
 			}
-			walk.markStart(lastCommit);
+			try {
+				RevWalk walk = new RevWalk(r);
+				ObjectId object = r.resolve(Constants.HEAD);
 
-			Iterable<RevCommit> revlog = walk;
-			for (RevCommit rev : revlog) {
-				Date d = getCommitDate(rev);
-				String p = df.format(d);
-				if (!metricMap.containsKey(p))
-					metricMap.put(p, new Metric(p));
-				Metric m = metricMap.get(p);
-				m.count++;
-				total.count++;
-				if (tagMap.containsKey(rev.getId())) {
-					m.tag++;
-					total.tag++;
+				RevCommit firstCommit = getFirstCommit(r, Constants.HEAD);
+				RevCommit lastCommit = walk.parseCommit(object);
+				int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime()) / (60 * 60 * 24);
+				total.duration = diffDays;
+				DateFormat df;
+				if (diffDays <= 90) {
+					// Days
+					df = new SimpleDateFormat("yyyy-MM-dd");
+				} else if (diffDays > 90 && diffDays < 365) {
+					// Weeks
+					df = new SimpleDateFormat("yyyy-MM (w)");
+				} else {
+					// Months
+					df = new SimpleDateFormat("yyyy-MM");
 				}
+				walk.markStart(lastCommit);
+
+				Iterable<RevCommit> revlog = walk;
+				for (RevCommit rev : revlog) {
+					Date d = getCommitDate(rev);
+					String p = df.format(d);
+					if (!metricMap.containsKey(p))
+						metricMap.put(p, new Metric(p));
+					Metric m = metricMap.get(p);
+					m.count++;
+					total.count++;
+					if (tagMap.containsKey(rev.getId())) {
+						m.tag++;
+						total.tag++;
+					}
+				}
+			} catch (Throwable t) {
+				LOGGER.error("Failed to mine log history for metrics", t);
 			}
-		} catch (Throwable t) {
-			LOGGER.error("Failed to mine log history for metrics", t);
 		}
 		List<String> keys = new ArrayList<String>(metricMap.keySet());
 		Collections.sort(keys);
@@ -846,7 +869,7 @@ public class JGitUtils {
 		metrics.add(0, total);
 		return metrics;
 	}
-	
+
 	public static RefModel getTicketsBranch(Repository r) {
 		RefModel ticgitBranch = null;
 		try {

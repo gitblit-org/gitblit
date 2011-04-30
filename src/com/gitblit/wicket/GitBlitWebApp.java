@@ -63,7 +63,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
 		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
 		mount(new MixedParamUrlCodingStrategy("/history", HistoryPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/search", SearchPage.class, new String[] { "r", "h", "a", "c" }));
+		mount(new MixedParamUrlCodingStrategy("/search", SearchPage.class, new String[] { }));
 
 		// setup ticket urls
 		mount(new MixedParamUrlCodingStrategy("/tickets", TicketsPage.class, new String[] { "r" }));

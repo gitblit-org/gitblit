@@ -14,6 +14,8 @@ public final class GitBlitWebSession extends WebSession {
 	protected TimeZone timezone = null;
 
 	private User user = null;
+	
+	private String errorMessage = null;
 
 	public GitBlitWebSession(Request request) {
 		super(request);
@@ -52,6 +54,16 @@ public final class GitBlitWebSession extends WebSession {
 			timezone = TimeZone.getDefault();
 		}
 		return timezone;
+	}
+	
+	public void cacheErrorMessage(String message) {
+		this.errorMessage = message;
+	}
+	
+	public String clearErrorMessage() {
+		String msg = errorMessage;
+		errorMessage = null;
+		return msg;
 	}
 
 	public static GitBlitWebSession get() {

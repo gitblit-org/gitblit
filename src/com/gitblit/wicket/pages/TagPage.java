@@ -19,8 +19,8 @@ public class TagPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
+		RevCommit c = getCommit();
 		List<RefModel> tags = JGitUtils.getTags(r, -1);
-		RevCommit c = JGitUtils.getCommit(r, objectId);
 
 		RefModel tagRef = null;
 		// determine tag

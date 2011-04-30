@@ -28,7 +28,7 @@ public class CommitPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit c = JGitUtils.getCommit(r, objectId);
+		RevCommit c = getCommit();
 
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {

@@ -11,6 +11,7 @@ public class RepositoryModel implements Serializable {
 	public String owner;
 	public String group;
 	public Date lastChange;
+	public boolean hasCommits;
 	public boolean useTickets;
 	public boolean useDocs;
 	public boolean useRestrictedAccess;

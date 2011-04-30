@@ -30,7 +30,7 @@ public class TreePage extends RepositoryPage {
 		final String path = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
-		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		RevCommit commit = getCommit();
 		List<PathModel> paths = JGitUtils.getFilesInPath(r, path, commit);
 
 		// tree page links

@@ -29,7 +29,7 @@ public class CommitDiffPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		RevCommit commit = getCommit();
 		DiffOutputType diffType = DiffOutputType.forName(GitBlit.self().settings().getString(Keys.web.diffStyle, DiffOutputType.GITBLIT.name()));
 		String diff = JGitUtils.getCommitDiff(r, commit, diffType);
 

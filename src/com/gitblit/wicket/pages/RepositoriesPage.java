@@ -52,6 +52,13 @@ public class RepositoriesPage extends BasePage {
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
+		// display an error message cached from a redirect
+		String cachedMessage = GitBlitWebSession.get().clearErrorMessage();
+		if (!StringUtils.isEmpty(cachedMessage)) {
+			error(cachedMessage);
+			System.out.println("displayed message");
+		}
+		
 		// Load the markdown welcome message
 		String messageSource = GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = "";
@@ -64,7 +71,7 @@ public class RepositoriesPage extends BasePage {
 				message = StringUtils.transformMarkdown(reader);
 			} catch (Throwable t) {
 				message = "Failed to read default welcome message!";
-				error(message, t);
+				error(message, t, false);
 			}
 		} else {
 			// Read user-supplied welcome message
@@ -76,7 +83,7 @@ public class RepositoriesPage extends BasePage {
 						message = StringUtils.transformMarkdown(reader);
 					} catch (Throwable t) {
 						message = "Failed to read " + file;
-						error(message, t);
+						error(message, t, false);
 					}
 				} else {
 					message = messageSource + " is not a valid file.";
@@ -97,10 +104,17 @@ public class RepositoriesPage extends BasePage {
 
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
-				PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-				item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
-				item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
-
+				if (entry.hasCommits) {
+					// Existing repository
+					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
+					item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
+					item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
+				} else {
+					// New repository
+					item.add(new Label("repositoryName", entry.name + "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
+					item.add(new Label("repositoryDescription", entry.description));					
+				}
+				
 				if (entry.useTickets) {
 					item.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
 				} else {

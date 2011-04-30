@@ -55,7 +55,7 @@ public class SearchPanel extends BasePanel {
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
-		add(new LinkPanel("header", "title", commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName())));
+		add(new LinkPanel("header", "title", commit == null ? "":commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit == null ? "":commit.getName())));
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> searchView = new DataView<RevCommit>("commit", dp) {

@@ -13,6 +13,8 @@
 <wicket:extend>
 	<div wicket:id="adminPanel">[admin links]</div>
 	
+	<div style="text-align:center;padding-top:20px;" wicket:id="feedback">[Feedback Panel]</div>
+	
 	<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
 		
 	<table class="repositories">
@@ -46,6 +48,7 @@
 	<wicket:fragment wicket:id="repositoryAdminLinks">
 		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="renameRepository"><wicket:message key="gb.rename">[rename]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
 	</wicket:fragment>
+	
 </wicket:extend>
 </body>
 </html>

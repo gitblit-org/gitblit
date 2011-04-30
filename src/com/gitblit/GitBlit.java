@@ -105,8 +105,7 @@ public class GitBlit implements ServletContextListener {
 			r = repositoryResolver.open(null, repositoryName);
 		} catch (RepositoryNotFoundException e) {
 			r = null;
-			logger.error("Failed to find repository " + repositoryName);
-			e.printStackTrace();
+			logger.error("GitBlit.getRepository(String) failed to find repository " + repositoryName);
 		} catch (ServiceNotEnabledException e) {
 			r = null;
 			e.printStackTrace();
@@ -128,6 +127,7 @@ public class GitBlit implements ServletContextListener {
 		Repository r = getRepository(repositoryName);
 		RepositoryModel model = new RepositoryModel();
 		model.name = repositoryName;
+		model.hasCommits = JGitUtils.hasCommits(r);
 		model.lastChange = JGitUtils.getLastChange(r);
 		StoredConfig config = JGitUtils.readConfig(r);
 		if (config != null) {

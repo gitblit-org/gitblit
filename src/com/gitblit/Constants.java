@@ -19,7 +19,7 @@ public class Constants {
 	}
 
 	public static String getJGitVersion() {
-		return "JGit 0.11.3";
+		return "JGit 0.12-stable";
 	}
 
 	public static String getRunningVersion() {

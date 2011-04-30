@@ -5,6 +5,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -50,14 +51,13 @@ public abstract class BasePage extends WebPage {
 		add(new FeedbackPanel("feedback"));
 
 		// footer
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true)
-				|| GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true) || GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
 			if (GitBlitWebSession.get().isLoggedIn()) {
 				// logout
 				add(new LinkPanel("userPanel", null, getString("gb.logout") + " " + GitBlitWebSession.get().getUser().toString(), LogoutPage.class));
 			} else {
 				// login
-				add(new LinkPanel("userPanel", null, getString("gb.login"), LoginPage.class));				
+				add(new LinkPanel("userPanel", null, getString("gb.login"), LoginPage.class));
 			}
 		} else {
 			add(new Label("userPanel", ""));
@@ -78,8 +78,23 @@ public abstract class BasePage extends WebPage {
 		return req.getServerName();
 	}
 
-	public void error(String message, Throwable t) {
-		super.error(message);
+	public void error(String message, boolean redirect) {
+		logger.error(message);
+		if (redirect) {
+			GitBlitWebSession.get().cacheErrorMessage(message);
+			throw new RestartResponseAtInterceptPageException(getApplication().getHomePage());
+		} else {
+			super.error(message);
+		}
+	}
+
+	public void error(String message, Throwable t, boolean redirect) {
 		logger.error(message, t);
+		if (redirect) {
+			GitBlitWebSession.get().cacheErrorMessage(message);
+			throw new RestartResponseAtInterceptPageException(getApplication().getHomePage());
+		} else {
+			super.error(message);
+		}
 	}
 }

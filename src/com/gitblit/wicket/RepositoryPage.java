@@ -1,5 +1,6 @@
 package com.gitblit.wicket;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,10 +47,10 @@ import com.gitblit.wicket.panels.RefsPanel;
 public abstract class RepositoryPage extends BasePage {
 
 	protected final String repositoryName;
-	protected final String objectId;	
+	protected final String objectId;
 
 	private transient Repository r = null;
-	
+
 	private RepositoryModel m = null;
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
@@ -70,14 +71,17 @@ public abstract class RepositoryPage extends BasePage {
 
 	public RepositoryPage(PageParameters params) {
 		super(params);
-		if (!params.containsKey("r")) {
-			error("Repository not specified!");
-			redirectToInterceptPage(new RepositoriesPage());
-		}
 		repositoryName = WicketUtils.getRepositoryName(params);
 		objectId = WicketUtils.getObject(params);
 
+		if (StringUtils.isEmpty(repositoryName)) {
+			error(MessageFormat.format("Repository not specified for {0}!", getPageName()), true);
+		}
+
 		Repository r = getRepository();
+		if (r == null) {
+			error(MessageFormat.format("Failed to open repository {0} for {1}!", repositoryName, getPageName()), true);
+		}
 
 		// standard page links
 		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
@@ -86,7 +90,7 @@ public abstract class RepositoryPage extends BasePage {
 		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
-		// per-repository extra page links 
+		// per-repository extra page links
 		List<String> extraPageLinks = new ArrayList<String>();
 
 		// Conditionally add tickets page
@@ -115,7 +119,7 @@ public abstract class RepositoryPage extends BasePage {
 			}
 		};
 		add(extrasView);
-		
+
 		// disable current page
 		disablePageLink(getPageName());
 
@@ -123,7 +127,7 @@ public abstract class RepositoryPage extends BasePage {
 		SearchForm searchForm = new SearchForm("searchForm", repositoryName);
 		add(searchForm);
 		searchForm.setTranslatedAttributes();
-		
+
 		// set stateless page preference
 		setStatelessHint(true);
 	}
@@ -154,12 +158,20 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		return r;
 	}
-	
+
 	protected RepositoryModel getRepositoryModel() {
 		if (m == null) {
 			m = GitBlit.self().getRepositoryModel(repositoryName);
 		}
 		return m;
+	}
+	
+	protected RevCommit getCommit() {
+		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		if (commit == null) {
+			error(MessageFormat.format("Failed to find commit \"{0}\" in {1} for {2} page!", objectId, repositoryName, getPageName()), true);
+		}
+		return commit;
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
@@ -303,11 +315,11 @@ public abstract class RepositoryPage extends BasePage {
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
 			add(searchBox);
 		}
-		
-		void setTranslatedAttributes() {			
+
+		void setTranslatedAttributes() {
 			WicketUtils.setHtmlTooltip(get("searchType"), getString("gb.searchTypeTooltip"));
 			WicketUtils.setHtmlTooltip(get("searchBox"), getString("gb.searchTooltip"));
-			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));			
+			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));
 		}
 
 		@Override

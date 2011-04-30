@@ -41,7 +41,7 @@ public class BlobPage extends RepositoryPage {
 		
 		// standard blob view
 		Repository r = getRepository();
-		RevCommit commit = JGitUtils.getCommit(r, objectId);
+		RevCommit commit = getCommit();
 
 		// blob page links
 		add(new Label("blameLink", getString("gb.blame")));
