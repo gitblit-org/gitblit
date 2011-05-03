@@ -120,7 +120,7 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				sb.append("<table><tbody>");
 				inFile = true;
 			} else {
-				sb.append(line).append('\n');
+				sb.append(line);
 			}
 		}
 		sb.append("</table></div>");
