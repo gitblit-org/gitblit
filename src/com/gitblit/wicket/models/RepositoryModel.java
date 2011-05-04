@@ -12,6 +12,7 @@ public class RepositoryModel implements Serializable {
 	public String group;
 	public Date lastChange;
 	public boolean hasCommits;
+	public boolean showRemoteBranches;
 	public boolean useTickets;
 	public boolean useDocs;
 	public boolean useRestrictedAccess;

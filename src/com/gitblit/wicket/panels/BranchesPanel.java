@@ -18,6 +18,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -27,13 +28,15 @@ public class BranchesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public BranchesPanel(String wicketId, final String repositoryName, Repository r, final int maxCount) {
+	public BranchesPanel(String wicketId, final RepositoryModel model, Repository r, final int maxCount) {
 		super(wicketId);
 
 		// branches
 		List<RefModel> branches = new ArrayList<RefModel>();
 		branches.addAll(JGitUtils.getLocalBranches(r, maxCount));
-		branches.addAll(JGitUtils.getRemoteBranches(r, maxCount));
+		if (model.showRemoteBranches) {
+			branches.addAll(JGitUtils.getRemoteBranches(r, maxCount));
+		}
 		Collections.sort(branches);
 		Collections.reverse(branches);
 		if (maxCount > 0 && branches.size() > maxCount) {
@@ -43,11 +46,11 @@ public class BranchesPanel extends BasePanel {
 		if (maxCount > 0) {
 			// summary page
 			// show branches page link
-			add(new LinkPanel("branches", "title", new StringResourceModel("gb.branches", this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("branches", "title", new StringResourceModel("gb.branches", this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		} else {
 			// branches page
 			// show repository summary page link
-			add(new LinkPanel("branches", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("branches", "title", model.name, SummaryPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		}
 
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
@@ -60,14 +63,14 @@ public class BranchesPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone()));
 
-				item.add(new LinkPanel("branchName", "list name", StringUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new LinkPanel("branchName", "list name", StringUtils.trimString(entry.getDisplayName(), 28), LogPage.class, WicketUtils.newObjectParameter(model.name, entry.getName())));
 
 				// only show branch type on the branches page
 				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);
 				item.add(new Label("branchType", remote ? getString("gb.remote") : getString("gb.local")).setVisible(maxCount <= 0));
 
-				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(model.name, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(model.name, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -77,7 +80,7 @@ public class BranchesPanel extends BasePanel {
 		if (branches.size() < maxCount || maxCount <= 0) {
 			add(new Label("allBranches", "").setVisible(false));
 		} else {
-			add(new LinkPanel("allBranches", "link", new StringResourceModel("gb.allBranches", this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("allBranches", "link", new StringResourceModel("gb.allBranches", this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		}
 	}
 }

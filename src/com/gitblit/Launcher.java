@@ -101,6 +101,10 @@ public class Launcher {
 	 * @throws IOException
 	 */
 	public static void addJarFile(File f) throws IOException {
+		if (f.getName().indexOf("-sources") > -1 || f.getName().indexOf("-javadoc") > -1) {
+			// don't add source or javadoc jars to runtime classpath
+			return;
+		}
 		URL u = f.toURI().toURL();
 		if (debug)
 			System.out.println("load=" + u.toExternalForm());

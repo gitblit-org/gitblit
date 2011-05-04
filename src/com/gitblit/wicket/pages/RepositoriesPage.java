@@ -25,6 +25,7 @@ import org.apache.wicket.resource.ContextRelativeResource;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.BasePage;
@@ -68,7 +69,7 @@ public class RepositoriesPage extends BasePage {
 				ContextRelativeResource res = WicketUtils.getResource("welcome.mkd");
 				InputStream is = res.getResourceStream().getInputStream();
 				InputStreamReader reader = new InputStreamReader(is);
-				message = StringUtils.transformMarkdown(reader);
+				message = MarkdownUtils.transformMarkdown(reader);
 			} catch (Throwable t) {
 				message = "Failed to read default welcome message!";
 				error(message, t, false);
@@ -80,7 +81,7 @@ public class RepositoriesPage extends BasePage {
 				if (file.exists()) {
 					try {
 						FileReader reader = new FileReader(file);
-						message = StringUtils.transformMarkdown(reader);
+						message = MarkdownUtils.transformMarkdown(reader);
 					} catch (Throwable t) {
 						message = "Failed to read " + file;
 						error(message, t, false);

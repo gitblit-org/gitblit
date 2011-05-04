@@ -138,6 +138,6 @@ public class FileSettings implements IStoredSettings {
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ": " + new File(Constants.PROPERTIES_FILE).getAbsolutePath();
+		return new File(Constants.PROPERTIES_FILE).getAbsolutePath();
 	}
 }

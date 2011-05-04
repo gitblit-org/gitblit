@@ -10,7 +10,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 
@@ -34,7 +34,7 @@ public class MarkdownPage extends RepositoryPage {
 		String markdownText = JGitUtils.getRawContentAsString(r, commit, markdownPath);
 		String htmlText;
 		try {
-			htmlText = StringUtils.transformMarkdown(markdownText);
+			htmlText = MarkdownUtils.transformMarkdown(markdownText);
 		} catch (ParseException p) {
 			error(p.getMessage());
 			htmlText = markdownText;

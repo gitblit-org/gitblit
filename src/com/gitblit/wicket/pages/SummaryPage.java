@@ -70,7 +70,7 @@ public class SummaryPage extends RepositoryPage {
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
-		add(new BranchesPanel("branchesPanel", repositoryName, r, numberRefs));
+		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs));
 
 		// Display an activity line graph
 		insertActivityGraph(metrics);

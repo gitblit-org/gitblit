@@ -137,6 +137,7 @@ public class GitBlit implements ServletContextListener {
 			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
 			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
 			model.useRestrictedAccess = config.getBoolean("gitblit", "restrictedAccess", false);
+			model.showRemoteBranches = config.getBoolean("gitblit", "showRemoteBranches", false);
 		}
 		r.close();
 		return model;
@@ -170,6 +171,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
 		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
 		config.setBoolean("gitblit", null, "restrictedAccess", repository.useRestrictedAccess);
+		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 		try {
 			config.save();
 		} catch (IOException e) {
@@ -178,8 +180,8 @@ public class GitBlit implements ServletContextListener {
 		r.close();
 	}
 
-	public void setupContext(IStoredSettings settings) {
-		logger.info("Setting up GitBlit context from " + settings.toString());
+	public void configureContext(IStoredSettings settings) {
+		logger.info("Configure GitBlit from " + settings.toString());
 		this.storedSettings = settings;
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
 		exportAll = settings.getBoolean(Keys.git.exportAll, true);
@@ -188,12 +190,9 @@ public class GitBlit implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
-		logger.info("GitBlit context initialization by servlet container...");
 		if (storedSettings == null) {
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
-			setupContext(webxmlSettings);
-		} else {
-			logger.info("GitBlit context already setup by " + storedSettings.toString());
+			configureContext(webxmlSettings);
 		}
 	}
 

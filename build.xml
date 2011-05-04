@@ -23,9 +23,6 @@
 
 		<!-- Compile Project -->
 		<path id="master-classpath">
-			<fileset dir="${basedir}/lib">
-				<include name="*.jar" />
-			</fileset>
 			<fileset dir="${basedir}/ext">
 				<include name="*.jar" />
 			</fileset>
@@ -40,16 +37,13 @@
 
 		<!-- Build jar -->
 		<delete file="${project.jar}" />
-		<jar index="true" jarfile="${project.jar}">
+		<jar jarfile="${project.jar}">
 			<fileset dir="${project.build.dir}">
 				<include name="**/*" />
 			</fileset>
 			<manifest>
 				<attribute name="Main-Class" value="${project.mainclass}" />
 			</manifest>
-			<indexjars>
-				<fileset dir="${basedir}/lib" />
-			</indexjars>
 		</jar>
 
 		<!-- Delete the deploy folder -->
@@ -58,11 +52,6 @@
 		<!-- Create deployment folder structure -->
 		<mkdir dir="${basedir}/deploy" />
 		<copy todir="${basedir}/deploy" file="${project.jar}" />
-		<copy todir="${basedir}/deploy/lib">
-			<fileset dir="${basedir}/lib">
-				<include name="**/*.jar" />
-			</fileset>
-		</copy>
 		<copy todir="${basedir}/deploy">
 			<fileset dir="${basedir}/service">
 				<include name="**/*" />

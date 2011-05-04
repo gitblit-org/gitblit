@@ -67,6 +67,7 @@ public class EditRepositoryPage extends BasePage {
 		form.add(new TextField<String>("group"));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
+		form.add(new CheckBox("showRemoteBranches"));
 
 		add(form);
 	}

@@ -60,6 +60,6 @@ public class WebXmlSettings implements IStoredSettings {
 	
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ": web.xml";
+		return "WEB.XML";
 	}
 }

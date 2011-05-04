@@ -110,7 +110,23 @@ public class GitBlitServer {
 	 * Start Server.
 	 */
 	private static void start(Params params) {
-		PatternLayout layout = new PatternLayout(fileSettings.getString(Keys.server.log4jPattern, "%-5p %d{MM-dd HH:mm:ss.SSS}  %-20.20c{1}  %m%n"));
+		String pattern = fileSettings.getString(Keys.server.log4jPattern, "%-5p %d{MM-dd HH:mm:ss.SSS}  %-20.20c{1}  %m%n");
+
+		// allow os override of logging pattern
+		String os = System.getProperty("os.name").toLowerCase();
+		if (os.indexOf("windows") > -1) {
+			String winPattern = fileSettings.getString(Keys.server.log4jPattern_windows, pattern);
+			if (!StringUtils.isEmpty(winPattern)) {
+				pattern = winPattern;
+			}
+		} else if (os.indexOf("linux") > -1) {
+			String linuxPattern = fileSettings.getString(Keys.server.log4jPattern_linux, pattern);
+			if (!StringUtils.isEmpty(linuxPattern)) {
+				pattern = linuxPattern;
+			}
+		}
+
+		PatternLayout layout = new PatternLayout(pattern);
 		org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
 		rootLogger.addAppender(new ConsoleAppender(layout));
 
@@ -244,7 +260,7 @@ public class GitBlitServer {
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();
-		gitblit.setupContext(fileSettings);
+		gitblit.configureContext(fileSettings);
 		rootContext.addEventListener(gitblit);
 
 		// Start the Server

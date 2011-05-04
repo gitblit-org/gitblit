@@ -2,19 +2,72 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="lib" path="ext/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="ext/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="ext/slf4j-api-1.6.1.jar"/>
-	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.1.jar"/>
-	<classpathentry kind="lib" path="ext/jetty-all-7.2.2.v20101205.jar"/>
-	<classpathentry kind="lib" path="ext/jcommander-1.17.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="ext/wicket-1.4.17.jar"/>
-	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.17.jar"/>
-	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.17.jar"/>
-	<classpathentry kind="lib" path="ext/markdownpapers-core-1.0.0.jar"/>
-	<classpathentry kind="lib" path="ext/googlecharts-1.4.17.jar"/>
-	<classpathentry kind="lib" path="lib/jgit-0.12-stable.jar"/>
-	<classpathentry kind="lib" path="lib/jgit-http-0.12-stable.jar"/>
+	<classpathentry kind="lib" path="ext/log4j-1.2.16.jar" sourcepath="ext/log4j-1.2.16-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/log4j-1.2.16-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/servlet-api-2.5.jar" sourcepath="ext/servlet-api-2.5-sources.jar"/>
+	<classpathentry kind="lib" path="ext/slf4j-api-1.6.1.jar" sourcepath="ext/slf4j-api-1.6.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/slf4j-api-1.6.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.1.jar" sourcepath="ext/slf4j-log4j12-1.6.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/slf4j-log4j12-1.6.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/jetty-all-7.2.2.v20101205.jar" sourcepath="ext/jetty-all-7.2.2.v20101205-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-all-7.2.2.v20101205-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/jcommander-1.17.jar" sourcepath="ext/jcommander-1.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jcommander-1.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-1.4.17.jar" sourcepath="ext/wicket-1.4.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-1.4.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.17.jar" sourcepath="ext/wicket-auth-roles-1.4.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-auth-roles-1.4.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.17.jar" sourcepath="ext/wicket-extensions-1.4.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/markdownpapers-core-1.0.0.jar" sourcepath="ext/markdownpapers-core-1.0.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.0.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/googlecharts-1.4.17.jar" sourcepath="ext/googlecharts-1.4.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/googlecharts-1.4.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/junit-3.8.2.jar"/>
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit-0.12.1.jar" sourcepath="ext/org.eclipse.jgit-0.12.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-0.12.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-0.12.1.jar" sourcepath="ext/org.eclipse.jgit.http.server-0.12.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-0.12.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/bcprov-jdk16-1.46.jar" sourcepath="ext/bcprov-jdk16-1.46-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/bcprov-jdk16-1.46-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

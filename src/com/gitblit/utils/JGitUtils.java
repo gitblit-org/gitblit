@@ -63,12 +63,6 @@ import com.gitblit.wicket.models.TicketModel.Comment;
 
 public class JGitUtils {
 
-	/** Prefix for notes refs */
-	public static final String R_NOTES = "refs/notes/";
-
-	/** Standard notes ref */
-	public static final String R_NOTES_COMMITS = R_NOTES + "commits";
-
 	private final static Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
 	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
