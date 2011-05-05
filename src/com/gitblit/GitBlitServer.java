@@ -170,7 +170,7 @@ public class GitBlitServer {
 		if (params.securePort > 0) {
 			File keystore = new File("keystore");
 			if (!keystore.exists()) {
-				logger.info("Generating self-signed ssl certificate");
+				logger.info("Generating self-signed SSL certificate");
 				generateSelfSignedCertificate("localhost", keystore, params.storePassword);
 			}
 			if (keystore.exists()) {
@@ -331,7 +331,7 @@ public class GitBlitServer {
 			SslSocketConnector ssl = new SslSocketConnector();
 			connector = ssl;
 		}
-		connector.setAllowRenegotiate(true);
+		connector.setAllowRenegotiate(false);
 		connector.setKeystore(keystore.getAbsolutePath());
 		connector.setPassword(password);
 		connector.setPort(port);
