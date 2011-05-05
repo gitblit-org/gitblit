@@ -69,5 +69,10 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/bcprov-jdk16-1.46-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="ext/bcmail-jdk16-1.46.jar" sourcepath="ext/bcmail-jdk16-1.46-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/bcmail-jdk16-1.46-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

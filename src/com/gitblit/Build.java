@@ -43,6 +43,7 @@ public class Build {
 		downloadFromApache(MavenObject.WICKET_GOOGLE_CHARTS, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -62,6 +63,7 @@ public class Build {
 		downloadFromApache(MavenObject.WICKET_GOOGLE_CHARTS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -289,6 +291,8 @@ public class Build {
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers", "org/tautua/markdownpapers", "markdownpapers-core", "1.0.0", 87000, 58000, 278000, "feda63bd149f3315da210e397d45d02277038ad5", "a9a6c4d163af81e265a15138fcaeafa9829c6054", "f932656266a7f9593488d3f89e815d0af44d0853");
 		
 		public static final MavenObject BOUNCYCASTLE = new MavenObject("BouncyCastle", "org/bouncycastle", "bcprov-jdk16", "1.46", 1900000, 1400000, 4670000, "ce091790943599535cbb4de8ede84535b0c1260c", "d2b70567594225923450d7e3f80cd022c852725e", "873a6fe765f33fc27df498a5d1f5bf077e503b2f");
+		
+		public static final MavenObject BOUNCYCASTLE_MAIL = new MavenObject("BouncyCastle Mail", "org/bouncycastle", "bcmail-jdk16", "1.46", 502000, 420000, 482000, "08a9233bfd6ad38ea32df5e6ff91035b650584b9", "3ebd62bc56854767512dc5deec0a17795f2e671d", "3b7c5f3938f202311bdca0bf7ed46bc0118af081");
 
 		public static final MavenObject JGIT = new MavenObject("JGit", "org/eclipse/jgit", "org.eclipse.jgit", "0.12.1", 1318000, 1354000, 2993000, "fd77699699b9651d2fc31c7ed63af98b14fc1975", "c8b3d84922c7802cfe6a661e13a002641a78583d", "5609aa3ce3ac3d52030befd27ddd2941f6c07570");
 

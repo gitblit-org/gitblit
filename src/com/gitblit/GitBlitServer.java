@@ -2,23 +2,40 @@ package com.gitblit;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.ProtectionDomain;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
 import org.apache.wicket.protocol.http.WicketFilter;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.eclipse.jetty.http.security.Constraint;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -144,23 +161,28 @@ public class GitBlitServer {
 			Connector httpConnector = createConnector(params.useNIO, params.port);
 			String bindInterface = fileSettings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
-				logger.warn(MessageFormat.format("Binding port {0} to {1}", params.port, bindInterface));
+				logger.warn(MessageFormat.format("Binding connector on port {0} to {1}", params.port, bindInterface));
 				httpConnector.setHost(bindInterface);
 			}
 			connectors.add(httpConnector);
 		}
 
 		if (params.securePort > 0) {
-			if (new File("keystore").exists()) {
-				Connector secureConnector = createSSLConnector(params.useNIO, params.securePort, params.storePassword);
+			File keystore = new File("keystore");
+			if (!keystore.exists()) {
+				logger.info("Generating self-signed ssl certificate");
+				generateSelfSignedCertificate("localhost", keystore, params.storePassword);
+			}
+			if (keystore.exists()) {
+				Connector secureConnector = createSSLConnector(keystore, params.storePassword, params.useNIO, params.securePort);
 				String bindInterface = fileSettings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
-					logger.warn(MessageFormat.format("Binding port {0} to {1}", params.port, bindInterface));
+					logger.warn(MessageFormat.format("Binding ssl connector on port {0} to {1}", params.securePort, bindInterface));
 					secureConnector.setHost(bindInterface);
 				}
 				connectors.add(secureConnector);
 			} else {
-				logger.warn("Failed to find Keystore?  Did you run \"makekeystore\"?");
+				logger.warn("Failed to find or load Keystore?");
 				logger.warn("SSL connector DISABLED.");
 			}
 		}
@@ -296,24 +318,67 @@ public class GitBlitServer {
 		return connector;
 	}
 
-	private static Connector createSSLConnector(boolean useNIO, int port, String password) {
+	private static Connector createSSLConnector(File keystore, String password, boolean useNIO, int port) {
 		SslConnector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SslSelectChannelConnector on port " + port);
 			SslSelectChannelConnector ssl = new SslSelectChannelConnector();
 			ssl.setSoLingerTime(-1);
-			ssl.setThreadPool(new QueuedThreadPool(20));
+			ssl.setThreadPool(new QueuedThreadPool(20));			
 			connector = ssl;
 		} else {
 			logger.info("Setting up NIO SslSocketConnector on port " + port);
 			SslSocketConnector ssl = new SslSocketConnector();
 			connector = ssl;
 		}
-		connector.setKeystore("keystore");
+		connector.setAllowRenegotiate(true);
+		connector.setKeystore(keystore.getAbsolutePath());
 		connector.setPassword(password);
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
 		return connector;
+	}
+	
+	private static void generateSelfSignedCertificate(String hostname, File keystore, String keystorePassword) {
+		try {
+			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+			final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
+			
+			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
+			kpGen.initialize(1024, new SecureRandom());
+			KeyPair pair = kpGen.generateKeyPair();
+
+			// Generate self-signed certificate
+			X500NameBuilder builder = new X500NameBuilder(BCStyle.INSTANCE);
+			builder.addRDN(BCStyle.OU, Constants.NAME);
+			builder.addRDN(BCStyle.O, Constants.NAME);
+			builder.addRDN(BCStyle.CN, hostname);
+
+			Date notBefore = new Date(System.currentTimeMillis() - 1*24*60*60*1000l);
+			Date notAfter = new Date(System.currentTimeMillis() + 10*365*24*60*60*1000l);
+			BigInteger serial = BigInteger.valueOf(System.currentTimeMillis());
+
+			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(builder.build(), serial, notBefore, notAfter, builder.build(), pair.getPublic());
+			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider(BC).build(pair.getPrivate());
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certGen.build(sigGen));
+			cert.checkValidity(new Date());
+			cert.verify(cert.getPublicKey());
+
+			// Save to keystore			
+			KeyStore store = KeyStore.getInstance("JKS");
+			if (keystore.exists()) {
+				FileInputStream fis = new FileInputStream(keystore);
+				store.load(fis, keystorePassword.toCharArray());
+			} else {
+				store.load(null);
+			}
+			store.setKeyEntry(hostname, pair.getPrivate(), keystorePassword.toCharArray(), new java.security.cert.Certificate[] { cert });
+			store.store(new FileOutputStream(keystore), keystorePassword.toCharArray());
+		} catch (Throwable t) {
+			t.printStackTrace();
+			throw new RuntimeException("Failed to generate self-signed certificate!", t);
+		}
 	}
 
 	/**
