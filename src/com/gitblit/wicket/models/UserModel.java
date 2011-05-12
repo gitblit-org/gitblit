@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.gitblit.Constants.AccessRestrictionType;
 
-public class User implements Serializable {
+public class UserModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -16,7 +16,7 @@ public class User implements Serializable {
 	private boolean canAdmin = false;
 	private List<String> repositories = new ArrayList<String>();
 
-	public User(String username) {
+	public UserModel(String username) {
 		this.username = username;
 	}
 

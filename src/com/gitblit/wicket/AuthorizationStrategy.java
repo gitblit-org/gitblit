@@ -7,7 +7,7 @@ import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorization
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements IUnauthorizedComponentInstantiationListener {
@@ -29,7 +29,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 				return false;
 			}
 			
-			User user = session.getUser();
+			UserModel user = session.getUser();
 			if (pageClass.isAnnotationPresent(AdminPage.class)) {
 				// admin page
 				if (allowAdmin) {

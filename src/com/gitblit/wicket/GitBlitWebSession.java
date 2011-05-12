@@ -7,7 +7,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 public final class GitBlitWebSession extends WebSession {
 
@@ -15,7 +15,7 @@ public final class GitBlitWebSession extends WebSession {
 
 	protected TimeZone timezone = null;
 
-	private User user = null;
+	private UserModel user = null;
 	
 	private String errorMessage = null;
 
@@ -39,11 +39,11 @@ public final class GitBlitWebSession extends WebSession {
 		return user.canAdmin();
 	}
 
-	public User getUser() {
+	public UserModel getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(UserModel user) {
 		this.user = user;
 	}
 

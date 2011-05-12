@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 public class GitBlit implements ServletContextListener {
 
@@ -67,14 +67,14 @@ public class GitBlit implements ServletContextListener {
 		this.loginService = loginService;
 	}
 
-	public User authenticate(String username, char[] password) {
+	public UserModel authenticate(String username, char[] password) {
 		if (loginService == null) {
 			return null;
 		}
 		return loginService.authenticate(username, password);
 	}
 
-	public User authenticate(Cookie[] cookies) {
+	public UserModel authenticate(Cookie[] cookies) {
 		if (loginService == null) {
 			return null;
 		}
@@ -89,19 +89,19 @@ public class GitBlit implements ServletContextListener {
 		return null;
 	}
 
-	public void setCookie(WebResponse response, User user) {
+	public void setCookie(WebResponse response, UserModel user) {
 		Cookie userCookie = new Cookie(Constants.NAME, user.getCookie());
 		userCookie.setMaxAge(Integer.MAX_VALUE);
 		userCookie.setPath("/");
 		response.addCookie(userCookie);
 	}
 
-	public User getUser(String username) {
-		User user = loginService.getUserModel(username);
+	public UserModel getUser(String username) {
+		UserModel user = loginService.getUserModel(username);
 		return user;
 	}
 
-	public void editUserModel(User user, boolean isCreate) throws GitBlitException {
+	public void editUserModel(UserModel user, boolean isCreate) throws GitBlitException {
 		if (!loginService.updateUserModel(user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
@@ -125,7 +125,7 @@ public class GitBlit implements ServletContextListener {
 		return r;
 	}
 
-	public List<RepositoryModel> getRepositoryModels(User user) {
+	public List<RepositoryModel> getRepositoryModels(UserModel user) {
 		List<String> list = getRepositoryList();
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
 		for (String repo : list) {
@@ -137,7 +137,7 @@ public class GitBlit implements ServletContextListener {
 		return repositories;
 	}
 	
-	public RepositoryModel getRepositoryModel(User user, String repositoryName) {
+	public RepositoryModel getRepositoryModel(UserModel user, String repositoryName) {
 		RepositoryModel model = getRepositoryModel(repositoryName);
 		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
 			if (user != null && user.canView(model)) {

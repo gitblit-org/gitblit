@@ -22,7 +22,7 @@ import com.gitblit.GitBlitException;
 import com.gitblit.wicket.AdminPage;
 import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 @AdminPage
 public class EditUserPage extends BasePage {
@@ -33,7 +33,7 @@ public class EditUserPage extends BasePage {
 		// create constructor
 		super();
 		isCreate = true;
-		setupPage(new User(""));
+		setupPage(new UserModel(""));
 	}
 
 	public EditUserPage(PageParameters params) {
@@ -41,23 +41,23 @@ public class EditUserPage extends BasePage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getUsername(params);
-		User model = GitBlit.self().getUser(name);
+		UserModel model = GitBlit.self().getUser(name);
 		setupPage(model);
 	}
 
-	protected void setupPage(final User userModel) {
+	protected void setupPage(final UserModel userModel) {
 		if (isCreate) {
 			super.setupPage("", getString("gb.newUser"));
 		} else {
 			super.setupPage("", getString("gb.edit"));
 		}
 		final Model<String> confirmPassword = new Model<String>();
-		CompoundPropertyModel<User> model = new CompoundPropertyModel<User>(userModel);
+		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
 
 		List<String> repos = GitBlit.self().getRepositoryList();
 		repos.add(0, "*"); // all repositories wildcard
 		final Palette<String> repositories = new Palette<String>("repositories", new ListModel<String>(userModel.getRepositories()), new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);		
-		Form<User> form = new Form<User>("editForm", model) {
+		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
 

@@ -18,7 +18,7 @@ import org.eclipse.jetty.server.UserIdentity;
 import org.eclipse.jetty.util.log.Log;
 
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 public class JettyLoginService extends MappedLoginService implements ILoginService {
 
@@ -31,12 +31,12 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	}
 
 	@Override
-	public User authenticate(String username, char[] password) {
+	public UserModel authenticate(String username, char[] password) {
 		UserIdentity identity = login(username, new String(password));
 		if (identity == null || identity.equals(UserIdentity.UNAUTHENTICATED_IDENTITY)) {
 			return null;
 		}
-		User user = new User(username);
+		UserModel user = new UserModel(username);
 		user.setCookie(StringUtils.getSHA1((Constants.NAME + username + new String(password))));
 		user.canAdmin(identity.isUserInRole(Constants.ADMIN_ROLE, null));
 
@@ -53,14 +53,14 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	}
 
 	@Override
-	public User authenticate(char[] cookie) {
+	public UserModel authenticate(char[] cookie) {
 		// TODO cookie login
 		return null;
 	}
 
 	@Override
-	public User getUserModel(String username) {
-		User model = new User(username);
+	public UserModel getUserModel(String username) {
+		UserModel model = new UserModel(username);
 		UserIdentity identity = _users.get(username);
 		Subject subject = identity.getSubject();
 		for (Principal principal : subject.getPrincipals()) {
@@ -83,7 +83,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	}
 
 	@Override
-	public boolean updateUserModel(User model) {
+	public boolean updateUserModel(UserModel model) {
 		try {
 			Properties properties = new Properties();
 			FileReader reader = new FileReader(realmFile);
@@ -129,7 +129,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	}
 
 	@Override
-	public boolean deleteUserModel(User model) {
+	public boolean deleteUserModel(UserModel model) {
 		try {
 			// Read realm file
 			Properties properties = new Properties();

@@ -1,17 +1,17 @@
 package com.gitblit;
 
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 public interface ILoginService {
 
-	User authenticate(String username, char[] password);
+	UserModel authenticate(String username, char[] password);
 
-	User authenticate(char[] cookie);
+	UserModel authenticate(char[] cookie);
 	
-	User getUserModel(String username);
+	UserModel getUserModel(String username);
 	
-	boolean updateUserModel(User model);
+	boolean updateUserModel(UserModel model);
 	
-	boolean deleteUserModel(User model);
+	boolean deleteUserModel(UserModel model);
 	
 }

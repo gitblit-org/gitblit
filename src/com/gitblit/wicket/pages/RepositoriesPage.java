@@ -33,7 +33,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.User;
+import com.gitblit.wicket.models.UserModel;
 
 public class RepositoriesPage extends BasePage {
 
@@ -99,7 +99,7 @@ public class RepositoriesPage extends BasePage {
 		}
 		add(repositoriesMessage);
 
-		User user = GitBlitWebSession.get().getUser();
+		UserModel user = GitBlitWebSession.get().getUser();
 		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels(user);
 		DataProvider dp = new DataProvider(rows);
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
