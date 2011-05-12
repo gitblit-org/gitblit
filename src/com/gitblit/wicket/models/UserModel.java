@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gitblit.Constants.AccessRestrictionType;
-
 public class UserModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -39,27 +37,9 @@ public class UserModel implements Serializable {
 	public boolean canAdmin() {
 		return canAdmin;
 	}
-	
-	public boolean canClone(RepositoryModel repository) {
-		return canAccess(repository, AccessRestrictionType.CLONE);
-	}
 
-	public boolean canPush(RepositoryModel repository) {
-		return canAccess(repository, AccessRestrictionType.PUSH);
-	}
-	
-	public boolean canView(RepositoryModel repository) {
-		return canAccess(repository, AccessRestrictionType.VIEW);
-	}
-	
-	private boolean canAccess(RepositoryModel repository, AccessRestrictionType minimum) {
-		if (repository.accessRestriction.atLeast(minimum)) {
-			// repository is restricted, must check roles
-			return canAdmin || repositories.contains(repository.name);
-		} else {
-			// repository is not restricted
-			return true;
-		}
+	public boolean canAccessRepository(String repositoryName) {
+		return canAdmin || repositories.contains(repositoryName);
 	}
 
 	public void setCookie(String cookie) {

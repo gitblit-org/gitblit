@@ -140,7 +140,7 @@ public class GitBlit implements ServletContextListener {
 	public RepositoryModel getRepositoryModel(UserModel user, String repositoryName) {
 		RepositoryModel model = getRepositoryModel(repositoryName);
 		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
-			if (user != null && user.canView(model)) {
+			if (user != null && user.canAccessRepository(model.name)) {
 				return model;
 			}
 			return null;
@@ -161,7 +161,7 @@ public class GitBlit implements ServletContextListener {
 			model.owner = config.getString("gitblit", null, "owner");
 			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
 			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
-			model.accessRestriction = AccessRestrictionType.fromString(config.getString("gitblit", null, "accessRestriction"));
+			model.accessRestriction = AccessRestrictionType.fromName(config.getString("gitblit", null, "accessRestriction"));
 			model.showRemoteBranches = config.getBoolean("gitblit", "showRemoteBranches", false);
 		}
 		r.close();
@@ -195,7 +195,7 @@ public class GitBlit implements ServletContextListener {
 		config.setString("gitblit", null, "owner", repository.owner);
 		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
 		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
-		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.toString());
+		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.name());
 		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 		try {
 			config.save();

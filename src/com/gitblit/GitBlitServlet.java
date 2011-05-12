@@ -49,9 +49,8 @@ public class GitBlitServlet extends GitServlet {
 					boolean authorizedUser = req.isUserInRole(repository);
 					if (function.startsWith("git-receive-pack") || (query.indexOf("service=git-receive-pack") > -1)) {
 						// Push request
-						boolean pushRestricted = model.accessRestriction.atLeast(AccessRestrictionType.PUSH);
-						if (!pushRestricted || (pushRestricted && authorizedUser)) {
-							// push-unrestricted or push-authorized
+						if (authorizedUser) {
+							// clone-restricted or push-authorized
 							super.service(req, rsp);
 							return;
 						} else {
@@ -64,7 +63,7 @@ public class GitBlitServlet extends GitServlet {
 						// Clone request
 						boolean cloneRestricted = model.accessRestriction.atLeast(AccessRestrictionType.CLONE);
 						if (!cloneRestricted || (cloneRestricted && authorizedUser)) {
-							// clone-unrestricted or clone-authorized
+							// push-restricted or clone-authorized
 							super.service(req, rsp);
 							return;
 						} else {

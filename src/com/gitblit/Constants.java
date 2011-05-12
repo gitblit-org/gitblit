@@ -13,9 +13,9 @@ public class Constants {
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
 
-		public static AccessRestrictionType fromString(String name) {
+		public static AccessRestrictionType fromName(String name) {
 			for (AccessRestrictionType type : values()) {
-				if (type.toString().equalsIgnoreCase(name)) {
+				if (type.name().equalsIgnoreCase(name)) {
 					return type;
 				}
 			}
@@ -29,13 +29,13 @@ public class Constants {
 		public String toString() {
 			switch (this) {
 			case NONE:
-				return "none";
+				return "Anonymous View, Clone, & Push";
 			case PUSH:
-				return "push";
+				return "Anonymous View & Clone, Authenticated Push";
 			case CLONE:
-				return "clone";
+				return "Anonymous View, Authenticated Clone & Push";
 			case VIEW:
-				return "view";
+				return "Authenticated View, Clone, & Push";
 			}
 			return "none";
 		}
