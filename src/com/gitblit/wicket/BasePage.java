@@ -1,5 +1,7 @@
 package com.gitblit.wicket;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -66,6 +69,27 @@ public abstract class BasePage extends WebPage {
 		if (GitBlit.self().settings().getBoolean(Keys.web.aggressiveHeapManagement, false)) {
 			System.gc();
 		}
+	}
+
+	protected Map<AccessRestrictionType, String> getAccessRestrictions() {
+		Map<AccessRestrictionType, String> map = new LinkedHashMap<AccessRestrictionType, String>();
+		for (AccessRestrictionType type : AccessRestrictionType.values()) {
+			switch (type) {
+			case NONE:
+				map.put(type, getString("gb.notRestricted"));
+				break;
+			case PUSH:
+				map.put(type, getString("gb.pushRestricted"));
+				break;
+			case CLONE:
+				map.put(type, getString("gb.cloneRestricted"));
+				break;
+			case VIEW:
+				map.put(type, getString("gb.viewRestricted"));
+				break;
+			}
+		}
+		return map;
 	}
 
 	protected TimeZone getTimeZone() {

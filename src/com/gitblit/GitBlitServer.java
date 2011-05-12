@@ -458,7 +458,7 @@ public class GitBlitServer {
 		 * Authentication Parameters
 		 */
 		@Parameter(names = { "--realmFile" }, description = "Users Realm Hash File")
-		public String realmFile = fileSettings.getString(Keys.server.realmFile, "users.properties");
+		public String realmFile = fileSettings.getString(Keys.realm.realmFile, "users.properties");
 
 		/*
 		 * JETTY Parameters

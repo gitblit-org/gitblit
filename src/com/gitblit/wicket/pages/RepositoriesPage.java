@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -23,6 +24,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.resource.ContextRelativeResource;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.MarkdownUtils;
@@ -99,6 +101,7 @@ public class RepositoriesPage extends BasePage {
 		}
 		add(repositoriesMessage);
 
+		final Map<AccessRestrictionType, String> accessRestrictionTranslations = getAccessRestrictions();
 		UserModel user = GitBlitWebSession.get().getUser();
 		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels(user);
 		DataProvider dp = new DataProvider(rows);
@@ -130,22 +133,22 @@ public class RepositoriesPage extends BasePage {
 				} else {
 					item.add(WicketUtils.newBlankImage("docsIcon"));
 				}
-
+				
 				switch (entry.accessRestriction) {
 				case NONE:
-					item.add(WicketUtils.newBlankImage("restrictedAccessIcon"));
+					item.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 					break;
 				case PUSH:
-					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_go_16x16.png", getString("gb.pushRestricted")));
+					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				case CLONE:
-					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_pull_16x16.png", getString("gb.cloneRestricted")));
+					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				case VIEW:
-					item.add(WicketUtils.newImage("restrictedAccessIcon", "shield_16x16.png", getString("gb.viewRestricted")));
+					item.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				default:
-					item.add(WicketUtils.newBlankImage("restrictedAccessIcon"));
+					item.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
 				item.add(new Label("repositoryOwner", entry.owner));

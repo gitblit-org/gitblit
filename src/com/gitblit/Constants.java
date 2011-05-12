@@ -4,6 +4,8 @@ public class Constants {
 
 	public final static String NAME = "Git:Blit";
 
+	// The build script extracts this exact line so be careful editing it
+	// and only use A-Z a-z 0-9 .-_ in the string. 
 	public final static String VERSION = "0.1.0-SNAPSHOT";
 
 	public final static String ADMIN_ROLE = "#admin";
@@ -21,23 +23,17 @@ public class Constants {
 			}
 			return NONE;
 		}
-		
+
+		public boolean exceeds(AccessRestrictionType type) {
+			return this.ordinal() > type.ordinal();
+		}
+
 		public boolean atLeast(AccessRestrictionType type) {
 			return this.ordinal() >= type.ordinal();
 		}
 
 		public String toString() {
-			switch (this) {
-			case NONE:
-				return "Anonymous View, Clone, & Push";
-			case PUSH:
-				return "Anonymous View & Clone, Authenticated Push";
-			case CLONE:
-				return "Anonymous View, Authenticated Clone & Push";
-			case VIEW:
-				return "Authenticated View, Clone, & Push";
-			}
-			return "none";
+			return name();
 		}
 	}
 

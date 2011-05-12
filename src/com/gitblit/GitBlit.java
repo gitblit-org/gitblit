@@ -95,10 +95,22 @@ public class GitBlit implements ServletContextListener {
 		userCookie.setPath("/");
 		response.addCookie(userCookie);
 	}
+	
+	public List<String> getAllUsernames() {
+		return loginService.getAllUsernames();
+	}
 
-	public UserModel getUser(String username) {
+	public UserModel getUserModel(String username) {
 		UserModel user = loginService.getUserModel(username);
 		return user;
+	}
+	
+	public List<String> getRepositoryUsers(RepositoryModel repository) {
+		return loginService.getUsernamesForRole(repository.name);
+	}
+	
+	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
+		return loginService.setUsernamesForRole(repository.name, repositoryUsers);
 	}
 
 	public void editUserModel(UserModel user, boolean isCreate) throws GitBlitException {
@@ -206,7 +218,7 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	public void configureContext(IStoredSettings settings) {
-		logger.info("Configure GitBlit from " + settings.toString());
+		logger.info("Using configuration from " + settings.toString());
 		this.storedSettings = settings;
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
 		exportAll = settings.getBoolean(Keys.git.exportAll, true);

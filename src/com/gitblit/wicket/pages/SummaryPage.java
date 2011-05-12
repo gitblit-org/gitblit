@@ -19,6 +19,7 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
@@ -65,6 +66,24 @@ public class SummaryPage extends RepositoryPage {
 			add(new Label("repositoryStats", ""));
 		} else {
 			add(new Label("repositoryStats", MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
+		}
+		
+		AccessRestrictionType accessRestriction = getRepositoryModel().accessRestriction;
+		switch (accessRestriction) {
+		case NONE:
+			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+			break;
+		case PUSH:
+			add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", getAccessRestrictions().get(accessRestriction)));
+			break;
+		case CLONE:
+			add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", getAccessRestrictions().get(accessRestriction)));
+			break;
+		case VIEW:
+			add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", getAccessRestrictions().get(accessRestriction)));
+			break;
+		default:
+			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
 		add(new Label("repositoryCloneUrl", GitBlit.self().getCloneUrl(repositoryName)));
 

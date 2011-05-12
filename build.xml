@@ -3,12 +3,35 @@
 
 	<!-- Project Properties -->
 	<property name="project.jar" value="gitblit.jar" />
-	<property name="project.mainclass" value="com.gitblit.Launcher" />
-	<property name="distribution.zipfile" value="gitblit.zip" />
+	<property name="project.mainclass" value="com.gitblit.Launcher" />	
 	<property name="project.build.dir" value="${basedir}/build" />
 
 	<target name="main">
-
+			
+		<!-- extract version number from source code -->
+		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
+			<filterchain>
+				<linecontains>
+		        	<contains value="public final static String VERSION = "/>
+		    	</linecontains>
+				<striplinebreaks/>
+				<tokenfilter>				    
+					<replacestring from="public final static String VERSION = &quot;" to=""/>
+					<replacestring from="&quot;;" to=""/>
+					<trim />
+				</tokenfilter>
+			</filterchain>
+		</loadfile>
+		<echo>Building Git:Blit ${gb.version}</echo>
+		
+		<!-- copy required distribution files to project folder -->
+		<copy todir="${basedir}" overwrite="false">
+			<fileset dir="${basedir}/distrib">
+				<include name="gitblit.properties" />
+				<include name="users.properties" />
+			</fileset>
+		</copy>
+		
 		<!-- Compile the build tool and execute it.
 			 This downloads missing compile-time dependencies from Maven. -->
 
@@ -53,16 +76,13 @@
 		<mkdir dir="${basedir}/deploy" />
 		<copy todir="${basedir}/deploy" file="${project.jar}" />
 		<copy todir="${basedir}/deploy">
-			<fileset dir="${basedir}/service">
+			<fileset dir="${basedir}/distrib">
 				<include name="**/*" />
-			</fileset>
-			<fileset dir="${basedir}">
-				<include name="*.cmd" />
-				<include name="*.properties" />
 			</fileset>
 		</copy>
 
 		<!-- Create Zip deployment -->
+		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<zip destfile="${distribution.zipfile}">
 			<fileset dir="${basedir}/deploy">
 				<include name="**/*" />
