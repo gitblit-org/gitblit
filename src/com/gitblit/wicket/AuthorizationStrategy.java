@@ -7,6 +7,7 @@ import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorization
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.wicket.models.User;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements IUnauthorizedComponentInstantiationListener {

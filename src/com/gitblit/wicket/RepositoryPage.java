@@ -161,11 +161,17 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected RepositoryModel getRepositoryModel() {
 		if (m == null) {
-			m = GitBlit.self().getRepositoryModel(repositoryName);
+			RepositoryModel model = GitBlit.self().getRepositoryModel(GitBlitWebSession.get().getUser(), repositoryName);
+			if (model == null) {
+				error("Unauthorized access for repository " + repositoryName);
+				redirectToInterceptPage(new RepositoriesPage());
+				return null;				
+			}
+			m = model;
 		}
 		return m;
 	}
-	
+
 	protected RevCommit getCommit() {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {

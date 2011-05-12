@@ -33,6 +33,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.models.RepositoryModel;
+import com.gitblit.wicket.models.User;
 
 public class RepositoriesPage extends BasePage {
 
@@ -50,7 +51,8 @@ public class RepositoriesPage extends BasePage {
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", RepositoriesPage.class));
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
+		adminLinks.add(new BookmarkablePageLink<Void>("editUsers", RepositoriesPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
 		// display an error message cached from a redirect
@@ -59,7 +61,7 @@ public class RepositoriesPage extends BasePage {
 			error(cachedMessage);
 			System.out.println("displayed message");
 		}
-		
+
 		// Load the markdown welcome message
 		String messageSource = GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = "";
@@ -97,7 +99,8 @@ public class RepositoriesPage extends BasePage {
 		}
 		add(repositoriesMessage);
 
-		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels();
+		User user = GitBlitWebSession.get().getUser();
+		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels(user);
 		DataProvider dp = new DataProvider(rows);
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
 			private static final long serialVersionUID = 1L;
@@ -113,27 +116,38 @@ public class RepositoriesPage extends BasePage {
 				} else {
 					// New repository
 					item.add(new Label("repositoryName", entry.name + "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
-					item.add(new Label("repositoryDescription", entry.description));					
+					item.add(new Label("repositoryDescription", entry.description));
 				}
-				
+
 				if (entry.useTickets) {
 					item.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
 				} else {
-					item.add(WicketUtils.newClearPixel("ticketsIcon"));
+					item.add(WicketUtils.newBlankImage("ticketsIcon"));
 				}
-				
+
 				if (entry.useDocs) {
 					item.add(WicketUtils.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
 				} else {
-					item.add(WicketUtils.newClearPixel("docsIcon"));
+					item.add(WicketUtils.newBlankImage("docsIcon"));
 				}
-				
-				if (entry.useRestrictedAccess) {
-					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_16x16.png", getString("gb.restrictedAccess")));
-				} else {
-					item.add(WicketUtils.newClearPixel("restrictedAccessIcon"));
+
+				switch (entry.accessRestriction) {
+				case NONE:
+					item.add(WicketUtils.newBlankImage("restrictedAccessIcon"));
+					break;
+				case PUSH:
+					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_go_16x16.png", getString("gb.pushRestricted")));
+					break;
+				case CLONE:
+					item.add(WicketUtils.newImage("restrictedAccessIcon", "lock_pull_16x16.png", getString("gb.cloneRestricted")));
+					break;
+				case VIEW:
+					item.add(WicketUtils.newImage("restrictedAccessIcon", "shield_16x16.png", getString("gb.viewRestricted")));
+					break;
+				default:
+					item.add(WicketUtils.newBlankImage("restrictedAccessIcon"));
 				}
-				
+
 				item.add(new Label("repositoryOwner", entry.owner));
 
 				String lastChange = TimeUtils.timeAgo(entry.lastChange);

@@ -19,9 +19,10 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.User;
 import com.gitblit.wicket.models.RepositoryModel;
+import com.gitblit.wicket.models.User;
 
 public class GitBlit implements ServletContextListener {
 
@@ -94,7 +95,18 @@ public class GitBlit implements ServletContextListener {
 		userCookie.setPath("/");
 		response.addCookie(userCookie);
 	}
-	
+
+	public User getUser(String username) {
+		User user = loginService.getUserModel(username);
+		return user;
+	}
+
+	public void editUserModel(User user, boolean isCreate) throws GitBlitException {
+		if (!loginService.updateUserModel(user)) {
+			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
+		}
+	}
+
 	public List<String> getRepositoryList() {
 		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
 	}
@@ -112,17 +124,31 @@ public class GitBlit implements ServletContextListener {
 		}
 		return r;
 	}
-	
-	public List<RepositoryModel> getRepositoryModels() {
+
+	public List<RepositoryModel> getRepositoryModels(User user) {
 		List<String> list = getRepositoryList();
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
 		for (String repo : list) {
-			RepositoryModel model = getRepositoryModel(repo);
-			repositories.add(model);
+			RepositoryModel model = getRepositoryModel(user, repo);
+			if (model != null) {
+				repositories.add(model);
+			}
 		}
 		return repositories;
 	}
 	
+	public RepositoryModel getRepositoryModel(User user, String repositoryName) {
+		RepositoryModel model = getRepositoryModel(repositoryName);
+		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
+			if (user != null && user.canView(model)) {
+				return model;
+			}
+			return null;
+		} else {
+			return model;
+		}
+	}
+
 	public RepositoryModel getRepositoryModel(String repositoryName) {
 		Repository r = getRepository(repositoryName);
 		RepositoryModel model = new RepositoryModel();
@@ -133,10 +159,9 @@ public class GitBlit implements ServletContextListener {
 		if (config != null) {
 			model.description = config.getString("gitblit", null, "description");
 			model.owner = config.getString("gitblit", null, "owner");
-			model.group = config.getString("gitblit", null, "group");
 			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
 			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
-			model.useRestrictedAccess = config.getBoolean("gitblit", "restrictedAccess", false);
+			model.accessRestriction = AccessRestrictionType.fromString(config.getString("gitblit", null, "accessRestriction"));
 			model.showRemoteBranches = config.getBoolean("gitblit", "showRemoteBranches", false);
 		}
 		r.close();
@@ -149,7 +174,7 @@ public class GitBlit implements ServletContextListener {
 			if (new File(repositoriesFolder, repository.name).exists()) {
 				throw new GitBlitException(MessageFormat.format("Can not create repository {0} because it already exists.", repository.name));
 			}
-			// create repository			
+			// create repository
 			logger.info("create repository " + repository.name);
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name, true);
 		} else {
@@ -170,7 +195,7 @@ public class GitBlit implements ServletContextListener {
 		config.setString("gitblit", null, "owner", repository.owner);
 		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
 		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
-		config.setBoolean("gitblit", null, "restrictedAccess", repository.useRestrictedAccess);
+		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.toString());
 		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 		try {
 			config.save();

@@ -227,6 +227,10 @@ public class WicketUtils {
 	public static int getPage(PageParameters params) {
 		return params.getInt("page", 1); // index from 1
 	}
+	
+	public static String getUsername(PageParameters params) {
+		return params.getString("user", "");
+	}
 
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
 		DateFormat df = new SimpleDateFormat(GitBlit.self().settings().getString(Keys.web.datestampShortFormat, "MM/dd/yy"));

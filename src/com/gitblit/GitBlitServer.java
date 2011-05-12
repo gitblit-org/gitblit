@@ -56,7 +56,6 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jgit.http.server.GitServlet;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -222,44 +221,42 @@ public class GitBlitServer {
 		// Git Servlet
 		ServletHolder gitServlet = null;
 		String gitServletPathSpec = "/git/*";
-		if (fileSettings.getBoolean(Keys.git.allowPushPull, true)) {
-			gitServlet = rootContext.addServlet(GitServlet.class, gitServletPathSpec);
+		if (fileSettings.getBoolean(Keys.git.enableGitServlet, true)) {
+			gitServlet = rootContext.addServlet(GitBlitServlet.class, gitServletPathSpec);
 			gitServlet.setInitParameter("base-path", params.repositoriesFolder);
-			gitServlet.setInitParameter("export-all", params.exportAll ? "1" : "0");
+			gitServlet.setInitParameter("export-all", fileSettings.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
 		}
 
 		// Login Service
 		LoginService loginService = null;
-		String realmUsers = params.realmFile;
-		if (realmUsers != null && new File(realmUsers).exists()) {
-			logger.info("Setting up login service from " + realmUsers);
-			JettyLoginService jettyLoginService = new JettyLoginService(realmUsers);
-			GitBlit.self().setLoginService(jettyLoginService);
-			loginService = jettyLoginService;
+		String realmUsers = params.realmFile;		
+		if (!StringUtils.isEmpty(realmUsers)) { 
+			File realmFile = new File(realmUsers);
+			if (realmFile.exists()) {		
+				logger.info("Setting up login service from " + realmUsers);
+				JettyLoginService jettyLoginService = new JettyLoginService(realmFile);
+				GitBlit.self().setLoginService(jettyLoginService);
+				loginService = jettyLoginService;
+			}
 		}
 
 		// Determine what handler to use
 		Handler handler;
 		if (gitServlet != null) {
-			if (loginService != null && params.authenticatePushPull) {
-				// Authenticate Pull/Push
-				String[] roles = new String[] { Constants.PULL_ROLE, Constants.PUSH_ROLE };
-				logger.info("Authentication required for git servlet pull/push access");
+			if (loginService != null) {
+				// Authenticate Clone/Push
+				logger.info("Setting up authenticated git servlet clone/push access");
 
 				Constraint constraint = new Constraint();
-				constraint.setName("auth");
 				constraint.setAuthenticate(true);
-				constraint.setRoles(roles);
+				constraint.setRoles(new String [] { "*" });
 
 				ConstraintMapping mapping = new ConstraintMapping();
 				mapping.setPathSpec(gitServletPathSpec);
 				mapping.setConstraint(constraint);
 
-				ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+				ConstraintSecurityHandler security = new ConstraintSecurityHandler();				
 				security.addConstraintMapping(mapping);
-				for (String role : roles) {
-					security.addRole(role);
-				}
 				security.setAuthenticator(new BasicAuthenticator());
 				security.setLoginService(loginService);
 				security.setStrict(false);
@@ -273,7 +270,7 @@ public class GitBlitServer {
 				handler = rootContext;
 			}
 		} else {
-			logger.info("Git servlet pull/push disabled");
+			logger.info("Git servlet clone/push disabled");
 			handler = rootContext;
 		}
 
@@ -448,37 +445,31 @@ public class GitBlitServer {
 		@Parameter(names = { "--stop" }, description = "Stop Server")
 		public Boolean stop = false;
 
-		@Parameter(names = { "--temp" }, description = "Server temp folder")
+		@Parameter(names = { "--tempFolder" }, description = "Server temp folder")
 		public String temp = fileSettings.getString(Keys.server.tempFolder, "temp");
 
 		/*
 		 * GIT Servlet Parameters
 		 */
-		@Parameter(names = { "--repos" }, description = "Git Repositories Folder")
+		@Parameter(names = { "--repositoriesFolder" }, description = "Git Repositories Folder")
 		public String repositoriesFolder = fileSettings.getString(Keys.git.repositoriesFolder, "repos");
-
-		@Parameter(names = { "--exportAll" }, description = "Export All Found Repositories")
-		public Boolean exportAll = fileSettings.getBoolean(Keys.git.exportAll, true);
 
 		/*
 		 * Authentication Parameters
 		 */
-		@Parameter(names = { "--authenticatePushPull" }, description = "Authenticate Git Push/Pull access")
-		public Boolean authenticatePushPull = fileSettings.getBoolean(Keys.git.authenticate, true);
-
-		@Parameter(names = { "--realm" }, description = "Users Realm Hash File")
+		@Parameter(names = { "--realmFile" }, description = "Users Realm Hash File")
 		public String realmFile = fileSettings.getString(Keys.server.realmFile, "users.properties");
 
 		/*
 		 * JETTY Parameters
 		 */
-		@Parameter(names = { "--nio" }, description = "Use NIO Connector else use Socket Connector.")
+		@Parameter(names = { "--useNio" }, description = "Use NIO Connector else use Socket Connector.")
 		public Boolean useNIO = fileSettings.getBoolean(Keys.server.useNio, true);
 
-		@Parameter(names = "--port", description = "HTTP port for to serve. (port <= 0 will disable this connector)")
+		@Parameter(names = "--httpPort", description = "HTTP port for to serve. (port <= 0 will disable this connector)")
 		public Integer port = fileSettings.getInteger(Keys.server.httpPort, 80);
 
-		@Parameter(names = "--securePort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
+		@Parameter(names = "--httpsPort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
 		public Integer securePort = fileSettings.getInteger(Keys.server.httpsPort, 443);
 
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")

@@ -444,8 +444,13 @@ table.plain {
 	padding: 8px;
 }
 
-table.plain td.edit {
+table.plain td.edit {	
 	padding: 3px;
+}
+
+table.plain td.editButton {
+	padding:0px;
+	padding-top: 10px;
 }
 
 table.plain td.edit input {
@@ -517,6 +522,19 @@ table.repositories th.wicket_orderDown a, table.repositories th.wicket_orderUp a
 	color: black;
 	font-weight: bold;
 }
+
+table.palette { border:0;}
+table.palette td.header { 
+	font-weight: bold; 
+	background-color: #D2C3AF !important;
+	padding: 3px !important;	
+	border: 1px solid #808080 !important;
+	border-bottom: 0px solid !important;
+	border-radius: 3px 3px 0 0;
+}
+table.palette td.pane {
+	padding: 0px;	
+} 
 
 tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
@@ -619,22 +637,22 @@ span .tagRef a:hover, span .headRef a:hover, span .remoteRef a:hover, span .othe
 
 span .otherRef {
 	background-color: #ffaaff;
-	border-color: #ffccff #ff00ee #ff00ee #ffccff;
+	border-color: #ff00ee;
 }
 
 span .remoteRef {
 	background-color: #cAc2f5;
-	border-color: #ccccff #0033cc #0033cc #ccccff;
+	border-color: #6c6cbf;
 }
 
 span .tagRef {
 	background-color: #ffffaa;
-	border-color: #ffcc00 #ffcc00 #ffcc00 #ffcc00;
+	border-color: #ffcc00;
 }
 
 span .headRef {
 	background-color: #ccffcc;
-	border-color: #ccffcc #00cc33 #00cc33 #ccffcc;
+	border-color: #00cc33;
 }
 
 .feedbackPanelERROR {	

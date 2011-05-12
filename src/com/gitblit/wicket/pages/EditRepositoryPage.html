@@ -4,8 +4,8 @@
       xml:lang="en"  
       lang="en"> 
 
-<body>
 <wicket:extend>
+<body onload="document.getElementById('name').focus();">
 	<!-- Push content down to preserve header image -->
 	<div style="padding-top:20px"></div>
 
@@ -15,18 +15,18 @@
 	<form wicket:id="editForm">
 		<table class="plain">
 			<tbody>
-				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input type="text" wicket:id="name" size="30" tabindex="1" /></td></tr>
-				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input type="text" wicket:id="description" size="80" tabindex="2" /></td></tr>
-				<tr><th><wicket:message key="gb.owner"></wicket:message></th><td class="edit"><input type="text" wicket:id="owner" size="30" tabindex="3" /></td></tr>
-				<tr><th><wicket:message key="gb.group"></wicket:message></th><td class="edit"><input type="text" wicket:id="group" size="30" tabindex="4" /></td></tr>
+				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input type="text" wicket:id="name" id="name" size="40" tabindex="1" /></td></tr>
+				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input type="text" wicket:id="description" size="40" tabindex="2" /></td></tr>
+				<tr><th><wicket:message key="gb.owner"></wicket:message></th><td class="edit"><input type="text" wicket:id="owner" size="40" tabindex="3" /></td></tr>
+				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select wicket:id="accessRestriction" tabindex="4" /></td></tr>				
 				<tr><th><wicket:message key="gb.enableTickets"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useTickets" tabindex="5" /> &nbsp;<i>distributed Ticgit issues</i></td></tr>
-				<tr><th><wicket:message key="gb.enableDocs"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> &nbsp;<i>enumerates repository Markdown documentation</i></td></tr>
+				<tr><th><wicket:message key="gb.enableDocs"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> &nbsp;<i>enumerates Markdown documentation in repository</i></td></tr>
 				<tr><th><wicket:message key="gb.showRemoteBranches"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="showRemoteBranches" tabindex="7" /> &nbsp;<i>show remote branches</i></td></tr>
-				<tr><td class="edit" colspan="2"><input type="submit" value="Save" wicket:message="value:gb.save" tabindex="8" /></td></tr>
+				<tr><th></th><td class="editButton"><input type="submit" value="Save" wicket:message="value:gb.save" tabindex="8" /></td></tr>
 			</tbody>
 		</table>
 	</form>	
 
-</wicket:extend>
 </body>
+</wicket:extend>
 </html>

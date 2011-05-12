@@ -18,6 +18,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.wicket.models.User;
 
 public class LoginPage extends WebPage {
 

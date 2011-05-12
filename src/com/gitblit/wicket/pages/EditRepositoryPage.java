@@ -1,13 +1,16 @@
 package com.gitblit.wicket.pages;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.wicket.AdminPage;
@@ -40,7 +43,7 @@ public class EditRepositoryPage extends BasePage {
 		if (isCreate) {
 			super.setupPage("", getString("gb.newRepository"));
 		} else {
-			super.setupPage("", getString("gb.edit"));
+			super.setupPage("", getString("gb.edit") + " " + repositoryModel.name);
 		}
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(repositoryModel);
 		Form<RepositoryModel> form = new Form<RepositoryModel>("editForm", model) {
@@ -59,12 +62,12 @@ public class EditRepositoryPage extends BasePage {
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
-		
+
 		// field names reflective match RepositoryModel fields
 		form.add(new TextField<String>("name").setEnabled(isCreate));
 		form.add(new TextField<String>("description"));
 		form.add(new TextField<String>("owner"));
-		form.add(new TextField<String>("group"));
+		form.add(new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays.asList(AccessRestrictionType.values())));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
 		form.add(new CheckBox("showRemoteBranches"));
