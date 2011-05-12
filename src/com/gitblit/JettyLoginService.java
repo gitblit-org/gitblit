@@ -69,8 +69,11 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 	@Override
 	public UserModel getUserModel(String username) {
-		UserModel model = new UserModel(username);
 		UserIdentity identity = _users.get(username);
+		if (identity == null) {
+			return null;
+		}
+		UserModel model = new UserModel(username);
 		Subject subject = identity.getSubject();
 		for (Principal principal : subject.getPrincipals()) {
 			if (principal instanceof RolePrincipal) {

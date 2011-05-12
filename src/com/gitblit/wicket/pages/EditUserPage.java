@@ -1,5 +1,6 @@
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,8 +72,25 @@ public class EditUserPage extends BasePage {
 
 			private static final long serialVersionUID = 1L;
 
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.apache.wicket.markup.html.form.Form#onSubmit()
+			 */
 			@Override
 			protected void onSubmit() {
+				String username = userModel.getUsername();
+				if (StringUtils.isEmpty(username)) {
+					error("Please enter a username!");
+					return;
+				}
+				if (isCreate) {
+					UserModel model = GitBlit.self().getUserModel(username);
+					if (model != null) {
+						error(MessageFormat.format("Username {0} is unavailable.", username));
+						return;
+					}
+				}
 				if (!userModel.getPassword().equals(confirmPassword.getObject())) {
 					error("Passwords do not match!");
 					return;
@@ -80,6 +98,16 @@ public class EditUserPage extends BasePage {
 				String password = userModel.getPassword();
 				if (!password.toUpperCase().startsWith(Crypt.__TYPE) && !password.toUpperCase().startsWith(MD5.__TYPE)) {
 					// This is a plain text password.
+					// Check length.
+					int minLength = GitBlit.self().settings().getInteger(Keys.realm.minPasswordLength, 5);
+					if (minLength < 4) {
+						minLength = 4;
+					}
+					if (password.trim().length() < minLength) {
+						error(MessageFormat.format("Password is too short. Minimum length is {0} characters.", minLength));
+						return;
+					}
+					
 					// Optionally encrypt/obfuscate the password.
 					String type = GitBlit.self().settings().getString(Keys.realm.passwordStorage, "md5");
 					if (type.equalsIgnoreCase("md5")) {
@@ -103,9 +131,10 @@ public class EditUserPage extends BasePage {
 					error(e.getMessage());
 					return;
 				}
-				setRedirect(true);
+				setRedirect(false);
 				if (isCreate) {
 					// create another user
+					info(MessageFormat.format("New user {0} successfully created.", userModel.getUsername()));
 					setResponsePage(EditUserPage.class);
 				} else {
 					// back to home

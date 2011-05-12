@@ -116,7 +116,7 @@ public class EditRepositoryPage extends BasePage {
 					error(e.getMessage());
 					return;
 				}
-				setRedirect(true);
+				setRedirect(false);
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
