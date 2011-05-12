@@ -3,5 +3,6 @@
 /ext
 /build
 /keystore
-/gitblit.zip
-/gitblit-0.1.0-SNAPSHOT.zip
+/*.zip
+/gitblit.properties
+/users.properties
