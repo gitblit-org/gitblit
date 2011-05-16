@@ -75,7 +75,7 @@ public class BlobPage extends RepositoryPage {
 			case 1:
 				// PrettyPrint blob text
 				c = new Label("blobText", JGitUtils.getRawContentAsString(r, commit, blobPath));
-				WicketUtils.setCssClass(c, "prettyprint");
+				WicketUtils.setCssClass(c, "prettyprint linenums");
 				break;
 			case 2:
 				// TODO image blobs

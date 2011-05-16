@@ -96,9 +96,6 @@ public class RepositoriesPage extends BasePage {
 			}
 		}
 		Component repositoriesMessage = new Label("repositoriesMessage", message).setEscapeModelStrings(false);
-		if (!showAdmin) {
-			WicketUtils.setCssStyle(repositoriesMessage, "padding-top:10px");
-		}
 		add(repositoriesMessage);
 
 		final Map<AccessRestrictionType, String> accessRestrictionTranslations = getAccessRestrictions();

@@ -80,6 +80,9 @@ public class JGitUtils {
 	public static List<String> getNestedRepositories(File repositoriesFolder, File folder, boolean exportAll, boolean readNested) {
 		String basefile = repositoriesFolder.getAbsolutePath();
 		List<String> list = new ArrayList<String>();
+		if (folder == null || !folder.exists()) {
+			return list;
+		}
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory() && !file.getName().equalsIgnoreCase(Constants.DOT_GIT)) {
 				// if this is a git repository add it to the list

@@ -10,12 +10,12 @@
 </wicket:head>
 
 <body>
-<wicket:extend>
-	<div wicket:id="adminPanel">[admin links]</div>
+<wicket:extend>	
+	<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
 	
-	<div style="text-align:center;padding-top:20px;" wicket:id="feedback">[Feedback Panel]</div>
+	<div class="markdown" style="padding-top:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
 	
-	<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
+	<div style="padding-top:5px;" wicket:id="adminPanel">[admin links]</div>
 		
 	<table class="repositories">
 		<tr>
@@ -40,7 +40,7 @@
 	
 	<wicket:fragment wicket:id="adminLinks">
 		<!-- page nav links -->	
-		<div class="page_nav">
+		<div style="text-align: right;" class="admin_nav">
 			<a wicket:id="newRepository"><wicket:message key="gb.newRepository"></wicket:message></a> | <a wicket:id="newUser"><wicket:message key="gb.newUser"></wicket:message></a> | <a wicket:id="editUsers"><wicket:message key="gb.editUsers"></wicket:message></a>
 		</div>	
 	</wicket:fragment>
