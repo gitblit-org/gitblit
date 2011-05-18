@@ -3,6 +3,8 @@ package com.gitblit;
 public class Constants {
 
 	public final static String NAME = "Git:Blit";
+	
+	public final static String FULL_NAME = "Git:Blit - a Pure Java Git Server";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string. 

@@ -1,0 +1,5 @@
+## Eclipse Tips
+
+verifySsl
+
+how to push new unshared project to new repository 

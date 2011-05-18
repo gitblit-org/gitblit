@@ -1,0 +1,87 @@
+## Overview
+Git:Blit is an open-source, integrated pure-Java stack for managing, viewing, and serving [Git](http://git-scm.com) repositories.
+Its designed primarily as a tool for small workgroups who want to host Git repositories on a Windows machine.
+
+Of course, since its pure-Java it should run with any JVM on any platform, but there are already [many compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools) for non-Windows environments.
+ 
+### Current Version
+
+[{0}](http://gitblit.com/{1}) based on [{2}](http://eclipse.org/jgit) &nbsp; (*{3}*)
+
+### Features
+- Out-of-the-box integrated stack requiring minimal configuration
+- JGit SmartHTTP Servlet
+- Web and Git Servlet authentication
+- Four repository access control configurations
+    - *Anonymous View, Clone & Push*
+    - *Authenticated Push*
+    - *Authenticated Clone & Push*
+    - *Authenticated View, Clone & Push*    
+- Gitweb inspired UI (mostly plain html)
+- Repository administration through web UI
+- User administration through web UI
+- Automatically generates a self-signed certificate for https communications
+- Dates can optionally be displayed using browser's reported timezone
+- Author and Committer email address display can be controlled
+- Syntax highlighting
+- Customizable regular expression handling for commit messages
+- Simple repository stats
+- Simple text file for server configuration
+- Simple text file for users configuration
+- Optional integrated Ticgit
+- Optional integrated Markdown
+
+### Limitations
+- HTTP/HTTPS are the only supported protocols
+- Access controls are not path-based, they are repository-based
+- Only admin users can create repositories
+- Git:Blit is a full-stack solution, its not just a webapp so at this time there is no WAR build
+
+### Todo List
+- Review spots where Git:Blit can cache data instead of abusing the disk
+- Ticgit activity/timeline
+- Ticgit query feature with paging support
+- Ticgit ticket change history
+- Implement Markdown editing
+- View images on Blob page
+- View other binary files Blob page
+
+### License
+TBD
+
+### Architecture
+
+![block diagram](architecture.png "Git Blit Architecture")
+
+### Bundled Dependencies
+The following dependencies are bundled with the Git:Blit zip file.
+
+- [google-code-prettify](http://code.google.com/p/google-code-prettify)
+- [JavaService](http://forge.ow2.org/projects/javaservice)
+- icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons)
+
+### Downloaded Dependencies
+The following dependencies are automatically downloaded from the Apache Maven repository and from the Eclipse Maven repository when Git:Blit is launched for the first time.
+
+- [JGit](http://eclipse.org/jgit)
+- [Wicket](http://wicket.apache.org)
+- [WicketStuff GoogleCharts](https://github.com/wicketstuff/core/wiki/GoogleCharts)
+- [MarkdownPapers](http://markdown.tautua.org)
+- [Jetty](http://eclipse.org/jetty)
+- [SLF4J](http://www.slf4j.org)
+- [Log4j](http://logging.apache.org/log4j)
+- [JCommander](http://jcommander.org)
+- [BouncyCastle](http://www.bouncycastle.org)
+
+### Building
+Eclipse is recommended for development as the project settings are preconfigured.
+
+1. Clone the git repository from here.
+2. Import the gitblit project into your Eclipse workspace.<br/>
+*There will be lots of build errors.*
+3. Using Ant, execute the `build.xml` script in the project root.<br/>
+*This will download all necessary build dependencies and will also generate the Keys class for accessing settings.*
+4. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
+5. Review the settings in `gitblit.properties` in your project root.<br/>
+Make sure you set an appropriate value for *git.repositoriesFolder*. 
+6. Execute the *com.gitblit.Launcher* class to start Git:Blit.

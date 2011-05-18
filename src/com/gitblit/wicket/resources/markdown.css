@@ -3,6 +3,7 @@
  */
 
 div.markdown {
+	line-height: 1.4em;
 }
 
 div.markdown h1,
@@ -51,4 +52,16 @@ div.markdown code {
 
 div.markdown a {
 	text-decoration: underline;	
+}
+
+div.markdown ul, div.markdown ol {
+	padding-left: 30px;
+}
+
+div.markdown li {
+	margin: 0.2em 0 0 0em; padding: 0px;
+}
+
+div.markdown em {
+	color: #b05000;
 }

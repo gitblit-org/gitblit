@@ -3,27 +3,27 @@
 
 	<!-- Project Properties -->
 	<property name="project.jar" value="gitblit.jar" />
-	<property name="project.mainclass" value="com.gitblit.Launcher" />	
+	<property name="project.mainclass" value="com.gitblit.Launcher" />
 	<property name="project.build.dir" value="${basedir}/build" />
 
 	<target name="main">
-			
+
 		<!-- extract version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
 				<linecontains>
-		        	<contains value="public final static String VERSION = "/>
-		    	</linecontains>
-				<striplinebreaks/>
-				<tokenfilter>				    
-					<replacestring from="public final static String VERSION = &quot;" to=""/>
-					<replacestring from="&quot;;" to=""/>
+					<contains value="public final static String VERSION = " />
+				</linecontains>
+				<striplinebreaks />
+				<tokenfilter>
+					<replacestring from="public final static String VERSION = &quot;" to="" />
+					<replacestring from="&quot;;" to="" />
 					<trim />
 				</tokenfilter>
 			</filterchain>
 		</loadfile>
 		<echo>Building Git:Blit ${gb.version}</echo>
-		
+
 		<!-- copy required distribution files to project folder -->
 		<copy todir="${basedir}" overwrite="false">
 			<fileset dir="${basedir}/distrib">
@@ -31,7 +31,7 @@
 				<include name="users.properties" />
 			</fileset>
 		</copy>
-		
+
 		<!-- Compile the build tool and execute it.
 			 This downloads missing compile-time dependencies from Maven. -->
 
@@ -98,5 +98,36 @@
 				<include name="${project.jar}" />
 			</fileset>
 		</delete>
+
+		<!-- Build Site -->
+		<delete dir="${basedir}/site" />
+		<mkdir dir="${basedir}/site" />
+		<copy todir="${basedir}/site">
+			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
+				<include name="background.png" />
+				<include name="gitblit.css" />
+				<include name="markdown.css" />
+				<include name="gitblt_25.png" />
+				<include name="gitblt-favicon.png" />
+			</fileset>
+			<fileset dir="${basedir}/docs">
+				<include name="*.png" />
+			</fileset>
+		</copy>
+		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
+			<classpath refid="master-classpath" />
+			<arg value="--sourceFolder" />
+			<arg value="${basedir}/docs" />
+			
+			<arg value="--outputFolder" />
+			<arg value="${basedir}/site" />
+
+			<arg value="--pageHeader" />
+			<arg value="${basedir}/docs/page_header.html" />
+
+			<arg value="--pageFooter" />
+			<arg value="${basedir}/docs/page_footer.html" />
+		</java>
+
 	</target>
 </project>
