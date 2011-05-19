@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,8 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.resource.ContextRelativeResource;
@@ -42,13 +47,22 @@ public class RepositoriesPage extends BasePage {
 	public RepositoriesPage() {
 		super();
 		setupPage("", "");
-
+		
 		final boolean showAdmin;
 		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
+			// authentication requires state and session
+			setStatelessHint(false);
 		} else {
 			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+			if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, false)) {
+				// authentication requires state and session
+				setStatelessHint(false);
+			} else {
+				// no authentication required, no state and no session required
+				setStatelessHint(true);
+			}
 		}
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
@@ -66,7 +80,7 @@ public class RepositoriesPage extends BasePage {
 
 		// Load the markdown welcome message
 		String messageSource = GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "gitblit");
-		String message = "";
+		String message = "<br/>";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
 			// Read default welcome message
 			try {
@@ -99,70 +113,114 @@ public class RepositoriesPage extends BasePage {
 		add(repositoriesMessage);
 
 		final Map<AccessRestrictionType, String> accessRestrictionTranslations = getAccessRestrictions();
-		UserModel user = GitBlitWebSession.get().getUser();
-		List<RepositoryModel> rows = GitBlit.self().getRepositoryModels(user);
-		DataProvider dp = new DataProvider(rows);
-		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
+		final UserModel user = GitBlitWebSession.get().getUser();
+		List<RepositoryModel> models = GitBlit.self().getRepositoryModels(user);
+		IDataProvider<RepositoryModel> dp;
+		
+		if (GitBlit.self().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
+			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
+			for (RepositoryModel model : models) {
+				String rootPath = StringUtils.getRootPath(model.name);
+				if (StringUtils.isEmpty(rootPath)) {
+					rootPath = GitBlit.self().settings().getString(Keys.web.repositoryRootGroupName, " ");
+				}
+				if (!groups.containsKey(rootPath)) {
+					groups.put(rootPath, new ArrayList<RepositoryModel>());
+				}
+				groups.get(rootPath).add(model);
+			}
+			List<String> roots = new ArrayList<String>(groups.keySet());
+			Collections.sort(roots);
+			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
+			for (String root : roots) {
+				groupedModels.add(new GroupRepositoryModel(root));
+				groupedModels.addAll(groups.get(root));
+			}
+			dp = new ListDataProvider<RepositoryModel>(groupedModels);
+		} else {
+			dp = new DataProvider(models);
+		}
+
+		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
+				if (entry instanceof GroupRepositoryModel) {
+					Fragment row = new Fragment("rowContent", "groupRow", this);
+					item.add(row);
+					row.add(new Label("groupName", entry.name));
+					WicketUtils.setCssClass(item, "group");
+					return;
+				}
+				Fragment row = new Fragment("rowContent", "repositoryRow", this);
+				item.add(row);
 				if (entry.hasCommits) {
 					// Existing repository
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-					item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
-					item.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
+					row.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
+					row.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
 				} else {
 					// New repository
-					item.add(new Label("repositoryName", entry.name + "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
-					item.add(new Label("repositoryDescription", entry.description));
+					row.add(new Label("repositoryName", entry.name + "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
+					row.add(new Label("repositoryDescription", entry.description));
 				}
 
 				if (entry.useTickets) {
-					item.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
+					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
 				} else {
-					item.add(WicketUtils.newBlankImage("ticketsIcon"));
+					row.add(WicketUtils.newBlankImage("ticketsIcon"));
 				}
 
 				if (entry.useDocs) {
-					item.add(WicketUtils.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
+					row.add(WicketUtils.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
 				} else {
-					item.add(WicketUtils.newBlankImage("docsIcon"));
-				}
-				
-				switch (entry.accessRestriction) {
-				case NONE:
-					item.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-					break;
-				case PUSH:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				case CLONE:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				case VIEW:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
-					break;
-				default:
-					item.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+					row.add(WicketUtils.newBlankImage("docsIcon"));
 				}
 
-				item.add(new Label("repositoryOwner", entry.owner));
+				if (entry.isFrozen) {
+					row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", getString("gb.isFrozen")));
+				} else {
+					row.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
+				}
+				switch (entry.accessRestriction) {
+				case NONE:
+					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+					break;
+				case PUSH:
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					break;
+				case CLONE:
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					break;
+				case VIEW:
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					break;
+				default:
+					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
+				}
+
+				row.add(new Label("repositoryOwner", entry.owner));
 
 				String lastChange = TimeUtils.timeAgo(entry.lastChange);
 				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
-				item.add(lastChangeLabel);
+				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
 
+				boolean showOwner = user != null && user.getUsername().equalsIgnoreCase(entry.owner);				
 				if (showAdmin) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks", "repositoryAdminLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)));
 					repositoryLinks.add(new BookmarkablePageLink<Void>("renameRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setEnabled(false));
 					repositoryLinks.add(new BookmarkablePageLink<Void>("deleteRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)).setEnabled(false));
-					item.add(repositoryLinks);
+					row.add(repositoryLinks);
+				} else if (showOwner) {
+					Fragment repositoryLinks = new Fragment("repositoryLinks", "repositoryOwnerLinks", this);
+					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)));
+					row.add(repositoryLinks);
 				} else {
-					item.add(new Label("repositoryLinks"));
+					row.add(new Label("repositoryLinks"));
 				}
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -170,10 +228,20 @@ public class RepositoriesPage extends BasePage {
 		};
 		add(dataView);
 
-		add(newSort("orderByRepository", SortBy.repository, dp, dataView));
-		add(newSort("orderByDescription", SortBy.description, dp, dataView));
-		add(newSort("orderByOwner", SortBy.owner, dp, dataView));
-		add(newSort("orderByDate", SortBy.date, dp, dataView));
+		if (dp instanceof SortableDataProvider<?>) {
+			// add sortable header
+			SortableDataProvider<?> sdp = (SortableDataProvider<?>) dp;
+			Fragment fragment = new Fragment("headerContent", "flatHeader", this);
+			fragment.add(newSort("orderByRepository", SortBy.repository, sdp, dataView));
+			fragment.add(newSort("orderByDescription", SortBy.description, sdp, dataView));
+			fragment.add(newSort("orderByOwner", SortBy.owner, sdp, dataView));
+			fragment.add(newSort("orderByDate", SortBy.date, sdp, dataView));
+			add(fragment);
+		} else {
+			// not sortable
+			Fragment fragment = new Fragment("headerContent", "groupHeader", this);
+			add(fragment);
+		}
 	}
 
 	protected enum SortBy {
@@ -256,6 +324,15 @@ public class RepositoriesPage extends BasePage {
 				});
 			}
 			return list.subList(first, first + count).iterator();
+		}
+	}
+
+	private class GroupRepositoryModel extends RepositoryModel {
+
+		private static final long serialVersionUID = 1L;
+
+		GroupRepositoryModel(String name) {
+			super(name, "", "", new Date(0));
 		}
 	}
 }

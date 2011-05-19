@@ -6,36 +6,39 @@
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
     - *git.repositoryFolder*
     - *server.tempFolder*
-    - *server.httpBindInterface* and *server.httpsBindInterface*
+    - *server.httpBindInterface* and *server.httpsBindInterface*<br/>
+**NOTE:** Consider using **https** exclusively because passwords for authentication are transmitted as clear text!     
     - *server.storePassword*<br/>
-**NOTE:**<br/>
-Its recommended to use **https** wherever possible instead of http because passwords are transmitted as clear text!     
+**NOTE:** The certificate password AND the keystore password must match!     
 3. Execute `gitblit.cmd` or `java -jar gitblit.jar` from a command-line
 4. Wait a minute or two while all dependencies are downloaded and your self-signed certificate is generated.
 5. Open your browser to <http://localhost> or <https://localhost> depending on your chosen configuration.
 6. Click the *Login* link and enter the default administrator credentials: **admin / admin**<br/>
-**NOTE:**<br/>
-Make sure to change the administrator username and/or password!! 
+**NOTE:** Make sure to change the administrator username and/or password!! 
 
 ### Administering Repositories
-Repositories can be created, edited, and deleted through the web UI.  They may also be created, edited, and deleted from the command-line using real Git or your favorite file manager and text editor.
+Repositories can be created, edited, renamed, and deleted through the web UI.  They may also be created, edited, and deleted from the command-line using real [Git](http://git-scm.com) or your favorite file manager and text editor.
 
 All repository settings are stored within the repository `.git/config` file under the *gitblit* section.
 
     [gitblit]
 	    description = master repository
-	    owner = Joe Owner
+	    owner = james
 	    useTickets = false
 	    useDocs = true
 	    showRemoteBranches = false
 	    accessRestriction = clone
+	    isFrozen = false
 	    
 #### Repository Names
 Repository names must be unique and are case-insensitive.  The name must be composed of letters, digits, or `/ _ - .`<br/>
 Whitespace is illegal.
 
+#### Repository Owner
+The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
+
 ### Administering Users
-In contrast, all users are stored in the `users.properties` file or in the file your specified in `gitblit.properties`.<br/>
+All users are stored in the `users.properties` file or in the file you specified in `gitblit.properties`.<br/>
 The format of `users.properties` follows Jetty's convention for HashRealms:
 
     username,password,role1,role2,role3...
@@ -48,11 +51,12 @@ Whitespace is illegal.
 User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *crypt* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
 #### User Roles
-There is only one actual *role* in Git:Blit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are actually repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
+There is only one actual *role* in Git:Blit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
 ### Creating your own Self-Signed Certificate
 
-Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd`script and execute it.  Voila.
+Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd` script and execute it.<br/>
+**NOTE:** The certificate password AND the keystore password must match!
 
 ### Running as a Service
 Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your JVM.<br/>

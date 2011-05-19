@@ -17,9 +17,14 @@ public class RepositoryModel implements Serializable {
 	public boolean useTickets;
 	public boolean useDocs;
 	public AccessRestrictionType accessRestriction;
+	public boolean isFrozen;
 
 	public RepositoryModel() {
-
+		this.name = "";
+		this.description = "";
+		this.owner = "";
+		this.lastChange = new Date(0);
+		this.accessRestriction = AccessRestrictionType.NONE;
 	}
 
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {
@@ -27,5 +32,6 @@ public class RepositoryModel implements Serializable {
 		this.description = description;
 		this.owner = owner;
 		this.lastChange = lastchange;
+		this.accessRestriction = AccessRestrictionType.NONE;
 	}	
 }

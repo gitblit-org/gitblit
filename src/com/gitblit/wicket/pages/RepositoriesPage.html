@@ -10,30 +10,21 @@
 </wicket:head>
 
 <body>
-<wicket:extend>	
-	<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
+<wicket:extend>
+	<!-- Filler div -->
+	<div style="padding-top:18px;"></div>
+		
+	<div style="text-align:center;padding-bottom:5px;" wicket:id="feedback">[Feedback Panel]</div>
 	
-	<div class="markdown" style="padding-top:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
+	<div class="markdown" style="margin-top:-0.5em;padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
 	
-	<div style="padding-top:5px;" wicket:id="adminPanel">[admin links]</div>
+	<div wicket:id="adminPanel">[admin links]</div>
 		
 	<table class="repositories">
-		<tr>
-			<th wicket:id="orderByRepository"><wicket:message key="gb.repository">Repository</wicket:message></th>
-			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
-			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
-			<th></th>
-			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th></th>
-		</tr>
-		<tbody>
-       		<tr wicket:id="repository">
-         		<td><div class="list" wicket:id="repositoryName">[repository name]</div></td>
-         		<td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
-         		<td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
-         		<td class="icon"><img wicket:id="ticketsIcon" /><img wicket:id="docsIcon" /><img wicket:id="accessRestrictionIcon" /></td>
-         		<td><span wicket:id="repositoryLastChange">[last change]</span></td>
-         		<td class="rightAlign"><span wicket:id="repositoryLinks"></span></td>
+		<span wicket:id="headerContent"></span>
+		<tbody>		
+       		<tr wicket:id="row">
+       			<span wicket:id="rowContent"></span>
        		</tr>
     	</tbody>
 	</table>
@@ -47,6 +38,45 @@
 	
 	<wicket:fragment wicket:id="repositoryAdminLinks">
 		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="renameRepository"><wicket:message key="gb.rename">[rename]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="repositoryOwnerLinks">
+		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a></span>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="flatHeader">
+		<tr>
+			<th wicket:id="orderByRepository"><wicket:message key="gb.repository">Repository</wicket:message></th>
+			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
+			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
+			<th></th>
+			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+			<th></th>
+		</tr>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="groupHeader">
+		<tr>
+			<th><wicket:message key="gb.repository">Repository</wicket:message></th>
+			<th><wicket:message key="gb.description">Description</wicket:message></th>
+			<th><wicket:message key="gb.owner">Owner</wicket:message></th>
+			<th></th>
+			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+			<th></th>
+		</tr>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="groupRow">
+        <td colspan="6"><span wicket:id="groupName">[group name]</span></td>
+	</wicket:fragment>
+		
+	<wicket:fragment wicket:id="repositoryRow">
+        <td><div class="list" wicket:id="repositoryName">[repository name]</div></td>
+        <td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
+        <td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
+        <td style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
+        <td><span wicket:id="repositoryLastChange">[last change]</span></td>
+        <td class="rightAlign"><span wicket:id="repositoryLinks"></span></td>
 	</wicket:fragment>
 	
 </wicket:extend>

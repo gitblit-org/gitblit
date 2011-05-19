@@ -107,4 +107,11 @@ public class StringUtils {
 			throw new RuntimeException(t);
 		}
 	}
+	
+	public static String getRootPath(String path) {
+		if (path.indexOf('/') > -1) {
+			return path.substring(0, path.indexOf('/'));
+		}
+		return "";
+	}
 }

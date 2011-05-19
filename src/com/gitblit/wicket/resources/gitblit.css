@@ -47,6 +47,10 @@ pre, code, pre.prettyprint, pre.plainprint {
 	font-style: italic;
 }
 
+img.inlineIcon {
+	padding-left: 1px;
+	padding-right: 1px;
+}
 
 a {
 	color: #0000cc;
@@ -551,6 +555,17 @@ tr th a { padding-right: 15px; background-position: right; background-repeat:no-
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
 tr th.wicket_orderUp a { background-image: url(arrow_up.png); }
 tr th.wicket_orderNone a { background-image: url(arrow_off.png); }
+
+tr.group {
+	background-color: #E66C2C;
+}
+
+tr.group td {
+	font-weight: bold;
+	border-bottom: 1px solid orange;
+	color: white;
+	background-color: #E66C2C;	
+}
 
 tr.light {
 	background-color: #ffffff;

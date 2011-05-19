@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.ServletContextEvent;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.models.UserModel;
 
@@ -97,7 +99,9 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	public List<String> getAllUsernames() {
-		return loginService.getAllUsernames();
+		List<String> names = loginService.getAllUsernames();
+		Collections.sort(names);
+		return names;
 	}
 
 	public UserModel getUserModel(String username) {
@@ -169,15 +173,28 @@ public class GitBlit implements ServletContextListener {
 		model.lastChange = JGitUtils.getLastChange(r);
 		StoredConfig config = JGitUtils.readConfig(r);
 		if (config != null) {
-			model.description = config.getString("gitblit", null, "description");
-			model.owner = config.getString("gitblit", null, "owner");
-			model.useTickets = config.getBoolean("gitblit", "useTickets", false);
-			model.useDocs = config.getBoolean("gitblit", "useDocs", false);
-			model.accessRestriction = AccessRestrictionType.fromName(config.getString("gitblit", null, "accessRestriction"));
-			model.showRemoteBranches = config.getBoolean("gitblit", "showRemoteBranches", false);
+			model.description = getConfig(config, "description", "");
+			model.owner = getConfig(config, "owner", "");
+			model.useTickets = getConfig(config, "useTickets", false);
+			model.useDocs = getConfig(config, "useDocs", false);
+			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config, "accessRestriction", null));
+			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
+			model.isFrozen = getConfig(config, "isFrozen", false);
 		}
 		r.close();
 		return model;
+	}
+	
+	private String getConfig(StoredConfig config, String field, String defaultValue) {
+		String value = config.getString("gitblit", null, field);
+		if (StringUtils.isEmpty(value)) {
+			return defaultValue;
+		}
+		return value;
+	}
+	
+	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
+		return config.getBoolean("gitblit", field, defaultValue);
 	}
 
 	public void editRepositoryModel(RepositoryModel repository, boolean isCreate) throws GitBlitException {
@@ -209,6 +226,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
 		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.name());
 		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
+		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
 		try {
 			config.save();
 		} catch (IOException e) {

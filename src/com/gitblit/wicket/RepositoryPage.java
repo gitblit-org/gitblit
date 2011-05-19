@@ -36,7 +36,6 @@ import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.LogPage;
-import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -79,10 +78,8 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		Repository r = getRepository();
-		if (r == null) {
-			error(MessageFormat.format("Failed to open repository {0} for {1}!", repositoryName, getPageName()), true);
-		}
-
+		RepositoryModel model = getRepositoryModel();
+		
 		// standard page links
 		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
@@ -94,12 +91,12 @@ public abstract class RepositoryPage extends BasePage {
 		List<String> extraPageLinks = new ArrayList<String>();
 
 		// Conditionally add tickets page
-		if (getRepositoryModel().useTickets && JGitUtils.getTicketsBranch(r) != null) {
+		if (model.useTickets && JGitUtils.getTicketsBranch(r) != null) {
 			extraPageLinks.add("tickets");
 		}
 
 		// Conditionally add docs page
-		if (getRepositoryModel().useDocs) {
+		if (model.useDocs) {
 			extraPageLinks.add("docs");
 		}
 
@@ -150,8 +147,7 @@ public abstract class RepositoryPage extends BasePage {
 		if (r == null) {
 			Repository r = GitBlit.self().getRepository(repositoryName);
 			if (r == null) {
-				error("Can not load repository " + repositoryName);
-				redirectToInterceptPage(new RepositoriesPage());
+				error("Can not load repository " + repositoryName, true);
 				return null;
 			}
 			this.r = r;
@@ -163,9 +159,8 @@ public abstract class RepositoryPage extends BasePage {
 		if (m == null) {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				error("Unauthorized access for repository " + repositoryName);
-				redirectToInterceptPage(new RepositoriesPage());
-				return null;				
+				error("Unauthorized access for repository " + repositoryName, true);				
+				return null;
 			}
 			m = model;
 		}

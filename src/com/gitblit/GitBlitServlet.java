@@ -44,12 +44,12 @@ public class GitBlitServlet extends GitServlet {
 			String function = url.substring(forwardSlash + 1);
 			String query = req.getQueryString();
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
-			if (model != null) {
-				if (model.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
+			if (model != null) {				
+				if (model.isFrozen || model.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
 					boolean authorizedUser = req.isUserInRole(repository);
 					if (function.startsWith("git-receive-pack") || (query.indexOf("service=git-receive-pack") > -1)) {
 						// Push request
-						if (authorizedUser) {
+						if (!model.isFrozen && authorizedUser) {
 							// clone-restricted or push-authorized
 							super.service(req, rsp);
 							return;

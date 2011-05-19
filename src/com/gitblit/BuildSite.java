@@ -56,7 +56,7 @@ public class BuildSite {
 		String html_footer = readContent(new File(params.pageFooter));
 		final String links = sb.toString();
 		final String header = MessageFormat.format(html_header, Constants.FULL_NAME, links);
-		final String date = new SimpleDateFormat("yyyy MMM dd").format(new Date());
+		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		final String footer = MessageFormat.format(html_footer, "generated " + date);
 		for (File file : markdownFiles) {
 			try {
