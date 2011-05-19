@@ -17,7 +17,7 @@ Of course, since its pure-Java it should run with any JVM on any platform, but t
     - *Authenticated Push*
     - *Authenticated Clone & Push*
     - *Authenticated View, Clone & Push*    
-- Repositories may also be frozen (deny push) temporarily or permanently
+- Freeze repository temporarily or permanently (i.e. deny push, make read-only)
 - Gitweb inspired UI
 - Administrators may create, edit, rename, or delete repositories through the web UI
 - Administrators may create, edit, rename, or delete users through the web UI
