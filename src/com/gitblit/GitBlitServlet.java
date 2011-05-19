@@ -42,7 +42,7 @@ public class GitBlitServlet extends GitServlet {
 		if (forwardSlash > -1) {
 			String repository = url.substring(0, forwardSlash);
 			String function = url.substring(forwardSlash + 1);
-			String query = req.getQueryString();
+			String query = req.getQueryString() == null ? "":req.getQueryString();			
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
 			if (model != null) {				
 				if (model.isFrozen || model.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
