@@ -1,3 +1,35 @@
 ## Screenshots
+<table class="screenshots">
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/00.png" title="Repository List">![Repositories](thumbs/00.png)</a>
+	<br/>Repository List
+</td><td>
+	<a rel="screenshots_group" href="screenshots/01.png" title="New User">![New User](thumbs/01.png)</a>
+	<br/>New User
+</td><td>
+	<a rel="screenshots_group" href="screenshots/02.png" title="Edit Repository">![Edit Repository](thumbs/02.png)</a>
+	<br/>Edit Repository
+</td></tr>
 
-![test](gitblt_25.png "Optional Title")
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/03.png" title="Repository Summary">![Summary](thumbs/03.png)</a>
+	<br/>Repository Summary
+</td><td>
+	<a rel="screenshots_group" href="screenshots/04.png" title="Repository Log">![Log](thumbs/04.png)</a>
+	<br/>Repository Log
+</td><td>
+	<a rel="screenshots_group" href="screenshots/05.png" title="Repository Tree">![Tree](thumbs/05.png)</a>
+	<br/>Repository Tree
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/06.png" title="File Diff">![Diff](thumbs/06.png)</a>
+	<br/>File Diff
+</td><td>
+	<a rel="screenshots_group" href="screenshots/07.png" title="Commit Diff">![Commitdiff](thumbs/07.png)</a>
+	<br/>Commit Diff
+</td><td>
+	<a rel="screenshots_group" href="screenshots/08.png" title="Blob View with Syntax Highlighting">![Blob](thumbs/08.png)</a>
+	<br/>Blob View with Syntax Highlighting
+</td></tr>
+</table>

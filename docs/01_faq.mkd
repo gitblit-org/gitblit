@@ -1,1 +1,30 @@
 ## Frequently Asked Questions
+
+### Git:Blit?  What kind of name is that?
+Its a phonetic play on [bitblt][bitblt] which is an image processing operation meaning *bit-block transfer*.
+
+### Why use Git:Blit?
+Its small.  Its portable.  Its easy to manage.
+
+### Do I need real Git?
+No.  Git:Blit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
+Everything you need for Git:Blit is either in the zip distribution file or automatically downloaded on execution. 
+
+### Why doesn't Git:Blit support SSH?
+Git:Blit could integrate [Apache Mina](http://mina.apache.org) to provide SSH access.  However, doing so violates design principle #1: KISS.  SSH supports requires creating, exchanging, and managing SSH keys.  While this is doable, its not simple like JGit's SmartHTTP implementation.
+
+You might consider [Gerrit](http://gerrit.googlecode.org) which supports SSH.
+
+### What types of Search does Git:Blit support?
+Git:Blit supports case-insensitive searches of *commit message* (default), *author*, and *committer*.<br/>
+
+To search by *author* or *committer* use the following syntax in the search box:
+
+    author: james
+    committer: james
+    
+Alternatively, you could enable the search type dropdown list in your `gitblit.properties` file.
+
+[bitblt]: http://en.wikipedia.org/wiki/Bit_blit "Wikipedia Bitblt"
+[jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
+[git]: http://git-scm.com "Official Git Site"

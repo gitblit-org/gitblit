@@ -1,0 +1,5 @@
+1. Install GIMP
+2. Download and install David's Batch Processor (DBP) http://members.ozemail.com.au/~hodsond/dbp.html
+3. Make screenshots and put them in "screenshots\raw"
+4. Using DBP, crop the images to 1007x661 and output PNGs to "screenshots"
+5. Using DBP, resize the cropped images to 0.25 with a blur of 1.0 and put PNGs in "screenshots\thumbs"

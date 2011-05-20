@@ -29,6 +29,10 @@ pre, code, pre.prettyprint, pre.plainprint {
 	border:0px;
 }
 
+pre.prettyprint ol {
+	padding-left:25px;
+}
+
 /* age0: age < 60*60*2 */
 .age0 {
 	color: #008000;
@@ -453,6 +457,16 @@ th {
 	padding: 2px 5px;
 	font-size: 100%;
 	text-align: left;
+}
+
+table.screenshots td {
+	text-align: center;
+	padding-bottom: 10px;
+}
+
+table.screenshots img {
+	border: 1px solid #ccc;
+	margin: 5px;
 }
 
 table.plain {

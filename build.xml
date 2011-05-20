@@ -103,17 +103,53 @@
 		<delete dir="${basedir}/site" />
 		<mkdir dir="${basedir}/site" />
 		<copy todir="${basedir}/site">
+			<!-- Copy selected Git:Blit resources -->
 			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
 				<include name="background.png" />
 				<include name="gitblit.css" />
 				<include name="markdown.css" />
 				<include name="gitblt_25.png" />
 				<include name="gitblt-favicon.png" />
+				<include name="lock_go_16x16.png" />
+				<include name="lock_pull_16x16.png" />
+				<include name="shield_16x16.png" />
+				<include name="cold_16x16.png" />
+				<include name="bug_16x16.png" />
+				<include name="book_16x16.png" />
+				<include name="blank.png" />
 			</fileset>
+			
+			<!-- Copy Doc images -->
 			<fileset dir="${basedir}/docs">
+				<include name="*.png" />
+				<include name="*.js" />
+			</fileset>
+		</copy>
+			
+		<!-- Copy Fancybox -->
+		<mkdir dir="${basedir}/site/fancybox" />
+		<copy todir="${basedir}/site/fancybox">			
+			<fileset dir="${basedir}/docs/fancybox" >
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+		
+		<!-- Copy screenshot thumbnails -->
+		<mkdir dir="${basedir}/site/thumbs" />
+		<copy todir="${basedir}/site/thumbs">
+			<fileset dir="${basedir}/docs/screenshots/thumbs">
 				<include name="*.png" />
 			</fileset>
 		</copy>
+		
+		<!-- Copy screenshots -->
+		<mkdir dir="${basedir}/site/screenshots" />
+		<copy todir="${basedir}/site/screenshots">
+			<fileset dir="${basedir}/docs/screenshots">
+				<include name="*.png" />
+			</fileset>
+		</copy>
+
 		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
 			<classpath refid="master-classpath" />
 			<arg value="--sourceFolder" />
