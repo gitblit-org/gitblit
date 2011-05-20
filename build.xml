@@ -163,6 +163,9 @@
 
 			<arg value="--pageFooter" />
 			<arg value="${basedir}/docs/page_footer.html" />
+			
+			<arg value="--alias" />
+			<arg value="index=overview" />
 		</java>
 
 	</target>
