@@ -25,6 +25,10 @@ To search by *author* or *committer* use the following syntax in the search box:
     
 Alternatively, you could enable the search type dropdown list in your `gitblit.properties` file.
 
+### How do I run Git:Blit on port 80 or 443 in Linux?
+Tricky.  Linux requires root permissions to serve on ports < 1024.<br/>
+Run the server as *root* (security concern) or change the ports you are serving to 8080 (http) or 8443 (https). 
+
 [bitblt]: http://en.wikipedia.org/wiki/Bit_blit "Wikipedia Bitblt"
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
