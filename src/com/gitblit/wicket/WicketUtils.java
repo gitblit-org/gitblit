@@ -153,6 +153,10 @@ public class WicketUtils {
 		return new ContextRelativeResource("/com/gitblit/wicket/resources/" + file);
 	}
 
+	public static PageParameters newUsernameParameter(String username) {
+		return new PageParameters("user=" + username);
+	}
+
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		return new PageParameters("r=" + repositoryName);
 	}

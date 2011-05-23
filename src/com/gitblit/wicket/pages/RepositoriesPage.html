@@ -18,67 +18,10 @@
 	
 	<div class="markdown" style="margin-top:-0.5em;padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
 	
-	<div wicket:id="adminPanel">[admin links]</div>
-		
-	<table class="repositories">
-		<span wicket:id="headerContent"></span>
-		<tbody>		
-       		<tr wicket:id="row">
-       			<span wicket:id="rowContent"></span>
-       		</tr>
-    	</tbody>
-	</table>
-	
-	<wicket:fragment wicket:id="adminLinks">
-		<!-- page nav links -->	
-		<div style="text-align: right;" class="admin_nav">
-			<a wicket:id="newRepository"><wicket:message key="gb.newRepository"></wicket:message></a> | <a wicket:id="newUser"><wicket:message key="gb.newUser"></wicket:message></a> | <a wicket:id="editUsers"><wicket:message key="gb.editUsers"></wicket:message></a>
-		</div>	
-	</wicket:fragment>
-	
-	<wicket:fragment wicket:id="repositoryAdminLinks">
-		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="renameRepository"><wicket:message key="gb.rename">[rename]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
-	</wicket:fragment>
+	<div wicket:id="repositoriesPanel">[repositories panel]</div>
 
-	<wicket:fragment wicket:id="repositoryOwnerLinks">
-		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a></span>
-	</wicket:fragment>
-
-	<wicket:fragment wicket:id="flatHeader">
-		<tr>
-			<th wicket:id="orderByRepository"><wicket:message key="gb.repository">Repository</wicket:message></th>
-			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
-			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
-			<th></th>
-			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th></th>
-		</tr>
-	</wicket:fragment>
-	
-	<wicket:fragment wicket:id="groupHeader">
-		<tr>
-			<th><wicket:message key="gb.repository">Repository</wicket:message></th>
-			<th><wicket:message key="gb.description">Description</wicket:message></th>
-			<th><wicket:message key="gb.owner">Owner</wicket:message></th>
-			<th></th>
-			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th></th>
-		</tr>
-	</wicket:fragment>
-	
-	<wicket:fragment wicket:id="groupRow">
-        <td colspan="6"><span wicket:id="groupName">[group name]</span></td>
-	</wicket:fragment>
+	<div style="padding-top: 10px;"wicket:id="usersPanel">[users panel]</div>
 		
-	<wicket:fragment wicket:id="repositoryRow">
-        <td><div class="list" wicket:id="repositoryName">[repository name]</div></td>
-        <td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
-        <td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
-        <td style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
-        <td><span wicket:id="repositoryLastChange">[last change]</span></td>
-        <td class="rightAlign"><span wicket:id="repositoryLinks"></span></td>
-	</wicket:fragment>
-	
 </wicket:extend>
 </body>
 </html>

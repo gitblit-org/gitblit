@@ -46,11 +46,11 @@ public class BuildSite {
 		Arrays.sort(markdownFiles);
 
 		Map<String, String> aliasMap = new HashMap<String, String>();
-		for (String alias:params.aliases) {
-			String [] values = alias.split("=");
+		for (String alias : params.aliases) {
+			String[] values = alias.split("=");
 			aliasMap.put(values[0], values[1]);
 		}
-		
+
 		System.out.println(MessageFormat.format("Generating site from {0} Markdown Docs in {1} ", markdownFiles.length, sourceFolder.getAbsolutePath()));
 		String linkPattern = "<a href=''{0}''>{1}</a>";
 		StringBuilder sb = new StringBuilder();
@@ -66,7 +66,7 @@ public class BuildSite {
 		}
 		sb.setLength(sb.length() - 3);
 		sb.trimToSize();
-		
+
 		String html_header = readContent(new File(params.pageHeader));
 		String html_footer = readContent(new File(params.pageFooter));
 		final String links = sb.toString();
@@ -76,16 +76,13 @@ public class BuildSite {
 		for (File file : markdownFiles) {
 			try {
 				String documentName = getDocumentName(file);
-				String displayName = documentName;
-				if (aliasMap.containsKey(documentName)) {
-					displayName = aliasMap.get(documentName);
-				}
 				String fileName = documentName + ".html";
 				System.out.println(MessageFormat.format("  {0} => {1}", file.getName(), fileName));
 				InputStreamReader reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
 				String content = MarkdownUtils.transformMarkdown(reader);
-				if (displayName.equalsIgnoreCase("overview")) {
-					content = MessageFormat.format(content, Constants.VERSION, "gitblit-" + Constants.VERSION + ".zip", Constants.getJGitVersion(), date);
+				for (String token : params.substitutions) {
+					String [] kv = token.split("=");
+					content = content.replace(kv[0], kv[1]);
 				}
 				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(destinationFolder, fileName)), Charset.forName("UTF-8"));
 				writer.write(header);
@@ -122,7 +119,7 @@ public class BuildSite {
 		// trim leading ##_ which is to control display order
 		return displayName.substring(3);
 	}
-	
+
 	private static void usage(JCommander jc, ParameterException t) {
 		System.out.println(Constants.getRunningVersion());
 		System.out.println();
@@ -135,7 +132,7 @@ public class BuildSite {
 		}
 		System.exit(0);
 	}
-	
+
 	@Parameters(separators = " ")
 	private static class Params {
 
@@ -153,6 +150,9 @@ public class BuildSite {
 
 		@Parameter(names = { "--alias" }, description = "Filename=Linkname aliases", required = false)
 		public List<String> aliases = new ArrayList<String>();
+
+		@Parameter(names = { "--substitute" }, description = "@TOKEN@=value", required = false)
+		public List<String> substitutions = new ArrayList<String>();
 
 	}
 }

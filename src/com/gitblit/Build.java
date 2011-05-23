@@ -268,7 +268,7 @@ public class Build {
 
 		public static final MavenObject JCOMMANDER = new MavenObject("jCommander", "com/beust", "jcommander", "1.17", 34000, 32000, 141000, "219a3540f3b27d7cc3b1d91d6ea046cd8723290e", "0bb50eec177acf0e94d58e0cf07262fe5164331d", "c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
 
-		public static final MavenObject JETTY = new MavenObject("Jetty", "org/eclipse/jetty/aggregate", "jetty-all", "7.2.2.v20101205", 1430000, 965000, 3871000, "b9b7c812a732721c427e208c54fbb71ca17a2ee1", "cbc4fc72c4a646d8822bf7369c2101d4d5d1ff98", "34c87e11bba426fe97bfe23ccff12eda477c8f57");
+		public static final MavenObject JETTY = new MavenObject("Jetty", "org/eclipse/jetty/aggregate", "jetty-all", "7.4.1.v20110513", 1500000, 1000000, 4100000, "1e2de9ed25a7c6ae38717d5ffdc7cfcd6be4bd46", "7b6279d16ce8f663537d9faf55ea353e748dbbaa", "fa06212e751296f1a7abc15c843b135bf49a112b");
 
 		public static final MavenObject SERVLET = new MavenObject("Servlet 2.5", "javax/servlet", "servlet-api", "2.5", 105000, 158000, 0, "5959582d97d8b61f4d154ca9e495aafd16726e34", "021599814ad9a605b86f3e6381571beccd861a32", null);
 

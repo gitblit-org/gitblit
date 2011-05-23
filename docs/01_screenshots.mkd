@@ -1,8 +1,8 @@
 ## Screenshots
 <table class="screenshots">
 <tr><td>
-	<a rel="screenshots_group" href="screenshots/00.png" title="Repository List">![Repositories](thumbs/00.png)</a>
-	<br/>Repository List
+	<a rel="screenshots_group" href="screenshots/00.png" title="Repository & User List">![Repositories](thumbs/00.png)</a>
+	<br/>Repository & User List
 </td><td>
 	<a rel="screenshots_group" href="screenshots/01.png" title="New User">![New User](thumbs/01.png)</a>
 	<br/>New User

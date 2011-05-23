@@ -18,11 +18,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/slf4j-log4j12-1.6.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/jetty-all-7.2.2.v20101205.jar" sourcepath="ext/jetty-all-7.2.2.v20101205-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-all-7.2.2.v20101205-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/jcommander-1.17.jar" sourcepath="ext/jcommander-1.17-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jcommander-1.17-javadoc.jar!/"/>
@@ -72,6 +67,11 @@
 	<classpathentry kind="lib" path="ext/bcmail-jdk16-1.46.jar" sourcepath="ext/bcmail-jdk16-1.46-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/bcmail-jdk16-1.46-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/jetty-all-7.4.1.v20110513.jar" sourcepath="ext/jetty-all-7.4.1.v20110513-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-all-7.2.2.v20101205-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

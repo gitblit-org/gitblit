@@ -10,6 +10,10 @@ public class Constants {
 	// and only use A-Z a-z 0-9 .-_ in the string. 
 	public final static String VERSION = "0.1.0-SNAPSHOT";
 
+	// The build script extracts this exact line so be careful editing it
+	// and only use A-Z a-z 0-9 .-_ in the string.
+	public final static String JGIT_VERSION = "JGit 0.12.1";
+
 	public final static String ADMIN_ROLE = "#admin";
 
 	public final static String PROPERTIES_FILE = "gitblit.properties";
@@ -44,7 +48,7 @@ public class Constants {
 	}
 
 	public static String getJGitVersion() {
-		return "JGit 0.12.1";
+		return JGIT_VERSION;
 	}
 
 	public static String getRunningVersion() {

@@ -190,6 +190,10 @@ div.page_nav2 {
 }
 
 div.admin_nav {
+	border: 1px solid #888;
+	border-bottom: 0px;
+	background:#dae0d2;
+	text-align: right;
 	padding: 5px 5px 5px 2px;	
 }
 
@@ -493,7 +497,7 @@ table.plain td.edit input:focus, table.plain td.edit input:hover{
 	border: 1px solid orange;
 }
 
-table.pretty, table.repositories, table.comments {
+table.pretty, table.comments {
 	margin-bottom:5px;
 	border-spacing: 0px;
 	border-left: 1px solid #bbb;
@@ -522,6 +526,11 @@ table.comments td {
 	line-height: 17px;
 }
 
+table.repositories {
+	margin-bottom:5px;
+	border-spacing: 0px;
+}
+
 table.repositories th {
 	background-color:#D2C3AF;
 	padding: 4px;
@@ -529,9 +538,27 @@ table.repositories th {
 	border-bottom: 1px solid #808080;
 }
 
+table.repositories th.left, table.repositories td.left {
+	border-left: 1px solid #808080;
+	padding-left: 5px;
+}
+
+table.repositories td.left {
+	padding-left: 10px;
+}
+
+table.repositories th.right, table.repositories td.right {
+	border-right: 1px solid #808080;
+}
+
 table.repositories td {
 	padding: 2px;
 }
+
+table.repositories td.rightAlign {	
+	text-align: right;
+	border-right: 1px solid #808080;
+}	
 
 table.repositories td.icon img {
 	vertical-align: top;
@@ -552,6 +579,20 @@ table.repositories th.wicket_orderDown a, table.repositories th.wicket_orderUp a
 	font-weight: bold;
 }
 
+table.repositories tr.group {
+	background-color: #E66C2C;
+}
+
+table.repositories tr.group td {
+	font-weight: bold;	
+	border-bottom: 1px solid orange;
+	color: white;
+	background-color: #E66C2C;
+	border-left: 1px solid #808080;
+	border-right: 1px solid #808080;
+	padding-left: 5px;
+}
+
 table.palette { border:0;}
 table.palette td.header { 
 	font-weight: bold; 
@@ -569,17 +610,6 @@ tr th a { padding-right: 15px; background-position: right; background-repeat:no-
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
 tr th.wicket_orderUp a { background-image: url(arrow_up.png); }
 tr th.wicket_orderNone a { background-image: url(arrow_off.png); }
-
-tr.group {
-	background-color: #E66C2C;
-}
-
-tr.group td {
-	font-weight: bold;
-	border-bottom: 1px solid orange;
-	color: white;
-	background-color: #E66C2C;	
-}
 
 tr.light {
 	background-color: #ffffff;

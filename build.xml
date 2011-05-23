@@ -8,7 +8,12 @@
 
 	<target name="main">
 
-		<!-- extract version number from source code -->
+		<!-- build dsate -->
+		<tstamp>
+			<format property="gb.buildDate" pattern="yyyy-MM-dd" />
+		</tstamp>
+
+		<!-- extract Git:Blit version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
 				<linecontains>
@@ -17,6 +22,21 @@
 				<striplinebreaks />
 				<tokenfilter>
 					<replacestring from="public final static String VERSION = &quot;" to="" />
+					<replacestring from="&quot;;" to="" />
+					<trim />
+				</tokenfilter>
+			</filterchain>			
+		</loadfile>
+
+		<!-- extract JGit version number from source code -->
+		<loadfile property="jgit.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
+			<filterchain>
+				<linecontains>
+					<contains value="public final static String JGIT_VERSION = " />
+				</linecontains>
+				<striplinebreaks />
+				<tokenfilter>
+					<replacestring from="public final static String JGIT_VERSION = &quot;" to="" />
 					<replacestring from="&quot;;" to="" />
 					<trim />
 				</tokenfilter>
@@ -118,22 +138,22 @@
 				<include name="book_16x16.png" />
 				<include name="blank.png" />
 			</fileset>
-			
+
 			<!-- Copy Doc images -->
 			<fileset dir="${basedir}/docs">
 				<include name="*.png" />
 				<include name="*.js" />
 			</fileset>
 		</copy>
-			
+
 		<!-- Copy Fancybox -->
 		<mkdir dir="${basedir}/site/fancybox" />
-		<copy todir="${basedir}/site/fancybox">			
-			<fileset dir="${basedir}/docs/fancybox" >
+		<copy todir="${basedir}/site/fancybox">
+			<fileset dir="${basedir}/docs/fancybox">
 				<exclude name="thumbs.db" />
 			</fileset>
 		</copy>
-		
+
 		<!-- Copy screenshot thumbnails -->
 		<mkdir dir="${basedir}/site/thumbs" />
 		<copy todir="${basedir}/site/thumbs">
@@ -141,7 +161,7 @@
 				<include name="*.png" />
 			</fileset>
 		</copy>
-		
+
 		<!-- Copy screenshots -->
 		<mkdir dir="${basedir}/site/screenshots" />
 		<copy todir="${basedir}/site/screenshots">
@@ -150,11 +170,12 @@
 			</fileset>
 		</copy>
 
+		<!-- Build site pages -->
 		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
 			<classpath refid="master-classpath" />
 			<arg value="--sourceFolder" />
 			<arg value="${basedir}/docs" />
-			
+
 			<arg value="--outputFolder" />
 			<arg value="${basedir}/site" />
 
@@ -163,9 +184,21 @@
 
 			<arg value="--pageFooter" />
 			<arg value="${basedir}/docs/page_footer.html" />
-			
+
 			<arg value="--alias" />
 			<arg value="index=overview" />
+
+			<arg value="--substitute" />
+			<arg value="%VERSION%=${gb.version}" />
+
+			<arg value="--substitute" />
+			<arg value="%DISTRIBUTION%=${distribution.zipfile}" />
+
+			<arg value="--substitute" />
+			<arg value="%BUILDDATE%=${gb.buildDate}" />
+
+			<arg value="--substitute" />
+			<arg value="%JGIT%=${jgit.version}" />
 		</java>
 
 	</target>

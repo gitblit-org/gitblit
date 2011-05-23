@@ -1,6 +1,6 @@
 ## Setup and Configuration
 
-1. Download and unzip Git:Blit.<br/>
+1. Download and unzip [%VERSION%](http://gitblit.com/%DISTRIBUTION%).<br/>
 *Its best to eliminate spaces in the path name as that can cause troubleshooting headaches.* 
 2. The server itself is configured through a simple text file.<br/>
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:

@@ -1,19 +1,17 @@
 ## Overview
 Git:Blit is an open-source, integrated pure Java stack for managing, viewing, and serving [Git][git] repositories.
-Its designed primarily as a tool for small workgroups who want to host [Git][git] repositories on a Windows machine.
-
-Of course, since its pure Java it should run with any JVM on any platform, but there are already [many compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools) for non-Windows environments.
+Its designed primarily as a tool for small workgroups who want to host [Git][git] repositories on a Windows machine.  Having said that, it works equally well on any standard Linux distribution.
  
 ### Current Version
 
-[{0}](http://gitblit.com/{1}) based on [{2}][jgit] &nbsp; (*{3}*)
+[%VERSION%](http://gitblit.com/%DISTRIBUTION%) based on [%JGIT%][jgit] &nbsp; (*%BUILDDATE%*)
 
 sources @ [Github][gitbltsrc]
 
 ### Design Principles
 1. [KISS](http://en.wikipedia.org/wiki/KISS_principle)
 2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
-3. All dependencies must be retrievable from a publicly accessible Maven repository.<br/>This is to ensure authenticity of dependencies and to keep the Git:Blit distribution svelte.  
+3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to keep the Git:Blit distribution svelte.  
 
 ### Features
 - Out-of-the-box integrated stack requiring minimal configuration
@@ -29,7 +27,7 @@ sources @ [Github][gitbltsrc]
     </ul>
 - Gitweb inspired UI
 - Administrators may create, edit, rename, or delete repositories through the web UI
-- Administrators may create, edit, rename, or delete users through the web UI
+- Administrators may create, edit, or delete users through the web UI
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
 - Dates can optionally be displayed using the browser''s reported timezone
@@ -53,8 +51,6 @@ sources @ [Github][gitbltsrc]
 - Git:Blit is an integrated, full-stack solution.  There is no WAR build at this time.
 
 ### Todo List
-- Manual certificate generation with BouncyCastle
-- User list with edit and delete links
 - Review spots where Git:Blit can cache data instead of abusing the disk
     - stats
     - users.properties access
@@ -90,8 +86,9 @@ The following dependencies are bundled with the Git:Blit zip distribution file.
 
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [JavaService](http://forge.ow2.org/projects/javaservice) (BSD and LGPL)
-- icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
 - magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)
+- modified Git logo originally designed by [Henrik Nyh](http://henrik.nyh.se/2007/06/alternative-git-logo-and-favicon)
+- other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
 
 ### Downloaded Dependencies
 The following dependencies are automatically downloaded from the Apache Maven repository and from the Eclipse Maven repository when Git:Blit is launched for the first time.

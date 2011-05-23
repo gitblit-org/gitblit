@@ -29,6 +29,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
@@ -192,6 +193,16 @@ public class GitBlitServer {
 		rootContext.setServer(server);
 		rootContext.setWar(location.toExternalForm());
 		rootContext.setTempDirectory(tempDir);
+		
+		// Mark all cookies HttpOnly so they are not accessible to JavaScript
+		// engines.
+		// http://erlend.oftedal.no/blog/?blogid=33
+		// https://www.owasp.org/index.php/HttpOnly#Browsers_Supporting_HttpOnly
+		HashSessionManager sessionManager = new HashSessionManager();
+		sessionManager.setHttpOnly(true);
+		// Use secure cookies if only serving https
+		sessionManager.setSecureCookies(params.port <= 0 && params.securePort > 0);
+		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
 		// Wicket Filter
 		String wicketPathSpec = "/*";
