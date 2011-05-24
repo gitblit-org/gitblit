@@ -1,6 +1,7 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -102,6 +103,28 @@ public class JGitUtilsTest extends TestCase {
 		String diff = JGitUtils.getCommitDiff(r, commit, DiffOutputType.PLAIN);
 		r.close();
 		System.out.println(diff);
+	}
+	
+	public void testZip() throws Exception {
+		Repository r = new FileRepository(new File(repositoriesFolder, "gitblit.git/" + Constants.DOT_GIT));
+		FileOutputStream fos = null;
+		try {
+			File zipFile = new File("c:/output.zip");
+			zipFile.delete();
+			fos = new FileOutputStream(zipFile);
+			if (JGitUtils.zip(r, "src", Constants.HEAD, fos)) {
+				System.out.println("zip = " + zipFile.length() + " bytes");
+			} else {
+				System.err.println("failed to generate zip file?!");
+			}
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (Throwable t) {
+				}
+			}
+		}
 	}
 
 }

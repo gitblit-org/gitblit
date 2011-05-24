@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -13,6 +14,9 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.DownloadZipServlet;
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.LinkPanel;
@@ -36,6 +40,7 @@ public class TreePage extends RepositoryPage {
 		// tree page links
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
 		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
+		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, path)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -73,6 +78,7 @@ public class TreePage extends RepositoryPage {
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, entry.path)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
 						item.add(links);
 					} else {
 						// blob link

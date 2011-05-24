@@ -17,6 +17,10 @@ public class Constants {
 	public final static String ADMIN_ROLE = "#admin";
 
 	public final static String PROPERTIES_FILE = "gitblit.properties";
+	
+	public final static String GIT_SERVLET_PATH = "/git/";
+	
+	public final static String ZIP_SERVLET_PATH = "/zip/";
 
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;

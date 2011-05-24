@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -13,6 +14,9 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.DownloadZipServlet;
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.LinkPanel;
@@ -62,6 +66,8 @@ public class CommitPage extends RepositoryPage {
 		add(new Label("commitId", c.getName()));
 
 		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class, newCommitParameter()));
+		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
+		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, null)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
 
 		// Parent Commits
 		ListDataProvider<String> parentsDp = new ListDataProvider<String>(parents);

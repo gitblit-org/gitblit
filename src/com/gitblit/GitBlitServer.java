@@ -211,10 +211,13 @@ public class GitBlitServer {
 		wicketFilter.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, wicketPathSpec);
 		wicketFilter.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "git/");
 		rootContext.addFilter(wicketFilter, wicketPathSpec, FilterMapping.DEFAULT);
-
+		
+		// Zip Servlet
+		rootContext.addServlet(DownloadZipServlet.class, Constants.ZIP_SERVLET_PATH + "*");
+		
 		// Git Servlet
 		ServletHolder gitServlet = null;
-		String gitServletPathSpec = "/git/*";
+		String gitServletPathSpec = Constants.GIT_SERVLET_PATH + "*";
 		if (fileSettings.getBoolean(Keys.git.enableGitServlet, true)) {
 			gitServlet = rootContext.addServlet(GitBlitServlet.class, gitServletPathSpec);
 			gitServlet.setInitParameter("base-path", params.repositoriesFolder);

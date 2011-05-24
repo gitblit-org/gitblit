@@ -114,15 +114,19 @@ span.empty {
 	color: #008000;
 }
 
+span.link {
+	color: #888;
+}
+
 span.link, span.link a {
 	font-family: sans-serif;
-	font-size: 11px;
+	font-size: 11px;	
 }
 
 span.link em, div.link span em {
 	font-style: normal;
 	font-family: sans-serif;
-	font-size: 11px;
+	font-size: 11px;	
 }
 
 div.page_header {
