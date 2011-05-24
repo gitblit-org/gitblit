@@ -2,7 +2,7 @@
 Git:Blit is an open-source, integrated pure Java stack for managing, viewing, and serving [Git][git] repositories.
 Its designed primarily as a tool for small workgroups who want to host [Git][git] repositories on a Windows machine.  Having said that, it works equally well on any standard Linux distribution.
  
-### Current Version
+### Current Release
 
 [%VERSION%](http://gitblit.com/%DISTRIBUTION%) based on [%JGIT%][jgit] &nbsp; (*%BUILDDATE%*)
 
@@ -27,11 +27,12 @@ sources @ [Github][gitbltsrc]
     </ul>
 - Gitweb inspired UI
 - Administrators may create, edit, rename, or delete repositories through the web UI
-- Administrators may create, edit, or delete users through the web UI
+- Administrators may create, edit, rename, or delete users through the web UI
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
-- Dates can optionally be displayed using the browser''s reported timezone
+- Dates can optionally be displayed using the browser's reported timezone
 - Author and Committer email address display can be controlled
+- Realtime zip downloads feature
 - Markdown view support
 - Syntax highlighting
 - Customizable regular expression handling for commit messages
@@ -56,7 +57,6 @@ sources @ [Github][gitbltsrc]
     - users.properties access
     - available repositories
     - etc
-- Download zip feature
 - Site documentation
 - Code documentation
 - Unit testing
@@ -68,7 +68,7 @@ sources @ [Github][gitbltsrc]
 - View images on Blob page
 - View other binary files on Blob page
 - Markdown editing feature
-- Blame feature (waiting for the [JGit][jgit] team to do the hard part)
+- Blame (waiting for the [JGit][jgit] team to do the hard part)
 
 ### License
 TBD
