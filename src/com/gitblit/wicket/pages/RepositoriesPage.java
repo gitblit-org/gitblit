@@ -46,7 +46,6 @@ public class RepositoriesPage extends BasePage {
 		String cachedMessage = GitBlitWebSession.get().clearErrorMessage();
 		if (!StringUtils.isEmpty(cachedMessage)) {
 			error(cachedMessage);
-			System.out.println("displayed message");
 		}
 
 		// Load the markdown welcome message

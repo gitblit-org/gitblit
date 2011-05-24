@@ -35,6 +35,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -65,6 +66,7 @@ public abstract class RepositoryPage extends BasePage {
 			put("tags", "gb.tags");
 			put("tree", "gb.tree");
 			put("tickets", "gb.tickets");
+			put("edit", "gb.edit");
 		}
 	};
 
@@ -90,14 +92,27 @@ public abstract class RepositoryPage extends BasePage {
 		// per-repository extra page links
 		List<String> extraPageLinks = new ArrayList<String>();
 
-		// Conditionally add tickets page
+		// Conditionally add tickets link
 		if (model.useTickets && JGitUtils.getTicketsBranch(r) != null) {
 			extraPageLinks.add("tickets");
 		}
 
-		// Conditionally add docs page
+		// Conditionally add docs link
 		if (model.useDocs) {
 			extraPageLinks.add("docs");
+		}
+
+		final boolean showAdmin;
+		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
+		} else {
+			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+		}
+		
+		// Conditionally add edit link
+		if (showAdmin || GitBlitWebSession.get().isLoggedIn() && (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get().getUser().getUsername()))) {
+			extraPageLinks.add("edit");
 		}
 
 		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extraPageLinks);
@@ -112,6 +127,9 @@ public abstract class RepositoryPage extends BasePage {
 				} else if (extra.equals("docs")) {
 					item.add(new Label("extraSeparator", " | "));
 					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+				} else if (extra.equals("edit")) {
+					item.add(new Label("extraSeparator", " | "));
+					item.add(new LinkPanel("extraLink", null, getString("gb.edit"), EditRepositoryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};

@@ -33,5 +33,10 @@ public class RepositoryModel implements Serializable {
 		this.owner = owner;
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

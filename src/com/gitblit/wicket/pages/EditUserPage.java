@@ -67,6 +67,7 @@ public class EditUserPage extends BasePage {
 				repos.add(repo);
 			}
 		}
+		final String oldName = userModel.getUsername();
 		final Palette<String> repositories = new Palette<String>("repositories", new ListModel<String>(userModel.getRepositories()), new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
@@ -87,7 +88,7 @@ public class EditUserPage extends BasePage {
 				if (isCreate) {
 					UserModel model = GitBlit.self().getUserModel(username);
 					if (model != null) {
-						error(MessageFormat.format("Username {0} is unavailable.", username));
+						error(MessageFormat.format("Username ''{0}'' is unavailable.", username));
 						return;
 					}
 				}
@@ -108,14 +109,11 @@ public class EditUserPage extends BasePage {
 						return;
 					}
 					
-					// Optionally encrypt/obfuscate the password.
+					// Optionally store the password MD5 digest.
 					String type = GitBlit.self().settings().getString(Keys.realm.passwordStorage, "md5");
 					if (type.equalsIgnoreCase("md5")) {
-						// store MD5 checksum of password
+						// store MD5 digest of password
 						userModel.setPassword(MD5.digest(userModel.getPassword()));
-					} else if (type.equalsIgnoreCase("crypt")) {
-						// simple unix encryption
-						userModel.setPassword(Crypt.crypt(userModel.getUsername(), userModel.getPassword()));
 					}
 				}
 
@@ -126,7 +124,7 @@ public class EditUserPage extends BasePage {
 				}
 				userModel.setRepositories(repos);
 				try {
-					GitBlit.self().editUserModel(userModel, isCreate);
+					GitBlit.self().editUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;
@@ -134,7 +132,7 @@ public class EditUserPage extends BasePage {
 				setRedirect(false);
 				if (isCreate) {
 					// create another user
-					info(MessageFormat.format("New user {0} successfully created.", userModel.getUsername()));
+					info(MessageFormat.format("New user ''{0}'' successfully created.", userModel.getUsername()));
 					setResponsePage(EditUserPage.class);
 				} else {
 					// back to home
@@ -144,7 +142,7 @@ public class EditUserPage extends BasePage {
 		};
 
 		// field names reflective match UserModel fields
-		form.add(new TextField<String>("username").setEnabled(isCreate));
+		form.add(new TextField<String>("username"));
 		PasswordTextField passwordField = new PasswordTextField("password");
 		passwordField.setResetPassword(false);
 		form.add(passwordField);

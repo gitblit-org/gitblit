@@ -9,14 +9,13 @@ import java.util.List;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import javax.servlet.http.Cookie;
 
-import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
+import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,8 +60,12 @@ public class GitBlit implements ServletContextListener {
 		return storedSettings.getBoolean(Keys.web.debugMode, false);
 	}
 
-	public String getCloneUrl(String repositoryName) {
-		return storedSettings.getString(Keys.git.cloneUrl, "https://localhost/git/") + repositoryName;
+	public List<String> getOtherCloneUrls(String repositoryName) {
+		List<String> cloneUrls = new ArrayList<String>();
+		for (String url : storedSettings.getStrings(Keys.git.otherUrls)) {
+			cloneUrls.add(MessageFormat.format(url, repositoryName));
+		}
+		return cloneUrls;
 	}
 
 	public void setLoginService(ILoginService loginService) {
@@ -76,49 +79,31 @@ public class GitBlit implements ServletContextListener {
 		return loginService.authenticate(username, password);
 	}
 
-	public UserModel authenticate(Cookie[] cookies) {
-		if (loginService == null) {
-			return null;
-		}
-		if (cookies != null && cookies.length > 0) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals(Constants.NAME)) {
-					String value = cookie.getValue();
-					return loginService.authenticate(value.toCharArray());
-				}
-			}
-		}
-		return null;
-	}
-
-	public void setCookie(WebResponse response, UserModel user) {
-		Cookie userCookie = new Cookie(Constants.NAME, user.getCookie());
-		userCookie.setMaxAge(Integer.MAX_VALUE);
-		userCookie.setPath("/");
-		response.addCookie(userCookie);
-	}
-	
 	public List<String> getAllUsernames() {
-		List<String> names = loginService.getAllUsernames();
+		List<String> names = new ArrayList<String>(loginService.getAllUsernames());
 		Collections.sort(names);
 		return names;
+	}
+
+	public boolean deleteUser(String username) {
+		return loginService.deleteUser(username);
 	}
 
 	public UserModel getUserModel(String username) {
 		UserModel user = loginService.getUserModel(username);
 		return user;
 	}
-	
+
 	public List<String> getRepositoryUsers(RepositoryModel repository) {
 		return loginService.getUsernamesForRole(repository.name);
 	}
-	
+
 	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
 		return loginService.setUsernamesForRole(repository.name, repositoryUsers);
 	}
 
-	public void editUserModel(UserModel user, boolean isCreate) throws GitBlitException {
-		if (!loginService.updateUserModel(user)) {
+	public void editUserModel(String username, UserModel user, boolean isCreate) throws GitBlitException {
+		if (!loginService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
 	}
@@ -152,7 +137,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return repositories;
 	}
-	
+
 	public RepositoryModel getRepositoryModel(UserModel user, String repositoryName) {
 		RepositoryModel model = getRepositoryModel(repositoryName);
 		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
@@ -184,7 +169,7 @@ public class GitBlit implements ServletContextListener {
 		r.close();
 		return model;
 	}
-	
+
 	private String getConfig(StoredConfig config, String field, String defaultValue) {
 		String value = config.getString("gitblit", null, field);
 		if (StringUtils.isEmpty(value)) {
@@ -192,21 +177,37 @@ public class GitBlit implements ServletContextListener {
 		}
 		return value;
 	}
-	
+
 	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
 		return config.getBoolean("gitblit", field, defaultValue);
 	}
 
-	public void editRepositoryModel(RepositoryModel repository, boolean isCreate) throws GitBlitException {
+	public void editRepositoryModel(String repositoryName, RepositoryModel repository, boolean isCreate) throws GitBlitException {
 		Repository r = null;
 		if (isCreate) {
 			if (new File(repositoriesFolder, repository.name).exists()) {
-				throw new GitBlitException(MessageFormat.format("Can not create repository {0} because it already exists.", repository.name));
+				throw new GitBlitException(MessageFormat.format("Can not create repository ''{0}'' because it already exists.", repository.name));
 			}
 			// create repository
 			logger.info("create repository " + repository.name);
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name, true);
 		} else {
+			// rename repository
+			if (!repositoryName.equalsIgnoreCase(repository.name)) {
+				File folder = new File(repositoriesFolder, repositoryName);
+				File destFolder = new File(repositoriesFolder, repository.name);
+				if (destFolder.exists()) {
+					throw new GitBlitException(MessageFormat.format("Can not rename repository ''{0}'' to ''{1}'' because ''{1}'' already exists.", repositoryName, repository.name));
+				}
+				if (!folder.renameTo(destFolder)) {
+					throw new GitBlitException(MessageFormat.format("Failed to rename repository ''{0}'' to ''{1}''.", repositoryName, repository.name));
+				}
+				// rename the roles
+				if (!loginService.renameRole(repositoryName, repository.name)) {
+					throw new GitBlitException(MessageFormat.format("Failed to rename repository permissions ''{0}'' to ''{1}''.", repositoryName, repository.name));
+				}
+			}
+
 			// load repository
 			logger.info("edit repository " + repository.name);
 			try {
@@ -233,6 +234,36 @@ public class GitBlit implements ServletContextListener {
 			logger.error("Failed to save repository config!", e);
 		}
 		r.close();
+	}
+
+	public boolean deleteRepositoryModel(RepositoryModel model) {
+		return deleteRepository(model.name);
+	}
+
+	public boolean deleteRepository(String repositoryName) {
+		try {
+			File folder = new File(repositoriesFolder, repositoryName);
+			if (folder.exists() && folder.isDirectory()) {
+				FileUtils.delete(folder, FileUtils.RECURSIVE);
+				if (loginService.deleteRole(repositoryName)) {
+					return true;
+				}
+			}
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to delete repository {0}", repositoryName), t);
+		}
+		return false;
+	}
+
+	public boolean renameRepository(RepositoryModel model, String newName) {
+		File folder = new File(repositoriesFolder, model.name);
+		if (folder.exists() && folder.isDirectory()) {
+			File newFolder = new File(repositoriesFolder, newName);
+			if (folder.renameTo(newFolder)) {
+				return loginService.renameRole(model.name, newName);
+			}
+		}
+		return false;
 	}
 
 	public void configureContext(IStoredSettings settings) {

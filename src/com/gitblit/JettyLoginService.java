@@ -23,7 +23,6 @@ import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.models.UserModel;
 
 public class JettyLoginService extends MappedLoginService implements ILoginService {
@@ -45,7 +44,6 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			return null;
 		}
 		UserModel user = new UserModel(username);
-		user.setCookie(StringUtils.getSHA1((Constants.NAME + username + new String(password))));
 		user.canAdmin(identity.isUserInRole(Constants.ADMIN_ROLE, null));
 
 		// Add repositories
@@ -59,12 +57,6 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			}
 		}
 		return user;
-	}
-
-	@Override
-	public UserModel authenticate(char[] cookie) {
-		// TODO cookie login
-		return null;
 	}
 
 	@Override
@@ -107,6 +99,11 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 	@Override
 	public boolean updateUserModel(UserModel model) {
+		return updateUserModel(model.getUsername(), model);
+	}
+	
+	@Override
+	public boolean updateUserModel(String username, UserModel model) {
 		try {
 			Properties allUsers = readRealmFile();
 			ArrayList<String> roles = new ArrayList<String>(model.getRepositories());
@@ -125,11 +122,13 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			}
 			// trim trailing comma
 			sb.setLength(sb.length() - 1);
+			allUsers.remove(username);
 			allUsers.put(model.getUsername(), sb.toString());
 
 			writeRealmFile(allUsers);
 
 			// Update login service
+			removeUser(username);
 			putUser(model.getUsername(), Credential.getCredential(model.getPassword()), roles.toArray(new String[0]));
 			return true;
 		} catch (Throwable t) {
@@ -140,21 +139,26 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 	@Override
 	public boolean deleteUserModel(UserModel model) {
+		return deleteUser(model.getUsername());
+	}
+
+	@Override
+	public boolean deleteUser(String username) {
 		try {
 			// Read realm file
 			Properties allUsers = readRealmFile();
-			allUsers.remove(model.getUsername());
+			allUsers.remove(username);
 			writeRealmFile(allUsers);
 
 			// Drop user from map
-			_users.remove(model.getUsername());
+			removeUser(username);
 			return true;
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to delete user model {0}!", model.getUsername()), t);
+			logger.error(MessageFormat.format("Failed to delete user {0}!", username), t);
 		}
 		return false;
 	}
-
+	
 	@Override
 	public List<String> getAllUsernames() {
 		List<String> list = new ArrayList<String>();
@@ -366,6 +370,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 			// persist changes
 			writeRealmFile(allUsers);
+			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to delete role {0}!", role), t);
 		}

@@ -40,9 +40,13 @@ public class StringUtils {
 	}
 
 	public static String flattenStrings(List<String> values) {
+		return flattenStrings(values, " ");
+	}
+
+	public static String flattenStrings(List<String> values, String separator) {
 		StringBuilder sb = new StringBuilder();
 		for (String value : values) {
-			sb.append(value).append(" ");
+			sb.append(value).append(separator);
 		}
 		return sb.toString().trim();
 	}

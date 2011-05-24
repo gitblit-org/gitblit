@@ -36,6 +36,8 @@ public class EditRepositoryPage extends BasePage {
 
 	private final boolean isCreate;
 
+	private boolean isAdmin = false;
+	
 	public EditRepositoryPage() {
 		// create constructor
 		super();
@@ -67,6 +69,7 @@ public class EditRepositoryPage extends BasePage {
 			}
 		}
 
+		final String oldName = repositoryModel.name;
 		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()), new ChoiceRenderer<String>("", ""), 10, false);
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(repositoryModel);
 		Form<RepositoryModel> form = new Form<RepositoryModel>("editForm", model) {
@@ -94,7 +97,7 @@ public class EditRepositoryPage extends BasePage {
 								ok |= c == vc;
 							}
 							if (!ok) {
-								error(MessageFormat.format("Illegal character '{0}' in repository name!", c));
+								error(MessageFormat.format("Illegal character ''{0}'' in repository name!", c));
 								return;
 							}
 						}
@@ -107,7 +110,7 @@ public class EditRepositoryPage extends BasePage {
 					}
 
 					// save the repository
-					GitBlit.self().editRepositoryModel(repositoryModel, isCreate);
+					GitBlit.self().editRepositoryModel(oldName, repositoryModel, isCreate);
 
 					// save the repository access list
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
@@ -117,7 +120,7 @@ public class EditRepositoryPage extends BasePage {
 							repositoryUsers.add(users.next());
 						}
 						// ensure the owner is added to the user list
-						if (!repositoryUsers.contains(repositoryModel.owner)) {
+						if (repositoryModel.owner != null && !repositoryUsers.contains(repositoryModel.owner)) {
 							repositoryUsers.add(repositoryModel.owner);
 						}
 						GitBlit.self().setRepositoryUsers(repositoryModel, repositoryUsers);
@@ -132,7 +135,7 @@ public class EditRepositoryPage extends BasePage {
 		};
 
 		// field names reflective match RepositoryModel fields
-		form.add(new TextField<String>("name").setEnabled(isCreate));
+		form.add(new TextField<String>("name").setEnabled(isCreate || isAdmin));
 		form.add(new TextField<String>("description"));
 		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames()).setEnabled(GitBlitWebSession.get().canAdmin()));
 		form.add(new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer()));
@@ -175,6 +178,7 @@ public class EditRepositoryPage extends BasePage {
 					// Edit Repository
 					if (user.canAdmin()) {
 						// Admins can edit everything
+						isAdmin = true;
 						return;
 					} else {
 						if (!model.owner.equalsIgnoreCase(user.getUsername())) {

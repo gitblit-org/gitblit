@@ -3,10 +3,14 @@ package com.gitblit.wicket.pages;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.Chart;
@@ -19,10 +23,12 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
@@ -67,25 +73,45 @@ public class SummaryPage extends RepositoryPage {
 		} else {
 			add(new Label("repositoryStats", MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
 		}
-		
-		AccessRestrictionType accessRestriction = getRepositoryModel().accessRestriction;
-		switch (accessRestriction) {
-		case NONE:
-			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
-			break;
-		case PUSH:
-			add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", getAccessRestrictions().get(accessRestriction)));
-			break;
-		case CLONE:
-			add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", getAccessRestrictions().get(accessRestriction)));
-			break;
-		case VIEW:
-			add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", getAccessRestrictions().get(accessRestriction)));
-			break;
-		default:
+
+		List<String> repositoryUrls = new ArrayList<String>();
+
+		if (GitBlit.self().settings().getBoolean(Keys.git.enableGitServlet, true)) {
+			AccessRestrictionType accessRestriction = getRepositoryModel().accessRestriction;
+			switch (accessRestriction) {
+			case NONE:
+				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+				break;
+			case PUSH:
+				add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				break;
+			case CLONE:
+				add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				break;
+			case VIEW:
+				add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				break;
+			default:
+				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+			}
+
+			HttpServletRequest req = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
+			StringBuilder sb = new StringBuilder();
+			sb.append(req.getScheme());
+			sb.append("://");
+			sb.append(req.getServerName());
+			if ((req.getScheme().equals("http") && req.getServerPort() != 80) || (req.getScheme().equals("https") && req.getServerPort() != 443)) {
+				sb.append(":" + req.getServerPort());
+			}
+			sb.append(Constants.GIT_SERVLET_PATH);
+			sb.append(repositoryName);
+			repositoryUrls.add(sb.toString());
+		} else {
 			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
-		add(new Label("repositoryCloneUrl", GitBlit.self().getCloneUrl(repositoryName)));
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
+
+		add(new Label("repositoryCloneUrl", StringUtils.flattenStrings(repositoryUrls, "<br/>")).setEscapeModelStrings(false));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
@@ -113,9 +139,9 @@ public class SummaryPage extends RepositoryPage {
 			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
-			provider.setLineStyles(new LineStyle[] {new LineStyle(2, 4, 0), new LineStyle(0, 4, 1)});	
+			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
 			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.BLUE, 1, -1, 5));
-			
+
 			add(new Chart("commitsChart", provider));
 		} else {
 			add(WicketUtils.newBlankImage("commitsChart"));

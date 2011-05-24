@@ -10,7 +10,6 @@ public class UserModel implements Serializable {
 
 	private String username;
 	private String password;
-	private String cookie;
 	private boolean canAdmin = false;
 	private List<String> repositories = new ArrayList<String>();
 
@@ -42,14 +41,6 @@ public class UserModel implements Serializable {
 		return canAdmin || repositories.contains(repositoryName);
 	}
 
-	public void setCookie(String cookie) {
-		this.cookie = cookie;
-	}
-
-	public String getCookie() {
-		return cookie;
-	}
-
 	public void setRepositories(List<String> repositories) {
 		this.repositories.clear();
 		this.repositories.addAll(repositories);
@@ -63,6 +54,7 @@ public class UserModel implements Serializable {
 		return repositories;
 	}
 
+	@Override
 	public String toString() {
 		return username;
 	}
