@@ -1,5 +1,5 @@
 ## Overview
-Git:Blit is an open-source, integrated pure Java stack for managing, viewing, and serving [Git][git] repositories.
+Gitblit is an open-source, integrated pure Java stack for managing, viewing, and serving [Git][git] repositories.
 Its designed primarily as a tool for small workgroups who want to host [Git][git] repositories on a Windows machine.  Having said that, it works equally well on any standard Linux distribution.
  
 ### Current Release
@@ -9,9 +9,9 @@ Its designed primarily as a tool for small workgroups who want to host [Git][git
 sources @ [Github][gitbltsrc]
 
 ### Design Principles
-1. [KISS](http://en.wikipedia.org/wiki/KISS_principle)
+1. [Keep It Simple, Stupid](http://en.wikipedia.org/wiki/KISS_principle)
 2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
-3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to keep the Git:Blit distribution svelte.  
+3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to keep the Gitblit distribution svelte.  
 
 ### Features
 - Out-of-the-box integrated stack requiring minimal configuration
@@ -32,7 +32,7 @@ sources @ [Github][gitbltsrc]
 - Automatically generates a self-signed certificate for https communications
 - Dates can optionally be displayed using the browser's reported timezone
 - Author and Committer email address display can be controlled
-- Realtime zip downloads feature
+- Dynamic zip downloads feature
 - Markdown view support
 - Syntax highlighting
 - Customizable regular expression handling for commit messages
@@ -49,15 +49,14 @@ sources @ [Github][gitbltsrc]
 - HTTP/HTTPS are the only supported protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
-- Git:Blit is an integrated, full-stack solution.  There is no WAR build at this time.
+- Gitblit is an integrated, full-stack solution.  There is no WAR build at this time.
 
 ### Todo List
-- Review spots where Git:Blit can cache data instead of abusing the disk
+- Review spots where Gitblit can cache data instead of abusing the disk
     - stats
     - users.properties access
     - available repositories
     - etc
-- Site documentation
 - Code documentation
 - Unit testing
 
@@ -71,7 +70,7 @@ sources @ [Github][gitbltsrc]
 - Blame (waiting for the [JGit][jgit] team to do the hard part)
 
 ### License
-TBD
+Licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 ### Inspirations
 - [Gitweb](http://www.git-scm.com)
@@ -82,7 +81,7 @@ TBD
 ![block diagram](architecture.png "Git Blit Architecture")
 
 ### Bundled Dependencies
-The following dependencies are bundled with the Git:Blit zip distribution file.
+The following dependencies are bundled with the Gitblit zip distribution file.
 
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [JavaService](http://forge.ow2.org/projects/javaservice) (BSD and LGPL)
@@ -91,7 +90,7 @@ The following dependencies are bundled with the Git:Blit zip distribution file.
 - other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
 
 ### Downloaded Dependencies
-The following dependencies are automatically downloaded from the Apache Maven repository and from the Eclipse Maven repository when Git:Blit is launched for the first time.
+The following dependencies are automatically downloaded from the Apache Maven repository and from the Eclipse Maven repository when Gitblit is launched for the first time.
 
 - [JGit][jgit] (EDL 1.0)
 - [Wicket](http://wicket.apache.org) (Apache 2.0)
@@ -117,7 +116,7 @@ The following dependencies are automatically downloaded from the Apache Maven re
 4. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
 5. Review the settings in `gitblit.properties` in your project root.<br/>
 Make sure you set an appropriate value for *git.repositoriesFolder*. 
-6. Execute the *com.gitblit.Launcher* class to start Git:Blit.
+6. Execute the *com.gitblit.Launcher* class to start Gitblit.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"

@@ -13,7 +13,7 @@
 			<format property="gb.buildDate" pattern="yyyy-MM-dd" />
 		</tstamp>
 
-		<!-- extract Git:Blit version number from source code -->
+		<!-- extract Gitblit version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
 				<linecontains>
@@ -42,7 +42,7 @@
 				</tokenfilter>
 			</filterchain>
 		</loadfile>
-		<echo>Building Git:Blit ${gb.version}</echo>
+		<echo>Building Gitblit ${gb.version}</echo>
 
 		<!-- copy required distribution files to project folder -->
 		<copy todir="${basedir}" overwrite="false">
@@ -123,7 +123,7 @@
 		<delete dir="${basedir}/site" />
 		<mkdir dir="${basedir}/site" />
 		<copy todir="${basedir}/site">
-			<!-- Copy selected Git:Blit resources -->
+			<!-- Copy selected Gitblit resources -->
 			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
 				<include name="background.png" />
 				<include name="gitblit.css" />

@@ -1,34 +1,37 @@
 ## Frequently Asked Questions
 
-### Git:Blit?  What kind of name is that?
+### Gitblit?  What kind of name is that?
 Its a phonetic play on [bitblt][bitblt] which is an image processing operation meaning *bit-block transfer*.
 
-### Why use Git:Blit?
+### Why use Gitblit?
 Its small.  Its portable.  Its easy to manage.
 
 ### Do I need real Git?
-No.  Git:Blit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
-Everything you need for Git:Blit is either in the zip distribution file or automatically downloaded on execution. 
+No.  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
+Everything you need for Gitblit is either in the zip distribution file or automatically downloaded on execution.
 
-### Does Git:Blit use a database to store its data?
-No.  Git:Blit stores its repository configuration information within the `.git/config` file and its user information in `users.properties` or whatever filename is configured in `gitblit.properties`.
+### Do I need a JDK or can I use a JRE?
+Gitblit will run just fine with a JRE.  Gitblit can optionally use `keytool` from the JDK to generate self-signed certificates, but normally Gitblit uses [BouncyCastle][bouncycastle] for that need.
 
-### I want to deploy Git:Blit into my own servlet container.  Where is the WAR?
+### Does Gitblit use a database to store its data?
+No.  Gitblit stores its repository configuration information within the `.git/config` file and its user information in `users.properties` or whatever filename is configured in `gitblit.properties`.
+
+### I want to deploy Gitblit into my own servlet container.  Where is the WAR?
 At this time there is no WAR build available.
 
 ### Can I restrict access to paths within a repository?
 No.  Access restrictions apply to the repository as a whole.
 
-Git:Blit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).  Should you require more fine-grained access controls you might consider using [gitolite](https://github.com/sitaramc/gitolite).
+Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).  Should you require more fine-grained access controls you might consider using [gitolite](https://github.com/sitaramc/gitolite).
 
-### Why doesn't Git:Blit support SSH?
-Git:Blit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Git:Blit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>
+### Why doesn't Gitblit support SSH?
+Gitblit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Gitblit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>
 SSH support requires creating, exchanging, and managing SSH keys.  While this is possible, JGit's SmartHTTP implementation is a simpler and cleaner transport mechanism.
 
 You might consider running [Gerrit](http://gerrit.googlecode.org) which does integrate [Apache Mina][mina] and supports SSH or you might consider serving [Git][git] on Linux which would offer real SSH support and also allow use of [many other compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools).
 
-### What types of Search does Git:Blit support?
-Git:Blit supports case-insensitive searches of *commit message* (default), *author*, and *committer*.<br/>
+### What types of Search does Gitblit support?
+Gitblit supports case-insensitive searches of *commit message* (default), *author*, and *committer*.<br/>
 
 To search by *author* or *committer* use the following syntax in the search box:
 
@@ -37,11 +40,12 @@ To search by *author* or *committer* use the following syntax in the search box:
     
 Alternatively, you could enable the search type dropdown list in your `gitblit.properties` file.
 
-### How do I run Git:Blit on port 80 or 443 in Linux?
+### How do I run Gitblit on port 80 or 443 in Linux?
 Linux requires root permissions to serve on ports < 1024.<br/>
 Run the server as *root* (security concern) or change the ports you are serving to 8080 (http) and/or 8443 (https). 
 
 [bitblt]: http://en.wikipedia.org/wiki/Bit_blit "Wikipedia Bitblt"
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
-[mina]: http://mina.apache.org " Apache Mina"
+[mina]: http://mina.apache.org "Apache Mina"
+[bouncycastle]: http://bouncycastle.org "The Legion of the Bouncy Castle"

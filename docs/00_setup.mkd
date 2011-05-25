@@ -1,6 +1,6 @@
 ## Setup and Configuration
 
-1. Download and unzip [%VERSION%](http://gitblit.com/%DISTRIBUTION%).<br/>
+1. Download and unzip [Gitblit %VERSION%](http://gitblit.com/%DISTRIBUTION%).<br/>
 *Its best to eliminate spaces in the path name as that can cause troubleshooting headaches.* 
 2. The server itself is configured through a simple text file.<br/>
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
@@ -51,7 +51,7 @@ Whitespace is illegal.
 User passwords are CASE-SENSITIVE and may be *plain* or *md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
 #### User Roles
-There is only one actual *role* in Git:Blit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
+There is only one actual *role* in Gitblit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
 ### Creating your own Self-Signed Certificate
 
@@ -59,8 +59,8 @@ Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd` script a
 **NOTE:** The certificate password AND the keystore password must match!
 
 ### Running as a Service
-Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your JVM.<br/>
-Set the *JDK* variable in the script to the location of your JDK, add any necessary start parameters, and execute the script.
+Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your installed Java Virtual Machine.<br/>
+Set the *JVM* variable in the script to the location of your Java Virtual Machine, add any necessary start parameters, and execute the script.
 
 #### Command-Line Parameters
     --tempFolder           Server temp folder
