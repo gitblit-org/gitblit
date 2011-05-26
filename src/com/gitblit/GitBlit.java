@@ -93,7 +93,7 @@ public class GitBlit implements ServletContextListener {
 
 	public List<String> getOtherCloneUrls(String repositoryName) {
 		List<String> cloneUrls = new ArrayList<String>();
-		for (String url : storedSettings.getStrings(Keys.git.otherUrls)) {
+		for (String url : storedSettings.getStrings(Keys.web.otherUrls)) {
 			cloneUrls.add(MessageFormat.format(url, repositoryName));
 		}
 		return cloneUrls;
