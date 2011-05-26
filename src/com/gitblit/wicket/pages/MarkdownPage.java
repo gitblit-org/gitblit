@@ -30,7 +30,7 @@ import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 
 public class MarkdownPage extends RepositoryPage {
-	
+
 	public MarkdownPage(PageParameters params) {
 		super(params);
 
@@ -41,11 +41,14 @@ public class MarkdownPage extends RepositoryPage {
 
 		// markdown page links
 		add(new Label("blameLink", getString("gb.blame")));
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
-		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
-		add(new BookmarkablePageLink<Void>("headLink", MarkdownPage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, markdownPath)));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
+		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
+				repositoryName, objectId, markdownPath)));
+		add(new BookmarkablePageLink<Void>("headLink", MarkdownPage.class,
+				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, markdownPath)));
 
-		// Read raw markdown content and transform it to html		
+		// Read raw markdown content and transform it to html
 		String markdownText = JGitUtils.getRawContentAsString(r, commit, markdownPath);
 		String htmlText;
 		try {
@@ -54,7 +57,7 @@ public class MarkdownPage extends RepositoryPage {
 			error(p.getMessage());
 			htmlText = markdownText;
 		}
-		
+
 		// Add the html to the page
 		add(new Label("markdownText", htmlText).setEscapeModelStrings(false));
 	}

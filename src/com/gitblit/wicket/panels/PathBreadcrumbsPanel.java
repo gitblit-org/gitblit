@@ -33,9 +33,10 @@ public class PathBreadcrumbsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String ROOT = "--ROOT--";
+	private static final String ROOT = "--ROOT--";
 
-	public PathBreadcrumbsPanel(String id, final String repositoryName, String pathName, final String objectId) {
+	public PathBreadcrumbsPanel(String id, final String repositoryName, String pathName,
+			final String objectId) {
 		super(id);
 		List<BreadCrumb> crumbs = new ArrayList<BreadCrumb>();
 		crumbs.add(new BreadCrumb("[" + repositoryName + "]", ROOT, false));
@@ -47,8 +48,8 @@ public class PathBreadcrumbsPanel extends Panel {
 			for (int i = 0; i < paths.length; i++) {
 				String path = paths[i];
 				sb.append(path);
-				crumbs.add(new BreadCrumb(path, sb.toString(), (i == (paths.length - 1))));
-				sb.append("/");
+				crumbs.add(new BreadCrumb(path, sb.toString(), i == (paths.length - 1)));
+				sb.append('/');
 			}
 		}
 
@@ -63,7 +64,8 @@ public class PathBreadcrumbsPanel extends Panel {
 					item.add(new Label("pathLink", entry.name));
 					item.add(new Label("pathSeparator", "").setVisible(false));
 				} else {
-					item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
+					item.add(new LinkPanel("pathLink", null, entry.name, TreePage.class,
+							WicketUtils.newPathParameter(repositoryName, objectId, path)));
 					item.add(new Label("pathSeparator", "/"));
 				}
 			}
@@ -71,7 +73,7 @@ public class PathBreadcrumbsPanel extends Panel {
 		add(pathsView);
 	}
 
-	private class BreadCrumb implements Serializable {
+	private static class BreadCrumb implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 

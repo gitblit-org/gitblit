@@ -51,12 +51,13 @@ public class HistoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean hasMore = false;
+	private boolean hasMore;
 
-	public HistoryPanel(String wicketId, final String repositoryName, final String objectId, final String path, Repository r, int limit, int pageOffset) {
+	public HistoryPanel(String wicketId, final String repositoryName, final String objectId,
+			final String path, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -77,7 +78,8 @@ public class HistoryPanel extends BasePanel {
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set
-			commits = JGitUtils.getRevLog(r, objectId, path, pageOffset * itemsPerPage, itemsPerPage);
+			commits = JGitUtils.getRevLog(r, objectId, path, pageOffset * itemsPerPage,
+					itemsPerPage);
 		} else {
 			// Fixed size result set
 			commits = JGitUtils.getRevLog(r, objectId, path, 0, limit);
@@ -95,7 +97,7 @@ public class HistoryPanel extends BasePanel {
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
@@ -105,7 +107,9 @@ public class HistoryPanel extends BasePanel {
 
 				// author search link
 				String author = entry.getAuthorIdent().getName();
-				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, author, SearchType.AUTHOR));
+				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
+						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+								author, SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
 
@@ -118,7 +122,9 @@ public class HistoryPanel extends BasePanel {
 
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
-				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
+				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
+						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
+								repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
@@ -128,14 +134,20 @@ public class HistoryPanel extends BasePanel {
 
 				if (isTree) {
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
-					links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
+							.newObjectParameter(repositoryName, entry.getName())));
+					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
 				} else {
 					Fragment links = new Fragment("historyLinks", "blobLinks", this);
-					links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.getName(), path)));
-					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class, WicketUtils.newBlobDiffParameter(repositoryName, entry.getName(), objectId, path)).setEnabled(counter > 0));
+					links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.getName(), path)));
+					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class,
+							WicketUtils.newBlobDiffParameter(repositoryName, entry.getName(),
+									objectId, path)).setEnabled(counter > 0));
 					item.add(links);
 				}
 
@@ -157,7 +169,9 @@ public class HistoryPanel extends BasePanel {
 				// more
 				if (commits.size() == limit) {
 					// show more
-					add(new LinkPanel("moreHistory", "link", new StringResourceModel("gb.moreHistory", this, null), HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
+					add(new LinkPanel("moreHistory", "link", new StringResourceModel(
+							"gb.moreHistory", this, null), HistoryPage.class,
+							WicketUtils.newPathParameter(repositoryName, objectId, path)));
 				} else {
 					// no more
 					add(new Label("moreHistory", "").setVisible(false));

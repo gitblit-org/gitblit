@@ -51,7 +51,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		String[] chunks = name.split("_");
 		if (chunks.length == 3) {
-			date = new Date(Long.parseLong(chunks[0]) * 1000l);
+			date = new Date(Long.parseLong(chunks[0]) * 1000L);
 			title = chunks[1].replace('-', ' ');
 		}
 	}
@@ -71,15 +71,43 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public Comment(String filename, String content) throws ParseException {
 			String[] chunks = filename.split("_", -1);
-			this.date = new Date(Long.parseLong(chunks[1]) * 1000l);
+			this.date = new Date(Long.parseLong(chunks[1]) * 1000L);
 			this.author = chunks[2];
 			this.text = content;
+		}
+
+		@Override
+		public int hashCode() {
+			return text.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof Comment) {
+				Comment other = (Comment) o;
+				return text.equals(other.text);
+			}
+			return super.equals(o);
 		}
 
 		@Override
 		public int compareTo(Comment o) {
 			return date.compareTo(o.date);
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof TicketModel) {
+			TicketModel other = (TicketModel) o;
+			return id.equals(other.id);
+		}
+		return super.equals(o);
 	}
 
 	@Override

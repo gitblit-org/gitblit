@@ -66,7 +66,8 @@ public class BuildSite {
 			aliasMap.put(values[0], values[1]);
 		}
 
-		System.out.println(MessageFormat.format("Generating site from {0} Markdown Docs in {1} ", markdownFiles.length, sourceFolder.getAbsolutePath()));
+		System.out.println(MessageFormat.format("Generating site from {0} Markdown Docs in {1} ",
+				markdownFiles.length, sourceFolder.getAbsolutePath()));
 		String linkPattern = "<a href=''{0}''>{1}</a>";
 		StringBuilder sb = new StringBuilder();
 		for (File file : markdownFiles) {
@@ -82,24 +83,26 @@ public class BuildSite {
 		sb.setLength(sb.length() - 3);
 		sb.trimToSize();
 
-		String html_header = readContent(new File(params.pageHeader));
-		String html_footer = readContent(new File(params.pageFooter));
+		String htmlHeader = readContent(new File(params.pageHeader));
+		String htmlFooter = readContent(new File(params.pageFooter));
 		final String links = sb.toString();
-		final String header = MessageFormat.format(html_header, Constants.FULL_NAME, links);
+		final String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-		final String footer = MessageFormat.format(html_footer, "generated " + date);
+		final String footer = MessageFormat.format(htmlFooter, "generated " + date);
 		for (File file : markdownFiles) {
 			try {
 				String documentName = getDocumentName(file);
 				String fileName = documentName + ".html";
 				System.out.println(MessageFormat.format("  {0} => {1}", file.getName(), fileName));
-				InputStreamReader reader = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+				InputStreamReader reader = new InputStreamReader(new FileInputStream(file),
+						Charset.forName("UTF-8"));
 				String content = MarkdownUtils.transformMarkdown(reader);
 				for (String token : params.substitutions) {
-					String [] kv = token.split("=");
+					String[] kv = token.split("=");
 					content = content.replace(kv[0], kv[1]);
 				}
-				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(destinationFolder, fileName)), Charset.forName("UTF-8"));
+				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(
+						destinationFolder, fileName)), Charset.forName("UTF-8"));
 				writer.write(header);
 				writer.write(content);
 				writer.write(footer);
@@ -115,7 +118,8 @@ public class BuildSite {
 	private static String readContent(File file) {
 		StringBuilder sb = new StringBuilder();
 		try {
-			InputStreamReader is = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
+			InputStreamReader is = new InputStreamReader(new FileInputStream(file),
+					Charset.forName("UTF-8"));
 			BufferedReader reader = new BufferedReader(is);
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -130,13 +134,14 @@ public class BuildSite {
 	}
 
 	private static String getDocumentName(File file) {
-		String displayName = file.getName().substring(0, file.getName().lastIndexOf('.')).toLowerCase();
+		String displayName = file.getName().substring(0, file.getName().lastIndexOf('.'))
+				.toLowerCase();
 		// trim leading ##_ which is to control display order
 		return displayName.substring(3);
 	}
 
 	private static void usage(JCommander jc, ParameterException t) {
-		System.out.println(Constants.getRunningVersion());
+		System.out.println(Constants.getGitBlitVersion());
 		System.out.println();
 		if (t != null) {
 			System.out.println(t.getMessage());

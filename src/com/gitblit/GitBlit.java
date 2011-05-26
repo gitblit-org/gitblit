@@ -42,7 +42,7 @@ import com.gitblit.wicket.models.UserModel;
 
 public class GitBlit implements ServletContextListener {
 
-	private final static GitBlit gitblit;
+	private static final GitBlit GITBLIT;
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
@@ -57,18 +57,34 @@ public class GitBlit implements ServletContextListener {
 	private IStoredSettings storedSettings;
 
 	static {
-		gitblit = new GitBlit();
-	}
-
-	public static GitBlit self() {
-		return gitblit;
+		GITBLIT = new GitBlit();
 	}
 
 	private GitBlit() {
 	}
 
-	public IStoredSettings settings() {
-		return storedSettings;
+	public static GitBlit self() {
+		return GITBLIT;
+	}
+
+	public static boolean getBoolean(String key, boolean defaultValue) {
+		return GITBLIT.storedSettings.getBoolean(key, defaultValue);
+	}
+
+	public static int getInteger(String key, int defaultValue) {
+		return GITBLIT.storedSettings.getInteger(key, defaultValue);
+	}
+
+	public static String getString(String key, String defaultValue) {
+		return GITBLIT.storedSettings.getString(key, defaultValue);
+	}
+
+	public static List<String> getStrings(String key) {
+		return GITBLIT.storedSettings.getStrings(key);
+	}
+
+	public static List<String> getAllKeys(String startingWith) {
+		return GITBLIT.storedSettings.getAllKeys(startingWith);
 	}
 
 	public boolean isDebugMode() {
@@ -117,14 +133,16 @@ public class GitBlit implements ServletContextListener {
 		return loginService.setUsernamesForRole(repository.name, repositoryUsers);
 	}
 
-	public void editUserModel(String username, UserModel user, boolean isCreate) throws GitBlitException {
+	public void editUserModel(String username, UserModel user, boolean isCreate)
+			throws GitBlitException {
 		if (!loginService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
 	}
 
 	public List<String> getRepositoryList() {
-		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll, storedSettings.getBoolean(Keys.git.nestedRepositories, true));
+		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll,
+				storedSettings.getBoolean(Keys.git.nestedRepositories, true));
 	}
 
 	public Repository getRepository(String repositoryName) {
@@ -133,7 +151,8 @@ public class GitBlit implements ServletContextListener {
 			r = repositoryResolver.open(null, repositoryName);
 		} catch (RepositoryNotFoundException e) {
 			r = null;
-			logger.error("GitBlit.getRepository(String) failed to find repository " + repositoryName);
+			logger.error("GitBlit.getRepository(String) failed to find repository "
+					+ repositoryName);
 		} catch (ServiceNotEnabledException e) {
 			r = null;
 			e.printStackTrace();
@@ -177,7 +196,8 @@ public class GitBlit implements ServletContextListener {
 			model.owner = getConfig(config, "owner", "");
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
-			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config, "accessRestriction", null));
+			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
+					"accessRestriction", null));
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 		}
@@ -197,11 +217,14 @@ public class GitBlit implements ServletContextListener {
 		return config.getBoolean("gitblit", field, defaultValue);
 	}
 
-	public void editRepositoryModel(String repositoryName, RepositoryModel repository, boolean isCreate) throws GitBlitException {
+	public void editRepositoryModel(String repositoryName, RepositoryModel repository,
+			boolean isCreate) throws GitBlitException {
 		Repository r = null;
 		if (isCreate) {
 			if (new File(repositoriesFolder, repository.name).exists()) {
-				throw new GitBlitException(MessageFormat.format("Can not create repository ''{0}'' because it already exists.", repository.name));
+				throw new GitBlitException(MessageFormat.format(
+						"Can not create repository ''{0}'' because it already exists.",
+						repository.name));
 			}
 			// create repository
 			logger.info("create repository " + repository.name);
@@ -212,14 +235,21 @@ public class GitBlit implements ServletContextListener {
 				File folder = new File(repositoriesFolder, repositoryName);
 				File destFolder = new File(repositoriesFolder, repository.name);
 				if (destFolder.exists()) {
-					throw new GitBlitException(MessageFormat.format("Can not rename repository ''{0}'' to ''{1}'' because ''{1}'' already exists.", repositoryName, repository.name));
+					throw new GitBlitException(
+							MessageFormat
+									.format("Can not rename repository ''{0}'' to ''{1}'' because ''{1}'' already exists.",
+											repositoryName, repository.name));
 				}
 				if (!folder.renameTo(destFolder)) {
-					throw new GitBlitException(MessageFormat.format("Failed to rename repository ''{0}'' to ''{1}''.", repositoryName, repository.name));
+					throw new GitBlitException(MessageFormat.format(
+							"Failed to rename repository ''{0}'' to ''{1}''.", repositoryName,
+							repository.name));
 				}
 				// rename the roles
 				if (!loginService.renameRole(repositoryName, repository.name)) {
-					throw new GitBlitException(MessageFormat.format("Failed to rename repository permissions ''{0}'' to ''{1}''.", repositoryName, repository.name));
+					throw new GitBlitException(MessageFormat.format(
+							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
+							repositoryName, repository.name));
 				}
 			}
 
@@ -235,20 +265,23 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		// update settings
-		StoredConfig config = JGitUtils.readConfig(r);
-		config.setString("gitblit", null, "description", repository.description);
-		config.setString("gitblit", null, "owner", repository.owner);
-		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
-		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
-		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.name());
-		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
-		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
-		try {
-			config.save();
-		} catch (IOException e) {
-			logger.error("Failed to save repository config!", e);
+		if (r != null) {
+			StoredConfig config = JGitUtils.readConfig(r);
+			config.setString("gitblit", null, "description", repository.description);
+			config.setString("gitblit", null, "owner", repository.owner);
+			config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
+			config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
+			config.setString("gitblit", null, "accessRestriction",
+					repository.accessRestriction.name());
+			config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
+			config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
+			try {
+				config.save();
+			} catch (IOException e) {
+				logger.error("Failed to save repository config!", e);
+			}
+			r.close();
 		}
-		r.close();
 	}
 
 	public boolean deleteRepositoryModel(RepositoryModel model) {

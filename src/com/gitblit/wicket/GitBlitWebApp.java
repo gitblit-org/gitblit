@@ -20,6 +20,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
@@ -52,7 +53,8 @@ public class GitBlitWebApp extends WebApplication {
 		super.init();
 
 		// Setup page authorization mechanism
-		boolean useAuthentication = GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, false) || GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, false);
+		boolean useAuthentication = GitBlit.getBoolean(Keys.web.authenticateViewPages, false)
+				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, false);
 		if (useAuthentication) {
 			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
@@ -60,39 +62,46 @@ public class GitBlitWebApp extends WebApplication {
 		}
 
 		// Grab Browser info (like timezone, etc)
-		if (GitBlit.self().settings().getBoolean(Keys.web.useClientTimezone, false)) {
+		if (GitBlit.getBoolean(Keys.web.useClientTimezone, false)) {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
 		// setup the standard gitweb-ish urls
-		mount(new MixedParamUrlCodingStrategy("/summary", SummaryPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/log", LogPage.class, new String[] { "r", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tags", TagsPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/branches", BranchesPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/commit", CommitPage.class, new String[] { "r", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tag", TagPage.class, new String[] { "r", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/tree", TreePage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/blob", BlobPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/raw", RawPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/blobdiff", BlobDiffPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/commitdiff", CommitDiffPage.class, new String[] { "r", "h" }));
-		mount(new MixedParamUrlCodingStrategy("/patch", PatchPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/history", HistoryPage.class, new String[] { "r", "h", "f" }));
-		mount(new MixedParamUrlCodingStrategy("/search", SearchPage.class, new String[] { }));
+		mount("/summary", SummaryPage.class, "r");
+		mount("/log", LogPage.class, "r", "h");
+		mount("/tags", TagsPage.class, "r");
+		mount("/branches", BranchesPage.class, "r");
+		mount("/commit", CommitPage.class, "r", "h");
+		mount("/tag", TagPage.class, "r", "h");
+		mount("/tree", TreePage.class, "r", "h", "f");
+		mount("/blob", BlobPage.class, "r", "h", "f");
+		mount("/raw", RawPage.class, "r", "h", "f");
+		mount("/blobdiff", BlobDiffPage.class, "r", "h", "f");
+		mount("/commitdiff", CommitDiffPage.class, "r", "h");
+		mount("/patch", PatchPage.class, "r", "h", "f");
+		mount("/history", HistoryPage.class, "r", "h", "f");
+		mount("/search", SearchPage.class);
 
 		// setup ticket urls
-		mount(new MixedParamUrlCodingStrategy("/tickets", TicketsPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/ticket", TicketPage.class, new String[] { "r", "h", "f" }));
+		mount("/tickets", TicketsPage.class, "r");
+		mount("/ticket", TicketPage.class, "r", "h", "f");
 
 		// setup the markdown urls
-		mount(new MixedParamUrlCodingStrategy("/docs", DocsPage.class, new String[] { "r" }));
-		mount(new MixedParamUrlCodingStrategy("/markdown", MarkdownPage.class, new String[] { "r", "h", "f" }));
-		
+		mount("/docs", DocsPage.class, "r");
+		mount("/markdown", MarkdownPage.class, "r", "h", "f");
+
 		// setup login/logout urls, if we are using authentication
 		if (useAuthentication) {
-			mount(new MixedParamUrlCodingStrategy("/login", LoginPage.class, new String[] {}));
-			mount(new MixedParamUrlCodingStrategy("/logout", LogoutPage.class, new String[] {}));
+			mount("/login", LoginPage.class);
+			mount("/logout", LogoutPage.class);
 		}
+	}
+
+	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
+		if (parameters == null) {
+			parameters = new String[] {};
+		}
+		mount(new MixedParamUrlCodingStrategy(location, clazz, parameters));
 	}
 
 	@Override
@@ -107,8 +116,9 @@ public class GitBlitWebApp extends WebApplication {
 
 	@Override
 	public final String getConfigurationType() {
-		if (GitBlit.self().isDebugMode())
+		if (GitBlit.self().isDebugMode()) {
 			return Application.DEVELOPMENT;
+		}
 		return Application.DEPLOYMENT;
 	}
 

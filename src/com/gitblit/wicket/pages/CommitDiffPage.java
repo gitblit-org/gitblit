@@ -45,7 +45,8 @@ public class CommitDiffPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
-		DiffOutputType diffType = DiffOutputType.forName(GitBlit.self().settings().getString(Keys.web.diffStyle, DiffOutputType.GITBLIT.name()));
+		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
+				DiffOutputType.GITBLIT.name()));
 		String diff = JGitUtils.getCommitDiff(r, commit, diffType);
 
 		List<String> parents = new ArrayList<String>();
@@ -59,10 +60,13 @@ public class CommitDiffPage extends RepositoryPage {
 		if (parents.size() == 0) {
 			add(new Label("parentLink", "none"));
 		} else {
-			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitDiffPage.class, newCommitParameter(parents.get(0))));
+			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8),
+					CommitDiffPage.class, newCommitParameter(parents.get(0))));
 		}
-		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -72,7 +76,7 @@ public class CommitDiffPage extends RepositoryPage {
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
@@ -82,15 +86,20 @@ public class CommitDiffPage extends RepositoryPage {
 				item.add(changeType);
 
 				if (entry.isTree()) {
-					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class, newPathParameter(entry.path)));
+					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
+							newPathParameter(entry.path)));
 				} else {
-					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
+					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
+							newPathParameter(entry.path)));
 				}
 
-				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class,
+						newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
+						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
-				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+						newPathParameter(entry.path)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

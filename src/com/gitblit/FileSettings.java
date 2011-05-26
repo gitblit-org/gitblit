@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.PatternSyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +32,11 @@ import org.slf4j.LoggerFactory;
  */
 public class FileSettings implements IStoredSettings {
 
+	private final Logger logger = LoggerFactory.getLogger(FileSettings.class);
+
 	private Properties properties = new Properties();
 
-	private long lastread = 0;
-
-	private final Logger logger = LoggerFactory.getLogger(FileSettings.class);
+	private long lastread;
 
 	@Override
 	public List<String> getAllKeys(String startingWith) {
@@ -131,7 +132,8 @@ public class FileSettings implements IStoredSettings {
 					strings.add(chunk);
 				}
 			}
-		} catch (Exception e) {
+		} catch (PatternSyntaxException e) {
+			logger.error("Failed to parse " + value, e);
 		}
 		return strings;
 	}
@@ -139,18 +141,29 @@ public class FileSettings implements IStoredSettings {
 	private synchronized Properties read() {
 		File file = new File(Constants.PROPERTIES_FILE);
 		if (file.exists() && (file.lastModified() > lastread)) {
+			FileInputStream is = null;
 			try {
 				properties = new Properties();
-				properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
+				is = new FileInputStream(Constants.PROPERTIES_FILE);
+				properties.load(is);
 				lastread = file.lastModified();
 			} catch (FileNotFoundException f) {
+				// IGNORE - won't happen because file.exists() check above
 			} catch (Throwable t) {
 				t.printStackTrace();
+			} finally {
+				if (is != null) {
+					try {
+						is.close();
+					} catch (Throwable t) {
+						// IGNORE
+					}
+				}
 			}
 		}
 		return properties;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new File(Constants.PROPERTIES_FILE).getAbsolutePath();

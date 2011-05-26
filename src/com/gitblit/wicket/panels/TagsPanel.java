@@ -49,17 +49,19 @@ public class TagsPanel extends BasePanel {
 		if (maxCount > 0) {
 			// summary page
 			// show tags page link
-			add(new LinkPanel("header", "title", new StringResourceModel("gb.tags", this, null), TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("header", "title", new StringResourceModel("gb.tags", this, null),
+					TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		} else {
 			// tags page
 			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
+					WicketUtils.newRepositoryParameter(repositoryName)));
 		}
 
 		ListDataProvider<RefModel> tagsDp = new ListDataProvider<RefModel>(tags);
 		DataView<RefModel> tagView = new DataView<RefModel>("tag", tagsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
@@ -72,8 +74,10 @@ public class TagsPanel extends BasePanel {
 				} else {
 					item.add(WicketUtils.newBlankImage("tagIcon"));
 				}
-				
-				item.add(new LinkPanel("tagName", "list name", entry.getDisplayName(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
+
+				item.add(new LinkPanel("tagName", "list name", entry.displayName, CommitPage.class,
+						WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
+								.getName())));
 				String message;
 				if (maxCount > 0) {
 					message = StringUtils.trimString(entry.getShortLog(), 40);
@@ -81,17 +85,29 @@ public class TagsPanel extends BasePanel {
 					message = entry.getShortLog();
 				}
 				if (entry.isAnnotatedTag()) {
-					item.add(new LinkPanel("tagDescription", "list", message, TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					item.add(new LinkPanel("tagDescription", "list", message, TagPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
+									.getName())));
 					Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("view", TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())).setEnabled(entry.isAnnotatedTag()));
-					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("view", TagPage.class, WicketUtils
+							.newObjectParameter(repositoryName, entry.getObjectId().getName()))
+							.setEnabled(entry.isAnnotatedTag()));
+					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
+									.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
+							.newObjectParameter(repositoryName, entry.getName())));
 					item.add(fragment);
 				} else {
-					item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getObjectId().getName())));
+					item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
+									.getName())));
 					Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getCommitId().getName())));
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
+									.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
+							.newObjectParameter(repositoryName, entry.getName())));
 					item.add(fragment);
 				}
 
@@ -103,7 +119,8 @@ public class TagsPanel extends BasePanel {
 		if (tags.size() < maxCount || maxCount <= 0) {
 			add(new Label("allTags", "").setVisible(false));
 		} else {
-			add(new LinkPanel("allTags", "link", new StringResourceModel("gb.allTags", this, null), TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("allTags", "link", new StringResourceModel("gb.allTags", this, null),
+					TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		}
 	}
 }

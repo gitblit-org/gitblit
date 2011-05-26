@@ -49,9 +49,23 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		if (basePath.lastIndexOf('/') > -1) {
 			parentPath = basePath.substring(0, basePath.lastIndexOf('/'));
 		}
-		PathModel model = new PathModel("..", parentPath, 0, 0040000, commitId);
+		PathModel model = new PathModel("..", parentPath, 0, 40000, commitId);
 		model.isParentPath = true;
 		return model;
+	}
+
+	@Override
+	public int hashCode() {
+		return commitId.hashCode() + path.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof PathModel) {
+			PathModel other = (PathModel) o;
+			return this.path.equals(other.path);
+		}
+		return super.equals(o);
 	}
 
 	@Override
@@ -69,14 +83,25 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 	}
 
 	public static class PathChangeModel extends PathModel {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public final ChangeType changeType;
 
-		public PathChangeModel(String name, String path, long size, int mode, String commitId, ChangeType type) {
+		public PathChangeModel(String name, String path, long size, int mode, String commitId,
+				ChangeType type) {
 			super(name, path, size, mode, commitId);
 			this.changeType = type;
+		}
+
+		@Override
+		public int hashCode() {
+			return super.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			return super.equals(o);
 		}
 	}
 }

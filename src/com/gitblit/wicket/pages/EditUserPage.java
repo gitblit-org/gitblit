@@ -72,7 +72,8 @@ public class EditUserPage extends BasePage {
 		} else {
 			super.setupPage("", getString("gb.edit"));
 		}
-		final Model<String> confirmPassword = new Model<String>(StringUtils.isEmpty(userModel.getPassword()) ? "" : userModel.getPassword());
+		final Model<String> confirmPassword = new Model<String>(
+				StringUtils.isEmpty(userModel.password) ? "" : userModel.password);
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
 
 		List<String> repos = new ArrayList<String>();
@@ -82,8 +83,10 @@ public class EditUserPage extends BasePage {
 				repos.add(repo);
 			}
 		}
-		final String oldName = userModel.getUsername();
-		final Palette<String> repositories = new Palette<String>("repositories", new ListModel<String>(userModel.getRepositories()), new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
+		final String oldName = userModel.username;
+		final Palette<String> repositories = new Palette<String>("repositories",
+				new ListModel<String>(userModel.repositories), new CollectionModel<String>(repos),
+				new ChoiceRenderer<String>("", ""), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -95,7 +98,7 @@ public class EditUserPage extends BasePage {
 			 */
 			@Override
 			protected void onSubmit() {
-				String username = userModel.getUsername();
+				String username = userModel.username;
 				if (StringUtils.isEmpty(username)) {
 					error("Please enter a username!");
 					return;
@@ -107,28 +110,31 @@ public class EditUserPage extends BasePage {
 						return;
 					}
 				}
-				if (!userModel.getPassword().equals(confirmPassword.getObject())) {
+				if (!userModel.password.equals(confirmPassword.getObject())) {
 					error("Passwords do not match!");
 					return;
 				}
-				String password = userModel.getPassword();
-				if (!password.toUpperCase().startsWith(Crypt.__TYPE) && !password.toUpperCase().startsWith(MD5.__TYPE)) {
+				String password = userModel.password;
+				if (!password.toUpperCase().startsWith(Crypt.__TYPE)
+						&& !password.toUpperCase().startsWith(MD5.__TYPE)) {
 					// This is a plain text password.
 					// Check length.
-					int minLength = GitBlit.self().settings().getInteger(Keys.realm.minPasswordLength, 5);
+					int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
 					if (minLength < 4) {
 						minLength = 4;
 					}
 					if (password.trim().length() < minLength) {
-						error(MessageFormat.format("Password is too short. Minimum length is {0} characters.", minLength));
+						error(MessageFormat.format(
+								"Password is too short. Minimum length is {0} characters.",
+								minLength));
 						return;
 					}
-					
+
 					// Optionally store the password MD5 digest.
-					String type = GitBlit.self().settings().getString(Keys.realm.passwordStorage, "md5");
+					String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
 					if (type.equalsIgnoreCase("md5")) {
 						// store MD5 digest of password
-						userModel.setPassword(MD5.digest(userModel.getPassword()));
+						userModel.password = MD5.digest(userModel.password);
 					}
 				}
 
@@ -147,7 +153,8 @@ public class EditUserPage extends BasePage {
 				setRedirect(false);
 				if (isCreate) {
 					// create another user
-					info(MessageFormat.format("New user ''{0}'' successfully created.", userModel.getUsername()));
+					info(MessageFormat.format("New user ''{0}'' successfully created.",
+							userModel.username));
 					setResponsePage(EditUserPage.class);
 				} else {
 					// back to home
@@ -161,7 +168,8 @@ public class EditUserPage extends BasePage {
 		PasswordTextField passwordField = new PasswordTextField("password");
 		passwordField.setResetPassword(false);
 		form.add(passwordField);
-		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword", confirmPassword);
+		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword",
+				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
 		form.add(new CheckBox("canAdmin"));

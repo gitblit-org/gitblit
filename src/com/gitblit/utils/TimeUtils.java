@@ -18,24 +18,28 @@ package com.gitblit.utils;
 import java.util.Date;
 
 public class TimeUtils {
-	private final static long min = 1000 * 60l;
+	public static final long MIN = 1000 * 60L;
 
-	private final static long halfhour = min * 30l;
+	public static final long HALFHOUR = MIN * 30L;
 
-	private final static long onehour = halfhour * 2;
+	public static final long ONEHOUR = HALFHOUR * 2;
 
-	private final static long oneday = onehour * 24l;
+	public static final long ONEDAY = ONEHOUR * 24L;
+
+	public static final long ONEYEAR = ONEDAY * 365L;
 
 	@SuppressWarnings("deprecation")
 	public static boolean isToday(Date date) {
 		Date now = new Date();
-		return now.getDate() == date.getDate() && now.getMonth() == date.getMonth() && now.getYear() == date.getYear();
+		return now.getDate() == date.getDate() && now.getMonth() == date.getMonth()
+				&& now.getYear() == date.getYear();
 	}
 
 	@SuppressWarnings("deprecation")
 	public static boolean isYesterday(Date date) {
 		Date now = new Date();
-		return now.getDate() == (date.getDate() + 1) && now.getMonth() == date.getMonth() && now.getYear() == date.getYear();
+		return now.getDate() == (date.getDate() + 1) && now.getMonth() == date.getMonth()
+				&& now.getYear() == date.getYear();
 	}
 
 	public static String duration(int days) {
@@ -56,17 +60,18 @@ public class TimeUtils {
 				}
 			} else {
 				int months = rem / 30;
-				int remDays = (rem % 30);
+				int remDays = rem % 30;
 				String monthsString;
 				if (months == 0) {
 					monthsString = yearsString;
 				} else {
-					monthsString = yearsString + ", " + months + (months > 1 ? " months" : " month");
+					monthsString = yearsString + ", " + months
+							+ (months > 1 ? " months" : " month");
 				}
 				if (remDays == 0) {
-					return  monthsString;
+					return monthsString;
 				} else {
-					return monthsString + ", " + remDays + (remDays > 1 ? " days":" day");
+					return monthsString + ", " + remDays + (remDays > 1 ? " days" : " day");
 				}
 			}
 		}
@@ -74,9 +79,10 @@ public class TimeUtils {
 
 	public static int minutesAgo(Date date, long endTime, boolean roundup) {
 		long diff = endTime - date.getTime();
-		int mins = (int) (diff / min);
-		if (roundup && (diff % min) >= 30)
+		int mins = (int) (diff / MIN);
+		if (roundup && (diff % MIN) >= 30) {
 			mins++;
+		}
 		return mins;
 	}
 
@@ -86,17 +92,19 @@ public class TimeUtils {
 
 	public static int hoursAgo(Date date, boolean roundup) {
 		long diff = System.currentTimeMillis() - date.getTime();
-		int hours = (int) (diff / onehour);
-		if (roundup && (diff % onehour) >= halfhour)
+		int hours = (int) (diff / ONEHOUR);
+		if (roundup && (diff % ONEHOUR) >= HALFHOUR) {
 			hours++;
+		}
 		return hours;
 	}
 
 	public static int daysAgo(Date date, boolean roundup) {
 		long diff = System.currentTimeMillis() - date.getTime();
-		int days = (int) (diff / oneday);
-		if (roundup && (diff % oneday) > 0)
+		int days = (int) (diff / ONEDAY);
+		if (roundup && (diff % ONEDAY) > 0) {
 			days++;
+		}
 		return days;
 	}
 
@@ -138,18 +146,21 @@ public class TimeUtils {
 					ago = days + " day" + (days > 1 ? "s" : "") + " ago";
 				} else if (days <= 90) {
 					int weeks = days / 7;
-					if (weeks == 12)
+					if (weeks == 12) {
 						ago = "3 months ago";
-					else
+					} else {
 						ago = weeks + " weeks ago";
+					}
 				} else if (days > 90) {
 					int months = days / 30;
 					int weeks = (days % 30) / 7;
-					if (weeks >= 2)
+					if (weeks >= 2) {
 						months++;
+					}
 					ago = months + " month" + (months > 1 ? "s" : "") + " ago";
-				} else
+				} else {
 					ago = days + " day" + (days > 1 ? "s" : "") + " ago";
+				}
 			} else if (days == 365) {
 				ago = "1 year ago";
 			} else {

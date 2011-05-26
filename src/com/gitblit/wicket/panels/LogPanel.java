@@ -46,13 +46,14 @@ import com.gitblit.wicket.pages.TreePage;
 public class LogPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-	
-	private boolean hasMore = false;
 
-	public LogPanel(String wicketId, final String repositoryName, final String objectId, Repository r, int limit, int pageOffset) {
+	private boolean hasMore;
+
+	public LogPanel(String wicketId, final String repositoryName, final String objectId,
+			Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -68,24 +69,26 @@ public class LogPanel extends BasePanel {
 		}
 
 		// inaccurate way to determine if there are more commits.
-		// works unless commits.size() represents the exact end. 
+		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
 		if (pageResults) {
 			// shortlog page
 			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
+					WicketUtils.newRepositoryParameter(repositoryName)));
 		} else {
 			// summary page
 			// show shortlog page link
-			add(new LinkPanel("header", "title", new StringResourceModel("gb.log", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("header", "title", new StringResourceModel("gb.log", this, null),
+					LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		}
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
@@ -95,7 +98,9 @@ public class LogPanel extends BasePanel {
 
 				// author search link
 				String author = entry.getAuthorIdent().getName();
-				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, author, SearchType.AUTHOR));
+				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
+						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+								author, SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
 
@@ -105,11 +110,13 @@ public class LogPanel extends BasePanel {
 				} else {
 					item.add(WicketUtils.newBlankImage("commitIcon"));
 				}
-				
+
 				// short message
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
-				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
+				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
+						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
+								repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
@@ -117,9 +124,12 @@ public class LogPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
+						.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
+						.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
+						.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
@@ -139,7 +149,9 @@ public class LogPanel extends BasePanel {
 				// more
 				if (commits.size() == limit) {
 					// show more
-					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs", this, null), LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs",
+							this, null), LogPage.class,
+							WicketUtils.newRepositoryParameter(repositoryName)));
 				} else {
 					// no more
 					add(new Label("moreLogs", "").setVisible(false));
@@ -147,7 +159,7 @@ public class LogPanel extends BasePanel {
 			}
 		}
 	}
-	
+
 	public boolean hasMore() {
 		return hasMore;
 	}

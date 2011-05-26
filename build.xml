@@ -17,11 +17,11 @@
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
 				<linecontains>
-					<contains value="public final static String VERSION = " />
+					<contains value="public static final String VERSION = " />
 				</linecontains>
 				<striplinebreaks />
 				<tokenfilter>
-					<replacestring from="public final static String VERSION = &quot;" to="" />
+					<replacestring from="public static final String VERSION = &quot;" to="" />
 					<replacestring from="&quot;;" to="" />
 					<trim />
 				</tokenfilter>
@@ -32,11 +32,11 @@
 		<loadfile property="jgit.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
 				<linecontains>
-					<contains value="public final static String JGIT_VERSION = " />
+					<contains value="public static final String JGIT_VERSION = " />
 				</linecontains>
 				<striplinebreaks />
 				<tokenfilter>
-					<replacestring from="public final static String JGIT_VERSION = &quot;" to="" />
+					<replacestring from="public static final String JGIT_VERSION = &quot;" to="" />
 					<replacestring from="&quot;;" to="" />
 					<trim />
 				</tokenfilter>
@@ -201,5 +201,7 @@
 			<arg value="%JGIT%=${jgit.version}" />
 		</java>
 
+		<!-- Cleanup --> 
+		<delete dir="${project.build.dir}" />
 	</target>
 </project>

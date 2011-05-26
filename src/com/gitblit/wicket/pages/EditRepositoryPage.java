@@ -51,8 +51,8 @@ public class EditRepositoryPage extends BasePage {
 
 	private final boolean isCreate;
 
-	private boolean isAdmin = false;
-	
+	private boolean isAdmin;
+
 	public EditRepositoryPage() {
 		// create constructor
 		super();
@@ -72,7 +72,7 @@ public class EditRepositoryPage extends BasePage {
 	protected void setupPage(final RepositoryModel repositoryModel) {
 		// ensure this user can create or edit this repository
 		checkPermissions(repositoryModel);
-		
+
 		List<String> repositoryUsers = new ArrayList<String>();
 		if (isCreate) {
 			super.setupPage("", getString("gb.newRepository"));
@@ -85,8 +85,11 @@ public class EditRepositoryPage extends BasePage {
 		}
 
 		final String oldName = repositoryModel.name;
-		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()), new ChoiceRenderer<String>("", ""), 10, false);
-		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(repositoryModel);
+		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(
+				repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()),
+				new ChoiceRenderer<String>("", ""), 10, false);
+		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
+				repositoryModel);
 		Form<RepositoryModel> form = new Form<RepositoryModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -112,7 +115,8 @@ public class EditRepositoryPage extends BasePage {
 								ok |= c == vc;
 							}
 							if (!ok) {
-								error(MessageFormat.format("Illegal character ''{0}'' in repository name!", c));
+								error(MessageFormat.format(
+										"Illegal character ''{0}'' in repository name!", c));
 								return;
 							}
 						}
@@ -135,7 +139,8 @@ public class EditRepositoryPage extends BasePage {
 							repositoryUsers.add(users.next());
 						}
 						// ensure the owner is added to the user list
-						if (repositoryModel.owner != null && !repositoryUsers.contains(repositoryModel.owner)) {
+						if (repositoryModel.owner != null
+								&& !repositoryUsers.contains(repositoryModel.owner)) {
 							repositoryUsers.add(repositoryModel.owner);
 						}
 						GitBlit.self().setRepositoryUsers(repositoryModel, repositoryUsers);
@@ -152,8 +157,10 @@ public class EditRepositoryPage extends BasePage {
 		// field names reflective match RepositoryModel fields
 		form.add(new TextField<String>("name").setEnabled(isCreate || isAdmin));
 		form.add(new TextField<String>("description"));
-		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames()).setEnabled(GitBlitWebSession.get().canAdmin()));
-		form.add(new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer()));
+		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
+				.setEnabled(GitBlitWebSession.get().canAdmin()));
+		form.add(new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
+				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer()));
 		form.add(new CheckBox("isFrozen"));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
@@ -162,7 +169,7 @@ public class EditRepositoryPage extends BasePage {
 
 		add(form);
 	}
-	
+
 	/**
 	 * Unfortunately must repeat part of AuthorizaitonStrategy here because that
 	 * mechanism does not take PageParameters into consideration, only page
@@ -171,8 +178,8 @@ public class EditRepositoryPage extends BasePage {
 	 * Repository Owners should be able to edit their repository.
 	 */
 	private void checkPermissions(RepositoryModel model) {
-		boolean authenticateAdmin = GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true);
-		boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, true);
+		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
+		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
@@ -185,22 +192,22 @@ public class EditRepositoryPage extends BasePage {
 				}
 				if (isCreate) {
 					// Create Repository
-					if (!user.canAdmin()) {
+					if (!user.canAdmin) {
 						// Only Administrators May Create
 						error("Only an administrator may create a repository", true);
 					}
 				} else {
 					// Edit Repository
-					if (user.canAdmin()) {
+					if (user.canAdmin) {
 						// Admins can edit everything
 						isAdmin = true;
 						return;
 					} else {
-						if (!model.owner.equalsIgnoreCase(user.getUsername())) {
+						if (!model.owner.equalsIgnoreCase(user.username)) {
 							// User is not an Admin nor Owner
 							error("Only an administrator or the owner may edit a repository", true);
 						}
-					}					
+					}
 				}
 			}
 		} else {

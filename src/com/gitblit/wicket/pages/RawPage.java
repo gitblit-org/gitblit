@@ -59,10 +59,10 @@ public class RawPage extends WebPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.imageExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.binaryExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 
@@ -89,7 +89,8 @@ public class RawPage extends WebPage {
 			add(c);
 		} else {
 			// plain text
-			Label blobLabel = new Label("rawText", JGitUtils.getRawContentAsString(r, commit, blobPath));
+			Label blobLabel = new Label("rawText", JGitUtils.getRawContentAsString(r, commit,
+					blobPath));
 			WicketUtils.setCssClass(blobLabel, "plainprint");
 			add(blobLabel);
 		}

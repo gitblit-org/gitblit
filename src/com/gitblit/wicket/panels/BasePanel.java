@@ -37,7 +37,8 @@ public abstract class BasePanel extends Panel {
 	}
 
 	protected TimeZone getTimeZone() {
-		return GitBlit.self().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get().getTimezone() : TimeZone.getDefault();
+		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
+				.getTimezone() : TimeZone.getDefault();
 	}
 
 	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
@@ -48,7 +49,7 @@ public abstract class BasePanel extends Panel {
 		}
 	}
 
-	public class JavascriptEventConfirmation extends AttributeModifier {
+	public static class JavascriptEventConfirmation extends AttributeModifier {
 
 		private static final long serialVersionUID = 1L;
 
@@ -57,7 +58,8 @@ public abstract class BasePanel extends Panel {
 		}
 
 		protected String newValue(final String currentValue, final String replacementValue) {
-			String prefix = "var conf = confirm('" + replacementValue + "'); " + "if (!conf) return false; ";
+			String prefix = "var conf = confirm('" + replacementValue + "'); "
+					+ "if (!conf) return false; ";
 			String result = prefix;
 			if (currentValue != null) {
 				result = prefix + currentValue;

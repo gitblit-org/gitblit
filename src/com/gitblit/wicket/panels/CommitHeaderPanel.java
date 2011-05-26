@@ -28,8 +28,9 @@ public class CommitHeaderPanel extends BasePanel {
 
 	public CommitHeaderPanel(String id, String repositoryName, RevCommit c) {
 		super(id);
-		add(new LinkPanel("shortmessage", "title", c.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, c.getName())));
-		add(new Label("commitid", "(" + c.getName().substring(0, 8) + ")"));		
+		add(new LinkPanel("shortmessage", "title", c.getShortMessage(), CommitPage.class,
+				WicketUtils.newObjectParameter(repositoryName, c.getName())));
+		add(new Label("commitid", "(" + c.getName().substring(0, 8) + ")"));
 		add(new Label("author", c.getAuthorIdent().getName()));
 		add(WicketUtils.createDateLabel("date", c.getAuthorIdent().getWhen(), getTimeZone()));
 	}

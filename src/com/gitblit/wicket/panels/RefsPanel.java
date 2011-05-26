@@ -39,7 +39,8 @@ public class RefsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public RefsPanel(String id, final String repositoryName, RevCommit c, Map<ObjectId, List<String>> refs) {
+	public RefsPanel(String id, final String repositoryName, RevCommit c,
+			Map<ObjectId, List<String>> refs) {
 		super(id);
 		List<String> refNames = refs.get(c.getId());
 		if (refNames == null) {
@@ -57,19 +58,24 @@ public class RefsPanel extends Panel {
 				Component c = null;
 				if (entry.startsWith(Constants.R_HEADS)) {
 					// local head
-					c = new LinkPanel("refName", null, entry.substring(Constants.R_HEADS.length()), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, entry.substring(Constants.R_HEADS.length()),
+							LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
 					WicketUtils.setCssClass(c, "headRef");
 				} else if (entry.startsWith(Constants.R_REMOTES)) {
 					// remote head
-					c = new LinkPanel("refName", null, entry.substring(Constants.R_REMOTES.length()), LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null,
+							entry.substring(Constants.R_REMOTES.length()), LogPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry));
 					WicketUtils.setCssClass(c, "remoteRef");
 				} else if (entry.startsWith(Constants.R_TAGS)) {
 					// tag
-					c = new LinkPanel("refName", null, entry.substring(Constants.R_TAGS.length()), TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, entry.substring(Constants.R_TAGS.length()),
+							TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
 					WicketUtils.setCssClass(c, "tagRef");
 				} else {
 					// other
-					c = new LinkPanel("refName", null, entry, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, entry, CommitPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry));
 					WicketUtils.setCssClass(c, "otherRef");
 				}
 				WicketUtils.setHtmlTooltip(c, entry);

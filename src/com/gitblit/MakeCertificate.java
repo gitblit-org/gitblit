@@ -41,10 +41,13 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.gitblit.utils.TimeUtils;
 
 public class MakeCertificate {
 
-	private final static FileSettings fileSettings = new FileSettings();
+	private static final FileSettings FILESETTINGS = new FileSettings();
+
+	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 
 	public static void main(String... args) {
 		Params params = new Params();
@@ -52,18 +55,18 @@ public class MakeCertificate {
 		try {
 			jc.parse(args);
 		} catch (ParameterException t) {
+			System.err.println(t.getMessage());
 			jc.usage();
 		}
 		File keystore = new File("keystore");
 		generateSelfSignedCertificate(params.alias, keystore, params.storePassword, params.subject);
 	}
-	
-	public static void generateSelfSignedCertificate(String hostname, File keystore, String keystorePassword) {
+
+	public static void generateSelfSignedCertificate(String hostname, File keystore,
+			String keystorePassword) {
 		try {
 			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-			final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
-			
 			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
 			kpGen.initialize(1024, new SecureRandom());
 			KeyPair pair = kpGen.generateKeyPair();
@@ -74,82 +77,94 @@ public class MakeCertificate {
 			builder.addRDN(BCStyle.O, Constants.NAME);
 			builder.addRDN(BCStyle.CN, hostname);
 
-			Date notBefore = new Date(System.currentTimeMillis() - 1*24*60*60*1000l);
-			Date notAfter = new Date(System.currentTimeMillis() + 10*365*24*60*60*1000l);
+			Date notBefore = new Date(System.currentTimeMillis() - TimeUtils.ONEDAY);
+			Date notAfter = new Date(System.currentTimeMillis() + 10 * TimeUtils.ONEYEAR);
 			BigInteger serial = BigInteger.valueOf(System.currentTimeMillis());
 
-			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(builder.build(), serial, notBefore, notAfter, builder.build(), pair.getPublic());
-			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider(BC).build(pair.getPrivate());
-			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certGen.build(sigGen));
+			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(builder.build(),
+					serial, notBefore, notAfter, builder.build(), pair.getPublic());
+			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
+					.setProvider(BC).build(pair.getPrivate());
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC)
+					.getCertificate(certGen.build(sigGen));
 			cert.checkValidity(new Date());
 			cert.verify(cert.getPublicKey());
 
-			// Save to keystore			
+			// Save to keystore
 			KeyStore store = KeyStore.getInstance("JKS");
 			if (keystore.exists()) {
 				FileInputStream fis = new FileInputStream(keystore);
 				store.load(fis, keystorePassword.toCharArray());
+				fis.close();
 			} else {
 				store.load(null);
 			}
-			store.setKeyEntry(hostname, pair.getPrivate(), keystorePassword.toCharArray(), new java.security.cert.Certificate[] { cert });
-			store.store(new FileOutputStream(keystore), keystorePassword.toCharArray());
+			store.setKeyEntry(hostname, pair.getPrivate(), keystorePassword.toCharArray(),
+					new java.security.cert.Certificate[] { cert });
+			FileOutputStream fos = new FileOutputStream(keystore);
+			store.store(fos, keystorePassword.toCharArray());
+			fos.close();
 		} catch (Throwable t) {
 			t.printStackTrace();
 			throw new RuntimeException("Failed to generate self-signed certificate!", t);
 		}
 	}
-	
-	public static void generateSelfSignedCertificate(String hostname, File keystore, String keystorePassword, String info) {
+
+	public static void generateSelfSignedCertificate(String hostname, File keystore,
+			String keystorePassword, String info) {
 		try {
 			Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
 
-			final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
-			
 			KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", "BC");
 			kpGen.initialize(1024, new SecureRandom());
 			KeyPair pair = kpGen.generateKeyPair();
 
 			// Generate self-signed certificate
 			X500Principal principal = new X500Principal(info);
-			
-			Date notBefore = new Date(System.currentTimeMillis() - 1*24*60*60*1000l);
-			Date notAfter = new Date(System.currentTimeMillis() + 10*365*24*60*60*1000l);
+
+			Date notBefore = new Date(System.currentTimeMillis() - TimeUtils.ONEDAY);
+			Date notAfter = new Date(System.currentTimeMillis() + 10 * TimeUtils.ONEYEAR);
 			BigInteger serial = BigInteger.valueOf(System.currentTimeMillis());
 
-			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(principal, serial, notBefore, notAfter, principal, pair.getPublic());
-			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider(BC).build(pair.getPrivate());
-			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certGen.build(sigGen));
+			X509v3CertificateBuilder certGen = new JcaX509v3CertificateBuilder(principal, serial,
+					notBefore, notAfter, principal, pair.getPublic());
+			ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
+					.setProvider(BC).build(pair.getPrivate());
+			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC)
+					.getCertificate(certGen.build(sigGen));
 			cert.checkValidity(new Date());
 			cert.verify(cert.getPublicKey());
 
-			// Save to keystore			
+			// Save to keystore
 			KeyStore store = KeyStore.getInstance("JKS");
 			if (keystore.exists()) {
 				FileInputStream fis = new FileInputStream(keystore);
 				store.load(fis, keystorePassword.toCharArray());
+				fis.close();
 			} else {
 				store.load(null);
 			}
-			store.setKeyEntry(hostname, pair.getPrivate(), keystorePassword.toCharArray(), new java.security.cert.Certificate[] { cert });
-			store.store(new FileOutputStream(keystore), keystorePassword.toCharArray());
+			store.setKeyEntry(hostname, pair.getPrivate(), keystorePassword.toCharArray(),
+					new java.security.cert.Certificate[] { cert });
+			FileOutputStream fos = new FileOutputStream(keystore);
+			store.store(fos, keystorePassword.toCharArray());
+			fos.close();
 		} catch (Throwable t) {
 			t.printStackTrace();
 			throw new RuntimeException("Failed to generate self-signed certificate!", t);
 		}
 	}
-	
+
 	@Parameters(separators = " ")
 	private static class Params {
 
 		@Parameter(names = { "--alias" }, description = "Server alias", required = true)
-		public String alias = null;
-		
+		public String alias;
+
 		@Parameter(names = { "--subject" }, description = "Certificate subject", required = true)
-		public String subject = null;
-		
+		public String subject;
 
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
-		public String storePassword = fileSettings.getString(Keys.server.storePassword, "");
+		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");
 	}
 }

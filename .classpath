@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="tests"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="ext/log4j-1.2.16.jar" sourcepath="ext/log4j-1.2.16-sources.jar">
 		<attributes>
@@ -72,6 +73,11 @@
 	<classpathentry kind="lib" path="ext/jetty-all-7.4.1.v20110513.jar" sourcepath="ext/jetty-all-7.4.1.v20110513-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-all-7.2.2.v20101205-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/jsch-0.1.44-1.jar" sourcepath="ext/jsch-0.1.44-1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jsch-0.1.44-1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

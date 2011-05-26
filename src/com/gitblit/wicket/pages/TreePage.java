@@ -53,9 +53,13 @@ public class TreePage extends RepositoryPage {
 		List<PathModel> paths = JGitUtils.getFilesInPath(r, path, commit);
 
 		// tree page links
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, path)));
-		add(new BookmarkablePageLink<Void>("headLink", TreePage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
-		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, path)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, path)));
+		add(new BookmarkablePageLink<Void>("headLink", TreePage.class,
+				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
+		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest()
+				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path))
+				.setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -71,7 +75,7 @@ public class TreePage extends RepositoryPage {
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<PathModel> item) {
 				PathModel entry = item.getModelObject();
@@ -80,33 +84,49 @@ public class TreePage extends RepositoryPage {
 					// parent .. path
 					item.add(WicketUtils.newBlankImage("pathIcon"));
 					item.add(new Label("pathSize", ""));
-					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class, newPathParameter(entry.path)));
+					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
+							newPathParameter(entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
 						// folder/tree link
 						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
-						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class, newPathParameter(entry.path)));
+						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
+								newPathParameter(entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
-						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, entry.path)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
+						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
+						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
+						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(getRequest()
+								.getRelativePathPrefixToContextRoot(), repositoryName, objectId,
+								entry.path)).setVisible(GitBlit.getBoolean(
+								Keys.web.allowZipDownloads, true)));
 						item.add(links);
 					} else {
 						// blob link
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
-						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class, newPathParameter(entry.path)));
+						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class,
+								newPathParameter(entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
-						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
-						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
+						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
+								.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						links.add(new BookmarkablePageLink<Void>("blame", BlobPage.class)
+								.setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
 						item.add(links);
 					}
 				}

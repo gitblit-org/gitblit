@@ -59,7 +59,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			return null;
 		}
 		UserModel user = new UserModel(username);
-		user.canAdmin(identity.isUserInRole(Constants.ADMIN_ROLE, null));
+		user.canAdmin = identity.isUserInRole(Constants.ADMIN_ROLE, null);
 
 		// Add repositories
 		for (Principal principal : identity.getSubject().getPrincipals()) {
@@ -90,7 +90,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				case '#':
 					// Permissions
 					if (name.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
-						model.canAdmin(true);
+						model.canAdmin = true;
 					}
 					break;
 				default:
@@ -105,7 +105,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			Properties allUsers = readRealmFile();
 			String value = allUsers.getProperty(username);
 			String password = value.split(",")[0];
-			model.setPassword(password);
+			model.password = password;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to read password for user {0}!", username), t);
 		}
@@ -114,22 +114,22 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 	@Override
 	public boolean updateUserModel(UserModel model) {
-		return updateUserModel(model.getUsername(), model);
+		return updateUserModel(model.username, model);
 	}
-	
+
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
 		try {
 			Properties allUsers = readRealmFile();
-			ArrayList<String> roles = new ArrayList<String>(model.getRepositories());
+			ArrayList<String> roles = new ArrayList<String>(model.repositories);
 
 			// Permissions
-			if (model.canAdmin()) {
+			if (model.canAdmin) {
 				roles.add(Constants.ADMIN_ROLE);
 			}
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(model.getPassword());
+			sb.append(model.password);
 			sb.append(',');
 			for (String role : roles) {
 				sb.append(role);
@@ -138,23 +138,25 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			// trim trailing comma
 			sb.setLength(sb.length() - 1);
 			allUsers.remove(username);
-			allUsers.put(model.getUsername(), sb.toString());
+			allUsers.put(model.username, sb.toString());
 
 			writeRealmFile(allUsers);
 
 			// Update login service
 			removeUser(username);
-			putUser(model.getUsername(), Credential.getCredential(model.getPassword()), roles.toArray(new String[0]));
+			putUser(model.username, Credential.getCredential(model.password),
+					roles.toArray(new String[0]));
 			return true;
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to update user model {0}!", model.getUsername()), t);
+			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
+					t);
 		}
 		return false;
 	}
 
 	@Override
 	public boolean deleteUserModel(UserModel model) {
-		return deleteUser(model.getUsername());
+		return deleteUser(model.username);
 	}
 
 	@Override
@@ -173,7 +175,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 		}
 		return false;
 	}
-	
+
 	@Override
 	public List<String> getAllUsernames() {
 		List<String> list = new ArrayList<String>();
@@ -235,7 +237,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			// add roles to users
 			for (String user : needsAddRole) {
 				String userValues = allUsers.getProperty(user);
-				userValues += ("," + role);
+				userValues += "," + role;
 				allUsers.put(user, userValues);
 				String[] values = userValues.split(",");
 				String password = values[0];
@@ -267,7 +269,8 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				allUsers.put(user, sb.toString());
 
 				// update memory
-				putUser(user, Credential.getCredential(password), revisedRoles.toArray(new String[0]));
+				putUser(user, Credential.getCredential(password),
+						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
@@ -324,14 +327,16 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				allUsers.put(user, sb.toString());
 
 				// update memory
-				putUser(user, Credential.getCredential(password), revisedRoles.toArray(new String[0]));
+				putUser(user, Credential.getCredential(password),
+						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
 			writeRealmFile(allUsers);
 			return true;
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to rename role {0} to {1}!", oldRole, newRole), t);
+			logger.error(
+					MessageFormat.format("Failed to rename role {0} to {1}!", oldRole, newRole), t);
 		}
 		return false;
 	}
@@ -380,7 +385,8 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				allUsers.put(user, sb.toString());
 
 				// update memory
-				putUser(user, Credential.getCredential(password), revisedRoles.toArray(new String[0]));
+				putUser(user, Credential.getCredential(password),
+						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
@@ -404,24 +410,36 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 		// Update realm file
 		File realmFileCopy = new File(realmFile.getAbsolutePath() + ".tmp");
 		FileWriter writer = new FileWriter(realmFileCopy);
-		properties.store(writer, "# Git:Blit realm file format: username=password,\\#permission,repository1,repository2...");
+		properties
+				.store(writer,
+						"# Git:Blit realm file format: username=password,\\#permission,repository1,repository2...");
 		writer.close();
 		if (realmFileCopy.exists() && realmFileCopy.length() > 0) {
-			realmFile.delete();
-			realmFileCopy.renameTo(realmFile);
+			if (realmFile.delete()) {
+				if (!realmFileCopy.renameTo(realmFile)) {
+					throw new IOException(MessageFormat.format("Failed to rename {0} to {1}!",
+							realmFileCopy.getAbsolutePath(), realmFile.getAbsolutePath()));
+				}
+			} else {
+				throw new IOException(MessageFormat.format("Failed to delete (0)!",
+						realmFile.getAbsolutePath()));
+			}
 		} else {
-			throw new IOException("Failed to save realmfile!");
+			throw new IOException(MessageFormat.format("Failed to save {0}!",
+					realmFileCopy.getAbsolutePath()));
 		}
 	}
 
 	/* ------------------------------------------------------------ */
 	@Override
 	public void loadUsers() throws IOException {
-		if (realmFile == null)
+		if (realmFile == null) {
 			return;
+		}
 
-		if (Log.isDebugEnabled())
+		if (Log.isDebugEnabled()) {
 			Log.debug("Load " + this + " from " + realmFile);
+		}
 		Properties allUsers = readRealmFile();
 
 		// Map Users
@@ -435,7 +453,8 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				credentials = credentials.substring(0, c).trim();
 			}
 
-			if (username != null && username.length() > 0 && credentials != null && credentials.length() > 0) {
+			if (username != null && username.length() > 0 && credentials != null
+					&& credentials.length() > 0) {
 				String[] roleArray = IdentityService.NO_ROLES;
 				if (roles != null && roles.length() > 0) {
 					roleArray = roles.split(",");

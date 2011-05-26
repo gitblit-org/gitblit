@@ -25,7 +25,8 @@ import com.gitblit.Keys;
 import com.gitblit.wicket.models.UserModel;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
-public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements IUnauthorizedComponentInstantiationListener {
+public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
+		IUnauthorizedComponentInstantiationListener {
 
 	public AuthorizationStrategy() {
 	}
@@ -34,16 +35,16 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
 		if (BasePage.class.isAssignableFrom(pageClass)) {
-			boolean authenticateView = GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true);
-			boolean authenticateAdmin = GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true);
-			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, true);
-			
-			GitBlitWebSession session = GitBlitWebSession.get();			
+			boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+			boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
+			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+
+			GitBlitWebSession session = GitBlitWebSession.get();
 			if (authenticateView && !session.isLoggedIn()) {
 				// authentication required
 				return false;
 			}
-			
+
 			UserModel user = session.getUser();
 			if (pageClass.isAnnotationPresent(AdminPage.class)) {
 				// admin page
@@ -51,7 +52,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 					if (authenticateAdmin) {
 						// authenticate admin
 						if (user != null) {
-							return user.canAdmin();
+							return user.canAdmin;
 						}
 						return false;
 					} else {
@@ -59,7 +60,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 						return true;
 					}
 				} else {
-					//admin prohibited
+					// admin prohibited
 					return false;
 				}
 			}
@@ -71,10 +72,11 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	public void onUnauthorizedInstantiation(Component component) {
 		if (component instanceof BasePage) {
 			GitBlitWebSession session = GitBlitWebSession.get();
-			if (!session.isLoggedIn())
+			if (!session.isLoggedIn()) {
 				throw new RestartResponseAtInterceptPageException(LoginPage.class);
-			else
+			} else {
 				throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
+			}
 		}
 	}
 }

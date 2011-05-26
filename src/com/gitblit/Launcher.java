@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,16 +35,20 @@ import java.util.List;
  */
 public class Launcher {
 
-	public final static boolean debug = false;
+	public static final boolean DEBUG = false;
+
+	/**
+	 * Parameters of the method to add an URL to the System classes.
+	 */
+	private static final Class<?>[] PARAMETERS = new Class[] { URL.class };
 
 	public static void main(String[] args) {
-		if (debug)
+		if (DEBUG) {
 			System.out.println("jcp=" + System.getProperty("java.class.path"));
-
-		ProtectionDomain protectionDomain = Launcher.class.getProtectionDomain();
-		final String launchJar = protectionDomain.getCodeSource().getLocation().toExternalForm();
-		if (debug)
-			System.out.println("launcher=" + launchJar);
+			ProtectionDomain protectionDomain = Launcher.class.getProtectionDomain();
+			System.out.println("launcher="
+					+ protectionDomain.getCodeSource().getLocation().toExternalForm());
+		}
 
 		Build.runtime();
 
@@ -51,16 +56,15 @@ public class Launcher {
 		String[] folders = new String[] { "lib", "ext" };
 		List<File> jars = new ArrayList<File>();
 		for (String folder : folders) {
-			if (folder == null)
+			if (folder == null) {
 				continue;
-			File libFolder = new File(folder);
-			if (!libFolder.exists())
-				continue;
-			try {
-				libFolder = libFolder.getCanonicalFile();
-			} catch (IOException iox) {
 			}
-			jars.addAll(findJars(libFolder));
+			File libFolder = new File(folder);
+			if (!libFolder.exists()) {
+				continue;
+			}
+			List<File> found = findJars(libFolder.getAbsoluteFile());
+			jars.addAll(found);
 		}
 
 		if (jars.size() == 0) {
@@ -94,19 +98,15 @@ public class Launcher {
 			});
 			if (libs != null && libs.length > 0) {
 				jars.addAll(Arrays.asList(libs));
-				if (debug) {
-					for (File jar : jars)
+				if (DEBUG) {
+					for (File jar : jars) {
 						System.out.println("found " + jar);
+					}
 				}
 			}
 		}
 		return jars;
 	}
-
-	/**
-	 * Parameters of the method to add an URL to the System classes.
-	 */
-	private static final Class<?>[] parameters = new Class[] { URL.class };
 
 	/**
 	 * Adds a file to the classpath
@@ -121,16 +121,18 @@ public class Launcher {
 			return;
 		}
 		URL u = f.toURI().toURL();
-		if (debug)
+		if (DEBUG) {
 			System.out.println("load=" + u.toExternalForm());
+		}
 		URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
 		Class<?> sysclass = URLClassLoader.class;
 		try {
-			Method method = sysclass.getDeclaredMethod("addURL", parameters);
+			Method method = sysclass.getDeclaredMethod("addURL", PARAMETERS);
 			method.setAccessible(true);
 			method.invoke(sysloader, new Object[] { u });
 		} catch (Throwable t) {
-			throw new IOException("Error, could not add " + f.getPath() + " to system classloader", t);
+			throw new IOException(MessageFormat.format(
+					"Error, could not add {0} to system classloader", f.getPath()), t);
 		}
 	}
 }

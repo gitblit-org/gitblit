@@ -41,27 +41,34 @@ public class BlobDiffPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
-				
-		DiffOutputType diffType = DiffOutputType.forName(GitBlit.self().settings().getString(Keys.web.diffStyle, DiffOutputType.GITBLIT.name()));
+
+		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
+				DiffOutputType.GITBLIT.name()));
 
 		String diff;
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
 			diff = JGitUtils.getCommitDiff(r, commit, blobPath, diffType);
-			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
 			diff = JGitUtils.getCommitDiff(r, baseCommit, commit, blobPath, diffType);
-			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId, blobPath)));
+			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
+					WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId,
+							blobPath)));
 		}
-		
-		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
-		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+
+		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		// diff page links
 		add(new Label("blameLink", getString("gb.blame")));
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 

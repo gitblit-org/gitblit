@@ -23,6 +23,8 @@ import com.gitblit.Constants.AccessRestrictionType;
 public class RepositoryModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	// field names are reflectively mapped in EditRepository page
 	public String name;
 	public String description;
 	public String owner;
@@ -49,7 +51,7 @@ public class RepositoryModel implements Serializable {
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

@@ -57,22 +57,25 @@ public abstract class BasePage extends WebPage {
 			add(new Label("title", getServerName()));
 		}
 		// header
-		String siteName = GitBlit.self().settings().getString(Keys.web.siteName, Constants.NAME);
+		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
 		if (siteName == null || siteName.trim().length() == 0) {
 			siteName = Constants.NAME;
 		}
 		add(new Label("siteName", siteName));
-		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));
 
 		// footer
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, true) || GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+		if (GitBlit.getBoolean(Keys.web.authenticateViewPages, true)
+				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
 			if (GitBlitWebSession.get().isLoggedIn()) {
 				// logout
-				add(new LinkPanel("userPanel", null, getString("gb.logout") + " " + GitBlitWebSession.get().getUser().toString(), LogoutPage.class));
+				add(new LinkPanel("userPanel", null, getString("gb.logout") + " "
+						+ GitBlitWebSession.get().getUser().toString(), LogoutPage.class));
 			} else {
 				// login
 				add(new LinkPanel("userPanel", null, getString("gb.login"), LoginPage.class));
@@ -81,7 +84,7 @@ public abstract class BasePage extends WebPage {
 			add(new Label("userPanel", ""));
 		}
 		add(new Label("gbVersion", "v" + Constants.VERSION));
-		if (GitBlit.self().settings().getBoolean(Keys.web.aggressiveHeapManagement, false)) {
+		if (GitBlit.getBoolean(Keys.web.aggressiveHeapManagement, false)) {
 			System.gc();
 		}
 	}
@@ -108,7 +111,8 @@ public abstract class BasePage extends WebPage {
 	}
 
 	protected TimeZone getTimeZone() {
-		return GitBlit.self().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get().getTimezone() : TimeZone.getDefault();
+		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
+				.getTimezone() : TimeZone.getDefault();
 	}
 
 	protected String getServerName() {

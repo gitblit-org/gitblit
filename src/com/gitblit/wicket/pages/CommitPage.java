@@ -61,10 +61,14 @@ public class CommitPage extends RepositoryPage {
 			add(new Label("parentLink", "none"));
 			add(new Label("commitdiffLink", getString("gb.commitdiff")));
 		} else {
-			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class, newCommitParameter(parents.get(0))));
-			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff", this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class,
+					newCommitParameter(parents.get(0))));
+			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff",
+					this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(
+					repositoryName, objectId)));
 		}
-		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class, WicketUtils.newObjectParameter(repositoryName, objectId)));
+		add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
+				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, c));
 
@@ -72,17 +76,22 @@ public class CommitPage extends RepositoryPage {
 
 		// author
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
-		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(), getTimeZone()));
+		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
+				getTimeZone()));
 
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), SearchType.COMMITTER));
-		add(WicketUtils.createTimestampLabel("commitCommitterDate", c.getCommitterIdent().getWhen(), getTimeZone()));
+		add(WicketUtils.createTimestampLabel("commitCommitterDate",
+				c.getCommitterIdent().getWhen(), getTimeZone()));
 
 		add(new Label("commitId", c.getName()));
 
-		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class, newCommitParameter()));
+		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class,
+				newCommitParameter()));
 		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
-		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), repositoryName, objectId, null)).setVisible(GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)));
+		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest()
+				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, null))
+				.setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
 
 		// Parent Commits
 		ListDataProvider<String> parentsDp = new ListDataProvider<String>(parents);
@@ -91,9 +100,12 @@ public class CommitPage extends RepositoryPage {
 
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
-				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class, newCommitParameter(entry)));
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, newCommitParameter(entry)));
-				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, newCommitParameter(entry)));
+				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class,
+						newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
+						newCommitParameter(entry)));
+				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
+						newCommitParameter(entry)));
 			}
 		};
 		add(parentsView);
@@ -101,12 +113,12 @@ public class CommitPage extends RepositoryPage {
 		addFullText("fullMessage", c.getFullMessage(), true);
 
 		// changed paths list
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);	
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
 		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
@@ -115,15 +127,20 @@ public class CommitPage extends RepositoryPage {
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
 				if (entry.isTree()) {
-					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class, newPathParameter(entry.path)));
+					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
+							newPathParameter(entry.path)));
 				} else {
-					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class, newPathParameter(entry.path)));
+					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
+							newPathParameter(entry.path)));
 				}
 
-				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class,
+						newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
+						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
-				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, newPathParameter(entry.path)));
+				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+						newPathParameter(entry.path)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

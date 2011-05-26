@@ -20,7 +20,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-
 public class StringUtils {
 
 	public static boolean isEmpty(String value) {
@@ -47,8 +46,9 @@ public class StringUtils {
 				retStr.append("&nbsp;");
 			} else if (changeSpace && inStr.charAt(i) == '\t') {
 				retStr.append(" &nbsp; &nbsp;");
-			} else
+			} else {
 				retStr.append(inStr.charAt(i));
+			}
 			i++;
 		}
 		return retStr.toString();
@@ -117,8 +117,9 @@ public class StringUtils {
 			byte[] sha1hash = md.digest();
 			StringBuilder sb = new StringBuilder(sha1hash.length * 2);
 			for (int i = 0; i < sha1hash.length; i++) {
-				if (((int) sha1hash[i] & 0xff) < 0x10)
-					sb.append("0");
+				if (((int) sha1hash[i] & 0xff) < 0x10) {
+					sb.append('0');
+				}
 				sb.append(Long.toString((int) sha1hash[i] & 0xff, 16));
 			}
 			return sb.toString();
@@ -126,7 +127,7 @@ public class StringUtils {
 			throw new RuntimeException(t);
 		}
 	}
-	
+
 	public static String getRootPath(String path) {
 		if (path.indexOf('/') > -1) {
 			return path.substring(0, path.indexOf('/'));

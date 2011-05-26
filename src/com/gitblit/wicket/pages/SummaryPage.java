@@ -60,12 +60,12 @@ public class SummaryPage extends RepositoryPage {
 		int numCommitsDef = 20;
 		int numRefsDef = 5;
 
-		int numberCommits = GitBlit.self().settings().getInteger(Keys.web.summaryCommitCount, numCommitsDef);
+		int numberCommits = GitBlit.getInteger(Keys.web.summaryCommitCount, numCommitsDef);
 		if (numberCommits <= 0) {
 			numberCommits = numCommitsDef;
 		}
 
-		int numberRefs = GitBlit.self().settings().getInteger(Keys.web.summaryRefsCount, numRefsDef);
+		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, numRefsDef);
 		if (numberRefs <= 0) {
 			numberRefs = numRefsDef;
 		}
@@ -73,7 +73,7 @@ public class SummaryPage extends RepositoryPage {
 		Repository r = getRepository();
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
-		if (GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
 			metrics = JGitUtils.getDateMetrics(r);
 			metricsTotal = metrics.remove(0);
 		}
@@ -82,40 +82,48 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryDescription", getRepositoryModel().description));
 		add(new Label("repositoryOwner", getRepositoryModel().owner));
 
-		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r), getTimeZone()));
+		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r),
+				getTimeZone()));
 		if (metricsTotal == null) {
 			add(new Label("repositoryStats", ""));
 		} else {
-			add(new Label("repositoryStats", MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
+			add(new Label("repositoryStats", MessageFormat.format(
+					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
+					TimeUtils.duration(metricsTotal.duration))));
 		}
 
 		List<String> repositoryUrls = new ArrayList<String>();
 
-		if (GitBlit.self().settings().getBoolean(Keys.git.enableGitServlet, true)) {
+		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
 			AccessRestrictionType accessRestriction = getRepositoryModel().accessRestriction;
 			switch (accessRestriction) {
 			case NONE:
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 				break;
 			case PUSH:
-				add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
+						getAccessRestrictions().get(accessRestriction)));
 				break;
 			case CLONE:
-				add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
+						getAccessRestrictions().get(accessRestriction)));
 				break;
 			case VIEW:
-				add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", getAccessRestrictions().get(accessRestriction)));
+				add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
+						getAccessRestrictions().get(accessRestriction)));
 				break;
 			default:
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
 
-			HttpServletRequest req = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
+			HttpServletRequest req = ((WebRequest) getRequestCycle().getRequest())
+					.getHttpServletRequest();
 			StringBuilder sb = new StringBuilder();
 			sb.append(req.getScheme());
 			sb.append("://");
 			sb.append(req.getServerName());
-			if ((req.getScheme().equals("http") && req.getServerPort() != 80) || (req.getScheme().equals("https") && req.getServerPort() != 443)) {
+			if ((req.getScheme().equals("http") && req.getServerPort() != 80)
+					|| (req.getScheme().equals("https") && req.getServerPort() != 443)) {
 				sb.append(":" + req.getServerPort());
 			}
 			sb.append(Constants.GIT_SERVLET_PATH);
@@ -126,7 +134,8 @@ public class SummaryPage extends RepositoryPage {
 		}
 		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
 
-		add(new Label("repositoryCloneUrl", StringUtils.flattenStrings(repositoryUrls, "<br/>")).setEscapeModelStrings(false));
+		add(new Label("repositoryCloneUrl", StringUtils.flattenStrings(repositoryUrls, "<br/>"))
+				.setEscapeModelStrings(false));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
@@ -142,12 +151,15 @@ public class SummaryPage extends RepositoryPage {
 	}
 
 	private void insertActivityGraph(List<Metric> metrics) {
-		if (metrics.size() > 0 && GitBlit.self().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+		if ((metrics != null) && (metrics.size() > 0)
+				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE, data);
+			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
+					data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
-			dateAxis.setLabels(new String[] { metrics.get(0).name, metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
+			dateAxis.setLabels(new String[] { metrics.get(0).name,
+					metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
 			provider.addAxis(dateAxis);
 
 			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);

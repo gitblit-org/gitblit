@@ -39,7 +39,7 @@ public class LoginPage extends WebPage {
 	public LoginPage(PageParameters params) {
 		super(params);
 
-		add(new Label("title", GitBlit.self().settings().getString(Keys.web.siteName, Constants.NAME)));
+		add(new Label("title", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
 		add(new Label("name", Constants.NAME));
 
 		Form<Void> loginForm = new LoginForm("loginForm");
@@ -69,13 +69,14 @@ public class LoginPage extends WebPage {
 			char[] password = LoginPage.this.password.getObject().toCharArray();
 
 			UserModel user = GitBlit.self().authenticate(username, password);
-			if (user == null)
+			if (user == null) {
 				error("Invalid username or password!");
-			else
+			} else {
 				loginUser(user);
+			}
 		}
 	}
-	
+
 	private void loginUser(UserModel user) {
 		if (user != null) {
 			// Set the user into the session

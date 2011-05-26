@@ -42,10 +42,11 @@ public class UsersPanel extends BasePanel {
 		add(adminLinks.setVisible(showAdmin));
 
 		final List<String> usernames = GitBlit.self().getAllUsernames();
-		DataView<String> usersView = new DataView<String>("userRow", new ListDataProvider<String>(usernames)) {
+		DataView<String> usersView = new DataView<String>("userRow", new ListDataProvider<String>(
+				usernames)) {
 			private static final long serialVersionUID = 1L;
-			private int counter = 0;
-			
+			private int counter;
+
 			@Override
 			protected void onBeforeRender() {
 				super.onBeforeRender();
@@ -54,11 +55,13 @@ public class UsersPanel extends BasePanel {
 
 			public void populateItem(final Item<String> item) {
 				final String entry = item.getModelObject();
-				LinkPanel editLink = new LinkPanel("username", "list", entry, EditUserPage.class, WicketUtils.newUsernameParameter(entry));
+				LinkPanel editLink = new LinkPanel("username", "list", entry, EditUserPage.class,
+						WicketUtils.newUsernameParameter(entry));
 				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry);
 				item.add(editLink);
 				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
-				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class, WicketUtils.newUsernameParameter(entry)));
+				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class,
+						WicketUtils.newUsernameParameter(entry)));
 				Link<Void> deleteLink = new Link<Void>("deleteUser") {
 
 					private static final long serialVersionUID = 1L;
@@ -73,7 +76,8 @@ public class UsersPanel extends BasePanel {
 						}
 					}
 				};
-				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format("Delete user \"{0}\"?", entry)));
+				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+						"Delete user \"{0}\"?", entry)));
 				userLinks.add(deleteLink);
 				item.add(userLinks);
 

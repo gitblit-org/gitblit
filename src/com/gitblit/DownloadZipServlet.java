@@ -32,30 +32,24 @@ import com.gitblit.wicket.models.RepositoryModel;
 
 public class DownloadZipServlet extends HttpServlet {
 
-	public static String asLink(String baseURL, String repository, String objectId, String path) {
-		return baseURL + (baseURL.endsWith("/") ? "" : "/") + "zip?r=" + repository + (path == null ? "" : ("&p=" + path)) + (objectId == null ? "" : ("&h=" + objectId));
-	}
-
 	private static final long serialVersionUID = 1L;
 
-	private final static Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
+	private transient Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
 
 	public DownloadZipServlet() {
 		super();
 	}
 
-	@Override
-	protected void doPost(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, java.io.IOException {
-		processRequest(request, response);
+	public static String asLink(String baseURL, String repository, String objectId, String path) {
+		return baseURL + (baseURL.endsWith("/") ? "" : "/") + "zip?r=" + repository
+				+ (path == null ? "" : ("&p=" + path))
+				+ (objectId == null ? "" : ("&h=" + objectId));
 	}
 
-	@Override
-	protected void doGet(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, java.io.IOException {
-		processRequest(request, response);
-	}
-
-	private void processRequest(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException, java.io.IOException {
-		if (!GitBlit.self().settings().getBoolean(Keys.web.allowZipDownloads, true)) {
+	private void processRequest(javax.servlet.http.HttpServletRequest request,
+			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
+			java.io.IOException {
+		if (!GitBlit.getBoolean(Keys.web.allowZipDownloads, true)) {
 			logger.warn("Zip downloads are disabled");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -96,7 +90,8 @@ public class DownloadZipServlet extends HttpServlet {
 			String contentType = "application/octet-stream";
 			response.setContentType(contentType + "; charset=" + response.getCharacterEncoding());
 			// response.setContentLength(attachment.getFileSize());
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".zip" + "\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".zip"
+					+ "\"");
 			response.setDateHeader("Last-Modified", date.getTime());
 			response.setHeader("Cache-Control", "no-cache");
 			response.setHeader("Pragma", "no-cache");
@@ -111,5 +106,19 @@ public class DownloadZipServlet extends HttpServlet {
 		} catch (Throwable t) {
 			logger.error("Failed to write attachment to client", t);
 		}
+	}
+
+	@Override
+	protected void doPost(javax.servlet.http.HttpServletRequest request,
+			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
+			java.io.IOException {
+		processRequest(request, response);
+	}
+
+	@Override
+	protected void doGet(javax.servlet.http.HttpServletRequest request,
+			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
+			java.io.IOException {
+		processRequest(request, response);
 	}
 }

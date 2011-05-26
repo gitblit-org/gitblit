@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -64,9 +65,9 @@ public abstract class RepositoryPage extends BasePage {
 	protected final String repositoryName;
 	protected final String objectId;
 
-	private transient Repository r = null;
+	private transient Repository r;
 
-	private RepositoryModel m = null;
+	private RepositoryModel m;
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
 
@@ -96,13 +97,18 @@ public abstract class RepositoryPage extends BasePage {
 
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
-		
+
 		// standard page links
-		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("tags", TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("log", LogPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tags", TagsPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("tree", TreePage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
 
 		// per-repository extra page links
 		List<String> extraPageLinks = new ArrayList<String>();
@@ -118,15 +124,18 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		final boolean showAdmin;
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
-			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 		}
-		
+
 		// Conditionally add edit link
-		if (showAdmin || GitBlitWebSession.get().isLoggedIn() && (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get().getUser().getUsername()))) {
+		if (showAdmin
+				|| GitBlitWebSession.get().isLoggedIn()
+				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
+						.getUser().username))) {
 			extraPageLinks.add("edit");
 		}
 
@@ -138,13 +147,17 @@ public abstract class RepositoryPage extends BasePage {
 				String extra = item.getModelObject();
 				if (extra.equals("tickets")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"), TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"),
+							TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 				} else if (extra.equals("docs")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class,
+							WicketUtils.newRepositoryParameter(repositoryName)));
 				} else if (extra.equals("edit")) {
 					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.edit"), EditRepositoryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+					item.add(new LinkPanel("extraLink", null, getString("gb.edit"),
+							EditRepositoryPage.class, WicketUtils
+									.newRepositoryParameter(repositoryName)));
 				}
 			}
 		};
@@ -190,9 +203,10 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected RepositoryModel getRepositoryModel() {
 		if (m == null) {
-			RepositoryModel model = GitBlit.self().getRepositoryModel(GitBlitWebSession.get().getUser(), repositoryName);
+			RepositoryModel model = GitBlit.self().getRepositoryModel(
+					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				error("Unauthorized access for repository " + repositoryName, true);				
+				error("Unauthorized access for repository " + repositoryName, true);
 				return null;
 			}
 			m = model;
@@ -203,7 +217,8 @@ public abstract class RepositoryPage extends BasePage {
 	protected RevCommit getCommit() {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {
-			error(MessageFormat.format("Failed to find commit \"{0}\" in {1} for {2} page!", objectId, repositoryName, getPageName()), true);
+			error(MessageFormat.format("Failed to find commit \"{0}\" in {1} for {2} page!",
+					objectId, repositoryName, getPageName()), true);
 		}
 		return commit;
 	}
@@ -217,29 +232,32 @@ public abstract class RepositoryPage extends BasePage {
 		if (substituteRegex) {
 			Map<String, String> map = new HashMap<String, String>();
 			// global regex keys
-			if (GitBlit.self().settings().getBoolean(Keys.regex.global, false)) {
-				for (String key : GitBlit.self().settings().getAllKeys(Keys.regex.global)) {
+			if (GitBlit.getBoolean(Keys.regex.global, false)) {
+				for (String key : GitBlit.getAllKeys(Keys.regex.global)) {
 					if (!key.equals(Keys.regex.global)) {
 						String subKey = key.substring(key.lastIndexOf('.') + 1);
-						map.put(subKey, GitBlit.self().settings().getString(key, ""));
+						map.put(subKey, GitBlit.getString(key, ""));
 					}
 				}
 			}
 
 			// repository-specific regex keys
-			List<String> keys = GitBlit.self().settings().getAllKeys(Keys.regex._ROOT + "." + repositoryName.toLowerCase());
+			List<String> keys = GitBlit.getAllKeys(Keys.regex._ROOT + "."
+					+ repositoryName.toLowerCase());
 			for (String key : keys) {
 				String subKey = key.substring(key.lastIndexOf('.') + 1);
-				map.put(subKey, GitBlit.self().settings().getString(key, ""));
+				map.put(subKey, GitBlit.getString(key, ""));
 			}
 
-			for (String key : map.keySet()) {
-				String definition = map.get(key).trim();
+			for (Entry<String, String> entry : map.entrySet()) {
+				String definition = entry.getValue().trim();
 				String[] chunks = definition.split("!!!");
 				if (chunks.length == 2) {
 					html = html.replaceAll(chunks[0], chunks[1]);
 				} else {
-					logger.warn(key + " improperly formatted.  Use !!! to separate match from replacement: " + definition);
+					logger.warn(entry.getKey()
+							+ " improperly formatted.  Use !!! to separate match from replacement: "
+							+ definition);
 				}
 			}
 		}
@@ -248,9 +266,11 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected abstract String getPageName();
 
-	protected Component createPersonPanel(String wicketId, PersonIdent identity, SearchType searchType) {
-		boolean showEmail = GitBlit.self().settings().getBoolean(Keys.web.showEmailAddresses, false);
-		if (!showEmail || StringUtils.isEmpty(identity.getName()) || StringUtils.isEmpty(identity.getEmailAddress())) {
+	protected Component createPersonPanel(String wicketId, PersonIdent identity,
+			SearchType searchType) {
+		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
+		if (!showEmail || StringUtils.isEmpty(identity.getName())
+				|| StringUtils.isEmpty(identity.getEmailAddress())) {
 			String value = identity.getName();
 			if (StringUtils.isEmpty(value)) {
 				if (showEmail) {
@@ -260,17 +280,23 @@ public abstract class RepositoryPage extends BasePage {
 				}
 			}
 			Fragment partial = new Fragment(wicketId, "partialPersonIdent", this);
-			LinkPanel link = new LinkPanel("personName", "list", value, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));
+			LinkPanel link = new LinkPanel("personName", "list", value, SearchPage.class,
+					WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));
 			setPersonSearchTooltip(link, value, searchType);
 			partial.add(link);
 			return partial;
 		} else {
 			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", this);
-			LinkPanel nameLink = new LinkPanel("personName", "list", identity.getName(), SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getName(), searchType));
+			LinkPanel nameLink = new LinkPanel("personName", "list", identity.getName(),
+					SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+							identity.getName(), searchType));
 			setPersonSearchTooltip(nameLink, identity.getName(), searchType);
 			fullPerson.add(nameLink);
 
-			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + identity.getEmailAddress() + ">", SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, identity.getEmailAddress(), searchType));
+			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<"
+					+ identity.getEmailAddress() + ">", SearchPage.class,
+					WicketUtils.newSearchParameter(repositoryName, objectId,
+							identity.getEmailAddress(), searchType));
 			setPersonSearchTooltip(addressLink, identity.getEmailAddress(), searchType);
 			fullPerson.add(addressLink);
 			return fullPerson;
@@ -331,7 +357,7 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newPathParameter(repositoryName, objectId, path);
 	}
 
-	class SearchForm extends StatelessForm<Void> {
+	private static class SearchForm extends StatelessForm<Void> {
 		private static final long serialVersionUID = 1L;
 
 		private final String repositoryName;
@@ -343,9 +369,10 @@ public abstract class RepositoryPage extends BasePage {
 		public SearchForm(String id, String repositoryName) {
 			super(id);
 			this.repositoryName = repositoryName;
-			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType", Arrays.asList(SearchType.values()));
+			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType",
+					Arrays.asList(SearchType.values()));
 			searchType.setModel(searchTypeModel);
-			add(searchType.setVisible(GitBlit.self().settings().getBoolean(Keys.web.showSearchTypeSelection, false)));
+			add(searchType.setVisible(GitBlit.getBoolean(Keys.web.showSearchTypeSelection, false)));
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
 			add(searchBox);
 		}
@@ -363,11 +390,13 @@ public abstract class RepositoryPage extends BasePage {
 			for (SearchType type : SearchType.values()) {
 				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
 					searchType = type;
-					searchString = searchString.substring(type.name().toLowerCase().length() + 1).trim();
+					searchString = searchString.substring(type.name().toLowerCase().length() + 1)
+							.trim();
 					break;
 				}
 			}
-			setResponsePage(SearchPage.class, WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
+			setResponsePage(SearchPage.class,
+					WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
 		}
 	}
 }

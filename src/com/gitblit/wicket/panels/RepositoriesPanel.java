@@ -57,7 +57,8 @@ public class RepositoriesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public RepositoriesPanel(String wicketId, final boolean showAdmin, final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
+	public RepositoriesPanel(String wicketId, final boolean showAdmin,
+			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
 		super(wicketId);
 
 		final UserModel user = GitBlitWebSession.get().getUser();
@@ -68,12 +69,12 @@ public class RepositoriesPanel extends BasePanel {
 		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		if (GitBlit.self().settings().getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
+		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
 			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
 			for (RepositoryModel model : models) {
 				String rootPath = StringUtils.getRootPath(model.name);
 				if (StringUtils.isEmpty(rootPath)) {
-					rootPath = GitBlit.self().settings().getString(Keys.web.repositoryRootGroupName, " ");
+					rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, " ");
 				}
 				if (!groups.containsKey(rootPath)) {
 					groups.put(rootPath, new ArrayList<RepositoryModel>());
@@ -95,7 +96,7 @@ public class RepositoriesPanel extends BasePanel {
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			@Override
 			protected void onBeforeRender() {
@@ -117,28 +118,34 @@ public class RepositoriesPanel extends BasePanel {
 				if (entry.hasCommits) {
 					// Existing repository
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-					row.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
-					row.add(new LinkPanel("repositoryDescription", "list", entry.description, SummaryPage.class, pp));
+					row.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class,
+							pp));
+					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
+							SummaryPage.class, pp));
 				} else {
 					// New repository
-					row.add(new Label("repositoryName", entry.name + "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
+					row.add(new Label("repositoryName", entry.name
+							+ "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
 					row.add(new Label("repositoryDescription", entry.description));
 				}
 
 				if (entry.useTickets) {
-					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png", getString("gb.tickets")));
+					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png",
+							getString("gb.tickets")));
 				} else {
 					row.add(WicketUtils.newBlankImage("ticketsIcon"));
 				}
 
 				if (entry.useDocs) {
-					row.add(WicketUtils.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
+					row.add(WicketUtils
+							.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));
 				} else {
 					row.add(WicketUtils.newBlankImage("docsIcon"));
 				}
 
 				if (entry.isFrozen) {
-					row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", getString("gb.isFrozen")));
+					row.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png",
+							getString("gb.isFrozen")));
 				} else {
 					row.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
 				}
@@ -147,13 +154,16 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 					break;
 				case PUSH:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
+							accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				case CLONE:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
+							accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				case VIEW:
-					row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png", accessRestrictionTranslations.get(entry.accessRestriction)));
+					row.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
+							accessRestrictionTranslations.get(entry.accessRestriction)));
 					break;
 				default:
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
@@ -166,10 +176,13 @@ public class RepositoriesPanel extends BasePanel {
 				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
 
-				boolean showOwner = user != null && user.getUsername().equalsIgnoreCase(entry.owner);
+				boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
 				if (showAdmin) {
-					Fragment repositoryLinks = new Fragment("repositoryLinks", "repositoryAdminLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)));
+					Fragment repositoryLinks = new Fragment("repositoryLinks",
+							"repositoryAdminLinks", this);
+					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
+							EditRepositoryPage.class, WicketUtils
+									.newRepositoryParameter(entry.name)));
 					Link<Void> deleteLink = new Link<Void>("deleteRepository") {
 
 						private static final long serialVersionUID = 1L;
@@ -184,16 +197,21 @@ public class RepositoriesPanel extends BasePanel {
 									((RepositoriesProvider) dp).remove(entry);
 								}
 							} else {
-								error(MessageFormat.format("Failed to delete repository ''{0}''!", entry));
+								error(MessageFormat.format("Failed to delete repository ''{0}''!",
+										entry));
 							}
 						}
 					};
-					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format("Delete repository \"{0}\"?", entry)));
+					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+							"Delete repository \"{0}\"?", entry)));
 					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
 				} else if (showOwner) {
-					Fragment repositoryLinks = new Fragment("repositoryLinks", "repositoryOwnerLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository", EditRepositoryPage.class, WicketUtils.newRepositoryParameter(entry.name)));
+					Fragment repositoryLinks = new Fragment("repositoryLinks",
+							"repositoryOwnerLinks", this);
+					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
+							EditRepositoryPage.class, WicketUtils
+									.newRepositoryParameter(entry.name)));
 					row.add(repositoryLinks);
 				} else {
 					row.add(new Label("repositoryLinks"));
@@ -220,11 +238,11 @@ public class RepositoriesPanel extends BasePanel {
 		}
 	}
 
-	private class GroupRepositoryModel extends RepositoryModel {
+	private static class GroupRepositoryModel extends RepositoryModel {
 
 		private static final long serialVersionUID = 1L;
 
-		int count = 0;
+		int count;
 
 		GroupRepositoryModel(String name, int count) {
 			super(name, "", "", new Date(0));
@@ -241,7 +259,8 @@ public class RepositoriesPanel extends BasePanel {
 		repository, description, owner, date;
 	}
 
-	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp, final DataView<?> dataView) {
+	protected OrderByBorder newSort(String wicketId, SortBy field, SortableDataProvider<?> dp,
+			final DataView<?> dataView) {
 		return new OrderByBorder(wicketId, field.name(), dp) {
 			private static final long serialVersionUID = 1L;
 
@@ -252,7 +271,7 @@ public class RepositoriesPanel extends BasePanel {
 		};
 	}
 
-	private class RepositoriesProvider extends ListDataProvider<RepositoryModel> {
+	private static class RepositoriesProvider extends ListDataProvider<RepositoryModel> {
 
 		private static final long serialVersionUID = 1L;
 
@@ -279,7 +298,8 @@ public class RepositoriesPanel extends BasePanel {
 				}
 			} else if (index < (getData().size() - 1)) {
 				// not last element. check next element for group match.
-				if (getData().get(index - 1) instanceof GroupRepositoryModel && getData().get(index + 1) instanceof GroupRepositoryModel) {
+				if (getData().get(index - 1) instanceof GroupRepositoryModel
+						&& getData().get(index + 1) instanceof GroupRepositoryModel) {
 					// repository is sandwiched by group headers so this
 					// repository is the only element in the group. remove
 					// group.
@@ -304,9 +324,11 @@ public class RepositoriesPanel extends BasePanel {
 		}
 	}
 
-	private class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+	private static class SortableRepositoriesProvider extends SortableDataProvider<RepositoryModel> {
+
 		private static final long serialVersionUID = 1L;
-		private List<RepositoryModel> list = null;
+
+		private List<RepositoryModel> list;
 
 		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
 			this.list = list;
@@ -319,8 +341,9 @@ public class RepositoriesPanel extends BasePanel {
 
 		@Override
 		public int size() {
-			if (list == null)
+			if (list == null) {
 				return 0;
+			}
 			return list.size();
 		}
 
@@ -339,8 +362,9 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc)
+						if (asc) {
 							return o1.lastChange.compareTo(o2.lastChange);
+						}
 						return o2.lastChange.compareTo(o1.lastChange);
 					}
 				});
@@ -348,8 +372,9 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc)
+						if (asc) {
 							return o1.name.compareTo(o2.name);
+						}
 						return o2.name.compareTo(o1.name);
 					}
 				});
@@ -357,8 +382,9 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc)
+						if (asc) {
 							return o1.owner.compareTo(o2.owner);
+						}
 						return o2.owner.compareTo(o1.owner);
 					}
 				});
@@ -366,8 +392,9 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
-						if (asc)
+						if (asc) {
 							return o1.description.compareTo(o2.description);
+						}
 						return o2.description.compareTo(o1.description);
 					}
 				});

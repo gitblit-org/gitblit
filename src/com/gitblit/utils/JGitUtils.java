@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
@@ -81,21 +82,24 @@ import com.gitblit.wicket.models.TicketModel.Comment;
 
 public class JGitUtils {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
 	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
 		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
 		return git.getRepository();
 	}
 
-	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll, boolean readNested) {
+	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll,
+			boolean readNested) {
 		List<String> list = new ArrayList<String>();
-		list.addAll(getNestedRepositories(repositoriesFolder, repositoriesFolder, exportAll, readNested));
+		list.addAll(getNestedRepositories(repositoriesFolder, repositoriesFolder, exportAll,
+				readNested));
 		Collections.sort(list);
 		return list;
 	}
 
-	public static List<String> getNestedRepositories(File repositoriesFolder, File folder, boolean exportAll, boolean readNested) {
+	public static List<String> getNestedRepositories(File repositoriesFolder, File folder,
+			boolean exportAll, boolean readNested) {
 		String basefile = repositoriesFolder.getAbsolutePath();
 		List<String> list = new ArrayList<String>();
 		if (folder == null || !folder.exists()) {
@@ -112,12 +116,16 @@ public class JGitUtils {
 				// then look for folder.git/HEAD or folder/HEAD and
 				// folder/config
 				if (!isGitRepository) {
-					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file, Constants.HEAD).exists()) || (new File(file, "config").exists() && new File(file, Constants.HEAD).exists())) {
+					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file,
+							Constants.HEAD).exists())
+							|| (new File(file, "config").exists() && new File(file, Constants.HEAD)
+									.exists())) {
 						gitFolder = file;
 						isGitRepository = true;
 					}
 				}
-				boolean exportRepository = isGitRepository && (exportAll || new File(gitFolder, "git-daemon-export-ok").exists());
+				boolean exportRepository = isGitRepository
+						&& (exportAll || new File(gitFolder, "git-daemon-export-ok").exists());
 
 				if (exportRepository) {
 					// determine repository name relative to repositories folder
@@ -131,7 +139,8 @@ public class JGitUtils {
 
 				// look for nested repositories
 				if (readNested) {
-					list.addAll(getNestedRepositories(repositoriesFolder, file, exportAll, readNested));
+					list.addAll(getNestedRepositories(repositoriesFolder, file, exportAll,
+							readNested));
 				}
 			}
 		}
@@ -209,13 +218,13 @@ public class JGitUtils {
 	public static Map<ObjectId, List<String>> getAllRefs(Repository r) {
 		Map<ObjectId, List<String>> refs = new HashMap<ObjectId, List<String>>();
 		Map<AnyObjectId, Set<Ref>> allRefs = r.getAllRefsByPeeledObjectId();
-		for (AnyObjectId id : allRefs.keySet()) {
+		for (Entry<AnyObjectId, Set<Ref>> setRefs : allRefs.entrySet()) {
 			List<String> list = new ArrayList<String>();
-			for (Ref setRef : allRefs.get(id)) {
+			for (Ref setRef : setRefs.getValue()) {
 				String name = setRef.getName();
 				list.add(name);
 			}
-			refs.put(id.toObjectId(), list);
+			refs.put(setRefs.getKey().toObjectId(), list);
 		}
 		return refs;
 	}
@@ -223,15 +232,15 @@ public class JGitUtils {
 	public static Map<ObjectId, List<String>> getRefs(Repository r, String baseRef) {
 		Map<ObjectId, List<String>> refs = new HashMap<ObjectId, List<String>>();
 		Map<AnyObjectId, Set<Ref>> allRefs = r.getAllRefsByPeeledObjectId();
-		for (AnyObjectId id : allRefs.keySet()) {
+		for (Entry<AnyObjectId, Set<Ref>> setRefs : allRefs.entrySet()) {
 			List<String> list = new ArrayList<String>();
-			for (Ref setRef : allRefs.get(id)) {
+			for (Ref setRef : setRefs.getValue()) {
 				String name = setRef.getName();
 				if (name.startsWith(baseRef)) {
 					list.add(name);
 				}
 			}
-			refs.put(id.toObjectId(), list);
+			refs.put(setRefs.getKey().toObjectId(), list);
 		}
 		return refs;
 	}
@@ -378,9 +387,11 @@ public class JGitUtils {
 			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
 			for (DiffEntry diff : diffs) {
 				if (diff.getChangeType().equals(ChangeType.DELETE)) {
-					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
+					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
+							.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
 				} else {
-					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
+					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
+							.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
 				}
 			}
 		} catch (Throwable t) {
@@ -453,15 +464,18 @@ public class JGitUtils {
 		return getCommitDiff(r, null, commit, null, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit commit, String path, DiffOutputType outputType) {
+	public static String getCommitDiff(Repository r, RevCommit commit, String path,
+			DiffOutputType outputType) {
 		return getCommitDiff(r, null, commit, path, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, DiffOutputType outputType) {
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
+			DiffOutputType outputType) {
 		return getCommitDiff(r, baseCommit, commit, null, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path, DiffOutputType outputType) {
+	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
+			String path, DiffOutputType outputType) {
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {
@@ -526,15 +540,8 @@ public class JGitUtils {
 		return null;
 	}
 
-	public static String getCommitPatch(Repository r, RevCommit commit) {
-		return getCommitPatch(r, commit);
-	}
-
-	public static String getCommitPatch(Repository r, RevCommit commit, String path) {
-		return getCommitPatch(r, null, commit, path);
-	}
-
-	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit, String path) {
+	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit,
+			String path) {
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {
@@ -593,12 +600,14 @@ public class JGitUtils {
 		}
 		try {
 			if (!walk.isSubtree()) {
-				size = walk.getObjectReader().getObjectSize(walk.getObjectId(0), Constants.OBJ_BLOB);
+				size = walk.getObjectReader()
+						.getObjectSize(walk.getObjectId(0), Constants.OBJ_BLOB);
 			}
 		} catch (Throwable t) {
 			LOGGER.error("Failed to retrieve blob size", t);
 		}
-		return new PathModel(name, walk.getPathString(), size, walk.getFileMode(0).getBits(), commit.getName());
+		return new PathModel(name, walk.getPathString(), size, walk.getFileMode(0).getBits(),
+				commit.getName());
 	}
 
 	public static String getPermissionsFromMode(int mode) {
@@ -633,7 +642,8 @@ public class JGitUtils {
 		return getRevLog(r, objectId, null, offset, maxCount);
 	}
 
-	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset, int maxCount) {
+	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset,
+			int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		if (!hasCommits(r)) {
 			return list;
@@ -646,7 +656,9 @@ public class JGitUtils {
 			ObjectId object = r.resolve(objectId);
 			walk.markStart(walk.parseCommit(object));
 			if (!StringUtils.isEmpty(path)) {
-				TreeFilter filter = AndTreeFilter.create(PathFilterGroup.createFromStrings(Collections.singleton(path)), TreeFilter.ANY_DIFF);
+				TreeFilter filter = AndTreeFilter.create(
+						PathFilterGroup.createFromStrings(Collections.singleton(path)),
+						TreeFilter.ANY_DIFF);
 				walk.setTreeFilter(filter);
 			}
 			Iterable<RevCommit> revlog = walk;
@@ -693,7 +705,8 @@ public class JGitUtils {
 		}
 	}
 
-	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value, final SearchType type, int offset, int maxCount) {
+	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value,
+			final SearchType type, int offset, int maxCount) {
 		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		if (!hasCommits(r)) {
@@ -712,12 +725,17 @@ public class JGitUtils {
 				}
 
 				@Override
-				public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException, MissingObjectException, IncorrectObjectTypeException, IOException {
+				public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException,
+						MissingObjectException, IncorrectObjectTypeException, IOException {
 					switch (type) {
 					case AUTHOR:
-						return (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1) || (commit.getAuthorIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
+						return (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1)
+								|| (commit.getAuthorIdent().getEmailAddress().toLowerCase()
+										.indexOf(lcValue) > -1);
 					case COMMITTER:
-						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1) || (commit.getCommitterIdent().getEmailAddress().toLowerCase().indexOf(lcValue) > -1);
+						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1)
+								|| (commit.getCommitterIdent().getEmailAddress().toLowerCase()
+										.indexOf(lcValue) > -1);
 					case COMMIT:
 						return commit.getFullMessage().toLowerCase().indexOf(lcValue) > -1;
 					}
@@ -770,10 +788,10 @@ public class JGitUtils {
 		List<RefModel> list = new ArrayList<RefModel>();
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
-			for (String name : map.keySet()) {
-				Ref ref = map.get(name);
+			for (Entry<String, Ref> entry : map.entrySet()) {
+				Ref ref = entry.getValue();
 				RevCommit commit = getCommit(r, ref.getObjectId().getName());
-				list.add(new RefModel(name, ref, commit));
+				list.add(new RefModel(entry.getKey(), ref, commit));
 			}
 			Collections.sort(list);
 			Collections.reverse(list);
@@ -787,10 +805,11 @@ public class JGitUtils {
 	}
 
 	public static Ref getRef(Repository r, String id) {
+		// FIXME
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(id);
-			for (String name : map.keySet()) {
-				return map.get(name);
+			for (Entry<String, Ref> entry : map.entrySet()) {
+				return entry.getValue();
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to retrieve ref " + id, e);
@@ -799,7 +818,7 @@ public class JGitUtils {
 	}
 
 	public static Date getCommitDate(RevCommit commit) {
-		return new Date(commit.getCommitTime() * 1000l);
+		return new Date(commit.getCommitTime() * 1000L);
 	}
 
 	public static String getDisplayName(PersonIdent person) {
@@ -807,7 +826,7 @@ public class JGitUtils {
 		r.append(person.getName());
 		r.append(" <");
 		r.append(person.getEmailAddress());
-		r.append(">");
+		r.append('>');
 		return r.toString();
 	}
 
@@ -826,7 +845,8 @@ public class JGitUtils {
 		return null;
 	}
 
-	public static boolean zip(Repository r, String basePath, String objectId, OutputStream os) throws Exception {
+	public static boolean zip(Repository r, String basePath, String objectId, OutputStream os)
+			throws Exception {
 		RevCommit commit = getCommit(r, objectId);
 		if (commit == null) {
 			return false;
@@ -844,7 +864,8 @@ public class JGitUtils {
 			walk.setRecursive(true);
 			while (walk.next()) {
 				ZipEntry entry = new ZipEntry(walk.getPathString());
-				entry.setSize(walk.getObjectReader().getObjectSize(walk.getObjectId(0), Constants.OBJ_BLOB));
+				entry.setSize(walk.getObjectReader().getObjectSize(walk.getObjectId(0),
+						Constants.OBJ_BLOB));
 				entry.setComment(commit.getName());
 				zos.putNextEntry(entry);
 
@@ -889,7 +910,8 @@ public class JGitUtils {
 
 				RevCommit firstCommit = getFirstCommit(r, Constants.HEAD);
 				RevCommit lastCommit = walk.parseCommit(object);
-				int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime()) / (60 * 60 * 24);
+				int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
+						/ (60 * 60 * 24);
 				total.duration = diffDays;
 				DateFormat df;
 				if (diffDays <= 90) {
@@ -908,8 +930,9 @@ public class JGitUtils {
 				for (RevCommit rev : revlog) {
 					Date d = getCommitDate(rev);
 					String p = df.format(d);
-					if (!metricMap.containsKey(p))
+					if (!metricMap.containsKey(p)) {
 						metricMap.put(p, new Metric(p));
+					}
 					Metric m = metricMap.get(p);
 					m.count++;
 					total.count++;
@@ -937,7 +960,7 @@ public class JGitUtils {
 		try {
 			// search for ticgit branch in local heads
 			for (RefModel ref : getLocalBranches(r, -1)) {
-				if (ref.getDisplayName().endsWith("ticgit")) {
+				if (ref.displayName.endsWith("ticgit")) {
 					ticgitBranch = ref;
 					break;
 				}
@@ -946,7 +969,7 @@ public class JGitUtils {
 			// search for ticgit branch in remote heads
 			if (ticgitBranch == null) {
 				for (RefModel ref : getRemoteBranches(r, -1)) {
-					if (ref.getDisplayName().endsWith("ticgit")) {
+					if (ref.displayName.endsWith("ticgit")) {
 						ticgitBranch = ref;
 						break;
 					}
@@ -960,7 +983,7 @@ public class JGitUtils {
 
 	public static List<TicketModel> getTickets(Repository r) {
 		RefModel ticgitBranch = getTicketsBranch(r);
-		List<PathModel> paths = getFilesInPath(r, null, ticgitBranch.getCommit());
+		List<PathModel> paths = getFilesInPath(r, null, ticgitBranch.commit);
 		List<TicketModel> tickets = new ArrayList<TicketModel>();
 		for (PathModel ticketFolder : paths) {
 			if (ticketFolder.isTree()) {
@@ -993,9 +1016,9 @@ public class JGitUtils {
 	}
 
 	private static void readTicketContents(Repository r, RefModel ticketsBranch, TicketModel ticket) {
-		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticketsBranch.getCommit());
+		List<PathModel> ticketFiles = getFilesInPath(r, ticket.name, ticketsBranch.commit);
 		for (PathModel file : ticketFiles) {
-			String content = getRawContentAsString(r, ticketsBranch.getCommit(), file.path).trim();
+			String content = getRawContentAsString(r, ticketsBranch.commit, file.path).trim();
 			if (file.name.equals("TICKET_ID")) {
 				ticket.id = content;
 			} else if (file.name.equals("TITLE")) {
@@ -1028,7 +1051,7 @@ public class JGitUtils {
 	public static String getTicketContent(Repository r, String filePath) {
 		RefModel ticketsBranch = getTicketsBranch(r);
 		if (ticketsBranch != null) {
-			return getRawContentAsString(r, ticketsBranch.getCommit(), filePath);
+			return getRawContentAsString(r, ticketsBranch.commit, filePath);
 		}
 		return "";
 	}

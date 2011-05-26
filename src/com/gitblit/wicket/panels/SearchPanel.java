@@ -43,12 +43,13 @@ public class SearchPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private boolean hasMore = false;
+	private boolean hasMore;
 
-	public SearchPanel(String wicketId, final String repositoryName, final String objectId, final String value, SearchType searchType, Repository r, int limit, int pageOffset) {
+	public SearchPanel(String wicketId, final String repositoryName, final String objectId,
+			final String value, SearchType searchType, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.self().settings().getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -59,7 +60,8 @@ public class SearchPanel extends BasePanel {
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set
-			commits = JGitUtils.searchRevlogs(r, objectId, value, searchType, pageOffset * itemsPerPage, itemsPerPage);
+			commits = JGitUtils.searchRevlogs(r, objectId, value, searchType, pageOffset
+					* itemsPerPage, itemsPerPage);
 		} else {
 			// Fixed size result set
 			commits = JGitUtils.searchRevlogs(r, objectId, value, searchType, 0, limit);
@@ -70,12 +72,14 @@ public class SearchPanel extends BasePanel {
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
-		add(new LinkPanel("header", "title", commit == null ? "":commit.getShortMessage(), CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit == null ? "":commit.getName())));
+		add(new LinkPanel("header", "title", commit == null ? "" : commit.getShortMessage(),
+				CommitPage.class, WicketUtils.newObjectParameter(repositoryName,
+						commit == null ? "" : commit.getName())));
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> searchView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
@@ -85,7 +89,9 @@ public class SearchPanel extends BasePanel {
 
 				// author search link
 				String author = entry.getAuthorIdent().getName();
-				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author, SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId, author, SearchType.AUTHOR));
+				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
+						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+								author, SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
 
@@ -98,8 +104,9 @@ public class SearchPanel extends BasePanel {
 
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
-				// TODO highlight matches
-				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject", trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName()));
+				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
+						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
+								repositoryName, entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
@@ -107,9 +114,12 @@ public class SearchPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
-				item.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("commit", CommitPage.class, WicketUtils
+						.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
+						WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
+						.newObjectParameter(repositoryName, entry.getName())));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

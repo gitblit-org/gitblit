@@ -104,9 +104,13 @@ The following dependencies are automatically downloaded from the Apache Maven re
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)
+- [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
+- [JUnit](http://junit.org) (Common Public License)
 
 ## Building
 [Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.
+
+Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [eclipse-cs](http://eclipse-cs.sourceforge.net), and [FindBugs](http://findbugs.sourceforge.net) are recommended development tools.
 
 1. Clone the git repository from [Github][gitbltsrc].
 2. Import the gitblit project into your Eclipse workspace.<br/>

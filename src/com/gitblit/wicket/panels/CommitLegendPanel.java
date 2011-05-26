@@ -38,8 +38,9 @@ public class CommitLegendPanel extends Panel {
 
 	public CommitLegendPanel(String id, List<PathChangeModel> paths) {
 		super(id);
-		final Map<ChangeType, AtomicInteger> stats = JGitUtils.getChangedPathsStats(paths);		
-		ListDataProvider<ChangeType> legendDp = new ListDataProvider<ChangeType>(new ArrayList<ChangeType>(stats.keySet()));
+		final Map<ChangeType, AtomicInteger> stats = JGitUtils.getChangedPathsStats(paths);
+		ListDataProvider<ChangeType> legendDp = new ListDataProvider<ChangeType>(
+				new ArrayList<ChangeType>(stats.keySet()));
 		DataView<ChangeType> legendsView = new DataView<ChangeType>("legend", legendDp) {
 			private static final long serialVersionUID = 1L;
 
@@ -50,8 +51,8 @@ public class CommitLegendPanel extends Panel {
 				WicketUtils.setChangeTypeCssClass(changeType, entry);
 				item.add(changeType);
 				int count = stats.get(entry).intValue();
-				String description  = "";
-				switch(entry) {
+				String description = "";
+				switch (entry) {
 				case ADD:
 					description = MessageFormat.format(getString("gb.filesAdded"), count);
 					break;
@@ -67,7 +68,7 @@ public class CommitLegendPanel extends Panel {
 				case RENAME:
 					description = MessageFormat.format(getString("gb.filesRenamed"), count);
 					break;
-				}				
+				}
 				item.add(new Label("description", description));
 			}
 		};

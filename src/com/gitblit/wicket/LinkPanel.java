@@ -31,15 +31,18 @@ public class LinkPanel extends Panel {
 
 	private final IModel<String> labelModel;
 
-	public LinkPanel(String wicketId, String linkCssClass, String label, Class<? extends WebPage> clazz) {
+	public LinkPanel(String wicketId, String linkCssClass, String label,
+			Class<? extends WebPage> clazz) {
 		this(wicketId, linkCssClass, new Model<String>(label), clazz, null);
 	}
-	
-	public LinkPanel(String wicketId, String linkCssClass, String label, Class<? extends WebPage> clazz, PageParameters parameters) {
+
+	public LinkPanel(String wicketId, String linkCssClass, String label,
+			Class<? extends WebPage> clazz, PageParameters parameters) {
 		this(wicketId, linkCssClass, new Model<String>(label), clazz, parameters);
 	}
 
-	public LinkPanel(String wicketId, String linkCssClass, IModel<String> model, Class<? extends WebPage> clazz, PageParameters parameters) {
+	public LinkPanel(String wicketId, String linkCssClass, IModel<String> model,
+			Class<? extends WebPage> clazz, PageParameters parameters) {
 		super(wicketId);
 		this.labelModel = model;
 		Link<Void> link = null;

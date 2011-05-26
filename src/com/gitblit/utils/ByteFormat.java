@@ -32,8 +32,6 @@ public class ByteFormat extends Format {
 	public ByteFormat() {
 	}
 
-	// Implemented from the Format class
-
 	/**
 	 * Formats a long which represent a number of bytes.
 	 */
@@ -73,7 +71,8 @@ public class ByteFormat extends Format {
 				buf.append(formatter.format((double) numBytes / (1024.0 * 1024.0))).append(" MB");
 			} else {
 				DecimalFormat formatter = new DecimalFormat("#,##0.0");
-				buf.append(formatter.format((double) numBytes / (1024.0 * 1024.0 * 1024.0))).append(" GB");
+				buf.append(formatter.format((double) numBytes / (1024.0 * 1024.0 * 1024.0)))
+						.append(" GB");
 			}
 		}
 		return buf;

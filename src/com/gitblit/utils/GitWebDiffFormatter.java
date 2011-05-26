@@ -47,7 +47,8 @@ public class GitWebDiffFormatter extends DiffFormatter {
 	 * @throws IOException
 	 */
 	@Override
-	protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine) throws IOException {
+	protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine)
+			throws IOException {
 		os.write("<div class=\"diff hunk_header\"><span class=\"diff hunk_info\">".getBytes());
 		os.write('@');
 		os.write('@');
@@ -93,7 +94,8 @@ public class GitWebDiffFormatter extends DiffFormatter {
 	}
 
 	@Override
-	protected void writeLine(final char prefix, final RawText text, final int cur) throws IOException {
+	protected void writeLine(final char prefix, final RawText text, final int cur)
+			throws IOException {
 		switch (prefix) {
 		case '+':
 			os.write("<span class=\"diff add\">".getBytes());

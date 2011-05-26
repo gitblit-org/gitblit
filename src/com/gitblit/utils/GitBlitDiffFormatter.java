@@ -25,7 +25,7 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 
 	private final OutputStream os;
 
-	private int left = 0, right = 0;
+	private int left, right;
 
 	public GitBlitDiffFormatter(OutputStream os) {
 		super(os);
@@ -46,7 +46,8 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	 * @throws IOException
 	 */
 	@Override
-	protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine) throws IOException {
+	protected void writeHunkHeader(int aStartLine, int aEndLine, int bStartLine, int bEndLine)
+			throws IOException {
 		os.write("<tr><th>..</th><th>..</th><td class='hunk_header'>".getBytes());
 		os.write('@');
 		os.write('@');
@@ -61,7 +62,8 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	}
 
 	@Override
-	protected void writeLine(final char prefix, final RawText text, final int cur) throws IOException {
+	protected void writeLine(final char prefix, final RawText text, final int cur)
+			throws IOException {
 		os.write("<tr>".getBytes());
 		switch (prefix) {
 		case '+':
@@ -104,7 +106,7 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	public String getHtml() {
 		String html = os.toString();
 		String[] lines = html.split("\n");
-		StringBuilder sb = new StringBuilder();		
+		StringBuilder sb = new StringBuilder();
 		boolean inFile = false;
 		String oldnull = "a/dev/null";
 		for (String line : lines) {
@@ -120,7 +122,8 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				if (line.indexOf(oldnull) > -1) {
 					// a is null, use b
 					line = line.substring(("diff --git " + oldnull).length()).trim();
-					line = line.substring(2); // trim b/
+					// trim b/
+					line = line.substring(2);
 				} else {
 					// use a
 					line = line.substring("diff --git a/".length()).trim();
@@ -131,7 +134,7 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 					inFile = false;
 				}
 				sb.append("<div class='header'>").append(line).append("</div>");
-				sb.append("<div class=\"diff\">");	
+				sb.append("<div class=\"diff\">");
 				sb.append("<table><tbody>");
 				inFile = true;
 			} else {

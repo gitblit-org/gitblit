@@ -28,11 +28,11 @@ public final class GitBlitWebSession extends WebSession {
 
 	private static final long serialVersionUID = 1L;
 
-	protected TimeZone timezone = null;
+	protected TimeZone timezone;
 
-	private UserModel user = null;
-	
-	private String errorMessage = null;
+	private UserModel user;
+
+	private String errorMessage;
 
 	public GitBlitWebSession(Request request) {
 		super(request);
@@ -51,7 +51,7 @@ public final class GitBlitWebSession extends WebSession {
 		if (user == null) {
 			return false;
 		}
-		return user.canAdmin();
+		return user.canAdmin;
 	}
 
 	public UserModel getUser() {
@@ -72,11 +72,11 @@ public final class GitBlitWebSession extends WebSession {
 		}
 		return timezone;
 	}
-	
+
 	public void cacheErrorMessage(String message) {
 		this.errorMessage = message;
 	}
-	
+
 	public String clearErrorMessage() {
 		String msg = errorMessage;
 		errorMessage = null;

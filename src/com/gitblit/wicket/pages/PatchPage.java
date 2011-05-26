@@ -37,7 +37,7 @@ public class PatchPage extends WebPage {
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}
-		
+
 		final String repositoryName = WicketUtils.getRepositoryName(params);
 		final String baseObjectId = WicketUtils.getBaseObjectId(params);
 		final String objectId = WicketUtils.getObject(params);
@@ -56,14 +56,12 @@ public class PatchPage extends WebPage {
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}
-		
-		String patch;
-		if (StringUtils.isEmpty(baseObjectId)) {
-			patch = JGitUtils.getCommitPatch(r, commit, blobPath);
-		} else {
-			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			patch = JGitUtils.getCommitPatch(r, baseCommit, commit, blobPath);			
+
+		RevCommit baseCommit = null;
+		if (!StringUtils.isEmpty(baseObjectId)) {
+			baseCommit = JGitUtils.getCommit(r, baseObjectId);
 		}
+		String patch = JGitUtils.getCommitPatch(r, baseCommit, commit, blobPath);
 		add(new Label("patchText", patch));
 		r.close();
 	}

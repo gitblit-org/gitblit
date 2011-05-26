@@ -39,21 +39,25 @@ public class TicketsPage extends RepositoryPage {
 		List<TicketModel> tickets = JGitUtils.getTickets(getRepository());
 
 		// header
-		add(new LinkPanel("header", "title", repositoryName, SummaryPage.class, newRepositoryParameter()));
+		add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
+				newRepositoryParameter()));
 
 		ListDataProvider<TicketModel> ticketsDp = new ListDataProvider<TicketModel>(tickets);
 		DataView<TicketModel> ticketsView = new DataView<TicketModel>("ticket", ticketsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<TicketModel> item) {
 				final TicketModel entry = item.getModelObject();
 				Label stateLabel = new Label("ticketState", entry.state);
 				WicketUtils.setTicketCssClass(stateLabel, entry.state);
 				item.add(stateLabel);
-				item.add(WicketUtils.createDateLabel("ticketDate", entry.date, GitBlitWebSession.get().getTimezone()));
-				item.add(new Label("ticketHandler", StringUtils.trimString(entry.handler.toLowerCase(), 30)));
-				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(entry.title, 80), TicketPage.class, newPathParameter(entry.name)));
+				item.add(WicketUtils.createDateLabel("ticketDate", entry.date, GitBlitWebSession
+						.get().getTimezone()));
+				item.add(new Label("ticketHandler", StringUtils.trimString(
+						entry.handler.toLowerCase(), 30)));
+				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(
+						entry.title, 80), TicketPage.class, newPathParameter(entry.name)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

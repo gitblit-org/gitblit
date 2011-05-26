@@ -41,14 +41,14 @@ public class RepositoriesPage extends BasePage {
 		setupPage("", "");
 
 		final boolean showAdmin;
-		if (GitBlit.self().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
+		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 			// authentication requires state and session
 			setStatelessHint(false);
 		} else {
-			showAdmin = GitBlit.self().settings().getBoolean(Keys.web.allowAdministration, false);
-			if (GitBlit.self().settings().getBoolean(Keys.web.authenticateViewPages, false)) {
+			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+			if (GitBlit.getBoolean(Keys.web.authenticateViewPages, false)) {
 				// authentication requires state and session
 				setStatelessHint(false);
 			} else {
@@ -64,7 +64,7 @@ public class RepositoriesPage extends BasePage {
 		}
 
 		// Load the markdown welcome message
-		String messageSource = GitBlit.self().settings().getString(Keys.web.repositoriesMessage, "gitblit");
+		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = "<br/>";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
 			// Read default welcome message
@@ -94,9 +94,10 @@ public class RepositoriesPage extends BasePage {
 				}
 			}
 		}
-		Component repositoriesMessage = new Label("repositoriesMessage", message).setEscapeModelStrings(false);
+		Component repositoriesMessage = new Label("repositoriesMessage", message)
+				.setEscapeModelStrings(false);
 		add(repositoriesMessage);
-		add(new RepositoriesPanel("repositoriesPanel", showAdmin, getAccessRestrictions()));		
+		add(new RepositoriesPanel("repositoriesPanel", showAdmin, getAccessRestrictions()));
 		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
 	}
 }

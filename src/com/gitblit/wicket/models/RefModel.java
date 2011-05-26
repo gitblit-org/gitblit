@@ -27,9 +27,9 @@ import com.gitblit.utils.JGitUtils;
 public class RefModel implements Serializable, Comparable<RefModel> {
 
 	private static final long serialVersionUID = 1L;
-	final String displayName;
-	transient Ref ref;
-	final RevCommit commit;
+	public final String displayName;
+	public final RevCommit commit;
+	public transient Ref ref;
 
 	public RefModel(String displayName, Ref ref, RevCommit commit) {
 		this.displayName = displayName;
@@ -41,16 +41,8 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 		return JGitUtils.getCommitDate(commit);
 	}
 
-	public String getDisplayName() {
-		return displayName;
-	}
-
 	public String getName() {
 		return ref.getName();
-	}
-
-	public RevCommit getCommit() {
-		return commit;
 	}
 
 	public ObjectId getCommitId() {
@@ -68,6 +60,20 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public boolean isAnnotatedTag() {
 		// ref.isPeeled() ??
 		return !getCommitId().equals(getObjectId());
+	}
+
+	@Override
+	public int hashCode() {
+		return getCommitId().hashCode() + getName().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof RefModel) {
+			RefModel other = (RefModel) o;
+			return getName().equals(other.getName());
+		}
+		return super.equals(o);
 	}
 
 	@Override

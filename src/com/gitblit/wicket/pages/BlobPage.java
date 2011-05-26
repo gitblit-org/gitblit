@@ -45,24 +45,27 @@ public class BlobPage extends RepositoryPage {
 		if (blobPath.lastIndexOf('.') > -1) {
 			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
 		}
-		
+
 		// see if we should redirect to the markdown page
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.markdownExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
 			if (ext.equals(extension)) {
 				setResponsePage(MarkdownPage.class, params);
 				return;
 			}
 		}
-		
+
 		// standard blob view
 		Repository r = getRepository();
 		RevCommit commit = getCommit();
 
 		// blob page links
 		add(new Label("blameLink", getString("gb.blame")));
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class, WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
+		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
+				repositoryName, objectId, blobPath)));
+		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class,
+				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -70,13 +73,13 @@ public class BlobPage extends RepositoryPage {
 
 		// Map the extensions to types
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.prettyPrintExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.prettyPrintExtensions)) {
 			map.put(ext.toLowerCase(), 1);
 		}
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.imageExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
 			map.put(ext.toLowerCase(), 2);
 		}
-		for (String ext : GitBlit.self().settings().getStrings(Keys.web.binaryExtensions)) {
+		for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
 			map.put(ext.toLowerCase(), 3);
 		}
 
@@ -108,7 +111,8 @@ public class BlobPage extends RepositoryPage {
 			add(c);
 		} else {
 			// plain text
-			Label blobLabel = new Label("blobText", JGitUtils.getRawContentAsString(r, commit, blobPath));
+			Label blobLabel = new Label("blobText", JGitUtils.getRawContentAsString(r, commit,
+					blobPath));
 			WicketUtils.setCssClass(blobLabel, "plainprint");
 			add(blobLabel);
 		}

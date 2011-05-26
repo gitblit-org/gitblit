@@ -22,9 +22,9 @@ import javax.servlet.ServletContext;
 public class WebXmlSettings implements IStoredSettings {
 
 	public WebXmlSettings(ServletContext context) {
-		
+
 	}
-	
+
 	@Override
 	public List<String> getAllKeys(String startingWith) {
 		// TODO Auto-generated method stub
@@ -72,7 +72,7 @@ public class WebXmlSettings implements IStoredSettings {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "WEB.XML";

@@ -48,16 +48,21 @@ public class TagPage extends RepositoryPage {
 
 		if (tagRef == null) {
 			// point to commit
-			add(new LinkPanel("commit", "title", c.getShortMessage(), CommitPage.class, newCommitParameter()));
-			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
+			add(new LinkPanel("commit", "title", c.getShortMessage(), CommitPage.class,
+					newCommitParameter()));
+			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class,
+					newCommitParameter(c.getName())));
 		} else {
 			// TODO commit or tree or blob?
-			add(new LinkPanel("commit", "title", tagRef.getDisplayName(), CommitPage.class, newCommitParameter()));
-			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class, newCommitParameter(c.getName())));
+			add(new LinkPanel("commit", "title", tagRef.displayName, CommitPage.class,
+					newCommitParameter()));
+			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class,
+					newCommitParameter(c.getName())));
 		}
 
 		add(createPersonPanel("tagAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
-		add(WicketUtils.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
+		add(WicketUtils
+				.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
 
 		addFullText("fullMessage", c.getFullMessage(), true);
 	}

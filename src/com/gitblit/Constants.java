@@ -17,25 +17,25 @@ package com.gitblit;
 
 public class Constants {
 
-	public final static String NAME = "Gitblit";
-	
-	public final static String FULL_NAME = "Gitblit - a pure Java Git solution";
+	public static final String NAME = "Gitblit";
 
-	// The build script extracts this exact line so be careful editing it
-	// and only use A-Z a-z 0-9 .-_ in the string. 
-	public final static String VERSION = "0.1.0-SNAPSHOT";
+	public static final String FULL_NAME = "Gitblit - a pure Java Git solution";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public final static String JGIT_VERSION = "JGit 0.12.1";
+	public static final String VERSION = "0.1.0-SNAPSHOT";
 
-	public final static String ADMIN_ROLE = "#admin";
+	// The build script extracts this exact line so be careful editing it
+	// and only use A-Z a-z 0-9 .-_ in the string.
+	public static final String JGIT_VERSION = "JGit 0.12.1";
 
-	public final static String PROPERTIES_FILE = "gitblit.properties";
-	
-	public final static String GIT_SERVLET_PATH = "/git/";
-	
-	public final static String ZIP_SERVLET_PATH = "/zip/";
+	public static final String ADMIN_ROLE = "#admin";
+
+	public static final String PROPERTIES_FILE = "gitblit.properties";
+
+	public static final String GIT_SERVLET_PATH = "/git/";
+
+	public static final String ZIP_SERVLET_PATH = "/zip/";
 
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
@@ -64,13 +64,5 @@ public class Constants {
 
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
-	}
-
-	public static String getJGitVersion() {
-		return JGIT_VERSION;
-	}
-
-	public static String getRunningVersion() {
-		return getGitBlitVersion();
 	}
 }

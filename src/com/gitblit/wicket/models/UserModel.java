@@ -23,33 +23,14 @@ public class UserModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private String username;
-	private String password;
-	private boolean canAdmin = false;
-	private List<String> repositories = new ArrayList<String>();
+	// field names are reflectively mapped in EditUser page
+	public String username;
+	public String password;
+	public boolean canAdmin;
+	public final List<String> repositories = new ArrayList<String>();
 
 	public UserModel(String username) {
 		this.username = username;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public void canAdmin(boolean value) {
-		canAdmin = value;
-	}
-
-	public boolean canAdmin() {
-		return canAdmin;
 	}
 
 	public boolean canAccessRepository(String repositoryName) {
@@ -63,10 +44,6 @@ public class UserModel implements Serializable {
 
 	public void addRepository(String name) {
 		repositories.add(name.toLowerCase());
-	}
-
-	public List<String> getRepositories() {
-		return repositories;
 	}
 
 	@Override

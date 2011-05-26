@@ -52,13 +52,15 @@ public class TicketPage extends RepositoryPage {
 		ListDataProvider<Comment> commentsDp = new ListDataProvider<Comment>(t.comments);
 		DataView<Comment> commentsView = new DataView<Comment>("comment", commentsDp) {
 			private static final long serialVersionUID = 1L;
-			int counter = 0;
+			int counter;
 
 			public void populateItem(final Item<Comment> item) {
 				final Comment entry = item.getModelObject();
-				item.add(WicketUtils.createDateLabel("commentDate", entry.date, GitBlitWebSession.get().getTimezone()));
+				item.add(WicketUtils.createDateLabel("commentDate", entry.date, GitBlitWebSession
+						.get().getTimezone()));
 				item.add(new Label("commentAuthor", entry.author.toLowerCase()));
-				item.add(new Label("commentText", prepareComment(entry.text)).setEscapeModelStrings(false));
+				item.add(new Label("commentText", prepareComment(entry.text))
+						.setEscapeModelStrings(false));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
@@ -74,6 +76,7 @@ public class TicketPage extends RepositoryPage {
 	private String prepareComment(String comment) {
 		String html = StringUtils.escapeForHtml(comment, false);
 		html = StringUtils.breakLinesForHtml(comment).trim();
-		return html.replaceAll("\\bcommit\\s*([A-Za-z0-9]*)\\b", "<a href=\"/commit/" + repositoryName + "/$1\">commit $1</a>");
+		return html.replaceAll("\\bcommit\\s*([A-Za-z0-9]*)\\b", "<a href=\"/commit/"
+				+ repositoryName + "/$1\">commit $1</a>");
 	}
 }

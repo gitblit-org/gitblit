@@ -88,6 +88,22 @@ BouncyCastle
    http://www.bouncycastle.org
    
 ---------------------------------------------------------------------------
+JSch
+---------------------------------------------------------------------------
+   JSch - Java Secure Channel, released under the
+   BSD License.
+
+   http://www.jcraft.com/jsch
+
+---------------------------------------------------------------------------
+JUnit
+---------------------------------------------------------------------------
+   JUnit, released under the
+   Common Public License.
+
+   http://junit.org
+
+---------------------------------------------------------------------------
 Fancybox image viewer
 ---------------------------------------------------------------------------
    Fancybox image viewer, released under the
