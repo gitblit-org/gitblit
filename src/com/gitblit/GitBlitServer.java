@@ -425,7 +425,7 @@ public class GitBlitServer {
 	@Parameters(separators = " ")
 	private static class Params {
 		
-		private static final FileSettings FILESETTINGS = new FileSettings();
+		private static final FileSettings FILESETTINGS = new FileSettings(Constants.PROPERTIES_FILE);
 
 		/*
 		 * Server parameters

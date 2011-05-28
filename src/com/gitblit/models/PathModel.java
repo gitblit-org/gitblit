@@ -43,16 +43,6 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		return FileMode.TREE.equals(mode);
 	}
 
-	public static PathModel getParentPath(String basePath, String commitId) {
-		String parentPath = null;
-		if (basePath.lastIndexOf('/') > -1) {
-			parentPath = basePath.substring(0, basePath.lastIndexOf('/'));
-		}
-		PathModel model = new PathModel("..", parentPath, 0, 40000, commitId);
-		model.isParentPath = true;
-		return model;
-	}
-
 	@Override
 	public int hashCode() {
 		return commitId.hashCode() + path.hashCode();

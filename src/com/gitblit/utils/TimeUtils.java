@@ -45,9 +45,9 @@ public class TimeUtils {
 	public static String duration(int days) {
 		if (days <= 60) {
 			return days + (days > 1 ? " days" : " day");
-		} else if (days <= 365) {
+		} else if (days < 365) {
 			int rem = days % 30;
-			return (days / 30) + " months, " + rem + (rem > 1 ? " days" : " day");
+			return (days / 30) + (rem >= 15 ? 1 : 0) + " months";
 		} else {
 			int years = days / 365;
 			int rem = days % 365;
@@ -56,23 +56,17 @@ public class TimeUtils {
 				if (rem == 0) {
 					return yearsString;
 				} else {
-					return yearsString + ", " + rem + (rem > 1 ? " days" : " day");
+					return yearsString + (rem >= 15 ? ", 1 month" : "");
 				}
 			} else {
 				int months = rem / 30;
 				int remDays = rem % 30;
-				String monthsString;
-				if (months == 0) {
-					monthsString = yearsString;
-				} else {
-					monthsString = yearsString + ", " + months
-							+ (months > 1 ? " months" : " month");
+				if (remDays >= 15) {
+					months++;
 				}
-				if (remDays == 0) {
-					return monthsString;
-				} else {
-					return monthsString + ", " + remDays + (remDays > 1 ? " days" : " day");
-				}
+				String monthsString = yearsString + ", " + months
+						+ (months > 1 ? " months" : " month");
+				return monthsString;
 			}
 		}
 	}
@@ -120,7 +114,7 @@ public class TimeUtils {
 		String ago = null;
 		if (isToday(date) || isYesterday(date)) {
 			int mins = minutesAgo(date, true);
-			if (mins > 120) {
+			if (mins >= 120) {
 				if (css) {
 					return "age1";
 				}
@@ -128,7 +122,7 @@ public class TimeUtils {
 				if (hours > 23) {
 					ago = "yesterday";
 				} else {
-					ago = hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+					ago = hours + " hours ago";
 				}
 			} else {
 				if (css) {
@@ -158,8 +152,6 @@ public class TimeUtils {
 						months++;
 					}
 					ago = months + " month" + (months > 1 ? "s" : "") + " ago";
-				} else {
-					ago = days + " day" + (days > 1 ? "s" : "") + " ago";
 				}
 			} else if (days == 365) {
 				ago = "1 year ago";

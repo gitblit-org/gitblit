@@ -29,9 +29,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 
+import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Comment;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.DiffOutputType;
@@ -69,6 +71,38 @@ public class JGitUtilsTest extends TestCase {
 				commit.getName().equals("f554664a346629dc2b839f7292d06bad2db4aece"));
 	}
 
+	public void testRefs() throws Exception {
+		Repository repository = GitBlitSuite.getTicgitRepository();
+		for (RefModel model : JGitUtils.getLocalBranches(repository, -1)) {
+			assertTrue(model.getName().startsWith(Constants.R_HEADS));
+			assertTrue(model.equals(model));
+			assertFalse(model.equals(""));
+			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+					+ model.getName().hashCode());
+			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+		}
+		for (RefModel model : JGitUtils.getRemoteBranches(repository, -1)) {
+			assertTrue(model.getName().startsWith(Constants.R_REMOTES));
+			assertTrue(model.equals(model));
+			assertFalse(model.equals(""));
+			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+					+ model.getName().hashCode());
+			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+		}
+		for (RefModel model : JGitUtils.getTags(repository, -1)) {
+			if (model.getObjectId().getName().equals("283035e4848054ff1803cb0e690270787dc92399")) {
+				assertTrue("Not an annotated tag!", model.isAnnotatedTag());
+			}
+			assertTrue(model.getName().startsWith(Constants.R_TAGS));
+			assertTrue(model.equals(model));
+			assertFalse(model.equals(""));
+			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+					+ model.getName().hashCode());
+			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+		}
+		repository.close();
+	}
+
 	public void testRetrieveRevObject() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository, Constants.HEAD);
@@ -95,6 +129,12 @@ public class JGitUtilsTest extends TestCase {
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(repository, commit);
 		repository.close();
 		assertTrue("No changed paths found!", paths.size() == 1);
+		for (PathChangeModel path : paths) {
+			assertTrue("PathChangeModel hashcode incorrect!",
+					path.hashCode() == (path.commitId.hashCode() + path.path.hashCode()));
+			assertTrue("PathChangeModel equals itself failed!", path.equals(path));
+			assertFalse("PathChangeModel equals string failed!", path.equals(""));
+		}
 	}
 
 	public void testCommitDiff() throws Exception {
@@ -120,12 +160,34 @@ public class JGitUtilsTest extends TestCase {
 		repository.close();
 	}
 
+	public void testMetrics() throws Exception {
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		List<Metric> metrics = JGitUtils.getDateMetrics(repository);
+		repository.close();
+		assertTrue("No metrics found!", metrics.size() > 0);
+	}
+
 	public void testTicGit() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		RefModel branch = JGitUtils.getTicketsBranch(repository);
 		assertTrue("Ticgit branch does not exist!", branch != null);
-		List<TicketModel> tickets = JGitUtils.getTickets(repository);
+		List<TicketModel> ticketsA = JGitUtils.getTickets(repository);
+		List<TicketModel> ticketsB = JGitUtils.getTickets(repository);
 		repository.close();
-		assertTrue("No tickets found!", tickets.size() > 0);
+		assertTrue("No tickets found!", ticketsA.size() > 0);
+		for (int i = 0; i < ticketsA.size(); i++) {
+			TicketModel ticketA = ticketsA.get(i);
+			TicketModel ticketB = ticketsB.get(i);
+			assertTrue("Tickets are not equal!", ticketA.equals(ticketB));
+			assertFalse(ticketA.equals(""));
+			assertTrue(ticketA.hashCode() == ticketA.id.hashCode());
+			for (int j = 0; j < ticketA.comments.size(); j++) {
+				Comment commentA = ticketA.comments.get(j);
+				Comment commentB = ticketB.comments.get(j);
+				assertTrue("Comments are not equal!", commentA.equals(commentB));
+				assertFalse(commentA.equals(""));
+				assertTrue(commentA.hashCode() == commentA.text.hashCode());
+			}
+		}
 	}
 }

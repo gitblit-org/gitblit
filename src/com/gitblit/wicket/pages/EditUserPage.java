@@ -140,9 +140,10 @@ public class EditUserPage extends BasePage {
 				Iterator<String> selectedRepositories = repositories.getSelectedChoices();
 				List<String> repos = new ArrayList<String>();
 				while (selectedRepositories.hasNext()) {
-					repos.add(selectedRepositories.next());
+					repos.add(selectedRepositories.next().toLowerCase());
 				}
-				userModel.setRepositories(repos);
+				userModel.repositories.clear();
+				userModel.repositories.addAll(repos);				
 				try {
 					GitBlit.self().editUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {

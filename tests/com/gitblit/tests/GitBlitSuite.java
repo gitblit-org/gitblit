@@ -11,6 +11,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
+import com.gitblit.FileSettings;
+import com.gitblit.GitBlit;
+import com.gitblit.JettyLoginService;
+
 public class GitBlitSuite extends TestSetup {
 	public static final File REPOSITORIES = new File("git");
 
@@ -20,7 +24,9 @@ public class GitBlitSuite extends TestSetup {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
+		suite.addTestSuite(TimeUtilsTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
+		suite.addTestSuite(GitBlitTest.class);
 		return new GitBlitSuite(suite);
 	}
 
@@ -39,6 +45,11 @@ public class GitBlitSuite extends TestSetup {
 			cloneOrFetch("nested/helloworld.git", "https://github.com/git/hello-world.git", true);
 			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git", true);
 		}
+		FileSettings settings = new FileSettings("distrib/gitblit.properties");
+		GitBlit.self().configureContext(settings);
+		JettyLoginService loginService = new JettyLoginService(new File("distrib/users.properties"));
+		loginService.loadUsers();
+		GitBlit.self().setLoginService(loginService);
 	}
 
 	private void cloneOrFetch(String toFolder, String fromUrl, boolean bare) throws Exception {

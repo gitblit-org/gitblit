@@ -56,7 +56,7 @@ public class GitBlitServlet extends GitServlet {
 		}
 		int forwardSlash = url.indexOf('/');
 		if (forwardSlash > -1) {
-			String repository = url.substring(0, forwardSlash);
+			String repository = url.substring(0, forwardSlash).toLowerCase();
 			String function = url.substring(forwardSlash + 1);
 			String query = req.getQueryString() == null ? "" : req.getQueryString();
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repository);

@@ -34,10 +34,16 @@ public class FileSettings implements IStoredSettings {
 
 	private final Logger logger = LoggerFactory.getLogger(FileSettings.class);
 
+	private final File propertiesFile;
+	
 	private Properties properties = new Properties();
 
 	private long lastread;
 
+	public FileSettings(String file) {
+		this.propertiesFile = new File(file);
+	}
+	
 	@Override
 	public List<String> getAllKeys(String startingWith) {
 		startingWith = startingWith.toLowerCase();
@@ -138,15 +144,14 @@ public class FileSettings implements IStoredSettings {
 		return strings;
 	}
 
-	private synchronized Properties read() {
-		File file = new File(Constants.PROPERTIES_FILE);
-		if (file.exists() && (file.lastModified() > lastread)) {
+	private synchronized Properties read() {		
+		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastread)) {
 			FileInputStream is = null;
 			try {
 				properties = new Properties();
-				is = new FileInputStream(Constants.PROPERTIES_FILE);
+				is = new FileInputStream(propertiesFile);
 				properties.load(is);
-				lastread = file.lastModified();
+				lastread = propertiesFile.lastModified();
 			} catch (FileNotFoundException f) {
 				// IGNORE - won't happen because file.exists() check above
 			} catch (Throwable t) {
@@ -166,6 +171,6 @@ public class FileSettings implements IStoredSettings {
 
 	@Override
 	public String toString() {
-		return new File(Constants.PROPERTIES_FILE).getAbsolutePath();
+		return propertiesFile.getAbsolutePath();
 	}
 }

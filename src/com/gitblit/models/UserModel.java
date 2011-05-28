@@ -34,12 +34,7 @@ public class UserModel implements Serializable {
 	}
 
 	public boolean canAccessRepository(String repositoryName) {
-		return canAdmin || repositories.contains(repositoryName);
-	}
-
-	public void setRepositories(List<String> repositories) {
-		this.repositories.clear();
-		this.repositories.addAll(repositories);
+		return canAdmin || repositories.contains(repositoryName.toLowerCase());
 	}
 
 	public void addRepository(String name) {

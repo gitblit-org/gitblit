@@ -65,7 +65,14 @@ public class TreePage extends RepositoryPage {
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 		if (path != null && path.trim().length() > 0) {
-			paths.add(0, PathModel.getParentPath(path, objectId));
+			// add .. parent path entry
+			String parentPath = null;
+			if (path.lastIndexOf('/') > -1) {
+				parentPath = path.substring(0, path.lastIndexOf('/'));
+			}
+			PathModel model = new PathModel("..", parentPath, 0, 40000, objectId);
+			model.isParentPath = true;
+			paths.add(0, model);
 		}
 
 		final ByteFormat byteFormat = new ByteFormat();

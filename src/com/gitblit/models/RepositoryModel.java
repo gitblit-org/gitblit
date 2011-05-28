@@ -37,11 +37,7 @@ public class RepositoryModel implements Serializable {
 	public boolean isFrozen;
 
 	public RepositoryModel() {
-		this.name = "";
-		this.description = "";
-		this.owner = "";
-		this.lastChange = new Date(0);
-		this.accessRestriction = AccessRestrictionType.NONE;
+		this("", "", "", new Date(0));
 	}
 
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {

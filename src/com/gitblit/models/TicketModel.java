@@ -58,11 +58,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public String author;
 		public Date date;
 
-		public Comment(String text, Date date) {
-			this.text = text;
-			this.date = date;
-		}
-
 		public Comment(String filename, String content) throws ParseException {
 			String[] chunks = filename.split("_", -1);
 			this.date = new Date(Long.parseLong(chunks[1]) * 1000L);
