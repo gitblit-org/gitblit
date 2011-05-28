@@ -43,13 +43,12 @@ import org.apache.wicket.model.Model;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.UserModel;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.SummaryPage;
 

@@ -25,7 +25,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.TreePage;
 
@@ -59,7 +58,10 @@ public class PathBreadcrumbsPanel extends Panel {
 
 			public void populateItem(final Item<BreadCrumb> item) {
 				final BreadCrumb entry = item.getModelObject();
-				String path = entry.getPath();
+				String path = entry.path;
+				if (path.equals(ROOT)) {
+					path = null;
+				}
 				if (entry.isLeaf) {
 					item.add(new Label("pathLink", entry.name));
 					item.add(new Label("pathSeparator", "").setVisible(false));
@@ -85,13 +87,6 @@ public class PathBreadcrumbsPanel extends Panel {
 			this.name = name;
 			this.path = path;
 			this.isLeaf = isLeaf;
-		}
-
-		String getPath() {
-			if (path.equals(ROOT)) {
-				return null;
-			}
-			return path;
-		}
+		}		
 	}
 }

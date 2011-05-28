@@ -21,12 +21,11 @@ import org.apache.wicket.PageParameters;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
-import com.gitblit.wicket.LinkPanel;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.RefModel;
+import com.gitblit.wicket.panels.LinkPanel;
 
 public class TagPage extends RepositoryPage {
 

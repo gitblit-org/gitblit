@@ -1,0 +1,4 @@
+## gitblit.properties
+<pre class='prettyprint'>
+%PROPERTIES%
+</pre>

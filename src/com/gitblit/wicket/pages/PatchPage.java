@@ -22,6 +22,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
+import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -61,7 +62,7 @@ public class PatchPage extends WebPage {
 		if (!StringUtils.isEmpty(baseObjectId)) {
 			baseCommit = JGitUtils.getCommit(r, baseObjectId);
 		}
-		String patch = JGitUtils.getCommitPatch(r, baseCommit, commit, blobPath);
+		String patch = DiffUtils.getCommitPatch(r, baseCommit, commit, blobPath);
 		add(new Label("patchText", patch));
 		r.close();
 	}

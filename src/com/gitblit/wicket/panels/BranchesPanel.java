@@ -28,12 +28,11 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.RefModel;
-import com.gitblit.wicket.models.RepositoryModel;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;

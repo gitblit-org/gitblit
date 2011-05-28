@@ -22,7 +22,9 @@ import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorization
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.wicket.models.UserModel;
+import com.gitblit.models.UserModel;
+import com.gitblit.wicket.pages.BasePage;
+import com.gitblit.wicket.pages.LoginPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
@@ -46,7 +48,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 			}
 
 			UserModel user = session.getUser();
-			if (pageClass.isAnnotationPresent(AdminPage.class)) {
+			if (pageClass.isAnnotationPresent(RequiresAdminRole.class)) {
 				// admin page
 				if (allowAdmin) {
 					if (authenticateAdmin) {

@@ -34,6 +34,8 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.LoginPage;
+import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;

@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.wicket.models.RepositoryModel;
+import com.gitblit.models.RepositoryModel;
 
 public class GitBlitServlet extends GitServlet {
 

@@ -40,12 +40,11 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.UserModel;
 
 public class EditRepositoryPage extends BasePage {
 
@@ -57,7 +56,7 @@ public class EditRepositoryPage extends BasePage {
 		// create constructor
 		super();
 		isCreate = true;
-		setupPage(new RepositoryModel("", "", "", new Date()));
+		setupPage(new RepositoryModel());
 	}
 
 	public EditRepositoryPage(PageParameters params) {

@@ -17,7 +17,7 @@ package com.gitblit;
 
 import java.util.List;
 
-import com.gitblit.wicket.models.UserModel;
+import com.gitblit.models.UserModel;
 
 public interface ILoginService {
 

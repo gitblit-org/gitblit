@@ -80,7 +80,7 @@ public class Build {
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.COMPILETIME);
-		
+
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
 
@@ -389,10 +389,9 @@ public class Build {
 				"384058ca906dffb8b8708c2db8849c9754359b28",
 				"7b026658ed8de2eccc2d11d647d43d7c84a56911",
 				"6c19e37b3caafd70c1b7b024ae1858c725181688");
-		
-		public static final MavenObject JSCH = new MavenObject("JSch", "com/jcraft",
-				"jsch", "0.1.44-1", 214000, 211000, 413000,
-				"2e9ae08de5a71bd0e0d3ba2558598181bfa71d4e",
+
+		public static final MavenObject JSCH = new MavenObject("JSch", "com/jcraft", "jsch",
+				"0.1.44-1", 214000, 211000, 413000, "2e9ae08de5a71bd0e0d3ba2558598181bfa71d4e",
 				"e528f593b19b04d500992606f58b87fcfded8883",
 				"d0ffadd0a4ab909d94a577b5aad43c13b617ddcb");
 

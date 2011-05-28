@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.models;
+package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -23,7 +23,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 public class RepositoryModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	// field names are reflectively mapped in EditRepository page
 	public String name;
 	public String description;

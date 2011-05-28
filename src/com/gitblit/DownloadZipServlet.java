@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.models.RepositoryModel;
 
 public class DownloadZipServlet extends HttpServlet {
 

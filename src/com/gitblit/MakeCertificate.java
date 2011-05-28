@@ -44,9 +44,7 @@ import com.beust.jcommander.Parameters;
 import com.gitblit.utils.TimeUtils;
 
 public class MakeCertificate {
-
-	private static final FileSettings FILESETTINGS = new FileSettings();
-
+	
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 
 	public static void main(String... args) {
@@ -158,6 +156,8 @@ public class MakeCertificate {
 	@Parameters(separators = " ")
 	private static class Params {
 
+		private static final FileSettings FILESETTINGS = new FileSettings();
+		
 		@Parameter(names = { "--alias" }, description = "Server alias", required = true)
 		public String alias;
 

@@ -35,10 +35,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.UserModel;
 
 public class GitBlit implements ServletContextListener {
 
@@ -151,8 +151,8 @@ public class GitBlit implements ServletContextListener {
 			r = repositoryResolver.open(null, repositoryName);
 		} catch (RepositoryNotFoundException e) {
 			r = null;
-			logger.error("GitBlit.getRepository(String) failed to find repository "
-					+ repositoryName);
+			logger.error("GitBlit.getRepository(String) failed to find "
+					+ new File(repositoriesFolder, repositoryName).getAbsolutePath());
 		} catch (ServiceNotEnabledException e) {
 			r = null;
 			e.printStackTrace();
@@ -186,6 +186,9 @@ public class GitBlit implements ServletContextListener {
 
 	public RepositoryModel getRepositoryModel(String repositoryName) {
 		Repository r = getRepository(repositoryName);
+		if (r == null) {
+			return null;
+		}
 		RepositoryModel model = new RepositoryModel();
 		model.name = repositoryName;
 		model.hasCommits = JGitUtils.hasCommits(r);
@@ -315,7 +318,7 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	public void configureContext(IStoredSettings settings) {
-		logger.info("Using configuration from " + settings.toString());
+		logger.info("Reading configuration from " + settings.toString());
 		this.storedSettings = settings;
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
 		exportAll = settings.getBoolean(Keys.git.exportAll, true);

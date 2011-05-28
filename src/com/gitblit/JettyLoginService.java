@@ -38,7 +38,7 @@ import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.wicket.models.UserModel;
+import com.gitblit.models.UserModel;
 
 public class JettyLoginService extends MappedLoginService implements ILoginService {
 

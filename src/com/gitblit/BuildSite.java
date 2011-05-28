@@ -37,6 +37,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.utils.MarkdownUtils;
+import com.gitblit.utils.StringUtils;
 
 public class BuildSite {
 
@@ -83,8 +84,8 @@ public class BuildSite {
 		sb.setLength(sb.length() - 3);
 		sb.trimToSize();
 
-		String htmlHeader = readContent(new File(params.pageHeader));
-		String htmlFooter = readContent(new File(params.pageFooter));
+		String htmlHeader = readContent(new File(params.pageHeader), "\n");
+		String htmlFooter = readContent(new File(params.pageFooter), "\n");
 		final String links = sb.toString();
 		final String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -101,6 +102,13 @@ public class BuildSite {
 					String[] kv = token.split("=");
 					content = content.replace(kv[0], kv[1]);
 				}
+				for (String alias : params.loads) {
+					String[] kv = alias.split("=");
+					String loadedContent = readContent(new File(kv[1]), "\n");
+					loadedContent = StringUtils.escapeForHtml(loadedContent, false);
+					loadedContent = StringUtils.breakLinesForHtml(loadedContent);
+					content = content.replace(kv[0], loadedContent);
+				}
 				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(
 						destinationFolder, fileName)), Charset.forName("UTF-8"));
 				writer.write(header);
@@ -115,7 +123,7 @@ public class BuildSite {
 		}
 	}
 
-	private static String readContent(File file) {
+	private static String readContent(File file, String lineEnding) {
 		StringBuilder sb = new StringBuilder();
 		try {
 			InputStreamReader is = new InputStreamReader(new FileInputStream(file),
@@ -124,6 +132,9 @@ public class BuildSite {
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				sb.append(line);
+				if (lineEnding != null) {
+					sb.append(lineEnding);
+				}
 			}
 			reader.close();
 		} catch (Throwable t) {
@@ -171,8 +182,11 @@ public class BuildSite {
 		@Parameter(names = { "--alias" }, description = "Filename=Linkname aliases", required = false)
 		public List<String> aliases = new ArrayList<String>();
 
-		@Parameter(names = { "--substitute" }, description = "@TOKEN@=value", required = false)
+		@Parameter(names = { "--substitute" }, description = "%TOKEN%=value", required = false)
 		public List<String> substitutions = new ArrayList<String>();
+
+		@Parameter(names = { "--load" }, description = "%TOKEN%=filename", required = false)
+		public List<String> loads = new ArrayList<String>();
 
 	}
 }

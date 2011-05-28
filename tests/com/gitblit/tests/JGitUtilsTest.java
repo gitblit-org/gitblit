@@ -29,11 +29,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 
+import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.RefModel;
+import com.gitblit.models.TicketModel;
+import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.DiffOutputType;
-import com.gitblit.wicket.models.PathModel.PathChangeModel;
-import com.gitblit.wicket.models.RefModel;
-import com.gitblit.wicket.models.TicketModel;
 
 public class JGitUtilsTest extends TestCase {
 
@@ -100,7 +101,7 @@ public class JGitUtilsTest extends TestCase {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = JGitUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN);
+		String diff = DiffUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN);
 		repository.close();
 		assertTrue("Failed to generate diff!", diff != null && diff.length() > 0);
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";

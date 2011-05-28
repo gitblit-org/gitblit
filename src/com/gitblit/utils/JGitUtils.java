@@ -73,12 +73,12 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.wicket.models.Metric;
-import com.gitblit.wicket.models.PathModel;
-import com.gitblit.wicket.models.PathModel.PathChangeModel;
-import com.gitblit.wicket.models.RefModel;
-import com.gitblit.wicket.models.TicketModel;
-import com.gitblit.wicket.models.TicketModel.Comment;
+import com.gitblit.models.Metric;
+import com.gitblit.models.PathModel;
+import com.gitblit.models.RefModel;
+import com.gitblit.models.TicketModel;
+import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.TicketModel.Comment;
 
 public class JGitUtils {
 
@@ -183,11 +183,18 @@ public class JGitUtils {
 	}
 
 	public static boolean hasCommits(Repository r) {
-		return new File(r.getDirectory(), Constants.R_HEADS).list().length > 0;
+		if (r != null && r.getDirectory().exists()) {
+			return new File(r.getDirectory(), Constants.R_HEADS).list().length > 0;
+		}
+		return false;		
 	}
 
 	public static Date getLastChange(Repository r) {
 		if (!hasCommits(r)) {
+			// null repository
+			if (r == null) {
+				return new Date(0);
+			}
 			// fresh repository
 			return new Date(r.getDirectory().lastModified());
 		}
@@ -458,132 +465,6 @@ public class JGitUtils {
 			}
 			return null;
 		}
-	}
-
-	public static String getCommitDiff(Repository r, RevCommit commit, DiffOutputType outputType) {
-		return getCommitDiff(r, null, commit, null, outputType);
-	}
-
-	public static String getCommitDiff(Repository r, RevCommit commit, String path,
-			DiffOutputType outputType) {
-		return getCommitDiff(r, null, commit, path, outputType);
-	}
-
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
-			DiffOutputType outputType) {
-		return getCommitDiff(r, baseCommit, commit, null, outputType);
-	}
-
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
-			String path, DiffOutputType outputType) {
-		try {
-			RevTree baseTree;
-			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(r);
-				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				rw.dispose();
-				baseTree = parent.getTree();
-			} else {
-				baseTree = baseCommit.getTree();
-			}
-
-			RevTree commitTree = commit.getTree();
-
-			final TreeWalk walk = new TreeWalk(r);
-			walk.reset();
-			walk.setRecursive(true);
-			walk.addTree(baseTree);
-			walk.addTree(commitTree);
-			walk.setFilter(TreeFilter.ANY_DIFF);
-
-			final ByteArrayOutputStream os = new ByteArrayOutputStream();
-			RawTextComparator cmp = RawTextComparator.DEFAULT;
-			DiffFormatter df;
-			switch (outputType) {
-			case GITWEB:
-				df = new GitWebDiffFormatter(os);
-				break;
-			case GITBLIT:
-				df = new GitBlitDiffFormatter(os);
-				break;
-			case PLAIN:
-			default:
-				df = new DiffFormatter(os);
-				break;
-			}
-			df.setRepository(r);
-			df.setDiffComparator(cmp);
-			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(baseTree, commitTree);
-			if (path != null && path.length() > 0) {
-				for (DiffEntry diff : diffs) {
-					if (diff.getNewPath().equalsIgnoreCase(path)) {
-						df.format(diff);
-						break;
-					}
-				}
-			} else {
-				df.format(diffs);
-			}
-			String diff;
-			if (df instanceof GitWebDiffFormatter) {
-				// workaround for complex private methods in DiffFormatter
-				diff = ((GitWebDiffFormatter) df).getHtml();
-			} else {
-				diff = os.toString();
-			}
-			df.flush();
-			return diff;
-		} catch (Throwable t) {
-			LOGGER.error("failed to generate commit diff!", t);
-		}
-		return null;
-	}
-
-	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit,
-			String path) {
-		try {
-			RevTree baseTree;
-			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(r);
-				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				baseTree = parent.getTree();
-			} else {
-				baseTree = baseCommit.getTree();
-			}
-			RevTree commitTree = commit.getTree();
-
-			final TreeWalk walk = new TreeWalk(r);
-			walk.reset();
-			walk.setRecursive(true);
-			walk.addTree(baseTree);
-			walk.addTree(commitTree);
-			walk.setFilter(TreeFilter.ANY_DIFF);
-
-			final ByteArrayOutputStream os = new ByteArrayOutputStream();
-			RawTextComparator cmp = RawTextComparator.DEFAULT;
-			PatchFormatter df = new PatchFormatter(os);
-			df.setRepository(r);
-			df.setDiffComparator(cmp);
-			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(baseTree, commitTree);
-			if (path != null && path.length() > 0) {
-				for (DiffEntry diff : diffs) {
-					if (diff.getNewPath().equalsIgnoreCase(path)) {
-						df.format(diff);
-						break;
-					}
-				}
-			} else {
-				df.format(diffs);
-			}
-			String diff = df.getPatch(commit);
-			df.flush();
-			return diff;
-		} catch (Throwable t) {
-			LOGGER.error("failed to generate commit diff!", t);
-		}
-		return null;
 	}
 
 	private static PathModel getPathModel(TreeWalk walk, String basePath, RevCommit commit) {

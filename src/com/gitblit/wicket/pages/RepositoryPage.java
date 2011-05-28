@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket;
+package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -45,19 +45,13 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.pages.BranchesPage;
-import com.gitblit.wicket.pages.DocsPage;
-import com.gitblit.wicket.pages.EditRepositoryPage;
-import com.gitblit.wicket.pages.LogPage;
-import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.pages.SummaryPage;
-import com.gitblit.wicket.pages.TagsPage;
-import com.gitblit.wicket.pages.TicketsPage;
-import com.gitblit.wicket.pages.TreePage;
+import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends BasePage {

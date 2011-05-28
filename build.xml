@@ -25,7 +25,7 @@
 					<replacestring from="&quot;;" to="" />
 					<trim />
 				</tokenfilter>
-			</filterchain>			
+			</filterchain>
 		</loadfile>
 
 		<!-- extract JGit version number from source code -->
@@ -154,6 +154,14 @@
 			</fileset>
 		</copy>
 
+		<!-- Copy google-code-prettify -->
+		<mkdir dir="${basedir}/src/com/gitblit/wicket/pages/prettify" />
+		<copy todir="${basedir}/site/prettify">
+			<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+
 		<!-- Copy screenshot thumbnails -->
 		<mkdir dir="${basedir}/site/thumbs" />
 		<copy todir="${basedir}/site/thumbs">
@@ -187,6 +195,9 @@
 
 			<arg value="--alias" />
 			<arg value="index=overview" />
+			
+			<arg value="--alias" />
+			<arg value="properties=gitblit.properties" />
 
 			<arg value="--substitute" />
 			<arg value="%VERSION%=${gb.version}" />
@@ -199,9 +210,13 @@
 
 			<arg value="--substitute" />
 			<arg value="%JGIT%=${jgit.version}" />
+
+			<arg value="--load" />
+			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
+
 		</java>
 
-		<!-- Cleanup --> 
+		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 	</target>
 </project>

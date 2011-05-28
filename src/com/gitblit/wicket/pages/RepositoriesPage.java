@@ -28,7 +28,6 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.BasePage;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;

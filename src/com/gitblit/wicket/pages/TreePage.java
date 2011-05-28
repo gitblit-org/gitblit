@@ -32,13 +32,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.LinkPanel;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.PathModel;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class TreePage extends RepositoryPage {

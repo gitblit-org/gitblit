@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.models;
+package com.gitblit.models;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -36,12 +36,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public String author;
 	public List<Comment> comments;
 	public List<String> tags;
-
-	public TicketModel() {
-		state = "open";
-		comments = new ArrayList<Comment>();
-		tags = new ArrayList<String>();
-	}
 
 	public TicketModel(String ticketName) throws ParseException {
 		state = "";

@@ -17,7 +17,6 @@ package com.gitblit.wicket.pages;
 
 import org.apache.wicket.PageParameters;
 
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.panels.TagsPanel;
 
 public class TagsPage extends RepositoryPage {

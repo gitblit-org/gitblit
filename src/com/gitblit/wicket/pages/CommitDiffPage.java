@@ -29,14 +29,14 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.DiffOutputType;
-import com.gitblit.wicket.LinkPanel;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.PathModel.PathChangeModel;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 
 public class CommitDiffPage extends RepositoryPage {
 
@@ -47,7 +47,7 @@ public class CommitDiffPage extends RepositoryPage {
 		RevCommit commit = getCommit();
 		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
 				DiffOutputType.GITBLIT.name()));
-		String diff = JGitUtils.getCommitDiff(r, commit, diffType);
+		String diff = DiffUtils.getCommitDiff(r, commit, diffType);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {

@@ -15,13 +15,12 @@
  */
 package com.gitblit.wicket;
 
-import org.apache.wicket.markup.html.WebPage;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class LogoutPage extends WebPage {
-
-	public LogoutPage() {
-		getSession().invalidate();
-		setRedirect(true);
-		setResponsePage(getApplication().getHomePage());
-	}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface RequiresAdminRole {
 }

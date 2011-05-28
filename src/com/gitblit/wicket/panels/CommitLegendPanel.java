@@ -28,9 +28,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
+import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.PathModel.PathChangeModel;
 
 public class CommitLegendPanel extends Panel {
 

@@ -107,10 +107,10 @@ The following dependencies are automatically downloaded from the Apache Maven re
 - [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
 - [JUnit](http://junit.org) (Common Public License)
 
-## Building
+## Building from Source
 [Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.
 
-Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [eclipse-cs](http://eclipse-cs.sourceforge.net), and [FindBugs](http://findbugs.sourceforge.net) are recommended development tools.
+Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [eclipse-cs](http://eclipse-cs.sourceforge.net), [FindBugs](http://findbugs.sourceforge.net), and [EclEmma](http://www.eclemma.org) are recommended development tools.
 
 1. Clone the git repository from [Github][gitbltsrc].
 2. Import the gitblit project into your Eclipse workspace.<br/>
@@ -118,8 +118,11 @@ Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [e
 3. Using Ant, execute the `build.xml` script in the project root.<br/>
 *This will download all necessary build dependencies and will also generate the Keys class for accessing settings.*
 4. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
-5. Review the settings in `gitblit.properties` in your project root.<br/>
-Make sure you set an appropriate value for *git.repositoriesFolder*. 
+5. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.<br/>
+*This will clone some repositories from the web and run through the unit tests.*
+5. Review the settings in `gitblit.properties` in your project root.
+    - By default, the *git.repositoriesFolder* points to the repositories cloned by the test suite.<br/>
+    - If running on Linux you may have to change the served port(s) to > 1024 unless you are developing as the root user. 
 6. Execute the *com.gitblit.Launcher* class to start Gitblit.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

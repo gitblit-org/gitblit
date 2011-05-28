@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.models;
+package com.gitblit.models;
 
 import java.io.Serializable;
 
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
-
-import com.gitblit.utils.JGitUtils;
+import org.eclipse.jgit.lib.FileMode;
 
 public class PathModel implements Serializable, Comparable<PathModel> {
 
@@ -41,7 +40,7 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 	}
 
 	public boolean isTree() {
-		return JGitUtils.isTreeFromMode(mode);
+		return FileMode.TREE.equals(mode);
 	}
 
 	public static PathModel getParentPath(String basePath, String commitId) {

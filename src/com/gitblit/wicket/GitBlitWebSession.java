@@ -22,7 +22,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
-import com.gitblit.wicket.models.UserModel;
+import com.gitblit.models.UserModel;
 
 public final class GitBlitWebSession extends WebSession {
 

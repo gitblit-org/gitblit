@@ -38,14 +38,13 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.AdminPage;
-import com.gitblit.wicket.BasePage;
+import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.RepositoryModel;
-import com.gitblit.wicket.models.UserModel;
 
-@AdminPage
+@RequiresAdminRole
 public class EditUserPage extends BasePage {
 
 	private final boolean isCreate;

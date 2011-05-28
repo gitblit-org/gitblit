@@ -1,4 +1,4 @@
-## Setup and Configuration
+## Server Setup and Configuration
 
 1. Download and unzip [Gitblit %VERSION%](http://gitblit.com/%DISTRIBUTION%).<br/>
 *Its best to eliminate spaces in the path name as that can cause troubleshooting headaches.* 
@@ -75,3 +75,22 @@ Set the *JVM* variable in the script to the location of your Java Virtual Machin
 **Example**
 
     java -jar gitblit.jar --realmFile c:\myrealm.txt --storePassword something
+    
+## Client Setup and Configuration
+### Https with Self-Signed Certificates
+You must tell Git not to verify the self-signed certificate in order to perform any remote Git operations.
+
+- Eclipse/EGit
+    1. Window->Preferences->Team->Git->Configuration
+    2. Click the *New Entry* button
+    3. <pre>Key = *http.sslVerify*       
+       Value = *false*</pre>
+- Command-line Git ([Git-Config Manual Page](http://www.kernel.org/pub/software/scm/git/docs/git-config.html))
+    <pre>git-config --global --bool --add http.sslVerify false</pre>
+
+### Cloning an Access Restricted Repository 
+- Eclipse/Egit<br/>Nothing special to configure, EGit figures out everything.
+    <pre>https://yourserver/git/your/repository</pre>
+- Command-line Git<br/>*My testing indicates that your username must be embedded in the url.  YMMV.*
+    <pre>https://username@yourserver/git/your/repository</pre>
+           

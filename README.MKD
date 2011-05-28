@@ -1,18 +1,9 @@
 Gitblit
 =================
 
-Gitblit is an open source, pure Java Git solution.
+Gitblit is an open source, pure Java Git solution for creating, viewing, and serving [Git](http://git-scm.com) repositories.<br/>
+More information about Gitblit can be found [here](http://gitblit.com).
 
-Gitblit can be found at: http://gitblit.com and is licensed under
-the Apache Software Foundation license, version 2.0.
-
-Contents
---------
- - License
- - Java/Application server requirements
- - Getting help
- - Building Gitblit
- 
 License
 -------
 
@@ -28,8 +19,7 @@ Gitblit requires at least Java 1.6.
 Getting help
 ------------
 
- - Read the online documentation available on the Gitblit website
-   (http://gitblit.com)
+Read the online documentation available at the [Gitblit website](http://gitblit.com)
 
 Building Gitblit
 ----------------
@@ -40,7 +30,6 @@ Building Gitblit
 2. Using Ant, execute the `build.xml` script in the project root.<br/>
 *This will download all necessary build dependencies and will also generate the Keys class for accessing settings.*
 3. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
-4. Review the settings in `gitblit.properties` in your project root.<br/>
-Make sure you set an appropriate value for *git.repositoriesFolder*. 
+4. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.<br/>
+*This will clone some repositories from the web and run through the unit tests.*
 5. Execute the *com.gitblit.Launcher* class to start Gitblit.   
-   

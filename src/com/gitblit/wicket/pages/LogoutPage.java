@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket;
+package com.gitblit.wicket.pages;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.apache.wicket.markup.html.WebPage;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface AdminPage {
+public class LogoutPage extends WebPage {
+
+	public LogoutPage() {
+		getSession().invalidate();
+		setRedirect(true);
+		setResponsePage(getApplication().getHomePage());
+	}
 }

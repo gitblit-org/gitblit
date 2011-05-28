@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.models;
+package com.gitblit.models;
 
 import java.io.Serializable;
 

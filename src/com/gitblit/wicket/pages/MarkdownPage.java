@@ -26,7 +26,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 
 public class MarkdownPage extends RepositoryPage {

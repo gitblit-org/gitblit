@@ -19,7 +19,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 import com.gitblit.utils.JGitUtils.SearchType;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.SearchPanel;
 

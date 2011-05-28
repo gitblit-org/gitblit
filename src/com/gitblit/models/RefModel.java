@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.models;
+package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,8 +21,6 @@ import java.util.Date;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
-
-import com.gitblit.utils.JGitUtils;
 
 public class RefModel implements Serializable, Comparable<RefModel> {
 
@@ -38,7 +36,7 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	}
 
 	public Date getDate() {
-		return JGitUtils.getCommitDate(commit);
+		return new Date(commit.getCommitTime() * 1000L);
 	}
 
 	public String getName() {

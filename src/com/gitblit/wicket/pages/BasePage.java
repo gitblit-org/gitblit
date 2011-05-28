@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket;
+package com.gitblit.wicket.pages;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,7 +34,9 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.wicket.pages.SummaryPage;
+import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.LinkPanel;
 
 public abstract class BasePage extends WebPage {
 

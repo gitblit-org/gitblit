@@ -37,6 +37,8 @@ public class Constants {
 
 	public static final String ZIP_SERVLET_PATH = "/zip/";
 
+	public static final String BORDER = "***********************************************************";
+	
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
 

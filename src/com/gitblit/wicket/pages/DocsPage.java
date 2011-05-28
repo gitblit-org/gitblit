@@ -27,12 +27,11 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.wicket.LinkPanel;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.PathModel;
+import com.gitblit.wicket.panels.LinkPanel;
 
 public class DocsPage extends RepositoryPage {
 

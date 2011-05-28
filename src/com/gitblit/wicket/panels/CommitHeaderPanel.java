@@ -18,7 +18,6 @@ package com.gitblit.wicket.panels;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.wicket.LinkPanel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 

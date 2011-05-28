@@ -23,10 +23,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.DiffOutputType;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
@@ -48,13 +48,13 @@ public class BlobDiffPage extends RepositoryPage {
 		String diff;
 		if (StringUtils.isEmpty(baseObjectId)) {
 			// use first parent
-			diff = JGitUtils.getCommitDiff(r, commit, blobPath, diffType);
+			diff = DiffUtils.getCommitDiff(r, commit, blobPath, diffType);
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		} else {
 			// base commit specified
 			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			diff = JGitUtils.getCommitDiff(r, baseCommit, commit, blobPath, diffType);
+			diff = DiffUtils.getCommitDiff(r, baseCommit, commit, blobPath, diffType);
 			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 					WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId,
 							blobPath)));

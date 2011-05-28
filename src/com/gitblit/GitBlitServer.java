@@ -65,11 +65,7 @@ import com.gitblit.wicket.GitBlitWebApp;
 
 public class GitBlitServer {
 
-	private static final String BORDER = "***********************************************************";
-
 	private static Logger logger;
-
-	private static final FileSettings FILESETTINGS = new FileSettings();
 
 	public static void main(String[] args) {
 		Params params = new Params();
@@ -91,9 +87,9 @@ public class GitBlitServer {
 	}
 
 	private static void usage(JCommander jc, ParameterException t) {
-		System.out.println(BORDER);
+		System.out.println(Constants.BORDER);
 		System.out.println(Constants.getGitBlitVersion());
-		System.out.println(BORDER);
+		System.out.println(Constants.BORDER);
 		System.out.println();
 		if (t != null) {
 			System.out.println(t.getMessage());
@@ -129,18 +125,19 @@ public class GitBlitServer {
 	 * Start Server.
 	 */
 	private static void start(Params params) {
-		String pattern = FILESETTINGS.getString(Keys.server.log4jPattern,
+		FileSettings settings = params.FILESETTINGS;
+		String pattern = settings.getString(Keys.server.log4jPattern,
 				"%-5p %d{MM-dd HH:mm:ss.SSS}  %-20.20c{1}  %m%n");
 
 		// allow os override of logging pattern
 		String os = System.getProperty("os.name").toLowerCase();
 		if (os.indexOf("windows") > -1) {
-			String winPattern = FILESETTINGS.getString(Keys.server.log4jPattern_windows, pattern);
+			String winPattern = settings.getString(Keys.server.log4jPattern_windows, pattern);
 			if (!StringUtils.isEmpty(winPattern)) {
 				pattern = winPattern;
 			}
 		} else if (os.indexOf("linux") > -1) {
-			String linuxPattern = FILESETTINGS.getString(Keys.server.log4jPattern_linux, pattern);
+			String linuxPattern = settings.getString(Keys.server.log4jPattern_linux, pattern);
 			if (!StringUtils.isEmpty(linuxPattern)) {
 				pattern = linuxPattern;
 			}
@@ -151,9 +148,9 @@ public class GitBlitServer {
 		rootLogger.addAppender(new ConsoleAppender(layout));
 
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
-		logger.info(BORDER);
+		logger.info(Constants.BORDER);
 		logger.info(Constants.getGitBlitVersion());
-		logger.info(BORDER);
+		logger.info(Constants.BORDER);
 
 		String osname = System.getProperty("os.name");
 		String osversion = System.getProperty("os.version");
@@ -163,7 +160,7 @@ public class GitBlitServer {
 		List<Connector> connectors = new ArrayList<Connector>();
 		if (params.port > 0) {
 			Connector httpConnector = createConnector(params.useNIO, params.port);
-			String bindInterface = FILESETTINGS.getString(Keys.server.httpBindInterface, null);
+			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
 				logger.warn(MessageFormat.format("Binding connector on port {0} to {1}",
 						params.port, bindInterface));
@@ -182,7 +179,7 @@ public class GitBlitServer {
 			if (keystore.exists()) {
 				Connector secureConnector = createSSLConnector(keystore, params.storePassword,
 						params.useNIO, params.securePort);
-				String bindInterface = FILESETTINGS.getString(Keys.server.httpsBindInterface, null);
+				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
 					logger.warn(MessageFormat.format("Binding ssl connector on port {0} to {1}",
 							params.securePort, bindInterface));
@@ -246,11 +243,11 @@ public class GitBlitServer {
 		// Git Servlet
 		ServletHolder gitServlet = null;
 		String gitServletPathSpec = Constants.GIT_SERVLET_PATH + "*";
-		if (FILESETTINGS.getBoolean(Keys.git.enableGitServlet, true)) {
+		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			gitServlet = rootContext.addServlet(GitBlitServlet.class, gitServletPathSpec);
 			gitServlet.setInitParameter("base-path", params.repositoriesFolder);
 			gitServlet.setInitParameter("export-all",
-					FILESETTINGS.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
+					settings.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
 		}
 
 		// Login Service
@@ -300,12 +297,14 @@ public class GitBlitServer {
 			handler = rootContext;
 		}
 
+		logger.info("Git repositories folder " + new File(params.repositoriesFolder).getAbsolutePath());
+		
 		// Set the server's contexts
 		server.setHandler(handler);
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();
-		gitblit.configureContext(FILESETTINGS);
+		gitblit.configureContext(settings);
 		rootContext.addEventListener(gitblit);
 
 		// Start the Server
@@ -385,6 +384,8 @@ public class GitBlitServer {
 		private final ServerSocket socket;
 
 		private final Server server;
+		
+		private final Logger logger = LoggerFactory.getLogger(ShutdownMonitorThread.class);
 
 		public ShutdownMonitorThread(Server server, Params params) {
 			this.server = server;
@@ -408,9 +409,9 @@ public class GitBlitServer {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(
 						accept.getInputStream()));
 				reader.readLine();
-				logger.info(BORDER);
+				logger.info(Constants.BORDER);
 				logger.info("Stopping " + Constants.NAME);
-				logger.info(BORDER);
+				logger.info(Constants.BORDER);
 				server.stop();
 				server.setStopAtShutdown(false);
 				accept.close();
@@ -423,6 +424,8 @@ public class GitBlitServer {
 
 	@Parameters(separators = " ")
 	private static class Params {
+		
+		private static final FileSettings FILESETTINGS = new FileSettings();
 
 		/*
 		 * Server parameters

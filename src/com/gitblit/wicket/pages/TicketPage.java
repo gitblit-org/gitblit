@@ -22,13 +22,12 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.models.TicketModel;
+import com.gitblit.models.TicketModel.Comment;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.RepositoryPage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.models.TicketModel;
-import com.gitblit.wicket.models.TicketModel.Comment;
 
 public class TicketPage extends RepositoryPage {
 

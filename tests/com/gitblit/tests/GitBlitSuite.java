@@ -23,7 +23,7 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(JGitUtilsTest.class);
 		return new GitBlitSuite(suite);
 	}
-	
+
 	public static Repository getHelloworldRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "helloworld.git"));
 	}
