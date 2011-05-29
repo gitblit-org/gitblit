@@ -130,7 +130,7 @@ public class StringUtils {
 
 	public static String getRootPath(String path) {
 		if (path.indexOf('/') > -1) {
-			return path.substring(0, path.indexOf('/'));
+			return path.substring(0, path.lastIndexOf('/'));
 		}
 		return "";
 	}

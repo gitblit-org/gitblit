@@ -137,7 +137,7 @@ public class TimeUtils {
 			int days = daysAgo(date, true);
 			if (days < 365) {
 				if (days <= 30) {
-					ago = days + " day" + (days > 1 ? "s" : "") + " ago";
+					ago = days + " days ago";
 				} else if (days <= 90) {
 					int weeks = days / 7;
 					if (weeks == 12) {
@@ -151,7 +151,7 @@ public class TimeUtils {
 					if (weeks >= 2) {
 						months++;
 					}
-					ago = months + " month" + (months > 1 ? "s" : "") + " ago";
+					ago = months + " months ago";
 				}
 			} else if (days == 365) {
 				ago = "1 year ago";
