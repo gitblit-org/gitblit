@@ -26,7 +26,7 @@ public class ByteFormat extends Format {
 
 	public ByteFormat() {
 	}
-	
+
 	public String format(long value) {
 		return format(new Long(value));
 	}
@@ -51,7 +51,7 @@ public class ByteFormat extends Format {
 		}
 		return buf;
 	}
-	
+
 	public Object parseObject(String source, ParsePosition pos) {
 		return null;
 	}

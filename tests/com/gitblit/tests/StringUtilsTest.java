@@ -35,7 +35,7 @@ public class StringUtilsTest extends TestCase {
 		String output = "this<br/>is<br/>a<br/>test<br/><br/>of<br/><br/>line<br/><br/>breaking";
 		assertTrue(StringUtils.breakLinesForHtml(input).equals(output));
 	}
-	
+
 	public void testEscapeForHtml() throws Exception {
 		String input = "& < > \" \t";
 		String output_nochange = "&amp; &lt; &gt; &quot; \t";
@@ -64,11 +64,12 @@ public class StringUtilsTest extends TestCase {
 		assertTrue(StringUtils.leftPad(input, input.length(), ' ').equals(input));
 		assertTrue(StringUtils.rightPad(input, input.length(), ' ').equals(input));
 	}
-	
+
 	public void testSHA1() throws Exception {
-		assertTrue(StringUtils.getSHA1("blob 16\000what is up, doc?").equals("bd9dbf5aae1a3862dd1526723246b20206e5fc37"));
+		assertTrue(StringUtils.getSHA1("blob 16\000what is up, doc?").equals(
+				"bd9dbf5aae1a3862dd1526723246b20206e5fc37"));
 	}
-	
+
 	public void testRootPath() throws Exception {
 		String input = "/nested/path/to/repository";
 		String output = "/nested/path/to";

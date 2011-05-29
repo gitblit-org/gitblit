@@ -186,7 +186,7 @@ public class JGitUtils {
 		if (r != null && r.getDirectory().exists()) {
 			return new File(r.getDirectory(), Constants.R_HEADS).list().length > 0;
 		}
-		return false;		
+		return false;
 	}
 
 	public static Date getLastChange(Repository r) {

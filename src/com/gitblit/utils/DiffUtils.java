@@ -35,23 +35,23 @@ import com.gitblit.utils.JGitUtils.DiffOutputType;
 public class DiffUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtils.class);
-	
+
 	public static String getCommitDiff(Repository r, RevCommit commit, DiffOutputType outputType) {
-		return getCommitDiff(r, null, commit, null, outputType);
+		return getDiff(r, null, commit, null, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit commit, String path,
+	public static String getDiff(Repository r, RevCommit commit, String path,
 			DiffOutputType outputType) {
-		return getCommitDiff(r, null, commit, path, outputType);
+		return getDiff(r, null, commit, path, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
+	public static String getDiff(Repository r, RevCommit baseCommit, RevCommit commit,
 			DiffOutputType outputType) {
-		return getCommitDiff(r, baseCommit, commit, null, outputType);
+		return getDiff(r, baseCommit, commit, null, outputType);
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit baseCommit, RevCommit commit,
-			String path, DiffOutputType outputType) {
+	public static String getDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path,
+			DiffOutputType outputType) {
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {

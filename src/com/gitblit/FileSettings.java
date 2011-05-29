@@ -35,7 +35,7 @@ public class FileSettings implements IStoredSettings {
 	private final Logger logger = LoggerFactory.getLogger(FileSettings.class);
 
 	private final File propertiesFile;
-	
+
 	private Properties properties = new Properties();
 
 	private long lastread;
@@ -43,7 +43,7 @@ public class FileSettings implements IStoredSettings {
 	public FileSettings(String file) {
 		this.propertiesFile = new File(file);
 	}
-	
+
 	@Override
 	public List<String> getAllKeys(String startingWith) {
 		startingWith = startingWith.toLowerCase();
@@ -144,7 +144,7 @@ public class FileSettings implements IStoredSettings {
 		return strings;
 	}
 
-	private synchronized Properties read() {		
+	private synchronized Properties read() {
 		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastread)) {
 			FileInputStream is = null;
 			try {

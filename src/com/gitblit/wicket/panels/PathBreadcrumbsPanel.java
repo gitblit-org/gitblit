@@ -87,6 +87,6 @@ public class PathBreadcrumbsPanel extends Panel {
 			this.name = name;
 			this.path = path;
 			this.isLeaf = isLeaf;
-		}		
+		}
 	}
 }

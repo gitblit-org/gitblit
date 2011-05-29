@@ -297,8 +297,9 @@ public class GitBlitServer {
 			handler = rootContext;
 		}
 
-		logger.info("Git repositories folder " + new File(params.repositoriesFolder).getAbsolutePath());
-		
+		logger.info("Git repositories folder "
+				+ new File(params.repositoriesFolder).getAbsolutePath());
+
 		// Set the server's contexts
 		server.setHandler(handler);
 
@@ -384,7 +385,7 @@ public class GitBlitServer {
 		private final ServerSocket socket;
 
 		private final Server server;
-		
+
 		private final Logger logger = LoggerFactory.getLogger(ShutdownMonitorThread.class);
 
 		public ShutdownMonitorThread(Server server, Params params) {
@@ -424,7 +425,7 @@ public class GitBlitServer {
 
 	@Parameters(separators = " ")
 	private static class Params {
-		
+
 		private static final FileSettings FILESETTINGS = new FileSettings(Constants.PROPERTIES_FILE);
 
 		/*

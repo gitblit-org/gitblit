@@ -34,9 +34,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Comment;
-import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.DiffOutputType;
 
 public class JGitUtilsTest extends TestCase {
 
@@ -65,10 +63,12 @@ public class JGitUtilsTest extends TestCase {
 	public void testFirstCommit() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getFirstCommit(repository, null);
+		Date firstChange = JGitUtils.getFirstChange(repository, null);
 		repository.close();
 		assertTrue("Could not get first commit!", commit != null);
 		assertTrue("Incorrect first commit!",
 				commit.getName().equals("f554664a346629dc2b839f7292d06bad2db4aece"));
+		assertTrue(firstChange.equals(new Date(commit.getCommitTime() * 1000L)));
 	}
 
 	public void testRefs() throws Exception {
@@ -135,17 +135,6 @@ public class JGitUtilsTest extends TestCase {
 			assertTrue("PathChangeModel equals itself failed!", path.equals(path));
 			assertFalse("PathChangeModel equals string failed!", path.equals(""));
 		}
-	}
-
-	public void testCommitDiff() throws Exception {
-		Repository repository = GitBlitSuite.getHelloworldRepository();
-		RevCommit commit = JGitUtils.getCommit(repository,
-				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
-		String diff = DiffUtils.getCommitDiff(repository, commit, DiffOutputType.PLAIN);
-		repository.close();
-		assertTrue("Failed to generate diff!", diff != null && diff.length() > 0);
-		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
-		assertTrue("Diff content mismatch!", diff.indexOf(expected) > -1);
 	}
 
 	public void testZip() throws Exception {

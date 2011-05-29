@@ -28,12 +28,17 @@ public class GitBlitTest extends TestCase {
 	public void testRepositoryModel() throws Exception {
 		List<String> repositories = GitBlit.self().getRepositoryList();
 		assertTrue("Repository list is empty!", repositories.size() > 0);
-		assertTrue("Missing Helloworld repository!", repositories.contains(GitBlitSuite.getHelloworldRepository().getDirectory().getName()));
-		RepositoryModel model = GitBlit.self().getRepositoryModel(GitBlitSuite.getHelloworldRepository().getDirectory().getName());
+		assertTrue(
+				"Missing Helloworld repository!",
+				repositories.contains(GitBlitSuite.getHelloworldRepository().getDirectory()
+						.getName()));
+		RepositoryModel model = GitBlit.self().getRepositoryModel(
+				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		assertTrue("Helloworld model is null!", model != null);
-		assertTrue(model.toString().equals(GitBlitSuite.getHelloworldRepository().getDirectory().getName()));
+		assertTrue(model.toString().equals(
+				GitBlitSuite.getHelloworldRepository().getDirectory().getName()));
 	}
-	
+
 	public void testUserModel() throws Exception {
 		List<String> users = GitBlit.self().getAllUsernames();
 		assertTrue("No users found!", users.size() > 0);

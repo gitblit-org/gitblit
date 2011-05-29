@@ -45,12 +45,12 @@ public class LoginPage extends WebPage {
 			setRedirect(true);
 			setResponsePage(getApplication().getHomePage());
 		}
-		
+
 		add(new Label("title", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
 		add(new Label("name", Constants.NAME));
 
 		StatelessForm<Void> loginForm = new StatelessForm<Void>("loginForm") {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
