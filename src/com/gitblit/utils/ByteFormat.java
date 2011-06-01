@@ -28,7 +28,7 @@ public class ByteFormat extends Format {
 	}
 
 	public String format(long value) {
-		return format(new Long(value));
+		return format(Long.valueOf(value));
 	}
 
 	public StringBuffer format(Object obj, StringBuffer buf, FieldPosition pos) {

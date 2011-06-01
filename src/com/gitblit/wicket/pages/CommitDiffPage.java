@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -99,7 +100,7 @@ public class CommitDiffPage extends RepositoryPage {
 						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-						newPathParameter(entry.path)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD) && !entry.changeType.equals(ChangeType.DELETE)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

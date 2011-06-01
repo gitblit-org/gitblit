@@ -29,6 +29,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 
+import com.gitblit.GitBlit;
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
@@ -38,12 +39,12 @@ import com.gitblit.utils.JGitUtils;
 
 public class JGitUtilsTest extends TestCase {
 
-	private List<String> getRepositories() {
-		return JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, true, true);
-	}
-
 	public void testFindRepositories() {
-		List<String> list = getRepositories();
+		List<String> list = JGitUtils.getRepositoryList(null, true, true);
+		assertTrue(list.size() == 0);
+		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true));
+		assertTrue(list.size() == 0);
+		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, true, true));
 		assertTrue("No repositories found in " + GitBlitSuite.REPOSITORIES, list.size() > 0);
 	}
 
@@ -53,14 +54,9 @@ public class JGitUtilsTest extends TestCase {
 		assertTrue("Could not find repository!", repository != null);
 	}
 
-	public void testLastChangeRepository() throws Exception {
-		Repository repository = GitBlitSuite.getHelloworldRepository();
-		Date date = JGitUtils.getLastChange(repository);
-		repository.close();
-		assertTrue("Could not get last repository change date!", date != null);
-	}
-
 	public void testFirstCommit() throws Exception {
+		assertTrue(JGitUtils.getFirstChange(null, null).equals(new Date(0)));
+		
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getFirstCommit(repository, null);
 		Date firstChange = JGitUtils.getFirstChange(repository, null);
@@ -69,6 +65,43 @@ public class JGitUtilsTest extends TestCase {
 		assertTrue("Incorrect first commit!",
 				commit.getName().equals("f554664a346629dc2b839f7292d06bad2db4aece"));
 		assertTrue(firstChange.equals(new Date(commit.getCommitTime() * 1000L)));
+	}
+	
+	public void testLastCommit() throws Exception {
+		assertTrue(JGitUtils.getLastChange(null).equals(new Date(0)));
+		
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		assertTrue(JGitUtils.getCommit(repository, null) != null);
+		Date date = JGitUtils.getLastChange(repository);
+		repository.close();
+		assertTrue("Could not get last repository change date!", date != null);
+	}
+
+	
+
+	public void testCreateRepository() throws Exception {
+		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
+		for (String repositoryName : repositories) {
+			boolean isBare = repositoryName.endsWith(".git");
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, isBare);
+			File folder;
+			if (isBare) {
+				folder = new File(GitBlitSuite.REPOSITORIES, repositoryName);	
+			} else {
+				folder = new File(GitBlitSuite.REPOSITORIES, repositoryName + "/.git");
+			}			
+			assertTrue(repository != null);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertTrue(JGitUtils.getFirstCommit(repository, null) == null);
+			assertTrue(JGitUtils.getFirstChange(repository, null).getTime() == folder
+					.lastModified());
+			assertTrue(JGitUtils.getLastChange(repository).getTime() == folder
+					.lastModified());
+			assertTrue(JGitUtils.getCommit(repository, null) == null);
+			repository.close();
+			assertTrue(GitBlit.self().deleteRepository(repositoryName));
+		}
 	}
 
 	public void testRefs() throws Exception {
@@ -151,7 +184,7 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testMetrics() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<Metric> metrics = JGitUtils.getDateMetrics(repository);
+		List<Metric> metrics = JGitUtils.getDateMetrics(repository, true);
 		repository.close();
 		assertTrue("No metrics found!", metrics.size() > 0);
 	}

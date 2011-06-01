@@ -75,9 +75,9 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
+import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
-import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.TicketModel.Comment;
 
 public class JGitUtils {
@@ -100,11 +100,11 @@ public class JGitUtils {
 
 	public static List<String> getNestedRepositories(File repositoriesFolder, File folder,
 			boolean exportAll, boolean readNested) {
-		String basefile = repositoriesFolder.getAbsolutePath();
 		List<String> list = new ArrayList<String>();
 		if (folder == null || !folder.exists()) {
 			return list;
 		}
+		String basefile = repositoriesFolder.getAbsolutePath();
 		for (File file : folder.listFiles()) {
 			if (file.isDirectory() && !file.getName().equalsIgnoreCase(Constants.DOT_GIT)) {
 				// if this is a git repository add it to the list
@@ -169,17 +169,15 @@ public class JGitUtils {
 	}
 
 	public static Date getFirstChange(Repository r, String branch) {
-		try {
-			RevCommit commit = getFirstCommit(r, branch);
-			if (commit == null) {
-				// fresh repository
-				return new Date(r.getDirectory().lastModified());
+		RevCommit commit = getFirstCommit(r, branch);
+		if (commit == null) {
+			if (r == null || !r.getDirectory().exists()) {
+				return new Date(0);
 			}
-			return getCommitDate(commit);
-		} catch (Throwable t) {
-			LOGGER.error("Failed to determine first change", t);
+			// fresh repository
+			return new Date(r.getDirectory().lastModified());
 		}
-		return null;
+		return getCommitDate(commit);
 	}
 
 	public static boolean hasCommits(Repository r) {
@@ -375,30 +373,41 @@ public class JGitUtils {
 		}
 		try {
 			final RevWalk rw = new RevWalk(r);
-			RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-			RevTree parentTree = parent.getTree();
+
 			RevTree commitTree = commit.getTree();
 
 			final TreeWalk walk = new TreeWalk(r);
 			walk.reset();
 			walk.setRecursive(true);
-			walk.addTree(parentTree);
-			walk.addTree(commitTree);
-			walk.setFilter(TreeFilter.ANY_DIFF);
+			if (commit.getParentCount() == 0) {
+				walk.addTree(commitTree);
+				while (walk.next()) {
+					list.add(new PathChangeModel(walk.getPathString(), walk.getPathString(), 0,
+							walk.getRawMode(0), commit.getId().getName(), ChangeType.ADD));
+				}
+			} else {
+				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+				RevTree parentTree = parent.getTree();
+				walk.addTree(parentTree);
+				walk.addTree(commitTree);
+				walk.setFilter(TreeFilter.ANY_DIFF);
 
-			RawTextComparator cmp = RawTextComparator.DEFAULT;
-			DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
-			df.setRepository(r);
-			df.setDiffComparator(cmp);
-			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(parentTree, commitTree);
-			for (DiffEntry diff : diffs) {
-				if (diff.getChangeType().equals(ChangeType.DELETE)) {
-					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
-							.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
-				} else {
-					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
-							.getNewMode().getBits(), commit.getId().getName(), diff.getChangeType()));
+				RawTextComparator cmp = RawTextComparator.DEFAULT;
+				DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+				df.setRepository(r);
+				df.setDiffComparator(cmp);
+				df.setDetectRenames(true);
+				List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+				for (DiffEntry diff : diffs) {
+					if (diff.getChangeType().equals(ChangeType.DELETE)) {
+						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
+								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getChangeType()));
+					} else {
+						list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
+								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getChangeType()));
+					}
 				}
 			}
 		} catch (Throwable t) {
@@ -509,10 +518,6 @@ public class JGitUtils {
 			return "missing";
 		}
 		return "" + mode;
-	}
-
-	public static boolean isTreeFromMode(int mode) {
-		return FileMode.TREE.equals(mode);
 	}
 
 	public static List<RevCommit> getRevLog(Repository r, int maxCount) {
@@ -775,7 +780,45 @@ public class JGitUtils {
 		return false;
 	}
 
-	public static List<Metric> getDateMetrics(Repository r) {
+	public static List<Metric> getDateMetrics(Repository r, boolean includeTotal, String format) {
+		Metric total = new Metric("TOTAL");
+		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
+
+		if (hasCommits(r)) {			
+			try {
+				RevWalk walk = new RevWalk(r);
+				ObjectId object = r.resolve(Constants.HEAD);
+				RevCommit lastCommit = walk.parseCommit(object);
+				walk.markStart(lastCommit);
+				SimpleDateFormat df = new SimpleDateFormat(format);
+				Iterable<RevCommit> revlog = walk;
+				for (RevCommit rev : revlog) {
+					Date d = getCommitDate(rev);
+					String p = df.format(d);
+					if (!metricMap.containsKey(p)) {
+						metricMap.put(p, new Metric(p));
+					}
+					Metric m = metricMap.get(p);
+					m.count++;
+					total.count++;					
+				}
+			} catch (Throwable t) {
+				LOGGER.error("Failed to mine log history for metrics", t);
+			}
+		}
+		List<String> keys = new ArrayList<String>(metricMap.keySet());
+		Collections.sort(keys);
+		List<Metric> metrics = new ArrayList<Metric>();
+		for (String key : keys) {
+			metrics.add(metricMap.get(key));
+		}
+		if (includeTotal) {
+			metrics.add(0, total);
+		}
+		return metrics;
+	}
+
+	public static List<Metric> getDateMetrics(Repository r, boolean includeTotal) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 
@@ -832,9 +875,49 @@ public class JGitUtils {
 		for (String key : keys) {
 			metrics.add(metricMap.get(key));
 		}
-		metrics.add(0, total);
+		if (includeTotal) {
+			metrics.add(0, total);
+		}
 		return metrics;
 	}
+	
+	public static List<Metric> getAuthorMetrics(Repository r) {
+		Metric total = new Metric("TOTAL");
+		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
+
+		if (hasCommits(r)) {
+			try {
+				RevWalk walk = new RevWalk(r);
+				ObjectId object = r.resolve(Constants.HEAD);
+				RevCommit lastCommit = walk.parseCommit(object);
+				walk.markStart(lastCommit);
+
+				Iterable<RevCommit> revlog = walk;
+				for (RevCommit rev : revlog) {
+					String p = rev.getAuthorIdent().getName();
+					if (StringUtils.isEmpty(p)) {
+						p = rev.getAuthorIdent().getEmailAddress();
+					}
+					if (!metricMap.containsKey(p)) {
+						metricMap.put(p, new Metric(p));
+					}
+					Metric m = metricMap.get(p);
+					m.count++;
+					total.count++;
+				}
+			} catch (Throwable t) {
+				LOGGER.error("Failed to mine log history for metrics", t);
+			}
+		}
+		List<String> keys = new ArrayList<String>(metricMap.keySet());
+		Collections.sort(keys);
+		List<Metric> metrics = new ArrayList<Metric>();
+		for (String key : keys) {
+			metrics.add(metricMap.get(key));
+		}
+		return metrics;
+	}
+
 
 	public static RefModel getTicketsBranch(Repository r) {
 		RefModel ticgitBranch = null;

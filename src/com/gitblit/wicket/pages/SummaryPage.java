@@ -27,7 +27,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.lib.Repository;
-import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.Chart;
 import org.wicketstuff.googlecharts.ChartAxis;
 import org.wicketstuff.googlecharts.ChartAxisType;
@@ -73,7 +72,7 @@ public class SummaryPage extends RepositoryPage {
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = JGitUtils.getDateMetrics(r);
+			metrics = JGitUtils.getDateMetrics(r, true);
 			metricsTotal = metrics.remove(0);
 		}
 
@@ -152,7 +151,7 @@ public class SummaryPage extends RepositoryPage {
 	private void insertActivityGraph(List<Metric> metrics) {
 		if ((metrics != null) && (metrics.size() > 0)
 				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			IChartData data = getChartData(metrics);
+			IChartData data = WicketUtils.getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
 					data);
@@ -162,7 +161,7 @@ public class SummaryPage extends RepositoryPage {
 			provider.addAxis(dateAxis);
 
 			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
-			commitAxis.setLabels(new String[] { "", String.valueOf((int) maxValue(metrics)) });
+			commitAxis.setLabels(new String[] { "", String.valueOf((int) WicketUtils.maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
 			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
@@ -172,48 +171,5 @@ public class SummaryPage extends RepositoryPage {
 		} else {
 			add(WicketUtils.newBlankImage("commitsChart"));
 		}
-	}
-
-	protected IChartData getChartData(List<Metric> metrics) {
-		final double[] commits = new double[metrics.size()];
-		final double[] tags = new double[metrics.size()];
-		int i = 0;
-		double max = 0;
-		for (Metric m : metrics) {
-			commits[i] = m.count;
-			if (m.tag > 0) {
-				tags[i] = m.count;
-			} else {
-				tags[i] = -1d;
-			}
-			max = Math.max(max, m.count);
-			i++;
-		}
-		IChartData data = new AbstractChartData(max) {
-			private static final long serialVersionUID = 1L;
-
-			public double[][] getData() {
-				return new double[][] { commits, tags };
-			}
-		};
-		return data;
-	}
-
-	protected String[] getNames(List<Metric> results) {
-		String[] names = new String[results.size()];
-		for (int i = 0; i < results.size(); i++) {
-			names[i] = results.get(i).name;
-		}
-		return names;
-	}
-
-	protected double maxValue(List<Metric> metrics) {
-		double max = Double.MIN_VALUE;
-		for (Metric m : metrics) {
-			if (m.count > max) {
-				max = m.count;
-			}
-		}
-		return max;
 	}
 }

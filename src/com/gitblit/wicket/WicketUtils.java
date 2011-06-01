@@ -17,6 +17,7 @@ package com.gitblit.wicket;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -29,9 +30,12 @@ import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
+import org.wicketstuff.googlecharts.AbstractChartData;
+import org.wicketstuff.googlecharts.IChartData;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.Metric;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -295,4 +299,65 @@ public class WicketUtils {
 		WicketUtils.setHtmlTooltip(label, title);
 		return label;
 	}
+	
+	public static IChartData getChartData(Collection<Metric> metrics) {
+		final double[] commits = new double[metrics.size()];
+		final double[] tags = new double[metrics.size()];
+		int i = 0;
+		double max = 0;
+		for (Metric m : metrics) {
+			commits[i] = m.count;
+			if (m.tag > 0) {
+				tags[i] = m.count;
+			} else {
+				tags[i] = -1d;
+			}
+			max = Math.max(max, m.count);
+			i++;
+		}
+		IChartData data = new AbstractChartData(max) {
+			private static final long serialVersionUID = 1L;
+
+			public double[][] getData() {
+				return new double[][] { commits, tags };
+			}
+		};
+		return data;
+	}
+
+	public static double maxValue(Collection<Metric> metrics) {
+		double max = Double.MIN_VALUE;
+		for (Metric m : metrics) {
+			if (m.count > max) {
+				max = m.count;
+			}
+		}
+		return max;
+	}
+	
+	public static IChartData getScatterData(Collection<Metric> metrics) {
+		final double[] y = new double[metrics.size()];
+		final double[] x = new double[metrics.size()];
+		int i = 0;
+		double max = 0;
+		for (Metric m : metrics) {
+			y[i] = m.count;
+			if (m.duration > 0) {
+				x[i] = m.duration;
+			} else {
+				x[i] = -1d;
+			}
+			max = Math.max(max, m.count);
+			i++;
+		}
+		IChartData data = new AbstractChartData(max) {
+			private static final long serialVersionUID = 1L;
+
+			public double[][] getData() {
+				return new double[][] { x, y };
+			}
+		};
+		return data;
+	}
+
 }

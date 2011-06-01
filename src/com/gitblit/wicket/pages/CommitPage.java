@@ -26,6 +26,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -134,12 +135,12 @@ public class CommitPage extends RepositoryPage {
 				}
 
 				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class,
-						newPathParameter(entry.path)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD) && !entry.changeType.equals(ChangeType.DELETE)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
 						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-						newPathParameter(entry.path)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

@@ -47,7 +47,7 @@ public class TimeUtils {
 			return days + (days > 1 ? " days" : " day");
 		} else if (days < 365) {
 			int rem = days % 30;
-			return (days / 30) + (rem >= 15 ? 1 : 0) + " months";
+			return ((days / 30) + (rem >= 15 ? 1 : 0)) + " months";
 		} else {
 			int years = days / 365;
 			int rem = days % 365;
