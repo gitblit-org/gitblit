@@ -41,7 +41,7 @@ import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.pages.StatsPage;
+import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -84,7 +84,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/patch", PatchPage.class, "r", "h", "f");
 		mount("/history", HistoryPage.class, "r", "h", "f");
 		mount("/search", SearchPage.class);
-		mount("/stats", StatsPage.class, "r");
+		mount("/metrics", MetricsPage.class, "r");
 		
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");

@@ -39,15 +39,15 @@ import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
 import com.gitblit.models.Metric;
-import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MetricUtils;
 import com.gitblit.wicket.WicketUtils;
 
-public class StatsPage extends RepositoryPage {
+public class MetricsPage extends RepositoryPage {
 
-	public StatsPage(PageParameters params) {
+	public MetricsPage(PageParameters params) {
 		super(params);
 		Repository r = getRepository();
-		insertLinePlot("commitsChart", JGitUtils.getDateMetrics(r, false));
+		insertLinePlot("commitsChart", MetricUtils.getDateMetrics(r, false));
 		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r));
 		insertLinePlot("timeOfDayChart", getTimeOfDayMetrics(r));
 		insertPieChart("authorsChart", getAuthorMetrics(r));
@@ -119,7 +119,7 @@ public class StatsPage extends RepositoryPage {
 	}
 
 	private List<Metric> getDayOfWeekMetrics(Repository repository) {
-		List<Metric> list = JGitUtils.getDateMetrics(repository, false, "E");
+		List<Metric> list = MetricUtils.getDateMetrics(repository, false, "E");
 		SimpleDateFormat sdf = new SimpleDateFormat("E");
 		Calendar cal = Calendar.getInstance();
 
@@ -146,7 +146,7 @@ public class StatsPage extends RepositoryPage {
 	private List<Metric> getTimeOfDayMetrics(Repository repository) {
 		SimpleDateFormat ndf = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		List<Metric> list = JGitUtils.getDateMetrics(repository, false, "yyyy-MM-dd HH:mm");
+		List<Metric> list = MetricUtils.getDateMetrics(repository, false, "yyyy-MM-dd HH:mm");
 		Calendar cal = Calendar.getInstance();
 
 		for (Metric metric : list) {
@@ -164,7 +164,7 @@ public class StatsPage extends RepositoryPage {
 	}
 
 	private List<Metric> getAuthorMetrics(Repository repository) {
-		List<Metric> authors = JGitUtils.getAuthorMetrics(repository);
+		List<Metric> authors = MetricUtils.getAuthorMetrics(repository);
 		Collections.sort(authors, new Comparator<Metric>() {
 			@Override
 			public int compare(Metric o1, Metric o2) {
@@ -184,6 +184,6 @@ public class StatsPage extends RepositoryPage {
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.stats");
+		return getString("gb.metrics");
 	}
 }

@@ -36,6 +36,7 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Comment;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MetricUtils;
 
 public class JGitUtilsTest extends TestCase {
 
@@ -184,7 +185,7 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testMetrics() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<Metric> metrics = JGitUtils.getDateMetrics(repository, true);
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, true);
 		repository.close();
 		assertTrue("No metrics found!", metrics.size() > 0);
 	}

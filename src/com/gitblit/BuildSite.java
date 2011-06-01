@@ -73,13 +73,15 @@ public class BuildSite {
 		StringBuilder sb = new StringBuilder();
 		for (File file : markdownFiles) {
 			String documentName = getDocumentName(file);
-			String displayName = documentName;
-			if (aliasMap.containsKey(documentName)) {
-				displayName = aliasMap.get(documentName);
+			if (!params.skips.contains(documentName)) {
+				String displayName = documentName;
+				if (aliasMap.containsKey(documentName)) {
+					displayName = aliasMap.get(documentName);
+				}
+				String fileName = documentName + ".html";
+				sb.append(MessageFormat.format(linkPattern, fileName, displayName));
+				sb.append(" | ");
 			}
-			String fileName = documentName + ".html";
-			sb.append(MessageFormat.format(linkPattern, fileName, displayName));
-			sb.append(" | ");
 		}
 		sb.setLength(sb.length() - 3);
 		sb.trimToSize();
@@ -93,29 +95,32 @@ public class BuildSite {
 		for (File file : markdownFiles) {
 			try {
 				String documentName = getDocumentName(file);
-				String fileName = documentName + ".html";
-				System.out.println(MessageFormat.format("  {0} => {1}", file.getName(), fileName));
-				InputStreamReader reader = new InputStreamReader(new FileInputStream(file),
-						Charset.forName("UTF-8"));
-				String content = MarkdownUtils.transformMarkdown(reader);
-				for (String token : params.substitutions) {
-					String[] kv = token.split("=");
-					content = content.replace(kv[0], kv[1]);
+				if (!params.skips.contains(documentName)) {
+					String fileName = documentName + ".html";
+					System.out.println(MessageFormat.format("  {0} => {1}", file.getName(),
+							fileName));
+					InputStreamReader reader = new InputStreamReader(new FileInputStream(file),
+							Charset.forName("UTF-8"));
+					String content = MarkdownUtils.transformMarkdown(reader);
+					for (String token : params.substitutions) {
+						String[] kv = token.split("=");
+						content = content.replace(kv[0], kv[1]);
+					}
+					for (String alias : params.loads) {
+						String[] kv = alias.split("=");
+						String loadedContent = readContent(new File(kv[1]), "\n");
+						loadedContent = StringUtils.escapeForHtml(loadedContent, false);
+						loadedContent = StringUtils.breakLinesForHtml(loadedContent);
+						content = content.replace(kv[0], loadedContent);
+					}
+					OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(
+							new File(destinationFolder, fileName)), Charset.forName("UTF-8"));
+					writer.write(header);
+					writer.write(content);
+					writer.write(footer);
+					reader.close();
+					writer.close();
 				}
-				for (String alias : params.loads) {
-					String[] kv = alias.split("=");
-					String loadedContent = readContent(new File(kv[1]), "\n");
-					loadedContent = StringUtils.escapeForHtml(loadedContent, false);
-					loadedContent = StringUtils.breakLinesForHtml(loadedContent);
-					content = content.replace(kv[0], loadedContent);
-				}
-				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(
-						destinationFolder, fileName)), Charset.forName("UTF-8"));
-				writer.write(header);
-				writer.write(content);
-				writer.write(footer);
-				reader.close();
-				writer.close();
 			} catch (Throwable t) {
 				System.err.println("Failed to transform " + file.getName());
 				t.printStackTrace();
@@ -178,6 +183,9 @@ public class BuildSite {
 
 		@Parameter(names = { "--pageFooter" }, description = "Page Footer HTML Snippet", required = true)
 		public String pageFooter;
+
+		@Parameter(names = { "--skip" }, description = "Filename to skip", required = false)
+		public List<String> skips = new ArrayList<String>();
 
 		@Parameter(names = { "--alias" }, description = "Filename=Linkname aliases", required = false)
 		public List<String> aliases = new ArrayList<String>();

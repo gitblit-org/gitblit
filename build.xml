@@ -89,36 +89,6 @@
 			</manifest>
 		</jar>
 
-		<!-- Delete the deploy folder -->
-		<delete dir="${basedir}/deploy" />
-
-		<!-- Create deployment folder structure -->
-		<mkdir dir="${basedir}/deploy" />
-		<copy todir="${basedir}/deploy" file="${project.jar}" />
-		<copy todir="${basedir}/deploy">
-			<fileset dir="${basedir}/distrib">
-				<include name="**/*" />
-			</fileset>
-		</copy>
-
-		<!-- Create Zip deployment -->
-		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
-		<zip destfile="${distribution.zipfile}">
-			<fileset dir="${basedir}/deploy">
-				<include name="**/*" />
-			</fileset>
-		</zip>
-
-		<!-- Delete the deploy folder -->
-		<delete dir="${basedir}/deploy" />
-
-		<!-- Cleanup builds -->
-		<delete>
-			<fileset dir="${basedir}">
-				<include name="${project.jar}" />
-			</fileset>
-		</delete>
-
 		<!-- Build Site -->
 		<delete dir="${basedir}/site" />
 		<mkdir dir="${basedir}/site" />
@@ -195,7 +165,7 @@
 
 			<arg value="--alias" />
 			<arg value="index=overview" />
-			
+
 			<arg value="--alias" />
 			<arg value="properties=gitblit.properties" />
 
@@ -216,6 +186,112 @@
 
 		</java>
 
+		<!-- Delete the deploy folder -->
+		<delete dir="${basedir}/deploy" />
+
+		<!-- Create deployment folder structure -->
+		<mkdir dir="${basedir}/deploy" />
+		<copy todir="${basedir}/deploy" file="${project.jar}" />
+		<copy todir="${basedir}/deploy">
+			<fileset dir="${basedir}/distrib">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+
+		<!-- Build Deployment Docs -->
+		<mkdir dir="${basedir}/deploy/docs" />
+		<copy todir="${basedir}/deploy/docs">
+			<!-- Copy selected Gitblit resources -->
+			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
+				<include name="background.png" />
+				<include name="gitblit.css" />
+				<include name="markdown.css" />
+				<include name="gitblt_25.png" />
+				<include name="gitblt-favicon.png" />
+				<include name="lock_go_16x16.png" />
+				<include name="lock_pull_16x16.png" />
+				<include name="shield_16x16.png" />
+				<include name="cold_16x16.png" />
+				<include name="bug_16x16.png" />
+				<include name="book_16x16.png" />
+				<include name="blank.png" />
+			</fileset>
+
+			<!-- Copy Doc images -->
+			<fileset dir="${basedir}/docs">
+				<include name="*.png" />
+			</fileset>
+		</copy>
+
+		<!-- Copy google-code-prettify -->
+		<mkdir dir="${basedir}/src/com/gitblit/wicket/pages/prettify" />
+		<copy todir="${basedir}/deploy/docs/prettify">
+			<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+
+		<!-- Build deployment doc pages -->
+		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
+			<classpath refid="master-classpath" />
+			<arg value="--sourceFolder" />
+			<arg value="${basedir}/docs" />
+
+			<arg value="--outputFolder" />
+			<arg value="${basedir}/deploy/docs" />
+
+			<arg value="--pageHeader" />
+			<arg value="${basedir}/docs/page_header.html" />
+
+			<arg value="--pageFooter" />
+			<arg value="${basedir}/docs/page_footer.html" />
+
+			<arg value="--skip" />
+			<arg value="screenshots" />
+
+			<arg value="--skip" />
+			<arg value="releases" />
+
+			<arg value="--alias" />
+			<arg value="index=overview" />
+
+			<arg value="--alias" />
+			<arg value="properties=gitblit.properties" />
+
+			<arg value="--substitute" />
+			<arg value="%VERSION%=${gb.version}" />
+
+			<arg value="--substitute" />
+			<arg value="%DISTRIBUTION%=${distribution.zipfile}" />
+
+			<arg value="--substitute" />
+			<arg value="%BUILDDATE%=${gb.buildDate}" />
+
+			<arg value="--substitute" />
+			<arg value="%JGIT%=${jgit.version}" />
+
+			<arg value="--load" />
+			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
+
+		</java>
+
+		<!-- Create Zip deployment -->
+		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
+		<zip destfile="${distribution.zipfile}">
+			<fileset dir="${basedir}/deploy">
+				<include name="**/*" />
+			</fileset>
+		</zip>
+
+		<!-- Delete the deploy folder -->
+		<delete dir="${basedir}/deploy" />
+
+		<!-- Cleanup builds -->
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="${project.jar}" />
+			</fileset>
+		</delete>
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 	</target>

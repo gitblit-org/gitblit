@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -73,7 +71,6 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
@@ -82,7 +79,7 @@ import com.gitblit.models.TicketModel.Comment;
 
 public class JGitUtils {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
 	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
 		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
@@ -779,145 +776,6 @@ public class JGitUtils {
 		}
 		return false;
 	}
-
-	public static List<Metric> getDateMetrics(Repository r, boolean includeTotal, String format) {
-		Metric total = new Metric("TOTAL");
-		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-
-		if (hasCommits(r)) {			
-			try {
-				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(Constants.HEAD);
-				RevCommit lastCommit = walk.parseCommit(object);
-				walk.markStart(lastCommit);
-				SimpleDateFormat df = new SimpleDateFormat(format);
-				Iterable<RevCommit> revlog = walk;
-				for (RevCommit rev : revlog) {
-					Date d = getCommitDate(rev);
-					String p = df.format(d);
-					if (!metricMap.containsKey(p)) {
-						metricMap.put(p, new Metric(p));
-					}
-					Metric m = metricMap.get(p);
-					m.count++;
-					total.count++;					
-				}
-			} catch (Throwable t) {
-				LOGGER.error("Failed to mine log history for metrics", t);
-			}
-		}
-		List<String> keys = new ArrayList<String>(metricMap.keySet());
-		Collections.sort(keys);
-		List<Metric> metrics = new ArrayList<Metric>();
-		for (String key : keys) {
-			metrics.add(metricMap.get(key));
-		}
-		if (includeTotal) {
-			metrics.add(0, total);
-		}
-		return metrics;
-	}
-
-	public static List<Metric> getDateMetrics(Repository r, boolean includeTotal) {
-		Metric total = new Metric("TOTAL");
-		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-
-		if (hasCommits(r)) {
-			final List<RefModel> tags = getTags(r, -1);
-			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
-			for (RefModel tag : tags) {
-				tagMap.put(tag.getCommitId(), tag);
-			}
-			try {
-				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(Constants.HEAD);
-
-				RevCommit firstCommit = getFirstCommit(r, Constants.HEAD);
-				RevCommit lastCommit = walk.parseCommit(object);
-				int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
-						/ (60 * 60 * 24);
-				total.duration = diffDays;
-				DateFormat df;
-				if (diffDays <= 90) {
-					// Days
-					df = new SimpleDateFormat("yyyy-MM-dd");
-				} else if (diffDays > 90 && diffDays < 365) {
-					// Weeks
-					df = new SimpleDateFormat("yyyy-MM (w)");
-				} else {
-					// Months
-					df = new SimpleDateFormat("yyyy-MM");
-				}
-				walk.markStart(lastCommit);
-
-				Iterable<RevCommit> revlog = walk;
-				for (RevCommit rev : revlog) {
-					Date d = getCommitDate(rev);
-					String p = df.format(d);
-					if (!metricMap.containsKey(p)) {
-						metricMap.put(p, new Metric(p));
-					}
-					Metric m = metricMap.get(p);
-					m.count++;
-					total.count++;
-					if (tagMap.containsKey(rev.getId())) {
-						m.tag++;
-						total.tag++;
-					}
-				}
-			} catch (Throwable t) {
-				LOGGER.error("Failed to mine log history for metrics", t);
-			}
-		}
-		List<String> keys = new ArrayList<String>(metricMap.keySet());
-		Collections.sort(keys);
-		List<Metric> metrics = new ArrayList<Metric>();
-		for (String key : keys) {
-			metrics.add(metricMap.get(key));
-		}
-		if (includeTotal) {
-			metrics.add(0, total);
-		}
-		return metrics;
-	}
-	
-	public static List<Metric> getAuthorMetrics(Repository r) {
-		Metric total = new Metric("TOTAL");
-		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-
-		if (hasCommits(r)) {
-			try {
-				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(Constants.HEAD);
-				RevCommit lastCommit = walk.parseCommit(object);
-				walk.markStart(lastCommit);
-
-				Iterable<RevCommit> revlog = walk;
-				for (RevCommit rev : revlog) {
-					String p = rev.getAuthorIdent().getName();
-					if (StringUtils.isEmpty(p)) {
-						p = rev.getAuthorIdent().getEmailAddress();
-					}
-					if (!metricMap.containsKey(p)) {
-						metricMap.put(p, new Metric(p));
-					}
-					Metric m = metricMap.get(p);
-					m.count++;
-					total.count++;
-				}
-			} catch (Throwable t) {
-				LOGGER.error("Failed to mine log history for metrics", t);
-			}
-		}
-		List<String> keys = new ArrayList<String>(metricMap.keySet());
-		Collections.sort(keys);
-		List<Metric> metrics = new ArrayList<Metric>();
-		for (String key : keys) {
-			metrics.add(metricMap.get(key));
-		}
-		return metrics;
-	}
-
 
 	public static RefModel getTicketsBranch(Repository r) {
 		RefModel ticgitBranch = null;

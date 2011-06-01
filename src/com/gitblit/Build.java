@@ -60,6 +60,7 @@ public class Build {
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -80,8 +81,6 @@ public class Build {
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.COMPILETIME);
-
-		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);

@@ -101,10 +101,10 @@ The following dependencies are automatically downloaded from the Apache Maven re
 - [Log4j](http://logging.apache.org/log4j) (Apache 2.0) 
 - [JCommander](http://jcommander.org) (Apache 2.0)
 - [BouncyCastle](http://www.bouncycastle.org) (MIT/X11)
+- [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)
-- [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
 - [JUnit](http://junit.org) (Common Public License)
 
 ## Building from Source

@@ -43,6 +43,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -72,7 +73,7 @@ public class SummaryPage extends RepositoryPage {
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = JGitUtils.getDateMetrics(r, true);
+			metrics = MetricUtils.getDateMetrics(r, true);
 			metricsTotal = metrics.remove(0);
 		}
 
@@ -83,9 +84,9 @@ public class SummaryPage extends RepositoryPage {
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r),
 				getTimeZone()));
 		if (metricsTotal == null) {
-			add(new Label("repositoryStats", ""));
+			add(new Label("repositoryMetrics", ""));
 		} else {
-			add(new Label("repositoryStats", MessageFormat.format(
+			add(new Label("repositoryMetrics", MessageFormat.format(
 					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
 					TimeUtils.duration(metricsTotal.duration))));
 		}

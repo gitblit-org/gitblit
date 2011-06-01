@@ -75,7 +75,7 @@ public abstract class RepositoryPage extends BasePage {
 			put("branches", "gb.branches");
 			put("tags", "gb.tags");
 			put("tree", "gb.tree");
-			put("stats", "gb.stats");
+			put("metrics", "gb.metrics");
 			put("tickets", "gb.tickets");
 			put("edit", "gb.edit");
 		}
@@ -104,7 +104,7 @@ public abstract class RepositoryPage extends BasePage {
 				WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new BookmarkablePageLink<Void>("tree", TreePage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("stats", StatsPage.class,
+		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
 
 		// per-repository extra page links
