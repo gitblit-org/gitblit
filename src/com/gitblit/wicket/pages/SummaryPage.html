@@ -4,6 +4,12 @@
       xml:lang="en"  
       lang="en"> 
 
+<wicket:head>
+  <wicket:link>
+   	<link href="/com/gitblit/wicket/resources/markdown.css" type="text/css" rel="stylesheet" />
+  </wicket:link>
+</wicket:head>
+
 <body>
 <wicket:extend>
 	
@@ -38,6 +44,8 @@
 		<div wicket:id="tagsPanel">[tags panel]</div>
 	</div>
 	
+	<!-- markdown readme -->
+	<div wicket:id="readme" class="markdown" style="clear:both;padding-bottom:5px;"></div>
 </wicket:extend>	
 </body>
 </html>

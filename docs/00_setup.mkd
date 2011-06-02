@@ -29,6 +29,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    showRemoteBranches = false
 	    accessRestriction = clone
 	    isFrozen = false
+	    showReadme = false
 	    
 #### Repository Names
 Repository names must be unique and are case-insensitive.  The name must be composed of letters, digits, or `/ _ - .`<br/>

@@ -35,6 +35,7 @@ public class RepositoryModel implements Serializable {
 	public boolean useDocs;
 	public AccessRestrictionType accessRestriction;
 	public boolean isFrozen;
+	public boolean showReadme;
 
 	public RepositoryModel() {
 		this("", "", "", new Date(0));

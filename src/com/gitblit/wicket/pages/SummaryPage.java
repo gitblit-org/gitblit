@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.wicketstuff.googlecharts.Chart;
 import org.wicketstuff.googlecharts.ChartAxis;
 import org.wicketstuff.googlecharts.ChartAxisType;
@@ -42,7 +44,9 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
+import com.gitblit.models.PathModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -140,6 +144,42 @@ public class SummaryPage extends RepositoryPage {
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs));
 
+		if (getRepositoryModel().showReadme) {
+			String htmlText = null;
+			try {
+				RevCommit head = JGitUtils.getCommit(r, null);
+				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
+				String readme = null;
+				for (PathModel path : paths) {
+					if (!path.isTree()) {
+						String name = path.name.toLowerCase();
+
+						if (name.startsWith("readme")) {
+							if (name.indexOf('.') > -1) {
+								String ext = name.substring(name.lastIndexOf('.') + 1);
+								if (markdownExtensions.contains(ext)) {
+									readme = path.name;
+									break;
+								}
+							}
+						}
+					}
+				}
+				if (!StringUtils.isEmpty(readme)) {
+					String markdownText = JGitUtils.getRawContentAsString(r, head, readme);
+					htmlText = MarkdownUtils.transformMarkdown(markdownText);
+				}
+			} catch (ParseException p) {
+				error(p.getMessage());
+			}
+			// Add the html to the page
+			add(new Label("readme", htmlText).setEscapeModelStrings(false).setVisible(
+					!StringUtils.isEmpty(htmlText)));
+		} else {
+			add(new Label("readme").setVisible(false));
+		}
+
 		// Display an activity line graph
 		insertActivityGraph(metrics);
 	}
@@ -162,7 +202,8 @@ public class SummaryPage extends RepositoryPage {
 			provider.addAxis(dateAxis);
 
 			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
-			commitAxis.setLabels(new String[] { "", String.valueOf((int) WicketUtils.maxValue(metrics)) });
+			commitAxis.setLabels(new String[] { "",
+					String.valueOf((int) WicketUtils.maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
 			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });

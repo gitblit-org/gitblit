@@ -203,6 +203,7 @@ public class GitBlit implements ServletContextListener {
 					"accessRestriction", null));
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
 			model.isFrozen = getConfig(config, "isFrozen", false);
+			model.showReadme = getConfig(config, "showReadme", false);
 		}
 		r.close();
 		return model;
@@ -278,6 +279,7 @@ public class GitBlit implements ServletContextListener {
 					repository.accessRestriction.name());
 			config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 			config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
+			config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
 			try {
 				config.save();
 			} catch (IOException e) {

@@ -164,6 +164,7 @@ public class EditRepositoryPage extends BasePage {
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
 		form.add(new CheckBox("showRemoteBranches"));
+		form.add(new CheckBox("showReadme"));
 		form.add(usersPalette);
 
 		add(form);
