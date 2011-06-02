@@ -225,6 +225,10 @@ public class GitBlit implements ServletContextListener {
 			boolean isCreate) throws GitBlitException {
 		Repository r = null;
 		if (isCreate) {
+			// ensure created repository name ends with .git
+			if (!repository.name.endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
+				repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
+			}
 			if (new File(repositoriesFolder, repository.name).exists()) {
 				throw new GitBlitException(MessageFormat.format(
 						"Can not create repository ''{0}'' because it already exists.",

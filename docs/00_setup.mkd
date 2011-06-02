@@ -32,8 +32,12 @@ All repository settings are stored within the repository `.git/config` file unde
 	    showReadme = false
 	    
 #### Repository Names
-Repository names must be unique and are case-insensitive.  The name must be composed of letters, digits, or `/ _ - .`<br/>
+Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - .`<br/>
 Whitespace is illegal.
+
+Repositories can be grouped by folders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
+
+Repository names will automatically have *.git* appended to the name at creation time, if not already specified. 
 
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
