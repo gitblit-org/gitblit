@@ -49,6 +49,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -111,7 +112,7 @@ public abstract class RepositoryPage extends BasePage {
 		List<String> extraPageLinks = new ArrayList<String>();
 
 		// Conditionally add tickets link
-		if (model.useTickets && JGitUtils.getTicketsBranch(r) != null) {
+		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
 			extraPageLinks.add("tickets");
 		}
 

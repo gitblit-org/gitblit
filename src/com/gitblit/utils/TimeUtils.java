@@ -15,6 +15,7 @@
  */
 package com.gitblit.utils;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class TimeUtils {
@@ -28,18 +29,15 @@ public class TimeUtils {
 
 	public static final long ONEYEAR = ONEDAY * 365L;
 
-	@SuppressWarnings("deprecation")
 	public static boolean isToday(Date date) {
-		Date now = new Date();
-		return now.getDate() == date.getDate() && now.getMonth() == date.getMonth()
-				&& now.getYear() == date.getYear();
+		return (System.currentTimeMillis() - date.getTime()) < ONEDAY; 
 	}
 
-	@SuppressWarnings("deprecation")
 	public static boolean isYesterday(Date date) {
-		Date now = new Date();
-		return now.getDate() == (date.getDate() + 1) && now.getMonth() == date.getMonth()
-				&& now.getYear() == date.getYear();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.DATE, 1);
+		return (System.currentTimeMillis() - cal.getTimeInMillis()) < ONEDAY; 
 	}
 
 	public static String duration(int days) {

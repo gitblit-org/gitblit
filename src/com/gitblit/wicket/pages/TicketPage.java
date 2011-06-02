@@ -24,8 +24,8 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Comment;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -37,7 +37,7 @@ public class TicketPage extends RepositoryPage {
 		final String ticketFolder = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
-		TicketModel t = JGitUtils.getTicket(r, ticketFolder);
+		TicketModel t = TicgitUtils.getTicket(r, ticketFolder);
 
 		add(new Label("ticketTitle", t.title));
 		add(new Label("ticketId", t.id));

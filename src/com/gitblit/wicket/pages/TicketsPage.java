@@ -24,8 +24,8 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.models.TicketModel;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -35,7 +35,7 @@ public class TicketsPage extends RepositoryPage {
 	public TicketsPage(PageParameters params) {
 		super(params);
 
-		List<TicketModel> tickets = JGitUtils.getTickets(getRepository());
+		List<TicketModel> tickets = TicgitUtils.getTickets(getRepository());
 
 		// header
 		add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,

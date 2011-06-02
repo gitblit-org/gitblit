@@ -30,13 +30,9 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 
 import com.gitblit.GitBlit;
-import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
-import com.gitblit.models.TicketModel;
-import com.gitblit.models.TicketModel.Comment;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.MetricUtils;
 
 public class JGitUtilsTest extends TestCase {
 
@@ -181,36 +177,5 @@ public class JGitUtilsTest extends TestCase {
 		fos.close();
 		zipFile.delete();
 		repository.close();
-	}
-
-	public void testMetrics() throws Exception {
-		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<Metric> metrics = MetricUtils.getDateMetrics(repository, true);
-		repository.close();
-		assertTrue("No metrics found!", metrics.size() > 0);
-	}
-
-	public void testTicGit() throws Exception {
-		Repository repository = GitBlitSuite.getTicgitRepository();
-		RefModel branch = JGitUtils.getTicketsBranch(repository);
-		assertTrue("Ticgit branch does not exist!", branch != null);
-		List<TicketModel> ticketsA = JGitUtils.getTickets(repository);
-		List<TicketModel> ticketsB = JGitUtils.getTickets(repository);
-		repository.close();
-		assertTrue("No tickets found!", ticketsA.size() > 0);
-		for (int i = 0; i < ticketsA.size(); i++) {
-			TicketModel ticketA = ticketsA.get(i);
-			TicketModel ticketB = ticketsB.get(i);
-			assertTrue("Tickets are not equal!", ticketA.equals(ticketB));
-			assertFalse(ticketA.equals(""));
-			assertTrue(ticketA.hashCode() == ticketA.id.hashCode());
-			for (int j = 0; j < ticketA.comments.size(); j++) {
-				Comment commentA = ticketA.comments.get(j);
-				Comment commentB = ticketB.comments.get(j);
-				assertTrue("Comments are not equal!", commentA.equals(commentB));
-				assertFalse(commentA.equals(""));
-				assertTrue(commentA.hashCode() == commentA.text.hashCode());
-			}
-		}
 	}
 }

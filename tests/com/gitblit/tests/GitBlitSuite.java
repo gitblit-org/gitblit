@@ -44,6 +44,8 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(ByteFormatTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
 		suite.addTestSuite(DiffUtilsTest.class);
+		suite.addTestSuite(MetricUtilsTest.class);
+		suite.addTestSuite(TicgitUtilsTest.class);
 		suite.addTestSuite(GitBlitTest.class);
 		return new GitBlitSuite(suite);
 	}
