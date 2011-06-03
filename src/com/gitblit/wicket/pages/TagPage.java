@@ -15,17 +15,21 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.RefsPanel;
 
 public class TagPage extends RepositoryPage {
 
@@ -33,11 +37,10 @@ public class TagPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit c = getCommit();
-		List<RefModel> tags = JGitUtils.getTags(r, -1);
 
+		// Find tag in repository
+		List<RefModel> tags = JGitUtils.getTags(r, -1);
 		RefModel tagRef = null;
-		// determine tag
 		for (RefModel tag : tags) {
 			if (tag.getName().equals(objectId) || tag.getObjectId().getName().equals(objectId)) {
 				tagRef = tag;
@@ -45,25 +48,42 @@ public class TagPage extends RepositoryPage {
 			}
 		}
 
+		// Failed to find tag!
 		if (tagRef == null) {
-			// point to commit
-			add(new LinkPanel("commit", "title", c.getShortMessage(), CommitPage.class,
-					newCommitParameter()));
-			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class,
-					newCommitParameter(c.getName())));
-		} else {
-			// TODO commit or tree or blob?
-			add(new LinkPanel("commit", "title", tagRef.displayName, CommitPage.class,
-					newCommitParameter()));
-			add(new LinkPanel("tagId", "list", c.getName(), CommitPage.class,
-					newCommitParameter(c.getName())));
+			error(MessageFormat.format("Could not find tag {0}", objectId), true);
 		}
 
-		add(createPersonPanel("tagAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
-		add(WicketUtils
-				.createTimestampLabel("tagDate", c.getAuthorIdent().getWhen(), getTimeZone()));
+		// Display tag.
+		Class<? extends RepositoryPage> linkClass;
+		PageParameters linkParameters = newCommitParameter(tagRef.getReferencedObjectId().getName());
+		String typeKey;
+		switch (tagRef.getReferencedObjectType()) {
+		case Constants.OBJ_BLOB:
+			typeKey = "gb.blob";
+			linkClass = BlobPage.class;
+			break;
+		case Constants.OBJ_TREE:
+			typeKey = "gb.tree";
+			linkClass = TreePage.class;
+			break;
+		case Constants.OBJ_COMMIT:
+		default:
+			typeKey = "gb.commit";
+			linkClass = CommitPage.class;
+			break;
+		}
+		add(new LinkPanel("commit", "title", tagRef.displayName, linkClass, linkParameters));
+		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));
+		add(new Label("tagId", tagRef.getObjectId().getName()));
+		add(new LinkPanel("taggedObject", "list", tagRef.getReferencedObjectId().getName(),
+				linkClass, linkParameters));
+		add(new Label("taggedObjectType", getString(typeKey)));
 
-		addFullText("fullMessage", c.getFullMessage(), true);
+		add(createPersonPanel("tagger", tagRef.getAuthorIdent(), SearchType.AUTHOR));
+		add(WicketUtils.createTimestampLabel("tagDate", tagRef.getAuthorIdent().getWhen(),
+				getTimeZone()));
+
+		addFullText("fullMessage", tagRef.getFullMessage(), true);
 	}
 
 	@Override

@@ -47,7 +47,7 @@ public class MetricUtils {
 			final List<RefModel> tags = JGitUtils.getTags(r, -1);
 			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
 			for (RefModel tag : tags) {
-				tagMap.put(tag.getCommitId(), tag);
+				tagMap.put(tag.getReferencedObjectId(), tag);
 			}
 			try {
 				RevWalk walk = new RevWalk(r);

@@ -19,50 +19,99 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTag;
 
 public class RefModel implements Serializable, Comparable<RefModel> {
 
 	private static final long serialVersionUID = 1L;
 	public final String displayName;
-	public final RevCommit commit;
-	public transient Ref ref;
+	public final RevObject referencedObject;
+	public transient Ref reference;
 
-	public RefModel(String displayName, Ref ref, RevCommit commit) {
+	public RefModel(String displayName, Ref ref, RevObject refObject) {
 		this.displayName = displayName;
-		this.ref = ref;
-		this.commit = commit;
+		this.reference = ref;
+		this.referencedObject = refObject;
 	}
 
 	public Date getDate() {
-		return new Date(commit.getCommitTime() * 1000L);
+		Date date = new Date(0);
+		if (referencedObject != null) {
+			if (referencedObject instanceof RevTag) {
+				date = ((RevTag) referencedObject).getTaggerIdent().getWhen();
+			} else if (referencedObject instanceof RevCommit) {
+				date = ((RevCommit) referencedObject).getCommitterIdent().getWhen();
+			}
+		}
+		return date;
 	}
 
 	public String getName() {
-		return ref.getName();
+		return reference.getName();
 	}
 
-	public ObjectId getCommitId() {
-		return commit.getId();
+	public int getReferencedObjectType() {
+		int type = referencedObject.getType();
+		if (referencedObject instanceof RevTag) {
+			type = ((RevTag) referencedObject).getObject().getType();
+		}
+		return type;
 	}
 
-	public String getShortLog() {
-		return commit.getShortMessage();
+	public ObjectId getReferencedObjectId() {
+		if (referencedObject instanceof RevTag) {
+			return ((RevTag) referencedObject).getObject().getId();
+		}
+		return referencedObject.getId();
+	}
+
+	public String getShortMessage() {
+		String message = "";
+		if (referencedObject instanceof RevTag) {
+			message = ((RevTag) referencedObject).getShortMessage();
+		} else if (referencedObject instanceof RevCommit) {
+			message = ((RevCommit) referencedObject).getShortMessage();
+		}
+		return message;
+	}
+
+	public String getFullMessage() {
+		String message = "";
+		if (referencedObject instanceof RevTag) {
+			message = ((RevTag) referencedObject).getFullMessage();
+		} else if (referencedObject instanceof RevCommit) {
+			message = ((RevCommit) referencedObject).getFullMessage();
+		}
+		return message;
+	}
+
+	public PersonIdent getAuthorIdent() {
+		if (referencedObject instanceof RevTag) {
+			return ((RevTag) referencedObject).getTaggerIdent();
+		} else if (referencedObject instanceof RevCommit) {
+			return ((RevCommit) referencedObject).getAuthorIdent();
+		}
+		return null;
 	}
 
 	public ObjectId getObjectId() {
-		return ref.getObjectId();
+		return reference.getObjectId();
 	}
 
 	public boolean isAnnotatedTag() {
-		// ref.isPeeled() ??
-		return !getCommitId().equals(getObjectId());
+		if (referencedObject instanceof RevTag) {
+			return !getReferencedObjectId().equals(getObjectId());
+		}
+		return reference.getPeeledObjectId() != null;
 	}
 
 	@Override
 	public int hashCode() {
-		return getCommitId().hashCode() + getName().hashCode();
+		return getReferencedObjectId().hashCode() + getName().hashCode();
 	}
 
 	@Override

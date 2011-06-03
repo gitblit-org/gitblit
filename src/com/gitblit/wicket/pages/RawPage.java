@@ -28,6 +28,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class RawPage extends WebPage {
@@ -50,49 +51,58 @@ public class RawPage extends WebPage {
 			return;
 		}
 
-		RevCommit commit = JGitUtils.getCommit(r, objectId);
-
-		String extension = null;
-		if (blobPath.lastIndexOf('.') > -1) {
-			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1);
-		}
-
-		// Map the extensions to types
-		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
-			map.put(ext.toLowerCase(), 2);
-		}
-		for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
-			map.put(ext.toLowerCase(), 3);
-		}
-
-		if (extension != null) {
-			int type = 0;
-			if (map.containsKey(extension)) {
-				type = map.get(extension);
-			}
-			Component c = null;
-			switch (type) {
-			case 2:
-				// TODO image blobs
-				c = new Label("rawText", "Image File");
-				break;
-			case 3:
-				// TODO binary blobs
-				c = new Label("rawText", "Binary File");
-				break;
-			default:
-				// plain text
-				c = new Label("rawText", JGitUtils.getRawContentAsString(r, commit, blobPath));
-				WicketUtils.setCssClass(c, "plainprint");
-			}
-			add(c);
-		} else {
-			// plain text
-			Label blobLabel = new Label("rawText", JGitUtils.getRawContentAsString(r, commit,
-					blobPath));
+		if (StringUtils.isEmpty(blobPath)) {
+			// objectid referenced raw view
+			Label blobLabel = new Label("rawText", JGitUtils.getStringContent(r, objectId));
 			WicketUtils.setCssClass(blobLabel, "plainprint");
 			add(blobLabel);
+		} else {
+			// standard raw blob view
+			RevCommit commit = JGitUtils.getCommit(r, objectId);
+
+			String extension = null;
+			if (blobPath.lastIndexOf('.') > -1) {
+				extension = blobPath.substring(blobPath.lastIndexOf('.') + 1);
+			}
+
+			// Map the extensions to types
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
+				map.put(ext.toLowerCase(), 2);
+			}
+			for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
+				map.put(ext.toLowerCase(), 3);
+			}
+
+			if (extension != null) {
+				int type = 0;
+				if (map.containsKey(extension)) {
+					type = map.get(extension);
+				}
+				Component c = null;
+				switch (type) {
+				case 2:
+					// TODO image blobs
+					c = new Label("rawText", "Image File");
+					break;
+				case 3:
+					// TODO binary blobs
+					c = new Label("rawText", "Binary File");
+					break;
+				default:
+					// plain text
+					c = new Label("rawText", JGitUtils.getStringContent(r, commit.getTree(),
+							blobPath));
+					WicketUtils.setCssClass(c, "plainprint");
+				}
+				add(c);
+			} else {
+				// plain text
+				Label blobLabel = new Label("rawText", JGitUtils.getStringContent(r,
+						commit.getTree(), blobPath));
+				WicketUtils.setCssClass(blobLabel, "plainprint");
+				add(blobLabel);
+			}
 		}
 		r.close();
 	}

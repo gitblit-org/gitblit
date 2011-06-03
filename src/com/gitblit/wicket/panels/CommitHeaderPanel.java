@@ -25,6 +25,14 @@ public class CommitHeaderPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
+	public CommitHeaderPanel(String id, String title) {
+		super(id);
+		add(new Label("shortmessage", title));
+		add(new Label("commitid"));
+		add(new Label("author"));
+		add(new Label("date"));
+	}
+	
 	public CommitHeaderPanel(String id, String repositoryName, RevCommit c) {
 		super(id);
 		add(new LinkPanel("shortmessage", "title", c.getShortMessage(), CommitPage.class,

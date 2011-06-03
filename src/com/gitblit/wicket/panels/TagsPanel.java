@@ -24,17 +24,22 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.RawPage;
+import com.gitblit.wicket.pages.RepositoryPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TreePage;
 
 public class TagsPanel extends BasePanel {
 
@@ -67,47 +72,83 @@ public class TagsPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone()));
 
-				// tag icon
-				if (entry.isAnnotatedTag()) {
-					item.add(WicketUtils.newImage("tagIcon", "tag_16x16.png"));
-				} else {
-					item.add(WicketUtils.newBlankImage("tagIcon"));
+				Class<? extends RepositoryPage> linkClass;
+				switch (entry.getReferencedObjectType()) {
+				case Constants.OBJ_BLOB:
+					linkClass = BlobPage.class;
+					break;
+				case Constants.OBJ_TREE:
+					linkClass = TreePage.class;
+					break;
+				case Constants.OBJ_COMMIT:
+				default:
+					linkClass = CommitPage.class;
+					break;
 				}
-
-				item.add(new LinkPanel("tagName", "list name", entry.displayName, CommitPage.class,
-						WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
-								.getName())));
+				item.add(new LinkPanel("tagName", "list name", entry.displayName, linkClass,
+						WicketUtils.newObjectParameter(repositoryName, entry
+								.getReferencedObjectId().getName())));
 				String message;
 				if (maxCount > 0) {
-					message = StringUtils.trimString(entry.getShortLog(), 40);
+					message = StringUtils.trimString(entry.getShortMessage(), 40);
 				} else {
-					message = entry.getShortLog();
+					// workaround for RevTag returning a lengthy shortlog. :(
+					message = StringUtils.trimShortLog(entry.getShortMessage());
 				}
-				if (entry.isAnnotatedTag()) {
+				if (linkClass.equals(BlobPage.class)) {
+					// Blob Tag Object
+					item.add(WicketUtils.newImage("tagIcon", "file_16x16.png"));
 					item.add(new LinkPanel("tagDescription", "list", message, TagPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
 									.getName())));
-					Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("view", TagPage.class, WicketUtils
+
+					Fragment fragment = new Fragment("tagLinks", "blobLinks", this);
+					fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class, WicketUtils
 							.newObjectParameter(repositoryName, entry.getObjectId().getName()))
 							.setEnabled(entry.isAnnotatedTag()));
-					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
-							WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
+
+					fragment.add(new BookmarkablePageLink<Void>("blob", linkClass, WicketUtils
+							.newObjectParameter(repositoryName, entry.getReferencedObjectId()
 									.getName())));
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
-							.newObjectParameter(repositoryName, entry.getName())));
+
+					fragment.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
+							.newObjectParameter(repositoryName, entry.getReferencedObjectId()
+									.getName())));
 					item.add(fragment);
 				} else {
-					item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class,
-							WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
-									.getName())));
-					Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
-					fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
-							WicketUtils.newObjectParameter(repositoryName, entry.getCommitId()
-									.getName())));
-					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
-							.newObjectParameter(repositoryName, entry.getName())));
-					item.add(fragment);
+					// TODO Tree Tag Object
+					// Standard Tag Object
+					if (entry.isAnnotatedTag()) {
+						item.add(WicketUtils.newImage("tagIcon", "tag_16x16.png"));
+						item.add(new LinkPanel("tagDescription", "list", message, TagPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
+										.getName())));
+
+						Fragment fragment = new Fragment("tagLinks", "annotatedLinks", this);
+						fragment.add(new BookmarkablePageLink<Void>("tag", TagPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
+										.getName())).setEnabled(entry.isAnnotatedTag()));
+
+						fragment.add(new BookmarkablePageLink<Void>("commit", linkClass,
+								WicketUtils.newObjectParameter(repositoryName, entry
+										.getReferencedObjectId().getName())));
+
+						fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+						item.add(fragment);
+					} else {
+						item.add(WicketUtils.newBlankImage("tagIcon"));
+						item.add(new LinkPanel("tagDescription", "list", message, CommitPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry.getObjectId()
+										.getName())));
+						Fragment fragment = new Fragment("tagLinks", "lightweightLinks", this);
+						fragment.add(new BookmarkablePageLink<Void>("commit", CommitPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry
+										.getReferencedObjectId().getName())));
+						fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class,
+								WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+						item.add(fragment);
+					}
 				}
 
 				WicketUtils.setAlternatingBackground(item, counter);

@@ -167,7 +167,7 @@ public class SummaryPage extends RepositoryPage {
 					}
 				}
 				if (!StringUtils.isEmpty(readme)) {
-					String markdownText = JGitUtils.getRawContentAsString(r, head, readme);
+					String markdownText = JGitUtils.getStringContent(r, head.getTree(), readme);
 					htmlText = MarkdownUtils.transformMarkdown(markdownText);
 				}
 			} catch (ParseException p) {

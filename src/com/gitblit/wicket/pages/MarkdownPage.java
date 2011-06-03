@@ -48,7 +48,7 @@ public class MarkdownPage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, markdownPath)));
 
 		// Read raw markdown content and transform it to html
-		String markdownText = JGitUtils.getRawContentAsString(r, commit, markdownPath);
+		String markdownText = JGitUtils.getStringContent(r, commit.getTree(), markdownPath);
 		String htmlText;
 		try {
 			htmlText = MarkdownUtils.transformMarkdown(markdownText);

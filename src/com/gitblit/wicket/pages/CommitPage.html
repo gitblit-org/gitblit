@@ -45,10 +45,16 @@
 	<div class="commit_message" wicket:id="fullMessage">[commit message]</div>
 
 	<!--  git notes -->
-	<table style="padding-bottom:5px;">
+	<table class="gitnotes">
 		<tr wicket:id="notes">
-			<td style="vertical-align:top;"><span class="headRef" wicket:id="refName"></span><br/><span wicket:id="authorName"></span><br/><span wicket:id="authorDate"></span></td>
-			<td><span wicket:id="noteContent"></span></td>
+			<td class="info">
+				<table>
+					<tr><td><span wicket:id="refName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorDate"></span></td></tr>
+				</table>
+			</td>
+			<td class="message"><span class="sha1" wicket:id="noteContent"></span></td>
 		</tr>
 	</table>
 	

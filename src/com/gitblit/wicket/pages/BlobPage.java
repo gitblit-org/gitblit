@@ -29,6 +29,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
@@ -38,82 +39,100 @@ public class BlobPage extends RepositoryPage {
 	public BlobPage(PageParameters params) {
 		super(params);
 
+		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
 
-		String extension = null;
-		if (blobPath.lastIndexOf('.') > -1) {
-			extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
-		}
+		if (StringUtils.isEmpty(blobPath)) {
+			// blob by objectid
 
-		// see if we should redirect to the markdown page
-		for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
-			if (ext.equals(extension)) {
-				setResponsePage(MarkdownPage.class, params);
-				return;
-			}
-		}
-
-		// standard blob view
-		Repository r = getRepository();
-		RevCommit commit = getCommit();
-
-		// blob page links
-		add(new Label("blameLink", getString("gb.blame")));
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
-				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
-				repositoryName, objectId, blobPath)));
-		add(new BookmarkablePageLink<Void>("headLink", BlobPage.class,
-				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
-
-		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
-
-		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
-
-		// Map the extensions to types
-		Map<String, Integer> map = new HashMap<String, Integer>();
-		for (String ext : GitBlit.getStrings(Keys.web.prettyPrintExtensions)) {
-			map.put(ext.toLowerCase(), 1);
-		}
-		for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
-			map.put(ext.toLowerCase(), 2);
-		}
-		for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
-			map.put(ext.toLowerCase(), 3);
-		}
-
-		if (extension != null) {
-			int type = 0;
-			if (map.containsKey(extension)) {
-				type = map.get(extension);
-			}
-			Component c = null;
-			switch (type) {
-			case 1:
-				// PrettyPrint blob text
-				c = new Label("blobText", JGitUtils.getRawContentAsString(r, commit, blobPath));
-				WicketUtils.setCssClass(c, "prettyprint linenums");
-				break;
-			case 2:
-				// TODO image blobs
-				c = new Label("blobText", "Image File");
-				break;
-			case 3:
-				// TODO binary blobs
-				c = new Label("blobText", "Binary File");
-				break;
-			default:
-				// plain text
-				c = new Label("blobText", JGitUtils.getRawContentAsString(r, commit, blobPath));
-				WicketUtils.setCssClass(c, "plainprint");
-			}
+			add(new Label("blameLink", getString("gb.blame")).setEnabled(false));
+			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class).setEnabled(false));
+			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class).setEnabled(false));
+			add(new CommitHeaderPanel("commitHeader", objectId));
+			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
+			Component c = new Label("blobText", JGitUtils.getStringContent(r, objectId));
+			WicketUtils.setCssClass(c, "plainprint");
 			add(c);
 		} else {
-			// plain text
-			Label blobLabel = new Label("blobText", JGitUtils.getRawContentAsString(r, commit,
-					blobPath));
-			WicketUtils.setCssClass(blobLabel, "plainprint");
-			add(blobLabel);
+			// standard blob view
+			String extension = null;
+			if (blobPath.lastIndexOf('.') > -1) {
+				extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
+			}
+
+			// see if we should redirect to the markdown page
+			for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
+				if (ext.equals(extension)) {
+					setResponsePage(MarkdownPage.class, params);
+					return;
+				}
+			}
+
+			// manually get commit because it can be null
+			RevCommit commit = JGitUtils.getCommit(r, objectId);
+
+			// blob page links
+			add(new Label("blameLink", getString("gb.blame")));
+			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class,
+					WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
+
+			add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+
+			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
+
+			// Map the extensions to types
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			for (String ext : GitBlit.getStrings(Keys.web.prettyPrintExtensions)) {
+				map.put(ext.toLowerCase(), 1);
+			}
+			for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
+				map.put(ext.toLowerCase(), 2);
+			}
+			for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
+				map.put(ext.toLowerCase(), 3);
+			}
+
+			if (extension != null) {
+				int type = 0;
+				if (map.containsKey(extension)) {
+					type = map.get(extension);
+				}
+				Component c = null;
+				switch (type) {
+				case 1:
+					// PrettyPrint blob text
+					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
+							blobPath));
+					WicketUtils.setCssClass(c, "prettyprint linenums");
+					break;
+				case 2:
+					// TODO image blobs
+					c = new Label("blobText", "Image File");
+					break;
+				case 3:
+					// TODO binary blobs
+					c = new Label("blobText", "Binary File");
+					break;
+				default:
+					// plain text
+					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
+							blobPath));
+					WicketUtils.setCssClass(c, "plainprint");
+				}
+				add(c);
+			} else {
+				// plain text
+				Label blobLabel = new Label("blobText", JGitUtils.getStringContent(r,
+						commit.getTree(), blobPath));
+				WicketUtils.setCssClass(blobLabel, "plainprint");
+				add(blobLabel);
+			}
 		}
 	}
 

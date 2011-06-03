@@ -29,6 +29,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.models.RefModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -39,45 +40,55 @@ public class RefsPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
-			Map<ObjectId, List<String>> refs) {
+			Map<ObjectId, List<RefModel>> refs) {
+		this(id, repositoryName, refs.get(c.getId()));
+	}
+
+	public RefsPanel(String id, final String repositoryName, List<RefModel> refs) {
 		super(id);
-		List<String> refNames = refs.get(c.getId());
-		if (refNames == null) {
-			refNames = new ArrayList<String>();
+		if (refs == null) {
+			refs = new ArrayList<RefModel>();
 		}
-		Collections.sort(refNames);
+		Collections.sort(refs);
 		// refNames.remove(Constants.HEAD);
 
-		ListDataProvider<String> refsDp = new ListDataProvider<String>(refNames);
-		DataView<String> refsView = new DataView<String>("ref", refsDp) {
+		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
+		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
 			private static final long serialVersionUID = 1L;
 
-			public void populateItem(final Item<String> item) {
-				String entry = item.getModelObject();
+			public void populateItem(final Item<RefModel> item) {
+				RefModel entry = item.getModelObject();
+				String name = entry.displayName;
+				String objectid = entry.getReferencedObjectId().getName();
 				Component c = null;
-				if (entry.startsWith(Constants.R_HEADS)) {
+				if (name.startsWith(Constants.R_HEADS)) {
 					// local head
-					c = new LinkPanel("refName", null, entry.substring(Constants.R_HEADS.length()),
-							LogPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, name.substring(Constants.R_HEADS.length()),
+							LogPage.class, WicketUtils.newObjectParameter(repositoryName, objectid));
 					WicketUtils.setCssClass(c, "headRef");
-				} else if (entry.startsWith(Constants.R_REMOTES)) {
+				} else if (name.equals(Constants.HEAD)) {
+					// local head
+					c = new LinkPanel("refName", null, name, LogPage.class,
+							WicketUtils.newObjectParameter(repositoryName, objectid));
+					WicketUtils.setCssClass(c, "headRef");
+				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote head
 					c = new LinkPanel("refName", null,
-							entry.substring(Constants.R_REMOTES.length()), LogPage.class,
-							WicketUtils.newObjectParameter(repositoryName, entry));
+							name.substring(Constants.R_REMOTES.length()), LogPage.class,
+							WicketUtils.newObjectParameter(repositoryName, objectid));
 					WicketUtils.setCssClass(c, "remoteRef");
-				} else if (entry.startsWith(Constants.R_TAGS)) {
+				} else if (name.startsWith(Constants.R_TAGS)) {
 					// tag
-					c = new LinkPanel("refName", null, entry.substring(Constants.R_TAGS.length()),
-							TagPage.class, WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, name.substring(Constants.R_TAGS.length()),
+							TagPage.class, WicketUtils.newObjectParameter(repositoryName, objectid));
 					WicketUtils.setCssClass(c, "tagRef");
 				} else {
 					// other
-					c = new LinkPanel("refName", null, entry, CommitPage.class,
-							WicketUtils.newObjectParameter(repositoryName, entry));
+					c = new LinkPanel("refName", null, name, CommitPage.class,
+							WicketUtils.newObjectParameter(repositoryName, objectid));
 					WicketUtils.setCssClass(c, "otherRef");
 				}
-				WicketUtils.setHtmlTooltip(c, entry);
+				WicketUtils.setHtmlTooltip(c, name);
 				item.add(c);
 			}
 		};

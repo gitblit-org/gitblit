@@ -16,9 +16,9 @@
 package com.gitblit.wicket.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -37,12 +37,13 @@ import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.RefsPanel;
 
 public class CommitPage extends RepositoryPage {
 
@@ -123,13 +124,10 @@ public class CommitPage extends RepositoryPage {
 
 			public void populateItem(final Item<GitNote> item) {
 				GitNote entry = item.getModelObject();
-				Component c = new LinkPanel("refName", null, entry.notesRef.displayName,
-						CommitPage.class, newCommitParameter(entry.notesRef.commit.getName()));
-				WicketUtils.setCssClass(c, "headRef");
-				item.add(c);
-				item.add(createPersonPanel("authorName", entry.notesRef.commit.getAuthorIdent(), SearchType.AUTHOR));
+				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
+				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(), SearchType.AUTHOR));
 				item.add(WicketUtils.createTimestampLabel("authorDate",
-						entry.notesRef.commit.getAuthorIdent().getWhen(), getTimeZone()));
+						entry.notesRef.getAuthorIdent().getWhen(), getTimeZone()));
 				item.add(new Label("noteContent", StringUtils.breakLinesForHtml(entry.content)).setEscapeModelStrings(false));
 			}
 		};

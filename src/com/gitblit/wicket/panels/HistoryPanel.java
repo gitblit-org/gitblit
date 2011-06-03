@@ -34,6 +34,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
@@ -73,7 +74,7 @@ public class HistoryPanel extends BasePanel {
 		}
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
 
-		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
+		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set

@@ -243,6 +243,7 @@ div.page_path {
 }
 
 div.commit_message {
+	font-family: monospace;
 	padding: 8px;
 	border: solid #bbb;
 	border-width: 1px 0px 0px;
@@ -508,7 +509,7 @@ table.pretty, table.comments {
 	border-right: 1px solid #bbb;	
 }
 
-table.pretty, table.comments, table.repositories {
+table.pretty, table.comments, table.repositories, table.gitnotes {
 	width:100%;
 }
 
@@ -608,7 +609,29 @@ table.palette td.header {
 }
 table.palette td.pane {
 	padding: 0px;	
-} 
+}
+
+table.gitnotes {	
+	padding-bottom: 5px;
+}
+table.gitnotes td {
+	border-top: 1px solid #ccc;
+	padding-top: 3px;
+	vertical-align:top;
+}
+
+table.gitnotes td table td {
+	border: none;
+	padding-top: 0px;
+}
+
+table.gitnotes td.info {
+}
+
+table.gitnotes td.message {
+	width: 65%;
+	border-left: 1px solid #ccc;
+}
 
 tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }

@@ -28,7 +28,7 @@
 	<!--  annotated tag links -->
 	<wicket:fragment wicket:id="annotatedLinks">
 		<span class="link">
-			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+			<a wicket:id="tag"><wicket:message key="gb.tag"></wicket:message></a> | <a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
 		</span>
 	</wicket:fragment>
 	
@@ -36,6 +36,13 @@
 	<wicket:fragment wicket:id="lightweightLinks">
 		<span class="link">
 			<a wicket:id="commit"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+
+	<!-- blob tag links -->
+	<wicket:fragment wicket:id="blobLinks">
+		<span class="link">
+			<a wicket:id="tag"><wicket:message key="gb.tag"></wicket:message></a> | <a wicket:id="blob"><wicket:message key="gb.blob"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a>
 		</span>
 	</wicket:fragment>
 	

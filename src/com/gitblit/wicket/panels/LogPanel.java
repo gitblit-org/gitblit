@@ -31,6 +31,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
@@ -57,7 +58,7 @@ public class LogPanel extends BasePanel {
 			itemsPerPage = 50;
 		}
 
-		final Map<ObjectId, List<String>> allRefs = JGitUtils.getAllRefs(r);
+		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set

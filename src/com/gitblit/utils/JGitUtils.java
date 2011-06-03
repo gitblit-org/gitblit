@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -42,7 +41,6 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
-import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -212,41 +210,31 @@ public class JGitUtils {
 		return commit;
 	}
 
-	public static Map<ObjectId, List<String>> getAllRefs(Repository r) {
-		Map<ObjectId, List<String>> refs = new HashMap<ObjectId, List<String>>();
-		Map<AnyObjectId, Set<Ref>> allRefs = r.getAllRefsByPeeledObjectId();
-		for (Entry<AnyObjectId, Set<Ref>> setRefs : allRefs.entrySet()) {
-			List<String> list = new ArrayList<String>();
-			for (Ref setRef : setRefs.getValue()) {
-				String name = setRef.getName();
-				list.add(name);
+	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository r) {
+		List<RefModel> list = getRefs(r, org.eclipse.jgit.lib.RefDatabase.ALL, -1);
+		Map<ObjectId, List<RefModel>> refs = new HashMap<ObjectId, List<RefModel>>();
+		for (RefModel ref : list) {
+			ObjectId objectid = ref.getReferencedObjectId();
+			if (!refs.containsKey(objectid)) {
+				refs.put(objectid, new ArrayList<RefModel>());
 			}
-			refs.put(setRefs.getKey().toObjectId(), list);
-		}
+			refs.get(objectid).add(ref);
+		}		
 		return refs;
 	}
 
-	/**
-	 * Lookup an entry stored in a tree, failing if not present.
-	 * 
-	 * @param tree
-	 *            the tree to search.
-	 * @param path
-	 *            the path to find the entry of.
-	 * @return the parsed object entry at this path
-	 * @throws Exception
-	 */
-	public static byte[] getRawContent(Repository r, RevCommit commit, final String path) {
+	public static byte[] getByteContent(Repository r, RevTree tree, final String path) {
 		RevWalk rw = new RevWalk(r);
 		TreeWalk tw = new TreeWalk(r);
 		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 		byte[] content = null;
 		try {
-			if (commit == null) {
+			if (tree == null) {
 				ObjectId object = r.resolve(Constants.HEAD);
-				commit = rw.parseCommit(object);
+				RevCommit commit = rw.parseCommit(object);
+				tree = commit.getTree();
 			}
-			tw.reset(commit.getTree());
+			tw.reset(tree);
 			while (tw.next()) {
 				if (tw.isSubtree() && !path.equals(tw.getPathString())) {
 					tw.enterSubtree();
@@ -268,7 +256,7 @@ public class JGitUtils {
 				content = os.toByteArray();
 			}
 		} catch (Throwable t) {
-			LOGGER.error("Can't find " + path + " in tree " + commit.getTree().name(), t);
+			LOGGER.error("Can't find " + path + " in tree " + tree.name(), t);
 		} finally {
 			rw.dispose();
 			tw.release();
@@ -276,8 +264,40 @@ public class JGitUtils {
 		return content;
 	}
 
-	public static String getRawContentAsString(Repository r, RevCommit commit, String blobPath) {
-		byte[] content = getRawContent(r, commit, blobPath);
+	public static String getStringContent(Repository r, RevTree tree, String blobPath) {
+		byte[] content = getByteContent(r, tree, blobPath);
+		if (content == null) {
+			return null;
+		}
+		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
+	}
+
+	public static byte[] getByteContent(Repository r, String objectId) {
+		RevWalk rw = new RevWalk(r);
+		byte[] content = null;
+		try {
+			RevBlob blob = rw.lookupBlob(ObjectId.fromString(objectId));
+			rw.parseBody(blob);
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ObjectLoader ldr = r.open(blob.getId(), Constants.OBJ_BLOB);
+			byte[] tmp = new byte[4096];
+			InputStream in = ldr.openStream();
+			int n;
+			while ((n = in.read(tmp)) > 0) {
+				os.write(tmp, 0, n);
+			}
+			in.close();
+			content = os.toByteArray();
+		} catch (Throwable t) {
+			LOGGER.error("Can't find blob " + objectId, t);
+		} finally {
+			rw.dispose();
+		}
+		return content;
+	}
+
+	public static String getStringContent(Repository r, String objectId) {
+		byte[] content = getByteContent(r, objectId);
 		if (content == null) {
 			return null;
 		}
@@ -605,7 +625,7 @@ public class JGitUtils {
 		return getRefs(r, Constants.R_REMOTES, maxCount);
 	}
 
-	public static List<RefModel> getNotes(Repository r, int maxCount) {
+	public static List<RefModel> getNotesRefs(Repository r, int maxCount) {
 		return getRefs(r, Constants.R_NOTES, maxCount);
 	}
 
@@ -613,11 +633,13 @@ public class JGitUtils {
 		List<RefModel> list = new ArrayList<RefModel>();
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
+			RevWalk rw = new RevWalk(r);
 			for (Entry<String, Ref> entry : map.entrySet()) {
 				Ref ref = entry.getValue();
-				RevCommit commit = getCommit(r, ref.getObjectId().getName());
-				list.add(new RefModel(entry.getKey(), ref, commit));
+				RevObject object = rw.parseAny(ref.getObjectId());
+				list.add(new RefModel(entry.getKey(), ref, object));
 			}
+			rw.dispose();
 			Collections.sort(list);
 			Collections.reverse(list);
 			if (maxCount > 0 && list.size() > maxCount) {
@@ -631,14 +653,18 @@ public class JGitUtils {
 
 	public static List<GitNote> getNotesOnCommit(Repository repository, RevCommit commit) {
 		List<GitNote> list = new ArrayList<GitNote>();
-		List<RefModel> notesRefs = getNotes(repository, -1);
+		List<RefModel> notesRefs = getNotesRefs(repository, -1);
 		for (RefModel notesRef : notesRefs) {
-			RevCommit notes = JGitUtils.getCommit(repository, notesRef.getName());
+			RevTree notesTree = JGitUtils.getCommit(repository, notesRef.getName()).getTree();
 			StringBuilder sb = new StringBuilder(commit.getName());
 			sb.insert(2, '/');
-			String text = getRawContentAsString(repository, notes, sb.toString());
+			String notePath = sb.toString();
+			String text = getStringContent(repository, notesTree, notePath);
 			if (!StringUtils.isEmpty(text)) {
-				GitNote gitNote = new GitNote(notesRef, text);
+				List<RevCommit> history = getRevLog(repository, notesRef.getName(), notePath, 0, -1);
+				RefModel noteRef = new RefModel(notesRef.displayName, null, history.get(history
+						.size() - 1));
+				GitNote gitNote = new GitNote(noteRef, text);
 				list.add(gitNote);
 			}
 		}

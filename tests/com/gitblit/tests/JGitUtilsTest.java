@@ -34,11 +34,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
+import com.gitblit.utils.StringUtils;
 
 public class JGitUtilsTest extends TestCase {
 
@@ -115,10 +117,24 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testRefs() throws Exception {
-		Repository repository = GitBlitSuite.getTicgitRepository();
-		Map<ObjectId, List<String>> map = JGitUtils.getAllRefs(repository);
+		Repository repository = GitBlitSuite.getJGitRepository();
+		Map<ObjectId, List<RefModel>> map = JGitUtils.getAllRefs(repository);
 		repository.close();
 		assertTrue(map.size() > 0);
+		for (Map.Entry<ObjectId, List<RefModel>> entry : map.entrySet()) {
+			List<RefModel> list = entry.getValue();
+			for (RefModel ref : list) {
+				if (ref.displayName.equals("refs/tags/spearce-gpg-pub")) {
+					assertTrue(ref.getObjectId().getName().equals("8bbde7aacf771a9afb6992434f1ae413e010c6d8"));
+					assertTrue(ref.getAuthorIdent().getEmailAddress().equals("spearce@spearce.org"));
+					assertTrue(ref.getShortMessage().startsWith("GPG key"));
+					assertTrue(ref.getFullMessage().startsWith("GPG key"));					
+					assertTrue(ref.getReferencedObjectType() == Constants.OBJ_BLOB);
+				} else if (ref.displayName.equals("refs/tags/v0.12.1")) {
+					assertTrue(ref.isAnnotatedTag());
+				}
+			}
+		}
 	}
 
 	public void testBranches() throws Exception {
@@ -127,17 +143,17 @@ public class JGitUtilsTest extends TestCase {
 			assertTrue(model.getName().startsWith(Constants.R_HEADS));
 			assertTrue(model.equals(model));
 			assertFalse(model.equals(""));
-			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+			assertTrue(model.hashCode() == model.getReferencedObjectId().hashCode()
 					+ model.getName().hashCode());
-			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+			assertTrue(model.getShortMessage().equals(model.getShortMessage()));
 		}
 		for (RefModel model : JGitUtils.getRemoteBranches(repository, -1)) {
 			assertTrue(model.getName().startsWith(Constants.R_REMOTES));
 			assertTrue(model.equals(model));
 			assertFalse(model.equals(""));
-			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+			assertTrue(model.hashCode() == model.getReferencedObjectId().hashCode()
 					+ model.getName().hashCode());
-			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+			assertTrue(model.getShortMessage().equals(model.getShortMessage()));
 		}
 		assertTrue(JGitUtils.getRemoteBranches(repository, 10).size() == 10);
 		repository.close();
@@ -152,33 +168,52 @@ public class JGitUtilsTest extends TestCase {
 			assertTrue(model.getName().startsWith(Constants.R_TAGS));
 			assertTrue(model.equals(model));
 			assertFalse(model.equals(""));
-			assertTrue(model.hashCode() == model.getCommitId().hashCode()
+			assertTrue(model.hashCode() == model.getReferencedObjectId().hashCode()
 					+ model.getName().hashCode());
-			assertTrue(model.getShortLog().equals(model.commit.getShortMessage()));
+		}
+		repository.close();
+		
+		repository = GitBlitSuite.getBluezGnomeRepository();
+		for (RefModel model : JGitUtils.getTags(repository, -1)) {
+			if (model.getObjectId().getName().equals("728643ec0c438c77e182898c2f2967dbfdc231c8")) {
+				assertFalse(model.isAnnotatedTag());
+				assertTrue(model.getAuthorIdent().getEmailAddress().equals("marcel@holtmann.org"));
+				assertTrue(model.getFullMessage().equals("Update changelog and bump version number\n"));
+			}
 		}
 		repository.close();
 	}
 
 	public void testCommitNotes() throws Exception {
-//		Repository repository = new FileRepository(new File("c:/projects/git/jgit.git/.git"));
-//		RevCommit commit = JGitUtils.getCommit(repository,
-//				"ada903085d1b4ef8c79e3e2d91f49fee7e188f53");
-//		List<GitNote> list = JGitUtils.getNotesOnCommit(repository, commit);
-//		repository.close();
-//		assertTrue(list.size() > 0);
+		Repository repository = GitBlitSuite.getJGitRepository();
+		RevCommit commit = JGitUtils.getCommit(repository,
+				"690c268c793bfc218982130fbfc25870f292295e");
+		List<GitNote> list = JGitUtils.getNotesOnCommit(repository, commit);
+		repository.close();
+		assertTrue(list.size() > 0);
+		assertTrue(list.get(0).notesRef.getReferencedObjectId().getName()
+				.equals("183474d554e6f68478a02d9d7888b67a9338cdff"));
 	}
 
 	public void testStringContent() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		String contentA = JGitUtils.getRawContentAsString(repository, null, "java.java");
+		String contentA = JGitUtils.getStringContent(repository, null, "java.java");
 		RevCommit commit = JGitUtils.getCommit(repository, Constants.HEAD);
-		String contentB = JGitUtils.getRawContentAsString(repository, commit, "java.java");
-		String contentC = JGitUtils.getRawContentAsString(repository, commit, "missing.txt");
+		String contentB = JGitUtils.getStringContent(repository, commit.getTree(), "java.java");
+		String contentC = JGitUtils.getStringContent(repository, commit.getTree(), "missing.txt");
+
+		// manually construct a blob, calculate the hash, lookup the hash in git
+		StringBuilder sb = new StringBuilder();
+		sb.append("blob ").append(contentA.length()).append('\0');
+		sb.append(contentA);
+		String sha1 = StringUtils.getSHA1(sb.toString());
+		String contentD = JGitUtils.getStringContent(repository, sha1);
 		repository.close();
 		assertTrue("ContentA is null!", contentA != null && contentA.length() > 0);
 		assertTrue("ContentB is null!", contentB != null && contentB.length() > 0);
 		assertTrue(contentA.equals(contentB));
 		assertTrue(contentC == null);
+		assertTrue(contentA.equals(contentD));
 	}
 
 	public void testFilesInCommit() throws Exception {

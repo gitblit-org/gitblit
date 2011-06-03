@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,8 @@ public class TicgitUtils {
 		if (ticgitBranch == null) {
 			return null;
 		}
-		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, ticgitBranch.commit);
+		RevCommit commit = (RevCommit) ticgitBranch.referencedObject;
+		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, commit);
 		List<TicketModel> tickets = new ArrayList<TicketModel>();
 		for (PathModel ticketFolder : paths) {
 			if (ticketFolder.isTree()) {
@@ -97,11 +99,10 @@ public class TicgitUtils {
 	}
 
 	private static void readTicketContents(Repository r, RefModel ticketsBranch, TicketModel ticket) {
-		List<PathModel> ticketFiles = JGitUtils
-				.getFilesInPath(r, ticket.name, ticketsBranch.commit);
+		RevCommit commit = (RevCommit) ticketsBranch.referencedObject;
+		List<PathModel> ticketFiles = JGitUtils.getFilesInPath(r, ticket.name, commit);
 		for (PathModel file : ticketFiles) {
-			String content = JGitUtils.getRawContentAsString(r, ticketsBranch.commit, file.path)
-					.trim();
+			String content = JGitUtils.getStringContent(r, commit.getTree(), file.path).trim();
 			if (file.name.equals("TICKET_ID")) {
 				ticket.id = content;
 			} else if (file.name.equals("TITLE")) {
