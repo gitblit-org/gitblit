@@ -17,6 +17,7 @@ package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +30,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 
 import com.gitblit.models.PathModel.PathChangeModel;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class CommitLegendPanel extends Panel {
@@ -38,7 +38,7 @@ public class CommitLegendPanel extends Panel {
 
 	public CommitLegendPanel(String id, List<PathChangeModel> paths) {
 		super(id);
-		final Map<ChangeType, AtomicInteger> stats = JGitUtils.getChangedPathsStats(paths);
+		final Map<ChangeType, AtomicInteger> stats = getChangedPathsStats(paths);
 		ListDataProvider<ChangeType> legendDp = new ListDataProvider<ChangeType>(
 				new ArrayList<ChangeType>(stats.keySet()));
 		DataView<ChangeType> legendsView = new DataView<ChangeType>("legend", legendDp) {
@@ -73,5 +73,16 @@ public class CommitLegendPanel extends Panel {
 			}
 		};
 		add(legendsView);
+	}
+	
+	protected Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
+		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
+		for (PathChangeModel path : paths) {
+			if (!stats.containsKey(path.changeType)) {
+				stats.put(path.changeType, new AtomicInteger(0));
+			}
+			stats.get(path.changeType).incrementAndGet();
+		}
+		return stats;
 	}
 }

@@ -28,8 +28,17 @@ public class MetricUtilsTest extends TestCase {
 
 	public void testMetrics() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<Metric> metrics = MetricUtils.getDateMetrics(repository, true);
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, true, null);
 		repository.close();
-		assertTrue("No metrics found!", metrics.size() > 0);
+		assertTrue("No date metrics found!", metrics.size() > 0);
+	}
+	
+	public void testAuthorMetrics() throws Exception {
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		List<Metric> byEmail = MetricUtils.getAuthorMetrics(repository, true);
+		List<Metric> byName = MetricUtils.getAuthorMetrics(repository, false);
+		repository.close();
+		assertTrue("No author metrics found!", byEmail.size() == 9);
+		assertTrue("No author metrics found!", byName.size() == 8);
 	}
 }

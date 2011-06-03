@@ -142,7 +142,7 @@ public class GitBlit implements ServletContextListener {
 
 	public List<String> getRepositoryList() {
 		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll,
-				storedSettings.getBoolean(Keys.git.nestedRepositories, true));
+				storedSettings.getBoolean(Keys.git.searchRepositoriesSubfolders, true));
 	}
 
 	public Repository getRepository(String repositoryName) {

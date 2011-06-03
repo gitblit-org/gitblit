@@ -26,22 +26,10 @@ import org.tautua.markdownpapers.parser.ParseException;
 public class MarkdownUtils {
 
 	public static String transformMarkdown(String markdown) throws java.text.ParseException {
-		// Read raw markdown content and transform it to html
-		StringReader reader = new StringReader(markdown);
-		StringWriter writer = new StringWriter();
 		try {
-			Markdown md = new Markdown();
-			md.transform(reader, writer);
-			return writer.toString();
-		} catch (ParseException p) {
-			throw new java.text.ParseException(p.getMessage(), 0);
-		} finally {
-			reader.close();
-			try {
-				writer.close();
-			} catch (IOException e) {
-				// IGNORE
-			}
+			return transformMarkdown(new StringReader(markdown));
+		} catch (NullPointerException p) {
+			throw new java.text.ParseException("Markdown string is null!", 0);
 		}
 	}
 
@@ -51,7 +39,7 @@ public class MarkdownUtils {
 		try {
 			Markdown md = new Markdown();
 			md.transform(markdownReader, writer);
-			return writer.toString();
+			return writer.toString().trim();
 		} catch (ParseException p) {
 			throw new java.text.ParseException(p.getMessage(), 0);
 		} finally {
@@ -67,5 +55,4 @@ public class MarkdownUtils {
 			}
 		}
 	}
-
 }

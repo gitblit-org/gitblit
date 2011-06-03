@@ -28,7 +28,9 @@ import org.eclipse.jgit.storage.file.FileRepository;
 
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
+import com.gitblit.GitBlitException;
 import com.gitblit.JettyLoginService;
+import com.gitblit.models.RepositoryModel;
 
 public class GitBlitSuite extends TestSetup {
 	public static final File REPOSITORIES = new File("git");
@@ -42,6 +44,7 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(TimeUtilsTest.class);
 		suite.addTestSuite(StringUtilsTest.class);
 		suite.addTestSuite(ByteFormatTest.class);
+		suite.addTestSuite(MarkdownUtilsTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
 		suite.addTestSuite(DiffUtilsTest.class);
 		suite.addTestSuite(MetricUtilsTest.class);
@@ -60,16 +63,21 @@ public class GitBlitSuite extends TestSetup {
 
 	@Override
 	protected void setUp() throws Exception {
-		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
-			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git", true);
-			cloneOrFetch("nested/helloworld.git", "https://github.com/git/hello-world.git", true);
-			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git", true);
-		}
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
 		GitBlit.self().configureContext(settings);
 		JettyLoginService loginService = new JettyLoginService(new File("distrib/users.properties"));
 		loginService.loadUsers();
 		GitBlit.self().setLoginService(loginService);
+
+		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
+			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git", true);
+			cloneOrFetch("nested/helloworld.git", "https://github.com/git/hello-world.git", true);
+			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git", true);
+
+			enableTickets("ticgit.git");
+			enableDocs("ticgit.git");
+			showRemoteBranches("ticgit.git");
+		}
 	}
 
 	private void cloneOrFetch(String toFolder, String fromUrl, boolean bare) throws Exception {
@@ -90,6 +98,36 @@ public class GitBlitSuite extends TestSetup {
 			clone.setDirectory(folder);
 			clone.call();
 			System.out.println("done.");
+		}
+	}
+
+	private void enableTickets(String repositoryName) {
+		try {
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			model.useTickets = true;
+			GitBlit.self().editRepositoryModel(model.name, model, false);
+		} catch (GitBlitException g) {
+			g.printStackTrace();
+		}
+	}
+	
+	private void enableDocs(String repositoryName) {
+		try {
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			model.useDocs = true;
+			GitBlit.self().editRepositoryModel(model.name, model, false);
+		} catch (GitBlitException g) {
+			g.printStackTrace();
+		}
+	}
+	
+	private void showRemoteBranches(String repositoryName) {
+		try {
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			model.showRemoteBranches = true;
+			GitBlit.self().editRepositoryModel(model.name, model, false);
+		} catch (GitBlitException g) {
+			g.printStackTrace();
 		}
 	}
 }

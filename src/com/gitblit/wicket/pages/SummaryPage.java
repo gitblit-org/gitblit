@@ -77,7 +77,7 @@ public class SummaryPage extends RepositoryPage {
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = MetricUtils.getDateMetrics(r, true);
+			metrics = MetricUtils.getDateMetrics(r, true, null);
 			metricsTotal = metrics.remove(0);
 		}
 

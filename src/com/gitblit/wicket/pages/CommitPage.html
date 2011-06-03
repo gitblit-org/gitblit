@@ -44,6 +44,14 @@
 	<!-- full message -->
 	<div class="commit_message" wicket:id="fullMessage">[commit message]</div>
 
+	<!--  git notes -->
+	<table style="padding-bottom:5px;">
+		<tr wicket:id="notes">
+			<td style="vertical-align:top;"><span class="headRef" wicket:id="refName"></span><br/><span wicket:id="authorName"></span><br/><span wicket:id="authorDate"></span></td>
+			<td><span wicket:id="noteContent"></span></td>
+		</tr>
+	</table>
+	
 	<!--  commit legend -->
 	<div style="text-align:right;" wicket:id="commitLegend"></div>
 	

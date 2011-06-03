@@ -30,11 +30,22 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.utils.JGitUtils.DiffOutputType;
-
 public class DiffUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtils.class);
+
+	public static enum DiffOutputType {
+		PLAIN, GITWEB, GITBLIT;
+
+		public static DiffOutputType forName(String name) {
+			for (DiffOutputType type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return null;
+		}
+	}
 
 	public static String getCommitDiff(Repository r, RevCommit commit, DiffOutputType outputType) {
 		return getDiff(r, null, commit, null, outputType);

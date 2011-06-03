@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -33,8 +34,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
@@ -112,6 +115,27 @@ public class CommitPage extends RepositoryPage {
 
 		addFullText("fullMessage", c.getFullMessage(), true);
 
+		// git notes
+		List<GitNote> notes = JGitUtils.getNotesOnCommit(r, c);
+		ListDataProvider<GitNote> notesDp = new ListDataProvider<GitNote>(notes);
+		DataView<GitNote> notesView = new DataView<GitNote>("notes", notesDp) {
+			private static final long serialVersionUID = 1L;
+
+			public void populateItem(final Item<GitNote> item) {
+				GitNote entry = item.getModelObject();
+				Component c = new LinkPanel("refName", null, entry.notesRef.displayName,
+						CommitPage.class, newCommitParameter(entry.notesRef.commit.getName()));
+				WicketUtils.setCssClass(c, "headRef");
+				item.add(c);
+				item.add(createPersonPanel("authorName", entry.notesRef.commit.getAuthorIdent(), SearchType.AUTHOR));
+				item.add(WicketUtils.createTimestampLabel("authorDate",
+						entry.notesRef.commit.getAuthorIdent().getWhen(), getTimeZone()));
+				item.add(new Label("noteContent", StringUtils.breakLinesForHtml(entry.content)).setEscapeModelStrings(false));
+			}
+		};
+		add(notesView.setVisible(notes.size() > 0));
+		
+		
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
 		add(new CommitLegendPanel("commitLegend", paths));

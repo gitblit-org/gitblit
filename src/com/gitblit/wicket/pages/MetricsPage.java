@@ -47,7 +47,7 @@ public class MetricsPage extends RepositoryPage {
 	public MetricsPage(PageParameters params) {
 		super(params);
 		Repository r = getRepository();
-		insertLinePlot("commitsChart", MetricUtils.getDateMetrics(r, false));
+		insertLinePlot("commitsChart", MetricUtils.getDateMetrics(r, false, null));
 		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r));
 		insertLinePlot("timeOfDayChart", getTimeOfDayMetrics(r));
 		insertPieChart("authorsChart", getAuthorMetrics(r));
@@ -57,7 +57,7 @@ public class MetricsPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
+			ChartProvider provider = new ChartProvider(new Dimension(500, 100), ChartType.LINE,
 					data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			dateAxis.setLabels(new String[] { metrics.get(0).name,
@@ -82,7 +82,7 @@ public class MetricsPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100),
+			ChartProvider provider = new ChartProvider(new Dimension(500, 100),
 					ChartType.BAR_VERTICAL_SET, data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			List<String> labels = new ArrayList<String>();
@@ -110,7 +110,7 @@ public class MetricsPage extends RepositoryPage {
 			for (Metric metric : metrics) {
 				labels.add(metric.name);
 			}
-			ChartProvider provider = new ChartProvider(new Dimension(400, 200), ChartType.PIE, data);
+			ChartProvider provider = new ChartProvider(new Dimension(500, 200), ChartType.PIE, data);
 			provider.setPieLabels(labels.toArray(new String[labels.size()]));
 			add(new Chart(wicketId, provider));
 		} else {
@@ -164,7 +164,7 @@ public class MetricsPage extends RepositoryPage {
 	}
 
 	private List<Metric> getAuthorMetrics(Repository repository) {
-		List<Metric> authors = MetricUtils.getAuthorMetrics(repository);
+		List<Metric> authors = MetricUtils.getAuthorMetrics(repository, true);
 		Collections.sort(authors, new Comparator<Metric>() {
 			@Override
 			public int compare(Metric o1, Metric o2) {

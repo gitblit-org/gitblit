@@ -19,7 +19,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +103,22 @@ public class EditRepositoryPage extends BasePage {
 
 					// automatically convert backslashes to forward slashes
 					repositoryModel.name = repositoryModel.name.replace('\\', '/');
+					// Automatically replace // with /
+					repositoryModel.name = repositoryModel.name.replace("//", "/");
+
+					// prohibit folder paths
+					if (repositoryModel.name.startsWith("/")) {						
+						error("Leading root folder references (/) are prohibited.");
+						return;
+					}
+					if (repositoryModel.name.startsWith("../")) {						
+						error("Relative folder references (../) are prohibited.");
+						return;
+					}
+					if (repositoryModel.name.contains("/../")) {
+						error("Relative folder references (../) are prohibited.");
+						return;
+					}
 
 					// confirm valid characters in repository name
 					char[] validChars = { '/', '.', '_', '-' };
@@ -120,7 +135,7 @@ public class EditRepositoryPage extends BasePage {
 							}
 						}
 					}
-
+					
 					// confirm access restriction selection
 					if (repositoryModel.accessRestriction == null) {
 						error("Please select access restriction!");

@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -52,6 +50,7 @@ import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -67,19 +66,31 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
+import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
-import com.gitblit.models.TicketModel;
-import com.gitblit.models.TicketModel.Comment;
 
 public class JGitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+
+	public static String getDisplayName(PersonIdent person) {
+		if (StringUtils.isEmpty(person.getEmailAddress())) {
+			return person.getName();
+		}
+		final StringBuilder r = new StringBuilder();
+		r.append(person.getName());
+		r.append(" <");
+		r.append(person.getEmailAddress());
+		r.append('>');
+		return r.toString().trim();
+	}
 
 	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
 		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
@@ -87,57 +98,37 @@ public class JGitUtils {
 	}
 
 	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll,
-			boolean readNested) {
+			boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
-		list.addAll(getNestedRepositories(repositoriesFolder, repositoriesFolder, exportAll,
-				readNested));
+		if (repositoriesFolder == null || !repositoriesFolder.exists()) {
+			return list;
+		}
+		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
+				exportAll, searchSubfolders));
 		Collections.sort(list);
 		return list;
 	}
 
-	public static List<String> getNestedRepositories(File repositoriesFolder, File folder,
-			boolean exportAll, boolean readNested) {
+	private static List<String> getRepositoryList(String basePath, File searchFolder,
+			boolean exportAll, boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
-		if (folder == null || !folder.exists()) {
-			return list;
-		}
-		String basefile = repositoriesFolder.getAbsolutePath();
-		for (File file : folder.listFiles()) {
-			if (file.isDirectory() && !file.getName().equalsIgnoreCase(Constants.DOT_GIT)) {
-				// if this is a git repository add it to the list
-				//
-				// first look for standard folder/.git structure
-				File gitFolder = new File(file, Constants.DOT_GIT);
-				boolean isGitRepository = gitFolder.exists() && gitFolder.isDirectory();
+		for (File file : searchFolder.listFiles()) {
+			if (file.isDirectory()) {
+				File gitDir = FileKey.resolve(new File(searchFolder, file.getName()), FS.DETECTED);
+				if (gitDir != null) {
+					boolean exportRepository = exportAll
+							|| new File(gitDir, "git-daemon-export-ok").exists();
 
-				// then look for folder.git/HEAD or folder/HEAD and
-				// folder/config
-				if (!isGitRepository) {
-					if ((file.getName().endsWith(Constants.DOT_GIT_EXT) && new File(file,
-							Constants.HEAD).exists())
-							|| (new File(file, "config").exists() && new File(file, Constants.HEAD)
-									.exists())) {
-						gitFolder = file;
-						isGitRepository = true;
+					if (!exportRepository) {
+						continue;
 					}
-				}
-				boolean exportRepository = isGitRepository
-						&& (exportAll || new File(gitFolder, "git-daemon-export-ok").exists());
-
-				if (exportRepository) {
-					// determine repository name relative to repositories folder
-					String filename = file.getAbsolutePath();
-					String repo = filename.substring(basefile.length()).replace('\\', '/');
-					if (repo.charAt(0) == '/') {
-						repo = repo.substring(1);
-					}
-					list.add(repo);
-				}
-
-				// look for nested repositories
-				if (readNested) {
-					list.addAll(getNestedRepositories(repositoriesFolder, file, exportAll,
-							readNested));
+					// determine repository name relative to base path
+					String repository = StringUtils.getRelativePath(basePath,
+							file.getAbsolutePath());
+					list.add(repository);
+				} else if (searchSubfolders) {
+					// look for repositories in subfolders
+					list.addAll(getRepositoryList(basePath, file, exportAll, searchSubfolders));
 				}
 			}
 		}
@@ -151,18 +142,18 @@ public class JGitUtils {
 		if (StringUtils.isEmpty(branch)) {
 			branch = Constants.HEAD;
 		}
+		RevCommit commit = null;
 		try {
 			RevWalk walk = new RevWalk(r);
 			walk.sort(RevSort.REVERSE);
 			RevCommit head = walk.parseCommit(r.resolve(branch));
 			walk.markStart(head);
-			RevCommit commit = walk.next();
+			commit = walk.next();
 			walk.dispose();
-			return commit;
 		} catch (Throwable t) {
 			LOGGER.error("Failed to determine first commit", t);
 		}
-		return null;
+		return commit;
 	}
 
 	public static Date getFirstChange(Repository r, String branch) {
@@ -197,13 +188,17 @@ public class JGitUtils {
 		return getCommitDate(commit);
 	}
 
+	public static Date getCommitDate(RevCommit commit) {
+		return new Date(commit.getCommitTime() * 1000L);
+	}
+
 	public static RevCommit getCommit(Repository r, String objectId) {
-		RevCommit commit = null;
 		if (!hasCommits(r)) {
 			return null;
 		}
+		RevCommit commit = null;
 		try {
-			if (objectId == null || objectId.trim().length() == 0) {
+			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
 			ObjectId object = r.resolve(objectId);
@@ -231,22 +226,6 @@ public class JGitUtils {
 		return refs;
 	}
 
-	public static Map<ObjectId, List<String>> getRefs(Repository r, String baseRef) {
-		Map<ObjectId, List<String>> refs = new HashMap<ObjectId, List<String>>();
-		Map<AnyObjectId, Set<Ref>> allRefs = r.getAllRefsByPeeledObjectId();
-		for (Entry<AnyObjectId, Set<Ref>> setRefs : allRefs.entrySet()) {
-			List<String> list = new ArrayList<String>();
-			for (Ref setRef : setRefs.getValue()) {
-				String name = setRef.getName();
-				if (name.startsWith(baseRef)) {
-					list.add(name);
-				}
-			}
-			refs.put(setRefs.getKey().toObjectId(), list);
-		}
-		return refs;
-	}
-
 	/**
 	 * Lookup an entry stored in a tree, failing if not present.
 	 * 
@@ -257,13 +236,17 @@ public class JGitUtils {
 	 * @return the parsed object entry at this path
 	 * @throws Exception
 	 */
-	public static RevObject getRevObject(Repository r, final RevTree tree, final String path) {
-		RevObject ro = null;
+	public static byte[] getRawContent(Repository r, RevCommit commit, final String path) {
 		RevWalk rw = new RevWalk(r);
 		TreeWalk tw = new TreeWalk(r);
 		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
+		byte[] content = null;
 		try {
-			tw.reset(tree);
+			if (commit == null) {
+				ObjectId object = r.resolve(Constants.HEAD);
+				commit = rw.parseCommit(object);
+			}
+			tw.reset(commit.getTree());
 			while (tw.next()) {
 				if (tw.isSubtree() && !path.equals(tw.getPathString())) {
 					tw.enterSubtree();
@@ -271,123 +254,104 @@ public class JGitUtils {
 				}
 				ObjectId entid = tw.getObjectId(0);
 				FileMode entmode = tw.getFileMode(0);
-				ro = rw.lookupAny(entid, entmode.getObjectType());
+				RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
 				rw.parseBody(ro);
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				ObjectLoader ldr = r.open(ro.getId(), Constants.OBJ_BLOB);
+				byte[] tmp = new byte[4096];
+				InputStream in = ldr.openStream();
+				int n;
+				while ((n = in.read(tmp)) > 0) {
+					os.write(tmp, 0, n);
+				}
+				in.close();
+				content = os.toByteArray();
 			}
 		} catch (Throwable t) {
-			LOGGER.error("Can't find " + path + " in tree " + tree.name(), t);
+			LOGGER.error("Can't find " + path + " in tree " + commit.getTree().name(), t);
 		} finally {
-			if (rw != null) {
-				rw.dispose();
-			}
+			rw.dispose();
+			tw.release();
 		}
-		return ro;
-	}
-
-	public static byte[] getRawContent(Repository r, RevBlob blob) {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		try {
-			ObjectLoader ldr = r.open(blob.getId(), Constants.OBJ_BLOB);
-			byte[] tmp = new byte[1024];
-			InputStream in = ldr.openStream();
-			int n;
-			while ((n = in.read(tmp)) > 0) {
-				os.write(tmp, 0, n);
-			}
-			in.close();
-		} catch (Throwable t) {
-			LOGGER.error("Failed to read raw content", t);
-		}
-		return os.toByteArray();
-	}
-
-	public static String getRawContentAsString(Repository r, RevBlob blob) {
-		byte[] content = getRawContent(r, blob);
-		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
+		return content;
 	}
 
 	public static String getRawContentAsString(Repository r, RevCommit commit, String blobPath) {
-		RevObject obj = getRevObject(r, commit.getTree(), blobPath);
-		byte[] content = getRawContent(r, (RevBlob) obj);
+		byte[] content = getRawContent(r, commit, blobPath);
+		if (content == null) {
+			return null;
+		}
 		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
-	}
-
-	public static List<PathModel> getFilesInPath(Repository r, String basePath, String objectId) {
-		RevCommit commit = getCommit(r, objectId);
-		return getFilesInPath(r, basePath, commit);
 	}
 
 	public static List<PathModel> getFilesInPath(Repository r, String basePath, RevCommit commit) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		if (commit == null) {
+		if (!hasCommits(r)) {
 			return list;
 		}
-		final TreeWalk walk = new TreeWalk(r);
+		if (commit == null) {
+			commit = getCommit(r, Constants.HEAD);
+		}
+		final TreeWalk tw = new TreeWalk(r);
 		try {
-			walk.addTree(commit.getTree());
-			if (basePath != null && basePath.length() > 0) {
+			tw.addTree(commit.getTree());
+			if (!StringUtils.isEmpty(basePath)) {
 				PathFilter f = PathFilter.create(basePath);
-				walk.setFilter(f);
-				walk.setRecursive(false);
+				tw.setFilter(f);
+				tw.setRecursive(false);
 				boolean foundFolder = false;
-				while (walk.next()) {
-					if (!foundFolder && walk.isSubtree()) {
-						walk.enterSubtree();
+				while (tw.next()) {
+					if (!foundFolder && tw.isSubtree()) {
+						tw.enterSubtree();
 					}
-					if (walk.getPathString().equals(basePath)) {
+					if (tw.getPathString().equals(basePath)) {
 						foundFolder = true;
 						continue;
 					}
 					if (foundFolder) {
-						list.add(getPathModel(walk, basePath, commit));
+						list.add(getPathModel(tw, basePath, commit));
 					}
 				}
 			} else {
-				walk.setRecursive(false);
-				while (walk.next()) {
-					list.add(getPathModel(walk, null, commit));
+				tw.setRecursive(false);
+				while (tw.next()) {
+					list.add(getPathModel(tw, null, commit));
 				}
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to get files for commit " + commit.getName(), e);
 		} finally {
-			walk.release();
+			tw.release();
 		}
 		Collections.sort(list);
 		return list;
 	}
 
-	public static List<PathChangeModel> getFilesInCommit(Repository r, String commitId) {
-		RevCommit commit = getCommit(r, commitId);
-		return getFilesInCommit(r, commit);
-	}
-
 	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
-		if (commit == null) {
-			LOGGER.warn("getFilesInCommit for NULL commit");
-			return list;
-		}
+		RevWalk rw = new RevWalk(r);
+		TreeWalk tw = new TreeWalk(r);
 		try {
-			final RevWalk rw = new RevWalk(r);
-
+			if (commit == null) {
+				ObjectId object = r.resolve(Constants.HEAD);
+				commit = rw.parseCommit(object);
+			}
 			RevTree commitTree = commit.getTree();
 
-			final TreeWalk walk = new TreeWalk(r);
-			walk.reset();
-			walk.setRecursive(true);
+			tw.reset();
+			tw.setRecursive(true);
 			if (commit.getParentCount() == 0) {
-				walk.addTree(commitTree);
-				while (walk.next()) {
-					list.add(new PathChangeModel(walk.getPathString(), walk.getPathString(), 0,
-							walk.getRawMode(0), commit.getId().getName(), ChangeType.ADD));
+				tw.addTree(commitTree);
+				while (tw.next()) {
+					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+							.getRawMode(0), commit.getId().getName(), ChangeType.ADD));
 				}
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				RevTree parentTree = parent.getTree();
-				walk.addTree(parentTree);
-				walk.addTree(commitTree);
-				walk.setFilter(TreeFilter.ANY_DIFF);
+				tw.addTree(parentTree);
+				tw.addTree(commitTree);
+				tw.setFilter(TreeFilter.ANY_DIFF);
 
 				RawTextComparator cmp = RawTextComparator.DEFAULT;
 				DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
@@ -409,6 +373,9 @@ public class JGitUtils {
 			}
 		} catch (Throwable t) {
 			LOGGER.error("failed to determine files in commit!", t);
+		} finally {
+			rw.dispose();
+			tw.release();
 		}
 		return list;
 	}
@@ -416,84 +383,51 @@ public class JGitUtils {
 	public static List<PathModel> getDocuments(Repository r, List<String> extensions) {
 		List<PathModel> list = new ArrayList<PathModel>();
 		RevCommit commit = getCommit(r, Constants.HEAD);
-		final TreeWalk walk = new TreeWalk(r);
+		final TreeWalk tw = new TreeWalk(r);
 		try {
-			walk.addTree(commit.getTree());
+			tw.addTree(commit.getTree());
 			if (extensions != null && extensions.size() > 0) {
 				Collection<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
 				for (String extension : extensions) {
 					if (extension.charAt(0) == '.') {
-						suffixFilters.add(PathSuffixFilter.create(extension));
+						suffixFilters.add(PathSuffixFilter.create("\\" + extension));
 					} else {
 						// escape the . since this is a regexp filter
 						suffixFilters.add(PathSuffixFilter.create("\\." + extension));
 					}
 				}
 				TreeFilter filter = OrTreeFilter.create(suffixFilters);
-				walk.setFilter(filter);
-				walk.setRecursive(true);
-				while (walk.next()) {
-					list.add(getPathModel(walk, null, commit));
-				}
-			} else {
-				while (walk.next()) {
-					list.add(getPathModel(walk, null, commit));
-				}
+				tw.setFilter(filter);
+				tw.setRecursive(true);
+			}
+			while (tw.next()) {
+				list.add(getPathModel(tw, null, commit));
 			}
 		} catch (IOException e) {
-			LOGGER.error("Failed to get files for commit " + commit.getName(), e);
+			LOGGER.error("Failed to get documents for commit " + commit.getName(), e);
 		} finally {
-			walk.release();
+			tw.release();
 		}
 		Collections.sort(list);
 		return list;
 	}
 
-	public static Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
-		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
-		for (PathChangeModel path : paths) {
-			if (!stats.containsKey(path.changeType)) {
-				stats.put(path.changeType, new AtomicInteger(0));
-			}
-			stats.get(path.changeType).incrementAndGet();
-		}
-		return stats;
-	}
-
-	public static enum DiffOutputType {
-		PLAIN, GITWEB, GITBLIT;
-
-		public static DiffOutputType forName(String name) {
-			for (DiffOutputType type : values()) {
-				if (type.name().equalsIgnoreCase(name)) {
-					return type;
-				}
-			}
-			return null;
-		}
-	}
-
-	private static PathModel getPathModel(TreeWalk walk, String basePath, RevCommit commit) {
+	private static PathModel getPathModel(TreeWalk tw, String basePath, RevCommit commit) {
 		String name;
 		long size = 0;
-		if (basePath == null) {
-			name = walk.getPathString();
+		if (StringUtils.isEmpty(basePath)) {
+			name = tw.getPathString();
 		} else {
-			try {
-				name = walk.getPathString().substring(basePath.length() + 1);
-			} catch (Throwable t) {
-				name = walk.getPathString();
-			}
+			name = tw.getPathString().substring(basePath.length() + 1);
 		}
 		try {
-			if (!walk.isSubtree()) {
-				size = walk.getObjectReader()
-						.getObjectSize(walk.getObjectId(0), Constants.OBJ_BLOB);
+			if (!tw.isSubtree()) {
+				size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
 			}
 		} catch (Throwable t) {
 			LOGGER.error("Failed to retrieve blob size", t);
 		}
-		return new PathModel(name, walk.getPathString(), size, walk.getFileMode(0).getBits(),
+		return new PathModel(name, tw.getPathString(), size, tw.getFileMode(0).getBits(),
 				commit.getName());
 	}
 
@@ -510,11 +444,9 @@ public class JGitUtils {
 		} else if (FileMode.GITLINK.equals(mode)) {
 			// FIXME gitlink permissions
 			return "gitlink";
-		} else if (FileMode.MISSING.equals(mode)) {
-			// FIXME missing permissions
-			return "missing";
 		}
-		return "" + mode;
+		// FIXME missing permissions
+		return "missing";
 	}
 
 	public static List<RevCommit> getRevLog(Repository r, int maxCount) {
@@ -532,19 +464,19 @@ public class JGitUtils {
 			return list;
 		}
 		try {
-			if (objectId == null || objectId.trim().length() == 0) {
+			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			RevWalk walk = new RevWalk(r);
+			RevWalk rw = new RevWalk(r);
 			ObjectId object = r.resolve(objectId);
-			walk.markStart(walk.parseCommit(object));
+			rw.markStart(rw.parseCommit(object));
 			if (!StringUtils.isEmpty(path)) {
 				TreeFilter filter = AndTreeFilter.create(
 						PathFilterGroup.createFromStrings(Collections.singleton(path)),
 						TreeFilter.ANY_DIFF);
-				walk.setTreeFilter(filter);
+				rw.setTreeFilter(filter);
 			}
-			Iterable<RevCommit> revlog = walk;
+			Iterable<RevCommit> revlog = rw;
 			if (offset > 0) {
 				int count = 0;
 				for (RevCommit rev : revlog) {
@@ -564,9 +496,9 @@ public class JGitUtils {
 					}
 				}
 			}
-			walk.dispose();
+			rw.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to determine last change", t);
+			LOGGER.error("Failed to get revlog", t);
 		}
 		return list;
 	}
@@ -580,9 +512,10 @@ public class JGitUtils {
 					return type;
 				}
 			}
-			return null;
+			return COMMIT;
 		}
 
+		@Override
 		public String toString() {
 			return name().toLowerCase();
 		}
@@ -596,11 +529,11 @@ public class JGitUtils {
 			return list;
 		}
 		try {
-			if (objectId == null || objectId.trim().length() == 0) {
+			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			RevWalk walk = new RevWalk(r);
-			walk.setRevFilter(new RevFilter() {
+			RevWalk rw = new RevWalk(r);
+			rw.setRevFilter(new RevFilter() {
 
 				@Override
 				public RevFilter clone() {
@@ -610,25 +543,30 @@ public class JGitUtils {
 				@Override
 				public boolean include(RevWalk walker, RevCommit commit) throws StopWalkException,
 						MissingObjectException, IncorrectObjectTypeException, IOException {
+					boolean include = false;
 					switch (type) {
 					case AUTHOR:
-						return (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1)
+						include = (commit.getAuthorIdent().getName().toLowerCase().indexOf(lcValue) > -1)
 								|| (commit.getAuthorIdent().getEmailAddress().toLowerCase()
 										.indexOf(lcValue) > -1);
+						break;
 					case COMMITTER:
-						return (commit.getCommitterIdent().getName().toLowerCase().indexOf(lcValue) > -1)
+						include = (commit.getCommitterIdent().getName().toLowerCase()
+								.indexOf(lcValue) > -1)
 								|| (commit.getCommitterIdent().getEmailAddress().toLowerCase()
 										.indexOf(lcValue) > -1);
+						break;
 					case COMMIT:
-						return commit.getFullMessage().toLowerCase().indexOf(lcValue) > -1;
+						include = commit.getFullMessage().toLowerCase().indexOf(lcValue) > -1;
+						break;
 					}
-					return false;
+					return include;
 				}
 
 			});
 			ObjectId object = r.resolve(objectId);
-			walk.markStart(walk.parseCommit(object));
-			Iterable<RevCommit> revlog = walk;
+			rw.markStart(rw.parseCommit(object));
+			Iterable<RevCommit> revlog = rw;
 			if (offset > 0) {
 				int count = 0;
 				for (RevCommit rev : revlog) {
@@ -648,9 +586,9 @@ public class JGitUtils {
 					}
 				}
 			}
-			walk.dispose();
+			rw.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to determine last change", t);
+			LOGGER.error("Failed to search revlogs", t);
 		}
 		return list;
 	}
@@ -667,7 +605,11 @@ public class JGitUtils {
 		return getRefs(r, Constants.R_REMOTES, maxCount);
 	}
 
-	public static List<RefModel> getRefs(Repository r, String refs, int maxCount) {
+	public static List<RefModel> getNotes(Repository r, int maxCount) {
+		return getRefs(r, Constants.R_NOTES, maxCount);
+	}
+
+	private static List<RefModel> getRefs(Repository r, String refs, int maxCount) {
 		List<RefModel> list = new ArrayList<RefModel>();
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
@@ -687,45 +629,32 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static Ref getRef(Repository r, String id) {
-		// FIXME
-		try {
-			Map<String, Ref> map = r.getRefDatabase().getRefs(id);
-			for (Entry<String, Ref> entry : map.entrySet()) {
-				return entry.getValue();
+	public static List<GitNote> getNotesOnCommit(Repository repository, RevCommit commit) {
+		List<GitNote> list = new ArrayList<GitNote>();
+		List<RefModel> notesRefs = getNotes(repository, -1);
+		for (RefModel notesRef : notesRefs) {
+			RevCommit notes = JGitUtils.getCommit(repository, notesRef.getName());
+			StringBuilder sb = new StringBuilder(commit.getName());
+			sb.insert(2, '/');
+			String text = getRawContentAsString(repository, notes, sb.toString());
+			if (!StringUtils.isEmpty(text)) {
+				GitNote gitNote = new GitNote(notesRef, text);
+				list.add(gitNote);
 			}
-		} catch (IOException e) {
-			LOGGER.error("Failed to retrieve ref " + id, e);
 		}
-		return null;
-	}
-
-	public static Date getCommitDate(RevCommit commit) {
-		return new Date(commit.getCommitTime() * 1000L);
-	}
-
-	public static String getDisplayName(PersonIdent person) {
-		final StringBuilder r = new StringBuilder();
-		r.append(person.getName());
-		r.append(" <");
-		r.append(person.getEmailAddress());
-		r.append('>');
-		return r.toString();
+		return list;
 	}
 
 	public static StoredConfig readConfig(Repository r) {
 		StoredConfig c = r.getConfig();
-		if (c != null) {
-			try {
-				c.load();
-			} catch (ConfigInvalidException cex) {
-				LOGGER.error("Repository configuration is invalid!", cex);
-			} catch (IOException cex) {
-				LOGGER.error("Could not open repository configuration!", cex);
-			}
-			return c;
+		try {
+			c.load();
+		} catch (ConfigInvalidException cex) {
+			LOGGER.error("Repository configuration is invalid!", cex);
+		} catch (IOException cex) {
+			LOGGER.error("Could not open repository configuration!", cex);
 		}
-		return null;
+		return c;
 	}
 
 	public static boolean zip(Repository r, String basePath, String objectId, OutputStream os)
@@ -734,26 +663,27 @@ public class JGitUtils {
 		if (commit == null) {
 			return false;
 		}
-		final RevWalk rw = new RevWalk(r);
-		final TreeWalk walk = new TreeWalk(r);
+		boolean success = false;
+		RevWalk rw = new RevWalk(r);
+		TreeWalk tw = new TreeWalk(r);
 		try {
-			walk.addTree(commit.getTree());
+			tw.addTree(commit.getTree());
 			ZipOutputStream zos = new ZipOutputStream(os);
 			zos.setComment("Generated by Git:Blit");
-			if (basePath != null && basePath.length() > 0) {
+			if (!StringUtils.isEmpty(basePath)) {
 				PathFilter f = PathFilter.create(basePath);
-				walk.setFilter(f);
+				tw.setFilter(f);
 			}
-			walk.setRecursive(true);
-			while (walk.next()) {
-				ZipEntry entry = new ZipEntry(walk.getPathString());
-				entry.setSize(walk.getObjectReader().getObjectSize(walk.getObjectId(0),
+			tw.setRecursive(true);
+			while (tw.next()) {
+				ZipEntry entry = new ZipEntry(tw.getPathString());
+				entry.setSize(tw.getObjectReader().getObjectSize(tw.getObjectId(0),
 						Constants.OBJ_BLOB));
 				entry.setComment(commit.getName());
 				zos.putNextEntry(entry);
 
-				ObjectId entid = walk.getObjectId(0);
-				FileMode entmode = walk.getFileMode(0);
+				ObjectId entid = tw.getObjectId(0);
+				FileMode entmode = tw.getFileMode(0);
 				RevBlob blob = (RevBlob) rw.lookupAny(entid, entmode.getObjectType());
 				rw.parseBody(blob);
 
@@ -767,13 +697,13 @@ public class JGitUtils {
 				in.close();
 			}
 			zos.finish();
-			return true;
+			success = true;
 		} catch (IOException e) {
 			LOGGER.error("Failed to zip files from commit " + commit.getName(), e);
 		} finally {
-			walk.release();
+			tw.release();
 			rw.dispose();
 		}
-		return false;
+		return success;
 	}
 }

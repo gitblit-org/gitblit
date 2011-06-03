@@ -61,6 +61,9 @@ public class TicgitUtils {
 
 	public static List<TicketModel> getTickets(Repository r) {
 		RefModel ticgitBranch = getTicketsBranch(r);
+		if (ticgitBranch == null) {
+			return null;
+		}
 		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, ticgitBranch.commit);
 		List<TicketModel> tickets = new ArrayList<TicketModel>();
 		for (PathModel ticketFolder : paths) {
@@ -112,7 +115,7 @@ public class TicgitUtils {
 						Comment c = new Comment(file.name, content);
 						ticket.comments.add(c);
 					} catch (ParseException e) {
-						e.printStackTrace();
+						LOGGER.error("Failed to parse ticket comment", e);
 					}
 				} else if (chunks[0].equals("TAG")) {
 					if (content.startsWith("TAG_")) {
@@ -126,13 +129,5 @@ public class TicgitUtils {
 			}
 		}
 		Collections.sort(ticket.comments);
-	}
-
-	public static String getTicketContent(Repository r, String filePath) {
-		RefModel ticketsBranch = getTicketsBranch(r);
-		if (ticketsBranch != null) {
-			return JGitUtils.getRawContentAsString(r, ticketsBranch.commit, filePath);
-		}
-		return "";
 	}
 }

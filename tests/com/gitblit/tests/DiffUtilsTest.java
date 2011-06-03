@@ -21,8 +21,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.DiffOutputType;
 
 public class DiffUtilsTest extends TestCase {
 
