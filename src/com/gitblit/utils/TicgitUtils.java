@@ -38,7 +38,7 @@ public class TicgitUtils {
 		RefModel ticgitBranch = null;
 		try {
 			// search for ticgit branch in local heads
-			for (RefModel ref : JGitUtils.getLocalBranches(r, -1)) {
+			for (RefModel ref : JGitUtils.getLocalBranches(r, false, -1)) {
 				if (ref.displayName.endsWith("ticgit")) {
 					ticgitBranch = ref;
 					break;
@@ -47,7 +47,7 @@ public class TicgitUtils {
 
 			// search for ticgit branch in remote heads
 			if (ticgitBranch == null) {
-				for (RefModel ref : JGitUtils.getRemoteBranches(r, -1)) {
+				for (RefModel ref : JGitUtils.getRemoteBranches(r, false, -1)) {
 					if (ref.displayName.endsWith("ticgit")) {
 						ticgitBranch = ref;
 						break;

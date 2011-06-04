@@ -39,7 +39,7 @@ public class TagPage extends RepositoryPage {
 		Repository r = getRepository();
 
 		// Find tag in repository
-		List<RefModel> tags = JGitUtils.getTags(r, -1);
+		List<RefModel> tags = JGitUtils.getTags(r, true, -1);
 		RefModel tagRef = null;
 		for (RefModel tag : tags) {
 			if (tag.getName().equals(objectId) || tag.getObjectId().getName().equals(objectId)) {

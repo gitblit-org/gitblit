@@ -17,6 +17,7 @@ package com.gitblit.wicket.panels;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import com.gitblit.models.RefModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.RepositoryPage;
 import com.gitblit.wicket.pages.TagPage;
 
 public class RefsPanel extends Panel {
@@ -49,8 +51,12 @@ public class RefsPanel extends Panel {
 		if (refs == null) {
 			refs = new ArrayList<RefModel>();
 		}
-		Collections.sort(refs);
-		// refNames.remove(Constants.HEAD);
+		Collections.sort(refs, new Comparator<RefModel>() {
+			@Override
+			public int compare(RefModel o1, RefModel o2) {
+				return o1.displayName.compareTo(o2.displayName);
+			}
+		});
 
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
@@ -60,34 +66,42 @@ public class RefsPanel extends Panel {
 				RefModel entry = item.getModelObject();
 				String name = entry.displayName;
 				String objectid = entry.getReferencedObjectId().getName();
-				Component c = null;
+
+				Class<? extends RepositoryPage> linkClass = CommitPage.class;
+				String cssClass = "";
 				if (name.startsWith(Constants.R_HEADS)) {
 					// local head
-					c = new LinkPanel("refName", null, name.substring(Constants.R_HEADS.length()),
-							LogPage.class, WicketUtils.newObjectParameter(repositoryName, objectid));
-					WicketUtils.setCssClass(c, "headRef");
+					linkClass = LogPage.class;
+					name = name.substring(Constants.R_HEADS.length());
+					cssClass = "headRef";
 				} else if (name.equals(Constants.HEAD)) {
 					// local head
-					c = new LinkPanel("refName", null, name, LogPage.class,
-							WicketUtils.newObjectParameter(repositoryName, objectid));
-					WicketUtils.setCssClass(c, "headRef");
+					linkClass = LogPage.class;
+					cssClass = "headRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote head
-					c = new LinkPanel("refName", null,
-							name.substring(Constants.R_REMOTES.length()), LogPage.class,
-							WicketUtils.newObjectParameter(repositoryName, objectid));
-					WicketUtils.setCssClass(c, "remoteRef");
+					linkClass = LogPage.class;
+					name = name.substring(Constants.R_REMOTES.length());
+					cssClass = "remoteRef";
 				} else if (name.startsWith(Constants.R_TAGS)) {
 					// tag
-					c = new LinkPanel("refName", null, name.substring(Constants.R_TAGS.length()),
-							TagPage.class, WicketUtils.newObjectParameter(repositoryName, objectid));
-					WicketUtils.setCssClass(c, "tagRef");
-				} else {
-					// other
-					c = new LinkPanel("refName", null, name, CommitPage.class,
-							WicketUtils.newObjectParameter(repositoryName, objectid));
-					WicketUtils.setCssClass(c, "otherRef");
+					if (entry.isAnnotatedTag()) {
+						linkClass = TagPage.class;
+						objectid = entry.getObjectId().getName();
+					} else {
+						linkClass = CommitPage.class;
+						objectid = entry.getReferencedObjectId().getName();
+					}
+					name = name.substring(Constants.R_TAGS.length());
+					cssClass = "tagRef";
+				} else if (name.startsWith(Constants.R_NOTES)) {
+					linkClass = CommitPage.class;
+					cssClass = "otherRef";
 				}
+
+				Component c = new LinkPanel("refName", null, name, linkClass,
+						WicketUtils.newObjectParameter(repositoryName, objectid));
+				WicketUtils.setCssClass(c, cssClass);
 				WicketUtils.setHtmlTooltip(c, name);
 				item.add(c);
 			}

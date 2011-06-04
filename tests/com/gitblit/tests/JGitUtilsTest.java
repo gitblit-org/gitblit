@@ -139,7 +139,7 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testBranches() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
-		for (RefModel model : JGitUtils.getLocalBranches(repository, -1)) {
+		for (RefModel model : JGitUtils.getLocalBranches(repository, true, -1)) {
 			assertTrue(model.getName().startsWith(Constants.R_HEADS));
 			assertTrue(model.equals(model));
 			assertFalse(model.equals(""));
@@ -147,7 +147,7 @@ public class JGitUtilsTest extends TestCase {
 					+ model.getName().hashCode());
 			assertTrue(model.getShortMessage().equals(model.getShortMessage()));
 		}
-		for (RefModel model : JGitUtils.getRemoteBranches(repository, -1)) {
+		for (RefModel model : JGitUtils.getRemoteBranches(repository, true, -1)) {
 			assertTrue(model.getName().startsWith(Constants.R_REMOTES));
 			assertTrue(model.equals(model));
 			assertFalse(model.equals(""));
@@ -155,13 +155,13 @@ public class JGitUtilsTest extends TestCase {
 					+ model.getName().hashCode());
 			assertTrue(model.getShortMessage().equals(model.getShortMessage()));
 		}
-		assertTrue(JGitUtils.getRemoteBranches(repository, 10).size() == 10);
+		assertTrue(JGitUtils.getRemoteBranches(repository, true, 10).size() == 10);
 		repository.close();
 	}
 
 	public void testTags() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
-		for (RefModel model : JGitUtils.getTags(repository, -1)) {
+		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
 			if (model.getObjectId().getName().equals("283035e4848054ff1803cb0e690270787dc92399")) {
 				assertTrue("Not an annotated tag!", model.isAnnotatedTag());
 			}
@@ -174,7 +174,7 @@ public class JGitUtilsTest extends TestCase {
 		repository.close();
 		
 		repository = GitBlitSuite.getBluezGnomeRepository();
-		for (RefModel model : JGitUtils.getTags(repository, -1)) {
+		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
 			if (model.getObjectId().getName().equals("728643ec0c438c77e182898c2f2967dbfdc231c8")) {
 				assertFalse(model.isAnnotatedTag());
 				assertTrue(model.getAuthorIdent().getEmailAddress().equals("marcel@holtmann.org"));

@@ -48,9 +48,9 @@ public class BranchesPanel extends BasePanel {
 
 		// branches
 		List<RefModel> branches = new ArrayList<RefModel>();
-		branches.addAll(JGitUtils.getLocalBranches(r, maxCount));
+		branches.addAll(JGitUtils.getLocalBranches(r, false, maxCount));
 		if (model.showRemoteBranches) {
-			branches.addAll(JGitUtils.getRemoteBranches(r, maxCount));
+			branches.addAll(JGitUtils.getRemoteBranches(r, false, maxCount));
 		}
 		Collections.sort(branches);
 		Collections.reverse(branches);

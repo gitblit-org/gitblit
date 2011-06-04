@@ -49,7 +49,7 @@ public class TagsPanel extends BasePanel {
 		super(wicketId);
 
 		// header
-		List<RefModel> tags = JGitUtils.getTags(r, maxCount);
+		List<RefModel> tags = JGitUtils.getTags(r, false, maxCount);
 		if (maxCount > 0) {
 			// summary page
 			// show tags page link

@@ -44,7 +44,7 @@ public class MetricUtils {
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 
 		if (JGitUtils.hasCommits(r)) {
-			final List<RefModel> tags = JGitUtils.getTags(r, -1);
+			final List<RefModel> tags = JGitUtils.getTags(r, true, -1);
 			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
 			for (RefModel tag : tags) {
 				tagMap.put(tag.getReferencedObjectId(), tag);
@@ -122,14 +122,14 @@ public class MetricUtils {
 				for (RevCommit rev : revlog) {
 					String p;
 					if (byEmail) {
-						p = rev.getAuthorIdent().getEmailAddress();
+						p = rev.getAuthorIdent().getEmailAddress().toLowerCase();
 						if (StringUtils.isEmpty(p)) {
-							p = rev.getAuthorIdent().getName();
+							p = rev.getAuthorIdent().getName().toLowerCase();
 						}
 					} else {
-						p = rev.getAuthorIdent().getName();
+						p = rev.getAuthorIdent().getName().toLowerCase();
 						if (StringUtils.isEmpty(p)) {
-							p = rev.getAuthorIdent().getEmailAddress();
+							p = rev.getAuthorIdent().getEmailAddress().toLowerCase();
 						}
 					}
 					if (!metricMap.containsKey(p)) {

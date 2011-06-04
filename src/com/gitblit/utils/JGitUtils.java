@@ -211,7 +211,7 @@ public class JGitUtils {
 	}
 
 	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository r) {
-		List<RefModel> list = getRefs(r, org.eclipse.jgit.lib.RefDatabase.ALL, -1);
+		List<RefModel> list = getRefs(r, org.eclipse.jgit.lib.RefDatabase.ALL, true, -1);
 		Map<ObjectId, List<RefModel>> refs = new HashMap<ObjectId, List<RefModel>>();
 		for (RefModel ref : list) {
 			ObjectId objectid = ref.getReferencedObjectId();
@@ -613,23 +613,23 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<RefModel> getTags(Repository r, int maxCount) {
-		return getRefs(r, Constants.R_TAGS, maxCount);
+	public static List<RefModel> getTags(Repository r, boolean fullName, int maxCount) {
+		return getRefs(r, Constants.R_TAGS, fullName, maxCount);
 	}
 
-	public static List<RefModel> getLocalBranches(Repository r, int maxCount) {
-		return getRefs(r, Constants.R_HEADS, maxCount);
+	public static List<RefModel> getLocalBranches(Repository r, boolean fullName, int maxCount) {
+		return getRefs(r, Constants.R_HEADS, fullName, maxCount);
 	}
 
-	public static List<RefModel> getRemoteBranches(Repository r, int maxCount) {
-		return getRefs(r, Constants.R_REMOTES, maxCount);
+	public static List<RefModel> getRemoteBranches(Repository r, boolean fullName, int maxCount) {
+		return getRefs(r, Constants.R_REMOTES, fullName, maxCount);
 	}
 
-	public static List<RefModel> getNotesRefs(Repository r, int maxCount) {
-		return getRefs(r, Constants.R_NOTES, maxCount);
+	public static List<RefModel> getNotesRefs(Repository r, boolean fullName, int maxCount) {
+		return getRefs(r, Constants.R_NOTES, fullName, maxCount);
 	}
 
-	private static List<RefModel> getRefs(Repository r, String refs, int maxCount) {
+	private static List<RefModel> getRefs(Repository r, String refs, boolean fullName, int maxCount) {
 		List<RefModel> list = new ArrayList<RefModel>();
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
@@ -637,7 +637,11 @@ public class JGitUtils {
 			for (Entry<String, Ref> entry : map.entrySet()) {
 				Ref ref = entry.getValue();
 				RevObject object = rw.parseAny(ref.getObjectId());
-				list.add(new RefModel(entry.getKey(), ref, object));
+				String name = entry.getKey();
+				if (fullName && !StringUtils.isEmpty(refs)) {
+					name = refs + name;
+				}
+				list.add(new RefModel(name, ref, object));
 			}
 			rw.dispose();
 			Collections.sort(list);
@@ -653,7 +657,7 @@ public class JGitUtils {
 
 	public static List<GitNote> getNotesOnCommit(Repository repository, RevCommit commit) {
 		List<GitNote> list = new ArrayList<GitNote>();
-		List<RefModel> notesRefs = getNotesRefs(repository, -1);
+		List<RefModel> notesRefs = getNotesRefs(repository, true, -1);
 		for (RefModel notesRef : notesRefs) {
 			RevTree notesTree = JGitUtils.getCommit(repository, notesRef.getName()).getTree();
 			StringBuilder sb = new StringBuilder(commit.getName());
