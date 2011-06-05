@@ -30,6 +30,7 @@ sources @ [Github][gitbltsrc]
 - Administrators may create, edit, rename, or delete users through the web UI
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
+- Git-notes support
 - Dates can optionally be displayed using the browser's reported timezone
 - Author and Committer email address display can be controlled
 - Dynamic zip downloads feature
@@ -52,13 +53,10 @@ sources @ [Github][gitbltsrc]
 - Gitblit is an integrated, full-stack solution.  There is no WAR build at this time.
 
 ### Todo List
-- Review spots where Gitblit can cache data instead of abusing the disk
-    - stats
-    - users.properties access
-    - available repositories
-    - etc
 - Code documentation
 - Unit testing
+- Branch selector on Metrics
+- Blame
 
 ### Idea List
 - Ticgit activity/timeline
@@ -67,7 +65,6 @@ sources @ [Github][gitbltsrc]
 - View images on Blob page
 - View other binary files on Blob page
 - Markdown editing feature
-- Blame (waiting for the [JGit][jgit] team to do the hard part)
 
 ### License
 Licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)

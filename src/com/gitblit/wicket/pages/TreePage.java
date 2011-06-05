@@ -26,6 +26,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -70,7 +71,7 @@ public class TreePage extends RepositoryPage {
 			if (path.lastIndexOf('/') > -1) {
 				parentPath = path.substring(0, path.lastIndexOf('/'));
 			}
-			PathModel model = new PathModel("..", parentPath, 0, 40000, objectId);
+			PathModel model = new PathModel("..", parentPath, 0, FileMode.TREE.getBits(), objectId);
 			model.isParentPath = true;
 			paths.add(0, model);
 		}
