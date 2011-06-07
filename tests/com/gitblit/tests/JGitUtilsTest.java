@@ -30,7 +30,9 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.util.FS;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -94,16 +96,10 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testCreateRepository() throws Exception {
 		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
-		for (String repositoryName : repositories) {
-			boolean isBare = repositoryName.endsWith(".git");
+		for (String repositoryName : repositories) {			
 			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
-					repositoryName, isBare);
-			File folder;
-			if (isBare) {
-				folder = new File(GitBlitSuite.REPOSITORIES, repositoryName);
-			} else {
-				folder = new File(GitBlitSuite.REPOSITORIES, repositoryName + "/.git");
-			}
+					repositoryName);
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
 			assertTrue(repository != null);
 			assertFalse(JGitUtils.hasCommits(repository));
 			assertTrue(JGitUtils.getFirstCommit(repository, null) == null);
@@ -138,7 +134,7 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testBranches() throws Exception {
-		Repository repository = GitBlitSuite.getTicgitRepository();
+		Repository repository = GitBlitSuite.getJGitRepository();
 		for (RefModel model : JGitUtils.getLocalBranches(repository, true, -1)) {
 			assertTrue(model.getName().startsWith(Constants.R_HEADS));
 			assertTrue(model.equals(model));
@@ -155,14 +151,14 @@ public class JGitUtilsTest extends TestCase {
 					+ model.getName().hashCode());
 			assertTrue(model.getShortMessage().equals(model.getShortMessage()));
 		}
-		assertTrue(JGitUtils.getRemoteBranches(repository, true, 10).size() == 10);
+		assertTrue(JGitUtils.getRemoteBranches(repository, true, 8).size() == 8);
 		repository.close();
 	}
 
 	public void testTags() throws Exception {
-		Repository repository = GitBlitSuite.getTicgitRepository();
+		Repository repository = GitBlitSuite.getJGitRepository();
 		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
-			if (model.getObjectId().getName().equals("283035e4848054ff1803cb0e690270787dc92399")) {
+			if (model.getObjectId().getName().equals("d28091fb2977077471138fe97da1440e0e8ae0da")) {
 				assertTrue("Not an annotated tag!", model.isAnnotatedTag());
 			}
 			assertTrue(model.getName().startsWith(Constants.R_TAGS));

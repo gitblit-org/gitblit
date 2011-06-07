@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -32,6 +33,8 @@ import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.jgit.api.CloneCommand;
+import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -57,6 +60,9 @@ import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
 import org.eclipse.jgit.treewalk.filter.OrTreeFilter;
@@ -90,8 +96,54 @@ public class JGitUtils {
 		return r.toString().trim();
 	}
 
-	public static Repository createRepository(File repositoriesFolder, String name, boolean bare) {
-		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(bare).call();
+	public static FetchResult cloneRepository(File repositoriesFolder, String name, String fromUrl) throws Exception {
+		FetchResult result = null;
+		if (!name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
+			name += Constants.DOT_GIT_EXT;
+		}
+		File folder = new File(repositoriesFolder, name);
+		if (folder.exists()) {
+			File gitDir = FileKey.resolve(new File(repositoriesFolder, name), FS.DETECTED);
+			FileRepository repository = new FileRepository(gitDir);
+			result = fetchRepository(repository);
+			repository.close();
+		} else {
+			CloneCommand clone = new CloneCommand();
+			clone.setBare(true);
+			clone.setCloneAllBranches(true);
+			clone.setURI(fromUrl);
+			clone.setDirectory(folder);
+			clone.call();
+			// Now we have to fetch because CloneCommand doesn't fetch
+			// refs/notes nor does it allow manual RefSpec.
+			File gitDir = FileKey.resolve(new File(repositoriesFolder, name), FS.DETECTED);
+			FileRepository repository = new FileRepository(gitDir);
+			result = fetchRepository(repository);
+			repository.close();
+		}
+		return result;
+	}
+
+	public static FetchResult fetchRepository(Repository repository, RefSpec... refSpecs)
+			throws Exception {
+		Git git = new Git(repository);
+		FetchCommand fetch = git.fetch();
+		List<RefSpec> specs = new ArrayList<RefSpec>();
+		if (refSpecs == null || refSpecs.length == 0) {
+			specs.add(new RefSpec("+refs/heads/*:refs/remotes/origin/*"));
+			specs.add(new RefSpec("+refs/tags/*:refs/tags/*"));
+			specs.add(new RefSpec("+refs/notes/*:refs/notes/*"));
+		} else {
+			specs.addAll(Arrays.asList(refSpecs));
+		}
+		fetch.setRefSpecs(specs);
+		FetchResult result = fetch.call();
+		repository.close();
+		return result;
+	}
+
+	public static Repository createRepository(File repositoriesFolder, String name) {
+		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
 		return git.getRepository();
 	}
 
@@ -219,7 +271,7 @@ public class JGitUtils {
 				refs.put(objectid, new ArrayList<RefModel>());
 			}
 			refs.get(objectid).add(ref);
-		}		
+		}
 		return refs;
 	}
 

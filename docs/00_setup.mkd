@@ -9,7 +9,7 @@ Open `gitblit.properties` in your favorite text editor and make sure to review a
     - *server.httpBindInterface* and *server.httpsBindInterface*<br/>
 **NOTE:** Consider using **https** exclusively because passwords for authentication are transmitted as clear text!     
     - *server.storePassword*<br/>
-**NOTE:** The certificate password AND the keystore password must match!     
+**NOTE:** If you manually generate an ssl certificate, the certificate password AND the keystore password must match!     
 3. Execute `gitblit.cmd` or `java -jar gitblit.jar` from a command-line
 4. Wait a minute or two while all dependencies are downloaded and your self-signed certificate is generated.
 5. Open your browser to <http://localhost> or <https://localhost> depending on your chosen configuration.
@@ -35,9 +35,9 @@ All repository settings are stored within the repository `.git/config` file unde
 Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - .`<br/>
 Whitespace is illegal.
 
-Repositories can be grouped by folders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
+Repositories can be grouped within subfolders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
 
-Repository names will automatically have *.git* appended to the name at creation time, if not already specified. 
+All created repositories are *bare* and will automatically have *.git* appended to the name at creation time, if not already specified. 
 
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
@@ -61,7 +61,7 @@ There is only one actual *role* in Gitblit and that is *#admin* which grants adm
 ### Creating your own Self-Signed Certificate
 
 Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd` script and execute it.<br/>
-**NOTE:** The certificate password AND the keystore password must match!
+**NOTE:** If you manually generate an ssl certificate, the certificate password AND the keystore password must match!
 
 ### Running as a Service
 Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your installed Java Virtual Machine.<br/>

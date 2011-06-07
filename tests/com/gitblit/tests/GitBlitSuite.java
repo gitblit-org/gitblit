@@ -16,25 +16,20 @@
 package com.gitblit.tests;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.FetchCommand;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.transport.RefSpec;
 
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.JettyLoginService;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.JGitUtils;
 
 public class GitBlitSuite extends TestSetup {
 	public static final File REPOSITORIES = new File("git");
@@ -66,11 +61,11 @@ public class GitBlitSuite extends TestSetup {
 	}
 
 	public static Repository getJGitRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "nested/jgit.git"));
+		return new FileRepository(new File(REPOSITORIES, "test/jgit.git"));
 	}
 
 	public static Repository getBluezGnomeRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "nested/bluez-gnome.git"));
+		return new FileRepository(new File(REPOSITORIES, "test/bluez-gnome.git"));
 	}
 
 	@Override
@@ -82,51 +77,24 @@ public class GitBlitSuite extends TestSetup {
 		GitBlit.self().setLoginService(loginService);
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
-			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git", true);
-			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git", true);
-			cloneOrFetch("nested/bluez-gnome.git", "https://git.kernel.org/pub/scm/bluetooth/bluez-gnome.git", true);
-			cloneOrFetch("nested/jgit.git", "https://github.com/eclipse/jgit.git", true);
-			cloneOrFetch("nested/helloworld.git", "https://github.com/git/hello-world.git", true);
+			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");
+			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git");
+			cloneOrFetch("test/bluez-gnome.git",
+					"https://git.kernel.org/pub/scm/bluetooth/bluez-gnome.git");
+			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
+			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
-			showRemoteBranches("nested/jgit.git");
+			showRemoteBranches("test/jgit.git");
 		}
 	}
 
-	private void cloneOrFetch(String toFolder, String fromUrl, boolean bare) throws Exception {
-		File folder = new File(REPOSITORIES, toFolder + (bare ? "" : "/.git"));
-		if (folder.exists()) {
-			System.out.print("Updating " + (bare ? "bare " : " ") + toFolder + "... ");
-			fetch(toFolder);
-			System.out.println("done.");
-		} else {
-			System.out.println("Cloning " + (bare ? "bare " : " ") + toFolder + "... ");
-			CloneCommand clone = new CloneCommand();
-			clone.setBare(bare);
-			clone.setCloneAllBranches(true);			
-			clone.setURI(fromUrl);
-			clone.setDirectory(folder);
-			clone.call();
-			// Now we have to fetch because CloneCommand doesn't fetch
-			// Notes nor does it allow manual RefSpec.
-			fetch(toFolder);
-			System.out.println("done.");
-		}
-	}
-	
-	private void fetch(String toFolder) throws Exception {
-		FileRepository repository = new FileRepository(new File(REPOSITORIES, toFolder));
-		Git git = new Git(repository);
-		FetchCommand fetch = git.fetch();
-		List<RefSpec> specs = new ArrayList<RefSpec>();
-		specs.add(new RefSpec("+refs/heads/*:refs/remotes/origin/*"));
-		specs.add(new RefSpec("+refs/tags/*:refs/tags/*"));
-		specs.add(new RefSpec("+refs/notes/*:refs/notes/*"));
-		fetch.setRefSpecs(specs);
-		fetch.call();
-		repository.close();
+	private void cloneOrFetch(String name, String fromUrl) throws Exception {
+		System.out.print("Fetching " + name + "... ");
+		JGitUtils.cloneRepository(REPOSITORIES, name, fromUrl);
+		System.out.println("done.");
 	}
 
 	private void enableTickets(String repositoryName) {
@@ -138,7 +106,7 @@ public class GitBlitSuite extends TestSetup {
 			g.printStackTrace();
 		}
 	}
-	
+
 	private void enableDocs(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
@@ -148,7 +116,7 @@ public class GitBlitSuite extends TestSetup {
 			g.printStackTrace();
 		}
 	}
-	
+
 	private void showRemoteBranches(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);

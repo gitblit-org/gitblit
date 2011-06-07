@@ -226,7 +226,7 @@ public class GitBlit implements ServletContextListener {
 		Repository r = null;
 		if (isCreate) {
 			// ensure created repository name ends with .git
-			if (!repository.name.endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
+			if (!repository.name.toLowerCase().endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
 				repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 			}
 			if (new File(repositoriesFolder, repository.name).exists()) {
@@ -236,7 +236,7 @@ public class GitBlit implements ServletContextListener {
 			}
 			// create repository
 			logger.info("create repository " + repository.name);
-			r = JGitUtils.createRepository(repositoriesFolder, repository.name, true);
+			r = JGitUtils.createRepository(repositoriesFolder, repository.name);
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {

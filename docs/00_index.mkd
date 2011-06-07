@@ -31,6 +31,7 @@ sources @ [Github][gitbltsrc]
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
 - Git-notes support
+- Branch-selectable metrics
 - Dates can optionally be displayed using the browser's reported timezone
 - Author and Committer email address display can be controlled
 - Dynamic zip downloads feature
@@ -57,6 +58,7 @@ sources @ [Github][gitbltsrc]
 - Unit testing
 - Branch selector on Metrics
 - Blame
+- Clone remote repository
 
 ### Idea List
 - Ticgit activity/timeline

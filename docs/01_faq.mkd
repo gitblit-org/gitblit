@@ -27,9 +27,29 @@ It's a phonetic play on [bitblt][bitblt] which is an image processing operation 
 ### Why use Gitblit?
 It's a small tool that allows you to easily manage shared repositories and doesn't require alot of setup or git kung-foo.
 
+### Who is the target user for Gitblit?
+Small workgroups that require centralized repositories.
+
+Gitblit is not meant to be a social coding resource like [Github](http://github.com) or [Bitbucket](http://bitbucket.com) with 100s or 1000s of users.  Gitblit is designed to fulfill the same function as your centralized Subversion or CVS server.
+
+### Why does Gitblit exist?
+As a Java developer I prefer that as much of my tooling as possible is Java.<br/>
+Originally, I was going to use [Mercurial](http://mercurial.selenic.com) but...
+
+- MercurialEclipse [shells to Python and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)<br/>
+Parsing command-line output is fragile and suboptimal.<br/>Unfortunately this is necessary because Mercurial is an application, not a library.
+- Mercurial seems to [frown](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2695051.html) on the fledgling [Hg4j][hg4j] (pure Java Mercurial) project.
+- Mercurial HTTP/HTTPS needs to run as CGI through Apache/IIS/etc, as mod_python through Apache, or served with a built-in http server.<br/>
+This requires setup and maintenance of multiple, mixed 3rd party components.
+
+Gitblit eliminates all that complication with its 100% Java stack and simple single configuration file.
+
 ### Do I need real Git?
 No.  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
 Everything you need for Gitblit is either in the zip distribution file or automatically downloaded on execution.
+
+### Can I run Gitblit in conjunction with my existing Git tooling?
+Yes.  You can configure Gitblit to only be a repository viewer.
 
 ### Do I need a JDK or can I use a JRE?
 Gitblit will run just fine with a JRE.  Gitblit can optionally use `keytool` from the JDK to generate self-signed certificates, but normally Gitblit uses [BouncyCastle][bouncycastle] for that need.
@@ -74,3 +94,4 @@ Currently blame is not implemented.  Those links are placeholders to remind me w
 [git]: http://git-scm.com "Official Git Site"
 [mina]: http://mina.apache.org "Apache Mina"
 [bouncycastle]: http://bouncycastle.org "The Legion of the Bouncy Castle"
+[hg4j]: http://code.google.com/p/hg4j/ "hg4j"
