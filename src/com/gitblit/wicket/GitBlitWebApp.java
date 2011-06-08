@@ -26,6 +26,7 @@ import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
@@ -37,11 +38,11 @@ import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LoginPage;
 import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.MarkdownPage;
+import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -85,6 +86,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/history", HistoryPage.class, "r", "h", "f");
 		mount("/search", SearchPage.class);
 		mount("/metrics", MetricsPage.class, "r");
+		mount("/blame", BlamePage.class, "r", "h", "f");
 		
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");

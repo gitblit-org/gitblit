@@ -129,8 +129,9 @@ public class TreePage extends RepositoryPage {
 										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
 								.newPathParameter(repositoryName, entry.commitId, entry.path)));
-						links.add(new BookmarkablePageLink<Void>("blame", BlobPage.class)
-								.setEnabled(false));
+						links.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
 										entry.path)));

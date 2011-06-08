@@ -203,11 +203,10 @@ public class SummaryPage extends RepositoryPage {
 					metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
 			provider.addAxis(dateAxis);
 
-			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
+			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);			
 			commitAxis.setLabels(new String[] { "",
 					String.valueOf((int) WicketUtils.maxValue(metrics)) });
 			provider.addAxis(commitAxis);
-
 			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
 			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.BLUE, 1, -1, 5));
 

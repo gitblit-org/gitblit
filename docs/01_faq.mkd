@@ -36,9 +36,8 @@ Gitblit is not meant to be a social coding resource like [Github](http://github.
 As a Java developer I prefer that as much of my tooling as possible is Java.<br/>
 Originally, I was going to use [Mercurial](http://mercurial.selenic.com) but...
 
-- MercurialEclipse [shells to Python and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)<br/>
+- MercurialEclipse [shells to Python, writes to System.out, and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)<br/>
 Parsing command-line output is fragile and suboptimal.<br/>Unfortunately this is necessary because Mercurial is an application, not a library.
-- Mercurial seems to [frown](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2695051.html) on the fledgling [Hg4j][hg4j] (pure Java Mercurial) project.
 - Mercurial HTTP/HTTPS needs to run as CGI through Apache/IIS/etc, as mod_python through Apache, or served with a built-in http server.<br/>
 This requires setup and maintenance of multiple, mixed 3rd party components.
 
@@ -47,6 +46,13 @@ Gitblit eliminates all that complication with its 100% Java stack and simple sin
 ### Do I need real Git?
 No.  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
 Everything you need for Gitblit is either in the zip distribution file or automatically downloaded on execution.
+
+### What about periodic Git garbage collection (git-gc)?
+Good question.  I'm not sure.
+
+Git repositories grow and grow and periodically need to be repacked every once in a while.  Git calls this process [garbage collection](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html) (which is not to be confused with [garbage collection](http://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).)
+
+[JGit's][jgit] documentation is sparse and its unclear whether or not JGit performs this function.
 
 ### Can I run Gitblit in conjunction with my existing Git tooling?
 Yes.  You can configure Gitblit to only be a repository viewer.
@@ -72,7 +78,7 @@ Gitblit's simple authentication and authorization mechanism can be used to facil
 
 ### Why doesn't Gitblit support SSH?
 Gitblit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Gitblit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>
-SSH support requires creating, exchanging, and managing SSH keys.  While this is possible, JGit's SmartHTTP implementation is a simpler and universal transport mechanism.
+SSH support requires creating, exchanging, and managing SSH keys (arguably not more complicated than managing users).  While this is possible, JGit's SmartHTTP implementation is a simpler and universal transport mechanism.
 
 You might consider running [Gerrit](http://gerrit.googlecode.org) which does integrate [Apache Mina][mina] and supports SSH or you might consider serving [Git][git] on Linux which would offer real SSH support and also allow use of [many other compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools).
 
@@ -86,8 +92,9 @@ To search by *author* or *committer* use the following syntax in the search box:
     
 Alternatively, you could enable the search type dropdown list in your `gitblit.properties` file.
 
-### I see a disabled "blame" link. How do I enable it? 
-Currently blame is not implemented.  Those links are placeholders to remind me where Gitweb offers blame.
+### Can Gitblit be translated?
+
+Yes.  Most messages are localized to a standard Java properties file.
 
 [bitblt]: http://en.wikipedia.org/wiki/Bit_blit "Wikipedia Bitblt"
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

@@ -125,15 +125,16 @@ public class CommitPage extends RepositoryPage {
 			public void populateItem(final Item<GitNote> item) {
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
-				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(), SearchType.AUTHOR));
-				item.add(WicketUtils.createTimestampLabel("authorDate",
-						entry.notesRef.getAuthorIdent().getWhen(), getTimeZone()));
-				item.add(new Label("noteContent", StringUtils.breakLinesForHtml(entry.content)).setEscapeModelStrings(false));
+				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
+						SearchType.AUTHOR));
+				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
+						.getAuthorIdent().getWhen(), getTimeZone()));
+				item.add(new Label("noteContent", StringUtils.breakLinesForHtml(entry.content))
+						.setEscapeModelStrings(false));
 			}
 		};
 		add(notesView.setVisible(notes.size() > 0));
-		
-		
+
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
 		add(new CommitLegendPanel("commitLegend", paths));
@@ -157,12 +158,15 @@ public class CommitPage extends RepositoryPage {
 				}
 
 				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class,
-						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD) && !entry.changeType.equals(ChangeType.DELETE)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType
+						.equals(ChangeType.ADD) && !entry.changeType.equals(ChangeType.DELETE)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
 						newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
+				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
+						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType
+						.equals(ChangeType.ADD)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

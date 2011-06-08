@@ -98,9 +98,10 @@ public class CommitDiffPage extends RepositoryPage {
 						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
 						newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
+				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
+						newPathParameter(entry.path)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD) && !entry.changeType.equals(ChangeType.DELETE)));
+						newPathParameter(entry.path)).setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

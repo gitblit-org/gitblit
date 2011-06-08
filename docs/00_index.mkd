@@ -31,9 +31,11 @@ sources @ [Github][gitbltsrc]
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
 - Git-notes support
-- Branch-selectable metrics
+- Branch metrics
+- Blame annotations view
 - Dates can optionally be displayed using the browser's reported timezone
 - Author and Committer email address display can be controlled
+- Search commit messages, authors, and committers
 - Dynamic zip downloads feature
 - Markdown view support
 - Syntax highlighting
@@ -48,27 +50,37 @@ sources @ [Github][gitbltsrc]
     </ul>
 
 ### Limitations
+- [%JGIT%][jgit] does not [garbage collect or repack](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html)
 - HTTP/HTTPS are the only supported protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
 - Gitblit is an integrated, full-stack solution.  There is no WAR build at this time.
 
+### Caveats
+- I don't know everything there is to know about [Git][git] nor [JGit][jgit].
+- Gitblit may eat your data.  Use at your own risk.
+- Gitblit may have security holes.  Patches welcome.  :)
+
 ### Todo List
 - Code documentation
 - Unit testing
-- Blame
+- Finish Blame (waiting for JGit 1.0.0 release)
 - Clone remote repository
 
 ### Idea List
-- Ticgit activity/timeline
-- Ticgit query feature with paging support
-- Ticgit ticket change history
-- View images on Blob page
-- View other binary files on Blob page
+- Consider [Apache Shiro](http://shiro.apache.org) for authentication
+- Stronger Ticgit read-only integration
+    - activity/timeline
+    - query feature with paging support
+    - change history
+- Ticgit write integration
+- Blob page improvements
+    - view images
+    - view other binary files (pdf, doc, etc)
 - Markdown editing feature
 
 ### License
-Licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+Gitblit is distributed under the terms of the [Apache Software Foundation license, version 2.0][apachelicense]
 
 ### Inspirations
 - [Gitweb](http://www.git-scm.com)
@@ -123,6 +135,13 @@ Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [e
     - If running on Linux you may have to change the served port(s) to > 1024 unless you are developing as the root user. 
 6. Execute the *com.gitblit.Launcher* class to start Gitblit.
 
+
+## Contributing
+Patches welcome in any form.
+
+Contributions must be your own original work and must licensed under the [Apache License, Version 2.0][apachelicense], the same license used by Gitblit.
+
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
 [gitbltsrc]: http://somewhere.com "gitblit git repository"
+[apachelicense]: http://www.apache.org/licenses/LICENSE-2.0 "Apache License, Version 2.0"

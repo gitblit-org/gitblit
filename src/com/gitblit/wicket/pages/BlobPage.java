@@ -45,7 +45,8 @@ public class BlobPage extends RepositoryPage {
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
 
-			add(new Label("blameLink", getString("gb.blame")).setEnabled(false));
+			add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)).setEnabled(false));
 			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class).setEnabled(false));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
@@ -74,7 +75,8 @@ public class BlobPage extends RepositoryPage {
 			RevCommit commit = JGitUtils.getCommit(r, objectId);
 
 			// blob page links
-			add(new Label("blameLink", getString("gb.blame")));
+			add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,

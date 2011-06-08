@@ -15,59 +15,44 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.eclipse.jgit.lib.Repository;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
-import com.gitblit.utils.DiffUtils;
-import com.gitblit.utils.DiffUtils.DiffOutputType;
-import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
-public class BlobDiffPage extends RepositoryPage {
+public class BlamePage extends RepositoryPage {
 
-	public BlobDiffPage(PageParameters params) {
+	public BlamePage(PageParameters params) {
 		super(params);
 
 		final String blobPath = WicketUtils.getPath(params);
-		final String baseObjectId = WicketUtils.getBaseObjectId(params);
 
-		Repository r = getRepository();
 		RevCommit commit = getCommit();
 
-		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
-				DiffOutputType.GITBLIT.name()));
-
-		String diff;
-		if (StringUtils.isEmpty(baseObjectId)) {
-			// use first parent
-			diff = DiffUtils.getDiff(r, commit, blobPath, diffType);
-			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
-					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
-		} else {
-			// base commit specified
-			RevCommit baseCommit = JGitUtils.getCommit(r, baseObjectId);
-			diff = DiffUtils.getDiff(r, baseCommit, commit, blobPath, diffType);
-			add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
-					WicketUtils.newBlobDiffParameter(repositoryName, baseObjectId, objectId,
+		add(new BookmarkablePageLink<Void>("blobLink", BlobPage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId,
 							blobPath)));
-		}
-
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
-		// diff page links
-		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
-				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+		// blame page links
+		add(new BookmarkablePageLink<Void>("headLink", BlamePage.class,
+				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 
@@ -75,11 +60,38 @@ public class BlobDiffPage extends RepositoryPage {
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 
-		add(new Label("diffText", diff).setEscapeModelStrings(false));
+		List<BlameLine> blame = Arrays.asList(new BlameLine("HEAD", "1", "Under Construction"));
+		ListDataProvider<BlameLine> blameDp = new ListDataProvider<BlameLine>(blame);
+		DataView<BlameLine> blameView = new DataView<BlameLine>("annotation", blameDp) {
+			private static final long serialVersionUID = 1L;
+
+			public void populateItem(final Item<BlameLine> item) {
+				BlameLine entry = item.getModelObject();
+				item.add(new LinkPanel("commit", "list", entry.objectId, CommitPage.class,
+						newCommitParameter(entry.objectId)));
+				item.add(new Label("line", entry.line));
+				item.add(new Label("data", entry.data));
+			}
+		};
+		add(blameView);
 	}
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.diff");
+		return getString("gb.blame");
+	}
+	
+	private class BlameLine implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
+		
+		final String objectId;
+		final String line;
+		final String data;
+		BlameLine(String objectId, String line, String data) {
+			this.objectId = objectId;
+			this.line = line;
+			this.data = data;
+		}
 	}
 }
