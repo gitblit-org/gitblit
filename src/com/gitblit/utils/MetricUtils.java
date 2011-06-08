@@ -39,10 +39,12 @@ public class MetricUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetricUtils.class);
 
-	public static List<Metric> getDateMetrics(Repository r, boolean includeTotal, String format) {
+	public static List<Metric> getDateMetrics(Repository r, String objectId, boolean includeTotal, String format) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-
+		if (StringUtils.isEmpty(objectId)) {
+			objectId = Constants.HEAD;
+		}
 		if (JGitUtils.hasCommits(r)) {
 			final List<RefModel> tags = JGitUtils.getTags(r, true, -1);
 			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
@@ -51,7 +53,7 @@ public class MetricUtils {
 			}
 			try {
 				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(Constants.HEAD);
+				ObjectId object = r.resolve(objectId);
 				RevCommit lastCommit = walk.parseCommit(object);
 				walk.markStart(lastCommit);
 
@@ -62,12 +64,9 @@ public class MetricUtils {
 					int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
 							/ (60 * 60 * 24);
 					total.duration = diffDays;
-					if (diffDays <= 90) {
+					if (diffDays <= 365) {
 						// Days
 						df = new SimpleDateFormat("yyyy-MM-dd");
-					} else if (diffDays > 90 && diffDays < 365) {
-						// Weeks
-						df = new SimpleDateFormat("yyyy-MM (w)");
 					} else {
 						// Months
 						df = new SimpleDateFormat("yyyy-MM");
@@ -108,13 +107,15 @@ public class MetricUtils {
 		return metrics;
 	}
 
-	public static List<Metric> getAuthorMetrics(Repository r, boolean byEmail) {
+	public static List<Metric> getAuthorMetrics(Repository r, String objectId, boolean byEmail) {
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-
+		if (StringUtils.isEmpty(objectId)) {
+			objectId = Constants.HEAD;
+		}
 		if (JGitUtils.hasCommits(r)) {
 			try {
 				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(Constants.HEAD);
+				ObjectId object = r.resolve(objectId);
 				RevCommit lastCommit = walk.parseCommit(object);
 				walk.markStart(lastCommit);
 

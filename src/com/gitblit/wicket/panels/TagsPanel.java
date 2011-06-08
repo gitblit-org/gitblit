@@ -44,6 +44,8 @@ import com.gitblit.wicket.pages.TreePage;
 public class TagsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private final boolean hasTags;
 
 	public TagsPanel(String wicketId, final String repositoryName, Repository r, final int maxCount) {
 		super(wicketId);
@@ -162,5 +164,12 @@ public class TagsPanel extends BasePanel {
 			add(new LinkPanel("allTags", "link", new StringResourceModel("gb.allTags", this, null),
 					TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		}
+		
+		hasTags = tags.size() > 0;
+	}
+	
+	public TagsPanel hideIfEmpty() {
+		setVisible(hasTags);
+		return this;
 	}
 }

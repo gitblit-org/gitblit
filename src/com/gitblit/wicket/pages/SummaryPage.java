@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -77,7 +78,7 @@ public class SummaryPage extends RepositoryPage {
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = MetricUtils.getDateMetrics(r, true, null);
+			metrics = MetricUtils.getDateMetrics(r, null, true, null);
 			metricsTotal = metrics.remove(0);
 		}
 
@@ -88,12 +89,13 @@ public class SummaryPage extends RepositoryPage {
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r),
 				getTimeZone()));
 		if (metricsTotal == null) {
-			add(new Label("repositoryMetrics", ""));
+			add(new Label("branchStats", ""));			
 		} else {
-			add(new Label("repositoryMetrics", MessageFormat.format(
+			add(new Label("branchStats", MessageFormat.format(
 					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
 					TimeUtils.duration(metricsTotal.duration))));
 		}
+		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 
 		List<String> repositoryUrls = new ArrayList<String>();
 
@@ -141,8 +143,8 @@ public class SummaryPage extends RepositoryPage {
 				.setEscapeModelStrings(false));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
-		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs));
-		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs));
+		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
+		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs).hideIfEmpty());
 
 		if (getRepositoryModel().showReadme) {
 			String htmlText = null;

@@ -6,18 +6,30 @@
       
 <body>
 <wicket:extend>
-		<h2>Commit Activity</h2>
+	<div style="padding-top:10px;">
+		<!-- branch name -->
+		<div><span class="metricsTitle" wicket:id="branchTitle"></span></div>
+	
+		<!-- placeholder for more info -->
+		<div style="float:right;width:200px;text-align: left;">
+		</div>
+
+		<!-- branch stats -->
+		<h2><wicket:message key="gb.stats"></wicket:message></h2>
+		<span wicket:id="branchStats"></span>
+		
+		<!-- commit activity trend -->
+		<h2><wicket:message key="gb.commitActivityTrend"></wicket:message></h2>
 		<div><img wicket:id="commitsChart" /></div>
 		
-		<h2>Commit Activity by Day of Week</h2>
+		<!-- commit activity by day of week -->
+		<h2><wicket:message key="gb.commitActivityDOW"></wicket:message></h2>
 		<div><img wicket:id="dayOfWeekChart" /></div>
 		
-		<h2>Commit Activity by Time of Day</h2>
-		<div><img wicket:id="timeOfDayChart" /></div>
-
-		<h2>Most Prolific Authors</h2>
+		<!-- commit activity by primary authors -->
+		<h2><wicket:message key="gb.commitActivityAuthors"></wicket:message></h2>
 		<div><img wicket:id="authorsChart" /></div>
-
+	</div>
 </wicket:extend>
 </body>
 </html>

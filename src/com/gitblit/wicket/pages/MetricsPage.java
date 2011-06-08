@@ -17,16 +17,16 @@ package com.gitblit.wicket.pages;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.text.ParseException;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
 import org.wicketstuff.googlecharts.Chart;
 import org.wicketstuff.googlecharts.ChartAxis;
@@ -40,17 +40,28 @@ import org.wicketstuff.googlecharts.ShapeMarker;
 
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class MetricsPage extends RepositoryPage {
 
 	public MetricsPage(PageParameters params) {
-		super(params);
+		super(params);				
 		Repository r = getRepository();
-		insertLinePlot("commitsChart", MetricUtils.getDateMetrics(r, false, null));
-		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r));
-		insertLinePlot("timeOfDayChart", getTimeOfDayMetrics(r));
-		insertPieChart("authorsChart", getAuthorMetrics(r));
+		add(new Label("branchTitle", objectId));
+		Metric metricsTotal = null;
+		List<Metric> metrics = MetricUtils.getDateMetrics(r, objectId, true, null);
+		metricsTotal = metrics.remove(0);
+		if (metricsTotal == null) {
+			add(new Label("branchStats", ""));			
+		} else {
+			add(new Label("branchStats", MessageFormat.format(
+					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
+					TimeUtils.duration(metricsTotal.duration))));
+		}
+		insertLinePlot("commitsChart", metrics);
+		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));
+		insertPieChart("authorsChart", getAuthorMetrics(r, objectId));
 	}
 
 	private void insertLinePlot(String wicketId, List<Metric> metrics) {
@@ -118,8 +129,8 @@ public class MetricsPage extends RepositoryPage {
 		}
 	}
 
-	private List<Metric> getDayOfWeekMetrics(Repository repository) {
-		List<Metric> list = MetricUtils.getDateMetrics(repository, false, "E");
+	private List<Metric> getDayOfWeekMetrics(Repository repository, String objectId) {
+		List<Metric> list = MetricUtils.getDateMetrics(repository, objectId, false, "E");
 		SimpleDateFormat sdf = new SimpleDateFormat("E");
 		Calendar cal = Calendar.getInstance();
 
@@ -143,35 +154,15 @@ public class MetricsPage extends RepositoryPage {
 		return sorted;
 	}
 
-	private List<Metric> getTimeOfDayMetrics(Repository repository) {
-		SimpleDateFormat ndf = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		List<Metric> list = MetricUtils.getDateMetrics(repository, false, "yyyy-MM-dd HH:mm");
-		Calendar cal = Calendar.getInstance();
-
-		for (Metric metric : list) {
-			try {
-				Date date = sdf.parse(metric.name);
-				cal.setTime(date);
-				double y = cal.get(Calendar.HOUR_OF_DAY) + (cal.get(Calendar.MINUTE) / 60d);
-				metric.duration = (int) (date.getTime() / 60000L);
-				metric.count = y;
-				metric.name = ndf.format(date);
-			} catch (ParseException p) {
-			}
-		}
-		return list;
-	}
-
-	private List<Metric> getAuthorMetrics(Repository repository) {
-		List<Metric> authors = MetricUtils.getAuthorMetrics(repository, true);
+	private List<Metric> getAuthorMetrics(Repository repository, String objectId) {
+		List<Metric> authors = MetricUtils.getAuthorMetrics(repository, objectId, true);
 		Collections.sort(authors, new Comparator<Metric>() {
 			@Override
 			public int compare(Metric o1, Metric o2) {
 				if (o1.count > o2.count) {
 					return -1;
 				} else if (o1.count < o2.count) {
-					return 1;					
+					return 1;
 				}
 				return 0;
 			}

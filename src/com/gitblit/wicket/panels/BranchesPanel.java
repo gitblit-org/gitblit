@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -35,12 +36,15 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class BranchesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+
+	private final boolean hasBranches;
 
 	public BranchesPanel(String wicketId, final RepositoryModel model, Repository r,
 			final int maxCount) {
@@ -89,11 +93,23 @@ public class BranchesPanel extends BasePanel {
 				item.add(new Label("branchType", remote ? getString("gb.remote")
 						: getString("gb.local")).setVisible(maxCount <= 0));
 
-				item.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
-						.newObjectParameter(model.name, entry.getName())));
-				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
-						.newObjectParameter(model.name, entry.getName())));
-
+				if (maxCount <= 0) {
+					Fragment fragment = new Fragment("branchLinks", "branchPageLinks", this);
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
+							.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
+							.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
+							WicketUtils.newObjectParameter(model.name, entry.getName())));
+					item.add(fragment);
+				} else {
+					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);
+					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
+							.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
+							.newObjectParameter(model.name, entry.getName())));
+					item.add(fragment);
+				}
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
@@ -105,5 +121,12 @@ public class BranchesPanel extends BasePanel {
 			add(new LinkPanel("allBranches", "link", new StringResourceModel("gb.allBranches",
 					this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		}
+		// We always have 1 branch
+		hasBranches = branches.size() > 1;
+	}
+
+	public BranchesPanel hideIfEmpty() {
+		setVisible(hasBranches);
+		return this;
 	}
 }

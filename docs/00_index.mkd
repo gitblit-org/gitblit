@@ -56,7 +56,6 @@ sources @ [Github][gitbltsrc]
 ### Todo List
 - Code documentation
 - Unit testing
-- Branch selector on Metrics
 - Blame
 - Clone remote repository
 

@@ -127,4 +127,9 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	public int compareTo(RefModel o) {
 		return getDate().compareTo(o.getDate());
 	}
+	
+	@Override
+	public String toString() {
+		return displayName;
+	}
 }

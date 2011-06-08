@@ -70,19 +70,19 @@ public class RefsPanel extends Panel {
 				Class<? extends RepositoryPage> linkClass = CommitPage.class;
 				String cssClass = "";
 				if (name.startsWith(Constants.R_HEADS)) {
-					// local head
+					// local branch
 					linkClass = LogPage.class;
 					name = name.substring(Constants.R_HEADS.length());
-					cssClass = "headRef";
+					cssClass = "localBranch";
 				} else if (name.equals(Constants.HEAD)) {
 					// local head
 					linkClass = LogPage.class;
 					cssClass = "headRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
-					// remote head
+					// remote branch
 					linkClass = LogPage.class;
 					name = name.substring(Constants.R_REMOTES.length());
-					cssClass = "remoteRef";
+					cssClass = "remoteBranch";
 				} else if (name.startsWith(Constants.R_TAGS)) {
 					// tag
 					if (entry.isAnnotatedTag()) {

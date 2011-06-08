@@ -17,16 +17,28 @@
          		<td><span wicket:id="branchName">[branch name]</span></td>
          		<td><span wicket:id="branchType">[branch type]</span></td>
          		<td class="rightAlign">
-         			<span class="link">
-						<a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
-					</span>	
+         			<span wicket:id="branchLinks"></span>
 				</td>
        		</tr>
     	</tbody>
 	</table>	
 
 	<div wicket:id="allBranches">[all branches]</div>	
-		
+
+	<!-- branch page links -->
+	<wicket:fragment wicket:id="branchPageLinks">
+		<span class="link">
+			<a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="metrics"><wicket:message key="gb.metrics"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+
+	<!-- branch panel links -->
+	<wicket:fragment wicket:id="branchPanelLinks">
+		<span class="link">
+			<a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+			
 </wicket:panel>
 </body>
 </html>
