@@ -38,7 +38,6 @@ import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
-import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
@@ -129,7 +128,7 @@ public class CommitPage extends RepositoryPage {
 						SearchType.AUTHOR));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone()));
-				item.add(new Label("noteContent", StringUtils.breakLinesForHtml(entry.content))
+				item.add(new Label("noteContent", substituteText(entry.content))
 						.setEscapeModelStrings(false));
 			}
 		};

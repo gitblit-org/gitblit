@@ -18,7 +18,9 @@ package com.gitblit.utils;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.PatternSyntaxException;
 
 public class StringUtils {
 
@@ -141,5 +143,25 @@ public class StringUtils {
 			relativePath = relativePath.substring(1);
 		}
 		return relativePath;
+	}
+	
+	public static List<String> getStringsFromValue(String value) {
+		return getStringsFromValue(value, " ");
+	}
+		
+	public static List<String> getStringsFromValue(String value, String separator) {
+		List<String> strings = new ArrayList<String>();
+		try {
+			String[] chunks = value.split(separator);
+			for (String chunk : chunks) {
+				chunk = chunk.trim();
+				if (chunk.length() > 0) {
+					strings.add(chunk);
+				}
+			}
+		} catch (PatternSyntaxException e) {
+			throw new RuntimeException(e);
+		}
+		return strings;
 	}
 }

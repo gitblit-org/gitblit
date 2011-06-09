@@ -19,6 +19,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -47,10 +49,84 @@ public class GitBlitTest extends TestCase {
 		assertTrue(model.toString().equals("admin"));
 		assertTrue("Admin missing #admin role!", model.canAdmin);
 		model.canAdmin = false;
-		assertFalse("Admin should not hae #admin!", model.canAdmin);
+		assertFalse("Admin should not have #admin!", model.canAdmin);
 		String repository = GitBlitSuite.getHelloworldRepository().getDirectory().getName();
 		assertFalse("Admin can still access repository!", model.canAccessRepository(repository));
 		model.addRepository(repository);
 		assertTrue("Admin can't access repository!", model.canAccessRepository(repository));
+	}
+	
+	public void testAccessRestrictionTypes() throws Exception {
+		assertTrue(AccessRestrictionType.PUSH.exceeds(AccessRestrictionType.NONE));
+		assertTrue(AccessRestrictionType.CLONE.exceeds(AccessRestrictionType.PUSH));
+		assertTrue(AccessRestrictionType.VIEW.exceeds(AccessRestrictionType.CLONE));
+
+		assertFalse(AccessRestrictionType.NONE.exceeds(AccessRestrictionType.PUSH));
+		assertFalse(AccessRestrictionType.PUSH.exceeds(AccessRestrictionType.CLONE));
+		assertFalse(AccessRestrictionType.CLONE.exceeds(AccessRestrictionType.VIEW));
+
+		assertTrue(AccessRestrictionType.PUSH.atLeast(AccessRestrictionType.NONE));
+		assertTrue(AccessRestrictionType.CLONE.atLeast(AccessRestrictionType.PUSH));
+		assertTrue(AccessRestrictionType.VIEW.atLeast(AccessRestrictionType.CLONE));
+
+		assertFalse(AccessRestrictionType.NONE.atLeast(AccessRestrictionType.PUSH));
+		assertFalse(AccessRestrictionType.PUSH.atLeast(AccessRestrictionType.CLONE));
+		assertFalse(AccessRestrictionType.CLONE.atLeast(AccessRestrictionType.VIEW));
+		
+		assertTrue(AccessRestrictionType.PUSH.toString().equals("PUSH"));
+		assertTrue(AccessRestrictionType.CLONE.toString().equals("CLONE"));
+		assertTrue(AccessRestrictionType.VIEW.toString().equals("VIEW"));
+
+		assertTrue(AccessRestrictionType.fromName("none").equals(AccessRestrictionType.NONE));
+		assertTrue(AccessRestrictionType.fromName("push").equals(AccessRestrictionType.PUSH));
+		assertTrue(AccessRestrictionType.fromName("clone").equals(AccessRestrictionType.CLONE));
+		assertTrue(AccessRestrictionType.fromName("view").equals(AccessRestrictionType.VIEW));
+	}
+	
+	public void testFileSettings() throws Exception {
+		FileSettings settings = new FileSettings("distrib/gitblit.properties");
+		assertTrue(settings.getBoolean("missing", true) == true);
+		assertTrue(settings.getString("missing", "default").equals("default"));
+		assertTrue(settings.getInteger("missing", 10) == 10);
+		assertTrue(settings.getInteger("realm.realmFile", 5) == 5);
+		
+		assertTrue(settings.getBoolean("git.enableGitServlet", false) == true);
+		assertTrue(settings.getString("realm.realmFile", null).equals("users.properties"));
+		assertTrue(settings.getInteger("realm.minPasswordLength", 0) == 5);
+		List<String> mdExtensions = settings.getStrings("web.markdownExtensions");
+		assertTrue(mdExtensions.size() > 0);
+		assertTrue(mdExtensions.contains("md"));
+		
+		List<String> keys = settings.getAllKeys("server");
+		assertTrue(keys.size() > 0);
+		assertTrue(keys.contains("server.httpsPort"));
+	}
+	
+	public void testGitblitSettings() throws Exception {
+		// These are already tested by above test method.
+		assertTrue(GitBlit.getBoolean("missing", true) == true);
+		assertTrue(GitBlit.getString("missing", "default").equals("default"));
+		assertTrue(GitBlit.getInteger("missing", 10) == 10);
+		assertTrue(GitBlit.getInteger("realm.realmFile", 5) == 5);
+		
+		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false) == true);
+		assertTrue(GitBlit.getString("realm.realmFile", null).equals("users.properties"));
+		assertTrue(GitBlit.getInteger("realm.minPasswordLength", 0) == 5);
+		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
+		assertTrue(mdExtensions.size() > 0);
+		assertTrue(mdExtensions.contains("md"));
+		
+		List<String> keys = GitBlit.getAllKeys("server");
+		assertTrue(keys.size() > 0);
+		assertTrue(keys.contains("server.httpsPort"));
+	}
+	
+	public void testAuthentication() throws Exception  {
+		assertTrue(GitBlit.self().authenticate("admin", "admin".toCharArray()) != null);
+	}
+	
+	public void testRepositories() throws Exception  {
+		assertTrue(GitBlit.self().getRepository("missing") == null);
+		assertTrue(GitBlit.self().getRepositoryModel("missing") == null);
 	}
 }

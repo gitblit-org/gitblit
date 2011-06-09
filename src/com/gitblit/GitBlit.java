@@ -312,17 +312,6 @@ public class GitBlit implements ServletContextListener {
 		return false;
 	}
 
-	public boolean renameRepository(RepositoryModel model, String newName) {
-		File folder = new File(repositoriesFolder, model.name);
-		if (folder.exists() && folder.isDirectory()) {
-			File newFolder = new File(repositoriesFolder, newName);
-			if (folder.renameTo(newFolder)) {
-				return loginService.renameRole(model.name, newName);
-			}
-		}
-		return false;
-	}
-
 	public void configureContext(IStoredSettings settings) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.storedSettings = settings;
@@ -334,6 +323,7 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		if (storedSettings == null) {
+			// for running gitblit as a traditional webapp in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			configureContext(webxmlSettings);
 		}
@@ -341,6 +331,6 @@ public class GitBlit implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
-		logger.info("GitBlit context destroyed by servlet container.");
+		logger.info("Gitblit context destroyed by servlet container.");
 	}
 }

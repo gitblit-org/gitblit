@@ -18,144 +18,42 @@ package com.gitblit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
-import java.util.regex.PatternSyntaxException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Reads GitBlit settings file.
  * 
  */
-public class FileSettings implements IStoredSettings {
-
-	private final Logger logger = LoggerFactory.getLogger(FileSettings.class);
+public class FileSettings extends IStoredSettings {
 
 	private final File propertiesFile;
 
-	private Properties properties = new Properties();
+	private final Properties properties = new Properties();
 
-	private long lastread;
+	private volatile long lastread;
 
 	public FileSettings(String file) {
+		super(FileSettings.class);
 		this.propertiesFile = new File(file);
 	}
 
 	@Override
-	public List<String> getAllKeys(String startingWith) {
-		startingWith = startingWith.toLowerCase();
-		List<String> keys = new ArrayList<String>();
-		Properties props = read();
-		for (Object o : props.keySet()) {
-			String key = o.toString().toLowerCase();
-			if (key.startsWith(startingWith)) {
-				keys.add(key);
-			}
-		}
-		return keys;
-	}
-
-	@Override
-	public boolean getBoolean(String name, boolean defaultValue) {
-		Properties props = read();
-		if (props.containsKey(name)) {
-			try {
-				String value = props.getProperty(name);
-				if (value != null && value.trim().length() > 0) {
-					return Boolean.parseBoolean(value);
-				}
-			} catch (Exception e) {
-				logger.warn("No override setting for " + name + " using default of " + defaultValue);
-			}
-		}
-		return defaultValue;
-	}
-
-	@Override
-	public int getInteger(String name, int defaultValue) {
-		Properties props = read();
-		if (props.containsKey(name)) {
-			try {
-				String value = props.getProperty(name);
-				if (value != null && value.trim().length() > 0) {
-					return Integer.parseInt(value);
-				}
-			} catch (Exception e) {
-				logger.warn("No override setting for " + name + " using default of " + defaultValue);
-			}
-		}
-		return defaultValue;
-	}
-
-	@Override
-	public String getString(String name, String defaultValue) {
-		Properties props = read();
-		if (props.containsKey(name)) {
-			try {
-				String value = props.getProperty(name);
-				if (value != null) {
-					return value;
-				}
-			} catch (Exception e) {
-				logger.warn("No override setting for " + name + " using default of " + defaultValue);
-			}
-		}
-		return defaultValue;
-	}
-
-	@Override
-	public List<String> getStrings(String name) {
-		return getStrings(name, " ");
-	}
-
-	@Override
-	public List<String> getStringsFromValue(String value) {
-		return getStringsFromValue(value, " ");
-	}
-
-	@Override
-	public List<String> getStrings(String name, String separator) {
-		List<String> strings = new ArrayList<String>();
-		Properties props = read();
-		if (props.containsKey(name)) {
-			String value = props.getProperty(name);
-			strings = getStringsFromValue(value, separator);
-		}
-		return strings;
-	}
-
-	@Override
-	public List<String> getStringsFromValue(String value, String separator) {
-		List<String> strings = new ArrayList<String>();
-		try {
-			String[] chunks = value.split(separator);
-			for (String chunk : chunks) {
-				chunk = chunk.trim();
-				if (chunk.length() > 0) {
-					strings.add(chunk);
-				}
-			}
-		} catch (PatternSyntaxException e) {
-			logger.error("Failed to parse " + value, e);
-		}
-		return strings;
-	}
-
-	private synchronized Properties read() {
+	protected synchronized Properties read() {
 		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastread)) {
 			FileInputStream is = null;
 			try {
-				properties = new Properties();
+				Properties props = new Properties();
 				is = new FileInputStream(propertiesFile);
-				properties.load(is);
+				props.load(is);
+				
+				// load properties after we have successfully read file
+				properties.clear();
+				properties.putAll(props);
 				lastread = propertiesFile.lastModified();
 			} catch (FileNotFoundException f) {
 				// IGNORE - won't happen because file.exists() check above
 			} catch (Throwable t) {
-				t.printStackTrace();
+				logger.error("Failed to read " + propertiesFile.getName(), t);
 			} finally {
 				if (is != null) {
 					try {

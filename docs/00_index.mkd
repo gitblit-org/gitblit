@@ -31,18 +31,17 @@ sources @ [Github][gitbltsrc]
 - Repository Owners may edit repositories through the web UI
 - Automatically generates a self-signed certificate for https communications
 - Git-notes support
-- Branch metrics
+- Branch metrics (uses Google Charts)
 - Blame annotations view
 - Dates can optionally be displayed using the browser's reported timezone
-- Author and Committer email address display can be controlled
-- Search commit messages, authors, and committers
+- Display of Author and Committer email addresses can be disabled
+- Case-insensitive searching of commit messages, authors, or committers
 - Dynamic zip downloads feature
-- Markdown view support
-- Syntax highlighting
-- Customizable regular expression handling for commit messages
+- Markdown file view support
+- Syntax highlighting for popular source code types
+- Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for server configuration
 - Single text file for users configuration
-- Simple repository stats and activity graph (uses Google Charts)
 - Optional utility pages
     <ul class='noBullets'>
     <li>![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository</li>
@@ -50,24 +49,23 @@ sources @ [Github][gitbltsrc]
     </ul>
 
 ### Limitations
-- [%JGIT%][jgit] does not [garbage collect or repack](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html)
+- [%JGIT%][jgit] does not currently [garbage collect or repack](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html)
 - HTTP/HTTPS are the only supported protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
 - Gitblit is an integrated, full-stack solution.  There is no WAR build at this time.
 
 ### Caveats
-- I don't know everything there is to know about [Git][git] nor [JGit][jgit].
 - Gitblit may eat your data.  Use at your own risk.
 - Gitblit may have security holes.  Patches welcome.  :)
 
 ### Todo List
 - Code documentation
 - Unit testing
-- Finish Blame (waiting for JGit 1.0.0 release)
-- Clone remote repository
+- Update Build.java to JGit 1.0.0, when its released
 
 ### Idea List
+- Consider clone remote repository feature
 - Consider [Apache Shiro](http://shiro.apache.org) for authentication
 - Stronger Ticgit read-only integration
     - activity/timeline
@@ -88,7 +86,7 @@ Gitblit is distributed under the terms of the [Apache Software Foundation licens
 
 ## Architecture
 
-![block diagram](architecture.png "Git Blit Architecture")
+![block diagram](architecture.png "Gitblit Architecture")
 
 ### Bundled Dependencies
 The following dependencies are bundled with the Gitblit zip distribution file.
@@ -116,6 +114,7 @@ The following dependencies are automatically downloaded from the Apache Maven re
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)
 - [JUnit](http://junit.org) (Common Public License)
+- [commons-net](http://commons.apache.org/net) (Apache 2.0)
 
 ## Building from Source
 [Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.

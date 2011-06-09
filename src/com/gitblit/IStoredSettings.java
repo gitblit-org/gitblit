@@ -15,24 +15,87 @@
  */
 package com.gitblit;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
-public interface IStoredSettings {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	List<String> getAllKeys(String startingWith);
+import com.gitblit.utils.StringUtils;
 
-	boolean getBoolean(String name, boolean defaultValue);
+public abstract class IStoredSettings {
 
-	int getInteger(String name, int defaultValue);
+	protected final Logger logger;
+	
+	public IStoredSettings(Class<? extends IStoredSettings> clazz) {
+		logger = LoggerFactory.getLogger(clazz);
+	}
+		
+	protected abstract Properties read();
 
-	String getString(String name, String defaultValue);
+	public List<String> getAllKeys(String startingWith) {
+		startingWith = startingWith.toLowerCase();
+		List<String> keys = new ArrayList<String>();
+		Properties props = read();
+		for (Object o : props.keySet()) {
+			String key = o.toString();
+			if (key.toLowerCase().startsWith(startingWith)) {
+				keys.add(key);
+			}
+		}
+		return keys;
+	}
 
-	List<String> getStrings(String name);
+	public boolean getBoolean(String name, boolean defaultValue) {
+		Properties props = read();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			if (!StringUtils.isEmpty(value)) {
+				return Boolean.parseBoolean(value);
+			}
+		}
+		return defaultValue;
+	}
 
-	List<String> getStringsFromValue(String value);
+	public int getInteger(String name, int defaultValue) {
+		Properties props = read();
+		if (props.containsKey(name)) {
+			try {
+				String value = props.getProperty(name);
+				if (!StringUtils.isEmpty(value)) {
+					return Integer.parseInt(value);
+				}
+			} catch (NumberFormatException e) {
+				logger.warn("Failed to parse integer for " + name + " using default of "
+						+ defaultValue);
+			}
+		}
+		return defaultValue;
+	}
 
-	List<String> getStrings(String name, String separator);
+	public String getString(String name, String defaultValue) {
+		Properties props = read();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			if (value != null) {
+				return value;
+			}
+		}
+		return defaultValue;
+	}
 
-	List<String> getStringsFromValue(String value, String separator);
+	public List<String> getStrings(String name) {
+		return getStrings(name, " ");
+	}
 
+	public List<String> getStrings(String name, String separator) {
+		List<String> strings = new ArrayList<String>();
+		Properties props = read();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			strings = StringUtils.getStringsFromValue(value, separator);
+		}
+		return strings;
+	}
 }

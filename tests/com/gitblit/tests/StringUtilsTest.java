@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.util.Arrays;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -75,5 +76,14 @@ public class StringUtilsTest extends TestCase {
 		String output = "/nested/path/to";
 		assertTrue(StringUtils.getRootPath(input).equals(output));
 		assertTrue(StringUtils.getRootPath("repository").equals(""));
+	}
+	
+	public void testStringsFromValue() throws Exception {
+		List<String> strings = StringUtils.getStringsFromValue("A B C D");
+		assertTrue(strings.size() == 4);
+		assertTrue(strings.get(0).equals("A"));
+		assertTrue(strings.get(1).equals("B"));
+		assertTrue(strings.get(2).equals("C"));
+		assertTrue(strings.get(3).equals("D"));
 	}
 }

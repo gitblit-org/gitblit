@@ -227,40 +227,48 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
-		String html = StringUtils.breakLinesForHtml(text);
+		String html;
 		if (substituteRegex) {
-			Map<String, String> map = new HashMap<String, String>();
-			// global regex keys
-			if (GitBlit.getBoolean(Keys.regex.global, false)) {
-				for (String key : GitBlit.getAllKeys(Keys.regex.global)) {
-					if (!key.equals(Keys.regex.global)) {
-						String subKey = key.substring(key.lastIndexOf('.') + 1);
-						map.put(subKey, GitBlit.getString(key, ""));
-					}
-				}
-			}
+			html = substituteText(text);
+		} else {
+			html = StringUtils.breakLinesForHtml(text);
+		}
+		add(new Label(wicketId, html).setEscapeModelStrings(false));
+	}
 
-			// repository-specific regex keys
-			List<String> keys = GitBlit.getAllKeys(Keys.regex._ROOT + "."
-					+ repositoryName.toLowerCase());
-			for (String key : keys) {
-				String subKey = key.substring(key.lastIndexOf('.') + 1);
-				map.put(subKey, GitBlit.getString(key, ""));
-			}
-
-			for (Entry<String, String> entry : map.entrySet()) {
-				String definition = entry.getValue().trim();
-				String[] chunks = definition.split("!!!");
-				if (chunks.length == 2) {
-					html = html.replaceAll(chunks[0], chunks[1]);
-				} else {
-					logger.warn(entry.getKey()
-							+ " improperly formatted.  Use !!! to separate match from replacement: "
-							+ definition);
+	protected String substituteText(String text) {
+		String html = StringUtils.breakLinesForHtml(text);
+		Map<String, String> map = new HashMap<String, String>();
+		// global regex keys
+		if (GitBlit.getBoolean(Keys.regex.global, false)) {
+			for (String key : GitBlit.getAllKeys(Keys.regex.global)) {
+				if (!key.equals(Keys.regex.global)) {
+					String subKey = key.substring(key.lastIndexOf('.') + 1);
+					map.put(subKey, GitBlit.getString(key, ""));
 				}
 			}
 		}
-		add(new Label(wicketId, html).setEscapeModelStrings(false));
+
+		// repository-specific regex keys
+		List<String> keys = GitBlit.getAllKeys(Keys.regex._ROOT + "."
+				+ repositoryName.toLowerCase());
+		for (String key : keys) {
+			String subKey = key.substring(key.lastIndexOf('.') + 1);
+			map.put(subKey, GitBlit.getString(key, ""));
+		}
+
+		for (Entry<String, String> entry : map.entrySet()) {
+			String definition = entry.getValue().trim();
+			String[] chunks = definition.split("!!!");
+			if (chunks.length == 2) {
+				html = html.replaceAll(chunks[0], chunks[1]);
+			} else {
+				logger.warn(entry.getKey()
+						+ " improperly formatted.  Use !!! to separate match from replacement: "
+						+ definition);
+			}
+		}
+		return html;
 	}
 
 	protected abstract String getPageName();

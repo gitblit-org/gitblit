@@ -25,6 +25,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -69,6 +70,7 @@ public class DiffUtils {
 
 	public static String getDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path,
 			DiffOutputType outputType) {
+		String diff = null;
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {
@@ -107,18 +109,17 @@ public class DiffUtils {
 			df.setRepository(r);
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(baseTree, commitTree);
+			List<DiffEntry> diffEntries = df.scan(baseTree, commitTree);
 			if (path != null && path.length() > 0) {
-				for (DiffEntry diff : diffs) {
-					if (diff.getNewPath().equalsIgnoreCase(path)) {
-						df.format(diff);
+				for (DiffEntry diffEntry : diffEntries) {
+					if (diffEntry.getNewPath().equalsIgnoreCase(path)) {
+						df.format(diffEntry);
 						break;
 					}
 				}
 			} else {
-				df.format(diffs);
+				df.format(diffEntries);
 			}
-			String diff;
 			if (df instanceof GitWebDiffFormatter) {
 				// workaround for complex private methods in DiffFormatter
 				diff = ((GitWebDiffFormatter) df).getHtml();
@@ -126,15 +127,15 @@ public class DiffUtils {
 				diff = os.toString();
 			}
 			df.flush();
-			return diff;
 		} catch (Throwable t) {
 			LOGGER.error("failed to generate commit diff!", t);
 		}
-		return null;
+		return diff;
 	}
 
 	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit,
 			String path) {
+		String diff = null;
 		try {
 			RevTree baseTree;
 			if (baseCommit == null) {
@@ -159,29 +160,31 @@ public class DiffUtils {
 			df.setRepository(r);
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);
-			List<DiffEntry> diffs = df.scan(baseTree, commitTree);
+			List<DiffEntry> diffEntries = df.scan(baseTree, commitTree);
 			if (path != null && path.length() > 0) {
-				for (DiffEntry diff : diffs) {
-					if (diff.getNewPath().equalsIgnoreCase(path)) {
-						df.format(diff);
+				for (DiffEntry diffEntry : diffEntries) {
+					if (diffEntry.getNewPath().equalsIgnoreCase(path)) {
+						df.format(diffEntry);
 						break;
 					}
 				}
 			} else {
-				df.format(diffs);
+				df.format(diffEntries);
 			}
-			String diff = df.getPatch(commit);
+			diff = df.getPatch(commit);
 			df.flush();
-			return diff;
 		} catch (Throwable t) {
 			LOGGER.error("failed to generate commit diff!", t);
 		}
-		return null;
+		return diff;
 	}
 
 	public static List<AnnotatedLine> blame(Repository r, String blobPath, String objectId) {
 		List<AnnotatedLine> lines = new ArrayList<AnnotatedLine>();
 		try {
+			if (StringUtils.isEmpty(objectId)) {
+				objectId = Constants.HEAD;
+			}
 			BlameCommand blameCommand = new BlameCommand(r);
 			blameCommand.setFilePath(blobPath);
 			blameCommand.setStartCommit(r.resolve(objectId));

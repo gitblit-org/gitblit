@@ -249,6 +249,10 @@ div.commit_message {
 	border-width: 1px 0px 0px;
 }
 
+div.commit_message a {
+	font-family: monospace;
+}
+
 div.bug_open, span.bug_open {
 	padding: 2px;
 	background-color: #803333;

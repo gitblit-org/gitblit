@@ -15,62 +15,28 @@
  */
 package com.gitblit;
 
-import java.util.List;
+import java.util.Enumeration;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
-public class WebXmlSettings implements IStoredSettings {
+public class WebXmlSettings extends IStoredSettings {
 
+	private final Properties properties = new Properties();
+	
 	public WebXmlSettings(ServletContext context) {
-
+		super(WebXmlSettings.class);
+		Enumeration<?> keys = context.getInitParameterNames();
+		while (keys.hasMoreElements()) {
+			String key = keys.nextElement().toString();
+			String value = context.getInitParameter(key);
+			properties.put(key, value);
+		}
 	}
-
+	
 	@Override
-	public List<String> getAllKeys(String startingWith) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean getBoolean(String name, boolean defaultValue) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public int getInteger(String name, int defaultValue) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public String getString(String name, String defaultValue) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getStrings(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getStringsFromValue(String value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getStrings(String name, String separator) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<String> getStringsFromValue(String value, String separator) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Properties read() {
+		return properties;
 	}
 
 	@Override

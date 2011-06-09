@@ -122,6 +122,7 @@ public class JGitUtilsTest extends TestCase {
 			List<RefModel> list = entry.getValue();
 			for (RefModel ref : list) {
 				if (ref.displayName.equals("refs/tags/spearce-gpg-pub")) {
+					assertTrue(ref.toString().equals("refs/tags/spearce-gpg-pub"));
 					assertTrue(ref.getObjectId().getName()
 							.equals("8bbde7aacf771a9afb6992434f1ae413e010c6d8"));
 					assertTrue(ref.getAuthorIdent().getEmailAddress().equals("spearce@spearce.org"));
