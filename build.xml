@@ -135,13 +135,19 @@
 			</fileset>
 		</copy>
 
-		<!-- Copy screenshot thumbnails -->
-		<mkdir dir="${basedir}/site/thumbs" />
-		<copy todir="${basedir}/site/thumbs">
-			<fileset dir="${basedir}/docs/screenshots/thumbs">
-				<include name="*.png" />
-			</fileset>
-		</copy>
+		<!-- Generate thumbnails of screenshots -->
+		<java classpath="${project.build.dir}" classname="com.gitblit.Thumbnailer">
+			<classpath refid="master-classpath" />
+				
+			<arg value="--sourceFolder" />
+			<arg value="${basedir}/docs/screenshots" />
+		
+			<arg value="--destinationFolder" />
+			<arg value="${basedir}/site/thumbs" />
+			
+			<arg value="--maximumDimension" />
+			<arg value="250" />
+		</java>
 
 		<!-- Copy screenshots -->
 		<mkdir dir="${basedir}/site/screenshots" />

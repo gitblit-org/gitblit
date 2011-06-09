@@ -1,5 +1,6 @@
-1. Install GIMP
-2. Download and install David's Batch Processor (DBP) http://members.ozemail.com.au/~hodsond/dbp.html
-3. Make screenshots and put them in "screenshots\raw"
-4. Using DBP, crop the images to 1007x661 and output PNGs to "screenshots"
-5. Using DBP, resize the cropped images to 0.25 with a blur of 1.0 and put PNGs in "screenshots\thumbs"
+1. Install Firefox
+2. Install "Awesome Screenshot" add-on
+3. Set browser size to 1024x768
+4. Save "visible part" screenshots as png to screenshots folder
+
+Screenshot thumbnails are automatically generated during build script execution. 
