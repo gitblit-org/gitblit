@@ -6,9 +6,12 @@
 	<property name="project.mainclass" value="com.gitblit.Launcher" />
 	<property name="project.build.dir" value="${basedir}/build" />
 
-	<target name="main">
+	<loadproperties srcfile="${basedir}/build.properties" />
 
-		<!-- build dsate -->
+	<!-- Build Gitblit -->
+	<target name="main" description="Compiles Gitblit from source to website">
+
+		<!-- build date -->
 		<tstamp>
 			<format property="gb.buildDate" pattern="yyyy-MM-dd" />
 		</tstamp>
@@ -70,7 +73,7 @@
 				<include name="*.jar" />
 			</fileset>
 		</path>
-		<javac destdir="${project.build.dir}">
+		<javac destdir="${project.build.dir}" failonerror="false">
 			<src path="${basedir}/src" />
 			<classpath refid="master-classpath" />
 		</javac>
@@ -158,10 +161,10 @@
 			<arg value="${basedir}/site" />
 
 			<arg value="--pageHeader" />
-			<arg value="${basedir}/docs/page_header.html" />
+			<arg value="${basedir}/docs/site_header.html" />
 
 			<arg value="--pageFooter" />
-			<arg value="${basedir}/docs/page_footer.html" />
+			<arg value="${basedir}/docs/site_footer.html" />
 
 			<arg value="--alias" />
 			<arg value="index=overview" />
@@ -274,7 +277,7 @@
 			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
 
 		</java>
-
+		
 		<!-- Create Zip deployment -->
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<zip destfile="${distribution.zipfile}">
@@ -294,5 +297,26 @@
 		</delete>
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
+	</target>
+		
+	
+	<!-- Publish site to hosting service -->
+	<!-- You must add ext/commons-net-1.4.0.jar to your	ANT classpath. -->
+	<target name="publishSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)">
+		<ftp server="${ftp.server}"
+			userid="${ftp.user}"
+			password="${ftp.password}"
+			remotedir="${ftp.dir}"
+			passive="true"
+			verbose="yes">
+		<fileset dir="${basedir}/site" />
+		</ftp>
+	</target>
+		
+	
+	<!-- Publish distribution to github -->
+	<target name="publishDistribution" description="Publish the Gitblit distribution to Github">
+		<!-- TODO -->
+		<!-- https://github.com/oyvindkinsey/GitHubUploadTask -->
 	</target>
 </project>

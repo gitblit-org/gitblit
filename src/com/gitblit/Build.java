@@ -85,6 +85,9 @@ public class Build {
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
+		
+		// needed for site publishing
+		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
 
 	public static void buildSettingKeys() {
@@ -393,6 +396,11 @@ public class Build {
 				"0.1.44-1", 214000, 211000, 413000, "2e9ae08de5a71bd0e0d3ba2558598181bfa71d4e",
 				"e528f593b19b04d500992606f58b87fcfded8883",
 				"d0ffadd0a4ab909d94a577b5aad43c13b617ddcb");
+
+		public static final MavenObject COMMONSNET = new MavenObject("commons-net", "commons-net", "commons-net",
+				"1.4.0", 181000, 0, 0, "eb47e8cad2dd7f92fd7e77df1d1529cae87361f7",
+				"",
+				"");
 
 		public final String name;
 		public final String group;
