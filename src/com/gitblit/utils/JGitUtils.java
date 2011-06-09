@@ -96,7 +96,8 @@ public class JGitUtils {
 		return r.toString().trim();
 	}
 
-	public static FetchResult cloneRepository(File repositoriesFolder, String name, String fromUrl) throws Exception {
+	public static FetchResult cloneRepository(File repositoriesFolder, String name, String fromUrl)
+			throws Exception {
 		FetchResult result = null;
 		if (!name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
 			name += Constants.DOT_GIT_EXT;

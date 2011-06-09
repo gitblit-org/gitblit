@@ -39,7 +39,8 @@ public class MetricUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetricUtils.class);
 
-	public static List<Metric> getDateMetrics(Repository r, String objectId, boolean includeTotal, String format) {
+	public static List<Metric> getDateMetrics(Repository r, String objectId, boolean includeTotal,
+			String format) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 		if (StringUtils.isEmpty(objectId)) {

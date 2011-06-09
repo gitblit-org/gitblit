@@ -74,7 +74,7 @@ public class CommitLegendPanel extends Panel {
 		};
 		add(legendsView);
 	}
-	
+
 	protected Map<ChangeType, AtomicInteger> getChangedPathsStats(List<PathChangeModel> paths) {
 		Map<ChangeType, AtomicInteger> stats = new HashMap<ChangeType, AtomicInteger>();
 		for (PathChangeModel path : paths) {

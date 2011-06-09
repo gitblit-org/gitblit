@@ -87,7 +87,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/search", SearchPage.class);
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
-		
+
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");
 		mount("/ticket", TicketPage.class, "r", "h", "f");

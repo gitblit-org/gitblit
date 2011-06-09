@@ -15,8 +15,9 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.Serializable;
-import java.util.Arrays;
+import java.text.DateFormat;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -28,6 +29,11 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
+import com.gitblit.models.AnnotatedLine;
+import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -43,8 +49,7 @@ public class BlamePage extends RepositoryPage {
 		RevCommit commit = getCommit();
 
 		add(new BookmarkablePageLink<Void>("blobLink", BlobPage.class,
-				WicketUtils.newPathParameter(repositoryName, objectId,
-							blobPath)));
+				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
 		add(new BookmarkablePageLink<Void>("commitLink", CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 		add(new BookmarkablePageLink<Void>("commitDiffLink", CommitDiffPage.class,
@@ -60,38 +65,65 @@ public class BlamePage extends RepositoryPage {
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 
-		List<BlameLine> blame = Arrays.asList(new BlameLine("HEAD", "1", "Under Construction"));
-		ListDataProvider<BlameLine> blameDp = new ListDataProvider<BlameLine>(blame);
-		DataView<BlameLine> blameView = new DataView<BlameLine>("annotation", blameDp) {
+		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
+				"EEEE, MMMM d, yyyy h:mm a z");
+		final DateFormat df = new SimpleDateFormat(format);
+		df.setTimeZone(getTimeZone());
+		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
+		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
+		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
 			private static final long serialVersionUID = 1L;
+			private int count;
+			private String lastCommitId = "";
+			private boolean showInitials = true;
 
-			public void populateItem(final Item<BlameLine> item) {
-				BlameLine entry = item.getModelObject();
-				item.add(new LinkPanel("commit", "list", entry.objectId, CommitPage.class,
-						newCommitParameter(entry.objectId)));
-				item.add(new Label("line", entry.line));
-				item.add(new Label("data", entry.data));
+			public void populateItem(final Item<AnnotatedLine> item) {
+				AnnotatedLine entry = item.getModelObject();
+				item.add(new Label("line", "" + entry.lineNumber));
+				item.add(new Label("data", StringUtils.escapeForHtml(entry.data, true))
+						.setEscapeModelStrings(false));
+				if (!lastCommitId.equals(entry.commitId)) {
+					lastCommitId = entry.commitId;
+					count++;
+					// show the link for first line
+					LinkPanel commitLink = new LinkPanel("commit", null,
+							getShortObjectId(entry.commitId), CommitPage.class,
+							newCommitParameter(entry.commitId));
+					WicketUtils.setHtmlTooltip(commitLink,
+							MessageFormat.format("{0}, {1}", entry.author, df.format(entry.when)));
+					item.add(commitLink);
+					showInitials = true;
+				} else {
+					if (showInitials) {
+						showInitials = false;
+						// show author initials
+						item.add(new Label("commit", getInitials(entry.author)));
+					} else {
+						// hide the commit link until the next block
+						item.add(new Label("commit").setVisible(false));
+					}
+				}
+				if (count % 2 == 0) {
+					WicketUtils.setCssClass(item, "even");
+				} else {
+					WicketUtils.setCssClass(item, "odd");
+				}
 			}
 		};
 		add(blameView);
 	}
 
+	private String getInitials(String author) {
+		StringBuilder sb = new StringBuilder();
+		String[] chunks = author.split(" ");
+		for (String chunk : chunks) {
+			sb.append(chunk.charAt(0));
+		}
+		return sb.toString().toUpperCase();
+	}
+
 	@Override
 	protected String getPageName() {
 		return getString("gb.blame");
-	}
-	
-	private class BlameLine implements Serializable {
-		
-		private static final long serialVersionUID = 1L;
-		
-		final String objectId;
-		final String line;
-		final String data;
-		BlameLine(String objectId, String line, String data) {
-			this.objectId = objectId;
-			this.line = line;
-			this.data = data;
-		}
 	}
 }

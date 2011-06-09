@@ -38,10 +38,10 @@ public class StringUtilsTest extends TestCase {
 
 	public void testEscapeForHtml() throws Exception {
 		String input = "& < > \" \t";
-		String output_nochange = "&amp; &lt; &gt; &quot; \t";
-		String output_change = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;&nbsp; &nbsp; &nbsp;";
-		assertTrue(StringUtils.escapeForHtml(input, false).equals(output_nochange));
-		assertTrue(StringUtils.escapeForHtml(input, true).equals(output_change));
+		String outputNoChange = "&amp; &lt; &gt; &quot; \t";
+		String outputChange = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;&nbsp; &nbsp; &nbsp;";
+		assertTrue(StringUtils.escapeForHtml(input, false).equals(outputNoChange));
+		assertTrue(StringUtils.escapeForHtml(input, true).equals(outputChange));
 	}
 
 	public void testFlattenStrings() throws Exception {

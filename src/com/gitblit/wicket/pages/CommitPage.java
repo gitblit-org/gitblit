@@ -65,8 +65,8 @@ public class CommitPage extends RepositoryPage {
 			add(new Label("parentLink", "none"));
 			add(new Label("commitdiffLink", getString("gb.commitdiff")));
 		} else {
-			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8), CommitPage.class,
-					newCommitParameter(parents.get(0))));
+			add(new LinkPanel("parentLink", null, getShortObjectId(parents.get(0)),
+					CommitPage.class, newCommitParameter(parents.get(0))));
 			add(new LinkPanel("commitdiffLink", null, new StringResourceModel("gb.commitdiff",
 					this, null), CommitDiffPage.class, WicketUtils.newObjectParameter(
 					repositoryName, objectId)));

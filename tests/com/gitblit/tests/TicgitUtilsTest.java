@@ -33,7 +33,7 @@ public class TicgitUtilsTest extends TestCase {
 		RefModel branch = TicgitUtils.getTicketsBranch(repository);
 		repository.close();
 		assertTrue("Ticgit branch does not exist!", branch != null);
-		
+
 		repository = GitBlitSuite.getHelloworldRepository();
 		branch = TicgitUtils.getTicketsBranch(repository);
 		repository.close();
@@ -60,7 +60,7 @@ public class TicgitUtilsTest extends TestCase {
 				assertTrue(commentA.hashCode() == commentA.text.hashCode());
 			}
 		}
-		
+
 		repository = GitBlitSuite.getHelloworldRepository();
 		List<TicketModel> ticketsC = TicgitUtils.getTickets(repository);
 		repository.close();

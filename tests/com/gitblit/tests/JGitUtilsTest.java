@@ -96,10 +96,11 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testCreateRepository() throws Exception {
 		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
-		for (String repositoryName : repositories) {			
+		for (String repositoryName : repositories) {
 			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
 					repositoryName);
-			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
 			assertTrue(repository != null);
 			assertFalse(JGitUtils.hasCommits(repository));
 			assertTrue(JGitUtils.getFirstCommit(repository, null) == null);
@@ -121,10 +122,11 @@ public class JGitUtilsTest extends TestCase {
 			List<RefModel> list = entry.getValue();
 			for (RefModel ref : list) {
 				if (ref.displayName.equals("refs/tags/spearce-gpg-pub")) {
-					assertTrue(ref.getObjectId().getName().equals("8bbde7aacf771a9afb6992434f1ae413e010c6d8"));
+					assertTrue(ref.getObjectId().getName()
+							.equals("8bbde7aacf771a9afb6992434f1ae413e010c6d8"));
 					assertTrue(ref.getAuthorIdent().getEmailAddress().equals("spearce@spearce.org"));
 					assertTrue(ref.getShortMessage().startsWith("GPG key"));
-					assertTrue(ref.getFullMessage().startsWith("GPG key"));					
+					assertTrue(ref.getFullMessage().startsWith("GPG key"));
 					assertTrue(ref.getReferencedObjectType() == Constants.OBJ_BLOB);
 				} else if (ref.displayName.equals("refs/tags/v0.12.1")) {
 					assertTrue(ref.isAnnotatedTag());
@@ -168,13 +170,14 @@ public class JGitUtilsTest extends TestCase {
 					+ model.getName().hashCode());
 		}
 		repository.close();
-		
+
 		repository = GitBlitSuite.getBluezGnomeRepository();
 		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
 			if (model.getObjectId().getName().equals("728643ec0c438c77e182898c2f2967dbfdc231c8")) {
 				assertFalse(model.isAnnotatedTag());
 				assertTrue(model.getAuthorIdent().getEmailAddress().equals("marcel@holtmann.org"));
-				assertTrue(model.getFullMessage().equals("Update changelog and bump version number\n"));
+				assertTrue(model.getFullMessage().equals(
+						"Update changelog and bump version number\n"));
 			}
 		}
 		repository.close();

@@ -16,16 +16,25 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
+import java.util.Date;
 
-public class GitNote implements Serializable {
+import org.eclipse.jgit.revwalk.RevCommit;
+
+public class AnnotatedLine implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public String content;
-	public RefModel notesRef;
+	public final String commitId;
+	public final String author;
+	public final Date when;
+	public final int lineNumber;
+	public final String data;
 
-	public GitNote(RefModel notesRef, String text) {
-		this.notesRef = notesRef;
-		this.content = text;
+	public AnnotatedLine(RevCommit commit, int lineNumber, String data) {
+		this.commitId = commit.getName();
+		this.author = commit.getAuthorIdent().getName();
+		this.when = commit.getAuthorIdent().getWhen();
+		this.lineNumber = lineNumber;
+		this.data = data;
 	}
 }

@@ -19,7 +19,7 @@
 	<div wicket:id="breadcrumbs">[breadcrumbs]</div>
 		
 	<!--  blame content -->
-	<table>
+	<table class="annotated" style="border-top: 0px; margin-bottom:5px;">
 		<tbody>
 			<tr>
 				<th>Commit</th>
@@ -27,9 +27,9 @@
 				<th>Data</th>
 			</tr>
 			<tr wicket:id="annotation">
-				<td><span wicket:id="commit"></span></td>
-				<td><span wicket:id="line"></span></td>
-				<td><span wicket:id="data"></span></td>
+				<td><span class="sha1" wicket:id="commit"></span></td>
+				<td><span class="sha1" wicket:id="line"></span></td>
+				<td><span class="sha1" wicket:id="data"></span></td>
 			</tr>
 		</tbody>
 	</table>

@@ -633,6 +633,19 @@ table.gitnotes td.message {
 	border-left: 1px solid #ccc;
 }
 
+table.annotated {
+	width: 100%;
+	border: 1px solid #bbb;
+}
+
+table.annotated tr.even {
+	background-color: white;
+}
+
+table.annotated tr.odd {
+	background-color: #fdfbdf;
+}
+
 tr th a { padding-right: 15px; background-position: right; background-repeat:no-repeat; }
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
 tr th.wicket_orderUp a { background-image: url(arrow_up.png); }

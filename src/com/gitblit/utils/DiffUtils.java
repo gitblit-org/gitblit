@@ -16,10 +16,14 @@
 package com.gitblit.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jgit.api.BlameCommand;
+import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -29,6 +33,8 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.gitblit.models.AnnotatedLine;
 
 public class DiffUtils {
 
@@ -171,5 +177,25 @@ public class DiffUtils {
 			LOGGER.error("failed to generate commit diff!", t);
 		}
 		return null;
+	}
+
+	public static List<AnnotatedLine> blame(Repository r, String blobPath, String objectId) {
+		List<AnnotatedLine> lines = new ArrayList<AnnotatedLine>();
+		try {
+			BlameCommand blameCommand = new BlameCommand(r);
+			blameCommand.setFilePath(blobPath);
+			blameCommand.setStartCommit(r.resolve(objectId));
+			BlameResult blameResult = blameCommand.call();
+			RawText rawText = blameResult.getResultContents();
+			int length = rawText.size();
+			for (int i = 0; i < length; i++) {
+				RevCommit commit = blameResult.getSourceCommit(i);
+				AnnotatedLine line = new AnnotatedLine(commit, i + 1, rawText.getString(i));
+				lines.add(line);
+			}
+		} catch (Throwable t) {
+			LOGGER.error("failed to generate blame!", t);
+		}
+		return lines;
 	}
 }

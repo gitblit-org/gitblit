@@ -46,7 +46,8 @@ public class BlobPage extends RepositoryPage {
 			// blob by objectid
 
 			add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
-					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)).setEnabled(false));
+					WicketUtils.newPathParameter(repositoryName, objectId, blobPath))
+					.setEnabled(false));
 			add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class).setEnabled(false));
 			add(new BookmarkablePageLink<Void>("rawLink", RawPage.class,
 					WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));

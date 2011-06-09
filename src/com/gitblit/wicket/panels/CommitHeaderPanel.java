@@ -32,7 +32,7 @@ public class CommitHeaderPanel extends BasePanel {
 		add(new Label("author"));
 		add(new Label("date"));
 	}
-	
+
 	public CommitHeaderPanel(String id, String repositoryName, RevCommit c) {
 		super(id);
 		add(new LinkPanel("shortmessage", "title", c.getShortMessage(), CommitPage.class,

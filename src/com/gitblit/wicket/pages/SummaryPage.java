@@ -89,13 +89,14 @@ public class SummaryPage extends RepositoryPage {
 		add(WicketUtils.createTimestampLabel("repositoryLastChange", JGitUtils.getLastChange(r),
 				getTimeZone()));
 		if (metricsTotal == null) {
-			add(new Label("branchStats", ""));			
+			add(new Label("branchStats", ""));
 		} else {
-			add(new Label("branchStats", MessageFormat.format(
-					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
-					TimeUtils.duration(metricsTotal.duration))));
+			add(new Label("branchStats",
+					MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count,
+							metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
 		}
-		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
 
 		List<String> repositoryUrls = new ArrayList<String>();
 
@@ -203,7 +204,7 @@ public class SummaryPage extends RepositoryPage {
 					metrics.get(metrics.size() / 2).name, metrics.get(metrics.size() - 1).name });
 			provider.addAxis(dateAxis);
 
-			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);			
+			ChartAxis commitAxis = new ChartAxis(ChartAxisType.LEFT);
 			commitAxis.setLabels(new String[] { "",
 					String.valueOf((int) WicketUtils.maxValue(metrics)) });
 			provider.addAxis(commitAxis);

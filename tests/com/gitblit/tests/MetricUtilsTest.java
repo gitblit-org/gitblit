@@ -32,7 +32,7 @@ public class MetricUtilsTest extends TestCase {
 		repository.close();
 		assertTrue("No date metrics found!", metrics.size() > 0);
 	}
-	
+
 	public void testAuthorMetrics() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<Metric> byEmail = MetricUtils.getAuthorMetrics(repository, null, true);

@@ -299,7 +299,7 @@ public class WicketUtils {
 		WicketUtils.setHtmlTooltip(label, title);
 		return label;
 	}
-	
+
 	public static IChartData getChartData(Collection<Metric> metrics) {
 		final double[] commits = new double[metrics.size()];
 		final double[] tags = new double[metrics.size()];
@@ -334,7 +334,7 @@ public class WicketUtils {
 		}
 		return max;
 	}
-	
+
 	public static IChartData getScatterData(Collection<Metric> metrics) {
 		final double[] y = new double[metrics.size()];
 		final double[] x = new double[metrics.size()];

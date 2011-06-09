@@ -46,18 +46,18 @@ import com.gitblit.wicket.WicketUtils;
 public class MetricsPage extends RepositoryPage {
 
 	public MetricsPage(PageParameters params) {
-		super(params);				
+		super(params);
 		Repository r = getRepository();
 		add(new Label("branchTitle", objectId));
 		Metric metricsTotal = null;
 		List<Metric> metrics = MetricUtils.getDateMetrics(r, objectId, true, null);
 		metricsTotal = metrics.remove(0);
 		if (metricsTotal == null) {
-			add(new Label("branchStats", ""));			
+			add(new Label("branchStats", ""));
 		} else {
-			add(new Label("branchStats", MessageFormat.format(
-					"{0} commits and {1} tags in {2}", metricsTotal.count, metricsTotal.tag,
-					TimeUtils.duration(metricsTotal.duration))));
+			add(new Label("branchStats",
+					MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count,
+							metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
 		}
 		insertLinePlot("commitsChart", metrics);
 		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));

@@ -127,7 +127,8 @@ public class LogPanel extends BasePanel {
 				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
-						.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry.getParentCount() > 0));
+						.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry
+						.getParentCount() > 0));
 				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())));
 

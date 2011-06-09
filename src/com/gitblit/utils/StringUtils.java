@@ -134,8 +134,8 @@ public class StringUtils {
 		}
 		return "";
 	}
-	
-	public static String getRelativePath(String basePath, String fullPath) {		
+
+	public static String getRelativePath(String basePath, String fullPath) {
 		String relativePath = fullPath.substring(basePath.length()).replace('\\', '/');
 		if (relativePath.charAt(0) == '/') {
 			relativePath = relativePath.substring(1);

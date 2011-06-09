@@ -30,14 +30,14 @@ public class TimeUtils {
 	public static final long ONEYEAR = ONEDAY * 365L;
 
 	public static boolean isToday(Date date) {
-		return (System.currentTimeMillis() - date.getTime()) < ONEDAY; 
+		return (System.currentTimeMillis() - date.getTime()) < ONEDAY;
 	}
 
 	public static boolean isYesterday(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DATE, 1);
-		return (System.currentTimeMillis() - cal.getTimeInMillis()) < ONEDAY; 
+		return (System.currentTimeMillis() - cal.getTimeInMillis()) < ONEDAY;
 	}
 
 	public static String duration(int days) {

@@ -107,11 +107,11 @@ public class EditRepositoryPage extends BasePage {
 					repositoryModel.name = repositoryModel.name.replace("//", "/");
 
 					// prohibit folder paths
-					if (repositoryModel.name.startsWith("/")) {						
+					if (repositoryModel.name.startsWith("/")) {
 						error("Leading root folder references (/) are prohibited.");
 						return;
 					}
-					if (repositoryModel.name.startsWith("../")) {						
+					if (repositoryModel.name.startsWith("../")) {
 						error("Relative folder references (../) are prohibited.");
 						return;
 					}
@@ -135,7 +135,7 @@ public class EditRepositoryPage extends BasePage {
 							}
 						}
 					}
-					
+
 					// confirm access restriction selection
 					if (repositoryModel.accessRestriction == null) {
 						error("Please select access restriction!");

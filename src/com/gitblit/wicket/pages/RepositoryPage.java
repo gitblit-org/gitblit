@@ -218,6 +218,10 @@ public abstract class RepositoryPage extends BasePage {
 		return commit;
 	}
 
+	protected String getShortObjectId(String objectId) {
+		return objectId.substring(0, 8);
+	}
+
 	protected void addRefs(Repository r, RevCommit c) {
 		add(new RefsPanel("refsPanel", repositoryName, c, JGitUtils.getAllRefs(r)));
 	}
