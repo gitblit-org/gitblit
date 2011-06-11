@@ -36,6 +36,8 @@ public class Constants {
 	public static final String GIT_SERVLET_PATH = "/git/";
 
 	public static final String ZIP_SERVLET_PATH = "/zip/";
+	
+	public static final String SYNDICATION_SERVLET_PATH = "/feed/";
 
 	public static final String BORDER = "***********************************************************";
 

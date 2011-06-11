@@ -412,7 +412,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 		FileWriter writer = new FileWriter(realmFileCopy);
 		properties
 				.store(writer,
-						"# Git:Blit realm file format: username=password,\\#permission,repository1,repository2...");
+						"# Gitblit realm file format: username=password,\\#permission,repository1,repository2...");
 		writer.close();
 		if (realmFileCopy.exists() && realmFileCopy.length() > 0) {
 			if (realmFile.delete()) {

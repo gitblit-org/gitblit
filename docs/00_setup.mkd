@@ -91,7 +91,7 @@ You must tell Git not to verify the self-signed certificate in order to perform 
     3. <pre>Key = *http.sslVerify*       
        Value = *false*</pre>
 - Command-line Git ([Git-Config Manual Page](http://www.kernel.org/pub/software/scm/git/docs/git-config.html))
-    <pre>git-config --global --bool --add http.sslVerify false</pre>
+    <pre>git config --global --bool --add http.sslVerify false</pre>
 
 ### Cloning an Access Restricted Repository 
 - Eclipse/Egit<br/>Nothing special to configure, EGit figures out everything.

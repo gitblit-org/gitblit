@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -29,6 +30,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
@@ -101,6 +103,8 @@ public class BranchesPanel extends BasePanel {
 							.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 							WicketUtils.newObjectParameter(model.name, entry.getName())));
+					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+							.getRelativePathPrefixToContextRoot(), model.name, entry.getName(), 0)));
 					item.add(fragment);
 				} else {
 					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);

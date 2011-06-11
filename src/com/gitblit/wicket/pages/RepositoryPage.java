@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
@@ -157,6 +159,9 @@ public abstract class RepositoryPage extends BasePage {
 			}
 		};
 		add(extrasView);
+		
+		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+				.getRelativePathPrefixToContextRoot(), repositoryName, null, 0)));
 
 		// disable current page
 		disablePageLink(getPageName());

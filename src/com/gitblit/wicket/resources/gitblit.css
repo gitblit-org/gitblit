@@ -486,6 +486,10 @@ table.plain {
 	padding: 8px;
 }
 
+table.plain td {
+	white-space: nowrap;
+}
+
 table.plain td.edit {	
 	padding: 3px;
 }

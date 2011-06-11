@@ -240,6 +240,9 @@ public class GitBlitServer {
 		// Zip Servlet
 		rootContext.addServlet(DownloadZipServlet.class, Constants.ZIP_SERVLET_PATH + "*");
 
+		// Syndication Servlet
+		rootContext.addServlet(SyndicationServlet.class, Constants.SYNDICATION_SERVLET_PATH + "*");
+
 		// Git Servlet
 		ServletHolder gitServlet = null;
 		String gitServletPathSpec = Constants.GIT_SERVLET_PATH + "*";

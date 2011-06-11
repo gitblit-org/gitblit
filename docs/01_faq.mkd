@@ -101,4 +101,3 @@ Yes.  Most messages are localized to a standard Java properties file.
 [git]: http://git-scm.com "Official Git Site"
 [mina]: http://mina.apache.org "Apache Mina"
 [bouncycastle]: http://bouncycastle.org "The Legion of the Bouncy Castle"
-[hg4j]: http://code.google.com/p/hg4j/ "hg4j"

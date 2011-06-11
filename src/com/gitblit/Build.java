@@ -61,6 +61,8 @@ public class Build {
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.ROME, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -82,7 +84,9 @@ public class Build {
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
-
+		downloadFromApache(MavenObject.ROME, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.JDOM, BuildType.COMPILETIME);
+		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
 		
@@ -401,6 +405,16 @@ public class Build {
 				"1.4.0", 181000, 0, 0, "eb47e8cad2dd7f92fd7e77df1d1529cae87361f7",
 				"",
 				"");
+		
+		public static final MavenObject ROME = new MavenObject("rome", "rome", "rome",
+				"0.9", 208000, 196000, 407000, "dee2705dd01e79a5a96a17225f5a1ae30470bb18",
+				"226f851dc44fd94fe70b9c471881b71f88949cbf",
+				"8d7d867b97eeb3a9196c3926da550ad042941c1b");
+
+		public static final MavenObject JDOM = new MavenObject("jdom", "org/jdom", "jdom",
+				"1.1", 153000, 235000, 445000, "1d04c0f321ea337f3661cf7ede8f4c6f653a8fdd",
+				"a7ed425c4c46605b8f2bf2ee118c1609682f4f2c",
+				"f3df91edccba2f07a0fced70887c2f7b7836cb75");
 
 		public final String name;
 		public final String group;

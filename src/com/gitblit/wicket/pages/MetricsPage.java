@@ -134,7 +134,7 @@ public class MetricsPage extends RepositoryPage {
 		SimpleDateFormat sdf = new SimpleDateFormat("E");
 		Calendar cal = Calendar.getInstance();
 
-		List<Metric> sorted = new ArrayList<Metric>(7);
+		List<Metric> sorted = new ArrayList<Metric>();
 		int firstDayOfWeek = cal.getFirstDayOfWeek();
 		int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
 
@@ -144,7 +144,7 @@ public class MetricsPage extends RepositoryPage {
 			String day = sdf.format(cal.getTime());
 			for (Metric metric : list) {
 				if (metric.name.equals(day)) {
-					sorted.add(i, metric);
+					sorted.add(metric);
 					list.remove(metric);
 					break;
 				}

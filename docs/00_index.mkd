@@ -32,6 +32,7 @@ sources @ [Github][gitbltsrc]
 - Automatically generates a self-signed certificate for https communications
 - Git-notes support
 - Branch metrics (uses Google Charts)
+- HEAD and branch RSS feeds
 - Blame annotations view
 - Dates can optionally be displayed using the browser's reported timezone
 - Display of Author and Committer email addresses can be disabled
@@ -60,6 +61,7 @@ sources @ [Github][gitbltsrc]
 - Gitblit may have security holes.  Patches welcome.  :)
 
 ### Todo List
+- Custom BASIC authentication servlet or servlet filter
 - Code documentation
 - Unit testing
 - Update Build.java to JGit 1.0.0, when its released
@@ -110,6 +112,8 @@ The following dependencies are automatically downloaded from the Apache Maven re
 - [JCommander](http://jcommander.org) (Apache 2.0)
 - [BouncyCastle](http://www.bouncycastle.org) (MIT/X11)
 - [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
+- [Rome](http://rome.dev.java.net) (Apache 1.1)
+- [jdom](http://www.jdom.org) (Apache-style JDOM license)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)
