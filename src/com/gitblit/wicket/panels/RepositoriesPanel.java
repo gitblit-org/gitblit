@@ -31,6 +31,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -43,6 +44,7 @@ import org.apache.wicket.model.Model;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -215,6 +217,8 @@ public class RepositoriesPanel extends BasePanel {
 				} else {
 					row.add(new Label("repositoryLinks"));
 				}
+				row.add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
+						.getRelativePathPrefixToContextRoot(), entry.name, null, 0)));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

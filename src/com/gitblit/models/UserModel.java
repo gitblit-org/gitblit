@@ -16,10 +16,11 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserModel implements Serializable {
+public class UserModel implements Principal, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -39,6 +40,11 @@ public class UserModel implements Serializable {
 
 	public void addRepository(String name) {
 		repositories.add(name.toLowerCase());
+	}
+
+	@Override
+	public String getName() {	
+		return username;
 	}
 
 	@Override

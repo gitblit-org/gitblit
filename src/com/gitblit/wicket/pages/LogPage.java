@@ -26,6 +26,8 @@ public class LogPage extends RepositoryPage {
 	public LogPage(PageParameters params) {
 		super(params);
 
+		addSyndicationDiscoveryLink();
+		
 		int pageNumber = WicketUtils.getPage(params);
 		int prevPage = Math.max(0, pageNumber - 1);
 		int nextPage = pageNumber + 1;

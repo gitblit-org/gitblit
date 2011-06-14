@@ -16,98 +16,72 @@
 package com.gitblit;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.security.auth.Subject;
-
-import org.eclipse.jetty.http.security.Credential;
-import org.eclipse.jetty.security.IdentityService;
-import org.eclipse.jetty.security.MappedLoginService;
-import org.eclipse.jetty.server.UserIdentity;
-import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.StringUtils;
 
-public class JettyLoginService extends MappedLoginService implements ILoginService {
+public class FileLoginService extends FileSettings implements ILoginService {
 
-	private final Logger logger = LoggerFactory.getLogger(JettyLoginService.class);
+	private final Logger logger = LoggerFactory.getLogger(FileLoginService.class);
 
-	private final File realmFile;
-
-	public JettyLoginService(File realmFile) {
-		super();
-		setName(Constants.NAME);
-		this.realmFile = realmFile;
+	public FileLoginService(File realmFile) {
+		super(realmFile.getAbsolutePath());
 	}
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		UserIdentity identity = login(username, new String(password));
-		if (identity == null || identity.equals(UserIdentity.UNAUTHENTICATED_IDENTITY)) {
+		Properties allUsers = read();
+		String userInfo = allUsers.getProperty(username);
+		if (StringUtils.isEmpty(userInfo)) {
 			return null;
 		}
-		UserModel user = new UserModel(username);
-		user.canAdmin = identity.isUserInRole(Constants.ADMIN_ROLE, null);
-
-		// Add repositories
-		for (Principal principal : identity.getSubject().getPrincipals()) {
-			if (principal instanceof RolePrincipal) {
-				RolePrincipal role = (RolePrincipal) principal;
-				String roleName = role.getName();
-				if (roleName.charAt(0) != '#') {
-					user.addRepository(roleName);
-				}
+		UserModel returnedUser = null;
+		UserModel user = getUserModel(username);
+		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
+			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
+			if (user.password.equalsIgnoreCase(md5)) {
+				returnedUser = user;
 			}
 		}
-		return user;
+		if (user.password.equals(new String(password))) {
+			returnedUser = user;
+		}
+		return returnedUser;
 	}
 
 	@Override
 	public UserModel getUserModel(String username) {
-		UserIdentity identity = _users.get(username);
-		if (identity == null) {
+		Properties allUsers = read();
+		String userInfo = allUsers.getProperty(username);
+		if (userInfo == null) {
 			return null;
 		}
 		UserModel model = new UserModel(username);
-		Subject subject = identity.getSubject();
-		for (Principal principal : subject.getPrincipals()) {
-			if (principal instanceof RolePrincipal) {
-				RolePrincipal role = (RolePrincipal) principal;
-				String name = role.getName();
-				switch (name.charAt(0)) {
-				case '#':
-					// Permissions
-					if (name.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
-						model.canAdmin = true;
-					}
-					break;
-				default:
-					model.addRepository(name);
+		String[] userValues = userInfo.split(",");
+		model.password = userValues[0];
+		for (int i = 1; i < userValues.length; i++) {
+			String role = userValues[i];
+			switch (role.charAt(0)) {
+			case '#':
+				// Permissions
+				if (role.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
+					model.canAdmin = true;
 				}
+				break;
+			default:
+				model.addRepository(role);
 			}
-		}
-		// Retrieve the password from the realm file.
-		// Stupid, I know, but the password is buried within protected inner
-		// classes in private variables. Too much work to reflectively retrieve.
-		try {
-			Properties allUsers = readRealmFile();
-			String value = allUsers.getProperty(username);
-			String password = value.split(",")[0];
-			model.password = password;
-		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to read password for user {0}!", username), t);
 		}
 		return model;
 	}
@@ -120,7 +94,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
 		try {
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			ArrayList<String> roles = new ArrayList<String>(model.repositories);
 
 			// Permissions
@@ -140,12 +114,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			allUsers.remove(username);
 			allUsers.put(model.username, sb.toString());
 
-			writeRealmFile(allUsers);
-
-			// Update login service
-			removeUser(username);
-			putUser(model.username, Credential.getCredential(model.password),
-					roles.toArray(new String[0]));
+			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
@@ -163,12 +132,9 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	public boolean deleteUser(String username) {
 		try {
 			// Read realm file
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			allUsers.remove(username);
-			writeRealmFile(allUsers);
-
-			// Drop user from map
-			removeUser(username);
+			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to delete user {0}!", username), t);
@@ -178,8 +144,8 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 	@Override
 	public List<String> getAllUsernames() {
-		List<String> list = new ArrayList<String>();
-		list.addAll(_users.keySet());
+		Properties allUsers = read();
+		List<String> list = new ArrayList<String>(allUsers.stringPropertyNames());
 		return list;
 	}
 
@@ -187,7 +153,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	public List<String> getUsernamesForRole(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			for (String username : allUsers.stringPropertyNames()) {
 				String value = allUsers.getProperty(username);
 				String[] values = value.split(",");
@@ -214,7 +180,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 			Set<String> needsRemoveRole = new HashSet<String>();
 
 			// identify users which require add and remove role
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			for (String username : allUsers.stringPropertyNames()) {
 				String value = allUsers.getProperty(username);
 				String[] values = value.split(",");
@@ -239,11 +205,6 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 				String userValues = allUsers.getProperty(user);
 				userValues += "," + role;
 				allUsers.put(user, userValues);
-				String[] values = userValues.split(",");
-				String password = values[0];
-				String[] roles = new String[values.length - 1];
-				System.arraycopy(values, 1, roles, 0, values.length - 1);
-				putUser(user, Credential.getCredential(password), roles);
 			}
 
 			// remove role from user
@@ -267,14 +228,10 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 				// update properties
 				allUsers.put(user, sb.toString());
-
-				// update memory
-				putUser(user, Credential.getCredential(password),
-						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
-			writeRealmFile(allUsers);
+			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to set usernames for role {0}!", role), t);
@@ -285,7 +242,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	@Override
 	public boolean renameRole(String oldRole, String newRole) {
 		try {
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			Set<String> needsRenameRole = new HashSet<String>();
 
 			// identify users which require role rename
@@ -325,14 +282,10 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 				// update properties
 				allUsers.put(user, sb.toString());
-
-				// update memory
-				putUser(user, Credential.getCredential(password),
-						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
-			writeRealmFile(allUsers);
+			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(
@@ -344,7 +297,7 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 	@Override
 	public boolean deleteRole(String role) {
 		try {
-			Properties allUsers = readRealmFile();
+			Properties allUsers = read();
 			Set<String> needsDeleteRole = new HashSet<String>();
 
 			// identify users which require role rename
@@ -383,14 +336,10 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 
 				// update properties
 				allUsers.put(user, sb.toString());
-
-				// update memory
-				putUser(user, Credential.getCredential(password),
-						revisedRoles.toArray(new String[0]));
 			}
 
 			// persist changes
-			writeRealmFile(allUsers);
+			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to delete role {0}!", role), t);
@@ -398,74 +347,27 @@ public class JettyLoginService extends MappedLoginService implements ILoginServi
 		return false;
 	}
 
-	private Properties readRealmFile() throws IOException {
-		Properties allUsers = new Properties();
-		FileReader reader = new FileReader(realmFile);
-		allUsers.load(reader);
-		reader.close();
-		return allUsers;
-	}
-
-	private void writeRealmFile(Properties properties) throws IOException {
+	private void write(Properties properties) throws IOException {
 		// Update realm file
-		File realmFileCopy = new File(realmFile.getAbsolutePath() + ".tmp");
+		File realmFileCopy = new File(propertiesFile.getAbsolutePath() + ".tmp");
 		FileWriter writer = new FileWriter(realmFileCopy);
 		properties
 				.store(writer,
 						"# Gitblit realm file format: username=password,\\#permission,repository1,repository2...");
 		writer.close();
 		if (realmFileCopy.exists() && realmFileCopy.length() > 0) {
-			if (realmFile.delete()) {
-				if (!realmFileCopy.renameTo(realmFile)) {
+			if (propertiesFile.delete()) {
+				if (!realmFileCopy.renameTo(propertiesFile)) {
 					throw new IOException(MessageFormat.format("Failed to rename {0} to {1}!",
-							realmFileCopy.getAbsolutePath(), realmFile.getAbsolutePath()));
+							realmFileCopy.getAbsolutePath(), propertiesFile.getAbsolutePath()));
 				}
 			} else {
 				throw new IOException(MessageFormat.format("Failed to delete (0)!",
-						realmFile.getAbsolutePath()));
+						propertiesFile.getAbsolutePath()));
 			}
 		} else {
 			throw new IOException(MessageFormat.format("Failed to save {0}!",
 					realmFileCopy.getAbsolutePath()));
 		}
-	}
-
-	/* ------------------------------------------------------------ */
-	@Override
-	public void loadUsers() throws IOException {
-		if (realmFile == null) {
-			return;
-		}
-
-		if (Log.isDebugEnabled()) {
-			Log.debug("Load " + this + " from " + realmFile);
-		}
-		Properties allUsers = readRealmFile();
-
-		// Map Users
-		for (Map.Entry<Object, Object> entry : allUsers.entrySet()) {
-			String username = ((String) entry.getKey()).trim();
-			String credentials = ((String) entry.getValue()).trim();
-			String roles = null;
-			int c = credentials.indexOf(',');
-			if (c > 0) {
-				roles = credentials.substring(c + 1).trim();
-				credentials = credentials.substring(0, c).trim();
-			}
-
-			if (username != null && username.length() > 0 && credentials != null
-					&& credentials.length() > 0) {
-				String[] roleArray = IdentityService.NO_ROLES;
-				if (roles != null && roles.length() > 0) {
-					roleArray = roles.split(",");
-				}
-				putUser(username, Credential.getCredential(credentials), roleArray);
-			}
-		}
-	}
-
-	@Override
-	protected UserIdentity loadUser(String username) {
-		return null;
 	}
 }

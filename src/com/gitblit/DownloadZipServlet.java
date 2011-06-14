@@ -41,7 +41,7 @@ public class DownloadZipServlet extends HttpServlet {
 	}
 
 	public static String asLink(String baseURL, String repository, String objectId, String path) {
-		if (baseURL.charAt(baseURL.length() - 1) == '/') {
+		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 		return baseURL + Constants.ZIP_SERVLET_PATH + "?r=" + repository

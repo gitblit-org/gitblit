@@ -26,7 +26,7 @@ import java.util.Properties;
  */
 public class FileSettings extends IStoredSettings {
 
-	private final File propertiesFile;
+	protected final File propertiesFile;
 
 	private final Properties properties = new Properties();
 

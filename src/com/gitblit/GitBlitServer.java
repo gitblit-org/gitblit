@@ -34,13 +34,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
 import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
 import org.apache.wicket.protocol.http.WicketFilter;
-import org.eclipse.jetty.http.security.Constraint;
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.LoginService;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -53,6 +47,7 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jgit.http.server.GitServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,77 +229,52 @@ public class GitBlitServer {
 		wicketFilter.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM,
 				GitBlitWebApp.class.getName());
 		wicketFilter.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, wicketPathSpec);
-		wicketFilter.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "git/");
+		wicketFilter.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "git/,feed/,zip/");
 		rootContext.addFilter(wicketFilter, wicketPathSpec, FilterMapping.DEFAULT);
+
+		// JGit Filter and Servlet
+		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
+			String jgitPathSpec = Constants.GIT_SERVLET_PATH + "*";
+			rootContext.addFilter(GitFilter.class, jgitPathSpec, FilterMapping.DEFAULT);
+			ServletHolder jGitServlet = rootContext.addServlet(GitServlet.class, jgitPathSpec);
+			jGitServlet.setInitParameter("base-path", params.repositoriesFolder);
+			jGitServlet.setInitParameter("export-all",
+					settings.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
+		}
+
+		// Syndication Filter and Servlet
+		String feedPathSpec = Constants.SYNDICATION_SERVLET_PATH + "*";
+		rootContext.addFilter(SyndicationFilter.class, feedPathSpec, FilterMapping.DEFAULT);
+		rootContext.addServlet(SyndicationServlet.class, feedPathSpec);
 
 		// Zip Servlet
 		rootContext.addServlet(DownloadZipServlet.class, Constants.ZIP_SERVLET_PATH + "*");
 
-		// Syndication Servlet
-		rootContext.addServlet(SyndicationServlet.class, Constants.SYNDICATION_SERVLET_PATH + "*");
-
-		// Git Servlet
-		ServletHolder gitServlet = null;
-		String gitServletPathSpec = Constants.GIT_SERVLET_PATH + "*";
-		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
-			gitServlet = rootContext.addServlet(GitBlitServlet.class, gitServletPathSpec);
-			gitServlet.setInitParameter("base-path", params.repositoriesFolder);
-			gitServlet.setInitParameter("export-all",
-					settings.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
-		}
-
 		// Login Service
-		LoginService loginService = null;
 		String realmUsers = params.realmFile;
-		if (!StringUtils.isEmpty(realmUsers)) {
-			File realmFile = new File(realmUsers);
-			if (realmFile.exists()) {
-				logger.info("Setting up login service from " + realmUsers);
-				JettyLoginService jettyLoginService = new JettyLoginService(realmFile);
-				GitBlit.self().setLoginService(jettyLoginService);
-				loginService = jettyLoginService;
+		if (StringUtils.isEmpty(realmUsers)) {
+			logger.error(MessageFormat.format("PLEASE SPECIFY {0}!!", Keys.realm.realmFile));
+			return;
+		}
+		File realmFile = new File(realmUsers);
+		if (!realmFile.exists()) {
+			try {
+				realmFile.createNewFile();
+			} catch (IOException x) {
+				logger.error(MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmUsers),
+						x);
+				return;
 			}
 		}
-
-		// Determine what handler to use
-		Handler handler;
-		if (gitServlet != null) {
-			if (loginService != null) {
-				// Authenticate Clone/Push
-				logger.info("Setting up authenticated git servlet clone/push access");
-
-				Constraint constraint = new Constraint();
-				constraint.setAuthenticate(true);
-				constraint.setRoles(new String[] { "*" });
-
-				ConstraintMapping mapping = new ConstraintMapping();
-				mapping.setPathSpec(gitServletPathSpec);
-				mapping.setConstraint(constraint);
-
-				ConstraintSecurityHandler security = new ConstraintSecurityHandler();
-				security.addConstraintMapping(mapping);
-				security.setAuthenticator(new BasicAuthenticator());
-				security.setLoginService(loginService);
-				security.setStrict(false);
-
-				security.setHandler(rootContext);
-
-				handler = security;
-			} else {
-				// Anonymous Pull/Push
-				logger.info("Setting up anonymous git servlet pull/push access");
-				handler = rootContext;
-			}
-		} else {
-			logger.info("Git servlet clone/push disabled");
-			handler = rootContext;
-		}
+		logger.info("Setting up login service from " + realmUsers);
+		FileLoginService loginService = new FileLoginService(realmFile);
+		GitBlit.self().setLoginService(loginService);
 
 		logger.info("Git repositories folder "
 				+ new File(params.repositoriesFolder).getAbsolutePath());
 
 		// Set the server's contexts
-		server.setHandler(handler);
+		server.setHandler(rootContext);
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();

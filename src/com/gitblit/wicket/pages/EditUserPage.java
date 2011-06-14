@@ -31,8 +31,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
-import org.eclipse.jetty.http.security.Credential.Crypt;
-import org.eclipse.jetty.http.security.Credential.MD5;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
@@ -114,8 +112,7 @@ public class EditUserPage extends BasePage {
 					return;
 				}
 				String password = userModel.password;
-				if (!password.toUpperCase().startsWith(Crypt.__TYPE)
-						&& !password.toUpperCase().startsWith(MD5.__TYPE)) {
+				if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)) {
 					// This is a plain text password.
 					// Check length.
 					int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
@@ -133,7 +130,7 @@ public class EditUserPage extends BasePage {
 					String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
 					if (type.equalsIgnoreCase("md5")) {
 						// store MD5 digest of password
-						userModel.password = MD5.digest(userModel.password);
+						userModel.password = StringUtils.MD5_TYPE + StringUtils.getMD5(userModel.password);
 					}
 				}
 

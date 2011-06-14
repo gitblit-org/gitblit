@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -87,8 +90,8 @@ public class GitBlit implements ServletContextListener {
 		return GITBLIT.storedSettings.getAllKeys(startingWith);
 	}
 
-	public boolean isDebugMode() {
-		return storedSettings.getBoolean(Keys.web.debugMode, false);
+	public static boolean isDebugMode() {
+		return GITBLIT.storedSettings.getBoolean(Keys.web.debugMode, false);
 	}
 
 	public List<String> getOtherCloneUrls(String repositoryName) {
@@ -312,6 +315,41 @@ public class GitBlit implements ServletContextListener {
 		return false;
 	}
 
+	public String processCommitMessage(String repositoryName, String text) {
+		String html = StringUtils.breakLinesForHtml(text);
+		Map<String, String> map = new HashMap<String, String>();
+		// global regex keys
+		if (storedSettings.getBoolean(Keys.regex.global, false)) {
+			for (String key : storedSettings.getAllKeys(Keys.regex.global)) {
+				if (!key.equals(Keys.regex.global)) {
+					String subKey = key.substring(key.lastIndexOf('.') + 1);
+					map.put(subKey, storedSettings.getString(key, ""));
+				}
+			}
+		}
+
+		// repository-specific regex keys
+		List<String> keys = storedSettings.getAllKeys(Keys.regex._ROOT + "."
+				+ repositoryName.toLowerCase());
+		for (String key : keys) {
+			String subKey = key.substring(key.lastIndexOf('.') + 1);
+			map.put(subKey, storedSettings.getString(key, ""));
+		}
+
+		for (Entry<String, String> entry : map.entrySet()) {
+			String definition = entry.getValue().trim();
+			String[] chunks = definition.split("!!!");
+			if (chunks.length == 2) {
+				html = html.replaceAll(chunks[0], chunks[1]);
+			} else {
+				logger.warn(entry.getKey()
+						+ " improperly formatted.  Use !!! to separate match from replacement: "
+						+ definition);
+			}
+		}
+		return html;
+	}
+
 	public void configureContext(IStoredSettings settings) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.storedSettings = settings;
@@ -323,7 +361,8 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		if (storedSettings == null) {
-			// for running gitblit as a traditional webapp in a servlet container
+			// for running gitblit as a traditional webapp in a servlet
+			// container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			configureContext(webxmlSettings);
 		}

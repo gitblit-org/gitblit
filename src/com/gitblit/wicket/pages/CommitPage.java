@@ -128,7 +128,7 @@ public class CommitPage extends RepositoryPage {
 						SearchType.AUTHOR));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone()));
-				item.add(new Label("noteContent", substituteText(entry.content))
+				item.add(new Label("noteContent", GitBlit.self().processCommitMessage(repositoryName, entry.content))
 						.setEscapeModelStrings(false));
 			}
 		};

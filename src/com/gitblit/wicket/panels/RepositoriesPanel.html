@@ -50,7 +50,7 @@
 			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
 			<th></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
-			<th clas="right"></th>
+			<th class="right"></th>
 		</tr>
 	</wicket:fragment>
 	
@@ -80,7 +80,12 @@
         <td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
         <td style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
         <td><span wicket:id="repositoryLastChange">[last change]</span></td>
-        <td class="rightAlign"><span wicket:id="repositoryLinks"></span></td>
+        <td class="rightAlign">
+        	<span wicket:id="repositoryLinks"></span>
+			<a style="text-decoration: none;" wicket:id="syndication">
+				<img style="border:0px;vertical-align:middle;" src="/com/gitblit/wicket/resources/feed_16x16.png"></img>
+			</a>
+		</td>				
 	</wicket:fragment>
 	
 </wicket:panel>

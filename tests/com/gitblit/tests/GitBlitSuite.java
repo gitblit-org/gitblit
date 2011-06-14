@@ -24,10 +24,10 @@ import junit.framework.TestSuite;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
+import com.gitblit.FileLoginService;
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
-import com.gitblit.JettyLoginService;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 
@@ -72,8 +72,7 @@ public class GitBlitSuite extends TestSetup {
 	protected void setUp() throws Exception {
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
 		GitBlit.self().configureContext(settings);
-		JettyLoginService loginService = new JettyLoginService(new File("distrib/users.properties"));
-		loginService.loadUsers();
+		FileLoginService loginService = new FileLoginService(new File("distrib/users.properties"));
 		GitBlit.self().setLoginService(loginService);
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {

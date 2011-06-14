@@ -122,7 +122,7 @@ public class GitBlitWebApp extends WebApplication {
 
 	@Override
 	public final String getConfigurationType() {
-		if (GitBlit.self().isDebugMode()) {
+		if (GitBlit.isDebugMode()) {
 			return Application.DEVELOPMENT;
 		}
 		return Application.DEPLOYMENT;

@@ -24,32 +24,41 @@ import java.util.List;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndEntryImpl;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.feed.synd.SyndImageImpl;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 
 public class SyndicationUtils {
 
-	public static void toRSS(String hostUrl, String title, String description, String repository, List<RevCommit> commits, OutputStream os)
-			throws IOException, FeedException {
+	public static void toRSS(String hostUrl, String title, String description, String repository,
+			List<RevCommit> commits, OutputStream os) throws IOException, FeedException {
 
 		SyndFeed feed = new SyndFeedImpl();
-		feed.setFeedType("rss_1.0");
+		feed.setFeedType("rss_2.0");
 		feed.setTitle(title);
-		feed.setLink(MessageFormat.format("{0}/summary/{1}", hostUrl, repository));
+		feed.setLink(MessageFormat.format("{0}/summary/{1}", hostUrl,
+				StringUtils.encodeURL(repository)));
 		feed.setDescription(description);
+		SyndImageImpl image = new SyndImageImpl();
+		image.setTitle(Constants.NAME);
+		image.setUrl(hostUrl + Constants.RESOURCE_PATH + "gitblt_25.png");
+		image.setLink(hostUrl);
+		feed.setImage(image);
 
 		List<SyndEntry> entries = new ArrayList<SyndEntry>();
 		for (RevCommit commit : commits) {
 			SyndEntry entry = new SyndEntryImpl();
 			entry.setTitle(commit.getShortMessage());
 			entry.setAuthor(commit.getAuthorIdent().getName());
-			entry.setLink(MessageFormat.format("{0}/commit/{1}/{2}", hostUrl, repository, commit.getName()));
+			entry.setLink(MessageFormat.format("{0}/commit/{1}/{2}", hostUrl,
+					StringUtils.encodeURL(repository), commit.getName()));
 			entry.setPublishedDate(commit.getCommitterIdent().getWhen());
 
 			SyndContent content = new SyndContentImpl();

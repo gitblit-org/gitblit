@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -159,7 +158,7 @@ public abstract class RepositoryPage extends BasePage {
 			}
 		};
 		add(extrasView);
-		
+
 		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
 				.getRelativePathPrefixToContextRoot(), repositoryName, null, 0)));
 
@@ -187,6 +186,12 @@ public abstract class RepositoryPage extends BasePage {
 				break;
 			}
 		}
+	}
+
+	protected void addSyndicationDiscoveryLink() {
+		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(repositoryName,
+				objectId), SyndicationServlet.asLink(getRequest()
+				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, 0)));
 	}
 
 	protected Repository getRepository() {
@@ -234,46 +239,11 @@ public abstract class RepositoryPage extends BasePage {
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
 		String html;
 		if (substituteRegex) {
-			html = substituteText(text);
+			html = GitBlit.self().processCommitMessage(repositoryName, text);
 		} else {
 			html = StringUtils.breakLinesForHtml(text);
 		}
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
-	}
-
-	protected String substituteText(String text) {
-		String html = StringUtils.breakLinesForHtml(text);
-		Map<String, String> map = new HashMap<String, String>();
-		// global regex keys
-		if (GitBlit.getBoolean(Keys.regex.global, false)) {
-			for (String key : GitBlit.getAllKeys(Keys.regex.global)) {
-				if (!key.equals(Keys.regex.global)) {
-					String subKey = key.substring(key.lastIndexOf('.') + 1);
-					map.put(subKey, GitBlit.getString(key, ""));
-				}
-			}
-		}
-
-		// repository-specific regex keys
-		List<String> keys = GitBlit.getAllKeys(Keys.regex._ROOT + "."
-				+ repositoryName.toLowerCase());
-		for (String key : keys) {
-			String subKey = key.substring(key.lastIndexOf('.') + 1);
-			map.put(subKey, GitBlit.getString(key, ""));
-		}
-
-		for (Entry<String, String> entry : map.entrySet()) {
-			String definition = entry.getValue().trim();
-			String[] chunks = definition.split("!!!");
-			if (chunks.length == 2) {
-				html = html.replaceAll(chunks[0], chunks[1]);
-			} else {
-				logger.warn(entry.getKey()
-						+ " improperly formatted.  Use !!! to separate match from replacement: "
-						+ definition);
-			}
-		}
-		return html;
 	}
 
 	protected abstract String getPageName();

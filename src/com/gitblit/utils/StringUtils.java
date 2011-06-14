@@ -16,13 +16,19 @@
 package com.gitblit.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jgit.util.Base64;
+
 public class StringUtils {
+
+	public static final String MD5_TYPE = "MD5:";
 
 	public static boolean isEmpty(String value) {
 		return value == null || value.trim().length() == 0;
@@ -48,6 +54,22 @@ public class StringUtils {
 				retStr.append("&nbsp;");
 			} else if (changeSpace && inStr.charAt(i) == '\t') {
 				retStr.append(" &nbsp; &nbsp;");
+			} else {
+				retStr.append(inStr.charAt(i));
+			}
+			i++;
+		}
+		return retStr.toString();
+	}
+
+	public static String encodeURL(String inStr) {
+		StringBuffer retStr = new StringBuffer();
+		int i = 0;
+		while (i < inStr.length()) {
+			if (inStr.charAt(i) == '/') {
+				retStr.append("%2F");
+			} else if (inStr.charAt(i) == ' ') {
+				retStr.append("%20");
 			} else {
 				retStr.append(inStr.charAt(i));
 			}
@@ -116,18 +138,39 @@ public class StringUtils {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
 			md.update(bytes, 0, bytes.length);
-			byte[] sha1hash = md.digest();
-			StringBuilder sb = new StringBuilder(sha1hash.length * 2);
-			for (int i = 0; i < sha1hash.length; i++) {
-				if (((int) sha1hash[i] & 0xff) < 0x10) {
-					sb.append('0');
-				}
-				sb.append(Long.toString((int) sha1hash[i] & 0xff, 16));
-			}
-			return sb.toString();
+			byte[] digest = md.digest();
+			return toHex(digest);
 		} catch (NoSuchAlgorithmException t) {
 			throw new RuntimeException(t);
 		}
+	}
+
+	public static String getMD5(String string) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.reset();
+			md.update(string.getBytes("iso-8859-1"));
+			byte[] digest = md.digest();
+			return toHex(digest);
+		} catch (Exception e) {
+			Log.warn(e);
+			return null;
+		}
+	}
+
+	private static String toHex(byte[] bytes) {
+		StringBuilder sb = new StringBuilder(bytes.length * 2);
+		for (int i = 0; i < bytes.length; i++) {
+			if (((int) bytes[i] & 0xff) < 0x10) {
+				sb.append('0');
+			}
+			sb.append(Long.toString((int) bytes[i] & 0xff, 16));
+		}
+		return sb.toString();
+	}
+
+	public static String decodeBase64(String base64) {
+		return new String(Base64.decode(base64), Charset.forName("UTF-8"));
 	}
 
 	public static String getRootPath(String path) {
@@ -144,11 +187,11 @@ public class StringUtils {
 		}
 		return relativePath;
 	}
-	
+
 	public static List<String> getStringsFromValue(String value) {
 		return getStringsFromValue(value, " ");
 	}
-		
+
 	public static List<String> getStringsFromValue(String value, String separator) {
 		List<String> strings = new ArrayList<String>();
 		try {

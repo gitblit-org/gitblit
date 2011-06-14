@@ -61,14 +61,13 @@ sources @ [Github][gitbltsrc]
 - Gitblit may have security holes.  Patches welcome.  :)
 
 ### Todo List
-- Custom BASIC authentication servlet or servlet filter
 - Code documentation
 - Unit testing
 - Update Build.java to JGit 1.0.0, when its released
+- WAR solution
 
 ### Idea List
 - Consider clone remote repository feature
-- Consider [Apache Shiro](http://shiro.apache.org) for authentication
 - Stronger Ticgit read-only integration
     - activity/timeline
     - query feature with paging support

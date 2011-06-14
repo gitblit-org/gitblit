@@ -22,11 +22,18 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.Request;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
@@ -162,7 +169,7 @@ public class WicketUtils {
 	}
 
 	public static ContextImage newImage(String wicketId, String file, String tooltip) {
-		ContextImage img = new ContextImage(wicketId, "/com/gitblit/wicket/resources/" + file);
+		ContextImage img = new ContextImage(wicketId, com.gitblit.Constants.RESOURCE_PATH + file);
 		if (!StringUtils.isEmpty(tooltip)) {
 			setHtmlTooltip(img, tooltip);
 		}
@@ -170,7 +177,42 @@ public class WicketUtils {
 	}
 
 	public static ContextRelativeResource getResource(String file) {
-		return new ContextRelativeResource("/com/gitblit/wicket/resources/" + file);
+		return new ContextRelativeResource(com.gitblit.Constants.RESOURCE_PATH + file);
+	}
+
+	public static String getHostURL(Request request) {
+		HttpServletRequest req = ((WebRequest) request).getHttpServletRequest();
+		return getHostURL(req);
+	}
+
+	public static String getHostURL(HttpServletRequest request) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(request.getScheme());
+		sb.append("://");
+		sb.append(request.getServerName());
+		if ((request.getScheme().equals("http") && request.getServerPort() != 80)
+				|| (request.getScheme().equals("https") && request.getServerPort() != 443)) {
+			sb.append(":" + request.getServerPort());
+		}
+		return sb.toString();
+	}
+
+	public static HeaderContributor syndicationDiscoveryLink(final String feedTitle,
+			final String url) {
+		return new HeaderContributor(new IHeaderContributor() {
+			private static final long serialVersionUID = 1L;
+
+			public void renderHead(IHeaderResponse response) {
+				String contentType = "application/rss+xml";
+
+				StringBuffer buffer = new StringBuffer();
+				buffer.append("<link rel=\"alternate\" ");
+				buffer.append("type=\"").append(contentType).append("\" ");
+				buffer.append("title=\"").append(feedTitle).append("\" ");
+				buffer.append("href=\"").append(url).append("\" />");
+				response.renderString(buffer.toString());
+			}
+		});
 	}
 
 	public static PageParameters newUsernameParameter(String username) {

@@ -22,12 +22,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.wicketstuff.googlecharts.Chart;
@@ -81,6 +78,8 @@ public class SummaryPage extends RepositoryPage {
 			metrics = MetricUtils.getDateMetrics(r, null, true, null);
 			metricsTotal = metrics.remove(0);
 		}
+		
+		addSyndicationDiscoveryLink();
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
@@ -121,17 +120,8 @@ public class SummaryPage extends RepositoryPage {
 			default:
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
-
-			HttpServletRequest req = ((WebRequest) getRequestCycle().getRequest())
-					.getHttpServletRequest();
 			StringBuilder sb = new StringBuilder();
-			sb.append(req.getScheme());
-			sb.append("://");
-			sb.append(req.getServerName());
-			if ((req.getScheme().equals("http") && req.getServerPort() != 80)
-					|| (req.getScheme().equals("https") && req.getServerPort() != 443)) {
-				sb.append(":" + req.getServerPort());
-			}
+			sb.append(WicketUtils.getHostURL(getRequestCycle().getRequest()));					
 			sb.append(Constants.GIT_SERVLET_PATH);
 			sb.append(repositoryName);
 			repositoryUrls.add(sb.toString());
