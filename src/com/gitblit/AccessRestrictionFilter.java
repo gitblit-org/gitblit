@@ -118,9 +118,6 @@ public abstract class AccessRestrictionFilter implements Filter {
 				String base64Credentials = authorization.substring(BASIC.length()).trim();
 				String credentials = new String(Base64.decode(base64Credentials),
 						Charset.forName("UTF-8"));
-				if (GitBlit.isDebugMode()) {
-					logger.info(MessageFormat.format("AUTH: {0} ({1})", authorization, credentials));
-				}
 				// credentials = username:password
 				final String[] values = credentials.split(":");
 
