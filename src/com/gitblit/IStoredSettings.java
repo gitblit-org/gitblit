@@ -27,16 +27,24 @@ import com.gitblit.utils.StringUtils;
 public abstract class IStoredSettings {
 
 	protected final Logger logger;
+	
+	protected final Properties overrides = new Properties();
 
 	public IStoredSettings(Class<? extends IStoredSettings> clazz) {
 		logger = LoggerFactory.getLogger(clazz);
 	}
 
 	protected abstract Properties read();
+	
+	private Properties getSettings() {
+		Properties props = read();
+		props.putAll(overrides);
+		return props;
+	}
 
 	public List<String> getAllKeys(String startingWith) {
 		List<String> keys = new ArrayList<String>();
-		Properties props = read();
+		Properties props = getSettings();
 		if (StringUtils.isEmpty(startingWith)) {
 			keys.addAll(props.stringPropertyNames());
 		} else {
@@ -52,7 +60,7 @@ public abstract class IStoredSettings {
 	}
 
 	public boolean getBoolean(String name, boolean defaultValue) {
-		Properties props = read();
+		Properties props = getSettings();
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			if (!StringUtils.isEmpty(value)) {
@@ -63,7 +71,7 @@ public abstract class IStoredSettings {
 	}
 
 	public int getInteger(String name, int defaultValue) {
-		Properties props = read();
+		Properties props = getSettings();
 		if (props.containsKey(name)) {
 			try {
 				String value = props.getProperty(name);
@@ -79,7 +87,7 @@ public abstract class IStoredSettings {
 	}
 
 	public String getString(String name, String defaultValue) {
-		Properties props = read();
+		Properties props = getSettings();
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			if (value != null) {
@@ -95,11 +103,15 @@ public abstract class IStoredSettings {
 
 	public List<String> getStrings(String name, String separator) {
 		List<String> strings = new ArrayList<String>();
-		Properties props = read();
+		Properties props = getSettings();
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			strings = StringUtils.getStringsFromValue(value, separator);
 		}
 		return strings;
+	}
+	
+	public void overrideSetting(String key, String value) {
+		overrides.put(key, value);
 	}
 }

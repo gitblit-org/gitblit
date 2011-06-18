@@ -201,9 +201,9 @@ public class GitBlitServer {
 			return;
 		}
 		
-		// Update settings
-//		settings.put(Keys.realm.realmFile, params.realmFile);
-//		settings.put(Keys.git.repositoriesFolder, params.repositoriesFolder);
+		// Override settings
+		settings.overrideSetting(Keys.realm.realmFile, params.realmFile);
+		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 
 		// Set the server's contexts
 		server.setHandler(rootContext);
