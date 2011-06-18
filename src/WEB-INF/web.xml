@@ -15,23 +15,15 @@
 		 <url-pattern> MUST match: 
 			* GitFilter
 			* com.gitblit.Constants.GIT_PATH
-			* Wicket Filter ignorePaths parameter --><!-- STRIP
+			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>GitServlet</servlet-name>
-		<servlet-class>org.jgit.http.transport.GitServlet</servlet-class>
-		<init-param>
-			<param-name>base-path</param-name>
-			<param-value>c:/git</param-value>
-		</init-param>
-		<init-param>
-			<param-name>export-all</param-name>
-			<param-value>1</param-value>
-		</init-param>
+		<servlet-class>com.gitblit.GitServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>GitServlet</servlet-name>		
 		<url-pattern>/git/*</url-pattern>
-	</servlet-mapping>STRIP -->
+	</servlet-mapping>
 	
 	
 	<!-- Syndication Servlet

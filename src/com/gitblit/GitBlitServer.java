@@ -38,11 +38,8 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.servlet.FilterMapping;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jgit.http.server.GitServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,13 +193,6 @@ public class GitBlitServer {
 		// Use secure cookies if only serving https
 		sessionManager.setSecureCookies(params.port <= 0 && params.securePort > 0);
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
-
-		// JGit Filter and Servlet
-		String jgitPathSpec = Constants.GIT_PATH + "*";
-		rootContext.addFilter(GitFilter.class, jgitPathSpec, FilterMapping.DEFAULT);
-		ServletHolder jGitServlet = rootContext.addServlet(GitServlet.class, jgitPathSpec);
-		jGitServlet.setInitParameter("base-path", params.repositoriesFolder);
-		jGitServlet.setInitParameter("export-all", "1");
 
 		// Ensure there is a defined Login Service
 		String realmUsers = params.realmFile;
