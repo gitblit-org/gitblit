@@ -27,21 +27,25 @@ import com.gitblit.utils.StringUtils;
 public abstract class IStoredSettings {
 
 	protected final Logger logger;
-	
+
 	public IStoredSettings(Class<? extends IStoredSettings> clazz) {
 		logger = LoggerFactory.getLogger(clazz);
 	}
-		
+
 	protected abstract Properties read();
 
 	public List<String> getAllKeys(String startingWith) {
-		startingWith = startingWith.toLowerCase();
 		List<String> keys = new ArrayList<String>();
 		Properties props = read();
-		for (Object o : props.keySet()) {
-			String key = o.toString();
-			if (key.toLowerCase().startsWith(startingWith)) {
-				keys.add(key);
+		if (StringUtils.isEmpty(startingWith)) {
+			keys.addAll(props.stringPropertyNames());
+		} else {
+			startingWith = startingWith.toLowerCase();
+			for (Object o : props.keySet()) {
+				String key = o.toString();
+				if (key.toLowerCase().startsWith(startingWith)) {
+					keys.add(key);
+				}
 			}
 		}
 		return keys;

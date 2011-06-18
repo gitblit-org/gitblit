@@ -64,7 +64,8 @@ public class DocsPage extends RepositoryPage {
 						.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
 						.newPathParameter(repositoryName, entry.commitId, entry.path)));
-				item.add(new BookmarkablePageLink<Void>("blame", BlobPage.class).setEnabled(false));
+				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
+						WicketUtils.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 						.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				WicketUtils.setAlternatingBackground(item, counter);

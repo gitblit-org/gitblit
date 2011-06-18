@@ -53,8 +53,7 @@ public class FileLoginService extends FileSettings implements ILoginService {
 			if (user.password.equalsIgnoreCase(md5)) {
 				returnedUser = user;
 			}
-		}
-		if (user.password.equals(new String(password))) {
+		} else if (user.password.equals(new String(password))) {
 			returnedUser = user;
 		}
 		return returnedUser;

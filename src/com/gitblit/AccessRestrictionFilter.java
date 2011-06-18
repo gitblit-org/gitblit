@@ -16,6 +16,7 @@
 package com.gitblit;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.Enumeration;
@@ -32,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.eclipse.jgit.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +116,8 @@ public abstract class AccessRestrictionFilter implements Filter {
 			if (authorization != null && authorization.startsWith(BASIC)) {
 				// Authorization: Basic base64credentials
 				String base64Credentials = authorization.substring(BASIC.length()).trim();
-				String credentials = StringUtils.decodeBase64(base64Credentials);
+				String credentials = new String(Base64.decode(base64Credentials),
+						Charset.forName("UTF-8"));
 				if (GitBlit.isDebugMode()) {
 					logger.info(MessageFormat.format("AUTH: {0} ({1})", authorization, credentials));
 				}
@@ -131,7 +134,8 @@ public abstract class AccessRestrictionFilter implements Filter {
 							// authenticated request permitted.
 							// pass processing to the restricted servlet.
 							newSession(accessRequest, httpResponse);
-							logger.info("ARF: " + fullUrl + " (" + HttpServletResponse.SC_CONTINUE + ") authenticated");
+							logger.info("ARF: " + fullUrl + " (" + HttpServletResponse.SC_CONTINUE
+									+ ") authenticated");
 							chain.doFilter(accessRequest, httpResponse);
 							return;
 						}
@@ -163,7 +167,8 @@ public abstract class AccessRestrictionFilter implements Filter {
 		}
 
 		if (GitBlit.isDebugMode()) {
-			logger.info("ARF: " + fullUrl + " (" + HttpServletResponse.SC_CONTINUE + ") unauthenticated");
+			logger.info("ARF: " + fullUrl + " (" + HttpServletResponse.SC_CONTINUE
+					+ ") unauthenticated");
 		}
 		// unauthenticated request permitted.
 		// pass processing to the restricted servlet.
@@ -202,19 +207,19 @@ public abstract class AccessRestrictionFilter implements Filter {
 	@Override
 	public void destroy() {
 	}
-	
+
 	/**
 	 * Wraps a standard HttpServletRequest and overrides user principal methods.
 	 */
 	public static class AccessRestrictionRequest extends ServletRequestWrapper {
 
 		private UserModel user;
-		
+
 		public AccessRestrictionRequest(HttpServletRequest req) {
 			super(req);
 			user = new UserModel("anonymous");
 		}
-		
+
 		void setUser(UserModel user) {
 			this.user = user;
 		}

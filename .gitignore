@@ -10,3 +10,5 @@
 /git
 /target
 /build.properties
+/war
+/*.war

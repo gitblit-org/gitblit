@@ -45,7 +45,7 @@ import com.gitblit.utils.StringUtils;
 
 public class GitBlit implements ServletContextListener {
 
-	private static final GitBlit GITBLIT;
+	private static GitBlit gitblit;
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
@@ -53,45 +53,48 @@ public class GitBlit implements ServletContextListener {
 
 	private File repositoriesFolder;
 
-	private boolean exportAll;
+	private boolean exportAll = true;
 
 	private ILoginService loginService;
 
 	private IStoredSettings storedSettings;
 
-	static {
-		GITBLIT = new GitBlit();
-	}
-
-	private GitBlit() {
+	public GitBlit() {
+		if (gitblit == null) {
+			// Singleton reference when running in standard servlet container
+			gitblit = this;
+		}
 	}
 
 	public static GitBlit self() {
-		return GITBLIT;
+		if (gitblit == null) {
+			gitblit = new GitBlit();
+		}
+		return gitblit;
 	}
 
 	public static boolean getBoolean(String key, boolean defaultValue) {
-		return GITBLIT.storedSettings.getBoolean(key, defaultValue);
+		return self().storedSettings.getBoolean(key, defaultValue);
 	}
 
 	public static int getInteger(String key, int defaultValue) {
-		return GITBLIT.storedSettings.getInteger(key, defaultValue);
+		return self().storedSettings.getInteger(key, defaultValue);
 	}
 
 	public static String getString(String key, String defaultValue) {
-		return GITBLIT.storedSettings.getString(key, defaultValue);
+		return self().storedSettings.getString(key, defaultValue);
 	}
 
 	public static List<String> getStrings(String key) {
-		return GITBLIT.storedSettings.getStrings(key);
+		return self().storedSettings.getStrings(key);
 	}
 
 	public static List<String> getAllKeys(String startingWith) {
-		return GITBLIT.storedSettings.getAllKeys(startingWith);
+		return self().storedSettings.getAllKeys(startingWith);
 	}
 
 	public static boolean isDebugMode() {
-		return GITBLIT.storedSettings.getBoolean(Keys.web.debugMode, false);
+		return self().storedSettings.getBoolean(Keys.web.debugMode, false);
 	}
 
 	public List<String> getOtherCloneUrls(String repositoryName) {
@@ -103,6 +106,7 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	public void setLoginService(ILoginService loginService) {
+		logger.info("Setting up login service " + loginService.toString());
 		this.loginService = loginService;
 	}
 
@@ -353,9 +357,32 @@ public class GitBlit implements ServletContextListener {
 	public void configureContext(IStoredSettings settings) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.storedSettings = settings;
-		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "repos"));
-		exportAll = settings.getBoolean(Keys.git.exportAll, true);
+		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
+		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
+		String realm = settings.getString(Keys.realm.realmFile, "users.properties");
+		ILoginService loginService = null;
+		try {
+			// Check to see if this "file" is a login service class
+			Class<?> realmClass = Class.forName(realm);
+			if (ILoginService.class.isAssignableFrom(realmClass)) {
+				loginService = (ILoginService) realmClass.newInstance();
+			}
+		} catch (Throwable t) {
+			// Not a login service class OR other issue
+			// Use default file login service
+			File realmFile = new File(realm);
+			if (!realmFile.exists()) {
+				try {
+					realmFile.createNewFile();
+				} catch (IOException x) {
+					logger.error(
+							MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmFile), x);
+				}
+			}
+			loginService = new FileLoginService(realmFile);
+		}
+		setLoginService(loginService);
 	}
 
 	@Override

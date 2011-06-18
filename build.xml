@@ -5,17 +5,16 @@
 	<property name="project.jar" value="gitblit.jar" />
 	<property name="project.mainclass" value="com.gitblit.Launcher" />
 	<property name="project.build.dir" value="${basedir}/build" />
+	<property name="project.resources.dir" value="${basedir}/resources" />
 
 	<loadproperties srcfile="${basedir}/build.properties" />
-
-	<!-- Build Gitblit -->
-	<target name="main" description="Compiles Gitblit from source to website">
-
+	
+	<target name="buildinfo">
 		<!-- build date -->
 		<tstamp>
 			<format property="gb.buildDate" pattern="yyyy-MM-dd" />
 		</tstamp>
-
+	
 		<!-- extract Gitblit version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
@@ -30,7 +29,7 @@
 				</tokenfilter>
 			</filterchain>
 		</loadfile>
-
+	
 		<!-- extract JGit version number from source code -->
 		<loadfile property="jgit.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
@@ -46,6 +45,13 @@
 			</filterchain>
 		</loadfile>
 		<echo>Building Gitblit ${gb.version}</echo>
+		
+		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
+		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
+	</target>
+	
+	<!-- Build Gitblit GO -->
+	<target name="main" description="Compiles Gitblit from source to website" depends="buildinfo">
 
 		<!-- copy required distribution files to project folder -->
 		<copy todir="${basedir}" overwrite="false">
@@ -62,8 +68,9 @@
 		<mkdir dir="${project.build.dir}" />
 		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
 			<include name="com/gitblit/Build.java" />
+			<include name="com/gitblit/BuildWebXml.java" />
 			<include name="com/gitblit/Constants.java" />
-			<include name="com/gitblit/utils/StringUtils.java" />
+			<include name="com/gitblit/utils/StringUtils.java" />			
 		</javac>
 		<java classpath="${project.build.dir}" classname="com.gitblit.Build" />
 
@@ -87,6 +94,9 @@
 			<fileset dir="${project.build.dir}">
 				<include name="**/*" />
 			</fileset>
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
 			<manifest>
 				<attribute name="Main-Class" value="${project.mainclass}" />
 			</manifest>
@@ -97,7 +107,7 @@
 		<mkdir dir="${basedir}/site" />
 		<copy todir="${basedir}/site">
 			<!-- Copy selected Gitblit resources -->
-			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
+			<fileset dir="${project.resources.dir}">
 				<include name="background.png" />
 				<include name="gitblit.css" />
 				<include name="markdown.css" />
@@ -211,7 +221,7 @@
 		<mkdir dir="${basedir}/deploy/docs" />
 		<copy todir="${basedir}/deploy/docs">
 			<!-- Copy selected Gitblit resources -->
-			<fileset dir="${basedir}/src/com/gitblit/wicket/resources">
+			<fileset dir="${project.resources.dir}">
 				<include name="background.png" />
 				<include name="gitblit.css" />
 				<include name="markdown.css" />
@@ -284,8 +294,7 @@
 
 		</java>
 		
-		<!-- Create Zip deployment -->
-		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
+		<!-- Create Zip deployment -->		
 		<zip destfile="${distribution.zipfile}">
 			<fileset dir="${basedir}/deploy">
 				<include name="**/*" />
@@ -306,6 +315,67 @@
 	</target>
 		
 	
+	<!-- Build Gitblit WAR -->
+	<target name="buildWAR" description="Build the Gitblit WAR" depends="buildinfo">
+		<path id="master-classpath">
+			<fileset dir="${basedir}/ext">
+				<include name="*.jar" />
+			</fileset>
+		</path>
+			
+		<delete dir="${basedir}/war" />
+		<mkdir dir="${basedir}/war/WEB-INF/lib"/>
+		
+		<!-- Gitblit web.xml --> 
+		<java classpath="${project.build.dir}" classname="com.gitblit.BuildWebXml">
+			<classpath refid="master-classpath" />
+		</java>
+
+		<!-- Gitblit resources -->
+		<copy todir="${basedir}/war">
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+		
+		<!-- Gitblit library dependencies -->
+		<copy todir="${basedir}/war/WEB-INF/lib">
+			<fileset dir="${basedir}/ext">
+				<exclude name="*-sources.jar" />
+				<exclude name="*-javadoc.jar" />
+				<exclude name="jcommander*.jar" />
+				<exclude name="jetty*.jar" />
+				<exclude name="junit*.jar" />
+				<exclude name="servlet*.jar" />
+			</fileset>
+		</copy>
+
+		<!-- Gitblit classes -->
+		<mkdir dir="${basedir}/war/WEB-INF/classes"/>
+		<copy todir="${basedir}/war/WEB-INF/classes">
+			<fileset dir="${basedir}/bin">
+				<exclude name="WEB-INF/web.xml" />
+				<exclude name="com/gitblit/tests/" />
+				<exclude name="com/gitblit/Build*.class" />
+				<exclude name="com/gitblit/GitBlitServer*.class" />
+				<exclude name="com/gitblit/Launcher*.class" />
+				<exclude name="com/gitblit/MakeCertificate*.class" />
+				<exclude name="com/gitblit/Thumbnailer*.class" />
+			</fileset>
+		</copy>
+
+		<!-- Build the WAR file -->
+		<jar basedir="${basedir}/war" destfile="${distribution.warfile}" compress="true" />
+	</target>
+
+	
+	<!-- Publish binaries to github -->
+	<target name="publishBinaries" description="Publish the Gitblit distribution to Github">
+		<!-- TODO -->
+		<!-- https://github.com/oyvindkinsey/GitHubUploadTask -->
+	</target>
+
+	
 	<!-- Publish site to hosting service -->
 	<!-- You must add ext/commons-net-1.4.0.jar to your	ANT classpath. -->
 	<target name="publishSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)">
@@ -318,11 +388,5 @@
 		<fileset dir="${basedir}/site" />
 		</ftp>
 	</target>
-		
 	
-	<!-- Publish distribution to github -->
-	<target name="publishDistribution" description="Publish the Gitblit distribution to Github">
-		<!-- TODO -->
-		<!-- https://github.com/oyvindkinsey/GitHubUploadTask -->
-	</target>
 </project>

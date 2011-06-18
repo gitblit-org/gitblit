@@ -4,7 +4,7 @@ Its designed primarily as a tool for small workgroups who want to host [Git][git
  
 ### Current Release
 
-[%VERSION%](http://gitblit.com/%DISTRIBUTION%) based on [%JGIT%][jgit] &nbsp; (*%BUILDDATE%*)
+%VERSION% ([go](http://gitblit.com/%GO%)|[war](http://gitblit.com/%WAR%)) based on [%JGIT%][jgit] &nbsp; (*%BUILDDATE%*)
 
 sources @ [Github][gitbltsrc]
 
@@ -13,8 +13,7 @@ sources @ [Github][gitbltsrc]
 2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
 3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to keep the Gitblit distribution svelte.  
 
-### Features
-- Out-of-the-box integrated stack requiring minimal configuration
+### Gitblit Features
 - JGit SmartHTTP servlet
 - Browser and git client authentication
 - Four repository access control configurations and a Read-Only flag
@@ -29,7 +28,6 @@ sources @ [Github][gitbltsrc]
 - Administrators may create, edit, rename, or delete repositories through the web UI
 - Administrators may create, edit, rename, or delete users through the web UI
 - Repository Owners may edit repositories through the web UI
-- Automatically generates a self-signed certificate for https communications
 - Git-notes support
 - Branch metrics (uses Google Charts)
 - HEAD and branch RSS feeds
@@ -41,7 +39,6 @@ sources @ [Github][gitbltsrc]
 - Markdown file view support
 - Syntax highlighting for popular source code types
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
-- Single text file for server configuration
 - Single text file for users configuration
 - Optional utility pages
     <ul class='noBullets'>
@@ -49,12 +46,15 @@ sources @ [Github][gitbltsrc]
     <li>![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*</li>
     </ul>
 
+### Gitblit-Go Features
+- Out-of-the-box integrated stack requiring minimal configuration
+- Automatically generates a self-signed certificate for https communications
+- Single text file for server configuration
+
 ### Limitations
-- [%JGIT%][jgit] does not currently [garbage collect or repack](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html)
 - HTTP/HTTPS are the only supported protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
-- Gitblit is an integrated, full-stack solution.  There is no WAR build at this time.
 
 ### Caveats
 - Gitblit may eat your data.  Use at your own risk.
@@ -64,7 +64,6 @@ sources @ [Github][gitbltsrc]
 - Code documentation
 - Unit testing
 - Update Build.java to JGit 1.0.0, when its released
-- WAR solution
 
 ### Idea List
 - Consider clone remote repository feature
@@ -90,7 +89,7 @@ Gitblit is distributed under the terms of the [Apache Software Foundation licens
 ![block diagram](architecture.png "Gitblit Architecture")
 
 ### Bundled Dependencies
-The following dependencies are bundled with the Gitblit zip distribution file.
+The following dependencies are bundled with Gitblit.
 
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [JavaService](http://forge.ow2.org/projects/javaservice) (BSD and LGPL)
@@ -99,7 +98,7 @@ The following dependencies are bundled with the Gitblit zip distribution file.
 - other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
 
 ### Downloaded Dependencies
-The following dependencies are automatically downloaded from the Apache Maven repository and from the Eclipse Maven repository when Gitblit is launched for the first time.
+The following dependencies are automatically downloaded by Gitblit-Go (or already bundled with the WAR) from the Apache Maven repository and from the Eclipse Maven repository when Gitblit is launched for the first time.
 
 - [JGit][jgit] (EDL 1.0)
 - [Wicket](http://wicket.apache.org) (Apache 2.0)

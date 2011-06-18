@@ -21,9 +21,7 @@
 	<wicket:fragment wicket:id="adminLinks">
 		<!-- page nav links -->	
 		<div class="admin_nav">
-			<wicket:link>
-   				<img style="vertical-align: top;" src="/com/gitblit/wicket/resources/add_16x16.png"/>
-  			</wicket:link>	
+			<img style="vertical-align: top;" src="add_16x16.png"/>
 			<a wicket:id="newRepository">
 				<wicket:message key="gb.newRepository"></wicket:message>
 			</a>
@@ -41,9 +39,7 @@
 	<wicket:fragment wicket:id="flatRepositoryHeader">
 		<tr>
 			<th class="left" wicket:id="orderByRepository">
-				<wicket:link>
-   					<img style="vertical-align: top; border: 1px solid #888;" src="/com/gitblit/wicket/resources/gitweb-favicon.png"/>
-  				</wicket:link>
+				<img style="vertical-align: top; border: 1px solid #888;" src="gitweb-favicon.png"/>
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
@@ -57,9 +53,7 @@
 	<wicket:fragment wicket:id="groupRepositoryHeader">
 		<tr>
 			<th class="left">
-				<wicket:link>
-   					<img style="vertical-align: top; border: 1px solid #888;" src="/com/gitblit/wicket/resources/gitweb-favicon.png"/>
-  				</wicket:link>
+				<img style="vertical-align: top; border: 1px solid #888;" src="gitweb-favicon.png"/>
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th><wicket:message key="gb.description">Description</wicket:message></th>
@@ -83,7 +77,7 @@
         <td class="rightAlign">
         	<span wicket:id="repositoryLinks"></span>
 			<a style="text-decoration: none;" wicket:id="syndication">
-				<img style="border:0px;vertical-align:middle;" src="/com/gitblit/wicket/resources/feed_16x16.png"></img>
+				<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
 			</a>
 		</td>				
 	</wicket:fragment>

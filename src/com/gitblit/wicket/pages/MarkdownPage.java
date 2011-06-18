@@ -39,7 +39,8 @@ public class MarkdownPage extends RepositoryPage {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 
 		// markdown page links
-		add(new Label("blameLink", getString("gb.blame")));
+		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
+				WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
 		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(

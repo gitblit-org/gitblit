@@ -1,6 +1,6 @@
-## Server Setup and Configuration
+## Gitblit-Go Setup and Configuration
 
-1. Download and unzip [Gitblit %VERSION%](http://gitblit.com/%DISTRIBUTION%).<br/>
+1. Download and unzip [Gitblit-Go %VERSION%](http://gitblit.com/%GO%).<br/>
 *Its best to eliminate spaces in the path name as that can cause troubleshooting headaches.* 
 2. The server itself is configured through a simple text file.<br/>
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:

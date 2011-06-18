@@ -30,10 +30,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
-import org.apache.wicket.protocol.http.ContextParamWebApplicationFactory;
-import org.apache.wicket.protocol.http.WicketFilter;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -42,7 +38,6 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -56,7 +51,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitBlitWebApp;
 
 public class GitBlitServer {
 
@@ -121,26 +115,6 @@ public class GitBlitServer {
 	 */
 	private static void start(Params params) {
 		FileSettings settings = params.FILESETTINGS;
-		String pattern = settings.getString(Keys.server.log4jPattern,
-				"%-5p %d{MM-dd HH:mm:ss.SSS}  %-20.20c{1}  %m%n");
-
-		// allow os override of logging pattern
-		String os = System.getProperty("os.name").toLowerCase();
-		if (os.indexOf("windows") > -1) {
-			String winPattern = settings.getString(Keys.server.log4jPattern_windows, pattern);
-			if (!StringUtils.isEmpty(winPattern)) {
-				pattern = winPattern;
-			}
-		} else if (os.indexOf("linux") > -1) {
-			String linuxPattern = settings.getString(Keys.server.log4jPattern_linux, pattern);
-			if (!StringUtils.isEmpty(linuxPattern)) {
-				pattern = linuxPattern;
-			}
-		}
-
-		PatternLayout layout = new PatternLayout(pattern);
-		org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger.getRootLogger();
-		rootLogger.addAppender(new ConsoleAppender(layout));
 
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
@@ -223,55 +197,23 @@ public class GitBlitServer {
 		sessionManager.setSecureCookies(params.port <= 0 && params.securePort > 0);
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
-		// Wicket Filter
-		String wicketPathSpec = "/*";
-		FilterHolder wicketFilter = new FilterHolder(WicketFilter.class);
-		wicketFilter.setInitParameter(ContextParamWebApplicationFactory.APP_CLASS_PARAM,
-				GitBlitWebApp.class.getName());
-		wicketFilter.setInitParameter(WicketFilter.FILTER_MAPPING_PARAM, wicketPathSpec);
-		wicketFilter.setInitParameter(WicketFilter.IGNORE_PATHS_PARAM, "git/,feed/,zip/");
-		rootContext.addFilter(wicketFilter, wicketPathSpec, FilterMapping.DEFAULT);
-
 		// JGit Filter and Servlet
-		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
-			String jgitPathSpec = Constants.GIT_SERVLET_PATH + "*";
-			rootContext.addFilter(GitFilter.class, jgitPathSpec, FilterMapping.DEFAULT);
-			ServletHolder jGitServlet = rootContext.addServlet(GitServlet.class, jgitPathSpec);
-			jGitServlet.setInitParameter("base-path", params.repositoriesFolder);
-			jGitServlet.setInitParameter("export-all",
-					settings.getBoolean(Keys.git.exportAll, true) ? "1" : "0");
-		}
+		String jgitPathSpec = Constants.GIT_PATH + "*";
+		rootContext.addFilter(GitFilter.class, jgitPathSpec, FilterMapping.DEFAULT);
+		ServletHolder jGitServlet = rootContext.addServlet(GitServlet.class, jgitPathSpec);
+		jGitServlet.setInitParameter("base-path", params.repositoriesFolder);
+		jGitServlet.setInitParameter("export-all", "1");
 
-		// Syndication Filter and Servlet
-		String feedPathSpec = Constants.SYNDICATION_SERVLET_PATH + "*";
-		rootContext.addFilter(SyndicationFilter.class, feedPathSpec, FilterMapping.DEFAULT);
-		rootContext.addServlet(SyndicationServlet.class, feedPathSpec);
-
-		// Zip Servlet
-		rootContext.addServlet(DownloadZipServlet.class, Constants.ZIP_SERVLET_PATH + "*");
-
-		// Login Service
+		// Ensure there is a defined Login Service
 		String realmUsers = params.realmFile;
 		if (StringUtils.isEmpty(realmUsers)) {
 			logger.error(MessageFormat.format("PLEASE SPECIFY {0}!!", Keys.realm.realmFile));
 			return;
 		}
-		File realmFile = new File(realmUsers);
-		if (!realmFile.exists()) {
-			try {
-				realmFile.createNewFile();
-			} catch (IOException x) {
-				logger.error(MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmUsers),
-						x);
-				return;
-			}
-		}
-		logger.info("Setting up login service from " + realmUsers);
-		FileLoginService loginService = new FileLoginService(realmFile);
-		GitBlit.self().setLoginService(loginService);
-
-		logger.info("Git repositories folder "
-				+ new File(params.repositoriesFolder).getAbsolutePath());
+		
+		// Update settings
+//		settings.put(Keys.realm.realmFile, params.realmFile);
+//		settings.put(Keys.git.repositoriesFolder, params.repositoriesFolder);
 
 		// Set the server's contexts
 		server.setHandler(rootContext);

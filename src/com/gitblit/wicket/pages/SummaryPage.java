@@ -122,7 +122,7 @@ public class SummaryPage extends RepositoryPage {
 			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(WicketUtils.getHostURL(getRequestCycle().getRequest()));					
-			sb.append(Constants.GIT_SERVLET_PATH);
+			sb.append(Constants.GIT_PATH);
 			sb.append(repositoryName);
 			repositoryUrls.add(sb.toString());
 		} else {

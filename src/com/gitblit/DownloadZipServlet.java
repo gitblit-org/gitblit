@@ -44,7 +44,7 @@ public class DownloadZipServlet extends HttpServlet {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
-		return baseURL + Constants.ZIP_SERVLET_PATH + "?r=" + repository
+		return baseURL + Constants.ZIP_PATH + "?r=" + repository
 				+ (path == null ? "" : ("&p=" + path))
 				+ (objectId == null ? "" : ("&h=" + objectId));
 	}

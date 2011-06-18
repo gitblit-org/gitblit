@@ -63,7 +63,7 @@ public abstract class BasePage extends WebPage {
 		if (siteName == null || siteName.trim().length() == 0) {
 			siteName = Constants.NAME;
 		}
-		add(new Label("siteName", siteName));
+		add(new LinkPanel("siteName", null, siteName, RepositoriesPage.class, null));
 		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
@@ -121,6 +121,10 @@ public abstract class BasePage extends WebPage {
 		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
 		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
 		return req.getServerName();
+	}
+	
+	public void warn(String message, Throwable t) {
+		logger.warn(message, t);
 	}
 
 	public void error(String message, boolean redirect) {

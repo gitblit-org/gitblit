@@ -65,6 +65,10 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	@Override
 	protected boolean canAccess(RepositoryModel repository, UserModel user, String urlRequestType) {
+		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
+			// Git Servlet disabled
+			return false;
+		}
 		if (repository.isFrozen || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
 			boolean authorizedUser = user.canAccessRepository(repository.name);
 			if (urlRequestType.equals(gitReceivePack)) {

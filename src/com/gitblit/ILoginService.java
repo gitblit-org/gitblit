@@ -42,4 +42,6 @@ public interface ILoginService {
 	boolean renameRole(String oldRole, String newRole);
 
 	boolean deleteRole(String role);
+	
+	String toString();
 }

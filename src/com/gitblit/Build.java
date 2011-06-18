@@ -312,10 +312,10 @@ public class Build {
 				"c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
 
 		public static final MavenObject JETTY = new MavenObject("Jetty",
-				"org/eclipse/jetty/aggregate", "jetty-all", "7.4.1.v20110513", 1500000, 1000000,
-				4100000, "1e2de9ed25a7c6ae38717d5ffdc7cfcd6be4bd46",
-				"7b6279d16ce8f663537d9faf55ea353e748dbbaa",
-				"fa06212e751296f1a7abc15c843b135bf49a112b");
+				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.4.2.v20110526", 1000000, 680000,
+				2720000, "56331143afa22d24d9faba96e86e6371b0686c7c",
+				"9f38230fd589e29c8be0fc3c80fb51c5093c2e1e",
+				"0d48212889c25252c5c14bef62703e28215d80cc");
 
 		public static final MavenObject SERVLET = new MavenObject("Servlet 2.5", "javax/servlet",
 				"servlet-api", "2.5", 105000, 158000, 0,
@@ -363,8 +363,8 @@ public class Build {
 				"3d32d958b2f7aa58388af5701ea3aafc433e573f",
 				"c37518b67ea85af485dd61fe854137eeacc50318");
 
-		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "3.8.2",
-				120000, 0, 0, "07e4cde26b53a9a0e3fe5b00d1dbbc7cc1d46060", "", "");
+		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "4.8.2",
+				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
 
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers",
 				"org/tautua/markdownpapers", "markdownpapers-core", "1.0.0", 87000, 58000, 278000,

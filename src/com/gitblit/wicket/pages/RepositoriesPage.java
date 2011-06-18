@@ -86,7 +86,7 @@ public class RepositoriesPage extends BasePage {
 						message = MarkdownUtils.transformMarkdown(reader);
 					} catch (Throwable t) {
 						message = "Failed to read " + file;
-						error(message, t, false);
+						warn(message, t);
 					}
 				} else {
 					message = messageSource + " is not a valid file.";

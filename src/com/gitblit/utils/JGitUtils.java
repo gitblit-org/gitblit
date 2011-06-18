@@ -402,36 +402,30 @@ public class JGitUtils {
 
 	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
-		RevWalk rw = new RevWalk(r);
-		TreeWalk tw = new TreeWalk(r);
+		RevWalk rw = new RevWalk(r);		
 		try {
 			if (commit == null) {
 				ObjectId object = r.resolve(Constants.HEAD);
 				commit = rw.parseCommit(object);
-			}
-			RevTree commitTree = commit.getTree();
+			}			
 
-			tw.reset();
-			tw.setRecursive(true);
 			if (commit.getParentCount() == 0) {
-				tw.addTree(commitTree);
+				TreeWalk tw = new TreeWalk(r);
+				tw.reset();
+				tw.setRecursive(true);
+				tw.addTree(commit.getTree());
 				while (tw.next()) {
 					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
 							.getRawMode(0), commit.getId().getName(), ChangeType.ADD));
 				}
+				tw.release();
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				RevTree parentTree = parent.getTree();
-				tw.addTree(parentTree);
-				tw.addTree(commitTree);
-				tw.setFilter(TreeFilter.ANY_DIFF);
-
-				RawTextComparator cmp = RawTextComparator.DEFAULT;
 				DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
 				df.setRepository(r);
-				df.setDiffComparator(cmp);
+				df.setDiffComparator(RawTextComparator.DEFAULT);
 				df.setDetectRenames(true);
-				List<DiffEntry> diffs = df.scan(parentTree, commitTree);
+				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 				for (DiffEntry diff : diffs) {
 					if (diff.getChangeType().equals(ChangeType.DELETE)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
@@ -447,8 +441,7 @@ public class JGitUtils {
 		} catch (Throwable t) {
 			LOGGER.error("failed to determine files in commit!", t);
 		} finally {
-			rw.dispose();
-			tw.release();
+			rw.dispose();			
 		}
 		return list;
 	}

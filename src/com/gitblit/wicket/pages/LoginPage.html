@@ -7,18 +7,14 @@
 	<!-- Head with Wicket-controlled resources in this package -->
 	<wicket:head>
    		<title wicket:id="title">[page title]</title>
-   		<wicket:link>
-   			<link rel="stylesheet" type="text/css" href="/com/gitblit/wicket/resources/gitblit.css"/>
-   			<link rel="shortcut icon" href="/com/gitblit/wicket/resources/gitblt-favicon.png" type="image/png" />
-   		</wicket:link>
+		<link rel="stylesheet" type="text/css" href="gitblit.css"/>
+		<link rel="shortcut icon" href="gitblt-favicon.png" type="image/png" />
 	</wicket:head>
 	
 	<body onload="document.getElementById('username').focus();">
 		<div>
 			<div style="padding-top: 10px;text-align:center;">
-				<wicket:link>
-					<img src="/com/gitblit/wicket/resources/gitblt_25.png" alt="Git:Blit"/><br/>
-				</wicket:link>
+				<img src="gitblt_25.png" alt="Gitblit"/><br/>
 				<div style="padding-top:30px;font-weight:bold;" wicket:id="name">[name]</div>
 			</div>
 

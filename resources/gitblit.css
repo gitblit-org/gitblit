@@ -221,7 +221,7 @@ div.search {
 
 div.search input {
 	vertical-align: top;
-	background: url(/com/gitblit/wicket/resources/search-icon.png) no-repeat 4px center;
+	background: url(search-icon.png) no-repeat 4px center;
 	color: #ddd;
 	background-color: #000070;
 	border: 1px solid transparent;

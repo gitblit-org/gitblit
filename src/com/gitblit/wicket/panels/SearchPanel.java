@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -72,9 +73,10 @@ public class SearchPanel extends BasePanel {
 		hasMore = commits.size() >= itemsPerPage;
 
 		// header
-		add(new LinkPanel("header", "title", commit == null ? "" : commit.getShortMessage(),
-				CommitPage.class, WicketUtils.newObjectParameter(repositoryName,
-						commit == null ? "" : commit.getName())));
+		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+		
+		add(new Label("searchString", value));
+		add(new Label("searchType", searchType.toString()));
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> searchView = new DataView<RevCommit>("commit", dp) {

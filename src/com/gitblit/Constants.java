@@ -33,14 +33,12 @@ public class Constants {
 
 	public static final String PROPERTIES_FILE = "gitblit.properties";
 
-	public static final String GIT_SERVLET_PATH = "/git/";
+	public static final String GIT_PATH = "/git/";
 
-	public static final String ZIP_SERVLET_PATH = "/zip/";
+	public static final String ZIP_PATH = "/zip/";
 	
-	public static final String SYNDICATION_SERVLET_PATH = "/feed/";
+	public static final String SYNDICATION_PATH = "/feed/";
 	
-	public static final String RESOURCE_PATH = "/com/gitblit/wicket/resources/";
-
 	public static final String BORDER = "***********************************************************";
 
 	public static enum AccessRestrictionType {

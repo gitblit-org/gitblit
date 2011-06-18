@@ -43,7 +43,7 @@ public class SyndicationServlet extends HttpServlet {
 		}
 		StringBuilder url = new StringBuilder();
 		url.append(baseURL);
-		url.append(Constants.SYNDICATION_SERVLET_PATH);
+		url.append(Constants.SYNDICATION_PATH);
 		url.append(repository);
 		if (!StringUtils.isEmpty(objectId) || length > 0) {
 			StringBuilder parameters = new StringBuilder("?");

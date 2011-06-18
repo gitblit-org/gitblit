@@ -40,8 +40,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -65,20 +63,19 @@ public abstract class RepositoryPage extends BasePage {
 
 	private RepositoryModel m;
 
-	private final Logger logger = LoggerFactory.getLogger(RepositoryPage.class);
-
-	private final Map<String, String> knownPages = new HashMap<String, String>() {
+	private final Map<String, PageRegistration> registeredPages = new HashMap<String, PageRegistration>() {
 
 		private static final long serialVersionUID = 1L;
 
 		{
-			put("summary", "gb.summary");
-			put("log", "gb.log");
-			put("branches", "gb.branches");
-			put("tags", "gb.tags");
-			put("tree", "gb.tree");
-			put("tickets", "gb.tickets");
-			put("edit", "gb.edit");
+			put("summary", new PageRegistration("gb.summary", SummaryPage.class));
+			put("log", new PageRegistration("gb.log", LogPage.class));
+			put("branches", new PageRegistration("gb.branches", BranchesPage.class));
+			put("tags", new PageRegistration("gb.tags", TagsPage.class));
+			put("tree", new PageRegistration("gb.tree", TreePage.class));
+			put("tickets", new PageRegistration("gb.tickets", TicketsPage.class));
+			put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class));
+			put("docs", new PageRegistration("gb.docs", DocsPage.class));
 		}
 	};
 
@@ -95,26 +92,17 @@ public abstract class RepositoryPage extends BasePage {
 		RepositoryModel model = getRepositoryModel();
 
 		// standard page links
-		add(new BookmarkablePageLink<Void>("summary", SummaryPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("log", LogPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("branches", BranchesPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("tags", TagsPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
+		addRegisteredPageLink("summary");
+		addRegisteredPageLink("log");
+		addRegisteredPageLink("branches");
+		addRegisteredPageLink("tags");
+		addRegisteredPageLink("tree");
 
 		// per-repository extra page links
 		List<String> extraPageLinks = new ArrayList<String>();
-
-		// Conditionally add tickets link
 		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
 			extraPageLinks.add("tickets");
 		}
-
-		// Conditionally add docs link
 		if (model.useDocs) {
 			extraPageLinks.add("docs");
 		}
@@ -135,26 +123,19 @@ public abstract class RepositoryPage extends BasePage {
 			extraPageLinks.add("edit");
 		}
 
+		final String pageName = getPageName();
+		final String pageWicketId = getLinkWicketId(pageName);
 		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extraPageLinks);
 		DataView<String> extrasView = new DataView<String>("extra", extrasDp) {
 			private static final long serialVersionUID = 1L;
 
 			public void populateItem(final Item<String> item) {
 				String extra = item.getModelObject();
-				if (extra.equals("tickets")) {
-					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.tickets"),
-							TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-				} else if (extra.equals("docs")) {
-					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.docs"), DocsPage.class,
-							WicketUtils.newRepositoryParameter(repositoryName)));
-				} else if (extra.equals("edit")) {
-					item.add(new Label("extraSeparator", " | "));
-					item.add(new LinkPanel("extraLink", null, getString("gb.edit"),
-							EditRepositoryPage.class, WicketUtils
-									.newRepositoryParameter(repositoryName)));
-				}
+				PageRegistration pageReg = registeredPages.get(extra);
+				item.add(new Label("extraSeparator", " | "));
+				item.add(new LinkPanel("extraLink", null, getString(pageReg.translationKey),
+						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName))
+						.setEnabled(!extra.equals(pageWicketId)));
 			}
 		};
 		add(extrasView);
@@ -163,7 +144,7 @@ public abstract class RepositoryPage extends BasePage {
 				.getRelativePathPrefixToContextRoot(), repositoryName, null, 0)));
 
 		// disable current page
-		disablePageLink(getPageName());
+		disableRegisteredPageLink(pageName);
 
 		// add floating search form
 		SearchForm searchForm = new SearchForm("searchForm", repositoryName);
@@ -174,18 +155,31 @@ public abstract class RepositoryPage extends BasePage {
 		setStatelessHint(true);
 	}
 
-	public void disablePageLink(String pageName) {
-		for (String wicketId : knownPages.keySet()) {
-			String key = knownPages.get(wicketId);
+	public String getLinkWicketId(String pageName) {
+		for (String wicketId : registeredPages.keySet()) {
+			String key = registeredPages.get(wicketId).translationKey;
 			String linkName = getString(key);
 			if (linkName.equals(pageName)) {
-				Component c = get(wicketId);
-				if (c != null) {
-					c.setEnabled(false);
-				}
-				break;
+				return wicketId;
 			}
 		}
+		return null;
+	}
+
+	public void disableRegisteredPageLink(String pageName) {
+		String wicketId = getLinkWicketId(pageName);
+		if (!StringUtils.isEmpty(wicketId)) {
+			Component c = get(wicketId);
+			if (c != null) {
+				c.setEnabled(false);
+			}
+		}
+	}
+
+	private void addRegisteredPageLink(String key) {
+		PageRegistration pageReg = registeredPages.get(key);
+		add(new BookmarkablePageLink<Void>(key, pageReg.pageClass,
+				WicketUtils.newRepositoryParameter(repositoryName)));
 	}
 
 	protected void addSyndicationDiscoveryLink() {
@@ -337,6 +331,16 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected PageParameters newPathParameter(String path) {
 		return WicketUtils.newPathParameter(repositoryName, objectId, path);
+	}
+
+	private static class PageRegistration {
+		final String translationKey;
+		final Class<? extends BasePage> pageClass;
+
+		PageRegistration(String translationKey, Class<? extends BasePage> pageClass) {
+			this.translationKey = translationKey;
+			this.pageClass = pageClass;
+		}
 	}
 
 	private static class SearchForm extends StatelessForm<Void> {

@@ -48,7 +48,7 @@ public class SyndicationUtils {
 		feed.setDescription(description);
 		SyndImageImpl image = new SyndImageImpl();
 		image.setTitle(Constants.NAME);
-		image.setUrl(hostUrl + Constants.RESOURCE_PATH + "gitblt_25.png");
+		image.setUrl(hostUrl + "/gitblt_25.png");
 		image.setLink(hostUrl);
 		feed.setImage(image);
 

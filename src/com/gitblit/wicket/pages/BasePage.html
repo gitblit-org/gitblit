@@ -4,25 +4,21 @@
       xml:lang="en"  
       lang="en"> 
 
-	<!-- Head with Wicket-controlled resources in this package -->
+	<!-- Head -->
 	<wicket:head>
    		<title wicket:id="title">[page title]</title>
-   		<wicket:link>
-   			<link rel="stylesheet" type="text/css" href="/com/gitblit/wicket/resources/gitblit.css"/>
-   			<link rel="shortcut icon" href="/com/gitblit/wicket/resources/gitblt-favicon.png" type="image/png" />
-   		</wicket:link>
+		<link rel="stylesheet" type="text/css" href="gitblit.css"/>
+		<link rel="icon" href="gitblt-favicon.png" type="image/png" />
 	</wicket:head>
 
 	<body>
 		<!-- page header -->
 		<div class="page_header">
 			<a title="gitblit homepage" href="http://gitblit.com/">
-				<wicket:link>
-					<img src="/com/gitblit/wicket/resources/gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>
-				</wicket:link>
+				<img src="gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>
 			</a>
 			<span>
-				<a href="/"><span wicket:id="siteName">[site name]</span></a> / <span wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span>
+				<span wicket:id="siteName">[site name]</span> / <span wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span>
 			</span>	
 		</div>
 

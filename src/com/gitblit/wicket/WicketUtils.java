@@ -169,7 +169,7 @@ public class WicketUtils {
 	}
 
 	public static ContextImage newImage(String wicketId, String file, String tooltip) {
-		ContextImage img = new ContextImage(wicketId, com.gitblit.Constants.RESOURCE_PATH + file);
+		ContextImage img = new ContextImage(wicketId, file);
 		if (!StringUtils.isEmpty(tooltip)) {
 			setHtmlTooltip(img, tooltip);
 		}
@@ -177,7 +177,7 @@ public class WicketUtils {
 	}
 
 	public static ContextRelativeResource getResource(String file) {
-		return new ContextRelativeResource(com.gitblit.Constants.RESOURCE_PATH + file);
+		return new ContextRelativeResource(file);
 	}
 
 	public static String getHostURL(Request request) {

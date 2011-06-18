@@ -12,10 +12,10 @@ There are a few ways this can occur:
 3. The repository is clone-restricted and your password changed.
 4. A regression in Gitblit.  :(
 
-### Why can't I access Gitblit from another machine?
+### Why can't I access Gitblit-Go from another machine?
 Please check *server.httpBindInterface* and *server.httpsBindInterface* in `gitblit.properties`.
 
-### How do I run Gitblit on port 80 or 443 in Linux?
+### How do I run Gitblit-Go on port 80 or 443 in Linux?
 Linux requires root permissions to serve on ports < 1024.<br/>
 Run the server as *root* (security concern) or change the ports you are serving to 8080 (http) and/or 8443 (https). 
 
@@ -47,21 +47,11 @@ Gitblit eliminates all that complication with its 100% Java stack and simple sin
 No.  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
 Everything you need for Gitblit is either in the zip distribution file or automatically downloaded on execution.
 
-### What about periodic Git garbage collection (git-gc)?
-Good question.  I'm not sure.
-
-Git repositories grow and grow and periodically need to be repacked every once in a while.  Git calls this process [garbage collection](http://www.kernel.org/pub/software/scm/git/docs/git-gc.html) (which is not to be confused with [garbage collection](http://en.wikipedia.org/wiki/Garbage_collection_(computer_science)).)
-
-[JGit's][jgit] documentation is sparse and its unclear whether or not JGit performs this function.
-
 ### Can I run Gitblit in conjunction with my existing Git tooling?
-Yes.  You can configure Gitblit to only be a repository viewer.
+Yes.
 
 ### Do I need a JDK or can I use a JRE?
 Gitblit will run just fine with a JRE.  Gitblit can optionally use `keytool` from the JDK to generate self-signed certificates, but normally Gitblit uses [BouncyCastle][bouncycastle] for that need.
-
-### I want to deploy Gitblit into my own servlet container.  Where is the WAR?
-At this time there is no WAR build available.
 
 ### Does Gitblit use a database to store its data?
 No.  Gitblit stores its repository configuration information within the `.git/config` file and its user information in `users.properties` or whatever filename is configured in `gitblit.properties`.
@@ -75,6 +65,9 @@ Yes.  You can manually manipulate all of them and (most) changes will be immedia
 No.  Access restrictions apply to the repository as a whole.
 
 Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).  Should you require more fine-grained access controls you might consider using [gitolite](https://github.com/sitaramc/gitolite).
+
+### Can I authenticate users against XYZ?
+Yes.  The login service is pluggable.  You may write your own authentication module by implementing the *ILoginService* interface.  Set the fully qualified classname as the *realm.realmFile* property.
 
 ### Why doesn't Gitblit support SSH?
 Gitblit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Gitblit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>

@@ -16,15 +16,11 @@
 package com.gitblit.utils;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
-
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jgit.util.Base64;
 
 public class StringUtils {
 
@@ -152,9 +148,10 @@ public class StringUtils {
 			md.update(string.getBytes("iso-8859-1"));
 			byte[] digest = md.digest();
 			return toHex(digest);
-		} catch (Exception e) {
-			Log.warn(e);
-			return null;
+		} catch (UnsupportedEncodingException u) {
+			throw new RuntimeException(u);
+		} catch (NoSuchAlgorithmException t) {
+			throw new RuntimeException(t);
 		}
 	}
 
@@ -168,11 +165,7 @@ public class StringUtils {
 		}
 		return sb.toString();
 	}
-
-	public static String decodeBase64(String base64) {
-		return new String(Base64.decode(base64), Charset.forName("UTF-8"));
-	}
-
+	
 	public static String getRootPath(String path) {
 		if (path.indexOf('/') > -1) {
 			return path.substring(0, path.lastIndexOf('/'));

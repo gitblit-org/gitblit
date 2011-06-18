@@ -8,8 +8,10 @@
 <wicket:panel>
 
 	<!-- header -->	
-	<div class="header" wicket:id="header">[search header]</div>
+	<div wicket:id="commitHeader">[search header]</div>
 
+	<!-- header -->	
+	<div style="margin-top:10px;font-weight:bold;" class="header"><wicket:message key="gb.search"></wicket:message>: <span wicket:id="searchString">[search string]</span> (<span wicket:id="searchType">[search type]</span>)</div>
 	<table class="pretty">
 		<tbody>
        		<tr wicket:id="commit">
