@@ -1,20 +1,18 @@
 Gitblit
 =================
 
-Gitblit is an open source, pure Java Git solution for creating, viewing, and serving [Git](http://git-scm.com) repositories.<br/>
+Gitblit is an open source, pure Java Git solution for managing, viewing, and serving [Git](http://git-scm.com) repositories.<br/>
 More information about Gitblit can be found [here](http://gitblit.com).
 
 License
 -------
 
-Gitblit is distributed under the terms of the Apache Software Foundation
-license, version 2.0. The text of the license is included in the file LICENSE in the root
-of the project.
+Gitblit is distributed under the terms of the Apache Software Foundation license, version 2.0. The text of the license is included in the file LICENSE in the root of the project.
 
-Java/Application server requirements
+Java Runtime Requirement
 ------------------------------------
 
-Gitblit requires at least Java 1.6.
+Gitblit requires at Java 6 Runtime Environment (JRE) or a Java 6 Development Kit (JDK).
 
 Getting help
 ------------

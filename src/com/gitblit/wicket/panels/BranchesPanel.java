@@ -27,18 +27,20 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
+import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.MetricsPage;
+import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
@@ -90,11 +92,24 @@ public class BranchesPanel extends BasePanel {
 						entry.displayName, 28), LogPage.class, WicketUtils.newObjectParameter(
 						model.name, entry.getName())));
 
-				// only show branch type on the branches page
-				boolean remote = entry.getName().startsWith(Constants.R_REMOTES);
-				item.add(new Label("branchType", remote ? getString("gb.remote")
-						: getString("gb.local")).setVisible(maxCount <= 0));
-
+				String author = entry.getAuthorIdent().getName();
+				LinkPanel authorLink = new LinkPanel("branchAuthor", "list", author,
+						SearchPage.class, WicketUtils.newSearchParameter(model.name, entry.getName(),
+								author, SearchType.AUTHOR));
+				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
+				item.add(authorLink);
+				
+				// short message
+				String shortMessage = entry.getShortMessage();
+				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+				LinkPanel shortlog = new LinkPanel("branchLog", "list subject",
+						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
+								model.name, entry.getName()));
+				if (!shortMessage.equals(trimmedMessage)) {
+					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
+				}
+				item.add(shortlog);
+				
 				if (maxCount <= 0) {
 					Fragment fragment = new Fragment("branchLinks", "branchPageLinks", this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
@@ -103,8 +118,9 @@ public class BranchesPanel extends BasePanel {
 							.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 							WicketUtils.newObjectParameter(model.name, entry.getName())));
-					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
-							.getRelativePathPrefixToContextRoot(), model.name, entry.getName(), 0)));
+					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(
+							getRequest().getRelativePathPrefixToContextRoot(), model.name,
+							entry.getName(), 0)));
 					item.add(fragment);
 				} else {
 					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);

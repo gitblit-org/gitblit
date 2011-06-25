@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,7 +206,7 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				error("Unauthorized access for repository " + repositoryName, true);
+				authenticationError("Unauthorized access for repository " + repositoryName);
 				return null;
 			}
 			m = model;
@@ -333,7 +334,9 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newPathParameter(repositoryName, objectId, path);
 	}
 
-	private static class PageRegistration {
+	private static class PageRegistration implements Serializable {
+		private static final long serialVersionUID = 1L;
+
 		final String translationKey;
 		final Class<? extends BasePage> pageClass;
 
@@ -343,7 +346,7 @@ public abstract class RepositoryPage extends BasePage {
 		}
 	}
 
-	private static class SearchForm extends StatelessForm<Void> {
+	private static class SearchForm extends StatelessForm<Void> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final String repositoryName;

@@ -1,0 +1,64 @@
+## Gitblit Features
+- JGit SmartHTTP servlet
+- Browser and git client authentication
+- Four repository access control configurations with a Read-Only control flag
+    <ul class='noBullets'>
+    <li>![anonymous](blank.png) *Anonymous View, Clone & Push*</li>
+    <li>![push](lock_go_16x16.png) *Authenticated Push*</li>
+    <li>![clone](lock_pull_16x16.png) *Authenticated Clone & Push*</li>
+    <li>![view](shield_16x16.png) *Authenticated View, Clone & Push*</li>
+    <li>![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
+    </ul>
+- Gitweb inspired web UI
+- Administrators may create, edit, rename, or delete repositories through the web UI
+- Administrators may create, edit, rename, or delete users through the web UI
+- Repository Owners may edit repositories through the web UI
+- Git-notes support
+- Branch metrics (uses Google Charts)
+- HEAD and Branch RSS feeds
+- Blame annotations view
+- Dates can optionally be displayed using the browser's reported timezone
+- Display of Author and Committer email addresses can be disabled
+- Case-insensitive searching of commit messages, authors, or committers
+- Dynamic zip downloads feature
+- Markdown file view support
+- Syntax highlighting for popular source code types
+- Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
+- Single text file for users configuration
+- Optional utility pages
+    <ul class='noBullets'>
+    <li>![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository</li>
+    <li>![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*</li>
+    </ul>
+
+## Gitblit GO Features
+- Out-of-the-box integrated stack requiring minimal configuration
+- Automatically generates a self-signed certificate for https communications
+- Single text file for configuring server and gitblit
+
+## Limitations
+- HTTP/HTTPS are the only supported protocols
+- Access controls are not path-based, they are repository-based
+- Only Administrators can create, rename or delete repositories
+- Only Administrators can create, modify or delete users
+
+### Caveats
+- Gitblit may eat your data.  Use at your own risk.
+- Gitblit may have security holes.  Patches welcome.  :)
+
+## Todo List
+- Code documentation
+- Unit testing
+- Update to JGit 1.0.0 when JGit team provides Maven artifacts
+
+### Under Consideration
+- Clone remote repository feature
+- Blob page improvements
+    - view images
+    - view other binary files (pdf, doc, etc)
+- Markdown editing feature
+- Stronger Ticgit read-only integration
+    - activity/timeline
+    - query feature with paging support
+    - change history
+- Ticgit write integration

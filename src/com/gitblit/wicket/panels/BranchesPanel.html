@@ -8,14 +8,15 @@
 <wicket:panel>
 
 	<!-- header -->
-	<div class="header" wicket:id="branches">[branches header]</div>	
+	<div class="header"><img style="vertical-align: top;" src="commit_branch_16x16.png"></img><span wicket:id="branches">[branches header]</span></div>	
 	
 	<table class="pretty">
 		<tbody>
        		<tr wicket:id="branch">
          		<td class="date"><span wicket:id="branchDate">[branch date]</span></td>
          		<td><span wicket:id="branchName">[branch name]</span></td>
-         		<td><span wicket:id="branchType">[branch type]</span></td>
+         		<td class="author"><span wicket:id="branchAuthor">[branch author]</span></td>
+         		<td><span wicket:id="branchLog">[branch log]</span></td>
          		<td class="rightAlign">
          			<span wicket:id="branchLinks"></span>
 				</td>

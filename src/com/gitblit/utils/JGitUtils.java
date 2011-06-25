@@ -402,12 +402,12 @@ public class JGitUtils {
 
 	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
-		RevWalk rw = new RevWalk(r);		
+		RevWalk rw = new RevWalk(r);
 		try {
 			if (commit == null) {
 				ObjectId object = r.resolve(Constants.HEAD);
 				commit = rw.parseCommit(object);
-			}			
+			}
 
 			if (commit.getParentCount() == 0) {
 				TreeWalk tw = new TreeWalk(r);
@@ -441,7 +441,7 @@ public class JGitUtils {
 		} catch (Throwable t) {
 			LOGGER.error("failed to determine files in commit!", t);
 		} finally {
-			rw.dispose();			
+			rw.dispose();
 		}
 		return list;
 	}
@@ -526,6 +526,9 @@ public class JGitUtils {
 	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset,
 			int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (maxCount == 0) {
+			return list;
+		}
 		if (!hasCommits(r)) {
 			return list;
 		}
@@ -591,6 +594,9 @@ public class JGitUtils {
 			final SearchType type, int offset, int maxCount) {
 		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (maxCount == 0) {
+			return list;
+		}
 		if (!hasCommits(r)) {
 			return list;
 		}
@@ -677,6 +683,9 @@ public class JGitUtils {
 
 	private static List<RefModel> getRefs(Repository r, String refs, boolean fullName, int maxCount) {
 		List<RefModel> list = new ArrayList<RefModel>();
+		if (maxCount == 0) {
+			return list;
+		}
 		try {
 			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
 			RevWalk rw = new RevWalk(r);

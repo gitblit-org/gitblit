@@ -24,6 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
+import com.gitblit.utils.StringUtils;
+
 public class BuildWebXml {
 	private static final String PARAMS = "<!-- PARAMS -->";
 
@@ -34,9 +40,21 @@ public class BuildWebXml {
 	private static final String PARAM_PATTERN = "\n\t<context-param>\n\t\t<param-name>{0}</param-name>\n\t\t<param-value>{1}</param-value>\n\t</context-param>\n";
 
 	public static void main(String[] args) throws Exception {
+		Params params = new Params();
+		JCommander jc = new JCommander(params);
+		try {
+			jc.parse(args);
+		} catch (ParameterException t) {
+			System.err.println(t.getMessage());
+			jc.usage();
+		}
+		generateWebXml(params);
+	}
+
+	private static void generateWebXml(Params params) throws Exception {
 		// Read the current Gitblit properties
 		BufferedReader propertiesReader = new BufferedReader(new FileReader(new File(
-				"distrib/gitblit.properties")));
+				params.propertiesFile)));
 
 		Vector<Setting> settings = new Vector<Setting>();
 		List<String> comments = new ArrayList<String>();
@@ -68,11 +86,11 @@ public class BuildWebXml {
 			for (String comment : setting.comments) {
 				parameters.append(MessageFormat.format(COMMENT_PATTERN, comment));
 			}
-			parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name, setting.value));
+			parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name, StringUtils.escapeForHtml(setting.value, false)));
 		}
 
 		// Read the prototype web.xml file
-		File webxml = new File("src/WEB-INF/web.xml");
+		File webxml = new File(params.sourceFile);
 		char[] buffer = new char[(int) webxml.length()];
 		FileReader webxmlReader = new FileReader(webxml);
 		webxmlReader.read(buffer);
@@ -90,7 +108,7 @@ public class BuildWebXml {
 		sb.append(webXmlContent.substring(idx + PARAMS.length()));
 
 		// Save the merged web.xml to the war build folder
-		FileOutputStream os = new FileOutputStream(new File("war/WEB-INF/web.xml"), false);
+		FileOutputStream os = new FileOutputStream(new File(params.destinationFile), false);
 		os.write(sb.toString().getBytes());
 		os.close();
 	}
@@ -109,5 +127,19 @@ public class BuildWebXml {
 			this.value = value;
 			this.comments = new ArrayList<String>(comments);
 		}
+	}
+
+	@Parameters(separators = " ")
+	private static class Params {
+
+		@Parameter(names = { "--sourceFile" }, description = "Source web.xml file", required = true)
+		public String sourceFile;
+
+		@Parameter(names = { "--propertiesFile" }, description = "Properties settings file", required = true)
+		public String propertiesFile;
+
+		@Parameter(names = { "--destinationFile" }, description = "Destination web.xml file", required = true)
+		public String destinationFile;
+
 	}
 }

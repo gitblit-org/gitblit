@@ -1,11 +1,25 @@
-## Gitblit-Go Setup and Configuration
+## Gitblit WAR Setup
 
-1. Download and unzip [Gitblit-Go %VERSION%](http://gitblit.com/%GO%).<br/>
-*Its best to eliminate spaces in the path name as that can cause troubleshooting headaches.* 
+1. Download [Gitblit WAR %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) to the webapps folder of your servlet container.<br/>
+2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.  Manual extraction depends on if your servlet container is configured to automatically deploy WAR files.
+3. Copy the `WEB-INF/users.properties` file to a location outside the webapps folder but accessible by your servlet container.  
+4. The Gitblit webapp is configured through its `web.xml` file.<br/>
+Open `web.xml` in your favorite text editor and make sure to review and set:
+    - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
+    - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.properties`)
+5. You may have to restart your servlet container. 
+6. Open your browser to <http://localhost/gitblit> or whatever the url should be.
+7. Click the *Login* link and enter the default administrator credentials: **admin / admin**<br/>
+**NOTE:** Make sure to change the administrator username and/or password!! 
+
+## Gitblit GO Setup
+
+1. Download and unzip [Gitblit GO %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%GO%).<br/>
+*Its best to eliminate spaces in the path name.* 
 2. The server itself is configured through a simple text file.<br/>
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
-    - *git.repositoryFolder*
-    - *server.tempFolder*
+    - *git.repositoryFolder* (path my be relative or absolute)
+    - *server.tempFolder* (path my be relative or absolute)
     - *server.httpBindInterface* and *server.httpsBindInterface*<br/>
 **NOTE:** Consider using **https** exclusively because passwords for authentication are transmitted as clear text!     
     - *server.storePassword*<br/>
@@ -15,6 +29,36 @@ Open `gitblit.properties` in your favorite text editor and make sure to review a
 5. Open your browser to <http://localhost> or <https://localhost> depending on your chosen configuration.
 6. Click the *Login* link and enter the default administrator credentials: **admin / admin**<br/>
 **NOTE:** Make sure to change the administrator username and/or password!! 
+
+### Creating your own Self-Signed Certificate
+Gitblit GO automatically generates an ssl certificate for you that contains generic, non-personalized information.
+
+Should you want to include more personal or server-specific information in your self-signed certificate you will have to generate a new one.
+ 
+Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd` script and execute it.<br/>
+**NOTE:** If you manually generate an ssl certificate, the certificate password AND the keystore password must match!
+
+### Running as a Windows Service
+Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your installed Java Virtual Machine.<br/>
+Set the *JVM* variable in the script to the location of your Java Virtual Machine, add any necessary start parameters, and execute the script.
+
+#### Command-Line Parameters
+Command-Line parameters override the values in `gitblit.properties` at runtime.
+
+	--repositoriesFolder   Git Repositories Folder
+    --userService          Authentication and Authorization Service (filename or fully qualified classname)
+    --useNio               Use NIO Connector else use Socket Connector.
+    --httpPort             HTTP port for to serve. (port <= 0 will disable this connector)
+    --httpsPort            HTTPS port to serve.  (port <= 0 will disable this connector)
+    --storePassword        Password for SSL (https) keystore.
+    --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
+    --tempFolder           Folder for server to extract built-in webapp
+    
+**Example**
+
+    java -jar gitblit.jar --userService c:\myrealm.properties --storePassword something
+    
+## Gitblit Configuration
 
 ### Administering Repositories
 Repositories can be created, edited, renamed, and deleted through the web UI.  They may also be created, edited, and deleted from the command-line using real [Git](http://git-scm.com) or your favorite file manager and text editor.
@@ -37,7 +81,7 @@ Whitespace is illegal.
 
 Repositories can be grouped within subfolders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
 
-All created repositories are *bare* and will automatically have *.git* appended to the name at creation time, if not already specified. 
+All repositories created with Gitblit are *bare* and will automatically have *.git* appended to the name at creation time, if not already specified. 
 
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
@@ -58,29 +102,13 @@ User passwords are CASE-SENSITIVE and may be *plain* or *md5* formatted (see `gi
 #### User Roles
 There is only one actual *role* in Gitblit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
-### Creating your own Self-Signed Certificate
+## Authentication and Authorization Customization
+Instead of maintaining a `users.properties` file, you may want to integrate Gitblit into an existing environment.
 
-Review the contents of the `makekeystore.cmd` or `makekeystore_jdk.cmd` script and execute it.<br/>
-**NOTE:** If you manually generate an ssl certificate, the certificate password AND the keystore password must match!
+You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.<br/>
 
-### Running as a Service
-Review the contents of the `installService.cmd` or `installService64.cmd`, as appropriate for your installed Java Virtual Machine.<br/>
-Set the *JVM* variable in the script to the location of your Java Virtual Machine, add any necessary start parameters, and execute the script.
+Your user service class must be on Gitblit's classpath and must have a public default constructor. 
 
-#### Command-Line Parameters
-    --tempFolder           Server temp folder
-	--repositoriesFolder   Git Repositories Folder
-    --realmFile            Users Realm Hash File
-    --useNio               Use NIO Connector else use Socket Connector.
-    --httpPort             HTTP port for to serve. (port <= 0 will disable this connector)
-    --httpsPort            HTTPS port to serve.  (port <= 0 will disable this connector)
-    --storePassword        Password for SSL (https) keystore.
-    --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
-    
-**Example**
-
-    java -jar gitblit.jar --realmFile c:\myrealm.txt --storePassword something
-    
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates
 You must tell Git not to verify the self-signed certificate in order to perform any remote Git operations.

@@ -22,8 +22,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +33,44 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
-public class FileLoginService extends FileSettings implements ILoginService {
+public class FileUserService extends FileSettings implements IUserService {
 
-	private final Logger logger = LoggerFactory.getLogger(FileLoginService.class);
+	private final Logger logger = LoggerFactory.getLogger(FileUserService.class);
 
-	public FileLoginService(File realmFile) {
+	private final Map<String, String> cookies = new ConcurrentHashMap<String, String>();
+
+	public FileUserService(File realmFile) {
 		super(realmFile.getAbsolutePath());
+	}
+
+	@Override
+	public boolean supportsCookies() {
+		return true;
+	}
+
+	@Override
+	public char[] getCookie(UserModel model) {
+		Properties allUsers = super.read();
+		String value = allUsers.getProperty(model.username);
+		String[] roles = value.split(",");
+		String password = roles[0];
+		String cookie = StringUtils.getSHA1(model.username + password);
+		return cookie.toCharArray();
+	}
+
+	@Override
+	public UserModel authenticate(char[] cookie) {
+		String hash = new String(cookie);
+		if (StringUtils.isEmpty(hash)) {
+			return null;
+		}
+		read();
+		UserModel model = null;
+		if (cookies.containsKey(hash)) {
+			String username = cookies.get(hash);
+			model = getUserModel(username);
+		}
+		return model;
 	}
 
 	@Override
@@ -149,7 +183,7 @@ public class FileLoginService extends FileSettings implements ILoginService {
 	}
 
 	@Override
-	public List<String> getUsernamesForRole(String role) {
+	public List<String> getUsernamesForRepository(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
 			Properties allUsers = read();
@@ -172,7 +206,7 @@ public class FileLoginService extends FileSettings implements ILoginService {
 	}
 
 	@Override
-	public boolean setUsernamesForRole(String role, List<String> usernames) {
+	public boolean setUsernamesForRepository(String role, List<String> usernames) {
 		try {
 			Set<String> specifiedUsers = new HashSet<String>(usernames);
 			Set<String> needsAddRole = new HashSet<String>(specifiedUsers);
@@ -239,7 +273,7 @@ public class FileLoginService extends FileSettings implements ILoginService {
 	}
 
 	@Override
-	public boolean renameRole(String oldRole, String newRole) {
+	public boolean renameRepositoryRole(String oldRole, String newRole) {
 		try {
 			Properties allUsers = read();
 			Set<String> needsRenameRole = new HashSet<String>();
@@ -294,7 +328,7 @@ public class FileLoginService extends FileSettings implements ILoginService {
 	}
 
 	@Override
-	public boolean deleteRole(String role) {
+	public boolean deleteRepositoryRole(String role) {
 		try {
 			Properties allUsers = read();
 			Set<String> needsDeleteRole = new HashSet<String>();
@@ -368,5 +402,22 @@ public class FileLoginService extends FileSettings implements ILoginService {
 			throw new IOException(MessageFormat.format("Failed to save {0}!",
 					realmFileCopy.getAbsolutePath()));
 		}
+	}
+
+	@Override
+	protected synchronized Properties read() {
+		long lastRead = lastRead();
+		Properties allUsers = super.read();
+		if (lastRead != lastRead()) {
+			// reload hash cache
+			cookies.clear();
+			for (String username : allUsers.stringPropertyNames()) {
+				String value = allUsers.getProperty(username);
+				String[] roles = value.split(",");
+				String password = roles[0];
+				cookies.put(StringUtils.getSHA1(username + password), username);
+			}
+		}
+		return allUsers;
 	}
 }

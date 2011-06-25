@@ -27,7 +27,9 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.http.Cookie;
 
+import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -55,7 +57,7 @@ public class GitBlit implements ServletContextListener {
 
 	private boolean exportAll = true;
 
-	private ILoginService loginService;
+	private IUserService userService;
 
 	private IStoredSettings storedSettings;
 
@@ -105,44 +107,81 @@ public class GitBlit implements ServletContextListener {
 		return cloneUrls;
 	}
 
-	public void setLoginService(ILoginService loginService) {
-		logger.info("Setting up login service " + loginService.toString());
-		this.loginService = loginService;
+	public void setUserService(IUserService userService) {
+		logger.info("Setting up user service " + userService.toString());
+		this.userService = userService;
 	}
 
 	public UserModel authenticate(String username, char[] password) {
-		if (loginService == null) {
+		if (userService == null) {
 			return null;
 		}
-		return loginService.authenticate(username, password);
+		return userService.authenticate(username, password);
+	}
+
+	public UserModel authenticate(Cookie[] cookies) {
+		if (userService == null) {
+			return null;
+		}
+		if (userService.supportsCookies()) {
+			if (cookies != null && cookies.length > 0) {
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals(Constants.NAME)) {
+						String value = cookie.getValue();
+						return userService.authenticate(value.toCharArray());
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	public void setCookie(WebResponse response, UserModel user) {
+		if (userService == null) {
+			return;
+		}
+		if (userService.supportsCookies()) {
+			Cookie userCookie;
+			if (user == null) {
+				// clear cookie for logout
+				userCookie = new Cookie(Constants.NAME, "");
+			} else {
+				// set cookie for login
+				char[] cookie = userService.getCookie(user);
+				userCookie = new Cookie(Constants.NAME, new String(cookie));
+				userCookie.setMaxAge(Integer.MAX_VALUE);
+			}
+			userCookie.setPath("/");
+			response.addCookie(userCookie);
+		}
 	}
 
 	public List<String> getAllUsernames() {
-		List<String> names = new ArrayList<String>(loginService.getAllUsernames());
+		List<String> names = new ArrayList<String>(userService.getAllUsernames());
 		Collections.sort(names);
 		return names;
 	}
 
 	public boolean deleteUser(String username) {
-		return loginService.deleteUser(username);
+		return userService.deleteUser(username);
 	}
 
 	public UserModel getUserModel(String username) {
-		UserModel user = loginService.getUserModel(username);
+		UserModel user = userService.getUserModel(username);
 		return user;
 	}
 
 	public List<String> getRepositoryUsers(RepositoryModel repository) {
-		return loginService.getUsernamesForRole(repository.name);
+		return userService.getUsernamesForRepository(repository.name);
 	}
 
 	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
-		return loginService.setUsernamesForRole(repository.name, repositoryUsers);
+		return userService.setUsernamesForRepository(repository.name, repositoryUsers);
 	}
 
 	public void editUserModel(String username, UserModel user, boolean isCreate)
 			throws GitBlitException {
-		if (!loginService.updateUserModel(username, user)) {
+		if (!userService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
 	}
@@ -181,6 +220,9 @@ public class GitBlit implements ServletContextListener {
 
 	public RepositoryModel getRepositoryModel(UserModel user, String repositoryName) {
 		RepositoryModel model = getRepositoryModel(repositoryName);
+		if (model == null) {
+			return null;
+		}
 		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
 			if (user != null && user.canAccessRepository(model.name)) {
 				return model;
@@ -261,7 +303,7 @@ public class GitBlit implements ServletContextListener {
 							repository.name));
 				}
 				// rename the roles
-				if (!loginService.renameRole(repositoryName, repository.name)) {
+				if (!userService.renameRepositoryRole(repositoryName, repository.name)) {
 					throw new GitBlitException(MessageFormat.format(
 							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
 							repositoryName, repository.name));
@@ -309,7 +351,7 @@ public class GitBlit implements ServletContextListener {
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
 				FileUtils.delete(folder, FileUtils.RECURSIVE);
-				if (loginService.deleteRole(repositoryName)) {
+				if (userService.deleteRepositoryRole(repositoryName)) {
 					return true;
 				}
 			}
@@ -360,13 +402,13 @@ public class GitBlit implements ServletContextListener {
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
-		String realm = settings.getString(Keys.realm.realmFile, "users.properties");
-		ILoginService loginService = null;
+		String realm = settings.getString(Keys.realm.userService, "users.properties");
+		IUserService loginService = null;
 		try {
 			// Check to see if this "file" is a login service class
 			Class<?> realmClass = Class.forName(realm);
-			if (ILoginService.class.isAssignableFrom(realmClass)) {
-				loginService = (ILoginService) realmClass.newInstance();
+			if (IUserService.class.isAssignableFrom(realmClass)) {
+				loginService = (IUserService) realmClass.newInstance();
 			}
 		} catch (Throwable t) {
 			// Not a login service class OR other issue
@@ -380,9 +422,9 @@ public class GitBlit implements ServletContextListener {
 							MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmFile), x);
 				}
 			}
-			loginService = new FileLoginService(realmFile);
+			loginService = new FileUserService(realmFile);
 		}
-		setLoginService(loginService);
+		setUserService(loginService);
 	}
 
 	@Override

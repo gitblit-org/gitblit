@@ -86,10 +86,10 @@ public class Build {
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.ROME, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.COMPILETIME);
-		
+
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
-		
+
 		// needed for site publishing
 		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
@@ -401,18 +401,17 @@ public class Build {
 				"e528f593b19b04d500992606f58b87fcfded8883",
 				"d0ffadd0a4ab909d94a577b5aad43c13b617ddcb");
 
-		public static final MavenObject COMMONSNET = new MavenObject("commons-net", "commons-net", "commons-net",
-				"1.4.0", 181000, 0, 0, "eb47e8cad2dd7f92fd7e77df1d1529cae87361f7",
-				"",
-				"");
-		
-		public static final MavenObject ROME = new MavenObject("rome", "rome", "rome",
-				"0.9", 208000, 196000, 407000, "dee2705dd01e79a5a96a17225f5a1ae30470bb18",
+		public static final MavenObject COMMONSNET = new MavenObject("commons-net", "commons-net",
+				"commons-net", "1.4.0", 181000, 0, 0, "eb47e8cad2dd7f92fd7e77df1d1529cae87361f7",
+				"", "");
+
+		public static final MavenObject ROME = new MavenObject("rome", "rome", "rome", "0.9",
+				208000, 196000, 407000, "dee2705dd01e79a5a96a17225f5a1ae30470bb18",
 				"226f851dc44fd94fe70b9c471881b71f88949cbf",
 				"8d7d867b97eeb3a9196c3926da550ad042941c1b");
 
-		public static final MavenObject JDOM = new MavenObject("jdom", "org/jdom", "jdom",
-				"1.1", 153000, 235000, 445000, "1d04c0f321ea337f3661cf7ede8f4c6f653a8fdd",
+		public static final MavenObject JDOM = new MavenObject("jdom", "org/jdom", "jdom", "1.1",
+				153000, 235000, 445000, "1d04c0f321ea337f3661cf7ede8f4c6f653a8fdd",
 				"a7ed425c4c46605b8f2bf2ee118c1609682f4f2c",
 				"f3df91edccba2f07a0fced70887c2f7b7836cb75");
 

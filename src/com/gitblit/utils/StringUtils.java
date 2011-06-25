@@ -58,6 +58,11 @@ public class StringUtils {
 		return retStr.toString();
 	}
 
+	public static String decodeFromHtml(String inStr) {
+		return inStr.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
+				.replace("&quot;", "\"").replace("&nbsp;", " ");
+	}
+
 	public static String encodeURL(String inStr) {
 		StringBuffer retStr = new StringBuffer();
 		int i = 0;
@@ -165,7 +170,7 @@ public class StringUtils {
 		}
 		return sb.toString();
 	}
-	
+
 	public static String getRootPath(String path) {
 		if (path.indexOf('/') > -1) {
 			return path.substring(0, path.lastIndexOf('/'));

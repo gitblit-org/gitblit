@@ -1,0 +1,69 @@
+## Design Principles
+1. [Keep It Simple, Stupid](http://en.wikipedia.org/wiki/KISS_principle)
+2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
+3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies, to keep the Gitblit GO distribution svelte, and to automate the setup of developer environments.  
+
+## Architecture
+
+![block diagram](architecture.png "Gitblit Architecture")
+
+### Bundled Dependencies
+The following dependencies are bundled with Gitblit.
+
+- [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
+- [JavaService](http://forge.ow2.org/projects/javaservice) (BSD and LGPL)
+- magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)
+- modified Git logo originally designed by [Henrik Nyh](http://henrik.nyh.se/2007/06/alternative-git-logo-and-favicon)
+- other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
+
+### Downloaded Dependencies
+The following dependencies are automatically downloaded by Gitblit GO (or already bundled with the WAR) from the Apache Maven repository and from the Eclipse Maven repository when Gitblit is launched for the first time.
+
+- [JGit][jgit] (EDL 1.0)
+- [Wicket](http://wicket.apache.org) (Apache 2.0)
+- [WicketStuff GoogleCharts](https://github.com/wicketstuff/core/wiki/GoogleCharts) (Apache 2.0)
+- [MarkdownPapers](http://markdown.tautua.org) (Apache 2.0)
+- [Jetty](http://eclipse.org/jetty) (Apache 2.0, EPL 1.0)
+- [SLF4J](http://www.slf4j.org) (MIT/X11)
+- [Log4j](http://logging.apache.org/log4j) (Apache 2.0) 
+- [JCommander](http://jcommander.org) (Apache 2.0)
+- [BouncyCastle](http://www.bouncycastle.org) (MIT/X11)
+- [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
+- [Rome](http://rome.dev.java.net) (Apache 1.1)
+- [jdom](http://www.jdom.org) (Apache-style JDOM license)
+
+### Other Build Dependencies
+- [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)
+- [JUnit](http://junit.org) (Common Public License)
+- [commons-net](http://commons.apache.org/net) (Apache 2.0)
+- [ant-googlecode](http://code.google.com/p/ant-googlecode) (New BSD)
+
+## Building from Source
+[Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.
+
+Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [eclipse-cs](http://eclipse-cs.sourceforge.net), [FindBugs](http://findbugs.sourceforge.net), and [EclEmma](http://www.eclemma.org) are recommended development tools.
+
+1. Clone the git repository from [Github][gitbltsrc].
+2. Import the gitblit project into your Eclipse workspace.<br/>
+*There will be lots of build errors.*
+3. Using Ant, execute the `build.xml` script in the project root.<br/>
+*This will download all necessary build dependencies and will also generate the Keys class for accessing settings.*
+4. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
+5. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.<br/>
+*This will clone some repositories from the web and run through the unit tests.*
+5. Review the settings in `gitblit.properties` in your project root.
+    - By default, the *git.repositoriesFolder* points to the repositories cloned by the test suite.<br/>
+    - If running on Linux you may have to change the served port(s) to > 1024 unless you are developing as the root user. 
+6. Execute the *com.gitblit.Launcher* class to start Gitblit.
+
+
+## Contributing
+Patches welcome in any form.
+
+Contributions must be your own original work and must licensed under the [Apache License, Version 2.0][apachelicense], the same license used by Gitblit.
+
+[jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
+[git]: http://git-scm.com "Official Git Site"
+[gitbltsrc]: http://github.com/gitblit "gitblit git repository"
+[googlecode]: http://code.google.com/p/gitblit "gitblit project management"
+[apachelicense]: http://www.apache.org/licenses/LICENSE-2.0 "Apache License, Version 2.0"

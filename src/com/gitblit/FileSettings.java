@@ -45,7 +45,7 @@ public class FileSettings extends IStoredSettings {
 				Properties props = new Properties();
 				is = new FileInputStream(propertiesFile);
 				props.load(is);
-				
+
 				// load properties after we have successfully read file
 				properties.clear();
 				properties.putAll(props);
@@ -65,6 +65,10 @@ public class FileSettings extends IStoredSettings {
 			}
 		}
 		return properties;
+	}
+
+	protected long lastRead() {
+		return lastread;
 	}
 
 	@Override

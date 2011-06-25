@@ -35,7 +35,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(DiffOutputType.forName("gitblit").equals(DiffOutputType.GITBLIT));
 		assertTrue(DiffOutputType.forName(null) == null);
 	}
-	
+
 	public void testParentCommitDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -107,10 +107,11 @@ public class DiffUtilsTest extends TestCase {
 		String expected = "-		system.out.println(\"Hello World\");\n+		System.out.println(\"Hello World\"";
 		assertTrue(patch.indexOf(expected) > -1);
 	}
-	
+
 	public void testBlame() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<AnnotatedLine> lines = DiffUtils.blame(repository, "java.java", "1d0c2933a4ae69c362f76797d42d6bd182d05176");
+		List<AnnotatedLine> lines = DiffUtils.blame(repository, "java.java",
+				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
 		repository.close();
 		assertTrue(lines.size() > 0);
 		assertTrue(lines.get(0).commitId.equals("c6d31dccf5cc75e8e46299fc62d38f60ec6d41e0"));

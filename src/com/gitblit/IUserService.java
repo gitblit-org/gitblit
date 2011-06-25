@@ -19,7 +19,13 @@ import java.util.List;
 
 import com.gitblit.models.UserModel;
 
-public interface ILoginService {
+public interface IUserService {
+
+	boolean supportsCookies();
+
+	char[] getCookie(UserModel model);
+
+	UserModel authenticate(char[] cookie);
 
 	UserModel authenticate(String username, char[] password);
 
@@ -35,13 +41,13 @@ public interface ILoginService {
 
 	List<String> getAllUsernames();
 
-	List<String> getUsernamesForRole(String role);
+	List<String> getUsernamesForRepository(String role);
 
-	boolean setUsernamesForRole(String role, List<String> usernames);
+	boolean setUsernamesForRepository(String role, List<String> usernames);
 
-	boolean renameRole(String oldRole, String newRole);
+	boolean renameRepositoryRole(String oldRole, String newRole);
 
-	boolean deleteRole(String role);
-	
+	boolean deleteRepositoryRole(String role);
+
 	String toString();
 }

@@ -24,7 +24,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
-import com.gitblit.FileLoginService;
+import com.gitblit.FileUserService;
 import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
@@ -45,6 +45,7 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(ByteFormatTest.class);
 		suite.addTestSuite(MarkdownUtilsTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
+		suite.addTestSuite(SyndicationUtilsTest.class);
 		suite.addTestSuite(DiffUtilsTest.class);
 		suite.addTestSuite(MetricUtilsTest.class);
 		suite.addTestSuite(TicgitUtilsTest.class);
@@ -72,8 +73,8 @@ public class GitBlitSuite extends TestSetup {
 	protected void setUp() throws Exception {
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
 		GitBlit.self().configureContext(settings);
-		FileLoginService loginService = new FileLoginService(new File("distrib/users.properties"));
-		GitBlit.self().setLoginService(loginService);
+		FileUserService loginService = new FileUserService(new File("distrib/users.properties"));
+		GitBlit.self().setUserService(loginService);
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
 			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");

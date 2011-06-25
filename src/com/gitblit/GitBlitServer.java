@@ -111,7 +111,7 @@ public class GitBlitServer {
 	 * Start Server.
 	 */
 	private static void start(Params params) {
-		FileSettings settings = params.FILESETTINGS;
+		FileSettings settings = Params.FILESETTINGS;
 
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
@@ -194,15 +194,15 @@ public class GitBlitServer {
 		sessionManager.setSecureCookies(params.port <= 0 && params.securePort > 0);
 		rootContext.getSessionHandler().setSessionManager(sessionManager);
 
-		// Ensure there is a defined Login Service
-		String realmUsers = params.realmFile;
+		// Ensure there is a defined User Service
+		String realmUsers = params.userService;
 		if (StringUtils.isEmpty(realmUsers)) {
-			logger.error(MessageFormat.format("PLEASE SPECIFY {0}!!", Keys.realm.realmFile));
+			logger.error(MessageFormat.format("PLEASE SPECIFY {0}!!", Keys.realm.userService));
 			return;
 		}
-		
+
 		// Override settings
-		settings.overrideSetting(Keys.realm.realmFile, params.realmFile);
+		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 
 		// Set the server's contexts
@@ -342,7 +342,7 @@ public class GitBlitServer {
 		@Parameter(names = { "--stop" }, description = "Stop Server")
 		public Boolean stop = false;
 
-		@Parameter(names = { "--tempFolder" }, description = "Server temp folder")
+		@Parameter(names = { "--tempFolder" }, description = "Folder for server to extract built-in webapp")
 		public String temp = FILESETTINGS.getString(Keys.server.tempFolder, "temp");
 
 		/*
@@ -355,8 +355,8 @@ public class GitBlitServer {
 		/*
 		 * Authentication Parameters
 		 */
-		@Parameter(names = { "--realmFile" }, description = "Users Realm Hash File")
-		public String realmFile = FILESETTINGS.getString(Keys.realm.realmFile, "users.properties");
+		@Parameter(names = { "--userService" }, description = "Authentication and Authorization Service (filename or fully qualified classname)")
+		public String userService = FILESETTINGS.getString(Keys.realm.userService, "users.properties");
 
 		/*
 		 * JETTY Parameters

@@ -16,11 +16,16 @@
 package com.gitblit.wicket.pages;
 
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.protocol.http.WebResponse;
+
+import com.gitblit.GitBlit;
+import com.gitblit.wicket.GitBlitWebSession;
 
 public class LogoutPage extends WebPage {
 
 	public LogoutPage() {
-		getSession().invalidate();
+		GitBlitWebSession.get().invalidate();
+		GitBlit.self().setCookie(((WebResponse) getResponse()), null);
 		setRedirect(true);
 		setResponsePage(getApplication().getHomePage());
 	}

@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="gitblit" default="main" basedir=".">
+<project name="gitblit" default="compile" basedir=".">
+
+	<!-- Google Code upload task -->
+	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${basedir}/tools/ant-googlecode-0.0.3.jar" name="gcupload"/>
 
 	<!-- Project Properties -->
 	<property name="project.jar" value="gitblit.jar" />
 	<property name="project.mainclass" value="com.gitblit.Launcher" />
 	<property name="project.build.dir" value="${basedir}/build" />
-	<property name="project.resources.dir" value="${basedir}/resources" />
+	<property name="project.deploy.dir" value="${basedir}/deploy" />
+	<property name="project.war.dir" value="${basedir}/war" />
+	<property name="project.site.dir" value="${basedir}/site" />
+	<property name="project.resources.dir" value="${basedir}/resources" />	
 
+	<!-- Load publication servers, paths, and credentials --> 
 	<loadproperties srcfile="${basedir}/build.properties" />
 	
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Scrape the version info from code and setup the build properties 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
 	<target name="buildinfo">
 		<!-- build date -->
 		<tstamp>
@@ -43,15 +56,18 @@
 					<trim />
 				</tokenfilter>
 			</filterchain>
-		</loadfile>
-		<echo>Building Gitblit ${gb.version}</echo>
-		
+		</loadfile>	
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
 	</target>
 	
-	<!-- Build Gitblit GO -->
-	<target name="main" description="Compiles Gitblit from source to website" depends="buildinfo">
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Compile
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="compile" depends="buildinfo" description="Retrieves dependencies and compiles Gitblit from source">
 
 		<!-- copy required distribution files to project folder -->
 		<copy todir="${basedir}" overwrite="false">
@@ -67,8 +83,7 @@
 		<delete dir="${project.build.dir}" />
 		<mkdir dir="${project.build.dir}" />
 		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
-			<include name="com/gitblit/Build.java" />
-			<include name="com/gitblit/BuildWebXml.java" />
+			<include name="com/gitblit/Build.java" />			
 			<include name="com/gitblit/Constants.java" />
 			<include name="com/gitblit/utils/StringUtils.java" />			
 		</javac>
@@ -87,10 +102,31 @@
 		<copy todir="${project.build.dir}">
 			<fileset dir="${basedir}/src" excludes="**/*.java,**/thumbs.db" />
 		</copy>
+	</target>
+
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build Gitblit GO
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildGO" depends="compile" description="Build Gitblit GO distribution">
+		
+		<echo>Building Gitblit GO ${gb.version}</echo>
+
+		<!-- Delete the deploy folder -->
+		<delete dir="${project.deploy.dir}" />
+
+		<!-- Create deployment folder structure -->
+		<mkdir dir="${project.deploy.dir}" />
+		<copy todir="${project.deploy.dir}">
+			<fileset dir="${basedir}/distrib">
+				<include name="**/*" />
+			</fileset>
+		</copy>
 
 		<!-- Build jar -->
-		<delete file="${project.jar}" />
-		<jar jarfile="${project.jar}">
+		<jar jarfile="${project.deploy.dir}/${project.jar}">
 			<fileset dir="${project.build.dir}">
 				<include name="**/*" />
 			</fileset>
@@ -102,10 +138,200 @@
 			</manifest>
 		</jar>
 
+		<!-- Build the docs for the deploy -->
+		<antcall target="buildDocs" inheritall="true" inheritrefs="true">
+			<param name="docs.output.dir" value="${project.deploy.dir}/docs" />
+		</antcall>
+		
+		<!-- Create Zip deployment -->		
+		<zip destfile="${distribution.zipfile}">
+			<fileset dir="${project.deploy.dir}">
+				<include name="**/*" />
+			</fileset>
+		</zip>
+
+	</target>
+	
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build Gitblit Docs which are bundled with GO and WAR downloads
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildDocs">
+	<!-- Build Docs -->
+			<mkdir dir="${docs.output.dir}" />
+			<copy todir="${docs.output.dir}">
+				<!-- Copy selected Gitblit resources -->
+				<fileset dir="${project.resources.dir}">
+					<include name="background.png" />
+					<include name="gitblit.css" />
+					<include name="markdown.css" />
+					<include name="gitblt_25.png" />
+					<include name="gitblt-favicon.png" />
+					<include name="lock_go_16x16.png" />
+					<include name="lock_pull_16x16.png" />
+					<include name="shield_16x16.png" />
+					<include name="cold_16x16.png" />
+					<include name="bug_16x16.png" />
+					<include name="book_16x16.png" />
+					<include name="blank.png" />
+				</fileset>
+
+				<!-- Copy Doc images -->
+				<fileset dir="${basedir}/docs">
+					<include name="*.png" />
+				</fileset>
+			</copy>
+
+			<!-- Copy google-code-prettify -->
+			<mkdir dir="${docs.output.dir}/prettify" />
+			<copy todir="${docs.output.dir}/prettify">
+				<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
+					<exclude name="thumbs.db" />
+				</fileset>
+			</copy>
+
+			<!-- Build deployment doc pages -->
+			<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
+				<classpath refid="master-classpath" />
+				<arg value="--sourceFolder" />
+				<arg value="${basedir}/docs" />
+
+				<arg value="--outputFolder" />
+				<arg value="${docs.output.dir}" />
+
+				<arg value="--pageHeader" />
+				<arg value="${basedir}/docs/doc_header.html" />
+
+				<arg value="--pageFooter" />
+				<arg value="${basedir}/docs/doc_footer.html" />
+
+				<arg value="--skip" />
+				<arg value="screenshots" />
+
+				<arg value="--skip" />
+				<arg value="releases" />
+
+				<arg value="--alias" />
+				<arg value="index=overview" />
+
+				<arg value="--alias" />
+				<arg value="properties=gitblit.properties" />
+
+				<arg value="--substitute" />
+				<arg value="%VERSION%=${gb.version}" />
+
+				<arg value="--substitute" />
+				<arg value="%GO%=${distribution.zipfile}" />
+
+				<arg value="--substitute" />
+				<arg value="%WAR%=${distribution.warfile}" />
+
+				<arg value="--substitute" />
+				<arg value="%BUILDDATE%=${gb.buildDate}" />
+
+				<arg value="--substitute" />
+				<arg value="%JGIT%=${jgit.version}" />
+
+				<arg value="--load" />
+				<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
+
+			</java>
+	</target>
+	
+				
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build Gitblit WAR
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildWAR" depends="compile" description="Build Gitblit WAR">
+		
+		<echo>Building Gitblit WAR ${gb.version}</echo>
+		
+		<delete dir="${project.war.dir}" />		
+
+		<!-- Copy web.xml and users.properties to WEB-INF -->
+		<copy todir="${project.war.dir}/WEB-INF">
+			<fileset dir="${basedir}/distrib">
+			 	<include name="users.properties" />
+			</fileset>
+			<fileset dir="${basedir}/src/WEB-INF">
+			 	<include name="web.xml" />
+			</fileset>
+		</copy>
+		
+		<!-- Build the docs for the WAR build -->
+		<antcall target="buildDocs" inheritall="true" inheritrefs="true">
+			<param name="docs.output.dir" value="${project.war.dir}/WEB-INF/docs" />
+		</antcall>
+		
+		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties --> 
+		<java classpath="${project.build.dir}" classname="com.gitblit.BuildWebXml">
+			<classpath refid="master-classpath" />
+			
+			<arg value="--sourceFile" />
+			<arg value="${basedir}/src/WEB-INF/web.xml" />
+					
+			<arg value="--destinationFile" />
+			<arg value="${project.war.dir}/WEB-INF/web.xml" />
+			
+			<arg value="--propertiesFile" />
+			<arg value="${basedir}/distrib/gitblit.properties" />
+		</java>
+
+		<!-- Gitblit resources -->
+		<copy todir="${project.war.dir}">
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+		
+		<!-- Gitblit library dependencies -->
+		<mkdir dir="${project.war.dir}/WEB-INF/lib"/>
+		<copy todir="${project.war.dir}/WEB-INF/lib">
+			<fileset dir="${basedir}/ext">
+				<exclude name="*-sources.jar" />
+				<exclude name="*-javadoc.jar" />
+				<exclude name="jcommander*.jar" />
+				<exclude name="jetty*.jar" />
+				<exclude name="junit*.jar" />
+				<exclude name="servlet*.jar" />
+			</fileset>
+		</copy>
+
+		<!-- Gitblit classes -->
+		<mkdir dir="${project.war.dir}/WEB-INF/classes"/>
+		<copy todir="${project.war.dir}/WEB-INF/classes">
+			<fileset dir="${project.build.dir}">
+				<exclude name="WEB-INF/web.xml" />
+				<exclude name="com/gitblit/tests/" />
+				<exclude name="com/gitblit/Build*.class" />
+				<exclude name="com/gitblit/GitBlitServer*.class" />
+				<exclude name="com/gitblit/Launcher*.class" />
+				<exclude name="com/gitblit/MakeCertificate*.class" />				
+			</fileset>
+		</copy>
+
+		<!-- Build the WAR file -->
+		<jar basedir="${project.war.dir}" destfile="${distribution.warfile}" compress="true" />
+	</target>
+
+	
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build the Gitblit Website
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildSite" depends="compile" description="Build the Gitblit website">
+		
+		<echo>Building Gitblit Website ${gb.version}</echo>
+
 		<!-- Build Site -->
-		<delete dir="${basedir}/site" />
-		<mkdir dir="${basedir}/site" />
-		<copy todir="${basedir}/site">
+		<delete dir="${project.site.dir}" />
+		<mkdir dir="${project.site.dir}" />
+		<copy todir="${project.site.dir}">
 			<!-- Copy selected Gitblit resources -->
 			<fileset dir="${project.resources.dir}">
 				<include name="background.png" />
@@ -130,8 +356,8 @@
 		</copy>
 
 		<!-- Copy Fancybox -->
-		<mkdir dir="${basedir}/site/fancybox" />
-		<copy todir="${basedir}/site/fancybox">
+		<mkdir dir="${project.site.dir}/fancybox" />
+		<copy todir="${project.site.dir}/fancybox">
 			<fileset dir="${basedir}/docs/fancybox">
 				<exclude name="thumbs.db" />
 			</fileset>
@@ -139,29 +365,29 @@
 
 		<!-- Copy google-code-prettify -->
 		<mkdir dir="${basedir}/src/com/gitblit/wicket/pages/prettify" />
-		<copy todir="${basedir}/site/prettify">
+		<copy todir="${project.site.dir}/prettify">
 			<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
 				<exclude name="thumbs.db" />
 			</fileset>
 		</copy>
 
 		<!-- Generate thumbnails of screenshots -->
-		<java classpath="${project.build.dir}" classname="com.gitblit.Thumbnailer">
+		<java classpath="${project.build.dir}" classname="com.gitblit.BuildThumbnails">
 			<classpath refid="master-classpath" />
 				
 			<arg value="--sourceFolder" />
 			<arg value="${basedir}/docs/screenshots" />
 		
 			<arg value="--destinationFolder" />
-			<arg value="${basedir}/site/thumbs" />
+			<arg value="${project.site.dir}/thumbs" />
 			
 			<arg value="--maximumDimension" />
 			<arg value="250" />
 		</java>
 
 		<!-- Copy screenshots -->
-		<mkdir dir="${basedir}/site/screenshots" />
-		<copy todir="${basedir}/site/screenshots">
+		<mkdir dir="${project.site.dir}/screenshots" />
+		<copy todir="${project.site.dir}/screenshots">
 			<fileset dir="${basedir}/docs/screenshots">
 				<include name="*.png" />
 			</fileset>
@@ -174,7 +400,7 @@
 			<arg value="${basedir}/docs" />
 
 			<arg value="--outputFolder" />
-			<arg value="${basedir}/site" />
+			<arg value="${project.site.dir}" />
 
 			<arg value="--pageHeader" />
 			<arg value="${basedir}/docs/site_header.html" />
@@ -192,7 +418,10 @@
 			<arg value="%VERSION%=${gb.version}" />
 
 			<arg value="--substitute" />
-			<arg value="%DISTRIBUTION%=${distribution.zipfile}" />
+			<arg value="%GO%=${distribution.zipfile}" />
+
+			<arg value="--substitute" />
+			<arg value="%WAR%=${distribution.warfile}" />
 
 			<arg value="--substitute" />
 			<arg value="%BUILDDATE%=${gb.buildDate}" />
@@ -204,189 +433,83 @@
 			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
 
 		</java>
-
-		<!-- Delete the deploy folder -->
-		<delete dir="${basedir}/deploy" />
-
-		<!-- Create deployment folder structure -->
-		<mkdir dir="${basedir}/deploy" />
-		<copy todir="${basedir}/deploy" file="${project.jar}" />
-		<copy todir="${basedir}/deploy">
-			<fileset dir="${basedir}/distrib">
-				<include name="**/*" />
-			</fileset>
-		</copy>
-
-		<!-- Build Deployment Docs -->
-		<mkdir dir="${basedir}/deploy/docs" />
-		<copy todir="${basedir}/deploy/docs">
-			<!-- Copy selected Gitblit resources -->
-			<fileset dir="${project.resources.dir}">
-				<include name="background.png" />
-				<include name="gitblit.css" />
-				<include name="markdown.css" />
-				<include name="gitblt_25.png" />
-				<include name="gitblt-favicon.png" />
-				<include name="lock_go_16x16.png" />
-				<include name="lock_pull_16x16.png" />
-				<include name="shield_16x16.png" />
-				<include name="cold_16x16.png" />
-				<include name="bug_16x16.png" />
-				<include name="book_16x16.png" />
-				<include name="blank.png" />
-			</fileset>
-
-			<!-- Copy Doc images -->
-			<fileset dir="${basedir}/docs">
-				<include name="*.png" />
-			</fileset>
-		</copy>
-
-		<!-- Copy google-code-prettify -->
-		<mkdir dir="${basedir}/src/com/gitblit/wicket/pages/prettify" />
-		<copy todir="${basedir}/deploy/docs/prettify">
-			<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
-				<exclude name="thumbs.db" />
-			</fileset>
-		</copy>
-
-		<!-- Build deployment doc pages -->
-		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
-			<classpath refid="master-classpath" />
-			<arg value="--sourceFolder" />
-			<arg value="${basedir}/docs" />
-
-			<arg value="--outputFolder" />
-			<arg value="${basedir}/deploy/docs" />
-
-			<arg value="--pageHeader" />
-			<arg value="${basedir}/docs/page_header.html" />
-
-			<arg value="--pageFooter" />
-			<arg value="${basedir}/docs/page_footer.html" />
-
-			<arg value="--skip" />
-			<arg value="screenshots" />
-
-			<arg value="--skip" />
-			<arg value="releases" />
-
-			<arg value="--alias" />
-			<arg value="index=overview" />
-
-			<arg value="--alias" />
-			<arg value="properties=gitblit.properties" />
-
-			<arg value="--substitute" />
-			<arg value="%VERSION%=${gb.version}" />
-
-			<arg value="--substitute" />
-			<arg value="%DISTRIBUTION%=${distribution.zipfile}" />
-
-			<arg value="--substitute" />
-			<arg value="%BUILDDATE%=${gb.buildDate}" />
-
-			<arg value="--substitute" />
-			<arg value="%JGIT%=${jgit.version}" />
-
-			<arg value="--load" />
-			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
-
-		</java>
+	</target>
 		
-		<!-- Create Zip deployment -->		
-		<zip destfile="${distribution.zipfile}">
-			<fileset dir="${basedir}/deploy">
-				<include name="**/*" />
-			</fileset>
-		</zip>
 
-		<!-- Delete the deploy folder -->
-		<delete dir="${basedir}/deploy" />
-
-		<!-- Cleanup builds -->
-		<delete>
-			<fileset dir="${basedir}">
-				<include name="${project.jar}" />
-			</fileset>
-		</delete>
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Compile from source, publish binaries, and build & deploy site
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildAll" depends="buildGO,buildWAR,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
+		<delete dir="${project.war.dir}" />
+		<delete dir="${project.deploy.dir}" />
 	</target>
-		
+				
 	
-	<!-- Build Gitblit WAR -->
-	<target name="buildWAR" description="Build the Gitblit WAR" depends="buildinfo">
-		<path id="master-classpath">
-			<fileset dir="${basedir}/ext">
-				<include name="*.jar" />
-			</fileset>
-		</path>
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Publish binaries to Google Code
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="publishBinaries" depends="buildGO,buildWAR" description="Publish the Gitblit binaries to Google Code">
+		
+		<echo>Uploading Gitblit ${gb.version} binaries</echo>
+		
+		<!-- Upload ZIP file -->
+		<gcupload 
+			 username="${googlecode.user}" 
+			 password="${googlecode.password}" 
+			 projectname="gitblit" 
+			 filename="${distribution.zipfile}" 
+			 targetfilename="gitblit-${gb.version}.zip"
+			 summary="Standalone, integrated Gitblit server v${gb.version}"
+			 labels="Featured, Type-Package, OpSys-All" />
 			
-		<delete dir="${basedir}/war" />
-		<mkdir dir="${basedir}/war/WEB-INF/lib"/>
-		
-		<!-- Gitblit web.xml --> 
-		<java classpath="${project.build.dir}" classname="com.gitblit.BuildWebXml">
-			<classpath refid="master-classpath" />
-		</java>
-
-		<!-- Gitblit resources -->
-		<copy todir="${basedir}/war">
-			<fileset dir="${project.resources.dir}">
-				<exclude name="thumbs.db" />
-			</fileset>
-		</copy>
-		
-		<!-- Gitblit library dependencies -->
-		<copy todir="${basedir}/war/WEB-INF/lib">
-			<fileset dir="${basedir}/ext">
-				<exclude name="*-sources.jar" />
-				<exclude name="*-javadoc.jar" />
-				<exclude name="jcommander*.jar" />
-				<exclude name="jetty*.jar" />
-				<exclude name="junit*.jar" />
-				<exclude name="servlet*.jar" />
-			</fileset>
-		</copy>
-
-		<!-- Gitblit classes -->
-		<mkdir dir="${basedir}/war/WEB-INF/classes"/>
-		<copy todir="${basedir}/war/WEB-INF/classes">
-			<fileset dir="${basedir}/bin">
-				<exclude name="WEB-INF/web.xml" />
-				<exclude name="com/gitblit/tests/" />
-				<exclude name="com/gitblit/Build*.class" />
-				<exclude name="com/gitblit/GitBlitServer*.class" />
-				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/MakeCertificate*.class" />
-				<exclude name="com/gitblit/Thumbnailer*.class" />
-			</fileset>
-		</copy>
-
-		<!-- Build the WAR file -->
-		<jar basedir="${basedir}/war" destfile="${distribution.warfile}" compress="true" />
+		<!-- Upload WAR file -->
+		<gcupload 
+		     username="${googlecode.user}" 
+		     password="${googlecode.password}" 
+		     projectname="gitblit" 
+		     filename="${distribution.warfile}" 
+		     targetfilename="gitblit-${gb.version}.war"
+		     summary="Gitblit WAR v${gb.version} for your servlet container"
+		     labels="Featured, Type-Package, OpSys-All" />
 	</target>
 
 	
-	<!-- Publish binaries to github -->
-	<target name="publishBinaries" description="Publish the Gitblit distribution to Github">
-		<!-- TODO -->
-		<!-- https://github.com/oyvindkinsey/GitHubUploadTask -->
-	</target>
-
-	
-	<!-- Publish site to hosting service -->
-	<!-- You must add ext/commons-net-1.4.0.jar to your	ANT classpath. -->
-	<target name="publishSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)">
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Publish site to hosting service
+		You must add ext/commons-net-1.4.0.jar to your ANT classpath.
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="publishSite" depends="buildSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)" >
+		
+		<echo>Uploading Gitblit ${gb.version} website</echo>
+		
 		<ftp server="${ftp.server}"
 			userid="${ftp.user}"
 			password="${ftp.password}"
 			remotedir="${ftp.dir}"
 			passive="true"
 			verbose="yes">
-		<fileset dir="${basedir}/site" />
+		<fileset dir="${project.site.dir}" />
 		</ftp>
 	</target>
+
 	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Compile from source, publish binaries, and build & deploy site
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="publishAll" depends="publishBinaries,publishSite">		
+		<!-- Cleanup -->
+		<delete dir="${project.build.dir}" />
+		<delete dir="${project.war.dir}" />
+		<delete dir="${project.deploy.dir}" />
+	</target>
 </project>

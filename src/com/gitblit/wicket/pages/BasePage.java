@@ -19,13 +19,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +38,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -45,14 +50,40 @@ public abstract class BasePage extends WebPage {
 	public BasePage() {
 		super();
 		logger = LoggerFactory.getLogger(getClass());
+		loginByCookie();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
 		logger = LoggerFactory.getLogger(getClass());
+		loginByCookie();
+	}
+
+	private void loginByCookie() {
+		if (!GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
+			return;
+		}
+		UserModel user = null;
+
+		// Grab cookie from Browser Session
+		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
+		if (cookies != null && cookies.length > 0) {
+			user = GitBlit.self().authenticate(cookies);
+		}
+
+		// Login the user
+		if (user != null) {
+			// Set the user into the session
+			GitBlitWebSession.get().setUser(user);
+
+			// Set Cookie
+			WebResponse response = (WebResponse) getRequestCycle().getResponse();
+			GitBlit.self().setCookie(response, user);
+		}
 	}
 
 	protected void setupPage(String repositoryName, String pageName) {
+
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", getServerName() + " - " + repositoryName));
 		} else {
@@ -122,7 +153,7 @@ public abstract class BasePage extends WebPage {
 		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
 		return req.getServerName();
 	}
-	
+
 	public void warn(String message, Throwable t) {
 		logger.warn(message, t);
 	}
@@ -131,7 +162,7 @@ public abstract class BasePage extends WebPage {
 		logger.error(message);
 		if (redirect) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			throw new RestartResponseAtInterceptPageException(getApplication().getHomePage());
+			throw new RestartResponseException(getApplication().getHomePage());
 		} else {
 			super.error(message);
 		}
@@ -141,9 +172,18 @@ public abstract class BasePage extends WebPage {
 		logger.error(message, t);
 		if (redirect) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			throw new RestartResponseAtInterceptPageException(getApplication().getHomePage());
+			throw new RestartResponseException(getApplication().getHomePage());
 		} else {
 			super.error(message);
+		}
+	}
+
+	public void authenticationError(String message) {
+		logger.error(message);
+		if (GitBlitWebSession.get().isLoggedIn()) {
+			error(message, true);
+		} else {
+			throw new RestartResponseAtInterceptPageException(LoginPage.class);
 		}
 	}
 }

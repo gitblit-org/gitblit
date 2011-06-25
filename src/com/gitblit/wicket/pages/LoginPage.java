@@ -15,7 +15,10 @@
  */
 package com.gitblit.wicket.pages;
 
+import javax.servlet.http.Cookie;
+
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -24,6 +27,8 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -42,8 +47,11 @@ public class LoginPage extends WebPage {
 		// If we are already logged in because user directly accessed
 		// the login url, redirect to the home page
 		if (GitBlitWebSession.get().isLoggedIn()) {
-			setRedirect(true);
-			setResponsePage(getApplication().getHomePage());
+			throw new RestartResponseException(getApplication().getHomePage());
+		}
+
+		if (GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
+			loginByCookie();
 		}
 
 		add(new Label("title", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
@@ -72,10 +80,29 @@ public class LoginPage extends WebPage {
 		add(loginForm);
 	}
 
+	private void loginByCookie() {
+		UserModel user = null;
+
+		// Grab cookie from Browser Session
+		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
+		if (cookies != null && cookies.length > 0) {
+			user = GitBlit.self().authenticate(cookies);
+		}
+
+		// Login the user
+		loginUser(user);
+	}
+
 	private void loginUser(UserModel user) {
 		if (user != null) {
 			// Set the user into the session
 			GitBlitWebSession.get().setUser(user);
+
+			// Set Cookie
+			if (GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
+				WebResponse response = (WebResponse) getRequestCycle().getResponse();
+				GitBlit.self().setCookie(response, user);
+			}
 
 			if (!continueToOriginalDestination()) {
 				// Redirect to home page

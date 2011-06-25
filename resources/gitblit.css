@@ -56,6 +56,11 @@ img.inlineIcon {
 	padding-right: 1px;
 }
 
+img.overview {
+	float:right;
+	border:1px solid #CCCCCC;
+}
+
 a {
 	color: #0000cc;
 }

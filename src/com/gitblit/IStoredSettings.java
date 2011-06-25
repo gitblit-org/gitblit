@@ -27,7 +27,7 @@ import com.gitblit.utils.StringUtils;
 public abstract class IStoredSettings {
 
 	protected final Logger logger;
-	
+
 	protected final Properties overrides = new Properties();
 
 	public IStoredSettings(Class<? extends IStoredSettings> clazz) {
@@ -35,7 +35,7 @@ public abstract class IStoredSettings {
 	}
 
 	protected abstract Properties read();
-	
+
 	private Properties getSettings() {
 		Properties props = read();
 		props.putAll(overrides);
@@ -110,7 +110,7 @@ public abstract class IStoredSettings {
 		}
 		return strings;
 	}
-	
+
 	public void overrideSetting(String key, String value) {
 		overrides.put(key, value);
 	}

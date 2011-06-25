@@ -62,7 +62,7 @@ public class SyndicationServlet extends HttpServlet {
 		}
 		return url.toString();
 	}
-	
+
 	public static String getTitle(String repository, String objectId) {
 		String id = objectId;
 		if (!StringUtils.isEmpty(id)) {

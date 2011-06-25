@@ -58,18 +58,11 @@ public class SummaryPage extends RepositoryPage {
 	public SummaryPage(PageParameters params) {
 		super(params);
 
-		int numCommitsDef = 20;
-		int numRefsDef = 5;
-
-		int numberCommits = GitBlit.getInteger(Keys.web.summaryCommitCount, numCommitsDef);
+		int numberCommits = GitBlit.getInteger(Keys.web.summaryCommitCount, 20);
 		if (numberCommits <= 0) {
-			numberCommits = numCommitsDef;
+			numberCommits = 20;
 		}
-
-		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, numRefsDef);
-		if (numberRefs <= 0) {
-			numberRefs = numRefsDef;
-		}
+		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, 5);
 
 		Repository r = getRepository();
 		List<Metric> metrics = null;
@@ -78,7 +71,7 @@ public class SummaryPage extends RepositoryPage {
 			metrics = MetricUtils.getDateMetrics(r, null, true, null);
 			metricsTotal = metrics.remove(0);
 		}
-		
+
 		addSyndicationDiscoveryLink();
 
 		// repository description
@@ -121,7 +114,7 @@ public class SummaryPage extends RepositoryPage {
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
 			StringBuilder sb = new StringBuilder();
-			sb.append(WicketUtils.getHostURL(getRequestCycle().getRequest()));					
+			sb.append(WicketUtils.getHostURL(getRequestCycle().getRequest()));
 			sb.append(Constants.GIT_PATH);
 			sb.append(repositoryName);
 			repositoryUrls.add(sb.toString());

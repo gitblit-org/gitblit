@@ -36,9 +36,9 @@ public class Constants {
 	public static final String GIT_PATH = "/git/";
 
 	public static final String ZIP_PATH = "/zip/";
-	
+
 	public static final String SYNDICATION_PATH = "/feed/";
-	
+
 	public static final String BORDER = "***********************************************************";
 
 	public static enum AccessRestrictionType {

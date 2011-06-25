@@ -130,7 +130,8 @@ public class EditUserPage extends BasePage {
 					String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
 					if (type.equalsIgnoreCase("md5")) {
 						// store MD5 digest of password
-						userModel.password = StringUtils.MD5_TYPE + StringUtils.getMD5(userModel.password);
+						userModel.password = StringUtils.MD5_TYPE
+								+ StringUtils.getMD5(userModel.password);
 					}
 				}
 

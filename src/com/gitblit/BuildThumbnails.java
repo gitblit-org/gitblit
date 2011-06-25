@@ -33,7 +33,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
-public class Thumbnailer {
+public class BuildThumbnails {
 
 	public static void main(String[] args) {
 		Params params = new Params();
@@ -127,7 +127,7 @@ public class Thumbnailer {
 		@Parameter(names = { "--destinationFolder" }, description = "Destination folder for thumbnails", required = true)
 		public String destinationFolder;
 
-		@Parameter(names = { "--maxDimension" }, description = "Maximum width or height for thumbnail", required = true)
+		@Parameter(names = { "--maximumDimension" }, description = "Maximum width or height for thumbnail", required = true)
 		public int maximumDimension;
 
 	}

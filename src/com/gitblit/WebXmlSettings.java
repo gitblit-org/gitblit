@@ -20,20 +20,28 @@ import java.util.Properties;
 
 import javax.servlet.ServletContext;
 
+import com.gitblit.utils.StringUtils;
+
 public class WebXmlSettings extends IStoredSettings {
 
 	private final Properties properties = new Properties();
-	
+
 	public WebXmlSettings(ServletContext context) {
 		super(WebXmlSettings.class);
 		Enumeration<?> keys = context.getInitParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement().toString();
 			String value = context.getInitParameter(key);
-			properties.put(key, value);
+			properties.put(key, decodeValue(value));
+			logger.debug(key + "=" + properties.getProperty(key));
 		}
 	}
 	
+	private String decodeValue(String value) {
+		// Decode escaped backslashes and HTML entities
+		return StringUtils.decodeFromHtml(value).replace("\\\\", "\\");
+	}
+
 	@Override
 	protected Properties read() {
 		return properties;

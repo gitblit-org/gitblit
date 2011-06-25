@@ -90,13 +90,10 @@ public class TagsPanel extends BasePanel {
 				item.add(new LinkPanel("tagName", "list name", entry.displayName, linkClass,
 						WicketUtils.newObjectParameter(repositoryName, entry
 								.getReferencedObjectId().getName())));
-				String message;
-				if (maxCount > 0) {
-					message = StringUtils.trimString(entry.getShortMessage(), 40);
-				} else {
-					// workaround for RevTag returning a lengthy shortlog. :(
-					message = StringUtils.trimShortLog(entry.getShortMessage());
-				}
+				
+				// workaround for RevTag returning a lengthy shortlog. :(
+				String message = StringUtils.trimShortLog(entry.getShortMessage());
+
 				if (linkClass.equals(BlobPage.class)) {
 					// Blob Tag Object
 					item.add(WicketUtils.newImage("tagIcon", "file_16x16.png"));

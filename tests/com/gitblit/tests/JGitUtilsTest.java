@@ -138,6 +138,7 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testBranches() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
+		assertTrue(JGitUtils.getLocalBranches(repository, true, 0).size() == 0);
 		for (RefModel model : JGitUtils.getLocalBranches(repository, true, -1)) {
 			assertTrue(model.getName().startsWith(Constants.R_HEADS));
 			assertTrue(model.equals(model));
@@ -160,6 +161,7 @@ public class JGitUtilsTest extends TestCase {
 
 	public void testTags() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
+		assertTrue(JGitUtils.getTags(repository, true, 5).size() == 5);
 		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
 			if (model.getObjectId().getName().equals("d28091fb2977077471138fe97da1440e0e8ae0da")) {
 				assertTrue("Not an annotated tag!", model.isAnnotatedTag());
@@ -276,6 +278,7 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testRevlog() throws Exception {
+		assertTrue(JGitUtils.getRevLog(null, 0).size() == 0);
 		List<RevCommit> commits = JGitUtils.getRevLog(null, 10);
 		assertTrue(commits.size() == 0);
 
@@ -306,6 +309,7 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testSearchRevlogs() throws Exception {
+		assertTrue(JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0, 0).size() == 0);
 		List<RevCommit> results = JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0,
 				3);
 		assertTrue(results.size() == 0);

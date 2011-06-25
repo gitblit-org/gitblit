@@ -43,7 +43,7 @@ public class UserModel implements Principal, Serializable {
 	}
 
 	@Override
-	public String getName() {	
+	public String getName() {
 		return username;
 	}
 

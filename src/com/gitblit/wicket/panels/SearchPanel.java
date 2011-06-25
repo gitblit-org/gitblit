@@ -74,7 +74,7 @@ public class SearchPanel extends BasePanel {
 
 		// header
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
-		
+
 		add(new Label("searchString", value));
 		add(new Label("searchType", searchType.toString()));
 
