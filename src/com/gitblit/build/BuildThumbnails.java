@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.build;
 
 import java.awt.Dimension;
 import java.awt.Image;

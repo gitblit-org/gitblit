@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.gitblit.build.Build;
+
 /**
  * Launch helper class that adds all jars found in the local "lib" folder and
  * then calls the application main. Using this technique we do not have to

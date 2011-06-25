@@ -83,11 +83,11 @@
 		<delete dir="${project.build.dir}" />
 		<mkdir dir="${project.build.dir}" />
 		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
-			<include name="com/gitblit/Build.java" />			
+			<include name="com/gitblit/build/Build.java" />			
 			<include name="com/gitblit/Constants.java" />
 			<include name="com/gitblit/utils/StringUtils.java" />			
 		</javac>
-		<java classpath="${project.build.dir}" classname="com.gitblit.Build" />
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.Build" />
 
 		<!-- Compile Project -->
 		<path id="master-classpath">
@@ -193,7 +193,7 @@
 			</copy>
 
 			<!-- Build deployment doc pages -->
-			<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
+			<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildSite">
 				<classpath refid="master-classpath" />
 				<arg value="--sourceFolder" />
 				<arg value="${basedir}/docs" />
@@ -268,7 +268,7 @@
 		</antcall>
 		
 		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties --> 
-		<java classpath="${project.build.dir}" classname="com.gitblit.BuildWebXml">
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildWebXml">
 			<classpath refid="master-classpath" />
 			
 			<arg value="--sourceFile" />
@@ -307,7 +307,7 @@
 			<fileset dir="${project.build.dir}">
 				<exclude name="WEB-INF/web.xml" />
 				<exclude name="com/gitblit/tests/" />
-				<exclude name="com/gitblit/Build*.class" />
+				<exclude name="com/gitblit/build/**" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />				
@@ -372,7 +372,7 @@
 		</copy>
 
 		<!-- Generate thumbnails of screenshots -->
-		<java classpath="${project.build.dir}" classname="com.gitblit.BuildThumbnails">
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildThumbnails">
 			<classpath refid="master-classpath" />
 				
 			<arg value="--sourceFolder" />
@@ -394,7 +394,7 @@
 		</copy>
 
 		<!-- Build site pages -->
-		<java classpath="${project.build.dir}" classname="com.gitblit.BuildSite">
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildSite">
 			<classpath refid="master-classpath" />
 			<arg value="--sourceFolder" />
 			<arg value="${basedir}/docs" />

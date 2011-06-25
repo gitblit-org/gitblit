@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.build;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +36,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.gitblit.Constants;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 
