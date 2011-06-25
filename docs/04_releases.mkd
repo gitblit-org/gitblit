@@ -1,7 +1,7 @@
 ## Release History
 
 ### Current Release
-%VERSION% ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] with Blame backport &nbsp; (*%BUILDDATE%*)
+%VERSION% ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; (*%BUILDDATE%*)
 
 ### Older Releases
 none
