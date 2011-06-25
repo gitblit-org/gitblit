@@ -81,14 +81,14 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit-0.12.1.jar" sourcepath="ext/org.eclipse.jgit-0.12.1-sources.jar">
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.0.0.201106090707-r.jar" sourcepath="ext/org.eclipse.jgit-1.0.0.201106090707-r-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-0.12.1-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-1.0.0.201106090707-r-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-0.12.1.jar" sourcepath="ext/org.eclipse.jgit.http.server-0.12.1-sources.jar">
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-0.12.1-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
