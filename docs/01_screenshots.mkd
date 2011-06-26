@@ -18,18 +18,30 @@
 	<a rel="screenshots_group" href="screenshots/04.png" title="Repository Log">![Log](thumbs/04.png)</a>
 	<br/>Repository Log
 </td><td>
-	<a rel="screenshots_group" href="screenshots/05.png" title="Repository Tree">![Tree](thumbs/05.png)</a>
-	<br/>Repository Tree
+	<a rel="screenshots_group" href="screenshots/10.png" title="Repository Tags">![Tags](thumbs/10.png)</a>
+	<br/>Repository Tags
 </td></tr>
 
 <tr><td>
-	<a rel="screenshots_group" href="screenshots/06.png" title="File Diff">![Diff](thumbs/06.png)</a>
-	<br/>File Diff
+	<a rel="screenshots_group" href="screenshots/05.png" title="Repository Tree">![Tree](thumbs/05.png)</a>
+	<br/>Repository Tree
+</td><td>
+	<a rel="screenshots_group" href="screenshots/06.png" title="Commit Page">![Commit Page](thumbs/06.png)</a>
+	<br/>Commit Page
 </td><td>
 	<a rel="screenshots_group" href="screenshots/07.png" title="Commit Diff">![Commitdiff](thumbs/07.png)</a>
 	<br/>Commit Diff
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/09.png" title="Branch Metrics">![Metrics](thumbs/09.png)</a>
+	<br/>Branch Metrics
 </td><td>
 	<a rel="screenshots_group" href="screenshots/08.png" title="Blob View with Syntax Highlighting">![Blob](thumbs/08.png)</a>
 	<br/>Blob View with Syntax Highlighting
+</td><td>
+	<a rel="screenshots_group" href="screenshots/11.png" title="Blame">![Blame](thumbs/11.png)</a>
+	<br/>Blame
 </td></tr>
+
 </table>

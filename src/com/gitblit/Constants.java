@@ -23,11 +23,11 @@ public class Constants {
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String VERSION = "0.1.0-SNAPSHOT";
+	public static final String VERSION = "0.5.0";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String JGIT_VERSION = "JGit 1.0.0";
+	public static final String JGIT_VERSION = "JGit 1.0.0 (201106090707-r)";
 
 	public static final String ADMIN_ROLE = "#admin";
 
