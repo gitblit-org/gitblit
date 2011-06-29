@@ -55,7 +55,7 @@ public class LoginPage extends WebPage {
 		}
 
 		add(new Label("title", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
-		add(new Label("name", Constants.NAME));
+		add(new Label("name", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
 
 		StatelessForm<Void> loginForm = new StatelessForm<Void>("loginForm") {
 
