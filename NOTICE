@@ -16,12 +16,12 @@ google-code-prettify
    http://code.google.com/p/google-code-prettify
 
 ---------------------------------------------------------------------------
-JavaService
+Commons Daemon
 ---------------------------------------------------------------------------
-   JavaService, released under the
-   BSD License and the Lesser GNU Public License.
+   Commons Daemon, released under the
+   Apache Software License, Version 2.0.
 
-   http://forge.ow2.org/projects/javaservice
+   http://commons.apache.org/daemon
    
 ---------------------------------------------------------------------------
 JGit

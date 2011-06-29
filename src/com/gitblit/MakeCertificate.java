@@ -57,7 +57,7 @@ public class MakeCertificate {
 			jc.usage();
 		}
 		File keystore = new File("keystore");
-		generateSelfSignedCertificate(params.alias, keystore, params.storePassword, params.subject);
+		generateSelfSignedCertificate(params.hostname, keystore, params.storePassword, params.subject);
 	}
 
 	public static void generateSelfSignedCertificate(String hostname, File keystore,
@@ -158,8 +158,8 @@ public class MakeCertificate {
 
 		private static final FileSettings FILESETTINGS = new FileSettings(Constants.PROPERTIES_FILE);
 
-		@Parameter(names = { "--alias" }, description = "Server alias", required = true)
-		public String alias;
+		@Parameter(names = { "--hostname" }, description = "Server Hostname", required = true)
+		public String hostname;
 
 		@Parameter(names = { "--subject" }, description = "Certificate subject", required = true)
 		public String subject;

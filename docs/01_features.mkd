@@ -33,14 +33,16 @@
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration
-- Automatically generates a self-signed certificate for https communications
+- Automatically generates a self-signed certificate for *localhost* https communications<br/>(includes script to generate a self-signed certificate for *your hostname*, see [setup](/setup.html) for details)
 - Single text file for configuring server and gitblit
+- A Windows service installation script and configuration tool
 
 ## Limitations
 - HTTP/HTTPS are the only supported protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
 - Only Administrators can create, modify or delete users
+- Native Git may be needed to periodically run git-gc as [JGit][jgit] does not fully support the git-gc featureset.
 
 ### Caveats
 - Gitblit may eat your data.  Use at your own risk.
@@ -49,7 +51,6 @@
 ## Todo List
 - Code documentation
 - Unit testing
-- Update to JGit 1.0.0 when JGit team provides Maven artifacts
 
 ### Under Consideration
 - Clone remote repository feature
@@ -62,3 +63,5 @@
     - query feature with paging support
     - change history
 - Ticgit write integration
+
+[jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

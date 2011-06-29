@@ -23,10 +23,6 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="buildinfo">
-		<!-- build date -->
-		<tstamp>
-			<format property="gb.buildDate" pattern="yyyy-MM-dd" />
-		</tstamp>
 	
 		<!-- extract Gitblit version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
@@ -42,7 +38,22 @@
 				</tokenfilter>
 			</filterchain>
 		</loadfile>
-	
+
+		<!-- extract Gitblit version date from source code -->
+		<loadfile property="gb.versionDate" srcfile="${basedir}/src/com/gitblit/Constants.java">
+			<filterchain>
+				<linecontains>
+					<contains value="public static final String VERSION_DATE = " />
+				</linecontains>
+				<striplinebreaks />
+				<tokenfilter>
+					<replacestring from="public static final String VERSION_DATE = &quot;" to="" />
+					<replacestring from="&quot;;" to="" />
+					<trim />
+				</tokenfilter>
+			</filterchain>
+		</loadfile>
+					
 		<!-- extract JGit version number from source code -->
 		<loadfile property="jgit.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
 			<filterchain>
@@ -229,7 +240,7 @@
 				<arg value="%WAR%=${distribution.warfile}" />
 
 				<arg value="--substitute" />
-				<arg value="%BUILDDATE%=${gb.buildDate}" />
+				<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 				<arg value="--substitute" />
 				<arg value="%JGIT%=${jgit.version}" />
@@ -424,7 +435,7 @@
 			<arg value="%WAR%=${distribution.warfile}" />
 
 			<arg value="--substitute" />
-			<arg value="%BUILDDATE%=${gb.buildDate}" />
+			<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 			<arg value="--substitute" />
 			<arg value="%JGIT%=${jgit.version}" />

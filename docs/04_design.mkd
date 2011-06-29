@@ -11,7 +11,7 @@
 The following dependencies are bundled with Gitblit.
 
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
-- [JavaService](http://forge.ow2.org/projects/javaservice) (BSD and LGPL)
+- [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)
 - magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)
 - modified Git logo originally designed by [Henrik Nyh](http://henrik.nyh.se/2007/06/alternative-git-logo-and-favicon)
 - other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)

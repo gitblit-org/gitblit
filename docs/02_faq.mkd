@@ -1,6 +1,6 @@
 ## Troubleshooting
 
-### Eclipse/Egit/Git complains that it "can't open upload pack"?
+### Eclipse/Egit/JGit complains that it "can't open upload pack"?
 There are a few ways this can occur:
 
 1. You are using https with a self-signed certificate and you **did not** configure *http.sslVerify=false*
@@ -8,24 +8,30 @@ There are a few ways this can occur:
     2. Click the *New Entry* button
     3. <pre>Key = *http.sslVerify*       
        Value = *false*</pre>
-2. The repository is clone-restricted and you don't have access.
-3. The repository is clone-restricted and your password changed.
-4. A regression in Gitblit.  :(
+2. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push between machines.
+    1. Review the contents of `makekeystore.cmd`
+    2. Set *your hostname* in the *HOSTNAME* variable.
+    3. Execute the script.<br/>This will generate a new certificate and keystore for *your hostname* protected by *server.storePassword*. 
+3. The repository is clone-restricted and you don't have access.
+4. The repository is clone-restricted and your password changed.
+5. A regression in Gitblit.  :(
 
 ### Why can't I access Gitblit GO from another machine?
-Please check *server.httpBindInterface* and *server.httpsBindInterface* in `gitblit.properties`, you may be binding only to localhost.
-
-And of course ensure that any firewall you may have running either has an exception for your ports or for the running process.
+1. Please check *server.httpBindInterface* and *server.httpsBindInterface* in `gitblit.properties`, you may be only be serving on *localhost*.
+2. Please see the above answer about "**can't open upload pack**".
+3. Ensure that any firewall you may have running on the Gitblit server either has an exception for your specified ports or for the running process.
 
 ### How do I run Gitblit GO on port 80 or 443 in Linux?
 Linux requires root permissions to serve on ports < 1024.<br/>
 Run the server as *root* (security concern) or change the ports you are serving to 8080 (http) and/or 8443 (https). 
 
 ### Gitblit GO does not list my repositories?!
-Confirm that the value *git.repositoriesFolder* in `gitblit.properties` actually points to your repositories folder.
+1. Confirm that the value *git.repositoriesFolder* in `gitblit.properties` actually points to your repositories folder.
+2. Confirm that the Gitblit GO process has full read-write-execute permissions to your *git.repositoriesFolder*. 
 
 ### Gitblit WAR does not list my repositories?!
-Confirm that the &lt;context-param&gt; *git.repositoriesFolder* value in your `web.xml` file actually points to your repositories folder.
+1. Confirm that the &lt;context-param&gt; *git.repositoriesFolder* value in your `web.xml` file actually points to your repositories folder.
+2. Confirm that the servlet container process has full read-write-execute permissions to your *git.repositoriesFolder*.
 
 ### Gitblit WAR will not authenticate any users?!
 Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.properties` file.
@@ -57,8 +63,11 @@ Gitblit eliminates all that complication with its 100% Java stack and simple sin
 Additionally, Git and Gitweb do not offer repository creation or user management.
 
 ### Do I need real Git?
-No.  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
+No (mostly).  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
 Everything you need for Gitblit (except Java) is either bundled in the distribution file or automatically downloaded on execution.
+
+**mostly**<br/>
+JGit does not fully support the git-gc featureset (garbage collection) so you may want native Git to periodically run git-gc until [JGit][jgit] fully supports this feature.
 
 ### Can I run Gitblit in conjunction with my existing Git tooling?
 Yes.
@@ -72,7 +81,7 @@ No.  Gitblit stores its repository configuration information within the `.git/co
 ### Can I manually edit users.properties, gitblit.properties, or .git/config?
 Yes.  You can manually manipulate all of them and (most) changes will be immediately available to Gitblit.<br/>Exceptions to this are noted in `gitblit.properties`.
 
-*NOTE:* Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
+**NOTE:**<br/>Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
 
 ### Can I restrict access to paths within a repository?
 No.  Access restrictions apply to the repository as a whole.
