@@ -62,6 +62,16 @@ Additional service definition options and runtime capabilities of `gitblitw.exe`
 **NOTE:**<br/>
 If you change the name of the service from *gitblit* you must also change the name of `gitblitw.exe` to match the new service name otherwise the connection between the service and the utility is lost, at least to double-click execution. 
 
+#### VM Considerations
+By default, the service installation script configures your Windows service to use your default JVM.  This setup usually defaults to a client VM.<br/>
+If you have installed a JDK, you might consider using the `gitblitw.exe` utility to manually specify the *server* VM.
+
+1. Execute `gitblitw.exe`
+2. On the *Java* tab uncheck *Use default*.
+3. Manually navigate your filesystem and specify the server VM with the `...` button<br/><pre>
+	Java Virtual Machine:
+	C:\Program Files\Java\jre6\bin\server\jvm.dll</pre>
+
 #### Command-Line Parameters
 Command-Line parameters override the values in `gitblit.properties` at runtime.
 

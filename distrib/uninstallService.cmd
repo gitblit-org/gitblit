@@ -2,4 +2,4 @@
 SET ARCH=amd64
 
 @REM Delete the gitblit service
-"%CD%\%ARCH%\prunsrv.exe" //DS//gitblit
+"%CD%\%ARCH%\gitblitv.exe" //DS//gitblit

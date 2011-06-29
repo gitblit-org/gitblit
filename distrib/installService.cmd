@@ -13,7 +13,7 @@ SET ARCH=amd64
 
 @REM Be careful not to introduce trailing whitespace after the ^ characters.
 @REM Use ; or # to separate values in the --StartParams parameter.
-"%CD%\%ARCH%\prunsrv.exe"  //IS//gitblit ^
+"%CD%\%ARCH%\gitblit.exe"  //IS//gitblit ^
 		 --DisplayName="gitblit" ^
 		 --Description="a pure Java Git solution" ^
 		 --Startup=auto ^
