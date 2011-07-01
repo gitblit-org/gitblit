@@ -134,6 +134,10 @@
 			<fileset dir="${basedir}/distrib">
 				<include name="**/*" />
 			</fileset>
+			<fileset dir="${basedir}">
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
 		</copy>
 
 		<!-- Build jar -->
@@ -270,6 +274,10 @@
 			</fileset>
 			<fileset dir="${basedir}/src/WEB-INF">
 			 	<include name="web.xml" />
+			</fileset>
+			<fileset dir="${basedir}">
+				<include name="LICENSE" />
+				<include name="NOTICE" />
 			</fileset>
 		</copy>
 		
