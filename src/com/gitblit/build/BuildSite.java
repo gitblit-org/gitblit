@@ -15,7 +15,6 @@
  */
 package com.gitblit.build;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,9 +36,21 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.Constants;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Builds the web site or deployment documentation from Markdown source files.
+ * 
+ * All Markdown source files must have the .mkd extension.
+ * 
+ * Natural string sort order of the Markdown source filenames is the order of
+ * page links. "##_" prefixes are used to control the sort order.
+ * 
+ * @author James Moger
+ * 
+ */
 public class BuildSite {
 
 	public static void main(String... args) {
@@ -87,8 +98,8 @@ public class BuildSite {
 		sb.setLength(sb.length() - 3);
 		sb.trimToSize();
 
-		String htmlHeader = readContent(new File(params.pageHeader), "\n");
-		String htmlFooter = readContent(new File(params.pageFooter), "\n");
+		String htmlHeader = FileUtils.readContent(new File(params.pageHeader), "\n");
+		String htmlFooter = FileUtils.readContent(new File(params.pageFooter), "\n");
 		final String links = sb.toString();
 		final String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
@@ -109,7 +120,7 @@ public class BuildSite {
 					}
 					for (String alias : params.loads) {
 						String[] kv = alias.split("=");
-						String loadedContent = readContent(new File(kv[1]), "\n");
+						String loadedContent = FileUtils.readContent(new File(kv[1]), "\n");
 						loadedContent = StringUtils.escapeForHtml(loadedContent, false);
 						loadedContent = StringUtils.breakLinesForHtml(loadedContent);
 						content = content.replace(kv[0], loadedContent);
@@ -129,32 +140,15 @@ public class BuildSite {
 		}
 	}
 
-	private static String readContent(File file, String lineEnding) {
-		StringBuilder sb = new StringBuilder();
-		try {
-			InputStreamReader is = new InputStreamReader(new FileInputStream(file),
-					Charset.forName("UTF-8"));
-			BufferedReader reader = new BufferedReader(is);
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line);
-				if (lineEnding != null) {
-					sb.append(lineEnding);
-				}
-			}
-			reader.close();
-		} catch (Throwable t) {
-			System.err.println("Failed to read content of " + file.getAbsolutePath());
-			t.printStackTrace();
-		}
-		return sb.toString();
-	}
-
 	private static String getDocumentName(File file) {
 		String displayName = file.getName().substring(0, file.getName().lastIndexOf('.'))
 				.toLowerCase();
-		// trim leading ##_ which is to control display order
-		return displayName.substring(3);
+		int underscore = displayName.indexOf('_') + 1;
+		if (underscore > -1) {
+			// trim leading ##_ which is to control display order
+			return displayName.substring(underscore);
+		}
+		return displayName;
 	}
 
 	private static void usage(JCommander jc, ParameterException t) {

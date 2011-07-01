@@ -101,7 +101,7 @@ public class GitBlitSuite extends TestSetup {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.useTickets = true;
-			GitBlit.self().editRepositoryModel(model.name, model, false);
+			GitBlit.self().updateRepositoryModel(model.name, model, false);
 		} catch (GitBlitException g) {
 			g.printStackTrace();
 		}
@@ -111,7 +111,7 @@ public class GitBlitSuite extends TestSetup {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.useDocs = true;
-			GitBlit.self().editRepositoryModel(model.name, model, false);
+			GitBlit.self().updateRepositoryModel(model.name, model, false);
 		} catch (GitBlitException g) {
 			g.printStackTrace();
 		}
@@ -121,7 +121,7 @@ public class GitBlitSuite extends TestSetup {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.showRemoteBranches = true;
-			GitBlit.self().editRepositoryModel(model.name, model, false);
+			GitBlit.self().updateRepositoryModel(model.name, model, false);
 		} catch (GitBlitException g) {
 			g.printStackTrace();
 		}

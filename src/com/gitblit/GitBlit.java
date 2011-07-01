@@ -34,6 +34,8 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.resolver.FileResolver;
+import org.eclipse.jgit.transport.resolver.RepositoryResolver;
+import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
@@ -45,13 +47,29 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * GitBlit is the servlet context listener singleton that acts as the core for
+ * the web ui and the servlets. This class is either directly instantiated by
+ * the GitBlitServer class (Gitblit GO) or is reflectively instantiated from the
+ * definition in the web.xml file (Gitblit WAR).
+ * 
+ * This class is the central logic processor for Gitblit. All settings, user
+ * object, and repository object operations pass through this class.
+ * 
+ * Repository Resolution. There are two pathways for finding repositories. One
+ * pathway, for web ui display and repository authentication & authorization, is
+ * within this class. The other pathway is through the standard GitServlet.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitBlit implements ServletContextListener {
 
 	private static GitBlit gitblit;
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
-	private FileResolver<Void> repositoryResolver;
+	private RepositoryResolver<Void> repositoryResolver;
 
 	private File repositoriesFolder;
 
@@ -59,59 +77,136 @@ public class GitBlit implements ServletContextListener {
 
 	private IUserService userService;
 
-	private IStoredSettings storedSettings;
+	private IStoredSettings settings;
 
 	public GitBlit() {
 		if (gitblit == null) {
-			// Singleton reference when running in standard servlet container
+			// set the static singleton reference
 			gitblit = this;
 		}
 	}
 
+	/**
+	 * Returns the Gitblit singleton.
+	 * 
+	 * @return gitblit singleton
+	 */
 	public static GitBlit self() {
 		if (gitblit == null) {
-			gitblit = new GitBlit();
+			new GitBlit();
 		}
 		return gitblit;
 	}
 
+	/**
+	 * Returns the boolean value for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as a boolean, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getBoolean(String, boolean)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
 	public static boolean getBoolean(String key, boolean defaultValue) {
-		return self().storedSettings.getBoolean(key, defaultValue);
+		return self().settings.getBoolean(key, defaultValue);
 	}
 
+	/**
+	 * Returns the integer value for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as an integer, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getInteger(String key, int defaultValue)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
 	public static int getInteger(String key, int defaultValue) {
-		return self().storedSettings.getInteger(key, defaultValue);
+		return self().settings.getInteger(key, defaultValue);
 	}
 
+	/**
+	 * Returns the string value for the specified key. If the key does not exist
+	 * or the value for the key can not be interpreted as a string, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getString(String key, String defaultValue)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
 	public static String getString(String key, String defaultValue) {
-		return self().storedSettings.getString(key, defaultValue);
+		return self().settings.getString(key, defaultValue);
 	}
 
+	/**
+	 * Returns a list of space-separated strings from the specified key.
+	 * 
+	 * @see IStoredSettings.getStrings(String key)
+	 * @param name
+	 * @return list of strings
+	 */
 	public static List<String> getStrings(String key) {
-		return self().storedSettings.getStrings(key);
+		return self().settings.getStrings(key);
 	}
+
+	/**
+	 * Returns the list of keys whose name starts with the specified prefix. If
+	 * the prefix is null or empty, all key names are returned.
+	 * 
+	 * @see IStoredSettings.getAllKeys(String key)
+	 * @param startingWith
+	 * @return list of keys
+	 */
 
 	public static List<String> getAllKeys(String startingWith) {
-		return self().storedSettings.getAllKeys(startingWith);
+		return self().settings.getAllKeys(startingWith);
 	}
 
+	/**
+	 * Is Gitblit running in debug mode?
+	 * 
+	 * @return true if Gitblit is running in debug mode
+	 */
 	public static boolean isDebugMode() {
-		return self().storedSettings.getBoolean(Keys.web.debugMode, false);
+		return self().settings.getBoolean(Keys.web.debugMode, false);
 	}
 
+	/**
+	 * Returns the list of non-Gitblit clone urls. This allows Gitblit to
+	 * advertise alternative urls for Git client repository access.
+	 * 
+	 * @param repositoryName
+	 * @return list of non-gitblit clone urls
+	 */
 	public List<String> getOtherCloneUrls(String repositoryName) {
 		List<String> cloneUrls = new ArrayList<String>();
-		for (String url : storedSettings.getStrings(Keys.web.otherUrls)) {
+		for (String url : settings.getStrings(Keys.web.otherUrls)) {
 			cloneUrls.add(MessageFormat.format(url, repositoryName));
 		}
 		return cloneUrls;
 	}
 
+	/**
+	 * Set the user service. The user service authenticates all users and is
+	 * responsible for managing user permissions.
+	 * 
+	 * @param userService
+	 */
 	public void setUserService(IUserService userService) {
 		logger.info("Setting up user service " + userService.toString());
 		this.userService = userService;
 	}
 
+	/**
+	 * Authenticate a user based on a username and password.
+	 * 
+	 * @see IUserService.authenticate(String, char[])
+	 * @param username
+	 * @param password
+	 * @return a user object or null
+	 */
 	public UserModel authenticate(String username, char[] password) {
 		if (userService == null) {
 			return null;
@@ -119,6 +214,12 @@ public class GitBlit implements ServletContextListener {
 		return userService.authenticate(username, password);
 	}
 
+	/**
+	 * Authenticate a user based on their cookie.
+	 * 
+	 * @param cookies
+	 * @return a user object or null
+	 */
 	public UserModel authenticate(Cookie[] cookies) {
 		if (userService == null) {
 			return null;
@@ -136,6 +237,12 @@ public class GitBlit implements ServletContextListener {
 		return null;
 	}
 
+	/**
+	 * Sets a cookie for the specified user.
+	 * 
+	 * @param response
+	 * @param user
+	 */
 	public void setCookie(WebResponse response, UserModel user) {
 		if (userService == null) {
 			return;
@@ -156,41 +263,100 @@ public class GitBlit implements ServletContextListener {
 		}
 	}
 
+	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @see IUserService.getAllUsernames()
+	 * @return list of all usernames
+	 */
 	public List<String> getAllUsernames() {
 		List<String> names = new ArrayList<String>(userService.getAllUsernames());
 		Collections.sort(names);
 		return names;
 	}
 
+	/**
+	 * Delete the user object with the specified username
+	 * 
+	 * @see IUserService.deleteUser(String)
+	 * @param username
+	 * @return true if successful
+	 */
 	public boolean deleteUser(String username) {
 		return userService.deleteUser(username);
 	}
 
+	/**
+	 * Retrieve the user object for the specified username.
+	 * 
+	 * @see IUserService.getUserModel(String)
+	 * @param username
+	 * @return a user object or null
+	 */
 	public UserModel getUserModel(String username) {
 		UserModel user = userService.getUserModel(username);
 		return user;
 	}
 
+	/**
+	 * Returns the list of all users who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @see IUserService.getUsernamesForRepositoryRole(String)
+	 * @param repository
+	 * @return list of all usernames that can bypass the access restriction
+	 */
 	public List<String> getRepositoryUsers(RepositoryModel repository) {
-		return userService.getUsernamesForRepository(repository.name);
+		return userService.getUsernamesForRepositoryRole(repository.name);
 	}
 
+	/**
+	 * Sets the list of all uses who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @see IUserService.setUsernamesForRepositoryRole(String, List<String>)
+	 * @param repository
+	 * @param usernames
+	 * @return true if successful
+	 */
 	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
-		return userService.setUsernamesForRepository(repository.name, repositoryUsers);
+		return userService.setUsernamesForRepositoryRole(repository.name, repositoryUsers);
 	}
 
-	public void editUserModel(String username, UserModel user, boolean isCreate)
+	/**
+	 * Adds/updates a complete user object keyed by username. This method allows
+	 * for renaming a user.
+	 * 
+	 * @see IUserService.updateUserModel(String, UserModel)
+	 * @param username
+	 * @param user
+	 * @param isCreate
+	 * @throws GitBlitException
+	 */
+	public void updateUserModel(String username, UserModel user, boolean isCreate)
 			throws GitBlitException {
 		if (!userService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
 	}
 
+	/**
+	 * Returns the list of all repositories available to Gitblit. This method
+	 * does not consider user access permissions.
+	 * 
+	 * @return list of all repositories
+	 */
 	public List<String> getRepositoryList() {
 		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll,
-				storedSettings.getBoolean(Keys.git.searchRepositoriesSubfolders, true));
+				settings.getBoolean(Keys.git.searchRepositoriesSubfolders, true));
 	}
 
+	/**
+	 * Returns the JGit repository for the specified name.
+	 * 
+	 * @param repositoryName
+	 * @return repository or null
+	 */
 	public Repository getRepository(String repositoryName) {
 		Repository r = null;
 		try {
@@ -199,13 +365,24 @@ public class GitBlit implements ServletContextListener {
 			r = null;
 			logger.error("GitBlit.getRepository(String) failed to find "
 					+ new File(repositoriesFolder, repositoryName).getAbsolutePath());
+		} catch (ServiceNotAuthorizedException e) {
+			r = null;
+			logger.error("GitBlit.getRepository(String) failed to find "
+					+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
 		} catch (ServiceNotEnabledException e) {
 			r = null;
-			e.printStackTrace();
+			logger.error("GitBlit.getRepository(String) failed to find "
+					+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
 		}
 		return r;
 	}
 
+	/**
+	 * Returns the list of repository models that are accessible to the user.
+	 * 
+	 * @param user
+	 * @return list of repository models accessible to user
+	 */
 	public List<RepositoryModel> getRepositoryModels(UserModel user) {
 		List<String> list = getRepositoryList();
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>();
@@ -218,6 +395,14 @@ public class GitBlit implements ServletContextListener {
 		return repositories;
 	}
 
+	/**
+	 * Returns a repository model if the repository exists and the user may
+	 * access the repository.
+	 * 
+	 * @param user
+	 * @param repositoryName
+	 * @return repository model or null
+	 */
 	public RepositoryModel getRepositoryModel(UserModel user, String repositoryName) {
 		RepositoryModel model = getRepositoryModel(repositoryName);
 		if (model == null) {
@@ -233,6 +418,13 @@ public class GitBlit implements ServletContextListener {
 		}
 	}
 
+	/**
+	 * Returns the repository model for the specified repository. This method
+	 * does not consider user access permissions.
+	 * 
+	 * @param repositoryName
+	 * @return repository model or null
+	 */
 	public RepositoryModel getRepositoryModel(String repositoryName) {
 		Repository r = getRepository(repositoryName);
 		if (r == null) {
@@ -258,6 +450,15 @@ public class GitBlit implements ServletContextListener {
 		return model;
 	}
 
+	/**
+	 * Returns the gitblit string vlaue for the specified key. If key is not
+	 * set, returns defaultValue.
+	 * 
+	 * @param config
+	 * @param field
+	 * @param defaultValue
+	 * @return field value or defaultValue
+	 */
 	private String getConfig(StoredConfig config, String field, String defaultValue) {
 		String value = config.getString("gitblit", null, field);
 		if (StringUtils.isEmpty(value)) {
@@ -266,11 +467,34 @@ public class GitBlit implements ServletContextListener {
 		return value;
 	}
 
+	/**
+	 * Returns the gitblit boolean vlaue for the specified key. If key is not
+	 * set, returns defaultValue.
+	 * 
+	 * @param config
+	 * @param field
+	 * @param defaultValue
+	 * @return field value or defaultValue
+	 */
 	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
 		return config.getBoolean("gitblit", field, defaultValue);
 	}
 
-	public void editRepositoryModel(String repositoryName, RepositoryModel repository,
+	/**
+	 * Creates/updates the repository model keyed by reopsitoryName. Saves all
+	 * repository settings in .git/config. This method allows for renaming
+	 * repositories and will update user access permissions accordingly.
+	 * 
+	 * All repositories created by this method are bare and automatically have
+	 * .git appended to their names, which is the standard convention for bare
+	 * repositories.
+	 * 
+	 * @param repositoryName
+	 * @param repository
+	 * @param isCreate
+	 * @throws GitBlitException
+	 */
+	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
 			boolean isCreate) throws GitBlitException {
 		Repository r = null;
 		if (isCreate) {
@@ -316,6 +540,8 @@ public class GitBlit implements ServletContextListener {
 				r = repositoryResolver.open(null, repository.name);
 			} catch (RepositoryNotFoundException e) {
 				logger.error("Repository not found", e);
+			} catch (ServiceNotAuthorizedException e) {
+				logger.error("Service not authorized", e);
 			} catch (ServiceNotEnabledException e) {
 				logger.error("Service not enabled", e);
 			}
@@ -342,15 +568,29 @@ public class GitBlit implements ServletContextListener {
 		}
 	}
 
+	/**
+	 * Deletes the repository from the file system and removes the repository
+	 * permission from all repository users.
+	 * 
+	 * @param model
+	 * @return true if successful
+	 */
 	public boolean deleteRepositoryModel(RepositoryModel model) {
 		return deleteRepository(model.name);
 	}
 
+	/**
+	 * Deletes the repository from the file system and removes the repository
+	 * permission from all repository users.
+	 * 
+	 * @param repositoryName
+	 * @return true if successful
+	 */
 	public boolean deleteRepository(String repositoryName) {
 		try {
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
-				FileUtils.delete(folder, FileUtils.RECURSIVE);
+				FileUtils.delete(folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 				if (userService.deleteRepositoryRole(repositoryName)) {
 					return true;
 				}
@@ -361,25 +601,33 @@ public class GitBlit implements ServletContextListener {
 		return false;
 	}
 
+	/**
+	 * Returns an html version of the commit message with any global or
+	 * repository-specific regular expression substitution applied.
+	 * 
+	 * @param repositoryName
+	 * @param text
+	 * @return html version of the commit message
+	 */
 	public String processCommitMessage(String repositoryName, String text) {
 		String html = StringUtils.breakLinesForHtml(text);
 		Map<String, String> map = new HashMap<String, String>();
 		// global regex keys
-		if (storedSettings.getBoolean(Keys.regex.global, false)) {
-			for (String key : storedSettings.getAllKeys(Keys.regex.global)) {
+		if (settings.getBoolean(Keys.regex.global, false)) {
+			for (String key : settings.getAllKeys(Keys.regex.global)) {
 				if (!key.equals(Keys.regex.global)) {
 					String subKey = key.substring(key.lastIndexOf('.') + 1);
-					map.put(subKey, storedSettings.getString(key, ""));
+					map.put(subKey, settings.getString(key, ""));
 				}
 			}
 		}
 
 		// repository-specific regex keys
-		List<String> keys = storedSettings.getAllKeys(Keys.regex._ROOT + "."
+		List<String> keys = settings.getAllKeys(Keys.regex._ROOT + "."
 				+ repositoryName.toLowerCase());
 		for (String key : keys) {
 			String subKey = key.substring(key.lastIndexOf('.') + 1);
-			map.put(subKey, storedSettings.getString(key, ""));
+			map.put(subKey, settings.getString(key, ""));
 		}
 
 		for (Entry<String, String> entry : map.entrySet()) {
@@ -396,23 +644,30 @@ public class GitBlit implements ServletContextListener {
 		return html;
 	}
 
+	/**
+	 * Configure the Gitblit singleton with the specified settings source. This
+	 * source may be file settings (Gitblit GO) or may be web.xml settings
+	 * (Gitblit WAR).
+	 * 
+	 * @param settings
+	 */
 	public void configureContext(IStoredSettings settings) {
 		logger.info("Reading configuration from " + settings.toString());
-		this.storedSettings = settings;
+		this.settings = settings;
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
 		String realm = settings.getString(Keys.realm.userService, "users.properties");
 		IUserService loginService = null;
 		try {
-			// Check to see if this "file" is a login service class
+			// check to see if this "file" is a login service class
 			Class<?> realmClass = Class.forName(realm);
 			if (IUserService.class.isAssignableFrom(realmClass)) {
 				loginService = (IUserService) realmClass.newInstance();
 			}
 		} catch (Throwable t) {
-			// Not a login service class OR other issue
-			// Use default file login service
+			// not a login service class or class could not be instantiated.
+			// try to use default file login service
 			File realmFile = new File(realm);
 			if (!realmFile.exists()) {
 				try {
@@ -427,16 +682,25 @@ public class GitBlit implements ServletContextListener {
 		setUserService(loginService);
 	}
 
+	/**
+	 * Configure Gitblit from the web.xml, if no configuration has already been
+	 * specified.
+	 * 
+	 * @see ServletContextListener.contextInitialize(ServletContextEvent)
+	 */
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
-		if (storedSettings == null) {
-			// for running gitblit as a traditional webapp in a servlet
-			// container
+		if (settings == null) {
+			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			configureContext(webxmlSettings);
 		}
 	}
 
+	/**
+	 * Gitblit is being shutdown either because the servlet container is
+	 * shutting down or because the servlet container is re-deploying Gitblit.
+	 */
 	@Override
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		logger.info("Gitblit context destroyed by servlet container.");

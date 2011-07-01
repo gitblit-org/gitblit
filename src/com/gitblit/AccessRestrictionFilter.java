@@ -42,8 +42,18 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
 /**
+ * The AccessRestrictionFilter is a servlet filter that preprocesses requests
+ * that match its url pattern definition in the web.xml file.
+ * 
+ * The filter extracts the name of the repository from the url and determines if
+ * the requested action for the repository requires a Basic authentication
+ * prompt. If authentication is required and no credentials are stored in the
+ * "Authorization" header, then a basic authentication challenge is issued.
  * 
  * http://en.wikipedia.org/wiki/Basic_access_authentication
+ * 
+ * @author James Moger
+ * 
  */
 public abstract class AccessRestrictionFilter implements Filter {
 
@@ -59,15 +69,47 @@ public abstract class AccessRestrictionFilter implements Filter {
 		logger = LoggerFactory.getLogger(getClass());
 	}
 
+	/**
+	 * Extract the repository name from the url.
+	 * 
+	 * @param url
+	 * @return repository name
+	 */
 	protected abstract String extractRepositoryName(String url);
 
-	protected abstract String getUrlRequestType(String url);
+	/**
+	 * Analyze the url and returns the action of the request.
+	 * 
+	 * @param url
+	 * @return action of the request
+	 */
+	protected abstract String getUrlRequestAction(String url);
 
+	/**
+	 * Determine if the repository requires authentication.
+	 * 
+	 * @param repository
+	 * @return true if authentication required
+	 */
 	protected abstract boolean requiresAuthentication(RepositoryModel repository);
 
-	protected abstract boolean canAccess(RepositoryModel repository, UserModel user,
-			String restrictedUrl);
+	/**
+	 * Determine if the user can access the repository and perform the specified
+	 * action.
+	 * 
+	 * @param repository
+	 * @param user
+	 * @param action
+	 * @return true if user may execute the action on the repository
+	 */
+	protected abstract boolean canAccess(RepositoryModel repository, UserModel user, String action);
 
+	/**
+	 * doFilter does the actual work of preprocessing the request to ensure that
+	 * the user may proceed.
+	 * 
+	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+	 */
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response,
 			final FilterChain chain) throws IOException, ServletException {
@@ -98,7 +140,7 @@ public abstract class AccessRestrictionFilter implements Filter {
 
 		// Determine if the request URL is restricted
 		String fullSuffix = fullUrl.substring(repository.length());
-		String urlRequestType = getUrlRequestType(fullSuffix);
+		String urlRequestType = getUrlRequestAction(fullSuffix);
 
 		// Load the repository model
 		RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
@@ -197,10 +239,16 @@ public abstract class AccessRestrictionFilter implements Filter {
 		}
 	}
 
+	/**
+	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
+	 */
 	@Override
 	public void init(final FilterConfig config) throws ServletException {
 	}
 
+	/**
+	 * @see javax.servlet.Filter#destroy()
+	 */
 	@Override
 	public void destroy() {
 	}

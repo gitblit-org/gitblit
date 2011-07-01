@@ -143,7 +143,7 @@ public class EditRepositoryPage extends BasePage {
 					}
 
 					// save the repository
-					GitBlit.self().editRepositoryModel(oldName, repositoryModel, isCreate);
+					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
 					// save the repository access list
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {

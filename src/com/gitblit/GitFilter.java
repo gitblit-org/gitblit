@@ -22,6 +22,14 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * The GitFilter is an AccessRestrictionFilter which ensures that Git client
+ * requests for push, clone, or view restricted repositories are authenticated
+ * and authorized.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitFilter extends AccessRestrictionFilter {
 
 	protected final String gitReceivePack = "/git-receive-pack";
@@ -31,9 +39,16 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
 			"/objects" };
 
+	/**
+	 * Extract the repository name from the url.
+	 * 
+	 * @param url
+	 * @return repository name
+	 */
 	@Override
 	protected String extractRepositoryName(String url) {
 		String repository = url;
+		// get the repository name from the url by finding a known url suffix
 		for (String urlSuffix : suffixes) {
 			if (repository.indexOf(urlSuffix) > -1) {
 				repository = repository.substring(0, repository.indexOf(urlSuffix));
@@ -42,8 +57,15 @@ public class GitFilter extends AccessRestrictionFilter {
 		return repository;
 	}
 
+	/**
+	 * Analyze the url and returns the action of the request. Return values are
+	 * either "/git-receive-pack" or "/git-upload-pack".
+	 * 
+	 * @param url
+	 * @return action of the request
+	 */
 	@Override
-	protected String getUrlRequestType(String suffix) {
+	protected String getUrlRequestAction(String suffix) {
 		if (!StringUtils.isEmpty(suffix)) {
 			if (suffix.startsWith(gitReceivePack)) {
 				return gitReceivePack;
@@ -58,20 +80,35 @@ public class GitFilter extends AccessRestrictionFilter {
 		return null;
 	}
 
+	/**
+	 * Determine if the repository requires authentication.
+	 * 
+	 * @param repository
+	 * @return true if authentication required
+	 */
 	@Override
 	protected boolean requiresAuthentication(RepositoryModel repository) {
 		return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
 	}
 
+	/**
+	 * Determine if the user can access the repository and perform the specified
+	 * action.
+	 * 
+	 * @param repository
+	 * @param user
+	 * @param action
+	 * @return true if user may execute the action on the repository
+	 */
 	@Override
-	protected boolean canAccess(RepositoryModel repository, UserModel user, String urlRequestType) {
+	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
 		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
 			// Git Servlet disabled
 			return false;
 		}
 		if (repository.isFrozen || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
 			boolean authorizedUser = user.canAccessRepository(repository.name);
-			if (urlRequestType.equals(gitReceivePack)) {
+			if (action.equals(gitReceivePack)) {
 				// Push request
 				if (!repository.isFrozen && authorizedUser) {
 					// clone-restricted or push-authorized
@@ -82,7 +119,7 @@ public class GitFilter extends AccessRestrictionFilter {
 							user.username, repository));
 					return false;
 				}
-			} else if (urlRequestType.equals(gitUploadPack)) {
+			} else if (action.equals(gitUploadPack)) {
 				// Clone request
 				boolean cloneRestricted = repository.accessRestriction
 						.atLeast(AccessRestrictionType.CLONE);

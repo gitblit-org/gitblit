@@ -43,6 +43,12 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.utils.TimeUtils;
 
+/**
+ * Utility class to generate self-signed certificates.
+ * 
+ * @author James Moger
+ *
+ */
 public class MakeCertificate {
 
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;

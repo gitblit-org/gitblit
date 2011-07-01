@@ -143,7 +143,7 @@ public class EditUserPage extends BasePage {
 				userModel.repositories.clear();
 				userModel.repositories.addAll(repos);
 				try {
-					GitBlit.self().editUserModel(oldName, userModel, isCreate);
+					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;

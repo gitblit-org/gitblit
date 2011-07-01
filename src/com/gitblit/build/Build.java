@@ -35,6 +35,18 @@ import java.util.Properties;
 import com.gitblit.Constants;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * The Build class downloads runtime and compile-time jar files from the Apache
+ * or Eclipse Maven repositories.
+ * 
+ * It also generates the Keys class from the gitblit.properties file.
+ * 
+ * Its important that this class have minimal compile dependencies since its
+ * called very early in the build script.
+ * 
+ * @author James Moger
+ * 
+ */
 public class Build {
 
 	public static enum BuildType {
@@ -95,6 +107,10 @@ public class Build {
 		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
 
+	/**
+	 * Builds the Keys class based on the gitblit.properties file and inserts
+	 * the class source into the project source folder.
+	 */
 	public static void buildSettingKeys() {
 		// Load all keys
 		Properties properties = new Properties();

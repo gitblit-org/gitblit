@@ -31,12 +31,32 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 import com.gitblit.wicket.WicketUtils;
 
+/**
+ * SyndicationServlet generates RSS 2.0 feeds and feed links.
+ * 
+ * Access to this servlet is protected by the SyndicationFilter.
+ * 
+ * @author James Moger
+ * 
+ */
 public class SyndicationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(SyndicationServlet.class);
 
+	/**
+	 * Create a feed link for the specified repository and branch/tag/commit id.
+	 * 
+	 * @param baseURL
+	 * @param repository
+	 *            the repository name
+	 * @param objectId
+	 *            the branch, tag, or first commit for the feed
+	 * @param length
+	 *            the number of commits to include in the feed
+	 * @return an RSS feed url
+	 */
 	public static String asLink(String baseURL, String repository, String objectId, int length) {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
@@ -63,6 +83,13 @@ public class SyndicationServlet extends HttpServlet {
 		return url.toString();
 	}
 
+	/**
+	 * Determines the appropriate title for a feed.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 * @return title of the feed
+	 */
 	public static String getTitle(String repository, String objectId) {
 		String id = objectId;
 		if (!StringUtils.isEmpty(id)) {
@@ -77,6 +104,14 @@ public class SyndicationServlet extends HttpServlet {
 		return MessageFormat.format("{0} ({1})", repository, id);
 	}
 
+	/**
+	 * Generates the feed content.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws javax.servlet.ServletException
+	 * @throws java.io.IOException
+	 */
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {

@@ -30,9 +30,14 @@ import java.util.List;
 import com.gitblit.build.Build;
 
 /**
- * Launch helper class that adds all jars found in the local "lib" folder and
- * then calls the application main. Using this technique we do not have to
- * specify a classpath and we can dynamically add jars to the distribution.
+ * Launch helper class that adds all jars found in the local "lib" & "ext"
+ * folders and then calls the application main. Using this technique we do not
+ * have to specify a classpath and we can dynamically add jars to the
+ * distribution.
+ * 
+ * This class also downloads all runtime dependencies, if they are not found.
+ * 
+ * @author James Moger
  * 
  */
 public class Launcher {
@@ -52,6 +57,7 @@ public class Launcher {
 					+ protectionDomain.getCodeSource().getLocation().toExternalForm());
 		}
 
+		// download all runtime dependencies
 		Build.runtime();
 
 		// Load the JARs in the lib and ext folder

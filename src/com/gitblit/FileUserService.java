@@ -33,6 +33,15 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * FileUserService is Gitblit's default user service implementation.
+ * 
+ * Users and their repository memberships are stored in a simple properties file
+ * which is cached and dynamically reloaded when modified.
+ * 
+ * @author James Moger
+ * 
+ */
 public class FileUserService extends FileSettings implements IUserService {
 
 	private final Logger logger = LoggerFactory.getLogger(FileUserService.class);
@@ -43,11 +52,22 @@ public class FileUserService extends FileSettings implements IUserService {
 		super(realmFile.getAbsolutePath());
 	}
 
+	/**
+	 * Does the user service support cookie authentication?
+	 * 
+	 * @return true or false
+	 */
 	@Override
 	public boolean supportsCookies() {
 		return true;
 	}
 
+	/**
+	 * Returns the cookie value for the specified user.
+	 * 
+	 * @param model
+	 * @return cookie value
+	 */
 	@Override
 	public char[] getCookie(UserModel model) {
 		Properties allUsers = super.read();
@@ -58,6 +78,12 @@ public class FileUserService extends FileSettings implements IUserService {
 		return cookie.toCharArray();
 	}
 
+	/**
+	 * Authenticate a user based on their cookie.
+	 * 
+	 * @param cookie
+	 * @return a user object or null
+	 */
 	@Override
 	public UserModel authenticate(char[] cookie) {
 		String hash = new String(cookie);
@@ -73,6 +99,13 @@ public class FileUserService extends FileSettings implements IUserService {
 		return model;
 	}
 
+	/**
+	 * Authenticate a user based on a username and password.
+	 * 
+	 * @param username
+	 * @param password
+	 * @return a user object or null
+	 */
 	@Override
 	public UserModel authenticate(String username, char[] password) {
 		Properties allUsers = read();
@@ -93,6 +126,12 @@ public class FileUserService extends FileSettings implements IUserService {
 		return returnedUser;
 	}
 
+	/**
+	 * Retrieve the user object for the specified username.
+	 * 
+	 * @param username
+	 * @return a user object or null
+	 */
 	@Override
 	public UserModel getUserModel(String username) {
 		Properties allUsers = read();
@@ -119,11 +158,27 @@ public class FileUserService extends FileSettings implements IUserService {
 		return model;
 	}
 
+	/**
+	 * Updates/writes a complete user object.
+	 * 
+	 * @param model
+	 * @return true if update is successful
+	 */
 	@Override
 	public boolean updateUserModel(UserModel model) {
 		return updateUserModel(model.username, model);
 	}
 
+	/**
+	 * Updates/writes and replaces a complete user object keyed by username.
+	 * This method allows for renaming a user.
+	 * 
+	 * @param username
+	 *            the old username
+	 * @param model
+	 *            the user object to use for username
+	 * @return true if update is successful
+	 */
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
 		try {
@@ -156,11 +211,23 @@ public class FileUserService extends FileSettings implements IUserService {
 		return false;
 	}
 
+	/**
+	 * Deletes the user object from the user service.
+	 * 
+	 * @param model
+	 * @return true if successful
+	 */
 	@Override
 	public boolean deleteUserModel(UserModel model) {
 		return deleteUser(model.username);
 	}
 
+	/**
+	 * Delete the user object with the specified username
+	 * 
+	 * @param username
+	 * @return true if successful
+	 */
 	@Override
 	public boolean deleteUser(String username) {
 		try {
@@ -175,6 +242,11 @@ public class FileUserService extends FileSettings implements IUserService {
 		return false;
 	}
 
+	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @return list of all usernames
+	 */
 	@Override
 	public List<String> getAllUsernames() {
 		Properties allUsers = read();
@@ -182,8 +254,16 @@ public class FileUserService extends FileSettings implements IUserService {
 		return list;
 	}
 
+	/**
+	 * Returns the list of all users who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @return list of all usernames that can bypass the access restriction
+	 */
 	@Override
-	public List<String> getUsernamesForRepository(String role) {
+	public List<String> getUsernamesForRepositoryRole(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
 			Properties allUsers = read();
@@ -205,8 +285,17 @@ public class FileUserService extends FileSettings implements IUserService {
 		return list;
 	}
 
+	/**
+	 * Sets the list of all uses who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @param usernames
+	 * @return true if successful
+	 */
 	@Override
-	public boolean setUsernamesForRepository(String role, List<String> usernames) {
+	public boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
 		try {
 			Set<String> specifiedUsers = new HashSet<String>(usernames);
 			Set<String> needsAddRole = new HashSet<String>(specifiedUsers);
@@ -272,6 +361,13 @@ public class FileUserService extends FileSettings implements IUserService {
 		return false;
 	}
 
+	/**
+	 * Renames a repository role.
+	 * 
+	 * @param oldRole
+	 * @param newRole
+	 * @return true if successful
+	 */
 	@Override
 	public boolean renameRepositoryRole(String oldRole, String newRole) {
 		try {
@@ -327,6 +423,12 @@ public class FileUserService extends FileSettings implements IUserService {
 		return false;
 	}
 
+	/**
+	 * Removes a repository role from all users.
+	 * 
+	 * @param role
+	 * @return true if successful
+	 */
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		try {
@@ -380,14 +482,22 @@ public class FileUserService extends FileSettings implements IUserService {
 		return false;
 	}
 
+	/**
+	 * Writes the properties file.
+	 * 
+	 * @param properties
+	 * @throws IOException
+	 */
 	private void write(Properties properties) throws IOException {
-		// Update realm file
+		// Write a temporary copy of the users file
 		File realmFileCopy = new File(propertiesFile.getAbsolutePath() + ".tmp");
 		FileWriter writer = new FileWriter(realmFileCopy);
 		properties
 				.store(writer,
 						"# Gitblit realm file format: username=password,\\#permission,repository1,repository2...");
 		writer.close();
+		// If the write is successful, delete the current file and rename
+		// the temporary copy to the original filename.
 		if (realmFileCopy.exists() && realmFileCopy.length() > 0) {
 			if (propertiesFile.delete()) {
 				if (!realmFileCopy.renameTo(propertiesFile)) {
@@ -404,11 +514,14 @@ public class FileUserService extends FileSettings implements IUserService {
 		}
 	}
 
+	/**
+	 * Reads the properties file and rebuilds the in-memory cookie lookup table.
+	 */
 	@Override
 	protected synchronized Properties read() {
-		long lastRead = lastRead();
+		long lastRead = lastModified();
 		Properties allUsers = super.read();
-		if (lastRead != lastRead()) {
+		if (lastRead != lastModified()) {
 			// reload hash cache
 			cookies.clear();
 			for (String username : allUsers.stringPropertyNames()) {

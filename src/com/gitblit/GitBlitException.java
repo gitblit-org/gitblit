@@ -15,6 +15,12 @@
  */
 package com.gitblit;
 
+/**
+ * GitBlitException is a marginally useful class.  :)
+ * 
+ * @author James Moger
+ *
+ */
 public class GitBlitException extends Exception {
 
 	private static final long serialVersionUID = 1L;

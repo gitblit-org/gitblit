@@ -21,7 +21,10 @@ import java.io.FileNotFoundException;
 import java.util.Properties;
 
 /**
- * Reads GitBlit settings file.
+ * Dynamically loads and reloads a properties file by keeping track of the last
+ * modification date.
+ * 
+ * @author James Moger
  * 
  */
 public class FileSettings extends IStoredSettings {
@@ -30,16 +33,20 @@ public class FileSettings extends IStoredSettings {
 
 	private final Properties properties = new Properties();
 
-	private volatile long lastread;
+	private volatile long lastModified;
 
 	public FileSettings(String file) {
 		super(FileSettings.class);
 		this.propertiesFile = new File(file);
 	}
 
+	/**
+	 * Returns a properties object which contains the most recent contents of
+	 * the properties file.
+	 */
 	@Override
 	protected synchronized Properties read() {
-		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastread)) {
+		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastModified)) {
 			FileInputStream is = null;
 			try {
 				Properties props = new Properties();
@@ -49,7 +56,7 @@ public class FileSettings extends IStoredSettings {
 				// load properties after we have successfully read file
 				properties.clear();
 				properties.putAll(props);
-				lastread = propertiesFile.lastModified();
+				lastModified = propertiesFile.lastModified();
 			} catch (FileNotFoundException f) {
 				// IGNORE - won't happen because file.exists() check above
 			} catch (Throwable t) {
@@ -67,8 +74,11 @@ public class FileSettings extends IStoredSettings {
 		return properties;
 	}
 
-	protected long lastRead() {
-		return lastread;
+	/**
+	 * @return the last modification date of the properties file
+	 */
+	protected long lastModified() {
+		return lastModified;
 	}
 
 	@Override

@@ -29,9 +29,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.Keys;
-import com.gitblit.Keys.server;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Builds the Gitblit WAR web.xml file by merging the Gitblit GO web.xml file
+ * with the gitblit.properties comments, settings, and values.
+ * 
+ * @author James Moger
+ * 
+ */
 public class BuildWebXml {
 	private static final String PARAMS = "<!-- PARAMS -->";
 
@@ -88,7 +94,8 @@ public class BuildWebXml {
 			for (String comment : setting.comments) {
 				parameters.append(MessageFormat.format(COMMENT_PATTERN, comment));
 			}
-			parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name, StringUtils.escapeForHtml(setting.value, false)));
+			parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name,
+					StringUtils.escapeForHtml(setting.value, false)));
 		}
 
 		// Read the prototype web.xml file

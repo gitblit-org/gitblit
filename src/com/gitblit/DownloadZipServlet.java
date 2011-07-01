@@ -30,6 +30,19 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Streams out a zip file from the specified repository for any tree path at any
+ * revision.
+ * 
+ * Unlike the GitServlet and the SyndicationServlet, this servlet is not
+ * protected by an AccessRestrictionFilter. It performs its own authorization
+ * check, but it does not perform any authentication. The assumption is that
+ * requests to this servlet are made via the web ui and not by direct url
+ * access.  Unauthorized requests fail with a standard 403 (FORBIDDEN) code.
+ * 
+ * @author James Moger
+ * 
+ */
 public class DownloadZipServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -40,6 +53,15 @@ public class DownloadZipServlet extends HttpServlet {
 		super();
 	}
 
+	/**
+	 * Returns an url to this servlet for the specified parameters.
+	 * 
+	 * @param baseURL
+	 * @param repository
+	 * @param objectId
+	 * @param path
+	 * @return an url
+	 */
 	public static String asLink(String baseURL, String repository, String objectId, String path) {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
@@ -49,6 +71,14 @@ public class DownloadZipServlet extends HttpServlet {
 				+ (objectId == null ? "" : ("&h=" + objectId));
 	}
 
+	/**
+	 * Performs the authorization and zip streaming of the specified elements.
+	 * 
+	 * @param request
+	 * @param response
+	 * @throws javax.servlet.ServletException
+	 * @throws java.io.IOException
+	 */
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
@@ -92,7 +122,6 @@ public class DownloadZipServlet extends HttpServlet {
 			Date date = JGitUtils.getCommitDate(commit);
 			String contentType = "application/octet-stream";
 			response.setContentType(contentType + "; charset=" + response.getCharacterEncoding());
-			// response.setContentLength(attachment.getFileSize());
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".zip"
 					+ "\"");
 			response.setDateHeader("Last-Modified", date.getTime());

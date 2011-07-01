@@ -15,6 +15,12 @@
  */
 package com.gitblit;
 
+/**
+ * Constant values used by Gitblit.
+ * 
+ * @author James Moger
+ * 
+ */
 public class Constants {
 
 	public static final String NAME = "Gitblit";

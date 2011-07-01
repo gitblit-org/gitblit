@@ -40,6 +40,7 @@ import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +50,17 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * GitBlitServer is the embedded Jetty server for Gitblit GO. This class starts
+ * and stops an instance of Jetty that is configured from a combination of the
+ * gitblit.properties file and command line parameters. JCommander is used to
+ * simplify command line parameter processing. This class also automatically
+ * generates a self-signed certificate for localhost, if the keystore does not
+ * already exist.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitBlitServer {
 
 	private static Logger logger;
@@ -72,6 +84,12 @@ public class GitBlitServer {
 		}
 	}
 
+	/**
+	 * Display the command line usage of Gitblit GO.
+	 * 
+	 * @param jc
+	 * @param t
+	 */
 	private static void usage(JCommander jc, ParameterException t) {
 		System.out.println(Constants.BORDER);
 		System.out.println(Constants.getGitBlitVersion());
@@ -84,13 +102,13 @@ public class GitBlitServer {
 		if (jc != null) {
 			jc.usage();
 			System.out
-					.println("\nExample:\n  java -server -Xmx1024M -jar gitblit.jar --repos c:\\git --port 80 --securePort 443");
+					.println("\nExample:\n  java -server -Xmx1024M -jar gitblit.jar --repositoriesFolder c:\\git --httpPort 80 --httpsPort 443");
 		}
 		System.exit(0);
 	}
 
 	/**
-	 * Stop Server.
+	 * Stop Gitblt GO.
 	 */
 	public static void stop(Params params) {
 		try {
@@ -108,7 +126,7 @@ public class GitBlitServer {
 	}
 
 	/**
-	 * Start Server.
+	 * Start Gitblit GO.
 	 */
 	private static void start(Params params) {
 		FileSettings settings = Params.FILESETTINGS;
@@ -122,8 +140,9 @@ public class GitBlitServer {
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
 
-		// Determine port connectors
 		List<Connector> connectors = new ArrayList<Connector>();
+
+		// conditionally configure the http connector
 		if (params.port > 0) {
 			Connector httpConnector = createConnector(params.useNIO, params.port);
 			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
@@ -135,10 +154,11 @@ public class GitBlitServer {
 			connectors.add(httpConnector);
 		}
 
+		// conditionally configure the https connector
 		if (params.securePort > 0) {
 			File keystore = new File("keystore");
 			if (!keystore.exists()) {
-				logger.info("Generating self-signed SSL certificate");
+				logger.info("Generating self-signed SSL certificate for localhost");
 				MakeCertificate.generateSelfSignedCertificate("localhost", keystore,
 						params.storePassword);
 			}
@@ -158,13 +178,14 @@ public class GitBlitServer {
 			}
 		}
 
-		// tempDir = Directory where...
-		// * WebApp is expanded
-		//
+		// tempDir is where the embedded Gitblit web application is expanded and
+		// where Jetty creates any necessary temporary files
 		File tempDir = new File(params.temp);
 		if (tempDir.exists()) {
-			if (!deleteRecursively(tempDir)) {
-				logger.warn("Failed to delete temp dir " + tempDir.getAbsolutePath());
+			try {
+				FileUtils.delete(tempDir, FileUtils.RECURSIVE | FileUtils.RETRY);
+			} catch (IOException x) {
+				logger.warn("Failed to delete temp dir " + tempDir.getAbsolutePath(), x);
 			}
 		}
 		if (!tempDir.mkdirs()) {
@@ -201,7 +222,7 @@ public class GitBlitServer {
 			return;
 		}
 
-		// Override settings
+		// Override settings from the command-line
 		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 
@@ -213,12 +234,14 @@ public class GitBlitServer {
 		gitblit.configureContext(settings);
 		rootContext.addEventListener(gitblit);
 
-		// Start the Server
 		try {
+			// start the shutdown monitor
 			if (params.shutdownPort > 0) {
 				Thread shutdownMonitor = new ShutdownMonitorThread(server, params);
 				shutdownMonitor.start();
 			}
+
+			// start Jetty
 			server.start();
 			server.join();
 		} catch (Exception e) {
@@ -227,6 +250,13 @@ public class GitBlitServer {
 		}
 	}
 
+	/**
+	 * Creates an http connector.
+	 * 
+	 * @param useNIO
+	 * @param port
+	 * @return an http cnonector
+	 */
 	private static Connector createConnector(boolean useNIO, int port) {
 		Connector connector;
 		if (useNIO) {
@@ -246,6 +276,15 @@ public class GitBlitServer {
 		return connector;
 	}
 
+	/**
+	 * Creates an https connector.
+	 * 
+	 * @param keystore
+	 * @param password
+	 * @param useNIO
+	 * @param port
+	 * @return an https connector
+	 */
 	private static Connector createSSLConnector(File keystore, String password, boolean useNIO,
 			int port) {
 		SslConnector connector;
@@ -269,22 +308,13 @@ public class GitBlitServer {
 	}
 
 	/**
-	 * Recursively delete a folder and its contents.
+	 * The ShutdownMonitorThread opens a socket on a specified port and waits
+	 * for an incoming connection. When that connection is accepted a shutdown
+	 * message is issued to the running Jetty server.
 	 * 
-	 * @param folder
+	 * @author James Moger
+	 * 
 	 */
-	private static boolean deleteRecursively(File folder) {
-		boolean deleted = true;
-		for (File file : folder.listFiles()) {
-			if (file.isDirectory()) {
-				deleted &= deleteRecursively(file);
-			} else {
-				deleted &= file.delete();
-			}
-		}
-		return deleted && folder.delete();
-	}
-
 	private static class ShutdownMonitorThread extends Thread {
 
 		private final ServerSocket socket;
@@ -356,7 +386,8 @@ public class GitBlitServer {
 		 * Authentication Parameters
 		 */
 		@Parameter(names = { "--userService" }, description = "Authentication and Authorization Service (filename or fully qualified classname)")
-		public String userService = FILESETTINGS.getString(Keys.realm.userService, "users.properties");
+		public String userService = FILESETTINGS.getString(Keys.realm.userService,
+				"users.properties");
 
 		/*
 		 * JETTY Parameters

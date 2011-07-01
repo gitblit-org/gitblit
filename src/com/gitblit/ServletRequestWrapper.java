@@ -29,6 +29,22 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/**
+ * ServletRequestWrapper is a pass-through/delegate wrapper class for a servlet
+ * request. This class is used in conjunction with ServletFilters, such as the
+ * AccessRestrictionFilter.
+ * 
+ * The original request is wrapped by instances of this class and this class is
+ * set as the servlet request in the filter. This allows for specialized
+ * implementations of request methods, like getUserPrincipal() with delegation
+ * to the original request for any method not overridden.
+ * 
+ * This class, by itself, is not altogether interesting. Subclasses of this
+ * class, however, are of interest.
+ * 
+ * @author James Moger
+ * 
+ */
 public abstract class ServletRequestWrapper implements HttpServletRequest {
 
 	protected final HttpServletRequest req;

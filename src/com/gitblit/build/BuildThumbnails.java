@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -33,6 +34,12 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 
+/**
+ * Generates PNG thumbnails of the PNG images from the specified source folder.
+ * 
+ * @author James Moger
+ * 
+ */
 public class BuildThumbnails {
 
 	public static void main(String[] args) {
@@ -47,6 +54,15 @@ public class BuildThumbnails {
 		createImageThumbnail(params.sourceFolder, params.destinationFolder, params.maximumDimension);
 	}
 
+	/**
+	 * Generates thumbnails from all PNG images in the source folder and saves
+	 * them to the destination folder.
+	 * 
+	 * @param sourceFolder
+	 * @param destinationFolder
+	 * @param maxDimension
+	 *            the maximum height or width of the image.
+	 */
 	public static void createImageThumbnail(String sourceFolder, String destinationFolder,
 			int maxDimension) {
 		if (maxDimension <= 0)
@@ -71,18 +87,18 @@ public class BuildThumbnails {
 					// Scale to Width
 					w = maxDimension;
 					float f = maxDimension;
-					h = (int) ((f / sz.width) * sz.height); // normalize height
+					// normalize height
+					h = (int) ((f / sz.width) * sz.height);
 				} else if (sz.height > maxDimension) {
 					// Scale to Height
 					h = maxDimension;
 					float f = maxDimension;
-					w = (int) ((f / sz.height) * sz.width); // normalize width
-				} else {
-					// No thumbnail
-					return;
+					// normalize width
+					w = (int) ((f / sz.height) * sz.width);
 				}
-				System.out.println("Generating thumbnail for " + sourceFile.getName() + " as (" + w
-						+ "," + h + ")");
+				System.out.println(MessageFormat.format(
+						"Generating thumbnail for {0} as ({1,number,#}, {2,number,#})",
+						sourceFile.getName(), w, h));
 				BufferedImage image = ImageIO.read(sourceFile);
 				Image scaledImage = image.getScaledInstance(w, h, BufferedImage.SCALE_SMOOTH);
 				BufferedImage destImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
@@ -98,6 +114,13 @@ public class BuildThumbnails {
 		}
 	}
 
+	/**
+	 * Return the dimensions of the specified image file.
+	 * 
+	 * @param file
+	 * @return dimensions of the image
+	 * @throws IOException
+	 */
 	public static Dimension getImageDimensions(File file) throws IOException {
 		ImageInputStream in = ImageIO.createImageInputStream(file);
 		try {

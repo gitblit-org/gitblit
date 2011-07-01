@@ -22,6 +22,12 @@ import javax.servlet.ServletContext;
 
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Loads Gitblit settings from the context-parameter values of a web.xml file.
+ * 
+ * @author James Moger
+ * 
+ */
 public class WebXmlSettings extends IStoredSettings {
 
 	private final Properties properties = new Properties();
@@ -36,9 +42,9 @@ public class WebXmlSettings extends IStoredSettings {
 			logger.debug(key + "=" + properties.getProperty(key));
 		}
 	}
-	
+
 	private String decodeValue(String value) {
-		// Decode escaped backslashes and HTML entities
+		// decode escaped backslashes and HTML entities
 		return StringUtils.decodeFromHtml(value).replace("\\\\", "\\");
 	}
 
