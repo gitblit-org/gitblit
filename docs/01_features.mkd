@@ -48,20 +48,4 @@
 - Gitblit may eat your data.  Use at your own risk.
 - Gitblit may have security holes.  Patches welcome.  :)
 
-## Todo List
-- Code documentation
-- Unit testing
-
-### Under Consideration
-- Clone remote repository feature
-- Blob page improvements
-    - view images
-    - view other binary files (pdf, doc, etc)
-- Markdown editing feature
-- Stronger Ticgit read-only integration
-    - activity/timeline
-    - query feature with paging support
-    - change history
-- Ticgit write integration
-
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

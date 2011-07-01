@@ -87,6 +87,31 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
 **Example**
 
     java -jar gitblit.jar --userService c:\myrealm.properties --storePassword something
+
+## Upgrading Gitblit
+Generally, upgrading is easy.
+
+Since Gitblit does not use a database the only files you have to worry about are your configuration file (`gitblit.properties` or `web.xml`) and possibly your `users.properties` file.
+
+Any important changes to the setting keys or default values will always be mentioned in the [release log](releases.html).
+
+### Upgrading Gitblit WAR
+1. Backup your `web.xml` file
+2. Delete currently deployed gitblit WAR
+3. Deploy new WAR and overwrite the `web.xml` file with your backup
+4. Review and optionally apply any new settings as indicated in the [release log](releases.html). 
+ 
+### Upgrading Gitblit GO
+ 
+1. Backup your `gitblit.properties` file
+2. Backup your `users.properties` file *(if it is located in the Gitblit GO folder)*
+3. Unzip Gitblit GO to a new folder
+4. Overwrite the `gitblit.properties` file with your backup
+5. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*
+6. Review and optionally apply any new settings as indicated in the [release log](releases.html).
+
+#### Upgrading Windows Service
+You may need to delete your old service definition and install a new one depending on what has changed in the release.  
     
 ## Gitblit Configuration
 
