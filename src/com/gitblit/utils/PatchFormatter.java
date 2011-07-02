@@ -30,6 +30,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 
+/**
+ * A diff formatter that outputs standard patch content.
+ * 
+ * @author James Moger
+ * 
+ */
 public class PatchFormatter extends DiffFormatter {
 
 	private final OutputStream os;

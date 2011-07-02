@@ -24,6 +24,12 @@ import java.io.OutputStream;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 
+/**
+ * Returns an html snippet of the diff in the standard Gitweb style.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitWebDiffFormatter extends DiffFormatter {
 
 	private final OutputStream os;

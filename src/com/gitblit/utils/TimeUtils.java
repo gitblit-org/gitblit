@@ -18,6 +18,12 @@ package com.gitblit.utils;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Utility class of time functions.
+ * 
+ * @author James Moger
+ * 
+ */
 public class TimeUtils {
 	public static final long MIN = 1000 * 60L;
 
@@ -29,10 +35,22 @@ public class TimeUtils {
 
 	public static final long ONEYEAR = ONEDAY * 365L;
 
+	/**
+	 * Returns true if date is today.
+	 * 
+	 * @param date
+	 * @return true if date is today
+	 */
 	public static boolean isToday(Date date) {
 		return (System.currentTimeMillis() - date.getTime()) < ONEDAY;
 	}
 
+	/**
+	 * Returns true if date is yesterday.
+	 * 
+	 * @param date
+	 * @return true if date is yesterday
+	 */
 	public static boolean isYesterday(Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -40,6 +58,13 @@ public class TimeUtils {
 		return (System.currentTimeMillis() - cal.getTimeInMillis()) < ONEDAY;
 	}
 
+	/**
+	 * Returns the string representation of the duration as days, months and/or
+	 * years.
+	 * 
+	 * @param days
+	 * @return duration as string in days, months, and/or years
+	 */
 	public static String duration(int days) {
 		if (days <= 60) {
 			return days + (days > 1 ? " days" : " day");
@@ -69,6 +94,15 @@ public class TimeUtils {
 		}
 	}
 
+	/**
+	 * Returns the number of minutes ago between the start time and the end
+	 * time.
+	 * 
+	 * @param date
+	 * @param endTime
+	 * @param roundup
+	 * @return difference in minutes
+	 */
 	public static int minutesAgo(Date date, long endTime, boolean roundup) {
 		long diff = endTime - date.getTime();
 		int mins = (int) (diff / MIN);
@@ -78,10 +112,24 @@ public class TimeUtils {
 		return mins;
 	}
 
+	/**
+	 * Return the difference in minutes between now and the date.
+	 * 
+	 * @param date
+	 * @param roundup
+	 * @return minutes ago
+	 */
 	public static int minutesAgo(Date date, boolean roundup) {
 		return minutesAgo(date, System.currentTimeMillis(), roundup);
 	}
 
+	/**
+	 * Return the difference in hours between now and the date.
+	 * 
+	 * @param date
+	 * @param roundup
+	 * @return hours ago
+	 */
 	public static int hoursAgo(Date date, boolean roundup) {
 		long diff = System.currentTimeMillis() - date.getTime();
 		int hours = (int) (diff / ONEHOUR);
@@ -91,6 +139,13 @@ public class TimeUtils {
 		return hours;
 	}
 
+	/**
+	 * Return the difference in days between now and the date.
+	 * 
+	 * @param date
+	 * @param roundup
+	 * @return days ago
+	 */
 	public static int daysAgo(Date date, boolean roundup) {
 		long diff = System.currentTimeMillis() - date.getTime();
 		int days = (int) (diff / ONEDAY);
@@ -100,14 +155,35 @@ public class TimeUtils {
 		return days;
 	}
 
+	/**
+	 * Returns the string representation of the duration between now and the
+	 * date.
+	 * 
+	 * @param date
+	 * @return duration as a string
+	 */
 	public static String timeAgo(Date date) {
 		return timeAgo(date, false);
 	}
 
+	/**
+	 * Returns the CSS class for the date based on its age from Now.
+	 * 
+	 * @param date
+	 * @return the css class
+	 */
 	public static String timeAgoCss(Date date) {
 		return timeAgo(date, true);
 	}
 
+	/**
+	 * Returns the string representation of the duration OR the css class for
+	 * the duration.
+	 * 
+	 * @param date
+	 * @param css
+	 * @return the string representation of the duration OR the css class
+	 */
 	private static String timeAgo(Date date, boolean css) {
 		String ago = null;
 		if (isToday(date) || isYesterday(date)) {

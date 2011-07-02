@@ -34,7 +34,7 @@ public class FileUtils {
 	 * 
 	 * @param file
 	 * @param lineEnding
-	 * @return
+	 * @return the string content of the file
 	 */
 	public static String readContent(File file, String lineEnding) {
 		StringBuilder sb = new StringBuilder();

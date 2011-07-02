@@ -17,11 +17,18 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 
+/**
+ * Metric is a serializable model class that encapsulates metrics for some given
+ * type.
+ * 
+ * @author James Moger
+ * 
+ */
 public class Metric implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public String name;
+	public final String name;
 	public double count;
 	public double tag;
 	public int duration;

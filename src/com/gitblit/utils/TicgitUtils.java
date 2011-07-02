@@ -30,15 +30,28 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Comment;
 
+/**
+ * Utility class for reading Ticgit issues.
+ * 
+ * @author James Moger
+ * 
+ */
 public class TicgitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(TicgitUtils.class);
 
-	public static RefModel getTicketsBranch(Repository r) {
+	/**
+	 * Returns a RefModel for the Ticgit branch in the repository. If the branch
+	 * can not be found, null is returned.
+	 * 
+	 * @param repository
+	 * @return a refmodel for the ticgit branch or null
+	 */
+	public static RefModel getTicketsBranch(Repository repository) {
 		RefModel ticgitBranch = null;
 		try {
 			// search for ticgit branch in local heads
-			for (RefModel ref : JGitUtils.getLocalBranches(r, false, -1)) {
+			for (RefModel ref : JGitUtils.getLocalBranches(repository, false, -1)) {
 				if (ref.displayName.endsWith("ticgit")) {
 					ticgitBranch = ref;
 					break;
@@ -47,7 +60,7 @@ public class TicgitUtils {
 
 			// search for ticgit branch in remote heads
 			if (ticgitBranch == null) {
-				for (RefModel ref : JGitUtils.getRemoteBranches(r, false, -1)) {
+				for (RefModel ref : JGitUtils.getRemoteBranches(repository, false, -1)) {
 					if (ref.displayName.endsWith("ticgit")) {
 						ticgitBranch = ref;
 						break;
@@ -60,19 +73,25 @@ public class TicgitUtils {
 		return ticgitBranch;
 	}
 
-	public static List<TicketModel> getTickets(Repository r) {
-		RefModel ticgitBranch = getTicketsBranch(r);
+	/**
+	 * Returns a list of all tickets in the ticgit branch of the repository.
+	 * 
+	 * @param repository
+	 * @return list of tickets
+	 */
+	public static List<TicketModel> getTickets(Repository repository) {
+		RefModel ticgitBranch = getTicketsBranch(repository);
 		if (ticgitBranch == null) {
 			return null;
 		}
 		RevCommit commit = (RevCommit) ticgitBranch.referencedObject;
-		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, commit);
+		List<PathModel> paths = JGitUtils.getFilesInPath(repository, null, commit);
 		List<TicketModel> tickets = new ArrayList<TicketModel>();
 		for (PathModel ticketFolder : paths) {
 			if (ticketFolder.isTree()) {
 				try {
 					TicketModel t = new TicketModel(ticketFolder.name);
-					readTicketContents(r, ticgitBranch, t);
+					loadTicketContents(repository, ticgitBranch, t);
 					tickets.add(t);
 				} catch (Throwable t) {
 					LOGGER.error("Failed to get a ticket!", t);
@@ -84,12 +103,20 @@ public class TicgitUtils {
 		return tickets;
 	}
 
-	public static TicketModel getTicket(Repository r, String ticketFolder) {
-		RefModel ticketsBranch = getTicketsBranch(r);
+	/**
+	 * Returns a TicketModel for the specified ticgit ticket. Returns null if
+	 * the ticket does not exist or some other error occurs.
+	 * 
+	 * @param repository
+	 * @param ticketFolder
+	 * @return a ticket
+	 */
+	public static TicketModel getTicket(Repository repository, String ticketFolder) {
+		RefModel ticketsBranch = getTicketsBranch(repository);
 		if (ticketsBranch != null) {
 			try {
 				TicketModel ticket = new TicketModel(ticketFolder);
-				readTicketContents(r, ticketsBranch, ticket);
+				loadTicketContents(repository, ticketsBranch, ticket);
 				return ticket;
 			} catch (Throwable t) {
 				LOGGER.error("Failed to get ticket " + ticketFolder, t);
@@ -98,11 +125,20 @@ public class TicgitUtils {
 		return null;
 	}
 
-	private static void readTicketContents(Repository r, RefModel ticketsBranch, TicketModel ticket) {
+	/**
+	 * Loads the contents of the ticket.
+	 * 
+	 * @param repository
+	 * @param ticketsBranch
+	 * @param ticket
+	 */
+	private static void loadTicketContents(Repository repository, RefModel ticketsBranch,
+			TicketModel ticket) {
 		RevCommit commit = (RevCommit) ticketsBranch.referencedObject;
-		List<PathModel> ticketFiles = JGitUtils.getFilesInPath(r, ticket.name, commit);
+		List<PathModel> ticketFiles = JGitUtils.getFilesInPath(repository, ticket.name, commit);
 		for (PathModel file : ticketFiles) {
-			String content = JGitUtils.getStringContent(r, commit.getTree(), file.path).trim();
+			String content = JGitUtils.getStringContent(repository, commit.getTree(), file.path)
+					.trim();
 			if (file.name.equals("TICKET_ID")) {
 				ticket.id = content;
 			} else if (file.name.equals("TITLE")) {

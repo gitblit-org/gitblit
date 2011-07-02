@@ -22,18 +22,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
+/**
+ * Utility class of string functions.
+ * 
+ * @author James Moger
+ * 
+ */
 public class StringUtils {
 
 	public static final String MD5_TYPE = "MD5:";
 
+	/**
+	 * Returns true if the string is null or empty.
+	 * 
+	 * @param value
+	 * @return true if string is null or empty
+	 */
 	public static boolean isEmpty(String value) {
 		return value == null || value.trim().length() == 0;
 	}
 
+	/**
+	 * Replaces carriage returns and line feeds with html line breaks.
+	 * 
+	 * @param string
+	 * @return plain text with html line breaks
+	 */
 	public static String breakLinesForHtml(String string) {
 		return string.replace("\r\n", "<br/>").replace("\r", "<br/>").replace("\n", "<br/>");
 	}
 
+	/**
+	 * Prepare text for html presentation. Replace sensitive characters with
+	 * html entities.
+	 * 
+	 * @param inStr
+	 * @param changeSpace
+	 * @return plain text escaped for html
+	 */
 	public static String escapeForHtml(String inStr, boolean changeSpace) {
 		StringBuffer retStr = new StringBuffer();
 		int i = 0;
@@ -58,11 +84,23 @@ public class StringUtils {
 		return retStr.toString();
 	}
 
+	/**
+	 * Decode html entities back into plain text characters.
+	 * 
+	 * @param inStr
+	 * @return returns plain text from html
+	 */
 	public static String decodeFromHtml(String inStr) {
 		return inStr.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">")
 				.replace("&quot;", "\"").replace("&nbsp;", " ");
 	}
 
+	/**
+	 * Encodes a url parameter by escaping troublesome characters.
+	 * 
+	 * @param inStr
+	 * @return properly escaped url
+	 */
 	public static String encodeURL(String inStr) {
 		StringBuffer retStr = new StringBuffer();
 		int i = 0;
@@ -79,10 +117,24 @@ public class StringUtils {
 		return retStr.toString();
 	}
 
+	/**
+	 * Flatten the list of strings into a single string with a space separator.
+	 * 
+	 * @param values
+	 * @return flattened list
+	 */
 	public static String flattenStrings(List<String> values) {
 		return flattenStrings(values, " ");
 	}
 
+	/**
+	 * Flatten the list of strings into a single string with the specified
+	 * separator.
+	 * 
+	 * @param values
+	 * @param separator
+	 * @return flattened list
+	 */
 	public static String flattenStrings(List<String> values, String separator) {
 		StringBuilder sb = new StringBuilder();
 		for (String value : values) {
@@ -91,6 +143,15 @@ public class StringUtils {
 		return sb.toString().trim();
 	}
 
+	/**
+	 * Returns a string trimmed to a maximum length with trailing ellipses. If
+	 * the string length is shorter than the max, the original string is
+	 * returned.
+	 * 
+	 * @param value
+	 * @param max
+	 * @return trimmed string
+	 */
 	public static String trimString(String value, int max) {
 		if (value.length() <= max) {
 			return value;
@@ -98,10 +159,25 @@ public class StringUtils {
 		return value.substring(0, max - 3) + "...";
 	}
 
+	/**
+	 * Returns a trimmed shortlog message.
+	 * 
+	 * @param string
+	 * @return trimmed shortlog message
+	 */
 	public static String trimShortLog(String string) {
 		return trimString(string, 60);
 	}
 
+	/**
+	 * Left pad a string with the specified character, if the string length is
+	 * less than the specified length.
+	 * 
+	 * @param input
+	 * @param length
+	 * @param pad
+	 * @return left-padded string
+	 */
 	public static String leftPad(String input, int length, char pad) {
 		if (input.length() < length) {
 			StringBuilder sb = new StringBuilder();
@@ -114,6 +190,15 @@ public class StringUtils {
 		return input;
 	}
 
+	/**
+	 * Right pad a string with the specified character, if the string length is
+	 * less then the specified length.
+	 * 
+	 * @param input
+	 * @param length
+	 * @param pad
+	 * @return right-padded string
+	 */
 	public static String rightPad(String input, int length, char pad) {
 		if (input.length() < length) {
 			StringBuilder sb = new StringBuilder();
@@ -126,6 +211,12 @@ public class StringUtils {
 		return input;
 	}
 
+	/**
+	 * Calculates the SHA1 of the string.
+	 * 
+	 * @param text
+	 * @return sha1 of the string
+	 */
 	public static String getSHA1(String text) {
 		try {
 			byte[] bytes = text.getBytes("iso-8859-1");
@@ -135,6 +226,12 @@ public class StringUtils {
 		}
 	}
 
+	/**
+	 * Calculates the SHA1 of the byte array.
+	 * 
+	 * @param bytes
+	 * @return sha1 of the byte array
+	 */
 	public static String getSHA1(byte[] bytes) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -146,6 +243,12 @@ public class StringUtils {
 		}
 	}
 
+	/**
+	 * Calculates the MD5 of the string.
+	 * 
+	 * @param string
+	 * @return md5 of the string
+	 */
 	public static String getMD5(String string) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
@@ -160,6 +263,12 @@ public class StringUtils {
 		}
 	}
 
+	/**
+	 * Returns the hex representation of the byte array.
+	 * 
+	 * @param bytes
+	 * @return byte array as hex string
+	 */
 	private static String toHex(byte[] bytes) {
 		StringBuilder sb = new StringBuilder(bytes.length * 2);
 		for (int i = 0; i < bytes.length; i++) {
@@ -171,6 +280,13 @@ public class StringUtils {
 		return sb.toString();
 	}
 
+	/**
+	 * Returns the root path of the specified path. Returns a blank string if
+	 * there is no root path.
+	 * 
+	 * @param path
+	 * @return root path or blank
+	 */
 	public static String getRootPath(String path) {
 		if (path.indexOf('/') > -1) {
 			return path.substring(0, path.lastIndexOf('/'));
@@ -178,6 +294,14 @@ public class StringUtils {
 		return "";
 	}
 
+	/**
+	 * Returns the path remainder after subtracting the basePath from the
+	 * fullPath.
+	 * 
+	 * @param basePath
+	 * @param fullPath
+	 * @return the relative path
+	 */
 	public static String getRelativePath(String basePath, String fullPath) {
 		String relativePath = fullPath.substring(basePath.length()).replace('\\', '/');
 		if (relativePath.charAt(0) == '/') {
@@ -186,10 +310,23 @@ public class StringUtils {
 		return relativePath;
 	}
 
+	/**
+	 * Splits the space-separated string into a list of strings.
+	 * 
+	 * @param value
+	 * @return list of strings
+	 */
 	public static List<String> getStringsFromValue(String value) {
 		return getStringsFromValue(value, " ");
 	}
 
+	/**
+	 * Splits the string into a list of string by the specified separator.
+	 * 
+	 * @param value
+	 * @param separator
+	 * @return list of strings
+	 */
 	public static List<String> getStringsFromValue(String value, String separator) {
 		List<String> strings = new ArrayList<String>();
 		try {

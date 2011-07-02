@@ -20,6 +20,13 @@ import java.util.Date;
 
 import com.gitblit.Constants.AccessRestrictionType;
 
+/**
+ * RepositoryModel is a serializable model class that represents a Gitblit
+ * repository including its configuration settings and access restriction.
+ * 
+ * @author James Moger
+ * 
+ */
 public class RepositoryModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -20,6 +20,13 @@ import java.io.Serializable;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.FileMode;
 
+/**
+ * PathModel is a serializable model class that represents a file or a folder,
+ * including all its metadata and associated commit id.
+ * 
+ * @author James Moger
+ * 
+ */
 public class PathModel implements Serializable, Comparable<PathModel> {
 
 	private static final long serialVersionUID = 1L;
@@ -71,6 +78,13 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		return 1;
 	}
 
+	/**
+	 * PathChangeModel is a serializable class that represents a file changed in
+	 * a commit.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
 	public static class PathChangeModel extends PathModel {
 
 		private static final long serialVersionUID = 1L;

@@ -20,6 +20,13 @@ import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 
+/**
+ * ByteFormat is a formatter which takes numbers and returns filesizes in bytes,
+ * kilobytes, megabytes, or gigabytes.
+ * 
+ * @author James Moger
+ * 
+ */
 public class ByteFormat extends Format {
 
 	private static final long serialVersionUID = 1L;

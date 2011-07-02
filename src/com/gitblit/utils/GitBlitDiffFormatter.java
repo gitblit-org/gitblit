@@ -21,6 +21,12 @@ import java.io.OutputStream;
 
 import org.eclipse.jgit.diff.RawText;
 
+/**
+ * Generates an html snippet of a diff in Gitblit's style.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 
 	private final OutputStream os;

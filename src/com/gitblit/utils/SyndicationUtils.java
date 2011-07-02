@@ -35,8 +35,26 @@ import com.sun.syndication.feed.synd.SyndImageImpl;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
 
+/**
+ * Utility class for RSS feeds.
+ * 
+ * @author James Moger
+ * 
+ */
 public class SyndicationUtils {
 
+	/**
+	 * Outputs an RSS feed of the list of commits to the outputstream.
+	 * 
+	 * @param hostUrl
+	 * @param title
+	 * @param description
+	 * @param repository
+	 * @param commits
+	 * @param os
+	 * @throws IOException
+	 * @throws FeedException
+	 */
 	public static void toRSS(String hostUrl, String title, String description, String repository,
 			List<RevCommit> commits, OutputStream os) throws IOException, FeedException {
 

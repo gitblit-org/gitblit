@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * TicketModel is a serializable model class that represents a Ticgit ticket.
+ * 
+ * @author James Moger
+ * 
+ */
 public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	private static final long serialVersionUID = 1L;
@@ -50,6 +56,32 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof TicketModel) {
+			TicketModel other = (TicketModel) o;
+			return id.equals(other.id);
+		}
+		return super.equals(o);
+	}
+
+	@Override
+	public int compareTo(TicketModel o) {
+		return date.compareTo(o.date);
+	}
+
+	/**
+	 * Comment is a serializable model class that represents a Ticgit ticket
+	 * comment.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
 	public static class Comment implements Serializable, Comparable<Comment> {
 
 		private static final long serialVersionUID = 1L;
@@ -83,24 +115,5 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public int compareTo(Comment o) {
 			return date.compareTo(o.date);
 		}
-	}
-
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof TicketModel) {
-			TicketModel other = (TicketModel) o;
-			return id.equals(other.id);
-		}
-		return super.equals(o);
-	}
-
-	@Override
-	public int compareTo(TicketModel o) {
-		return date.compareTo(o.date);
 	}
 }

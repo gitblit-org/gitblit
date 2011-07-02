@@ -20,6 +20,14 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * UserModel is a serializable model class that represents a user and the user's
+ * restricted repository memberships. Instances of UserModels are also used as
+ * servlet user principals.
+ * 
+ * @author James Moger
+ * 
+ */
 public class UserModel implements Principal, Serializable {
 
 	private static final long serialVersionUID = 1L;

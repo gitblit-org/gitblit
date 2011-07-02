@@ -25,6 +25,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
 
+/**
+ * RefModel is a serializable model class that represents a tag or branch and
+ * includes the referenced object.
+ * 
+ * @author James Moger
+ * 
+ */
 public class RefModel implements Serializable, Comparable<RefModel> {
 
 	private static final long serialVersionUID = 1L;

@@ -35,33 +35,58 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RefModel;
 
+/**
+ * Utility class for collecting metrics on a branch, tag, or other ref within
+ * the repository.
+ * 
+ * @author James Moger
+ * 
+ */
 public class MetricUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetricUtils.class);
 
-	public static List<Metric> getDateMetrics(Repository r, String objectId, boolean includeTotal,
-			String format) {
+	/**
+	 * Returns the list of metrics for the specified commit reference, branch,
+	 * or tag within the repository. If includeTotal is true, the total of all
+	 * the metrics will be included as the first element in the returned list.
+	 * 
+	 * If the dateformat is unspecified an attempt is made to determine an
+	 * appropriate date format by determining the time difference between the
+	 * first commit on the branch and the most recent commit. This assumes that
+	 * the commits are linear.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if null or empty, HEAD is assumed.
+	 * @param includeTotal
+	 * @param dateFormat
+	 * @return list of metrics
+	 */
+	public static List<Metric> getDateMetrics(Repository repository, String objectId,
+			boolean includeTotal, String dateFormat) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 		if (StringUtils.isEmpty(objectId)) {
 			objectId = Constants.HEAD;
 		}
-		if (JGitUtils.hasCommits(r)) {
-			final List<RefModel> tags = JGitUtils.getTags(r, true, -1);
+		if (JGitUtils.hasCommits(repository)) {
+			final List<RefModel> tags = JGitUtils.getTags(repository, true, -1);
 			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
 			for (RefModel tag : tags) {
 				tagMap.put(tag.getReferencedObjectId(), tag);
 			}
+			RevWalk revWalk = null;
 			try {
-				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(objectId);
-				RevCommit lastCommit = walk.parseCommit(object);
-				walk.markStart(lastCommit);
+				revWalk = new RevWalk(repository);
+				ObjectId object = repository.resolve(objectId);
+				RevCommit lastCommit = revWalk.parseCommit(object);
+				revWalk.markStart(lastCommit);
 
 				DateFormat df;
-				if (StringUtils.isEmpty(format)) {
+				if (StringUtils.isEmpty(dateFormat)) {
 					// dynamically determine date format
-					RevCommit firstCommit = JGitUtils.getFirstCommit(r, Constants.HEAD);
+					RevCommit firstCommit = JGitUtils.getFirstCommit(repository, Constants.HEAD);
 					int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
 							/ (60 * 60 * 24);
 					total.duration = diffDays;
@@ -74,10 +99,10 @@ public class MetricUtils {
 					}
 				} else {
 					// use specified date format
-					df = new SimpleDateFormat(format);
+					df = new SimpleDateFormat(dateFormat);
 				}
 
-				Iterable<RevCommit> revlog = walk;
+				Iterable<RevCommit> revlog = revWalk;
 				for (RevCommit rev : revlog) {
 					Date d = JGitUtils.getCommitDate(rev);
 					String p = df.format(d);
@@ -94,6 +119,10 @@ public class MetricUtils {
 				}
 			} catch (Throwable t) {
 				LOGGER.error("Failed to mine log history for date metrics", t);
+			} finally {
+				if (revWalk != null) {
+					revWalk.dispose();
+				}
 			}
 		}
 		List<String> keys = new ArrayList<String>(metricMap.keySet());
@@ -108,22 +137,33 @@ public class MetricUtils {
 		return metrics;
 	}
 
-	public static List<Metric> getAuthorMetrics(Repository r, String objectId, boolean byEmail) {
+	/**
+	 * Returns a list of author metrics for the specified repository.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if null or empty, HEAD is assumed.
+	 * @param byEmailAddress
+	 *            group metrics by author email address otherwise by author name
+	 * @return list of metrics
+	 */
+	public static List<Metric> getAuthorMetrics(Repository repository, String objectId,
+			boolean byEmailAddress) {
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 		if (StringUtils.isEmpty(objectId)) {
 			objectId = Constants.HEAD;
 		}
-		if (JGitUtils.hasCommits(r)) {
+		if (JGitUtils.hasCommits(repository)) {
 			try {
-				RevWalk walk = new RevWalk(r);
-				ObjectId object = r.resolve(objectId);
+				RevWalk walk = new RevWalk(repository);
+				ObjectId object = repository.resolve(objectId);
 				RevCommit lastCommit = walk.parseCommit(object);
 				walk.markStart(lastCommit);
 
 				Iterable<RevCommit> revlog = walk;
 				for (RevCommit rev : revlog) {
 					String p;
-					if (byEmail) {
+					if (byEmailAddress) {
 						p = rev.getAuthorIdent().getEmailAddress().toLowerCase();
 						if (StringUtils.isEmpty(p)) {
 							p = rev.getAuthorIdent().getName().toLowerCase();

@@ -30,13 +30,20 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.AnnotatedLine;
 
+/**
+ * DiffUtils is a class of utility methods related to diff, patch, and blame.
+ * 
+ * The diff methods support pluggable diff output types like Gitblit, Gitweb,
+ * and Plain.
+ * 
+ * @author James Moger
+ * 
+ */
 public class DiffUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtils.class);
@@ -54,43 +61,67 @@ public class DiffUtils {
 		}
 	}
 
-	public static String getCommitDiff(Repository r, RevCommit commit, DiffOutputType outputType) {
-		return getDiff(r, null, commit, null, outputType);
+	/**
+	 * Returns the complete diff of the specified commit compared to its primary
+	 * parent.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @param outputType
+	 * @return the diff as a string
+	 */
+	public static String getCommitDiff(Repository repository, RevCommit commit,
+			DiffOutputType outputType) {
+		return getDiff(repository, null, commit, null, outputType);
 	}
 
-	public static String getDiff(Repository r, RevCommit commit, String path,
+	/**
+	 * Returns the diff for the specified file or folder from the specified
+	 * commit compared to its primary parent.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @param path
+	 * @param outputType
+	 * @return the diff as a string
+	 */
+	public static String getDiff(Repository repository, RevCommit commit, String path,
 			DiffOutputType outputType) {
-		return getDiff(r, null, commit, path, outputType);
+		return getDiff(repository, null, commit, path, outputType);
 	}
 
-	public static String getDiff(Repository r, RevCommit baseCommit, RevCommit commit,
+	/**
+	 * Returns the complete diff between the two specified commits.
+	 * 
+	 * @param repository
+	 * @param baseCommit
+	 * @param commit
+	 * @param outputType
+	 * @return the diff as a string
+	 */
+	public static String getDiff(Repository repository, RevCommit baseCommit, RevCommit commit,
 			DiffOutputType outputType) {
-		return getDiff(r, baseCommit, commit, null, outputType);
+		return getDiff(repository, baseCommit, commit, null, outputType);
 	}
 
-	public static String getDiff(Repository r, RevCommit baseCommit, RevCommit commit, String path,
-			DiffOutputType outputType) {
+	/**
+	 * Returns the diff between two commits for the specified file.
+	 * 
+	 * @param repository
+	 * @param baseCommit
+	 *            if base commit is null the diff is to the primary parent of
+	 *            the commit.
+	 * @param commit
+	 * @param path
+	 *            if the path is specified, the diff is restricted to that file
+	 *            or folder. if unspecified, the diff is for the entire commit.
+	 * @param outputType
+	 * @return the diff as a string
+	 */
+	public static String getDiff(Repository repository, RevCommit baseCommit, RevCommit commit,
+			String path, DiffOutputType outputType) {
 		String diff = null;
 		try {
-			RevTree baseTree;
-			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(r);
-				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				rw.dispose();
-				baseTree = parent.getTree();
-			} else {
-				baseTree = baseCommit.getTree();
-			}
-
-			RevTree commitTree = commit.getTree();
-
-			final TreeWalk walk = new TreeWalk(r);
-			walk.reset();
-			walk.setRecursive(true);
-			walk.addTree(baseTree);
-			walk.addTree(commitTree);
-			walk.setFilter(TreeFilter.ANY_DIFF);
-
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
 			DiffFormatter df;
@@ -106,9 +137,21 @@ public class DiffUtils {
 				df = new DiffFormatter(os);
 				break;
 			}
-			df.setRepository(r);
+			df.setRepository(repository);
 			df.setDiffComparator(cmp);
 			df.setDetectRenames(true);
+
+			RevTree commitTree = commit.getTree();
+			RevTree baseTree;
+			if (baseCommit == null) {
+				final RevWalk rw = new RevWalk(repository);
+				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+				rw.dispose();
+				baseTree = parent.getTree();
+			} else {
+				baseTree = baseCommit.getTree();
+			}
+
 			List<DiffEntry> diffEntries = df.scan(baseTree, commitTree);
 			if (path != null && path.length() > 0) {
 				for (DiffEntry diffEntry : diffEntries) {
@@ -133,33 +176,42 @@ public class DiffUtils {
 		return diff;
 	}
 
-	public static String getCommitPatch(Repository r, RevCommit baseCommit, RevCommit commit,
-			String path) {
+	/**
+	 * Returns the diff between the two commits for the specified file or folder
+	 * formatted as a patch.
+	 * 
+	 * @param repository
+	 * @param baseCommit
+	 *            if base commit is unspecified, the patch is generated against
+	 *            the primary parent of the specified commit.
+	 * @param commit
+	 * @param path
+	 *            if path is specified, the patch is generated only for the
+	 *            specified file or folder. if unspecified, the patch is
+	 *            generated for the entire diff between the two commits.
+	 * @return patch as a string
+	 */
+	public static String getCommitPatch(Repository repository, RevCommit baseCommit,
+			RevCommit commit, String path) {
 		String diff = null;
 		try {
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+			RawTextComparator cmp = RawTextComparator.DEFAULT;
+			PatchFormatter df = new PatchFormatter(os);
+			df.setRepository(repository);
+			df.setDiffComparator(cmp);
+			df.setDetectRenames(true);
+
+			RevTree commitTree = commit.getTree();
 			RevTree baseTree;
 			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(r);
+				final RevWalk rw = new RevWalk(repository);
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				baseTree = parent.getTree();
 			} else {
 				baseTree = baseCommit.getTree();
 			}
-			RevTree commitTree = commit.getTree();
 
-			final TreeWalk walk = new TreeWalk(r);
-			walk.reset();
-			walk.setRecursive(true);
-			walk.addTree(baseTree);
-			walk.addTree(commitTree);
-			walk.setFilter(TreeFilter.ANY_DIFF);
-
-			final ByteArrayOutputStream os = new ByteArrayOutputStream();
-			RawTextComparator cmp = RawTextComparator.DEFAULT;
-			PatchFormatter df = new PatchFormatter(os);
-			df.setRepository(r);
-			df.setDiffComparator(cmp);
-			df.setDetectRenames(true);
 			List<DiffEntry> diffEntries = df.scan(baseTree, commitTree);
 			if (path != null && path.length() > 0) {
 				for (DiffEntry diffEntry : diffEntries) {
@@ -179,15 +231,24 @@ public class DiffUtils {
 		return diff;
 	}
 
-	public static List<AnnotatedLine> blame(Repository r, String blobPath, String objectId) {
+	/**
+	 * Returns the list of lines in the specified source file annotated with the
+	 * source commit metadata.
+	 * 
+	 * @param repository
+	 * @param blobPath
+	 * @param objectId
+	 * @return list of annotated lines
+	 */
+	public static List<AnnotatedLine> blame(Repository repository, String blobPath, String objectId) {
 		List<AnnotatedLine> lines = new ArrayList<AnnotatedLine>();
 		try {
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			BlameCommand blameCommand = new BlameCommand(r);
+			BlameCommand blameCommand = new BlameCommand(repository);
 			blameCommand.setFilePath(blobPath);
-			blameCommand.setStartCommit(r.resolve(objectId));
+			blameCommand.setStartCommit(repository.resolve(objectId));
 			BlameResult blameResult = blameCommand.call();
 			RawText rawText = blameResult.getResultContents();
 			int length = rawText.size();
