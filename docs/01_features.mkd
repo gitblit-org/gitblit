@@ -1,7 +1,7 @@
 ## Gitblit Features
 - JGit SmartHTTP servlet
 - Browser and git client authentication
-- Four repository access control configurations with a Read-Only control flag
+- Four *per-repository* access control configurations with a Read-Only control flag
     <ul class='noBullets'>
     <li>![anonymous](blank.png) *Anonymous View, Clone & Push*</li>
     <li>![push](lock_go_16x16.png) *Authenticated Push*</li>

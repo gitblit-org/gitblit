@@ -484,7 +484,7 @@
 			 projectname="gitblit" 
 			 filename="${distribution.zipfile}" 
 			 targetfilename="gitblit-${gb.version}.zip"
-			 summary="Standalone, integrated Gitblit server v${gb.version}"
+			 summary="Gitblit GO v${gb.version} (standalone, integrated Gitblit server)"
 			 labels="Featured, Type-Package, OpSys-All" />
 			
 		<!-- Upload WAR file -->
@@ -494,7 +494,7 @@
 		     projectname="gitblit" 
 		     filename="${distribution.warfile}" 
 		     targetfilename="gitblit-${gb.version}.war"
-		     summary="Gitblit WAR v${gb.version} for your servlet container"
+		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
 	</target>
 

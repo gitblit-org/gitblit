@@ -84,6 +84,13 @@ public class JGitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
+	/**
+	 * Returns the displayable name of the person in the form "Real Name <email
+	 * address>".  If the email address is empty, just "Real Name" is returned.
+	 * 
+	 * @param person
+	 * @return "Real Name <email address>" or "Real Name"
+	 */
 	public static String getDisplayName(PersonIdent person) {
 		if (StringUtils.isEmpty(person.getEmailAddress())) {
 			return person.getName();
@@ -96,6 +103,17 @@ public class JGitUtils {
 		return r.toString().trim();
 	}
 
+	/**
+	 * Clone or Fetch a repository. If the local repository does not exist,
+	 * clone is called. If the repository does exist, fetch is called. By
+	 * default the clone/fetch retrieves the remote heads, tags, and notes.
+	 * 
+	 * @param repositoriesFolder
+	 * @param name
+	 * @param fromUrl
+	 * @return FetchResult
+	 * @throws Exception
+	 */
 	public static FetchResult cloneRepository(File repositoriesFolder, String name, String fromUrl)
 			throws Exception {
 		FetchResult result = null;
@@ -125,6 +143,15 @@ public class JGitUtils {
 		return result;
 	}
 
+	/**
+	 * Fetch updates from the remote repository. If refSpecs is unspecifed,
+	 * remote heads, tags, and notes are retrieved.
+	 * 
+	 * @param repository
+	 * @param refSpecs
+	 * @return FetchResult
+	 * @throws Exception
+	 */
 	public static FetchResult fetchRepository(Repository repository, RefSpec... refSpecs)
 			throws Exception {
 		Git git = new Git(repository);
@@ -143,11 +170,29 @@ public class JGitUtils {
 		return result;
 	}
 
+	/**
+	 * Creates a bare repository.
+	 * 
+	 * @param repositoriesFolder
+	 * @param name
+	 * @return Repository
+	 */
 	public static Repository createRepository(File repositoriesFolder, String name) {
 		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
 		return git.getRepository();
 	}
 
+	/**
+	 * Returns a list of repository names in the specified folder.
+	 * 
+	 * @param repositoriesFolder
+	 * @param exportAll
+	 *            if true, all repositories are listed. If false only the
+	 *            repositories with a "git-daemon-export-ok" file are included
+	 * @param searchSubfolders
+	 *            recurse into subfolders to find grouped repositories
+	 * @return list of repository names
+	 */
 	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll,
 			boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
@@ -160,6 +205,20 @@ public class JGitUtils {
 		return list;
 	}
 
+	/**
+	 * Recursive function to find git repositories.
+	 * 
+	 * @param basePath
+	 *            basePath is stripped from the repository name as repositories
+	 *            are relative to this path
+	 * @param searchFolder
+	 * @param exportAll
+	 *            if true all repositories are listed. If false only the
+	 *            repositories with a "git-daemon-export-ok" file are included
+	 * @param searchSubfolders
+	 *            recurse into subfolders to find grouped repositories
+	 * @return
+	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
 			boolean exportAll, boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
@@ -186,8 +245,17 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static RevCommit getFirstCommit(Repository r, String branch) {
-		if (!hasCommits(r)) {
+	/**
+	 * Returns the first commit on a branch. If the repository does not exist or
+	 * is empty, null is returned.
+	 * 
+	 * @param repository
+	 * @param branch
+	 *            if unspecified, HEAD is assumed.
+	 * @return RevCommit
+	 */
+	public static RevCommit getFirstCommit(Repository repository, String branch) {
+		if (!hasCommits(repository)) {
 			return null;
 		}
 		if (StringUtils.isEmpty(branch)) {
@@ -195,9 +263,9 @@ public class JGitUtils {
 		}
 		RevCommit commit = null;
 		try {
-			RevWalk walk = new RevWalk(r);
+			RevWalk walk = new RevWalk(repository);
 			walk.sort(RevSort.REVERSE);
-			RevCommit head = walk.parseCommit(r.resolve(branch));
+			RevCommit head = walk.parseCommit(repository.resolve(branch));
 			walk.markStart(head);
 			commit = walk.next();
 			walk.dispose();
@@ -207,44 +275,89 @@ public class JGitUtils {
 		return commit;
 	}
 
-	public static Date getFirstChange(Repository r, String branch) {
-		RevCommit commit = getFirstCommit(r, branch);
+	/**
+	 * Returns the date of the first commit on a branch. If the repository does
+	 * not exist, Date(0) is returned. If the repository does exist bit is
+	 * empty, the last modified date of the repository folder is returned.
+	 * 
+	 * @param repository
+	 * @param branch
+	 *            if unspecified, HEAD is assumed.
+	 * @return Date of the first commit on a branch
+	 */
+	public static Date getFirstChange(Repository repository, String branch) {
+		RevCommit commit = getFirstCommit(repository, branch);
 		if (commit == null) {
-			if (r == null || !r.getDirectory().exists()) {
+			if (repository == null || !repository.getDirectory().exists()) {
 				return new Date(0);
 			}
 			// fresh repository
-			return new Date(r.getDirectory().lastModified());
+			return new Date(repository.getDirectory().lastModified());
 		}
 		return getCommitDate(commit);
 	}
 
-	public static boolean hasCommits(Repository r) {
-		if (r != null && r.getDirectory().exists()) {
-			return new File(r.getDirectory(), Constants.R_HEADS).list().length > 0;
+	/**
+	 * Determine if a repository has any commits. This is determined by checking
+	 * for 1 or more heads.
+	 * 
+	 * @param repository
+	 * @return true if the repository has commits
+	 */
+	public static boolean hasCommits(Repository repository) {
+		if (repository != null && repository.getDirectory().exists()) {
+			return new File(repository.getDirectory(), Constants.R_HEADS).list().length > 0;
 		}
 		return false;
 	}
 
-	public static Date getLastChange(Repository r) {
-		if (!hasCommits(r)) {
+	/**
+	 * Returns the date of the most recent commit on a branch. If the repository
+	 * does not exist Date(0) is returned. If it does exist but is empty, the
+	 * last modified date of the repository folder is returned.
+	 * 
+	 * @param repository
+	 * @param branch
+	 *            if unspecified, HEAD is assumed.
+	 * @return
+	 */
+	public static Date getLastChange(Repository repository, String branch) {
+		if (!hasCommits(repository)) {
 			// null repository
-			if (r == null) {
+			if (repository == null) {
 				return new Date(0);
 			}
 			// fresh repository
-			return new Date(r.getDirectory().lastModified());
+			return new Date(repository.getDirectory().lastModified());
 		}
-		RevCommit commit = getCommit(r, Constants.HEAD);
+		if (StringUtils.isEmpty(branch)) {
+			branch = Constants.HEAD;
+		}
+		RevCommit commit = getCommit(repository, branch);
 		return getCommitDate(commit);
 	}
 
+	/**
+	 * Retrieves a Java Date from a Git commit.
+	 * 
+	 * @param commit
+	 * @return date of the commit
+	 */
 	public static Date getCommitDate(RevCommit commit) {
 		return new Date(commit.getCommitTime() * 1000L);
 	}
 
-	public static RevCommit getCommit(Repository r, String objectId) {
-		if (!hasCommits(r)) {
+	/**
+	 * Returns the specified commit from the repository. If the repository does
+	 * not exist or is empty, null is returned.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @return RevCommit
+	 */
+	public static RevCommit getCommit(Repository repository, String objectId) {
+		if (!hasCommits(repository)) {
 			return null;
 		}
 		RevCommit commit = null;
@@ -252,8 +365,8 @@ public class JGitUtils {
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			ObjectId object = r.resolve(objectId);
-			RevWalk walk = new RevWalk(r);
+			ObjectId object = repository.resolve(objectId);
+			RevWalk walk = new RevWalk(repository);
 			RevCommit rev = walk.parseCommit(object);
 			commit = rev;
 			walk.dispose();
@@ -263,27 +376,23 @@ public class JGitUtils {
 		return commit;
 	}
 
-	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository r) {
-		List<RefModel> list = getRefs(r, org.eclipse.jgit.lib.RefDatabase.ALL, true, -1);
-		Map<ObjectId, List<RefModel>> refs = new HashMap<ObjectId, List<RefModel>>();
-		for (RefModel ref : list) {
-			ObjectId objectid = ref.getReferencedObjectId();
-			if (!refs.containsKey(objectid)) {
-				refs.put(objectid, new ArrayList<RefModel>());
-			}
-			refs.get(objectid).add(ref);
-		}
-		return refs;
-	}
-
-	public static byte[] getByteContent(Repository r, RevTree tree, final String path) {
-		RevWalk rw = new RevWalk(r);
-		TreeWalk tw = new TreeWalk(r);
+	/**
+	 * Retrieves the raw byte content of a file in the specified tree.
+	 * 
+	 * @param repository
+	 * @param tree
+	 *            if null, the RevTree from HEAD is assumed.
+	 * @param path
+	 * @return content as a byte []
+	 */
+	public static byte[] getByteContent(Repository repository, RevTree tree, final String path) {
+		RevWalk rw = new RevWalk(repository);
+		TreeWalk tw = new TreeWalk(repository);
 		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 		byte[] content = null;
 		try {
 			if (tree == null) {
-				ObjectId object = r.resolve(Constants.HEAD);
+				ObjectId object = repository.resolve(Constants.HEAD);
 				RevCommit commit = rw.parseCommit(object);
 				tree = commit.getTree();
 			}
@@ -298,7 +407,7 @@ public class JGitUtils {
 				RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
 				rw.parseBody(ro);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				ObjectLoader ldr = r.open(ro.getId(), Constants.OBJ_BLOB);
+				ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
 				byte[] tmp = new byte[4096];
 				InputStream in = ldr.openStream();
 				int n;
@@ -317,22 +426,38 @@ public class JGitUtils {
 		return content;
 	}
 
-	public static String getStringContent(Repository r, RevTree tree, String blobPath) {
-		byte[] content = getByteContent(r, tree, blobPath);
+	/**
+	 * Returns the UTF-8 string content of a file in the specified tree.
+	 * 
+	 * @param repository
+	 * @param tree
+	 *            if null, the RevTree from HEAD is assumed.
+	 * @param blobPath
+	 * @return UTF-8 string content
+	 */
+	public static String getStringContent(Repository repository, RevTree tree, String blobPath) {
+		byte[] content = getByteContent(repository, tree, blobPath);
 		if (content == null) {
 			return null;
 		}
 		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
-	public static byte[] getByteContent(Repository r, String objectId) {
-		RevWalk rw = new RevWalk(r);
+	/**
+	 * Gets the raw byte content of the specified blob object.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 * @return byte [] blob content
+	 */
+	public static byte[] getByteContent(Repository repository, String objectId) {
+		RevWalk rw = new RevWalk(repository);
 		byte[] content = null;
 		try {
 			RevBlob blob = rw.lookupBlob(ObjectId.fromString(objectId));
 			rw.parseBody(blob);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			ObjectLoader ldr = r.open(blob.getId(), Constants.OBJ_BLOB);
+			ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
 			byte[] tmp = new byte[4096];
 			InputStream in = ldr.openStream();
 			int n;
@@ -349,27 +474,47 @@ public class JGitUtils {
 		return content;
 	}
 
-	public static String getStringContent(Repository r, String objectId) {
-		byte[] content = getByteContent(r, objectId);
+	/**
+	 * Gets the UTF-8 string content of the blob specified by objectId.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 * @return UTF-8 string content
+	 */
+	public static String getStringContent(Repository repository, String objectId) {
+		byte[] content = getByteContent(repository, objectId);
 		if (content == null) {
 			return null;
 		}
 		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
 	}
 
-	public static List<PathModel> getFilesInPath(Repository r, String basePath, RevCommit commit) {
+	/**
+	 * Returns the list of files in the specified folder at the specified
+	 * commit. If the repository does not exist or is empty, an empty list is
+	 * returned.
+	 * 
+	 * @param repository
+	 * @param path
+	 *            if unspecified, root folder is assumed.
+	 * @param commit
+	 *            if null, HEAD is assumed.
+	 * @return list of files in specified path
+	 */
+	public static List<PathModel> getFilesInPath(Repository repository, String path,
+			RevCommit commit) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		if (!hasCommits(r)) {
+		if (!hasCommits(repository)) {
 			return list;
 		}
 		if (commit == null) {
-			commit = getCommit(r, Constants.HEAD);
+			commit = getCommit(repository, Constants.HEAD);
 		}
-		final TreeWalk tw = new TreeWalk(r);
+		final TreeWalk tw = new TreeWalk(repository);
 		try {
 			tw.addTree(commit.getTree());
-			if (!StringUtils.isEmpty(basePath)) {
-				PathFilter f = PathFilter.create(basePath);
+			if (!StringUtils.isEmpty(path)) {
+				PathFilter f = PathFilter.create(path);
 				tw.setFilter(f);
 				tw.setRecursive(false);
 				boolean foundFolder = false;
@@ -377,12 +522,12 @@ public class JGitUtils {
 					if (!foundFolder && tw.isSubtree()) {
 						tw.enterSubtree();
 					}
-					if (tw.getPathString().equals(basePath)) {
+					if (tw.getPathString().equals(path)) {
 						foundFolder = true;
 						continue;
 					}
 					if (foundFolder) {
-						list.add(getPathModel(tw, basePath, commit));
+						list.add(getPathModel(tw, path, commit));
 					}
 				}
 			} else {
@@ -400,17 +545,29 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<PathChangeModel> getFilesInCommit(Repository r, RevCommit commit) {
+	/**
+	 * Returns the list of files changed in a specified commit. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param commit
+	 *            if null, HEAD is assumed.
+	 * @return list of files changed in a commit
+	 */
+	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
-		RevWalk rw = new RevWalk(r);
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		RevWalk rw = new RevWalk(repository);
 		try {
 			if (commit == null) {
-				ObjectId object = r.resolve(Constants.HEAD);
+				ObjectId object = repository.resolve(Constants.HEAD);
 				commit = rw.parseCommit(object);
 			}
 
 			if (commit.getParentCount() == 0) {
-				TreeWalk tw = new TreeWalk(r);
+				TreeWalk tw = new TreeWalk(repository);
 				tw.reset();
 				tw.setRecursive(true);
 				tw.addTree(commit.getTree());
@@ -422,7 +579,7 @@ public class JGitUtils {
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
 				DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
-				df.setRepository(r);
+				df.setRepository(repository);
 				df.setDiffComparator(RawTextComparator.DEFAULT);
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
@@ -446,10 +603,22 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<PathModel> getDocuments(Repository r, List<String> extensions) {
+	/**
+	 * Returns the list of files in the repository that match one of the
+	 * specified extensions. This is a CASE-SENSITIVE search. If the repository
+	 * does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param extensions
+	 * @return list of files in repository with a matching extension
+	 */
+	public static List<PathModel> getDocuments(Repository repository, List<String> extensions) {
 		List<PathModel> list = new ArrayList<PathModel>();
-		RevCommit commit = getCommit(r, Constants.HEAD);
-		final TreeWalk tw = new TreeWalk(r);
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		RevCommit commit = getCommit(repository, Constants.HEAD);
+		final TreeWalk tw = new TreeWalk(repository);
 		try {
 			tw.addTree(commit.getTree());
 			if (extensions != null && extensions.size() > 0) {
@@ -478,6 +647,14 @@ public class JGitUtils {
 		return list;
 	}
 
+	/**
+	 * Returns a path model of the current file in the treewalk.
+	 * 
+	 * @param tw
+	 * @param basePath
+	 * @param commit
+	 * @return a path model of the current file in the treewalk
+	 */
 	private static PathModel getPathModel(TreeWalk tw, String basePath, RevCommit commit) {
 		String name;
 		long size = 0;
@@ -497,6 +674,12 @@ public class JGitUtils {
 				commit.getName());
 	}
 
+	/**
+	 * Returns a permissions representation of the mode bits.
+	 * 
+	 * @param mode
+	 * @return string representation of the mode bits
+	 */
 	public static String getPermissionsFromMode(int mode) {
 		if (FileMode.TREE.equals(mode)) {
 			return "drwxr-xr-x";
@@ -515,29 +698,69 @@ public class JGitUtils {
 		return "missing";
 	}
 
-	public static List<RevCommit> getRevLog(Repository r, int maxCount) {
-		return getRevLog(r, Constants.HEAD, 0, maxCount);
+	/**
+	 * Returns a list of commits starting from HEAD and working backwards.
+	 * 
+	 * @param repository
+	 * @param maxCount
+	 *            if < 0, all commits for the repository are returned.
+	 * @return list of commits
+	 */
+	public static List<RevCommit> getRevLog(Repository repository, int maxCount) {
+		return getRevLog(repository, Constants.HEAD, 0, maxCount);
 	}
 
-	public static List<RevCommit> getRevLog(Repository r, String objectId, int offset, int maxCount) {
-		return getRevLog(r, objectId, null, offset, maxCount);
-	}
-
-	public static List<RevCommit> getRevLog(Repository r, String objectId, String path, int offset,
+	/**
+	 * Returns a list of commits starting from the specified objectId using an
+	 * offset and maxCount for paging. This is similar to LIMIT n OFFSET p in
+	 * SQL. If the repository does not exist or is empty, an empty list is
+	 * returned.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @param offset
+	 * @param maxCount
+	 *            if < 0, all commits are returned.
+	 * @return a paged list of commits
+	 */
+	public static List<RevCommit> getRevLog(Repository repository, String objectId, int offset,
 			int maxCount) {
+		return getRevLog(repository, objectId, null, offset, maxCount);
+	}
+
+	/**
+	 * Returns a list of commits for the repository or a path within the
+	 * repository. Caller may specify ending revision with objectId. Caller may
+	 * specify offset and maxCount to achieve pagination of results. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @param path
+	 *            if unspecified, commits for repository are returned. If
+	 *            specified, commits for the path are returned.
+	 * @param offset
+	 * @param maxCount
+	 *            if < 0, all commits are returned.
+	 * @return a paged list of commits
+	 */
+	public static List<RevCommit> getRevLog(Repository repository, String objectId, String path,
+			int offset, int maxCount) {
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		if (maxCount == 0) {
 			return list;
 		}
-		if (!hasCommits(r)) {
+		if (!hasCommits(repository)) {
 			return list;
 		}
 		try {
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			RevWalk rw = new RevWalk(r);
-			ObjectId object = r.resolve(objectId);
+			RevWalk rw = new RevWalk(repository);
+			ObjectId object = repository.resolve(objectId);
 			rw.markStart(rw.parseCommit(object));
 			if (!StringUtils.isEmpty(path)) {
 				TreeFilter filter = AndTreeFilter.create(
@@ -590,25 +813,44 @@ public class JGitUtils {
 		}
 	}
 
-	public static List<RevCommit> searchRevlogs(Repository r, String objectId, String value,
-			final SearchType type, int offset, int maxCount) {
+	/**
+	 * Search the commit history for a case-insensitive match to the value.
+	 * Search results require a specified SearchType of AUTHOR, COMMITTER, or
+	 * COMMIT. Results may be paginated using offset and maxCount. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @param value
+	 * @param type
+	 *            AUTHOR, COMMITTER, COMMIT
+	 * @param offset
+	 * @param maxCount
+	 *            if < 0, all matches are returned
+	 * @return matching list of commits
+	 */
+	public static List<RevCommit> searchRevlogs(Repository repository, String objectId,
+			String value, final SearchType type, int offset, int maxCount) {
 		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		if (maxCount == 0) {
 			return list;
 		}
-		if (!hasCommits(r)) {
+		if (!hasCommits(repository)) {
 			return list;
 		}
 		try {
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = Constants.HEAD;
 			}
-			RevWalk rw = new RevWalk(r);
+			RevWalk rw = new RevWalk(repository);
 			rw.setRevFilter(new RevFilter() {
 
 				@Override
 				public RevFilter clone() {
+					// FindBugs complains about this method name.
+					// This is part of JGit design and unrelated to Cloneable.
 					return this;
 				}
 
@@ -636,7 +878,7 @@ public class JGitUtils {
 				}
 
 			});
-			ObjectId object = r.resolve(objectId);
+			ObjectId object = repository.resolve(objectId);
 			rw.markStart(rw.parseCommit(object));
 			Iterable<RevCommit> revlog = rw;
 			if (offset > 0) {
@@ -665,30 +907,118 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static List<RefModel> getTags(Repository r, boolean fullName, int maxCount) {
-		return getRefs(r, Constants.R_TAGS, fullName, maxCount);
+	/**
+	 * Returns all refs grouped by their associated object id.
+	 * 
+	 * @param repository
+	 * @return all refs grouped by their referenced object id
+	 */
+	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository repository) {
+		List<RefModel> list = getRefs(repository, org.eclipse.jgit.lib.RefDatabase.ALL, true, -1);
+		Map<ObjectId, List<RefModel>> refs = new HashMap<ObjectId, List<RefModel>>();
+		for (RefModel ref : list) {
+			ObjectId objectid = ref.getReferencedObjectId();
+			if (!refs.containsKey(objectid)) {
+				refs.put(objectid, new ArrayList<RefModel>());
+			}
+			refs.get(objectid).add(ref);
+		}
+		return refs;
 	}
 
-	public static List<RefModel> getLocalBranches(Repository r, boolean fullName, int maxCount) {
-		return getRefs(r, Constants.R_HEADS, fullName, maxCount);
+	/**
+	 * Returns the list of tags in the repository. If repository does not exist
+	 * or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/tags/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all tags are returned
+	 * @return list of tags
+	 */
+	public static List<RefModel> getTags(Repository repository, boolean fullName, int maxCount) {
+		return getRefs(repository, Constants.R_TAGS, fullName, maxCount);
 	}
 
-	public static List<RefModel> getRemoteBranches(Repository r, boolean fullName, int maxCount) {
-		return getRefs(r, Constants.R_REMOTES, fullName, maxCount);
+	/**
+	 * Returns the list of local branches in the repository. If repository does
+	 * not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/heads/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all local branches are returned
+	 * @return list of local branches
+	 */
+	public static List<RefModel> getLocalBranches(Repository repository, boolean fullName,
+			int maxCount) {
+		return getRefs(repository, Constants.R_HEADS, fullName, maxCount);
 	}
 
-	public static List<RefModel> getNotesRefs(Repository r, boolean fullName, int maxCount) {
-		return getRefs(r, Constants.R_NOTES, fullName, maxCount);
+	/**
+	 * Returns the list of remote branches in the repository. If repository does
+	 * not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/remotes/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all remote branches are returned
+	 * @return list of remote branches
+	 */
+	public static List<RefModel> getRemoteBranches(Repository repository, boolean fullName,
+			int maxCount) {
+		return getRefs(repository, Constants.R_REMOTES, fullName, maxCount);
 	}
 
-	private static List<RefModel> getRefs(Repository r, String refs, boolean fullName, int maxCount) {
+	/**
+	 * Returns the list of note branches. If repository does not exist or is
+	 * empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/notes/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all note branches are returned
+	 * @return list of note branches
+	 */
+	public static List<RefModel> getNoteBranches(Repository repository, boolean fullName,
+			int maxCount) {
+		return getRefs(repository, Constants.R_NOTES, fullName, maxCount);
+	}
+
+	/**
+	 * Returns a list of references in the repository matching "refs". If the
+	 * repository is null or empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param refs
+	 *            if unspecified, all refs are returned
+	 * @param fullName
+	 *            if true, /refs/something/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @param maxCount
+	 *            if < 0, all references are returned
+	 * @return list of references
+	 */
+	private static List<RefModel> getRefs(Repository repository, String refs, boolean fullName,
+			int maxCount) {
 		List<RefModel> list = new ArrayList<RefModel>();
 		if (maxCount == 0) {
 			return list;
 		}
+		if (!hasCommits(repository)) {
+			return list;
+		}
 		try {
-			Map<String, Ref> map = r.getRefDatabase().getRefs(refs);
-			RevWalk rw = new RevWalk(r);
+			Map<String, Ref> map = repository.getRefDatabase().getRefs(refs);
+			RevWalk rw = new RevWalk(repository);
 			for (Entry<String, Ref> entry : map.entrySet()) {
 				Ref ref = entry.getValue();
 				RevObject object = rw.parseAny(ref.getObjectId());
@@ -710,10 +1040,22 @@ public class JGitUtils {
 		return list;
 	}
 
+	/**
+	 * Returns the list of notes entered about the commit from the refs/notes
+	 * namespace. If the repository does not exist or is empty, an empty list is
+	 * returned.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @return list of notes
+	 */
 	public static List<GitNote> getNotesOnCommit(Repository repository, RevCommit commit) {
 		List<GitNote> list = new ArrayList<GitNote>();
-		List<RefModel> notesRefs = getNotesRefs(repository, true, -1);
-		for (RefModel notesRef : notesRefs) {
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		List<RefModel> noteBranches = getNoteBranches(repository, true, -1);
+		for (RefModel notesRef : noteBranches) {
 			RevTree notesTree = JGitUtils.getCommit(repository, notesRef.getName()).getTree();
 			StringBuilder sb = new StringBuilder(commit.getName());
 			sb.insert(2, '/');
@@ -730,8 +1072,14 @@ public class JGitUtils {
 		return list;
 	}
 
-	public static StoredConfig readConfig(Repository r) {
-		StoredConfig c = r.getConfig();
+	/**
+	 * Returns a StoredConfig object for the repository.
+	 * 
+	 * @param repository
+	 * @return the StoredConfig of the repository
+	 */
+	public static StoredConfig readConfig(Repository repository) {
+		StoredConfig c = repository.getConfig();
 		try {
 			c.load();
 		} catch (ConfigInvalidException cex) {
@@ -742,19 +1090,32 @@ public class JGitUtils {
 		return c;
 	}
 
-	public static boolean zip(Repository r, String basePath, String objectId, OutputStream os)
-			throws Exception {
-		RevCommit commit = getCommit(r, objectId);
+	/**
+	 * Zips the contents of the tree at the (optionally) specified revision and
+	 * the (optionally) specified basepath to the supplied outputstream.
+	 * 
+	 * @param repository
+	 * @param basePath
+	 *            if unspecified, entire repository is assumed.
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @param os
+	 * @return true if repository was successfully zipped to supplied output
+	 *         stream
+	 */
+	public static boolean zip(Repository repository, String basePath, String objectId,
+			OutputStream os) {
+		RevCommit commit = getCommit(repository, objectId);
 		if (commit == null) {
 			return false;
 		}
 		boolean success = false;
-		RevWalk rw = new RevWalk(r);
-		TreeWalk tw = new TreeWalk(r);
+		RevWalk rw = new RevWalk(repository);
+		TreeWalk tw = new TreeWalk(repository);
 		try {
 			tw.addTree(commit.getTree());
 			ZipOutputStream zos = new ZipOutputStream(os);
-			zos.setComment("Generated by Git:Blit");
+			zos.setComment("Generated by Gitblit");
 			if (!StringUtils.isEmpty(basePath)) {
 				PathFilter f = PathFilter.create(basePath);
 				tw.setFilter(f);
@@ -772,7 +1133,7 @@ public class JGitUtils {
 				RevBlob blob = (RevBlob) rw.lookupAny(entid, entmode.getObjectType());
 				rw.parseBody(blob);
 
-				ObjectLoader ldr = r.open(blob.getId(), Constants.OBJ_BLOB);
+				ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
 				byte[] tmp = new byte[4096];
 				InputStream in = ldr.openStream();
 				int n;
