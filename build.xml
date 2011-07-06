@@ -423,9 +423,15 @@
 
 			<arg value="--pageHeader" />
 			<arg value="${basedir}/docs/site_header.html" />
-
+			
 			<arg value="--pageFooter" />
 			<arg value="${basedir}/docs/site_footer.html" />
+
+			<arg value="--analyticsSnippet" />
+			<arg value="${basedir}/docs/site_analytics.html" />
+				
+			<arg value="--adSnippet" />
+			<arg value="${basedir}/docs/site_ads.html" />
 
 			<arg value="--alias" />
 			<arg value="index=overview" />

@@ -99,9 +99,24 @@ public class BuildSite {
 		sb.trimToSize();
 
 		String htmlHeader = FileUtils.readContent(new File(params.pageHeader), "\n");
+		
+		String htmlAdSnippet = null;
+		if (!StringUtils.isEmpty(params.adSnippet)) {
+			File snippet = new File(params.adSnippet);
+			if (snippet.exists()) {
+				htmlAdSnippet = FileUtils.readContent(snippet, "\n");
+			}
+		}
 		String htmlFooter = FileUtils.readContent(new File(params.pageFooter), "\n");
-		final String links = sb.toString();
-		final String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
+		String links = sb.toString();
+		String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
+		if (!StringUtils.isEmpty(params.analyticsSnippet)) {
+			File snippet = new File(params.analyticsSnippet);
+			if (snippet.exists()) {
+				String htmlSnippet = FileUtils.readContent(snippet, "\n");
+				header = header.replace("<!-- ANALYTICS -->", htmlSnippet);
+			}
+		}		
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		final String footer = MessageFormat.format(htmlFooter, "generated " + date);
 		for (File file : markdownFiles) {
@@ -128,6 +143,9 @@ public class BuildSite {
 					OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(
 							new File(destinationFolder, fileName)), Charset.forName("UTF-8"));
 					writer.write(header);
+					if (!StringUtils.isEmpty(htmlAdSnippet)) {
+						writer.write(htmlAdSnippet);
+					}
 					writer.write(content);
 					writer.write(footer);
 					reader.close();
@@ -178,6 +196,12 @@ public class BuildSite {
 
 		@Parameter(names = { "--pageFooter" }, description = "Page Footer HTML Snippet", required = true)
 		public String pageFooter;
+
+		@Parameter(names = { "--adSnippet" }, description = "Ad HTML Snippet", required = false)
+		public String adSnippet;
+
+		@Parameter(names = { "--analyticsSnippet" }, description = "Analytics HTML Snippet", required = false)
+		public String analyticsSnippet;
 
 		@Parameter(names = { "--skip" }, description = "Filename to skip", required = false)
 		public List<String> skips = new ArrayList<String>();
