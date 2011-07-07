@@ -42,6 +42,7 @@
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
 - Only Administrators can create, modify or delete users
+- Commit hooks are not supported
 - Native Git may be needed to periodically run git-gc as [JGit][jgit] does not fully support the git-gc featureset.
 
 ### Caveats
