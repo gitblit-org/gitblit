@@ -15,14 +15,17 @@
  */
 package com.gitblit.build;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -52,6 +56,12 @@ import com.gitblit.utils.StringUtils;
  * 
  */
 public class BuildSite {
+
+	private final static String CASE_SENSITIVE = "CASE-SENSITIVE";
+
+	private final static String RESTART_REQUIRED = "RESTART REQUIRED";
+
+	private final static String SINCE = "SINCE";
 
 	public static void main(String... args) {
 		Params params = new Params();
@@ -99,7 +109,7 @@ public class BuildSite {
 		sb.trimToSize();
 
 		String htmlHeader = FileUtils.readContent(new File(params.pageHeader), "\n");
-		
+
 		String htmlAdSnippet = null;
 		if (!StringUtils.isEmpty(params.adSnippet)) {
 			File snippet = new File(params.adSnippet);
@@ -116,7 +126,7 @@ public class BuildSite {
 				String htmlSnippet = FileUtils.readContent(snippet, "\n");
 				header = header.replace("<!-- ANALYTICS -->", htmlSnippet);
 			}
-		}		
+		}
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		final String footer = MessageFormat.format(htmlFooter, "generated " + date);
 		for (File file : markdownFiles) {
@@ -132,6 +142,11 @@ public class BuildSite {
 					for (String token : params.substitutions) {
 						String[] kv = token.split("=");
 						content = content.replace(kv[0], kv[1]);
+					}
+					for (String alias : params.properties) {
+						String[] kv = alias.split("=");
+						String loadedContent = generatePropertiesContent(new File(kv[1]));
+						content = content.replace(kv[0], loadedContent);
 					}
 					for (String alias : params.loads) {
 						String[] kv = alias.split("=");
@@ -169,6 +184,63 @@ public class BuildSite {
 		return displayName;
 	}
 
+	private static String generatePropertiesContent(File propertiesFile) throws Exception {
+		// Read the current Gitblit properties
+		BufferedReader propertiesReader = new BufferedReader(new FileReader(propertiesFile));
+
+		Vector<Setting> settings = new Vector<Setting>();
+		List<String> comments = new ArrayList<String>();
+		String line = null;
+		while ((line = propertiesReader.readLine()) != null) {
+			if (line.length() == 0) {
+				Setting s = new Setting("", "", comments);
+				settings.add(s);
+				comments.clear();
+			} else {
+				if (line.charAt(0) == '#') {
+					comments.add(line.substring(1).trim());
+				} else {
+					String[] kvp = line.split("=", 2);
+					String key = kvp[0].trim();
+					Setting s = new Setting(key, kvp[1].trim(), comments);
+					settings.add(s);
+					comments.clear();
+				}
+			}
+		}
+		propertiesReader.close();
+
+		StringBuilder sb = new StringBuilder();
+		for (Setting setting : settings) {
+			for (String comment : setting.comments) {
+				if (comment.contains(SINCE) || comment.contains(RESTART_REQUIRED)
+						|| comment.contains(CASE_SENSITIVE)) {
+					sb.append(MessageFormat.format("<span style=\"color:#004000;\"># <i>{0}</i></span>", transformMarkdown(comment)));
+				} else {
+					sb.append(MessageFormat.format("<span style=\"color:#004000;\"># {0}</span>", transformMarkdown(comment)));
+				}
+				sb.append("<br/>\n");
+			}
+			if (!StringUtils.isEmpty(setting.name)) {
+				sb.append(MessageFormat.format("<span style=\"color:#000080;\">{0}</span> = <span style=\"color:#800000;\">{1}</span>", setting.name, StringUtils.escapeForHtml(setting.value, false)));
+			}
+			sb.append("<br/>\n");
+		}
+
+		return sb.toString();
+	}
+	
+	private static String transformMarkdown(String comment) throws ParseException {
+		String md = MarkdownUtils.transformMarkdown(comment);
+		if (md.startsWith("<p>")) {
+			md = md.substring(3);
+		}
+		if (md.endsWith("</p>")) {
+			md = md.substring(0, md.length() - 4);
+		}
+		return md;
+	}
+
 	private static void usage(JCommander jc, ParameterException t) {
 		System.out.println(Constants.getGitBlitVersion());
 		System.out.println();
@@ -180,6 +252,18 @@ public class BuildSite {
 			jc.usage();
 		}
 		System.exit(0);
+	}
+
+	private static class Setting {
+		final String name;
+		final String value;
+		final List<String> comments;
+
+		Setting(String name, String value, List<String> comments) {
+			this.name = name;
+			this.value = value;
+			this.comments = new ArrayList<String>(comments);
+		}
 	}
 
 	@Parameters(separators = " ")
@@ -214,6 +298,9 @@ public class BuildSite {
 
 		@Parameter(names = { "--load" }, description = "%TOKEN%=filename", required = false)
 		public List<String> loads = new ArrayList<String>();
+
+		@Parameter(names = { "--properties" }, description = "%TOKEN%=filename", required = false)
+		public List<String> properties = new ArrayList<String>();
 
 	}
 }
