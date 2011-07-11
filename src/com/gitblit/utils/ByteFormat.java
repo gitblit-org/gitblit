@@ -45,7 +45,7 @@ public class ByteFormat extends Format {
 				DecimalFormat formatter = new DecimalFormat("#,##0");
 				buf.append(formatter.format((double) numBytes)).append(" b");
 			} else if (numBytes < 1024 * 1024) {
-				DecimalFormat formatter = new DecimalFormat("#,##0.0");
+				DecimalFormat formatter = new DecimalFormat("#,##0");
 				buf.append(formatter.format((double) numBytes / 1024.0)).append(" KB");
 			} else if (numBytes < 1024 * 1024 * 1024) {
 				DecimalFormat formatter = new DecimalFormat("#,##0.0");
