@@ -598,14 +598,13 @@ table.repositories th.wicket_orderDown a, table.repositories th.wicket_orderUp a
 }
 
 table.repositories tr.group {
-	background-color: #E66C2C;
+	background-color: #C66C2C;
 }
 
 table.repositories tr.group td {
-	font-weight: bold;	
-	border-bottom: 1px solid orange;
+	font-weight: bold;		
 	color: white;
-	background-color: #E66C2C;
+	background-color: #C66C2C;
 	border-left: 1px solid #808080;
 	border-right: 1px solid #808080;
 	padding-left: 5px;
