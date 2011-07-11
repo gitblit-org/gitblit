@@ -21,11 +21,10 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
  
 ### Current Release
 
-%VERSION% ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- clarified SSL certificate generation and configuration for both server-side and client-side
-- added some more troubleshooting information to documentation
-- replaced JavaService with Apache Commons Daemon
+- optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
+- tone-down repository group header color
 
 issues & binaries @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

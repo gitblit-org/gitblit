@@ -47,6 +47,7 @@ import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -71,19 +72,30 @@ public class RepositoriesPanel extends BasePanel {
 		add(adminLinks.setVisible(showAdmin));
 
 		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
+			List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
 			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
 			for (RepositoryModel model : models) {
 				String rootPath = StringUtils.getRootPath(model.name);
-				if (StringUtils.isEmpty(rootPath)) {
-					rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, " ");
+				if (StringUtils.isEmpty(rootPath)) { 
+					// root repository
+					rootRepositories.add(model);					
+				} else {
+					// non-root, grouped repository
+					if (!groups.containsKey(rootPath)) {
+						groups.put(rootPath, new ArrayList<RepositoryModel>());
+					}
+					groups.get(rootPath).add(model);
 				}
-				if (!groups.containsKey(rootPath)) {
-					groups.put(rootPath, new ArrayList<RepositoryModel>());
-				}
-				groups.get(rootPath).add(model);
 			}
 			List<String> roots = new ArrayList<String>(groups.keySet());
 			Collections.sort(roots);
+			
+			if (rootRepositories.size() > 0) {
+				// inject the root repositories at the top of the page
+				String rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, " ");
+				roots.add(0, rootPath);
+				groups.put(rootPath, rootRepositories);
+			}
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
@@ -95,6 +107,8 @@ public class RepositoriesPanel extends BasePanel {
 			dp = new SortableRepositoriesProvider(models);
 		}
 
+		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
+		final ByteFormat byteFormat = new ByteFormat();
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -123,11 +137,16 @@ public class RepositoriesPanel extends BasePanel {
 							pp));
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
 							SummaryPage.class, pp));
+					if (showSize) {
+						row.add(new Label("repositorySize", byteFormat.format(GitBlit.self().calculateSize(entry))));
+					} else {
+						row.add(new Label("repositorySize").setVisible(false));
+					}
 				} else {
 					// New repository
-					row.add(new Label("repositoryName", entry.name
-							+ "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
+					row.add(new Label("repositoryName", entry.name));
 					row.add(new Label("repositoryDescription", entry.description));
+					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
 				}
 
 				if (entry.useTickets) {

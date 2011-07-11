@@ -1,13 +1,20 @@
 ## Release History
 
 ### Current Release
-%VERSION% ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+
+- optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
+- tone-down repository group header color
+
+### Older Releases
+**0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-28*
 
 - clarified SSL certificate generation and configuration for both server-side and client-side
 - added some more troubleshooting information to documentation
 - replaced JavaService with Apache Commons Daemon
 
-### Older Releases
-0.5.0 ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-26*
+**0.5.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-26*
+
+- initial release
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

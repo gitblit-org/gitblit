@@ -32,11 +32,13 @@ import javax.servlet.http.Cookie;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
+import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -448,6 +450,17 @@ public class GitBlit implements ServletContextListener {
 		}
 		r.close();
 		return model;
+	}
+
+	/**
+	 * Returns the size in bytes of the repository.
+	 * 
+	 * @param model
+	 * @return size in bytes
+	 */
+	public long calculateSize(RepositoryModel model) {
+		File gitDir = FileKey.resolve(new File(repositoriesFolder, model.name), FS.DETECTED);
+		return com.gitblit.utils.FileUtils.folderSize(gitDir);
 	}
 
 	/**

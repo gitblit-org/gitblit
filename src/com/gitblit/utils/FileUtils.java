@@ -56,4 +56,28 @@ public class FileUtils {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Recursively traverses a folder and its subfolders to calculate the total
+	 * size in bytes.
+	 * 
+	 * @param directory
+	 * @return folder size in bytes
+	 */
+	public static long folderSize(File directory) {
+		if (directory == null || !directory.exists()) {
+			return -1;
+		}
+		if (directory.isFile()) {
+			return directory.length();
+		}
+		long length = 0;
+		for (File file : directory.listFiles()) {
+			if (file.isFile())
+				length += file.length();
+			else
+				length += folderSize(file);
+		}
+		return length;
+	}
 }
