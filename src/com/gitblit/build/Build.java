@@ -313,7 +313,7 @@ public class Build {
 		String anim = "==========";
 		int width = Math.round(anim.length() * progress);
 		System.out.print("\r[");
-		System.out.print(anim.substring(0, width));
+		System.out.print(anim.substring(0, Math.min(width, anim.length())));
 		for (int i = 0; i < anim.length() - width; i++) {
 			System.out.print(' ');
 		}

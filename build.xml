@@ -2,7 +2,8 @@
 <project name="gitblit" default="compile" basedir=".">
 
 	<!-- Google Code upload task -->
-	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpath="${basedir}/tools/ant-googlecode-0.0.3.jar" name="gcupload"/>
+	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" 
+		classpath="${basedir}/tools/ant-googlecode-0.0.3.jar" name="gcupload"/>
 
 	<!-- Project Properties -->
 	<property name="project.jar" value="gitblit.jar" />
