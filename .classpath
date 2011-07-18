@@ -40,11 +40,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.17-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/markdownpapers-core-1.0.0.jar" sourcepath="ext/markdownpapers-core-1.0.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.0.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/googlecharts-1.4.17.jar" sourcepath="ext/googlecharts-1.4.17-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/googlecharts-1.4.17-javadoc.jar!/"/>
@@ -89,6 +84,11 @@
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/markdownpapers-core-1.1.0.jar" sourcepath="ext/markdownpapers-core-1.1.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
