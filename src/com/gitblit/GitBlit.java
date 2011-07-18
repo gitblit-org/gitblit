@@ -129,6 +129,20 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns the char value for the specified key. If the key does not exist
+	 * or the value for the key can not be interpreted as a character, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getChar(String key, char defaultValue)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
+	public static char getChar(String key, char defaultValue) {
+		return self().settings.getChar(key, defaultValue);
+	}
+	
+	/**
 	 * Returns the string value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a string, the
 	 * defaultValue is returned.

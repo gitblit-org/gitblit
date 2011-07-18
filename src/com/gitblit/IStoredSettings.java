@@ -116,6 +116,26 @@ public abstract class IStoredSettings {
 		}
 		return defaultValue;
 	}
+	
+	/**
+	 * Returns the char value for the specified key. If the key does not exist
+	 * or the value for the key can not be interpreted as a char, the
+	 * defaultValue is returned.
+	 * 
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
+	public char getChar(String name, char defaultValue) {
+		Properties props = getSettings();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			if (!StringUtils.isEmpty(value)) {
+				return value.charAt(0);
+			}
+		}
+		return defaultValue;
+	}
 
 	/**
 	 * Returns the string value for the specified key. If the key does not exist

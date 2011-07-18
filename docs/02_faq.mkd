@@ -36,6 +36,9 @@ Run the server as *root* (security concern) or change the ports you are serving 
 ### Gitblit WAR will not authenticate any users?!
 Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.properties` file.
 
+### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my branch/tag/ref?!
+This is likely an url encoding/decoding problem.  In `gitblit.properties` or `web.xml`, try setting *web.mountParameters* to *false*.
+
 ## General Interest Questions
 
 ### Gitblit?  What kind of name is that?

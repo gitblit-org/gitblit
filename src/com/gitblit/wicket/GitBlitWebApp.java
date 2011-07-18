@@ -110,7 +110,7 @@ public class GitBlitWebApp extends WebApplication {
 		if (!GitBlit.getBoolean(Keys.web.mountParameters, true)) {
 			parameters = new String[] {};
 		}
-		mount(new MixedParamUrlCodingStrategy(location, clazz, parameters));
+		mount(new GitblitParamUrlCodingStrategy(location, clazz, parameters));
 	}
 
 	@Override
