@@ -99,6 +99,8 @@ public class BuildSite {
 				String displayName = documentName;
 				if (aliasMap.containsKey(documentName)) {
 					displayName = aliasMap.get(documentName);
+				} else {
+					displayName = displayName.replace('_', ' ');
 				}
 				String fileName = documentName + ".html";
 				sb.append(MessageFormat.format(linkPattern, fileName, displayName));
