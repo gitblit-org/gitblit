@@ -33,4 +33,13 @@
 			<div wicket:id="userPanel">[user panel]</div>
 		</div>
 	</body>
+	
+	<!-- user fragment -->
+	<wicket:fragment wicket:id="userFragment">
+		<span class="userPanel" wicket:id="username"></span>
+		<span class="userPanel" wicket:id="loginLink"></span>
+		<span class="userPanel" wicket:id="separator"></span>
+		<span class="userPanel"><a wicket:id="changePasswordLink"><wicket:message key="gb.changePassword"></wicket:message></a></span>
+	</wicket:fragment>
+	
 </html>

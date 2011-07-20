@@ -22,12 +22,15 @@ import java.util.TimeZone;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -105,17 +108,12 @@ public abstract class BasePage extends WebPage {
 		// footer
 		if (GitBlit.getBoolean(Keys.web.authenticateViewPages, true)
 				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			if (GitBlitWebSession.get().isLoggedIn()) {
-				// logout
-				add(new LinkPanel("userPanel", null, getString("gb.logout") + " "
-						+ GitBlitWebSession.get().getUser().toString(), LogoutPage.class));
-			} else {
-				// login
-				add(new LinkPanel("userPanel", null, getString("gb.login"), LoginPage.class));
-			}
+			UserFragment userFragment = new UserFragment("userPanel", "userFragment", BasePage.this);
+			add(userFragment);
 		} else {
 			add(new Label("userPanel", ""));
 		}
+
 		add(new Label("gbVersion", "v" + Constants.VERSION));
 		if (GitBlit.getBoolean(Keys.web.aggressiveHeapManagement, false)) {
 			System.gc();
@@ -184,6 +182,36 @@ public abstract class BasePage extends WebPage {
 			error(message, true);
 		} else {
 			throw new RestartResponseAtInterceptPageException(LoginPage.class);
+		}
+	}
+
+	/**
+	 * Panel fragment for displaying login or logout/change_password links.
+	 * 
+	 */
+	class UserFragment extends Fragment {
+
+		private static final long serialVersionUID = 1L;
+
+		public UserFragment(String id, String markupId, MarkupContainer markupProvider) {
+			super(id, markupId, markupProvider);
+
+			if (GitBlitWebSession.get().isLoggedIn()) {
+				// username, logout, and change password
+				add(new Label("username", GitBlitWebSession.get().getUser().toString() + ":"));
+				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
+						LogoutPage.class));
+				// quick and dirty hack for showing a separator 
+				add(new Label("separator", "|"));
+				add(new BookmarkablePageLink<Void>("changePasswordLink", ChangePasswordPage.class));
+			} else {
+				// login
+				add(new Label("username").setVisible(false));
+				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.login"),
+						LoginPage.class));
+				add(new Label("separator").setVisible(false));
+				add(new Label("changePasswordLink").setVisible(false));
+			}
 		}
 	}
 }
