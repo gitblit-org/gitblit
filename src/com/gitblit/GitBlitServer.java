@@ -151,6 +151,9 @@ public class GitBlitServer {
 						params.port, bindInterface));
 				httpConnector.setHost(bindInterface);
 			}
+			if (params.port < 1024 && !isWindows()) {
+				logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+			}
 			connectors.add(httpConnector);
 		}
 
@@ -171,6 +174,9 @@ public class GitBlitServer {
 							params.securePort, bindInterface));
 					secureConnector.setHost(bindInterface);
 				}
+				if (params.securePort < 1024 && !isWindows()) {
+					logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+				}				
 				connectors.add(secureConnector);
 			} else {
 				logger.warn("Failed to find or load Keystore?");
@@ -255,7 +261,7 @@ public class GitBlitServer {
 	 * 
 	 * @param useNIO
 	 * @param port
-	 * @return an http cnonector
+	 * @return an http connector
 	 */
 	private static Connector createConnector(boolean useNIO, int port) {
 		Connector connector;
@@ -273,6 +279,9 @@ public class GitBlitServer {
 
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
+		if (port < 1024 && !isWindows()) {
+			logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+		}
 		return connector;
 	}
 
@@ -305,6 +314,15 @@ public class GitBlitServer {
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
 		return connector;
+	}
+	
+	/**
+	 * Tests to see if the operating system is Windows.
+	 * 
+	 * @return true if this is a windows machine
+	 */
+	private static boolean isWindows() {
+		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
 	}
 
 	/**
