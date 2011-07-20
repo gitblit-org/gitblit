@@ -306,7 +306,8 @@ public class JGitUtils {
 	 */
 	public static boolean hasCommits(Repository repository) {
 		if (repository != null && repository.getDirectory().exists()) {
-			return new File(repository.getDirectory(), Constants.R_HEADS).list().length > 0;
+			return (new File(repository.getDirectory(), "objects/info").list().length > 0)
+					|| (new File(repository.getDirectory(), "objects/pack").list().length > 0);
 		}
 		return false;
 	}
