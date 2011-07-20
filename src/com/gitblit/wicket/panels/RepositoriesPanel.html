@@ -46,6 +46,7 @@
 			<th wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
 			<th></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+			<th></th>
 			<th class="right"></th>
 		</tr>
 	</wicket:fragment>
@@ -57,10 +58,10 @@
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th><wicket:message key="gb.description">Description</wicket:message></th>
-			<th></th>
 			<th><wicket:message key="gb.owner">Owner</wicket:message></th>
 			<th></th>
 			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+			<th></th>
 			<th class="right"></th>
 		</tr>
 	</wicket:fragment>
@@ -72,10 +73,10 @@
 	<wicket:fragment wicket:id="repositoryRow">
         <td class="left"><div class="list" wicket:id="repositoryName">[repository name]</div></td>
         <td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
-        <td style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>
         <td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
         <td style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
         <td><span wicket:id="repositoryLastChange">[last change]</span></td>
+        <td style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>
         <td class="rightAlign">
         	<span wicket:id="repositoryLinks"></span>
 			<a style="text-decoration: none;" wicket:id="syndication">

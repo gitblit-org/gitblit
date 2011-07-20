@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
@@ -172,6 +173,19 @@ public class EditUserPage extends BasePage {
 		form.add(confirmPasswordField);
 		form.add(new CheckBox("canAdmin"));
 		form.add(repositories);
+		
+		form.add(new Button("save"));
+		Button cancel = new Button("cancel"){          
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+                setResponsePage(RepositoriesPage.class);
+            }
+        };
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+        
 		add(form);
 	}
 }

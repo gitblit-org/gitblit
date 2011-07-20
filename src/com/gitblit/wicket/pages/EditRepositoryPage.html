@@ -25,7 +25,7 @@
 				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select wicket:id="accessRestriction" tabindex="8" /></td></tr>				
 				<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="isFrozen" tabindex="9" /> &nbsp;<i><wicket:message key="gb.isFrozenDescription"></wicket:message></i></td></tr>
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.permittedUsers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>				
-				<tr><th></th><td class="editButton"><input type="submit" value="Save" wicket:message="value:gb.save" tabindex="10" /></td></tr>
+				<tr><th></th><td class="editButton"><input type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="10" /> <input type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="11" /></td></tr>
 			</tbody>
 		</table>
 	</form>	
