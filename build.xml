@@ -250,9 +250,17 @@
 				<arg value="--substitute" />
 				<arg value="%JGIT%=${jgit.version}" />
 
-				<arg value="--load" />
+				<arg value="--properties" />
 				<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
 
+				<arg value="--nomarkdown" />
+				<arg value="%BEGINCODE%:%ENDCODE%" />
+
+				<arg value="--substitute" />
+				<arg value="&quot;%BEGINCODE%=&lt;pre class='prettyprint lang-java'&gt;&quot;" />
+
+				<arg value="--substitute" />
+				<arg value="%ENDCODE%=&lt;/pre&gt;" />
 			</java>
 	</target>
 	
@@ -383,6 +391,14 @@
 			</fileset>
 		</copy>
 
+		<!-- Copy google-code-prettify -->
+		<mkdir dir="${basedir}/src/com/gitblit/wicket/pages/prettify" />
+		<copy todir="${project.site.dir}/prettify">
+			<fileset dir="${basedir}/src/com/gitblit/wicket/pages/prettify">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+
 		<!-- Generate thumbnails of screenshots -->
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildThumbnails">
 			<classpath refid="master-classpath" />
@@ -449,6 +465,15 @@
 
 			<arg value="--properties" />
 			<arg value="%PROPERTIES%=${basedir}/distrib/gitblit.properties" />
+			
+			<arg value="--nomarkdown" />
+			<arg value="%BEGINCODE%:%ENDCODE%" />
+
+			<arg value="--substitute" />
+			<arg value="&quot;%BEGINCODE%=&lt;pre class='prettyprint lang-java'&gt;&quot;" />
+
+			<arg value="--substitute" />
+			<arg value="%ENDCODE%=&lt;/pre&gt;" />
 
 		</java>	
 	</target>

@@ -17,11 +17,9 @@ package com.gitblit.build;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -137,21 +135,67 @@ public class BuildSite {
 				if (!params.skips.contains(documentName)) {
 					String fileName = documentName + ".html";
 					System.out.println(MessageFormat.format("  {0} => {1}", file.getName(),
-							fileName));
-					InputStreamReader reader = new InputStreamReader(new FileInputStream(file),
-							Charset.forName("UTF-8"));
-					String content = MarkdownUtils.transformMarkdown(reader);
+							fileName));					
+					String rawContent = FileUtils.readContent(file, "\n");
+					String markdownContent = rawContent;
+					
+					Map<String, List<String>> nomarkdownMap = new HashMap<String, List<String>>();
+
+					// extract sections marked as no-markdown
+					int nmd = 0;
+					for (String token : params.nomarkdown) {
+						StringBuilder strippedContent = new StringBuilder();
+
+						String nomarkdownKey = "%NOMARKDOWN" + nmd + "%";
+						String[] kv = token.split(":", 2);
+						String beginToken = kv[0];
+						String endToken = kv[1];
+
+						// strip nomarkdown chunks from markdown and cache them
+						List<String> chunks = new Vector<String>();
+						int beginCode = 0;
+						int endCode = 0;
+						while ((beginCode = markdownContent.indexOf(beginToken, endCode)) > -1) {
+							if (endCode == 0) {
+								strippedContent.append(markdownContent.substring(0, beginCode));
+							} else {
+								strippedContent.append(markdownContent.substring(endCode, beginCode));
+							}							
+							strippedContent.append(nomarkdownKey);
+							endCode = markdownContent.indexOf(endToken, beginCode);
+							chunks.add(markdownContent.substring(beginCode, endCode));
+							nomarkdownMap.put(nomarkdownKey, chunks);
+						}
+
+						// get remainder of text
+						if (endCode < markdownContent.length()) {
+							strippedContent.append(markdownContent.substring(endCode, markdownContent.length()));
+						}
+						markdownContent = strippedContent.toString();
+						nmd++;						
+					}
+
+					// transform markdown to html
+					String content = transformMarkdown(markdownContent.toString());
+
+					// reinsert nomarkdown chunks
+					for (Map.Entry<String, List<String>> nomarkdown: nomarkdownMap.entrySet()) {
+						for (String chunk:nomarkdown.getValue()) {
+							content = content.replaceFirst(nomarkdown.getKey(), chunk);
+						}
+					}
+					
 					for (String token : params.substitutions) {
-						String[] kv = token.split("=");
+						String[] kv = token.split("=", 2);
 						content = content.replace(kv[0], kv[1]);
 					}
 					for (String alias : params.properties) {
-						String[] kv = alias.split("=");
+						String[] kv = alias.split("=", 2);
 						String loadedContent = generatePropertiesContent(new File(kv[1]));
 						content = content.replace(kv[0], loadedContent);
 					}
 					for (String alias : params.loads) {
-						String[] kv = alias.split("=");
+						String[] kv = alias.split("=" ,2);
 						String loadedContent = FileUtils.readContent(new File(kv[1]), "\n");
 						loadedContent = StringUtils.escapeForHtml(loadedContent, false);
 						loadedContent = StringUtils.breakLinesForHtml(loadedContent);
@@ -165,7 +209,6 @@ public class BuildSite {
 					}
 					writer.write(content);
 					writer.write(footer);
-					reader.close();
 					writer.close();
 				}
 			} catch (Throwable t) {
@@ -303,6 +346,9 @@ public class BuildSite {
 
 		@Parameter(names = { "--properties" }, description = "%TOKEN%=filename", required = false)
 		public List<String> properties = new ArrayList<String>();
+
+		@Parameter(names = { "--nomarkdown" }, description = "%STARTTOKEN%:%ENDTOKEN%", required = false)
+		public List<String> nomarkdown = new ArrayList<String>();
 
 	}
 }

@@ -3,9 +3,15 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers<br/>**New:** *web.forwardSlashCharacter = /*
-- optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
-- tone-down repository group header color
+- fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
+- fixed: default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
+- fixed: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers<br/>**New:** *web.forwardSlashCharacter = /* (issue 11)
+- fixed: users can now change their passwords (issue 1)
+- fixed: always show root repository group first, i.e. don't sort root group with other groups
+- fixed: tone-down repository group header color
+- added: optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
+- updated: MarkdownPapers 1.1.0
+- updated: Jetty 7.4.4
 
 ### Older Releases
 **0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-28*
