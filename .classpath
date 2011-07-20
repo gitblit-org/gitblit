@@ -70,11 +70,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jdom-1.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.2.v20110526.jar" sourcepath="ext/jetty-webapp-7.4.2.v20110526-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-webapp-7.4.2.v20110526-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.0.0.201106090707-r.jar" sourcepath="ext/org.eclipse.jgit-1.0.0.201106090707-r-sources.jar">
 		<attributes>
@@ -89,6 +84,11 @@
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.1.0.jar" sourcepath="ext/markdownpapers-core-1.1.0-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.4.v20110707.jar" sourcepath="ext/jetty-webapp-7.4.4.v20110707-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-webapp-7.4.4.v20110707-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
