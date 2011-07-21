@@ -166,7 +166,6 @@ public class JGitUtils {
 		}
 		fetch.setRefSpecs(specs);
 		FetchResult result = fetch.call();
-		repository.close();
 		return result;
 	}
 
@@ -299,7 +298,7 @@ public class JGitUtils {
 
 	/**
 	 * Determine if a repository has any commits. This is determined by checking
-	 * for 1 or more heads.
+	 * the objects/info and objects/pack folders.
 	 * 
 	 * @param repository
 	 * @return true if the repository has commits

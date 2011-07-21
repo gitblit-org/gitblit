@@ -24,8 +24,8 @@ public class ByteFormatTest extends TestCase {
 	public void testByteFormat() throws Exception {
 		ByteFormat format = new ByteFormat();
 		assertTrue(format.format(10).equals("10 b"));
-		assertTrue(format.format(1024 * 10).equals("10.0 KB"));
-		assertTrue(format.format(1024 * 1000).equals("1,000.0 KB"));
+		assertTrue(format.format(1024 * 10).equals("10 KB"));
+		assertTrue(format.format(1024 * 1000).equals("1,000 KB"));
 		assertTrue(format.format(2 * 1024 * 1000).equals("2.0 MB"));
 		assertTrue(format.format(1024 * 1024 * 1000).equals("1,000.0 MB"));
 		assertTrue(format.format(2 * 1024 * 1024 * 1000).equals("2.0 GB"));
