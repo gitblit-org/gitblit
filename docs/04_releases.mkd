@@ -5,7 +5,8 @@
 
 - fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
 - fixed: default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
-- fixed: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers<br/>**New:** *web.forwardSlashCharacter = /* (issue 11)
+- fixed: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers (issue 11)<br/>**New:** *web.forwardSlashCharacter = /*
+- fixed: repositories can now be reliably deleted and renamed (issue 10)
 - fixed: users can now change their passwords (issue 1)
 - fixed: always show root repository group first, i.e. don't sort root group with other groups
 - fixed: tone-down repository group header color
