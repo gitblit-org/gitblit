@@ -329,10 +329,10 @@ public class Build {
 				"c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
 
 		public static final MavenObject JETTY = new MavenObject("Jetty",
-				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.4.4.v20110707", 1010000, 687000,
-				2760000, "bbf086d31f24aba5a871389e478b88a83ff728cd",
-				"2904d8da6769d801f386dba285e17a87bc7bb69f",
-				"35d4b4db0a016eabe8c95b187074f0a5761416f2");
+				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.4.3.v20110701", 1000000, 680000,
+				2720000, "bde072b178f9650e2308f0babe58a4baaa469e3c",
+				"bc75f05dd4f7fa848720ac669b8b438ee4a6b146",
+				"dcd42f672e734521d1a6ccc0c2f9ecded1a1a281");
 
 		public static final MavenObject SERVLET = new MavenObject("Servlet 2.5", "javax/servlet",
 				"servlet-api", "2.5", 105000, 158000, 0,

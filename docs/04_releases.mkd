@@ -12,7 +12,7 @@
 - fixed: tone-down repository group header color
 - added: optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
 - updated: MarkdownPapers 1.1.0
-- updated: Jetty 7.4.4
+- updated: Jetty 7.4.3
 
 ### Older Releases
 **0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-28*
