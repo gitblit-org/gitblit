@@ -17,6 +17,7 @@ package com.gitblit;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -141,7 +143,7 @@ public class GitBlit implements ServletContextListener {
 	public static char getChar(String key, char defaultValue) {
 		return self().settings.getChar(key, defaultValue);
 	}
-	
+
 	/**
 	 * Returns the string value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a string, the
@@ -478,6 +480,41 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Ensure that a cached repository is completely closed and its resources
+	 * are properly released.
+	 * 
+	 * @param repositoryName
+	 */
+	private void closeRepository(String repositoryName) {
+		Repository repository = getRepository(repositoryName);
+		// assume 2 uses in case reflection fails
+		int uses = 2;
+		try {
+			// The FileResolver caches repositories which is very useful
+			// for performance until you want to delete a repository.
+			// I have to use reflection to call close() the correct
+			// number of times to ensure that the object and ref databases
+			// are properly closed before I can delete the repository from
+			// the filesystem.
+			Field useCnt = Repository.class.getDeclaredField("useCnt");
+			useCnt.setAccessible(true);
+			uses = ((AtomicInteger) useCnt.get(repository)).get();
+		} catch (Exception e) {
+			logger.warn(MessageFormat
+					.format("Failed to reflectively determine use count for repository {0}",
+							repositoryName), e);
+		}
+		if (uses > 0) {
+			logger.info(MessageFormat
+					.format("{0}.useCnt={1}, calling close() {2} time(s) to close object and ref databases",
+							repositoryName, uses, uses));
+			for (int i = 0; i < uses; i++) {
+				repository.close();
+			}
+		}
+	}
+
+	/**
 	 * Returns the gitblit string vlaue for the specified key. If key is not
 	 * set, returns defaultValue.
 	 * 
@@ -540,6 +577,7 @@ public class GitBlit implements ServletContextListener {
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
+				closeRepository(repositoryName);
 				File folder = new File(repositoriesFolder, repositoryName);
 				File destFolder = new File(repositoriesFolder, repository.name);
 				if (destFolder.exists()) {
@@ -615,6 +653,7 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public boolean deleteRepository(String repositoryName) {
 		try {
+			closeRepository(repositoryName);
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
 				FileUtils.delete(folder, FileUtils.RECURSIVE | FileUtils.RETRY);
