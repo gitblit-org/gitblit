@@ -304,14 +304,14 @@ public class JGitUtils {
 
 	/**
 	 * Determine if a repository has any commits. This is determined by checking
-	 * the objects/info and objects/pack folders.
+	 * the for loose and packed objects.
 	 * 
 	 * @param repository
 	 * @return true if the repository has commits
 	 */
 	public static boolean hasCommits(Repository repository) {
-		if (repository != null && repository.getDirectory().exists()) {
-			return (new File(repository.getDirectory(), "objects/info").list().length > 0)
+		if (repository != null && repository.getDirectory().exists()) {			
+			return (new File(repository.getDirectory(), "objects").list().length > 2)
 					|| (new File(repository.getDirectory(), "objects/pack").list().length > 0);
 		}
 		return false;
