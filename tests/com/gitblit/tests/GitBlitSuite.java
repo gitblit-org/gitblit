@@ -24,8 +24,8 @@ import junit.framework.TestSuite;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
-import com.gitblit.FileUserService;
 import com.gitblit.FileSettings;
+import com.gitblit.FileUserService;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.RepositoryModel;
@@ -40,6 +40,7 @@ public class GitBlitSuite extends TestSetup {
 
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
+		suite.addTestSuite(FileUtilsTest.class);
 		suite.addTestSuite(TimeUtilsTest.class);
 		suite.addTestSuite(StringUtilsTest.class);
 		suite.addTestSuite(ByteFormatTest.class);

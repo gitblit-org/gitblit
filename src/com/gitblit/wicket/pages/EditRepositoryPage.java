@@ -184,17 +184,17 @@ public class EditRepositoryPage extends BasePage {
 		form.add(usersPalette);
 
 		form.add(new Button("save"));
-		Button cancel = new Button("cancel"){          
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
-                setResponsePage(RepositoriesPage.class);
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-        
+				setResponsePage(RepositoriesPage.class);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+		form.add(cancel);
+
 		add(form);
 	}
 

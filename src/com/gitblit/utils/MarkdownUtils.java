@@ -40,7 +40,10 @@ public class MarkdownUtils {
 	 */
 	public static String transformMarkdown(String markdown) throws java.text.ParseException {
 		try {
-			return transformMarkdown(new StringReader(markdown));
+			StringReader reader = new StringReader(markdown);
+			String html = transformMarkdown(reader);
+			reader.close();
+			return html;
 		} catch (NullPointerException p) {
 			throw new java.text.ParseException("Markdown string is null!", 0);
 		}
@@ -64,11 +67,6 @@ public class MarkdownUtils {
 		} catch (ParseException p) {
 			throw new java.text.ParseException(p.getMessage(), 0);
 		} finally {
-			try {
-				markdownReader.close();
-			} catch (IOException e) {
-				// IGNORE
-			}
 			try {
 				writer.close();
 			} catch (IOException e) {

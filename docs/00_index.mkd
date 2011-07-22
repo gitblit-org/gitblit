@@ -34,7 +34,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - updated: MarkdownPapers 1.1.0
 - updated: Jetty 7.4.3
 
-issues & binaries @ [Google Code][googlecode]<br/>
+issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]
 
 ### License

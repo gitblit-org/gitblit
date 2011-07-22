@@ -48,6 +48,9 @@ public class DiffUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiffUtils.class);
 
+	/**
+	 * Enumeration for the diff output types.
+	 */
 	public static enum DiffOutputType {
 		PLAIN, GITWEB, GITBLIT;
 

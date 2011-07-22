@@ -76,9 +76,9 @@ public class RepositoriesPanel extends BasePanel {
 			Map<String, List<RepositoryModel>> groups = new HashMap<String, List<RepositoryModel>>();
 			for (RepositoryModel model : models) {
 				String rootPath = StringUtils.getRootPath(model.name);
-				if (StringUtils.isEmpty(rootPath)) { 
+				if (StringUtils.isEmpty(rootPath)) {
 					// root repository
-					rootRepositories.add(model);					
+					rootRepositories.add(model);
 				} else {
 					// non-root, grouped repository
 					if (!groups.containsKey(rootPath)) {
@@ -89,7 +89,7 @@ public class RepositoriesPanel extends BasePanel {
 			}
 			List<String> roots = new ArrayList<String>(groups.keySet());
 			Collections.sort(roots);
-			
+
 			if (rootRepositories.size() > 0) {
 				// inject the root repositories at the top of the page
 				String rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, " ");
@@ -138,7 +138,8 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
 							SummaryPage.class, pp));
 					if (showSize) {
-						row.add(new Label("repositorySize", byteFormat.format(GitBlit.self().calculateSize(entry))));
+						row.add(new Label("repositorySize", byteFormat.format(GitBlit.self()
+								.calculateSize(entry))));
 					} else {
 						row.add(new Label("repositorySize").setVisible(false));
 					}
@@ -146,7 +147,8 @@ public class RepositoriesPanel extends BasePanel {
 					// New repository
 					row.add(new Label("repositoryName", entry.name));
 					row.add(new Label("repositoryDescription", entry.description));
-					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>").setEscapeModelStrings(false));
+					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>")
+							.setEscapeModelStrings(false));
 				}
 
 				if (entry.useTickets) {

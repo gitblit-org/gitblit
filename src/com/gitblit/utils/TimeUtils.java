@@ -185,7 +185,6 @@ public class TimeUtils {
 	 * @return the string representation of the duration OR the css class
 	 */
 	private static String timeAgo(Date date, boolean css) {
-		String ago = null;
 		if (isToday(date) || isYesterday(date)) {
 			int mins = minutesAgo(date, true);
 			if (mins >= 120) {
@@ -194,16 +193,15 @@ public class TimeUtils {
 				}
 				int hours = hoursAgo(date, true);
 				if (hours > 23) {
-					ago = "yesterday";
+					return "yesterday";
 				} else {
-					ago = hours + " hours ago";
+					return hours + " hours ago";
 				}
-			} else {
-				if (css) {
-					return "age0";
-				}
-				ago = mins + " min" + (mins > 1 ? "s" : "") + " ago";
 			}
+			if (css) {
+				return "age0";
+			}
+			return mins + " min" + (mins > 1 ? "s" : "") + " ago";
 		} else {
 			if (css) {
 				return "age2";
@@ -211,35 +209,33 @@ public class TimeUtils {
 			int days = daysAgo(date, true);
 			if (days < 365) {
 				if (days <= 30) {
-					ago = days + " days ago";
+					return days + " days ago";
 				} else if (days <= 90) {
 					int weeks = days / 7;
 					if (weeks == 12) {
-						ago = "3 months ago";
+						return "3 months ago";
 					} else {
-						ago = weeks + " weeks ago";
+						return weeks + " weeks ago";
 					}
-				} else if (days > 90) {
-					int months = days / 30;
-					int weeks = (days % 30) / 7;
-					if (weeks >= 2) {
-						months++;
-					}
-					ago = months + " months ago";
 				}
+				int months = days / 30;
+				int weeks = (days % 30) / 7;
+				if (weeks >= 2) {
+					months++;
+				}
+				return months + " months ago";
 			} else if (days == 365) {
-				ago = "1 year ago";
+				return "1 year ago";
 			} else {
 				int yr = days / 365;
 				days = days % 365;
 				int months = (yr * 12) + (days / 30);
 				if (months > 23) {
-					ago = yr + " years ago";
+					return yr + " years ago";
 				} else {
-					ago = months + " months ago";
+					return months + " months ago";
 				}
 			}
 		}
-		return ago;
 	}
 }

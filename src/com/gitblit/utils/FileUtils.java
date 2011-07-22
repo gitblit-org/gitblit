@@ -73,10 +73,11 @@ public class FileUtils {
 		}
 		long length = 0;
 		for (File file : directory.listFiles()) {
-			if (file.isFile())
+			if (file.isFile()) {
 				length += file.length();
-			else
+			} else {
 				length += folderSize(file);
+			}
 		}
 		return length;
 	}

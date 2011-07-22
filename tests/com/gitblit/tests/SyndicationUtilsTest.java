@@ -32,7 +32,8 @@ public class SyndicationUtilsTest extends TestCase {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<RevCommit> commits = JGitUtils.getRevLog(repository, 1);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		SyndicationUtils.toRSS("http://localhost", "Title", "Description", "Repository", commits, os);
+		SyndicationUtils.toRSS("http://localhost", "Title", "Description", "Repository", commits,
+				os);
 		String feed = os.toString();
 		os.close();
 		assertTrue(feed.length() > 100);

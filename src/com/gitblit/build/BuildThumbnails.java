@@ -65,8 +65,9 @@ public class BuildThumbnails {
 	 */
 	public static void createImageThumbnail(String sourceFolder, String destinationFolder,
 			int maxDimension) {
-		if (maxDimension <= 0)
+		if (maxDimension <= 0) {
 			return;
+		}
 		File source = new File(sourceFolder);
 		File destination = new File(destinationFolder);
 		destination.mkdirs();
@@ -135,12 +136,16 @@ public class BuildThumbnails {
 				}
 			}
 		} finally {
-			if (in != null)
+			if (in != null) {
 				in.close();
+			}
 		}
 		return null;
 	}
 
+	/**
+	 * JCommander Parameters class for BuildThumbnails.
+	 */
 	@Parameters(separators = " ")
 	private static class Params {
 

@@ -39,6 +39,8 @@ public class GitBlitTest extends TestCase {
 		assertTrue("Helloworld model is null!", model != null);
 		assertTrue(model.toString().equals(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName()));
+		assertEquals("" + GitBlit.self().calculateSize(model), GitBlit.self().calculateSize(model),
+				22004L);
 	}
 
 	public void testUserModel() throws Exception {
@@ -54,6 +56,9 @@ public class GitBlitTest extends TestCase {
 		assertFalse("Admin can still access repository!", model.canAccessRepository(repository));
 		model.addRepository(repository);
 		assertTrue("Admin can't access repository!", model.canAccessRepository(repository));
+		assertEquals(GitBlit.self().getRepositoryModel(model, "pretend"), null);
+		assertNotNull(GitBlit.self().getRepositoryModel(model, repository));
+		assertTrue(GitBlit.self().getRepositoryModels(model).size() > 0);
 	}
 
 	public void testAccessRestrictionTypes() throws Exception {
@@ -85,12 +90,12 @@ public class GitBlitTest extends TestCase {
 
 	public void testFileSettings() throws Exception {
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
-		assertTrue(settings.getBoolean("missing", true) == true);
+		assertTrue(settings.getBoolean("missing", true));
 		assertTrue(settings.getString("missing", "default").equals("default"));
 		assertTrue(settings.getInteger("missing", 10) == 10);
 		assertTrue(settings.getInteger("realm.realmFile", 5) == 5);
 
-		assertTrue(settings.getBoolean("git.enableGitServlet", false) == true);
+		assertTrue(settings.getBoolean("git.enableGitServlet", false));
 		assertTrue(settings.getString("realm.userService", null).equals("users.properties"));
 		assertTrue(settings.getInteger("realm.minPasswordLength", 0) == 5);
 		List<String> mdExtensions = settings.getStrings("web.markdownExtensions");
@@ -100,16 +105,18 @@ public class GitBlitTest extends TestCase {
 		List<String> keys = settings.getAllKeys("server");
 		assertTrue(keys.size() > 0);
 		assertTrue(keys.contains("server.httpsPort"));
+
+		assertTrue(settings.getChar("web.forwardSlashCharacter", ' ') == '/');
 	}
 
 	public void testGitblitSettings() throws Exception {
 		// These are already tested by above test method.
-		assertTrue(GitBlit.getBoolean("missing", true) == true);
+		assertTrue(GitBlit.getBoolean("missing", true));
 		assertTrue(GitBlit.getString("missing", "default").equals("default"));
 		assertTrue(GitBlit.getInteger("missing", 10) == 10);
 		assertTrue(GitBlit.getInteger("realm.userService", 5) == 5);
 
-		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false) == true);
+		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false));
 		assertTrue(GitBlit.getString("realm.userService", null).equals("users.properties"));
 		assertTrue(GitBlit.getInteger("realm.minPasswordLength", 0) == 5);
 		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
@@ -119,6 +126,9 @@ public class GitBlitTest extends TestCase {
 		List<String> keys = GitBlit.getAllKeys("server");
 		assertTrue(keys.size() > 0);
 		assertTrue(keys.contains("server.httpsPort"));
+
+		assertTrue(GitBlit.getChar("web.forwardSlashCharacter", ' ') == '/');
+		assertFalse(GitBlit.isDebugMode());
 	}
 
 	public void testAuthentication() throws Exception {

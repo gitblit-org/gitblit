@@ -22,7 +22,6 @@ import org.apache.wicket.Response;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;

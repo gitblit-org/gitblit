@@ -72,6 +72,7 @@ public class RepositoriesPage extends BasePage {
 				InputStream is = res.getResourceStream().getInputStream();
 				InputStreamReader reader = new InputStreamReader(is);
 				message = MarkdownUtils.transformMarkdown(reader);
+				reader.close();
 			} catch (Throwable t) {
 				message = "Failed to read default welcome message!";
 				error(message, t, false);

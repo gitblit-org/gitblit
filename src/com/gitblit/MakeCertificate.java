@@ -47,7 +47,7 @@ import com.gitblit.utils.TimeUtils;
  * Utility class to generate self-signed certificates.
  * 
  * @author James Moger
- *
+ * 
  */
 public class MakeCertificate {
 
@@ -63,7 +63,8 @@ public class MakeCertificate {
 			jc.usage();
 		}
 		File keystore = new File("keystore");
-		generateSelfSignedCertificate(params.hostname, keystore, params.storePassword, params.subject);
+		generateSelfSignedCertificate(params.hostname, keystore, params.storePassword,
+				params.subject);
 	}
 
 	public static void generateSelfSignedCertificate(String hostname, File keystore,
@@ -159,6 +160,9 @@ public class MakeCertificate {
 		}
 	}
 
+	/**
+	 * JCommander Parameters class for MakeCertificate.
+	 */
 	@Parameters(separators = " ")
 	private static class Params {
 

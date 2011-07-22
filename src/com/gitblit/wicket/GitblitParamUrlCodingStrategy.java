@@ -16,8 +16,6 @@
 package com.gitblit.wicket;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.protocol.http.WicketURLDecoder;
-import org.apache.wicket.protocol.http.WicketURLEncoder;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 
 import com.gitblit.GitBlit;

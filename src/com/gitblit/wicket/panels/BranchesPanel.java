@@ -94,22 +94,22 @@ public class BranchesPanel extends BasePanel {
 
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("branchAuthor", "list", author,
-						SearchPage.class, WicketUtils.newSearchParameter(model.name, entry.getName(),
-								author, SearchType.AUTHOR));
+						SearchPage.class, WicketUtils.newSearchParameter(model.name,
+								entry.getName(), author, SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
 				item.add(authorLink);
-				
+
 				// short message
 				String shortMessage = entry.getShortMessage();
 				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
-				LinkPanel shortlog = new LinkPanel("branchLog", "list subject",
-						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
-								model.name, entry.getName()));
+				LinkPanel shortlog = new LinkPanel("branchLog", "list subject", trimmedMessage,
+						CommitPage.class, WicketUtils.newObjectParameter(model.name,
+								entry.getName()));
 				if (!shortMessage.equals(trimmedMessage)) {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
 				item.add(shortlog);
-				
+
 				if (maxCount <= 0) {
 					Fragment fragment = new Fragment("branchLinks", "branchPageLinks", this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils

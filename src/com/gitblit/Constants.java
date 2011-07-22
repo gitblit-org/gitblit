@@ -51,6 +51,9 @@ public class Constants {
 
 	public static final String BORDER = "***********************************************************";
 
+	/**
+	 * Enumeration representing the 4 access restriction levels.
+	 */
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
 

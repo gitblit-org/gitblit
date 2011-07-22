@@ -27,7 +27,11 @@ import com.gitblit.utils.MetricUtils;
 public class MetricUtilsTest extends TestCase {
 
 	public void testMetrics() throws Exception {
-		Repository repository = GitBlitSuite.getHelloworldRepository();
+		testMetrics(GitBlitSuite.getHelloworldRepository());
+		testMetrics(GitBlitSuite.getBluezGnomeRepository());
+	}
+
+	private void testMetrics(Repository repository) throws Exception {
 		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null);
 		repository.close();
 		assertTrue("No date metrics found!", metrics.size() > 0);

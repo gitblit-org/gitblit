@@ -80,6 +80,12 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 
+/**
+ * Collection of static methods for retrieving information from a repository.
+ * 
+ * @author James Moger
+ * 
+ */
 public class JGitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
@@ -795,6 +801,9 @@ public class JGitUtils {
 		return list;
 	}
 
+	/**
+	 * Enumeration of the search types.
+	 */
 	public static enum SearchType {
 		AUTHOR, COMMITTER, COMMIT;
 

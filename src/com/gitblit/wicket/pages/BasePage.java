@@ -189,7 +189,7 @@ public abstract class BasePage extends WebPage {
 	 * Panel fragment for displaying login or logout/change_password links.
 	 * 
 	 */
-	class UserFragment extends Fragment {
+	static class UserFragment extends Fragment {
 
 		private static final long serialVersionUID = 1L;
 
@@ -201,7 +201,7 @@ public abstract class BasePage extends WebPage {
 				add(new Label("username", GitBlitWebSession.get().getUser().toString() + ":"));
 				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
 						LogoutPage.class));
-				// quick and dirty hack for showing a separator 
+				// quick and dirty hack for showing a separator
 				add(new Label("separator", "|"));
 				add(new BookmarkablePageLink<Void>("changePasswordLink", ChangePasswordPage.class));
 			} else {

@@ -55,11 +55,11 @@ import com.gitblit.utils.StringUtils;
  */
 public class BuildSite {
 
-	private final static String CASE_SENSITIVE = "CASE-SENSITIVE";
+	private static final String CASE_SENSITIVE = "CASE-SENSITIVE";
 
-	private final static String RESTART_REQUIRED = "RESTART REQUIRED";
+	private static final String RESTART_REQUIRED = "RESTART REQUIRED";
 
-	private final static String SINCE = "SINCE";
+	private static final String SINCE = "SINCE";
 
 	public static void main(String... args) {
 		Params params = new Params();
@@ -135,10 +135,10 @@ public class BuildSite {
 				if (!params.skips.contains(documentName)) {
 					String fileName = documentName + ".html";
 					System.out.println(MessageFormat.format("  {0} => {1}", file.getName(),
-							fileName));					
+							fileName));
 					String rawContent = FileUtils.readContent(file, "\n");
 					String markdownContent = rawContent;
-					
+
 					Map<String, List<String>> nomarkdownMap = new HashMap<String, List<String>>();
 
 					// extract sections marked as no-markdown
@@ -159,8 +159,9 @@ public class BuildSite {
 							if (endCode == 0) {
 								strippedContent.append(markdownContent.substring(0, beginCode));
 							} else {
-								strippedContent.append(markdownContent.substring(endCode, beginCode));
-							}							
+								strippedContent.append(markdownContent
+										.substring(endCode, beginCode));
+							}
 							strippedContent.append(nomarkdownKey);
 							endCode = markdownContent.indexOf(endToken, beginCode);
 							chunks.add(markdownContent.substring(beginCode, endCode));
@@ -169,27 +170,28 @@ public class BuildSite {
 
 						// get remainder of text
 						if (endCode < markdownContent.length()) {
-							strippedContent.append(markdownContent.substring(endCode, markdownContent.length()));
+							strippedContent.append(markdownContent.substring(endCode,
+									markdownContent.length()));
 						}
 						markdownContent = strippedContent.toString();
-						nmd++;						
+						nmd++;
 					}
 
 					// transform markdown to html
 					String content = transformMarkdown(markdownContent.toString());
 
 					// reinsert nomarkdown chunks
-					for (Map.Entry<String, List<String>> nomarkdown: nomarkdownMap.entrySet()) {
-						for (String chunk:nomarkdown.getValue()) {
+					for (Map.Entry<String, List<String>> nomarkdown : nomarkdownMap.entrySet()) {
+						for (String chunk : nomarkdown.getValue()) {
 							content = content.replaceFirst(nomarkdown.getKey(), chunk);
 						}
 					}
-					
+
 					for (String token : params.substitutions) {
 						String[] kv = token.split("=", 2);
 						content = content.replace(kv[0], kv[1]);
 					}
-					for (String token:params.regex) {
+					for (String token : params.regex) {
 						String[] kv = token.split("!!!", 2);
 						content = content.replaceAll(kv[0], kv[1]);
 					}
@@ -199,7 +201,7 @@ public class BuildSite {
 						content = content.replace(kv[0], loadedContent);
 					}
 					for (String alias : params.loads) {
-						String[] kv = alias.split("=" ,2);
+						String[] kv = alias.split("=", 2);
 						String loadedContent = FileUtils.readContent(new File(kv[1]), "\n");
 						loadedContent = StringUtils.escapeForHtml(loadedContent, false);
 						loadedContent = StringUtils.breakLinesForHtml(loadedContent);
@@ -264,21 +266,26 @@ public class BuildSite {
 			for (String comment : setting.comments) {
 				if (comment.contains(SINCE) || comment.contains(RESTART_REQUIRED)
 						|| comment.contains(CASE_SENSITIVE)) {
-					sb.append(MessageFormat.format("<span style=\"color:#004000;\"># <i>{0}</i></span>", transformMarkdown(comment)));
+					sb.append(MessageFormat.format(
+							"<span style=\"color:#004000;\"># <i>{0}</i></span>",
+							transformMarkdown(comment)));
 				} else {
-					sb.append(MessageFormat.format("<span style=\"color:#004000;\"># {0}</span>", transformMarkdown(comment)));
+					sb.append(MessageFormat.format("<span style=\"color:#004000;\"># {0}</span>",
+							transformMarkdown(comment)));
 				}
 				sb.append("<br/>\n");
 			}
 			if (!StringUtils.isEmpty(setting.name)) {
-				sb.append(MessageFormat.format("<span style=\"color:#000080;\">{0}</span> = <span style=\"color:#800000;\">{1}</span>", setting.name, StringUtils.escapeForHtml(setting.value, false)));
+				sb.append(MessageFormat
+						.format("<span style=\"color:#000080;\">{0}</span> = <span style=\"color:#800000;\">{1}</span>",
+								setting.name, StringUtils.escapeForHtml(setting.value, false)));
 			}
 			sb.append("<br/>\n");
 		}
 
 		return sb.toString();
 	}
-	
+
 	private static String transformMarkdown(String comment) throws ParseException {
 		String md = MarkdownUtils.transformMarkdown(comment);
 		if (md.startsWith("<p>")) {
@@ -303,6 +310,9 @@ public class BuildSite {
 		System.exit(0);
 	}
 
+	/**
+	 * Setting represents a setting with its comments from the properties file.
+	 */
 	private static class Setting {
 		final String name;
 		final String value;
@@ -315,6 +325,9 @@ public class BuildSite {
 		}
 	}
 
+	/**
+	 * JCommander Parameters class for BuildSite.
+	 */
 	@Parameters(separators = " ")
 	private static class Params {
 

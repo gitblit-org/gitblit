@@ -49,7 +49,8 @@ public class ChangePasswordPage extends WebPage {
 			throw new RestartResponseException(getApplication().getHomePage());
 		}
 
-		if (!GitBlit.getBoolean(Keys.web.authenticateAdminPages, true) && !GitBlit.getBoolean(Keys.web.authenticateViewPages, false)) {
+		if (!GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)
+				&& !GitBlit.getBoolean(Keys.web.authenticateViewPages, false)) {
 			// no authentication enabled
 			throw new RestartResponseException(getApplication().getHomePage());
 		}
@@ -115,19 +116,19 @@ public class ChangePasswordPage extends WebPage {
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
 		form.add(new FeedbackPanel("feedback"));
-		
+
 		form.add(new Button("save"));
-		Button cancel = new Button("cancel"){          
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
-                setResponsePage(RepositoriesPage.class);
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-        
+				setResponsePage(RepositoriesPage.class);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+		form.add(cancel);
+
 		add(form);
 	}
 }

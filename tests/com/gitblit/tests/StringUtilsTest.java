@@ -36,7 +36,7 @@ public class StringUtilsTest extends TestCase {
 		String output = "this<br/>is<br/>a<br/>test<br/><br/>of<br/><br/>line<br/><br/>breaking";
 		assertTrue(StringUtils.breakLinesForHtml(input).equals(output));
 	}
-	
+
 	public void testEncodeUrl() throws Exception {
 		String input = "test /";
 		String output = "test%20%2F";
@@ -50,7 +50,7 @@ public class StringUtilsTest extends TestCase {
 		assertTrue(StringUtils.escapeForHtml(input, false).equals(outputNoChange));
 		assertTrue(StringUtils.escapeForHtml(input, true).equals(outputChange));
 	}
-	
+
 	public void testDecodeForHtml() throws Exception {
 		String input = "&amp; &lt; &gt; &quot;";
 		String output = "& < > \"";
@@ -82,7 +82,7 @@ public class StringUtilsTest extends TestCase {
 		assertTrue(StringUtils.getSHA1("blob 16\000what is up, doc?").equals(
 				"bd9dbf5aae1a3862dd1526723246b20206e5fc37"));
 	}
-	
+
 	public void testMD5() throws Exception {
 		assertTrue(StringUtils.getMD5("blob 16\000what is up, doc?").equals(
 				"77fb8d95331f0d557472f6776d3aedf6"));

@@ -38,7 +38,7 @@ import com.gitblit.utils.StringUtils;
  * protected by an AccessRestrictionFilter. It performs its own authorization
  * check, but it does not perform any authentication. The assumption is that
  * requests to this servlet are made via the web ui and not by direct url
- * access.  Unauthorized requests fail with a standard 403 (FORBIDDEN) code.
+ * access. Unauthorized requests fail with a standard 403 (FORBIDDEN) code.
  * 
  * @author James Moger
  * 

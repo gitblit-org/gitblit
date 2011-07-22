@@ -108,7 +108,8 @@ public abstract class AccessRestrictionFilter implements Filter {
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
 	 * 
-	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
+	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response,

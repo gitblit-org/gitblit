@@ -115,6 +115,10 @@ public class PatchFormatter extends DiffFormatter {
 		return patch.toString();
 	}
 
+	/**
+	 * Class that represents the number of insertions and deletions from a
+	 * chunk.
+	 */
 	private static class PatchTouple {
 		int insertions;
 		int deletions;

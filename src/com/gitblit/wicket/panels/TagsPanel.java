@@ -90,7 +90,7 @@ public class TagsPanel extends BasePanel {
 				item.add(new LinkPanel("tagName", "list name", entry.displayName, linkClass,
 						WicketUtils.newObjectParameter(repositoryName, entry
 								.getReferencedObjectId().getName())));
-				
+
 				// workaround for RevTag returning a lengthy shortlog. :(
 				String message = StringUtils.trimShortLog(entry.getShortMessage());
 

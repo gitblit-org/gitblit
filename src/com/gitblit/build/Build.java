@@ -49,6 +49,11 @@ import com.gitblit.utils.StringUtils;
  */
 public class Build {
 
+	/**
+	 * BuildType enumeration representing compile-time or runtime. This is used
+	 * to download dependencies either for Gitblit GO runtime or for setting up
+	 * a development environment.
+	 */
 	public static enum BuildType {
 		RUNTIME, COMPILETIME;
 	}
@@ -320,6 +325,11 @@ public class Build {
 		System.out.print("] " + url);
 	}
 
+	/**
+	 * MavenObject represents a complete maven artifact (binary, sources, and
+	 * javadoc). MavenObjects can be downloaded and checksummed to confirm
+	 * authenticity.
+	 */
 	private static class MavenObject {
 
 		public static final MavenObject JCOMMANDER = new MavenObject("jCommander", "com/beust",

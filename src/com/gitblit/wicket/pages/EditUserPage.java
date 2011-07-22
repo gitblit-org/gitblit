@@ -173,19 +173,19 @@ public class EditUserPage extends BasePage {
 		form.add(confirmPasswordField);
 		form.add(new CheckBox("canAdmin"));
 		form.add(repositories);
-		
+
 		form.add(new Button("save"));
-		Button cancel = new Button("cancel"){          
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
-                setResponsePage(RepositoriesPage.class);
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-        
+				setResponsePage(RepositoriesPage.class);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+		form.add(cancel);
+
 		add(form);
 	}
 }

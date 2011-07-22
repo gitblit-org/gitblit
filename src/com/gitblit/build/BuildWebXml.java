@@ -126,6 +126,9 @@ public class BuildWebXml {
 		return key.startsWith(Keys.server._ROOT);
 	}
 
+	/**
+	 * Setting represents a setting and its comments from the properties file.
+	 */
 	private static class Setting {
 		final String name;
 		final String value;
@@ -138,6 +141,9 @@ public class BuildWebXml {
 		}
 	}
 
+	/**
+	 * JCommander Parameters class for BuildWebXml.
+	 */
 	@Parameters(separators = " ")
 	private static class Params {
 

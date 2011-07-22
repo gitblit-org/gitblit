@@ -176,7 +176,7 @@ public class GitBlitServer {
 				}
 				if (params.securePort < 1024 && !isWindows()) {
 					logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
-				}				
+				}
 				connectors.add(secureConnector);
 			} else {
 				logger.warn("Failed to find or load Keystore?");
@@ -315,7 +315,7 @@ public class GitBlitServer {
 		connector.setMaxIdleTime(30000);
 		return connector;
 	}
-	
+
 	/**
 	 * Tests to see if the operating system is Windows.
 	 * 
@@ -376,6 +376,9 @@ public class GitBlitServer {
 		}
 	}
 
+	/**
+	 * JCommander Parameters class for GitBlitServer.
+	 */
 	@Parameters(separators = " ")
 	private static class Params {
 

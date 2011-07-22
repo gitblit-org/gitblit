@@ -116,7 +116,7 @@ public abstract class IStoredSettings {
 		}
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Returns the char value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a char, the
