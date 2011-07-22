@@ -33,6 +33,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.FileUtils;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -197,6 +198,13 @@ public class JGitUtilsTest extends TestCase {
 				.equals("183474d554e6f68478a02d9d7888b67a9338cdff"));
 	}
 
+	public void testCreateOrphanedBranch() throws Exception {
+		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");		
+		assertTrue(JGitUtils.createOrphanBranch(repository,
+				"x" + Long.toHexString(System.currentTimeMillis()).toUpperCase()));
+		FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+	}
+
 	public void testStringContent() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		String contentA = JGitUtils.getStringContent(repository, null, "java.java");
@@ -357,4 +365,5 @@ public class JGitUtilsTest extends TestCase {
 		assertTrue(zipFileB.length() > 0);
 		zipFileB.delete();
 	}
+
 }

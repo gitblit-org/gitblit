@@ -16,9 +16,12 @@
 package com.gitblit.utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 /**
@@ -55,6 +58,25 @@ public class FileUtils {
 			t.printStackTrace();
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Writes the string content to the file.
+	 * 
+	 * @param file
+	 * @param content
+	 */
+	public static void writeContent(File file, String content) {
+		try {
+			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file),
+					Charset.forName("UTF-8")); 
+			BufferedWriter writer = new BufferedWriter(os);
+			writer.append(content);
+			writer.close();
+		} catch (Throwable t) {
+			System.err.println("Failed to write content of " + file.getAbsolutePath());
+			t.printStackTrace();
+		}
 	}
 
 	/**

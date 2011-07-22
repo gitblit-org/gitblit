@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -89,6 +90,29 @@ import com.gitblit.models.RefModel;
 public class JGitUtils {
 
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+
+	/**
+	 * Log an error message and exception.
+	 * 
+	 * @param t
+	 * @param repository
+	 *            if repository is not null it MUST be the {0} parameter in the
+	 *            pattern.
+	 * @param pattern
+	 * @param objects
+	 */
+	private static void error(Throwable t, Repository repository, String pattern, Object... objects) {
+		List<Object> parameters = new ArrayList<Object>();
+		if (objects != null && objects.length > 0) {
+			for (Object o : objects) {
+				parameters.add(o);
+			}
+		}
+		if (repository != null) {
+			parameters.add(0, repository.getDirectory().getAbsolutePath());
+		}
+		LOGGER.error(MessageFormat.format(pattern, parameters.toArray()), t);
+	}
 
 	/**
 	 * Returns the displayable name of the person in the form "Real Name <email
@@ -263,19 +287,24 @@ public class JGitUtils {
 		if (!hasCommits(repository)) {
 			return null;
 		}
-		if (StringUtils.isEmpty(branch)) {
-			branch = Constants.HEAD;
-		}
 		RevCommit commit = null;
 		try {
+			// resolve branch
+			ObjectId branchObject;
+			if (StringUtils.isEmpty(branch)) {
+				branchObject = getDefaultBranch(repository);
+			} else {
+				branchObject = repository.resolve(branch);
+			}
+
 			RevWalk walk = new RevWalk(repository);
 			walk.sort(RevSort.REVERSE);
-			RevCommit head = walk.parseCommit(repository.resolve(branch));
+			RevCommit head = walk.parseCommit(branchObject);
 			walk.markStart(head);
 			commit = walk.next();
 			walk.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to determine first commit", t);
+			error(t, repository, "{0} failed to determine first commit");
 		}
 		return commit;
 	}
@@ -310,7 +339,7 @@ public class JGitUtils {
 	 * @return true if the repository has commits
 	 */
 	public static boolean hasCommits(Repository repository) {
-		if (repository != null && repository.getDirectory().exists()) {			
+		if (repository != null && repository.getDirectory().exists()) {
 			return (new File(repository.getDirectory(), "objects").list().length > 2)
 					|| (new File(repository.getDirectory(), "objects/pack").list().length > 0);
 		}
@@ -324,7 +353,7 @@ public class JGitUtils {
 	 * 
 	 * @param repository
 	 * @param branch
-	 *            if unspecified, HEAD is assumed.
+	 *            if unspecified, all branches are checked.
 	 * @return
 	 */
 	public static Date getLastChange(Repository repository, String branch) {
@@ -337,8 +366,23 @@ public class JGitUtils {
 			return new Date(repository.getDirectory().lastModified());
 		}
 		if (StringUtils.isEmpty(branch)) {
-			branch = Constants.HEAD;
+			List<RefModel> branchModels = getLocalBranches(repository, true, -1);
+			if (branchModels.size() > 0) {
+				// find most recent branch update
+				Date lastChange = new Date(0);
+				for (RefModel branchModel : branchModels) {
+					if (branchModel.getDate().after(lastChange)) {
+						lastChange = branchModel.getDate();
+					}
+				}
+				return lastChange;
+			} else {
+				// try to find head
+				branch = Constants.HEAD;
+			}
 		}
+
+		// lookup specified branch
 		RevCommit commit = getCommit(repository, branch);
 		return getCommitDate(commit);
 	}
@@ -347,9 +391,12 @@ public class JGitUtils {
 	 * Retrieves a Java Date from a Git commit.
 	 * 
 	 * @param commit
-	 * @return date of the commit
+	 * @return date of the commit or Date(0) if the commit is null
 	 */
 	public static Date getCommitDate(RevCommit commit) {
+		if (commit == null) {
+			return new Date(0);
+		}
 		return new Date(commit.getCommitTime() * 1000L);
 	}
 
@@ -368,16 +415,19 @@ public class JGitUtils {
 		}
 		RevCommit commit = null;
 		try {
+			// resolve object id
+			ObjectId branchObject;
 			if (StringUtils.isEmpty(objectId)) {
-				objectId = Constants.HEAD;
+				branchObject = getDefaultBranch(repository);
+			} else {
+				branchObject = repository.resolve(objectId);
 			}
-			ObjectId object = repository.resolve(objectId);
 			RevWalk walk = new RevWalk(repository);
-			RevCommit rev = walk.parseCommit(object);
+			RevCommit rev = walk.parseCommit(branchObject);
 			commit = rev;
 			walk.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to get commit " + objectId, t);
+			error(t, repository, "{0} failed to get commit {1}", objectId);
 		}
 		return commit;
 	}
@@ -398,7 +448,7 @@ public class JGitUtils {
 		byte[] content = null;
 		try {
 			if (tree == null) {
-				ObjectId object = repository.resolve(Constants.HEAD);
+				ObjectId object = getDefaultBranch(repository);
 				RevCommit commit = rw.parseCommit(object);
 				tree = commit.getTree();
 			}
@@ -424,7 +474,7 @@ public class JGitUtils {
 				content = os.toByteArray();
 			}
 		} catch (Throwable t) {
-			LOGGER.error("Can't find " + path + " in tree " + tree.name(), t);
+			error(t, repository, "{0} can't find {1} in tree {2}", path, tree.name());
 		} finally {
 			rw.dispose();
 			tw.release();
@@ -473,7 +523,7 @@ public class JGitUtils {
 			in.close();
 			content = os.toByteArray();
 		} catch (Throwable t) {
-			LOGGER.error("Can't find blob " + objectId, t);
+			error(t, repository, "{0} can't find blob {1}", objectId);
 		} finally {
 			rw.dispose();
 		}
@@ -514,7 +564,7 @@ public class JGitUtils {
 			return list;
 		}
 		if (commit == null) {
-			commit = getCommit(repository, Constants.HEAD);
+			commit = getCommit(repository, null);
 		}
 		final TreeWalk tw = new TreeWalk(repository);
 		try {
@@ -543,7 +593,7 @@ public class JGitUtils {
 				}
 			}
 		} catch (IOException e) {
-			LOGGER.error("Failed to get files for commit " + commit.getName(), e);
+			error(e, repository, "{0} failed to get files for commit {1}", commit.getName());
 		} finally {
 			tw.release();
 		}
@@ -568,7 +618,7 @@ public class JGitUtils {
 		RevWalk rw = new RevWalk(repository);
 		try {
 			if (commit == null) {
-				ObjectId object = repository.resolve(Constants.HEAD);
+				ObjectId object = getDefaultBranch(repository);
 				commit = rw.parseCommit(object);
 			}
 
@@ -602,7 +652,7 @@ public class JGitUtils {
 				}
 			}
 		} catch (Throwable t) {
-			LOGGER.error("failed to determine files in commit!", t);
+			error(t, repository, "{0} failed to determine files in commit!");
 		} finally {
 			rw.dispose();
 		}
@@ -623,7 +673,7 @@ public class JGitUtils {
 		if (!hasCommits(repository)) {
 			return list;
 		}
-		RevCommit commit = getCommit(repository, Constants.HEAD);
+		RevCommit commit = getCommit(repository, null);
 		final TreeWalk tw = new TreeWalk(repository);
 		try {
 			tw.addTree(commit.getTree());
@@ -645,7 +695,7 @@ public class JGitUtils {
 				list.add(getPathModel(tw, null, commit));
 			}
 		} catch (IOException e) {
-			LOGGER.error("Failed to get documents for commit " + commit.getName(), e);
+			error(e, repository, "{0} failed to get documents for commit {1}", commit.getName());
 		} finally {
 			tw.release();
 		}
@@ -674,7 +724,7 @@ public class JGitUtils {
 				size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
 			}
 		} catch (Throwable t) {
-			LOGGER.error("Failed to retrieve blob size", t);
+			error(t, null, "failed to retrieve blob size for " + tw.getPathString());
 		}
 		return new PathModel(name, tw.getPathString(), size, tw.getFileMode(0).getBits(),
 				commit.getName());
@@ -713,7 +763,7 @@ public class JGitUtils {
 	 * @return list of commits
 	 */
 	public static List<RevCommit> getRevLog(Repository repository, int maxCount) {
-		return getRevLog(repository, Constants.HEAD, 0, maxCount);
+		return getRevLog(repository, null, 0, maxCount);
 	}
 
 	/**
@@ -762,12 +812,16 @@ public class JGitUtils {
 			return list;
 		}
 		try {
+			// resolve branch
+			ObjectId branchObject;
 			if (StringUtils.isEmpty(objectId)) {
-				objectId = Constants.HEAD;
+				branchObject = getDefaultBranch(repository);
+			} else {
+				branchObject = repository.resolve(objectId);
 			}
+
 			RevWalk rw = new RevWalk(repository);
-			ObjectId object = repository.resolve(objectId);
-			rw.markStart(rw.parseCommit(object));
+			rw.markStart(rw.parseCommit(branchObject));
 			if (!StringUtils.isEmpty(path)) {
 				TreeFilter filter = AndTreeFilter.create(
 						PathFilterGroup.createFromStrings(Collections.singleton(path)),
@@ -796,7 +850,7 @@ public class JGitUtils {
 			}
 			rw.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to get revlog", t);
+			error(t, repository, "{0} failed to get {1} revlog for path {2}", objectId, path);
 		}
 		return list;
 	}
@@ -850,9 +904,14 @@ public class JGitUtils {
 			return list;
 		}
 		try {
+			// resolve branch
+			ObjectId branchObject;
 			if (StringUtils.isEmpty(objectId)) {
-				objectId = Constants.HEAD;
+				branchObject = getDefaultBranch(repository);
+			} else {
+				branchObject = repository.resolve(objectId);
 			}
+
 			RevWalk rw = new RevWalk(repository);
 			rw.setRevFilter(new RevFilter() {
 
@@ -887,8 +946,7 @@ public class JGitUtils {
 				}
 
 			});
-			ObjectId object = repository.resolve(objectId);
-			rw.markStart(rw.parseCommit(object));
+			rw.markStart(rw.parseCommit(branchObject));
 			Iterable<RevCommit> revlog = rw;
 			if (offset > 0) {
 				int count = 0;
@@ -911,9 +969,40 @@ public class JGitUtils {
 			}
 			rw.dispose();
 		} catch (Throwable t) {
-			LOGGER.error("Failed to search revlogs", t);
+			error(t, repository, "{0} failed to {1} search revlogs for {2}", type.name(), value);
 		}
 		return list;
+	}
+
+	/**
+	 * Returns the default branch to use for a repository. Normally returns
+	 * whatever branch HEAD points to, but if HEAD points to nothing it returns
+	 * the most recently updated branch.
+	 * 
+	 * @param repository
+	 * @return the objectid of a branch
+	 * @throws Exception
+	 */
+	public static ObjectId getDefaultBranch(Repository repository) throws Exception {
+		ObjectId object = repository.resolve(Constants.HEAD);
+		if (object == null) {
+			// no HEAD
+			// perhaps non-standard repository, try local branches
+			List<RefModel> branchModels = getLocalBranches(repository, true, -1);
+			if (branchModels.size() > 0) {
+				// use most recently updated branch
+				RefModel branch = null;
+				Date lastDate = new Date(0);
+				for (RefModel branchModel : branchModels) {
+					if (branchModel.getDate().after(lastDate)) {
+						branch = branchModel;
+						lastDate = branch.getDate();
+					}
+				}
+				object = branch.getReferencedObjectId();
+			}
+		}
+		return object;
 	}
 
 	/**
@@ -1044,7 +1133,7 @@ public class JGitUtils {
 				list = new ArrayList<RefModel>(list.subList(0, maxCount));
 			}
 		} catch (IOException e) {
-			LOGGER.error("Failed to retrieve " + refs, e);
+			error(e, repository, "{0} failed to retrieve {1}", refs);
 		}
 		return list;
 	}
@@ -1082,6 +1171,40 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Create an orphaned branch in a repository. This code does not work.
+	 * 
+	 * @param repository
+	 * @param name
+	 * @return
+	 */
+	public static boolean createOrphanBranch(Repository repository, String name) {
+		return true;
+		// boolean success = false;
+		// try {
+		// ObjectId prev = repository.resolve(Constants.HEAD + "^1");
+		// // create the orphan branch
+		// RefUpdate orphanRef = repository.updateRef(Constants.R_HEADS + name);
+		// orphanRef.setNewObjectId(prev);
+		// orphanRef.setExpectedOldObjectId(ObjectId.zeroId());
+		// Result updateResult = orphanRef.update();
+		//
+		// switch (updateResult) {
+		// case NEW:
+		// success = true;
+		// break;
+		// case NO_CHANGE:
+		// default:
+		// break;
+		// }
+		//
+		// } catch (Throwable t) {
+		// error(t, repository, "{0} failed to create orphaned branch {1}",
+		// name);
+		// }
+		// return success;
+	}
+
+	/**
 	 * Returns a StoredConfig object for the repository.
 	 * 
 	 * @param repository
@@ -1092,9 +1215,9 @@ public class JGitUtils {
 		try {
 			c.load();
 		} catch (ConfigInvalidException cex) {
-			LOGGER.error("Repository configuration is invalid!", cex);
+			error(cex, repository, "{0} configuration is invalid!");
 		} catch (IOException cex) {
-			LOGGER.error("Could not open repository configuration!", cex);
+			error(cex, repository, "Could not open configuration for {0}!");
 		}
 		return c;
 	}
@@ -1154,7 +1277,7 @@ public class JGitUtils {
 			zos.finish();
 			success = true;
 		} catch (IOException e) {
-			LOGGER.error("Failed to zip files from commit " + commit.getName(), e);
+			error(e, repository, "{0} failed to zip files from commit {1}", commit.getName());
 		} finally {
 			tw.release();
 			rw.dispose();

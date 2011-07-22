@@ -330,10 +330,6 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
-	protected PageParameters newPathParameter(String path) {
-		return WicketUtils.newPathParameter(repositoryName, objectId, path);
-	}
-
 	private static class PageRegistration implements Serializable {
 		private static final long serialVersionUID = 1L;
 

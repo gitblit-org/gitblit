@@ -16,6 +16,7 @@
 package com.gitblit.utils;
 
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +48,29 @@ public class MetricUtils {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MetricUtils.class);
 
 	/**
+	 * Log an error message and exception.
+	 * 
+	 * @param t
+	 * @param repository
+	 *            if repository is not null it MUST be the {0} parameter in the
+	 *            pattern.
+	 * @param pattern
+	 * @param objects
+	 */
+	private static void error(Throwable t, Repository repository, String pattern, Object... objects) {
+		List<Object> parameters = new ArrayList<Object>();
+		if (objects != null && objects.length > 0) {
+			for (Object o : objects) {
+				parameters.add(o);
+			}
+		}
+		if (repository != null) {
+			parameters.add(0, repository.getDirectory().getAbsolutePath());
+		}
+		LOGGER.error(MessageFormat.format(pattern, parameters.toArray()), t);
+	}
+
+	/**
 	 * Returns the list of metrics for the specified commit reference, branch,
 	 * or tag within the repository. If includeTotal is true, the total of all
 	 * the metrics will be included as the first element in the returned list.
@@ -67,9 +91,7 @@ public class MetricUtils {
 			boolean includeTotal, String dateFormat) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-		if (StringUtils.isEmpty(objectId)) {
-			objectId = Constants.HEAD;
-		}
+
 		if (JGitUtils.hasCommits(repository)) {
 			final List<RefModel> tags = JGitUtils.getTags(repository, true, -1);
 			final Map<ObjectId, RefModel> tagMap = new HashMap<ObjectId, RefModel>();
@@ -78,15 +100,22 @@ public class MetricUtils {
 			}
 			RevWalk revWalk = null;
 			try {
+				// resolve branch
+				ObjectId branchObject;
+				if (StringUtils.isEmpty(objectId)) {
+					branchObject = JGitUtils.getDefaultBranch(repository);
+				} else {
+					branchObject = repository.resolve(objectId);
+				}
+				
 				revWalk = new RevWalk(repository);
-				ObjectId object = repository.resolve(objectId);
-				RevCommit lastCommit = revWalk.parseCommit(object);
+				RevCommit lastCommit = revWalk.parseCommit(branchObject);
 				revWalk.markStart(lastCommit);
 
 				DateFormat df;
 				if (StringUtils.isEmpty(dateFormat)) {
 					// dynamically determine date format
-					RevCommit firstCommit = JGitUtils.getFirstCommit(repository, Constants.HEAD);
+					RevCommit firstCommit = JGitUtils.getFirstCommit(repository, branchObject.getName());
 					int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
 							/ (60 * 60 * 24);
 					total.duration = diffDays;
@@ -118,7 +147,8 @@ public class MetricUtils {
 					}
 				}
 			} catch (Throwable t) {
-				LOGGER.error("Failed to mine log history for date metrics", t);
+				error(t, repository, "{0} failed to mine log history for date metrics of {1}",
+						objectId);
 			} finally {
 				if (revWalk != null) {
 					revWalk.dispose();
@@ -150,14 +180,17 @@ public class MetricUtils {
 	public static List<Metric> getAuthorMetrics(Repository repository, String objectId,
 			boolean byEmailAddress) {
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
-		if (StringUtils.isEmpty(objectId)) {
-			objectId = Constants.HEAD;
-		}
 		if (JGitUtils.hasCommits(repository)) {
 			try {
 				RevWalk walk = new RevWalk(repository);
-				ObjectId object = repository.resolve(objectId);
-				RevCommit lastCommit = walk.parseCommit(object);
+				// resolve branch
+				ObjectId branchObject;
+				if (StringUtils.isEmpty(objectId)) {
+					branchObject = JGitUtils.getDefaultBranch(repository);
+				} else {
+					branchObject = repository.resolve(objectId);
+				}
+				RevCommit lastCommit = walk.parseCommit(branchObject);
 				walk.markStart(lastCommit);
 
 				Iterable<RevCommit> revlog = walk;
@@ -181,7 +214,8 @@ public class MetricUtils {
 					m.count++;
 				}
 			} catch (Throwable t) {
-				LOGGER.error("Failed to mine log history for author metrics", t);
+				error(t, repository, "{0} failed to mine log history for author metrics of {1}",
+						objectId);
 			}
 		}
 		List<String> keys = new ArrayList<String>(metricMap.keySet());

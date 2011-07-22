@@ -25,7 +25,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RawTextComparator;
-import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -147,10 +147,15 @@ public class DiffUtils {
 			RevTree commitTree = commit.getTree();
 			RevTree baseTree;
 			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(repository);
-				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				rw.dispose();
-				baseTree = parent.getTree();
+				if (commit.getParentCount() > 0) {
+					final RevWalk rw = new RevWalk(repository);
+					RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+					rw.dispose();
+					baseTree = parent.getTree();
+				} else {
+					// FIXME initial commit. no parent?!
+					baseTree = commitTree;
+				}
 			} else {
 				baseTree = baseCommit.getTree();
 			}
@@ -208,9 +213,14 @@ public class DiffUtils {
 			RevTree commitTree = commit.getTree();
 			RevTree baseTree;
 			if (baseCommit == null) {
-				final RevWalk rw = new RevWalk(repository);
-				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				baseTree = parent.getTree();
+				if (commit.getParentCount() > 0) {
+					final RevWalk rw = new RevWalk(repository);
+					RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
+					baseTree = parent.getTree();
+				} else {
+					// FIXME initial commit. no parent?!
+					baseTree = commitTree;
+				}
 			} else {
 				baseTree = baseCommit.getTree();
 			}
@@ -246,12 +256,15 @@ public class DiffUtils {
 	public static List<AnnotatedLine> blame(Repository repository, String blobPath, String objectId) {
 		List<AnnotatedLine> lines = new ArrayList<AnnotatedLine>();
 		try {
+			ObjectId object;
 			if (StringUtils.isEmpty(objectId)) {
-				objectId = Constants.HEAD;
+				object = JGitUtils.getDefaultBranch(repository);
+			} else {
+				object = repository.resolve(objectId);
 			}
 			BlameCommand blameCommand = new BlameCommand(repository);
 			blameCommand.setFilePath(blobPath);
-			blameCommand.setStartCommit(repository.resolve(objectId));
+			blameCommand.setStartCommit(object);
 			BlameResult blameResult = blameCommand.call();
 			RawText rawText = blameResult.getResultContents();
 			int length = rawText.size();

@@ -64,6 +64,10 @@ public class TicketsPage extends RepositoryPage {
 		};
 		add(ticketsView);
 	}
+	
+	protected PageParameters newPathParameter(String path) {
+		return WicketUtils.newPathParameter(repositoryName, objectId, path);
+	}
 
 	@Override
 	protected String getPageName() {

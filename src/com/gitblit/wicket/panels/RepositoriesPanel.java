@@ -193,7 +193,12 @@ public class RepositoriesPanel extends BasePanel {
 
 				row.add(new Label("repositoryOwner", entry.owner));
 
-				String lastChange = TimeUtils.timeAgo(entry.lastChange);
+				String lastChange;
+				if (entry.lastChange.getTime() == 0) {
+					lastChange = "--";
+				} else {
+					lastChange = TimeUtils.timeAgo(entry.lastChange);
+				}
 				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
 				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));

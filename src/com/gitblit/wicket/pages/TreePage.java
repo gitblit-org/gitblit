@@ -92,7 +92,8 @@ public class TreePage extends RepositoryPage {
 					item.add(WicketUtils.newBlankImage("pathIcon"));
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
-							newPathParameter(entry.path)));
+							WicketUtils
+									.newPathParameter(repositoryName, entry.commitId, entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
@@ -100,7 +101,8 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
-								newPathParameter(entry.path)));
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
@@ -120,7 +122,8 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class,
-								newPathParameter(entry.path)));
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);

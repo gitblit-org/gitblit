@@ -3,6 +3,7 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- fixed: repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
 - fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
 - fixed: default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
 - fixed: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers (issue 11)<br/>**New:** *web.forwardSlashCharacter = /*

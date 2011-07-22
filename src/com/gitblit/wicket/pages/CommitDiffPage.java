@@ -88,21 +88,23 @@ public class CommitDiffPage extends RepositoryPage {
 
 				if (entry.isTree()) {
 					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
-							newPathParameter(entry.path)));
+							WicketUtils
+									.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				} else {
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
-							newPathParameter(entry.path)));
+							WicketUtils
+									.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				}
 
-				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class,
-						newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
-						newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
-						newPathParameter(entry.path)));
-				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-						newPathParameter(entry.path)).setEnabled(!entry.changeType
-						.equals(ChangeType.ADD)));
+				item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, WicketUtils
+						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
+						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
+						.newPathParameter(repositoryName, entry.commitId, entry.path))
+						.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

@@ -235,6 +235,9 @@ public class WicketUtils {
 		if (StringUtils.isEmpty(path)) {
 			return newObjectParameter(repositoryName, objectId);
 		}
+		if (StringUtils.isEmpty(objectId)) {
+			return new PageParameters("r=" + repositoryName + ",f=" + path);
+		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path);
 	}
 
@@ -242,6 +245,9 @@ public class WicketUtils {
 			int pageNumber) {
 		if (pageNumber <= 1) {
 			return newObjectParameter(repositoryName, objectId);
+		}
+		if (StringUtils.isEmpty(objectId)) {
+			return new PageParameters("r=" + repositoryName + ",page=" + pageNumber);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
 	}
@@ -251,12 +257,18 @@ public class WicketUtils {
 		if (pageNumber <= 1) {
 			return newObjectParameter(repositoryName, objectId);
 		}
+		if (StringUtils.isEmpty(objectId)) {
+			return new PageParameters("r=" + repositoryName + ",f=" + path + ",page=" + pageNumber);
+		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path
 				+ ",page=" + pageNumber);
 	}
 
 	public static PageParameters newBlobDiffParameter(String repositoryName, String baseCommitId,
 			String commitId, String path) {
+		if (StringUtils.isEmpty(commitId)) {
+			return new PageParameters("r=" + repositoryName + ",f=" + path + ",hb=" + baseCommitId);
+		}
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",f=" + path + ",hb="
 				+ baseCommitId);
 	}
@@ -272,6 +284,10 @@ public class WicketUtils {
 
 	public static PageParameters newSearchParameter(String repositoryName, String commitId,
 			String search, SearchType type, int pageNumber) {
+		if (StringUtils.isEmpty(commitId)) {
+			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name()
+					+ ",page=" + pageNumber);
+		}
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search
 				+ ",st=" + type.name() + ",page=" + pageNumber);
 	}
@@ -281,7 +297,7 @@ public class WicketUtils {
 	}
 
 	public static String getObject(PageParameters params) {
-		return params.getString("h", Constants.HEAD);
+		return params.getString("h", null);
 	}
 
 	public static String getPath(PageParameters params) {
@@ -335,7 +351,12 @@ public class WicketUtils {
 		if (timeZone != null) {
 			df.setTimeZone(timeZone);
 		}
-		String dateString = df.format(date);
+		String dateString;
+		if (date.getTime() == 0) {
+			dateString = "--";
+		} else {
+			dateString = df.format(date);
+		}
 		String title = TimeUtils.timeAgo(date);
 		Label label = new Label(wicketId, dateString);
 		WicketUtils.setHtmlTooltip(label, title);

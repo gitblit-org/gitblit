@@ -27,6 +27,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.SyndicationServlet;
@@ -142,7 +143,9 @@ public class BranchesPanel extends BasePanel {
 					this, null), BranchesPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		}
 		// We always have 1 branch
-		hasBranches = branches.size() > 1;
+		hasBranches = (branches.size() > 1)
+				|| ((branches.size() == 1) && !branches.get(0).displayName
+						.equalsIgnoreCase(Constants.HEAD));
 	}
 
 	public BranchesPanel hideIfEmpty() {

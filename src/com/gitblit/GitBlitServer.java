@@ -65,7 +65,7 @@ public class GitBlitServer {
 
 	private static Logger logger;
 
-	public static void main(String[] args) {
+	public static void main(String... args) {
 		Params params = new Params();
 		JCommander jc = new JCommander(params);
 		try {
