@@ -145,7 +145,7 @@ public class BranchesPanel extends BasePanel {
 		// We always have 1 branch
 		hasBranches = (branches.size() > 1)
 				|| ((branches.size() == 1) && !branches.get(0).displayName
-						.equalsIgnoreCase(Constants.HEAD));
+						.equalsIgnoreCase("master"));
 	}
 
 	public BranchesPanel hideIfEmpty() {
