@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -107,7 +106,7 @@ public class MetricUtils {
 				} else {
 					branchObject = repository.resolve(objectId);
 				}
-				
+
 				revWalk = new RevWalk(repository);
 				RevCommit lastCommit = revWalk.parseCommit(branchObject);
 				revWalk.markStart(lastCommit);
@@ -115,7 +114,8 @@ public class MetricUtils {
 				DateFormat df;
 				if (StringUtils.isEmpty(dateFormat)) {
 					// dynamically determine date format
-					RevCommit firstCommit = JGitUtils.getFirstCommit(repository, branchObject.getName());
+					RevCommit firstCommit = JGitUtils.getFirstCommit(repository,
+							branchObject.getName());
 					int diffDays = (lastCommit.getCommitTime() - firstCommit.getCommitTime())
 							/ (60 * 60 * 24);
 					total.duration = diffDays;

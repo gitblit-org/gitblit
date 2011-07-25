@@ -199,7 +199,7 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testCreateOrphanedBranch() throws Exception {
-		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");		
+		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");
 		assertTrue(JGitUtils.createOrphanBranch(repository,
 				"x" + Long.toHexString(System.currentTimeMillis()).toUpperCase()));
 		FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);

@@ -69,7 +69,7 @@ public class FileUtils {
 	public static void writeContent(File file, String content) {
 		try {
 			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file),
-					Charset.forName("UTF-8")); 
+					Charset.forName("UTF-8"));
 			BufferedWriter writer = new BufferedWriter(os);
 			writer.append(content);
 			writer.close();

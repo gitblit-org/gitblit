@@ -17,9 +17,9 @@ package com.gitblit.tests;
 
 import java.io.File;
 
-import com.gitblit.utils.FileUtils;
-
 import junit.framework.TestCase;
+
+import com.gitblit.utils.FileUtils;
 
 public class FileUtilsTest extends TestCase {
 
