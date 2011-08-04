@@ -121,7 +121,7 @@ public class MetricsPage extends RepositoryPage {
 			for (Metric metric : metrics) {
 				labels.add(metric.name);
 			}
-			ChartProvider provider = new ChartProvider(new Dimension(500, 200), ChartType.PIE, data);
+			ChartProvider provider = new ChartProvider(new Dimension(800, 200), ChartType.PIE, data);
 			provider.setPieLabels(labels.toArray(new String[labels.size()]));
 			add(new Chart(wicketId, provider));
 		} else {

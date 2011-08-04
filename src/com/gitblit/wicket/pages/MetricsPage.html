@@ -6,30 +6,39 @@
       
 <body>
 <wicket:extend>
-	<div style="padding-top:10px;">
-		<!-- branch name -->
-		<div><span class="metricsTitle" wicket:id="branchTitle"></span></div>
-	
-		<!-- placeholder for more info -->
-		<div style="float:right;width:200px;text-align: left;">
-		</div>
-
-		<!-- branch stats -->
-		<h2><wicket:message key="gb.stats"></wicket:message></h2>
-		<span wicket:id="branchStats"></span>
-		
-		<!-- commit activity trend -->
-		<h2><wicket:message key="gb.commitActivityTrend"></wicket:message></h2>
-		<div><img wicket:id="commitsChart" /></div>
-		
-		<!-- commit activity by day of week -->
-		<h2><wicket:message key="gb.commitActivityDOW"></wicket:message></h2>
-		<div><img wicket:id="dayOfWeekChart" /></div>
-		
-		<!-- commit activity by primary authors -->
-		<h2><wicket:message key="gb.commitActivityAuthors"></wicket:message></h2>
-		<div><img wicket:id="authorsChart" /></div>
-	</div>
+<div style="padding-top:10px;">
+	<!-- branch name -->
+	<div><span class="metricsTitle" wicket:id="branchTitle"></span></div>
+			
+	<table>
+		<tr>
+			<!-- branch stats -->
+			<td colspan=2>
+				<h2><wicket:message key="gb.stats"></wicket:message></h2>
+				<span wicket:id="branchStats"></span>		
+			</td>
+		</tr>
+		<tr>		
+			<!-- commit activity trend -->
+			<td>
+				<h2><wicket:message key="gb.commitActivityTrend"></wicket:message></h2>
+				<div><img wicket:id="commitsChart" /></div>		
+			</td>
+			<!-- commit activity by day of week -->
+			<td>
+				<h2><wicket:message key="gb.commitActivityDOW"></wicket:message></h2>
+				<div><img wicket:id="dayOfWeekChart" /></div>
+			</td>
+		</tr>
+		<tr>
+			<!-- commit activity by primary authors -->
+			<td colspan=2>
+				<h2><wicket:message key="gb.commitActivityAuthors"></wicket:message></h2>
+				<div style="text-align: center;"><img wicket:id="authorsChart" /></div>
+			</td>
+		</tr>		
+	</table>	
+</div>
 </wicket:extend>
 </body>
 </html>
