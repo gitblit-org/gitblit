@@ -81,14 +81,14 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-1.0.0.201106090707-r-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/markdownpapers-core-1.1.0.jar" sourcepath="ext/markdownpapers-core-1.1.0-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.0-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.3.v20110701.jar" sourcepath="ext/jetty-webapp-7.4.3.v20110701-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-webapp-7.4.3.v20110701-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/markdownpapers-core-1.1.1.jar" sourcepath="ext/markdownpapers-core-1.1.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

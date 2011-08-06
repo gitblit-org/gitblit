@@ -24,8 +24,12 @@ import com.gitblit.utils.MarkdownUtils;
 public class MarkdownUtilsTest extends TestCase {
 
 	public void testMarkdown() throws Exception {
-		assertTrue(MarkdownUtils.transformMarkdown("# H1").equals("<h1> H1</h1>"));
-		assertTrue(MarkdownUtils.transformMarkdown("## H2").equals("<h2> H2</h2>"));
+		assertEquals("<h1> H1</h1>", MarkdownUtils.transformMarkdown("# H1"));
+		assertEquals("<h2> H2</h2>", MarkdownUtils.transformMarkdown("## H2"));
+		assertEquals("<p><strong>THIS</strong> is a test</p>", MarkdownUtils.transformMarkdown("**THIS** is a test"));
+		assertEquals("<p>** THIS ** is a test</p>", MarkdownUtils.transformMarkdown("** THIS ** is a test"));
+		assertEquals("<p>**THIS ** is a test</p>", MarkdownUtils.transformMarkdown("**THIS ** is a test"));
+		assertEquals("<p>** THIS** is a test</p>", MarkdownUtils.transformMarkdown("** THIS** is a test"));
 		try {
 			MarkdownUtils.transformMarkdown((String) null);
 			assertTrue(false);
