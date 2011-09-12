@@ -13,9 +13,19 @@
 	<property name="project.war.dir" value="${basedir}/war" />
 	<property name="project.site.dir" value="${basedir}/site" />
 	<property name="project.resources.dir" value="${basedir}/resources" />	
+	<available property="hasBuildProps" file="${basedir}/build.properties"/>
 
-	<!-- Load publication servers, paths, and credentials --> 
-	<loadproperties srcfile="${basedir}/build.properties" />
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Load build.properties, if available
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildprops" if="hasBuildProps">
+		<!-- Load publication servers, paths, and credentials --> 
+		<loadproperties>
+			<file file="${basedir}/build.properties" />
+		</loadproperties>
+	</target>
 	
 	
 	<!--
@@ -23,7 +33,7 @@
 		Scrape the version info from code and setup the build properties 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildinfo">
+	<target name="buildinfo" depends="buildprops">
 	
 		<!-- extract Gitblit version number from source code -->
 		<loadfile property="gb.version" srcfile="${basedir}/src/com/gitblit/Constants.java">
