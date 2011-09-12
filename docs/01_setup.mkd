@@ -20,9 +20,9 @@ Open `web.xml` in your favorite text editor and make sure to review and set:
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
     - *git.repositoryFolder* (path may be relative or absolute)
     - *server.tempFolder* (path may be relative or absolute)
-    - *server.httpPort* and *server.httpsPort*<br/>
+    - *server.httpPort* and *server.httpsPort*
     - *server.httpBindInterface* and *server.httpsBindInterface*<br/>
-    **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!     
+    **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
 3. Execute `gitblit.cmd` or `java -jar gitblit.jar` from a command-line
 4. Wait a minute or two while all dependencies are downloaded and your self-signed *localhost* certificate is generated.<br/>Please see the section titled **Creating your own Self-Signed Certificate** to generate a certificate for *your hostname*.
 5. Open your browser to <http://localhost:8080> or <https://localhost:8443> depending on your chosen configuration.
@@ -130,6 +130,8 @@ All repository settings are stored within the repository `.git/config` file unde
 	    accessRestriction = clone
 	    isFrozen = false
 	    showReadme = false
+	    excludeFromFederation = false
+	    isFederated = false
 	    
 #### Repository Names
 Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - .`<br/>
@@ -156,7 +158,7 @@ Whitespace is illegal.
 User passwords are CASE-SENSITIVE and may be *plain* or *md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
 #### User Roles
-There is only one actual *role* in Gitblit and that is *#admin* which grants administrative powers to that user.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
+There are two actual *roles* in Gitblit: *#admin*, which grants administrative powers to that user, and *#notfederated*, which prevents an account from being pulled by another Gitblit instance.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
 ## Authentication and Authorization Customization
 Instead of maintaining a `users.properties` file, you may want to integrate Gitblit into an existing environment.

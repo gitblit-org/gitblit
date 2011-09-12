@@ -113,6 +113,10 @@ To search by *author* or *committer* use the following syntax in the search box:
     
 Alternatively, you could enable the search type dropdown list in your `gitblit.properties` file.
 
+### Why did you call the setting federation.N.frequency instead of federation.N.period?!
+
+Yes, yes I know that you are really specifying the period, but Frequency sounds better to me.  :)
+
 ### Can Gitblit be translated?
 
 Yes.  Most messages are localized to a standard Java properties file.

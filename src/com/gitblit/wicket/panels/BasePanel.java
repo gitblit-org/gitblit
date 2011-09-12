@@ -67,4 +67,23 @@ public abstract class BasePanel extends Panel {
 			return result;
 		}
 	}
+
+	public static class JavascriptTextPrompt extends AttributeModifier {
+
+		private static final long serialVersionUID = 1L;
+
+		public JavascriptTextPrompt(String event, String msg) {
+			super(event, true, new Model<String>(msg));
+		}
+
+		protected String newValue(final String currentValue, final String message) {
+			String result = "var userText = prompt('" + message + "','"
+					+ (currentValue == null ? "" : currentValue) + "'); " + "return userText; ";
+			// String result = prefix;
+			// if (currentValue != null) {
+			// result = prefix + currentValue;
+			// }
+			return result;
+		}
+	}
 }

@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.FederationStrategy;
 
 /**
  * RepositoryModel is a serializable model class that represents a Gitblit
@@ -27,7 +28,7 @@ import com.gitblit.Constants.AccessRestrictionType;
  * @author James Moger
  * 
  */
-public class RepositoryModel implements Serializable {
+public class RepositoryModel implements Serializable, Comparable<RepositoryModel> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,6 +44,11 @@ public class RepositoryModel implements Serializable {
 	public AccessRestrictionType accessRestriction;
 	public boolean isFrozen;
 	public boolean showReadme;
+	public FederationStrategy federationStrategy;
+	public boolean isFederated;
+	public String frequency;
+	public String origin;
+	public String size;
 
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
@@ -59,5 +65,10 @@ public class RepositoryModel implements Serializable {
 	@Override
 	public String toString() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(RepositoryModel o) {
+		return name.compareTo(o.name);
 	}
 }

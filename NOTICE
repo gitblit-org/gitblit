@@ -112,6 +112,22 @@ jdom
    http://www.jdom.org
 
 ---------------------------------------------------------------------------
+google-gson
+---------------------------------------------------------------------------
+   google-gson, released under the
+   Apache-style Software License.
+
+   http://code.google.com/p/google-gson
+
+---------------------------------------------------------------------------
+javamail
+---------------------------------------------------------------------------
+   javamail, released under multiple licenses
+   CDDL-1.0, BSD, GPL-2.0, GNU-Classpath.
+
+   http://kenai.com/projects/javamail
+
+---------------------------------------------------------------------------
 JUnit
 ---------------------------------------------------------------------------
    JUnit, released under the

@@ -83,8 +83,8 @@ public class EditUserPage extends BasePage {
 		}
 		final String oldName = userModel.username;
 		final Palette<String> repositories = new Palette<String>("repositories",
-				new ListModel<String>(userModel.repositories), new CollectionModel<String>(repos),
-				new ChoiceRenderer<String>("", ""), 10, false);
+				new ListModel<String>(new ArrayList<String>(userModel.repositories)),
+				new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -172,6 +172,7 @@ public class EditUserPage extends BasePage {
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
 		form.add(new CheckBox("canAdmin"));
+		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);
 
 		form.add(new Button("save"));

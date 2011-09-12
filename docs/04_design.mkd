@@ -31,6 +31,8 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
 - [Rome](http://rome.dev.java.net) (Apache 1.1)
 - [jdom](http://www.jdom.org) (Apache-style JDOM license)
+- [google-gson](http://code.google.com/google-gson) (Apache 2.0)
+- [javamail](http://kenai.com/projects/javamail) (CDDL-1.0, BSD, GPL-2.0, GNU-Classpath)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

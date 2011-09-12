@@ -23,17 +23,18 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- fixed: active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
-- fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
-- fixed: default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
-- fixed: repositories can now be reliably deleted and renamed (issue 10)
-- fixed: users can now change their passwords (issue 1)
-- fixed: always show root repository group first, i.e. don't sort root group with other groups
-- fixed: tone-down repository group header color
-- added: optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
-- added: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers<br/>**New:** *web.forwardSlashCharacter = /*
-- updated: MarkdownPapers 1.1.0
-- updated: Jetty 7.4.3
+- added: federation feature to allow gitblit instances to pull repositories and, optionally, settings and accounts from other gitblit instances.<br/>
+This is something like svn-sync for gitblit.
+<br/>**New:** *federation.allowProposals = false*
+<br/>**New:** *federation.proposalsFolder = proposals*
+<br/>**New:** *federation.defaultFrequency = 60 mins*
+<br/>**New:** *federation.uuid =*
+<br/>**New:** *federation.name =*
+<br/>**New:** *mail.* settings for sending emails
+<br/>**New:** user role *#notfederated* to prevent a user account from being pulled by a federated Gitblit instance
+- added: google-gson dependency
+- added: javamail dependency
+- updated: MarkdownPapers 1.1.1
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

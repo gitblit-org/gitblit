@@ -26,10 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
-import com.gitblit.wicket.WicketUtils;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
@@ -116,7 +116,7 @@ public class SyndicationServlet extends HttpServlet {
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
 
-		String hostURL = WicketUtils.getHostURL(request);
+		String hostURL = HttpUtils.getHostURL(request);
 		String url = request.getRequestURI().substring(request.getServletPath().length());
 		if (url.charAt(0) == '/' && url.length() > 1) {
 			url = url.substring(1);

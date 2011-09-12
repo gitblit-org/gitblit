@@ -3,6 +3,23 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- added: federation feature to allow gitblit instances to pull repositories and, optionally, settings and accounts from other gitblit instances.<br/>
+This is something like svn-sync for gitblit.
+<br/>**New:** *federation.allowProposals = false*
+<br/>**New:** *federation.proposalsFolder = proposals*
+<br/>**New:** *federation.defaultFrequency = 60 mins*
+<br/>**New:** *federation.uuid =*
+<br/>**New:** *federation.name =*
+<br/>**New:** *mail.* settings for sending emails
+<br/>**New:** user role *#notfederated* to prevent a user account from being pulled by a federated Gitblit instance
+- added: google-gson dependency
+- added: javamail dependency
+- updated: MarkdownPapers 1.1.1
+
+### Older Releases
+
+**0.5.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-28*
+
 - fixed: active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
 - fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
 - fixed: default port for Gitblit GO is now 8443 to be more linux/os x friendly (issue 12)
@@ -15,7 +32,6 @@
 - updated: MarkdownPapers 1.1.0
 - updated: Jetty 7.4.3
 
-### Older Releases
 **0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2006-06-28*
 
 - clarified SSL certificate generation and configuration for both server-side and client-side

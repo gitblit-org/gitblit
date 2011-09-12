@@ -37,6 +37,7 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
@@ -122,19 +123,11 @@ public class EditRepositoryPage extends BasePage {
 					}
 
 					// confirm valid characters in repository name
-					char[] validChars = { '/', '.', '_', '-' };
-					for (char c : repositoryModel.name.toCharArray()) {
-						if (!Character.isLetterOrDigit(c)) {
-							boolean ok = false;
-							for (char vc : validChars) {
-								ok |= c == vc;
-							}
-							if (!ok) {
-								error(MessageFormat.format(
-										"Illegal character ''{0}'' in repository name!", c));
-								return;
-							}
-						}
+					Character c = StringUtils.findInvalidCharacter(repositoryModel.name);
+					if (c != null) {
+						error(MessageFormat.format("Illegal character ''{0}'' in repository name!",
+								c));
+						return;
 					}
 
 					// confirm access restriction selection
@@ -177,6 +170,18 @@ public class EditRepositoryPage extends BasePage {
 		form.add(new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
 				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer()));
 		form.add(new CheckBox("isFrozen"));
+		// TODO enable origin definition
+		form.add(new TextField<String>("origin").setEnabled(false/*isCreate*/));
+		
+		// federation strategies - remove ORIGIN choice if this repository has
+		// no origin.
+		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(
+				Arrays.asList(FederationStrategy.values()));
+		if (StringUtils.isEmpty(repositoryModel.origin)) {
+			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
+		}
+		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
+				new FederationTypeRenderer()));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
 		form.add(new CheckBox("showRemoteBranches"));
@@ -261,6 +266,27 @@ public class EditRepositoryPage extends BasePage {
 
 		@Override
 		public String getIdValue(AccessRestrictionType type, int index) {
+			return Integer.toString(index);
+		}
+	}
+
+	private class FederationTypeRenderer implements IChoiceRenderer<FederationStrategy> {
+
+		private static final long serialVersionUID = 1L;
+
+		private final Map<FederationStrategy, String> map;
+
+		public FederationTypeRenderer() {
+			map = getFederationTypes();
+		}
+
+		@Override
+		public String getDisplayValue(FederationStrategy type) {
+			return map.get(type);
+		}
+
+		@Override
+		public String getIdValue(FederationStrategy type, int index) {
 			return Integer.toString(index);
 		}
 	}

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+		<div class="admin_nav">
+			<a wicket:id="federatedRepositories"><wicket:message key="gb.federatedRepositoryDefinitions">[repositories]</wicket:message></a>
+			 | <a wicket:id="federatedUsers"><wicket:message key="gb.federatedUserDefinitions">[users]</wicket:message></a>
+			 | <a wicket:id="federatedSettings"><wicket:message key="gb.federatedSettingDefinitions">[settings]</wicket:message></a>			
+		</div>
+
+		<table class="repositories">
+		<tr>
+			<th class="left">
+				<img style="vertical-align: top; border: 1px solid #888; background-color: white;" src="federated_16x16.png"/>
+				<wicket:message key="gb.tokens">[tokens]</wicket:message>
+			</th>
+			<th></th>
+			<th></th>
+			<th class="right"></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="row">
+       			<td class="left"><span class="list" wicket:id="field">[field]</span></td>
+       			<td><span class="sha1"" wicket:id="value">[value]</span></td>
+       			<td><span wicket:id="description"></span></td>
+       			<td class="rightAlign"><span class="link"><a wicket:id="send"><wicket:message key="gb.sendProposal">[send proposal]</wicket:message></a></span></td>
+       		</tr>
+    	</tbody>
+	</table>
+	
+</wicket:panel>
+</body>
+</html>

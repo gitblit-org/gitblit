@@ -60,11 +60,29 @@ public class RepositoriesPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	public RepositoriesPanel(String wicketId, final boolean showAdmin,
+			List<RepositoryModel> models,
 			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
 		super(wicketId);
 
+		final boolean linksActive;
+		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
+
 		final UserModel user = GitBlitWebSession.get().getUser();
-		List<RepositoryModel> models = GitBlit.self().getRepositoryModels(user);
+		if (models == null) {
+			linksActive = true;
+			models = GitBlit.self().getRepositoryModels(user);
+			final ByteFormat byteFormat = new ByteFormat();
+			if (showSize) {
+				for (RepositoryModel model : models) {
+					model.size = byteFormat.format(GitBlit.self().calculateSize(model));
+				}
+			}
+		} else {
+			// disable links if the repositories are already provided
+			// the repositories are most likely from a proposal
+			linksActive = false;
+		}
+
 		final IDataProvider<RepositoryModel> dp;
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
@@ -100,6 +118,7 @@ public class RepositoriesPanel extends BasePanel {
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
 				groupedModels.add(new GroupRepositoryModel(root, subModels.size()));
+				Collections.sort(subModels);
 				groupedModels.addAll(subModels);
 			}
 			dp = new RepositoriesProvider(groupedModels);
@@ -107,8 +126,6 @@ public class RepositoriesPanel extends BasePanel {
 			dp = new SortableRepositoriesProvider(models);
 		}
 
-		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
-		final ByteFormat byteFormat = new ByteFormat();
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -130,23 +147,27 @@ public class RepositoriesPanel extends BasePanel {
 				}
 				Fragment row = new Fragment("rowContent", "repositoryRow", this);
 				item.add(row);
-				if (entry.hasCommits) {
-					// Existing repository
+				if (entry.hasCommits && linksActive) {
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 					row.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class,
 							pp));
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
 							SummaryPage.class, pp));
+				} else {
+					// new/empty repository OR proposed repository
+					row.add(new Label("repositoryName", entry.name));
+					row.add(new Label("repositoryDescription", entry.description));
+				}
+
+				if (entry.hasCommits) {
+					// Existing repository
 					if (showSize) {
-						row.add(new Label("repositorySize", byteFormat.format(GitBlit.self()
-								.calculateSize(entry))));
+						row.add(new Label("repositorySize", entry.size));
 					} else {
 						row.add(new Label("repositorySize").setVisible(false));
 					}
 				} else {
 					// New repository
-					row.add(new Label("repositoryName", entry.name));
-					row.add(new Label("repositoryDescription", entry.description));
 					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>")
 							.setEscapeModelStrings(false));
 				}
@@ -170,6 +191,13 @@ public class RepositoriesPanel extends BasePanel {
 							getString("gb.isFrozen")));
 				} else {
 					row.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
+				}
+
+				if (entry.isFederated) {
+					row.add(WicketUtils.newImage("federatedIcon", "federated_16x16.png",
+							getString("gb.isFederated")));
+				} else {
+					row.add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
 				}
 				switch (entry.accessRestriction) {
 				case NONE:
@@ -244,7 +272,8 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(new Label("repositoryLinks"));
 				}
 				row.add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
-						.getRelativePathPrefixToContextRoot(), entry.name, null, 0)));
+						.getRelativePathPrefixToContextRoot(), entry.name, null, 0))
+						.setVisible(linksActive));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

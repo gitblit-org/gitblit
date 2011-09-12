@@ -70,7 +70,7 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jdom-1.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="ext/junit-4.8.2.jar" sourcepath="C:/Users/James Moger/.m2/repository/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.0.0.201106090707-r.jar" sourcepath="ext/org.eclipse.jgit-1.0.0.201106090707-r-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-1.0.0.201106090707-r-javadoc.jar!/"/>
@@ -91,5 +91,11 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="ext/gson-1.7.1.jar" sourcepath="ext/gson-1.7.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/gson-1.7.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/mail-1.4.3-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

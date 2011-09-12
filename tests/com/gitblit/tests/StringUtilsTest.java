@@ -103,4 +103,22 @@ public class StringUtilsTest extends TestCase {
 		assertTrue(strings.get(2).equals("C"));
 		assertTrue(strings.get(3).equals("D"));
 	}
+
+	public void testStringsFromValue2() throws Exception {
+		List<String> strings = StringUtils.getStringsFromValue("common/* libraries/*");
+		assertTrue(strings.size() == 2);
+		assertTrue(strings.get(0).equals("common/*"));
+		assertTrue(strings.get(1).equals("libraries/*"));
+	}
+
+	public void testFuzzyMatching() throws Exception {
+		assertTrue(StringUtils.fuzzyMatch("12345", "12345"));
+		assertTrue(StringUtils.fuzzyMatch("AbCdEf", "abcdef"));
+		assertTrue(StringUtils.fuzzyMatch("AbCdEf", "abc*"));
+		assertTrue(StringUtils.fuzzyMatch("AbCdEf", "*def"));
+		assertTrue(StringUtils.fuzzyMatch("AbCdEfHIJ", "abc*hij"));
+
+		assertFalse(StringUtils.fuzzyMatch("123", "12345"));
+		assertFalse(StringUtils.fuzzyMatch("AbCdEfHIJ", "abc*hhh"));
+	}
 }

@@ -41,6 +41,8 @@ public class Constants {
 
 	public static final String ADMIN_ROLE = "#admin";
 
+	public static final String NOT_FEDERATED_ROLE = "#notfederated";
+
 	public static final String PROPERTIES_FILE = "gitblit.properties";
 
 	public static final String GIT_PATH = "/git/";
@@ -49,10 +51,20 @@ public class Constants {
 
 	public static final String SYNDICATION_PATH = "/feed/";
 
+	public static final String FEDERATION_PATH = "/federation/";
+
 	public static final String BORDER = "***********************************************************";
 
+	public static final String FEDERATION_USER = "$gitblit";
+
+	public static final String PROPOSAL_EXT = ".json";
+
+	public static String getGitBlitVersion() {
+		return NAME + " v" + VERSION;
+	}
+
 	/**
-	 * Enumeration representing the 4 access restriction levels.
+	 * Enumeration representing the four access restriction levels.
 	 */
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
@@ -79,7 +91,86 @@ public class Constants {
 		}
 	}
 
-	public static String getGitBlitVersion() {
-		return NAME + " v" + VERSION;
+	/**
+	 * Enumeration representing the types of federation tokens.
+	 */
+	public static enum FederationToken {
+		ALL, USERS_AND_REPOSITORIES, REPOSITORIES;
+
+		public static FederationToken fromName(String name) {
+			for (FederationToken type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return REPOSITORIES;
+		}
+
+		public String toString() {
+			return name();
+		}
 	}
+
+	/**
+	 * Enumeration representing the types of federation requests.
+	 */
+	public static enum FederationRequest {
+		PROPOSAL, PULL_REPOSITORIES, PULL_USERS, PULL_SETTINGS, STATUS;
+
+		public static FederationRequest fromName(String name) {
+			for (FederationRequest type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return PULL_REPOSITORIES;
+		}
+
+		public String toString() {
+			return name();
+		}
+	}
+
+	/**
+	 * Enumeration representing the statii of federation requests.
+	 */
+	public static enum FederationPullStatus {
+		PENDING, FAILED, SKIPPED, PULLED, EXCLUDED;
+
+		public static FederationPullStatus fromName(String name) {
+			for (FederationPullStatus type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return PENDING;
+		}
+
+		@Override
+		public String toString() {
+			return name();
+		}
+	}
+	
+	/**
+	 * Enumeration representing the federation types.
+	 */
+	public static enum FederationStrategy {
+		EXCLUDE, FEDERATE_THIS, FEDERATE_ORIGIN;
+
+		public static FederationStrategy fromName(String name) {
+			for (FederationStrategy type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return FEDERATE_THIS;
+		}
+
+		@Override
+		public String toString() {
+			return name();
+		}
+	}
+
 }

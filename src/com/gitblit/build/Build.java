@@ -81,6 +81,8 @@ public class Build {
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.ROME, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.MAIL, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -104,6 +106,8 @@ public class Build {
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.ROME, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.GSON, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.MAIL, BuildType.COMPILETIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -441,6 +445,16 @@ public class Build {
 				153000, 235000, 445000, "1d04c0f321ea337f3661cf7ede8f4c6f653a8fdd",
 				"a7ed425c4c46605b8f2bf2ee118c1609682f4f2c",
 				"f3df91edccba2f07a0fced70887c2f7b7836cb75");
+
+		public static final MavenObject GSON = new MavenObject("gson", "com/google/code/gson",
+				"gson", "1.7.1", 174000, 142000, 247000,
+				"0697e3a1fa094a983cd12f7f6f61abf9c6ea52e2",
+				"51f6f78aec2d30d0c2bfb4a5f00d456a6f7a5e7e",
+				"f0872fe17d484815328538b89909d5e46d85db74");
+
+		public static final MavenObject MAIL = new MavenObject("javax.mail", "javax/mail", "mail",
+				"1.4.3", 462000, 642000, 0, "8154bf8d666e6db154c548dc31a8d512c273f5ee",
+				"5875e2729de83a4e46391f8f979ec8bd03810c10", null);
 
 		public final String name;
 		public final String group;

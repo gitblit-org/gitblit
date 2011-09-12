@@ -149,6 +149,8 @@ public class FileUserService extends FileSettings implements IUserService {
 				// Permissions
 				if (role.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
 					model.canAdmin = true;
+				} else if (role.equalsIgnoreCase(Constants.NOT_FEDERATED_ROLE)) {
+					model.excludeFromFederation = true;
 				}
 				break;
 			default:
@@ -188,6 +190,9 @@ public class FileUserService extends FileSettings implements IUserService {
 			// Permissions
 			if (model.canAdmin) {
 				roles.add(Constants.ADMIN_ROLE);
+			}
+			if (model.excludeFromFederation) {
+				roles.add(Constants.NOT_FEDERATED_ROLE);
 			}
 
 			StringBuilder sb = new StringBuilder();
@@ -499,14 +504,15 @@ public class FileUserService extends FileSettings implements IUserService {
 		// If the write is successful, delete the current file and rename
 		// the temporary copy to the original filename.
 		if (realmFileCopy.exists() && realmFileCopy.length() > 0) {
-			if (propertiesFile.delete()) {
-				if (!realmFileCopy.renameTo(propertiesFile)) {
-					throw new IOException(MessageFormat.format("Failed to rename {0} to {1}!",
-							realmFileCopy.getAbsolutePath(), propertiesFile.getAbsolutePath()));
+			if (propertiesFile.exists()) {
+				if (!propertiesFile.delete()) {
+					throw new IOException(MessageFormat.format("Failed to delete {0}!",
+							propertiesFile.getAbsolutePath()));
 				}
-			} else {
-				throw new IOException(MessageFormat.format("Failed to delete (0)!",
-						propertiesFile.getAbsolutePath()));
+			}
+			if (!realmFileCopy.renameTo(propertiesFile)) {
+				throw new IOException(MessageFormat.format("Failed to rename {0} to {1}!",
+						realmFileCopy.getAbsolutePath(), propertiesFile.getAbsolutePath()));
 			}
 		} else {
 			throw new IOException(MessageFormat.format("Failed to save {0}!",

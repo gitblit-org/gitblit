@@ -17,8 +17,8 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * UserModel is a serializable model class that represents a user and the user's
@@ -36,7 +36,8 @@ public class UserModel implements Principal, Serializable {
 	public String username;
 	public String password;
 	public boolean canAdmin;
-	public final List<String> repositories = new ArrayList<String>();
+	public boolean excludeFromFederation;
+	public final Set<String> repositories = new HashSet<String>();
 
 	public UserModel(String username) {
 		this.username = username;

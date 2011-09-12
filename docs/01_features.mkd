@@ -9,6 +9,7 @@
     <li>![view](shield_16x16.png) *Authenticated View, Clone & Push*</li>
     <li>![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
     </ul>
+- Ability to federate with one or more other Gitblit instances
 - Gitweb inspired web UI
 - Administrators may create, edit, rename, or delete repositories through the web UI
 - Administrators may create, edit, rename, or delete users through the web UI

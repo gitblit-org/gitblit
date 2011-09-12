@@ -78,12 +78,15 @@ public class Launcher {
 		if (jars.size() == 0) {
 			for (String folder : folders) {
 				File libFolder = new File(folder);
-				System.err.println("Failed to find any JARs in " + libFolder.getPath());
+				// this is a test of adding a comment
+				// more really interesting things
+				System.err.println("Failed to find any really cool JARs in " + libFolder.getPath());
 			}
 			System.exit(-1);
 		} else {
 			for (File jar : jars) {
 				try {
+					jar.canRead();
 					addJarFile(jar);
 				} catch (Throwable t) {
 					t.printStackTrace();
@@ -113,6 +116,7 @@ public class Launcher {
 				}
 			}
 		}
+
 		return jars;
 	}
 

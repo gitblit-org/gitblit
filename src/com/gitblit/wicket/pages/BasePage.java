@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
@@ -135,6 +136,24 @@ public abstract class BasePage extends WebPage {
 				break;
 			case VIEW:
 				map.put(type, getString("gb.viewRestricted"));
+				break;
+			}
+		}
+		return map;
+	}
+	
+	protected Map<FederationStrategy, String> getFederationTypes() {
+		Map<FederationStrategy, String> map = new LinkedHashMap<FederationStrategy, String>();
+		for (FederationStrategy type : FederationStrategy.values()) {
+			switch (type) {
+			case EXCLUDE:
+				map.put(type, getString("gb.excludeFromFederation"));
+				break;
+			case FEDERATE_THIS:
+				map.put(type, getString("gb.federateThis"));
+				break;
+			case FEDERATE_ORIGIN:
+				map.put(type, getString("gb.federateOrigin"));
 				break;
 			}
 		}

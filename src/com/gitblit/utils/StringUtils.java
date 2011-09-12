@@ -342,4 +342,57 @@ public class StringUtils {
 		}
 		return strings;
 	}
+
+	/**
+	 * Validates that a name is composed of letters, digits, or limited other
+	 * characters.
+	 * 
+	 * @param name
+	 * @return the first invalid character found or null if string is acceptable
+	 */
+	public static Character findInvalidCharacter(String name) {
+		char[] validChars = { '/', '.', '_', '-' };
+		for (char c : name.toCharArray()) {
+			if (!Character.isLetterOrDigit(c)) {
+				boolean ok = false;
+				for (char vc : validChars) {
+					ok |= c == vc;
+				}
+				if (!ok) {
+					return c;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Simple fuzzy string comparison. This is a case-insensitive check. A
+	 * single wildcard * value is supported.
+	 * 
+	 * @param value
+	 * @param pattern
+	 * @return true if the value matches the pattern
+	 */
+	public static boolean fuzzyMatch(String value, String pattern) {
+		if (value.equalsIgnoreCase(pattern)) {
+			return true;
+		}
+		if (pattern.contains("*")) {
+			boolean prefixMatches = false;
+			boolean suffixMatches = false;
+
+			int wildcard = pattern.indexOf('*');
+			String prefix = pattern.substring(0, wildcard).toLowerCase();
+			prefixMatches = value.toLowerCase().startsWith(prefix);
+
+			if (pattern.length() > (wildcard + 1)) {
+				String suffix = pattern.substring(wildcard + 1).toLowerCase();
+				suffixMatches = value.toLowerCase().endsWith(suffix);
+				return prefixMatches && suffixMatches;
+			}
+			return prefixMatches || suffixMatches;
+		}
+		return false;
+	}
 }

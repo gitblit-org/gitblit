@@ -84,6 +84,19 @@
 		<filter-name>SyndicationFilter</filter-name>
 		<url-pattern>/feed/*</url-pattern>
 	</filter-mapping>
+	
+	<!-- Federation Servlet
+		 <url-pattern> MUST match: 
+		 	* com.gitblit.Constants.FEDERATION_PATH		 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>FederationServlet</servlet-name>
+		<servlet-class>com.gitblit.FederationServlet</servlet-class>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FederationServlet</servlet-name>
+		<url-pattern>/federation/*</url-pattern>
+	</servlet-mapping>
 
 		
 	<!-- Wicket Filter -->
@@ -106,8 +119,9 @@
              	* GitServlet <url-pattern>
              	* com.gitblit.Constants.GIT_PATH
              	* ZipServlet <url-pattern>
-             	* com.gitblit.Constants.ZIP_PATH -->
-            <param-value>git/,feed/,zip/</param-value>
+             	* com.gitblit.Constants.ZIP_PATH
+             	* FederationServlet <url-pattern> -->
+            <param-value>git/,feed/,zip/,federation/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

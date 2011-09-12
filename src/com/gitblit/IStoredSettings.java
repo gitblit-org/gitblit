@@ -86,7 +86,7 @@ public abstract class IStoredSettings {
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			if (!StringUtils.isEmpty(value)) {
-				return Boolean.parseBoolean(value);
+				return Boolean.parseBoolean(value.trim());
 			}
 		}
 		return defaultValue;
@@ -107,7 +107,7 @@ public abstract class IStoredSettings {
 			try {
 				String value = props.getProperty(name);
 				if (!StringUtils.isEmpty(value)) {
-					return Integer.parseInt(value);
+					return Integer.parseInt(value.trim());
 				}
 			} catch (NumberFormatException e) {
 				logger.warn("Failed to parse integer for " + name + " using default of "
@@ -131,7 +131,7 @@ public abstract class IStoredSettings {
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			if (!StringUtils.isEmpty(value)) {
-				return value.charAt(0);
+				return value.trim().charAt(0);
 			}
 		}
 		return defaultValue;
@@ -151,7 +151,7 @@ public abstract class IStoredSettings {
 		if (props.containsKey(name)) {
 			String value = props.getProperty(name);
 			if (value != null) {
-				return value;
+				return value.trim();
 			}
 		}
 		return defaultValue;

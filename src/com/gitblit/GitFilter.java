@@ -61,7 +61,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	 * Analyze the url and returns the action of the request. Return values are
 	 * either "/git-receive-pack" or "/git-upload-pack".
 	 * 
-	 * @param url
+	 * @param serverUrl
 	 * @return action of the request
 	 */
 	@Override
@@ -106,11 +106,12 @@ public class GitFilter extends AccessRestrictionFilter {
 			// Git Servlet disabled
 			return false;
 		}
-		if (repository.isFrozen || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
+		boolean readOnly = repository.isFrozen;
+		if (readOnly || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
 			boolean authorizedUser = user.canAccessRepository(repository.name);
 			if (action.equals(gitReceivePack)) {
 				// Push request
-				if (!repository.isFrozen && authorizedUser) {
+				if (!readOnly && authorizedUser) {
 					// clone-restricted or push-authorized
 					return true;
 				} else {

@@ -26,10 +26,14 @@ public class MarkdownUtilsTest extends TestCase {
 	public void testMarkdown() throws Exception {
 		assertEquals("<h1> H1</h1>", MarkdownUtils.transformMarkdown("# H1"));
 		assertEquals("<h2> H2</h2>", MarkdownUtils.transformMarkdown("## H2"));
-		assertEquals("<p><strong>THIS</strong> is a test</p>", MarkdownUtils.transformMarkdown("**THIS** is a test"));
-		assertEquals("<p>** THIS ** is a test</p>", MarkdownUtils.transformMarkdown("** THIS ** is a test"));
-		assertEquals("<p>**THIS ** is a test</p>", MarkdownUtils.transformMarkdown("**THIS ** is a test"));
-		assertEquals("<p>** THIS** is a test</p>", MarkdownUtils.transformMarkdown("** THIS** is a test"));
+		assertEquals("<p><strong>THIS</strong> is a test</p>",
+				MarkdownUtils.transformMarkdown("**THIS** is a test"));
+		assertEquals("<p>** THIS ** is a test</p>",
+				MarkdownUtils.transformMarkdown("** THIS ** is a test"));
+		assertEquals("<p>**THIS ** is a test</p>",
+				MarkdownUtils.transformMarkdown("**THIS ** is a test"));
+		assertEquals("<p>** THIS** is a test</p>",
+				MarkdownUtils.transformMarkdown("** THIS** is a test"));
 		try {
 			MarkdownUtils.transformMarkdown((String) null);
 			assertTrue(false);

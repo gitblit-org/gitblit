@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -30,6 +31,9 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.FederationProposalsPanel;
+import com.gitblit.wicket.panels.FederationRegistrationsPanel;
+import com.gitblit.wicket.panels.FederationTokensPanel;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 import com.gitblit.wicket.panels.UsersPanel;
 
@@ -60,6 +64,14 @@ public class RepositoriesPage extends BasePage {
 		String cachedMessage = GitBlitWebSession.get().clearErrorMessage();
 		if (!StringUtils.isEmpty(cachedMessage)) {
 			error(cachedMessage);
+		} else if (showAdmin) {
+			int pendingProposals = GitBlit.self().getPendingFederationProposals().size();
+			if (pendingProposals == 1) {
+				info("There is 1 federation proposal awaiting review.");
+			} else if (pendingProposals > 1) {
+				info(MessageFormat.format("There are {0} federation proposals awaiting review.",
+						pendingProposals));
+			}
 		}
 
 		// Load the markdown welcome message
@@ -97,7 +109,28 @@ public class RepositoriesPage extends BasePage {
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false);
 		add(repositoriesMessage);
-		add(new RepositoriesPanel("repositoriesPanel", showAdmin, getAccessRestrictions()));
+		add(new RepositoriesPanel("repositoriesPanel", showAdmin, null, getAccessRestrictions()));
 		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
+		boolean showFederation = showAdmin && GitBlit.canFederate();
+		add(new FederationTokensPanel("federationTokensPanel", showFederation)
+				.setVisible(showFederation));
+		FederationProposalsPanel proposalsPanel = new FederationProposalsPanel(
+				"federationProposalsPanel");
+		if (showFederation) {
+			proposalsPanel.hideIfEmpty();
+		} else {
+			proposalsPanel.setVisible(false);
+		}
+
+		boolean showRegistrations = GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
+		FederationRegistrationsPanel registrationsPanel = new FederationRegistrationsPanel(
+				"federationRegistrationsPanel");
+		if (showAdmin || showRegistrations) {
+			registrationsPanel.hideIfEmpty();
+		} else {
+			registrationsPanel.setVisible(false);
+		}
+		add(proposalsPanel);
+		add(registrationsPanel);
 	}
 }

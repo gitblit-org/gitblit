@@ -69,6 +69,11 @@ public class LoginPage extends WebPage {
 				UserModel user = GitBlit.self().authenticate(username, password);
 				if (user == null) {
 					error("Invalid username or password!");
+				} else if (user.username.equals(Constants.FEDERATION_USER)) {
+					// disallow the federation user from logging in via the
+					// web ui
+					error("Invalid username or password!");
+					user = null;
 				} else {
 					loginUser(user);
 				}

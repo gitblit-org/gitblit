@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<table class="repositories">
+		<tr>
+			<th class="left">
+				<img style="vertical-align: top; border: 1px solid #888; background-color: white;" src="federated_16x16.png"/>
+				<wicket:message key="gb.registrations">[registrations]</wicket:message>
+			</th>
+			<th><wicket:message key="gb.name">[name]</wicket:message></th>
+			<th><wicket:message key="gb.frequency">[frequency]</wicket:message></th>
+			<th></th>
+			<th><wicket:message key="gb.lastPull">[lastPull]</wicket:message></th>
+			<th><wicket:message key="gb.nextPull">[nextPull]</wicket:message></th>			
+			<th class="right"></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="row">
+       			<td class="left"><img style="border:0px;vertical-align:middle;" wicket:id="statusIcon" /><span class="list" wicket:id="url">[url]</span></td>
+       			<td><span class="list" wicket:id="name">[name]</span></td>
+       			<td><span wicket:id="frequency">[frequency]</span></td>
+       			<td><img style="border:0px;vertical-align:middle;" wicket:id="typeIcon" /></td>
+       			<td><span class="date"" wicket:id="lastPull">[lastPull]</span></td>
+       			<td><span class="date"" wicket:id="nextPull">[nextPull]</span></td>
+       			<td class="rightAlign"><span class="link"></span></td>       			
+       		</tr>
+    	</tbody>
+	</table>
+	
+</wicket:panel>
+</body>
+</html>

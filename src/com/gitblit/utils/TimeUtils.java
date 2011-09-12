@@ -18,6 +18,8 @@ package com.gitblit.utils;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.gitblit.models.FederationModel;
+
 /**
  * Utility class of time functions.
  * 
@@ -237,5 +239,42 @@ public class TimeUtils {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Convert a frequency string into minutes.
+	 * 
+	 * @param frequency
+	 * @return minutes
+	 */
+	public static int convertFrequencyToMinutes(String frequency) {
+		// parse the frequency
+		frequency = frequency.toLowerCase();
+		int mins = 60;
+		if (!StringUtils.isEmpty(frequency)) {
+			try {
+				String str;
+				if (frequency.indexOf(' ') > -1) {
+					str = frequency.substring(0, frequency.indexOf(' ')).trim();
+				} else {
+					str = frequency.trim();
+				}
+				mins = (int) Float.parseFloat(str);
+			} catch (NumberFormatException e) {
+			}
+			if (mins < 5) {
+				mins = 5;
+			}
+		}
+		if (frequency.indexOf("day") > -1) {
+			// convert to minutes
+			mins *= 24 * 60;
+		} else if (frequency.indexOf("hour") > -1) {
+			// convert to minutes
+			mins *= 60;
+		} else if (frequency.indexOf("min") > -1) {
+			// default mins
+		}
+		return mins;
 	}
 }

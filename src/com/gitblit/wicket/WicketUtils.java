@@ -39,9 +39,12 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.IChartData;
 
+import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
+import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -109,6 +112,28 @@ public class WicketUtils {
 		return label;
 	}
 
+	public static ContextImage getPullStatusImage(String wicketId, FederationPullStatus status) {
+		String filename = null;
+		switch (status) {
+		case PULLED:
+			filename = "bullet_green.png";
+			break;
+		case SKIPPED:
+			filename = "bullet_yellow.png";
+			break;
+		case FAILED:
+			filename = "bullet_red.png";
+			break;
+		case EXCLUDED:
+			filename = "bullet_white.png";
+			break;
+		case PENDING:
+		default:
+			filename = "bullet_black.png";
+		}
+		return WicketUtils.newImage(wicketId, filename, status.name());
+	}
+
 	public static ContextImage getFileImage(String wicketId, String filename) {
 		filename = filename.toLowerCase();
 		if (filename.endsWith(".java")) {
@@ -155,6 +180,17 @@ public class WicketUtils {
 		return newImage(wicketId, "file_16x16.png");
 	}
 
+	public static ContextImage getRegistrationImage(String wicketId, FederationModel registration,
+			Component c) {
+		if (registration.isResultData()) {
+			return WicketUtils.newImage(wicketId, "information_16x16.png",
+					c.getString("gb.federationResults"));
+		} else {
+			return WicketUtils.newImage(wicketId, "arrow_left.png",
+					c.getString("gb.federationRegistration"));
+		}
+	}
+
 	public static ContextImage newClearPixel(String wicketId) {
 		return newImage(wicketId, "pixel.png");
 	}
@@ -181,19 +217,7 @@ public class WicketUtils {
 
 	public static String getHostURL(Request request) {
 		HttpServletRequest req = ((WebRequest) request).getHttpServletRequest();
-		return getHostURL(req);
-	}
-
-	public static String getHostURL(HttpServletRequest request) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(request.getScheme());
-		sb.append("://");
-		sb.append(request.getServerName());
-		if ((request.getScheme().equals("http") && request.getServerPort() != 80)
-				|| (request.getScheme().equals("https") && request.getServerPort() != 443)) {
-			sb.append(":" + request.getServerPort());
-		}
-		return sb.toString();
+		return HttpUtils.getHostURL(req);
 	}
 
 	public static HeaderContributor syndicationDiscoveryLink(final String feedTitle,
@@ -213,6 +237,14 @@ public class WicketUtils {
 			}
 		});
 	}
+	
+	public static PageParameters newTokenParameter(String token) {
+		return new PageParameters("t=" + token);
+	}
+	
+	public static PageParameters newRegistrationParameter(String url, String name) {
+		return new PageParameters("u=" + url + ",n=" + name);
+	}
 
 	public static PageParameters newUsernameParameter(String username) {
 		return new PageParameters("user=" + username);
@@ -220,6 +252,10 @@ public class WicketUtils {
 
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		return new PageParameters("r=" + repositoryName);
+	}
+
+	public static PageParameters newObjectParameter(String objectId) {
+		return new PageParameters("h=" + objectId);
 	}
 
 	public static PageParameters newObjectParameter(String repositoryName, String objectId) {
@@ -324,14 +360,35 @@ public class WicketUtils {
 		return params.getString("user", "");
 	}
 
+	public static String getToken(PageParameters params) {
+		return params.getString("t", "");
+	}
+	
+	public static String getUrlParameter(PageParameters params) {
+		return params.getString("u", "");
+	}
+
+	public static String getNameParameter(PageParameters params) {
+		return params.getString("n", "");
+	}
+
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone != null) {
 			df.setTimeZone(timeZone);
 		}
-		String dateString = df.format(date);
-		String title = TimeUtils.timeAgo(date);
+		String dateString;
+		if (date.getTime() == 0) {
+			dateString = "--";
+		} else {
+			dateString = df.format(date);
+		}
+		String title = null;
+		if (date.getTime() <= System.currentTimeMillis()) {
+			// past
+			title = TimeUtils.timeAgo(date);
+		}
 		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
 			String tmp = dateString;
 			dateString = title;
@@ -339,7 +396,9 @@ public class WicketUtils {
 		}
 		Label label = new Label(wicketId, dateString);
 		WicketUtils.setCssClass(label, TimeUtils.timeAgoCss(date));
-		WicketUtils.setHtmlTooltip(label, title);
+		if (!StringUtils.isEmpty(title)) {
+			WicketUtils.setHtmlTooltip(label, title);
+		}
 		return label;
 	}
 
@@ -356,9 +415,15 @@ public class WicketUtils {
 		} else {
 			dateString = df.format(date);
 		}
-		String title = TimeUtils.timeAgo(date);
+		String title = null;
+		if (date.getTime() <= System.currentTimeMillis()) {
+			// past
+			title = TimeUtils.timeAgo(date);
+		}
 		Label label = new Label(wicketId, dateString);
-		WicketUtils.setHtmlTooltip(label, title);
+		if (!StringUtils.isEmpty(title)) {
+			WicketUtils.setHtmlTooltip(label, title);
+		}
 		return label;
 	}
 

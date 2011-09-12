@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+		<table class="repositories">
+		<tr>
+			<th class="left">
+				<img style="vertical-align: top; border: 1px solid #888; background-color: white;" src="federated_16x16.png"/>
+				<wicket:message key="gb.proposals">[proposals]</wicket:message>
+			</th>
+			<th><wicket:message key="gb.received">[received]</wicket:message></th>
+			<th><wicket:message key="gb.type">[type]</wicket:message></th>
+			<th><wicket:message key="gb.token">[token]</wicket:message></th>
+			<th class="right"></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="row">
+       			<td class="left"><span class="list" wicket:id="url">[field]</span></td>
+       			<td><span class="date"" wicket:id="received">[received]</span></td>
+       			<td><span wicket:id="tokenType">[token type]</span></td>
+       			<td><span class="sha1"" wicket:id="token">[token]</span></td>
+       			<td class="rightAlign"><span class="link"><a wicket:id="deleteProposal"><wicket:message key="gb.delete">[delete]</wicket:message></a></span></td>       			
+       		</tr>
+    	</tbody>
+	</table>
+	
+</wicket:panel>
+</body>
+</html>
