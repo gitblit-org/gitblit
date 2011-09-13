@@ -35,6 +35,7 @@ This is something like svn-sync for gitblit.
 - added: google-gson dependency
 - added: javamail dependency
 - updated: MarkdownPapers 1.1.1
+- updated: Wicket 1.4.18
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

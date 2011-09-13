@@ -25,26 +25,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jcommander-1.17-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-1.4.17.jar" sourcepath="ext/wicket-1.4.17-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-1.4.17-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.17.jar" sourcepath="ext/wicket-auth-roles-1.4.17-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-auth-roles-1.4.17-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.17.jar" sourcepath="ext/wicket-extensions-1.4.17-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.17-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="ext/googlecharts-1.4.17.jar" sourcepath="ext/googlecharts-1.4.17-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/googlecharts-1.4.17-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/bcprov-jdk16-1.46.jar" sourcepath="ext/bcprov-jdk16-1.46-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/bcprov-jdk16-1.46-javadoc.jar!/"/>
@@ -97,5 +77,25 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/mail-1.4.3-sources.jar"/>
+	<classpathentry kind="lib" path="ext/googlecharts-1.4.18.jar" sourcepath="ext/googlecharts-1.4.18-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/googlecharts-1.4.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-1.4.18.jar" sourcepath="ext/wicket-1.4.18-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-1.4.18-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.18.jar" sourcepath="ext/wicket-auth-roles-1.4.18-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-auth-roles-1.4.18-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.18.jar" sourcepath="ext/wicket-extensions-1.4.18-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.18-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
