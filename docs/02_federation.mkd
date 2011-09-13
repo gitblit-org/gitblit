@@ -9,21 +9,21 @@ If your Gitblit instance allows federation and it is properly registered with an
 ### Source Gitblit Instance Requirements
 
 - *git.enableGitServlet* must be true, all Git clone and pull requests are handled through Gitblit's JGit servlet
-- *federation.uuid* must be non-empty
+- *federation.passphrase* must be non-empty
 - The Gitblit source instance must be http/https accessible by the pulling Gitblit instance.<br/>That may require configuring port-forwarding on your router and/or opening ports on your firewall.
 
-#### federation.uuid
+#### federation.passphrase
 
-The uuid is used to generate permission tokens that can be shared with other Gitblit instances.
+The passphrase is used to generate permission tokens that can be shared with other Gitblit instances.
 
-The uuid value never needs to be shared, although if you give another Gitblit instance the *ALL* federation token then your uuid will be transferred/backed-up along with all other server settings. 
+The passphrase value never needs to be shared, although if you give another Gitblit instance the *ALL* federation token then your passphrase will be transferred/backed-up along with all other server settings.
 
-This value can be anything you want: an integer, a sentence, an haiku, etc.  You should probably keep the uuid simple and use standard Latin characters to prevent Java properties file encoding errors.  The tokens generated from this value are affected by case, so consider this value CASE-SENSITIVE.
+This value can be anything you want: an integer, a sentence, an haiku, etc.  You should probably keep the passphrase simple and use standard Latin characters to prevent Java properties file encoding errors.  The tokens generated from this value are affected by case, so consider this value CASE-SENSITIVE.
 
-The federation feature is completely disabled if your uuid value is empty.
+The federation feature is completely disabled if your passphrase value is empty.
 
 **NOTE**:<br/>
-Changing your *federation.uuid* will break any registrations you have established with other Gitblit instances.
+Changing your *federation.passphrase* will break any registrations you have established with other Gitblit instances.
 
 ### Pulling Gitblit Instance Requirements
 
@@ -36,9 +36,9 @@ If you want your repositories (and optionally users accounts and settings) to be
 
 Gitblit generates the following federation tokens:
 %BEGINCODE%
-String allToken = SHA1(uuid + "-ALL");
-String usersAndRepositoriesToken = SHA1(uuid + "-USERS_AND_REPOSITORIES");
-String repositoriesToken = SHA1(uuid + "-REPOSITORIES");
+String allToken = SHA1(passphrase + "-ALL");
+String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
+String repositoriesToken = SHA1(passphrase + "-REPOSITORIES");
 %ENDCODE%
     
 The *ALL* token allows another Gitblit instance to pull all your repositories, user accounts, and server settings.<br/>
@@ -47,12 +47,12 @@ The *REPOSITORIES* token only allows pulling of the repositories.
 
 Individual Gitblit repository configurations such as *description* and *accessRestriction* are always mirrored.
 
-If *federation.uuid* has a non-empty value, the federation tokens are displayed in the log file and are visible, to administrators, in the web ui.
+If *federation.passphrase* has a non-empty value, the federation tokens are displayed in the log file and are visible, to administrators, in the web ui.
 
 
 ### Federation Proposals (Source Gitblit Instance)
 
-Once you have properly setup your uuid and can see your federation tokens, you are ready to share them with a pulling Gitblit instance.
+Once you have properly setup your passphrase and can see your federation tokens, you are ready to share them with a pulling Gitblit instance.
  
 The registration process can be partially automated by sending a *federation proposal* to another Gitblit instance.<br/>
 To send a proposal:
@@ -115,7 +115,7 @@ A pulling Gitblit instance will periodically contact your Gitblit instance and w
 
 The federation process executes using an internal administrator account, *$gitblit*.  All the normal authentication and authorization processes are used for federation requests. For example, Git commands are authenticated as *$gitblit / token*.
 
-While the *$gitblit* account has access to all repositories, server settings, and user accounts, it is prohibited from accessing the web ui and it is disabled if *federation.uuid* is empty.
+While the *$gitblit* account has access to all repositories, server settings, and user accounts, it is prohibited from accessing the web ui and it is disabled if *federation.passphrase* is empty.
 
 The federation feature should be considered a backdoor and enabled or disabled as appropriate for your installation.
 
@@ -137,7 +137,7 @@ If they do not match, the repository is skipped and this is indicated in the log
 
 #### User Accounts
 
-By default all user accounts except the *admin* account are automatically pulled when using the *ALL* token or the *USERS_AND_REPOSITORIES* token.  You may exclude a user account form being pulled by a federated Gitblit instance by checking *exclude form federation* in the edit user page.
+By default all user accounts except the *admin* account are automatically pulled when using the *ALL* token or the *USERS_AND_REPOSITORIES* token.  You may exclude a user account form being pulled by a federated Gitblit instance by checking *exclude from federation* in the edit user page.
 
 The pulling Gitblit instance will store a registration-specific `users.properties` file for the pulled user accounts and their repository permissions. This file is stored in the *federation.N.folder* folder.
 
@@ -163,6 +163,60 @@ If an object exists locally that has the same name as the remote object, it is a
 
 By default, federated repositories can not be pushed to, they are read-only by the *isFrozen* flag.  This flag is **ONLY** enforced by Gitblit's JGit servlet.  If you push to a federated repository after resetting the *isFrozen* flag or via some other Git access technique then you may break Gitblit's ability to continue pulling from the source repository.  If you are only pushing to a local branch then you might be safe.
 
+## Federation Pull Registration Keys
+
+<table>
+<tr><th>federation.N.url</th>
+<td>string</td>
+<td>the url of the source Gitblit instance</td>
+</tr>
+
+<tr><th>federation.N.token</th>
+<td>string</td>
+<td>the token provided by the source Gitblit instance</td>
+</tr>
+
+<tr><th>federation.N.frequency</th>
+<td>N [mins/hours/days]</td>
+<td>the period to wait between pull executions</td>
+</tr>
+
+<tr><th>federation.N.folder</th>
+<td>string</td>
+<td>the destination folder, relative to *git.repositoriesFolder*, for these repositories.  If empty, the repositories are put in *git.repositoriesFolder*.</td>
+</tr>
+
+<tr><th>federation.N.mergeAccounts</th>
+<td>boolean</td>
+<td>merge the retrieved accounts into the `users.properties` of **this** Gitblit instance</td>
+</tr>
+
+<tr><th>federation.N.sendStatus</th>
+<td>boolean</td>
+<td>send the status of the federated pull to the source Gitblit instance</td>
+</tr>
+
+<tr><th>federation.N.freeze</th>
+<td>boolean</td>
+<td>freeze the repository at the end of each pull</td>
+</tr>
+
+<tr><th>federation.N.include</th>
+<td>string array<br/>(space separated)</td>
+<td>list of included repositories *(wildcard and fuzzy matching supported)*</td>
+</tr>
+
+<tr><th>federation.N.exclude</th>
+<td>string array<br/>(space separated)</td>
+<td>list of excluded repositories *(wildcard and fuzzy matching supported)*</td>
+</tr>
+
+<tr><th>federation.N.notifyOnError</th>
+<td>boolean</td>
+<td>send an email to the administrators on an error</td>
+</tr>
+</table>
+
 ## Example Federation Pull Registrations
 
 These examples would be entered into the `gitblit.properties` file of the pulling gitblit instance.
@@ -180,6 +234,7 @@ This example is considered *nearly* perfect because while the remote Gitblit's s
     federation.example1.folder = 
     federation.example1.mergeAccounts = true
     federation.example1.sendStatus = true
+    federation.example1.freeze = true
     
 #### Just Repositories Example
 

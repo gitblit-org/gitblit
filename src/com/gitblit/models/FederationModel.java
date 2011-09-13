@@ -46,6 +46,8 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 
 	public String folder;
 
+    public boolean freeze;
+
 	public boolean mergeAccounts;
 
 	public boolean sendStatus;

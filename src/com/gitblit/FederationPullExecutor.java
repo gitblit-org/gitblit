@@ -184,7 +184,7 @@ public class FederationPullExecutor implements Runnable {
 			if (result.createdRepository) {
 				// default local settings
 				repository.federationStrategy = FederationStrategy.EXCLUDE;
-				repository.isFrozen = true;
+				repository.isFrozen = registration.freeze;
 			} else {
 				// preserve local settings
 				repository.isFrozen = rm.isFrozen;

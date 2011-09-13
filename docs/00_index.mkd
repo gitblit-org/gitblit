@@ -25,11 +25,11 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 - added: federation feature to allow gitblit instances to pull repositories and, optionally, settings and accounts from other gitblit instances.<br/>
 This is something like svn-sync for gitblit.
+<br/>**New:** *federation.name =*
+<br/>**New:** *federation.passphrase =*
 <br/>**New:** *federation.allowProposals = false*
 <br/>**New:** *federation.proposalsFolder = proposals*
 <br/>**New:** *federation.defaultFrequency = 60 mins*
-<br/>**New:** *federation.uuid =*
-<br/>**New:** *federation.name =*
 <br/>**New:** *mail.* settings for sending emails
 <br/>**New:** user role *#notfederated* to prevent a user account from being pulled by a federated Gitblit instance
 - added: google-gson dependency

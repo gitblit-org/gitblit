@@ -117,9 +117,10 @@ public class FederationServlet extends HttpServlet {
 			return;
 		}
 
-		String uuid = GitBlit.getString(Keys.federation.uuid, "");
+		String uuid = GitBlit.getString(Keys.federation.passphrase, "");
 		if (StringUtils.isEmpty(uuid)) {
-			logger.warn(Keys.federation.uuid + " is not properly set!  Federation request denied.");
+			logger.warn(Keys.federation.passphrase
+					+ " is not properly set!  Federation request denied.");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}

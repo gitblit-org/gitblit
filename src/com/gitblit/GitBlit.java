@@ -794,8 +794,8 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	public static boolean canFederate() {
-		String uuid = getString(Keys.federation.uuid, "");
-		return !StringUtils.isEmpty(uuid);
+		String passphrase = getString(Keys.federation.passphrase, "");
+		return !StringUtils.isEmpty(passphrase);
 	}
 
 	/**
@@ -803,13 +803,13 @@ public class GitBlit implements ServletContextListener {
 	 * instances.
 	 */
 	private void configureFederation() {
-		boolean validUuid = true;
-		String uuid = settings.getString(Keys.federation.uuid, "");
-		if (StringUtils.isEmpty(uuid)) {
-			logger.warn("Federation UUID is blank! This server can not be PULLED from.");
-			validUuid = false;
+		boolean validPassphrase = true;
+		String passphrase = settings.getString(Keys.federation.passphrase, "");
+		if (StringUtils.isEmpty(passphrase)) {
+			logger.warn("Federation passphrase is blank! This server can not be PULLED from.");
+			validPassphrase = false;
 		}
-		if (validUuid) {
+		if (validPassphrase) {
 			for (FederationToken tokenType : FederationToken.values()) {
 				logger.info(MessageFormat.format("Federation {0} token = {1}", tokenType.name(),
 						getFederationToken(tokenType)));
@@ -834,7 +834,7 @@ public class GitBlit implements ServletContextListener {
 		if (federationRegistrations.isEmpty()) {
 			List<String> keys = settings.getAllKeys(Keys.federation._ROOT);
 			keys.remove(Keys.federation.name);
-			keys.remove(Keys.federation.uuid);
+			keys.remove(Keys.federation.passphrase);
 			keys.remove(Keys.federation.allowProposals);
 			keys.remove(Keys.federation.proposalsFolder);
 			keys.remove(Keys.federation.defaultFrequency);
@@ -860,6 +860,9 @@ public class GitBlit implements ServletContextListener {
 				} else if (setting.equals("folder")) {
 					// destination folder of the pull operation
 					federatedModels.get(server).folder = settings.getString(key, "");
+				} else if (setting.equals("freeze")) {
+					// set the repository to read-only after pull
+					federatedModels.get(server).freeze = settings.getBoolean(key, true);
 				} else if (setting.equals("mergeAccounts")) {
 					// merge remote accounts into local accounts
 					federatedModels.get(server).mergeAccounts = settings.getBoolean(key, false);
@@ -946,8 +949,8 @@ public class GitBlit implements ServletContextListener {
 	 * @return a federation token
 	 */
 	public String getFederationToken(FederationToken type) {
-		String uuid = settings.getString(Keys.federation.uuid, "");
-		return StringUtils.getSHA1(uuid + "-" + type.name());
+		String passphrase = settings.getString(Keys.federation.passphrase, "");
+		return StringUtils.getSHA1(passphrase + "-" + type.name());
 	}
 
 	/**
