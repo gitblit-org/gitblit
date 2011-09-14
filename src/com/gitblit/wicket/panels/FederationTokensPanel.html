@@ -8,8 +8,7 @@
 <wicket:panel>
 
 		<div class="admin_nav">
-			<a wicket:id="federatedRepositories"><wicket:message key="gb.federatedRepositoryDefinitions">[repositories]</wicket:message></a>
-			 | <a wicket:id="federatedUsers"><wicket:message key="gb.federatedUserDefinitions">[users]</wicket:message></a>
+			 <a wicket:id="federatedUsers"><wicket:message key="gb.federatedUserDefinitions">[users]</wicket:message></a>
 			 | <a wicket:id="federatedSettings"><wicket:message key="gb.federatedSettingDefinitions">[settings]</wicket:message></a>			
 		</div>
 
@@ -20,15 +19,13 @@
 				<wicket:message key="gb.tokens">[tokens]</wicket:message>
 			</th>
 			<th></th>
-			<th></th>
 			<th class="right"></th>
 		</tr>
 		<tbody>		
        		<tr wicket:id="row">
-       			<td class="left"><span class="list" wicket:id="field">[field]</span></td>
+       			<td class="left"><span wicket:id="description"></span></td>
        			<td><span class="sha1"" wicket:id="value">[value]</span></td>
-       			<td><span wicket:id="description"></span></td>
-       			<td class="rightAlign"><span class="link"><a wicket:id="send"><wicket:message key="gb.sendProposal">[send proposal]</wicket:message></a></span></td>
+       			<td class="rightAlign"><span class="link"><a wicket:id="repositoryDefinitions"><wicket:message key="gb.federatedRepositoryDefinitions">[repository definitions]</wicket:message></a> | <a wicket:id="send"><wicket:message key="gb.sendProposal">[send proposal]</wicket:message></a></span></td>
        		</tr>
     	</tbody>
 	</table>

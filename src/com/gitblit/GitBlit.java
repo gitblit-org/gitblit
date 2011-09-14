@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -521,6 +522,8 @@ public class GitBlit implements ServletContextListener {
 			model.showReadme = getConfig(config, "showReadme", false);
 			model.federationStrategy = FederationStrategy.fromName(getConfig(config,
 					"federationStrategy", null));
+			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
 			model.origin = config.getString("remote", "origin", "url");
 		}
@@ -697,6 +700,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
 		config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
+		config.setStringList("gitblit", null, "federationSets", repository.federationSets);
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
@@ -810,9 +814,16 @@ public class GitBlit implements ServletContextListener {
 			validPassphrase = false;
 		}
 		if (validPassphrase) {
+			// standard tokens
 			for (FederationToken tokenType : FederationToken.values()) {
 				logger.info(MessageFormat.format("Federation {0} token = {1}", tokenType.name(),
 						getFederationToken(tokenType)));
+			}
+
+			// federation set tokens
+			for (String set : settings.getStrings(Keys.federation.sets)) {
+				logger.info(MessageFormat.format("Federation Set {0} token = {1}", set,
+						getFederationToken(set)));
 			}
 		}
 
@@ -838,6 +849,7 @@ public class GitBlit implements ServletContextListener {
 			keys.remove(Keys.federation.allowProposals);
 			keys.remove(Keys.federation.proposalsFolder);
 			keys.remove(Keys.federation.defaultFrequency);
+			keys.remove(Keys.federation.sets);
 			Collections.sort(keys);
 			Map<String, FederationModel> federatedModels = new HashMap<String, FederationModel>();
 			for (String key : keys) {
@@ -936,8 +948,13 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public List<String> getFederationTokens() {
 		List<String> tokens = new ArrayList<String>();
+		// generate standard tokens
 		for (FederationToken type : FederationToken.values()) {
 			tokens.add(getFederationToken(type));
+		}
+		// generate tokens for federation sets
+		for (String set : settings.getStrings(Keys.federation.sets)) {
+			tokens.add(getFederationToken(set));
 		}
 		return tokens;
 	}
@@ -949,8 +966,18 @@ public class GitBlit implements ServletContextListener {
 	 * @return a federation token
 	 */
 	public String getFederationToken(FederationToken type) {
+		return getFederationToken(type.name());
+	}
+
+	/**
+	 * Returns the specified federation token for this Gitblit instance.
+	 * 
+	 * @param value
+	 * @return a federation token
+	 */
+	public String getFederationToken(String value) {
 		String passphrase = settings.getString(Keys.federation.passphrase, "");
-		return StringUtils.getSHA1(passphrase + "-" + type.name());
+		return StringUtils.getSHA1(passphrase + "-" + value);
 	}
 
 	/**

@@ -16,7 +16,9 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -45,6 +47,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean isFrozen;
 	public boolean showReadme;
 	public FederationStrategy federationStrategy;
+	public List<String> federationSets;
 	public boolean isFederated;
 	public String frequency;
 	public String origin;
@@ -60,6 +63,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.owner = owner;
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
+		federationSets = new ArrayList<String>();
 	}
 
 	@Override

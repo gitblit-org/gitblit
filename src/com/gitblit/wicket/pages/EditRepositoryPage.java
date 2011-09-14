@@ -73,6 +73,7 @@ public class EditRepositoryPage extends BasePage {
 		// ensure this user can create or edit this repository
 		checkPermissions(repositoryModel);
 
+		List<String> federationSets = new ArrayList<String>();
 		List<String> repositoryUsers = new ArrayList<String>();
 		if (isCreate) {
 			super.setupPage("", getString("gb.newRepository"));
@@ -82,12 +83,21 @@ public class EditRepositoryPage extends BasePage {
 				repositoryUsers.addAll(GitBlit.self().getRepositoryUsers(repositoryModel));
 				Collections.sort(repositoryUsers);
 			}
+			federationSets.addAll(repositoryModel.federationSets);
 		}
 
 		final String oldName = repositoryModel.name;
+		// users palette
 		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(
 				repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()),
 				new ChoiceRenderer<String>("", ""), 10, false);
+
+		// federation sets palette
+		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
+		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
+				new ListModel<String>(federationSets), new CollectionModel<String>(sets),
+				new ChoiceRenderer<String>("", ""), 10, false);
+
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
 		Form<RepositoryModel> form = new Form<RepositoryModel>("editForm", model) {
@@ -136,6 +146,15 @@ public class EditRepositoryPage extends BasePage {
 						return;
 					}
 
+					// save federation set preferences
+					if (repositoryModel.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
+						repositoryModel.federationSets.clear();
+						Iterator<String> sets = federationSetsPalette.getSelectedChoices();
+						while (sets.hasNext()) {
+							repositoryModel.federationSets.add(sets.next());
+						}
+					}
+
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
@@ -171,8 +190,8 @@ public class EditRepositoryPage extends BasePage {
 				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer()));
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
-		form.add(new TextField<String>("origin").setEnabled(false/*isCreate*/));
-		
+		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
+
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
 		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(
@@ -187,6 +206,7 @@ public class EditRepositoryPage extends BasePage {
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("showReadme"));
 		form.add(usersPalette);
+		form.add(federationSetsPalette);
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

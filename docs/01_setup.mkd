@@ -132,6 +132,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    showReadme = false
 	    excludeFromFederation = false
 	    isFederated = false
+	    federationSets = 
 	    
 #### Repository Names
 Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - .`<br/>

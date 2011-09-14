@@ -49,6 +49,9 @@ Individual Gitblit repository configurations such as *description* and *accessRe
 
 If *federation.passphrase* has a non-empty value, the federation tokens are displayed in the log file and are visible, to administrators, in the web ui.
 
+#### Federation Sets
+
+Federation Sets (*federation.sets*) are named groups of repositories.  The Federation Sets are available for selection in the repository settings page.  You can assign a repository to one or more sets and then distribute the token for the set.  This allows you to grant federation pull access to a subset of your available repositories.  Tokens for federation sets only grant pull access for the member repositories.
 
 ### Federation Proposals (Source Gitblit Instance)
 
@@ -177,7 +180,7 @@ By default, federated repositories can not be pushed to, they are read-only by t
 </tr>
 
 <tr><th>federation.N.frequency</th>
-<td>N [mins/hours/days]</td>
+<td>x [mins/hours/days]</td>
 <td>the period to wait between pull executions</td>
 </tr>
 
@@ -198,16 +201,16 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 <tr><th>federation.N.freeze</th>
 <td>boolean</td>
-<td>freeze the repository at the end of each pull</td>
+<td>freeze the repository after the first pull, subsequent pulls respect the local *isFrozen* setting</td>
 </tr>
 
 <tr><th>federation.N.include</th>
-<td>string array<br/>(space separated)</td>
+<td>string array<br/>(space-delimited)</td>
 <td>list of included repositories *(wildcard and fuzzy matching supported)*</td>
 </tr>
 
 <tr><th>federation.N.exclude</th>
-<td>string array<br/>(space separated)</td>
+<td>string array<br/>(space-delimited)</td>
 <td>list of excluded repositories *(wildcard and fuzzy matching supported)*</td>
 </tr>
 

@@ -55,6 +55,8 @@ import com.gitblit.utils.StringUtils;
  */
 public class BuildSite {
 
+	private static final String SPACE_DELIMITED = "SPACE-DELIMITED";
+	
 	private static final String CASE_SENSITIVE = "CASE-SENSITIVE";
 
 	private static final String RESTART_REQUIRED = "RESTART REQUIRED";
@@ -265,7 +267,7 @@ public class BuildSite {
 		for (Setting setting : settings) {
 			for (String comment : setting.comments) {
 				if (comment.contains(SINCE) || comment.contains(RESTART_REQUIRED)
-						|| comment.contains(CASE_SENSITIVE)) {
+						|| comment.contains(CASE_SENSITIVE) || comment.contains(SPACE_DELIMITED)) {
 					sb.append(MessageFormat.format(
 							"<span style=\"color:#004000;\"># <i>{0}</i></span>",
 							transformMarkdown(comment)));

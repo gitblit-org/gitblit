@@ -22,6 +22,12 @@ body {
     background: url(background.png) repeat-x scroll 0 0 #FFFFFF;
 }
 
+hr {	
+	color: #ffffff;
+	background-color: #ffffff;
+	height: 1px; !important
+}
+
 pre, code, pre.prettyprint, pre.plainprint {
 	color: black;
 	font-family: monospace;

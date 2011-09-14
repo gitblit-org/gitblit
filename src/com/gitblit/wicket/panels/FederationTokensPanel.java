@@ -16,6 +16,7 @@
 package com.gitblit.wicket.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
@@ -29,6 +30,7 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.FederationServlet;
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.wicket.WicketUtils;
 
 public class FederationTokensPanel extends BasePanel {
@@ -38,11 +40,7 @@ public class FederationTokensPanel extends BasePanel {
 	public FederationTokensPanel(String wicketId, final boolean showFederation) {
 		super(wicketId);
 
-		String baseUrl = getRequest().getRelativePathPrefixToContextRoot();
-		add(new ExternalLink("federatedRepositories", FederationServlet.asPullLink(baseUrl, GitBlit
-				.self().getFederationToken(FederationToken.REPOSITORIES),
-				FederationRequest.PULL_REPOSITORIES)));
-
+		final String baseUrl = getRequest().getRelativePathPrefixToContextRoot();
 		add(new ExternalLink("federatedUsers", FederationServlet.asPullLink(baseUrl, GitBlit.self()
 				.getFederationToken(FederationToken.USERS_AND_REPOSITORIES),
 				FederationRequest.PULL_USERS)));
@@ -52,7 +50,13 @@ public class FederationTokensPanel extends BasePanel {
 
 		final List<String[]> data = new ArrayList<String[]>();
 		for (FederationToken token : FederationToken.values()) {
-			data.add(new String[] { token.name(), GitBlit.self().getFederationToken(token) });
+			data.add(new String[] { token.name(), GitBlit.self().getFederationToken(token), null });
+		}
+		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
+		Collections.sort(sets);
+		for (String set : sets) {
+			data.add(new String[] { FederationToken.REPOSITORIES.name(),
+					GitBlit.self().getFederationToken(set), set });
 		}
 
 		DataView<String[]> dataView = new DataView<String[]>("row", new ListDataProvider<String[]>(
@@ -69,9 +73,17 @@ public class FederationTokensPanel extends BasePanel {
 			public void populateItem(final Item<String[]> item) {
 				final String[] entry = item.getModelObject();
 				final FederationToken token = FederationToken.fromName(entry[0]);
-
-				item.add(new Label("field", entry[0]));
+				if (entry[2] == null) {
+					// standard federation token
+					item.add(new Label("description", describeToken(token)));
+				} else {
+					// federation set token
+					item.add(new Label("description", entry[2]));
+				}
 				item.add(new Label("value", entry[1]));
+
+				item.add(new ExternalLink("repositoryDefinitions", FederationServlet.asPullLink(
+						baseUrl, entry[1], FederationRequest.PULL_REPOSITORIES)));
 
 				// TODO make this work
 				Link<Void> sendProposal = new Link<Void>("send") {
@@ -87,7 +99,6 @@ public class FederationTokensPanel extends BasePanel {
 						"Please enter URL for remote Gitblit instance:"));
 				item.add(sendProposal);
 
-				item.add(new Label("description", describeToken(token)));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

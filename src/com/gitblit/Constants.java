@@ -151,7 +151,7 @@ public class Constants {
 			return name();
 		}
 	}
-	
+
 	/**
 	 * Enumeration representing the federation types.
 	 */
@@ -165,6 +165,14 @@ public class Constants {
 				}
 			}
 			return FEDERATE_THIS;
+		}
+
+		public boolean exceeds(FederationStrategy type) {
+			return this.ordinal() > type.ordinal();
+		}
+
+		public boolean atLeast(FederationStrategy type) {
+			return this.ordinal() >= type.ordinal();
 		}
 
 		@Override

@@ -225,6 +225,12 @@ public class FederationServlet extends HttpServlet {
 
 		Object result = null;
 		if (FederationRequest.PULL_REPOSITORIES.equals(reqType)) {
+			// build a reverse-lookup for token->federation set name
+			Map<String, String> federationSets = new HashMap<String, String>();
+			for (String set : GitBlit.getStrings(Keys.federation.sets)) {
+				federationSets.put(GitBlit.self().getFederationToken(set), set);
+			}
+
 			// Determine the Gitblit clone url
 			StringBuilder sb = new StringBuilder();
 			sb.append(HttpUtils.getHostURL(request));
@@ -253,7 +259,17 @@ public class FederationServlet extends HttpServlet {
 					}
 					break;
 				}
-				repositories.put(url, model);
+
+				if (federationSets.containsKey(token)) {
+					// include repositories only for federation set
+					String set = federationSets.get(token);
+					if (model.federationSets.contains(set)) {
+						repositories.put(url, model);
+					}
+				} else {
+					// standard federation token for ALL
+					repositories.put(url, model);
+				}
 			}
 			result = repositories;
 		} else {
