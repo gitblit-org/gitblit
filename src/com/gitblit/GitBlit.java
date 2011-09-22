@@ -861,10 +861,10 @@ public class GitBlit implements ServletContextListener {
 				}
 				String setting = values.get(1);
 				if (setting.equals("url")) {
-					// url of the remote Gitblit instance
+					// url of the origin Gitblit instance
 					federatedModels.get(server).url = settings.getString(key, "");
 				} else if (setting.equals("token")) {
-					// token for the remote Gitblit instance
+					// token for the origin Gitblit instance
 					federatedModels.get(server).token = settings.getString(key, "");
 				} else if (setting.equals("frequency")) {
 					// frequency of the pull operation
@@ -872,9 +872,9 @@ public class GitBlit implements ServletContextListener {
 				} else if (setting.equals("folder")) {
 					// destination folder of the pull operation
 					federatedModels.get(server).folder = settings.getString(key, "");
-				} else if (setting.equals("freeze")) {
-					// set the repository to read-only after pull
-					federatedModels.get(server).freeze = settings.getBoolean(key, true);
+				} else if (setting.equals("mirror")) {
+					// are the repositories to be true mirrors of the origin
+					federatedModels.get(server).mirror = settings.getBoolean(key, true);
 				} else if (setting.equals("mergeAccounts")) {
 					// merge remote accounts into local accounts
 					federatedModels.get(server).mergeAccounts = settings.getBoolean(key, false);

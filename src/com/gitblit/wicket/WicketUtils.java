@@ -115,6 +115,7 @@ public class WicketUtils {
 	public static ContextImage getPullStatusImage(String wicketId, FederationPullStatus status) {
 		String filename = null;
 		switch (status) {
+		case MIRRORED:
 		case PULLED:
 			filename = "bullet_green.png";
 			break;
@@ -128,6 +129,7 @@ public class WicketUtils {
 			filename = "bullet_white.png";
 			break;
 		case PENDING:
+		case NOCHANGE:			
 		default:
 			filename = "bullet_black.png";
 		}

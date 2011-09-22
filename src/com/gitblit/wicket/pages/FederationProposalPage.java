@@ -79,7 +79,7 @@ public class FederationProposalPage extends BasePage {
 		sb.append(asParam(p, proposal.name, "frequency",
 				GitBlit.getString(Keys.federation.defaultFrequency, "60 mins")));
 		sb.append(asParam(p, proposal.name, "folder", proposal.name));
-		sb.append(asParam(p, proposal.name, "freeze", "true"));
+		sb.append(asParam(p, proposal.name, "mirror", "true"));
 		sb.append(asParam(p, proposal.name, "sendStatus", "true"));
 		sb.append(asParam(p, proposal.name, "notifyOnError", "true"));
 		sb.append(asParam(p, proposal.name, "exclude", ""));

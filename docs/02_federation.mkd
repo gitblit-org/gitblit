@@ -6,11 +6,11 @@ A Gitblit federation is basically an automated backup solution from one Gitblit 
 
 If your Gitblit instance allows federation and it is properly registered with another Gitblit instance, each of the *non-excluded* repositories of your Gitblit instance can be mirrored, in their entirety, to the pulling Gitblit instance.  You may optionally allow pulling of user accounts and server settings.
 
-### Source Gitblit Instance Requirements
+### Origin Gitblit Instance Requirements
 
 - *git.enableGitServlet* must be true, all Git clone and pull requests are handled through Gitblit's JGit servlet
 - *federation.passphrase* must be non-empty
-- The Gitblit source instance must be http/https accessible by the pulling Gitblit instance.<br/>That may require configuring port-forwarding on your router and/or opening ports on your firewall.
+- The Gitblit origin instance must be http/https accessible by the pulling Gitblit instance.<br/>That may require configuring port-forwarding on your router and/or opening ports on your firewall.
 
 #### federation.passphrase
 
@@ -27,12 +27,12 @@ Changing your *federation.passphrase* will break any registrations you have esta
 
 ### Pulling Gitblit Instance Requirements
 
- - consider setting *federation.allowProposals=true* to facilitate the registration process from source Gitblit instances
+ - consider setting *federation.allowProposals=true* to facilitate the registration process from origin Gitblit instances
  - properly registered Gitblit instance including, at a minimum, url, *federation token*, and update frequency
 
 ### Controlling What Gets Pulled
 
-If you want your repositories (and optionally users accounts and settings) to be pulled by another Gitblit instance, you need to register your source Gitblit instance with a pulling Gitblit instance by providing the url of your Gitblit instance and a federation token.
+If you want your repositories (and optionally users accounts and settings) to be pulled by another Gitblit instance, you need to register your origin Gitblit instance with a pulling Gitblit instance by providing the url of your Gitblit instance and a federation token.
 
 Gitblit generates the following federation tokens:
 %BEGINCODE%
@@ -53,7 +53,7 @@ If *federation.passphrase* has a non-empty value, the federation tokens are disp
 
 Federation Sets (*federation.sets*) are named groups of repositories.  The Federation Sets are available for selection in the repository settings page.  You can assign a repository to one or more sets and then distribute the token for the set.  This allows you to grant federation pull access to a subset of your available repositories.  Tokens for federation sets only grant pull access for the member repositories.
 
-### Federation Proposals (Source Gitblit Instance)
+### Federation Proposals (Origin Gitblit Instance)
 
 Once you have properly setup your passphrase and can see your federation tokens, you are ready to share them with a pulling Gitblit instance.
  
@@ -84,7 +84,7 @@ If your Giblit instance has received a *federation proposal*, you will be alerte
 
 You may view the details of a proposal from scrolling down to the bottom of the repositories page and selecting a proposal.  Sample registration settings will be generated for you that you may copy & paste into either your `gitblit.properties` file or your `web.xml` file.
 
-### Excluding Repositories (Source Gitblit Instance)
+### Excluding Repositories (Origin Gitblit Instance)
 
 You may exclude a repository from being pulled by a federated Gitblit instance by setting its *federation strategy* in the repository's settings page.
 
@@ -106,13 +106,13 @@ You may exclude repositories to pull in a federation registration.  You may excl
     
 ### Tracking Status (Pulling Gitblit Instance)
 
-Below the repositories list on the repositories page you will find a section named *federation registrations*.  This section enumerates the other gitblit servers you have configured to periodically pull.  The *status* of the latest pull will be indicated on the left with a colored circle, similar to the status of an executed unit test or Hudson/Jenkins build.  You can drill into the details of the registration to view the status of the last pull from each repository available from that source Gitblit instance.  Additionally, you can specify the *federation.N.notifyOnError=true* flag, to be alerted via email of regressive status changes to individual registrations.
+Below the repositories list on the repositories page you will find a section named *federation registrations*.  This section enumerates the other gitblit servers you have configured to periodically pull.  The *status* of the latest pull will be indicated on the left with a colored circle, similar to the status of an executed unit test or Hudson/Jenkins build.  You can drill into the details of the registration to view the status of the last pull from each repository available from that origin Gitblit instance.  Additionally, you can specify the *federation.N.notifyOnError=true* flag, to be alerted via email of regressive status changes to individual registrations.
 
-### Tracking Status (Source Gitblit Instance)
+### Tracking Status (Origin Gitblit Instance)
 
-Source Gitblit instances can not directly track the success or failure status of Pulling Gitblit instances.  However, the Pulling Gitblit instance may elect to send a status acknowledgment (*federation.N.sendStatus=true*) to the source Gitblit server that indicates the per-repository status of the pull operation.  This is the same data that is displayed on the Pulling Gitblit instances ui.
+Origin Gitblit instances can not directly track the success or failure status of Pulling Gitblit instances.  However, the Pulling Gitblit instance may elect to send a status acknowledgment (*federation.N.sendStatus=true*) to the origin Gitblit server that indicates the per-repository status of the pull operation.  This is the same data that is displayed on the Pulling Gitblit instances ui.
 
-### How does it work? (Source Gitblit Instances)
+### How does it work? (Origin Gitblit Instances)
 
 A pulling Gitblit instance will periodically contact your Gitblit instance and will provide the token as proof that you have granted it federation access.  Your Gitblit instance will decide, based on the supplied token, if the requested data should be returned to the pulling Gitblit instance.  Gitblit data (user accounts, repository metadata, and server settings) are serialized as [JSON](http://json.org) using [google-gson](http://google-gson.googlecode.com) and returned to the pulling Gitblit instance.  Standard Git clone and pull operations are used to transfer commits.
 
@@ -144,7 +144,7 @@ By default all user accounts except the *admin* account are automatically pulled
 
 The pulling Gitblit instance will store a registration-specific `users.properties` file for the pulled user accounts and their repository permissions. This file is stored in the *federation.N.folder* folder.
 
-If you specify *federation.N.mergeAccounts=true*, then the user accounts from the source Gitblit instance will be integrated into the `users.properties` file of your Gitblit instance and allow sign-on of those users.
+If you specify *federation.N.mergeAccounts=true*, then the user accounts from the origin Gitblit instance will be integrated into the `users.properties` file of your Gitblit instance and allow sign-on of those users.
 
 **NOTE:**<br/>
 Upgrades from older Gitblit versions will not have the *#notfederated* role assigned to the *admin* account.  Without that role, your admin account WILL be transferred with an *ALL* or *USERS_AND_REPOSITORIES* token.<br/>
@@ -164,19 +164,19 @@ Gitblit does **not** detect conflict and it does **not** offer conflict resoluti
 
 If an object exists locally that has the same name as the remote object, it is assumed they are the same and the contents of the remote object are merged into the local object.  If you can not guarantee that this is the case, then you should not store any federated repositories directly in *git.repositoriesFolder* and you should not enable *mergeAccounts*.
 
-By default, federated repositories can not be pushed to, they are read-only by the *isFrozen* flag.  This flag is **ONLY** enforced by Gitblit's JGit servlet.  If you push to a federated repository after resetting the *isFrozen* flag or via some other Git access technique then you may break Gitblit's ability to continue pulling from the source repository.  If you are only pushing to a local branch then you might be safe.
+By default, federated repositories can not be pushed to, they are read-only by the *isFrozen* flag.  This flag is **ONLY** enforced by Gitblit's JGit servlet.  If you push to a federated repository after resetting the *isFrozen* flag or via some other Git access technique then you may break Gitblit's ability to continue pulling from the origin repository.  If you are only pushing to a local branch then you might be safe.
 
 ## Federation Pull Registration Keys
 
-<table>
+<table class="text">
 <tr><th>federation.N.url</th>
 <td>string</td>
-<td>the url of the source Gitblit instance</td>
+<td>the url of the origin Gitblit instance *(required)*</td>
 </tr>
 
 <tr><th>federation.N.token</th>
 <td>string</td>
-<td>the token provided by the source Gitblit instance</td>
+<td>the token provided by the origin Gitblit instance *(required)*</td>
 </tr>
 
 <tr><th>federation.N.frequency</th>
@@ -186,22 +186,22 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 <tr><th>federation.N.folder</th>
 <td>string</td>
-<td>the destination folder, relative to *git.repositoriesFolder*, for these repositories.  If empty, the repositories are put in *git.repositoriesFolder*.</td>
+<td>the destination folder, relative to *git.repositoriesFolder*, for these repositories.<br/>default is *git.repositoriesFolder*</td>
+</tr>
+
+<tr><th>federation.N.mirror</th>
+<td>boolean</td>
+<td>if **true** *(default)*, each repository HEAD is reset to *origin/master* after each pull.  The repository is flagged *isFrozen* after the initial clone.<p>If **false**, each repository HEAD will point to the FETCH_HEAD of the initial clone from the origin until pushed to or otherwise manipulated.</td>
 </tr>
 
 <tr><th>federation.N.mergeAccounts</th>
 <td>boolean</td>
-<td>merge the retrieved accounts into the `users.properties` of **this** Gitblit instance</td>
+<td>if **true**, merge the retrieved accounts into the `users.properties` of **this** Gitblit instance.<br/>*default is false*</td>
 </tr>
 
 <tr><th>federation.N.sendStatus</th>
 <td>boolean</td>
-<td>send the status of the federated pull to the source Gitblit instance</td>
-</tr>
-
-<tr><th>federation.N.freeze</th>
-<td>boolean</td>
-<td>freeze the repository after the first pull, subsequent pulls respect the local *isFrozen* setting</td>
+<td>if **true**, send the status of the federated pull to the origin Gitblit instance.<br/>*default is false*</td>
 </tr>
 
 <tr><th>federation.N.include</th>
@@ -216,7 +216,7 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 <tr><th>federation.N.notifyOnError</th>
 <td>boolean</td>
-<td>send an email to the administrators on an error</td>
+<td>if **true**, send an email to the administrators on an error.<br/>*default is false*</td>
 </tr>
 </table>
 
@@ -226,8 +226,8 @@ These examples would be entered into the `gitblit.properties` file of the pullin
 
 #### (Nearly) Perfect Mirror Example
 
-This assumes that the *token* is the *ALL* token from the source gitblit instance.<br/>
-The repositories, example1_users.properties, and example1_gitblit.properties will be put in *git.repositoriesFolder* and the source user accounts will be merged into the local user accounts, including passwords and administrator status.  The mirror instance will also send a status acknowledgment at the end of the pull operation which will include the state of each repository pull (EXCLUDED, SKIPPED, PULLED).  This way the source Gitblit instance can monitor the health of its mirrors.
+This assumes that the *token* is the *ALL* token from the origin gitblit instance.<br/>
+The repositories, example1_users.properties, and example1_gitblit.properties will be put in *git.repositoriesFolder* and the origin user accounts will be merged into the local user accounts, including passwords and administrator status.  The mirror instance will also send a status acknowledgment at the end of the pull operation which will include the state of each repository pull (EXCLUDED, SKIPPED, PULLED).  This way the origin Gitblit instance can monitor the health of its mirrors.
 
 This example is considered *nearly* perfect because while the remote Gitblit's server settings are pulled and saved locally, they are not merged with your server settings so its not a true mirror, but its likely the mirror you'd want to configure.
 
@@ -235,9 +235,9 @@ This example is considered *nearly* perfect because while the remote Gitblit's s
     federation.example1.token = 6f3b8a24bf970f17289b234284c94f43eb42f0e4
     federation.example1.frequency = 120 mins
     federation.example1.folder = 
+    federation.example1.mirror = true
     federation.example1.mergeAccounts = true
     federation.example1.sendStatus = true
-    federation.example1.freeze = true
     
 #### Just Repositories Example
 
@@ -248,6 +248,7 @@ The repositories will be put in *git.repositoriesFolder*/example2.
     federation.example2.token = 6f3b8a24bf970f17289b234284c94f43eb42f0e4
     federation.example2.frequency = 120 mins
     federation.example2.folder = example2
+    federation.example2.mirror = true
     
 #### All-but-One Repository Example
 
@@ -258,6 +259,7 @@ The repositories will be put in *git.repositoriesFolder*/example3.
     federation.example3.token = 6f3b8a24bf970f17289b234284c94f43eb42f0e4
     federation.example3.frequency = 120 mins
     federation.example3.folder = example3
+    federation.example3.mirror = true
     federation.example3.exclude = somerepo.git
     
 #### Just One Repository Example
@@ -269,5 +271,6 @@ The repositories will be put in *git.repositoriesFolder*/example4.
     federation.example4.token = 6f3b8a24bf970f17289b234284c94f43eb42f0e4
     federation.example4.frequency = 120 mins
     federation.example4.folder = example4
+    federation.example4.mirror = true
     federation.example4.exclude = *
     federation.example4.include = somerepo.git

@@ -37,6 +37,10 @@ import java.util.zip.ZipOutputStream;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullCommand;
+import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -229,7 +233,28 @@ public class JGitUtils {
 			fetch.setCredentialsProvider(credentialsProvider);
 		}
 		fetch.setRefSpecs(specs);
-		FetchResult result = fetch.call();
+		FetchResult fetchRes = fetch.call();
+		return fetchRes;
+	}
+
+	/**
+	 * Reset HEAD to the latest remote tracking commit.
+	 * 
+	 * @param repository
+	 * @param remoteRef
+	 *            the remote tracking reference (e.g. origin/master)
+	 * @return Ref
+	 * @throws Exception
+	 */
+	public static Ref resetHEAD(Repository repository, String remoteRef) throws Exception {
+		if (!remoteRef.startsWith(Constants.R_REMOTES)) {
+			remoteRef = Constants.R_REMOTES + remoteRef;
+		}
+		Git git = new Git(repository);
+		ResetCommand reset = git.reset();
+		reset.setMode(ResetType.SOFT);
+		reset.setRef(remoteRef);
+		Ref result = reset.call();
 		return result;
 	}
 

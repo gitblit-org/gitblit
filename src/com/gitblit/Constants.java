@@ -135,7 +135,7 @@ public class Constants {
 	 * Enumeration representing the statii of federation requests.
 	 */
 	public static enum FederationPullStatus {
-		PENDING, FAILED, SKIPPED, PULLED, EXCLUDED;
+		PENDING, FAILED, SKIPPED, NOCHANGE, PULLED, MIRRORED, EXCLUDED;
 
 		public static FederationPullStatus fromName(String name) {
 			for (FederationPullStatus type : values()) {

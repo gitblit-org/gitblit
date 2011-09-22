@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -42,9 +43,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.JGitUtils.CloneResult;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 
 /**
  * FederationPullExecutor pulls repository updates and, optionally, user
@@ -115,7 +116,7 @@ public class FederationPullExecutor implements Runnable {
 
 	/**
 	 * Mirrors a repository and, optionally, the server's users, and/or
-	 * configuration settings from a remote Gitblit instance.
+	 * configuration settings from a origin Gitblit instance.
 	 * 
 	 * @param registration
 	 * @throws Exception
@@ -157,11 +158,14 @@ public class FederationPullExecutor implements Runnable {
 
 			// confirm that the origin of any pre-existing repository matches
 			// the clone url
+			String fetchHead = null;
 			Repository existingRepository = GitBlit.self().getRepository(repositoryName);
 			if (existingRepository != null) {
 				StoredConfig config = existingRepository.getConfig();
 				config.load();
 				String origin = config.getString("remote", "origin", "url");
+				fetchHead = JGitUtils.getCommit(existingRepository, "refs/remotes/origin/master")
+						.getName();
 				existingRepository.close();
 				if (!origin.startsWith(registration.url)) {
 					logger.warn(MessageFormat
@@ -181,16 +185,48 @@ public class FederationPullExecutor implements Runnable {
 					cloneUrl, credentials);
 			Repository r = GitBlit.self().getRepository(repositoryName);
 			RepositoryModel rm = GitBlit.self().getRepositoryModel(repositoryName);
+			repository.isFrozen = registration.mirror;
 			if (result.createdRepository) {
 				// default local settings
 				repository.federationStrategy = FederationStrategy.EXCLUDE;
-				repository.isFrozen = registration.freeze;
+				repository.isFrozen = registration.mirror;
+				repository.showRemoteBranches = !registration.mirror;
+				logger.info(MessageFormat.format("     cloning {0}", repository.name));
+				registration.updateStatus(repository, FederationPullStatus.MIRRORED);
 			} else {
+				// fetch and update
+				boolean fetched = false;
+				String origin = JGitUtils.getCommit(r, "refs/remotes/origin/master").getName();
+				fetched = !fetchHead.equals(origin);
+
+				if (registration.mirror) {
+					// mirror
+					if (fetched) {
+						// reset the local HEAD to origin/master
+						Ref ref = JGitUtils.resetHEAD(r, "origin/master");
+						logger.info(MessageFormat.format("     resetting HEAD of {0} to {1}",
+								repository.name, ref.getObjectId().getName()));
+						registration.updateStatus(repository, FederationPullStatus.MIRRORED);
+					} else {
+						// indicate no commits pulled
+						registration.updateStatus(repository, FederationPullStatus.NOCHANGE);
+					}
+				} else {
+					// non-mirror
+					if (fetched) {
+						// indicate commits pulled to origin/master
+						registration.updateStatus(repository, FederationPullStatus.PULLED);
+					} else {
+						// indicate no commits pulled
+						registration.updateStatus(repository, FederationPullStatus.NOCHANGE);
+					}
+				}
+
 				// preserve local settings
 				repository.isFrozen = rm.isFrozen;
 				repository.federationStrategy = rm.federationStrategy;
 			}
-			// only repositories that are actually _cloned_ from the source
+			// only repositories that are actually _cloned_ from the origin
 			// Gitblit repository are marked as federated. If the origin
 			// is from somewhere else, these repositories are not considered
 			// "federated" repositories.
@@ -198,7 +234,6 @@ public class FederationPullExecutor implements Runnable {
 
 			GitBlit.self().updateConfiguration(r, repository);
 			r.close();
-			registration.updateStatus(repository, FederationPullStatus.PULLED);
 		}
 
 		try {
@@ -212,7 +247,7 @@ public class FederationPullExecutor implements Runnable {
 				for (UserModel user : users) {
 					userService.updateUserModel(user.username, user);
 
-					// merge the remote permissions and remote accounts into
+					// merge the origin permissions and origin accounts into
 					// the user accounts of this Gitblit instance
 					if (registration.mergeAccounts) {
 						// reparent all repository permissions if the local
@@ -273,7 +308,7 @@ public class FederationPullExecutor implements Runnable {
 	}
 
 	/**
-	 * Sends a status acknowledgment to the source Gitblit instance. This
+	 * Sends a status acknowledgment to the origin Gitblit instance. This
 	 * includes the results of the federated pull.
 	 * 
 	 * @param registration
@@ -290,6 +325,7 @@ public class FederationPullExecutor implements Runnable {
 			federationName = addr.getHostName();
 		}
 		FederationUtils.acknowledgeStatus(addr.getHostAddress(), registration);
+		logger.info(MessageFormat.format("Pull status sent to {0}", registration.url));
 	}
 
 	/**
