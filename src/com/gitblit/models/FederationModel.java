@@ -136,7 +136,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 		if (results.size() == 0) {
 			return FederationPullStatus.PENDING;
 		}
-		FederationPullStatus status = FederationPullStatus.PULLED;
+		FederationPullStatus status = FederationPullStatus.MIRRORED;
 		for (FederationPullStatus result : results.values()) {
 			if (result.ordinal() < status.ordinal()) {
 				status = result;
