@@ -17,6 +17,7 @@ This is something like svn-sync for gitblit.
 - added: javamail dependency
 - updated: MarkdownPapers 1.1.1
 - updated: Wicket 1.4.18
+- updated: JGit 1.1.0
 
 ### Older Releases
 

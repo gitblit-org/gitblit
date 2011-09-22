@@ -25,6 +25,7 @@ import java.security.ProtectionDomain;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.gitblit.build.Build;
@@ -74,6 +75,10 @@ public class Launcher {
 			List<File> found = findJars(libFolder.getAbsoluteFile());
 			jars.addAll(found);
 		}
+		// sort the jars by name and then reverse the order so the newer version
+		// of the library gets loaded in the event that this is an upgrade
+		Collections.sort(jars);
+		Collections.reverse(jars);
 
 		if (jars.size() == 0) {
 			for (String folder : folders) {

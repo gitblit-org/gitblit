@@ -18,7 +18,7 @@ Gitblit is available in two variations:
 ### Java Runtime Requirement
 
 Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit (JDK).
- 
+
 ### Current Release
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
@@ -37,6 +37,7 @@ This is something like svn-sync for gitblit.
 - added: javamail dependency
 - updated: MarkdownPapers 1.1.1
 - updated: Wicket 1.4.18
+- updated: JGit 1.1.0
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]
