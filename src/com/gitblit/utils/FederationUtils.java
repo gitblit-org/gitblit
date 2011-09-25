@@ -27,7 +27,6 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +40,9 @@ import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.FederationRequest;
-import com.gitblit.Constants.FederationToken;
 import com.gitblit.FederationServlet;
 import com.gitblit.models.FederationModel;
+import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.Gson;
@@ -94,22 +93,15 @@ public class FederationUtils {
 	 * 
 	 * @param remoteUrl
 	 *            the remote Gitblit instance to send a federation proposal to
-	 * @param tokenType
-	 *            type of the provided federation token
-	 * @param myToken
-	 *            my federation token
-	 * @param myUrl
-	 *            my Gitblit url
-	 * @param myRepositories
-	 *            the repositories I want to share keyed by their clone url
+	 * @param proposal
+	 *            a complete federation proposal
 	 * @return true if the proposal was received
 	 */
-	public static boolean propose(String remoteUrl, FederationToken tokenType, String myToken,
-			String myUrl, Map<String, RepositoryModel> myRepositories) throws Exception {
-		String url = FederationServlet.asFederationLink(remoteUrl, tokenType, myToken,
-				FederationRequest.PROPOSAL, myUrl);
+	public static boolean propose(String remoteUrl, FederationProposal proposal) throws Exception {
+		String url = FederationServlet
+				.asFederationLink(remoteUrl, null, FederationRequest.PROPOSAL);
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(myRepositories);
+		String json = gson.toJson(proposal);
 		int status = writeJson(url, json);
 		return status == HttpServletResponse.SC_OK;
 	}
@@ -126,7 +118,7 @@ public class FederationUtils {
 	 */
 	public static Map<String, RepositoryModel> getRepositories(FederationModel registration,
 			boolean checkExclusions) throws Exception {
-		String url = FederationServlet.asPullLink(registration.url, registration.token,
+		String url = FederationServlet.asFederationLink(registration.url, registration.token,
 				FederationRequest.PULL_REPOSITORIES);
 		Map<String, RepositoryModel> models = readGson(url, REPOSITORIES_TYPE);
 		if (checkExclusions) {
@@ -149,7 +141,7 @@ public class FederationUtils {
 	 * @throws Exception
 	 */
 	public static Collection<UserModel> getUsers(FederationModel registration) throws Exception {
-		String url = FederationServlet.asPullLink(registration.url, registration.token,
+		String url = FederationServlet.asFederationLink(registration.url, registration.token,
 				FederationRequest.PULL_USERS);
 		Collection<UserModel> models = readGson(url, USERS_TYPE);
 		return models;
@@ -164,7 +156,7 @@ public class FederationUtils {
 	 * @throws Exception
 	 */
 	public static Map<String, String> getSettings(FederationModel registration) throws Exception {
-		String url = FederationServlet.asPullLink(registration.url, registration.token,
+		String url = FederationServlet.asFederationLink(registration.url, registration.token,
 				FederationRequest.PULL_SETTINGS);
 		Map<String, String> settings = readGson(url, SETTINGS_TYPE);
 		return settings;

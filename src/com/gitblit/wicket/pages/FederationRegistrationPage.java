@@ -36,8 +36,6 @@ public class FederationRegistrationPage extends BasePage {
 	public FederationRegistrationPage(PageParameters params) {
 		super(params);
 
-		setupPage("", getString("gb.registrations"));
-
 		final boolean showAdmin;
 		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
@@ -55,10 +53,11 @@ public class FederationRegistrationPage extends BasePage {
 			error("Could not find federation registration!", true);
 		}
 
+		setupPage("", registration.isResultData() ? getString("gb.federationResults")
+				: getString("gb.federationRegistration"));
+
 		add(new Label("url", registration.url));
 		add(WicketUtils.getRegistrationImage("typeIcon", registration, this));
-		add(new Label("typeName", registration.isResultData() ? getString("gb.federationResults")
-				: getString("gb.federationRegistration")));
 		add(new Label("frequency", registration.frequency));
 		add(new Label("folder", registration.folder));
 		add(new Label("token", showAdmin ? registration.token : "--"));

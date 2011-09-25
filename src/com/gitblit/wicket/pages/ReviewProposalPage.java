@@ -33,13 +33,13 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
 @RequiresAdminRole
-public class FederationProposalPage extends BasePage {
+public class ReviewProposalPage extends BasePage {
 
 	private final String PROPS_PATTERN = "{0} = {1}\n";
 
 	private final String WEBXML_PATTERN = "\n<context-param>\n\t<param-name>{0}</param-name>\n\t<param-value>{1}</param-value>\n</context-param>\n";
 
-	public FederationProposalPage(PageParameters params) {
+	public ReviewProposalPage(PageParameters params) {
 		super(params);
 
 		setupPage("", getString("gb.proposals"));
@@ -53,9 +53,10 @@ public class FederationProposalPage extends BasePage {
 		}
 
 		add(new Label("url", proposal.url));
+		add(new Label("message", proposal.message));
 		add(WicketUtils.createTimestampLabel("received", proposal.received, getTimeZone()));
-		add(new Label("tokenType", proposal.tokenType.name()));
 		add(new Label("token", proposal.token));
+		add(new Label("tokenType", proposal.tokenType.name()));
 
 		boolean go = true;
 		String p;

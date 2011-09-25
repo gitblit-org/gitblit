@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -32,6 +32,7 @@ import com.gitblit.FederationServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.SendProposalPage;
 
 public class FederationTokensPanel extends BasePanel {
 
@@ -41,11 +42,11 @@ public class FederationTokensPanel extends BasePanel {
 		super(wicketId);
 
 		final String baseUrl = getRequest().getRelativePathPrefixToContextRoot();
-		add(new ExternalLink("federatedUsers", FederationServlet.asPullLink(baseUrl, GitBlit.self()
+		add(new ExternalLink("federatedUsers", FederationServlet.asFederationLink(baseUrl, GitBlit.self()
 				.getFederationToken(FederationToken.USERS_AND_REPOSITORIES),
 				FederationRequest.PULL_USERS)));
 
-		add(new ExternalLink("federatedSettings", FederationServlet.asPullLink(baseUrl, GitBlit
+		add(new ExternalLink("federatedSettings", FederationServlet.asFederationLink(baseUrl, GitBlit
 				.self().getFederationToken(FederationToken.ALL), FederationRequest.PULL_SETTINGS)));
 
 		final List<String[]> data = new ArrayList<String[]>();
@@ -82,22 +83,11 @@ public class FederationTokensPanel extends BasePanel {
 				}
 				item.add(new Label("value", entry[1]));
 
-				item.add(new ExternalLink("repositoryDefinitions", FederationServlet.asPullLink(
+				item.add(new ExternalLink("repositoryDefinitions", FederationServlet.asFederationLink(
 						baseUrl, entry[1], FederationRequest.PULL_REPOSITORIES)));
 
-				// TODO make this work
-				Link<Void> sendProposal = new Link<Void>("send") {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						error("Sorry, this does not work yet.  :(");
-					}
-				};
-				sendProposal.add(new JavascriptTextPrompt("onclick",
-						"Please enter URL for remote Gitblit instance:"));
-				item.add(sendProposal);
+				item.add(new BookmarkablePageLink<Void>("send",
+						SendProposalPage.class, WicketUtils.newTokenParameter(entry[1])));
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

@@ -28,7 +28,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import com.gitblit.GitBlit;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.FederationProposalPage;
+import com.gitblit.wicket.pages.ReviewProposalPage;
 
 public class FederationProposalsPanel extends BasePanel {
 
@@ -54,11 +54,11 @@ public class FederationProposalsPanel extends BasePanel {
 
 			public void populateItem(final Item<FederationProposal> item) {
 				final FederationProposal entry = item.getModelObject();
-				item.add(new LinkPanel("url", "list", entry.url, FederationProposalPage.class,
+				item.add(new LinkPanel("url", "list", entry.url, ReviewProposalPage.class,
 						WicketUtils.newTokenParameter(entry.token)));
 				item.add(WicketUtils.createDateLabel("received", entry.received, getTimeZone()));
 				item.add(new Label("tokenType", entry.tokenType.name()));
-				item.add(new LinkPanel("token", "list", entry.token, FederationProposalPage.class,
+				item.add(new LinkPanel("token", "list", entry.token, ReviewProposalPage.class,
 						WicketUtils.newTokenParameter(entry.token)));
 
 				Link<Void> deleteLink = new Link<Void>("deleteProposal") {

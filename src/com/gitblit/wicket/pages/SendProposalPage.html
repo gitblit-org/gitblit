@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+<body onload="document.getElementById('myUrl').focus();">
+
+
+	<div style="padding-top:20px"></div>
+
+	<div style="text-align:center;" wicket:id="feedback">[Feedback Panel]</div>	
+
+	<!-- proposal info -->
+	<form wicket:id="editForm">
+	<table class="plain">
+		<tr><th><wicket:message key="gb.url">url</wicket:message></th><td class="edit"><input type="text" wicket:id="myUrl" id="myUrl" size="60" />  &nbsp;<i><wicket:message key="gb.myUrlDescription"></wicket:message></i></td></tr>
+		<tr><th><wicket:message key="gb.destinationUrl">destination url</wicket:message></th><td class="edit"><input type="text" wicket:id="destinationUrl" size="60" /> &nbsp;<i><wicket:message key="gb.destinationUrlDescription"></wicket:message></i></td></tr>
+		<tr><th valign="top"><wicket:message key="gb.message">message</wicket:message></th><td class="edit"><input type="text" wicket:id="message" size="80" /></td></tr>
+		<tr><th><wicket:message key="gb.type">type</wicket:message></th><td><span wicket:id="tokenType">[token type]</span></td></tr>
+		<tr><th><wicket:message key="gb.token">token</wicket:message></th><td><span class="sha1" wicket:id="token">[token]</span></td></tr>
+		<tr><th></th><td class="editButton"><input type="submit" value="propose" wicket:message="value:gb.sendProposal" wicket:id="save" /> <input type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /></td></tr>
+	</table>
+	</form>
+	
+	<div style="padding-top:10px;" wicket:id="repositories"></div>
+</body>
+</wicket:extend>    
+</html>

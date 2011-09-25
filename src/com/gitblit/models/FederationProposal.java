@@ -37,6 +37,8 @@ public class FederationProposal implements Serializable {
 	public FederationToken tokenType;
 
 	public String token;
+	
+	public String message;
 
 	public Map<String, RepositoryModel> repositories;
 
@@ -59,6 +61,7 @@ public class FederationProposal implements Serializable {
 		this.url = url;
 		this.tokenType = tokenType;
 		this.token = token;
+		this.message = "";
 		this.repositories = repositories;
 		try {
 			// determine server name and set that as the proposal name
@@ -66,7 +69,7 @@ public class FederationProposal implements Serializable {
 			if (name.contains("/")) {
 				name = name.substring(0, name.indexOf('/'));
 			}
-			name = name.replace(".", "");
+			name = name.replace(".", "").replace(";", "").replace(":", "").replace("-", "");
 		} catch (Exception e) {
 			name = Long.toHexString(System.currentTimeMillis());
 		}

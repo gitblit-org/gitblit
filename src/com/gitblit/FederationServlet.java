@@ -35,7 +35,6 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -68,7 +67,7 @@ public class FederationServlet extends HttpServlet {
 	 * @param req
 	 *            the pull type request
 	 */
-	public static String asPullLink(String sourceURL, String token, FederationRequest req) {
+	public static String asFederationLink(String sourceURL, String token, FederationRequest req) {
 		return asFederationLink(sourceURL, null, token, req, null);
 	}
 
@@ -95,7 +94,7 @@ public class FederationServlet extends HttpServlet {
 			req = FederationRequest.PULL_REPOSITORIES;
 		}
 		return remoteURL + Constants.FEDERATION_PATH + "?req=" + req.name().toLowerCase()
-				+ "&token=" + token
+				+ (token == null ? "" : ("&token=" + token))
 				+ (tokenType == null ? "" : ("&tokenType=" + tokenType.name().toLowerCase()))
 				+ (myURL == null ? "" : ("&url=" + StringUtils.encodeURL(myURL)));
 	}
@@ -132,16 +131,6 @@ public class FederationServlet extends HttpServlet {
 
 		if (FederationRequest.PROPOSAL.equals(reqType)) {
 			// Receive a gitblit federation proposal
-			String url = StringUtils.decodeFromHtml(request.getParameter("url"));
-			FederationToken tokenType = FederationToken.fromName(request.getParameter("tokenType"));
-
-			if (!GitBlit.getBoolean(Keys.federation.allowProposals, false)) {
-				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
-						tokenType.name(), url));
-				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-				return;
-			}
-
 			BufferedReader reader = request.getReader();
 			StringBuilder json = new StringBuilder();
 			String line = null;
@@ -150,28 +139,32 @@ public class FederationServlet extends HttpServlet {
 			}
 			reader.close();
 
-			// check to see if we have repository data
+			// check to see if we have proposal data
 			if (json.length() == 0) {
-				logger.error(MessageFormat.format(
-						"Failed to receive proposed repositories list from {0}", url));
+				logger.error(MessageFormat.format("Failed to receive proposal data from {0}",
+						request.getRemoteAddr()));
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 
-			// deserialize the repository data
+			// deserialize the proposal
 			Gson gson = new Gson();
-			Map<String, RepositoryModel> repositories = gson.fromJson(json.toString(),
-					FederationUtils.REPOSITORIES_TYPE);
+			FederationProposal proposal = gson.fromJson(json.toString(), FederationProposal.class);
 
-			// submit a proposal
-			FederationProposal proposal = new FederationProposal(url, tokenType, token,
-					repositories);
+			// reject proposal, if not receipt prohibited
+			if (!GitBlit.getBoolean(Keys.federation.allowProposals, false)) {
+				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
+						proposal.tokenType.name(), proposal.url));
+				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+				return;
+			}
+
 			String hosturl = HttpUtils.getHostURL(request);
 			String gitblitUrl = hosturl + request.getContextPath();
 			GitBlit.self().submitFederationProposal(proposal, gitblitUrl);
 			logger.info(MessageFormat.format(
 					"Submitted {0} federation proposal to pull {1} repositories from {2}",
-					tokenType.name(), repositories.size(), url));
+					proposal.tokenType.name(), proposal.repositories.size(), proposal.url));
 			response.setStatus(HttpServletResponse.SC_OK);
 			return;
 		}
@@ -225,53 +218,8 @@ public class FederationServlet extends HttpServlet {
 
 		Object result = null;
 		if (FederationRequest.PULL_REPOSITORIES.equals(reqType)) {
-			// build a reverse-lookup for token->federation set name
-			Map<String, String> federationSets = new HashMap<String, String>();
-			for (String set : GitBlit.getStrings(Keys.federation.sets)) {
-				federationSets.put(GitBlit.self().getFederationToken(set), set);
-			}
-
-			// Determine the Gitblit clone url
-			StringBuilder sb = new StringBuilder();
-			sb.append(HttpUtils.getHostURL(request));
-			sb.append(Constants.GIT_PATH);
-			sb.append("{0}");
-			String cloneUrl = sb.toString();
-
-			// Retrieve all available repositories
-			UserModel user = new UserModel(Constants.FEDERATION_USER);
-			user.canAdmin = true;
-			List<RepositoryModel> list = GitBlit.self().getRepositoryModels(user);
-
-			// create the [cloneurl, repositoryModel] map
-			Map<String, RepositoryModel> repositories = new HashMap<String, RepositoryModel>();
-			for (RepositoryModel model : list) {
-				// by default, setup the url for THIS repository
-				String url = MessageFormat.format(cloneUrl, model.name);
-				switch (model.federationStrategy) {
-				case EXCLUDE:
-					// skip this repository
-					continue;
-				case FEDERATE_ORIGIN:
-					// federate the origin, if it is defined
-					if (!StringUtils.isEmpty(model.origin)) {
-						url = model.origin;
-					}
-					break;
-				}
-
-				if (federationSets.containsKey(token)) {
-					// include repositories only for federation set
-					String set = federationSets.get(token);
-					if (model.federationSets.contains(set)) {
-						repositories.put(url, model);
-					}
-				} else {
-					// standard federation token for ALL
-					repositories.put(url, model);
-				}
-			}
-			result = repositories;
+			String gitblitUrl = HttpUtils.getHostURL(request);
+			result = GitBlit.self().getRepositories(gitblitUrl, token);
 		} else {
 			if (FederationRequest.PULL_SETTINGS.equals(reqType)) {
 				// pull settings

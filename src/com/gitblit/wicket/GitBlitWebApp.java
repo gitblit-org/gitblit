@@ -32,7 +32,7 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
-import com.gitblit.wicket.pages.FederationProposalPage;
+import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -98,7 +98,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/markdown", MarkdownPage.class, "r", "h", "f");
 
 		// federation urls
-		mount("/proposal", FederationProposalPage.class, "t");
+		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
 
 		// setup login/logout urls, if we are using authentication

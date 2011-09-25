@@ -28,6 +28,7 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.FederationServlet;
 import com.gitblit.GitBlitServer;
+import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FederationUtils;
 import com.google.gson.Gson;
@@ -86,14 +87,17 @@ public class FederationTests extends TestCase {
 			repositories.put(model.name, model);
 		}
 
+		FederationProposal proposal = new FederationProposal("http://testurl", FederationToken.ALL,
+				"testtoken", repositories);
+
 		// propose federation
-		assertTrue("proposal refused", FederationUtils.propose("http://localhost:" + port,
-				FederationToken.ALL, "testtoken", "http://testurl", repositories));
+		assertTrue("proposal refused",
+				FederationUtils.propose("http://localhost:" + port, proposal));
 	}
 
 	public void testPullRepositories() throws Exception {
 		try {
-			String url = FederationServlet.asPullLink("http://localhost:" + port, "testtoken",
+			String url = FederationServlet.asFederationLink("http://localhost:" + port, "testtoken",
 					FederationRequest.PULL_REPOSITORIES);
 			String json = FederationUtils.readJson(url);
 		} catch (IOException e) {

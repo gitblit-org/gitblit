@@ -1102,6 +1102,86 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Get repositories for the specified token.
+	 * 
+	 * @param gitblitUrl
+	 *            the base url of this gitblit instance
+	 * @param token
+	 *            the federation token
+	 * @return a map of <cloneurl, RepositoryModel>
+	 */
+	public Map<String, RepositoryModel> getRepositories(String gitblitUrl, String token) {
+		Map<String, String> federationSets = new HashMap<String, String>();
+		for (String set : getStrings(Keys.federation.sets)) {
+			federationSets.put(getFederationToken(set), set);
+		}
+
+		// Determine the Gitblit clone url
+		StringBuilder sb = new StringBuilder();
+		sb.append(gitblitUrl);
+		sb.append(Constants.GIT_PATH);
+		sb.append("{0}");
+		String cloneUrl = sb.toString();
+
+		// Retrieve all available repositories
+		UserModel user = new UserModel(Constants.FEDERATION_USER);
+		user.canAdmin = true;
+		List<RepositoryModel> list = getRepositoryModels(user);
+
+		// create the [cloneurl, repositoryModel] map
+		Map<String, RepositoryModel> repositories = new HashMap<String, RepositoryModel>();
+		for (RepositoryModel model : list) {
+			// by default, setup the url for THIS repository
+			String url = MessageFormat.format(cloneUrl, model.name);
+			switch (model.federationStrategy) {
+			case EXCLUDE:
+				// skip this repository
+				continue;
+			case FEDERATE_ORIGIN:
+				// federate the origin, if it is defined
+				if (!StringUtils.isEmpty(model.origin)) {
+					url = model.origin;
+				}
+				break;
+			}
+
+			if (federationSets.containsKey(token)) {
+				// include repositories only for federation set
+				String set = federationSets.get(token);
+				if (model.federationSets.contains(set)) {
+					repositories.put(url, model);
+				}
+			} else {
+				// standard federation token for ALL
+				repositories.put(url, model);
+			}
+		}
+		return repositories;
+	}
+
+	/**
+	 * Creates a proposal from the token.
+	 * 
+	 * @param gitblitUrl
+	 *            the url of this Gitblit instance
+	 * @param token
+	 * @return a potential proposal
+	 */
+	public FederationProposal createFederationProposal(String gitblitUrl, String token) {
+		FederationToken tokenType = FederationToken.REPOSITORIES;
+		for (FederationToken type : FederationToken.values()) {
+			if (token.equals(getFederationToken(type))) {
+				tokenType = type;
+				break;
+			}
+		}
+		Map<String, RepositoryModel> repositories = getRepositories(gitblitUrl, token);
+		FederationProposal proposal = new FederationProposal(gitblitUrl, tokenType, token,
+				repositories);
+		return proposal;
+	}
+
+	/**
 	 * Returns the proposal identified by the supplied token.
 	 * 
 	 * @param token
