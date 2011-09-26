@@ -41,7 +41,7 @@ public class FederationTokensPanel extends BasePanel {
 	public FederationTokensPanel(String wicketId, final boolean showFederation) {
 		super(wicketId);
 
-		final String baseUrl = getRequest().getRelativePathPrefixToContextRoot();
+		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 		add(new ExternalLink("federatedUsers", FederationServlet.asFederationLink(baseUrl, GitBlit.self()
 				.getFederationToken(FederationToken.USERS_AND_REPOSITORIES),
 				FederationRequest.PULL_USERS)));

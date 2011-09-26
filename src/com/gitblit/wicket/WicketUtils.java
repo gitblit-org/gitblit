@@ -217,9 +217,9 @@ public class WicketUtils {
 		return new ContextRelativeResource(file);
 	}
 
-	public static String getHostURL(Request request) {
+	public static String getGitblitURL(Request request) {
 		HttpServletRequest req = ((WebRequest) request).getHttpServletRequest();
-		return HttpUtils.getHostURL(req);
+		return HttpUtils.getGitblitURL(req);
 	}
 
 	public static HeaderContributor syndicationDiscoveryLink(final String feedTitle,

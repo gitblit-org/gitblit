@@ -1,10 +1,9 @@
 ## Release History
 
 ### Current Release
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- added: federation feature to allow gitblit instances to pull repositories and, optionally, settings and accounts from other gitblit instances.<br/>
-This is something like svn-sync for gitblit.
+- added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.
 <br/>**New:** *federation.name =*
 <br/>**New:** *federation.passphrase =*
 <br/>**New:** *federation.allowProposals = false*
@@ -18,6 +17,7 @@ This is something like svn-sync for gitblit.
 - updated: MarkdownPapers 1.1.1
 - updated: Wicket 1.4.18
 - updated: JGit 1.1.0
+- fixed: syndication urls for WAR builds
 
 ### Older Releases
 

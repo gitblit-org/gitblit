@@ -78,6 +78,8 @@ public class TreePage extends RepositoryPage {
 
 		final ByteFormat byteFormat = new ByteFormat();
 
+		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
+
 		// changed paths list
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("changedPath", pathsDp) {
@@ -112,10 +114,9 @@ public class TreePage extends RepositoryPage {
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
 										entry.path)));
-						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(getRequest()
-								.getRelativePathPrefixToContextRoot(), repositoryName, objectId,
-								entry.path)).setVisible(GitBlit.getBoolean(
-								Keys.web.allowZipDownloads, true)));
+						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(baseUrl,
+								repositoryName, objectId, entry.path)).setVisible(GitBlit
+								.getBoolean(Keys.web.allowZipDownloads, true)));
 						item.add(links);
 					} else {
 						// blob link

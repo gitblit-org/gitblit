@@ -159,9 +159,8 @@ public class FederationServlet extends HttpServlet {
 				return;
 			}
 
-			String hosturl = HttpUtils.getHostURL(request);
-			String gitblitUrl = hosturl + request.getContextPath();
-			GitBlit.self().submitFederationProposal(proposal, gitblitUrl);
+			String url = HttpUtils.getGitblitURL(request);
+			GitBlit.self().submitFederationProposal(proposal, url);
 			logger.info(MessageFormat.format(
 					"Submitted {0} federation proposal to pull {1} repositories from {2}",
 					proposal.tokenType.name(), proposal.repositories.size(), proposal.url));
@@ -218,7 +217,7 @@ public class FederationServlet extends HttpServlet {
 
 		Object result = null;
 		if (FederationRequest.PULL_REPOSITORIES.equals(reqType)) {
-			String gitblitUrl = HttpUtils.getHostURL(request);
+			String gitblitUrl = HttpUtils.getGitblitURL(request);
 			result = GitBlit.self().getRepositories(gitblitUrl, token);
 		} else {
 			if (FederationRequest.PULL_SETTINGS.equals(reqType)) {

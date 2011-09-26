@@ -52,7 +52,7 @@ public class SendProposalPage extends BasePage {
 
 		final String token = WicketUtils.getToken(params);
 
-		myUrl = WicketUtils.getHostURL(getRequest());
+		myUrl = WicketUtils.getGitblitURL(getRequest());
 		destinationUrl = "https://";
 
 		// temporary proposal

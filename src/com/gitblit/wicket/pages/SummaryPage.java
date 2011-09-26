@@ -114,7 +114,7 @@ public class SummaryPage extends RepositoryPage {
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
 			StringBuilder sb = new StringBuilder();
-			sb.append(WicketUtils.getHostURL(getRequestCycle().getRequest()));
+			sb.append(WicketUtils.getGitblitURL(getRequestCycle().getRequest()));
 			sb.append(Constants.GIT_PATH);
 			sb.append(repositoryName);
 			repositoryUrls.add(sb.toString());

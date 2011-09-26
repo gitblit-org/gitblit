@@ -92,9 +92,9 @@ public class CommitPage extends RepositoryPage {
 		add(new LinkPanel("commitTree", "list", c.getTree().getName(), TreePage.class,
 				newCommitParameter()));
 		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
-		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest()
-				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, null))
-				.setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
+		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
+		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(baseUrl, repositoryName,
+				objectId, null)).setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
 
 		// Parent Commits
 		ListDataProvider<String> parentsDp = new ListDataProvider<String>(parents);

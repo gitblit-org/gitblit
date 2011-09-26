@@ -125,6 +125,8 @@ public class RepositoriesPanel extends BasePanel {
 		} else {
 			dp = new SortableRepositoriesProvider(models);
 		}
+		
+		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
@@ -271,9 +273,8 @@ public class RepositoriesPanel extends BasePanel {
 				} else {
 					row.add(new Label("repositoryLinks"));
 				}
-				row.add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
-						.getRelativePathPrefixToContextRoot(), entry.name, null, 0))
-						.setVisible(linksActive));
+				row.add(new ExternalLink("syndication", SyndicationServlet.asLink(baseUrl,
+						entry.name, null, 0)).setVisible(linksActive));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}

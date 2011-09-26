@@ -130,7 +130,8 @@ public abstract class AccessRestrictionFilter implements Filter {
 
 		AccessRestrictionRequest accessRequest = new AccessRestrictionRequest(httpRequest);
 
-		String url = httpRequest.getRequestURI().substring(httpRequest.getServletPath().length());
+		String servletUrl = httpRequest.getContextPath() + httpRequest.getServletPath();
+		String url = httpRequest.getRequestURI().substring(servletUrl.length());
 		String params = httpRequest.getQueryString();
 		if (url.length() > 0 && url.charAt(0) == '/') {
 			url = url.substring(1);

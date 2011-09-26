@@ -26,12 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 public class HttpUtils {
 
 	/**
-	 * Returns the host URL based on the request.
+	 * Returns the Gitblit URL based on the request.
 	 * 
 	 * @param request
 	 * @return the host url
 	 */
-	public static String getHostURL(HttpServletRequest request) {
+	public static String getGitblitURL(HttpServletRequest request) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(request.getScheme());
 		sb.append("://");
@@ -40,6 +40,7 @@ public class HttpUtils {
 				|| (request.getScheme().equals("https") && request.getServerPort() != 443)) {
 			sb.append(":" + request.getServerPort());
 		}
+		sb.append(request.getContextPath());
 		return sb.toString();
 	}
 }
