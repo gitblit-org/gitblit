@@ -44,4 +44,20 @@
 	<br/>Blame
 </td></tr>
 
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/12.png" title="Federation Panels">![FederationPanels](thumbs/12.png)</a>
+	<br/>Federation Panels
+</td><td>
+	<a rel="screenshots_group" href="screenshots/13.png" title="Detailed Status of a Registration">![RegistrationStatus](thumbs/13.png)</a>
+	<br/>Detailed Status of a Registration
+</td><td>
+	<a rel="screenshots_group" href="screenshots/14.png" title="Send Proposal">![Propose](thumbs/14.png)</a>
+	<br/>Send Proposal
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/15.png" title="Reviewing Received Proposal">![ReviewProposal](thumbs/15.png)</a>
+	<br/>Reviewing Received Proposal
+</td></tr>
+
 </table>
