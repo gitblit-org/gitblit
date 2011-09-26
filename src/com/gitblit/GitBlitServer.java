@@ -237,7 +237,7 @@ public class GitBlitServer {
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();
-		gitblit.configureContext(settings);
+		gitblit.configureContext(settings, true);
 		rootContext.addEventListener(gitblit);
 
 		try {

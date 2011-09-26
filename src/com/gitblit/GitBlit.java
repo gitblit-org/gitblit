@@ -61,6 +61,7 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.google.gson.Gson;
@@ -830,8 +831,8 @@ public class GitBlit implements ServletContextListener {
 		// Schedule the federation executor
 		List<FederationModel> registrations = getFederationRegistrations();
 		if (registrations.size() > 0) {
-			scheduledExecutor.schedule(new FederationPullExecutor(registrations), 1,
-					TimeUnit.MINUTES);
+			FederationPullExecutor executor = new FederationPullExecutor(registrations, true);
+			scheduledExecutor.schedule(executor, 1, TimeUnit.MINUTES);
 		}
 	}
 
@@ -843,79 +844,7 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public List<FederationModel> getFederationRegistrations() {
 		if (federationRegistrations.isEmpty()) {
-			List<String> keys = settings.getAllKeys(Keys.federation._ROOT);
-			keys.remove(Keys.federation.name);
-			keys.remove(Keys.federation.passphrase);
-			keys.remove(Keys.federation.allowProposals);
-			keys.remove(Keys.federation.proposalsFolder);
-			keys.remove(Keys.federation.defaultFrequency);
-			keys.remove(Keys.federation.sets);
-			Collections.sort(keys);
-			Map<String, FederationModel> federatedModels = new HashMap<String, FederationModel>();
-			for (String key : keys) {
-				String value = key.substring(Keys.federation._ROOT.length() + 1);
-				List<String> values = StringUtils.getStringsFromValue(value, "\\.");
-				String server = values.get(0);
-				if (!federatedModels.containsKey(server)) {
-					federatedModels.put(server, new FederationModel(server));
-				}
-				String setting = values.get(1);
-				if (setting.equals("url")) {
-					// url of the origin Gitblit instance
-					federatedModels.get(server).url = settings.getString(key, "");
-				} else if (setting.equals("token")) {
-					// token for the origin Gitblit instance
-					federatedModels.get(server).token = settings.getString(key, "");
-				} else if (setting.equals("frequency")) {
-					// frequency of the pull operation
-					federatedModels.get(server).frequency = settings.getString(key, "");
-				} else if (setting.equals("folder")) {
-					// destination folder of the pull operation
-					federatedModels.get(server).folder = settings.getString(key, "");
-				} else if (setting.equals("bare")) {
-					// whether pulled repositories should be bare
-					federatedModels.get(server).bare = settings.getBoolean(key, true);
-				} else if (setting.equals("mirror")) {
-					// are the repositories to be true mirrors of the origin
-					federatedModels.get(server).mirror = settings.getBoolean(key, true);
-				} else if (setting.equals("mergeAccounts")) {
-					// merge remote accounts into local accounts
-					federatedModels.get(server).mergeAccounts = settings.getBoolean(key, false);
-				} else if (setting.equals("sendStatus")) {
-					// send a status acknowledgment to source Gitblit instance
-					// at end of git pull
-					federatedModels.get(server).sendStatus = settings.getBoolean(key, false);
-				} else if (setting.equals("notifyOnError")) {
-					// notify administrators on federation pull failures
-					federatedModels.get(server).notifyOnError = settings.getBoolean(key, false);
-				} else if (setting.equals("exclude")) {
-					// excluded repositories
-					federatedModels.get(server).exclusions = settings.getStrings(key);
-				} else if (setting.equals("include")) {
-					// included repositories
-					federatedModels.get(server).inclusions = settings.getStrings(key);
-				}
-			}
-
-			// verify that registrations have a url and a token
-			for (FederationModel model : federatedModels.values()) {
-				if (StringUtils.isEmpty(model.url)) {
-					logger.warn(MessageFormat.format(
-							"Dropping federation registration {0}. Missing url.", model.name));
-					continue;
-				}
-				if (StringUtils.isEmpty(model.token)) {
-					logger.warn(MessageFormat.format(
-							"Dropping federation registration {0}. Missing token.", model.name));
-					continue;
-				}
-				// set default frequency if unspecified
-				if (StringUtils.isEmpty(model.frequency)) {
-					model.frequency = settings.getString(Keys.federation.defaultFrequency,
-							"60 mins");
-				}
-				federationRegistrations.add(model);
-			}
+			federationRegistrations.addAll(FederationUtils.getFederationRegistrations(settings));
 		}
 		return federationRegistrations;
 	}
@@ -1239,7 +1168,7 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param settings
 	 */
-	public void configureContext(IStoredSettings settings) {
+	public void configureContext(IStoredSettings settings, boolean startFederation) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.settings = settings;
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
@@ -1268,12 +1197,14 @@ public class GitBlit implements ServletContextListener {
 			loginService = new FileUserService(realmFile);
 		}
 		setUserService(loginService);
-		configureFederation();
 		mailExecutor = new MailExecutor(settings);
 		if (mailExecutor.isReady()) {
 			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
+		}
+		if (startFederation) {
+			configureFederation();
 		}
 	}
 
@@ -1288,7 +1219,7 @@ public class GitBlit implements ServletContextListener {
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
-			configureContext(webxmlSettings);
+			configureContext(webxmlSettings, true);
 		}
 	}
 

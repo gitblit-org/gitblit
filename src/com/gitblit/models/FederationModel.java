@@ -73,6 +73,8 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	 */
 	public FederationModel(String serverName) {
 		this.name = serverName;
+		bare = true;
+		mirror = true;
 		this.lastPull = new Date(0);
 		this.nextPull = new Date(0);
 	}

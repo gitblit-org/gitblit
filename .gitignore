@@ -13,3 +13,5 @@
 /war
 /*.war
 /proposals
+/*.jar
+/federation.properties

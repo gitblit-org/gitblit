@@ -37,7 +37,7 @@ Changing your *federation.passphrase* will break any registrations you have esta
 
 If you want your repositories (and optionally users accounts and settings) to be pulled by another Gitblit instance, you need to register your origin Gitblit instance with a pulling Gitblit instance by providing the url of your Gitblit instance and a federation token.
 
-Gitblit generates the following federation tokens:
+Gitblit generates the following standard federation tokens:
 %BEGINCODE%
 String allToken = SHA1(passphrase + "-ALL");
 String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
@@ -52,9 +52,11 @@ Individual Gitblit repository configurations such as *description* and *accessRe
 
 If *federation.passphrase* has a non-empty value, the federation tokens are displayed in the log file and are visible, to administrators, in the web ui.
 
+The three standard tokens grant access to ALL your non-excluded repositories.  However, if you only want to specify different groups of repositories to be federated then you need to define *federation sets*. 
+
 #### Federation Sets
 
-Federation Sets (*federation.sets*) are named groups of repositories.  The Federation Sets are defined in `gitblit.properties` and are available for selection in the repository settings page.  You can assign a repository to one or more sets and then distribute the token for the set.  This allows you to grant federation pull access to a subset of your available repositories.  Tokens for federation sets only grant pull access for the member repositories.
+Federation Sets (*federation.sets*) are named groups of repositories.  The Federation Sets are defined in `gitblit.properties` and are available for selection in the repository settings page.  You can assign a repository to one or more sets and then distribute the federation token for the set.  This allows you to grant federation pull access to a subset of your available repositories.  Tokens for federation sets only grant pull access for the member repositories.
 
 ### Federation Proposals (Origin Gitblit Instance)
 
@@ -91,7 +93,7 @@ You may view the details of a proposal by scrolling down to the bottom of the re
 
 ### Excluding Repositories (Origin Gitblit Instance)
 
-You may exclude a repository from being pulled by a federated Gitblit instance by setting its *federation strategy* to EXCLUDE in the repository's settings page.
+You may exclude a repository from being pulled by any federated Gitblit instance by setting its *federation strategy* to EXCLUDE in the repository's settings page.
 
 ### Excluding Repositories (Pulling Gitblit Instance)
 
@@ -287,3 +289,24 @@ The repositories will be put in *git.repositoriesFolder*/example4.
     federation.example4.mirror = true
     federation.example4.exclude = *
     federation.example4.include = somerepo.git
+    
+## Federation Client
+
+Instead of setting up a full-blown pulling Gitblit instance, you can also use the [federation client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) command-line utility.  This is a packaged subset of the federation feature in a smaller, simpler command-line only tool.
+
+The *federation client* relies on many of the same dependencies as Gitblit and will download them on first execution.
+
+### federation.properties
+You may use the `federation.properties` file to configure one or more Gitblit instances that you want to pull from.  This file is a subset of the standard `gitblit.properties` file.
+
+By default this tool does not daemonize itself; it executes and then quits.  This allows you to use the native scheduling feature of your OS.  Of course, if you'd rather use Gitblit's scheduler you may use that by specifying the `--daemon` parameter.
+
+### Command-Line Parameters
+Instead of using `federation.properties` you may directly specify a Gitblit instance to pull from with command-line parameters.
+
+    java -jar fedclient.jar --url https://go.gitblit.com --mirror --bare --token 123456789
+         --repositoriesFolder c:/mymirror
+    
+    java -jar fedclient.jar --url https://go.gitblit.com --mirror --bare --token 123456789
+         --repositoriesFolder c:/mymirror --daemon --frequency "24 hours"
+    

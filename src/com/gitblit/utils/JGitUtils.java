@@ -37,8 +37,6 @@ import java.util.zip.ZipOutputStream;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -142,6 +140,7 @@ public class JGitUtils {
 	 * Encapsulates the result of cloning or pulling from a repository.
 	 */
 	public static class CloneResult {
+		public String name;
 		public FetchResult fetchResult;
 		public boolean createdRepository;
 	}
@@ -175,12 +174,22 @@ public class JGitUtils {
 	 * @return CloneResult
 	 * @throws Exception
 	 */
-	public static CloneResult cloneRepository(File repositoriesFolder, String name, String fromUrl, boolean bare,
-			CredentialsProvider credentialsProvider) throws Exception {
+	public static CloneResult cloneRepository(File repositoriesFolder, String name, String fromUrl,
+			boolean bare, CredentialsProvider credentialsProvider) throws Exception {
 		CloneResult result = new CloneResult();
-		if (bare && !name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
-			name += Constants.DOT_GIT_EXT;
+		if (bare) {
+			// bare repository, ensure .git suffix
+			if (!name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
+				name += Constants.DOT_GIT_EXT;
+			}
+		} else {
+			// normal repository, strip .git suffix
+			if (name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
+				name = name.substring(0, name.indexOf(Constants.DOT_GIT_EXT));
+			}
 		}
+		result.name = name;
+
 		File folder = new File(repositoriesFolder, name);
 		if (folder.exists()) {
 			File gitDir = FileKey.resolve(new File(repositoriesFolder, name), FS.DETECTED);

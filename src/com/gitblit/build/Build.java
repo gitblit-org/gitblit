@@ -115,6 +115,19 @@ public class Build {
 		// needed for site publishing
 		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
+	
+	public static void federationClient() {
+		downloadFromApache(MavenObject.JCOMMANDER, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SERVLET, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.MAIL, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4LOG4J, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LOG4J, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		
+		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
+	}
 
 	/**
 	 * Builds the Keys class based on the gitblit.properties file and inserts

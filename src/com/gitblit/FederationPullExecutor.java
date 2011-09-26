@@ -15,6 +15,8 @@
  */
 package com.gitblit;
 
+import static org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.InetAddress;
@@ -23,14 +25,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
@@ -57,6 +62,8 @@ public class FederationPullExecutor implements Runnable {
 
 	private final List<FederationModel> registrations;
 
+	private final boolean isDaemon;
+
 	/**
 	 * Constructor for specifying a single federation registration. This
 	 * constructor is used to schedule the next pull execution.
@@ -64,7 +71,7 @@ public class FederationPullExecutor implements Runnable {
 	 * @param registration
 	 */
 	private FederationPullExecutor(FederationModel registration) {
-		this(Arrays.asList(registration));
+		this(Arrays.asList(registration), true);
 	}
 
 	/**
@@ -73,9 +80,13 @@ public class FederationPullExecutor implements Runnable {
 	 * on each registrations frequency setting.
 	 * 
 	 * @param registrations
+	 * @param isDaemon
+	 *            if true, registrations are rescheduled in perpetuity. if false,
+	 *            the federation pull operation is executed once.
 	 */
-	public FederationPullExecutor(List<FederationModel> registrations) {
+	public FederationPullExecutor(List<FederationModel> registrations, boolean isDaemon) {
 		this.registrations = registrations;
+		this.isDaemon = isDaemon;
 	}
 
 	/**
@@ -109,7 +120,9 @@ public class FederationPullExecutor implements Runnable {
 						"Failed to pull from federated gitblit ({0} @ {1})", registration.name,
 						registration.url), t);
 			} finally {
-				schedule(registration);
+				if (isDaemon) {
+					schedule(registration);
+				}
 			}
 		}
 	}
@@ -149,11 +162,24 @@ public class FederationPullExecutor implements Runnable {
 				continue;
 			}
 
+			// Determine local repository name
 			String repositoryName;
 			if (StringUtils.isEmpty(registrationFolder)) {
 				repositoryName = repository.name;
 			} else {
 				repositoryName = registrationFolder + "/" + repository.name;
+			}
+			
+			if (registration.bare) {
+				// bare repository, ensure .git suffix
+				if (!repositoryName.toLowerCase().endsWith(DOT_GIT_EXT)) {
+					repositoryName += DOT_GIT_EXT;
+				}
+			} else {
+				// normal repository, strip .git suffix
+				if (repositoryName.toLowerCase().endsWith(DOT_GIT_EXT)) {
+					repositoryName = repositoryName.substring(0, repositoryName.indexOf(DOT_GIT_EXT));
+				}
 			}
 
 			// confirm that the origin of any pre-existing repository matches
@@ -164,8 +190,10 @@ public class FederationPullExecutor implements Runnable {
 				StoredConfig config = existingRepository.getConfig();
 				config.load();
 				String origin = config.getString("remote", "origin", "url");
-				fetchHead = JGitUtils.getCommit(existingRepository, "refs/remotes/origin/master")
-						.getName();
+				RevCommit commit = JGitUtils.getCommit(existingRepository, "refs/remotes/origin/master");
+				if (commit != null) {
+					fetchHead = commit.getName();
+				}
 				existingRepository.close();
 				if (!origin.startsWith(registration.url)) {
 					logger.warn(MessageFormat
@@ -181,6 +209,7 @@ public class FederationPullExecutor implements Runnable {
 					Constants.FEDERATION_USER, registration.token);
 			logger.info(MessageFormat.format("Pulling federated repository {0} from {1} @ {2}",
 					repository.name, registration.name, registration.url));
+						
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
 					cloneUrl, registration.bare, credentials);
 			Repository r = GitBlit.self().getRepository(repositoryName);
@@ -196,8 +225,9 @@ public class FederationPullExecutor implements Runnable {
 			} else {
 				// fetch and update
 				boolean fetched = false;
-				String origin = JGitUtils.getCommit(r, "refs/remotes/origin/master").getName();
-				fetched = !fetchHead.equals(origin);
+				RevCommit commit = JGitUtils.getCommit(r, "refs/remotes/origin/master");
+				String origin = commit.getName();
+				fetched = fetchHead == null || !fetchHead.equals(origin);
 
 				if (registration.mirror) {
 					// mirror
@@ -225,6 +255,16 @@ public class FederationPullExecutor implements Runnable {
 				// preserve local settings
 				repository.isFrozen = rm.isFrozen;
 				repository.federationStrategy = rm.federationStrategy;
+				
+				// merge federation sets
+				Set<String> federationSets = new HashSet<String>();
+				if (rm.federationSets != null) {
+					federationSets.addAll(rm.federationSets);
+				}
+				if (repository.federationSets != null) {
+					federationSets.addAll(repository.federationSets);
+				}
+				repository.federationSets = new ArrayList<String>(federationSets);
 			}
 			// only repositories that are actually _cloned_ from the origin
 			// Gitblit repository are marked as federated. If the origin

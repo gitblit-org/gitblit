@@ -73,7 +73,7 @@ public class GitBlitSuite extends TestSetup {
 	@Override
 	protected void setUp() throws Exception {
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
-		GitBlit.self().configureContext(settings);
+		GitBlit.self().configureContext(settings, true);
 		FileUserService loginService = new FileUserService(new File("distrib/users.properties"));
 		GitBlit.self().setUserService(loginService);
 

@@ -26,7 +26,10 @@ import java.net.URLConnection;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +42,13 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.FederationServlet;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
@@ -74,6 +82,8 @@ public class FederationUtils {
 	private static final SSLContext SSL_CONTEXT;
 
 	private static final DummyHostnameVerifier HOSTNAME_VERIFIER;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(FederationUtils.class);
 
 	static {
 		SSLContext context = null;
@@ -86,6 +96,89 @@ public class FederationUtils {
 		SSL_CONTEXT = context;
 		HOSTNAME_VERIFIER = new DummyHostnameVerifier();
 		CHARSET = "UTF-8";
+	}
+
+	/**
+	 * Returns the list of federated gitblit instances that this instance will
+	 * try to pull.
+	 * 
+	 * @return list of registered gitblit instances
+	 */
+	public static List<FederationModel> getFederationRegistrations(IStoredSettings settings) {
+		List<FederationModel> federationRegistrations = new ArrayList<FederationModel>();
+		List<String> keys = settings.getAllKeys(Keys.federation._ROOT);
+		keys.remove(Keys.federation.name);
+		keys.remove(Keys.federation.passphrase);
+		keys.remove(Keys.federation.allowProposals);
+		keys.remove(Keys.federation.proposalsFolder);
+		keys.remove(Keys.federation.defaultFrequency);
+		keys.remove(Keys.federation.sets);
+		Collections.sort(keys);
+		Map<String, FederationModel> federatedModels = new HashMap<String, FederationModel>();
+		for (String key : keys) {
+			String value = key.substring(Keys.federation._ROOT.length() + 1);
+			List<String> values = StringUtils.getStringsFromValue(value, "\\.");
+			String server = values.get(0);
+			if (!federatedModels.containsKey(server)) {
+				federatedModels.put(server, new FederationModel(server));
+			}
+			String setting = values.get(1);
+			if (setting.equals("url")) {
+				// url of the origin Gitblit instance
+				federatedModels.get(server).url = settings.getString(key, "");
+			} else if (setting.equals("token")) {
+				// token for the origin Gitblit instance
+				federatedModels.get(server).token = settings.getString(key, "");
+			} else if (setting.equals("frequency")) {
+				// frequency of the pull operation
+				federatedModels.get(server).frequency = settings.getString(key, "");
+			} else if (setting.equals("folder")) {
+				// destination folder of the pull operation
+				federatedModels.get(server).folder = settings.getString(key, "");
+			} else if (setting.equals("bare")) {
+				// whether pulled repositories should be bare
+				federatedModels.get(server).bare = settings.getBoolean(key, true);
+			} else if (setting.equals("mirror")) {
+				// are the repositories to be true mirrors of the origin
+				federatedModels.get(server).mirror = settings.getBoolean(key, true);
+			} else if (setting.equals("mergeAccounts")) {
+				// merge remote accounts into local accounts
+				federatedModels.get(server).mergeAccounts = settings.getBoolean(key, false);
+			} else if (setting.equals("sendStatus")) {
+				// send a status acknowledgment to source Gitblit instance
+				// at end of git pull
+				federatedModels.get(server).sendStatus = settings.getBoolean(key, false);
+			} else if (setting.equals("notifyOnError")) {
+				// notify administrators on federation pull failures
+				federatedModels.get(server).notifyOnError = settings.getBoolean(key, false);
+			} else if (setting.equals("exclude")) {
+				// excluded repositories
+				federatedModels.get(server).exclusions = settings.getStrings(key);
+			} else if (setting.equals("include")) {
+				// included repositories
+				federatedModels.get(server).inclusions = settings.getStrings(key);
+			}
+		}
+
+		// verify that registrations have a url and a token
+		for (FederationModel model : federatedModels.values()) {
+			if (StringUtils.isEmpty(model.url)) {
+				LOGGER.warn(MessageFormat.format(
+						"Dropping federation registration {0}. Missing url.", model.name));
+				continue;
+			}
+			if (StringUtils.isEmpty(model.token)) {
+				LOGGER.warn(MessageFormat.format(
+						"Dropping federation registration {0}. Missing token.", model.name));
+				continue;
+			}
+			// set default frequency if unspecified
+			if (StringUtils.isEmpty(model.frequency)) {
+				model.frequency = settings.getString(Keys.federation.defaultFrequency, "60 mins");
+			}
+			federationRegistrations.add(model);
+		}
+		return federationRegistrations;
 	}
 
 	/**

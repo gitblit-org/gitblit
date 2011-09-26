@@ -130,7 +130,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    accessRestriction = clone
 	    isFrozen = false
 	    showReadme = false
-	    excludeFromFederation = false
+	    federationStrategy = FEDERATE_THIS
 	    isFederated = false
 	    federationSets = 
 	    

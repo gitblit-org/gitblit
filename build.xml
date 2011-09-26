@@ -5,6 +5,9 @@
 	<taskdef classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" 
 		classpath="${basedir}/tools/ant-googlecode-0.0.3.jar" name="gcupload"/>
 
+	<!-- GenJar task -->
+	<taskdef resource="genjar.properties" classpath="${basedir}/tools/GenJar.jar" />
+
 	<!-- Project Properties -->
 	<property name="project.jar" value="gitblit.jar" />
 	<property name="project.mainclass" value="com.gitblit.Launcher" />
@@ -81,6 +84,7 @@
 		</loadfile>	
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
+		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
 	</target>
 	
 	
@@ -104,7 +108,7 @@
 
 		<delete dir="${project.build.dir}" />
 		<mkdir dir="${project.build.dir}" />
-		<javac srcdir="${basedir}/src" destdir="${project.build.dir}">
+		<javac debug="true" srcdir="${basedir}/src" destdir="${project.build.dir}">
 			<include name="com/gitblit/build/Build.java" />			
 			<include name="com/gitblit/Constants.java" />
 			<include name="com/gitblit/utils/StringUtils.java" />			
@@ -116,8 +120,9 @@
 			<fileset dir="${basedir}/ext">
 				<include name="*.jar" />
 			</fileset>
+			<pathelement path="${project.build.dir}" />				
 		</path>
-		<javac destdir="${project.build.dir}" failonerror="false">
+		<javac debug="true" destdir="${project.build.dir}" failonerror="false">
 			<src path="${basedir}/src" />
 			<classpath refid="master-classpath" />
 		</javac>
@@ -144,6 +149,7 @@
 		<copy todir="${project.deploy.dir}">
 			<fileset dir="${basedir}/distrib">
 				<include name="**/*" />
+				<exclude name="federation.properties" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
@@ -256,6 +262,9 @@
 				<arg value="%WAR%=${distribution.warfile}" />
 
 				<arg value="--substitute" />
+				<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
+
+				<arg value="--substitute" />
 				<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 				<arg value="--substitute" />
@@ -362,6 +371,45 @@
 	</target>
 
 	
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build the stand-alone, command-line Gitblit Federation Client
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildFederationClient" depends="compile" description="Builds the stand-alone Gitblit federation client">
+		<echo>Building Gitblit Federation Client ${gb.version}</echo>
+	
+		<genjar jarfile="fedclient.jar">
+			<class name="com.gitblit.FederationClientLauncher" />
+			<resource file="${project.build.dir}/log4j.properties" />
+			<classfilter>
+				<exclude name="org.apache." />
+				<exclude name="org.bouncycastle." />
+				<exclude name="org.eclipse." />
+				<exclude name="org.slf4j." />
+				<exclude name="com.beust." />
+				<exclude name="com.google." />
+			</classfilter>
+			<classpath refid="master-classpath" />
+			<manifest>
+				<attribute name="Main-Class" value="com.gitblit.FederationClientLauncher" />
+				<attribute name="Specification-Version" value="${gb.version}" />				
+				<attribute name="Release-Date" value="${gb.versionDate}" />
+			</manifest>
+		</genjar>
+		
+		<!-- Build the federation client zip file -->
+		<zip destfile="${fedclient.zipfile}">
+			<fileset dir="${basedir}">
+				<include name="fedclient.jar" />				
+			</fileset>
+			<fileset dir="${basedir}/distrib">
+				<include name="federation.properties" />				
+			</fileset>
+		</zip>
+	</target>
+
+		
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build the Gitblit Website
@@ -474,6 +522,9 @@
 			<arg value="%WAR%=${distribution.warfile}" />
 
 			<arg value="--substitute" />
+			<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
+
+			<arg value="--substitute" />
 			<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 			<arg value="--substitute" />
@@ -503,7 +554,7 @@
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildSite">		
+	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />
@@ -539,6 +590,16 @@
 		     targetfilename="gitblit-${gb.version}.war"
 		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
+		
+		<!-- Upload FedClient -->
+		<gcupload 
+			username="${googlecode.user}" 
+			password="${googlecode.password}" 
+			projectname="gitblit" 
+			filename="${fedclient.zipfile}" 
+			targetfilename="fedclient-${gb.version}.zip"
+			summary="Gitblit Federation Client v${gb.version} (command-line tool to clone data from federated Gitblit instances)"
+			labels="Featured, Type-Package, OpSys-All" />
 	</target>
 
 	

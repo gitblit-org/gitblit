@@ -39,6 +39,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [JUnit](http://junit.org) (Common Public License)
 - [commons-net](http://commons.apache.org/net) (Apache 2.0)
 - [ant-googlecode](http://code.google.com/p/ant-googlecode) (New BSD)
+- [GenJar](http://genjar.sourceforge.net) (Apache 1.1)
 
 ## Building from Source
 [Eclipse](http://eclipse.org) is recommended for development as the project settings are preconfigured.
