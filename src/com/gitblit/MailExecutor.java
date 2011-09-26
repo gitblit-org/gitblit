@@ -145,8 +145,11 @@ public class MailExecutor implements Runnable {
 	public Message createMessage(List<String> toAddresses) {
 		MimeMessage message = new MimeMessage(session);
 		try {
-			InternetAddress from = new InternetAddress(settings.getString(Keys.mail.fromAddress,
-					"gitblit@gitblit.com"), "Gitblit");
+			String fromAddress = settings.getString(Keys.mail.fromAddress, null);
+			if (StringUtils.isEmpty(fromAddress)) {
+				fromAddress = "gitblit@gitblit.com";
+			}
+			InternetAddress from = new InternetAddress(fromAddress, "Gitblit");
 			message.setFrom(from);
 
 			InternetAddress[] tos = new InternetAddress[toAddresses.size()];
@@ -159,6 +162,15 @@ public class MailExecutor implements Runnable {
 			logger.error("Failed to properly create message", e);
 		}
 		return message;
+	}
+
+	/**
+	 * Returns the status of the mail queue.
+	 * 
+	 * @return true, if the queue is empty
+	 */
+	public boolean hasEmptyQueue() {
+		return queue.isEmpty();
 	}
 
 	/**
