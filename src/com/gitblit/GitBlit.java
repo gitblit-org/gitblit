@@ -872,6 +872,9 @@ public class GitBlit implements ServletContextListener {
 				} else if (setting.equals("folder")) {
 					// destination folder of the pull operation
 					federatedModels.get(server).folder = settings.getString(key, "");
+				} else if (setting.equals("bare")) {
+					// whether pulled repositories should be bare
+					federatedModels.get(server).bare = settings.getBoolean(key, true);
 				} else if (setting.equals("mirror")) {
 					// are the repositories to be true mirrors of the origin
 					federatedModels.get(server).mirror = settings.getBoolean(key, true);

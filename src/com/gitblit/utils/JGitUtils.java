@@ -159,7 +159,7 @@ public class JGitUtils {
 	 */
 	public static CloneResult cloneRepository(File repositoriesFolder, String name, String fromUrl)
 			throws Exception {
-		return cloneRepository(repositoriesFolder, name, fromUrl, null);
+		return cloneRepository(repositoriesFolder, name, fromUrl, true, null);
 	}
 
 	/**
@@ -170,14 +170,15 @@ public class JGitUtils {
 	 * @param repositoriesFolder
 	 * @param name
 	 * @param fromUrl
+	 * @param bare
 	 * @param credentialsProvider
 	 * @return CloneResult
 	 * @throws Exception
 	 */
-	public static CloneResult cloneRepository(File repositoriesFolder, String name, String fromUrl,
+	public static CloneResult cloneRepository(File repositoriesFolder, String name, String fromUrl, boolean bare,
 			CredentialsProvider credentialsProvider) throws Exception {
 		CloneResult result = new CloneResult();
-		if (!name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
+		if (bare && !name.toLowerCase().endsWith(Constants.DOT_GIT_EXT)) {
 			name += Constants.DOT_GIT_EXT;
 		}
 		File folder = new File(repositoriesFolder, name);
@@ -188,7 +189,7 @@ public class JGitUtils {
 			repository.close();
 		} else {
 			CloneCommand clone = new CloneCommand();
-			clone.setBare(true);
+			clone.setBare(bare);
 			clone.setCloneAllBranches(true);
 			clone.setURI(fromUrl);
 			clone.setDirectory(folder);

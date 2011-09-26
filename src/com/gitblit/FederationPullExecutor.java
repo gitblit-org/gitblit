@@ -182,7 +182,7 @@ public class FederationPullExecutor implements Runnable {
 			logger.info(MessageFormat.format("Pulling federated repository {0} from {1} @ {2}",
 					repository.name, registration.name, registration.url));
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
-					cloneUrl, credentials);
+					cloneUrl, registration.bare, credentials);
 			Repository r = GitBlit.self().getRepository(repositoryName);
 			RepositoryModel rm = GitBlit.self().getRepositoryModel(repositoryName);
 			repository.isFrozen = registration.mirror;

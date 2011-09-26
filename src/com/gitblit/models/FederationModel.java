@@ -45,6 +45,8 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	public String frequency;
 
 	public String folder;
+	
+	public boolean bare;
 
     public boolean mirror;
 
