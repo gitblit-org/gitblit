@@ -55,6 +55,20 @@
 		<url-pattern>/zip/*</url-pattern>
 	</servlet-mapping>
 	
+	
+	<!-- Federation Servlet
+		 <url-pattern> MUST match: 
+		 	* com.gitblit.Constants.FEDERATION_PATH		 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>FederationServlet</servlet-name>
+		<servlet-class>com.gitblit.FederationServlet</servlet-class>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>FederationServlet</servlet-name>
+		<url-pattern>/federation/*</url-pattern>
+	</servlet-mapping>	
+	
 
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
@@ -85,19 +99,20 @@
 		<url-pattern>/feed/*</url-pattern>
 	</filter-mapping>
 	
-	<!-- Federation Servlet
+	
+	<!-- Download Zip Restriction Filter
 		 <url-pattern> MUST match: 
-		 	* com.gitblit.Constants.FEDERATION_PATH		 
+			* DownloadZipServlet
+			* com.gitblit.Constants.ZIP_PATH
 			* Wicket Filter ignorePaths parameter -->
-	<servlet>
-		<servlet-name>FederationServlet</servlet-name>
-		<servlet-class>com.gitblit.FederationServlet</servlet-class>		
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>FederationServlet</servlet-name>
-		<url-pattern>/federation/*</url-pattern>
-	</servlet-mapping>
-
+	<filter>
+		<filter-name>ZipFilter</filter-name>
+		<filter-class>com.gitblit.DownloadZipFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ZipFilter</filter-name>
+		<url-pattern>/zip/*</url-pattern>
+	</filter-mapping>
 		
 	<!-- Wicket Filter -->
     <filter>
@@ -118,6 +133,7 @@
              	* GitFilter <url-pattern>
              	* GitServlet <url-pattern>
              	* com.gitblit.Constants.GIT_PATH
+             	* Zipfilter <url-pattern>
              	* ZipServlet <url-pattern>
              	* com.gitblit.Constants.ZIP_PATH
              	* FederationServlet <url-pattern> -->

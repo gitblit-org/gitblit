@@ -25,20 +25,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
  * Streams out a zip file from the specified repository for any tree path at any
  * revision.
- * 
- * Unlike the GitServlet and the SyndicationServlet, this servlet is not
- * protected by an AccessRestrictionFilter. It performs its own authorization
- * check, but it does not perform any authentication. The assumption is that
- * requests to this servlet are made via the web ui and not by direct url
- * access. Unauthorized requests fail with a standard 403 (FORBIDDEN) code.
  * 
  * @author James Moger
  * 
@@ -72,7 +64,7 @@ public class DownloadZipServlet extends HttpServlet {
 	}
 
 	/**
-	 * Performs the authorization and zip streaming of the specified elements.
+	 * Creates a zip stream from the repository of the requested data.
 	 * 
 	 * @param request
 	 * @param response
@@ -86,8 +78,8 @@ public class DownloadZipServlet extends HttpServlet {
 			logger.warn("Zip downloads are disabled");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
-
 		}
+		
 		String repository = request.getParameter("r");
 		String basePath = request.getParameter("p");
 		String objectId = request.getParameter("h");
@@ -98,18 +90,6 @@ public class DownloadZipServlet extends HttpServlet {
 				name = name.substring(name.lastIndexOf('/') + 1);
 			}
 
-			// check roles first
-			boolean authorized = request.isUserInRole(Constants.ADMIN_ROLE);
-			authorized |= request.isUserInRole(repository);
-
-			if (!authorized) {
-				RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
-				if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
-					logger.warn("Unauthorized access via zip servlet for " + model.name);
-					response.sendError(HttpServletResponse.SC_FORBIDDEN);
-					return;
-				}
-			}
 			if (!StringUtils.isEmpty(basePath)) {
 				name += "-" + basePath.replace('/', '_');
 			}

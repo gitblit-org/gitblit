@@ -42,7 +42,8 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - updated: MarkdownPapers 1.1.1
 - updated: Wicket 1.4.18
 - updated: JGit 1.1.0
-- fixed: syndication urls for WAR builds
+- fixed: syndication urls for WAR deployments
+- fixed: authentication for zip downloads
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

@@ -17,7 +17,8 @@
 - updated: MarkdownPapers 1.1.1
 - updated: Wicket 1.4.18
 - updated: JGit 1.1.0
-- fixed: syndication urls for WAR builds
+- fixed: syndication urls for WAR deployments
+- fixed: authentication for zip downloads
 
 ### Older Releases
 

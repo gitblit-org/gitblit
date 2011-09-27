@@ -138,7 +138,7 @@ public abstract class AccessRestrictionFilter implements Filter {
 		}
 		String fullUrl = url + (StringUtils.isEmpty(params) ? "" : ("?" + params));
 
-		String repository = extractRepositoryName(url);
+		String repository = extractRepositoryName(fullUrl);
 
 		// Determine if the request URL is restricted
 		String fullSuffix = fullUrl.substring(repository.length());
