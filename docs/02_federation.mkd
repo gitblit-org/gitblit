@@ -2,12 +2,14 @@
 
 *SINCE 0.6.0*
 
-A Gitblit federation is a mechanism to clone repositories and keep them in sync from one Gitblit instance to another.  Federation can be used for automated backup of your repositories or may be used to initially clone groups of repositories to developer workstations.  If you are/were a Subversion user you might think of this as [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html), but better.
+A Gitblit federation is a mechanism to clone repositories and keep them in sync from one Gitblit instance to another.  Federation can be used to maintain a mirror of your Gitblit instance, to aggregate repositories from developer workstations, or to initially clone groups of repositories to developer workstations.  If you are/were a Subversion user you might think of this as [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html), but better.
 
 If your Gitblit instance allows federation and it is properly registered with another Gitblit instance, each of the *non-excluded* repositories of your Gitblit instance can be mirrored, in their entirety, to the pulling Gitblit instance.  You may optionally allow pulling of user accounts and backup of server settings.
 
 The federation feature should be considered a security backdoor and enabled or disabled as appropriate for your installation.<br/>
 Please review all the documentation to understand how it works and its limitations.
+
+![block diagram](fed_aggregation.png "Gitblit Federation Aggregation")
 
 ### Origin Gitblit Instance Requirements
 
@@ -235,6 +237,8 @@ By default, federated repositories can not be pushed to, they are read-only by t
 These examples would be entered into the `gitblit.properties` file of the pulling gitblit instance.
 
 #### (Nearly) Perfect Mirror Example
+
+![block diagram](fed_mirror.png "Gitblit Mirror")
 
 This assumes that the *token* is the *ALL* token from the origin gitblit instance.
 
