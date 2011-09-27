@@ -115,7 +115,7 @@ public class Constants {
 	 * Enumeration representing the types of federation requests.
 	 */
 	public static enum FederationRequest {
-		PROPOSAL, PULL_REPOSITORIES, PULL_USERS, PULL_SETTINGS, STATUS;
+		POKE, PROPOSAL, PULL_REPOSITORIES, PULL_USERS, PULL_SETTINGS, STATUS;
 
 		public static FederationRequest fromName(String name) {
 			for (FederationRequest type : values()) {
@@ -181,4 +181,16 @@ public class Constants {
 		}
 	}
 
+	/**
+	 * Enumeration representing the possible results of federation proposal
+	 * requests.
+	 */
+	public static enum FederationProposalResult {
+		ERROR, FEDERATION_DISABLED, MISSING_DATA, NO_PROPOSALS, NO_POKE, ACCEPTED;
+
+		@Override
+		public String toString() {
+			return name();
+		}
+	}
 }

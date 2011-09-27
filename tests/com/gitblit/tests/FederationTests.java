@@ -24,6 +24,7 @@ import java.util.concurrent.Executors;
 import junit.framework.TestCase;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.FederationServlet;
@@ -91,14 +92,15 @@ public class FederationTests extends TestCase {
 				"testtoken", repositories);
 
 		// propose federation
-		assertTrue("proposal refused",
-				FederationUtils.propose("http://localhost:" + port, proposal));
+		assertEquals("proposal refused",
+				FederationUtils.propose("http://localhost:" + port, proposal),
+				FederationProposalResult.NO_PROPOSALS);
 	}
 
 	public void testPullRepositories() throws Exception {
 		try {
-			String url = FederationServlet.asFederationLink("http://localhost:" + port, "testtoken",
-					FederationRequest.PULL_REPOSITORIES);
+			String url = FederationServlet.asFederationLink("http://localhost:" + port,
+					"testtoken", FederationRequest.PULL_REPOSITORIES);
 			String json = FederationUtils.readJson(url);
 		} catch (IOException e) {
 			if (!e.getMessage().contains("403")) {

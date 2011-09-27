@@ -35,6 +35,7 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -110,6 +111,16 @@ public class FederationServlet extends HttpServlet {
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
+		FederationRequest reqType = FederationRequest.fromName(request.getParameter("req"));
+		logger.info(MessageFormat.format("Federation {0} request from {1}", reqType,
+				request.getRemoteAddr()));
+
+		if (FederationRequest.POKE.equals(reqType)) {
+			// Gitblit always responds to POKE requests to verify a connection
+			logger.info("Received federation POKE from " + request.getRemoteAddr());
+			return;
+		}
+
 		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
 			logger.warn(Keys.git.enableGitServlet + " must be set TRUE for federation requests.");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -123,11 +134,6 @@ public class FederationServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
-
-		String token = request.getParameter("token");
-		FederationRequest reqType = FederationRequest.fromName(request.getParameter("req"));
-		logger.info(MessageFormat.format("Federation {0} request from {1}", reqType,
-				request.getRemoteAddr()));
 
 		if (FederationRequest.PROPOSAL.equals(reqType)) {
 			// Receive a gitblit federation proposal
@@ -156,6 +162,20 @@ public class FederationServlet extends HttpServlet {
 				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
 						proposal.tokenType.name(), proposal.url));
 				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+				return;
+			}
+
+			// poke the origin Gitblit instance that is proposing federation
+			boolean poked = false;
+			try {
+				poked = FederationUtils.poke(proposal.url);
+			} catch (Exception e) {
+				logger.error("Failed to poke origin", e);
+			}
+			if (!poked) {
+				logger.error(MessageFormat.format("Failed to send federation poke to {0}",
+						proposal.url));
+				response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
 				return;
 			}
 
@@ -207,6 +227,7 @@ public class FederationServlet extends HttpServlet {
 		}
 
 		// Determine the federation tokens for this gitblit instance
+		String token = request.getParameter("token");
 		List<String> tokens = GitBlit.self().getFederationTokens();
 		if (!tokens.contains(token)) {
 			logger.warn(MessageFormat.format(

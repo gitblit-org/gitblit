@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.GitBlit;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
@@ -78,17 +79,44 @@ public class SendProposalPage extends BasePage {
 					error("Please enter a destination url for your proposal!");
 					return;
 				}
-				
+
 				// build new proposal
 				FederationProposal proposal = GitBlit.self().createFederationProposal(myUrl, token);
 				proposal.url = myUrl;
 				proposal.message = message;
 				try {
-					if (FederationUtils.propose(destinationUrl, proposal)) {
-						info(MessageFormat.format("Proposal successfully received by {0}.", destinationUrl));
+					FederationProposalResult res = FederationUtils
+							.propose(destinationUrl, proposal);
+					switch (res) {
+					case ACCEPTED:
+						info(MessageFormat.format("Proposal successfully received by {0}.",
+								destinationUrl));
 						setResponsePage(RepositoriesPage.class);
-					} else {
-						error(MessageFormat.format("Sorry, {0} rejected your proposal.", destinationUrl));
+						break;
+					case NO_POKE:
+						error(MessageFormat.format(
+								"Sorry, {0} could not find a Gitblit instance at {1}.",
+								destinationUrl, myUrl));
+						break;
+					case NO_PROPOSALS:
+						error(MessageFormat.format(
+								"Sorry, {0} is not accepting proposals at this time.",
+								destinationUrl));
+						break;
+					case FEDERATION_DISABLED:
+						error(MessageFormat
+								.format("Sorry, {0} is not configured to federate with any Gitblit instances.",
+										destinationUrl));
+						break;
+					case MISSING_DATA:
+						error(MessageFormat.format("Sorry, {0} did not receive any proposal data!",
+								destinationUrl));
+						break;
+					case ERROR:
+						error(MessageFormat.format(
+								"Sorry, {0} reports that an unexpected error occurred!",
+								destinationUrl));
+						break;
 					}
 				} catch (Exception e) {
 					if (!StringUtils.isEmpty(e.getMessage())) {

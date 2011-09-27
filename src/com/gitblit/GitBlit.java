@@ -971,7 +971,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param proposal
 	 *            the proposal
 	 * @param gitblitUrl
-	 *            the url of your gitblit instance
+	 *            the url of your gitblit instance to send an email to
+	 *            administrators
 	 * @return true if the proposal was submitted
 	 */
 	public boolean submitFederationProposal(FederationProposal proposal, String gitblitUrl) {

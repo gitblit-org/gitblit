@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.FederationServlet;
 import com.gitblit.IStoredSettings;
@@ -82,7 +83,7 @@ public class FederationUtils {
 	private static final SSLContext SSL_CONTEXT;
 
 	private static final DummyHostnameVerifier HOSTNAME_VERIFIER;
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(FederationUtils.class);
 
 	static {
@@ -182,21 +183,60 @@ public class FederationUtils {
 	}
 
 	/**
+	 * Sends a federation poke to the Gitblit instance at remoteUrl. Pokes are
+	 * sent by an pulling Gitblit instance to an origin Gitblit instance as part
+	 * of the proposal process. This is to ensure that the pulling Gitblit
+	 * instance has an IP route to the origin instance.
+	 * 
+	 * @param remoteUrl
+	 *            the remote Gitblit instance to send a federation proposal to
+	 * @param proposal
+	 *            a complete federation proposal
+	 * @return true if there is a route to the remoteUrl
+	 */
+	public static boolean poke(String remoteUrl) throws Exception {
+		String url = FederationServlet.asFederationLink(remoteUrl, null, FederationRequest.POKE);
+		Gson gson = new Gson();
+		String json = gson.toJson("POKE");
+		int status = writeJson(url, json);
+		return status == HttpServletResponse.SC_OK;
+	}
+
+	/**
 	 * Sends a federation proposal to the Gitblit instance at remoteUrl
 	 * 
 	 * @param remoteUrl
 	 *            the remote Gitblit instance to send a federation proposal to
 	 * @param proposal
 	 *            a complete federation proposal
-	 * @return true if the proposal was received
+	 * @return the federation proposal result code
 	 */
-	public static boolean propose(String remoteUrl, FederationProposal proposal) throws Exception {
+	public static FederationProposalResult propose(String remoteUrl, FederationProposal proposal)
+			throws Exception {
 		String url = FederationServlet
 				.asFederationLink(remoteUrl, null, FederationRequest.PROPOSAL);
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		String json = gson.toJson(proposal);
 		int status = writeJson(url, json);
-		return status == HttpServletResponse.SC_OK;
+		switch (status) {
+		case HttpServletResponse.SC_FORBIDDEN:
+			// remote Gitblit Federation disabled
+			return FederationProposalResult.FEDERATION_DISABLED;
+		case HttpServletResponse.SC_BAD_REQUEST:
+			// remote Gitblit did not receive any JSON data
+			return FederationProposalResult.MISSING_DATA;
+		case HttpServletResponse.SC_METHOD_NOT_ALLOWED:
+			// remote Gitblit not accepting proposals
+			return FederationProposalResult.NO_PROPOSALS;
+		case HttpServletResponse.SC_NOT_ACCEPTABLE:
+			// remote Gitblit failed to poke this Gitblit instance
+			return FederationProposalResult.NO_POKE;
+		case HttpServletResponse.SC_OK:
+			// received
+			return FederationProposalResult.ACCEPTED;
+		default:
+			return FederationProposalResult.ERROR;
+		}
 	}
 
 	/**
