@@ -53,6 +53,16 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Setup the user service.
+	 * 
+	 * @param settings
+	 * @since 0.6.1
+	 */
+	@Override
+	public void setup(IStoredSettings settings) {
+	}
+
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false

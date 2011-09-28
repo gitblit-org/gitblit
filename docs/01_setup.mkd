@@ -172,6 +172,16 @@ Your user service class must be on Gitblit's classpath and must have a public de
 public interface IUserService {
 
 	/**
+	 * Setup the user service.
+	 * 
+	 * @param settings
+	 * @since 0.6.1
+	 */
+	@Override
+	public void setup(IStoredSettings settings) {
+	}
+	
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false

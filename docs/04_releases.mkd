@@ -3,6 +3,12 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- added: IUserService.setup(IStoredSettings) for custom user service implementations
+
+### Older Releases
+
+**0.6.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.war)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.6.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-09-27*
+
 - added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.
 <br/>**New:** *federation.name =*
 <br/>**New:** *federation.passphrase =*
@@ -19,8 +25,6 @@
 - updated: JGit 1.1.0
 - fixed: syndication urls for WAR deployments
 - fixed: authentication for zip downloads
-
-### Older Releases
 
 **0.5.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-07-27*
 

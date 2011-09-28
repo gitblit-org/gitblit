@@ -249,6 +249,7 @@ public class GitBlit implements ServletContextListener {
 	public void setUserService(IUserService userService) {
 		logger.info("Setting up user service " + userService.toString());
 		this.userService = userService;
+		this.userService.setup(settings);
 	}
 
 	/**

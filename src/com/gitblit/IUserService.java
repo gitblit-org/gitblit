@@ -29,6 +29,16 @@ import com.gitblit.models.UserModel;
 public interface IUserService {
 
 	/**
+	 * Setup the user service. This method allows custom implementations to
+	 * retrieve settings from gitblit.properties or the web.xml file without
+	 * relying on the GitBlit static singleton.
+	 * 
+	 * @param settings
+	 * @since 0.6.1
+	 */
+	void setup(IStoredSettings settings);
+
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false
