@@ -288,6 +288,9 @@ public class GitBlitServer {
 	/**
 	 * Creates an https connector.
 	 * 
+	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
+	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
+	 * 
 	 * @param keystore
 	 * @param password
 	 * @param useNIO
@@ -308,7 +311,24 @@ public class GitBlitServer {
 			SslSocketConnector ssl = new SslSocketConnector();
 			connector = ssl;
 		}
-		connector.setAllowRenegotiate(false);
+		// disable renegotiation unless this is a patched JVM
+		boolean allowRenegotiation = false;
+		String v = System.getProperty("java.version");
+		if (v.startsWith("1.7")) {
+			allowRenegotiation = true;
+		} else if (v.startsWith("1.6")) {
+			// 1.6.0_22 was first release with RFC-5746 implemented fix.
+			if (v.indexOf('_') > -1) {
+				String b = v.substring(v.indexOf('_') + 1);
+				if (Integer.parseInt(b) >= 22) {
+					allowRenegotiation = true;
+				}
+			}
+		}
+		if (allowRenegotiation) {
+			logger.info("   allowing SSL renegotiation on Java " + v);
+		}
+		connector.setAllowRenegotiate(true);
 		connector.setKeystore(keystore.getAbsolutePath());
 		connector.setPassword(password);
 		connector.setPort(port);

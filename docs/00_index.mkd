@@ -28,6 +28,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
