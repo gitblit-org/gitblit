@@ -63,7 +63,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.owner = owner;
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
-		federationSets = new ArrayList<String>();
+		this.federationSets = new ArrayList<String>();
+		this.federationStrategy = FederationStrategy.FEDERATE_THIS;
 	}
 
 	@Override
