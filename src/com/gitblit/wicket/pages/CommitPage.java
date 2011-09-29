@@ -165,7 +165,8 @@ public class CommitPage extends RepositoryPage {
 				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
 						.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						.newPathParameter(repositoryName, entry.commitId, entry.path))
+						.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 						.newPathParameter(repositoryName, entry.commitId, entry.path))
 						.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
