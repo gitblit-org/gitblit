@@ -102,7 +102,7 @@ public class WicketUtils {
 	}
 
 	public static void setAlternatingBackground(Component c, int i) {
-		String clazz = i % 2 == 0 ? "dark" : "light";
+		String clazz = i % 2 == 0 ? "light" : "dark";
 		setCssClass(c, clazz);
 	}
 

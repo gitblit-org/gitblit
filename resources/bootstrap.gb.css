@@ -1,5 +1,31 @@
-.topbar{
+body, input, select {
+	color: #202020;
+}
+
+ul, ol {
+	margin:0 !important;
+}
+
+hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.page-header h1, .page-header h2 {
+	color: #0069D6;
+}
+
+.topbar {
 	height:40px !important;
+}
+
+.topbar a {
+  	color: white; 
+	text-shadow: none;
+}
+
+.nav a:hover {
+	color: #abd4ff !important;
 }
 
 .topbar-inner,.topbar .fill{
@@ -85,7 +111,7 @@ pre.prettyprint ol {
 
 a.list {
 	text-decoration: none;
-	color: #000000;
+	color: inherit;
 }
 
 a.list.subject {
@@ -489,8 +515,8 @@ table.repositories tr.group td {
 	color: black;
 	background-color: #ddd;
 	padding-left: 5px;
-	border-top: 1px solid #ccc;
-	border-bottom: 1px solid #ccc;
+	border-top: 1px solid #aaa; 	
+ 	border-bottom: 1px solid #aaa; 
 }
 
 table.palette { border:0; width: 0 !important; }
@@ -534,8 +560,6 @@ table.gitnotes td.message {
 }
 
 table.annotated {
-	width: 100%;
-	border: 1px solid #bbb;
 }
 
 table.annotated tr.even {
@@ -543,13 +567,18 @@ table.annotated tr.even {
 }
 
 table.annotated tr.odd {
-	background-color: #fdfbdf;
+	background-color: #f5f5f5;
 }
 
 table.annotated td {
 	padding: 0px;
 	border: 0;
 }
+
+tr th a { background-position: right; padding-right: 15px; background-repeat:no-repeat; }
+tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
+tr th.wicket_orderUp a { background-image: url(arrow_up.png); }
+tr th.wicket_orderNone a { background-image: url(arrow_off.png); }
 
 tr.light {
 	background-color: #ffffff;
@@ -661,6 +690,7 @@ span .localBranch {
 
 .feedbackPanelERROR, .feedbackPanelINFO {	
 	list-style: none;
+	line-height: 35px;
 }
 
 .feedbackPanelINFO span, .feedbackPanelERROR span {

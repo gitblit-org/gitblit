@@ -125,12 +125,13 @@ public class RepositoriesPanel extends BasePanel {
 		} else {
 			dp = new SortableRepositoriesProvider(models);
 		}
-		
+
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
+			String currGroupName;
 
 			@Override
 			protected void onBeforeRender() {
@@ -141,23 +142,32 @@ public class RepositoriesPanel extends BasePanel {
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
 				if (entry instanceof GroupRepositoryModel) {
+					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
 					row.add(new Label("groupName", entry.toString()));
 					WicketUtils.setCssClass(item, "group");
+					// reset counter so that first row is light background
+					counter = 0;
 					return;
 				}
 				Fragment row = new Fragment("rowContent", "repositoryRow", this);
 				item.add(row);
+				
+				// try to strip group name for less cluttered list
+				String repoName = entry.name;
+				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
+					repoName = repoName.substring(currGroupName.length() + 1);
+				}
+				
 				if (entry.hasCommits && linksActive) {
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-					row.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class,
-							pp));
+					row.add(new LinkPanel("repositoryName", "list", repoName, SummaryPage.class, pp));
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
 							SummaryPage.class, pp));
 				} else {
 					// new/empty repository OR proposed repository
-					row.add(new Label("repositoryName", entry.name));
+					row.add(new Label("repositoryName", repoName));
 					row.add(new Label("repositoryDescription", entry.description));
 				}
 

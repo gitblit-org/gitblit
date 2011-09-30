@@ -19,6 +19,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
@@ -394,5 +396,45 @@ public class StringUtils {
 			return prefixMatches || suffixMatches;
 		}
 		return false;
+	}
+
+	/**
+	 * Compare two repository names for proper group sorting.
+	 * 
+	 * @param r1
+	 * @param r2
+	 * @return
+	 */
+	public static int compareRepositoryNames(String r1, String r2) {
+		// sort root repositories first, alphabetically
+		// then sort grouped repositories, alphabetically
+		int s1 = r1.indexOf('/');
+		int s2 = r2.indexOf('/');
+		if (s1 == -1 && s2 == -1) {
+			// neither grouped
+			return r1.compareTo(r2);
+		} else if (s1 > -1 && s2 > -1) {
+			// both grouped
+			return r1.compareTo(r2);
+		} else if (s1 == -1) {
+			return -1;
+		} else if (s2 == -1) {
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * Sort grouped repository names.
+	 * 
+	 * @param list
+	 */
+	public static void sortRepositorynames(List<String> list) {
+		Collections.sort(list, new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return compareRepositoryNames(o1, o2);
+			}
+		});
 	}
 }

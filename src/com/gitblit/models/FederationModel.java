@@ -198,22 +198,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 		@Override
 		public int compareTo(RepositoryStatus o) {
 			if (status.equals(o.status)) {
-				// sort root repositories first, alphabetically
-				// then sort grouped repositories, alphabetically
-				int s1 = name.indexOf('/');
-				int s2 = o.name.indexOf('/');
-				if (s1 == -1 && s2 == -1) {
-					// neither grouped
-					return name.compareTo(o.name);
-				} else if (s1 > -1 && s2 > -1) {
-					// both grouped
-					return name.compareTo(o.name);
-				} else if (s1 == -1) {
-					return -1;
-				} else if (s2 == -1) {
-					return 1;
-				}
-				return 0;
+				return StringUtils.compareRepositoryNames(name, o.name);
 			}
 			return status.compareTo(o.status);
 		}

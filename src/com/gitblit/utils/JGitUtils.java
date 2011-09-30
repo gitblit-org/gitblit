@@ -299,7 +299,7 @@ public class JGitUtils {
 		}
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
 				exportAll, searchSubfolders));
-		Collections.sort(list);
+		StringUtils.sortRepositorynames(list);
 		return list;
 	}
 

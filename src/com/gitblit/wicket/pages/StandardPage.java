@@ -18,6 +18,8 @@ package com.gitblit.wicket.pages;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
+import com.gitblit.utils.StringUtils;
+
 public abstract class StandardPage extends BasePage {
 	
 	public StandardPage() {
@@ -34,7 +36,10 @@ public abstract class StandardPage extends BasePage {
 
 	protected void setupPage(String pageName, String subName) {		
 		add(new Label("pageName", pageName));
-		add(new Label("pageSubName", "/ " + subName));
+		if (!StringUtils.isEmpty(subName)) {
+			subName = "/ " + subName;
+		}
+		add(new Label("pageSubName", subName));
 		super.setupPage("", pageName);
 	}
 }

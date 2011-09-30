@@ -29,6 +29,7 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.WebRequest;
@@ -44,6 +45,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
 public abstract class BasePage extends WebPage {
@@ -91,6 +93,10 @@ public abstract class BasePage extends WebPage {
 		} else {
 			add(new Label("title", getServerName()));
 		}
+
+		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(RepositoriesPage.class, null).toString());
+		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
+		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));

@@ -137,7 +137,7 @@ public abstract class RepositoryPage extends BasePage {
 				PageRegistration pageReg = registeredPages.get(extra);
 				item.add(new LinkPanel("extraLink", null, getString(pageReg.translationKey),
 						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName))
-						.setEnabled(!extra.equals(pageWicketId)));
+						/*.setEnabled(!extra.equals(pageWicketId))*/);
 			}
 		};
 		add(extrasView);
@@ -182,8 +182,8 @@ public abstract class RepositoryPage extends BasePage {
 		if (!StringUtils.isEmpty(wicketId)) {
 			Component c = get(wicketId);
 			if (c != null) {
-				//c.setEnabled(false);
-				WicketUtils.setCssClass(c, "active");
+//				c.setEnabled(false);
+//				WicketUtils.setCssClass(c, "selected");
 			}
 		}
 	}

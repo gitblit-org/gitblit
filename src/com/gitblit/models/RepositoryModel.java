@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.utils.StringUtils;
 
 /**
  * RepositoryModel is a serializable model class that represents a Gitblit
@@ -74,6 +75,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 
 	@Override
 	public int compareTo(RepositoryModel o) {
-		return name.compareTo(o.name);
+		return StringUtils.compareRepositoryNames(name, o.name);
 	}
 }

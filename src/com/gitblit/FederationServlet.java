@@ -33,7 +33,6 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;

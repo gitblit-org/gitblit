@@ -34,11 +34,11 @@ import com.gitblit.wicket.panels.RepositoriesPanel;
 public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {
-		super();		
+		super();
 
 		// Load the markdown welcome message
 		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
-		String message = "<br/>";
+		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
 			// Read default welcome message
 			try {
@@ -69,8 +69,15 @@ public class RepositoriesPage extends RootPage {
 			}
 		}
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
-				.setEscapeModelStrings(false);
+				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
-		add(new RepositoriesPanel("repositoriesPanel", showAdmin, null, getAccessRestrictions()));		
+		RepositoriesPanel repositories = new RepositoriesPanel("repositoriesPanel", showAdmin,
+				null, getAccessRestrictions());
+		// push the panel down if we are hiding the admin controls and the
+		// welcome message
+		if (!showAdmin && !repositoriesMessage.isVisible()) {
+			WicketUtils.setCssStyle(repositories, "padding-top:5px;");
+		}
+		add(repositories);
 	}
 }
