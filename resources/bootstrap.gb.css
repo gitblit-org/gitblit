@@ -366,7 +366,8 @@ div.diff table th.header {
 }
 
 div.diff table td.hunk_header {
-	background-color: #dAe2e5 !important;	
+	background-color: #dAe2e5 !important;
+	border-top: 1px solid #bac2c5;	
 	border-bottom: 1px solid #bac2c5;
 	color: #555;
 }

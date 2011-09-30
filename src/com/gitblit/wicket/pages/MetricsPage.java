@@ -68,7 +68,7 @@ public class MetricsPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(500, 100), ChartType.LINE,
+			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
 					data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			dateAxis.setLabels(new String[] { metrics.get(0).name,
@@ -93,7 +93,7 @@ public class MetricsPage extends RepositoryPage {
 		if ((metrics != null) && (metrics.size() > 0)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(500, 100),
+			ChartProvider provider = new ChartProvider(new Dimension(400, 100),
 					ChartType.BAR_VERTICAL_SET, data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			List<String> labels = new ArrayList<String>();
