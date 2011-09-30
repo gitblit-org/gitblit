@@ -87,21 +87,11 @@ public abstract class BasePage extends WebPage {
 	}
 
 	protected void setupPage(String repositoryName, String pageName) {
-
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", getServerName() + " - " + repositoryName));
 		} else {
 			add(new Label("title", getServerName()));
 		}
-		// header
-		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
-		if (siteName == null || siteName.trim().length() == 0) {
-			siteName = Constants.NAME;
-		}
-		add(new LinkPanel("siteName", null, siteName, RepositoriesPage.class, null));
-		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new Label("pageName", pageName));
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));

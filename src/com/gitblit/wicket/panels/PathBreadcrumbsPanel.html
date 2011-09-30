@@ -7,9 +7,11 @@
 <wicket:panel>
 	<!-- page path links -->
 	<div class="page_path">	
-		<span wicket:id="path">
-			<span wicket:id="pathLink"></span> <span wicket:id="pathSeparator"></span>
-		</span>
+		<ul class="breadcrumb">
+			<li wicket:id="path">
+				<span wicket:id="pathLink"></span> <span class="divider" wicket:id="pathSeparator"></span>
+			</li>
+		</ul>
 	</div>
 </wicket:panel>
 </html>

@@ -9,12 +9,23 @@
 
 <body>
 <wicket:extend>
-	<!-- Filler div -->
-	<div style="padding-top:18px;"></div>
-		
-	<div style="text-align:center;padding-bottom:5px;" wicket:id="feedback">[Feedback Panel]</div>
+<div class="topbar">
+			<div class="fill">
+			<div class="container">
+			<a class="brand" title="gitblit homepage" href="http://gitblit.com/">
+				<img src="gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>				
+			</a>
+<form class="pull-right" action="">
+<input class="input-small" type="text" placeholder="Username">
+<input class="input-small" type="password" placeholder="Password">
+<button class="btn primary" type="submit">Sign in</button>
+</form>
+</div>
+</div>
+</div>
+	<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
 	
-	<div class="markdown" style="margin-top:-0.5em;padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
+	<div class="markdown" style="margin-top:-1em;padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
 	
 	<div wicket:id="repositoriesPanel">[repositories panel]</div>
 
