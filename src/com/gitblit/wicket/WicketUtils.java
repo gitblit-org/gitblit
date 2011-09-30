@@ -88,13 +88,13 @@ public class WicketUtils {
 	public static void setTicketCssClass(Component container, String state) {
 		String css = null;
 		if (state.equals("open")) {
-			css = "bug_open";
+			css = "label important";
 		} else if (state.equals("hold")) {
-			css = "bug_hold";
+			css = "label warning";
 		} else if (state.equals("resolved")) {
-			css = "bug_resolved";
+			css = "label success";
 		} else if (state.equals("invalid")) {
-			css = "bug_invalid";
+			css = "label";
 		}
 		if (css != null) {
 			setCssClass(container, css);

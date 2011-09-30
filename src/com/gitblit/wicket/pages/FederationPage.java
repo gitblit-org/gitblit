@@ -25,6 +25,7 @@ public class FederationPage extends RootPage {
 
 	public FederationPage() {
 		super();
+		setupPage("", "");
 
 		boolean showFederation = showAdmin && GitBlit.canFederate();
 		add(new FederationTokensPanel("federationTokensPanel", showFederation)

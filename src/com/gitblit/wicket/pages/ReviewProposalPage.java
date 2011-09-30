@@ -33,7 +33,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
 @RequiresAdminRole
-public class ReviewProposalPage extends StandardPage {
+public class ReviewProposalPage extends RootSubPage {
 
 	private final String PROPS_PATTERN = "{0} = {1}\n";
 
@@ -91,7 +91,7 @@ public class ReviewProposalPage extends StandardPage {
 
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>(
 				proposal.repositories.values());
-		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositories", false,
+		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", false,
 				repositories, getAccessRestrictions());
 		add(repositoriesPanel);
 	}

@@ -20,21 +20,24 @@ import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.utils.StringUtils;
 
-public abstract class StandardPage extends BasePage {
-	
-	public StandardPage() {
-		// create constructor
+/**
+ * RootSubPage is a non-topbar navigable RootPage. It also has a page header.
+ * 
+ * @author James Moger
+ * 
+ */
+public abstract class RootSubPage extends RootPage {
+
+	public RootSubPage() {
 		super();
-		setStatelessHint(true);
 	}
 
-	public StandardPage(PageParameters params) {
-		// edit constructor
+	public RootSubPage(PageParameters params) {
 		super(params);
-		setStatelessHint(true);
 	}
 
-	protected void setupPage(String pageName, String subName) {		
+	@Override
+	protected void setupPage(String pageName, String subName) {
 		add(new Label("pageName", pageName));
 		if (!StringUtils.isEmpty(subName)) {
 			subName = "/ " + subName;

@@ -47,7 +47,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class EditRepositoryPage extends StandardPage {
+public class EditRepositoryPage extends RootSubPage {
 
 	private final boolean isCreate;
 

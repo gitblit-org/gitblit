@@ -37,7 +37,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
 @RequiresAdminRole
-public class SendProposalPage extends StandardPage {
+public class SendProposalPage extends RootSubPage {
 
 	public String myUrl;
 
@@ -139,7 +139,7 @@ public class SendProposalPage extends StandardPage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(RepositoriesPage.class);
+				setResponsePage(FederationPage.class);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
@@ -148,7 +148,7 @@ public class SendProposalPage extends StandardPage {
 
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>(
 				proposal.repositories.values());
-		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositories", false,
+		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", false,
 				repositories, getAccessRestrictions());
 		add(repositoriesPanel);
 	}

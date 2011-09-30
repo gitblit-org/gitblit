@@ -44,7 +44,7 @@ import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
 
 @RequiresAdminRole
-public class EditUserPage extends StandardPage {
+public class EditUserPage extends RootSubPage {
 
 	private final boolean isCreate;
 
@@ -157,8 +157,8 @@ public class EditUserPage extends StandardPage {
 							userModel.username));
 					setResponsePage(EditUserPage.class);
 				} else {
-					// back to home
-					setResponsePage(RepositoriesPage.class);
+					// back to users page
+					setResponsePage(UsersPage.class);
 				}
 			}
 		};

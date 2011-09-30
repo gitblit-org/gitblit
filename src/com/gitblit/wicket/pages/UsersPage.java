@@ -23,6 +23,7 @@ public class UsersPage extends RootPage {
 
 	public UsersPage() {
 		super();		
+		setupPage("", "");
 
 		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
 	}

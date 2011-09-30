@@ -17,15 +17,13 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 
-import javax.servlet.http.Cookie;
-
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Constants;
@@ -35,23 +33,30 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 
+/**
+ * Root page is a topbar, navigable page like Repositories, Users, or
+ * Federation.
+ * 
+ * @author James Moger
+ * 
+ */
 public abstract class RootPage extends BasePage {
 
-	final boolean showAdmin;
+	boolean showAdmin;
 
 	IModel<String> username = new Model<String>("");
 	IModel<String> password = new Model<String>("");
 
 	public RootPage() {
 		super();
-		setupPage("", "");
+	}
 
-		// try to automatically login from cookie
-		if (!GitBlitWebSession.get().isLoggedIn()
-				&& GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
-			loginByCookie();
-		}
+	public RootPage(PageParameters params) {
+		super(params);
+	}
 
+	@Override
+	protected void setupPage(String repositoryName, String pageName) {
 		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
@@ -122,19 +127,8 @@ public abstract class RootPage extends BasePage {
 						pendingProposals));
 			}
 		}
-	}
 
-	private void loginByCookie() {
-		UserModel user = null;
-
-		// Grab cookie from Browser Session
-		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
-		if (cookies != null && cookies.length > 0) {
-			user = GitBlit.self().authenticate(cookies);
-		}
-
-		// Login the user
-		loginUser(user);
+		super.setupPage(repositoryName, pageName);
 	}
 
 	private void loginUser(UserModel user) {

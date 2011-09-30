@@ -32,7 +32,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 
-public class ChangePasswordPage extends StandardPage {
+public class ChangePasswordPage extends RootSubPage {
 
 	IModel<String> password = new Model<String>("");
 	IModel<String> confirmPassword = new Model<String>("");

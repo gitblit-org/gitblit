@@ -35,6 +35,7 @@ public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {
 		super();
+		setupPage("", "");
 
 		// Load the markdown welcome message
 		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
