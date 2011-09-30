@@ -37,7 +37,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
 @RequiresAdminRole
-public class SendProposalPage extends BasePage {
+public class SendProposalPage extends StandardPage {
 
 	public String myUrl;
 
@@ -48,7 +48,7 @@ public class SendProposalPage extends BasePage {
 	public SendProposalPage(PageParameters params) {
 		super(params);
 
-		setupPage("", getString("gb.sendProposal"));
+		setupPage(getString("gb.sendProposal"), "");
 		setStatelessHint(true);
 
 		final String token = WicketUtils.getToken(params);

@@ -44,7 +44,6 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
 public abstract class BasePage extends WebPage {
@@ -190,7 +189,7 @@ public abstract class BasePage extends WebPage {
 		if (GitBlitWebSession.get().isLoggedIn()) {
 			error(message, true);
 		} else {
-			throw new RestartResponseAtInterceptPageException(LoginPage.class);
+			throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
 		}
 	}
 
@@ -216,8 +215,7 @@ public abstract class BasePage extends WebPage {
 			} else {
 				// login
 				add(new Label("username").setVisible(false));
-				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.login"),
-						LoginPage.class));
+				add(new Label("loginLink").setVisible(false));
 				add(new Label("separator").setVisible(false));
 				add(new Label("changePasswordLink").setVisible(false));
 			}

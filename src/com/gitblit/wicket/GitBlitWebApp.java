@@ -32,17 +32,15 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
-import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
-import com.gitblit.wicket.pages.LoginPage;
-import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
+import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
@@ -100,12 +98,6 @@ public class GitBlitWebApp extends WebApplication {
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
-
-		// setup login/logout urls, if we are using authentication
-		if (useAuthentication) {
-			mount("/login", LoginPage.class);
-			mount("/logout", LogoutPage.class);
-		}
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {

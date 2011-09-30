@@ -31,7 +31,7 @@ import com.gitblit.models.FederationModel.RepositoryStatus;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class FederationRegistrationPage extends BasePage {
+public class FederationRegistrationPage extends StandardPage {
 
 	public FederationRegistrationPage(PageParameters params) {
 		super(params);
@@ -53,8 +53,8 @@ public class FederationRegistrationPage extends BasePage {
 			error("Could not find federation registration!", true);
 		}
 
-		setupPage("", registration.isResultData() ? getString("gb.federationResults")
-				: getString("gb.federationRegistration"));
+		setupPage(registration.isResultData() ? getString("gb.federationResults")
+				: getString("gb.federationRegistration"), registration.url);
 
 		add(new Label("url", registration.url));
 		add(WicketUtils.getRegistrationImage("typeIcon", registration, this));

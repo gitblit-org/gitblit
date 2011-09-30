@@ -47,7 +47,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class EditRepositoryPage extends BasePage {
+public class EditRepositoryPage extends StandardPage {
 
 	private final boolean isCreate;
 
@@ -76,15 +76,16 @@ public class EditRepositoryPage extends BasePage {
 		List<String> federationSets = new ArrayList<String>();
 		List<String> repositoryUsers = new ArrayList<String>();
 		if (isCreate) {
-			super.setupPage("", getString("gb.newRepository"));
+			super.setupPage(getString("gb.newRepository"), "");
 		} else {
-			super.setupPage("", getString("gb.edit"));
+			super.setupPage(getString("gb.edit"), repositoryModel.name);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
 				repositoryUsers.addAll(GitBlit.self().getRepositoryUsers(repositoryModel));
 				Collections.sort(repositoryUsers);
 			}
 			federationSets.addAll(repositoryModel.federationSets);
-		}
+		}		
+		
 
 		final String oldName = repositoryModel.name;
 		// users palette

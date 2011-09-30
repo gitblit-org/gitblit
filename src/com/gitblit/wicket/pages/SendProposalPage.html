@@ -6,21 +6,15 @@
 
 <wicket:extend>
 <body onload="document.getElementById('myUrl').focus();">
-
-
-	<div style="padding-top:20px"></div>
-
-	<div style="text-align:center;" wicket:id="feedback">[Feedback Panel]</div>	
-
 	<!-- proposal info -->
 	<form wicket:id="editForm">
 	<table class="plain">
-		<tr><th><wicket:message key="gb.url">url</wicket:message></th><td class="edit"><input type="text" wicket:id="myUrl" id="myUrl" size="60" />  &nbsp;<i><wicket:message key="gb.myUrlDescription"></wicket:message></i></td></tr>
-		<tr><th><wicket:message key="gb.destinationUrl">destination url</wicket:message></th><td class="edit"><input type="text" wicket:id="destinationUrl" size="60" /> &nbsp;<i><wicket:message key="gb.destinationUrlDescription"></wicket:message></i></td></tr>
-		<tr><th valign="top"><wicket:message key="gb.message">message</wicket:message></th><td class="edit"><input type="text" wicket:id="message" size="80" /></td></tr>
+		<tr><th><wicket:message key="gb.url">url</wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="myUrl" id="myUrl" size="60" />  &nbsp;<i><wicket:message key="gb.myUrlDescription"></wicket:message></i></td></tr>
+		<tr><th><wicket:message key="gb.destinationUrl">destination url</wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="destinationUrl" size="60" /> &nbsp;<i><wicket:message key="gb.destinationUrlDescription"></wicket:message></i></td></tr>
+		<tr><th valign="top"><wicket:message key="gb.message">message</wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="message" size="80" /></td></tr>
 		<tr><th><wicket:message key="gb.type">type</wicket:message></th><td><span wicket:id="tokenType">[token type]</span></td></tr>
 		<tr><th><wicket:message key="gb.token">token</wicket:message></th><td><span class="sha1" wicket:id="token">[token]</span></td></tr>
-		<tr><th></th><td class="editButton"><input type="submit" value="propose" wicket:message="value:gb.sendProposal" wicket:id="save" /> <input type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /></td></tr>
+		<tr><th></th><td class="editButton"><input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /> <input class="btn primary" type="submit" value="propose" wicket:message="value:gb.sendProposal" wicket:id="save" /> </td></tr>
 	</table>
 	</form>
 	
