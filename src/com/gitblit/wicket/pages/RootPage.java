@@ -32,6 +32,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
 
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
@@ -104,8 +105,12 @@ public abstract class RootPage extends BasePage {
 				}
 			}
 		};
-		loginForm.add(new TextField<String>("username", username));
-		loginForm.add(new PasswordTextField("password", password));
+		TextField<String> unameField = new TextField<String>("username", username);
+		WicketUtils.setInputPlaceholder(unameField, getString("gb.username"));
+		loginForm.add(unameField);
+		PasswordTextField pwField = new PasswordTextField("password", password);
+		WicketUtils.setInputPlaceholder(pwField, getString("gb.password"));
+		loginForm.add(pwField);
 		add(loginForm);
 		if (GitBlit.getBoolean(Keys.web.authenticateViewPages, true)
 				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {

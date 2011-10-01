@@ -19,9 +19,11 @@
 				</ul>
 				
 				<form class="pull-right" wicket:id="loginForm">
-					<input  wicket:id="username" class="input-small" type="text" placeholder="Username">
-					<input  wicket:id="password" class="input-small" type="password" placeholder="Password">
-					<button class="btn primary" type="submit">Sign in</button>
+					<div class="login">
+						<input wicket:id="username" class="input-small" type="text" />
+						<input wicket:id="password" class="input-small" type="password" />
+						<button class="btn primary" type="submit"><wicket:message key="gb.login"></wicket:message></button>
+					</div>
 				</form>
 			</div>
 		</div>

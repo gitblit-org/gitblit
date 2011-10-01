@@ -175,7 +175,7 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 ## Federation Pull Registration Keys
 
-<table class="text">
+<table>
 <tr><th>federation.N.url</th>
 <td>string</td>
 <td>the url of the origin Gitblit instance *(required)*</td>

@@ -91,7 +91,7 @@ public class BuildSite {
 
 		System.out.println(MessageFormat.format("Generating site from {0} Markdown Docs in {1} ",
 				markdownFiles.length, sourceFolder.getAbsolutePath()));
-		String linkPattern = "<a href=''{0}''>{1}</a>";
+		String linkPattern = "<li><a href=''{0}''>{1}</a></li>";
 		StringBuilder sb = new StringBuilder();
 		for (File file : markdownFiles) {
 			String documentName = getDocumentName(file);

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -28,6 +29,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
@@ -37,23 +39,40 @@ public class RepositoriesPage extends RootPage {
 		super();
 		setupPage("", "");
 
+		// check to see if we should display a login message
+		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
+			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
+			String message = readMarkdown(messageSource, "login.mkd");
+			Component repositoriesMessage = new Label("repositoriesMessage", message);
+			add(repositoriesMessage.setEscapeModelStrings(false));
+			add(new Label("repositoriesPanel"));
+			return;
+		}
+
 		// Load the markdown welcome message
 		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
+		String message = readMarkdown(messageSource, "welcome.mkd");
+		Component repositoriesMessage = new Label("repositoriesMessage", message)
+				.setEscapeModelStrings(false).setVisible(message.length() > 0);
+		add(repositoriesMessage);
+		RepositoriesPanel repositories = new RepositoriesPanel("repositoriesPanel", showAdmin,
+				null, getAccessRestrictions());
+		// push the panel down if we are hiding the admin controls and the
+		// welcome message
+		if (!showAdmin && !repositoriesMessage.isVisible()) {
+			WicketUtils.setCssStyle(repositories, "padding-top:5px;");
+		}
+		add(repositories);
+	}
+
+	private String readMarkdown(String messageSource, String resource) {
 		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
-			// Read default welcome message
-			try {
-				ContextRelativeResource res = WicketUtils.getResource("welcome.mkd");
-				InputStream is = res.getResourceStream().getInputStream();
-				InputStreamReader reader = new InputStreamReader(is);
-				message = MarkdownUtils.transformMarkdown(reader);
-				reader.close();
-			} catch (Throwable t) {
-				message = "Failed to read default welcome message!";
-				error(message, t, false);
-			}
+			// Read default message
+			message = readDefaultMarkdown(resource);
 		} else {
-			// Read user-supplied welcome message
+			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
 				File file = new File(messageSource);
 				if (file.exists()) {
@@ -69,16 +88,21 @@ public class RepositoriesPage extends RootPage {
 				}
 			}
 		}
-		Component repositoriesMessage = new Label("repositoriesMessage", message)
-				.setEscapeModelStrings(false).setVisible(message.length() > 0);
-		add(repositoriesMessage);
-		RepositoriesPanel repositories = new RepositoriesPanel("repositoriesPanel", showAdmin,
-				null, getAccessRestrictions());
-		// push the panel down if we are hiding the admin controls and the
-		// welcome message
-		if (!showAdmin && !repositoriesMessage.isVisible()) {
-			WicketUtils.setCssStyle(repositories, "padding-top:5px;");
+		return message;
+	}
+
+	private String readDefaultMarkdown(String file) {
+		String message;
+		try {
+			ContextRelativeResource res = WicketUtils.getResource(file);
+			InputStream is = res.getResourceStream().getInputStream();
+			InputStreamReader reader = new InputStreamReader(is);
+			message = MarkdownUtils.transformMarkdown(reader);
+			reader.close();
+		} catch (Throwable t) {
+			message = MessageFormat.format("Failed to read default message from {0}!", file);
+			error(message, t, false);
 		}
-		add(repositories);
+		return message;
 	}
 }

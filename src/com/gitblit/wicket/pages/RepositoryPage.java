@@ -136,8 +136,7 @@ public abstract class RepositoryPage extends BasePage {
 				String extra = item.getModelObject();
 				PageRegistration pageReg = registeredPages.get(extra);
 				item.add(new LinkPanel("extraLink", null, getString(pageReg.translationKey),
-						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName))
-						/*.setEnabled(!extra.equals(pageWicketId))*/);
+						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName)));
 			}
 		};
 		add(extrasView);
@@ -385,7 +384,7 @@ public abstract class RepositoryPage extends BasePage {
 
 		void setTranslatedAttributes() {
 			WicketUtils.setHtmlTooltip(get("searchType"), getString("gb.searchTypeTooltip"));
-			WicketUtils.setHtmlTooltip(get("searchBox"), getString("gb.searchTooltip"));
+			WicketUtils.setHtmlTooltip(get("searchBox"), MessageFormat.format(getString("gb.searchTooltip"), repositoryName));
 			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));
 		}
 
@@ -393,6 +392,10 @@ public abstract class RepositoryPage extends BasePage {
 		public void onSubmit() {
 			SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
+			if (searchString == null) {
+				// FIXME IE intermittently has no searchString. Wicket bug?
+				return;
+			}
 			for (SearchType type : SearchType.values()) {
 				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
 					searchType = type;

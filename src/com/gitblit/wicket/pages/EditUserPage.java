@@ -182,7 +182,7 @@ public class EditUserPage extends RootSubPage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(RepositoriesPage.class);
+				setResponsePage(UsersPage.class);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);

@@ -35,6 +35,12 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
+		if (RepositoriesPage.class.equals(pageClass)) {
+			// allow all requests to get to the RepositoriesPage with its inline
+			// authentication form
+			return true;
+		}
+
 		if (BasePage.class.isAssignableFrom(pageClass)) {
 			boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
 			boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
