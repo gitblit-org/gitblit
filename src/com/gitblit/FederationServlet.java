@@ -15,7 +15,6 @@
  */
 package com.gitblit;
 
-import java.io.BufferedReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,24 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.gitblit.Constants.FederationRequest;
-import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Handles federation requests.
@@ -48,67 +39,25 @@ import com.google.gson.GsonBuilder;
  * @author James Moger
  * 
  */
-public class FederationServlet extends HttpServlet {
+public class FederationServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
-
-	private transient Logger logger = LoggerFactory.getLogger(FederationServlet.class);
 
 	public FederationServlet() {
 		super();
 	}
 
 	/**
-	 * Returns an url to this servlet for the specified parameters.
-	 * 
-	 * @param sourceURL
-	 *            the url of the source gitblit instance
-	 * @param token
-	 *            the federation token of the source gitblit instance
-	 * @param req
-	 *            the pull type request
-	 */
-	public static String asFederationLink(String sourceURL, String token, FederationRequest req) {
-		return asFederationLink(sourceURL, null, token, req, null);
-	}
-
-	/**
-	 * 
-	 * @param remoteURL
-	 *            the url of the remote gitblit instance
-	 * @param tokenType
-	 *            the type of federation token of a gitblit instance
-	 * @param token
-	 *            the federation token of a gitblit instance
-	 * @param req
-	 *            the pull type request
-	 * @param myURL
-	 *            the url of this gitblit instance
-	 * @return
-	 */
-	public static String asFederationLink(String remoteURL, FederationToken tokenType,
-			String token, FederationRequest req, String myURL) {
-		if (remoteURL.length() > 0 && remoteURL.charAt(remoteURL.length() - 1) == '/') {
-			remoteURL = remoteURL.substring(0, remoteURL.length() - 1);
-		}
-		if (req == null) {
-			req = FederationRequest.PULL_REPOSITORIES;
-		}
-		return remoteURL + Constants.FEDERATION_PATH + "?req=" + req.name().toLowerCase()
-				+ (token == null ? "" : ("&token=" + token))
-				+ (tokenType == null ? "" : ("&tokenType=" + tokenType.name().toLowerCase()))
-				+ (myURL == null ? "" : ("&url=" + StringUtils.encodeURL(myURL)));
-	}
-
-	/**
-	 * Returns the list of repositories for federation requests.
+	 * Processes a federation request.
 	 * 
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException
 	 * @throws java.io.IOException
 	 */
-	private void processRequest(javax.servlet.http.HttpServletRequest request,
+
+	@Override
+	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
 		FederationRequest reqType = FederationRequest.fromName(request.getParameter("req"));
@@ -137,26 +86,11 @@ public class FederationServlet extends HttpServlet {
 
 		if (FederationRequest.PROPOSAL.equals(reqType)) {
 			// Receive a gitblit federation proposal
-			BufferedReader reader = request.getReader();
-			StringBuilder json = new StringBuilder();
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				json.append(line);
-			}
-			reader.close();
-
-			// check to see if we have proposal data
-			if (json.length() == 0) {
-				logger.error(MessageFormat.format("Failed to receive proposal data from {0}",
-						request.getRemoteAddr()));
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			FederationProposal proposal = deserialize(request, response, FederationProposal.class);
+			if (proposal == null) {
 				return;
 			}
-
-			// deserialize the proposal
-			Gson gson = new Gson();
-			FederationProposal proposal = gson.fromJson(json.toString(), FederationProposal.class);
-
+			
 			// reject proposal, if not receipt prohibited
 			if (!GitBlit.getBoolean(Keys.federation.allowProposals, false)) {
 				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
@@ -193,25 +127,13 @@ public class FederationServlet extends HttpServlet {
 			String remoteId = StringUtils.decodeFromHtml(request.getParameter("url"));
 			String identification = MessageFormat.format("{0} ({1})", remoteId,
 					request.getRemoteAddr());
-			BufferedReader reader = request.getReader();
-			StringBuilder json = new StringBuilder();
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				json.append(line);
-			}
-			reader.close();
 
-			// check to see if we have repository data
-			if (json.length() == 0) {
-				logger.error(MessageFormat.format(
-						"Failed to receive pulled repositories list from {0}", identification));
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			// deserialize the status data
+			FederationModel results = deserialize(request, response, FederationModel.class);
+			if (results == null) {
 				return;
 			}
 
-			// deserialize the status data
-			Gson gson = new Gson();
-			FederationModel results = gson.fromJson(json.toString(), FederationModel.class);
 			// setup the last and netx pull dates
 			results.lastPull = new Date();
 			int mins = TimeUtils.convertFrequencyToMinutes(results.frequency);
@@ -279,25 +201,7 @@ public class FederationServlet extends HttpServlet {
 			}
 		}
 
-		if (result != null) {
-			// Send JSON response
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			String json = gson.toJson(result);
-			response.getWriter().append(json);
-		}
-	}
-
-	@Override
-	protected void doPost(javax.servlet.http.HttpServletRequest request,
-			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
-			java.io.IOException {
-		processRequest(request, response);
-	}
-
-	@Override
-	protected void doGet(javax.servlet.http.HttpServletRequest request,
-			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
-			java.io.IOException {
-		processRequest(request, response);
+		// send the result of the request
+		serialize(response, result);
 	}
 }

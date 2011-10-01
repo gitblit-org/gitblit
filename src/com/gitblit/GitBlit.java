@@ -63,9 +63,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
@@ -978,8 +977,7 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public boolean submitFederationProposal(FederationProposal proposal, String gitblitUrl) {
 		// convert proposal to json
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(proposal);
+		String json = JsonUtils.toJsonString(proposal);
 
 		try {
 			// make the proposals folder
@@ -1025,10 +1023,9 @@ public class GitBlit implements ServletContextListener {
 							&& file.getName().toLowerCase().endsWith(Constants.PROPOSAL_EXT);
 				}
 			});
-			Gson gson = new Gson();
 			for (File file : files) {
 				String json = com.gitblit.utils.FileUtils.readContent(file, null);
-				FederationProposal proposal = gson.fromJson(json, FederationProposal.class);
+				FederationProposal proposal = JsonUtils.fromJsonString(json, FederationProposal.class);
 				list.add(proposal);
 			}
 		}

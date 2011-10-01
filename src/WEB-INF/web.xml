@@ -69,7 +69,21 @@
 		<url-pattern>/federation/*</url-pattern>
 	</servlet-mapping>	
 	
-
+	
+	<!-- Rpc Servlet
+		 <url-pattern> MUST match: 
+		 	* com.gitblit.Constants.RPC_PATH		 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>RpcServlet</servlet-name>
+		<servlet-class>com.gitblit.RpcServlet</servlet-class>		
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RpcServlet</servlet-name>
+		<url-pattern>/rpc/*</url-pattern>
+	</servlet-mapping>	
+	
+	
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
 			* GitServlet
@@ -114,6 +128,7 @@
 		<url-pattern>/zip/*</url-pattern>
 	</filter-mapping>
 		
+		
 	<!-- Wicket Filter -->
     <filter>
         <filter-name>wicketFilter</filter-name>
@@ -136,8 +151,9 @@
              	* Zipfilter <url-pattern>
              	* ZipServlet <url-pattern>
              	* com.gitblit.Constants.ZIP_PATH
-             	* FederationServlet <url-pattern> -->
-            <param-value>git/,feed/,zip/,federation/</param-value>
+             	* FederationServlet <url-pattern>
+             	* RpcServlet <url-pattern> -->
+            <param-value>git/,feed/,zip/,federation/,rpc/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

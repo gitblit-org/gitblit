@@ -15,17 +15,7 @@
  */
 package com.gitblit.utils;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,28 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.Constants.FederationRequest;
-import com.gitblit.FederationServlet;
+import com.gitblit.Constants.FederationToken;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -65,8 +48,6 @@ import com.google.gson.reflect.TypeToken;
  * 
  */
 public class FederationUtils {
-
-	public static final String CHARSET;
 
 	public static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {
 	}.getType();
@@ -80,23 +61,48 @@ public class FederationUtils {
 	public static final Type RESULTS_TYPE = new TypeToken<List<FederationModel>>() {
 	}.getType();
 
-	private static final SSLContext SSL_CONTEXT;
-
-	private static final DummyHostnameVerifier HOSTNAME_VERIFIER;
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(FederationUtils.class);
 
-	static {
-		SSLContext context = null;
-		try {
-			context = SSLContext.getInstance("SSL");
-			context.init(null, new TrustManager[] { new DummyTrustManager() }, new SecureRandom());
-		} catch (Throwable t) {
-			t.printStackTrace();
+	/**
+	 * Returns an url to this servlet for the specified parameters.
+	 * 
+	 * @param sourceURL
+	 *            the url of the source gitblit instance
+	 * @param token
+	 *            the federation token of the source gitblit instance
+	 * @param req
+	 *            the pull type request
+	 */
+	public static String asLink(String sourceURL, String token, FederationRequest req) {
+		return asLink(sourceURL, null, token, req, null);
+	}
+
+	/**
+	 * 
+	 * @param remoteURL
+	 *            the url of the remote gitblit instance
+	 * @param tokenType
+	 *            the type of federation token of a gitblit instance
+	 * @param token
+	 *            the federation token of a gitblit instance
+	 * @param req
+	 *            the pull type request
+	 * @param myURL
+	 *            the url of this gitblit instance
+	 * @return
+	 */
+	public static String asLink(String remoteURL, FederationToken tokenType, String token,
+			FederationRequest req, String myURL) {
+		if (remoteURL.length() > 0 && remoteURL.charAt(remoteURL.length() - 1) == '/') {
+			remoteURL = remoteURL.substring(0, remoteURL.length() - 1);
 		}
-		SSL_CONTEXT = context;
-		HOSTNAME_VERIFIER = new DummyHostnameVerifier();
-		CHARSET = "UTF-8";
+		if (req == null) {
+			req = FederationRequest.PULL_REPOSITORIES;
+		}
+		return remoteURL + Constants.FEDERATION_PATH + "?req=" + req.name().toLowerCase()
+				+ (token == null ? "" : ("&token=" + token))
+				+ (tokenType == null ? "" : ("&tokenType=" + tokenType.name().toLowerCase()))
+				+ (myURL == null ? "" : ("&url=" + StringUtils.encodeURL(myURL)));
 	}
 
 	/**
@@ -195,10 +201,9 @@ public class FederationUtils {
 	 * @return true if there is a route to the remoteUrl
 	 */
 	public static boolean poke(String remoteUrl) throws Exception {
-		String url = FederationServlet.asFederationLink(remoteUrl, null, FederationRequest.POKE);
-		Gson gson = new Gson();
-		String json = gson.toJson("POKE");
-		int status = writeJson(url, json);
+		String url = asLink(remoteUrl, null, FederationRequest.POKE);
+		String json = JsonUtils.toJsonString("POKE");
+		int status = JsonUtils.sendJsonString(url, json);
 		return status == HttpServletResponse.SC_OK;
 	}
 
@@ -213,11 +218,9 @@ public class FederationUtils {
 	 */
 	public static FederationProposalResult propose(String remoteUrl, FederationProposal proposal)
 			throws Exception {
-		String url = FederationServlet
-				.asFederationLink(remoteUrl, null, FederationRequest.PROPOSAL);
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(proposal);
-		int status = writeJson(url, json);
+		String url = asLink(remoteUrl, null, FederationRequest.PROPOSAL);
+		String json = JsonUtils.toJsonString(proposal);
+		int status = JsonUtils.sendJsonString(url, json);
 		switch (status) {
 		case HttpServletResponse.SC_FORBIDDEN:
 			// remote Gitblit Federation disabled
@@ -251,9 +254,9 @@ public class FederationUtils {
 	 */
 	public static Map<String, RepositoryModel> getRepositories(FederationModel registration,
 			boolean checkExclusions) throws Exception {
-		String url = FederationServlet.asFederationLink(registration.url, registration.token,
+		String url = asLink(registration.url, registration.token,
 				FederationRequest.PULL_REPOSITORIES);
-		Map<String, RepositoryModel> models = readGson(url, REPOSITORIES_TYPE);
+		Map<String, RepositoryModel> models = JsonUtils.retrieveJson(url, REPOSITORIES_TYPE);
 		if (checkExclusions) {
 			Map<String, RepositoryModel> includedModels = new HashMap<String, RepositoryModel>();
 			for (Map.Entry<String, RepositoryModel> entry : models.entrySet()) {
@@ -274,9 +277,8 @@ public class FederationUtils {
 	 * @throws Exception
 	 */
 	public static Collection<UserModel> getUsers(FederationModel registration) throws Exception {
-		String url = FederationServlet.asFederationLink(registration.url, registration.token,
-				FederationRequest.PULL_USERS);
-		Collection<UserModel> models = readGson(url, USERS_TYPE);
+		String url = asLink(registration.url, registration.token, FederationRequest.PULL_USERS);
+		Collection<UserModel> models = JsonUtils.retrieveJson(url, USERS_TYPE);
 		return models;
 	}
 
@@ -289,9 +291,8 @@ public class FederationUtils {
 	 * @throws Exception
 	 */
 	public static Map<String, String> getSettings(FederationModel registration) throws Exception {
-		String url = FederationServlet.asFederationLink(registration.url, registration.token,
-				FederationRequest.PULL_SETTINGS);
-		Map<String, String> settings = readGson(url, SETTINGS_TYPE);
+		String url = asLink(registration.url, registration.token, FederationRequest.PULL_SETTINGS);
+		Map<String, String> settings = JsonUtils.retrieveJson(url, SETTINGS_TYPE);
 		return settings;
 	}
 
@@ -309,122 +310,10 @@ public class FederationUtils {
 	 */
 	public static boolean acknowledgeStatus(String identification, FederationModel registration)
 			throws Exception {
-		String url = FederationServlet.asFederationLink(registration.url, null, registration.token,
-				FederationRequest.STATUS, identification);
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(registration);
-		int status = writeJson(url, json);
+		String url = asLink(registration.url, null, registration.token, FederationRequest.STATUS,
+				identification);
+		String json = JsonUtils.toJsonString(registration);
+		int status = JsonUtils.sendJsonString(url, json);
 		return status == HttpServletResponse.SC_OK;
-	}
-
-	/**
-	 * Reads a gson object from the specified url.
-	 * 
-	 * @param url
-	 * @param type
-	 * @return
-	 * @throws Exception
-	 */
-	public static <X> X readGson(String url, Type type) throws Exception {
-		String json = readJson(url);
-		if (StringUtils.isEmpty(json)) {
-			return null;
-		}
-		Gson gson = new Gson();
-		return gson.fromJson(json, type);
-	}
-
-	/**
-	 * Reads a JSON response.
-	 * 
-	 * @param url
-	 * @return the JSON response as a string
-	 * @throws Exception
-	 */
-	public static String readJson(String url) throws Exception {
-		URL urlObject = new URL(url);
-		URLConnection conn = urlObject.openConnection();
-		conn.setRequestProperty("Accept-Charset", CHARSET);
-		conn.setUseCaches(false);
-		conn.setDoInput(true);
-		if (conn instanceof HttpsURLConnection) {
-			HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-			secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-			secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
-		}
-		InputStream is = conn.getInputStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is, CHARSET));
-		StringBuilder json = new StringBuilder();
-		char[] buffer = new char[4096];
-		int len = 0;
-		while ((len = reader.read(buffer)) > -1) {
-			json.append(buffer, 0, len);
-		}
-		is.close();
-		return json.toString();
-	}
-
-	/**
-	 * Writes a JSON message to the specified url.
-	 * 
-	 * @param url
-	 *            the url to write to
-	 * @param json
-	 *            the json message to send
-	 * @return the http request result code
-	 * @throws Exception
-	 */
-	public static int writeJson(String url, String json) throws Exception {
-		byte[] jsonBytes = json.getBytes(CHARSET);
-		URL urlObject = new URL(url);
-		URLConnection conn = urlObject.openConnection();
-		conn.setRequestProperty("Content-Type", "text/plain;charset=" + CHARSET);
-		conn.setRequestProperty("Content-Length", "" + jsonBytes.length);
-		conn.setUseCaches(false);
-		conn.setDoOutput(true);
-		if (conn instanceof HttpsURLConnection) {
-			HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-			secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-			secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
-		}
-
-		// write json body
-		OutputStream os = conn.getOutputStream();
-		os.write(jsonBytes);
-		os.close();
-
-		int status = ((HttpURLConnection) conn).getResponseCode();
-		return status;
-	}
-
-	/**
-	 * DummyTrustManager trusts all certificates.
-	 */
-	private static class DummyTrustManager implements X509TrustManager {
-
-		@Override
-		public void checkClientTrusted(X509Certificate[] certs, String authType)
-				throws CertificateException {
-		}
-
-		@Override
-		public void checkServerTrusted(X509Certificate[] certs, String authType)
-				throws CertificateException {
-		}
-
-		@Override
-		public X509Certificate[] getAcceptedIssuers() {
-			return null;
-		}
-	}
-
-	/**
-	 * Trusts all hostnames from a certificate, including self-signed certs.
-	 */
-	private static class DummyHostnameVerifier implements HostnameVerifier {
-		@Override
-		public boolean verify(String hostname, SSLSession session) {
-			return true;
-		}
 	}
 }

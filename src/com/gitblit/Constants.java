@@ -52,6 +52,8 @@ public class Constants {
 	public static final String SYNDICATION_PATH = "/feed/";
 
 	public static final String FEDERATION_PATH = "/federation/";
+	
+	public static final String RPC_PATH = "/rpc/";
 
 	public static final String BORDER = "***********************************************************";
 
@@ -188,6 +190,29 @@ public class Constants {
 	public static enum FederationProposalResult {
 		ERROR, FEDERATION_DISABLED, MISSING_DATA, NO_PROPOSALS, NO_POKE, ACCEPTED;
 
+		@Override
+		public String toString() {
+			return name();
+		}
+	}
+
+	/**
+	 * Enumeration representing the possible remote procedure call requests from
+	 * a client.
+	 */
+	public static enum RpcRequest {
+		LIST_REPOSITORIES, CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
+		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER;
+		
+		public static RpcRequest fromName(String name) {
+			for (RpcRequest type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return LIST_REPOSITORIES;
+		}
+		
 		@Override
 		public String toString() {
 			return name();

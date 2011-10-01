@@ -28,9 +28,9 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.FederationServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.FederationUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.SendProposalPage;
 
@@ -42,11 +42,11 @@ public class FederationTokensPanel extends BasePanel {
 		super(wicketId);
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		add(new ExternalLink("federatedUsers", FederationServlet.asFederationLink(baseUrl, GitBlit.self()
+		add(new ExternalLink("federatedUsers", FederationUtils.asLink(baseUrl, GitBlit.self()
 				.getFederationToken(FederationToken.USERS_AND_REPOSITORIES),
 				FederationRequest.PULL_USERS)));
 
-		add(new ExternalLink("federatedSettings", FederationServlet.asFederationLink(baseUrl, GitBlit
+		add(new ExternalLink("federatedSettings", FederationUtils.asLink(baseUrl, GitBlit
 				.self().getFederationToken(FederationToken.ALL), FederationRequest.PULL_SETTINGS)));
 
 		final List<String[]> data = new ArrayList<String[]>();
@@ -83,7 +83,7 @@ public class FederationTokensPanel extends BasePanel {
 				}
 				item.add(new Label("value", entry[1]));
 
-				item.add(new ExternalLink("repositoryDefinitions", FederationServlet.asFederationLink(
+				item.add(new ExternalLink("repositoryDefinitions", FederationUtils.asLink(
 						baseUrl, entry[1], FederationRequest.PULL_REPOSITORIES)));
 
 				item.add(new BookmarkablePageLink<Void>("send",
