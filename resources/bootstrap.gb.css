@@ -709,6 +709,21 @@ span .localBranch {
 	border-color: #00cc33;
 }
 
+table .palette td.buttons button {
+	-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;	
+	border: 1px solid #ccc !important;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+table .palette td.buttons button:hover {
+	border: 1px solid #0069D6 !important;
+}
+
+table .palette td.buttons button:active {
+	border: 1px solid orange !important;
+}
+
 .feedbackPanelERROR, .feedbackPanelINFO {	
 	list-style: none;
 	line-height: 35px;
