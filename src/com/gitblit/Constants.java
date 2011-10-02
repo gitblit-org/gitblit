@@ -213,6 +213,10 @@ public class Constants {
 			return LIST_REPOSITORIES;
 		}
 		
+		public boolean exceeds(RpcRequest type) {
+			return this.ordinal() > type.ordinal();
+		}
+		
 		@Override
 		public String toString() {
 			return name();

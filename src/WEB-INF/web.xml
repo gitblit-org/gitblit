@@ -127,7 +127,22 @@
 		<filter-name>ZipFilter</filter-name>
 		<url-pattern>/zip/*</url-pattern>
 	</filter-mapping>
+
 		
+	<!-- Rpc Restriction Filter
+		 <url-pattern> MUST match: 
+			* RpcServlet
+			* com.gitblit.Constants.RPC_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<filter>
+		<filter-name>RpcFilter</filter-name>
+		<filter-class>com.gitblit.RpcFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>RpcFilter</filter-name>
+		<url-pattern>/rpc/*</url-pattern>
+	</filter-mapping>
+
 		
 	<!-- Wicket Filter -->
     <filter>
@@ -152,6 +167,7 @@
              	* ZipServlet <url-pattern>
              	* com.gitblit.Constants.ZIP_PATH
              	* FederationServlet <url-pattern>
+             	* RpcFilter <url-pattern>
              	* RpcServlet <url-pattern> -->
             <param-value>git/,feed/,zip/,federation/,rpc/</param-value>
         </init-param>

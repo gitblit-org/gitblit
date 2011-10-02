@@ -15,12 +15,15 @@
  */
 package com.gitblit;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.RpcRequest;
@@ -51,26 +54,16 @@ public class RpcServlet extends JsonServlet {
 	 * @throws java.io.IOException
 	 */
 	@Override
-	protected void processRequest(javax.servlet.http.HttpServletRequest request,
-			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
-			java.io.IOException {
+	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		RpcRequest reqType = RpcRequest.fromName(request.getParameter("req"));
 		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType,
 				request.getRemoteAddr()));
 
-		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, false)) {
-			logger.warn(Keys.web.enableRpcServlet + " must be set TRUE for rpc requests.");
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-
-		// TODO user authentication and authorization
-		UserModel user = null;
+		UserModel user = (UserModel) request.getUserPrincipal();
 
 		Object result = null;
 		if (RpcRequest.LIST_REPOSITORIES.equals(reqType)) {
-			// list repositories
-
 			// Determine the Gitblit clone url
 			String gitblitUrl = HttpUtils.getGitblitURL(request);
 			StringBuilder sb = new StringBuilder();
@@ -79,6 +72,7 @@ public class RpcServlet extends JsonServlet {
 			sb.append("{0}");
 			String cloneUrl = sb.toString();
 
+			// list repositories
 			List<RepositoryModel> list = GitBlit.self().getRepositoryModels(user);
 			Map<String, RepositoryModel> repositories = new HashMap<String, RepositoryModel>();
 			for (RepositoryModel model : list) {
@@ -88,11 +82,6 @@ public class RpcServlet extends JsonServlet {
 			result = repositories;
 		} else if (RpcRequest.LIST_USERS.equals(reqType)) {
 			// list users
-			if (user == null || !user.canAdmin) {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
-				return;
-			}
-			// user is authorized to retrieve all accounts
 			List<String> names = GitBlit.self().getAllUsernames();
 			List<UserModel> users = new ArrayList<UserModel>();
 			for (String name : names) {

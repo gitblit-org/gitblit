@@ -25,61 +25,23 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.gitblit.AuthenticationFilter.AuthenticatedRequest;
-import com.gitblit.models.RepositoryModel;
+import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.StringUtils;
 
 /**
- * The AccessRestrictionFilter is an AuthenticationFilter that confirms that the
- * requested repository can be accessed by the anonymous or named user.
+ * The RpcFilter is a servlet filter that secures the RpcServlet.
  * 
- * The filter extracts the name of the repository from the url and determines if
- * the requested action for the repository requires a Basic authentication
- * prompt. If authentication is required and no credentials are stored in the
- * "Authorization" header, then a basic authentication challenge is issued.
+ * The filter extracts the rpc request type from the url and determines if the
+ * requested action requires a Basic authentication prompt. If authentication is
+ * required and no credentials are stored in the "Authorization" header, then a
+ * basic authentication challenge is issued.
  * 
  * http://en.wikipedia.org/wiki/Basic_access_authentication
  * 
  * @author James Moger
  * 
  */
-public abstract class AccessRestrictionFilter extends AuthenticationFilter {
-
-	/**
-	 * Extract the repository name from the url.
-	 * 
-	 * @param url
-	 * @return repository name
-	 */
-	protected abstract String extractRepositoryName(String url);
-
-	/**
-	 * Analyze the url and returns the action of the request.
-	 * 
-	 * @param url
-	 * @return action of the request
-	 */
-	protected abstract String getUrlRequestAction(String url);
-
-	/**
-	 * Determine if the repository requires authentication.
-	 * 
-	 * @param repository
-	 * @return true if authentication required
-	 */
-	protected abstract boolean requiresAuthentication(RepositoryModel repository);
-
-	/**
-	 * Determine if the user can access the repository and perform the specified
-	 * action.
-	 * 
-	 * @param repository
-	 * @param user
-	 * @param action
-	 * @return true if user may execute the action on the repository
-	 */
-	protected abstract boolean canAccess(RepositoryModel repository, UserModel user, String action);
+public class RpcFilter extends AuthenticationFilter {
 
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
@@ -95,62 +57,53 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		String fullUrl = getFullUrl(httpRequest);
-		String repository = extractRepositoryName(fullUrl);
-
-		// Determine if the request URL is restricted
-		String fullSuffix = fullUrl.substring(repository.length());
-		String urlRequestType = getUrlRequestAction(fullSuffix);
-
-		// Load the repository model
-		RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
-		if (model == null) {
-			// repository not found. send 404.
-			logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
-					HttpServletResponse.SC_NOT_FOUND));
-			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, false)) {
+			logger.warn(Keys.web.enableRpcServlet + " must be set TRUE for rpc requests.");
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		// Wrap the HttpServletRequest with the AccessRestrictionRequest which
+		String fullUrl = getFullUrl(httpRequest);
+		RpcRequest requestType = RpcRequest.fromName(httpRequest.getParameter("req"));
+
+		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_REPOSITORIES);
+
+		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
+		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
+
+		// Wrap the HttpServletRequest with the RpcServletnRequest which
 		// overrides the servlet container user principal methods.
-		// JGit requires either:
-		//
-		// 1. servlet container authenticated user
-		// 2. http.receivepack = true in each repository's config
-		//
-		// Gitblit must conditionally authenticate users per-repository so just
-		// enabling http.receivepack is insufficient.
 		AuthenticatedRequest authenticatedRequest = new AuthenticatedRequest(httpRequest);
 		UserModel user = getUser(httpRequest);
 		if (user != null) {
 			authenticatedRequest.setUser(user);
 		}
-
+		
 		// BASIC authentication challenge and response processing
-		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model)) {
+		if ((adminRequest && authenticateAdmin) || (!adminRequest && authenticateView)) {
 			if (user == null) {
 				// challenge client to provide credentials. send 401.
 				if (GitBlit.isDebugMode()) {
-					logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
+					logger.info(MessageFormat.format("RPC: CHALLENGE {0}", fullUrl));
+
 				}
 				httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
 				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 				return;
 			} else {
 				// check user access for request
-				if (user.canAdmin || canAccess(model, user, urlRequestType)) {
+				if (user.canAdmin || canAccess(user, requestType)) {
 					// authenticated request permitted.
 					// pass processing to the restricted servlet.
 					newSession(authenticatedRequest, httpResponse);
-					logger.info(MessageFormat.format("ARF: {0} ({1}) authenticated", fullUrl,
+					logger.info(MessageFormat.format("RPC: {0} ({1}) authenticated", fullUrl,
 							HttpServletResponse.SC_CONTINUE));
 					chain.doFilter(authenticatedRequest, httpResponse);
 					return;
 				}
 				// valid user, but not for requested access. send 403.
 				if (GitBlit.isDebugMode()) {
-					logger.info(MessageFormat.format("ARF: {0} forbidden to access {1}",
+					logger.info(MessageFormat.format("RPC: {0} forbidden to access {1}",
 							user.username, fullUrl));
 				}
 				httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -159,11 +112,20 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		}
 
 		if (GitBlit.isDebugMode()) {
-			logger.info(MessageFormat.format("ARF: {0} ({1}) unauthenticated", fullUrl,
+			logger.info(MessageFormat.format("RPC: {0} ({1}) unauthenticated", fullUrl,
 					HttpServletResponse.SC_CONTINUE));
 		}
 		// unauthenticated request permitted.
 		// pass processing to the restricted servlet.
 		chain.doFilter(authenticatedRequest, httpResponse);
+	}
+
+	private boolean canAccess(UserModel user, RpcRequest requestType) {
+		switch (requestType) {
+		case LIST_REPOSITORIES:
+			return true;
+		default:
+			return user.canAdmin;
+		}
 	}
 }
