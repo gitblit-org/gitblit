@@ -62,6 +62,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
@@ -530,6 +531,10 @@ public class GitBlit implements ServletContextListener {
 			model.origin = config.getString("remote", "origin", "url");
 		}
 		r.close();
+		if (getBoolean(Keys.web.showRepositorySizes, true)) {
+			ByteFormat byteFormat = new ByteFormat();
+			model.size = byteFormat.format(calculateSize(model));			
+		}
 		return model;
 	}
 

@@ -47,7 +47,6 @@ import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -71,12 +70,6 @@ public class RepositoriesPanel extends BasePanel {
 		if (models == null) {
 			linksActive = true;
 			models = GitBlit.self().getRepositoryModels(user);
-			final ByteFormat byteFormat = new ByteFormat();
-			if (showSize) {
-				for (RepositoryModel model : models) {
-					model.size = byteFormat.format(GitBlit.self().calculateSize(model));
-				}
-			}
 		} else {
 			// disable links if the repositories are already provided
 			// the repositories are most likely from a proposal
@@ -125,7 +118,7 @@ public class RepositoriesPanel extends BasePanel {
 		} else {
 			dp = new SortableRepositoriesProvider(models);
 		}
-		
+
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
@@ -163,11 +156,7 @@ public class RepositoriesPanel extends BasePanel {
 
 				if (entry.hasCommits) {
 					// Existing repository
-					if (showSize) {
-						row.add(new Label("repositorySize", entry.size));
-					} else {
-						row.add(new Label("repositorySize").setVisible(false));
-					}
+					row.add(new Label("repositorySize", entry.size).setVisible(showSize));
 				} else {
 					// New repository
 					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>")
