@@ -159,6 +159,13 @@ public class RpcTests extends TestCase {
 
 		retrievedRepository = findRepository(model.name);
 		assertTrue("Failed to delete " + model.name, retrievedRepository == null);
+
+		for (UserModel u : RpcUtils.getUsers(url, account, password.toCharArray())) {
+			if (u.username.equals(testMember)) {
+				RpcUtils.deleteUser(u, url, account, password.toCharArray());
+				break;
+			}
+		}
 	}
 
 	private RepositoryModel findRepository(String name) throws IOException {
@@ -185,16 +192,15 @@ public class RpcTests extends TestCase {
 				account, password.toCharArray());
 		assertTrue("No federation result registrations were retrieved!", registrations.size() > 0);
 	}
-	
+
 	public void testFederationProposals() throws Exception {
-		List<FederationProposal> proposals = RpcUtils.getFederationProposals(url,
-				account, password.toCharArray());
+		List<FederationProposal> proposals = RpcUtils.getFederationProposals(url, account,
+				password.toCharArray());
 		assertTrue("No federation proposals were retrieved!", proposals.size() > 0);
 	}
-	
+
 	public void testFederationSets() throws Exception {
-		List<FederationSet> sets = RpcUtils.getFederationSets(url,
-				account, password.toCharArray());
+		List<FederationSet> sets = RpcUtils.getFederationSets(url, account, password.toCharArray());
 		assertTrue("No federation sets were retrieved!", sets.size() > 0);
 	}
 }
