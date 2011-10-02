@@ -3,6 +3,7 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- fixed/broke: federation protocol.  serialized dates now include the timezone.  This breaks 0.6.0 clients/servers.
 - improved: updated ui with Twitter's Bootstrap CSS toolkit
 <br/>**New:** *web.loginMessage = gitblit*
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
