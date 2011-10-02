@@ -28,9 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Servlet class for interpreting json requests.
@@ -79,8 +78,7 @@ public abstract class JsonServlet extends HttpServlet {
 			return null;
 		}
 
-		Gson gson = new Gson();
-		X object = gson.fromJson(json.toString(), clazz);
+		X object = JsonUtils.fromJsonString(json.toString(), clazz);
 		return object;
 	}
 
@@ -91,8 +89,7 @@ public abstract class JsonServlet extends HttpServlet {
 			return null;
 		}
 
-		Gson gson = new Gson();
-		X object = gson.fromJson(json.toString(), type);
+		X object = JsonUtils.fromJsonString(json.toString(), type);
 		return object;
 	}
 
@@ -118,8 +115,7 @@ public abstract class JsonServlet extends HttpServlet {
 	protected void serialize(HttpServletResponse response, Object o) throws IOException {
 		if (o != null) {
 			// Send JSON response
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			String json = gson.toJson(o);
+			String json = JsonUtils.toJsonString(o);
 			response.getWriter().append(json);
 		}
 	}

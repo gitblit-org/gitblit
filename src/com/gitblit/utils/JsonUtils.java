@@ -27,8 +27,14 @@ import java.net.URLConnection;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -45,6 +51,13 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -87,8 +100,7 @@ public class JsonUtils {
 	 * @return json
 	 */
 	public static String toJsonString(Object o) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		String json = gson.toJson(o);
+		String json = gson().toJson(o);
 		return json;
 	}
 
@@ -100,8 +112,7 @@ public class JsonUtils {
 	 * @return an object
 	 */
 	public static <X> X fromJsonString(String json, Class<X> clazz) {
-		Gson gson = new Gson();
-		return gson.fromJson(json, clazz);
+		return gson().fromJson(json, clazz);
 	}
 
 	/**
@@ -112,8 +123,7 @@ public class JsonUtils {
 	 * @return an object
 	 */
 	public static <X> X fromJsonString(String json, Type type) {
-		Gson gson = new Gson();
-		return gson.fromJson(json, type);
+		return gson().fromJson(json, type);
 	}
 
 	/**
@@ -145,8 +155,7 @@ public class JsonUtils {
 		if (StringUtils.isEmpty(json)) {
 			return null;
 		}
-		Gson gson = new Gson();
-		return gson.fromJson(json, type);
+		return gson().fromJson(json, type);
 	}
 
 	/**
@@ -260,6 +269,45 @@ public class JsonUtils {
 					"Authorization",
 					"Basic "
 							+ Base64.encodeBytes((username + ":" + new String(password)).getBytes()));
+		}
+	}
+
+	// build custom gson instance with GMT date serializer/deserializer
+	// http://code.google.com/p/google-gson/issues/detail?id=281
+	private static Gson gson() {
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(Date.class, new GmtDateTypeAdapter());
+		builder.setPrettyPrinting();
+		return builder.create();
+	}
+
+	private static class GmtDateTypeAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
+		private final DateFormat dateFormat;
+
+		private GmtDateTypeAdapter() {
+			dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+			dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		}
+
+		@Override
+		public synchronized JsonElement serialize(Date date, Type type,
+				JsonSerializationContext jsonSerializationContext) {
+			synchronized (dateFormat) {
+				String dateFormatAsString = dateFormat.format(date);
+				return new JsonPrimitive(dateFormatAsString);
+			}
+		}
+
+		@Override
+		public synchronized Date deserialize(JsonElement jsonElement, Type type,
+				JsonDeserializationContext jsonDeserializationContext) {
+			try {
+				synchronized (dateFormat) {
+					return dateFormat.parse(jsonElement.getAsString());
+				}
+			} catch (ParseException e) {
+				throw new JsonSyntaxException(jsonElement.getAsString(), e);
+			}
 		}
 	}
 
