@@ -19,6 +19,7 @@ import static org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -81,8 +83,8 @@ public class FederationPullExecutor implements Runnable {
 	 * 
 	 * @param registrations
 	 * @param isDaemon
-	 *            if true, registrations are rescheduled in perpetuity. if false,
-	 *            the federation pull operation is executed once.
+	 *            if true, registrations are rescheduled in perpetuity. if
+	 *            false, the federation pull operation is executed once.
 	 */
 	public FederationPullExecutor(List<FederationModel> registrations, boolean isDaemon) {
 		this.registrations = registrations;
@@ -169,7 +171,7 @@ public class FederationPullExecutor implements Runnable {
 			} else {
 				repositoryName = registrationFolder + "/" + repository.name;
 			}
-			
+
 			if (registration.bare) {
 				// bare repository, ensure .git suffix
 				if (!repositoryName.toLowerCase().endsWith(DOT_GIT_EXT)) {
@@ -178,7 +180,8 @@ public class FederationPullExecutor implements Runnable {
 			} else {
 				// normal repository, strip .git suffix
 				if (repositoryName.toLowerCase().endsWith(DOT_GIT_EXT)) {
-					repositoryName = repositoryName.substring(0, repositoryName.indexOf(DOT_GIT_EXT));
+					repositoryName = repositoryName.substring(0,
+							repositoryName.indexOf(DOT_GIT_EXT));
 				}
 			}
 
@@ -190,7 +193,8 @@ public class FederationPullExecutor implements Runnable {
 				StoredConfig config = existingRepository.getConfig();
 				config.load();
 				String origin = config.getString("remote", "origin", "url");
-				RevCommit commit = JGitUtils.getCommit(existingRepository, "refs/remotes/origin/master");
+				RevCommit commit = JGitUtils.getCommit(existingRepository,
+						"refs/remotes/origin/master");
 				if (commit != null) {
 					fetchHead = commit.getName();
 				}
@@ -209,7 +213,7 @@ public class FederationPullExecutor implements Runnable {
 					Constants.FEDERATION_USER, registration.token);
 			logger.info(MessageFormat.format("Pulling federated repository {0} from {1} @ {2}",
 					repository.name, registration.name, registration.url));
-						
+
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
 					cloneUrl, registration.bare, credentials);
 			Repository r = GitBlit.self().getRepository(repositoryName);
@@ -255,7 +259,7 @@ public class FederationPullExecutor implements Runnable {
 				// preserve local settings
 				repository.isFrozen = rm.isFrozen;
 				repository.federationStrategy = rm.federationStrategy;
-				
+
 				// merge federation sets
 				Set<String> federationSets = new HashSet<String>();
 				if (rm.federationSets != null) {
@@ -317,13 +321,12 @@ public class FederationPullExecutor implements Runnable {
 					}
 				}
 			}
-		} catch (Exception e) {
-			// a 403 error code is normal for a PULL_REPOSITORIES token
-			if (!e.getMessage().contains("403")) {
-				logger.warn(MessageFormat.format(
-						"Failed to retrieve USERS from federated gitblit ({0} @ {1})",
-						registration.name, registration.url), e);
-			}
+		} catch (ForbiddenException e) {
+			// ignore forbidden exceptions
+		} catch (IOException e) {
+			logger.warn(MessageFormat.format(
+					"Failed to retrieve USERS from federated gitblit ({0} @ {1})",
+					registration.name, registration.url), e);
 		}
 
 		try {
@@ -337,13 +340,12 @@ public class FederationPullExecutor implements Runnable {
 				properties.store(os, null);
 				os.close();
 			}
-		} catch (Exception e) {
-			// a 403 error code is normal for a PULL_REPOSITORIES token
-			if (!e.getMessage().contains("403")) {
-				logger.warn(MessageFormat.format(
-						"Failed to retrieve SETTINGS from federated gitblit ({0} @ {1})",
-						registration.name, registration.url), e);
-			}
+		} catch (ForbiddenException e) {
+			// ignore forbidden exceptions
+		} catch (IOException e) {
+			logger.warn(MessageFormat.format(
+					"Failed to retrieve SETTINGS from federated gitblit ({0} @ {1})",
+					registration.name, registration.url), e);
 		}
 	}
 

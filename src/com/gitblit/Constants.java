@@ -52,7 +52,7 @@ public class Constants {
 	public static final String SYNDICATION_PATH = "/feed/";
 
 	public static final String FEDERATION_PATH = "/federation/";
-	
+
 	public static final String RPC_PATH = "/rpc/";
 
 	public static final String BORDER = "***********************************************************";
@@ -202,8 +202,10 @@ public class Constants {
 	 */
 	public static enum RpcRequest {
 		LIST_REPOSITORIES, CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
-		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER;
-		
+		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER, LIST_REPOSITORY_MEMBERS,
+		SET_REPOSITORY_MEMBERS, LIST_FEDERATION_REGISTRATIONS, LIST_FEDERATION_RESULTS,
+		LIST_FEDERATION_PROPOSALS, LIST_FEDERATION_SETS;
+
 		public static RpcRequest fromName(String name) {
 			for (RpcRequest type : values()) {
 				if (type.name().equalsIgnoreCase(name)) {
@@ -212,11 +214,11 @@ public class Constants {
 			}
 			return LIST_REPOSITORIES;
 		}
-		
+
 		public boolean exceeds(RpcRequest type) {
 			return this.ordinal() > type.ordinal();
 		}
-		
+
 		@Override
 		public String toString() {
 			return name();

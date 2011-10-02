@@ -49,16 +49,13 @@ import com.google.gson.reflect.TypeToken;
  */
 public class FederationUtils {
 
-	public static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {
+	private static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {
 	}.getType();
 
-	public static final Type SETTINGS_TYPE = new TypeToken<Map<String, String>>() {
+	private static final Type SETTINGS_TYPE = new TypeToken<Map<String, String>>() {
 	}.getType();
 
-	public static final Type USERS_TYPE = new TypeToken<Collection<UserModel>>() {
-	}.getType();
-
-	public static final Type RESULTS_TYPE = new TypeToken<List<FederationModel>>() {
+	private static final Type USERS_TYPE = new TypeToken<Collection<UserModel>>() {
 	}.getType();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FederationUtils.class);
@@ -276,10 +273,11 @@ public class FederationUtils {
 	 * @return a collection of UserModel objects
 	 * @throws Exception
 	 */
-	public static Collection<UserModel> getUsers(FederationModel registration) throws Exception {
+	public static List<UserModel> getUsers(FederationModel registration) throws Exception {
 		String url = asLink(registration.url, registration.token, FederationRequest.PULL_USERS);
 		Collection<UserModel> models = JsonUtils.retrieveJson(url, USERS_TYPE);
-		return models;
+		List<UserModel> list = new ArrayList<UserModel>(models);
+		return list;
 	}
 
 	/**

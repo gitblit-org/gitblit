@@ -17,6 +17,7 @@ package com.gitblit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.MessageFormat;
 
 import javax.servlet.ServletException;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -72,6 +74,30 @@ public abstract class JsonServlet extends HttpServlet {
 
 	protected <X> X deserialize(HttpServletRequest request, HttpServletResponse response,
 			Class<X> clazz) throws IOException {
+		String json = readJson(request, response);
+		if (StringUtils.isEmpty(json)) {
+			return null;
+		}
+
+		Gson gson = new Gson();
+		X object = gson.fromJson(json.toString(), clazz);
+		return object;
+	}
+
+	protected <X> X deserialize(HttpServletRequest request, HttpServletResponse response, Type type)
+			throws IOException {
+		String json = readJson(request, response);
+		if (StringUtils.isEmpty(json)) {
+			return null;
+		}
+
+		Gson gson = new Gson();
+		X object = gson.fromJson(json.toString(), type);
+		return object;
+	}
+
+	private String readJson(HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
 		BufferedReader reader = request.getReader();
 		StringBuilder json = new StringBuilder();
 		String line = null;
@@ -86,10 +112,7 @@ public abstract class JsonServlet extends HttpServlet {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			return null;
 		}
-
-		Gson gson = new Gson();
-		X object = gson.fromJson(json.toString(), clazz);
-		return object;
+		return json.toString();
 	}
 
 	protected void serialize(HttpServletResponse response, Object o) throws IOException {

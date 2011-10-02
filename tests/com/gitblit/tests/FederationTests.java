@@ -64,12 +64,6 @@ public class FederationTests extends TestCase {
 		Thread.sleep(2500);
 	}
 
-	public void testDeserialization() throws Exception {
-		String json = "{\"https://localhost:8443/git/a.b.c.orphan.git\":{\"name\":\"a.b.c.orphan.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 22, 2011 3:15:07 PM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/test/jgit.git\":{\"name\":\"test/jgit.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 13, 2011 9:42:33 AM\",\"hasCommits\":true,\"showRemoteBranches\":true,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/test/helloworld.git\":{\"name\":\"test/helloworld.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 15, 2008 7:26:48 PM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/working/ticgit\":{\"name\":\"working/ticgit\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 22, 2011 10:35:27 AM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/ticgit.git\":{\"name\":\"ticgit.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 22, 2011 10:35:27 AM\",\"hasCommits\":true,\"showRemoteBranches\":true,\"useTickets\":true,\"useDocs\":true,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/helloworld.git\":{\"name\":\"helloworld.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 15, 2008 7:26:48 PM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/test/helloworld3.git\":{\"name\":\"test/helloworld3.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Jul 15, 2008 7:26:48 PM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false},\"https://localhost:8443/git/test/bluez-gnome.git\":{\"name\":\"test/bluez-gnome.git\",\"description\":\"\",\"owner\":\"\",\"lastChange\":\"Dec 19, 2008 6:35:33 AM\",\"hasCommits\":true,\"showRemoteBranches\":false,\"useTickets\":false,\"useDocs\":false,\"accessRestriction\":\"NONE\",\"isFrozen\":false,\"showReadme\":false,\"isFederated\":false}}";		
-		Map<String, RepositoryModel> models = JsonUtils.fromJsonString(json, FederationUtils.REPOSITORIES_TYPE);
-		assertEquals(8, models.size());
-	}
-
 	public void testProposal() throws Exception {
 		// create dummy repository data
 		Map<String, RepositoryModel> repositories = new HashMap<String, RepositoryModel>();
@@ -96,9 +90,9 @@ public class FederationTests extends TestCase {
 
 	public void testPullRepositories() throws Exception {
 		try {
-			String url = FederationUtils.asLink("http://localhost:" + port,
-					"testtoken", FederationRequest.PULL_REPOSITORIES);
-			String json = JsonUtils.retrieveJsonString(url);
+			String url = FederationUtils.asLink("http://localhost:" + port, "testtoken",
+					FederationRequest.PULL_REPOSITORIES);
+			String json = JsonUtils.retrieveJsonString(url, null, null);
 		} catch (IOException e) {
 			if (!e.getMessage().contains("403")) {
 				throw e;

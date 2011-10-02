@@ -59,6 +59,7 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
+import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
@@ -874,6 +875,29 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns the list of federation sets.
+	 * 
+	 * @return list of federation sets
+	 */
+	public List<FederationSet> getFederationSets(String gitblitUrl) {
+		List<FederationSet> list = new ArrayList<FederationSet>();
+		// generate standard tokens
+		for (FederationToken type : FederationToken.values()) {
+			FederationSet fset = new FederationSet(type.toString(), type, getFederationToken(type));
+			fset.repositories = getRepositories(gitblitUrl, fset.token);
+			list.add(fset);
+		}
+		// generate tokens for federation sets
+		for (String set : settings.getStrings(Keys.federation.sets)) {
+			FederationSet fset = new FederationSet(set, FederationToken.REPOSITORIES,
+					getFederationToken(set));
+			fset.repositories = getRepositories(gitblitUrl, fset.token);
+			list.add(fset);
+		}
+		return list;
+	}
+
+	/**
 	 * Returns the list of possible federation tokens for this Gitblit instance.
 	 * 
 	 * @return list of federation tokens
@@ -1025,7 +1049,8 @@ public class GitBlit implements ServletContextListener {
 			});
 			for (File file : files) {
 				String json = com.gitblit.utils.FileUtils.readContent(file, null);
-				FederationProposal proposal = JsonUtils.fromJsonString(json, FederationProposal.class);
+				FederationProposal proposal = JsonUtils.fromJsonString(json,
+						FederationProposal.class);
 				list.add(proposal);
 			}
 		}

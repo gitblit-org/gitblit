@@ -15,17 +15,45 @@
  */
 package com.gitblit;
 
+import java.io.IOException;
+
 /**
  * GitBlitException is a marginally useful class. :)
  * 
  * @author James Moger
  * 
  */
-public class GitBlitException extends Exception {
+public class GitBlitException extends IOException {
 
 	private static final long serialVersionUID = 1L;
 
 	public GitBlitException(String message) {
 		super(message);
+	}
+
+	/**
+	 * Exception to indicate that the client should prompt for credentials
+	 * because the requested action requires authentication.
+	 */
+	public static class UnauthorizedException extends GitBlitException {
+
+		private static final long serialVersionUID = 1L;
+
+		public UnauthorizedException(String message) {
+			super(message);
+		}
+	}
+
+	/**
+	 * Exception to indicate that the requested action can not be executed by
+	 * the specified user.
+	 */
+	public static class ForbiddenException extends GitBlitException {
+
+		private static final long serialVersionUID = 1L;
+
+		public ForbiddenException(String message) {
+			super(message);
+		}
 	}
 }

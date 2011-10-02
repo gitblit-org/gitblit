@@ -16,6 +16,7 @@
 package com.gitblit.utils;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -36,6 +37,10 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.eclipse.jgit.util.Base64;
+
+import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.Gson;
@@ -43,7 +48,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Utility methods for gson calls to a Gitblit server.
+ * Utility methods for json calls to a Gitblit server.
  * 
  * @author James Moger
  * 
@@ -98,7 +103,7 @@ public class JsonUtils {
 		Gson gson = new Gson();
 		return gson.fromJson(json, clazz);
 	}
-	
+
 	/**
 	 * Convert a json string to an object of the specified type.
 	 * 
@@ -116,11 +121,27 @@ public class JsonUtils {
 	 * 
 	 * @param url
 	 * @param type
-	 * @return
-	 * @throws Exception
+	 * @return the deserialized object
+	 * @throws {@link IOException}
 	 */
-	public static <X> X retrieveJson(String url, Type type) throws Exception {
-		String json = retrieveJsonString(url);
+	public static <X> X retrieveJson(String url, Type type) throws IOException,
+			UnauthorizedException {
+		return retrieveJson(url, type, null, null);
+	}
+
+	/**
+	 * Reads a gson object from the specified url.
+	 * 
+	 * @param url
+	 * @param type
+	 * @param username
+	 * @param password
+	 * @return the deserialized object
+	 * @throws {@link IOException}
+	 */
+	public static <X> X retrieveJson(String url, Type type, String username, char[] password)
+			throws IOException {
+		String json = retrieveJsonString(url, username, password);
 		if (StringUtils.isEmpty(json)) {
 			return null;
 		}
@@ -133,29 +154,42 @@ public class JsonUtils {
 	 * 
 	 * @param url
 	 * @return the JSON message as a string
-	 * @throws Exception
+	 * @throws {@link IOException}
 	 */
-	public static String retrieveJsonString(String url) throws Exception {
-		URL urlObject = new URL(url);
-		URLConnection conn = urlObject.openConnection();
-		conn.setRequestProperty("Accept-Charset", CHARSET);
-		conn.setUseCaches(false);
-		conn.setDoInput(true);
-		if (conn instanceof HttpsURLConnection) {
-			HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-			secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-			secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
+	public static String retrieveJsonString(String url, String username, char[] password)
+			throws IOException {
+		try {
+			URL urlObject = new URL(url);
+			URLConnection conn = urlObject.openConnection();
+			conn.setRequestProperty("Accept-Charset", CHARSET);
+			setAuthorization(conn, username, password);
+			conn.setUseCaches(false);
+			conn.setDoInput(true);
+			if (conn instanceof HttpsURLConnection) {
+				HttpsURLConnection secureConn = (HttpsURLConnection) conn;
+				secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
+				secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
+			}
+			InputStream is = conn.getInputStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is, CHARSET));
+			StringBuilder json = new StringBuilder();
+			char[] buffer = new char[4096];
+			int len = 0;
+			while ((len = reader.read(buffer)) > -1) {
+				json.append(buffer, 0, len);
+			}
+			is.close();
+			return json.toString();
+		} catch (IOException e) {
+			if (e.getMessage().indexOf("401") > -1) {
+				// unauthorized
+				throw new UnauthorizedException(url);
+			} else if (e.getMessage().indexOf("403") > -1) {
+				// requested url is forbidden by the requesting user
+				throw new ForbiddenException(url);
+			}
+			throw e;
 		}
-		InputStream is = conn.getInputStream();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is, CHARSET));
-		StringBuilder json = new StringBuilder();
-		char[] buffer = new char[4096];
-		int len = 0;
-		while ((len = reader.read(buffer)) > -1) {
-			json.append(buffer, 0, len);
-		}
-		is.close();
-		return json.toString();
 	}
 
 	/**
@@ -166,29 +200,67 @@ public class JsonUtils {
 	 * @param json
 	 *            the json message to send
 	 * @return the http request result code
-	 * @throws Exception
+	 * @throws {@link IOException}
 	 */
-	public static int sendJsonString(String url, String json) throws Exception {
-		byte[] jsonBytes = json.getBytes(CHARSET);
-		URL urlObject = new URL(url);
-		URLConnection conn = urlObject.openConnection();
-		conn.setRequestProperty("Content-Type", "text/plain;charset=" + CHARSET);
-		conn.setRequestProperty("Content-Length", "" + jsonBytes.length);
-		conn.setUseCaches(false);
-		conn.setDoOutput(true);
-		if (conn instanceof HttpsURLConnection) {
-			HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-			secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-			secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
+	public static int sendJsonString(String url, String json) throws IOException {
+		return sendJsonString(url, json, null, null);
+	}
+
+	/**
+	 * Sends a JSON message.
+	 * 
+	 * @param url
+	 *            the url to write to
+	 * @param json
+	 *            the json message to send
+	 * @param username
+	 * @param password
+	 * @return the http request result code
+	 * @throws {@link IOException}
+	 */
+	public static int sendJsonString(String url, String json, String username, char[] password)
+			throws IOException {
+		try {
+			byte[] jsonBytes = json.getBytes(CHARSET);
+			URL urlObject = new URL(url);
+			URLConnection conn = urlObject.openConnection();
+			conn.setRequestProperty("Content-Type", "text/plain;charset=" + CHARSET);
+			conn.setRequestProperty("Content-Length", "" + jsonBytes.length);
+			setAuthorization(conn, username, password);
+			conn.setUseCaches(false);
+			conn.setDoOutput(true);
+			if (conn instanceof HttpsURLConnection) {
+				HttpsURLConnection secureConn = (HttpsURLConnection) conn;
+				secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
+				secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
+			}
+
+			// write json body
+			OutputStream os = conn.getOutputStream();
+			os.write(jsonBytes);
+			os.close();
+
+			int status = ((HttpURLConnection) conn).getResponseCode();
+			return status;
+		} catch (IOException e) {
+			if (e.getMessage().indexOf("401") > -1) {
+				// unauthorized
+				throw new UnauthorizedException(url);
+			} else if (e.getMessage().indexOf("403") > -1) {
+				// requested url is forbidden by the requesting user
+				throw new ForbiddenException(url);
+			}
+			throw e;
 		}
+	}
 
-		// write json body
-		OutputStream os = conn.getOutputStream();
-		os.write(jsonBytes);
-		os.close();
-
-		int status = ((HttpURLConnection) conn).getResponseCode();
-		return status;
+	private static void setAuthorization(URLConnection conn, String username, char[] password) {
+		if (!StringUtils.isEmpty(username) && (password != null && password.length > 0)) {
+			conn.setRequestProperty(
+					"Authorization",
+					"Basic "
+							+ Base64.encodeBytes((username + ":" + new String(password)).getBytes()));
+		}
 	}
 
 	/**
