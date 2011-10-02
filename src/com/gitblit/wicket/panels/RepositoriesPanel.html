@@ -21,7 +21,7 @@
 	<wicket:fragment wicket:id="adminLinks">
 		<!-- page nav links -->	
 		<div class="admin_nav">
-			<img style="vertical-align: top;" src="add_16x16.png"/>
+			<img style="vertical-align: middle;" src="add_16x16.png"/>
 			<a wicket:id="newRepository">
 				<wicket:message key="gb.newRepository"></wicket:message>
 			</a>
@@ -39,7 +39,7 @@
 	<wicket:fragment wicket:id="flatRepositoryHeader">
 		<tr>
 			<th class="left" wicket:id="orderByRepository">
-				<img style="vertical-align: top; border: 1px solid #888;" src="gitweb-favicon.png"/>
+				<img style="vertical-align: middle; border: 1px solid #888;" src="gitweb-favicon.png"/>
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
@@ -54,7 +54,7 @@
 	<wicket:fragment wicket:id="groupRepositoryHeader">
 		<tr>
 			<th class="left">
-				<img style="vertical-align: top; border: 1px solid #888;" src="gitweb-favicon.png"/>
+				<img style="vertical-align: middle; border: 1px solid #888;" src="gitweb-favicon.png"/>
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th><wicket:message key="gb.description">Description</wicket:message></th>
@@ -71,7 +71,7 @@
 	</wicket:fragment>
 		
 	<wicket:fragment wicket:id="repositoryRow">
-        <td class="left"><div class="list" wicket:id="repositoryName">[repository name]</div></td>
+        <td class="left" style="padding-left:10px;" ><div class="list" wicket:id="repositoryName">[repository name]</div></td>
         <td><div class="list" wicket:id="repositoryDescription">[repository description]</div></td>
         <td class="author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
         <td style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="federatedIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>

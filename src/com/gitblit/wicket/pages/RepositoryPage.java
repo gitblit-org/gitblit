@@ -69,6 +69,7 @@ public abstract class RepositoryPage extends BasePage {
 		private static final long serialVersionUID = 1L;
 
 		{
+			put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class, false));
 			put("summary", new PageRegistration("gb.summary", SummaryPage.class));
 			put("log", new PageRegistration("gb.log", LogPage.class));
 			put("branches", new PageRegistration("gb.branches", BranchesPage.class));
@@ -93,6 +94,7 @@ public abstract class RepositoryPage extends BasePage {
 		RepositoryModel model = getRepositoryModel();
 
 		// standard page links
+		addRegisteredPageLink("repositories");
 		addRegisteredPageLink("summary");
 		addRegisteredPageLink("log");
 		addRegisteredPageLink("branches");
@@ -133,10 +135,8 @@ public abstract class RepositoryPage extends BasePage {
 			public void populateItem(final Item<String> item) {
 				String extra = item.getModelObject();
 				PageRegistration pageReg = registeredPages.get(extra);
-				item.add(new Label("extraSeparator", " | "));
 				item.add(new LinkPanel("extraLink", null, getString(pageReg.translationKey),
-						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName))
-						.setEnabled(!extra.equals(pageWicketId)));
+						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName)));
 			}
 		};
 		add(extrasView);
@@ -155,6 +155,15 @@ public abstract class RepositoryPage extends BasePage {
 		// set stateless page preference
 		setStatelessHint(true);
 	}
+	
+	@Override
+	protected void setupPage(String repositoryName, String pageName) {
+		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new Label("pageName", pageName));
+
+		super.setupPage(repositoryName, pageName);
+	}
 
 	public String getLinkWicketId(String pageName) {
 		for (String wicketId : registeredPages.keySet()) {
@@ -172,15 +181,20 @@ public abstract class RepositoryPage extends BasePage {
 		if (!StringUtils.isEmpty(wicketId)) {
 			Component c = get(wicketId);
 			if (c != null) {
-				c.setEnabled(false);
+//				c.setEnabled(false);
+//				WicketUtils.setCssClass(c, "selected");
 			}
 		}
 	}
 
 	private void addRegisteredPageLink(String key) {
 		PageRegistration pageReg = registeredPages.get(key);
-		add(new BookmarkablePageLink<Void>(key, pageReg.pageClass,
-				WicketUtils.newRepositoryParameter(repositoryName)));
+		if (pageReg.repositoryLink) {
+			add(new BookmarkablePageLink<Void>(key, pageReg.pageClass,
+					WicketUtils.newRepositoryParameter(repositoryName)));
+		} else {
+			add(new BookmarkablePageLink<Void>(key, pageReg.pageClass));
+		}
 	}
 
 	protected void addSyndicationDiscoveryLink() {
@@ -335,10 +349,16 @@ public abstract class RepositoryPage extends BasePage {
 
 		final String translationKey;
 		final Class<? extends BasePage> pageClass;
+		final boolean repositoryLink;
 
 		PageRegistration(String translationKey, Class<? extends BasePage> pageClass) {
+			this(translationKey, pageClass, true);
+		}
+		
+		PageRegistration(String translationKey, Class<? extends BasePage> pageClass, boolean repositoryLink) {
 			this.translationKey = translationKey;
 			this.pageClass = pageClass;
+			this.repositoryLink = repositoryLink;
 		}
 	}
 
@@ -364,7 +384,7 @@ public abstract class RepositoryPage extends BasePage {
 
 		void setTranslatedAttributes() {
 			WicketUtils.setHtmlTooltip(get("searchType"), getString("gb.searchTypeTooltip"));
-			WicketUtils.setHtmlTooltip(get("searchBox"), getString("gb.searchTooltip"));
+			WicketUtils.setHtmlTooltip(get("searchBox"), MessageFormat.format(getString("gb.searchTooltip"), repositoryName));
 			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));
 		}
 
@@ -372,6 +392,10 @@ public abstract class RepositoryPage extends BasePage {
 		public void onSubmit() {
 			SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
+			if (searchString == null) {
+				// FIXME IE intermittently has no searchString. Wicket bug?
+				return;
+			}
 			for (SearchType type : SearchType.values()) {
 				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
 					searchType = type;

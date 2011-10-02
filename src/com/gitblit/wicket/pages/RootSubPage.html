@@ -4,14 +4,15 @@
       xml:lang="en"  
       lang="en"> 
 
-<wicket:panel>
-	<!-- page path links -->
-	<div class="page_path">	
-		<ul class="breadcrumb">
-			<li wicket:id="path">
-				<span wicket:id="pathLink"></span> <span class="divider" wicket:id="pathSeparator"></span>
-			</li>
-		</ul>
+<body>
+<wicket:extend>
+	<!-- page header -->
+	<div class="page-header">
+		<h2><span wicket:id="pageName">[page name]</span> <small><span wicket:id="pageSubName">[sub name]</span></small></h2>
 	</div>
-</wicket:panel>
+	
+	<!-- Subclass Content -->
+	<wicket:child/>
+</wicket:extend>
+</body>
 </html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+<body>
+<wicket:extend>
+	<div class="topbar">
+		<div class="fill">
+			<div class="container">
+				<a class="brand" wicket:id="rootLink">
+					<img src="gitblt_25_white.png" width="79" height="25" alt="gitblit" class="logo"/>
+				</a>
+				
+				<ul class="nav">				
+					<li><a wicket:id="repositories"><wicket:message key="gb.repositories"></wicket:message></a></li>
+					<li><a wicket:id="users"><wicket:message key="gb.users"></wicket:message></a></li>
+					<li><a wicket:id="federation"><wicket:message key="gb.federation"></wicket:message></a></li>
+				</ul>
+				
+				<form class="pull-right" wicket:id="loginForm">
+					<div class="login">
+						<input wicket:id="username" class="input-small" type="text" />
+						<input wicket:id="password" class="input-small" type="password" />
+						<button class="btn primary" type="submit"><wicket:message key="gb.login"></wicket:message></button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
+	
+	<!-- subclass content -->
+	<wicket:child/>		
+</wicket:extend>
+</body>
+</html>

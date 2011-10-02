@@ -6,11 +6,6 @@
 
 <body>
 <wicket:extend>
-
-	<div style="padding-top:20px"></div>
-
-	<div style="text-align:center;" wicket:id="feedback">[Feedback Panel]</div>	
-
 	<!-- proposal info -->
 	<table class="plain">
 		<tr><th><wicket:message key="gb.received">received</wicket:message></th><td><span wicket:id="received">[received]</span></td></tr>
@@ -21,7 +16,7 @@
 		<tr><th valign="top"><wicket:message key="gb.proposal">proposal</wicket:message></th><td><span class="sha1" wicket:id="definition">[definition]</span></td></tr>
 	</table>
 		
-	<div wicket:id="repositories"></div>
+	<div wicket:id="repositoriesPanel"></div>
 	
 </wicket:extend>    
 </body>

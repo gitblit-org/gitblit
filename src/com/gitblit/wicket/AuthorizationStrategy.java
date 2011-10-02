@@ -24,7 +24,6 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.pages.BasePage;
-import com.gitblit.wicket.pages.LoginPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
@@ -36,6 +35,12 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
+		if (RepositoriesPage.class.equals(pageClass)) {
+			// allow all requests to get to the RepositoriesPage with its inline
+			// authentication form
+			return true;
+		}
+
 		if (BasePage.class.isAssignableFrom(pageClass)) {
 			boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
 			boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
@@ -73,12 +78,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@Override
 	public void onUnauthorizedInstantiation(Component component) {
 		if (component instanceof BasePage) {
-			GitBlitWebSession session = GitBlitWebSession.get();
-			if (!session.isLoggedIn()) {
-				throw new RestartResponseAtInterceptPageException(LoginPage.class);
-			} else {
-				throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
-			}
+			throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
 		}
 	}
 }

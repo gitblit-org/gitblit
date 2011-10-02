@@ -7,20 +7,14 @@
 	<!-- Head -->
 	<wicket:head>
    		<title wicket:id="title">[page title]</title>
-		<link rel="stylesheet" type="text/css" href="gitblit.css"/>
+		<link rel="stylesheet" href="bootstrap.130.css"/>
+		<link rel="stylesheet" type="text/css" href="bootstrap.gb.css"/>
 		<link rel="icon" href="gitblt-favicon.png" type="image/png" />
 	</wicket:head>
 
-	<body>
-		<!-- page header -->
-		<div class="page_header">
-			<a title="gitblit homepage" href="http://gitblit.com/">
-				<img src="gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>
-			</a>
-			<span>
-				<span wicket:id="siteName">[site name]</span> / <span wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span>
-			</span>	
-		</div>
+	<body style="padding-top: 40px;">
+		<div class="container">
+		<div class="content">
 
 		<!-- page content -->
 		<wicket:child />
@@ -28,9 +22,13 @@
 		<!-- page footer -->
 		<div class="page_footer">
 			<div style="float:right">
-				<span wicket:id="gbVersion"></span> 
+				<a title="gitblit homepage" href="http://gitblit.com/">
+					<span wicket:id="gbVersion"></span>
+				</a> 
 			</div>
 			<div wicket:id="userPanel">[user panel]</div>
+		</div>
+		</div>
 		</div>
 	</body>
 	

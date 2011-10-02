@@ -3,15 +3,9 @@
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
       lang="en"> 
-
-<wicket:panel>
-	<!-- page path links -->
-	<div class="page_path">	
-		<ul class="breadcrumb">
-			<li wicket:id="path">
-				<span wicket:id="pathLink"></span> <span class="divider" wicket:id="pathSeparator"></span>
-			</li>
-		</ul>
-	</div>
-</wicket:panel>
+<body>
+<wicket:extend>
+	<div wicket:id="usersPanel">[users panel]</div>
+</wicket:extend>
+</body>
 </html>

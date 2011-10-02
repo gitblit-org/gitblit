@@ -31,66 +31,48 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.FederationProposalsPanel;
-import com.gitblit.wicket.panels.FederationRegistrationsPanel;
-import com.gitblit.wicket.panels.FederationTokensPanel;
 import com.gitblit.wicket.panels.RepositoriesPanel;
-import com.gitblit.wicket.panels.UsersPanel;
 
-public class RepositoriesPage extends BasePage {
+public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {
 		super();
 		setupPage("", "");
 
-		final boolean showAdmin;
-		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
-			// authentication requires state and session
-			setStatelessHint(false);
-		} else {
-			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-			if (GitBlit.getBoolean(Keys.web.authenticateViewPages, false)) {
-				// authentication requires state and session
-				setStatelessHint(false);
-			} else {
-				// no authentication required, no state and no session required
-				setStatelessHint(true);
-			}
-		}
-
-		// display an error message cached from a redirect
-		String cachedMessage = GitBlitWebSession.get().clearErrorMessage();
-		if (!StringUtils.isEmpty(cachedMessage)) {
-			error(cachedMessage);
-		} else if (showAdmin) {
-			int pendingProposals = GitBlit.self().getPendingFederationProposals().size();
-			if (pendingProposals == 1) {
-				info("There is 1 federation proposal awaiting review.");
-			} else if (pendingProposals > 1) {
-				info(MessageFormat.format("There are {0} federation proposals awaiting review.",
-						pendingProposals));
-			}
+		// check to see if we should display a login message
+		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
+			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
+			String message = readMarkdown(messageSource, "login.mkd");
+			Component repositoriesMessage = new Label("repositoriesMessage", message);
+			add(repositoriesMessage.setEscapeModelStrings(false));
+			add(new Label("repositoriesPanel"));
+			return;
 		}
 
 		// Load the markdown welcome message
 		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
-		String message = "<br/>";
+		String message = readMarkdown(messageSource, "welcome.mkd");
+		Component repositoriesMessage = new Label("repositoriesMessage", message)
+				.setEscapeModelStrings(false).setVisible(message.length() > 0);
+		add(repositoriesMessage);
+		RepositoriesPanel repositories = new RepositoriesPanel("repositoriesPanel", showAdmin,
+				null, getAccessRestrictions());
+		// push the panel down if we are hiding the admin controls and the
+		// welcome message
+		if (!showAdmin && !repositoriesMessage.isVisible()) {
+			WicketUtils.setCssStyle(repositories, "padding-top:5px;");
+		}
+		add(repositories);
+	}
+
+	private String readMarkdown(String messageSource, String resource) {
+		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
-			// Read default welcome message
-			try {
-				ContextRelativeResource res = WicketUtils.getResource("welcome.mkd");
-				InputStream is = res.getResourceStream().getInputStream();
-				InputStreamReader reader = new InputStreamReader(is);
-				message = MarkdownUtils.transformMarkdown(reader);
-				reader.close();
-			} catch (Throwable t) {
-				message = "Failed to read default welcome message!";
-				error(message, t, false);
-			}
+			// Read default message
+			message = readDefaultMarkdown(resource);
 		} else {
-			// Read user-supplied welcome message
+			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
 				File file = new File(messageSource);
 				if (file.exists()) {
@@ -106,31 +88,21 @@ public class RepositoriesPage extends BasePage {
 				}
 			}
 		}
-		Component repositoriesMessage = new Label("repositoriesMessage", message)
-				.setEscapeModelStrings(false);
-		add(repositoriesMessage);
-		add(new RepositoriesPanel("repositoriesPanel", showAdmin, null, getAccessRestrictions()));
-		add(new UsersPanel("usersPanel", showAdmin).setVisible(showAdmin));
-		boolean showFederation = showAdmin && GitBlit.canFederate();
-		add(new FederationTokensPanel("federationTokensPanel", showFederation)
-				.setVisible(showFederation));
-		FederationProposalsPanel proposalsPanel = new FederationProposalsPanel(
-				"federationProposalsPanel");
-		if (showFederation) {
-			proposalsPanel.hideIfEmpty();
-		} else {
-			proposalsPanel.setVisible(false);
-		}
+		return message;
+	}
 
-		boolean showRegistrations = GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
-		FederationRegistrationsPanel registrationsPanel = new FederationRegistrationsPanel(
-				"federationRegistrationsPanel");
-		if (showAdmin || showRegistrations) {
-			registrationsPanel.hideIfEmpty();
-		} else {
-			registrationsPanel.setVisible(false);
+	private String readDefaultMarkdown(String file) {
+		String message;
+		try {
+			ContextRelativeResource res = WicketUtils.getResource(file);
+			InputStream is = res.getResourceStream().getInputStream();
+			InputStreamReader reader = new InputStreamReader(is);
+			message = MarkdownUtils.transformMarkdown(reader);
+			reader.close();
+		} catch (Throwable t) {
+			message = MessageFormat.format("Failed to read default message from {0}!", file);
+			error(message, t, false);
 		}
-		add(proposalsPanel);
-		add(registrationsPanel);
+		return message;
 	}
 }

@@ -25,24 +25,15 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationModel.RepositoryStatus;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class FederationRegistrationPage extends BasePage {
+public class FederationRegistrationPage extends RootSubPage {
 
 	public FederationRegistrationPage(PageParameters params) {
 		super(params);
-
-		final boolean showAdmin;
-		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
-		} else {
-			showAdmin = false;
-		}
+		
 		setStatelessHint(true);
 
 		String url = WicketUtils.getUrlParameter(params);
@@ -53,8 +44,8 @@ public class FederationRegistrationPage extends BasePage {
 			error("Could not find federation registration!", true);
 		}
 
-		setupPage("", registration.isResultData() ? getString("gb.federationResults")
-				: getString("gb.federationRegistration"));
+		setupPage(registration.isResultData() ? getString("gb.federationResults")
+				: getString("gb.federationRegistration"), registration.url);
 
 		add(new Label("url", registration.url));
 		add(WicketUtils.getRegistrationImage("typeIcon", registration, this));

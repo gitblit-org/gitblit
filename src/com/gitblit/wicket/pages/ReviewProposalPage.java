@@ -33,7 +33,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
 @RequiresAdminRole
-public class ReviewProposalPage extends BasePage {
+public class ReviewProposalPage extends RootSubPage {
 
 	private final String PROPS_PATTERN = "{0} = {1}\n";
 
@@ -42,9 +42,6 @@ public class ReviewProposalPage extends BasePage {
 	public ReviewProposalPage(PageParameters params) {
 		super(params);
 
-		setupPage("", getString("gb.proposals"));
-		setStatelessHint(true);
-
 		final String token = WicketUtils.getToken(params);
 
 		FederationProposal proposal = GitBlit.self().getPendingFederationProposal(token);
@@ -52,13 +49,15 @@ public class ReviewProposalPage extends BasePage {
 			error("Could not find federation proposal!", true);
 		}
 
+		setupPage(getString("gb.proposals"), proposal.url);
+		
+
 		add(new Label("url", proposal.url));
 		add(new Label("message", proposal.message));
 		add(WicketUtils.createTimestampLabel("received", proposal.received, getTimeZone()));
 		add(new Label("token", proposal.token));
 		add(new Label("tokenType", proposal.tokenType.name()));
-
-		boolean go = true;
+		
 		String p;
 		if (GitBlit.isGO()) {
 			// gitblit.properties definition
@@ -92,7 +91,7 @@ public class ReviewProposalPage extends BasePage {
 
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>(
 				proposal.repositories.values());
-		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositories", false,
+		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", false,
 				repositories, getAccessRestrictions());
 		add(repositoriesPanel);
 	}

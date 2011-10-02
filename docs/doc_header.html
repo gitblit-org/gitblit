@@ -2,7 +2,8 @@
 <html>
 	<head>
 		<title>Gitblit</title>
-		<link rel="stylesheet" type="text/css" href="./gitblit.css"/>
+		<link rel="stylesheet" type="text/css" href="./bootstrap.130.css"/>
+		<link rel="stylesheet" type="text/css" href="./bootstrap.gb.css"/>
 		<link rel="stylesheet" type="text/css" href="./markdown.css"/>
 		<link rel="shortcut icon" type="image/png" href="./gitblt-favicon.png" />
 		<meta name="ROBOTS" content="INDEX, NOFOLLOW">
@@ -28,12 +29,19 @@
 		<script type="text/javascript" src="prettify/prettify.js"></script>
 		<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />		
 	</head>
-	<body style="width:900px"  onload="prettyPrint()">
-		<div class="page_header">
-			<a title="gitblit homepage" href="http://gitblit.com/">
-				<img src="./gitblt_25.png" width="79" height="25" alt="gitblit" class="logo"/>
-			</a>
-			<span style="color:black;">{0}</span>
+	<body style="padding-top:40px;"  onload="prettyPrint()">
+		<div class="topbar">
+			<div class="fill">
+				<div class="container">
+					<a class="brand" href="http://gitblit.com" title="gitblit homepage">
+						<img src="gitblt_25_white.png" width="79" height="25" alt="gitblit" class="logo"/>
+					</a>
+					<ul class="nav">
+						{1}		
+					</ul>
+				</div>
+			</div>
 		</div>
-		<div class="page_nav">{1}</div>
-		<div class="markdown">
+		<div class="container">
+			<div class="content">
+				<div class="markdown">

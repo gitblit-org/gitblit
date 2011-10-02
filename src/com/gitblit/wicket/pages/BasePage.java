@@ -29,6 +29,7 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.WebRequest;
@@ -87,21 +88,15 @@ public abstract class BasePage extends WebPage {
 	}
 
 	protected void setupPage(String repositoryName, String pageName) {
-
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", getServerName() + " - " + repositoryName));
 		} else {
 			add(new Label("title", getServerName()));
 		}
-		// header
-		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
-		if (siteName == null || siteName.trim().length() == 0) {
-			siteName = Constants.NAME;
-		}
-		add(new LinkPanel("siteName", null, siteName, RepositoriesPage.class, null));
-		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new Label("pageName", pageName));
+
+		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(RepositoriesPage.class, null).toString());
+		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
+		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));
@@ -200,7 +195,7 @@ public abstract class BasePage extends WebPage {
 		if (GitBlitWebSession.get().isLoggedIn()) {
 			error(message, true);
 		} else {
-			throw new RestartResponseAtInterceptPageException(LoginPage.class);
+			throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
 		}
 	}
 
@@ -226,8 +221,7 @@ public abstract class BasePage extends WebPage {
 			} else {
 				// login
 				add(new Label("username").setVisible(false));
-				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.login"),
-						LoginPage.class));
+				add(new Label("loginLink").setVisible(false));
 				add(new Label("separator").setVisible(false));
 				add(new Label("changePasswordLink").setVisible(false));
 			}

@@ -6,35 +6,29 @@
 
 <wicket:extend>
 <body onload="document.getElementById('name').focus();">
-	<!-- Push content down to preserve header image -->
-	<div style="padding-top:20px"></div>
-
-	<div style="text-align:center;" wicket:id="feedback">[Feedback Panel]</div>	
-
 	<!-- Repository Table -->
 	<form wicket:id="editForm">
 		<table class="plain">
 			<tbody>
-				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input type="text" wicket:id="name" id="name" size="40" tabindex="1" /> &nbsp;<i><wicket:message key="gb.nameDescription"></wicket:message></i></td></tr>
-				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input type="text" wicket:id="description" size="40" tabindex="2" /></td></tr>
-				<tr><th><wicket:message key="gb.origin"></wicket:message></th><td class="edit"><input type="text" wicket:id="origin" size="80" tabindex="3" /></td></tr>
+				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="name" id="name" size="40" tabindex="1" /> &nbsp;<i><wicket:message key="gb.nameDescription"></wicket:message></i></td></tr>
+				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="description" size="40" tabindex="2" /></td></tr>
+				<tr><th><wicket:message key="gb.origin"></wicket:message></th><td class="edit"><input class="span7" type="text" wicket:id="origin" size="80" tabindex="3" /></td></tr>
 				<tr><th><wicket:message key="gb.owner"></wicket:message></th><td class="edit"><select wicket:id="owner" tabindex="4" /> &nbsp;<i><wicket:message key="gb.ownerDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.enableTickets"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useTickets" tabindex="5" /> &nbsp;<i><wicket:message key="gb.useTicketsDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.enableDocs"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="useDocs" tabindex="6" /> &nbsp;<i><wicket:message key="gb.useDocsDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.showRemoteBranches"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="showRemoteBranches" tabindex="7" /> &nbsp;<i><wicket:message key="gb.showRemoteBranchesDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.showReadme"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="showReadme" tabindex="8" /> &nbsp;<i><wicket:message key="gb.showReadmeDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="isFrozen" tabindex="9" /> &nbsp;<i><wicket:message key="gb.isFrozenDescription"></wicket:message></i></td></tr>
-				<tr><td style="padding-top:10px;" colspan="2"><hr></hr></td></tr>
-				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select wicket:id="accessRestriction" tabindex="10" /></td></tr>				
+				<tr><td colspan="2"><hr></hr></td></tr>
+				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span6" wicket:id="accessRestriction" tabindex="10" /></td></tr>				
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.permittedUsers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
-				<tr><td style="padding-top:10px;" colspan="2"><hr></hr></td></tr>				
-				<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select wicket:id="federationStrategy" tabindex="11" /></td></tr>
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>				
-				<tr><th></th><td class="editButton"><input type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="12" /> <input type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="13" /></td></tr>
+				<tr><td colspan="2"><hr></hr></td></tr>		
+				<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span6" wicket:id="federationStrategy" tabindex="11" /></td></tr>
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>
+				<tr><th></th><td class="editButton"><input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="12" /> &nbsp; <input class="btn primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="13" /> </td></tr>
 			</tbody>
 		</table>
 	</form>	
-
 </body>
 </wicket:extend>
 </html>

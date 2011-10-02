@@ -44,7 +44,7 @@ import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
 
 @RequiresAdminRole
-public class EditUserPage extends BasePage {
+public class EditUserPage extends RootSubPage {
 
 	private final boolean isCreate;
 
@@ -66,10 +66,11 @@ public class EditUserPage extends BasePage {
 
 	protected void setupPage(final UserModel userModel) {
 		if (isCreate) {
-			super.setupPage("", getString("gb.newUser"));
+			super.setupPage(getString("gb.newUser"), "");
 		} else {
-			super.setupPage("", getString("gb.edit"));
+			super.setupPage(getString("gb.edit"), userModel.username);
 		}
+		
 		final Model<String> confirmPassword = new Model<String>(
 				StringUtils.isEmpty(userModel.password) ? "" : userModel.password);
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
@@ -156,8 +157,8 @@ public class EditUserPage extends BasePage {
 							userModel.username));
 					setResponsePage(EditUserPage.class);
 				} else {
-					// back to home
-					setResponsePage(RepositoriesPage.class);
+					// back to users page
+					setResponsePage(UsersPage.class);
 				}
 			}
 		};
@@ -181,7 +182,7 @@ public class EditUserPage extends BasePage {
 
 			@Override
 			public void onSubmit() {
-				setResponsePage(RepositoriesPage.class);
+				setResponsePage(UsersPage.class);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);

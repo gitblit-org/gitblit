@@ -18,17 +18,13 @@ package com.gitblit.wicket.pages;
 import java.text.MessageFormat;
 
 import org.apache.wicket.RestartResponseException;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
 
-import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
@@ -36,7 +32,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 
-public class ChangePasswordPage extends WebPage {
+public class ChangePasswordPage extends RootSubPage {
 
 	IModel<String> password = new Model<String>("");
 	IModel<String> confirmPassword = new Model<String>("");
@@ -54,10 +50,7 @@ public class ChangePasswordPage extends WebPage {
 			// no authentication enabled
 			throw new RestartResponseException(getApplication().getHomePage());
 		}
-
-		add(new Label("title", GitBlit.getString(Keys.web.siteName, Constants.NAME)));
-		add(new Label("name", getString("gb.changePassword") + ": "
-				+ GitBlitWebSession.get().getUser().username));
+		setupPage(getString("gb.changePassword"), GitBlitWebSession.get().getUser().username);
 
 		StatelessForm<Void> form = new StatelessForm<Void>("passwordForm") {
 
@@ -115,7 +108,6 @@ public class ChangePasswordPage extends WebPage {
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
-		form.add(new FeedbackPanel("feedback"));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
