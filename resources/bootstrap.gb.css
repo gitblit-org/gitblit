@@ -46,6 +46,12 @@ hr {
 	border-bottom: 2px solid #ff9900 !important;
 }
 
+.topbar ul li:focus, .topbar .active {
+	background-repeat:no-repeat;
+	background-image: url(arrow_page.png);
+	background-position: center bottom;
+}
+
 .breadcrumb {
 	margin-top: 5px !important;
 	margin-bottom: 5px !important;

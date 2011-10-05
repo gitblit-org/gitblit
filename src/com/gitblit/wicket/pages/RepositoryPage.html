@@ -15,18 +15,13 @@
 				<a class="brand" wicket:id="rootLink">
 					<img src="gitblt_25_white.png" width="79" height="25" alt="gitblit" class="logo"/>
 				</a>
-				<ul class="nav">				
-					<li><a wicket:id="repositories"><wicket:message key="gb.repositories"></wicket:message></a></li>
-					<li><a wicket:id="summary"><wicket:message key="gb.summary"></wicket:message></a></li>
-					<li><a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a></li>
-					<li><a wicket:id="branches"><wicket:message key="gb.branches"></wicket:message></a></li>
-					<li><a wicket:id="tags"><wicket:message key="gb.tags"></wicket:message></a></li>
-					<li><a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a></li>
-					<li wicket:id="extra"><span wicket:id="extraLink"></span></li>
-					<li><a style="text-decoration: none;" wicket:id="syndication">
-						<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img></a>
-					</li>									
-				</ul>
+				
+				<span wicket:id="navPanel"></span>
+				
+				<a class="brand" style="text-decoration: none;" wicket:id="syndication">
+					<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
+				</a>
+				
 				<form class="pull-right" wicket:id="searchForm">
 					<div class="search">
 						<select class="small" wicket:id="searchType"/>			

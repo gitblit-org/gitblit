@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,12 +29,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -51,8 +47,10 @@ import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.NavigationPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends BasePage {
@@ -64,22 +62,7 @@ public abstract class RepositoryPage extends BasePage {
 
 	private RepositoryModel m;
 
-	private final Map<String, PageRegistration> registeredPages = new HashMap<String, PageRegistration>() {
-
-		private static final long serialVersionUID = 1L;
-
-		{
-			put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class, false));
-			put("summary", new PageRegistration("gb.summary", SummaryPage.class));
-			put("log", new PageRegistration("gb.log", LogPage.class));
-			put("branches", new PageRegistration("gb.branches", BranchesPage.class));
-			put("tags", new PageRegistration("gb.tags", TagsPage.class));
-			put("tree", new PageRegistration("gb.tree", TreePage.class));
-			put("tickets", new PageRegistration("gb.tickets", TicketsPage.class));
-			put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class));
-			put("docs", new PageRegistration("gb.docs", DocsPage.class));
-		}
-	};
+	private final Map<String, PageRegistration> registeredPages;
 
 	public RepositoryPage(PageParameters params) {
 		super(params);
@@ -90,62 +73,16 @@ public abstract class RepositoryPage extends BasePage {
 			error(MessageFormat.format("Repository not specified for {0}!", getPageName()), true);
 		}
 
-		Repository r = getRepository();
-		RepositoryModel model = getRepositoryModel();
+		// register the available page links for this page and user
+		registeredPages = registerPages();
 
 		// standard page links
-		addRegisteredPageLink("repositories");
-		addRegisteredPageLink("summary");
-		addRegisteredPageLink("log");
-		addRegisteredPageLink("branches");
-		addRegisteredPageLink("tags");
-		addRegisteredPageLink("tree");
-
-		// per-repository extra page links
-		List<String> extraPageLinks = new ArrayList<String>();
-		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
-			extraPageLinks.add("tickets");
-		}
-		if (model.useDocs) {
-			extraPageLinks.add("docs");
-		}
-
-		final boolean showAdmin;
-		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
-		} else {
-			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-		}
-
-		// Conditionally add edit link
-		if (showAdmin
-				|| GitBlitWebSession.get().isLoggedIn()
-				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
-						.getUser().username))) {
-			extraPageLinks.add("edit");
-		}
-
-		final String pageName = getPageName();
-		final String pageWicketId = getLinkWicketId(pageName);
-		ListDataProvider<String> extrasDp = new ListDataProvider<String>(extraPageLinks);
-		DataView<String> extrasView = new DataView<String>("extra", extrasDp) {
-			private static final long serialVersionUID = 1L;
-
-			public void populateItem(final Item<String> item) {
-				String extra = item.getModelObject();
-				PageRegistration pageReg = registeredPages.get(extra);
-				item.add(new LinkPanel("extraLink", null, getString(pageReg.translationKey),
-						pageReg.pageClass, WicketUtils.newRepositoryParameter(repositoryName)));
-			}
-		};
-		add(extrasView);
+		List<PageRegistration> pages = new ArrayList<PageRegistration>(registeredPages.values());
+		NavigationPanel navigationPanel = new NavigationPanel("navPanel", getClass(), pages);
+		add(navigationPanel);
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
 				.getRelativePathPrefixToContextRoot(), repositoryName, null, 0)));
-
-		// disable current page
-		disableRegisteredPageLink(pageName);
 
 		// add floating search form
 		SearchForm searchForm = new SearchForm("searchForm", repositoryName);
@@ -155,7 +92,50 @@ public abstract class RepositoryPage extends BasePage {
 		// set stateless page preference
 		setStatelessHint(true);
 	}
-	
+
+	private Map<String, PageRegistration> registerPages() {
+		PageParameters params = null;
+		if (!StringUtils.isEmpty(repositoryName)) {
+			params = WicketUtils.newRepositoryParameter(repositoryName);
+		}
+		Map<String, PageRegistration> pages = new LinkedHashMap<String, PageRegistration>();
+
+		// standard links
+		pages.put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class));
+		pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
+		pages.put("log", new PageRegistration("gb.log", LogPage.class, params));
+		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
+		pages.put("tags", new PageRegistration("gb.tags", TagsPage.class, params));
+		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
+
+		// conditional links
+		Repository r = getRepository();
+		RepositoryModel model = getRepositoryModel();
+
+		// per-repository extra page links
+		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
+			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params));
+		}
+		if (model.useDocs) {
+			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params));
+		}
+		// Conditionally add edit link
+		final boolean showAdmin;
+		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
+		} else {
+			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+		}
+		if (showAdmin
+				|| GitBlitWebSession.get().isLoggedIn()
+				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
+						.getUser().username))) {
+			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
+		}
+		return pages;
+	}
+
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
 		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
@@ -163,38 +143,6 @@ public abstract class RepositoryPage extends BasePage {
 		add(new Label("pageName", pageName));
 
 		super.setupPage(repositoryName, pageName);
-	}
-
-	public String getLinkWicketId(String pageName) {
-		for (String wicketId : registeredPages.keySet()) {
-			String key = registeredPages.get(wicketId).translationKey;
-			String linkName = getString(key);
-			if (linkName.equals(pageName)) {
-				return wicketId;
-			}
-		}
-		return null;
-	}
-
-	public void disableRegisteredPageLink(String pageName) {
-		String wicketId = getLinkWicketId(pageName);
-		if (!StringUtils.isEmpty(wicketId)) {
-			Component c = get(wicketId);
-			if (c != null) {
-//				c.setEnabled(false);
-//				WicketUtils.setCssClass(c, "selected");
-			}
-		}
-	}
-
-	private void addRegisteredPageLink(String key) {
-		PageRegistration pageReg = registeredPages.get(key);
-		if (pageReg.repositoryLink) {
-			add(new BookmarkablePageLink<Void>(key, pageReg.pageClass,
-					WicketUtils.newRepositoryParameter(repositoryName)));
-		} else {
-			add(new BookmarkablePageLink<Void>(key, pageReg.pageClass));
-		}
 	}
 
 	protected void addSyndicationDiscoveryLink() {
@@ -344,24 +292,6 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
-	private static class PageRegistration implements Serializable {
-		private static final long serialVersionUID = 1L;
-
-		final String translationKey;
-		final Class<? extends BasePage> pageClass;
-		final boolean repositoryLink;
-
-		PageRegistration(String translationKey, Class<? extends BasePage> pageClass) {
-			this(translationKey, pageClass, true);
-		}
-		
-		PageRegistration(String translationKey, Class<? extends BasePage> pageClass, boolean repositoryLink) {
-			this.translationKey = translationKey;
-			this.pageClass = pageClass;
-			this.repositoryLink = repositoryLink;
-		}
-	}
-
 	private static class SearchForm extends StatelessForm<Void> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
@@ -384,7 +314,8 @@ public abstract class RepositoryPage extends BasePage {
 
 		void setTranslatedAttributes() {
 			WicketUtils.setHtmlTooltip(get("searchType"), getString("gb.searchTypeTooltip"));
-			WicketUtils.setHtmlTooltip(get("searchBox"), MessageFormat.format(getString("gb.searchTooltip"), repositoryName));
+			WicketUtils.setHtmlTooltip(get("searchBox"),
+					MessageFormat.format(getString("gb.searchTooltip"), repositoryName));
 			WicketUtils.setInputPlaceholder(get("searchBox"), getString("gb.search"));
 		}
 

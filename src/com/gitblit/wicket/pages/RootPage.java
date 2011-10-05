@@ -16,12 +16,13 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
@@ -32,7 +33,9 @@ import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.NavigationPanel;
 
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
@@ -77,10 +80,16 @@ public abstract class RootPage extends BasePage {
 				&& GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
 
 		// navigation links
-		add(new BookmarkablePageLink<Void>("repositories", RepositoriesPage.class));
-		add(new BookmarkablePageLink<Void>("users", UsersPage.class).setVisible(showAdmin));
-		add(new BookmarkablePageLink<Void>("federation", FederationPage.class).setVisible(showAdmin
-				|| showRegistrations));
+		List<PageRegistration> pages = new ArrayList<PageRegistration>();
+		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class));
+		if (showAdmin) {
+			pages.add(new PageRegistration("gb.users", UsersPage.class));
+		}
+		if (showAdmin || showRegistrations) {
+			pages.add(new PageRegistration("gb.federation", FederationPage.class));
+		}		
+		NavigationPanel navPanel = new NavigationPanel("navPanel", getClass(), pages);
+		add(navPanel);
 
 		// login form
 		StatelessForm<Void> loginForm = new StatelessForm<Void>("loginForm") {
