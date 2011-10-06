@@ -48,7 +48,11 @@ import com.gitblit.utils.StringUtils;
  * 
  */
 public class Build {
-
+	
+	public interface DownloadListener {
+		public void downloading(String name);
+	}
+	
 	/**
 	 * BuildType enumeration representing compile-time or runtime. This is used
 	 * to download dependencies either for Gitblit GO runtime or for setting up
@@ -57,6 +61,8 @@ public class Build {
 	public static enum BuildType {
 		RUNTIME, COMPILETIME;
 	}
+	
+	private static DownloadListener downloadListener;
 
 	public static void main(String... args) {
 		runtime();
@@ -123,6 +129,14 @@ public class Build {
 		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4LOG4J, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LOG4J, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		
+		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
+	}
+	
+	public static void rpcClient(DownloadListener listener) {
+		downloadListener = listener;
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		
@@ -272,6 +286,9 @@ public class Build {
 				if (!success) {
 					throw new RuntimeException("Failed to create destination folder structure!");
 				}
+			}
+			if (downloadListener != null) {
+				downloadListener.downloading(mo.name);
 			}
 			ByteArrayOutputStream buff = new ByteArrayOutputStream();
 			try {

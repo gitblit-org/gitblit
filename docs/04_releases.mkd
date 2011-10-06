@@ -1,11 +1,16 @@
 ## Release History
 
 ### Current Release
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[rpcclient](http://code.google.com/p/gitblit/downloads/detail?name=%RPCCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- fixed/broke: federation protocol.  serialized dates now include the timezone.  This breaks 0.6.0 clients/servers.
-- improved: updated ui with Twitter's Bootstrap CSS toolkit
+- improved: overhauled web ui with Twitter's Bootstrap CSS toolkit
 <br/>**New:** *web.loginMessage = gitblit*
+- added: authenticated JSON RPC mechanism 
+<br/>**New:** *web.enableRpcServlet = true*
+<br/>**New:** *web.enableRpcAdministration = false*
+- added: reusable JSON RPC client class
+- added: Swing RPC Client application for cloning and administration of repositories, users, and federation proposals.
+- fixed/broke: federation protocol.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  This breaks 0.6.0 federation clients/servers.
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations

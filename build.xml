@@ -85,6 +85,7 @@
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
+		<property name="rpcclient.zipfile" value="rpcclient-${gb.version}.zip" />
 	</target>
 	
 	
@@ -265,6 +266,9 @@
 				<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 				<arg value="--substitute" />
+				<arg value="%RPCCLIENT%=${rpcclient.zipfile}" />
+
+				<arg value="--substitute" />
 				<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 				<arg value="--substitute" />
@@ -409,6 +413,53 @@
 		</zip>
 	</target>
 
+
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build the stand-alone, Gitblit RPC Client
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildRpcClient" depends="compile" description="Builds the stand-alone Gitblit RPC client">
+		<echo>Building Gitblit RPC Client ${gb.version}</echo>
+	
+		<genjar jarfile="rpcclient.jar">
+			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
+			<resource file="${basedir}/resources/gitblt-favicon.png" />
+			<resource file="${basedir}/resources/lock_go_16x16.png" />
+			<resource file="${basedir}/resources/lock_pull_16x16.png" />
+			<resource file="${basedir}/resources/shield_16x16.png" />
+			<resource file="${basedir}/resources/federated_16x16.png" />
+			<resource file="${basedir}/resources/cold_16x16.png" />
+			<resource file="${basedir}/resources/book_16x16.png" />
+			<resource file="${basedir}/resources/bug_16x16.png" />
+			<resource file="${basedir}/resources/blank.png" />
+				
+			<class name="com.gitblit.client.GitblitClientLauncher" />
+			<classfilter>
+				<exclude name="org.apache." />
+				<exclude name="org.bouncycastle." />
+				<exclude name="org.eclipse." />
+				<exclude name="org.slf4j." />
+				<exclude name="com.beust." />
+				<exclude name="com.google." />
+			</classfilter>
+			<classpath refid="master-classpath" />
+			<manifest>
+				<attribute name="Main-Class" value="com.gitblit.client.GitblitClientLauncher" />
+				<attribute name="SplashScreen-Image" value="splash.png" />
+				<attribute name="Specification-Version" value="${gb.version}" />				
+				<attribute name="Release-Date" value="${gb.versionDate}" />
+			</manifest>
+		</genjar>
+		
+		<!-- Build the rpc client zip file -->
+		<zip destfile="${rpcclient.zipfile}">
+			<fileset dir="${basedir}">
+				<include name="rpcclient.jar" />				
+			</fileset>			
+		</zip>
+	</target>
+		
 		
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -525,6 +576,9 @@
 			<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 			<arg value="--substitute" />
+			<arg value="%RPCCLIENT%=${rpcclient.zipfile}" />
+
+			<arg value="--substitute" />
 			<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 			<arg value="--substitute" />
@@ -554,7 +608,7 @@
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildSite">		
+	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildRpcClient,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />
@@ -567,7 +621,7 @@
 		Publish binaries to Google Code
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" depends="buildGO,buildWAR,buildFederationClient" description="Publish the Gitblit binaries to Google Code">
+	<target name="publishBinaries" depends="buildGO,buildWAR,buildFederationClient,buildRpcClient" description="Publish the Gitblit binaries to Google Code">
 		
 		<echo>Uploading Gitblit ${gb.version} binaries</echo>
 		
@@ -599,6 +653,16 @@
 			filename="${fedclient.zipfile}" 
 			targetfilename="fedclient-${gb.version}.zip"
 			summary="Gitblit Federation Client v${gb.version} (command-line tool to clone data from federated Gitblit instances)"
+			labels="Featured, Type-Package, OpSys-All" />
+
+		<!-- Upload RpcClient -->
+		<gcupload 
+			username="${googlecode.user}" 
+			password="${googlecode.password}" 
+			projectname="gitblit" 
+			filename="${rpcclient.zipfile}" 
+			targetfilename="rpcclient-${gb.version}.zip"
+			summary="Gitblit RPC Client v${gb.version} (Swing tool to clone repositories and remotely administer a Gitblit server)"
 			labels="Featured, Type-Package, OpSys-All" />
 	</target>
 

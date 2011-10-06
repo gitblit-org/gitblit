@@ -16,84 +16,179 @@
 package com.gitblit.client;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.MenuShortcut;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 
 import com.gitblit.Constants;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Sample RPC application.
+ * 
+ * @author James Moger
+ * 
+ */
 public class GitblitClient extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTabbedPane serverTabs;
+	private GitblitRegistration localhost = new GitblitRegistration("default",
+			"https://localhost:8443", "admin", "admin".toCharArray());
+
+	private List<GitblitRegistration> registrations = new ArrayList<GitblitRegistration>();
+	private JMenu recentMenu;
 
 	private GitblitClient() {
 		super();
 	}
 
 	private void initialize() {
-		setupMenu();
 		setContentPane(getCenterPanel());
+		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 
-		setTitle("Gitblit Client v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
+		setTitle("Gitblit RPC Client v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(800, 600);
-		setLocationRelativeTo(null);
+		setSize(950, 600);
 	}
 
-	private void setupMenu() {
-		MenuBar menuBar = new MenuBar();
-		setMenuBar(menuBar);
-		Menu serversMenu = new Menu("Servers");
+	public void setVisible(boolean value) {
+		if (value) {
+			if (registrations.size() == 0) {
+				// default prompt
+				if (loginPrompt(localhost)) {
+					pack();
+				}
+			} else if (registrations.size() == 1) {
+				// single registration prompt
+				if (loginPrompt(registrations.get(0))) {
+					pack();
+				}
+			}
+			super.setVisible(value);
+			setLocationRelativeTo(null);
+		}
+	}
+
+	private JMenuBar setupMenu() {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu serversMenu = new JMenu("Servers");
 		menuBar.add(serversMenu);
-		MenuItem login = new MenuItem("Login...", new MenuShortcut(KeyEvent.VK_L, false));
+		recentMenu = new JMenu("Recent");
+		serversMenu.add(recentMenu);
+		JMenuItem login = new JMenuItem("Login...");
+		login.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK, false));
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				String url = JOptionPane.showInputDialog(GitblitClient.this,
-						"Please enter Gitblit server URL", "https://localhost:8443");
-				if (StringUtils.isEmpty(url)) {
-					return;
-				}
-				login(url, "admin", "admin".toCharArray());
+				loginPrompt(localhost);
 			}
 		});
 		serversMenu.add(login);
+		return menuBar;
+	}
+
+	private JPanel newLabelPanel(String text, JTextField field) {
+		JLabel label = new JLabel(text);
+		label.setPreferredSize(new Dimension(75, 10));
+		JPanel jpanel = new JPanel(new BorderLayout());
+		jpanel.add(label, BorderLayout.WEST);
+		jpanel.add(field, BorderLayout.CENTER);
+		return jpanel;
 	}
 
 	private JPanel getCenterPanel() {
 		serverTabs = new JTabbedPane(JTabbedPane.TOP);
+		JMenuBar menubar = setupMenu();
 		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(menubar, BorderLayout.NORTH);
 		panel.add(serverTabs, BorderLayout.CENTER);
 		return panel;
 	}
 
-	private void login(String url, String account, char[] password) {
+	private boolean loginPrompt(GitblitRegistration reg) {
+		JTextField urlField = new JTextField(reg.url, 30);
+		JTextField nameField = new JTextField(reg.name);
+		JTextField accountField = new JTextField(reg.account);
+		JPasswordField passwordField = new JPasswordField(new String(reg.password));
+
+		JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
+		panel.add(newLabelPanel("name", nameField));
+		panel.add(newLabelPanel("url", urlField));
+		panel.add(newLabelPanel("account", accountField));
+		panel.add(newLabelPanel("password", passwordField));
+
+		int result = JOptionPane.showConfirmDialog(GitblitClient.this, panel, "Login",
+				JOptionPane.OK_CANCEL_OPTION);
+		if (result != JOptionPane.OK_OPTION) {
+			return false;
+		}
+		String url = urlField.getText();
+		if (StringUtils.isEmpty(url)) {
+			return false;
+		}
+		reg = new GitblitRegistration(nameField.getText(), url, accountField.getText(),
+				passwordField.getPassword());
+		login(reg);
+		registrations.add(0, reg);
+		rebuildRecentMenu();
+		return true;
+	}
+
+	private void login(GitblitRegistration reg) {
 		try {
-			GitblitPanel panel = new GitblitPanel(url, account, password);
+			GitblitPanel panel = new GitblitPanel(reg);
 			panel.login();
-			serverTabs.addTab(url.substring(url.indexOf("//") + 2), panel);
-			serverTabs.setSelectedIndex(serverTabs.getTabCount() - 1);
+			serverTabs.addTab(reg.name, panel);
+			int idx = serverTabs.getTabCount() - 1;
+			serverTabs.setSelectedIndex(idx);
+			serverTabs.setTabComponentAt(idx, new ClosableTabComponent(reg.name, null, serverTabs,
+					panel));
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(GitblitClient.this, e.getMessage(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
+	private void rebuildRecentMenu() {
+		recentMenu.removeAll();
+		for (final GitblitRegistration reg : registrations) {
+			JMenuItem item = new JMenuItem(reg.name);
+			item.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					login(reg);
+				}
+			});
+			recentMenu.add(item);
+		}
+	}
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (Exception e) {
+				}
 				GitblitClient frame = new GitblitClient();
 				frame.initialize();
 				frame.setVisible(true);

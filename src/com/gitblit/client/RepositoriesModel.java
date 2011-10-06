@@ -19,22 +19,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.gitblit.models.RepositoryModel;
 
+/**
+ * Table model of a list of repositories.
+ * 
+ * @author James Moger
+ * 
+ */
 public class RepositoriesModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	Map<String, RepositoryModel> repositories;
-
 	List<RepositoryModel> list;
 
 	enum Columns {
-		Name, Description, Owner, Last_Change, Size;
+		Name, Description, Owner, Type, Last_Change, Size;
 
 		@Override
 		public String toString() {
@@ -42,15 +45,18 @@ public class RepositoriesModel extends AbstractTableModel {
 		}
 	}
 
-	public RepositoriesModel(Map<String, RepositoryModel> repositories) {
-		this.repositories = repositories;
-		list = new ArrayList<RepositoryModel>(repositories.values());
-		Collections.sort(list);
+	public RepositoriesModel() {
+		this(new ArrayList<RepositoryModel>());
+	}
+
+	public RepositoriesModel(List<RepositoryModel> repositories) {
+		this.list = repositories;
+		Collections.sort(this.list);
 	}
 
 	@Override
 	public int getRowCount() {
-		return repositories.size();
+		return list.size();
 	}
 
 	@Override
@@ -74,6 +80,9 @@ public class RepositoriesModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
+		case Name:
+		case Type:
+			return RepositoryModel.class;
 		case Last_Change:
 			return Date.class;
 		}
@@ -86,11 +95,13 @@ public class RepositoriesModel extends AbstractTableModel {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Name:
-			return model.name;
+			return model;
 		case Description:
 			return model.description;
 		case Owner:
 			return model.owner;
+		case Type:
+			return model;
 		case Last_Change:
 			return model.lastChange;
 		case Size:

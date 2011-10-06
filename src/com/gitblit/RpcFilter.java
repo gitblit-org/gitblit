@@ -57,26 +57,34 @@ public class RpcFilter extends AuthenticationFilter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, false)) {
-			logger.warn(Keys.web.enableRpcServlet + " must be set TRUE for rpc requests.");
-			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-
 		String fullUrl = getFullUrl(httpRequest);
 		RpcRequest requestType = RpcRequest.fromName(httpRequest.getParameter("req"));
 
 		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_REPOSITORIES);
 
+		// conditionally reject all rpc requests
+		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, true)) {
+			logger.warn(Keys.web.enableRpcServlet + " must be set TRUE for rpc requests.");
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
 		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
 		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
-
+		
 		// Wrap the HttpServletRequest with the RpcServletnRequest which
 		// overrides the servlet container user principal methods.
 		AuthenticatedRequest authenticatedRequest = new AuthenticatedRequest(httpRequest);
 		UserModel user = getUser(httpRequest);
 		if (user != null) {
 			authenticatedRequest.setUser(user);
+		}
+		
+		// conditionally reject rpc administration requests
+		if (adminRequest && !GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+			logger.warn(Keys.web.enableRpcAdministration + " must be set TRUE for administrative rpc requests.");
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
 		}
 		
 		// BASIC authentication challenge and response processing

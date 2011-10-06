@@ -17,42 +17,48 @@ package com.gitblit.client;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import com.gitblit.utils.TimeUtils;
-
 /**
- * Time ago cell renderer with real date tooltip.
+ * Repository name cell renderer. This renderer shows the group name in a gray
+ * color and accentuates the repository name in a cornflower blue color.
  * 
  * @author James Moger
  * 
  */
-public class DateCellRenderer extends DefaultTableCellRenderer {
+public class NameRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String pattern;
+	final String groupSpan;
 
-	public DateCellRenderer(String pattern, Color foreground) {
-		this.pattern = (pattern == null ? "yyyy-MM-dd HH:mm" : pattern);
-		setForeground(foreground);
-		setHorizontalAlignment(SwingConstants.CENTER);
+	public NameRenderer(Color group, Color repo) {
+		groupSpan = "<span style='color:" + getHexColor(group) + "'>";
+		setForeground(repo);
+	}
+
+	String getHexColor(Color c) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Integer.toHexString((c.getRGB() & 0x00FFFFFF)));
+		while (sb.length() < 6)
+			sb.insert(0, '0');
+		sb.insert(0, '#');
+		return sb.toString();
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		if (value instanceof Date) {
-			Date date = (Date) value;
-			String timeAgo = TimeUtils.timeAgo(date);
-			String strDate = new SimpleDateFormat(pattern).format((Date) value);
-			this.setText(timeAgo);
-			this.setToolTipText(strDate);
+		String name = value.toString();
+		int lastSlash = name.lastIndexOf('/');
+		if (!isSelected && lastSlash > -1) {
+			String group = name.substring(0, lastSlash + 1);
+			String repo = name.substring(lastSlash + 1);
+			setText("<html><body>" + groupSpan + group + "</span>" + repo);
+		} else {
+			this.setText(name);
 		}
 		return this;
 	}
