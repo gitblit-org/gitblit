@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -e
+
+GITBLIT_PATH=/opt/gitblit/
+GITBLIT_HTTP_PORT=0
+GITBLIT_HTTPS_PORT=8443
+JAVA="java -server -Xmx1024M -jar"
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+        log_action_begin_msg "Starting gitblit server"
+        $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT &
+        log_action_end_msg $?
+        ;;
+  stop)
+        log_action_begin_msg "Stopping gitblit server"
+        $JAVA $GITBLIT_PATH/gitblit.jar --stop &
+        log_action_end_msg $?
+        ;;
+  force-reload|restart)
+        $0 stop
+        $0 start
+        ;;
+  *)
+        echo "Usage: /etc/init.d/gitblit {start|stop|restart|force-reload}"
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -135,6 +135,7 @@ public class SyndicationServlet extends HttpServlet {
 			}
 		}
 
+		response.setContentType("application/rss+xml; charset=UTF-8");
 		Repository repository = GitBlit.self().getRepository(repositoryName);
 		RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 		List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, 0, length);
