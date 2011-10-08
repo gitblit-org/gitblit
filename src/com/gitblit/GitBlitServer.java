@@ -147,7 +147,7 @@ public class GitBlitServer {
 			Connector httpConnector = createConnector(params.useNIO, params.port);
 			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
-				logger.warn(MessageFormat.format("Binding connector on port {0} to {1}",
+				logger.warn(MessageFormat.format("Binding connector on port {0,number,0} to {1}",
 						params.port, bindInterface));
 				httpConnector.setHost(bindInterface);
 			}
@@ -170,7 +170,7 @@ public class GitBlitServer {
 						params.useNIO, params.securePort);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
-					logger.warn(MessageFormat.format("Binding ssl connector on port {0} to {1}",
+					logger.warn(MessageFormat.format("Binding ssl connector on port {0,number,0} to {1}",
 							params.securePort, bindInterface));
 					secureConnector.setHost(bindInterface);
 				}
@@ -327,8 +327,8 @@ public class GitBlitServer {
 		}
 		if (allowRenegotiation) {
 			logger.info("   allowing SSL renegotiation on Java " + v);
-		}
-		connector.setAllowRenegotiate(true);
+			connector.setAllowRenegotiate(allowRenegotiation);
+		}		
 		connector.setKeystore(keystore.getAbsolutePath());
 		connector.setPassword(password);
 		connector.setPort(port);
