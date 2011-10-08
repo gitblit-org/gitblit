@@ -361,10 +361,10 @@ public class Build {
 				"bc75f05dd4f7fa848720ac669b8b438ee4a6b146",
 				"dcd42f672e734521d1a6ccc0c2f9ecded1a1a281");
 
-		public static final MavenObject SERVLET = new MavenObject("Servlet 2.5", "javax/servlet",
-				"servlet-api", "2.5", 105000, 158000, 0,
-				"5959582d97d8b61f4d154ca9e495aafd16726e34",
-				"021599814ad9a605b86f3e6381571beccd861a32", null);
+		public static final MavenObject SERVLET = new MavenObject("Servlet 3.0", "org/glassfish",
+				"javax.servlet", "3.0.1", 84000, 211000, 0,
+				"58f17c941cd0607bb5edcbcafc491d02265ac9a1",
+				"63f2f8bcdd3f138020bbadd5c847e8f3847b77d2", null);
 
 		public static final MavenObject SLF4JAPI = new MavenObject("SLF4J API", "org/slf4j",
 				"slf4j-api", "1.6.1", 25500, 45000, 182000,

@@ -19,15 +19,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 /**
  * ServletRequestWrapper is a pass-through/delegate wrapper class for a servlet
@@ -323,5 +332,69 @@ public abstract class ServletRequestWrapper implements HttpServletRequest {
 	@Deprecated
 	public boolean isRequestedSessionIdFromUrl() {
 		return req.isRequestedSessionIdFromUrl();
+	}
+	
+	/*
+	 * Servlet 3.0 Methods 
+	 */
+	
+	@Override
+	public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+		return false;
+	}
+	
+	@Override
+	public void login(String username, String password) throws ServletException {
+	}
+
+	@Override
+	public void logout() throws ServletException {
+	}
+
+		
+	@Override
+	public Part getPart(String arg0) throws IOException, ServletException {
+		return req.getPart(arg0);
+	}
+
+	@Override
+	public Collection<Part> getParts() throws IOException, ServletException {
+		return req.getParts();
+	}
+
+	@Override
+	public AsyncContext getAsyncContext() {
+		return req.getAsyncContext();
+	}
+
+	@Override
+	public DispatcherType getDispatcherType() {
+		return req.getDispatcherType();
+	}
+
+	@Override
+	public ServletContext getServletContext() {
+		return req.getServletContext();
+	}
+
+	@Override
+	public boolean isAsyncStarted() {
+		return req.isAsyncStarted();
+	}
+
+	@Override
+	public boolean isAsyncSupported() {
+		return req.isAsyncStarted();
+	}
+
+	@Override
+	public AsyncContext startAsync() throws IllegalStateException {
+		return req.startAsync();
+	}
+
+	@Override
+	public AsyncContext startAsync(ServletRequest arg0, ServletResponse arg1)
+			throws IllegalStateException {
+		return req.startAsync(arg0, arg1);
 	}
 }
