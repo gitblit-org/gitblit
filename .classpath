@@ -9,7 +9,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/log4j-1.2.16-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/servlet-api-2.5.jar" sourcepath="ext/servlet-api-2.5-sources.jar"/>
 	<classpathentry kind="lib" path="ext/slf4j-api-1.6.1.jar" sourcepath="ext/slf4j-api-1.6.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/slf4j-api-1.6.1-javadoc.jar!/"/>
@@ -97,5 +96,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-1.1.0.201109151100-r-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="ext/javax.servlet-3.0.1.jar" sourcepath="ext/javax.servlet-3.0.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
