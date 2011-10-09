@@ -56,7 +56,7 @@ import com.gitblit.utils.StringUtils;
 public class BuildSite {
 
 	private static final String SPACE_DELIMITED = "SPACE-DELIMITED";
-	
+
 	private static final String CASE_SENSITIVE = "CASE-SENSITIVE";
 
 	private static final String RESTART_REQUIRED = "RESTART REQUIRED";
@@ -91,24 +91,6 @@ public class BuildSite {
 
 		System.out.println(MessageFormat.format("Generating site from {0} Markdown Docs in {1} ",
 				markdownFiles.length, sourceFolder.getAbsolutePath()));
-		String linkPattern = "<li><a href=''{0}''>{1}</a></li>";
-		StringBuilder sb = new StringBuilder();
-		for (File file : markdownFiles) {
-			String documentName = getDocumentName(file);
-			if (!params.skips.contains(documentName)) {
-				String displayName = documentName;
-				if (aliasMap.containsKey(documentName)) {
-					displayName = aliasMap.get(documentName);
-				} else {
-					displayName = displayName.replace('_', ' ');
-				}
-				String fileName = documentName + ".html";
-				sb.append(MessageFormat.format(linkPattern, fileName, displayName));
-				sb.append(" | ");
-			}
-		}
-		sb.setLength(sb.length() - 3);
-		sb.trimToSize();
 
 		String htmlHeader = FileUtils.readContent(new File(params.pageHeader), "\n");
 
@@ -120,105 +102,105 @@ public class BuildSite {
 			}
 		}
 		String htmlFooter = FileUtils.readContent(new File(params.pageFooter), "\n");
-		String links = sb.toString();
-		String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
-		if (!StringUtils.isEmpty(params.analyticsSnippet)) {
-			File snippet = new File(params.analyticsSnippet);
-			if (snippet.exists()) {
-				String htmlSnippet = FileUtils.readContent(snippet, "\n");
-				header = header.replace("<!-- ANALYTICS -->", htmlSnippet);
-			}
-		}
 		final String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		final String footer = MessageFormat.format(htmlFooter, "generated " + date);
 		for (File file : markdownFiles) {
+			String documentName = getDocumentName(file);
+			if (params.skips.contains(documentName)) {
+				continue;
+			}
 			try {
-				String documentName = getDocumentName(file);
-				if (!params.skips.contains(documentName)) {
-					String fileName = documentName + ".html";
-					System.out.println(MessageFormat.format("  {0} => {1}", file.getName(),
-							fileName));
-					String rawContent = FileUtils.readContent(file, "\n");
-					String markdownContent = rawContent;
-
-					Map<String, List<String>> nomarkdownMap = new HashMap<String, List<String>>();
-
-					// extract sections marked as no-markdown
-					int nmd = 0;
-					for (String token : params.nomarkdown) {
-						StringBuilder strippedContent = new StringBuilder();
-
-						String nomarkdownKey = "%NOMARKDOWN" + nmd + "%";
-						String[] kv = token.split(":", 2);
-						String beginToken = kv[0];
-						String endToken = kv[1];
-
-						// strip nomarkdown chunks from markdown and cache them
-						List<String> chunks = new Vector<String>();
-						int beginCode = 0;
-						int endCode = 0;
-						while ((beginCode = markdownContent.indexOf(beginToken, endCode)) > -1) {
-							if (endCode == 0) {
-								strippedContent.append(markdownContent.substring(0, beginCode));
-							} else {
-								strippedContent.append(markdownContent
-										.substring(endCode, beginCode));
-							}
-							strippedContent.append(nomarkdownKey);
-							endCode = markdownContent.indexOf(endToken, beginCode);
-							chunks.add(markdownContent.substring(beginCode, endCode));
-							nomarkdownMap.put(nomarkdownKey, chunks);
-						}
-
-						// get remainder of text
-						if (endCode < markdownContent.length()) {
-							strippedContent.append(markdownContent.substring(endCode,
-									markdownContent.length()));
-						}
-						markdownContent = strippedContent.toString();
-						nmd++;
+				String links = createLinks(file, markdownFiles, aliasMap, params.skips);
+				String header = MessageFormat.format(htmlHeader, Constants.FULL_NAME, links);
+				if (!StringUtils.isEmpty(params.analyticsSnippet)) {
+					File snippet = new File(params.analyticsSnippet);
+					if (snippet.exists()) {
+						String htmlSnippet = FileUtils.readContent(snippet, "\n");
+						header = header.replace("<!-- ANALYTICS -->", htmlSnippet);
 					}
-
-					// transform markdown to html
-					String content = transformMarkdown(markdownContent.toString());
-
-					// reinsert nomarkdown chunks
-					for (Map.Entry<String, List<String>> nomarkdown : nomarkdownMap.entrySet()) {
-						for (String chunk : nomarkdown.getValue()) {
-							content = content.replaceFirst(nomarkdown.getKey(), chunk);
-						}
-					}
-
-					for (String token : params.substitutions) {
-						String[] kv = token.split("=", 2);
-						content = content.replace(kv[0], kv[1]);
-					}
-					for (String token : params.regex) {
-						String[] kv = token.split("!!!", 2);
-						content = content.replaceAll(kv[0], kv[1]);
-					}
-					for (String alias : params.properties) {
-						String[] kv = alias.split("=", 2);
-						String loadedContent = generatePropertiesContent(new File(kv[1]));
-						content = content.replace(kv[0], loadedContent);
-					}
-					for (String alias : params.loads) {
-						String[] kv = alias.split("=", 2);
-						String loadedContent = FileUtils.readContent(new File(kv[1]), "\n");
-						loadedContent = StringUtils.escapeForHtml(loadedContent, false);
-						loadedContent = StringUtils.breakLinesForHtml(loadedContent);
-						content = content.replace(kv[0], loadedContent);
-					}
-					OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(
-							new File(destinationFolder, fileName)), Charset.forName("UTF-8"));
-					writer.write(header);
-					if (!StringUtils.isEmpty(htmlAdSnippet)) {
-						writer.write(htmlAdSnippet);
-					}
-					writer.write(content);
-					writer.write(footer);
-					writer.close();
 				}
+
+				String fileName = documentName + ".html";
+				System.out.println(MessageFormat.format("  {0} => {1}", file.getName(), fileName));
+				String rawContent = FileUtils.readContent(file, "\n");
+				String markdownContent = rawContent;
+
+				Map<String, List<String>> nomarkdownMap = new HashMap<String, List<String>>();
+
+				// extract sections marked as no-markdown
+				int nmd = 0;
+				for (String token : params.nomarkdown) {
+					StringBuilder strippedContent = new StringBuilder();
+
+					String nomarkdownKey = "%NOMARKDOWN" + nmd + "%";
+					String[] kv = token.split(":", 2);
+					String beginToken = kv[0];
+					String endToken = kv[1];
+
+					// strip nomarkdown chunks from markdown and cache them
+					List<String> chunks = new Vector<String>();
+					int beginCode = 0;
+					int endCode = 0;
+					while ((beginCode = markdownContent.indexOf(beginToken, endCode)) > -1) {
+						if (endCode == 0) {
+							strippedContent.append(markdownContent.substring(0, beginCode));
+						} else {
+							strippedContent.append(markdownContent.substring(endCode, beginCode));
+						}
+						strippedContent.append(nomarkdownKey);
+						endCode = markdownContent.indexOf(endToken, beginCode);
+						chunks.add(markdownContent.substring(beginCode, endCode));
+						nomarkdownMap.put(nomarkdownKey, chunks);
+					}
+
+					// get remainder of text
+					if (endCode < markdownContent.length()) {
+						strippedContent.append(markdownContent.substring(endCode,
+								markdownContent.length()));
+					}
+					markdownContent = strippedContent.toString();
+					nmd++;
+				}
+
+				// transform markdown to html
+				String content = transformMarkdown(markdownContent.toString());
+
+				// reinsert nomarkdown chunks
+				for (Map.Entry<String, List<String>> nomarkdown : nomarkdownMap.entrySet()) {
+					for (String chunk : nomarkdown.getValue()) {
+						content = content.replaceFirst(nomarkdown.getKey(), chunk);
+					}
+				}
+
+				for (String token : params.substitutions) {
+					String[] kv = token.split("=", 2);
+					content = content.replace(kv[0], kv[1]);
+				}
+				for (String token : params.regex) {
+					String[] kv = token.split("!!!", 2);
+					content = content.replaceAll(kv[0], kv[1]);
+				}
+				for (String alias : params.properties) {
+					String[] kv = alias.split("=", 2);
+					String loadedContent = generatePropertiesContent(new File(kv[1]));
+					content = content.replace(kv[0], loadedContent);
+				}
+				for (String alias : params.loads) {
+					String[] kv = alias.split("=", 2);
+					String loadedContent = FileUtils.readContent(new File(kv[1]), "\n");
+					loadedContent = StringUtils.escapeForHtml(loadedContent, false);
+					loadedContent = StringUtils.breakLinesForHtml(loadedContent);
+					content = content.replace(kv[0], loadedContent);
+				}
+				OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(
+						destinationFolder, fileName)), Charset.forName("UTF-8"));
+				writer.write(header);
+				if (!StringUtils.isEmpty(htmlAdSnippet)) {
+					writer.write(htmlAdSnippet);
+				}
+				writer.write(content);
+				writer.write(footer);
+				writer.close();
 			} catch (Throwable t) {
 				System.err.println("Failed to transform " + file.getName());
 				t.printStackTrace();
@@ -235,6 +217,33 @@ public class BuildSite {
 			return displayName.substring(underscore);
 		}
 		return displayName;
+	}
+
+	private static String createLinks(File currentFile, File[] markdownFiles,
+			Map<String, String> aliasMap, List<String> skips) {
+		String linkPattern = "<li><a href=''{0}''>{1}</a></li>";
+		String currentLinkPattern = "<li class=''active''><a href=''{0}''>{1}</a></li>";
+		StringBuilder sb = new StringBuilder();
+		for (File file : markdownFiles) {
+			String documentName = getDocumentName(file);
+			if (!skips.contains(documentName)) {
+				String displayName = documentName;
+				if (aliasMap.containsKey(documentName)) {
+					displayName = aliasMap.get(documentName);
+				} else {
+					displayName = displayName.replace('_', ' ');
+				}
+				String fileName = documentName + ".html";
+				if (currentFile.getName().equals(file.getName())) {
+					sb.append(MessageFormat.format(currentLinkPattern, fileName, displayName));
+				} else {
+					sb.append(MessageFormat.format(linkPattern, fileName, displayName));
+				}
+			}
+		}
+		sb.setLength(sb.length() - 3);
+		sb.trimToSize();
+		return sb.toString();
 	}
 
 	private static String generatePropertiesContent(File propertiesFile) throws Exception {
