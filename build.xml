@@ -210,6 +210,7 @@
 					<include name="book_16x16.png" />
 					<include name="blank.png" />
 					<include name="federated_16x16.png" />
+					<include name="arrow_page.png" />
 				</fileset>
 
 				<!-- Copy Doc images -->
@@ -489,6 +490,7 @@
 				<include name="book_16x16.png" />
 				<include name="blank.png" />
 				<include name="federated_16x16.png" />
+				<include name="arrow_page.png" />
 			</fileset>
 
 			<!-- Copy Doc images -->

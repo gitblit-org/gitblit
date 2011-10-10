@@ -209,7 +209,7 @@ public class GitBlitServer {
 
 		// Root WebApp Context
 		WebAppContext rootContext = new WebAppContext();
-		rootContext.setContextPath("/");
+		rootContext.setContextPath(settings.getString(Keys.server.contextPath, "/"));
 		rootContext.setServer(server);
 		rootContext.setWar(location.toExternalForm());
 		rootContext.setTempDirectory(tempDir);

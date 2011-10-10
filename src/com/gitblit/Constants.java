@@ -29,7 +29,7 @@ public class Constants {
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String VERSION = "0.6.1-SNAPSHOT";
+	public static final String VERSION = "0.7.0-SNAPSHOT";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
