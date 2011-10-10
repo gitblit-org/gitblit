@@ -15,8 +15,15 @@
  */
 package com.gitblit.wicket;
 
+import java.text.MessageFormat;
+
+import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -32,6 +39,8 @@ import com.gitblit.Keys;
  * 
  */
 public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
+
+	private Logger logger = LoggerFactory.getLogger(GitblitParamUrlCodingStrategy.class);
 
 	/**
 	 * Construct.
@@ -77,5 +86,24 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 			value = value.replace(altChar, '/');
 		}
 		return super.urlDecodePathComponent(value);
+	}
+
+	/**
+	 * Gets the decoded request target.
+	 * 
+	 * @param requestParameters
+	 *            the request parameters
+	 * @return the decoded request target
+	 */
+	@Override
+	public IRequestTarget decode(RequestParameters requestParameters) {
+		final String parametersFragment = requestParameters.getPath().substring(
+				getMountPath().length());
+		logger.debug(MessageFormat
+				.format("REQ: {0} PARAMS {1}", getMountPath(), parametersFragment));
+
+		final PageParameters parameters = new PageParameters(decodeParameters(parametersFragment,
+				requestParameters.getParameters()));
+		return super.decode(requestParameters);
 	}
 }

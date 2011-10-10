@@ -36,11 +36,13 @@ Run the server as *root* (security concern) or change the ports you are serving 
 ### Gitblit WAR will not authenticate any users?!
 Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.properties` file.
 
-### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my branch/tag/ref?!
-This is likely an url encoding/decoding problem related to your servlet container's security.  There are two possible workarounds for this issue.  In `gitblit.properties` or `web.xml`:
+### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my log/branch/tag/ref?!
+This is likely an url encoding/decoding problem with forward slashes.  There are two possible workarounds for this issue.  In `gitblit.properties` or `web.xml`:
 
 1. try setting *web.mountParameters* to *false*.<br/>This changes the url scheme from mounted (*/commit/myrepo.git/abcdef*) to parameterized (*/commit/?r=myrepo.git&h=abcdef*).
 2. try changing *web.forwardSlashCharacter* to an asterisk or a **!**
+
+Also, if you are running Gitblit behind a proxy, you must ensure that the proxy does not decode and then re-encode request urls with interpretation of *%2F*.  If you are using Apache mod_proxy, specify [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
 
 ## General Interest Questions
 

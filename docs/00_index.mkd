@@ -35,6 +35,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
+- added: setting to control Gitblit GO context path for proxy setups<br/>**New:** *server.contextPath = /*
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]
