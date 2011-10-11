@@ -6,8 +6,8 @@ There are a few ways this can occur:
 1. You are using https with a self-signed certificate and you **did not** configure *http.sslVerify=false*
     1. Window->Preferences->Team->Git->Configuration
     2. Click the *New Entry* button
-    3. <pre>Key = *http.sslVerify*       
-       Value = *false*</pre>
+    3. <pre>Key = <em>http.sslVerify</em>
+Value = <em>false</em></pre>
 2. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push between machines.
     1. Review the contents of `makekeystore.cmd`
     2. Set *your hostname* in the *HOSTNAME* variable.
@@ -37,12 +37,29 @@ Run the server as *root* (security concern) or change the ports you are serving 
 Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.properties` file.
 
 ### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my log/branch/tag/ref?!
-This is likely an url encoding/decoding problem with forward slashes.  There are two possible workarounds for this issue.  In `gitblit.properties` or `web.xml`:
+This is likely an url encoding/decoding problem with forward slashes:
+
+**bad**
+
+    http://192.168.1.2/log/myrepo.git/refs/heads/master
+
+**good**
+
+    http://192.168.1.2/log/myrepo.git/refs%2Fheads%2Fmaster
+
+**NOTE:**  
+You can not trust the url in the address bar of your browser since your browser may *prettify* the url.  When in doubt, *View Source* of the generated html to confirm the *href*.
+
+There are two possible workarounds for this issue.  In `gitblit.properties` or `web.xml`:
 
 1. try setting *web.mountParameters* to *false*.<br/>This changes the url scheme from mounted (*/commit/myrepo.git/abcdef*) to parameterized (*/commit/?r=myrepo.git&h=abcdef*).
 2. try changing *web.forwardSlashCharacter* to an asterisk or a **!**
 
-Also, if you are running Gitblit behind a proxy, you must ensure that the proxy does not decode and then re-encode request urls with interpretation of *%2F*.  If you are using Apache mod_proxy, specify [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
+### Running Gitblit behind mod_proxy or some other proxy layer
+
+You must ensure that the proxy does not decode and then re-encode request urls with interpretation of forward-slashes (*%2F*).  If your proxy layer does re-encode embedded forward-slashes then you may not be able to browse grouped repositories or logs, branches, and tags **unless** you set *web.mountParameters=false*.
+
+If you are using Apache mod_proxy, specify [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
 
 ## General Interest Questions
 
@@ -74,7 +91,7 @@ Additionally, Git and Gitweb do not offer repository creation or user management
 No (mostly).  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
 Everything you need for Gitblit (except Java) is either bundled in the distribution file or automatically downloaded on execution.
 
-**mostly**<br/>
+#### mostly
 JGit does not fully support the git-gc featureset (garbage collection) so you may want native Git to periodically run git-gc until [JGit][jgit] fully supports this feature.
 
 ### Can I run Gitblit in conjunction with my existing Git tooling?
@@ -89,7 +106,8 @@ No.  Gitblit stores its repository configuration information within the `.git/co
 ### Can I manually edit users.properties, gitblit.properties, or .git/config?
 Yes.  You can manually manipulate all of them and (most) changes will be immediately available to Gitblit.<br/>Exceptions to this are noted in `gitblit.properties`.
 
-**NOTE:**<br/>Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
+**NOTE:**  
+Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
 
 ### Can I restrict access to paths within a repository?
 No.  Access restrictions apply to the repository as a whole.

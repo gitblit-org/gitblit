@@ -55,11 +55,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/jetty-webapp-7.4.3.v20110701-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/markdownpapers-core-1.1.1.jar" sourcepath="ext/markdownpapers-core-1.1.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.1.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/gson-1.7.1.jar" sourcepath="ext/gson-1.7.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/gson-1.7.1-javadoc.jar!/"/>
@@ -97,5 +92,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="ext/javax.servlet-3.0.1.jar" sourcepath="ext/javax.servlet-3.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.3.jar" sourcepath="ext/markdownpapers-core-1.2.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.2.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

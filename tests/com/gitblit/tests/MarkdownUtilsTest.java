@@ -34,6 +34,11 @@ public class MarkdownUtilsTest extends TestCase {
 				MarkdownUtils.transformMarkdown("**THIS ** is a test"));
 		assertEquals("<p>** THIS** is a test</p>",
 				MarkdownUtils.transformMarkdown("** THIS** is a test"));
+		
+		assertEquals("<table><tr><td>test</td></tr></table>", MarkdownUtils.transformMarkdown("<table><tr><td>test</td></tr></table>"));
+		assertEquals("<table><tr><td>&lt;test&gt;</td></tr></table>",
+				MarkdownUtils.transformMarkdown("<table><tr><td>&lt;test&gt;</td></tr></table>"));
+
 		try {
 			MarkdownUtils.transformMarkdown((String) null);
 			assertTrue(false);

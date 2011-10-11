@@ -5,21 +5,21 @@ Gitblit is an open-source, pure Java stack for managing, viewing, and serving [G
 Its designed primarily as a tool for small workgroups who want to host centralized repositories.
 
 Gitblit is available in two variations:
-<ul class='noBullets'>
-<li>*Gitblit GO* - a complete & integrated pure Java stack<p>
-    This is what you should download if you want to go from zero to Git in less than 5 mins.<br/>
-    Gitblit GO is like a mashup of Apache httpd, [Git][git], and Gitweb with simplified configuration and maintenance.<br/>
-    All dependencies are downloaded on first execution.<p>
-<li>*Gitblit WAR* - a traditional WAR distribution<p>
-    This is what you should download if you want to deploy Gitblit into your own servlet container (e.g. Tomcat, Jetty, etc).<br/>
+
+1. *Gitblit GO* - a complete & integrated pure Java stack
+    
+    This is what you should download if you want to go from zero to Git in less than 5 mins.  
+    Gitblit GO is like a mashup of Apache httpd, [Git][git], and Gitweb with simplified configuration and maintenance.  
+    All dependencies are downloaded on first execution.
+2. *Gitblit WAR* - a traditional WAR distribution
+    
+    This is what you should download if you want to deploy Gitblit into your own servlet container (e.g. Tomcat, Jetty, etc).  
     All dependencies are bundled.
-</ul>
 
 ### Tools
-<ul class='noBullets'>
-<li>*Gitblit RPC Client* - a Java Swing tool to clone repositories and remotely administer a Gitblit server
-<li>*Gitblit Federation Client* - a command line tool to clone/pull groups of repositories and optionally users and settings
-</ul>
+
+- *Gitblit RPC Client* - a Java Swing tool to clone repositories and remotely administer a Gitblit server
+- *Gitblit Federation Client* - a command line tool to clone/pull groups of repositories and optionally users and settings
 
 ### Java Runtime Requirement
 
@@ -29,20 +29,22 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[rpcclient](http://code.google.com/p/gitblit/downloads/detail?name=%RPCCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- improved: overhauled web ui with Twitter's Bootstrap CSS toolkit
-<br/>**New:** *web.loginMessage = gitblit*
-- added: authenticated JSON RPC mechanism 
-<br/>**New:** *web.enableRpcServlet = true*
-<br/>**New:** *web.enableRpcAdministration = false*
+- improved: updated ui with Twitter's Bootstrap CSS toolkit  
+    **New:** *web.loginMessage = gitblit*
+- added: authenticated JSON RPC mechanism   
+    **New:** *web.enableRpcServlet = true*  
+    **New:** *web.enableRpcAdministration = false*
 - added: reusable JSON RPC client class
-- added: Swing RPC Client application for cloning and administration of repositories, users, and federation proposals.
-- fixed/broke: federation protocol.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  This breaks 0.6.0 federation clients/servers.
+- added: Swing RPC Client application for cloning and administration of repositories, users, & federation proposals.
+- fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
+    **This breaks 0.6.0 federation clients/servers.**
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8)
 - fixed: Set the RSS content type for Firefox 4 (issue 22)
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
-- added: setting to control Gitblit GO context path for proxy setups<br/>**New:** *server.contextPath = /*
+- added: setting to control Gitblit GO context path for proxy setups  
+    **New:** *server.contextPath = /*
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

@@ -11,6 +11,12 @@ Please review all the documentation to understand how it works and its limitatio
 
 ![block diagram](fed_aggregation.png "Gitblit Federation Aggregation")
 
+### Important Changes to Note
+
+The Gitblit 0.7.0 federation protocol is incompatible with the 0.6.0 federation protocol because of a change in the way timestamps are formatted.
+
+Gitblit 0.6.0 uses the default [google-gson](http://google-gson.googlecode.com) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
+
 ### Origin Gitblit Instance Requirements
 
 - *git.enableGitServlet* must be true, all Git clone and pull requests are handled through Gitblit's JGit servlet
@@ -27,7 +33,7 @@ This value can be anything you want: an integer, a sentence, an haiku, etc.  You
 
 The federation feature is completely disabled if your passphrase value is empty.
 
-**NOTE**:<br/>
+**NOTE**:  
 Changing your *federation.passphrase* will break any registrations you have established with other Gitblit instances.
 
 ### Pulling Gitblit Instance Requirements
@@ -46,8 +52,8 @@ String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
 String repositoriesToken = SHA1(passphrase + "-REPOSITORIES");
 %ENDCODE%
     
-The *ALL* token allows another Gitblit instance to pull all your repositories, user accounts, and server settings.<br/>
-The *USERS_AND_REPOSITORIES* token allows another Gitblit instance to pull all your repositories and  user accounts.<br/>
+The *ALL* token allows another Gitblit instance to pull all your repositories, user accounts, and server settings.  
+The *USERS_AND_REPOSITORIES* token allows another Gitblit instance to pull all your repositories and  user accounts.  
 The *REPOSITORIES* token only allows pulling of the repositories.
 
 Individual Gitblit repository configurations such as *description* and *accessRestriction* are always mirrored.
@@ -64,11 +70,11 @@ Federation Sets (*federation.sets*) are named groups of repositories.  The Feder
 
 Once you have properly setup your passphrase and can see your federation tokens, you are ready to share them with a pulling Gitblit instance.
  
-The registration process can be partially automated by sending a *federation proposal* to the pulling Gitblit instance.<br/>
+The registration process can be partially automated by sending a *federation proposal* to the pulling Gitblit instance.  
 To send a proposal:
 
 1. Login to your Gitblit instance as an administrator
-2. Select and click the *propose* link for the appropriate token at the bottom of the repositories page
+2. Select and click the *propose* link for the appropriate token on the *federation* page
 3. Confirm the publicly accessible url of your (origin) Gitblit instance
 4. Enter the url of the pulling Gitblit instance you want to federate with
 5. Optionally enter a message for the administrators
@@ -84,7 +90,7 @@ Your proposal includes:
 2. the federation token you selected and its type
 3. the list of your *non-excluded* repositories, and their configuration details, that you propose to share
 
-Submitting a proposal does not automatically register your server with the pulling Gitblit instance.<br/>
+Submitting a proposal does not automatically register your server with the pulling Gitblit instance.  
 Registration is a manual process for an administrator.
 
 ### Federation Proposals (Pulling Gitblit Instance)
@@ -142,7 +148,7 @@ After a repository has been cloned it is flagged as *isFederated* (which identif
 
 #### Origin Verification
 
-During a federated pull operation, Gitblit does check that the *origin* of the local repository starts with the url of the federation registration.<br/>
+During a federated pull operation, Gitblit does check that the *origin* of the local repository starts with the url of the federation registration.  
 If they do not match, the repository is skipped and this is indicated in the log.
 
 #### User Accounts
@@ -153,8 +159,8 @@ The pulling Gitblit instance will store a registration-specific `users.propertie
 
 If you specify *federation.N.mergeAccounts=true*, then the user accounts from the origin Gitblit instance will be integrated into the `users.properties` file of your Gitblit instance and allow sign-on of those users.
 
-**NOTE:**<br/>
-Upgrades from older Gitblit versions will not have the *#notfederated* role assigned to the *admin* account.  Without that role, your admin account WILL be transferred with an *ALL* or *USERS_AND_REPOSITORIES* token.<br/>
+**NOTE:**  
+Upgrades from older Gitblit versions will not have the *#notfederated* role assigned to the *admin* account.  Without that role, your admin account WILL be transferred with an *ALL* or *USERS_AND_REPOSITORIES* token.  
 Please consider adding the *#notfederated* role to your admin account!
 
 #### Server Settings 
@@ -178,12 +184,12 @@ By default, federated repositories can not be pushed to, they are read-only by t
 <table>
 <tr><th>federation.N.url</th>
 <td>string</td>
-<td>the url of the origin Gitblit instance *(required)*</td>
+<td>the url of the origin Gitblit instance <em>(required)</em></td>
 </tr>
 
 <tr><th>federation.N.token</th>
 <td>string</td>
-<td>the token provided by the origin Gitblit instance *(required)*</td>
+<td>the token provided by the origin Gitblit instance <em>(required)</em></td>
 </tr>
 
 <tr><th>federation.N.frequency</th>
@@ -193,42 +199,42 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 <tr><th>federation.N.folder</th>
 <td>string</td>
-<td>the destination folder, relative to *git.repositoriesFolder*, for these repositories.<br/>default is *git.repositoriesFolder*</td>
+<td>the destination folder, relative to <em>git.repositoriesFolder</em>, for these repositories.<br/>default is <em>git.repositoriesFolder</em></td>
 </tr>
 
 <tr><th>federation.N.bare</th>
 <td>boolean</td>
-<td>if **true** *(default)*, each repository is cloned as a bare repository (i.e. no working folder).</td>
+<td>if <b>true</b> <em>(default)</em>, each repository is cloned as a bare repository (i.e. no working folder).</td>
 </tr>
 
 <tr><th>federation.N.mirror</th>
 <td>boolean</td>
-<td>if **true** *(default)*, each repository HEAD is reset to *origin/master* after each pull.  The repository is flagged *isFrozen* after the initial clone.<p>If **false**, each repository HEAD will point to the FETCH_HEAD of the initial clone from the origin until pushed to or otherwise manipulated.</td>
+<td>if <b>true</b> <em>(default)</em>, each repository HEAD is reset to <em>origin/master</em> after each pull.  The repository is flagged <em>isFrozen</em> after the initial clone.<br/><br/>If <b>false</b>, each repository HEAD will point to the FETCH_HEAD of the initial clone from the origin until pushed to or otherwise manipulated.</td>
 </tr>
 
 <tr><th>federation.N.mergeAccounts</th>
 <td>boolean</td>
-<td>if **true**, merge the retrieved accounts into the `users.properties` of **this** Gitblit instance.<br/>*default is false*</td>
+<td>if <b>true</b>, merge the retrieved accounts into the <code>users.properties</code> of <b>this</b> Gitblit instance.<br/><em>default is false</em></td>
 </tr>
 
 <tr><th>federation.N.sendStatus</th>
 <td>boolean</td>
-<td>if **true**, send the status of the federated pull to the origin Gitblit instance.<br/>*default is false*</td>
+<td>if <b>true</b>, send the status of the federated pull to the origin Gitblit instance.<br/><em>default is false</em></td>
 </tr>
 
 <tr><th>federation.N.include</th>
 <td>string array<br/>(space-delimited)</td>
-<td>list of included repositories *(wildcard and fuzzy matching supported)*</td>
+<td>list of included repositories <em>(wildcard and fuzzy matching supported)</em></td>
 </tr>
 
 <tr><th>federation.N.exclude</th>
 <td>string array<br/>(space-delimited)</td>
-<td>list of excluded repositories *(wildcard and fuzzy matching supported)*</td>
+<td>list of excluded repositories <em>(wildcard and fuzzy matching supported)</em></td>
 </tr>
 
 <tr><th>federation.N.notifyOnError</th>
 <td>boolean</td>
-<td>if **true**, send an email to the administrators on an error.<br/>*default is false*</td>
+<td>if <b>true</b>, send an email to the administrators on an error.<br/><em>default is false</em></td>
 </tr>
 </table>
 
@@ -257,7 +263,7 @@ This example is considered *nearly* perfect because while the origin Gitblit's s
     
 #### Just Repositories Example
 
-This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.<br/>
+This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.  
 The repositories will be put in *git.repositoriesFolder*/example2.
 
     federation.example2.url = https://tomcat.gitblit.com/gitblit
@@ -269,7 +275,7 @@ The repositories will be put in *git.repositoriesFolder*/example2.
     
 #### All-but-One Repository Example
 
-This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.<br/>
+This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.  
 The repositories will be put in *git.repositoriesFolder*/example3.
 
     federation.example3.url = https://tomcat.gitblit.com/gitblit
@@ -282,7 +288,7 @@ The repositories will be put in *git.repositoriesFolder*/example3.
     
 #### Just One Repository Example
 
-This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.<br/>
+This assumes that the *token* is the *REPOSITORIES* token from the origin gitblit instance.  
 The repositories will be put in *git.repositoriesFolder*/example4.
 
     federation.example4.url = https://tomcat.gitblit.com/gitblit
