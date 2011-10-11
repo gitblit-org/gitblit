@@ -2,13 +2,11 @@
 - JGit SmartHTTP servlet
 - Browser and git client authentication
 - Four *per-repository* access control configurations with a Read-Only control flag
-    <ul class='noBullets'>
-    <li>![anonymous](blank.png) *Anonymous View, Clone & Push*</li>
-    <li>![push](lock_go_16x16.png) *Authenticated Push*</li>
-    <li>![clone](lock_pull_16x16.png) *Authenticated Clone & Push*</li>
-    <li>![view](shield_16x16.png) *Authenticated View, Clone & Push*</li>
-    <li>![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
-    </ul>
+    - ![anonymous](blank.png) *Anonymous View, Clone & Push*
+    - ![push](lock_go_16x16.png) *Authenticated Push*
+    - ![clone](lock_pull_16x16.png) *Authenticated Clone & Push*
+    - ![view](shield_16x16.png) *Authenticated View, Clone & Push*
+    - ![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
 - Ability to federate with one or more other Gitblit instances
 - Gitweb inspired web UI
 - Administrators may create, edit, rename, or delete repositories through the web UI
@@ -27,14 +25,13 @@
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for users configuration
 - Optional utility pages
-    <ul class='noBullets'>
-    <li>![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository</li>
-    <li>![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*</li>
-    </ul>
+    - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
+    - ![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration
-- Automatically generates a self-signed certificate for *localhost* https communications<br/>(includes script to generate a self-signed certificate for *your hostname*, see [setup](/setup.html) for details)
+- Automatically generates a self-signed certificate for *localhost* https communications  
+    (includes script to generate a self-signed certificate for *your hostname*, see [setup](/setup.html) for details)
 - Single text file for configuring server and gitblit
 - A Windows service installation script and configuration tool
 

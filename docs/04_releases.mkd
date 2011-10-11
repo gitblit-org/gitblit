@@ -3,28 +3,30 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
-- improved: updated ui with Twitter's Bootstrap CSS toolkit
-<br/>**New:** *web.loginMessage = gitblit*
+- improved: updated ui with Twitter's Bootstrap CSS toolkit  
+    **New:** *web.loginMessage = gitblit*
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8)
 - fixed: Set the RSS content type for Firefox 4 (issue 22)
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
-- added: setting to control Gitblit GO context path for proxy setups<br/>**New:** *server.contextPath = /*
+- added: setting to control Gitblit GO context path for proxy setups  
+    **New:** *server.contextPath = /*
+- updated: MarkdownPapers 1.2.3
 
 ### Older Releases
 
 **0.6.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.zip)|[war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.war)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.6.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-09-27*
 
-- added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.
-<br/>**New:** *federation.name =*
-<br/>**New:** *federation.passphrase =*
-<br/>**New:** *federation.allowProposals = false*
-<br/>**New:** *federation.proposalsFolder = proposals*
-<br/>**New:** *federation.defaultFrequency = 60 mins*
-<br/>**New:** *federation.sets =*
-<br/>**New:** *mail.* settings for sending emails
-<br/>**New:** user role *#notfederated* to prevent a user account from being pulled by a federated Gitblit instance
+- added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.  
+    **New:** *federation.name =*  
+    **New:** *federation.passphrase =*  
+    **New:** *federation.allowProposals = false*  
+    **New:** *federation.proposalsFolder = proposals*  
+    **New:** *federation.defaultFrequency = 60 mins*  
+    **New:** *federation.sets =*  
+    **New:** *mail.* settings for sending emails  
+    **New:** user role *#notfederated* to prevent a user account from being pulled by a federated Gitblit instance  
 - added: google-gson dependency
 - added: javamail dependency
 - updated: MarkdownPapers 1.1.1
@@ -42,8 +44,10 @@
 - fixed: users can now change their passwords (issue 1)
 - fixed: always show root repository group first, i.e. don't sort root group with other groups
 - fixed: tone-down repository group header color
-- added: optionally display repository on-disk size on repositories page<br/>**New:** *web.showRepositorySizes = true*
-- added: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers<br/>**New:** *web.forwardSlashCharacter = /*
+- added: optionally display repository on-disk size on repositories page  
+    **New:** *web.showRepositorySizes = true*
+- added: forward-slashes ('/', %2F) can be encoded using a custom character to workaround some servlet container default security measures for proxy servers  
+    **New:** *web.forwardSlashCharacter = /*
 - updated: MarkdownPapers 1.1.0
 - updated: Jetty 7.4.3
 
