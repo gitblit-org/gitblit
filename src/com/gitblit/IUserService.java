@@ -34,7 +34,7 @@ public interface IUserService {
 	 * relying on the GitBlit static singleton.
 	 * 
 	 * @param settings
-	 * @since 0.6.1
+	 * @since 0.7.0
 	 */
 	void setup(IStoredSettings settings);
 

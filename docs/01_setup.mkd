@@ -177,7 +177,7 @@ public interface IUserService {
 	 * Setup the user service.
 	 * 
 	 * @param settings
-	 * @since 0.6.1
+	 * @since 0.7.0
 	 */
 	@Override
 	public void setup(IStoredSettings settings) {
