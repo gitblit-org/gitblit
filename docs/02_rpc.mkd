@@ -1,0 +1,144 @@
+## JSON Remote Procedure Call (RPC) Interface
+
+*SINCE 0.7.0*
+
+Gitblit optionally allows a remote client to administer the Gitblit server.  This client could be a Java-based tool or perhaps a tool written in another language.
+
+    web.enableRpcServlet=true
+    web.enableRpcAdministration=false
+
+**https** is strongly recommended because passwords are insecurely transmitted form your browser/rpc client using Basic authentication!
+
+The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication.  Making an *admin* request will trigger Gitblit's basic authentication mechanism.  Listing of repositories, generally, will not trigger this authentication mechanism unless *web.authenticateViewPages=true*.  That means its possible to allow anonymous enumeration of repositories that are not *view restricted* or *clone restricted*.  Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.
+
+### RPC Requests
+
+<table>
+<tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>permission</th><th colspan='2'>json</th></tr>
+<tr><th>req=</th><th>name=</th><th>post body</th><th>response body</th></tr>
+<tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>-</td><td>Map String, RepositoryModel </td></tr>
+<tr><td>CREATE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
+<tr><td>EDIT_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
+<tr><td>DELETE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>-</td></tr>
+<tr><td>LIST_USERS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List UserModel </td></tr>
+<tr><td>CREATE_USER</td><td>user name</td><td><em>admin</em></td><td>UserModel</td><td>-</td></tr>
+<tr><td>EDIT_USER</td><td>user name</td><td><em>admin</em></td><td>UserModel</td><td>-</td></tr>
+<tr><td>DELETE_USER</td><td>user name</td><td><em>admin</em></td><td>-</td><td>-</td></tr>
+<tr><td>LIST_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>List String</td></tr>
+<tr><td>SET_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>List String</td><td>-</td></tr>
+<tr><td>LIST_FEDERATION_REGISTRATIONS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationModel</td></tr>
+<tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationModel</td></tr>
+<tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationProposal </td></tr>
+<tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationSet </td></tr>
+</table>
+
+### RPC Client
+
+An example Java Swing [RPC Client application](http://code.google.com/p/gitblit/downloads/detail?name=rpcclient-%VERSION%.zip) is available and allows remote administration of repositories and users.  
+This application exercises most methods from the utility class `com.gitblit.utils.RpcUtils`.
+
+### EGit "Import from Gitblit" Feature (Planning)
+
+One obvious goal of a Gitblit RPC mechanism would be to have an EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Cloning (hopefully batch) would be delegated to EGit.
+
+This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
+
+Currently this project is in the planning stage.
+
+### Example: LIST_REPOSITORIES
+
+**url**: https://localhost/rpc?req=LIST_REPOSITORIES  
+**response body**: Map&lt;String, RepositoryModel&gt; where the map key is the clone url of the repository
+<pre>
+{
+  "https://localhost/git/libraries/xmlapache.git": {
+    "name": "libraries/xmlapache.git",
+    "description": "apache xmlrpc client and server",
+    "owner": "admin",
+    "lastChange": "2010-01-28T22:12:06Z",
+    "hasCommits": true,
+    "showRemoteBranches": false,
+    "useTickets": false,
+    "useDocs": false,
+    "accessRestriction": "VIEW",
+    "isFrozen": false,
+    "showReadme": false,
+    "federationStrategy": "FEDERATE_THIS",
+    "federationSets": [
+      "libraries"
+    ],
+    "isFederated": false,
+    "size": "102 KB"
+  },
+  "https://localhost/git/libraries/smack.git": {
+    "name": "libraries/smack.git",
+    "description": "smack xmpp client",
+    "owner": "admin",
+    "lastChange": "2009-01-28T18:38:14Z",
+    "hasCommits": true,
+    "showRemoteBranches": false,
+    "useTickets": false,
+    "useDocs": false,
+    "accessRestriction": "VIEW",
+    "isFrozen": false,
+    "showReadme": false,
+    "federationStrategy": "FEDERATE_THIS",
+    "federationSets": [],
+    "isFederated": false,
+    "size": "4.8 MB"
+  }
+}
+</pre>
+
+### Example: EDIT_REPOSITORY (rename)
+
+The original repository name is specified in the *name* url parameter.  The new name is set within the JSON object.
+
+**url**: https://localhost/rpc?req=EDIT_REPOSITORY&name=libraries/xmlapache.git  
+**post body**: RepositoryModel
+<pre>
+{
+    "name": "libraries/xmlapache-renamed.git",
+    "description": "apache xmlrpc client and server",
+    "owner": "admin",
+    "lastChange": "2010-01-28T22:12:06Z",
+    "hasCommits": true,
+    "showRemoteBranches": false,
+    "useTickets": false,
+    "useDocs": false,
+    "accessRestriction": "VIEW",
+    "isFrozen": false,
+    "showReadme": false,
+    "federationStrategy": "FEDERATE_THIS",
+    "federationSets": [
+      "libraries"
+    ],
+    "isFederated": false,
+    "size": "102 KB"
+}
+</pre>
+
+### Example: LIST_USERS
+**url**: https://localhost/rpc?req=LIST_USERS  
+**response body**: List&lt;UserModel&gt;
+<pre>
+[
+  {
+    "username": "admin",
+    "password": "admin",
+    "canAdmin": true,
+    "excludeFromFederation": true,
+    "repositories": []
+  },
+  {
+    "username": "test",
+    "password": "test",
+    "canAdmin": false,
+    "excludeFromFederation": false,
+    "repositories": [
+      "libraries/xmlapache.git",
+      "libraries/smack.git"
+    ]
+  }
+]
+</pre>
