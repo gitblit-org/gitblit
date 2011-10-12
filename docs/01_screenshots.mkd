@@ -1,63 +1,63 @@
 ## Screenshots
 <table class="screenshots">
 <tr><td>
-	<a rel="screenshots_group" href="screenshots/00.png" title="Repository & User List"><img alt="Repositories" src="thumbs/00.png" /></a>
-	<br/>Repository & User List
+	<a rel="screenshots_group" href="screenshots/00.png" title="Repository List"><img alt="Repositories" src="thumbs/00.png" /></a>
+	<br/>Repository List
+</td><td>
+	<a rel="screenshots_group" href="screenshots/00b.png" title="Repository List (Admin)"><img alt="Repositories (Admin)" src="thumbs/00b.png" /></a>
+	<br/>Repository List (Admin)
 </td><td>
 	<a rel="screenshots_group" href="screenshots/01.png" title="New User"><img alt="New User" src="thumbs/01.png" /></a>
 	<br/>New User
-</td><td>
-	<a rel="screenshots_group" href="screenshots/02.png" title="Edit Repository"><img alt="Edit Repository" src="thumbs/02.png" /></a>
-	<br/>Edit Repository
 </td></tr>
 
 <tr><td>
+	<a rel="screenshots_group" href="screenshots/02.png" title="Edit Repository"><img alt="Edit Repository" src="thumbs/02.png" /></a>
+	<br/>Edit Repository
+</td><td>
 	<a rel="screenshots_group" href="screenshots/03.png" title="Repository Summary"><img alt="Summary" src="thumbs/03.png" /></a>
 	<br/>Repository Summary
 </td><td>
 	<a rel="screenshots_group" href="screenshots/04.png" title="Repository Log"><img alt="Log" src="thumbs/04.png" /></a>
 	<br/>Repository Log
-</td><td>
-	<a rel="screenshots_group" href="screenshots/10.png" title="Repository Tags"><img alt="Tags" src="thumbs/10.png" /></a>
-	<br/>Repository Tags
 </td></tr>
 
 <tr><td>
+	<a rel="screenshots_group" href="screenshots/10.png" title="Repository Tags"><img alt="Tags" src="thumbs/10.png" /></a>
+	<br/>Repository Tags
+</td><td>
 	<a rel="screenshots_group" href="screenshots/05.png" title="Repository Tree"><img alt="Tree" src="thumbs/05.png" /></a>
 	<br/>Repository Tree
 </td><td>
 	<a rel="screenshots_group" href="screenshots/06.png" title="Commit Page"><img alt="Commit Page" src="thumbs/06.png" /></a>
 	<br/>Commit Page
-</td><td>
-	<a rel="screenshots_group" href="screenshots/07.png" title="Commit Diff"><img alt="Commit Diff" src="thumbs/07.png" /></a>
-	<br/>Commit Diff
 </td></tr>
 
 <tr><td>
+	<a rel="screenshots_group" href="screenshots/07.png" title="Commit Diff"><img alt="Commit Diff" src="thumbs/07.png" /></a>
+	<br/>Commit Diff
+</td><td>
 	<a rel="screenshots_group" href="screenshots/09.png" title="Branch Metrics"><img alt="Metrics" src="thumbs/09.png" /></a>
 	<br/>Branch Metrics
 </td><td>
 	<a rel="screenshots_group" href="screenshots/08.png" title="Blob View with Syntax Highlighting"><img alt="Blob" src="thumbs/08.png" /></a>
 	<br/>Blob View with Syntax Highlighting
-</td><td>
-	<a rel="screenshots_group" href="screenshots/11.png" title="Blame"><img alt="Blame" src="thumbs/11.png" /></a>
-	<br/>Blame
 </td></tr>
 
 <tr><td>
+	<a rel="screenshots_group" href="screenshots/11.png" title="Blame"><img alt="Blame" src="thumbs/11.png" /></a>
+	<br/>Blame
+</td><td>
 	<a rel="screenshots_group" href="screenshots/12.png" title="Federation Panels"><img alt="Federation Panels" src="thumbs/12.png" /></a>
 	<br/>Federation Panels
 </td><td>
 	<a rel="screenshots_group" href="screenshots/13.png" title="Detailed Status of a Registration"><img alt="Registration Status" src="thumbs/13.png" /></a>
 	<br/>Detailed Status of a Registration
-</td><td>
-	<a rel="screenshots_group" href="screenshots/14.png" title="Send Proposal"><img alt="Propose" src="thumbs/14.png" /></a>
-	<br/>Send Proposal
 </td></tr>
 
 <tr><td>
-	<a rel="screenshots_group" href="screenshots/15.png" title="Reviewing Received Proposal"><img alt="Review Proposal" src="thumbs/15.png" /></a>
-	<br/>Reviewing Received Proposal
+	<a rel="screenshots_group" href="screenshots/14.png" title="Send Proposal"><img alt="Propose" src="thumbs/14.png" /></a>
+	<br/>Send Proposal
 </td></tr>
 
 </table>
