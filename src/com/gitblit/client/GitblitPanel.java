@@ -108,7 +108,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private NameRenderer nameRenderer;
 
-	private TypeRenderer typeRenderer;
+	private IndicatorsRenderer typeRenderer;
 
 	private DefaultTableCellRenderer ownerRenderer;
 
@@ -127,7 +127,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		this.account = account;
 		this.password = password;
 
-		final JButton browseRepository = new JButton("Browse");
+		final JButton browseRepository = new JButton(Translation.get("gb.browse"));
 		browseRepository.setEnabled(false);
 		browseRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -142,7 +142,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		JButton refreshRepositories = new JButton("Refresh");
+		JButton refreshRepositories = new JButton(Translation.get("gb.refresh"));
 		refreshRepositories.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -157,14 +157,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		createRepository = new JButton("Create");
+		createRepository = new JButton(Translation.get("gb.create"));
 		createRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				createRepository();
 			}
 		});
 
-		final JButton editRepository = new JButton("Edit");
+		final JButton editRepository = new JButton(Translation.get("gb.edit"));
 		editRepository.setEnabled(false);
 		editRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -172,7 +172,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		delRepository = new JButton("Delete");
+		delRepository = new JButton(Translation.get("gb.delete"));
 		delRepository.setEnabled(false);
 		delRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -180,7 +180,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		final JButton cloneRepository = new JButton("Clone");
+		final JButton cloneRepository = new JButton(Translation.get("gb.clone"));
 		cloneRepository.setEnabled(false);
 		cloneRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -191,7 +191,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		});
 
 		nameRenderer = new NameRenderer();
-		typeRenderer = new TypeRenderer();
+		typeRenderer = new IndicatorsRenderer();
 
 		sizeRenderer = new DefaultTableCellRenderer();
 		sizeRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -216,7 +216,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoriesTable.setDefaultRenderer(Date.class,
 				new DateCellRenderer(null, Color.orange.darker()));
 		setRenderer(RepositoriesModel.Columns.Name, nameRenderer);
-		setRenderer(RepositoriesModel.Columns.Type, typeRenderer);
+		setRenderer(RepositoriesModel.Columns.Indicators, typeRenderer);
 		setRenderer(RepositoriesModel.Columns.Owner, ownerRenderer);
 		setRenderer(RepositoriesModel.Columns.Size, sizeRenderer);
 
@@ -252,7 +252,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		});
 
 		JPanel filterPanel = new JPanel(new BorderLayout(margin, margin));
-		filterPanel.add(new JLabel("Filter"), BorderLayout.WEST);
+		filterPanel.add(new JLabel(Translation.get("gb.filter")), BorderLayout.WEST);
 		filterPanel.add(repositoryFilter, BorderLayout.CENTER);
 
 		JPanel tablePanel = new JPanel(new BorderLayout(margin, margin));
@@ -267,11 +267,12 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoryControls.add(delRepository);
 
 		JPanel repositoriesPanel = new JPanel(new BorderLayout(margin, margin));
-		repositoriesPanel.add(newHeaderLabel("Repositories"), BorderLayout.NORTH);
+		repositoriesPanel.add(newHeaderLabel(Translation.get("gb.repositories")),
+				BorderLayout.NORTH);
 		repositoriesPanel.add(tablePanel, BorderLayout.CENTER);
 		repositoriesPanel.add(repositoryControls, BorderLayout.SOUTH);
 
-		JButton refreshUsers = new JButton("Refresh");
+		JButton refreshUsers = new JButton(Translation.get("gb.refresh"));
 		refreshUsers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -286,14 +287,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		JButton createUser = new JButton("Create");
+		JButton createUser = new JButton(Translation.get("gb.create"));
 		createUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				createUser();
 			}
 		});
 
-		final JButton editUser = new JButton("Edit");
+		final JButton editUser = new JButton(Translation.get("gb.edit"));
 		editUser.setEnabled(false);
 		editUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -301,7 +302,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		final JButton delUser = new JButton("Delete");
+		final JButton delUser = new JButton(Translation.get("gb.delete"));
 		delUser.setEnabled(false);
 		delUser.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -331,7 +332,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		userControls.add(delUser);
 
 		usersPanel = new JPanel(new BorderLayout(margin, margin));
-		usersPanel.add(newHeaderLabel("Users"), BorderLayout.NORTH);
+		usersPanel.add(newHeaderLabel(Translation.get("gb.users")), BorderLayout.NORTH);
 		usersPanel.add(new JScrollPane(usersList), BorderLayout.CENTER);
 		usersPanel.add(userControls, BorderLayout.SOUTH);
 
@@ -343,8 +344,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		mainPanel.add(usersPanel, BorderLayout.EAST);
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
-		tabs.addTab("Main", mainPanel);
-		tabs.addTab("Federation", new JPanel());
+		tabs.addTab(Translation.get("gb.repositories"), mainPanel);
+		tabs.addTab(Translation.get("gb.federation"), new JPanel());
 
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
@@ -541,8 +542,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for repository \"{1}\".",
 								request.name(), newRepository.name);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (ForbiddenException e) {
 					explainForbidden(request);
@@ -597,8 +598,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for repository \"{1}\".",
 								request.name(), repository.name);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (ForbiddenException e) {
 					explainForbidden(request);
@@ -642,8 +643,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 							refreshRepositoriesTable();
 						} else {
 							String msg = "Failed to delete specified repositories!";
-							JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+									Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 						}
 					} catch (ForbiddenException e) {
 						explainForbidden(request);
@@ -690,8 +691,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for user \"{1}\".",
 								request.name(), newUser.username);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (ForbiddenException e) {
 					explainForbidden(request);
@@ -738,8 +739,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for user \"{1}\".",
 								request.name(), user.username);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 					}
 				} catch (ForbiddenException e) {
 					explainForbidden(request);
@@ -783,8 +784,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 							refreshUsersTable();
 						} else {
 							String msg = "Failed to delete specified users!";
-							JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Error!",
-									JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(GitblitPanel.this, msg,
+									Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 						}
 					} catch (ForbiddenException e) {
 						explainForbidden(request);

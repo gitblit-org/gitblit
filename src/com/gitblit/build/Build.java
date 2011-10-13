@@ -139,6 +139,8 @@ public class Build {
 		downloadListener = listener;
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4JNOP, BuildType.RUNTIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
@@ -388,6 +390,12 @@ public class Build {
 				"6f3b8a24bf970f17289b234284c94f43eb42f0e4",
 				"46a386136c901748e6a3af67ebde6c22bc6b4524",
 				"e223571d77769cdafde59040da235842f3326453");
+
+		public static final MavenObject SLF4JNOP = new MavenObject("SLF4J NOP", "org/slf4j",
+				"slf4j-nop", "1.6.1", 4800, 4100, 32300,
+				"70249094d4e5653b6bdfea46f3a1a4165c1e1993",
+				"4a8e77f7bf6897a3c3b7fc3acb4c862dfb905baa",
+				"24b2b46f9025f2db53b5b32143f7832538fa3178");
 
 		public static final MavenObject SLF4LOG4J = new MavenObject("SLF4J LOG4J", "org/slf4j",
 				"slf4j-log4j12", "1.6.1", 9800, 9500, 52400,

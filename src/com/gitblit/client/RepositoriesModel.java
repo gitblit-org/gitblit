@@ -37,7 +37,7 @@ public class RepositoriesModel extends AbstractTableModel {
 	List<RepositoryModel> list;
 
 	enum Columns {
-		Name, Description, Owner, Type, Last_Change, Size;
+		Name, Description, Owner, Indicators, Last_Change, Size;
 
 		@Override
 		public String toString() {
@@ -67,7 +67,19 @@ public class RepositoriesModel extends AbstractTableModel {
 	@Override
 	public String getColumnName(int column) {
 		Columns col = Columns.values()[column];
-		return col.toString();
+		switch (col) {
+		case Name:
+			return Translation.get("gb.name");
+		case Description:
+			return Translation.get("gb.description");
+		case Owner:
+			return Translation.get("gb.owner");
+		case Last_Change:
+			return Translation.get("gb.lastChange");
+		case Size:
+			return Translation.get("gb.size");
+		}
+		return "";
 	}
 
 	/**
@@ -81,7 +93,7 @@ public class RepositoriesModel extends AbstractTableModel {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Name:
-		case Type:
+		case Indicators:
 			return RepositoryModel.class;
 		case Last_Change:
 			return Date.class;
@@ -100,7 +112,7 @@ public class RepositoriesModel extends AbstractTableModel {
 			return model.description;
 		case Owner:
 			return model.owner;
-		case Type:
+		case Indicators:
 			return model;
 		case Last_Change:
 			return model.lastChange;

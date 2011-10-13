@@ -70,7 +70,7 @@ public class EditUserDialog extends JDialog {
 
 	public EditUserDialog(IStoredSettings settings) {
 		this(new UserModel(""), settings);
-		setTitle("Create User");
+		setTitle(Translation.get("gb.newUser"));
 	}
 
 	public EditUserDialog(UserModel anUser, IStoredSettings settings) {
@@ -79,7 +79,7 @@ public class EditUserDialog extends JDialog {
 		this.settings = settings;
 		initialize(anUser);
 		setModal(true);
-		setTitle("Edit User: " + anUser.username);
+		setTitle(Translation.get("gb.edit") + ": " + anUser.username);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
 
@@ -88,24 +88,26 @@ public class EditUserDialog extends JDialog {
 		passwordField = new JPasswordField(anUser.password == null ? "" : anUser.password, 25);
 		confirmPasswordField = new JPasswordField(anUser.password == null ? "" : anUser.password,
 				25);
-		canAdminCheckbox = new JCheckBox("can administer Gitblit server", anUser.canAdmin);
+		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);
 		notFederatedCheckbox = new JCheckBox(
-				"block federated Gitblit instances from pulling this account",
+				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
-		fieldsPanel.add(newFieldPanel("username", usernameField));
-		fieldsPanel.add(newFieldPanel("password", passwordField));
-		fieldsPanel.add(newFieldPanel("confirm password", confirmPasswordField));
-		fieldsPanel.add(newFieldPanel("can admin", canAdminCheckbox));
-		fieldsPanel.add(newFieldPanel("exclude from federation", notFederatedCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.password"), passwordField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.confirmPassword"), confirmPasswordField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.canAdmin"), canAdminCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
+				notFederatedCheckbox));
 
 		repositoryPalette = new JPalette<String>();
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(fieldsPanel, BorderLayout.NORTH);
-		panel.add(newFieldPanel("restricted repositories", repositoryPalette), BorderLayout.CENTER);
+		panel.add(newFieldPanel(Translation.get("gb.restrictedRepositories"), repositoryPalette),
+				BorderLayout.CENTER);
 
-		JButton createButton = new JButton("Save");
+		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
@@ -115,7 +117,7 @@ public class EditUserDialog extends JDialog {
 			}
 		});
 
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton(Translation.get("gb.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				canceled = true;
@@ -164,7 +166,7 @@ public class EditUserDialog extends JDialog {
 		}
 
 		// TODO verify username uniqueness on create
-		
+
 		// if (isCreate) {
 		// UserModel model = GitBlit.self().getUserModel(username);
 		// if (model != null) {
@@ -210,7 +212,7 @@ public class EditUserDialog extends JDialog {
 	}
 
 	private void showValidationError(String message) {
-		JOptionPane.showMessageDialog(EditUserDialog.this, message, "Validation Error",
+		JOptionPane.showMessageDialog(EditUserDialog.this, message, Translation.get("gb.error"),
 				JOptionPane.ERROR_MESSAGE);
 	}
 

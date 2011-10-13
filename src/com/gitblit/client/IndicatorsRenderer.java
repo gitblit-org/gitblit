@@ -34,7 +34,7 @@ import com.gitblit.models.RepositoryModel;
  * @author James Moger
  * 
  */
-public class TypeRenderer extends JPanel implements TableCellRenderer, Serializable {
+public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,7 +54,7 @@ public class TypeRenderer extends JPanel implements TableCellRenderer, Serializa
 
 	private final ImageIcon federatedIcon;
 
-	public TypeRenderer() {
+	public IndicatorsRenderer() {
 		super(new GridLayout(1, 0, 1, 0));
 		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
 		pushIcon = new ImageIcon(getClass().getResource("/lock_go_16x16.png"));
@@ -75,43 +75,66 @@ public class TypeRenderer extends JPanel implements TableCellRenderer, Serializa
 			setBackground(table.getBackground());
 		removeAll();
 		if (value instanceof RepositoryModel) {
+			StringBuilder tooltip = new StringBuilder();
 			RepositoryModel model = (RepositoryModel) value;
 			if (model.useTickets) {
-				add(new JLabel(tixIcon));
+				JLabel icon = new JLabel(tixIcon);
+				tooltip.append(Translation.get("gb.tickets")).append("<br/>");
+				add(icon);
 			} else {
 				add(new JLabel(blankIcon));
 			}
 			if (model.useDocs) {
-				add(new JLabel(doxIcon));
+				JLabel icon = new JLabel(doxIcon);
+				tooltip.append(Translation.get("gb.docs")).append("<br/>");
+				add(icon);
 			} else {
 				add(new JLabel(blankIcon));
 			}
 			if (model.isFrozen) {
-				add(new JLabel(frozenIcon));
+				JLabel icon = new JLabel(frozenIcon);
+				tooltip.append(Translation.get("gb.isFrozen")).append("<br/>");
+				add(icon);
 			} else {
 				add(new JLabel(blankIcon));
 			}
 			if (model.isFederated) {
-				add(new JLabel(federatedIcon));
+				JLabel icon = new JLabel(federatedIcon);
+				tooltip.append(Translation.get("gb.isFederated")).append("<br/>");
+				add(icon);
 			} else {
 				add(new JLabel(blankIcon));
 			}
 
 			switch (model.accessRestriction) {
-			case NONE:
+			case NONE: {
 				add(new JLabel(blankIcon));
 				break;
-			case PUSH:
-				add(new JLabel(pushIcon));
+			}
+			case PUSH: {
+				JLabel icon = new JLabel(pushIcon);
+				tooltip.append(Translation.get("gb.pushRestricted")).append("<br/>");
+				add(icon);
 				break;
-			case CLONE:
-				add(new JLabel(pullIcon));
+			}
+			case CLONE: {
+				JLabel icon = new JLabel(pullIcon);
+				tooltip.append(Translation.get("gb.pullRestricted")).append("<br/>");
+				add(icon);
 				break;
-			case VIEW:
-				add(new JLabel(viewIcon));
+			}
+			case VIEW: {
+				JLabel icon = new JLabel(viewIcon);
+				tooltip.append(Translation.get("gb.viewRestricted")).append("<br/>");
+				add(icon);
 				break;
+			}
 			default:
 				add(new JLabel(blankIcon));
+			}
+			if (tooltip.length() > 0) {
+				tooltip.insert(0, "<html><body>");
+				setToolTipText(tooltip.toString().trim());
 			}
 		}
 		return this;

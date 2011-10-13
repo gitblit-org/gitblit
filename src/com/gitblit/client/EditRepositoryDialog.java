@@ -16,6 +16,7 @@
 package com.gitblit.client;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -32,9 +33,11 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -42,6 +45,11 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
+/**
+ * Dialog to create/edit a repository.
+ * 
+ * @author James Moger
+ */
 public class EditRepositoryDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
@@ -76,7 +84,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	public EditRepositoryDialog(List<UserModel> allusers) {
 		this(new RepositoryModel(), allusers);
-		setTitle("Create Repository");
+		setTitle(Translation.get("gb.newRepository"));
 	}
 
 	public EditRepositoryDialog(RepositoryModel aRepository, List<UserModel> allUsers) {
@@ -84,7 +92,7 @@ public class EditRepositoryDialog extends JDialog {
 		this.repository = new RepositoryModel();
 		initialize(aRepository, allUsers);
 		setModal(true);
-		setTitle("Edit Repository: " + aRepository.name);
+		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
 
@@ -105,48 +113,56 @@ public class EditRepositoryDialog extends JDialog {
 			owner.setSelectedItem(currentOwner);
 		}
 
-		useTickets = new JCheckBox("distributed Ticgit issues", anRepository.useTickets);
-		useDocs = new JCheckBox("enumerates Markdown documentation in repository",
-				anRepository.useDocs);
-		showRemoteBranches = new JCheckBox("show remote branches", anRepository.showRemoteBranches);
-		showReadme = new JCheckBox("show a \"readme\" Markdown file on the summary page",
+		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
+				anRepository.useTickets);
+		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"), anRepository.useDocs);
+		showRemoteBranches = new JCheckBox(Translation.get("gb.showRemoteBranchesDescription"),
+				anRepository.showRemoteBranches);
+		showReadme = new JCheckBox(Translation.get("gb.showReadmeDescription"),
 				anRepository.showReadme);
-		isFrozen = new JCheckBox("deny push operations", anRepository.isFrozen);
+		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
 
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
+		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
 
 		federationStrategy = new JComboBox(FederationStrategy.values());
+		federationStrategy.setRenderer(new FederationStrategyRenderer());
 		federationStrategy.setSelectedItem(anRepository.federationStrategy);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
-		fieldsPanel.add(newFieldPanel("name", nameField));
-		fieldsPanel.add(newFieldPanel("description", descriptionField));
-		fieldsPanel.add(newFieldPanel("owner", owner));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.name"), nameField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.description"), descriptionField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), owner));
 
-		fieldsPanel.add(newFieldPanel("enable tickets", useTickets));
-		fieldsPanel.add(newFieldPanel("enable docs", useDocs));
-		fieldsPanel.add(newFieldPanel("show remote branches", showRemoteBranches));
-		fieldsPanel.add(newFieldPanel("show readme", showReadme));
-		fieldsPanel.add(newFieldPanel("is frozen", isFrozen));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"), useTickets));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
+		fieldsPanel
+				.add(newFieldPanel(Translation.get("gb.showRemoteBranches"), showRemoteBranches));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"), showReadme));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
 
 		usersPalette = new JPalette<String>();
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
-		accessPanel.add(newFieldPanel("access restriction", accessRestriction), BorderLayout.NORTH);
-		accessPanel.add(newFieldPanel("permitted users", usersPalette), BorderLayout.CENTER);
+		accessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"), accessRestriction),
+				BorderLayout.NORTH);
+		accessPanel.add(newFieldPanel(Translation.get("gb.permittedUsers"), usersPalette),
+				BorderLayout.CENTER);
 
 		setsPalette = new JPalette<String>();
 		JPanel federationPanel = new JPanel(new BorderLayout(5, 5));
-		federationPanel.add(newFieldPanel("federation strategy", federationStrategy),
+		federationPanel.add(
+				newFieldPanel(Translation.get("gb.federationStrategy"), federationStrategy),
 				BorderLayout.NORTH);
-		federationPanel.add(newFieldPanel("federation sets", setsPalette), BorderLayout.CENTER);
+		federationPanel.add(newFieldPanel(Translation.get("gb.federationSets"), setsPalette),
+				BorderLayout.CENTER);
 
 		JPanel panel = new JPanel(new BorderLayout(5, 5));
 		panel.add(fieldsPanel, BorderLayout.NORTH);
 		panel.add(accessPanel, BorderLayout.CENTER);
 		panel.add(federationPanel, BorderLayout.SOUTH);
 
-		JButton createButton = new JButton("Save");
+		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				if (validateFields()) {
@@ -156,7 +172,7 @@ public class EditRepositoryDialog extends JDialog {
 			}
 		});
 
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton(Translation.get("gb.cancel"));
 		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				canceled = true;
@@ -203,8 +219,8 @@ public class EditRepositoryDialog extends JDialog {
 	}
 
 	private void showValidationError(String message) {
-		JOptionPane.showMessageDialog(EditRepositoryDialog.this, message, "Validation Error",
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(EditRepositoryDialog.this, message,
+				Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 	}
 
 	public void setUsers(List<String> all, List<String> selected) {
@@ -220,5 +236,71 @@ public class EditRepositoryDialog extends JDialog {
 			return null;
 		}
 		return repository;
+	}
+
+	/**
+	 * ListCellRenderer to display descriptive text about the access
+	 * restriction.
+	 * 
+	 */
+	private class AccessRestrictionRenderer extends JLabel implements ListCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			if (value instanceof AccessRestrictionType) {
+				AccessRestrictionType restriction = (AccessRestrictionType) value;
+				switch (restriction) {
+				case NONE:
+					setText(Translation.get("gb.notRestricted"));
+					break;
+				case PUSH:
+					setText(Translation.get("gb.pushRestricted"));
+					break;
+				case CLONE:
+					setText(Translation.get("gb.cloneRestricted"));
+					break;
+				case VIEW:
+					setText(Translation.get("gb.viewRestricted"));
+					break;
+				}
+			} else {
+				setText(value.toString());
+			}
+			return this;
+		}
+	}
+
+	/**
+	 * ListCellRenderer to display descriptive text about the federation
+	 * strategy.
+	 */
+	private class FederationStrategyRenderer extends JLabel implements ListCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			if (value instanceof FederationStrategy) {
+				FederationStrategy strategy = (FederationStrategy) value;
+				switch (strategy) {
+				case EXCLUDE:
+					setText(Translation.get("gb.excludeFromFederation"));
+					break;
+				case FEDERATE_THIS:
+					setText(Translation.get("gb.federateThis"));
+					break;
+				case FEDERATE_ORIGIN:
+					setText(Translation.get("gb.federateOrigin"));
+					break;
+				}
+			} else {
+				setText(value.toString());
+			}
+			return this;
+		}
 	}
 }

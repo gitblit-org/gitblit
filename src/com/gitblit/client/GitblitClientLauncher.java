@@ -44,14 +44,13 @@ public class GitblitClientLauncher {
 		DownloadListener downloadListener = new DownloadListener() {
 			@Override
 			public void downloading(String name) {
-				updateSplash(splash, "Downloading " + name + "...");				
+				updateSplash(splash, Translation.get("gb.downloading") + " " + name + "...");				
 			}
 		};
 		
 		// download rpc client runtime dependencies
 		Build.rpcClient(downloadListener);
 
-		updateSplash(splash, "Scanning Library Folder...");
 		File libFolder = new File("ext");
 		List<File> jars = Launcher.findJars(libFolder.getAbsoluteFile());
 		
@@ -61,14 +60,14 @@ public class GitblitClientLauncher {
 		Collections.reverse(jars);
 		for (File jar : jars) {
 			try {
-				updateSplash(splash, "Loading " + jar.getName() + "...");
+				updateSplash(splash, Translation.get("gb.loading") + " " + jar.getName() + "...");
 				Launcher.addJarFile(jar);
 			} catch (IOException e) {
 
 			}
 		}
 		
-		updateSplash(splash, "Starting Gitblit RPC Client...");
+		updateSplash(splash, Translation.get("gb.starting") + " Gitblit RPC Client...");
 		GitblitClient.main(args);
 	}
 

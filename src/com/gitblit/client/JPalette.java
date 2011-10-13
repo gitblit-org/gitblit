@@ -18,6 +18,7 @@ package com.gitblit.client;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -92,9 +93,9 @@ public class JPalette<T> extends JPanel {
 		JPanel center = new JPanel(new GridBagLayout());
 		center.add(controls);
 
-		add(newListPanel("Available", available), BorderLayout.WEST);
+		add(newListPanel(Translation.get("gb.available"), available), BorderLayout.WEST);
 		add(center, BorderLayout.CENTER);
-		add(newListPanel("Selected", selected), BorderLayout.EAST);
+		add(newListPanel(Translation.get("gb.selected"), selected), BorderLayout.EAST);
 	}
 
 	private JPanel newListPanel(String label, JTable table) {
@@ -110,7 +111,9 @@ public class JPalette<T> extends JPanel {
 		JScrollPane jsp = new JScrollPane(table);
 		jsp.setPreferredSize(new Dimension(225, 175));
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(new JLabel(label), BorderLayout.NORTH);
+		JLabel jlabel = new JLabel(label);
+		jlabel.setFont(jlabel.getFont().deriveFont(Font.BOLD));
+		panel.add(jlabel, BorderLayout.NORTH);
 		panel.add(jsp, BorderLayout.CENTER);
 		return panel;
 	}
@@ -161,7 +164,7 @@ public class JPalette<T> extends JPanel {
 
 		@Override
 		public String getColumnName(int column) {
-			return "Name";
+			return Translation.get("gb.name");
 		}
 
 		public Class<?> getColumnClass(int columnIndex) {

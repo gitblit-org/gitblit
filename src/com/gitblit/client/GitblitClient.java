@@ -18,6 +18,7 @@ package com.gitblit.client;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -92,11 +93,11 @@ public class GitblitClient extends JFrame {
 
 	private JMenuBar setupMenu() {
 		JMenuBar menuBar = new JMenuBar();
-		JMenu serversMenu = new JMenu("Servers");
+		JMenu serversMenu = new JMenu(Translation.get("gb.servers"));
 		menuBar.add(serversMenu);
-		recentMenu = new JMenu("Recent");
+		recentMenu = new JMenu(Translation.get("gb.recent"));
 		serversMenu.add(recentMenu);
-		JMenuItem login = new JMenuItem("Login...");
+		JMenuItem login = new JMenuItem(Translation.get("gb.login") + "...");
 		login.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK, false));
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -109,6 +110,7 @@ public class GitblitClient extends JFrame {
 
 	private JPanel newLabelPanel(String text, JTextField field) {
 		JLabel label = new JLabel(text);
+		label.setFont(label.getFont().deriveFont(Font.BOLD));
 		label.setPreferredSize(new Dimension(75, 10));
 		JPanel jpanel = new JPanel(new BorderLayout());
 		jpanel.add(label, BorderLayout.WEST);
@@ -132,13 +134,13 @@ public class GitblitClient extends JFrame {
 		JPasswordField passwordField = new JPasswordField(new String(reg.password));
 
 		JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-		panel.add(newLabelPanel("name", nameField));
-		panel.add(newLabelPanel("url", urlField));
-		panel.add(newLabelPanel("account", accountField));
-		panel.add(newLabelPanel("password", passwordField));
+		panel.add(newLabelPanel(Translation.get("gb.name"), nameField));
+		panel.add(newLabelPanel(Translation.get("gb.url"), urlField));
+		panel.add(newLabelPanel(Translation.get("gb.username"), accountField));
+		panel.add(newLabelPanel(Translation.get("gb.password"), passwordField));
 
-		int result = JOptionPane.showConfirmDialog(GitblitClient.this, panel, "Login",
-				JOptionPane.OK_CANCEL_OPTION);
+		int result = JOptionPane.showConfirmDialog(GitblitClient.this, panel,
+				Translation.get("gb.login"), JOptionPane.OK_CANCEL_OPTION);
 		if (result != JOptionPane.OK_OPTION) {
 			return false;
 		}
@@ -165,8 +167,8 @@ public class GitblitClient extends JFrame {
 					panel));
 			return true;
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(GitblitClient.this, e.getMessage(), "Error",
-					JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(GitblitClient.this, e.getMessage(),
+					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
 	}
