@@ -30,6 +30,7 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationModel</td></tr>
 <tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationProposal </td></tr>
 <tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationSet </td></tr>
+<tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Properties</td></tr>
 </table>
 
 ### RPC Client

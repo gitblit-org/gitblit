@@ -157,6 +157,25 @@ public class JsonUtils {
 		}
 		return gson().fromJson(json, type);
 	}
+	
+	/**
+	 * Reads a gson object from the specified url.
+	 * 
+	 * @param url
+	 * @param clazz
+	 * @param username
+	 * @param password
+	 * @return the deserialized object
+	 * @throws {@link IOException}
+	 */
+	public static <X> X retrieveJson(String url, Class<X> clazz, String username, char[] password)
+			throws IOException {
+		String json = retrieveJsonString(url, username, password);
+		if (StringUtils.isEmpty(json)) {
+			return null;
+		}
+		return gson().fromJson(json, clazz);
+	}
 
 	/**
 	 * Retrieves a JSON message.

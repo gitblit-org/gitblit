@@ -148,13 +148,13 @@ public class GitblitClient extends JFrame {
 		}
 		reg = new GitblitRegistration(nameField.getText(), url, accountField.getText(),
 				passwordField.getPassword());
-		login(reg);
+		boolean success = login(reg);
 		registrations.add(0, reg);
 		rebuildRecentMenu();
-		return true;
+		return success;
 	}
 
-	private void login(GitblitRegistration reg) {
+	private boolean login(GitblitRegistration reg) {
 		try {
 			GitblitPanel panel = new GitblitPanel(reg);
 			panel.login();
@@ -163,10 +163,12 @@ public class GitblitClient extends JFrame {
 			serverTabs.setSelectedIndex(idx);
 			serverTabs.setTabComponentAt(idx, new ClosableTabComponent(reg.name, null, serverTabs,
 					panel));
+			return true;
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(GitblitClient.this, e.getMessage(), "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
+		return false;
 	}
 
 	private void rebuildRecentMenu() {

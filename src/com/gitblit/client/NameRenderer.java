@@ -34,6 +34,10 @@ public class NameRenderer extends DefaultTableCellRenderer {
 
 	final String groupSpan;
 
+	public NameRenderer() {
+		this(Color.gray, new Color(0x00, 0x69, 0xD6));
+	}
+
 	public NameRenderer(Color group, Color repo) {
 		groupSpan = "<span style='color:" + getHexColor(group) + "'>";
 		setForeground(repo);

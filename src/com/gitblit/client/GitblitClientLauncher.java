@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import com.gitblit.Constants;
 import com.gitblit.Launcher;
 import com.gitblit.build.Build;
 import com.gitblit.build.Build.DownloadListener;
@@ -82,6 +83,8 @@ public class GitblitClientLauncher {
 					if (g != null) {
 						// Splash is 320x120
 						FontMetrics fm = g.getFontMetrics();
+						
+						// paint startup status
 						g.setColor(Color.darkGray);
 						int h = fm.getHeight() + fm.getMaxDescent();
 						int x = 5;
@@ -93,6 +96,11 @@ public class GitblitClientLauncher {
 						g.setColor(Color.WHITE);
 						int xw = fm.stringWidth(string);
 						g.drawString(string, x + ((w - xw) / 2), y - 5);
+						
+						// paint version
+						String ver = "v" + Constants.VERSION;
+						int vw = g.getFontMetrics().stringWidth(ver);
+						g.drawString(ver, 320 - vw - 5, 34);
 						g.dispose();
 						splash.update();
 					}

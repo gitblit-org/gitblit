@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.IStoredSettings;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -294,7 +296,7 @@ public class RpcUtils {
 		List<FederationModel> list = new ArrayList<FederationModel>(registrations);
 		return list;
 	}
-	
+
 	/**
 	 * Retrieves the list of federation proposals.
 	 * 
@@ -304,15 +306,15 @@ public class RpcUtils {
 	 * @return a collection of FederationProposal objects
 	 * @throws IOException
 	 */
-	public static List<FederationProposal> getFederationProposals(String serverUrl,
-			String account, char[] password) throws IOException {
+	public static List<FederationProposal> getFederationProposals(String serverUrl, String account,
+			char[] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_FEDERATION_PROPOSALS);
 		Collection<FederationProposal> proposals = JsonUtils.retrieveJson(url, PROPOSALS_TYPE,
 				account, password);
 		List<FederationProposal> list = new ArrayList<FederationProposal>(proposals);
 		return list;
 	}
-	
+
 	/**
 	 * Retrieves the list of federation repository sets.
 	 * 
@@ -322,13 +324,29 @@ public class RpcUtils {
 	 * @return a collection of FederationSet objects
 	 * @throws IOException
 	 */
-	public static List<FederationSet> getFederationSets(String serverUrl,
-			String account, char[] password) throws IOException {
+	public static List<FederationSet> getFederationSets(String serverUrl, String account,
+			char[] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_FEDERATION_SETS);
-		Collection<FederationSet> sets = JsonUtils.retrieveJson(url, SETS_TYPE,
-				account, password);
+		Collection<FederationSet> sets = JsonUtils.retrieveJson(url, SETS_TYPE, account, password);
 		List<FederationSet> list = new ArrayList<FederationSet>(sets);
 		return list;
+	}
+
+	/**
+	 * Retrieves the settings of the Gitblit server.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return an IStoredSettings object
+	 * @throws IOException
+	 */
+	public static IStoredSettings getSettings(String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_SETTINGS);
+		Properties props = JsonUtils.retrieveJson(url, Properties.class, account, password);
+		RpcSettings settings = new RpcSettings(props);
+		return settings;
 	}
 
 	/**
@@ -350,5 +368,32 @@ public class RpcUtils {
 		String json = JsonUtils.toJsonString(object);
 		int resultCode = JsonUtils.sendJsonString(url, json, account, password);
 		return resultCode == 200;
+	}
+	
+	/**
+	 * Settings implementation that wraps a retrieved properties instance. This
+	 * class is used for RPC communication.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
+	private static class RpcSettings extends IStoredSettings {
+		
+		private final Properties properties = new Properties();
+
+		public RpcSettings(Properties props) {
+			super(RpcSettings.class);
+			properties.putAll(props);
+		}
+
+		@Override
+		protected Properties read() {
+			return properties;
+		}
+
+		@Override
+		public String toString() {
+			return "RpcSettings";
+		}
 	}
 }

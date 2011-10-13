@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -163,6 +164,17 @@ public class RpcServlet extends JsonServlet {
 			} else {
 				response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			}
+		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
+			// return the server's settings
+			Properties settings = new Properties();			
+			List<String> keys = GitBlit.getAllKeys(null);
+			for (String key:keys) {
+				String value = GitBlit.getString(key, null);
+				if (value != null) {
+					settings.put(key, value);
+				}
+			}
+			result = settings;
 		}
 
 		// send the result of the request

@@ -23,6 +23,7 @@ import junit.framework.TestCase;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.IStoredSettings;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -202,5 +203,10 @@ public class RpcTests extends TestCase {
 	public void testFederationSets() throws Exception {
 		List<FederationSet> sets = RpcUtils.getFederationSets(url, account, password.toCharArray());
 		assertTrue("No federation sets were retrieved!", sets.size() > 0);
+	}
+
+	public void testSettings() throws Exception {
+		IStoredSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		assertTrue("No settings were retrieved!", settings.getAllKeys(null).size() > 0);
 	}
 }
