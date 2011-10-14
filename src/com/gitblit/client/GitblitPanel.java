@@ -517,9 +517,17 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 * 
 	 */
 	protected void createRepository() {
-		EditRepositoryDialog dialog = new EditRepositoryDialog(allUsers);
+		List<String> usernames = new ArrayList<String>();
+		for (UserModel user : this.allUsers) {
+			usernames.add(user.username);
+		}
+		Collections.sort(usernames);
+		EditRepositoryDialog dialog = new EditRepositoryDialog();
+		dialog.setUsers(null, usernames, null);
+		dialog.setRepositories(allRepositories);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
+		final List<String> permittedUsers = dialog.getPermittedUsers();
 		if (newRepository == null) {
 			return;
 		}
@@ -529,7 +537,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 			@Override
 			protected Boolean doInBackground() throws IOException {
-				return RpcUtils.createRepository(newRepository, url, account, password);
+				boolean success = true;
+				success &= RpcUtils.createRepository(newRepository, url, account, password);
+				if (permittedUsers.size() > 0) {
+					// if new repository has named members, set them
+					success &= RpcUtils.setRepositoryMembers(newRepository, permittedUsers, url,
+							account, password);
+				}
+				return success;
 			}
 
 			@Override
@@ -538,6 +553,9 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 					boolean success = get();
 					if (success) {
 						refreshRepositoriesTable();
+						if (permittedUsers.size() > 0) {
+							refreshUsersTable();
+						}
 					} else {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for repository \"{1}\".",
@@ -564,17 +582,22 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 * @param repository
 	 */
 	protected void editRepository(final RepositoryModel repository) {
-		EditRepositoryDialog dialog = new EditRepositoryDialog(repository, allUsers);
+		EditRepositoryDialog dialog = new EditRepositoryDialog(repository);
+		List<String> members = new ArrayList<String>();
 		List<String> usernames = new ArrayList<String>();
 		for (UserModel user : this.allUsers) {
 			usernames.add(user.username);
+			if (user.repositories.contains(repository.name)) {
+				members.add(user.username);
+			}
 		}
 		Collections.sort(usernames);
-		dialog.setUsers(usernames, null);
+		dialog.setUsers(repository.owner, usernames, members);
 		dialog.setFederationSets(settings.getStrings(Keys.federation.sets),
 				repository.federationSets);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
+		final List<String> permittedUsers = dialog.getPermittedUsers();
 		if (revisedRepository == null) {
 			return;
 		}
@@ -584,8 +607,13 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 			@Override
 			protected Boolean doInBackground() throws IOException {
-				return RpcUtils.updateRepository(repository.name, revisedRepository, url, account,
+				boolean success = true;
+				success &= RpcUtils.updateRepository(repository.name, revisedRepository, url,
+						account, password);
+				// always set the repository members
+				success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
 						password);
+				return success;
 			}
 
 			@Override
@@ -594,6 +622,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 					boolean success = get();
 					if (success) {
 						refreshRepositoriesTable();
+						refreshUsersTable();
 					} else {
 						String msg = MessageFormat.format(
 								"Failed to execute request \"{0}\" for repository \"{1}\".",
@@ -666,6 +695,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void createUser() {
 		EditUserDialog dialog = new EditUserDialog(settings);
+		dialog.setUsers(allUsers);
 		dialog.setRepositories(allRepositories, null);
 		dialog.setVisible(true);
 		final UserModel newUser = dialog.getUser();

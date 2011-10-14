@@ -24,8 +24,14 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -42,7 +48,6 @@ import javax.swing.ListCellRenderer;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -55,6 +60,8 @@ public class EditRepositoryDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private final RepositoryModel repository;
+
+	private boolean isCreate;
 
 	private boolean canceled = true;
 
@@ -76,42 +83,37 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox federationStrategy;
 
-	private JComboBox owner;
+	private JComboBox ownerField;
 
 	private JPalette<String> usersPalette;
 
 	private JPalette<String> setsPalette;
 
-	public EditRepositoryDialog(List<UserModel> allusers) {
-		this(new RepositoryModel(), allusers);
+	private Set<String> repositoryNames;
+
+	public EditRepositoryDialog() {
+		this(new RepositoryModel());
+		this.isCreate = true;
 		setTitle(Translation.get("gb.newRepository"));
 	}
 
-	public EditRepositoryDialog(RepositoryModel aRepository, List<UserModel> allUsers) {
+	public EditRepositoryDialog(RepositoryModel aRepository) {
 		super();
 		this.repository = new RepositoryModel();
-		initialize(aRepository, allUsers);
+		this.repositoryNames = new HashSet<String>();
+		this.isCreate = false;
+		initialize(aRepository);
 		setModal(true);
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
 
-	private void initialize(RepositoryModel anRepository, List<UserModel> allUsers) {
+	private void initialize(RepositoryModel anRepository) {
 		nameField = new JTextField(anRepository.name == null ? "" : anRepository.name, 35);
 		descriptionField = new JTextField(anRepository.description == null ? ""
 				: anRepository.description, 35);
 
-		owner = new JComboBox(allUsers.toArray());
-		if (!StringUtils.isEmpty(anRepository.owner)) {
-			UserModel currentOwner = null;
-			for (UserModel user : allUsers) {
-				if (user.username.equalsIgnoreCase(anRepository.owner)) {
-					currentOwner = user;
-					break;
-				}
-			}
-			owner.setSelectedItem(currentOwner);
-		}
+		ownerField = new JComboBox();
 
 		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
 				anRepository.useTickets);
@@ -126,14 +128,21 @@ public class EditRepositoryDialog extends JDialog {
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
 
-		federationStrategy = new JComboBox(FederationStrategy.values());
+		// federation strategies - remove ORIGIN choice if this repository has
+		// no origin.
+		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(
+				Arrays.asList(FederationStrategy.values()));
+		if (StringUtils.isEmpty(anRepository.origin)) {
+			federationStrategies.remove(FederationStrategy.FEDERATE_ORIGIN);
+		}
+		federationStrategy = new JComboBox(federationStrategies.toArray());
 		federationStrategy.setRenderer(new FederationStrategyRenderer());
 		federationStrategy.setSelectedItem(anRepository.federationStrategy);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.name"), nameField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.description"), descriptionField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), owner));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"), useTickets));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
@@ -214,17 +223,102 @@ public class EditRepositoryDialog extends JDialog {
 	}
 
 	private boolean validateFields() {
-		// TODO validate input and populate model
+		String rname = nameField.getText();
+		if (StringUtils.isEmpty(rname)) {
+			error("Please enter a repository name!");
+			return false;
+		}
+
+		// automatically convert backslashes to forward slashes
+		rname = rname.replace('\\', '/');
+		// Automatically replace // with /
+		rname = rname.replace("//", "/");
+
+		// prohibit folder paths
+		if (rname.startsWith("/")) {
+			error("Leading root folder references (/) are prohibited.");
+			return false;
+		}
+		if (rname.startsWith("../")) {
+			error("Relative folder references (../) are prohibited.");
+			return false;
+		}
+		if (rname.contains("/../")) {
+			error("Relative folder references (../) are prohibited.");
+			return false;
+		}
+
+		// confirm valid characters in repository name
+		Character c = StringUtils.findInvalidCharacter(rname);
+		if (c != null) {
+			error(MessageFormat.format("Illegal character ''{0}'' in repository name!", c));
+			return false;
+		}
+
+		// verify repository name uniqueness on create
+		if (isCreate) {
+			// force repo names to lowercase
+			// this means that repository name checking for rpc creation
+			// is case-insensitive, regardless of the Gitblit server's
+			// filesystem
+			if (repositoryNames.contains(rname.toLowerCase())) {
+				error(MessageFormat.format(
+						"Can not create repository ''{0}'' because it already exists.", rname));
+				return false;
+			}
+		}
+
+		if (accessRestriction.getSelectedItem() == null) {
+			error("Please select access restriction!");
+			return false;
+		}
+
+		if (federationStrategy.getSelectedItem() == null) {
+			error("Please select federation strategy!");
+			return false;
+		}
+
+		repository.name = rname;
+		repository.description = descriptionField.getText();
+		repository.owner = ownerField.getSelectedItem() == null ? null : ownerField
+				.getSelectedItem().toString();
+		repository.useTickets = useTickets.isSelected();
+		repository.useDocs = useDocs.isSelected();
+		repository.showRemoteBranches = showRemoteBranches.isSelected();
+		repository.showReadme = showReadme.isSelected();
+		repository.isFrozen = isFrozen.isSelected();
+
+		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();
+		repository.federationStrategy = (FederationStrategy) federationStrategy.getSelectedItem();
+
+		if (repository.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
+			repository.federationSets = setsPalette.getSelections();
+		}
 		return true;
 	}
 
-	private void showValidationError(String message) {
+	private void error(String message) {
 		JOptionPane.showMessageDialog(EditRepositoryDialog.this, message,
 				Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 	}
 
-	public void setUsers(List<String> all, List<String> selected) {
+	public void setUsers(String owner, List<String> all, List<String> selected) {
+		ownerField.setModel(new DefaultComboBoxModel(all.toArray()));
+		if (!StringUtils.isEmpty(owner)) {
+			ownerField.setSelectedItem(owner);
+		}
 		usersPalette.setObjects(all, selected);
+	}
+
+	public void setRepositories(List<RepositoryModel> repositories) {
+		repositoryNames.clear();
+		for (RepositoryModel repository : repositories) {
+			// force repo names to lowercase
+			// this means that repository name checking for rpc creation
+			// is case-insensitive, regardless of the Gitblit server's
+			// filesystem
+			repositoryNames.add(repository.name.toLowerCase());
+		}
 	}
 
 	public void setFederationSets(List<String> all, List<String> selected) {
@@ -236,6 +330,10 @@ public class EditRepositoryDialog extends JDialog {
 			return null;
 		}
 		return repository;
+	}
+
+	public List<String> getPermittedUsers() {
+		return usersPalette.getSelections();
 	}
 
 	/**

@@ -99,8 +99,7 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.EDIT_REPOSITORY.equals(reqType)) {
 			// edit repository
 			RepositoryModel model = deserialize(request, response, RepositoryModel.class);
-			// name parameter specifies original repository name in event of
-			// rename
+			// name specifies original repository name in event of rename
 			String repoName = objectName;
 			if (repoName == null) {
 				repoName = model.name;

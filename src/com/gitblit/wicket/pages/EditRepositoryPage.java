@@ -147,6 +147,12 @@ public class EditRepositoryPage extends RootSubPage {
 						return;
 					}
 
+					// confirm federation strategy selection
+					if (repositoryModel.federationStrategy == null) {
+						error("Please select federation strategy!");
+						return;
+					}
+
 					// save federation set preferences
 					if (repositoryModel.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
 						repositoryModel.federationSets.clear();

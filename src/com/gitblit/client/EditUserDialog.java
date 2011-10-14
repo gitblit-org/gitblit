@@ -26,7 +26,9 @@ import java.awt.event.ActionListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -54,6 +56,8 @@ public class EditUserDialog extends JDialog {
 
 	private final IStoredSettings settings;
 
+	private boolean isCreate;
+	
 	private boolean canceled = true;
 
 	private JTextField usernameField;
@@ -68,15 +72,20 @@ public class EditUserDialog extends JDialog {
 
 	private JPalette<String> repositoryPalette;
 
+	private Set<String> usernames;
+
 	public EditUserDialog(IStoredSettings settings) {
 		this(new UserModel(""), settings);
-		setTitle(Translation.get("gb.newUser"));
+		this.isCreate = true;
+		setTitle(Translation.get("gb.newUser"));		
 	}
 
 	public EditUserDialog(UserModel anUser, IStoredSettings settings) {
 		super();
 		this.user = new UserModel("");
 		this.settings = settings;
+		this.usernames = new HashSet<String>();
+		this.isCreate = false;
 		initialize(anUser);
 		setModal(true);
 		setTitle(Translation.get("gb.edit") + ": " + anUser.username);
@@ -161,20 +170,17 @@ public class EditUserDialog extends JDialog {
 	private boolean validateFields() {
 		String uname = usernameField.getText();
 		if (StringUtils.isEmpty(uname)) {
-			showValidationError("Please enter a username!");
+			error("Please enter a username!");
 			return false;
 		}
 
-		// TODO verify username uniqueness on create
-
-		// if (isCreate) {
-		// UserModel model = GitBlit.self().getUserModel(username);
-		// if (model != null) {
-		// error(MessageFormat.format("Username ''{0}'' is unavailable.",
-		// username));
-		// return;
-		// }
-		// }
+		// verify username uniqueness on create
+		if (isCreate) {
+			if (usernames.contains(uname.toLowerCase())) {
+				error(MessageFormat.format("Username ''{0}'' is unavailable.", uname));
+				return false;
+			}
+		}
 
 		int minLength = settings.getInteger(Keys.realm.minPasswordLength, 5);
 		if (minLength < 4) {
@@ -182,17 +188,17 @@ public class EditUserDialog extends JDialog {
 		}
 		char[] pw = passwordField.getPassword();
 		if (pw == null || pw.length < minLength) {
-			showValidationError(MessageFormat.format(
+			error(MessageFormat.format(
 					"Password is too short. Minimum length is {0} characters.", minLength));
 			return false;
 		}
 		char[] cpw = confirmPasswordField.getPassword();
 		if (cpw == null || cpw.length != pw.length) {
-			showValidationError("Please confirm the password!");
+			error("Please confirm the password!");
 			return false;
 		}
 		if (!Arrays.equals(pw, cpw)) {
-			showValidationError("Passwords do not match!");
+			error("Passwords do not match!");
 			return false;
 		}
 		user.username = uname;
@@ -211,9 +217,16 @@ public class EditUserDialog extends JDialog {
 		return true;
 	}
 
-	private void showValidationError(String message) {
+	private void error(String message) {
 		JOptionPane.showMessageDialog(EditUserDialog.this, message, Translation.get("gb.error"),
 				JOptionPane.ERROR_MESSAGE);
+	}
+
+	public void setUsers(List<UserModel> users) {
+		usernames.clear();
+		for (UserModel user : users) {
+			usernames.add(user.username.toLowerCase());
+		}
 	}
 
 	public void setRepositories(List<RepositoryModel> repositories, List<String> selected) {
