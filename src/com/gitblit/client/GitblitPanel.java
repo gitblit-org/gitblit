@@ -28,10 +28,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -44,25 +42,16 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import com.gitblit.Constants.RpcRequest;
-import com.gitblit.GitBlitException.ForbiddenException;
-import com.gitblit.GitBlitException.UnauthorizedException;
-import com.gitblit.IStoredSettings;
-import com.gitblit.Keys;
 import com.gitblit.client.ClosableTabComponent.CloseTabListener;
-import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -80,17 +69,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private final Insets insets = new Insets(margin, margin, margin, margin);
 
-	private final String url;
-
-	private final String account;
-
-	private final char[] password;
-
-	private volatile boolean isAdmin;
-
-	private volatile List<UserModel> allUsers;
-
-	private volatile IStoredSettings settings;
+	private GitblitModel gitblit;
 
 	private JTabbedPane tabs;
 
@@ -116,23 +95,19 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private TableRowSorter<RepositoriesModel> defaultSorter;
 
-	private List<RepositoryModel> allRepositories;
-
 	public GitblitPanel(GitblitRegistration reg) {
 		this(reg.url, reg.account, reg.password);
 	}
 
 	public GitblitPanel(String url, String account, char[] password) {
-		this.url = url;
-		this.account = account;
-		this.password = password;
+		this.gitblit = new GitblitModel(url, account, password);
 
 		final JButton browseRepository = new JButton(Translation.get("gb.browse"));
 		browseRepository.setEnabled(false);
 		browseRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
-				String u = MessageFormat.format("{0}/summary/{1}", GitblitPanel.this.url,
+				String u = MessageFormat.format("{0}/summary/{1}", gitblit.url,
 						StringUtils.encodeURL(model.name));
 				try {
 					Desktop.getDesktop().browse(new URI(u));
@@ -145,15 +120,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		JButton refreshRepositories = new JButton(Translation.get("gb.refresh"));
 		refreshRepositories.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					refreshRepositoriesTable();
-				} catch (ForbiddenException x) {
-					explainForbidden(RpcRequest.LIST_REPOSITORIES);
-				} catch (UnauthorizedException x) {
-					explainUnauthorized(RpcRequest.LIST_REPOSITORIES);
-				} catch (Throwable t) {
-					showException(t);
-				}
+				refreshRepositories();
 			}
 		});
 
@@ -237,7 +204,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 					RepositoryModel model = ((RepositoriesModel) repositoriesTable.getModel()).list
 							.get(modelRow);
 					editRepository.setEnabled(singleSelection
-							&& (isAdmin || model.owner.equalsIgnoreCase(GitblitPanel.this.account)));
+							&& (gitblit.allowAdmin() || gitblit.isOwner(model)));
 				} else {
 					editRepository.setEnabled(false);
 				}
@@ -260,6 +227,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		tablePanel.add(new JScrollPane(repositoriesTable), BorderLayout.CENTER);
 
 		JPanel repositoryControls = new JPanel();
+		repositoryControls.add(refreshRepositories);
 		repositoryControls.add(browseRepository);
 		repositoryControls.add(cloneRepository);
 		repositoryControls.add(createRepository);
@@ -275,15 +243,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		JButton refreshUsers = new JButton(Translation.get("gb.refresh"));
 		refreshUsers.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					refreshUsersTable();
-				} catch (ForbiddenException x) {
-					explainForbidden(RpcRequest.LIST_USERS);
-				} catch (UnauthorizedException x) {
-					explainUnauthorized(RpcRequest.LIST_USERS);
-				} catch (Throwable t) {
-					showException(t);
-				}
+				refreshUsers();
 			}
 		});
 
@@ -360,15 +320,20 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		return label;
 	}
 
-	public void login() throws IOException {
-		refreshRepositoriesTable();
+	private void setRenderer(RepositoriesModel.Columns col, TableCellRenderer renderer) {
+		String name = repositoriesTable.getColumnName(col.ordinal());
+		repositoriesTable.getColumn(name).setCellRenderer(renderer);
+	}
 
-		try {
-			refreshUsersTable();
-			refreshSettings();
-			isAdmin = true;
-			refreshFederationPanel();
-		} catch (ForbiddenException e) {
+	public void login() throws IOException {
+		gitblit.login();
+
+		updateRepositoriesTable();
+		Utils.packColumns(repositoriesTable, 2);
+
+		if (gitblit.allowAdmin()) {
+			updateUsersTable();
+		} else {
 			// user does not have administrator privileges
 			// hide admin repository buttons
 			createRepository.setVisible(false);
@@ -379,39 +344,17 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 			// remove federation tab
 			tabs.removeTabAt(1);
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
 		}
 	}
 
-	private void refreshRepositoriesTable() throws IOException {
-		Map<String, RepositoryModel> repositories = RpcUtils
-				.getRepositories(url, account, password);
-		allRepositories = new ArrayList<RepositoryModel>(repositories.values());
-		Collections.sort(allRepositories);
+	private void updateRepositoriesTable() {
 		repositoriesModel.list.clear();
-		repositoriesModel.list.addAll(allRepositories);
+		repositoriesModel.list.addAll(gitblit.getRepositories());
 		repositoriesModel.fireTableDataChanged();
-		packColumns(repositoriesTable, 2);
 	}
 
-	private void setRenderer(RepositoriesModel.Columns col, TableCellRenderer renderer) {
-		String name = repositoriesTable.getColumnName(col.ordinal());
-		repositoriesTable.getColumn(name).setCellRenderer(renderer);
-	}
-
-	private void refreshUsersTable() throws IOException {
-		allUsers = RpcUtils.getUsers(url, account, password);
-		usersList.setListData(allUsers.toArray());
-	}
-
-	private void refreshSettings() throws IOException {
-		settings = RpcUtils.getSettings(url, account, password);
-	}
-
-	private void refreshFederationPanel() throws IOException {
-		List<FederationModel> registrations = RpcUtils.getFederationRegistrations(url, account,
-				password);
+	private void updateUsersTable() {
+		usersList.setListData(gitblit.getUsers().toArray());
 	}
 
 	private void filterRepositories(final String fragment) {
@@ -455,45 +398,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		return users;
 	}
 
-	private void packColumns(JTable table, int margin) {
-		for (int c = 0; c < table.getColumnCount(); c++) {
-			packColumn(table, c, 4);
-		}
-	}
-
-	// Sets the preferred width of the visible column specified by vColIndex.
-	// The column will be just wide enough to show the column head and the
-	// widest cell in the column. margin pixels are added to the left and right
-	// (resulting in an additional width of 2*margin pixels).
-	private void packColumn(JTable table, int vColIndex, int margin) {
-		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table.getColumnModel();
-		TableColumn col = colModel.getColumn(vColIndex);
-		int width = 0;
-
-		// Get width of column header
-		TableCellRenderer renderer = col.getHeaderRenderer();
-		if (renderer == null) {
-			renderer = table.getTableHeader().getDefaultRenderer();
-		}
-		Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false,
-				false, 0, 0);
-		width = comp.getPreferredSize().width;
-
-		// Get maximum width of column data
-		for (int r = 0; r < table.getRowCount(); r++) {
-			renderer = table.getCellRenderer(r, vColIndex);
-			comp = renderer.getTableCellRendererComponent(table, table.getValueAt(r, vColIndex),
-					false, false, r, vColIndex);
-			width = Math.max(width, comp.getPreferredSize().width);
-		}
-
-		// Add margin
-		width += 2 * margin;
-
-		// Set the width
-		col.setPreferredWidth(width);
-	}
-
 	@Override
 	public Insets getInsets() {
 		return insets;
@@ -501,7 +405,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	@Override
 	public Dimension getPreferredSize() {
-		if (isAdmin) {
+		if (gitblit.allowAdmin()) {
 			return new Dimension(950, 550);
 		}
 		return new Dimension(775, 450);
@@ -509,6 +413,23 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	@Override
 	public void closeTab(Component c) {
+		gitblit = null;
+	}
+
+	protected void refreshRepositories() {
+		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_REPOSITORIES) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				gitblit.refreshRepositories();
+				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateRepositoriesTable();
+			}
+		};
+		worker.execute();
 	}
 
 	/**
@@ -517,14 +438,9 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 * 
 	 */
 	protected void createRepository() {
-		List<String> usernames = new ArrayList<String>();
-		for (UserModel user : this.allUsers) {
-			usernames.add(user.username);
-		}
-		Collections.sort(usernames);
 		EditRepositoryDialog dialog = new EditRepositoryDialog();
-		dialog.setUsers(null, usernames, null);
-		dialog.setRepositories(allRepositories);
+		dialog.setUsers(null, gitblit.getUsernames(), null);
+		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
@@ -532,44 +448,30 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			return;
 		}
 
-		final RpcRequest request = RpcRequest.CREATE_REPOSITORY;
-		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+		GitblitWorker worker = new GitblitWorker(this, RpcRequest.CREATE_REPOSITORY) {
 
 			@Override
-			protected Boolean doInBackground() throws IOException {
-				boolean success = true;
-				success &= RpcUtils.createRepository(newRepository, url, account, password);
-				if (permittedUsers.size() > 0) {
-					// if new repository has named members, set them
-					success &= RpcUtils.setRepositoryMembers(newRepository, permittedUsers, url,
-							account, password);
+			protected Boolean doRequest() throws IOException {
+				boolean success = gitblit.createRepository(newRepository, permittedUsers);
+				if (success) {
+					gitblit.refreshRepositories();
+					if (permittedUsers.size() > 0) {
+						gitblit.refreshUsers();
+					}
 				}
 				return success;
 			}
 
 			@Override
-			protected void done() {
-				try {
-					boolean success = get();
-					if (success) {
-						refreshRepositoriesTable();
-						if (permittedUsers.size() > 0) {
-							refreshUsersTable();
-						}
-					} else {
-						String msg = MessageFormat.format(
-								"Failed to execute request \"{0}\" for repository \"{1}\".",
-								request.name(), newRepository.name);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (ForbiddenException e) {
-					explainForbidden(request);
-				} catch (UnauthorizedException e) {
-					explainUnauthorized(request);
-				} catch (Throwable t) {
-					showException(t);
-				}
+			protected void onSuccess() {
+				updateRepositoriesTable();
+				updateUsersTable();
+			}
+
+			@Override
+			protected void onFailure() {
+				showFailure("Failed to execute request \"{0}\" for repository \"{1}\".",
+						getRequestType(), newRepository.name);
 			}
 		};
 		worker.execute();
@@ -583,18 +485,10 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void editRepository(final RepositoryModel repository) {
 		EditRepositoryDialog dialog = new EditRepositoryDialog(repository);
-		List<String> members = new ArrayList<String>();
-		List<String> usernames = new ArrayList<String>();
-		for (UserModel user : this.allUsers) {
-			usernames.add(user.username);
-			if (user.repositories.contains(repository.name)) {
-				members.add(user.username);
-			}
-		}
-		Collections.sort(usernames);
+		List<String> usernames = gitblit.getUsernames();
+		List<String> members = gitblit.getPermittedUsernames(repository);
 		dialog.setUsers(repository.owner, usernames, members);
-		dialog.setFederationSets(settings.getStrings(Keys.federation.sets),
-				repository.federationSets);
+		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
@@ -602,41 +496,29 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			return;
 		}
 
-		final RpcRequest request = RpcRequest.EDIT_REPOSITORY;
-		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+		GitblitWorker worker = new GitblitWorker(this, RpcRequest.EDIT_REPOSITORY) {
 
 			@Override
-			protected Boolean doInBackground() throws IOException {
-				boolean success = true;
-				success &= RpcUtils.updateRepository(repository.name, revisedRepository, url,
-						account, password);
-				// always set the repository members
-				success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
-						password);
+			protected Boolean doRequest() throws IOException {
+				boolean success = gitblit.updateRepository(repository.name, revisedRepository,
+						permittedUsers);
+				if (success) {
+					gitblit.refreshRepositories();
+					gitblit.refreshUsers();
+				}
 				return success;
 			}
 
 			@Override
-			protected void done() {
-				try {
-					boolean success = get();
-					if (success) {
-						refreshRepositoriesTable();
-						refreshUsersTable();
-					} else {
-						String msg = MessageFormat.format(
-								"Failed to execute request \"{0}\" for repository \"{1}\".",
-								request.name(), repository.name);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (ForbiddenException e) {
-					explainForbidden(request);
-				} catch (UnauthorizedException e) {
-					explainUnauthorized(request);
-				} catch (Throwable t) {
-					showException(t);
-				}
+			protected void onSuccess() {
+				updateRepositoriesTable();
+				updateUsersTable();
+			}
+
+			@Override
+			protected void onFailure() {
+				showFailure("Failed to execute request \"{0}\" for repository \"{1}\".",
+						getRequestType(), repository.name);
 			}
 		};
 		worker.execute();
@@ -653,39 +535,48 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		int result = JOptionPane.showConfirmDialog(GitblitPanel.this, message.toString(),
 				"Delete Repositories?", JOptionPane.YES_NO_OPTION);
 		if (result == JOptionPane.YES_OPTION) {
-			final RpcRequest request = RpcRequest.DELETE_REPOSITORY;
-			SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+			GitblitWorker worker = new GitblitWorker(this, RpcRequest.DELETE_REPOSITORY) {
 				@Override
-				protected Boolean doInBackground() throws Exception {
+				protected Boolean doRequest() throws IOException {
 					boolean success = true;
 					for (RepositoryModel repository : repositories) {
-						success &= RpcUtils.deleteRepository(repository, url, account, password);
+						success &= gitblit.deleteRepository(repository);
+					}
+					if (success) {
+						gitblit.refreshUsers();
 					}
 					return success;
 				}
 
 				@Override
-				protected void done() {
-					try {
-						boolean success = get();
-						if (success) {
-							refreshRepositoriesTable();
-						} else {
-							String msg = "Failed to delete specified repositories!";
-							JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-									Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-						}
-					} catch (ForbiddenException e) {
-						explainForbidden(request);
-					} catch (UnauthorizedException e) {
-						explainUnauthorized(request);
-					} catch (Throwable t) {
-						showException(t);
-					}
+				protected void onSuccess() {
+					updateRepositoriesTable();
+					updateUsersTable();
+				}
+
+				@Override
+				protected void onFailure() {
+					showFailure("Failed to delete specified repositories!");
 				}
 			};
 			worker.execute();
 		}
+	}
+
+	protected void refreshUsers() {
+		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_USERS) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				gitblit.refreshUsers();
+				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateUsersTable();
+			}
+		};
+		worker.execute();
 	}
 
 	/**
@@ -694,43 +585,35 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 * 
 	 */
 	protected void createUser() {
-		EditUserDialog dialog = new EditUserDialog(settings);
-		dialog.setUsers(allUsers);
-		dialog.setRepositories(allRepositories, null);
+		EditUserDialog dialog = new EditUserDialog(gitblit.getSettings());
+		dialog.setUsers(gitblit.getUsers());
+		dialog.setRepositories(gitblit.getRepositories(), null);
 		dialog.setVisible(true);
 		final UserModel newUser = dialog.getUser();
 		if (newUser == null) {
 			return;
 		}
 
-		final RpcRequest request = RpcRequest.CREATE_USER;
-		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+		GitblitWorker worker = new GitblitWorker(this, RpcRequest.CREATE_USER) {
 
 			@Override
-			protected Boolean doInBackground() throws IOException {
-				return RpcUtils.createUser(newUser, url, account, password);
+			protected Boolean doRequest() throws IOException {
+				boolean success = gitblit.createUser(newUser);
+				if (success) {
+					gitblit.refreshUsers();
+				}
+				return success;
 			}
 
 			@Override
-			protected void done() {
-				try {
-					boolean success = get();
-					if (success) {
-						refreshUsersTable();
-					} else {
-						String msg = MessageFormat.format(
-								"Failed to execute request \"{0}\" for user \"{1}\".",
-								request.name(), newUser.username);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (ForbiddenException e) {
-					explainForbidden(request);
-				} catch (UnauthorizedException e) {
-					explainUnauthorized(request);
-				} catch (Throwable t) {
-					showException(t);
-				}
+			protected void onSuccess() {
+				updateUsersTable();
+			}
+
+			@Override
+			protected void onFailure() {
+				showFailure("Failed to execute request \"{0}\" for user \"{1}\".",
+						getRequestType(), newUser.username);
 			}
 		};
 		worker.execute();
@@ -743,42 +626,33 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 * @param user
 	 */
 	protected void editUser(final UserModel user) {
-		EditUserDialog dialog = new EditUserDialog(user, settings);
-		dialog.setRepositories(allRepositories, new ArrayList<String>(user.repositories));
+		EditUserDialog dialog = new EditUserDialog(user, gitblit.getSettings());
+		dialog.setRepositories(gitblit.getRepositories(), new ArrayList<String>(user.repositories));
 		dialog.setVisible(true);
 		final UserModel revisedUser = dialog.getUser();
 		if (revisedUser == null) {
 			return;
 		}
 
-		final RpcRequest request = RpcRequest.EDIT_USER;
-		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-
+		GitblitWorker worker = new GitblitWorker(this, RpcRequest.EDIT_USER) {
 			@Override
-			protected Boolean doInBackground() throws IOException {
-				return RpcUtils.updateUser(user.username, revisedUser, url, account, password);
+			protected Boolean doRequest() throws IOException {
+				boolean success = gitblit.updateUser(user.username, revisedUser);
+				if (success) {
+					gitblit.refreshUsers();
+				}
+				return success;
 			}
 
 			@Override
-			protected void done() {
-				try {
-					boolean success = get();
-					if (success) {
-						refreshUsersTable();
-					} else {
-						String msg = MessageFormat.format(
-								"Failed to execute request \"{0}\" for user \"{1}\".",
-								request.name(), user.username);
-						JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-					}
-				} catch (ForbiddenException e) {
-					explainForbidden(request);
-				} catch (UnauthorizedException e) {
-					explainUnauthorized(request);
-				} catch (Throwable t) {
-					showException(t);
-				}
+			protected void onSuccess() {
+				updateUsersTable();
+			}
+
+			@Override
+			protected void onFailure() {
+				showFailure("Failed to execute request \"{0}\" for user \"{1}\".",
+						getRequestType(), user.username);
 			}
 		};
 		worker.execute();
@@ -795,58 +669,30 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		int result = JOptionPane.showConfirmDialog(GitblitPanel.this, message.toString(),
 				"Delete Users?", JOptionPane.YES_NO_OPTION);
 		if (result == JOptionPane.YES_OPTION) {
-			final RpcRequest request = RpcRequest.DELETE_USER;
-			SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+			GitblitWorker worker = new GitblitWorker(this, RpcRequest.DELETE_USER) {
 				@Override
-				protected Boolean doInBackground() throws Exception {
+				protected Boolean doRequest() throws IOException {
 					boolean success = true;
 					for (UserModel user : users) {
-						success &= RpcUtils.deleteUser(user, url, account, password);
+						success &= gitblit.deleteUser(user);
+					}
+					if (success) {
+						gitblit.refreshUsers();
 					}
 					return success;
 				}
 
 				@Override
-				protected void done() {
-					try {
-						boolean success = get();
-						if (success) {
-							refreshUsersTable();
-						} else {
-							String msg = "Failed to delete specified users!";
-							JOptionPane.showMessageDialog(GitblitPanel.this, msg,
-									Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-						}
-					} catch (ForbiddenException e) {
-						explainForbidden(request);
-					} catch (UnauthorizedException e) {
-						explainUnauthorized(request);
-					} catch (Throwable t) {
-						showException(t);
-					}
+				protected void onSuccess() {
+					updateUsersTable();
+				}
+
+				@Override
+				protected void onFailure() {
+					showFailure("Failed to delete specified users!");
 				}
 			};
 			worker.execute();
 		}
-	}
-
-	private void explainForbidden(RpcRequest request) {
-		String msg = MessageFormat.format(
-				"The request \"{0}\" has been forbidden by the Gitblit server @ {1}.",
-				request.name(), url);
-		JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Forbidden",
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void explainUnauthorized(RpcRequest request) {
-		String msg = MessageFormat.format(
-				"The account \"{0}\" is not authorized to execute the request \"{1}\".", account,
-				request.name());
-		JOptionPane.showMessageDialog(GitblitPanel.this, msg, "Unauthorized",
-				JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void showException(Throwable t) {
-		// TODO show the unexpected exception
 	}
 }
