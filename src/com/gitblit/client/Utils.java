@@ -15,18 +15,32 @@
  */
 package com.gitblit.client;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.text.MessageFormat;
+import java.util.Date;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 import com.gitblit.Constants.RpcRequest;
 
 public class Utils {
+
+	public static JTable newTable(TableModel model) {
+		JTable table = new JTable(model);
+		table.setCellSelectionEnabled(false);
+		table.setRowSelectionAllowed(true);
+		table.getTableHeader().setReorderingAllowed(false);
+		table.setGridColor(new Color(0xd9d9d9));
+		table.setBackground(Color.white);
+		table.setDefaultRenderer(Date.class, new DateCellRenderer(null, Color.orange.darker()));
+		return table;
+	}
 
 	public static void explainForbidden(Component c, RpcRequest request) {
 		String msg = MessageFormat.format(

@@ -119,7 +119,7 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 			}
 			case CLONE: {
 				JLabel icon = new JLabel(pullIcon);
-				tooltip.append(Translation.get("gb.pullRestricted")).append("<br/>");
+				tooltip.append(Translation.get("gb.cloneRestricted")).append("<br/>");
 				add(icon);
 				break;
 			}

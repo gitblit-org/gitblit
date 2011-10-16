@@ -70,21 +70,17 @@ public class GitblitClient extends JFrame {
 
 		setTitle("Gitblit RPC Client v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setSize(950, 600);
+		setSize(800, 500);
 	}
 
 	public void setVisible(boolean value) {
 		if (value) {
 			if (registrations.size() == 0) {
 				// default prompt
-				if (loginPrompt(localhost)) {
-					pack();
-				}
+				loginPrompt(localhost);
 			} else if (registrations.size() == 1) {
 				// single registration prompt
-				if (loginPrompt(registrations.get(0))) {
-					pack();
-				}
+				loginPrompt(registrations.get(0));
 			}
 			super.setVisible(value);
 			setLocationRelativeTo(null);

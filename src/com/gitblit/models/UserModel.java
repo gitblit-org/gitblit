@@ -28,7 +28,7 @@ import java.util.Set;
  * @author James Moger
  * 
  */
-public class UserModel implements Principal, Serializable {
+public class UserModel implements Principal, Serializable, Comparable<UserModel> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,5 +59,10 @@ public class UserModel implements Principal, Serializable {
 	@Override
 	public String toString() {
 		return username;
+	}
+
+	@Override
+	public int compareTo(UserModel o) {
+		return username.compareTo(o.username);
 	}
 }
