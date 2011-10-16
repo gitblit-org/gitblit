@@ -48,11 +48,11 @@ import com.gitblit.utils.StringUtils;
  * 
  */
 public class Build {
-	
+
 	public interface DownloadListener {
 		public void downloading(String name);
 	}
-	
+
 	/**
 	 * BuildType enumeration representing compile-time or runtime. This is used
 	 * to download dependencies either for Gitblit GO runtime or for setting up
@@ -61,7 +61,7 @@ public class Build {
 	public static enum BuildType {
 		RUNTIME, COMPILETIME;
 	}
-	
+
 	private static DownloadListener downloadListener;
 
 	public static void main(String... args) {
@@ -121,7 +121,7 @@ public class Build {
 		// needed for site publishing
 		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
-	
+
 	public static void federationClient() {
 		downloadFromApache(MavenObject.JCOMMANDER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SERVLET, BuildType.RUNTIME);
@@ -131,18 +131,15 @@ public class Build {
 		downloadFromApache(MavenObject.LOG4J, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
-		
+
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
-	
-	public static void rpcClient(DownloadListener listener) {
+
+	public static void manager(DownloadListener listener) {
 		downloadListener = listener;
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
-		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4JNOP, BuildType.RUNTIME);
-		
-		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
 
 	/**

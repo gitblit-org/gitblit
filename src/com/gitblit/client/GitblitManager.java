@@ -50,7 +50,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  * 
  */
-public class GitblitClient extends JFrame {
+public class GitblitManager extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JTabbedPane serverTabs;
@@ -60,7 +60,7 @@ public class GitblitClient extends JFrame {
 	private List<GitblitRegistration> registrations = new ArrayList<GitblitRegistration>();
 	private JMenu recentMenu;
 
-	private GitblitClient() {
+	private GitblitManager() {
 		super();
 	}
 
@@ -68,7 +68,7 @@ public class GitblitClient extends JFrame {
 		setContentPane(getCenterPanel());
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 
-		setTitle("Gitblit RPC Client v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
+		setTitle("Gitblit Manager v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(800, 500);
 	}
@@ -135,7 +135,7 @@ public class GitblitClient extends JFrame {
 		panel.add(newLabelPanel(Translation.get("gb.username"), accountField));
 		panel.add(newLabelPanel(Translation.get("gb.password"), passwordField));
 
-		int result = JOptionPane.showConfirmDialog(GitblitClient.this, panel,
+		int result = JOptionPane.showConfirmDialog(GitblitManager.this, panel,
 				Translation.get("gb.login"), JOptionPane.OK_CANCEL_OPTION);
 		if (result != JOptionPane.OK_OPTION) {
 			return false;
@@ -163,7 +163,7 @@ public class GitblitClient extends JFrame {
 					panel));
 			return true;
 		} catch (IOException e) {
-			JOptionPane.showMessageDialog(GitblitClient.this, e.getMessage(),
+			JOptionPane.showMessageDialog(GitblitManager.this, e.getMessage(),
 					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 		}
 		return false;
@@ -189,7 +189,7 @@ public class GitblitClient extends JFrame {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				} catch (Exception e) {
 				}
-				GitblitClient frame = new GitblitClient();
+				GitblitManager frame = new GitblitManager();
 				frame.initialize();
 				frame.setVisible(true);
 			}

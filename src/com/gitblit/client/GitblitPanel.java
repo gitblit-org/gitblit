@@ -149,16 +149,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		final JButton cloneRepository = new JButton(Translation.get("gb.clone"));
-		cloneRepository.setEnabled(false);
-		cloneRepository.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				for (RepositoryModel model : getSelectedRepositories()) {
-					System.out.println("TODO Clone " + model);
-				}
-			}
-		});
-
 		nameRenderer = new NameRenderer();
 		typeRenderer = new IndicatorsRenderer();
 
@@ -192,7 +182,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				boolean selected = repositoriesTable.getSelectedRow() > -1;
 				browseRepository.setEnabled(singleSelection);
 				delRepository.setEnabled(selected);
-				cloneRepository.setEnabled(selected);
 				if (selected) {
 					int viewRow = repositoriesTable.getSelectedRow();
 					int modelRow = repositoriesTable.convertRowIndexToModel(viewRow);
@@ -224,7 +213,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		JPanel repositoryControls = new JPanel();
 		repositoryControls.add(refreshRepositories);
 		repositoryControls.add(browseRepository);
-		repositoryControls.add(cloneRepository);
 		repositoryControls.add(createRepository);
 		repositoryControls.add(editRepository);
 		repositoryControls.add(delRepository);

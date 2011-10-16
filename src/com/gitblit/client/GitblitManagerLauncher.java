@@ -31,12 +31,12 @@ import com.gitblit.build.Build;
 import com.gitblit.build.Build.DownloadListener;
 
 /**
- * Downloads dependencies and launches RPC client.
+ * Downloads dependencies and launches Gitblit Manager.
  * 
  * @author James Moger
  * 
  */
-public class GitblitClientLauncher {
+public class GitblitManagerLauncher {
 
 	public static void main(String[] args) {
 		final SplashScreen splash = SplashScreen.getSplashScreen();
@@ -49,7 +49,7 @@ public class GitblitClientLauncher {
 		};
 		
 		// download rpc client runtime dependencies
-		Build.rpcClient(downloadListener);
+		Build.manager(downloadListener);
 
 		File libFolder = new File("ext");
 		List<File> jars = Launcher.findJars(libFolder.getAbsoluteFile());
@@ -67,8 +67,8 @@ public class GitblitClientLauncher {
 			}
 		}
 		
-		updateSplash(splash, Translation.get("gb.starting") + " Gitblit RPC Client...");
-		GitblitClient.main(args);
+		updateSplash(splash, Translation.get("gb.starting") + " Gitblit Manager...");
+		GitblitManager.main(args);
 	}
 
 	private static void updateSplash(final SplashScreen splash, final String string) {

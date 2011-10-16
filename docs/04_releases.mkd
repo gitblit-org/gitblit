@@ -1,7 +1,7 @@
 ## Release History
 
 ### Current Release
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[rpcclient](http://code.google.com/p/gitblit/downloads/detail?name=%RPCCLIENT%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
     **New:** *web.loginMessage = gitblit*
@@ -9,7 +9,7 @@
     **New:** *web.enableRpcServlet = true*  
     **New:** *web.enableRpcAdministration = false*
 - added: reusable JSON RPC client class
-- added: Swing RPC Client application for cloning and administration of repositories, users, & federation proposals.
+- added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
 - fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
     **This breaks 0.6.0 federation clients/servers.**
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8)

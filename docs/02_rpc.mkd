@@ -33,9 +33,11 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Properties</td></tr>
 </table>
 
-### RPC Client
+### Result Codes
 
-An example Java Swing [RPC Client application](http://code.google.com/p/gitblit/downloads/detail?name=rpcclient-%VERSION%.zip) is available and allows remote administration of repositories and users.  
+### Gitblit Manager
+
+[Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote administration of a Gitblit server.  
 This application exercises most methods from the utility class `com.gitblit.utils.RpcUtils`.
 
 ### EGit "Import from Gitblit" Feature (Planning)
