@@ -42,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 
@@ -104,6 +105,7 @@ public class EditRepositoryDialog extends JDialog {
 		this.isCreate = false;
 		initialize(aRepository);
 		setModal(true);
+		setResizable(false);
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
@@ -112,6 +114,10 @@ public class EditRepositoryDialog extends JDialog {
 		nameField = new JTextField(anRepository.name == null ? "" : anRepository.name, 35);
 		descriptionField = new JTextField(anRepository.description == null ? ""
 				: anRepository.description, 35);
+
+		JTextField originField = new JTextField(anRepository.origin == null ? ""
+				: anRepository.origin, 40);
+		originField.setEditable(false);
 
 		ownerField = new JComboBox();
 
@@ -142,6 +148,7 @@ public class EditRepositoryDialog extends JDialog {
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.name"), nameField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.description"), descriptionField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.origin"), originField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"), useTickets));
@@ -166,10 +173,10 @@ public class EditRepositoryDialog extends JDialog {
 		federationPanel.add(newFieldPanel(Translation.get("gb.federationSets"), setsPalette),
 				BorderLayout.CENTER);
 
-		JPanel panel = new JPanel(new BorderLayout(5, 5));
-		panel.add(fieldsPanel, BorderLayout.NORTH);
-		panel.add(accessPanel, BorderLayout.CENTER);
-		panel.add(federationPanel, BorderLayout.SOUTH);
+		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
+		panel.addTab(Translation.get("gb.general"), fieldsPanel);
+		panel.addTab(Translation.get("gb.accessRestriction"), accessPanel);
+		panel.addTab(Translation.get("gb.federation"), federationPanel);
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
