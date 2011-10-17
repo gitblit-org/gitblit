@@ -137,9 +137,12 @@ public class Build {
 
 	public static void manager(DownloadListener listener) {
 		downloadListener = listener;
-		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4JNOP, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+
+		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
 
 	/**
@@ -287,7 +290,7 @@ public class Build {
 				}
 			}
 			if (downloadListener != null) {
-				downloadListener.downloading(mo.name);
+				downloadListener.downloading(mo.name + "...");
 			}
 			ByteArrayOutputStream buff = new ByteArrayOutputStream();
 			try {
@@ -309,10 +312,17 @@ public class Build {
 					if (progress - lastProgress >= 0.1f) {
 						lastProgress = progress;
 						updateDownload(progress, targetFile);
+						if (downloadListener != null) {
+							int percent = Math.round(100 * progress);
+							downloadListener.downloading(mo.name + " (" + percent + "%)");
+						}
 					}
 				}
 				in.close();
 				updateDownload(1f, targetFile);
+				if (downloadListener != null) {
+					downloadListener.downloading(mo.name + " (100%)");
+				}
 
 			} catch (IOException e) {
 				throw new RuntimeException("Error downloading " + mavenURL + " to " + targetFile, e);
@@ -433,10 +443,10 @@ public class Build {
 				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
 
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers",
-				"org/tautua/markdownpapers", "markdownpapers-core", "1.2.3", 87000, 58000, 278000,
-				"657ff8e54936a25a6d8a53c2b12213cada10594a",
-				"1c60eb17b4a4547f87fb13adad2c3f204a54003c",
-				"760d0dac5b3529c5fcd13075f2097bf81ad0e6ce");
+				"org/tautua/markdownpapers", "markdownpapers-core", "1.2.4", 87000, 58000, 268000,
+				"cc45684d12399487e49bd1e9eee0af6ab58f3ddc",
+				"5c6f0e5ad6ef00b8c9a06e822eb88893cd07ec1b",
+				"1d4c843cb6f44c9ed776ba7ccaa95ffcaf521061");
 
 		public static final MavenObject BOUNCYCASTLE = new MavenObject("BouncyCastle",
 				"org/bouncycastle", "bcprov-jdk16", "1.46", 1900000, 1400000, 4670000,

@@ -92,9 +92,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="ext/javax.servlet-3.0.1.jar" sourcepath="ext/javax.servlet-3.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.3.jar" sourcepath="ext/markdownpapers-core-1.2.3-sources.jar">
+	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.4.jar" sourcepath="ext/markdownpapers-core-1.2.4-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.2.3-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

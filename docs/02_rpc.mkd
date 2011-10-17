@@ -16,24 +16,33 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <table>
 <tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>permission</th><th colspan='2'>json</th></tr>
 <tr><th>req=</th><th>name=</th><th>post body</th><th>response body</th></tr>
-<tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>-</td><td>Map String, RepositoryModel </td></tr>
+<tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>-</td><td>Map&lt;String, RepositoryModel&gt;</td></tr>
 <tr><td>CREATE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>EDIT_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>DELETE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>-</td></tr>
-<tr><td>LIST_USERS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List UserModel </td></tr>
+<tr><td>LIST_USERS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;UserModel&gt;</td></tr>
 <tr><td>CREATE_USER</td><td>user name</td><td><em>admin</em></td><td>UserModel</td><td>-</td></tr>
 <tr><td>EDIT_USER</td><td>user name</td><td><em>admin</em></td><td>UserModel</td><td>-</td></tr>
 <tr><td>DELETE_USER</td><td>user name</td><td><em>admin</em></td><td>-</td><td>-</td></tr>
-<tr><td>LIST_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>List String</td></tr>
-<tr><td>SET_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>List String</td><td>-</td></tr>
-<tr><td>LIST_FEDERATION_REGISTRATIONS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationModel</td></tr>
-<tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationModel</td></tr>
-<tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationProposal </td></tr>
-<tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List FederationSet </td></tr>
+<tr><td>LIST_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>List&lt;String&gt;</td></tr>
+<tr><td>SET_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>List&lt;String&gt;</td><td>-</td></tr>
+<tr><td>LIST_FEDERATION_REGISTRATIONS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
+<tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
+<tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationProposal&gt;</td></tr>
+<tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationSet&gt;</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Properties</td></tr>
 </table>
 
-### Result Codes
+### RPC Response Codes
+<table>
+<tr><th>code</th><th>name</th><th>description</th></tr>
+<tr><td>200</td><td>success</td><td>Gitblit processed the request successfully</td></tr>
+<tr><td>401</td><td>unauthorized</td><td>Gitblit requires user credentials to process the request</td></tr>
+<tr><td>403</td><td>forbidden</td><td>Gitblit can not process the request for the supplied credentials</td></tr>
+<tr><td>405</td><td>method not allowed</td><td>Gitblit has disallowed the processing the specified request</td></tr>
+<tr><td>500</td><td>server error</td><td>Gitblit failed to process the request likely because the input object created a conflict</td></tr>
+<tr><td>501</td><td>unknown request</td><td>Gitblit does not recognize the RPC request type</td></tr>
+</table>
 
 ### Gitblit Manager
 

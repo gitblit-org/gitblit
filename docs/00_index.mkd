@@ -45,7 +45,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
 - added: setting to control Gitblit GO context path for proxy setups  
     **New:** *server.contextPath = /*
-- updated: MarkdownPapers 1.2.3
+- updated: MarkdownPapers 1.2.4
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]

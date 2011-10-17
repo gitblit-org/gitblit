@@ -19,7 +19,7 @@
 - added: IUserService.setup(IStoredSettings) for custom user service implementations
 - added: setting to control Gitblit GO context path for proxy setups  
     **New:** *server.contextPath = /*
-- updated: MarkdownPapers 1.2.3
+- updated: MarkdownPapers 1.2.4
 
 ### Older Releases
 
