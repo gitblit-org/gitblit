@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -80,8 +81,11 @@ public class TagPage extends RepositoryPage {
 		add(new Label("taggedObjectType", getString(typeKey)));
 
 		add(createPersonPanel("tagger", tagRef.getAuthorIdent(), SearchType.AUTHOR));
-		add(WicketUtils.createTimestampLabel("tagDate", tagRef.getAuthorIdent().getWhen(),
-				getTimeZone()));
+		Date when = new Date(0);
+		if (tagRef.getAuthorIdent() != null) {
+			when = tagRef.getAuthorIdent().getWhen();
+		}
+		add(WicketUtils.createTimestampLabel("tagDate", when, getTimeZone()));
 
 		addFullText("fullMessage", tagRef.getFullMessage(), true);
 	}

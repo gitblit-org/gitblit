@@ -24,6 +24,7 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
+import org.eclipse.jgit.revwalk.RevTree;
 
 /**
  * RefModel is a serializable model class that represents a tag or branch and
@@ -49,7 +50,10 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 		Date date = new Date(0);
 		if (referencedObject != null) {
 			if (referencedObject instanceof RevTag) {
-				date = ((RevTag) referencedObject).getTaggerIdent().getWhen();
+				RevTag tag = (RevTag) referencedObject;
+				if (tag.getTaggerIdent() != null) {
+					date = tag.getTaggerIdent().getWhen();
+				}
 			} else if (referencedObject instanceof RevCommit) {
 				date = ((RevCommit) referencedObject).getCommitterIdent().getWhen();
 			}

@@ -207,13 +207,14 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected Component createPersonPanel(String wicketId, PersonIdent identity,
 			SearchType searchType) {
+		String name = identity == null ? "" : identity.getName();
+		String address = identity == null ? "" : identity.getEmailAddress();
 		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
-		if (!showEmail || StringUtils.isEmpty(identity.getName())
-				|| StringUtils.isEmpty(identity.getEmailAddress())) {
-			String value = identity.getName();
+		if (!showEmail || StringUtils.isEmpty(name) || StringUtils.isEmpty(address)) {
+			String value = name;
 			if (StringUtils.isEmpty(value)) {
 				if (showEmail) {
-					value = identity.getEmailAddress();
+					value = address;
 				} else {
 					value = getString("gb.missingUsername");
 				}
@@ -226,17 +227,15 @@ public abstract class RepositoryPage extends BasePage {
 			return partial;
 		} else {
 			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", this);
-			LinkPanel nameLink = new LinkPanel("personName", "list", identity.getName(),
-					SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
-							identity.getName(), searchType));
-			setPersonSearchTooltip(nameLink, identity.getName(), searchType);
+			LinkPanel nameLink = new LinkPanel("personName", "list", name, SearchPage.class,
+					WicketUtils.newSearchParameter(repositoryName, objectId, name, searchType));
+			setPersonSearchTooltip(nameLink, name, searchType);
 			fullPerson.add(nameLink);
 
-			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<"
-					+ identity.getEmailAddress() + ">", SearchPage.class,
-					WicketUtils.newSearchParameter(repositoryName, objectId,
-							identity.getEmailAddress(), searchType));
-			setPersonSearchTooltip(addressLink, identity.getEmailAddress(), searchType);
+			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + address + ">",
+					SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+							address, searchType));
+			setPersonSearchTooltip(addressLink, address, searchType);
 			fullPerson.add(addressLink);
 			return fullPerson;
 		}

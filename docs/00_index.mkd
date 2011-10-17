@@ -38,7 +38,8 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
 - fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
     **This breaks 0.6.0 federation clients/servers.**
-- fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8)
+- fixed: Gitblit can now browse the Linux kernel repository (issue 25)
+- fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
 - fixed: Set the RSS content type for Firefox 4 (issue 22)
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
