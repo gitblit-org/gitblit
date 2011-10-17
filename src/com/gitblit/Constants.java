@@ -212,7 +212,7 @@ public class Constants {
 					return type;
 				}
 			}
-			return LIST_REPOSITORIES;
+			return null;
 		}
 
 		public boolean exceeds(RpcRequest type) {

@@ -56,4 +56,17 @@ public class GitBlitException extends IOException {
 			super(message);
 		}
 	}
+	
+	/**
+	 * Exception to indicate that the requested action can not be executed by
+	 * the server because it does not recognize the request type.
+	 */
+	public static class UnknownRequestException extends GitBlitException {
+
+		private static final long serialVersionUID = 1L;
+
+		public UnknownRequestException(String message) {
+			super(message);
+		}
+	}
 }

@@ -95,7 +95,11 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.CREATE_REPOSITORY.equals(reqType)) {
 			// create repository
 			RepositoryModel model = deserialize(request, response, RepositoryModel.class);
-			GitBlit.self().updateRepositoryModel(model.name, model, true);
+			try {
+				GitBlit.self().updateRepositoryModel(model.name, model, true);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.EDIT_REPOSITORY.equals(reqType)) {
 			// edit repository
 			RepositoryModel model = deserialize(request, response, RepositoryModel.class);
@@ -104,7 +108,11 @@ public class RpcServlet extends JsonServlet {
 			if (repoName == null) {
 				repoName = model.name;
 			}
-			GitBlit.self().updateRepositoryModel(repoName, model, false);
+			try {
+				GitBlit.self().updateRepositoryModel(repoName, model, false);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.DELETE_REPOSITORY.equals(reqType)) {
 			// delete repository
 			RepositoryModel model = deserialize(request, response, RepositoryModel.class);
@@ -112,7 +120,11 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.CREATE_USER.equals(reqType)) {
 			// create user
 			UserModel model = deserialize(request, response, UserModel.class);
-			GitBlit.self().updateUserModel(model.username, model, true);
+			try {
+				GitBlit.self().updateUserModel(model.username, model, true);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.EDIT_USER.equals(reqType)) {
 			// edit user
 			UserModel model = deserialize(request, response, UserModel.class);
@@ -121,11 +133,17 @@ public class RpcServlet extends JsonServlet {
 			if (username == null) {
 				username = model.username;
 			}
-			GitBlit.self().updateUserModel(username, model, false);
+			try {
+				GitBlit.self().updateUserModel(username, model, false);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.DELETE_USER.equals(reqType)) {
 			// delete user
 			UserModel model = deserialize(request, response, UserModel.class);
-			GitBlit.self().deleteUser(model.username);
+			if (!GitBlit.self().deleteUser(model.username)) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.LIST_REPOSITORY_MEMBERS.equals(reqType)) {
 			// get repository members
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
@@ -136,7 +154,7 @@ public class RpcServlet extends JsonServlet {
 			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
 			List<String> users = new ArrayList<String>(names);
 			if (!GitBlit.self().setRepositoryUsers(model, users)) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				response.setStatus(failureCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
 			// return the list of federation registrations
@@ -146,14 +164,14 @@ public class RpcServlet extends JsonServlet {
 			if (GitBlit.canFederate()) {
 				result = GitBlit.self().getFederationResultRegistrations();
 			} else {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				response.sendError(notAllowedCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_PROPOSALS.equals(reqType)) {
 			// return the list of federation proposals
 			if (GitBlit.canFederate()) {
 				result = GitBlit.self().getPendingFederationProposals();
 			} else {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				response.sendError(notAllowedCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_SETS.equals(reqType)) {
 			// return the list of federation sets
@@ -161,13 +179,13 @@ public class RpcServlet extends JsonServlet {
 				String gitblitUrl = HttpUtils.getGitblitURL(request);
 				result = GitBlit.self().getFederationSets(gitblitUrl);
 			} else {
-				response.sendError(HttpServletResponse.SC_FORBIDDEN);
+				response.sendError(notAllowedCode);
 			}
 		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
 			// return the server's settings
-			Properties settings = new Properties();			
+			Properties settings = new Properties();
 			List<String> keys = GitBlit.getAllKeys(null);
-			for (String key:keys) {
+			for (String key : keys) {
 				String value = GitBlit.getString(key, null);
 				if (value != null) {
 					settings.put(key, value);

@@ -41,6 +41,12 @@ public abstract class JsonServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	protected final int forbiddenCode = HttpServletResponse.SC_FORBIDDEN;
+	
+	protected final int notAllowedCode = HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+
+	protected final int failureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+	
 	protected final Logger logger;
 
 	public JsonServlet() {

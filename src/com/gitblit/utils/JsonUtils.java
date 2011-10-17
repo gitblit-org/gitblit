@@ -47,6 +47,7 @@ import org.eclipse.jgit.util.Base64;
 
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.Gson;
@@ -277,6 +278,9 @@ public class JsonUtils {
 			} else if (e.getMessage().indexOf("403") > -1) {
 				// requested url is forbidden by the requesting user
 				throw new ForbiddenException(url);
+			} else if (e.getMessage().indexOf("501") > -1) {
+				// requested url is not recognized by the server
+				throw new UnknownRequestException(url);
 			}
 			throw e;
 		}

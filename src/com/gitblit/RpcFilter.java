@@ -59,6 +59,10 @@ public class RpcFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		RpcRequest requestType = RpcRequest.fromName(httpRequest.getParameter("req"));
+		if (requestType == null) {
+			httpResponse.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED);			
+			return;
+		}
 
 		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_REPOSITORIES);
 

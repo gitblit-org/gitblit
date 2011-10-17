@@ -44,7 +44,7 @@ public class GitblitManagerLauncher {
 		DownloadListener downloadListener = new DownloadListener() {
 			@Override
 			public void downloading(String name) {
-				updateSplash(splash, Translation.get("gb.downloading") + " " + name + "...");				
+				updateSplash(splash, Translation.get("gb.downloading") + " " + name);				
 			}
 		};
 		
