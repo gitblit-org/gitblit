@@ -15,6 +15,7 @@
  */
 package com.gitblit.client;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GradientPaint;
@@ -24,8 +25,11 @@ import java.awt.Paint;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.gitblit.utils.StringUtils;
 
 public class HeaderPanel extends JPanel {
 
@@ -33,12 +37,15 @@ public class HeaderPanel extends JPanel {
 
 	private Color lightColor = new Color(0, 0, 0x60);
 
-	public HeaderPanel(String text) {
+	public HeaderPanel(String text, String icon) {
 		super(new FlowLayout(FlowLayout.LEFT), true);
 		setOpaque(true);
 		setBackground(new Color(0, 0, 0x20));
 
 		JLabel label = new JLabel(text);
+		if (!StringUtils.isEmpty(icon)) {
+			label.setIcon(new ImageIcon(getClass().getResource("/" + icon)));
+		}
 		label.setForeground(Color.white);
 		label.setFont(label.getFont().deriveFont(14f));
 		add(label);
@@ -53,5 +60,9 @@ public class HeaderPanel extends JPanel {
 				false);
 		g.setPaint(gradientPaint);
 		g.fill(new Rectangle2D.Double(0, 0, getWidth(), getHeight()));
+		g.setColor(new Color(0xff, 0x99, 0x00));
+		int stroke = 2;
+		g.setStroke(new BasicStroke(stroke));
+		g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
 	}
 }

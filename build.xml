@@ -428,6 +428,9 @@
 		<genjar jarfile="manager.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
+			<resource file="${basedir}/resources/gitweb-favicon.png" />
+			<resource file="${basedir}/resources/user_16x16.png" />
+			<resource file="${basedir}/resources/settings_16x16.png" />
 			<resource file="${basedir}/resources/lock_go_16x16.png" />
 			<resource file="${basedir}/resources/lock_pull_16x16.png" />
 			<resource file="${basedir}/resources/shield_16x16.png" />

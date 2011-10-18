@@ -56,6 +56,7 @@ public class Utils {
 
 	public static void showException(Component c, Throwable t) {
 		// TODO show the unexpected exception
+		t.printStackTrace();
 	}
 
 	public static void packColumns(JTable table, int margin) {
