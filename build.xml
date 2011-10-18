@@ -162,6 +162,7 @@
 		<jar jarfile="${project.deploy.dir}/${project.jar}">
 			<fileset dir="${project.build.dir}">
 				<include name="**/*" />
+				<exclude name="com/gitblit/client/**" />
 			</fileset>
 			<fileset dir="${project.resources.dir}">
 				<exclude name="thumbs.db" />
@@ -365,6 +366,7 @@
 				<exclude name="WEB-INF/web.xml" />
 				<exclude name="com/gitblit/tests/" />
 				<exclude name="com/gitblit/build/**" />
+				<exclude name="com/gitblit/client/**" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />				

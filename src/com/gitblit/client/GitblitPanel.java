@@ -19,6 +19,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -215,15 +216,22 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoryTablePanel.add(repositoryFilterPanel, BorderLayout.NORTH);
 		repositoryTablePanel.add(new JScrollPane(repositoriesTable), BorderLayout.CENTER);
 
-		JPanel repositoryControls = new JPanel();
+		JPanel repositoryControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		repositoryControls.add(refreshRepositories);
 		repositoryControls.add(browseRepository);
 		repositoryControls.add(createRepository);
 		repositoryControls.add(editRepository);
 		repositoryControls.add(delRepository);
 
-		JPanel repositoriesPanel = new JPanel(new BorderLayout(margin, margin));
-		repositoriesPanel.add(newHeaderLabel(Translation.get("gb.repositories")),
+		JPanel repositoriesPanel = new JPanel(new BorderLayout(margin, margin)) {
+
+			private static final long serialVersionUID = 1L;
+
+			public Insets getInsets() {
+				return insets;
+			}
+		};
+		repositoriesPanel.add(new HeaderPanel(Translation.get("gb.repositories")),
 				BorderLayout.NORTH);
 		repositoriesPanel.add(repositoryTablePanel, BorderLayout.CENTER);
 		repositoriesPanel.add(repositoryControls, BorderLayout.SOUTH);
@@ -300,14 +308,21 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		userTablePanel.add(userFilterPanel, BorderLayout.NORTH);
 		userTablePanel.add(new JScrollPane(usersTable), BorderLayout.CENTER);
 
-		JPanel userControls = new JPanel();
+		JPanel userControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		userControls.add(refreshUsers);
 		userControls.add(createUser);
 		userControls.add(editUser);
 		userControls.add(delUser);
 
-		JPanel usersPanel = new JPanel(new BorderLayout(margin, margin));
-		usersPanel.add(newHeaderLabel(Translation.get("gb.users")), BorderLayout.NORTH);
+		JPanel usersPanel = new JPanel(new BorderLayout(margin, margin)) {
+
+			private static final long serialVersionUID = 1L;
+
+			public Insets getInsets() {
+				return insets;
+			}
+		};
+		usersPanel.add(new HeaderPanel(Translation.get("gb.users")), BorderLayout.NORTH);
 		usersPanel.add(userTablePanel, BorderLayout.CENTER);
 		usersPanel.add(userControls, BorderLayout.SOUTH);
 
@@ -318,15 +333,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
-	}
-
-	private JLabel newHeaderLabel(String text) {
-		JLabel label = new JLabel(text);
-		label.setOpaque(true);
-		label.setForeground(Color.white);
-		label.setBackground(Color.gray);
-		label.setFont(label.getFont().deriveFont(14f));
-		return label;
 	}
 
 	private void setRepositoryRenderer(RepositoriesModel.Columns col, TableCellRenderer renderer) {
