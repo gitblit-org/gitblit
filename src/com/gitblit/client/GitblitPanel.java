@@ -22,6 +22,8 @@ import java.awt.Desktop;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
@@ -76,8 +78,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	private JTable usersTable;
 
 	private UsersModel usersModel;
-
-	private JPanel usersPanel;
 
 	private JButton createRepository;
 
@@ -201,14 +201,19 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				filterRepositories(repositoryFilter.getText());
 			}
 		});
+		repositoryFilter.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				filterRepositories(repositoryFilter.getText());
+			}
+		});
 
-		JPanel filterPanel = new JPanel(new BorderLayout(margin, margin));
-		filterPanel.add(new JLabel(Translation.get("gb.filter")), BorderLayout.WEST);
-		filterPanel.add(repositoryFilter, BorderLayout.CENTER);
+		JPanel repositoryFilterPanel = new JPanel(new BorderLayout(margin, margin));
+		repositoryFilterPanel.add(new JLabel(Translation.get("gb.filter")), BorderLayout.WEST);
+		repositoryFilterPanel.add(repositoryFilter, BorderLayout.CENTER);
 
-		JPanel tablePanel = new JPanel(new BorderLayout(margin, margin));
-		tablePanel.add(filterPanel, BorderLayout.NORTH);
-		tablePanel.add(new JScrollPane(repositoriesTable), BorderLayout.CENTER);
+		JPanel repositoryTablePanel = new JPanel(new BorderLayout(margin, margin));
+		repositoryTablePanel.add(repositoryFilterPanel, BorderLayout.NORTH);
+		repositoryTablePanel.add(new JScrollPane(repositoriesTable), BorderLayout.CENTER);
 
 		JPanel repositoryControls = new JPanel();
 		repositoryControls.add(refreshRepositories);
@@ -220,7 +225,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		JPanel repositoriesPanel = new JPanel(new BorderLayout(margin, margin));
 		repositoriesPanel.add(newHeaderLabel(Translation.get("gb.repositories")),
 				BorderLayout.NORTH);
-		repositoriesPanel.add(tablePanel, BorderLayout.CENTER);
+		repositoriesPanel.add(repositoryTablePanel, BorderLayout.CENTER);
 		repositoriesPanel.add(repositoryControls, BorderLayout.SOUTH);
 
 		JButton refreshUsers = new JButton(Translation.get("gb.refresh"));
@@ -275,15 +280,35 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
+		final JTextField userFilter = new JTextField();
+		userFilter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				filterUsers(userFilter.getText());
+			}
+		});
+		userFilter.addKeyListener(new KeyAdapter() {
+			public void keyReleased(KeyEvent e) {
+				filterUsers(userFilter.getText());
+			}
+		});
+
+		JPanel userFilterPanel = new JPanel(new BorderLayout(margin, margin));
+		userFilterPanel.add(new JLabel(Translation.get("gb.filter")), BorderLayout.WEST);
+		userFilterPanel.add(userFilter, BorderLayout.CENTER);
+
+		JPanel userTablePanel = new JPanel(new BorderLayout(margin, margin));
+		userTablePanel.add(userFilterPanel, BorderLayout.NORTH);
+		userTablePanel.add(new JScrollPane(usersTable), BorderLayout.CENTER);
+
 		JPanel userControls = new JPanel();
 		userControls.add(refreshUsers);
 		userControls.add(createUser);
 		userControls.add(editUser);
 		userControls.add(delUser);
 
-		usersPanel = new JPanel(new BorderLayout(margin, margin));
+		JPanel usersPanel = new JPanel(new BorderLayout(margin, margin));
 		usersPanel.add(newHeaderLabel(Translation.get("gb.users")), BorderLayout.NORTH);
-		usersPanel.add(new JScrollPane(usersTable), BorderLayout.CENTER);
+		usersPanel.add(userTablePanel, BorderLayout.CENTER);
 		usersPanel.add(userControls, BorderLayout.SOUTH);
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
@@ -324,9 +349,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			editRepository.setVisible(false);
 			delRepository.setVisible(false);
 
-			// hide users panel
-			usersPanel.setVisible(false);
-
 			while (tabs.getTabCount() > 1) {
 				// remove admin tabs
 				tabs.removeTabAt(1);
@@ -361,10 +383,30 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				return false;
 			}
 		};
-		RepositoriesModel model = (RepositoriesModel) repositoriesTable.getModel();
-		TableRowSorter<RepositoriesModel> sorter = new TableRowSorter<RepositoriesModel>(model);
+		TableRowSorter<RepositoriesModel> sorter = new TableRowSorter<RepositoriesModel>(
+				repositoriesModel);
 		sorter.setRowFilter(containsFilter);
 		repositoriesTable.setRowSorter(sorter);
+	}
+
+	private void filterUsers(final String fragment) {
+		if (StringUtils.isEmpty(fragment)) {
+			usersTable.setRowSorter(defaultUsersSorter);
+			return;
+		}
+		RowFilter<UsersModel, Object> containsFilter = new RowFilter<UsersModel, Object>() {
+			public boolean include(Entry<? extends UsersModel, ? extends Object> entry) {
+				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
+					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+		TableRowSorter<UsersModel> sorter = new TableRowSorter<UsersModel>(usersModel);
+		sorter.setRowFilter(containsFilter);
+		usersTable.setRowSorter(sorter);
 	}
 
 	private List<RepositoryModel> getSelectedRepositories() {
