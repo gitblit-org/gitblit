@@ -234,6 +234,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				passwordField.getPassword());
 		if (!StringUtils.isEmpty(originalName) && !originalName.equals(reg.name)) {
 			// delete old registration
+			registrations.remove(originalName);
 			try {
 				StoredConfig config = getConfig();
 				config.unsetSection("servers", originalName);
@@ -293,8 +294,11 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		if (list.size() > maxRecentCount) {
 			list = list.subList(0, maxRecentCount);
 		}
-		for (final GitblitRegistration reg : list) {
+		for (int i = 0; i < list.size(); i++) {
+			final GitblitRegistration reg = list.get(i);
 			JMenuItem item = new JMenuItem(reg.name, icon);
+			item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1 + i, KeyEvent.CTRL_DOWN_MASK,
+					false));
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					login(reg);
@@ -345,6 +349,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			StoredConfig config = getConfig();
 			for (GitblitRegistration reg : list) {
 				config.unsetSection("servers", reg.name);
+				registrations.remove(reg.name);
 			}
 			config.save();
 			success = true;
