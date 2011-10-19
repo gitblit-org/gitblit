@@ -16,6 +16,7 @@
 package com.gitblit.client;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.gitblit.utils.StringUtils;
 
@@ -25,14 +26,17 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  * 
  */
-public class GitblitRegistration implements Serializable {
-	
+public class GitblitRegistration implements Serializable, Comparable<GitblitRegistration> {
+
+	public static final GitblitRegistration LOCALHOST = new GitblitRegistration("localhost",
+			"https://localhost:8443", "admin", "admin".toCharArray());
 	private static final long serialVersionUID = 1L;
-	
+
 	String name;
 	String url;
 	String account;
 	char[] password;
+	Date lastLogin;
 
 	public GitblitRegistration(String name, String url, String account, char[] password) {
 		this.url = url;
@@ -43,5 +47,10 @@ public class GitblitRegistration implements Serializable {
 		} else {
 			this.name = name;
 		}
+	}
+
+	@Override
+	public int compareTo(GitblitRegistration o) {
+		return name.compareTo(o.name);
 	}
 }

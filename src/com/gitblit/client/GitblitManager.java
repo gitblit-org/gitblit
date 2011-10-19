@@ -16,6 +16,7 @@
 package com.gitblit.client;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -29,9 +30,17 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -45,6 +54,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import org.eclipse.jgit.errors.ConfigInvalidException;
@@ -62,19 +72,21 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  * 
  */
-public class GitblitManager extends JFrame {
+public class GitblitManager extends JFrame implements RegistrationsDialog.RegistrationListener {
 
 	private static final long serialVersionUID = 1L;
+	private final SimpleDateFormat dateFormat;
 	private JTabbedPane serverTabs;
 	private File configFile = new File(System.getProperty("user.home"), ".gitblit/config");
-	private GitblitRegistration localhost = new GitblitRegistration("default",
-			"https://localhost:8443", "admin", "admin".toCharArray());
 
 	private Map<String, GitblitRegistration> registrations = new LinkedHashMap<String, GitblitRegistration>();
 	private JMenu recentMenu;
+	private int maxRecentCount = 5;
 
 	private GitblitManager() {
 		super();
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 
 	private void initialize() {
@@ -142,31 +154,27 @@ public class GitblitManager extends JFrame {
 		}
 	}
 
-	public void setVisible(boolean value) {
-		if (value) {
-			if (registrations.size() == 0) {
-				// default prompt
-				loginPrompt(localhost);
-			} else if (registrations.size() == 1) {
-				// single registration prompt
-				GitblitRegistration reg = registrations.values().iterator().next();
-				loginPrompt(reg);
-			}
-			super.setVisible(value);
-		}
-	}
-
 	private JMenuBar setupMenu() {
 		JMenuBar menuBar = new JMenuBar();
 		JMenu serversMenu = new JMenu(Translation.get("gb.servers"));
 		menuBar.add(serversMenu);
 		recentMenu = new JMenu(Translation.get("gb.recent"));
 		serversMenu.add(recentMenu);
+
+		JMenuItem manage = new JMenuItem(Translation.get("gb.manage") + "...");
+		manage.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, KeyEvent.CTRL_DOWN_MASK, false));
+		manage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				manageRegistrations();
+			}
+		});
+		serversMenu.add(manage);
+
 		JMenuItem login = new JMenuItem(Translation.get("gb.login") + "...");
 		login.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK, false));
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				loginPrompt(localhost);
+				loginPrompt(GitblitRegistration.LOCALHOST);
 			}
 		});
 		serversMenu.add(login);
@@ -192,7 +200,15 @@ public class GitblitManager extends JFrame {
 		return panel;
 	}
 
-	private boolean loginPrompt(GitblitRegistration reg) {
+	private void manageRegistrations() {
+		RegistrationsDialog dialog = new RegistrationsDialog(new ArrayList<GitblitRegistration>(
+				registrations.values()), this);
+		dialog.setLocationRelativeTo(GitblitManager.this);
+		dialog.setVisible(true);
+	}
+
+	@Override
+	public void loginPrompt(GitblitRegistration reg) {
 		JTextField urlField = new JTextField(reg.url, 30);
 		JTextField nameField = new JTextField(reg.name);
 		JTextField accountField = new JTextField(reg.account);
@@ -207,46 +223,81 @@ public class GitblitManager extends JFrame {
 		int result = JOptionPane.showConfirmDialog(GitblitManager.this, panel,
 				Translation.get("gb.login"), JOptionPane.OK_CANCEL_OPTION);
 		if (result != JOptionPane.OK_OPTION) {
-			return false;
+			return;
 		}
 		String url = urlField.getText();
 		if (StringUtils.isEmpty(url)) {
-			return false;
+			return;
 		}
+		String originalName = reg.name;
 		reg = new GitblitRegistration(nameField.getText(), url, accountField.getText(),
 				passwordField.getPassword());
-		boolean success = login(reg);
-		registrations.put(reg.name, reg);
-		rebuildRecentMenu();
-		return success;
+		if (!StringUtils.isEmpty(originalName) && !originalName.equals(reg.name)) {
+			// delete old registration
+			try {
+				StoredConfig config = getConfig();
+				config.unsetSection("servers", originalName);
+				config.save();
+			} catch (Throwable t) {
+				Utils.showException(GitblitManager.this, t);
+			}
+		}
+		login(reg);
 	}
 
-	private boolean login(GitblitRegistration reg) {
-		try {
-			GitblitPanel panel = new GitblitPanel(reg);
-			panel.login();
-			serverTabs.addTab(reg.name, panel);
-			int idx = serverTabs.getTabCount() - 1;
-			serverTabs.setSelectedIndex(idx);
-			serverTabs.setTabComponentAt(idx, new ClosableTabComponent(reg.name, null, serverTabs,
-					panel));
-			saveRegistration(reg);
-			return true;
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(GitblitManager.this, e.getMessage(),
-					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-		}
-		return false;
+	@Override
+	public void login(final GitblitRegistration reg) {
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		final GitblitPanel panel = new GitblitPanel(reg);
+		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+
+			@Override
+			protected Boolean doInBackground() throws IOException {
+				panel.login();
+				return true;
+			}
+
+			@Override
+			protected void done() {
+				try {
+					boolean success = get();
+					serverTabs.addTab(reg.name, panel);
+					int idx = serverTabs.getTabCount() - 1;
+					serverTabs.setSelectedIndex(idx);
+					serverTabs.setTabComponentAt(idx, new ClosableTabComponent(reg.name, null,
+							serverTabs, panel));
+					reg.lastLogin = new Date();
+					saveRegistration(reg);
+					registrations.put(reg.name, reg);
+					rebuildRecentMenu();
+				} catch (Throwable t) {
+					Utils.showException(GitblitManager.this, t);
+				} finally {
+					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				}
+			}
+		};
+		worker.execute();
 	}
 
 	private void rebuildRecentMenu() {
 		recentMenu.removeAll();
 		ImageIcon icon = new ImageIcon(getClass().getResource("/gitblt-favicon.png"));
-		for (final GitblitRegistration reg : registrations.values()) {
+		List<GitblitRegistration> list = new ArrayList<GitblitRegistration>(registrations.values());
+		Collections.sort(list, new Comparator<GitblitRegistration>() {
+			@Override
+			public int compare(GitblitRegistration o1, GitblitRegistration o2) {
+				return o2.lastLogin.compareTo(o1.lastLogin);
+			}
+		});
+		if (list.size() > maxRecentCount) {
+			list = list.subList(0, maxRecentCount);
+		}
+		for (final GitblitRegistration reg : list) {
 			JMenuItem item = new JMenuItem(reg.name, icon);
 			item.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					loginPrompt(reg);
+					login(reg);
 				}
 			});
 			recentMenu.add(item);
@@ -258,11 +309,14 @@ public class GitblitManager extends JFrame {
 			StoredConfig config = getConfig();
 			Set<String> servers = config.getSubsections("servers");
 			for (String server : servers) {
+				Date lastLogin = dateFormat.parse(config.getString("servers", server, "lastLogin"));
 				String url = config.getString("servers", server, "url");
 				String account = config.getString("servers", server, "account");
+				// FIXME this is pretty lame
 				char[] password = new String(Base64.decode(config.getString("servers", server,
 						"password"))).toCharArray();
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
+				reg.lastLogin = lastLogin;
 				registrations.put(reg.name, reg);
 			}
 		} catch (Throwable t) {
@@ -275,12 +329,29 @@ public class GitblitManager extends JFrame {
 			StoredConfig config = getConfig();
 			config.setString("servers", reg.name, "url", reg.url);
 			config.setString("servers", reg.name, "account", reg.account);
+			// FIXME this is pretty lame
 			config.setString("servers", reg.name, "password",
 					Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
+			config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
 			config.save();
 		} catch (Throwable t) {
 			Utils.showException(GitblitManager.this, t);
 		}
+	}
+
+	public boolean deleteRegistrations(List<GitblitRegistration> list) {
+		boolean success = false;
+		try {
+			StoredConfig config = getConfig();
+			for (GitblitRegistration reg : list) {
+				config.unsetSection("servers", reg.name);
+			}
+			config.save();
+			success = true;
+		} catch (Throwable t) {
+			Utils.showException(GitblitManager.this, t);
+		}
+		return success;
 	}
 
 	private StoredConfig getConfig() throws IOException, ConfigInvalidException {

@@ -24,6 +24,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +43,10 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -108,6 +111,18 @@ public class EditRepositoryDialog extends JDialog {
 		setResizable(false);
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
+	}
+	
+	@Override
+	protected JRootPane createRootPane() {
+		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+		JRootPane rootPane = new JRootPane();
+		rootPane.registerKeyboardAction(new ActionListener() {
+			public void actionPerformed(ActionEvent actionEvent) {
+				setVisible(false);
+			}
+		}, stroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+		return rootPane;
 	}
 
 	private void initialize(RepositoryModel anRepository) {
@@ -216,7 +231,6 @@ public class EditRepositoryDialog extends JDialog {
 		getContentPane().setLayout(new BorderLayout(5, 5));
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		pack();
-		setLocationRelativeTo(null);
 	}
 
 	private JPanel newFieldPanel(String label, JComponent comp) {

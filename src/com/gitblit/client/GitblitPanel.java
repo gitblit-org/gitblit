@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
@@ -212,6 +214,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				}
 			}
 		});
+		
+		repositoriesTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					editRepository(getSelectedRepositories().get(0));
+				}
+			}
+		});
 
 		final JTextField repositoryFilter = new JTextField();
 		repositoryFilter.addActionListener(new ActionListener() {
@@ -316,6 +326,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				boolean singleSelection = usersTable.getSelectedRows().length == 1;
 				editUser.setEnabled(singleSelection && selected);
 				delUser.setEnabled(selected);
+			}
+		});
+		
+		usersTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					editUser(getSelectedUsers().get(0));
+				}
 			}
 		});
 
@@ -553,7 +571,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		gitblit = null;
 	}
 
-	protected void refreshRepositories() {
+	protected void refreshRepositories() {		
 		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_REPOSITORIES) {
 			@Override
 			protected Boolean doRequest() throws IOException {
@@ -576,6 +594,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void createRepository() {
 		EditRepositoryDialog dialog = new EditRepositoryDialog();
+		dialog.setLocationRelativeTo(GitblitPanel.this);
 		dialog.setUsers(null, gitblit.getUsernames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setVisible(true);
@@ -622,6 +641,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void editRepository(final RepositoryModel repository) {
 		EditRepositoryDialog dialog = new EditRepositoryDialog(repository);
+		dialog.setLocationRelativeTo(GitblitPanel.this);
 		List<String> usernames = gitblit.getUsernames();
 		List<String> members = gitblit.getPermittedUsernames(repository);
 		dialog.setUsers(repository.owner, usernames, members);
@@ -724,6 +744,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void createUser() {
 		EditUserDialog dialog = new EditUserDialog(gitblit.getSettings());
+		dialog.setLocationRelativeTo(GitblitPanel.this);
 		dialog.setUsers(gitblit.getUsers());
 		dialog.setRepositories(gitblit.getRepositories(), null);
 		dialog.setVisible(true);
@@ -765,6 +786,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	 */
 	protected void editUser(final UserModel user) {
 		EditUserDialog dialog = new EditUserDialog(user, gitblit.getSettings());
+		dialog.setLocationRelativeTo(GitblitPanel.this);
 		dialog.setRepositories(gitblit.getRepositories(), new ArrayList<String>(user.repositories));
 		dialog.setVisible(true);
 		final UserModel revisedUser = dialog.getUser();
