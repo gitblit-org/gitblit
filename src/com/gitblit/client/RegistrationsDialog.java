@@ -100,6 +100,7 @@ public class RegistrationsDialog extends JDialog {
 		final JButton create = new JButton(Translation.get("gb.create"));
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
+				RegistrationsDialog.this.setVisible(false);
 				listener.loginPrompt(GitblitRegistration.LOCALHOST);
 			}
 		});
