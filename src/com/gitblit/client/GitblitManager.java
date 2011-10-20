@@ -316,9 +316,14 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				Date lastLogin = dateFormat.parse(config.getString("servers", server, "lastLogin"));
 				String url = config.getString("servers", server, "url");
 				String account = config.getString("servers", server, "account");
-				// FIXME this is pretty lame
-				char[] password = new String(Base64.decode(config.getString("servers", server,
-						"password"))).toCharArray();
+				char[] password;
+				String pw = config.getString("servers", server, "password");
+				if (StringUtils.isEmpty(pw)) {
+					password = new char[0];
+				} else {
+					// FIXME this is pretty lame
+					password = new String(Base64.decode(pw)).toCharArray();
+				}
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
 				reg.lastLogin = lastLogin;
 				registrations.put(reg.name, reg);
@@ -333,7 +338,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			StoredConfig config = getConfig();
 			config.setString("servers", reg.name, "url", reg.url);
 			config.setString("servers", reg.name, "account", reg.account);
-			// FIXME this is pretty lame
+			// FIXME this is pretty lame			
 			config.setString("servers", reg.name, "password",
 					Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
 			config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));

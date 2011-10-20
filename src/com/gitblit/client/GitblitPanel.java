@@ -214,10 +214,10 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				}
 			}
 		});
-		
+
 		repositoriesTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
+				if (e.getClickCount() == 2 && gitblit.allowAdmin()) {
 					editRepository(getSelectedRepositories().get(0));
 				}
 			}
@@ -328,7 +328,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				delUser.setEnabled(selected);
 			}
 		});
-		
+
 		usersTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -571,7 +571,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		gitblit = null;
 	}
 
-	protected void refreshRepositories() {		
+	protected void refreshRepositories() {
 		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_REPOSITORIES) {
 			@Override
 			protected Boolean doRequest() throws IOException {

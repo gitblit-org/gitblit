@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
@@ -68,6 +69,7 @@ public class GitblitModel implements Serializable {
 			refreshUsers();
 			refreshFederationRegistrations();
 			isAdmin = true;
+		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
@@ -79,7 +81,7 @@ public class GitblitModel implements Serializable {
 	}
 
 	public boolean isOwner(RepositoryModel model) {
-		return account.equalsIgnoreCase(model.owner);
+		return account != null && account.equalsIgnoreCase(model.owner);
 	}
 
 	public IStoredSettings getSettings() {
