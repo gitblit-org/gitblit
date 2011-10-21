@@ -81,6 +81,8 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox showReadme;
 
+	private JCheckBox skipSizeCalculation;
+
 	private JCheckBox isFrozen;
 
 	private JComboBox accessRestriction;
@@ -143,6 +145,8 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.showRemoteBranches);
 		showReadme = new JCheckBox(Translation.get("gb.showReadmeDescription"),
 				anRepository.showReadme);
+		skipSizeCalculation = new JCheckBox(Translation.get("gb.skipSizeCalculationDescription"),
+				anRepository.skipSizeCalculation);
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
 
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
@@ -171,6 +175,7 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.showRemoteBranches"), showRemoteBranches));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"), showReadme));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"), skipSizeCalculation));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
 
 		usersPalette = new JPalette<String>();
@@ -307,6 +312,7 @@ public class EditRepositoryDialog extends JDialog {
 		repository.useDocs = useDocs.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
 		repository.showReadme = showReadme.isSelected();
+		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.isFrozen = isFrozen.isSelected();
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();

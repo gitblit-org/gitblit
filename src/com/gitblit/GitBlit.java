@@ -470,6 +470,20 @@ public class GitBlit implements ServletContextListener {
 				repositories.add(model);
 			}
 		}
+		if (getBoolean(Keys.web.showRepositorySizes, true)) {
+			int repoCount = 0;
+			long startTime = System.currentTimeMillis();
+			ByteFormat byteFormat = new ByteFormat();
+			for (RepositoryModel model : repositories) {
+				if (!model.skipSizeCalculation) {
+					repoCount++;
+					model.size = byteFormat.format(calculateSize(model));
+				}
+			}
+			long duration = System.currentTimeMillis() - startTime;
+			logger.info(MessageFormat.format("{0} repository sizes calculated in {1} msecs",
+					repoCount, duration));
+		}
 		return repositories;
 	}
 
@@ -523,6 +537,7 @@ public class GitBlit implements ServletContextListener {
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);
+			model.skipSizeCalculation = getConfig(config, "skipSizeCalculation", false);
 			model.federationStrategy = FederationStrategy.fromName(getConfig(config,
 					"federationStrategy", null));
 			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
@@ -531,10 +546,6 @@ public class GitBlit implements ServletContextListener {
 			model.origin = config.getString("remote", "origin", "url");
 		}
 		r.close();
-		if (getBoolean(Keys.web.showRepositorySizes, true)) {
-			ByteFormat byteFormat = new ByteFormat();
-			model.size = byteFormat.format(calculateSize(model));			
-		}
 		return model;
 	}
 
@@ -707,6 +718,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
 		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
 		config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
+		config.setBoolean("gitblit", null, "skipSizeCalculation", repository.skipSizeCalculation);
 		config.setStringList("gitblit", null, "federationSets", repository.federationSets);
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());

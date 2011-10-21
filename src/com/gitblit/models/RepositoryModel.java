@@ -50,6 +50,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public FederationStrategy federationStrategy;
 	public List<String> federationSets;
 	public boolean isFederated;
+	public boolean skipSizeCalculation;
 	public String frequency;
 	public String origin;
 	public String size;
