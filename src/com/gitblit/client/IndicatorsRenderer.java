@@ -16,7 +16,7 @@
 package com.gitblit.client;
 
 import java.awt.Component;
-import java.awt.GridLayout;
+import java.awt.FlowLayout;
 import java.io.Serializable;
 
 import javax.swing.ImageIcon;
@@ -55,7 +55,7 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 	private final ImageIcon federatedIcon;
 
 	public IndicatorsRenderer() {
-		super(new GridLayout(1, 0, 1, 0));
+		super(new FlowLayout(FlowLayout.RIGHT, 1, 0));
 		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
 		pushIcon = new ImageIcon(getClass().getResource("/lock_go_16x16.png"));
 		pullIcon = new ImageIcon(getClass().getResource("/lock_pull_16x16.png"));
@@ -81,29 +81,21 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 				JLabel icon = new JLabel(tixIcon);
 				tooltip.append(Translation.get("gb.tickets")).append("<br/>");
 				add(icon);
-			} else {
-				add(new JLabel(blankIcon));
 			}
 			if (model.useDocs) {
 				JLabel icon = new JLabel(doxIcon);
 				tooltip.append(Translation.get("gb.docs")).append("<br/>");
 				add(icon);
-			} else {
-				add(new JLabel(blankIcon));
 			}
 			if (model.isFrozen) {
 				JLabel icon = new JLabel(frozenIcon);
 				tooltip.append(Translation.get("gb.isFrozen")).append("<br/>");
 				add(icon);
-			} else {
-				add(new JLabel(blankIcon));
 			}
 			if (model.isFederated) {
 				JLabel icon = new JLabel(federatedIcon);
 				tooltip.append(Translation.get("gb.isFederated")).append("<br/>");
 				add(icon);
-			} else {
-				add(new JLabel(blankIcon));
 			}
 
 			switch (model.accessRestriction) {
