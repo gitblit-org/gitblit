@@ -104,6 +104,11 @@
 			</fileset>
 		</copy>
 
+		<!-- copy gitblit.properties to the WEB-INF folder.
+		     this file is only used for parsing setting descriptions. -->
+		<copy todir="${basedir}/src/WEB-INF" overwrite="true"
+			file="${basedir}/distrib/gitblit.properties" />
+
 		<!-- Compile the build tool and execute it.
 			 This downloads missing compile-time dependencies from Maven. -->
 
@@ -306,10 +311,11 @@
 		
 		<delete dir="${project.war.dir}" />		
 
-		<!-- Copy web.xml and users.properties to WEB-INF -->
+		<!-- Copy web.xml, users.properties, and gitblit.properties to WEB-INF -->
 		<copy todir="${project.war.dir}/WEB-INF">
 			<fileset dir="${basedir}/distrib">
 			 	<include name="users.properties" />
+				<include name="gitblit.properties" />
 			</fileset>
 			<fileset dir="${basedir}/src/WEB-INF">
 			 	<include name="web.xml" />

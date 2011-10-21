@@ -15,9 +15,12 @@
  */
 package com.gitblit;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
@@ -63,6 +68,8 @@ import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ObjectCache;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
@@ -106,6 +113,8 @@ public class GitBlit implements ServletContextListener {
 
 	private RepositoryResolver<Void> repositoryResolver;
 
+	private ServletContext servletContext;
+
 	private File repositoriesFolder;
 
 	private boolean exportAll = true;
@@ -113,6 +122,10 @@ public class GitBlit implements ServletContextListener {
 	private IUserService userService;
 
 	private IStoredSettings settings;
+
+	private Map<String, SettingModel> settingModels;
+
+	private ServerStatus serverStatus;
 
 	private MailExecutor mailExecutor;
 
@@ -231,6 +244,13 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static boolean isDebugMode() {
 		return self().settings.getBoolean(Keys.web.debugMode, false);
+	}
+
+	public ServerStatus getStatus() {
+		// update heap memory status
+		serverStatus.heapAllocated = Runtime.getRuntime().totalMemory();
+		serverStatus.heapFree = Runtime.getRuntime().freeMemory();
+		return serverStatus;
 	}
 
 	/**
@@ -1253,6 +1273,86 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns the descriptions/comments of the Gitblit config settings.
+	 * 
+	 * @return Map<String, SettingModel>
+	 */
+	public Map<String, SettingModel> getSettingModels() {
+		// ensure that the current values are updated in the setting models
+		for (String key : settings.getAllKeys(null)) {
+			if (settingModels.containsKey(key)) {
+				settingModels.get(key).currentValue = settings.getString(key, "");
+			}
+		}
+		return settingModels;
+	}
+
+	/**
+	 * Parse the properties file and aggregate all the comments by the setting
+	 * key. A setting model tracks the current value, the default value, the
+	 * description of the setting and and directives about the setting.
+	 * 
+	 * @return Map<String, SettingModel>
+	 */
+	private Map<String, SettingModel> loadSettingModels() {
+		Map<String, SettingModel> map = new TreeMap<String, SettingModel>();
+		try {
+			// Read bundled Gitblit properties to extract setting descriptions.
+			// This copy is pristine and only used for populating the setting
+			// models map.
+			InputStream is = servletContext.getResourceAsStream("/WEB-INF/gitblit.properties");
+			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
+			StringBuilder description = new StringBuilder();
+			SettingModel setting = new SettingModel();
+			String line = null;
+			while ((line = propertiesReader.readLine()) != null) {
+				if (line.length() == 0) {
+					description.setLength(0);
+					setting = new SettingModel();
+				} else {
+					if (line.charAt(0) == '#') {
+						if (line.length() > 1) {
+							String text = line.substring(1).trim();
+							if (SettingModel.CASE_SENSITIVE.equals(text)) {
+								setting.caseSensitive = true;
+							} else if (SettingModel.RESTART_REQUIRED.equals(text)) {
+								setting.restartRequired = true;
+							} else if (SettingModel.SPACE_DELIMITED.equals(text)) {
+								setting.spaceDelimited = true;
+							} else if (text.startsWith(SettingModel.SINCE)) {
+								try {
+									setting.since = text.split(" ")[1];
+								} catch (Exception e) {
+									setting.since = text;
+								}
+							} else {
+								description.append(text);
+								description.append('\n');
+							}
+						}
+					} else {
+						String[] kvp = line.split("=", 2);
+						String key = kvp[0].trim();
+						setting.name = key;
+						setting.defaultValue = kvp[1].trim();
+						setting.currentValue = setting.defaultValue;
+						setting.description = description.toString().trim();
+						map.put(key, setting);
+						description.setLength(0);
+						setting = new SettingModel();
+					}
+				}
+			}
+			propertiesReader.close();
+		} catch (NullPointerException e) {
+			logger.error("Failed to find resource copy of gitblit.properties");
+		} catch (IOException e) {
+			logger.error("Failed to load resource copy of gitblit.properties");
+		}
+		return map;
+	}
+
+	/**
 	 * Configure the Gitblit singleton with the specified settings source. This
 	 * source may be file settings (Gitblit GO) or may be web.xml settings
 	 * (Gitblit WAR).
@@ -1265,6 +1365,7 @@ public class GitBlit implements ServletContextListener {
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
+		serverStatus = new ServerStatus();
 		String realm = settings.getString(Keys.realm.userService, "users.properties");
 		IUserService loginService = null;
 		try {
@@ -1307,6 +1408,8 @@ public class GitBlit implements ServletContextListener {
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
+		servletContext = contextEvent.getServletContext();
+		settingModels = loadSettingModels();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());

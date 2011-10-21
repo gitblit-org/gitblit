@@ -24,10 +24,11 @@ import java.util.Map;
 
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.UnauthorizedException;
-import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 
@@ -43,13 +44,15 @@ public class GitblitModel implements Serializable {
 
 	private volatile boolean isAdmin;
 
-	private volatile IStoredSettings settings;
+	private volatile Map<String, SettingModel> settings;
 
 	private final List<RepositoryModel> allRepositories;
 
 	private final List<UserModel> allUsers;
 
 	private final List<FederationModel> federationRegistrations;
+
+	private ServerStatus status;
 
 	public GitblitModel(String url, String account, char[] password) {
 		this.url = url;
@@ -66,8 +69,8 @@ public class GitblitModel implements Serializable {
 
 		try {
 			settings = RpcUtils.getSettings(url, account, password);
+			status = RpcUtils.getStatus(url, account, password);
 			refreshUsers();
-			refreshFederationRegistrations();
 			isAdmin = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
@@ -84,8 +87,12 @@ public class GitblitModel implements Serializable {
 		return account != null && account.equalsIgnoreCase(model.owner);
 	}
 
-	public IStoredSettings getSettings() {
+	public Map<String, SettingModel> getSettings() {
 		return settings;
+	}
+
+	public String getSettingDescription(String key) {
+		return settings.get(key).description;
 	}
 
 	public List<RepositoryModel> refreshRepositories() throws IOException {
@@ -135,7 +142,7 @@ public class GitblitModel implements Serializable {
 	}
 
 	public List<String> getFederationSets() {
-		return settings.getStrings(Keys.federation.sets);
+		return settings.get(Keys.federation.sets).getStrings();
 	}
 
 	public List<RepositoryModel> getRepositories() {

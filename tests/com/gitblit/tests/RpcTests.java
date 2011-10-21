@@ -23,11 +23,12 @@ import junit.framework.TestCase;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
-import com.gitblit.IStoredSettings;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 
@@ -206,7 +207,12 @@ public class RpcTests extends TestCase {
 	}
 
 	public void testSettings() throws Exception {
-		IStoredSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
-		assertTrue("No settings were retrieved!", settings.getAllKeys(null).size() > 0);
+		Map<String, SettingModel> settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		assertTrue("No settings were retrieved!", settings != null);
+	}
+	
+	public void testServerStatus() throws Exception {
+		ServerStatus status = RpcUtils.getStatus(url, account, password.toCharArray());
+		assertTrue("No status was retrieved!", status != null);
 	}
 }

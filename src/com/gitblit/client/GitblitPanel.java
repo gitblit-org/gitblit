@@ -52,6 +52,7 @@ import javax.swing.table.TableRowSorter;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.client.ClosableTabComponent.CloseTabListener;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
@@ -116,7 +117,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
-		tabs.addTab(Translation.get("gb.federation"), new JPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 
 		setLayout(new BorderLayout());
@@ -380,9 +380,11 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	}
 
 	private JPanel createSettingsPanel() {
+		final SettingPanel settingPanel = new SettingPanel();
 		settingsModel = new SettingsModel();
 		defaultSettingsSorter = new TableRowSorter<SettingsModel>(settingsModel);
 		settingsTable = Utils.newTable(settingsModel);
+		settingsTable.setDefaultRenderer(SettingModel.class, new SettingCellRenderer());
 		String name = settingsTable.getColumnName(UsersModel.Columns.Name.ordinal());
 		settingsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		settingsTable.getColumn(name).setCellRenderer(nameRenderer);
@@ -398,6 +400,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				boolean selected = settingsTable.getSelectedRow() > -1;
 				boolean singleSelection = settingsTable.getSelectedRows().length == 1;
 				// TODO enable/disable setting buttons
+				if (singleSelection) {
+					int viewRow = settingsTable.getSelectedRow();
+					int modelRow = settingsTable.convertRowIndexToModel(viewRow);
+					SettingModel setting = settingsModel.get(modelRow);
+					settingPanel.setSetting(setting);
+				} else {
+					settingPanel.clear();
+				}
 			}
 		});
 
@@ -420,6 +430,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		JPanel settingsTablePanel = new JPanel(new BorderLayout(margin, margin));
 		settingsTablePanel.add(settingFilterPanel, BorderLayout.NORTH);
 		settingsTablePanel.add(new JScrollPane(settingsTable), BorderLayout.CENTER);
+		settingsTablePanel.add(settingPanel, BorderLayout.SOUTH);
 
 		JPanel settingsControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		// TODO update setting?

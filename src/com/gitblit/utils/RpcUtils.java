@@ -21,15 +21,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
-import com.gitblit.IStoredSettings;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -57,6 +57,9 @@ public class RpcUtils {
 	}.getType();
 
 	private static final Type SETS_TYPE = new TypeToken<Collection<FederationSet>>() {
+	}.getType();
+
+	private static final Type SETTINGS_TYPE = new TypeToken<Map<String, SettingModel>>() {
 	}.getType();
 
 	/**
@@ -338,15 +341,31 @@ public class RpcUtils {
 	 * @param serverUrl
 	 * @param account
 	 * @param password
-	 * @return an IStoredSettings object
+	 * @return an Map<String, SettingModel> object
 	 * @throws IOException
 	 */
-	public static IStoredSettings getSettings(String serverUrl, String account, char[] password)
-			throws IOException {
+	public static Map<String, SettingModel> getSettings(String serverUrl, String account,
+			char[] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_SETTINGS);
-		Properties props = JsonUtils.retrieveJson(url, Properties.class, account, password);
-		RpcSettings settings = new RpcSettings(props);
+		Map<String, SettingModel> settings = JsonUtils.retrieveJson(url, SETTINGS_TYPE, account,
+				password);
 		return settings;
+	}
+
+	/**
+	 * Retrieves the server status object.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return an ServerStatus object
+	 * @throws IOException
+	 */
+	public static ServerStatus getStatus(String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_SERVER_STATUS);
+		ServerStatus status = JsonUtils.retrieveJson(url, ServerStatus.class, account, password);
+		return status;
 	}
 
 	/**
@@ -368,32 +387,5 @@ public class RpcUtils {
 		String json = JsonUtils.toJsonString(object);
 		int resultCode = JsonUtils.sendJsonString(url, json, account, password);
 		return resultCode == 200;
-	}
-	
-	/**
-	 * Settings implementation that wraps a retrieved properties instance. This
-	 * class is used for RPC communication.
-	 * 
-	 * @author James Moger
-	 * 
-	 */
-	private static class RpcSettings extends IStoredSettings {
-		
-		private final Properties properties = new Properties();
-
-		public RpcSettings(Properties props) {
-			super(RpcSettings.class);
-			properties.putAll(props);
-		}
-
-		@Override
-		protected Properties read() {
-			return properties;
-		}
-
-		@Override
-		public String toString() {
-			return "RpcSettings";
-		}
 	}
 }

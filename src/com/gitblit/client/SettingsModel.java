@@ -18,13 +18,14 @@ package com.gitblit.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.IStoredSettings;
+import com.gitblit.models.SettingModel;
 
 /**
- * Table model of IStoredSettings.
+ * Table model of Map<String, SettingModel>.
  * 
  * @author James Moger
  * 
@@ -33,7 +34,7 @@ public class SettingsModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	IStoredSettings settings;
+	Map<String, SettingModel> settings;
 
 	List<String> keys;
 
@@ -50,16 +51,16 @@ public class SettingsModel extends AbstractTableModel {
 		this(null);
 	}
 
-	public SettingsModel(IStoredSettings settings) {
+	public SettingsModel(Map<String, SettingModel> settings) {
 		setSettings(settings);
 	}
 
-	public void setSettings(IStoredSettings settings) {
+	public void setSettings(Map<String, SettingModel> settings) {
 		this.settings = settings;
 		if (settings == null) {
 			keys = new ArrayList<String>();
 		} else {
-			keys = new ArrayList<String>(settings.getAllKeys(null));
+			keys = new ArrayList<String>(settings.keySet());
 			Collections.sort(keys);
 		}
 	}
@@ -92,19 +93,28 @@ public class SettingsModel extends AbstractTableModel {
 	 * @return the Object.class
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
+		if (Columns.Value.ordinal() == columnIndex) {
+			return SettingModel.class;
+		}
 		return String.class;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		String key = keys.get(rowIndex);
+		SettingModel setting = settings.get(key);
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Name:
 			return key;
 		case Value:
-			return settings.getString(key, "");
+			return setting;
 		}
 		return null;
+	}
+
+	public SettingModel get(int modelRow) {
+		String key = keys.get(modelRow);
+		return settings.get(key);
 	}
 }

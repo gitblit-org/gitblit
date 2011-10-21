@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -45,9 +46,9 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
@@ -57,7 +58,7 @@ public class EditUserDialog extends JDialog {
 
 	private final UserModel user;
 
-	private final IStoredSettings settings;
+	private final Map<String, SettingModel> settings;
 
 	private boolean isCreate;
 	
@@ -77,13 +78,13 @@ public class EditUserDialog extends JDialog {
 
 	private Set<String> usernames;
 
-	public EditUserDialog(IStoredSettings settings) {
+	public EditUserDialog(Map<String, SettingModel> settings) {
 		this(new UserModel(""), settings);
 		this.isCreate = true;
 		setTitle(Translation.get("gb.newUser"));		
 	}
 
-	public EditUserDialog(UserModel anUser, IStoredSettings settings) {
+	public EditUserDialog(UserModel anUser, Map<String, SettingModel> settings) {
 		super();
 		this.user = new UserModel("");
 		this.settings = settings;
@@ -196,7 +197,7 @@ public class EditUserDialog extends JDialog {
 			}
 		}
 
-		int minLength = settings.getInteger(Keys.realm.minPasswordLength, 5);
+		int minLength = settings.get(Keys.realm.minPasswordLength).getInteger(5);
 		if (minLength < 4) {
 			minLength = 4;
 		}
@@ -216,7 +217,7 @@ public class EditUserDialog extends JDialog {
 			return false;
 		}
 		user.username = uname;
-		String type = settings.getString(Keys.realm.passwordStorage, "md5");
+		String type = settings.get(Keys.realm.passwordStorage).getString("md5");
 		if (type.equalsIgnoreCase("md5")) {
 			// store MD5 digest of password
 			user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(pw));

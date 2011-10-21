@@ -30,10 +30,10 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
 <tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationProposal&gt;</td></tr>
 <tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationSet&gt;</td></tr>
-<tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Properties</td></tr>
+<tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Map&lt;String, SettingModel&gt;</td></tr>
 </table>
 
-### RPC Response Codes
+### RPC/HTTP Response Codes
 <table>
 <tr><th>code</th><th>name</th><th>description</th></tr>
 <tr><td>200</td><td>success</td><td>Gitblit processed the request successfully</td></tr>
@@ -47,7 +47,7 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 ### Gitblit Manager
 
 [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote administration of a Gitblit server.  
-This application exercises most methods from the utility class `com.gitblit.utils.RpcUtils`.
+This application exercises many, but not all, methods from the utility class `com.gitblit.utils.RpcUtils`.
 
 ### EGit "Import from Gitblit" Feature (Planning)
 
@@ -153,4 +153,32 @@ The original repository name is specified in the *name* url parameter.  The new 
     ]
   }
 ]
+</pre>
+
+### Example: LIST_SETTINGS
+**url**: https://localhost/rpc?req=LIST_SETTINGS  
+**response body**: Map&lt;String, SettingModel&gt;
+<pre>
+{
+  "web.siteName": {
+    "name": "web.siteName",
+    "currentValue": "",
+    "defaultValue": "",
+    "description": "Gitblit Web Settings\nIf blank Gitblit is displayed.",
+    "since": "0.5.0",
+    "caseSensitive": false,
+    "restartRequired": false,
+    "spaceDelimited": false
+  },
+  "web.summaryCommitCount": {
+    "name": "web.summaryCommitCount",
+    "currentValue": "16",
+    "defaultValue": "16",
+    "description": "The number of commits to display on the summary page\nValue must exceed 0 else default of 16 is used",
+    "since": "0.5.0",
+    "caseSensitive": false,
+    "restartRequired": false,
+    "spaceDelimited": false
+  }
+}
 </pre>
