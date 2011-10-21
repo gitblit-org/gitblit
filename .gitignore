@@ -16,3 +16,7 @@
 /*.jar
 /federation.properties
 /mailtest.properties
+/.settings/*.prefs
+/src/WEB-INF/gitblit.properties
+/bin/
+/.settings/
