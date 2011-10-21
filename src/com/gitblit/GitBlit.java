@@ -60,12 +60,15 @@ import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
+import com.gitblit.models.Metric;
+import com.gitblit.models.ObjectCache;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
+import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -96,6 +99,10 @@ public class GitBlit implements ServletContextListener {
 			.synchronizedList(new ArrayList<FederationModel>());
 
 	private final Map<String, FederationModel> federationPullResults = new ConcurrentHashMap<String, FederationModel>();
+
+	private final ObjectCache<Long> repositorySizeCache = new ObjectCache<Long>();
+
+	private final ObjectCache<List<Metric>> repositoryMetricsCache = new ObjectCache<List<Metric>>();
 
 	private RepositoryResolver<Void> repositoryResolver;
 
@@ -419,6 +426,16 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Clears all the cached data for the specified repository.
+	 * 
+	 * @param repositoryName
+	 */
+	public void clearRepositoryCache(String repositoryName) {
+		repositorySizeCache.remove(repositoryName);
+		repositoryMetricsCache.remove(repositoryName);
+	}
+
+	/**
 	 * Returns the list of all repositories available to Gitblit. This method
 	 * does not consider user access permissions.
 	 * 
@@ -550,14 +567,22 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the size in bytes of the repository.
+	 * Returns the size in bytes of the repository. Gitblit caches the
+	 * repository sizes to reduce the performance penalty of recursive
+	 * calculation. The cache is updated if the repository has been changed
+	 * since the last calculation.
 	 * 
 	 * @param model
 	 * @return size in bytes
 	 */
 	public long calculateSize(RepositoryModel model) {
+		if (repositorySizeCache.hasCurrent(model.name, model.lastChange)) {
+			return repositorySizeCache.getObject(model.name);
+		}
 		File gitDir = FileKey.resolve(new File(repositoriesFolder, model.name), FS.DETECTED);
-		return com.gitblit.utils.FileUtils.folderSize(gitDir);
+		long size = com.gitblit.utils.FileUtils.folderSize(gitDir);
+		repositorySizeCache.updateObject(model.name, model.lastChange, size);
+		return size;
 	}
 
 	/**
@@ -596,7 +621,26 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the gitblit string vlaue for the specified key. If key is not
+	 * Returns the metrics for the default branch of the specified repository.
+	 * This method builds a metrics cache. The cache is updated if the
+	 * repository is updated. A new copy of the metrics list is returned on each
+	 * call so that modifications to the list are non-destructive.
+	 * 
+	 * @param model
+	 * @param repository
+	 * @return a new array list of metrics
+	 */
+	public List<Metric> getRepositoryDefaultMetrics(RepositoryModel model, Repository repository) {
+		if (repositoryMetricsCache.hasCurrent(model.name, model.lastChange)) {
+			return new ArrayList<Metric>(repositoryMetricsCache.getObject(model.name));
+		}
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null);
+		repositoryMetricsCache.updateObject(model.name, model.lastChange, metrics);
+		return new ArrayList<Metric>(metrics);
+	}
+
+	/**
+	 * Returns the gitblit string value for the specified key. If key is not
 	 * set, returns defaultValue.
 	 * 
 	 * @param config
@@ -678,6 +722,9 @@ public class GitBlit implements ServletContextListener {
 							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
 							repositoryName, repository.name));
 				}
+
+				// clear the cache
+				clearRepositoryCache(repositoryName);
 			}
 
 			// load repository
@@ -758,6 +805,9 @@ public class GitBlit implements ServletContextListener {
 					return true;
 				}
 			}
+
+			// clear the repository cache
+			clearRepositoryCache(repositoryName);
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to delete repository {0}", repositoryName), t);
 		}

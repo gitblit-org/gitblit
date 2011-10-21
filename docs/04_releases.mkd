@@ -5,6 +5,8 @@
 
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
     **New:** *web.loginMessage = gitblit*
+- improved: repositories list performance by caching repository sizes (issue 27)
+- improved: summary page performance by caching metric calculations (issue 25)
 - added: authenticated JSON RPC mechanism   
     **New:** *web.enableRpcServlet = true*  
     **New:** *web.enableRpcAdministration = false*

@@ -45,7 +45,6 @@ import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
-import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -68,7 +67,7 @@ public class SummaryPage extends RepositoryPage {
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = MetricUtils.getDateMetrics(r, null, true, null);
+			metrics = GitBlit.self().getRepositoryDefaultMetrics(getRepositoryModel(), r);
 			metricsTotal = metrics.remove(0);
 		}
 
