@@ -142,6 +142,10 @@ public class StringUtils {
 		for (String value : values) {
 			sb.append(value).append(separator);
 		}
+		if (sb.length() > 0) {
+			// truncate trailing separator
+			sb.setLength(sb.length() - separator.length());
+		}
 		return sb.toString().trim();
 	}
 
