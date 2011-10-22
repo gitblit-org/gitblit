@@ -80,6 +80,9 @@ public class ObjectCache<X> implements Serializable {
 	}
 
 	public Object remove(String name) {
-		return cache.remove(name).object;
+		if (cache.containsKey(name)) {
+			return cache.remove(name).object;
+		}
+		return null;
 	}
 }
