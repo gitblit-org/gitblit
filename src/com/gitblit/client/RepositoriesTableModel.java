@@ -17,29 +17,27 @@ package com.gitblit.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.models.SettingModel;
+import com.gitblit.models.RepositoryModel;
 
 /**
- * Table model of Map<String, SettingModel>.
+ * Table model of a list of repositories.
  * 
  * @author James Moger
  * 
  */
-public class SettingsModel extends AbstractTableModel {
+public class RepositoriesTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	Map<String, SettingModel> settings;
-
-	List<String> keys;
+	List<RepositoryModel> list;
 
 	enum Columns {
-		Name, Value;
+		Name, Description, Owner, Indicators, Last_Change, Size;
 
 		@Override
 		public String toString() {
@@ -47,27 +45,18 @@ public class SettingsModel extends AbstractTableModel {
 		}
 	}
 
-	public SettingsModel() {
-		this(null);
+	public RepositoriesTableModel() {
+		this(new ArrayList<RepositoryModel>());
 	}
 
-	public SettingsModel(Map<String, SettingModel> settings) {
-		setSettings(settings);
-	}
-
-	public void setSettings(Map<String, SettingModel> settings) {
-		this.settings = settings;
-		if (settings == null) {
-			keys = new ArrayList<String>();
-		} else {
-			keys = new ArrayList<String>(settings.keySet());
-			Collections.sort(keys);
-		}
+	public RepositoriesTableModel(List<RepositoryModel> repositories) {
+		this.list = repositories;
+		Collections.sort(this.list);
 	}
 
 	@Override
 	public int getRowCount() {
-		return keys.size();
+		return list.size();
 	}
 
 	@Override
@@ -81,6 +70,14 @@ public class SettingsModel extends AbstractTableModel {
 		switch (col) {
 		case Name:
 			return Translation.get("gb.name");
+		case Description:
+			return Translation.get("gb.description");
+		case Owner:
+			return Translation.get("gb.owner");
+		case Last_Change:
+			return Translation.get("gb.lastChange");
+		case Size:
+			return Translation.get("gb.size");
 		}
 		return "";
 	}
@@ -93,28 +90,35 @@ public class SettingsModel extends AbstractTableModel {
 	 * @return the Object.class
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
-		if (Columns.Value.ordinal() == columnIndex) {
-			return SettingModel.class;
+		Columns col = Columns.values()[columnIndex];
+		switch (col) {
+		case Name:
+		case Indicators:
+			return RepositoryModel.class;
+		case Last_Change:
+			return Date.class;
 		}
 		return String.class;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		String key = keys.get(rowIndex);
-		SettingModel setting = settings.get(key);
+		RepositoryModel model = list.get(rowIndex);
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Name:
-			return key;
-		case Value:
-			return setting;
+			return model;
+		case Description:
+			return model.description;
+		case Owner:
+			return model.owner;
+		case Indicators:
+			return model;
+		case Last_Change:
+			return model.lastChange;
+		case Size:
+			return model.size;
 		}
 		return null;
-	}
-
-	public SettingModel get(int modelRow) {
-		String key = keys.get(modelRow);
-		return settings.get(key);
 	}
 }

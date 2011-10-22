@@ -134,6 +134,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    showReadme = false
 	    federationStrategy = FEDERATE_THIS
 	    isFederated = false
+	    skipSizeCalculation = false
 	    federationSets = 
 
 #### Repository Names

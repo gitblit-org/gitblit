@@ -29,7 +29,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  * 
  */
-public class UsersModel extends AbstractTableModel {
+public class UsersTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -44,11 +44,11 @@ public class UsersModel extends AbstractTableModel {
 		}
 	}
 
-	public UsersModel() {
+	public UsersTableModel() {
 		this(new ArrayList<UserModel>());
 	}
 
-	public UsersModel(List<UserModel> users) {
+	public UsersTableModel(List<UserModel> users) {
 		this.list = users;
 		Collections.sort(this.list);
 	}

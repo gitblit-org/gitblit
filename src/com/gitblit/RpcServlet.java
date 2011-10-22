@@ -182,8 +182,8 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
 			// return the server's settings
-			result = GitBlit.self().getSettingModels();
-		} else if (RpcRequest.LIST_SERVER_STATUS.equals(reqType)) {
+			result = GitBlit.self().getSettingsModel();
+		} else if (RpcRequest.LIST_STATUS.equals(reqType)) {
 			// return the server's status information
 			result = GitBlit.self().getStatus();
 		}

@@ -17,12 +17,12 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * ServerStatus encapsulates runtime status information about the server
- * including the system environment.
+ * including some information about the system environment.
  * 
  * @author James Moger
  * 
@@ -33,10 +33,10 @@ public class ServerStatus implements Serializable {
 
 	public final Date bootDate;
 	
+	public final Map<String, String> systemProperties;
+
 	public final long heapSize;
 
-	public final Map<String, String> systemProperties;
-	
 	public volatile long heapAllocated;
 	
 	public volatile long heapFree;
@@ -46,7 +46,7 @@ public class ServerStatus implements Serializable {
 		
 		heapSize = Runtime.getRuntime().maxMemory();
 		
-		systemProperties = new HashMap<String, String>();
+		systemProperties = new TreeMap<String, String>();
 		put("file.encoding");
 		put("java.home");
 		put("java.io.tmpdir");

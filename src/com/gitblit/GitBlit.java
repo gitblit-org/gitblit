@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -70,6 +69,7 @@ import com.gitblit.models.ObjectCache;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
@@ -123,7 +123,7 @@ public class GitBlit implements ServletContextListener {
 
 	private IStoredSettings settings;
 
-	private Map<String, SettingModel> settingModels;
+	private ServerSettings settingsModel;
 
 	private ServerStatus serverStatus;
 
@@ -1275,16 +1275,12 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the descriptions/comments of the Gitblit config settings.
 	 * 
-	 * @return Map<String, SettingModel>
+	 * @return SettingsModel
 	 */
-	public Map<String, SettingModel> getSettingModels() {
+	public ServerSettings getSettingsModel() {
 		// ensure that the current values are updated in the setting models
-		for (String key : settings.getAllKeys(null)) {
-			if (settingModels.containsKey(key)) {
-				settingModels.get(key).currentValue = settings.getString(key, "");
-			}
-		}
-		return settingModels;
+		settingsModel.updateCurrentValues(settings);
+		return settingsModel;
 	}
 
 	/**
@@ -1294,8 +1290,8 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @return Map<String, SettingModel>
 	 */
-	private Map<String, SettingModel> loadSettingModels() {
-		Map<String, SettingModel> map = new TreeMap<String, SettingModel>();
+	private ServerSettings loadSettingModels() {
+		ServerSettings settingsModel = new ServerSettings();
 		try {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
@@ -1337,7 +1333,7 @@ public class GitBlit implements ServletContextListener {
 						setting.defaultValue = kvp[1].trim();
 						setting.currentValue = setting.defaultValue;
 						setting.description = description.toString().trim();
-						map.put(key, setting);
+						settingsModel.add(setting);
 						description.setLength(0);
 						setting = new SettingModel();
 					}
@@ -1349,7 +1345,7 @@ public class GitBlit implements ServletContextListener {
 		} catch (IOException e) {
 			logger.error("Failed to load resource copy of gitblit.properties");
 		}
-		return map;
+		return settingsModel;
 	}
 
 	/**
@@ -1409,7 +1405,7 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		servletContext = contextEvent.getServletContext();
-		settingModels = loadSettingModels();
+		settingsModel = loadSettingModels();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());

@@ -29,7 +29,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerStatus;
-import com.gitblit.models.SettingModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -57,9 +57,6 @@ public class RpcUtils {
 	}.getType();
 
 	private static final Type SETS_TYPE = new TypeToken<Collection<FederationSet>>() {
-	}.getType();
-
-	private static final Type SETTINGS_TYPE = new TypeToken<Map<String, SettingModel>>() {
 	}.getType();
 
 	/**
@@ -341,14 +338,13 @@ public class RpcUtils {
 	 * @param serverUrl
 	 * @param account
 	 * @param password
-	 * @return an Map<String, SettingModel> object
+	 * @return an Settings object
 	 * @throws IOException
 	 */
-	public static Map<String, SettingModel> getSettings(String serverUrl, String account,
-			char[] password) throws IOException {
+	public static ServerSettings getSettings(String serverUrl, String account, char[] password)
+			throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_SETTINGS);
-		Map<String, SettingModel> settings = JsonUtils.retrieveJson(url, SETTINGS_TYPE, account,
-				password);
+		ServerSettings settings = JsonUtils.retrieveJson(url, ServerSettings.class, account, password);
 		return settings;
 	}
 
@@ -363,7 +359,7 @@ public class RpcUtils {
 	 */
 	public static ServerStatus getStatus(String serverUrl, String account, char[] password)
 			throws IOException {
-		String url = asLink(serverUrl, RpcRequest.LIST_SERVER_STATUS);
+		String url = asLink(serverUrl, RpcRequest.LIST_STATUS);
 		ServerStatus status = JsonUtils.retrieveJson(url, ServerStatus.class, account, password);
 		return status;
 	}

@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -48,7 +47,7 @@ import javax.swing.KeyStroke;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.SettingModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
@@ -58,10 +57,10 @@ public class EditUserDialog extends JDialog {
 
 	private final UserModel user;
 
-	private final Map<String, SettingModel> settings;
+	private final ServerSettings settings;
 
 	private boolean isCreate;
-	
+
 	private boolean canceled = true;
 
 	private JTextField usernameField;
@@ -78,13 +77,13 @@ public class EditUserDialog extends JDialog {
 
 	private Set<String> usernames;
 
-	public EditUserDialog(Map<String, SettingModel> settings) {
+	public EditUserDialog(ServerSettings settings) {
 		this(new UserModel(""), settings);
 		this.isCreate = true;
-		setTitle(Translation.get("gb.newUser"));		
+		setTitle(Translation.get("gb.newUser"));
 	}
 
-	public EditUserDialog(UserModel anUser, Map<String, SettingModel> settings) {
+	public EditUserDialog(UserModel anUser, ServerSettings settings) {
 		super();
 		this.user = new UserModel("");
 		this.settings = settings;
@@ -95,7 +94,7 @@ public class EditUserDialog extends JDialog {
 		setTitle(Translation.get("gb.edit") + ": " + anUser.username);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
-	
+
 	@Override
 	protected JRootPane createRootPane() {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
@@ -203,8 +202,8 @@ public class EditUserDialog extends JDialog {
 		}
 		char[] pw = passwordField.getPassword();
 		if (pw == null || pw.length < minLength) {
-			error(MessageFormat.format(
-					"Password is too short. Minimum length is {0} characters.", minLength));
+			error(MessageFormat.format("Password is too short. Minimum length is {0} characters.",
+					minLength));
 			return false;
 		}
 		char[] cpw = confirmPasswordField.getPassword();

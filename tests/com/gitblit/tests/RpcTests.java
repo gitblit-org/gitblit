@@ -27,8 +27,8 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
-import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 
@@ -207,7 +207,7 @@ public class RpcTests extends TestCase {
 	}
 
 	public void testSettings() throws Exception {
-		Map<String, SettingModel> settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
 		assertTrue("No settings were retrieved!", settings != null);
 	}
 	

@@ -56,7 +56,7 @@ public class RegistrationsDialog extends JDialog {
 
 	private JTable registrationsTable;
 
-	private RegistrationsModel model;
+	private RegistrationsTableModel model;
 
 	public RegistrationsDialog(List<GitblitRegistration> registrations,
 			RegistrationListener listener) {
@@ -83,11 +83,11 @@ public class RegistrationsDialog extends JDialog {
 
 	private void initialize() {
 		NameRenderer nameRenderer = new NameRenderer();
-		model = new RegistrationsModel(registrations);
+		model = new RegistrationsTableModel(registrations);
 		registrationsTable = Utils.newTable(model);
 		registrationsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 
-		String id = registrationsTable.getColumnName(RegistrationsModel.Columns.Name.ordinal());
+		String id = registrationsTable.getColumnName(RegistrationsTableModel.Columns.Name.ordinal());
 		registrationsTable.getColumn(id).setCellRenderer(nameRenderer);
 		registrationsTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {

@@ -30,7 +30,8 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
 <tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationProposal&gt;</td></tr>
 <tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationSet&gt;</td></tr>
-<tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>Map&lt;String, SettingModel&gt;</td></tr>
+<tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerSettings (see example below)</td></tr>
+<tr><td>LIST_STATUS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerStatus (see example below)</td></tr>
 </table>
 
 ### RPC/HTTP Response Codes
@@ -54,6 +55,8 @@ This application exercises many, but not all, methods from the utility class `co
 One obvious goal of a Gitblit RPC mechanism would be to have an EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Cloning (hopefully batch) would be delegated to EGit.
 
 This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
+
+One proposal from the EGit team is to define a common JSON RPC method for enumeration of repositories which can be implemented by Git hosts.  The EGit team would then implement the UI and the client-side enumeration code.  This idea was raised as part of this [feature request for EGit](https://bugs.eclipse.org/bugs/show_bug.cgi?id=361251).
 
 Currently this project is in the planning stage.
 
@@ -80,6 +83,7 @@ Currently this project is in the planning stage.
       "libraries"
     ],
     "isFederated": false,
+    "skipSizeCalculation": false,
     "size": "102 KB"
   },
   "https://localhost/git/libraries/smack.git": {
@@ -97,6 +101,7 @@ Currently this project is in the planning stage.
     "federationStrategy": "FEDERATE_THIS",
     "federationSets": [],
     "isFederated": false,
+    "skipSizeCalculation": false,
     "size": "4.8 MB"
   }
 }
@@ -157,28 +162,58 @@ The original repository name is specified in the *name* url parameter.  The new 
 
 ### Example: LIST_SETTINGS
 **url**: https://localhost/rpc?req=LIST_SETTINGS  
-**response body**: Map&lt;String, SettingModel&gt;
+**response body**: ServerSettings
 <pre>
 {
-  "web.siteName": {
-    "name": "web.siteName",
-    "currentValue": "",
-    "defaultValue": "",
-    "description": "Gitblit Web Settings\nIf blank Gitblit is displayed.",
-    "since": "0.5.0",
-    "caseSensitive": false,
-    "restartRequired": false,
-    "spaceDelimited": false
-  },
-  "web.summaryCommitCount": {
-    "name": "web.summaryCommitCount",
-    "currentValue": "16",
-    "defaultValue": "16",
-    "description": "The number of commits to display on the summary page\nValue must exceed 0 else default of 16 is used",
-    "since": "0.5.0",
-    "caseSensitive": false,
-    "restartRequired": false,
-    "spaceDelimited": false
+  "settings": {
+      "web.siteName": {
+        "name": "web.siteName",
+        "currentValue": "",
+        "defaultValue": "",
+        "description": "Gitblit Web Settings\nIf blank Gitblit is displayed.",
+        "since": "0.5.0",
+        "caseSensitive": false,
+        "restartRequired": false,
+        "spaceDelimited": false
+      },
+      "web.summaryCommitCount": {
+        "name": "web.summaryCommitCount",
+        "currentValue": "16",
+        "defaultValue": "16",
+        "description": "The number of commits to display on the summary page\nValue must exceed 0 else default of 16 is used",
+        "since": "0.5.0",
+        "caseSensitive": false,
+        "restartRequired": false,
+        "spaceDelimited": false
+      }
   }
+}
+</pre>
+
+### Example: LIST_STATUS
+**url**: https://localhost/rpc?req=LIST_STATUS  
+**response body**: ServerStatus
+<pre>
+{
+  "bootDate": "2011-10-22T12:13:00Z",
+  "systemProperties": {
+    "file.encoding": "Cp1252",
+    "java.home": "C:\\Program Files\\Java\\jdk1.6.0_26\\jre",
+    "java.io.tmpdir": "C:\\Users\\JAMESM~1\\AppData\\Local\\Temp\\",
+    "java.runtime.name": "Java(TM) SE Runtime Environment",
+    "java.runtime.version": "1.6.0_26-b03",
+    "java.vendor": "Sun Microsystems Inc.",
+    "java.version": "1.6.0_26",
+    "java.vm.info": "mixed mode",
+    "java.vm.name": "Java HotSpot(TM) 64-Bit Server VM",
+    "java.vm.vendor": "Sun Microsystems Inc.",
+    "java.vm.version": "20.1-b02",
+    "os.arch": "amd64",
+    "os.name": "Windows 7",
+    "os.version": "6.1"
+  },
+  "heapAllocated": 128057344,
+  "heapFree": 120399168,
+  "heapSize": 1899560960
 }
 </pre>

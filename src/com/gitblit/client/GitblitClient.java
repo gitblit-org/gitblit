@@ -27,12 +27,19 @@ import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
-import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 
-public class GitblitModel implements Serializable {
+/**
+ * GitblitClient is a object that retrieves data from a Gitblit server, caches
+ * it for local operations, and allows updating or creating Gitblit objects.
+ * 
+ * @author James Moger
+ * 
+ */
+public class GitblitClient implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -44,7 +51,7 @@ public class GitblitModel implements Serializable {
 
 	private volatile boolean isAdmin;
 
-	private volatile Map<String, SettingModel> settings;
+	private volatile ServerSettings settings;
 
 	private final List<RepositoryModel> allRepositories;
 
@@ -54,7 +61,7 @@ public class GitblitModel implements Serializable {
 
 	private ServerStatus status;
 
-	public GitblitModel(String url, String account, char[] password) {
+	public GitblitClient(String url, String account, char[] password) {
 		this.url = url;
 		this.account = account;
 		this.password = password;
@@ -87,8 +94,12 @@ public class GitblitModel implements Serializable {
 		return account != null && account.equalsIgnoreCase(model.owner);
 	}
 
-	public Map<String, SettingModel> getSettings() {
+	public ServerSettings getSettings() {
 		return settings;
+	}
+
+	public ServerStatus getStatus() {
+		return status;
 	}
 
 	public String getSettingDescription(String key) {

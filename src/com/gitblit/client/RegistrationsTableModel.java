@@ -27,7 +27,7 @@ import javax.swing.table.AbstractTableModel;
  * @author James Moger
  * 
  */
-public class RegistrationsModel extends AbstractTableModel {
+public class RegistrationsTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class RegistrationsModel extends AbstractTableModel {
 		}
 	}
 
-	public RegistrationsModel(List<GitblitRegistration> list) {
+	public RegistrationsTableModel(List<GitblitRegistration> list) {
 		this.list = list;
 		Collections.sort(this.list);
 	}

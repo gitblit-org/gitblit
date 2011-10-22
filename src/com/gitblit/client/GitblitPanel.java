@@ -71,21 +71,21 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private final Insets insets = new Insets(margin, margin, margin, margin);
 
-	private GitblitModel gitblit;
+	private GitblitClient gitblit;
 
 	private JTabbedPane tabs;
 
 	private JTable repositoriesTable;
 
-	private RepositoriesModel repositoriesModel;
+	private RepositoriesTableModel repositoriesModel;
 
 	private JTable usersTable;
 
-	private UsersModel usersModel;
+	private UsersTableModel usersModel;
 
 	private JTable settingsTable;
 
-	private SettingsModel settingsModel;
+	private SettingsTableModel settingsModel;
 
 	private JButton createRepository;
 
@@ -99,11 +99,11 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private DefaultTableCellRenderer sizeRenderer;
 
-	private TableRowSorter<RepositoriesModel> defaultRepositoriesSorter;
+	private TableRowSorter<RepositoriesTableModel> defaultRepositoriesSorter;
 
-	private TableRowSorter<UsersModel> defaultUsersSorter;
+	private TableRowSorter<UsersTableModel> defaultUsersSorter;
 
-	private TableRowSorter<SettingsModel> defaultSettingsSorter;
+	private TableRowSorter<SettingsTableModel> defaultSettingsSorter;
 
 	private JButton editRepository;
 
@@ -112,7 +112,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	}
 
 	public GitblitPanel(String url, String account, char[] password) {
-		this.gitblit = new GitblitModel(url, account, password);
+		this.gitblit = new GitblitClient(url, account, password);
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
@@ -180,17 +180,17 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		ownerRenderer.setForeground(Color.gray);
 		ownerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-		repositoriesModel = new RepositoriesModel();
-		defaultRepositoriesSorter = new TableRowSorter<RepositoriesModel>(repositoriesModel);
+		repositoriesModel = new RepositoriesTableModel();
+		defaultRepositoriesSorter = new TableRowSorter<RepositoriesTableModel>(repositoriesModel);
 		repositoriesTable = Utils.newTable(repositoriesModel);
 		repositoriesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		repositoriesTable.setRowSorter(defaultRepositoriesSorter);
-		repositoriesTable.getRowSorter().toggleSortOrder(RepositoriesModel.Columns.Name.ordinal());
+		repositoriesTable.getRowSorter().toggleSortOrder(RepositoriesTableModel.Columns.Name.ordinal());
 
-		setRepositoryRenderer(RepositoriesModel.Columns.Name, nameRenderer, -1);
-		setRepositoryRenderer(RepositoriesModel.Columns.Indicators, typeRenderer, 100);
-		setRepositoryRenderer(RepositoriesModel.Columns.Owner, ownerRenderer, -1);
-		setRepositoryRenderer(RepositoriesModel.Columns.Size, sizeRenderer, 60);
+		setRepositoryRenderer(RepositoriesTableModel.Columns.Name, nameRenderer, -1);
+		setRepositoryRenderer(RepositoriesTableModel.Columns.Indicators, typeRenderer, 100);
+		setRepositoryRenderer(RepositoriesTableModel.Columns.Owner, ownerRenderer, -1);
+		setRepositoryRenderer(RepositoriesTableModel.Columns.Size, sizeRenderer, 60);
 
 		repositoriesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -205,7 +205,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				if (selected) {
 					int viewRow = repositoriesTable.getSelectedRow();
 					int modelRow = repositoriesTable.convertRowIndexToModel(viewRow);
-					RepositoryModel model = ((RepositoriesModel) repositoriesTable.getModel()).list
+					RepositoryModel model = ((RepositoriesTableModel) repositoriesTable.getModel()).list
 							.get(modelRow);
 					editRepository.setEnabled(singleSelection
 							&& (gitblit.allowAdmin() || gitblit.isOwner(model)));
@@ -266,7 +266,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		return repositoriesPanel;
 	}
 
-	private void setRepositoryRenderer(RepositoriesModel.Columns col, TableCellRenderer renderer,
+	private void setRepositoryRenderer(RepositoriesTableModel.Columns col, TableCellRenderer renderer,
 			int maxWidth) {
 		String name = repositoriesTable.getColumnName(col.ordinal());
 		repositoriesTable.getColumn(name).setCellRenderer(renderer);
@@ -307,14 +307,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		usersModel = new UsersModel();
-		defaultUsersSorter = new TableRowSorter<UsersModel>(usersModel);
+		usersModel = new UsersTableModel();
+		defaultUsersSorter = new TableRowSorter<UsersTableModel>(usersModel);
 		usersTable = Utils.newTable(usersModel);
-		String name = usersTable.getColumnName(UsersModel.Columns.Name.ordinal());
+		String name = usersTable.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		usersTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		usersTable.getColumn(name).setCellRenderer(nameRenderer);
 		usersTable.setRowSorter(defaultUsersSorter);
-		usersTable.getRowSorter().toggleSortOrder(UsersModel.Columns.Name.ordinal());
+		usersTable.getRowSorter().toggleSortOrder(UsersTableModel.Columns.Name.ordinal());
 		usersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			@Override
@@ -381,15 +381,15 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private JPanel createSettingsPanel() {
 		final SettingPanel settingPanel = new SettingPanel();
-		settingsModel = new SettingsModel();
-		defaultSettingsSorter = new TableRowSorter<SettingsModel>(settingsModel);
+		settingsModel = new SettingsTableModel();
+		defaultSettingsSorter = new TableRowSorter<SettingsTableModel>(settingsModel);
 		settingsTable = Utils.newTable(settingsModel);
 		settingsTable.setDefaultRenderer(SettingModel.class, new SettingCellRenderer());
-		String name = settingsTable.getColumnName(UsersModel.Columns.Name.ordinal());
+		String name = settingsTable.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		settingsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		settingsTable.getColumn(name).setCellRenderer(nameRenderer);
 		settingsTable.setRowSorter(defaultSettingsSorter);
-		settingsTable.getRowSorter().toggleSortOrder(SettingsModel.Columns.Name.ordinal());
+		settingsTable.getRowSorter().toggleSortOrder(SettingsTableModel.Columns.Name.ordinal());
 		settingsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
 			@Override
@@ -496,8 +496,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			repositoriesTable.setRowSorter(defaultRepositoriesSorter);
 			return;
 		}
-		RowFilter<RepositoriesModel, Object> containsFilter = new RowFilter<RepositoriesModel, Object>() {
-			public boolean include(Entry<? extends RepositoriesModel, ? extends Object> entry) {
+		RowFilter<RepositoriesTableModel, Object> containsFilter = new RowFilter<RepositoriesTableModel, Object>() {
+			public boolean include(Entry<? extends RepositoriesTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
 						return true;
@@ -506,7 +506,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				return false;
 			}
 		};
-		TableRowSorter<RepositoriesModel> sorter = new TableRowSorter<RepositoriesModel>(
+		TableRowSorter<RepositoriesTableModel> sorter = new TableRowSorter<RepositoriesTableModel>(
 				repositoriesModel);
 		sorter.setRowFilter(containsFilter);
 		repositoriesTable.setRowSorter(sorter);
@@ -517,8 +517,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			usersTable.setRowSorter(defaultUsersSorter);
 			return;
 		}
-		RowFilter<UsersModel, Object> containsFilter = new RowFilter<UsersModel, Object>() {
-			public boolean include(Entry<? extends UsersModel, ? extends Object> entry) {
+		RowFilter<UsersTableModel, Object> containsFilter = new RowFilter<UsersTableModel, Object>() {
+			public boolean include(Entry<? extends UsersTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
 						return true;
@@ -527,7 +527,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				return false;
 			}
 		};
-		TableRowSorter<UsersModel> sorter = new TableRowSorter<UsersModel>(usersModel);
+		TableRowSorter<UsersTableModel> sorter = new TableRowSorter<UsersTableModel>(usersModel);
 		sorter.setRowFilter(containsFilter);
 		usersTable.setRowSorter(sorter);
 	}
@@ -537,8 +537,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			settingsTable.setRowSorter(defaultSettingsSorter);
 			return;
 		}
-		RowFilter<SettingsModel, Object> containsFilter = new RowFilter<SettingsModel, Object>() {
-			public boolean include(Entry<? extends SettingsModel, ? extends Object> entry) {
+		RowFilter<SettingsTableModel, Object> containsFilter = new RowFilter<SettingsTableModel, Object>() {
+			public boolean include(Entry<? extends SettingsTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
 						return true;
@@ -547,7 +547,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				return false;
 			}
 		};
-		TableRowSorter<SettingsModel> sorter = new TableRowSorter<SettingsModel>(settingsModel);
+		TableRowSorter<SettingsTableModel> sorter = new TableRowSorter<SettingsTableModel>(settingsModel);
 		sorter.setRowFilter(containsFilter);
 		settingsTable.setRowSorter(sorter);
 	}
