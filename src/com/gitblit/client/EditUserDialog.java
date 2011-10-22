@@ -55,6 +55,8 @@ public class EditUserDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	private final String username;
+
 	private final UserModel user;
 
 	private final ServerSettings settings;
@@ -85,6 +87,7 @@ public class EditUserDialog extends JDialog {
 
 	public EditUserDialog(UserModel anUser, ServerSettings settings) {
 		super();
+		this.username = anUser.username;
 		this.user = new UserModel("");
 		this.settings = settings;
 		this.usernames = new HashSet<String>();
@@ -193,6 +196,16 @@ public class EditUserDialog extends JDialog {
 			if (usernames.contains(uname.toLowerCase())) {
 				error(MessageFormat.format("Username ''{0}'' is unavailable.", uname));
 				return false;
+			}
+		} else {
+			// check rename collision
+			if (!username.equalsIgnoreCase(uname)) {
+				if (usernames.contains(uname.toLowerCase())) {
+					error(MessageFormat.format(
+							"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
+							uname));
+					return false;
+				}
 			}
 		}
 

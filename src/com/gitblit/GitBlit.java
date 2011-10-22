@@ -440,6 +440,14 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public void updateUserModel(String username, UserModel user, boolean isCreate)
 			throws GitBlitException {
+		if (!username.equalsIgnoreCase(user.username)) {
+			if (userService.getUserModel(user.username) != null) {
+				throw new GitBlitException(
+						MessageFormat
+								.format("Failed to rename ''{0}'' because ''{1}'' already exists.",
+										username, user.username));
+			}
+		}
 		if (!userService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
@@ -722,6 +730,16 @@ public class GitBlit implements ServletContextListener {
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
+				if (!repository.name.toLowerCase().endsWith(
+						org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
+					repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
+				}
+				if (new File(repositoriesFolder, repository.name).exists()) {
+					throw new GitBlitException(
+							MessageFormat
+									.format("Failed to rename ''{0}'' because ''{1}'' already exists.",
+											repositoryName, repository.name));
+				}
 				closeRepository(repositoryName);
 				File folder = new File(repositoriesFolder, repositoryName);
 				File destFolder = new File(repositoriesFolder, repository.name);

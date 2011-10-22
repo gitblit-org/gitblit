@@ -63,6 +63,8 @@ public class EditRepositoryDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
+	private final String repositoryName;
+
 	private final RepositoryModel repository;
 
 	private boolean isCreate;
@@ -105,6 +107,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	public EditRepositoryDialog(RepositoryModel aRepository) {
 		super();
+		this.repositoryName = aRepository.name;
 		this.repository = new RepositoryModel();
 		this.repositoryNames = new HashSet<String>();
 		this.isCreate = false;
@@ -114,7 +117,7 @@ public class EditRepositoryDialog extends JDialog {
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
-	
+
 	@Override
 	protected JRootPane createRootPane() {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
@@ -175,7 +178,8 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.showRemoteBranches"), showRemoteBranches));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"), showReadme));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"), skipSizeCalculation));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"),
+				skipSizeCalculation));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
 
 		usersPalette = new JPalette<String>();
@@ -291,6 +295,16 @@ public class EditRepositoryDialog extends JDialog {
 				error(MessageFormat.format(
 						"Can not create repository ''{0}'' because it already exists.", rname));
 				return false;
+			}
+		} else {
+			// check rename collision
+			if (!repositoryName.equalsIgnoreCase(rname)) {
+				if (repositoryNames.contains(rname.toLowerCase())) {
+					error(MessageFormat.format(
+							"Failed to rename ''{0}'' because ''{1}'' already exists.",
+							repositoryName, rname));
+					return false;
+				}
 			}
 		}
 

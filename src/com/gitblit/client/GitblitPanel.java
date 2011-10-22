@@ -656,6 +656,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		List<String> usernames = gitblit.getUsernames();
 		List<String> members = gitblit.getPermittedUsernames(repository);
 		dialog.setUsers(repository.owner, usernames, members);
+		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
@@ -798,6 +799,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	protected void editUser(final UserModel user) {
 		EditUserDialog dialog = new EditUserDialog(user, gitblit.getSettings());
 		dialog.setLocationRelativeTo(GitblitPanel.this);
+		dialog.setUsers(gitblit.getUsers());
 		dialog.setRepositories(gitblit.getRepositories(), new ArrayList<String>(user.repositories));
 		dialog.setVisible(true);
 		final UserModel revisedUser = dialog.getUser();
