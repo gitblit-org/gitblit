@@ -43,6 +43,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -64,10 +65,11 @@ public class SummaryPage extends RepositoryPage {
 		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, 5);
 
 		Repository r = getRepository();
+		RepositoryModel model = getRepositoryModel();
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
-		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = GitBlit.self().getRepositoryDefaultMetrics(getRepositoryModel(), r);
+		if (!model.skipSummaryMetrics && GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+			metrics = GitBlit.self().getRepositoryDefaultMetrics(model, r);
 			metricsTotal = metrics.remove(0);
 		}
 

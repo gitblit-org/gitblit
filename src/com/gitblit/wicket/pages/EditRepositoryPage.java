@@ -213,6 +213,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
+		form.add(new CheckBox("skipSummaryMetrics"));
 		form.add(usersPalette);
 		form.add(federationSetsPalette);
 

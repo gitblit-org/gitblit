@@ -12,6 +12,8 @@
     **New:** *web.enableRpcAdministration = false*
 - added: reusable JSON RPC client class
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
+- added: per-repository setting to skip size calculation (faster repositories page loading)
+- added: per-repository setting to skip summary metrics calculation (faster summary page loading)
 - fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
     **This breaks 0.6.0 federation clients/servers.**
 - fixed: collision on rename for repositories and users

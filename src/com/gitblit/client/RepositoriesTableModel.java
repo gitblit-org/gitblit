@@ -117,7 +117,10 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Last_Change:
 			return model.lastChange;
 		case Size:
-			return model.size;
+			if (model.hasCommits) {
+				return model.size;
+			}
+			return "(empty)";
 		}
 		return null;
 	}

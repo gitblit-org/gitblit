@@ -594,6 +594,7 @@ public class GitBlit implements ServletContextListener {
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);
 			model.skipSizeCalculation = getConfig(config, "skipSizeCalculation", false);
+			model.skipSummaryMetrics = getConfig(config, "skipSummaryMetrics", false);
 			model.federationStrategy = FederationStrategy.fromName(getConfig(config,
 					"federationStrategy", null));
 			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
@@ -814,6 +815,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
 		config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
 		config.setBoolean("gitblit", null, "skipSizeCalculation", repository.skipSizeCalculation);
+		config.setBoolean("gitblit", null, "skipSummaryMetrics", repository.skipSummaryMetrics);
 		config.setStringList("gitblit", null, "federationSets", repository.federationSets);
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
