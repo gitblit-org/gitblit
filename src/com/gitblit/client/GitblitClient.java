@@ -48,8 +48,10 @@ public class GitblitClient implements Serializable {
 	public final String account;
 
 	private final char[] password;
+	
+	private volatile boolean allowManagement;
 
-	private volatile boolean isAdmin;
+	private volatile boolean allowAdministration;
 
 	private volatile ServerSettings settings;
 
@@ -75,19 +77,32 @@ public class GitblitClient implements Serializable {
 		refreshRepositories();
 
 		try {
-			settings = RpcUtils.getSettings(url, account, password);
-			status = RpcUtils.getStatus(url, account, password);
 			refreshUsers();
-			isAdmin = true;
+			allowManagement = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 		}
+
+		try {
+			settings = RpcUtils.getSettings(url, account, password);
+			status = RpcUtils.getStatus(url, account, password);
+			allowAdministration = true;
+		} catch (UnauthorizedException e) {
+		} catch (ForbiddenException e) {
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+
 	}
 
-	public boolean allowAdmin() {
-		return isAdmin;
+	public boolean allowManagement() {
+		return allowManagement;
+	}
+	
+	public boolean allowAdministration() {
+		return allowAdministration;
 	}
 
 	public boolean isOwner(RepositoryModel model) {

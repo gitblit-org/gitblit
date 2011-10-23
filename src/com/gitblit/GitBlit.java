@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -67,9 +68,9 @@ import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ObjectCache;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
-import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
@@ -244,6 +245,17 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static boolean isDebugMode() {
 		return self().settings.getBoolean(Keys.web.debugMode, false);
+	}
+
+	/**
+	 * Updates the list of server settings.
+	 * 
+	 * @param settings
+	 * @return true if the update succeeded
+	 */
+	public boolean updateSettings(Collection<SettingModel> settings) {
+		// TODO update the settings
+		return false;
 	}
 
 	public ServerStatus getStatus() {
@@ -442,10 +454,9 @@ public class GitBlit implements ServletContextListener {
 			throws GitBlitException {
 		if (!username.equalsIgnoreCase(user.username)) {
 			if (userService.getUserModel(user.username) != null) {
-				throw new GitBlitException(
-						MessageFormat
-								.format("Failed to rename ''{0}'' because ''{1}'' already exists.",
-										username, user.username));
+				throw new GitBlitException(MessageFormat.format(
+						"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
+						user.username));
 			}
 		}
 		if (!userService.updateUserModel(username, user)) {
@@ -735,10 +746,9 @@ public class GitBlit implements ServletContextListener {
 					repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 				}
 				if (new File(repositoriesFolder, repository.name).exists()) {
-					throw new GitBlitException(
-							MessageFormat
-									.format("Failed to rename ''{0}'' because ''{1}'' already exists.",
-											repositoryName, repository.name));
+					throw new GitBlitException(MessageFormat.format(
+							"Failed to rename ''{0}'' because ''{1}'' already exists.",
+							repositoryName, repository.name));
 				}
 				closeRepository(repositoryName);
 				File folder = new File(repositoriesFolder, repositoryName);

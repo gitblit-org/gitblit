@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.RpcUtils;
@@ -182,7 +183,20 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
 			// return the server's settings
-			result = GitBlit.self().getSettingsModel();
+			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+				result = GitBlit.self().getSettingsModel();
+			} else {
+				response.sendError(notAllowedCode);
+			}
+		} else if (RpcRequest.EDIT_SETTINGS.equals(reqType)) {
+			// update settings on the server
+			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+				Collection<SettingModel> settings = deserialize(request, response,
+						RpcUtils.SETTINGS_TYPE);
+				GitBlit.self().updateSettings(settings);
+			} else {
+				response.sendError(notAllowedCode);
+			}
 		} else if (RpcRequest.LIST_STATUS.equals(reqType)) {
 			// return the server's status information
 			result = GitBlit.self().getStatus();

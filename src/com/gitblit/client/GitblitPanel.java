@@ -185,7 +185,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoriesTable = Utils.newTable(repositoriesModel);
 		repositoriesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		repositoriesTable.setRowSorter(defaultRepositoriesSorter);
-		repositoriesTable.getRowSorter().toggleSortOrder(RepositoriesTableModel.Columns.Name.ordinal());
+		repositoriesTable.getRowSorter().toggleSortOrder(
+				RepositoriesTableModel.Columns.Name.ordinal());
 
 		setRepositoryRenderer(RepositoriesTableModel.Columns.Name, nameRenderer, -1);
 		setRepositoryRenderer(RepositoriesTableModel.Columns.Indicators, typeRenderer, 100);
@@ -208,7 +209,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 					RepositoryModel model = ((RepositoriesTableModel) repositoriesTable.getModel()).list
 							.get(modelRow);
 					editRepository.setEnabled(singleSelection
-							&& (gitblit.allowAdmin() || gitblit.isOwner(model)));
+							&& (gitblit.allowManagement() || gitblit.isOwner(model)));
 				} else {
 					editRepository.setEnabled(false);
 				}
@@ -217,7 +218,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		repositoriesTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2 && gitblit.allowAdmin()) {
+				if (e.getClickCount() == 2 && gitblit.allowManagement()) {
 					editRepository(getSelectedRepositories().get(0));
 				}
 			}
@@ -266,8 +267,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		return repositoriesPanel;
 	}
 
-	private void setRepositoryRenderer(RepositoriesTableModel.Columns col, TableCellRenderer renderer,
-			int maxWidth) {
+	private void setRepositoryRenderer(RepositoriesTableModel.Columns col,
+			TableCellRenderer renderer, int maxWidth) {
 		String name = repositoriesTable.getColumnName(col.ordinal());
 		repositoriesTable.getColumn(name).setCellRenderer(renderer);
 		if (maxWidth > 0) {
@@ -457,9 +458,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		updateRepositoriesTable();
 		Utils.packColumns(repositoriesTable, 2);
 
-		if (gitblit.allowAdmin()) {
+		if (gitblit.allowManagement()) {
 			updateUsersTable();
-			updateSettingsTable();
 		} else {
 			// user does not have administrator privileges
 			// hide admin repository buttons
@@ -468,8 +468,21 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			delRepository.setVisible(false);
 
 			while (tabs.getTabCount() > 1) {
-				// remove admin tabs
+				// remove all management/administration tabs
 				tabs.removeTabAt(1);
+			}
+		}
+
+		if (gitblit.allowAdministration()) {
+			updateSettingsTable();
+		} else {
+			// remove the settings tab
+			String settingsTitle = Translation.get("gb.settings");
+			for (int i= 0; i < tabs.getTabCount(); i++) {
+				if (tabs.getTitleAt(i).equals(settingsTitle)) {
+					tabs.removeTabAt(i);
+					break;
+				}				
 			}
 		}
 	}
@@ -547,7 +560,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				return false;
 			}
 		};
-		TableRowSorter<SettingsTableModel> sorter = new TableRowSorter<SettingsTableModel>(settingsModel);
+		TableRowSorter<SettingsTableModel> sorter = new TableRowSorter<SettingsTableModel>(
+				settingsModel);
 		sorter.setRowFilter(containsFilter);
 		settingsTable.setRowSorter(sorter);
 	}

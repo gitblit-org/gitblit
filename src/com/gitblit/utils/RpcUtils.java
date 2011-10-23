@@ -28,8 +28,9 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.ServerStatus;
 import com.gitblit.models.ServerSettings;
+import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -42,6 +43,9 @@ import com.google.gson.reflect.TypeToken;
 public class RpcUtils {
 
 	public static final Type NAMES_TYPE = new TypeToken<Collection<String>>() {
+	}.getType();
+
+	public static final Type SETTINGS_TYPE = new TypeToken<Collection<SettingModel>>() {
 	}.getType();
 
 	private static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {
@@ -344,8 +348,26 @@ public class RpcUtils {
 	public static ServerSettings getSettings(String serverUrl, String account, char[] password)
 			throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_SETTINGS);
-		ServerSettings settings = JsonUtils.retrieveJson(url, ServerSettings.class, account, password);
+		ServerSettings settings = JsonUtils.retrieveJson(url, ServerSettings.class, account,
+				password);
 		return settings;
+	}
+
+	/**
+	 * Update the settings on the Gitblit server.
+	 * 
+	 * @param settings
+	 *            the settings to update
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean updateSettings(Map<String, String> settings, String serverUrl,
+			String account, char[] password) throws IOException {
+		return doAction(RpcRequest.EDIT_SETTINGS, null, settings, serverUrl, account, password);
+
 	}
 
 	/**
