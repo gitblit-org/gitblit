@@ -15,6 +15,10 @@
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
 - added: per-repository setting to skip size calculation (faster repositories page loading)
 - added: per-repository setting to skip summary metrics calculation (faster summary page loading)
+- added: IUserService.setup(IStoredSettings) for custom user service implementations
+- added: setting to control Gitblit GO context path for proxy setups  
+    **New:** *server.contextPath = /*
+- added: *combined-md5* password storage option which stores the hash of username+password as the password
 - fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
     **This breaks 0.6.0 federation clients/servers.**
 - fixed: collision on rename for repositories and users
@@ -23,9 +27,6 @@
 - fixed: Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
-- added: IUserService.setup(IStoredSettings) for custom user service implementations
-- added: setting to control Gitblit GO context path for proxy setups  
-    **New:** *server.contextPath = /*
 - updated: MarkdownPapers 1.2.4
 
 ### Older Releases

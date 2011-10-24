@@ -126,11 +126,20 @@ public class FileUserService extends FileSettings implements IUserService {
 		UserModel returnedUser = null;
 		UserModel user = getUserModel(username);
 		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
+			// password digest
 			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
 			if (user.password.equalsIgnoreCase(md5)) {
 				returnedUser = user;
 			}
+		} else if (user.password.startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+			// username+password digest
+			String md5 = StringUtils.COMBINED_MD5_TYPE
+					+ StringUtils.getMD5(username.toLowerCase() + new String(password));
+			if (user.password.equalsIgnoreCase(md5)) {
+				returnedUser = user;
+			}
 		} else if (user.password.equals(new String(password))) {
+			// plain-text password
 			returnedUser = user;
 		}
 		return returnedUser;

@@ -70,7 +70,7 @@ public class EditUserPage extends RootSubPage {
 		} else {
 			super.setupPage(getString("gb.edit"), userModel.username);
 		}
-		
+
 		final Model<String> confirmPassword = new Model<String>(
 				StringUtils.isEmpty(userModel.password) ? "" : userModel.password);
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
@@ -109,12 +109,14 @@ public class EditUserPage extends RootSubPage {
 						return;
 					}
 				}
+				boolean rename = !StringUtils.isEmpty(oldName) && !oldName.equalsIgnoreCase(username);
 				if (!userModel.password.equals(confirmPassword.getObject())) {
 					error("Passwords do not match!");
 					return;
 				}
 				String password = userModel.password;
-				if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)) {
+				if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
+						&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
 					// This is a plain text password.
 					// Check length.
 					int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
@@ -134,7 +136,15 @@ public class EditUserPage extends RootSubPage {
 						// store MD5 digest of password
 						userModel.password = StringUtils.MD5_TYPE
 								+ StringUtils.getMD5(userModel.password);
+					} else if (type.equalsIgnoreCase("combined-md5")) {
+						// store MD5 digest of username+password
+						userModel.password = StringUtils.COMBINED_MD5_TYPE
+								+ StringUtils.getMD5(username.toLowerCase() + userModel.password);
 					}
+				} else if (rename
+						&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+					error("Gitblit is configured for combined-md5 password hashing. You must enter a new password on account rename.");
+					return;
 				}
 
 				Iterator<String> selectedRepositories = repositories.getSelectedChoices();

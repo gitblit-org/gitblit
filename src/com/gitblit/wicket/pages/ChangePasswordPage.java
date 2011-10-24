@@ -77,14 +77,19 @@ public class ChangePasswordPage extends RootSubPage {
 					return;
 				}
 
+				UserModel user = GitBlitWebSession.get().getUser();
+
 				// convert to MD5 digest, if appropriate
 				String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
 				if (type.equalsIgnoreCase("md5")) {
 					// store MD5 digest of password
 					password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
+				} else if (type.equalsIgnoreCase("combined-md5")) {
+					// store MD5 digest of username+password
+					password = StringUtils.COMBINED_MD5_TYPE
+							+ StringUtils.getMD5(user.username.toLowerCase() + password);
 				}
 
-				UserModel user = GitBlitWebSession.get().getUser();
 				user.password = password;
 				try {
 					GitBlit.self().updateUserModel(user.username, user, false);

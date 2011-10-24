@@ -191,6 +191,7 @@ public class EditUserDialog extends JDialog {
 			return false;
 		}
 
+		boolean rename = false;
 		// verify username uniqueness on create
 		if (isCreate) {
 			if (usernames.contains(uname.toLowerCase())) {
@@ -199,7 +200,8 @@ public class EditUserDialog extends JDialog {
 			}
 		} else {
 			// check rename collision
-			if (!username.equalsIgnoreCase(uname)) {
+			rename = !StringUtils.isEmpty(username) && !username.equalsIgnoreCase(uname);
+			if (rename) {
 				if (usernames.contains(uname.toLowerCase())) {
 					error(MessageFormat.format(
 							"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
@@ -208,34 +210,51 @@ public class EditUserDialog extends JDialog {
 				}
 			}
 		}
+		user.username = uname;
 
 		int minLength = settings.get(Keys.realm.minPasswordLength).getInteger(5);
 		if (minLength < 4) {
 			minLength = 4;
 		}
-		char[] pw = passwordField.getPassword();
-		if (pw == null || pw.length < minLength) {
+
+		String password = new String(passwordField.getPassword());
+		if (StringUtils.isEmpty(password) || password.length() < minLength) {
 			error(MessageFormat.format("Password is too short. Minimum length is {0} characters.",
 					minLength));
 			return false;
 		}
-		char[] cpw = confirmPasswordField.getPassword();
-		if (cpw == null || cpw.length != pw.length) {
-			error("Please confirm the password!");
+		if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
+				&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+			String cpw = new String(confirmPasswordField.getPassword());
+			if (cpw == null || cpw.length() != password.length()) {
+				error("Please confirm the password!");
+				return false;
+			}
+			if (!password.equals(cpw)) {
+				error("Passwords do not match!");
+				return false;
+			}
+
+			String type = settings.get(Keys.realm.passwordStorage).getString("md5");
+			if (type.equalsIgnoreCase("md5")) {
+				// store MD5 digest of password
+				user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
+			} else if (type.equalsIgnoreCase("combined-md5")) {
+				// store MD5 digest of username+password
+				user.password = StringUtils.COMBINED_MD5_TYPE
+						+ StringUtils.getMD5(username.toLowerCase() + password);
+			} else {
+				// plain-text password
+				user.password = password;
+			}
+		} else if (rename && password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+			error("Gitblit is configured for combined-md5 password hashing. You must enter a new password on account rename.");
 			return false;
-		}
-		if (!Arrays.equals(pw, cpw)) {
-			error("Passwords do not match!");
-			return false;
-		}
-		user.username = uname;
-		String type = settings.get(Keys.realm.passwordStorage).getString("md5");
-		if (type.equalsIgnoreCase("md5")) {
-			// store MD5 digest of password
-			user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(pw));
 		} else {
-			user.password = new String(pw);
+			// no change in password
+			user.password = password;
 		}
+
 		user.canAdmin = canAdminCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
 
