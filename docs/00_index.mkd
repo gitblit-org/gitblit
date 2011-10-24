@@ -29,6 +29,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- **security**: fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
     **New:** *web.loginMessage = gitblit*
 - improved: repositories list performance by caching repository sizes (issue 27)
@@ -45,7 +46,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - fixed: collision on rename for repositories and users
 - fixed: Gitblit can now browse the Linux kernel repository (issue 25)
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
-- fixed: Set the RSS content type for Firefox 4 (issue 22)
+- fixed: Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - added: IUserService.setup(IStoredSettings) for custom user service implementations

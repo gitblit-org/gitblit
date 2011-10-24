@@ -84,6 +84,7 @@ Currently this project is in the planning stage.
     ],
     "isFederated": false,
     "skipSizeCalculation": false,
+    "skipSummaryMetrics": false,
     "size": "102 KB"
   },
   "https://localhost/git/libraries/smack.git": {
@@ -102,6 +103,7 @@ Currently this project is in the planning stage.
     "federationSets": [],
     "isFederated": false,
     "skipSizeCalculation": false,
+    "skipSummaryMetrics": false,
     "size": "4.8 MB"
   }
 }
@@ -131,6 +133,8 @@ The original repository name is specified in the *name* url parameter.  The new 
       "libraries"
     ],
     "isFederated": false,
+    "skipSizeCalculation": false,
+    "skipSummaryMetrics": false,
     "size": "102 KB"
 }
 </pre>

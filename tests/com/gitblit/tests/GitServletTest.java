@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
 
 import com.gitblit.GitBlitServer;
@@ -50,7 +51,9 @@ public class GitServletTest extends TestCase {
 	}
 
 	public void testClone() throws Exception {
-		FileUtils.delete(folder, FileUtils.RECURSIVE);
+		if (folder.exists()) {
+			FileUtils.delete(folder, FileUtils.RECURSIVE);
+		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("http://localhost:{0,number,#}/git/ticgit.git", port));
 		clone.setDirectory(folder);
@@ -70,5 +73,19 @@ public class GitServletTest extends TestCase {
 		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
 		git.getRepository().close();
+	}
+		
+	public void testBogusLoginClone() throws Exception {
+		File folder = new File(GitBlitSuite.REPOSITORIES, "working/gitblit");
+		if (folder.exists()) {
+			FileUtils.delete(folder, FileUtils.RECURSIVE);
+		}
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("http://localhost:{0,number,#}/git/gitblit.git", port));
+		clone.setDirectory(folder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider("bogus", "bogus"));
+		clone.call();
 	}
 }

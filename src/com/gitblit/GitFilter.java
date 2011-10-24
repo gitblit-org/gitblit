@@ -75,6 +75,8 @@ public class GitFilter extends AccessRestrictionFilter {
 				return gitReceivePack;
 			} else if (suffix.contains("?service=git-upload-pack")) {
 				return gitUploadPack;
+			} else {
+				return gitUploadPack;
 			}
 		}
 		return null;
