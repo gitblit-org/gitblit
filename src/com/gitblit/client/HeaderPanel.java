@@ -17,13 +17,16 @@ package com.gitblit.client;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -35,20 +38,42 @@ public class HeaderPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
+	private final Insets insets = new Insets(5, 5, 5, 5);
+
 	private Color lightColor = new Color(0, 0, 0x60);
 
+	private JLabel headerLabel;
+
+	private JLabel refreshLabel;
+
 	public HeaderPanel(String text, String icon) {
-		super(new FlowLayout(FlowLayout.LEFT), true);
+		// super(new FlowLayout(FlowLayout.LEFT), true);
+		super(new GridLayout(1, 2, 5, 5), true);
 		setOpaque(true);
 		setBackground(new Color(0, 0, 0x20));
 
-		JLabel label = new JLabel(text);
+		headerLabel = new JLabel(text);
 		if (!StringUtils.isEmpty(icon)) {
-			label.setIcon(new ImageIcon(getClass().getResource("/" + icon)));
+			headerLabel.setIcon(new ImageIcon(getClass().getResource("/" + icon)));
 		}
-		label.setForeground(Color.white);
-		label.setFont(label.getFont().deriveFont(14f));
-		add(label);
+		headerLabel.setForeground(Color.white);
+		headerLabel.setFont(headerLabel.getFont().deriveFont(14f));
+		add(headerLabel);
+
+		refreshLabel = new JLabel("", JLabel.RIGHT);
+		refreshLabel.setForeground(Color.white);
+		add(refreshLabel);
+	}
+
+	public void setText(String text) {
+		headerLabel.setText(text);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		refreshLabel.setText("refreshed " + df.format(new Date()));
+	}
+
+	@Override
+	public Insets getInsets() {
+		return insets;
 	}
 
 	@Override

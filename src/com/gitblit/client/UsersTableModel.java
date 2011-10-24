@@ -36,7 +36,7 @@ public class UsersTableModel extends AbstractTableModel {
 	List<UserModel> list;
 
 	enum Columns {
-		Name;
+		Name, AccessLevel;
 
 		@Override
 		public String toString() {
@@ -69,6 +69,8 @@ public class UsersTableModel extends AbstractTableModel {
 		switch (col) {
 		case Name:
 			return Translation.get("gb.name");
+		case AccessLevel:
+			return Translation.get("gb.accessLevel");
 		}
 		return "";
 	}
@@ -91,6 +93,10 @@ public class UsersTableModel extends AbstractTableModel {
 		switch (col) {
 		case Name:
 			return model.username;
+		case AccessLevel:
+			if (model.canAdmin) {
+				return "administrator";
+			}
 		}
 		return null;
 	}
