@@ -30,7 +30,6 @@ import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
-import com.gitblit.models.SettingModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -45,7 +44,7 @@ public class RpcUtils {
 	public static final Type NAMES_TYPE = new TypeToken<Collection<String>>() {
 	}.getType();
 
-	public static final Type SETTINGS_TYPE = new TypeToken<Collection<SettingModel>>() {
+	public static final Type SETTINGS_TYPE = new TypeToken<Map<String, String>>() {
 	}.getType();
 
 	private static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {

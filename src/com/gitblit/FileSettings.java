@@ -18,7 +18,11 @@ package com.gitblit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
+
+import com.gitblit.utils.FileUtils;
 
 /**
  * Dynamically loads and reloads a properties file by keeping track of the last
@@ -72,6 +76,24 @@ public class FileSettings extends IStoredSettings {
 			}
 		}
 		return properties;
+	}
+
+	/**
+	 * Updates the specified settings in the settings file.
+	 */
+	public synchronized boolean saveSettings(Map<String, String> settings) {
+		String content = FileUtils.readContent(propertiesFile, "\n");
+		for (Map.Entry<String, String> setting:settings.entrySet()) {
+			String regex = "(?m)^(" + regExEscape(setting.getKey()) + "\\s*+=\\s*+)"
+				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";			
+			content = content.replaceAll(regex, setting.getKey() + " = " + setting.getValue());
+		}
+		FileUtils.writeContent(propertiesFile, content);
+		return true;
+	}
+	
+	private String regExEscape(String input) {
+		return input.replace(".", "\\.");
 	}
 
 	/**

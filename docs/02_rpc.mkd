@@ -31,6 +31,7 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationProposal&gt;</td></tr>
 <tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationSet&gt;</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerSettings (see example below)</td></tr>
+<tr><td>EDIT_SETTINGS</td><td>-</td><td><em>admin</em></td><td>Map&lt;String, String&gt;</td><td>-</td></tr>
 <tr><td>LIST_STATUS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerStatus (see example below)</td></tr>
 </table>
 

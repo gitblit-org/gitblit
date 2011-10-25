@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import junit.framework.TestCase;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -210,9 +212,33 @@ public class RpcTests extends TestCase {
 		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
 		assertTrue("No settings were retrieved!", settings != null);
 	}
-	
+
 	public void testServerStatus() throws Exception {
 		ServerStatus status = RpcUtils.getStatus(url, account, password.toCharArray());
 		assertTrue("No status was retrieved!", status != null);
+	}
+
+	public void testUpdateSettings() throws Exception {
+		Map<String, String> updated = new HashMap<String, String>();
+		
+		// grab current setting
+		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		boolean showSizes = settings.get(Keys.web.showRepositorySizes).getBoolean(true);
+		showSizes = !showSizes;
+		
+		// update setting
+		updated.put(Keys.web.showRepositorySizes, String.valueOf(showSizes));
+		boolean success = RpcUtils.updateSettings(updated, "http://localhost:8080/gb", account,
+				password.toCharArray());
+		assertTrue("Failed to update server settings", success);
+		
+		// confirm setting change
+		settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		boolean newValue = settings.get(Keys.web.showRepositorySizes).getBoolean(false);
+		assertEquals(newValue, showSizes);
+		
+		// restore setting
+		newValue = !newValue;
+		updated.put(Keys.web.showRepositorySizes, String.valueOf(newValue));
 	}
 }

@@ -17,6 +17,7 @@ package com.gitblit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -194,4 +195,14 @@ public abstract class IStoredSettings {
 	public void overrideSetting(String key, String value) {
 		overrides.put(key, value);
 	}
+
+	/**
+	 * Updates the values for the specified keys and persists the entire
+	 * configuration file.
+	 * 
+	 * @param map
+	 *            of key, value pairs
+	 * @return true if successful
+	 */
+	public abstract boolean saveSettings(Map<String, String> updatedSettings);
 }

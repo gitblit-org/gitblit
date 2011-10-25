@@ -17,6 +17,6 @@
 /federation.properties
 /mailtest.properties
 /.settings/*.prefs
-/src/WEB-INF/gitblit.properties
+/src/WEB-INF/reference.properties
 /bin/
 /.settings/

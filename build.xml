@@ -106,7 +106,7 @@
 
 		<!-- copy gitblit.properties to the WEB-INF folder.
 		     this file is only used for parsing setting descriptions. -->
-		<copy todir="${basedir}/src/WEB-INF" overwrite="true"
+		<copy tofile="${basedir}/src/WEB-INF/reference.properties" overwrite="true"
 			file="${basedir}/distrib/gitblit.properties" />
 
 		<!-- Compile the build tool and execute it.
@@ -311,11 +311,10 @@
 		
 		<delete dir="${project.war.dir}" />		
 
-		<!-- Copy web.xml, users.properties, and gitblit.properties to WEB-INF -->
+		<!-- Copy web.xml and users.properties to WEB-INF -->
 		<copy todir="${project.war.dir}/WEB-INF">
 			<fileset dir="${basedir}/distrib">
 			 	<include name="users.properties" />
-				<include name="gitblit.properties" />
 			</fileset>
 			<fileset dir="${basedir}/src/WEB-INF">
 			 	<include name="web.xml" />
@@ -325,6 +324,10 @@
 				<include name="NOTICE" />
 			</fileset>
 		</copy>
+		
+		<!-- Copy gitblit.properties as reference.properties -->
+		<copy tofile="${project.war.dir}/WEB-INF/reference.properties" 
+			file="${basedir}/distrib/gitblit.properties"/>
 		
 		<!-- Build the docs for the WAR build -->
 		<antcall target="buildDocs" inheritall="true" inheritrefs="true">

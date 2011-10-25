@@ -191,7 +191,7 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.EDIT_SETTINGS.equals(reqType)) {
 			// update settings on the server
 			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
-				Collection<SettingModel> settings = deserialize(request, response,
+				Map<String, String> settings = deserialize(request, response,
 						RpcUtils.SETTINGS_TYPE);
 				GitBlit.self().updateSettings(settings);
 			} else {

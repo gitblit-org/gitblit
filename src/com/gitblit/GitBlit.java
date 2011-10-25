@@ -25,7 +25,6 @@ import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -253,9 +252,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param settings
 	 * @return true if the update succeeded
 	 */
-	public boolean updateSettings(Collection<SettingModel> settings) {
-		// TODO update the settings
-		return false;
+	public boolean updateSettings(Map<String, String> updatedSettings) {
+		return settings.saveSettings(updatedSettings);		
 	}
 
 	public ServerStatus getStatus() {
@@ -1326,7 +1324,7 @@ public class GitBlit implements ServletContextListener {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
 			// models map.
-			InputStream is = servletContext.getResourceAsStream("/WEB-INF/gitblit.properties");
+			InputStream is = servletContext.getResourceAsStream("/WEB-INF/reference.properties");
 			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
 			StringBuilder description = new StringBuilder();
 			SettingModel setting = new SettingModel();
