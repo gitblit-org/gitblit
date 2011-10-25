@@ -486,7 +486,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		gitblit.login();
 
 		updateRepositoriesTable();
-		Utils.packColumns(repositoriesTable, 2);
+		Utils.packColumns(repositoriesTable, 5);
 
 		if (gitblit.allowManagement()) {
 			updateUsersTable();
@@ -505,6 +505,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		if (gitblit.allowAdministration()) {
 			updateSettingsTable();
+			Utils.packColumns(settingsTable, 5);
 		} else {
 			// remove the settings tab
 			String settingsTitle = Translation.get("gb.settings");

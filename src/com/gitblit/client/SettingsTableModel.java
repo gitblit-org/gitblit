@@ -39,7 +39,7 @@ public class SettingsTableModel extends AbstractTableModel {
 	List<String> keys;
 
 	enum Columns {
-		Name, Value;
+		Name, Value, Since;
 
 		@Override
 		public String toString() {
@@ -81,6 +81,8 @@ public class SettingsTableModel extends AbstractTableModel {
 		switch (col) {
 		case Name:
 			return Translation.get("gb.name");
+		case Since:
+			return Translation.get("gb.since");
 		}
 		return "";
 	}
@@ -109,6 +111,8 @@ public class SettingsTableModel extends AbstractTableModel {
 			return key;
 		case Value:
 			return setting;
+		case Since:
+			return setting.since;
 		}
 		return null;
 	}
