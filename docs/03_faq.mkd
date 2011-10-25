@@ -61,6 +61,15 @@ You must ensure that the proxy does not decode and then re-encode request urls w
 
 If you are using Apache mod_proxy, specify [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
 
+### Running Gitblit on Tomcat
+
+Tomcat takes the extra precaution of [disallowing embedded slashes by default](http://tomcat.apache.org/security-6.html#Fixed_in_Apache_Tomcat_6.0.10).  This breaks Gitblit urls.  
+You have a few options on how to handle this scenario:
+
+1. [Tweak Tomcat](http://tomcat.apache.org/security-6.html#Fixed_in_Apache_Tomcat_6.0.10) 
+2. *web.mountParameters = false* and use non-pretty, parameterized urls
+3. *web.forwardSlashCharacter = !* which tells Gitblit to use **!** instead of **/**
+
 ## General Interest Questions
 
 ### Gitblit?  What kind of name is that?

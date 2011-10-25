@@ -118,6 +118,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private HeaderPanel settingsHeader;
 
+	private StatusPanel statusPanel;
+
 	public GitblitPanel(GitblitRegistration reg) {
 		this(reg.url, reg.account, reg.password);
 	}
@@ -129,6 +131,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
+		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
 
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
@@ -482,6 +485,24 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		return settingsPanel;
 	}
 
+	private JPanel createStatusPanel() {
+		JButton refreshStatus = new JButton(Translation.get("gb.refresh"));
+		refreshStatus.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshStatus();
+			}
+		});
+
+		JPanel controls = new JPanel();
+		controls.add(refreshStatus);
+
+		JPanel panel = new JPanel(new BorderLayout());
+		statusPanel = new StatusPanel();
+		panel.add(statusPanel, BorderLayout.CENTER);
+		panel.add(controls, BorderLayout.SOUTH);
+		return panel;
+	}
+
 	public void login() throws IOException {
 		gitblit.login();
 
@@ -505,6 +526,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		if (gitblit.allowAdministration()) {
 			updateSettingsTable();
+			updateStatusPanel();
 			Utils.packColumns(settingsTable, 5);
 		} else {
 			// remove the settings tab
@@ -537,6 +559,10 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		settingsModel.setSettings(gitblit.getSettings());
 		settingsModel.fireTableDataChanged();
 		settingsHeader.setText(Translation.get("gb.settings"));
+	}
+
+	private void updateStatusPanel() {
+		statusPanel.setStatus(gitblit.getStatus());
 	}
 
 	private void filterRepositories(final String fragment) {
@@ -934,6 +960,22 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		worker.execute();
 	}
 
+	protected void refreshStatus() {
+		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_STATUS) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				gitblit.refreshStatus();
+				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateStatusPanel();
+			}
+		};
+		worker.execute();
+	}
+
 	protected void editSetting(final SettingModel settingModel) {
 		final JTextField textField = new JTextField(settingModel.currentValue);
 		JPanel editPanel = new JPanel(new GridLayout(0, 1));
@@ -949,8 +991,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		if (settingModel.currentValue.equals(settingModel.defaultValue)) {
 			options = new String[] { Translation.get("gb.cancel"), Translation.get("gb.save") };
 		} else {
-			options = new String[] { Translation.get("gb.cancel"), Translation.get("gb.setDefault"),
-					Translation.get("gb.save") };
+			options = new String[] { Translation.get("gb.cancel"),
+					Translation.get("gb.setDefault"), Translation.get("gb.save") };
 		}
 		String defaultOption = options[0];
 		int selection = JOptionPane.showOptionDialog(GitblitPanel.this, settingPanel,

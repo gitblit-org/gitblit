@@ -87,7 +87,7 @@ public class GitblitClient implements Serializable {
 
 		try {
 			refreshSettings();
-			status = RpcUtils.getStatus(url, account, password);
+			refreshStatus();
 			allowAdministration = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
@@ -140,6 +140,11 @@ public class GitblitClient implements Serializable {
 	public ServerSettings refreshSettings() throws IOException {
 		settings = RpcUtils.getSettings(url, account, password);
 		return settings;
+	}
+	
+	public ServerStatus refreshStatus() throws IOException {
+		status = RpcUtils.getStatus(url, account, password);
+		return status;
 	}
 
 	public List<FederationModel> refreshFederationRegistrations() throws IOException {

@@ -253,7 +253,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the update succeeded
 	 */
 	public boolean updateSettings(Map<String, String> updatedSettings) {
-		return settings.saveSettings(updatedSettings);		
+		return settings.saveSettings(updatedSettings);
 	}
 
 	public ServerStatus getStatus() {
@@ -1389,7 +1389,7 @@ public class GitBlit implements ServletContextListener {
 		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
-		serverStatus = new ServerStatus();
+		serverStatus = new ServerStatus(isGO());
 		String realm = settings.getString(Keys.realm.userService, "users.properties");
 		IUserService loginService = null;
 		try {
@@ -1433,12 +1433,14 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		servletContext = contextEvent.getServletContext();
-		settingsModel = loadSettingModels();
+		settingsModel = loadSettingModels();		
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			configureContext(webxmlSettings, true);
 		}
+		
+		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
 
 	/**

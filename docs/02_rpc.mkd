@@ -14,9 +14,11 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 ### RPC Requests
 
 <table>
-<tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>permission</th><th colspan='2'>json</th></tr>
+<tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>user<br/>permission</th><th colspan='2'>json</th></tr>
 <tr><th>req=</th><th>name=</th><th>post body</th><th>response body</th></tr>
+<tr><td colspan='5'><em>web.enableRpcServlet=true</em></td></tr>
 <tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>-</td><td>Map&lt;String, RepositoryModel&gt;</td></tr>
+<tr><td colspan='5'><em>web.enableRpcManagement=true</em></td></tr>
 <tr><td>CREATE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>EDIT_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>DELETE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>-</td><td>-</td></tr>
@@ -30,6 +32,7 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
 <tr><td>LIST_FEDERATION_PROPOSALS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationProposal&gt;</td></tr>
 <tr><td>LIST_FEDERATION_SETS</td><td>-</td><td><em>admin</em></td><td>-</td><td>List&lt;FederationSet&gt;</td></tr>
+<tr><td colspan='5'><em>web.enableRpcAdministration=true</em></td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerSettings (see example below)</td></tr>
 <tr><td>EDIT_SETTINGS</td><td>-</td><td><em>admin</em></td><td>Map&lt;String, String&gt;</td><td>-</td></tr>
 <tr><td>LIST_STATUS</td><td>-</td><td><em>admin</em></td><td>-</td><td>ServerStatus (see example below)</td></tr>
@@ -50,6 +53,9 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 
 [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote administration of a Gitblit server.  
 This application exercises many, but not all, methods from the utility class `com.gitblit.utils.RpcUtils`.
+
+**NOTE:**  
+Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
 
 ### EGit "Import from Gitblit" Feature (Planning)
 

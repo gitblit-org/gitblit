@@ -159,7 +159,7 @@ Usernames must be unique and are case-insensitive.
 Whitespace is illegal.
 
 #### Passwords
-User passwords are CASE-SENSITIVE and may be *plain* or *md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
+User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *combined-md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
 #### User Roles
 There are two actual *roles* in Gitblit: *#admin*, which grants administrative powers to that user, and *#notfederated*, which prevents an account from being pulled by another Gitblit instance.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.

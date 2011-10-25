@@ -199,7 +199,11 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_STATUS.equals(reqType)) {
 			// return the server's status information
-			result = GitBlit.self().getStatus();
+			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+				result = GitBlit.self().getStatus();
+			} else {
+				response.sendError(notAllowedCode);
+			}
 		}
 
 		// send the result of the request

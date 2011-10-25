@@ -33,18 +33,23 @@ public class ServerStatus implements Serializable {
 
 	public final Date bootDate;
 	
+	public final boolean isGO;
+	
 	public final Map<String, String> systemProperties;
 
-	public final long heapSize;
+	public final long heapMaximum;
 
 	public volatile long heapAllocated;
 	
 	public volatile long heapFree;
+	
+	public String servletContainer;
 
-	public ServerStatus() {
+	public ServerStatus(boolean isGO) {
 		bootDate = new Date();
+		this.isGO = isGO;
 		
-		heapSize = Runtime.getRuntime().maxMemory();
+		heapMaximum = Runtime.getRuntime().maxMemory();
 		
 		systemProperties = new TreeMap<String, String>();
 		put("file.encoding");
