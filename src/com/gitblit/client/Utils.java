@@ -17,11 +17,17 @@ package com.gitblit.client;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -55,8 +61,19 @@ public class Utils {
 	}
 
 	public static void showException(Component c, Throwable t) {
-		// TODO show the unexpected exception
-		t.printStackTrace();
+		StringWriter writer = new StringWriter();
+		t.printStackTrace(new PrintWriter(writer));
+		String stacktrace = writer.toString();
+		try {
+			writer.close();
+		} catch (Throwable x) {
+		}
+		JTextArea textArea = new JTextArea(stacktrace);
+		textArea.setFont(new Font("monospaced", Font.PLAIN, 11));
+		JScrollPane jsp = new JScrollPane(textArea);
+		jsp.setPreferredSize(new Dimension(800, 400));
+		JOptionPane.showMessageDialog(c, jsp, Translation.get("gb.error"),
+				JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void packColumns(JTable table, int margin) {

@@ -19,7 +19,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,8 +33,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -395,6 +400,17 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
+		final JButton editSetting = new JButton(Translation.get("gb.edit"));
+		editSetting.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int viewRow = settingsTable.getSelectedRow();
+				int modelRow = settingsTable.convertRowIndexToModel(viewRow);
+				String key = settingsModel.keys.get(modelRow);
+				SettingModel setting = settingsModel.settings.get(key);
+				editSetting(setting);
+			}
+		});
+
 		final SettingPanel settingPanel = new SettingPanel();
 		settingsModel = new SettingsTableModel();
 		defaultSettingsSorter = new TableRowSorter<SettingsTableModel>(settingsModel);
@@ -412,9 +428,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				if (e.getValueIsAdjusting()) {
 					return;
 				}
-				boolean selected = settingsTable.getSelectedRow() > -1;
 				boolean singleSelection = settingsTable.getSelectedRows().length == 1;
-				// TODO enable/disable setting buttons
+				editSetting.setEnabled(singleSelection);
 				if (singleSelection) {
 					int viewRow = settingsTable.getSelectedRow();
 					int modelRow = settingsTable.convertRowIndexToModel(viewRow);
@@ -449,7 +464,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		JPanel settingsControls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		settingsControls.add(refreshSettings);
-		// TODO update setting?
+		settingsControls.add(editSetting);
 
 		JPanel settingsPanel = new JPanel(new BorderLayout(margin, margin)) {
 
@@ -908,6 +923,55 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			protected Boolean doRequest() throws IOException {
 				gitblit.refreshSettings();
 				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateSettingsTable();
+			}
+		};
+		worker.execute();
+	}
+
+	protected void editSetting(final SettingModel settingModel) {
+		final JTextField textField = new JTextField(settingModel.currentValue);
+		JPanel editPanel = new JPanel(new GridLayout(0, 1));
+		editPanel.add(new JLabel("New Value"));
+		editPanel.add(textField);
+
+		JPanel settingPanel = new JPanel(new BorderLayout());
+		settingPanel.add(new SettingPanel(settingModel), BorderLayout.CENTER);
+		settingPanel.add(editPanel, BorderLayout.SOUTH);
+		settingPanel.setPreferredSize(new Dimension(800, 200));
+
+		String[] options;
+		if (settingModel.currentValue.equals(settingModel.defaultValue)) {
+			options = new String[] { Translation.get("gb.cancel"), Translation.get("gb.save") };
+		} else {
+			options = new String[] { Translation.get("gb.cancel"), Translation.get("gb.setDefault"),
+					Translation.get("gb.save") };
+		}
+		String defaultOption = options[0];
+		int selection = JOptionPane.showOptionDialog(GitblitPanel.this, settingPanel,
+				settingModel.name, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+				new ImageIcon(getClass().getResource("/settings_16x16.png")), options,
+				defaultOption);
+		if (selection <= 0) {
+			return;
+		}
+		if (options[selection].equals(Translation.get("gb.setDefault"))) {
+			textField.setText(settingModel.defaultValue);
+		}
+		final Map<String, String> newSettings = new HashMap<String, String>();
+		newSettings.put(settingModel.name, textField.getText().trim());
+		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.EDIT_SETTINGS) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				boolean success = gitblit.updateSettings(newSettings);
+				if (success) {
+					gitblit.refreshSettings();
+				}
+				return success;
 			}
 
 			@Override

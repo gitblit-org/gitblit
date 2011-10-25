@@ -50,10 +50,16 @@ public class SettingPanel extends JPanel {
 		initialize();
 	}
 
+	public SettingPanel(SettingModel setting) {
+		this();
+		setSetting(setting);
+	}
+
 	private void initialize() {
 		descriptionArea = new JTextArea();
 		descriptionArea.setRows(6);
 		descriptionArea.setFont(new Font("monospaced", Font.PLAIN, 11));
+		descriptionArea.setEditable(false);
 
 		settingName = new JLabel(" ");
 		settingName.setFont(settingName.getFont().deriveFont(Font.BOLD));
@@ -83,10 +89,10 @@ public class SettingPanel extends JPanel {
 		settingName.setText(setting.name);
 		if (setting.since == null) {
 			sinceVersion.setText("custom");
-		} else {			
+		} else {
 			sinceVersion.setText("since " + setting.since);
 		}
-		settingDefault.setText("default: " + setting.defaultValue);
+		settingDefault.setText(Translation.get("gb.default") + ": " + setting.defaultValue);
 
 		List<String> values = new ArrayList<String>();
 		if (setting.caseSensitive) {

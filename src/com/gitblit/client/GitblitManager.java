@@ -29,6 +29,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -272,7 +273,13 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 					registrations.put(reg.name, reg);
 					rebuildRecentMenu();
 				} catch (Throwable t) {
-					Utils.showException(GitblitManager.this, t);
+					Throwable cause = t.getCause();
+					if (cause instanceof ConnectException) {
+						JOptionPane.showMessageDialog(GitblitManager.this, cause.getMessage(),
+								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
+					} else {
+						Utils.showException(GitblitManager.this, t);
+					}
 				} finally {
 					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				}
@@ -338,7 +345,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			StoredConfig config = getConfig();
 			config.setString("servers", reg.name, "url", reg.url);
 			config.setString("servers", reg.name, "account", reg.account);
-			// FIXME this is pretty lame			
+			// FIXME this is pretty lame
 			config.setString("servers", reg.name, "password",
 					Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
 			config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));

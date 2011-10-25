@@ -48,7 +48,7 @@ public class GitblitClient implements Serializable {
 	public final String account;
 
 	private final char[] password;
-	
+
 	private volatile boolean allowManagement;
 
 	private volatile boolean allowAdministration;
@@ -100,7 +100,7 @@ public class GitblitClient implements Serializable {
 	public boolean allowManagement() {
 		return allowManagement;
 	}
-	
+
 	public boolean allowAdministration() {
 		return allowAdministration;
 	}
@@ -136,7 +136,7 @@ public class GitblitClient implements Serializable {
 		allUsers.addAll(users);
 		return allUsers;
 	}
-	
+
 	public ServerSettings refreshSettings() throws IOException {
 		settings = RpcUtils.getSettings(url, account, password);
 		return settings;
@@ -216,5 +216,9 @@ public class GitblitClient implements Serializable {
 
 	public boolean deleteUser(UserModel user) throws IOException {
 		return RpcUtils.deleteUser(user, url, account, password);
+	}
+
+	public boolean updateSettings(Map<String, String> newSettings) throws IOException {
+		return RpcUtils.updateSettings(newSettings, url, account, password);
 	}
 }
