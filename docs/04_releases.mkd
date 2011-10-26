@@ -10,6 +10,7 @@
 - improved: summary page performance by caching metric calculations (issue 25)
 - added: authenticated JSON RPC mechanism   
     **New:** *web.enableRpcServlet = true*  
+    **New:** *web.enableRpcManagement = false*  
     **New:** *web.enableRpcAdministration = false*
 - added: reusable JSON RPC client class
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.

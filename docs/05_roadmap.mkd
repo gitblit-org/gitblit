@@ -1,0 +1,30 @@
+## Roadmap
+
+This is not exactly a formal roadmap but it is a priority list of what might be implemented in future releases.  
+This list is volatile.
+
+### TODO (high priority)
+
+* Eclipse plugin to browse and clone repositories
+* Support federation RPCs in Gitblit Manager
+
+### TODO (medium priority)
+
+* Editable settings page in GO/WAR
+* Tag repositories and offer views of repositories by tag (issue 27)
+* Aggregate RSS feeds by tag or subfolder
+* Investigate create-on-push possibility
+* Create Repository by Cloning feature (issue 5)
+    * optional scheduled pulls
+    * optional automatic push to origin/remotes?
+    * optional manual push to origin/remotes?
+* Lucene integration with multi-repository search (issue 16)
+
+### TODO (low priority)
+
+* Blame coloring by author (issue 2)
+* View binary files in blob page (issue 6)
+
+### IDEAS
+
+* Stronger ticgit integration (issue 8)

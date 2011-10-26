@@ -258,7 +258,7 @@
 				<arg value="index=overview" />
 
 				<arg value="--alias" />
-				<arg value="properties=gitblit.properties" />
+				<arg value="properties=settings" />
 
 				<arg value="--substitute" />
 				<arg value="%VERSION%=${gb.version}" />
@@ -578,7 +578,7 @@
 			<arg value="index=overview" />
 
 			<arg value="--alias" />
-			<arg value="properties=gitblit.properties" />
+			<arg value="properties=settings" />
 
 			<arg value="--substitute" />
 			<arg value="%VERSION%=${gb.version}" />
