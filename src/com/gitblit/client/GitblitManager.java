@@ -65,6 +65,7 @@ import org.eclipse.jgit.util.Base64;
 import org.eclipse.jgit.util.FS;
 
 import com.gitblit.Constants;
+import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -277,6 +278,12 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 					if (cause instanceof ConnectException) {
 						JOptionPane.showMessageDialog(GitblitManager.this, cause.getMessage(),
 								Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
+					} else if (cause instanceof ForbiddenException) {
+						JOptionPane
+								.showMessageDialog(
+										GitblitManager.this,
+										"This Gitblit server does not allow RPC Management or Administration",
+										Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 					} else {
 						Utils.showException(GitblitManager.this, t);
 					}

@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
@@ -78,21 +80,25 @@ public class GitblitClient implements Serializable {
 
 		try {
 			refreshUsers();
+			refreshSettings();
 			allowManagement = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
+		} catch (NotAllowedException e) {
+		} catch (UnknownRequestException e) {
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 
 		try {
-			refreshSettings();
 			refreshStatus();
 			allowAdministration = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
+		} catch (NotAllowedException e) {
+		} catch (UnknownRequestException e) {
 		} catch (IOException e) {
-			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 
 	}
@@ -141,7 +147,7 @@ public class GitblitClient implements Serializable {
 		settings = RpcUtils.getSettings(url, account, password);
 		return settings;
 	}
-	
+
 	public ServerStatus refreshStatus() throws IOException {
 		status = RpcUtils.getStatus(url, account, password);
 		return status;

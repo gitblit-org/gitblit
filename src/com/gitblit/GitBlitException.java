@@ -56,7 +56,20 @@ public class GitBlitException extends IOException {
 			super(message);
 		}
 	}
-	
+
+	/**
+	 * Exception to indicate that the requested action has been disabled on the
+	 * Gitblit server.
+	 */
+	public static class NotAllowedException extends GitBlitException {
+
+		private static final long serialVersionUID = 1L;
+
+		public NotAllowedException(String message) {
+			super(message);
+		}
+	}
+
 	/**
 	 * Exception to indicate that the requested action can not be executed by
 	 * the server because it does not recognize the request type.

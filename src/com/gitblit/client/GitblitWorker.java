@@ -24,7 +24,9 @@ import javax.swing.SwingWorker;
 
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.GitBlitException.UnknownRequestException;
 
 public abstract class GitblitWorker extends SwingWorker<Boolean, Void> {
 
@@ -59,6 +61,10 @@ public abstract class GitblitWorker extends SwingWorker<Boolean, Void> {
 				Utils.explainForbidden(parent, request);
 			} else if (t instanceof UnauthorizedException) {
 				Utils.explainUnauthorized(parent, request);
+			} else if (t instanceof NotAllowedException) {
+				Utils.explainNotAllowed(parent, request);
+			} else if (t instanceof UnknownRequestException) {
+				Utils.explainNotAllowed(parent, request);
 			} else {
 				Utils.showException(parent, t);
 			}

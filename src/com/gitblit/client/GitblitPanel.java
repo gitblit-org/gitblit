@@ -683,6 +683,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		dialog.setLocationRelativeTo(GitblitPanel.this);
 		dialog.setUsers(null, gitblit.getUsernames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
+		dialog.setFederationSets(gitblit.getFederationSets(), null);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();

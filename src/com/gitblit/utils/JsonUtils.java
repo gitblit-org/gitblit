@@ -46,6 +46,7 @@ import javax.net.ssl.X509TrustManager;
 import org.eclipse.jgit.util.Base64;
 
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.models.RepositoryModel;
@@ -158,7 +159,7 @@ public class JsonUtils {
 		}
 		return gson().fromJson(json, type);
 	}
-	
+
 	/**
 	 * Reads a gson object from the specified url.
 	 * 
@@ -216,6 +217,12 @@ public class JsonUtils {
 			} else if (e.getMessage().indexOf("403") > -1) {
 				// requested url is forbidden by the requesting user
 				throw new ForbiddenException(url);
+			} else if (e.getMessage().indexOf("405") > -1) {
+				// requested url is not allowed by the server
+				throw new NotAllowedException(url);
+			} else if (e.getMessage().indexOf("501") > -1) {
+				// requested url is not recognized by the server
+				throw new UnknownRequestException(url);
 			}
 			throw e;
 		}
@@ -278,6 +285,9 @@ public class JsonUtils {
 			} else if (e.getMessage().indexOf("403") > -1) {
 				// requested url is forbidden by the requesting user
 				throw new ForbiddenException(url);
+			} else if (e.getMessage().indexOf("405") > -1) {
+				// requested url is not allowed by the server
+				throw new NotAllowedException(url);
 			} else if (e.getMessage().indexOf("501") > -1) {
 				// requested url is not recognized by the server
 				throw new UnknownRequestException(url);

@@ -48,9 +48,16 @@ public class Utils {
 		return table;
 	}
 
+	public static void explainNotAllowed(Component c, RpcRequest request) {
+		String msg = MessageFormat.format("The Gitblit server does not allow the request \"{0}\".",
+				request.name());
+		JOptionPane.showMessageDialog(c, msg, "Not Allowed", JOptionPane.ERROR_MESSAGE);
+	}
+
 	public static void explainForbidden(Component c, RpcRequest request) {
 		String msg = MessageFormat.format(
-				"The request \"{0}\" has been forbidden by the Gitblit server.", request.name());
+				"The request \"{0}\" has been forbidden for the account by the Gitblit server.",
+				request.name());
 		JOptionPane.showMessageDialog(c, msg, "Forbidden", JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -58,6 +65,12 @@ public class Utils {
 		String msg = MessageFormat.format(
 				"This account is not authorized to execute the request \"{0}\".", request.name());
 		JOptionPane.showMessageDialog(c, msg, "Unauthorized", JOptionPane.ERROR_MESSAGE);
+	}
+
+	public static void explainUnknown(Component c, RpcRequest request) {
+		String msg = MessageFormat.format(
+				"The request \"{0}\" is not recognized by the Gitblit server.", request.name());
+		JOptionPane.showMessageDialog(c, msg, "Unknown Request", JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void showException(Component c, Throwable t) {
