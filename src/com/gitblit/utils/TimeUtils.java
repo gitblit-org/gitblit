@@ -18,8 +18,6 @@ package com.gitblit.utils;
 import java.util.Calendar;
 import java.util.Date;
 
-import com.gitblit.models.FederationModel;
-
 /**
  * Utility class of time functions.
  * 

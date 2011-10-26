@@ -24,7 +24,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTag;
-import org.eclipse.jgit.revwalk.RevTree;
 
 /**
  * RefModel is a serializable model class that represents a tag or branch and
