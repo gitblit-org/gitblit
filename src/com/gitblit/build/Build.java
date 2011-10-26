@@ -137,8 +137,6 @@ public class Build {
 
 	public static void manager(DownloadListener listener) {
 		downloadListener = listener;
-		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
-		downloadFromApache(MavenObject.SLF4JNOP, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 
