@@ -1,5 +1,6 @@
 ## Screenshots
 <table class="screenshots">
+<tr><td colspan='3'><h3>Gitblit GO/WAR</h3></td></tr>
 <tr><td>
 	<a rel="screenshots_group" href="screenshots/00.png" title="Repository List"><img alt="Repositories" src="thumbs/00.png" /></a>
 	<br/>Repository List
@@ -55,9 +56,40 @@
 	<br/>Detailed Status of a Registration
 </td></tr>
 
-<tr><td>
+<tr><td colspan='3'>
 	<a rel="screenshots_group" href="screenshots/14.png" title="Send Proposal"><img alt="Propose" src="thumbs/14.png" /></a>
 	<br/>Send Proposal
+</td></tr>
+
+<tr><td colspan='3'><h3>Gitblit Manager</h3></td></tr>
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/m00.png" title="Repositories Panel"><img alt="Repositories Panel" src="thumbs/m00.png" /></a>
+	<br/>Repositories Panel
+</td><td>
+	<a rel="screenshots_group" href="screenshots/m01.png" title="Users Panel"><img alt="Users Panels" src="thumbs/m01.png" /></a>
+	<br/>Users Panel
+</td><td>
+	<a rel="screenshots_group" href="screenshots/m02.png" title="Settings Panel"><img alt="Settings Panel" src="thumbs/m02.png" /></a>
+	<br/>Settings Panel
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/m03.png" title="Status Panel"><img alt="Status Panel" src="thumbs/m03.png" /></a>
+	<br/>Status Panel
+</td><td>
+	<a rel="screenshots_group" href="screenshots/m04.png" title="Edit Repository Settings"><img alt="Repository Settings" src="thumbs/m04.png" /></a>
+	<br/>Edit Repository Settings
+</td><td>
+	<a rel="screenshots_group" href="screenshots/m05.png" title="Edit Repository Access Restrictions"><img alt="Access Restrictions" src="thumbs/m05.png" /></a>
+	<br/>Edit Repository Access Restriction
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/m06.png" title="Edit Repository Federation Settings"><img alt="Federation Settings" src="thumbs/m06.png" /></a>
+	<br/>Edit Repository Federation Settings
+</td><td colspan='2'>
+	<a rel="screenshots_group" href="screenshots/m07.png" title="Edit User Dialog"><img alt="Edit User Dialog" src="thumbs/m07.png" /></a>
+	<br/>Edit User Dialog
 </td></tr>
 
 </table>
