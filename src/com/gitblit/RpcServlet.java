@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.SettingModel;
+import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.RpcUtils;
@@ -63,6 +63,8 @@ public class RpcServlet extends JsonServlet {
 		String objectName = request.getParameter("name");
 		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType,
 				request.getRemoteAddr()));
+
+		boolean allowAdmin = GitBlit.getBoolean(Keys.web.enableRpcAdministration, false);
 
 		UserModel user = (UserModel) request.getUserPrincipal();
 
@@ -158,24 +160,28 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
 			// return the list of federation registrations
-			result = GitBlit.self().getFederationRegistrations();
+			if (allowAdmin) {
+				result = GitBlit.self().getFederationRegistrations();
+			} else {
+				response.sendError(notAllowedCode);
+			}
 		} else if (RpcRequest.LIST_FEDERATION_RESULTS.equals(reqType)) {
 			// return the list of federation result registrations
-			if (GitBlit.canFederate()) {
+			if (allowAdmin && GitBlit.canFederate()) {
 				result = GitBlit.self().getFederationResultRegistrations();
 			} else {
 				response.sendError(notAllowedCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_PROPOSALS.equals(reqType)) {
 			// return the list of federation proposals
-			if (GitBlit.canFederate()) {
+			if (allowAdmin && GitBlit.canFederate()) {
 				result = GitBlit.self().getPendingFederationProposals();
 			} else {
 				response.sendError(notAllowedCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_SETS.equals(reqType)) {
 			// return the list of federation sets
-			if (GitBlit.canFederate()) {
+			if (allowAdmin && GitBlit.canFederate()) {
 				String gitblitUrl = HttpUtils.getGitblitURL(request);
 				result = GitBlit.self().getFederationSets(gitblitUrl);
 			} else {
@@ -183,14 +189,23 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
 			// return the server's settings
-			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
-				result = GitBlit.self().getSettingsModel();
+			ServerSettings settings = GitBlit.self().getSettingsModel();
+			if (allowAdmin) {
+				// return all settings
+				result = settings;
 			} else {
-				response.sendError(notAllowedCode);
+				// return management settings only
+				String[] keys = { Keys.realm.minPasswordLength, Keys.realm.passwordStorage,
+						Keys.federation.sets };
+				ServerSettings managementSettings = new ServerSettings();
+				for (String key : keys) {
+					managementSettings.add(settings.get(key));
+				}
+				result = managementSettings;
 			}
 		} else if (RpcRequest.EDIT_SETTINGS.equals(reqType)) {
 			// update settings on the server
-			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+			if (allowAdmin) {
 				Map<String, String> settings = deserialize(request, response,
 						RpcUtils.SETTINGS_TYPE);
 				GitBlit.self().updateSettings(settings);
@@ -199,7 +214,7 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_STATUS.equals(reqType)) {
 			// return the server's status information
-			if (GitBlit.getBoolean(Keys.web.enableRpcAdministration, false)) {
+			if (allowAdmin) {
 				result = GitBlit.self().getStatus();
 			} else {
 				response.sendError(notAllowedCode);
