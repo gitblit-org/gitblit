@@ -101,6 +101,11 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			public void windowClosing(WindowEvent event) {
 				saveSizeAndPosition();
 			}
+			
+			@Override
+			public void windowOpened(WindowEvent event) {
+				manageRegistrations();
+			}
 		});
 
 		setSizeAndPosition();
