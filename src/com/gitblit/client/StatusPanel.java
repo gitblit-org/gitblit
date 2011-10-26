@@ -83,7 +83,7 @@ public class StatusPanel extends JPanel {
 		centerPanel.add(fieldsPanel, BorderLayout.NORTH);
 		centerPanel.add(new JScrollPane(propertiesTable), BorderLayout.CENTER);
 
-		headerPanel = new HeaderPanel(Translation.get("gb.status"), null);
+		headerPanel = new HeaderPanel(Translation.get("gb.status"), "health_16x16.png");
 		setLayout(new BorderLayout());
 		add(headerPanel, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);

@@ -447,6 +447,7 @@
 			<resource file="${basedir}/resources/cold_16x16.png" />
 			<resource file="${basedir}/resources/book_16x16.png" />
 			<resource file="${basedir}/resources/bug_16x16.png" />
+			<resource file="${basedir}/resources/health_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
 				
