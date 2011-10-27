@@ -27,8 +27,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import com.gitblit.Constants;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.TimeUtils;
 
 /**
  * This panel displays the server status.
@@ -46,6 +48,8 @@ public class StatusPanel extends JPanel {
 	private JLabel heapUsed;
 	private PropertiesTableModel model;
 	private HeaderPanel headerPanel;
+	private JLabel version;
+	private JLabel releaseDate;
 
 	public StatusPanel() {
 		super();
@@ -58,6 +62,8 @@ public class StatusPanel extends JPanel {
 	}
 
 	private void initialize() {
+		version = new JLabel();
+		releaseDate = new JLabel();
 		bootDate = new JLabel();
 		servletContainer = new JLabel();
 
@@ -65,7 +71,17 @@ public class StatusPanel extends JPanel {
 		heapAllocated = new JLabel();
 		heapUsed = new JLabel();
 
-		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
+		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1, 0, 5)) {
+		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return insets;
+			}
+		};
+		fieldsPanel.add(createFieldPanel("gb.version", version));
+		fieldsPanel.add(createFieldPanel("gb.releaseDate", releaseDate));
 		fieldsPanel.add(createFieldPanel("gb.bootDate", bootDate));
 		fieldsPanel.add(createFieldPanel("gb.servletContainer", servletContainer));
 		fieldsPanel.add(createFieldPanel("gb.heapUsed", heapUsed));
@@ -90,10 +106,10 @@ public class StatusPanel extends JPanel {
 	}
 
 	private JPanel createFieldPanel(String key, JLabel valueLabel) {
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		JLabel textLabel = new JLabel(Translation.get(key));
 		textLabel.setFont(textLabel.getFont().deriveFont(Font.BOLD));
-		textLabel.setPreferredSize(new Dimension(120, valueLabel.getFont().getSize() + 4));
+		textLabel.setPreferredSize(new Dimension(120, 10));
 		panel.add(textLabel);
 		panel.add(valueLabel);
 		return panel;
@@ -106,7 +122,10 @@ public class StatusPanel extends JPanel {
 
 	public void setStatus(ServerStatus status) {
 		headerPanel.setText(Translation.get("gb.status"));
-		bootDate.setText(status.bootDate.toString());
+		version.setText(Constants.NAME + (status.isGO ? " GO v" : " WAR v") + status.version);
+		releaseDate.setText(status.releaseDate);
+		bootDate.setText(status.bootDate.toString() + " (" + TimeUtils.timeAgo(status.bootDate)
+				+ ")");
 		servletContainer.setText(status.servletContainer);
 		ByteFormat byteFormat = new ByteFormat();
 		heapMaximum.setText(byteFormat.format(status.heapMaximum));

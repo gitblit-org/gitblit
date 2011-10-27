@@ -20,6 +20,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.gitblit.Constants;
+
 /**
  * ServerStatus encapsulates runtime status information about the server
  * including some information about the system environment.
@@ -32,26 +34,32 @@ public class ServerStatus implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public final Date bootDate;
-	
+
+	public final String version;
+
+	public final String releaseDate;
+
 	public final boolean isGO;
-	
+
 	public final Map<String, String> systemProperties;
 
 	public final long heapMaximum;
 
 	public volatile long heapAllocated;
-	
+
 	public volatile long heapFree;
-	
+
 	public String servletContainer;
 
 	public ServerStatus(boolean isGO) {
-		bootDate = new Date();
+		this.bootDate = new Date();
+		this.version = Constants.VERSION;
+		this.releaseDate = Constants.VERSION_DATE;
 		this.isGO = isGO;
-		
-		heapMaximum = Runtime.getRuntime().maxMemory();
-		
-		systemProperties = new TreeMap<String, String>();
+
+		this.heapMaximum = Runtime.getRuntime().maxMemory();
+
+		this.systemProperties = new TreeMap<String, String>();
 		put("file.encoding");
 		put("java.home");
 		put("java.io.tmpdir");

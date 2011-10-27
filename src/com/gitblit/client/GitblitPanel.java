@@ -530,11 +530,13 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			Utils.packColumns(settingsTable, 5);
 		} else {
 			// remove the settings tab
-			String settingsTitle = Translation.get("gb.settings");
-			for (int i = 0; i < tabs.getTabCount(); i++) {
-				if (tabs.getTitleAt(i).equals(settingsTitle)) {
-					tabs.removeTabAt(i);
-					break;
+			String[] titles = { Translation.get("gb.settings"), Translation.get("gb.status") };
+			for (String title : titles) {
+				for (int i = 0; i < tabs.getTabCount(); i++) {
+					if (tabs.getTitleAt(i).equals(title)) {
+						tabs.removeTabAt(i);
+						break;
+					}
 				}
 			}
 		}
