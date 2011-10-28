@@ -5,26 +5,27 @@ This list is volatile.
 
 ### TODO (high priority)
 
-* Eclipse plugin to browse and clone repositories
-* Support federation RPCs in Gitblit Manager
+* Eclipse: create plugin to enumerate repositories and delegate cloning to EGit
+* Manager: support federation RPCs
+* Manager: RSS feed reader tab  
 
 ### TODO (medium priority)
 
-* Editable settings page in GO/WAR
-* Tag repositories and offer views of repositories by tag (issue 27)
-* Aggregate RSS feeds by tag or subfolder
-* Investigate create-on-push possibility
-* Create Repository by Cloning feature (issue 5)
+* Gitblit: editable settings page in GO/WAR
+* Gitblit: tag repositories and offer views of repositories by tag (issue 27)
+* Gitblit: aggregate RSS feeds by tag or subfolder
+* Gitblit: investigate create-on-push possibility
+* Gitblit: Clone Repository feature (issue 5)
     * optional scheduled pulls
     * optional automatic push to origin/remotes?
     * optional manual push to origin/remotes?
-* Lucene integration with multi-repository search (issue 16)
+* Gitblit: Lucene integration with multi-repository search (issue 16)
 
 ### TODO (low priority)
 
-* Blame coloring by author (issue 2)
-* View binary files in blob page (issue 6)
+* Gitblit: Blame coloring by author (issue 2)
+* Gitblit: View binary files in blob page (issue 6)
 
 ### IDEAS
 
-* Stronger ticgit integration (issue 8)
+* Gitblit: Stronger ticgit integration (issue 8)
