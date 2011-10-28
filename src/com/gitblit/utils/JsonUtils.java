@@ -22,11 +22,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLConnection;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,15 +31,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import org.eclipse.jgit.util.Base64;
 
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
@@ -70,30 +57,11 @@ import com.google.gson.reflect.TypeToken;
  */
 public class JsonUtils {
 
-	public static final String CHARSET;
-
 	public static final Type REPOSITORIES_TYPE = new TypeToken<Map<String, RepositoryModel>>() {
 	}.getType();
 
 	public static final Type USERS_TYPE = new TypeToken<Collection<UserModel>>() {
 	}.getType();
-
-	private static final SSLContext SSL_CONTEXT;
-
-	private static final DummyHostnameVerifier HOSTNAME_VERIFIER;
-
-	static {
-		SSLContext context = null;
-		try {
-			context = SSLContext.getInstance("SSL");
-			context.init(null, new TrustManager[] { new DummyTrustManager() }, new SecureRandom());
-		} catch (Throwable t) {
-			t.printStackTrace();
-		}
-		SSL_CONTEXT = context;
-		HOSTNAME_VERIFIER = new DummyHostnameVerifier();
-		CHARSET = "UTF-8";
-	}
 
 	/**
 	 * Creates JSON from the specified object.
@@ -188,20 +156,10 @@ public class JsonUtils {
 	 */
 	public static String retrieveJsonString(String url, String username, char[] password)
 			throws IOException {
-		try {
-			URL urlObject = new URL(url);
-			URLConnection conn = urlObject.openConnection();
-			conn.setRequestProperty("Accept-Charset", CHARSET);
-			setAuthorization(conn, username, password);
-			conn.setUseCaches(false);
-			conn.setDoInput(true);
-			if (conn instanceof HttpsURLConnection) {
-				HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-				secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-				secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
-			}
+		try {			
+			URLConnection conn = ConnectionUtils.openReadConnection(url, username, password);
 			InputStream is = conn.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, CHARSET));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is, ConnectionUtils.CHARSET));
 			StringBuilder json = new StringBuilder();
 			char[] buffer = new char[4096];
 			int len = 0;
@@ -257,19 +215,10 @@ public class JsonUtils {
 	public static int sendJsonString(String url, String json, String username, char[] password)
 			throws IOException {
 		try {
-			byte[] jsonBytes = json.getBytes(CHARSET);
-			URL urlObject = new URL(url);
-			URLConnection conn = urlObject.openConnection();
-			conn.setRequestProperty("Content-Type", "text/plain;charset=" + CHARSET);
+			byte[] jsonBytes = json.getBytes(ConnectionUtils.CHARSET);
+			URLConnection conn = ConnectionUtils.openConnection(url, username, password);
+			conn.setRequestProperty("Content-Type", "text/plain;charset=" + ConnectionUtils.CHARSET);
 			conn.setRequestProperty("Content-Length", "" + jsonBytes.length);
-			setAuthorization(conn, username, password);
-			conn.setUseCaches(false);
-			conn.setDoOutput(true);
-			if (conn instanceof HttpsURLConnection) {
-				HttpsURLConnection secureConn = (HttpsURLConnection) conn;
-				secureConn.setSSLSocketFactory(SSL_CONTEXT.getSocketFactory());
-				secureConn.setHostnameVerifier(HOSTNAME_VERIFIER);
-			}
 
 			// write json body
 			OutputStream os = conn.getOutputStream();
@@ -293,15 +242,6 @@ public class JsonUtils {
 				throw new UnknownRequestException(url);
 			}
 			throw e;
-		}
-	}
-
-	private static void setAuthorization(URLConnection conn, String username, char[] password) {
-		if (!StringUtils.isEmpty(username) && (password != null && password.length > 0)) {
-			conn.setRequestProperty(
-					"Authorization",
-					"Basic "
-							+ Base64.encodeBytes((username + ":" + new String(password)).getBytes()));
 		}
 	}
 
@@ -341,37 +281,6 @@ public class JsonUtils {
 			} catch (ParseException e) {
 				throw new JsonSyntaxException(jsonElement.getAsString(), e);
 			}
-		}
-	}
-
-	/**
-	 * DummyTrustManager trusts all certificates.
-	 */
-	private static class DummyTrustManager implements X509TrustManager {
-
-		@Override
-		public void checkClientTrusted(X509Certificate[] certs, String authType)
-				throws CertificateException {
-		}
-
-		@Override
-		public void checkServerTrusted(X509Certificate[] certs, String authType)
-				throws CertificateException {
-		}
-
-		@Override
-		public X509Certificate[] getAcceptedIssuers() {
-			return null;
-		}
-	}
-
-	/**
-	 * Trusts all hostnames from a certificate, including self-signed certs.
-	 */
-	private static class DummyHostnameVerifier implements HostnameVerifier {
-		@Override
-		public boolean verify(String hostname, SSLSession session) {
-			return true;
 		}
 	}
 }

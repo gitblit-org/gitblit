@@ -37,6 +37,9 @@ public class SyndicationFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected String extractRepositoryName(String url) {
+		if (url.indexOf('?') > -1) {
+			return url.substring(0, url.indexOf('?'));
+		}
 		return url;
 	}
 

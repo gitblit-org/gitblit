@@ -16,8 +16,10 @@
 package com.gitblit.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.URLConnection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,9 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.feed.synd.SyndImageImpl;
 import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.SyndFeedOutput;
+import com.sun.syndication.io.XmlReader;
 
 /**
  * Utility class for RSS feeds.
@@ -92,5 +96,54 @@ public class SyndicationUtils {
 		SyndFeedOutput output = new SyndFeedOutput();
 		output.output(feed, writer);
 		writer.close();
+	}
+
+	/**
+	 * Reads a Gitblit RSS feed.
+	 * 
+	 * @param url
+	 *            the url of the Gitblit server
+	 * @param repository
+	 *            the repository name
+	 * @param branch
+	 *            the branch name (optional)
+	 * @param numberOfEntries
+	 *            the number of entries to retrieve. if <= 0 the server default
+	 *            is used.
+	 * @param username
+	 * @param password
+	 * @return the JSON message as a string
+	 * @throws {@link IOException}
+	 */
+	public static SyndFeed readFeed(String url, String repository, String branch,
+			int numberOfEntries, String username, char[] password) throws IOException,
+			FeedException {
+		String feedUrl;
+		if (StringUtils.isEmpty(branch)) {
+			// no branch specified
+			if (numberOfEntries > 0) {
+				// fixed number of entries
+				feedUrl = MessageFormat.format("{0}/feed/{1}?l={2,number,0}", url, repository);
+			} else {
+				// server default number of entries
+				feedUrl = MessageFormat.format("{0}/feed/{1}", url, repository);
+			}
+		} else {
+			// branch specified
+			if (numberOfEntries > 0) {
+				// fixed number of entries
+				feedUrl = MessageFormat.format("{0}/feed/{1}?h={2}&l={3,number,0}", url,
+						repository, branch, numberOfEntries);
+			} else {
+				// server default number of entries
+				feedUrl = MessageFormat.format("{0}/feed/{1}?h={2}", url, repository, branch);
+			}
+		}
+		URLConnection conn = ConnectionUtils.openReadConnection(feedUrl, username, password);
+		InputStream is = conn.getInputStream();
+		SyndFeedInput input = new SyndFeedInput();
+		SyndFeed feed = input.build(new XmlReader(is));
+		is.close();
+		return feed;
 	}
 }

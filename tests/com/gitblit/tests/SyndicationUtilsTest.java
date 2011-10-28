@@ -23,8 +23,10 @@ import junit.framework.TestCase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.client.GitblitFeed;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.SyndicationUtils;
+import com.sun.syndication.feed.synd.SyndFeed;
 
 public class SyndicationUtilsTest extends TestCase {
 
@@ -39,5 +41,13 @@ public class SyndicationUtilsTest extends TestCase {
 		assertTrue(feed.length() > 100);
 		assertTrue(feed.indexOf("<title>Title</title>") > -1);
 		assertTrue(feed.indexOf("<description>Description</description>") > -1);
+	}
+
+	public void testFeedRead() throws Exception {
+		GitblitFeed reader = new GitblitFeed("https://localhost:8443", "ticgit.git", "master");
+		SyndFeed feed = reader.update(5, "admin", "admin".toCharArray());
+		assertTrue(feed != null);
+		assertTrue(feed.getEntries().size() > 0);
+		assertEquals(5, feed.getEntries().size());
 	}
 }
