@@ -564,7 +564,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	}
 
 	private void updateStatusPanel() {
-		statusPanel.setStatus(gitblit.getStatus());
+		statusPanel.setStatus(gitblit.url, gitblit.getStatus());
 	}
 
 	private void filterRepositories(final String fragment) {

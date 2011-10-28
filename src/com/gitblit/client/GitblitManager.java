@@ -19,8 +19,6 @@ import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -45,15 +43,12 @@ import java.util.TimeZone;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -101,7 +96,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			public void windowClosing(WindowEvent event) {
 				saveSizeAndPosition();
 			}
-			
+
 			@Override
 			public void windowOpened(WindowEvent event) {
 				manageRegistrations();
@@ -177,25 +172,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		});
 		serversMenu.add(manage);
 
-		JMenuItem login = new JMenuItem(Translation.get("gb.login") + "...");
-		login.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK, false));
-		login.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				loginPrompt(GitblitRegistration.LOCALHOST);
-			}
-		});
-		serversMenu.add(login);
 		return menuBar;
-	}
-
-	private JPanel newLabelPanel(String text, JTextField field) {
-		JLabel label = new JLabel(text);
-		label.setFont(label.getFont().deriveFont(Font.BOLD));
-		label.setPreferredSize(new Dimension(75, 10));
-		JPanel jpanel = new JPanel(new BorderLayout());
-		jpanel.add(label, BorderLayout.WEST);
-		jpanel.add(field, BorderLayout.CENTER);
-		return jpanel;
 	}
 
 	private JPanel getCenterPanel() {
@@ -215,48 +192,23 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 	}
 
 	@Override
-	public void loginPrompt(GitblitRegistration reg) {
-		JTextField urlField = new JTextField(reg.url, 30);
-		JTextField nameField = new JTextField(reg.name);
-		JTextField accountField = new JTextField(reg.account);
-		JPasswordField passwordField = new JPasswordField(new String(reg.password));
-
-		JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-		panel.add(newLabelPanel(Translation.get("gb.name"), nameField));
-		panel.add(newLabelPanel(Translation.get("gb.url"), urlField));
-		panel.add(newLabelPanel(Translation.get("gb.username"), accountField));
-		panel.add(newLabelPanel(Translation.get("gb.password"), passwordField));
-
-		int result = JOptionPane.showConfirmDialog(GitblitManager.this, panel,
-				Translation.get("gb.login"), JOptionPane.OK_CANCEL_OPTION);
-		if (result != JOptionPane.OK_OPTION) {
-			return;
-		}
-		String url = urlField.getText();
-		if (StringUtils.isEmpty(url)) {
-			return;
-		}
-		String originalName = reg.name;
-		reg = new GitblitRegistration(nameField.getText(), url, accountField.getText(),
-				passwordField.getPassword());
-		if (!StringUtils.isEmpty(originalName) && !originalName.equals(reg.name)) {
-			// delete old registration
-			registrations.remove(originalName);
-			try {
-				StoredConfig config = getConfig();
-				config.unsetSection("servers", originalName);
-				config.save();
-			} catch (Throwable t) {
-				Utils.showException(GitblitManager.this, t);
+	public void login(GitblitRegistration reg) {
+		if (!reg.savePassword && (reg.password == null || reg.password.length == 0)) {
+			// prompt for password
+			EditRegistrationDialog dialog = new EditRegistrationDialog(this, reg, true);
+			dialog.setLocationRelativeTo(GitblitManager.this);
+			dialog.setVisible(true);
+			reg = dialog.getRegistration();
+			if (reg == null) {
+				// user canceled
+				return;
 			}
 		}
-		login(reg);
-	}
-
-	@Override
-	public void login(final GitblitRegistration reg) {
+		
+		// login
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		final GitblitPanel panel = new GitblitPanel(reg);
+		final GitblitRegistration registration = reg;
+		final GitblitPanel panel = new GitblitPanel(registration);
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 
 			@Override
@@ -269,15 +221,19 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			protected void done() {
 				try {
 					boolean success = get();
-					serverTabs.addTab(reg.name, panel);
+					serverTabs.addTab(registration.name, panel);
 					int idx = serverTabs.getTabCount() - 1;
 					serverTabs.setSelectedIndex(idx);
-					serverTabs.setTabComponentAt(idx, new ClosableTabComponent(reg.name, null,
-							serverTabs, panel));
-					reg.lastLogin = new Date();
-					saveRegistration(reg);
-					registrations.put(reg.name, reg);
+					serverTabs.setTabComponentAt(idx, new ClosableTabComponent(registration.name,
+							null, serverTabs, panel));
+					registration.lastLogin = new Date();
+					saveRegistration(registration.name, registration);
+					registrations.put(registration.name, registration);
 					rebuildRecentMenu();
+					if (!registration.savePassword) {
+						// clear password
+						registration.password = null;
+					}
 				} catch (Throwable t) {
 					Throwable cause = t.getCause();
 					if (cause instanceof ConnectException) {
@@ -332,7 +288,11 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			StoredConfig config = getConfig();
 			Set<String> servers = config.getSubsections("servers");
 			for (String server : servers) {
-				Date lastLogin = dateFormat.parse(config.getString("servers", server, "lastLogin"));
+				Date lastLogin = new Date(0);
+				String date = config.getString("servers", server, "lastLogin");
+				if (!StringUtils.isEmpty(date)) {
+					lastLogin = dateFormat.parse(date);
+				}
 				String url = config.getString("servers", server, "url");
 				String account = config.getString("servers", server, "account");
 				char[] password;
@@ -340,7 +300,6 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				if (StringUtils.isEmpty(pw)) {
 					password = new char[0];
 				} else {
-					// FIXME this is pretty lame
 					password = new String(Base64.decode(pw)).toCharArray();
 				}
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
@@ -352,21 +311,37 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		}
 	}
 
-	private void saveRegistration(GitblitRegistration reg) {
+	@Override
+	public boolean saveRegistration(String name, GitblitRegistration reg) {
 		try {
 			StoredConfig config = getConfig();
+			if (!StringUtils.isEmpty(name) && !name.equals(reg.name)) {
+				// delete old registration
+				registrations.remove(name);
+				config.unsetSection("servers", name);
+			}
+
+			// update registration
 			config.setString("servers", reg.name, "url", reg.url);
 			config.setString("servers", reg.name, "account", reg.account);
-			// FIXME this is pretty lame
-			config.setString("servers", reg.name, "password",
-					Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
-			config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
+			if (reg.savePassword) {
+				config.setString("servers", reg.name, "password",
+						Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
+			} else {
+				config.setString("servers", reg.name, "password", "");
+			}
+			if (reg.lastLogin != null) {
+				config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
+			}
 			config.save();
+			return true;
 		} catch (Throwable t) {
 			Utils.showException(GitblitManager.this, t);
 		}
+		return false;
 	}
 
+	@Override
 	public boolean deleteRegistrations(List<GitblitRegistration> list) {
 		boolean success = false;
 		try {

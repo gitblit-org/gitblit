@@ -42,6 +42,7 @@ public class StatusPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private final Insets insets = new Insets(5, 5, 5, 5);
 	private JLabel bootDate;
+	private JLabel url;
 	private JLabel servletContainer;
 	private JLabel heapMaximum;
 	private JLabel heapAllocated;
@@ -56,15 +57,16 @@ public class StatusPanel extends JPanel {
 		initialize();
 	}
 
-	public StatusPanel(ServerStatus status) {
+	public StatusPanel(String url, ServerStatus status) {
 		this();
-		setStatus(status);
+		setStatus(url, status);
 	}
 
 	private void initialize() {
 		version = new JLabel();
 		releaseDate = new JLabel();
 		bootDate = new JLabel();
+		url = new JLabel();
 		servletContainer = new JLabel();
 
 		heapMaximum = new JLabel();
@@ -72,7 +74,7 @@ public class StatusPanel extends JPanel {
 		heapUsed = new JLabel();
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1, 0, 5)) {
-		
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -83,6 +85,7 @@ public class StatusPanel extends JPanel {
 		fieldsPanel.add(createFieldPanel("gb.version", version));
 		fieldsPanel.add(createFieldPanel("gb.releaseDate", releaseDate));
 		fieldsPanel.add(createFieldPanel("gb.bootDate", bootDate));
+		fieldsPanel.add(createFieldPanel("gb.url", url));
 		fieldsPanel.add(createFieldPanel("gb.servletContainer", servletContainer));
 		fieldsPanel.add(createFieldPanel("gb.heapUsed", heapUsed));
 		fieldsPanel.add(createFieldPanel("gb.heapAllocated", heapAllocated));
@@ -120,12 +123,13 @@ public class StatusPanel extends JPanel {
 		return insets;
 	}
 
-	public void setStatus(ServerStatus status) {
+	public void setStatus(String url, ServerStatus status) {
 		headerPanel.setText(Translation.get("gb.status"));
 		version.setText(Constants.NAME + (status.isGO ? " GO v" : " WAR v") + status.version);
 		releaseDate.setText(status.releaseDate);
 		bootDate.setText(status.bootDate.toString() + " (" + TimeUtils.timeAgo(status.bootDate)
 				+ ")");
+		this.url.setText(url);
 		servletContainer.setText(status.servletContainer);
 		ByteFormat byteFormat = new ByteFormat();
 		heapMaximum.setText(byteFormat.format(status.heapMaximum));

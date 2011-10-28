@@ -28,20 +28,20 @@ import com.gitblit.utils.StringUtils;
  */
 public class GitblitRegistration implements Serializable, Comparable<GitblitRegistration> {
 
-	public static final GitblitRegistration LOCALHOST = new GitblitRegistration("localhost",
-			"https://localhost:8443", "admin", "admin".toCharArray());
 	private static final long serialVersionUID = 1L;
 
 	String name;
 	String url;
 	String account;
 	char[] password;
+	boolean savePassword;
 	Date lastLogin;
 
 	public GitblitRegistration(String name, String url, String account, char[] password) {
 		this.url = url;
 		this.account = account;
 		this.password = password;
+		this.savePassword = password != null && password.length > 0;
 		if (StringUtils.isEmpty(name)) {
 			this.name = url.substring(url.indexOf("//") + 2);
 		} else {
@@ -51,6 +51,6 @@ public class GitblitRegistration implements Serializable, Comparable<GitblitRegi
 
 	@Override
 	public int compareTo(GitblitRegistration o) {
-		return name.compareTo(o.name);
+		return name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
 }

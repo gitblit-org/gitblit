@@ -38,14 +38,22 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+/**
+ * Displays a list of registrations and allows management of server
+ * registrations.
+ * 
+ * @author James Moger
+ * 
+ */
 public class RegistrationsDialog extends JDialog {
 
 	interface RegistrationListener {
-		boolean deleteRegistrations(List<GitblitRegistration> list);
-
-		void loginPrompt(GitblitRegistration reg);
 
 		void login(GitblitRegistration reg);
+
+		boolean saveRegistration(String name, GitblitRegistration reg);
+
+		boolean deleteRegistrations(List<GitblitRegistration> list);
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -87,12 +95,13 @@ public class RegistrationsDialog extends JDialog {
 		registrationsTable = Utils.newTable(model);
 		registrationsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 
-		String id = registrationsTable.getColumnName(RegistrationsTableModel.Columns.Name.ordinal());
+		String id = registrationsTable
+				.getColumnName(RegistrationsTableModel.Columns.Name.ordinal());
 		registrationsTable.getColumn(id).setCellRenderer(nameRenderer);
 		registrationsTable.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					login(false);
+					login();
 				}
 			}
 		});
@@ -100,8 +109,7 @@ public class RegistrationsDialog extends JDialog {
 		final JButton create = new JButton(Translation.get("gb.create"));
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				RegistrationsDialog.this.setVisible(false);
-				listener.loginPrompt(GitblitRegistration.LOCALHOST);
+				create();
 			}
 		});
 
@@ -109,15 +117,15 @@ public class RegistrationsDialog extends JDialog {
 		login.setEnabled(false);
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				login(false);
+				login();
 			}
 		});
 
-		final JButton loginPrompt = new JButton(Translation.get("gb.login") + "...");
-		loginPrompt.setEnabled(false);
-		loginPrompt.addActionListener(new ActionListener() {
+		final JButton edit = new JButton(Translation.get("gb.edit"));
+		edit.setEnabled(false);
+		edit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				login(true);
+				edit();
 			}
 		});
 
@@ -139,7 +147,7 @@ public class RegistrationsDialog extends JDialog {
 						boolean singleSelection = registrationsTable.getSelectedRowCount() == 1;
 						boolean selected = registrationsTable.getSelectedRow() > -1;
 						login.setEnabled(singleSelection);
-						loginPrompt.setEnabled(singleSelection);
+						edit.setEnabled(singleSelection);
 						delete.setEnabled(selected);
 					}
 				});
@@ -147,7 +155,7 @@ public class RegistrationsDialog extends JDialog {
 		JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		controls.add(create);
 		controls.add(login);
-		controls.add(loginPrompt);
+		controls.add(edit);
 		controls.add(delete);
 
 		final Insets insets = new Insets(5, 5, 5, 5);
@@ -159,6 +167,7 @@ public class RegistrationsDialog extends JDialog {
 				return insets;
 			}
 		};
+		centerPanel.add(new HeaderPanel(Translation.get("gb.servers"), null), BorderLayout.NORTH);
 		centerPanel.add(new JScrollPane(registrationsTable), BorderLayout.CENTER);
 		centerPanel.add(controls, BorderLayout.SOUTH);
 
@@ -166,15 +175,42 @@ public class RegistrationsDialog extends JDialog {
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 	}
 
-	private void login(boolean prompt) {
+	private void login() {
 		int viewRow = registrationsTable.getSelectedRow();
 		int modelRow = registrationsTable.convertRowIndexToModel(viewRow);
 		GitblitRegistration reg = registrations.get(modelRow);
 		RegistrationsDialog.this.setVisible(false);
-		if (prompt) {
-			listener.loginPrompt(reg);
-		} else {
-			listener.login(reg);
+		listener.login(reg);
+	}
+
+	private void create() {
+		EditRegistrationDialog dialog = new EditRegistrationDialog(getOwner());
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+		GitblitRegistration reg = dialog.getRegistration();
+		if (reg == null) {
+			return;
+		}
+		if (listener.saveRegistration(reg.name, reg)) {
+			model.list.add(reg);
+			model.fireTableDataChanged();
+		}
+	}
+
+	private void edit() {
+		int viewRow = registrationsTable.getSelectedRow();
+		int modelRow = registrationsTable.convertRowIndexToModel(viewRow);
+		GitblitRegistration reg = registrations.get(modelRow);
+		String originalName = reg.name;
+		EditRegistrationDialog dialog = new EditRegistrationDialog(getOwner(), reg, false);
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
+		reg = dialog.getRegistration();
+		if (reg == null) {
+			return;
+		}
+		if (listener.saveRegistration(originalName, reg)) {
+			model.fireTableDataChanged();
 		}
 	}
 
