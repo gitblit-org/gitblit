@@ -27,11 +27,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jgit.lib.Repository;
+
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RpcUtils;
 
 /**
@@ -86,6 +90,29 @@ public class RpcServlet extends JsonServlet {
 				repositories.put(url, model);
 			}
 			result = repositories;
+		} else if (RpcRequest.LIST_BRANCHES.equals(reqType)) {
+			// list all branches in all repositories accessible to user
+			Map<String, List<String>> allBranches = new HashMap<String, List<String>>();
+			List<RepositoryModel> models = GitBlit.self().getRepositoryModels(user);
+			for (RepositoryModel model : models) {
+				if (!model.hasCommits) {
+					// skip empty repository
+					continue;
+				}
+				// get branches
+				Repository repository = GitBlit.self().getRepository(model.name);
+				List<RefModel> refs = JGitUtils.getLocalBranches(repository, false, -1);
+				refs.addAll(JGitUtils.getRemoteBranches(repository, false, -1));
+				if (refs.size() > 0) {
+					List<String> branches = new ArrayList<String>();
+					for (RefModel ref : refs) {
+						branches.add(ref.getName());
+					}
+					allBranches.put(model.name, branches);
+				}
+				repository.close();
+			}
+			result = allBranches;
 		} else if (RpcRequest.LIST_USERS.equals(reqType)) {
 			// list users
 			List<String> names = GitBlit.self().getAllUsernames();

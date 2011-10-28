@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,25 +221,32 @@ public class RpcTests extends TestCase {
 
 	public void testUpdateSettings() throws Exception {
 		Map<String, String> updated = new HashMap<String, String>();
-		
+
 		// grab current setting
 		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
 		boolean showSizes = settings.get(Keys.web.showRepositorySizes).getBoolean(true);
 		showSizes = !showSizes;
-		
+
 		// update setting
 		updated.put(Keys.web.showRepositorySizes, String.valueOf(showSizes));
 		boolean success = RpcUtils.updateSettings(updated, "http://localhost:8080/gb", account,
 				password.toCharArray());
 		assertTrue("Failed to update server settings", success);
-		
+
 		// confirm setting change
 		settings = RpcUtils.getSettings(url, account, password.toCharArray());
 		boolean newValue = settings.get(Keys.web.showRepositorySizes).getBoolean(false);
 		assertEquals(newValue, showSizes);
-		
+
 		// restore setting
 		newValue = !newValue;
 		updated.put(Keys.web.showRepositorySizes, String.valueOf(newValue));
+	}
+
+	public void testBranches() throws Exception {
+		Map<String, Collection<String>> branches = RpcUtils.getAllBranches(url, account,
+				password.toCharArray());
+		assertTrue(branches != null);
+		assertTrue(branches.size() > 0);
 	}
 }

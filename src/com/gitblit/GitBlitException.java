@@ -31,6 +31,10 @@ public class GitBlitException extends IOException {
 		super(message);
 	}
 
+	public GitBlitException(Throwable cause) {
+		super(cause);
+	}
+
 	/**
 	 * Exception to indicate that the client should prompt for credentials
 	 * because the requested action requires authentication.

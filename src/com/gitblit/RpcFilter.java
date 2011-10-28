@@ -64,7 +64,7 @@ public class RpcFilter extends AuthenticationFilter {
 			return;
 		}
 
-		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_REPOSITORIES);
+		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_BRANCHES);
 
 		// conditionally reject all rpc requests
 		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, true)) {

@@ -62,6 +62,9 @@ public class RpcUtils {
 	private static final Type SETS_TYPE = new TypeToken<Collection<FederationSet>>() {
 	}.getType();
 
+	private static final Type BRANCHES_TYPE = new TypeToken<Map<String, Collection<String>>>() {
+	}.getType();
+
 	/**
 	 * 
 	 * @param remoteURL
@@ -383,6 +386,24 @@ public class RpcUtils {
 		String url = asLink(serverUrl, RpcRequest.LIST_STATUS);
 		ServerStatus status = JsonUtils.retrieveJson(url, ServerStatus.class, account, password);
 		return status;
+	}
+
+	/**
+	 * Retrieves a map of all branches in the Gitblit server keyed by
+	 * repository.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return
+	 * @throws IOException
+	 */
+	public static Map<String, Collection<String>> getAllBranches(String serverUrl,
+			String account, char[] password) throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_BRANCHES);
+		Map<String, Collection<String>> allReferences = JsonUtils.retrieveJson(url,
+				BRANCHES_TYPE, account, password);
+		return allReferences;
 	}
 
 	/**
