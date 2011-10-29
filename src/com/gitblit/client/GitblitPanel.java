@@ -620,9 +620,9 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			editRepository.setVisible(false);
 			delRepository.setVisible(false);
 
-			while (tabs.getTabCount() > 1) {
+			while (tabs.getTabCount() > 2) {
 				// remove all management/administration tabs
-				tabs.removeTabAt(1);
+				tabs.removeTabAt(2);
 			}
 		}
 

@@ -199,11 +199,16 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			EditRegistrationDialog dialog = new EditRegistrationDialog(this, reg, true);
 			dialog.setLocationRelativeTo(GitblitManager.this);
 			dialog.setVisible(true);
-			reg = dialog.getRegistration();
-			if (reg == null) {
+			GitblitRegistration newReg = dialog.getRegistration();
+			if (newReg == null) {
 				// user canceled
 				return;
 			}
+			// preserve feeds
+			newReg.feeds = reg.feeds;
+			
+			// use new reg
+			reg = newReg;
 		}
 
 		// login
