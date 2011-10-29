@@ -92,7 +92,7 @@ public class RegistrationsDialog extends JDialog {
 	private void initialize() {
 		NameRenderer nameRenderer = new NameRenderer();
 		model = new RegistrationsTableModel(registrations);
-		registrationsTable = Utils.newTable(model);
+		registrationsTable = Utils.newTable(model, Utils.DATE_FORMAT);
 		registrationsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 
 		String id = registrationsTable

@@ -92,7 +92,7 @@ public class StatusPanel extends JPanel {
 		fieldsPanel.add(createFieldPanel("gb.heapMaximum", heapMaximum));
 
 		model = new PropertiesTableModel();
-		JTable propertiesTable = Utils.newTable(model);
+		JTable propertiesTable = Utils.newTable(model, Utils.DATE_FORMAT);
 		String name = propertiesTable.getColumnName(PropertiesTableModel.Columns.Name.ordinal());
 		NameRenderer nameRenderer = new NameRenderer();
 		propertiesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);

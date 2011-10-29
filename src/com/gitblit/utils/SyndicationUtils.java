@@ -27,6 +27,8 @@ import java.util.List;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
+import com.gitblit.GitBlitException;
+import com.gitblit.models.SyndicatedEntryModel;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -64,6 +66,7 @@ public class SyndicationUtils {
 
 		SyndFeed feed = new SyndFeedImpl();
 		feed.setFeedType("rss_2.0");
+		feed.setEncoding("UTF-8");
 		feed.setTitle(title);
 		feed.setLink(MessageFormat.format("{0}/summary/{1}", hostUrl,
 				StringUtils.encodeURL(repository)));
@@ -84,15 +87,14 @@ public class SyndicationUtils {
 			entry.setPublishedDate(commit.getCommitterIdent().getWhen());
 
 			SyndContent content = new SyndContentImpl();
-			content.setType("text/html");
-			String html = StringUtils.escapeForHtml(commit.getFullMessage(), false);
-			content.setValue(StringUtils.breakLinesForHtml(html));
+			content.setType("text/plain");
+			content.setValue(commit.getFullMessage());
 			entry.setDescription(content);
 			entries.add(entry);
 		}
 		feed.setEntries(entries);
 
-		OutputStreamWriter writer = new OutputStreamWriter(os);
+		OutputStreamWriter writer = new OutputStreamWriter(os, "UTF-8");
 		SyndFeedOutput output = new SyndFeedOutput();
 		output.output(feed, writer);
 		writer.close();
@@ -112,12 +114,11 @@ public class SyndicationUtils {
 	 *            is used.
 	 * @param username
 	 * @param password
-	 * @return the JSON message as a string
+	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
-	public static SyndFeed readFeed(String url, String repository, String branch,
-			int numberOfEntries, String username, char[] password) throws IOException,
-			FeedException {
+	public static List<SyndicatedEntryModel> readFeed(String url, String repository, String branch,
+			int numberOfEntries, String username, char[] password) throws IOException {
 		String feedUrl;
 		if (StringUtils.isEmpty(branch)) {
 			// no branch specified
@@ -142,8 +143,27 @@ public class SyndicationUtils {
 		URLConnection conn = ConnectionUtils.openReadConnection(feedUrl, username, password);
 		InputStream is = conn.getInputStream();
 		SyndFeedInput input = new SyndFeedInput();
-		SyndFeed feed = input.build(new XmlReader(is));
+		SyndFeed feed = null;
+		try {
+			feed = input.build(new XmlReader(is));
+		} catch (FeedException f) {
+			throw new GitBlitException(f);
+		}
 		is.close();
-		return feed;
+		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+		for (Object o : feed.getEntries()) {
+			SyndEntryImpl entry = (SyndEntryImpl) o;
+			SyndicatedEntryModel model = new SyndicatedEntryModel();
+			model.repository = repository;
+			model.branch = branch;
+			model.title = entry.getTitle();
+			model.author = entry.getAuthor();
+			model.published = entry.getPublishedDate();
+			model.link = entry.getLink();
+			model.content = entry.getDescription().getValue();
+			model.contentType = entry.getDescription().getType();
+			entries.add(model);
+		}
+		return entries;
 	}
 }

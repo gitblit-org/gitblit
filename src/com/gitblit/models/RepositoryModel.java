@@ -55,6 +55,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String frequency;
 	public String origin;
 	public String size;
+	public boolean subscribed;
 
 	public RepositoryModel() {
 		this("", "", "", new Date(0));

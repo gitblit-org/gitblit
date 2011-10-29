@@ -58,6 +58,7 @@ import com.gitblit.Constants.RpcRequest;
 import com.gitblit.client.ClosableTabComponent.CloseTabListener;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SettingModel;
+import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
@@ -75,6 +76,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	private final int margin = 5;
 
 	private final Insets insets = new Insets(margin, margin, margin, margin);
+
+	private final RegistrationsDialog.RegistrationListener listener;
 
 	private GitblitClient gitblit;
 
@@ -96,14 +99,6 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private JButton delRepository;
 
-	private NameRenderer nameRenderer;
-
-	private IndicatorsRenderer typeRenderer;
-
-	private DefaultTableCellRenderer ownerRenderer;
-
-	private DefaultTableCellRenderer sizeRenderer;
-
 	private TableRowSorter<RepositoriesTableModel> defaultRepositoriesSorter;
 
 	private TableRowSorter<UsersTableModel> defaultUsersSorter;
@@ -120,15 +115,19 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private StatusPanel statusPanel;
 
-	public GitblitPanel(GitblitRegistration reg) {
-		this(reg.url, reg.account, reg.password);
-	}
+	private SyndicatedEntryTableModel syndicationModel;
 
-	public GitblitPanel(String url, String account, char[] password) {
-		this.gitblit = new GitblitClient(url, account, password);
+	private HeaderPanel feedsHeader;
+
+	private JTable syndicationEntriesTable;
+
+	public GitblitPanel(GitblitRegistration reg, RegistrationsDialog.RegistrationListener listener) {
+		this.gitblit = new GitblitClient(reg);
+		this.listener = listener;
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
+		tabs.addTab(Translation.get("gb.recentCommits"), createFeedsPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
@@ -183,20 +182,28 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
-		nameRenderer = new NameRenderer();
-		typeRenderer = new IndicatorsRenderer();
+		final JButton subscribeRepository = new JButton(Translation.get("gb.subscribe") + "...");
+		subscribeRepository.setEnabled(false);
+		subscribeRepository.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				subscribeRepository(getSelectedRepositories().get(0));
+			}
+		});
 
-		sizeRenderer = new DefaultTableCellRenderer();
+		NameRenderer nameRenderer = new NameRenderer(true);
+		IndicatorsRenderer typeRenderer = new IndicatorsRenderer();
+
+		DefaultTableCellRenderer sizeRenderer = new DefaultTableCellRenderer();
 		sizeRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
 		sizeRenderer.setForeground(new Color(0, 0x80, 0));
 
-		ownerRenderer = new DefaultTableCellRenderer();
+		DefaultTableCellRenderer ownerRenderer = new DefaultTableCellRenderer();
 		ownerRenderer.setForeground(Color.gray);
 		ownerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
 		repositoriesModel = new RepositoriesTableModel();
 		defaultRepositoriesSorter = new TableRowSorter<RepositoriesTableModel>(repositoriesModel);
-		repositoriesTable = Utils.newTable(repositoriesModel);
+		repositoriesTable = Utils.newTable(repositoriesModel, Utils.DATE_FORMAT);
 		repositoriesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		repositoriesTable.setRowSorter(defaultRepositoriesSorter);
 		repositoriesTable.getRowSorter().toggleSortOrder(
@@ -217,6 +224,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				boolean selected = repositoriesTable.getSelectedRow() > -1;
 				browseRepository.setEnabled(singleSelection);
 				delRepository.setEnabled(selected);
+				subscribeRepository.setEnabled(singleSelection);
 				if (selected) {
 					int viewRow = repositoriesTable.getSelectedRow();
 					int modelRow = repositoriesTable.convertRowIndexToModel(viewRow);
@@ -264,6 +272,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoryControls.add(createRepository);
 		repositoryControls.add(editRepository);
 		repositoryControls.add(delRepository);
+		repositoryControls.add(subscribeRepository);
 
 		JPanel repositoriesPanel = new JPanel(new BorderLayout(margin, margin)) {
 
@@ -290,6 +299,94 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			repositoriesTable.getColumn(name).setMinWidth(maxWidth);
 			repositoriesTable.getColumn(name).setMaxWidth(maxWidth);
 		}
+	}
+
+	private JPanel createFeedsPanel() {
+		JButton refreshFeeds = new JButton(Translation.get("gb.refresh"));
+		refreshFeeds.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshFeeds();
+			}
+		});
+
+		final JButton viewCommit = new JButton(Translation.get("gb.view"));
+		viewCommit.setEnabled(false);
+		viewCommit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				viewCommit();
+			}
+		});
+
+		final JButton viewCommitDiff = new JButton(Translation.get("gb.commitdiff"));
+		viewCommitDiff.setEnabled(false);
+		viewCommitDiff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				viewCommitDiff();
+			}
+		});
+
+		final JButton viewTree = new JButton(Translation.get("gb.tree"));
+		viewTree.setEnabled(false);
+		viewTree.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				viewTree();
+			}
+		});
+
+		JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+		controls.add(refreshFeeds);
+		controls.add(viewCommit);
+		controls.add(viewCommitDiff);
+		controls.add(viewTree);
+
+		NameRenderer nameRenderer = new NameRenderer();
+		syndicationModel = new SyndicatedEntryTableModel();
+		feedsHeader = new HeaderPanel(Translation.get("gb.recentCommits"), "feed_16x16.png");
+		syndicationEntriesTable = Utils.newTable(syndicationModel, Utils.DATE_FORMAT);
+		String name = syndicationEntriesTable
+				.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
+		syndicationEntriesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
+		syndicationEntriesTable.getColumn(name).setCellRenderer(nameRenderer);
+
+		syndicationEntriesTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					if (e.isControlDown()) {
+						viewCommitDiff();
+					} else {
+						viewCommit();
+					}
+				}
+			}
+		});
+
+		syndicationEntriesTable.getSelectionModel().addListSelectionListener(
+				new ListSelectionListener() {
+					@Override
+					public void valueChanged(ListSelectionEvent e) {
+						if (e.getValueIsAdjusting()) {
+							return;
+						}
+						boolean singleSelection = syndicationEntriesTable.getSelectedRowCount() == 1;
+						viewCommit.setEnabled(singleSelection);
+						viewCommitDiff.setEnabled(singleSelection);
+						viewTree.setEnabled(singleSelection);
+					}
+				});
+
+		JPanel panel = new JPanel(new BorderLayout(5, 5)) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return insets;
+			}
+		};
+		panel.add(feedsHeader, BorderLayout.NORTH);
+		panel.add(new JScrollPane(syndicationEntriesTable), BorderLayout.CENTER);
+		panel.add(controls, BorderLayout.SOUTH);
+		return panel;
 	}
 
 	private JPanel createUsersPanel() {
@@ -323,9 +420,10 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
+		NameRenderer nameRenderer = new NameRenderer();
 		usersModel = new UsersTableModel();
 		defaultUsersSorter = new TableRowSorter<UsersTableModel>(usersModel);
-		usersTable = Utils.newTable(usersModel);
+		usersTable = Utils.newTable(usersModel, Utils.DATE_FORMAT);
 		String name = usersTable.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		usersTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		usersTable.getColumn(name).setCellRenderer(nameRenderer);
@@ -414,10 +512,11 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
+		NameRenderer nameRenderer = new NameRenderer();
 		final SettingPanel settingPanel = new SettingPanel();
 		settingsModel = new SettingsTableModel();
 		defaultSettingsSorter = new TableRowSorter<SettingsTableModel>(settingsModel);
-		settingsTable = Utils.newTable(settingsModel);
+		settingsTable = Utils.newTable(settingsModel, Utils.DATE_FORMAT);
 		settingsTable.setDefaultRenderer(SettingModel.class, new SettingCellRenderer());
 		String name = settingsTable.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		settingsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
@@ -509,6 +608,9 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		updateRepositoriesTable();
 		Utils.packColumns(repositoriesTable, 5);
 
+		updateFeedsTable();
+		Utils.packColumns(syndicationEntriesTable, 5);
+
 		if (gitblit.allowManagement()) {
 			updateUsersTable();
 		} else {
@@ -548,6 +650,14 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		repositoriesModel.fireTableDataChanged();
 		repositoriesHeader.setText(Translation.get("gb.repositories") + " ("
 				+ gitblit.getRepositories().size() + ")");
+	}
+
+	private void updateFeedsTable() {
+		syndicationModel.entries.clear();
+		syndicationModel.entries.addAll(gitblit.getSyndicatedEntries());
+		syndicationModel.fireTableDataChanged();
+		feedsHeader.setText(Translation.get("gb.recentCommits") + " ("
+				+ gitblit.getSyndicatedEntries().size() + ")");
 	}
 
 	private void updateUsersTable() {
@@ -808,6 +918,89 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 				}
 			};
 			worker.execute();
+		}
+	}
+
+	protected void subscribeRepository(final RepositoryModel repository) {
+		if (repository == null) {
+			return;
+		}
+		// TODO this is lame. need better ui.
+		if (gitblit.isSubscribed(repository, null)) {
+			// unsubscribe
+			String msg = MessageFormat.format("Do you want to unsubscribe from {0}?",
+					repository.name);
+			String[] options = { "no", "yes" };
+			int result = JOptionPane.showOptionDialog(GitblitPanel.this, msg, "Unsubscribe?",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+					options[0]);
+			if (result == 1) {
+				if (gitblit.unsubscribe(repository, null)) {
+					updateFeedsTable();
+					updateRepositoriesTable();
+					listener.saveRegistration(repository.name, gitblit.reg);
+				}
+			}
+		} else {
+			// subscribe
+			String msg = MessageFormat.format("Do you want to subscribe to {0}?", repository.name);
+			String[] options = { "no", "yes" };
+			int result = JOptionPane.showOptionDialog(GitblitPanel.this, msg, "Subscribe?",
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+					options[0]);
+			if (result == 1) {
+				if (gitblit.subscribe(repository, null)) {
+					updateRepositoriesTable();
+					listener.saveRegistration(repository.name, gitblit.reg);
+				}
+			}
+		}
+	}
+
+	protected void refreshFeeds() {
+		// TODO change request type here
+		GitblitWorker worker = new GitblitWorker(GitblitPanel.this, RpcRequest.LIST_USERS) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				gitblit.refreshSubscribedFeeds();
+				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateFeedsTable();
+			}
+		};
+		worker.execute();
+	}
+
+	protected SyndicatedEntryModel getSelectedSyndicatedEntry() {
+		int viewRow = syndicationEntriesTable.getSelectedRow();
+		int modelRow = syndicationEntriesTable.convertRowIndexToModel(viewRow);
+		SyndicatedEntryModel entry = syndicationModel.get(modelRow);
+		return entry;
+	}
+
+	protected void viewCommit() {
+		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		browse(entry.link);
+	}
+
+	protected void viewCommitDiff() {
+		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		browse(entry.link.replace("/commit/", "/commitdiff/"));
+	}
+
+	protected void viewTree() {
+		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		browse(entry.link.replace("/commit/", "/tree/"));
+	}
+
+	protected void browse(String url) {
+		try {
+			Desktop.getDesktop().browse(new URI(url));
+		} catch (Exception x) {
+			x.printStackTrace();
 		}
 	}
 

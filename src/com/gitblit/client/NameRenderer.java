@@ -18,8 +18,11 @@ package com.gitblit.client;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.ImageIcon;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
+
+import com.gitblit.models.RepositoryModel;
 
 /**
  * Repository name cell renderer. This renderer shows the group name in a gray
@@ -34,11 +37,24 @@ public class NameRenderer extends DefaultTableCellRenderer {
 
 	final String groupSpan;
 
+	private final boolean displayIcon;
+
+	private final ImageIcon blankIcon;
+
+	private final ImageIcon subscribedIcon;
+
 	public NameRenderer() {
-		this(Color.gray, new Color(0x00, 0x69, 0xD6));
+		this(false);
 	}
 
-	public NameRenderer(Color group, Color repo) {
+	public NameRenderer(boolean showIcon) {
+		this(Color.gray, new Color(0x00, 0x69, 0xD6), showIcon);
+	}
+
+	private NameRenderer(Color group, Color repo, boolean showIcon) {
+		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
+		subscribedIcon = new ImageIcon(getClass().getResource("/bullet_feed.png"));
+		displayIcon = showIcon;
 		groupSpan = "<span style='color:" + getHexColor(group) + "'>";
 		setForeground(repo);
 	}
@@ -55,14 +71,26 @@ public class NameRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		String name = value.toString();
-		int lastSlash = name.lastIndexOf('/');
-		if (!isSelected && lastSlash > -1) {
-			String group = name.substring(0, lastSlash + 1);
-			String repo = name.substring(lastSlash + 1);
-			setText("<html><body>" + groupSpan + group + "</span>" + repo);
+		if (value instanceof RepositoryModel) {
+			RepositoryModel model = (RepositoryModel) value;
+			String name = value.toString();
+			int lastSlash = name.lastIndexOf('/');
+			if (!isSelected && lastSlash > -1) {
+				String group = name.substring(0, lastSlash + 1);
+				String repo = name.substring(lastSlash + 1);
+				setText("<html><body>" + groupSpan + group + "</span>" + repo);
+			} else {
+				this.setText(name);
+			}
+			if (displayIcon) {
+				if (model.subscribed) {
+					setIcon(subscribedIcon);
+				} else {
+					setIcon(blankIcon);
+				}
+			}
 		} else {
-			this.setText(name);
+			this.setText(value.toString());
 		}
 		return this;
 	}

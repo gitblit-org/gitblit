@@ -49,18 +49,23 @@ public class DateCellRenderer extends DefaultTableCellRenderer {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		if (value instanceof Date) {
 			Date date = (Date) value;
-			String timeAgo;
-			String strDate;
+			String title;
+			String dateString;
 			if (date.getTime() == 0) {
-				timeAgo = "--";
-				strDate = "never";
+				title = "--";
+				dateString = "never";
 			} else {
-				timeAgo = TimeUtils.timeAgo(date);
-				strDate = new SimpleDateFormat(pattern).format((Date) value);
+				title = TimeUtils.timeAgo(date);
+				dateString = new SimpleDateFormat(pattern).format((Date) value);
 			}
 
-			this.setText(timeAgo);
-			this.setToolTipText(strDate);
+			if ((System.currentTimeMillis() - date.getTime()) > 10 * 24 * 60 * 60 * 1000L) {
+				String tmp = dateString;
+				dateString = title;
+				title = tmp;
+			}
+			this.setText(title);
+			this.setToolTipText(dateString);
 		}
 		return this;
 	}

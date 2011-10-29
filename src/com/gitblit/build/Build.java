@@ -138,6 +138,8 @@ public class Build {
 	public static void manager(DownloadListener listener) {
 		downloadListener = listener;
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.ROME, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);

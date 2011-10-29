@@ -26,6 +26,7 @@
 - fixed: Gitblit can now browse the Linux kernel repository (issue 25)
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
 - fixed: Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
+- fixed: RSS feeds are now properly encoded to UTF-8
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - updated: MarkdownPapers 1.2.4

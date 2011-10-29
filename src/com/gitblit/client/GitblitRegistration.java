@@ -17,6 +17,7 @@ package com.gitblit.client;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import com.gitblit.utils.StringUtils;
 
@@ -36,6 +37,7 @@ public class GitblitRegistration implements Serializable, Comparable<GitblitRegi
 	char[] password;
 	boolean savePassword;
 	Date lastLogin;
+	List<String> feeds;
 
 	public GitblitRegistration(String name, String url, String account, char[] password) {
 		this.url = url;

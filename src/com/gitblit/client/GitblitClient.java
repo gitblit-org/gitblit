@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
@@ -31,8 +33,11 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
+import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.SyndicationUtils;
 
 /**
  * GitblitClient is a object that retrieves data from a Gitblit server, caches
@@ -44,6 +49,8 @@ import com.gitblit.utils.RpcUtils;
 public class GitblitClient implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	protected final GitblitRegistration reg;
 
 	public final String url;
 
@@ -63,22 +70,35 @@ public class GitblitClient implements Serializable {
 
 	private final List<FederationModel> federationRegistrations;
 
+	private final List<SyndicatedEntryModel> syndicatedEntries;
+
 	private ServerStatus status;
 
-	public GitblitClient(String url, String account, char[] password) {
-		this.url = url;
-		this.account = account;
-		this.password = password;
+	public GitblitClient(GitblitRegistration reg) {
+		this.reg = reg;
+		this.url = reg.url;
+		this.account = reg.account;
+		this.password = reg.password;
 
 		this.allUsers = new ArrayList<UserModel>();
 		this.allRepositories = new ArrayList<RepositoryModel>();
 		this.federationRegistrations = new ArrayList<FederationModel>();
+		this.syndicatedEntries = new ArrayList<SyndicatedEntryModel>();
 	}
 
 	public void login() throws IOException {
 		refreshRepositories();
 
 		try {
+			// RSS feeds may be disabled by server
+			refreshSubscribedFeeds();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			// credentials may not have administrator access
+			// or server may have disabled rpc management
 			refreshUsers();
 			refreshSettings();
 			allowManagement = true;
@@ -91,6 +111,8 @@ public class GitblitClient implements Serializable {
 		}
 
 		try {
+			// credentials may not have administrator access
+			// or server may have disabled rpc administration
 			refreshStatus();
 			allowAdministration = true;
 		} catch (UnauthorizedException e) {
@@ -133,6 +155,7 @@ public class GitblitClient implements Serializable {
 		allRepositories.clear();
 		allRepositories.addAll(repositories.values());
 		Collections.sort(allRepositories);
+		updateSubscribedStates();
 		return allRepositories;
 	}
 
@@ -151,6 +174,110 @@ public class GitblitClient implements Serializable {
 	public ServerStatus refreshStatus() throws IOException {
 		status = RpcUtils.getStatus(url, account, password);
 		return status;
+	}
+
+	public List<SyndicatedEntryModel> refreshSubscribedFeeds() throws IOException {
+		Set<SyndicatedEntryModel> allFeeds = new HashSet<SyndicatedEntryModel>();
+		if (reg.feeds != null && reg.feeds.size() > 0) {
+			for (String feed : reg.feeds) {
+				String[] values = feed.split(":");
+				String repository = values[0];
+				String branch = null;
+				if (values.length > 1) {
+					branch = values[1];
+				}
+				List<SyndicatedEntryModel> list = SyndicationUtils.readFeed(url, repository,
+						branch, -1, account, password);
+				allFeeds.addAll(list);
+			}
+		}
+		syndicatedEntries.clear();
+		syndicatedEntries.addAll(allFeeds);
+		Collections.sort(syndicatedEntries);
+		return syndicatedEntries;
+	}
+
+	private void updateSubscribedStates() {
+		if (reg.feeds != null) {
+			Set<String> subscribedRepositories = new HashSet<String>();
+			for (String feed : reg.feeds) {
+				if (feed.indexOf(':') > -1) {
+					// strip branch
+					subscribedRepositories.add(feed.substring(0, feed.indexOf(':')).toLowerCase());
+				} else {
+					// default branch
+					subscribedRepositories.add(feed.toLowerCase());
+				}
+			}
+			// set subscribed flag
+			for (RepositoryModel repository : allRepositories) {
+				repository.subscribed = subscribedRepositories.contains(repository.name
+						.toLowerCase());
+			}
+		}
+	}
+
+	public List<SyndicatedEntryModel> getSyndicatedEntries() {
+		return syndicatedEntries;
+	}
+
+	public boolean isSubscribed(RepositoryModel repository, String branch) {
+		if (reg.feeds != null && reg.feeds.size() > 0) {
+			for (String feed : reg.feeds) {
+				String[] values = feed.split(":");
+				String repositoryName = values[0];
+				if (repository.name.equalsIgnoreCase(repositoryName)) {
+					return true;
+				}
+				// TODO check branch subscriptions
+				String branchName = null;
+				if (values.length > 1) {
+					branchName = values[1];
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean subscribe(RepositoryModel repository, String branch) {
+		String feed = repository.name;
+		if (!StringUtils.isEmpty(branch)) {
+			feed += ":" + branch;
+		}
+		if (reg.feeds == null) {
+			reg.feeds = new ArrayList<String>();
+		}
+		reg.feeds.add(feed);
+		updateSubscribedStates();
+		return true;
+	}
+
+	public boolean unsubscribe(RepositoryModel repository, String branch) {
+		String feed = repository.name;
+		if (!StringUtils.isEmpty(branch)) {
+			feed += ":" + branch;
+		}
+		reg.feeds.remove(feed);
+		if (syndicatedEntries.size() > 0) {
+			List<SyndicatedEntryModel> toRemove = new ArrayList<SyndicatedEntryModel>();
+			for (SyndicatedEntryModel model : syndicatedEntries) {
+				if (model.repository.equalsIgnoreCase(repository.name)) {
+					boolean emptyUnsubscribeBranch = StringUtils.isEmpty(branch);
+					boolean emptyFromBranch = StringUtils.isEmpty(model.branch);
+					if (emptyUnsubscribeBranch && emptyFromBranch) {
+						// default branch, remove
+						toRemove.add(model);
+					} else if (!emptyUnsubscribeBranch && !emptyFromBranch) {
+						if (model.branch.equals(branch)) {
+							// specific branch, remove
+							toRemove.add(model);
+						}
+					}
+				}
+			}
+		}
+		updateSubscribedStates();
+		return true;
 	}
 
 	public List<FederationModel> refreshFederationRegistrations() throws IOException {

@@ -23,10 +23,9 @@ import junit.framework.TestCase;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.client.GitblitFeed;
+import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.SyndicationUtils;
-import com.sun.syndication.feed.synd.SyndFeed;
 
 public class SyndicationUtilsTest extends TestCase {
 
@@ -44,10 +43,10 @@ public class SyndicationUtilsTest extends TestCase {
 	}
 
 	public void testFeedRead() throws Exception {
-		GitblitFeed reader = new GitblitFeed("https://localhost:8443", "ticgit.git", "master");
-		SyndFeed feed = reader.update(5, "admin", "admin".toCharArray());
+		List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed("https://localhost:8443",
+				"ticgit.git", "master", 5, "admin", "admin".toCharArray());
 		assertTrue(feed != null);
-		assertTrue(feed.getEntries().size() > 0);
-		assertEquals(5, feed.getEntries().size());
+		assertTrue(feed.size() > 0);
+		assertEquals(5, feed.size());
 	}
 }

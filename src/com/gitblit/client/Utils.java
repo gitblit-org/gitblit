@@ -36,15 +36,19 @@ import javax.swing.table.TableModel;
 import com.gitblit.Constants.RpcRequest;
 
 public class Utils {
+	
+	public final static String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm";
+	
+	public final static String DATE_FORMAT = "yyyy-MM-dd";
 
-	public static JTable newTable(TableModel model) {
+	public static JTable newTable(TableModel model, String datePattern) {
 		JTable table = new JTable(model);
 		table.setCellSelectionEnabled(false);
 		table.setRowSelectionAllowed(true);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setGridColor(new Color(0xd9d9d9));
 		table.setBackground(Color.white);
-		table.setDefaultRenderer(Date.class, new DateCellRenderer(null, Color.orange.darker()));
+		table.setDefaultRenderer(Date.class, new DateCellRenderer(datePattern, Color.orange.darker()));
 		return table;
 	}
 

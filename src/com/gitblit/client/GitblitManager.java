@@ -31,6 +31,7 @@ import java.net.ConnectException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -204,11 +205,11 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				return;
 			}
 		}
-		
+
 		// login
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		final GitblitRegistration registration = reg;
-		final GitblitPanel panel = new GitblitPanel(registration);
+		final GitblitPanel panel = new GitblitPanel(registration, this);
 		SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
 
 			@Override
@@ -303,6 +304,10 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 					password = new String(Base64.decode(pw)).toCharArray();
 				}
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
+				String[] feeds = config.getStringList("servers", server, "feeds");
+				if (feeds != null) {
+					reg.feeds = new ArrayList<String>(Arrays.asList(feeds));
+				}
 				reg.lastLogin = lastLogin;
 				registrations.put(reg.name, reg);
 			}
@@ -332,6 +337,9 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			}
 			if (reg.lastLogin != null) {
 				config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
+			}
+			if (reg.feeds != null) {
+				config.setStringList("servers", reg.name, "feeds", reg.feeds);
 			}
 			config.save();
 			return true;
