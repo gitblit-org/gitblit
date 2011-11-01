@@ -18,7 +18,8 @@ Gitblit is available in two variations:
 
 ### Tools
 
-- *Gitblit Manager* - a Java/Swing application for remote administration of a Gitblit server
+- *Gitblit API* - a JSON RPC client library for integrating Gitblit into your systems
+- *Gitblit Manager* - a Java/Swing application for remote administration of a Gitblit server which uses the Gitblit API library
 - *Gitblit Federation Client* - a command line tool to clone/pull groups of repositories and optionally users and settings
 
 ### Java Runtime Requirement
@@ -27,7 +28,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 ### Current Release
 
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%)|[war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%)|[fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%)|[manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
 - **security**: fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
@@ -38,7 +39,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
     **New:** *web.enableRpcServlet = true*  
     **New:** *web.enableRpcManagement = false*  
     **New:** *web.enableRpcAdministration = false*
-- added: reusable JSON RPC client class
+- added: Gitblit API JSON RPC library
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
 - added: per-repository setting to skip size calculation (faster repositories page loading)
 - added: per-repository setting to skip summary metrics calculation (faster summary page loading)

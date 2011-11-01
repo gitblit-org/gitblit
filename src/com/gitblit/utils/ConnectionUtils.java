@@ -29,7 +29,6 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.eclipse.jgit.util.Base64;
 
 /**
  * Utility class for establishing HTTP/HTTPS connections.

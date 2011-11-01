@@ -85,7 +85,8 @@
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
-		<property name="manager.zipfile" value="manager-${gb.version}.zip" />
+		<property name="manager.jarfile" value="manager-${gb.version}.jar" />
+		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
 	</target>
 	
 	
@@ -273,7 +274,10 @@
 				<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 				<arg value="--substitute" />
-				<arg value="%MANAGER%=${manager.zipfile}" />
+				<arg value="%MANAGER%=${manager.jarfile}" />
+
+				<arg value="--substitute" />
+				<arg value="%API%=${gbapi.zipfile}" />
 
 				<arg value="--substitute" />
 				<arg value="%BUILDDATE%=${gb.versionDate}" />
@@ -378,7 +382,7 @@
 				<exclude name="com/gitblit/client/**" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/MakeCertificate*.class" />				
+				<exclude name="com/gitblit/MakeCertificate*.class" />
 			</fileset>
 		</copy>
 
@@ -409,7 +413,7 @@
 			<classpath refid="master-classpath" />
 			<manifest>
 				<attribute name="Main-Class" value="com.gitblit.FederationClientLauncher" />
-				<attribute name="Specification-Version" value="${gb.version}" />				
+				<attribute name="Specification-Version" value="${gb.version}" />
 				<attribute name="Release-Date" value="${gb.versionDate}" />
 			</manifest>
 		</genjar>
@@ -417,10 +421,10 @@
 		<!-- Build the federation client zip file -->
 		<zip destfile="${fedclient.zipfile}">
 			<fileset dir="${basedir}">
-				<include name="fedclient.jar" />				
+				<include name="fedclient.jar" />
 			</fileset>
 			<fileset dir="${basedir}/distrib">
-				<include name="federation.properties" />				
+				<include name="federation.properties" />
 			</fileset>
 		</zip>
 	</target>
@@ -434,7 +438,7 @@
 	<target name="buildManager" depends="compile" description="Builds the stand-alone Gitblit Manager">
 		<echo>Building Gitblit Manager ${gb.version}</echo>
 	
-		<genjar jarfile="manager.jar">
+		<genjar jarfile="${manager.jarfile}">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
 			<resource file="${basedir}/resources/gitweb-favicon.png" />
@@ -466,18 +470,45 @@
 			<manifest>
 				<attribute name="Main-Class" value="com.gitblit.client.GitblitManagerLauncher" />
 				<attribute name="SplashScreen-Image" value="splash.png" />
-				<attribute name="Specification-Version" value="${gb.version}" />				
+				<attribute name="Specification-Version" value="${gb.version}" />
 				<attribute name="Release-Date" value="${gb.versionDate}" />
 			</manifest>
 		</genjar>
 		
-		<!-- Build the Manager zip file -->
-		<zip destfile="${manager.zipfile}">
-			<fileset dir="${basedir}">
-				<include name="manager.jar" />				
-			</fileset>			
-		</zip>
 	</target>
+	
+	<!-- 
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			Build the Gitblit API client library
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		-->
+		<target name="buildApiLibrary" depends="compile" description="Builds the Gitblit RPC client library">
+			<echo>Building Gitblit API Library ${gb.version}</echo>
+		
+			<genjar jarfile="gbapi.jar">
+				<class name="com.gitblit.client.GitblitClient" />
+				<classpath refid="master-classpath" />
+				<classfilter>
+					<exclude name="com.google.gson." />
+				</classfilter>
+				<manifest>
+					<attribute name="Specification-Version" value="${gb.version}" />
+					<attribute name="Release-Date" value="${gb.versionDate}" />
+				</manifest>
+			</genjar>
+			
+			<!-- Build the API library zip file -->
+			<zip destfile="${gbapi.zipfile}">
+				<fileset dir="${basedir}">
+					<include name="gbapi.jar" />
+				</fileset>
+				<fileset dir="${basedir}/ext">
+					<include name="gson*.jar" />
+					<exclude name="gson*-sources.jar" />
+					<exclude name="gson*-javadoc.jar" />
+				</fileset>
+			</zip>
+		</target>
 		
 		
 	<!-- 
@@ -596,7 +627,10 @@
 			<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 			<arg value="--substitute" />
-			<arg value="%MANAGER%=${manager.zipfile}" />
+			<arg value="%MANAGER%=${manager.jarfile}" />
+
+			<arg value="--substitute" />
+			<arg value="%API%=${gbapi.zipfile}" />
 
 			<arg value="--substitute" />
 			<arg value="%BUILDDATE%=${gb.versionDate}" />
@@ -628,7 +662,7 @@
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildManager,buildSite">		
+	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildManager,buildApiLibrary,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />
@@ -645,7 +679,7 @@
 		
 		<echo>Uploading Gitblit ${gb.version} binaries</echo>
 		
-		<!-- Upload ZIP file -->
+		<!-- Upload Gitblit GO ZIP file -->
 		<gcupload 
 			 username="${googlecode.user}" 
 			 password="${googlecode.password}" 
@@ -655,7 +689,7 @@
 			 summary="Gitblit GO v${gb.version} (standalone, integrated Gitblit server)"
 			 labels="Featured, Type-Package, OpSys-All" />
 			
-		<!-- Upload WAR file -->
+		<!-- Upload Gitblit WAR file -->
 		<gcupload 
 		     username="${googlecode.user}" 
 		     password="${googlecode.password}" 
@@ -665,7 +699,7 @@
 		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
 		
-		<!-- Upload FedClient -->
+		<!-- Upload Gitblit FedClient -->
 		<gcupload 
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
@@ -675,14 +709,24 @@
 			summary="Gitblit Federation Client v${gb.version} (command-line tool to clone data from federated Gitblit instances)"
 			labels="Featured, Type-Package, OpSys-All" />
 
-		<!-- Upload Manager -->
+		<!-- Upload Gitblit Manager -->
 		<gcupload 
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${manager.zipfile}" 
-			targetfilename="manager-${gb.version}.zip"
+			filename="${manager.jarfile}" 
+			targetfilename="manager-${gb.version}.jar"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
+			labels="Featured, Type-Package, OpSys-All" />
+		
+		<!-- Upload Gitblit API Library -->
+		<gcupload 
+			username="${googlecode.user}" 
+			password="${googlecode.password}" 
+			projectname="gitblit" 
+			filename="${gbapi.zipfile}" 
+			targetfilename="gbapi-${gb.version}.zip"
+			summary="Gitblit API Library v${gb.version} (JSON RPC library to integrate with your software)"
 			labels="Featured, Type-Package, OpSys-All" />
 	</target>
 
@@ -713,7 +757,7 @@
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishAll" depends="publishBinaries,publishSite">		
+	<target name="publishAll" depends="publishBinaries,publishSite">
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />

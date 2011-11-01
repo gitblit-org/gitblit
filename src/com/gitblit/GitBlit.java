@@ -1307,7 +1307,12 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public ServerSettings getSettingsModel() {
 		// ensure that the current values are updated in the setting models
-		settingsModel.updateCurrentValues(settings);
+		for (String key : settings.getAllKeys(null)) {
+			SettingModel setting = settingsModel.get(key);
+			if (setting != null) {
+				setting.currentValue = settings.getString(key, "");
+			}
+		}
 		return settingsModel;
 	}
 
@@ -1433,13 +1438,13 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		servletContext = contextEvent.getServletContext();
-		settingsModel = loadSettingModels();		
+		settingsModel = loadSettingModels();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
 			configureContext(webxmlSettings, true);
 		}
-		
+
 		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
 

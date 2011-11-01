@@ -146,6 +146,10 @@ public class RpcUtils {
 	 */
 	public static boolean createRepository(RepositoryModel repository, String serverUrl,
 			String account, char[] password) throws IOException {
+		// ensure repository name ends with .git
+		if (!repository.name.endsWith(".git")) {
+			repository.name += ".git";
+		}
 		return doAction(RpcRequest.CREATE_REPOSITORY, null, repository, serverUrl, account,
 				password);
 

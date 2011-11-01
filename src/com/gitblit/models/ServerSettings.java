@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.gitblit.IStoredSettings;
-
 /**
  * Server settings represents the settings of the Gitblit server including all
  * setting metadata such as name, current value, default value, description, and
@@ -40,7 +38,7 @@ public class ServerSettings implements Serializable {
 	public ServerSettings() {
 		settings = new TreeMap<String, SettingModel>();
 	}
-	
+
 	public List<String> getKeys() {
 		return new ArrayList<String>(settings.keySet());
 	}
@@ -51,13 +49,5 @@ public class ServerSettings implements Serializable {
 
 	public SettingModel get(String key) {
 		return settings.get(key);
-	}
-
-	public void updateCurrentValues(IStoredSettings storedSettings) {
-		for (String key : storedSettings.getAllKeys(null)) {
-			if (settings.containsKey(key)) {
-				settings.get(key).currentValue = storedSettings.getString(key, "");
-			}
-		}
 	}
 }
