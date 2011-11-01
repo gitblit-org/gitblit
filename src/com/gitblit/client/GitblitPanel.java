@@ -30,8 +30,7 @@ import com.gitblit.client.ClosableTabComponent.CloseTabListener;
 import com.gitblit.models.FeedModel;
 
 /**
- * GitblitPanel performs the login, all business logic, and contains all widgets
- * to represent the state of a repository for the given account credentials.
+ * GitblitPanel is a container for the repository, users, settings, etc panels.
  * 
  * @author James Moger
  * 
@@ -62,15 +61,15 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
-		tabs.addTab(Translation.get("gb.recentActivity"), createFeedsPanel());
+		tabs.addTab(Translation.get("gb.timeline"), createFeedsPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
 		tabs.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
-				tabs.getSelectedComponent().requestFocus();				
+				tabs.getSelectedComponent().requestFocus();
 			}
-		});		
+		});
 
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
@@ -145,7 +144,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			settingsPanel.updateTable(true);
 			statusPanel.updateTable(false);
 		} else {
-			// remove the settings tab
+			// remove the settings and status tab
 			String[] titles = { Translation.get("gb.settings"), Translation.get("gb.status") };
 			for (String title : titles) {
 				for (int i = 0; i < tabs.getTabCount(); i++) {

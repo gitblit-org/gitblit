@@ -16,9 +16,6 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.gitblit.utils.StringUtils;
@@ -32,7 +29,6 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	public String repository;
 	public String branch;
-	public int maxRetrieval;
 	public Date lastRefresh;
 
 	public boolean subscribed;
@@ -41,29 +37,26 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	public FeedModel() {
 		this("");
+		subscribed = false;
 	}
 
 	public FeedModel(String definition) {
-		maxRetrieval = -1;
+		subscribed = true;
 		lastRefresh = new Date(0);
 
 		String[] fields = definition.split(":");
 		repository = fields[0];
 		if (fields.length > 1) {
 			branch = fields[1];
-			maxRetrieval = Integer.parseInt(fields[2]);
-			try {
-				lastRefresh = new SimpleDateFormat("yyyyMMddHHmmss").parse(fields[3]);
-			} catch (ParseException e) {
-			}
-			subscribed = true;
 		}
 	}
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0}:{1}:{2,number,0}:{3,date,yyyyMMddHHmmss}", repository,
-				branch, maxRetrieval, lastRefresh);
+		if (StringUtils.isEmpty(branch)) {
+			return repository;
+		}
+		return repository + ":" + branch;
 	}
 
 	@Override

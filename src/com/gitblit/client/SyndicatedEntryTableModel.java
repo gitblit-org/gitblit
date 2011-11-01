@@ -37,7 +37,7 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 	List<SyndicatedEntryModel> entries;
 
 	enum Columns {
-		Date, Repository, Branch, Author, Message;
+		Date, Repository,Author, Message, Branch;
 
 		@Override
 		public String toString() {

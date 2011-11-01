@@ -109,7 +109,7 @@ public abstract class FeedsPanel extends JPanel {
 
 		NameRenderer nameRenderer = new NameRenderer();
 		tableModel = new SyndicatedEntryTableModel();
-		header = new HeaderPanel(Translation.get("gb.recentActivity"), "feed_16x16.png");
+		header = new HeaderPanel(Translation.get("gb.timeline"), "feed_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		String name = table.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
 		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
@@ -118,7 +118,7 @@ public abstract class FeedsPanel extends JPanel {
 		table.getColumn(name).setCellRenderer(nameRenderer);
 
 		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Branch.ordinal());
-		table.getColumn(name).setCellRenderer(nameRenderer);
+		table.getColumn(name).setCellRenderer(new BranchRenderer());
 
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
@@ -179,7 +179,7 @@ public abstract class FeedsPanel extends JPanel {
 		tableModel.entries.clear();
 		tableModel.entries.addAll(gitblit.getSyndicatedEntries());
 		tableModel.fireTableDataChanged();
-		header.setText(Translation.get("gb.recentActivity") + " ("
+		header.setText(Translation.get("gb.timeline") + " ("
 				+ gitblit.getSyndicatedEntries().size() + ")");
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);

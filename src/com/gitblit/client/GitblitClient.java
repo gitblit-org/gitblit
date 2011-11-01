@@ -215,7 +215,7 @@ public class GitblitClient implements Serializable {
 			for (FeedModel feed : reg.feeds) {
 				feed.lastRefresh = new Date();
 				List<SyndicatedEntryModel> entries = SyndicationUtils.readFeed(url,
-						feed.repository, feed.branch, feed.maxRetrieval, account, password);
+						feed.repository, feed.branch, -1, account, password);
 				allEntries.addAll(entries);
 			}
 		}
@@ -290,7 +290,7 @@ public class GitblitClient implements Serializable {
 	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers)
 			throws IOException {
 		boolean success = true;
-		success &= RpcUtils.createRepository(repository, url, account, password);		
+		success &= RpcUtils.createRepository(repository, url, account, password);
 		if (permittedUsers.size() > 0) {
 			// if new repository has named members, set them
 			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,

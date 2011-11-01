@@ -73,6 +73,8 @@ import com.gitblit.utils.StringUtils;
 public class GitblitManager extends JFrame implements RegistrationsDialog.RegistrationListener {
 
 	private static final long serialVersionUID = 1L;
+	private static final String SERVER = "server";
+	private static final String FEED = "feed";
 	private final SimpleDateFormat dateFormat;
 	private JTabbedPane serverTabs;
 	private File configFile = new File(System.getProperty("user.home"), ".gitblit/config");
@@ -292,24 +294,24 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 	private void loadRegistrations() {
 		try {
 			StoredConfig config = getConfig();
-			Set<String> servers = config.getSubsections("servers");
+			Set<String> servers = config.getSubsections(SERVER);
 			for (String server : servers) {
 				Date lastLogin = new Date(0);
-				String date = config.getString("servers", server, "lastLogin");
+				String date = config.getString(SERVER, server, "lastLogin");
 				if (!StringUtils.isEmpty(date)) {
 					lastLogin = dateFormat.parse(date);
 				}
-				String url = config.getString("servers", server, "url");
-				String account = config.getString("servers", server, "account");
+				String url = config.getString(SERVER, server, "url");
+				String account = config.getString(SERVER, server, "account");
 				char[] password;
-				String pw = config.getString("servers", server, "password");
+				String pw = config.getString(SERVER, server, "password");
 				if (StringUtils.isEmpty(pw)) {
 					password = new char[0];
 				} else {
 					password = new String(Base64.decode(pw)).toCharArray();
 				}
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
-				String[] feeds = config.getStringList("servers", server, "feeds");
+				String[] feeds = config.getStringList(SERVER, server, FEED);
 				if (feeds != null) {
 					// deserialize the field definitions
 					for (String definition : feeds) {
@@ -332,20 +334,20 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			if (!StringUtils.isEmpty(name) && !name.equals(reg.name)) {
 				// delete old registration
 				registrations.remove(name);
-				config.unsetSection("servers", name);
+				config.unsetSection(SERVER, name);
 			}
 
 			// update registration
-			config.setString("servers", reg.name, "url", reg.url);
-			config.setString("servers", reg.name, "account", reg.account);
+			config.setString(SERVER, reg.name, "url", reg.url);
+			config.setString(SERVER, reg.name, "account", reg.account);
 			if (reg.savePassword) {
-				config.setString("servers", reg.name, "password",
+				config.setString(SERVER, reg.name, "password",
 						Base64.encodeBytes(new String(reg.password).getBytes("UTF-8")));
 			} else {
-				config.setString("servers", reg.name, "password", "");
+				config.setString(SERVER, reg.name, "password", "");
 			}
 			if (reg.lastLogin != null) {
-				config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
+				config.setString(SERVER, reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
 			}
 			// serialize the feed definitions
 			List<String> definitions = new ArrayList<String>();
@@ -353,7 +355,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				definitions.add(feed.toString());
 			}
 			if (definitions.size() > 0) {
-				config.setStringList("servers", reg.name, "feeds", definitions);
+				config.setStringList(SERVER, reg.name, FEED, definitions);
 			}
 			config.save();
 			return true;
@@ -369,7 +371,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		try {
 			StoredConfig config = getConfig();
 			for (GitblitRegistration reg : list) {
-				config.unsetSection("servers", reg.name);
+				config.unsetSection(SERVER, reg.name);
 				registrations.remove(reg.name);
 			}
 			config.save();

@@ -117,27 +117,30 @@ public class SyndicationUtils {
 	 */
 	public static List<SyndicatedEntryModel> readFeed(String url, String repository, String branch,
 			int numberOfEntries, String username, char[] password) throws IOException {
-		String feedUrl;
-		if (StringUtils.isEmpty(branch)) {
-			// no branch specified
-			if (numberOfEntries > 0) {
-				// fixed number of entries
-				feedUrl = MessageFormat.format("{0}/feed/{1}?l={2,number,0}", url, repository);
-			} else {
-				// server default number of entries
-				feedUrl = MessageFormat.format("{0}/feed/{1}", url, repository);
-			}
-		} else {
-			// branch specified
-			if (numberOfEntries > 0) {
-				// fixed number of entries
-				feedUrl = MessageFormat.format("{0}/feed/{1}?h={2}&l={3,number,0}", url,
-						repository, branch, numberOfEntries);
-			} else {
-				// server default number of entries
-				feedUrl = MessageFormat.format("{0}/feed/{1}?h={2}", url, repository, branch);
+		// build feed url
+		List<String> parameters = new ArrayList<String>();
+		if (numberOfEntries > 0) {
+			parameters.add("l=" + numberOfEntries);
+		}
+		if (!StringUtils.isEmpty(branch)) {
+			parameters.add("h=" + branch);
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(MessageFormat.format("{0}/feed/{1}", url, repository));
+		if (parameters.size() > 0) {
+			boolean first = true;
+			for (String parameter : parameters) {
+				if (first) {
+					sb.append('?');
+					first = false;
+				} else {
+					sb.append('&');
+				}
+				sb.append(parameter);
 			}
 		}
+		String feedUrl = sb.toString();
+
 		URLConnection conn = ConnectionUtils.openReadConnection(feedUrl, username, password);
 		InputStream is = conn.getInputStream();
 		SyndFeedInput input = new SyndFeedInput();
