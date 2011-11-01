@@ -17,10 +17,13 @@ package com.gitblit.client;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.Date;
 
@@ -36,9 +39,13 @@ import javax.swing.table.TableModel;
 import com.gitblit.Constants.RpcRequest;
 
 public class Utils {
-	
+
+	public final static int MARGIN = 5;
+
+	public final static Insets INSETS = new Insets(MARGIN, MARGIN, MARGIN, MARGIN);
+
 	public final static String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm";
-	
+
 	public final static String DATE_FORMAT = "yyyy-MM-dd";
 
 	public static JTable newTable(TableModel model, String datePattern) {
@@ -48,7 +55,8 @@ public class Utils {
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setGridColor(new Color(0xd9d9d9));
 		table.setBackground(Color.white);
-		table.setDefaultRenderer(Date.class, new DateCellRenderer(datePattern, Color.orange.darker()));
+		table.setDefaultRenderer(Date.class,
+				new DateCellRenderer(datePattern, Color.orange.darker()));
 		return table;
 	}
 
@@ -131,4 +139,13 @@ public class Utils {
 		// Set the width
 		col.setPreferredWidth(width);
 	}
+
+	public static void browse(String url) {
+		try {
+			Desktop.getDesktop().browse(new URI(url));
+		} catch (Exception x) {
+			showException(null, x);
+		}
+	}
+
 }

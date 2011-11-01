@@ -68,7 +68,7 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	@Override
 	public int compareTo(FeedModel o) {
-		int repositoryCompare = repository.compareTo(o.repository);
+		int repositoryCompare = StringUtils.compareRepositoryNames(repository, o.repository);
 		if (repositoryCompare == 0) {
 			// same repository
 			if (StringUtils.isEmpty(branch)) {

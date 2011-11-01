@@ -290,7 +290,7 @@ public class GitblitClient implements Serializable {
 	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers)
 			throws IOException {
 		boolean success = true;
-		success &= RpcUtils.createRepository(repository, url, account, password);
+		success &= RpcUtils.createRepository(repository, url, account, password);		
 		if (permittedUsers.size() > 0) {
 			// if new repository has named members, set them
 			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,

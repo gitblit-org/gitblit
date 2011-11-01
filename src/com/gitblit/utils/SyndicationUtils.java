@@ -24,8 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jgit.revwalk.RevCommit;
-
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.SyndicatedEntryModel;
@@ -50,19 +48,20 @@ import com.sun.syndication.io.XmlReader;
 public class SyndicationUtils {
 
 	/**
-	 * Outputs an RSS feed of the list of commits to the outputstream.
+	 * Outputs an RSS feed of the list of entries to the outputstream.
 	 * 
 	 * @param hostUrl
 	 * @param title
 	 * @param description
 	 * @param repository
-	 * @param commits
+	 * @param entryModels
 	 * @param os
 	 * @throws IOException
 	 * @throws FeedException
 	 */
 	public static void toRSS(String hostUrl, String title, String description, String repository,
-			List<RevCommit> commits, OutputStream os) throws IOException, FeedException {
+			List<SyndicatedEntryModel> entryModels, OutputStream os) throws IOException,
+			FeedException {
 
 		SyndFeed feed = new SyndFeedImpl();
 		feed.setFeedType("rss_2.0");
@@ -78,17 +77,16 @@ public class SyndicationUtils {
 		feed.setImage(image);
 
 		List<SyndEntry> entries = new ArrayList<SyndEntry>();
-		for (RevCommit commit : commits) {
+		for (SyndicatedEntryModel entryModel : entryModels) {
 			SyndEntry entry = new SyndEntryImpl();
-			entry.setTitle(commit.getShortMessage());
-			entry.setAuthor(commit.getAuthorIdent().getName());
-			entry.setLink(MessageFormat.format("{0}/commit/{1}/{2}", hostUrl,
-					StringUtils.encodeURL(repository), commit.getName()));
-			entry.setPublishedDate(commit.getCommitterIdent().getWhen());
+			entry.setTitle(entryModel.title);
+			entry.setAuthor(entryModel.author);
+			entry.setLink(entryModel.link);
+			entry.setPublishedDate(entryModel.published);
 
 			SyndContent content = new SyndContentImpl();
-			content.setType("text/plain");
-			content.setValue(commit.getFullMessage());
+			content.setType(entryModel.contentType);
+			content.setValue(entryModel.content);
 			entry.setDescription(content);
 			entries.add(entry);
 		}

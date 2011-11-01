@@ -56,12 +56,12 @@ import javax.swing.UIManager;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
-import org.eclipse.jgit.util.Base64;
 import org.eclipse.jgit.util.FS;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.models.FeedModel;
+import com.gitblit.utils.Base64;
 import com.gitblit.utils.StringUtils;
 
 /**

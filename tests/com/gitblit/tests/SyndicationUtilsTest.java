@@ -16,28 +16,36 @@
 package com.gitblit.tests;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
-
 import com.gitblit.models.SyndicatedEntryModel;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.SyndicationUtils;
 
 public class SyndicationUtilsTest extends TestCase {
 
 	public void testSyndication() throws Exception {
-		Repository repository = GitBlitSuite.getHelloworldRepository();
-		List<RevCommit> commits = JGitUtils.getRevLog(repository, 1);
+		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+		for (int i = 0; i < 10; i++) {
+			SyndicatedEntryModel entry = new SyndicatedEntryModel();
+			entry.title = "Title " + i;
+			entry.author = "Author " + i;
+			entry.link = "Link " + i;
+			entry.published = new Date();
+			entry.contentType = "text/plain";
+			entry.content = "Content " + i;
+			entry.repository = "Repository " + i;
+			entry.branch = "Branch " + i;
+			entries.add(entry);
+		}
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		SyndicationUtils.toRSS("http://localhost", "Title", "Description", "Repository", commits,
+		SyndicationUtils.toRSS("http://localhost", "Title", "Description", "Repository", entries,
 				os);
 		String feed = os.toString();
 		os.close();
-		assertTrue(feed.length() > 100);
 		assertTrue(feed.indexOf("<title>Title</title>") > -1);
 		assertTrue(feed.indexOf("<description>Description</description>") > -1);
 	}

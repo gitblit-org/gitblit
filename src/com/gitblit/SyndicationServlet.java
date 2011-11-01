@@ -16,6 +16,7 @@
 package com.gitblit;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServlet;
@@ -26,10 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
+import com.sun.syndication.feed.synd.SyndContent;
+import com.sun.syndication.feed.synd.SyndContentImpl;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
@@ -139,9 +143,26 @@ public class SyndicationServlet extends HttpServlet {
 		Repository repository = GitBlit.self().getRepository(repositoryName);
 		RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 		List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, 0, length);
+		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+
+		String gitblitUrl = HttpUtils.getGitblitURL(request);
+		// convert RevCommit to SyndicatedEntryModel
+		for (RevCommit commit : commits) {
+			SyndicatedEntryModel entry = new SyndicatedEntryModel();
+			entry.title = commit.getShortMessage();
+			entry.author = commit.getAuthorIdent().getName();
+			entry.link = MessageFormat.format("{0}/commit/{1}/{2}", gitblitUrl,
+					StringUtils.encodeURL(model.name), commit.getName());
+			entry.published = commit.getCommitterIdent().getWhen();
+			entry.contentType = "text/plain";
+			entry.content = commit.getFullMessage();
+			entry.repository = model.name;
+			entry.branch = objectId;
+			entries.add(entry);
+		}
 		try {
-			SyndicationUtils.toRSS(HttpUtils.getGitblitURL(request), getTitle(model.name, objectId), model.description,
-					model.name, commits, response.getOutputStream());
+			SyndicationUtils.toRSS(gitblitUrl, getTitle(model.name, objectId), model.description,
+					model.name, entries, response.getOutputStream());
 		} catch (Exception e) {
 			logger.error("An error occurred during feed generation", e);
 		}

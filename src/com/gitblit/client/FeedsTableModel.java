@@ -36,7 +36,7 @@ public class FeedsTableModel extends AbstractTableModel {
 	List<FeedModel> list;
 
 	enum Columns {
-		Subscribed, Repository, Branch, Max_Length;
+		Subscribed, Repository, Branch;
 
 		@Override
 		public String toString() {
@@ -87,8 +87,6 @@ public class FeedsTableModel extends AbstractTableModel {
 		switch (col) {
 		case Subscribed:
 			return Boolean.class;
-		case Max_Length:
-			return Integer.class;
 		}
 		return String.class;
 	}
@@ -112,8 +110,6 @@ public class FeedsTableModel extends AbstractTableModel {
 			return model.repository;
 		case Branch:
 			return model.branch;
-		case Max_Length:
-			return model.maxRetrieval;
 		case Subscribed:
 			return model.subscribed;
 		}

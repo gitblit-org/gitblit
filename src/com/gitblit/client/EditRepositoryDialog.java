@@ -246,6 +246,7 @@ public class EditRepositoryDialog extends JDialog {
 		getContentPane().setLayout(new BorderLayout(5, 5));
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
 		pack();
+		nameField.requestFocus();
 	}
 
 	private JPanel newFieldPanel(String label, JComponent comp) {
