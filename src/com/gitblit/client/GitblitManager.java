@@ -31,7 +31,6 @@ import java.net.ConnectException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -62,6 +61,7 @@ import org.eclipse.jgit.util.FS;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.models.FeedModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -205,8 +205,8 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				return;
 			}
 			// preserve feeds
-			newReg.feeds = reg.feeds;
-			
+			newReg.feeds.addAll(reg.feeds);
+
 			// use new reg
 			reg = newReg;
 		}
@@ -311,7 +311,11 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
 				String[] feeds = config.getStringList("servers", server, "feeds");
 				if (feeds != null) {
-					reg.feeds = new ArrayList<String>(Arrays.asList(feeds));
+					// deserialize the field definitions
+					for (String definition : feeds) {
+						FeedModel feed = new FeedModel(definition);
+						reg.feeds.add(feed);
+					}
 				}
 				reg.lastLogin = lastLogin;
 				registrations.put(reg.name, reg);
@@ -343,8 +347,13 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 			if (reg.lastLogin != null) {
 				config.setString("servers", reg.name, "lastLogin", dateFormat.format(reg.lastLogin));
 			}
-			if (reg.feeds != null) {
-				config.setStringList("servers", reg.name, "feeds", reg.feeds);
+			// serialize the feed definitions
+			List<String> definitions = new ArrayList<String>();
+			for (FeedModel feed : reg.feeds) {
+				definitions.add(feed.toString());
+			}
+			if (definitions.size() > 0) {
+				config.setStringList("servers", reg.name, "feeds", definitions);
 			}
 			config.save();
 			return true;

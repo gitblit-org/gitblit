@@ -15,42 +15,34 @@
  */
 package com.gitblit.client;
 
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
+/**
+ * Loads the Gitblit language resource file.
+ * 
+ * @author James Moger
+ * 
+ */
 public class Translation {
 
-	private final static Properties translation;
+	private final static ResourceBundle translation;
 
 	static {
-		translation = new Properties();
-		InputStream is = null;
+		ResourceBundle bundle;
 		try {
-			is = Translation.class.getResource("/com/gitblit/wicket/GitBlitWebApp.properties")
-					.openStream();
-		} catch (Throwable t) {
-			try {
-				is = Translation.class.getResource("/GitBlitWebApp.properties").openStream();
-			} catch (Throwable x) {
-			}
+			// development location
+			bundle = ResourceBundle.getBundle("com/gitblit/wicket/GitBlitWebApp");
+		} catch (MissingResourceException e) {
+			// runtime location
+			bundle = ResourceBundle.getBundle("GitBlitWebApp");
 		}
-		if (is != null) {
-			try {
-				translation.load(is);
-			} catch (Throwable t) {
-
-			} finally {
-				try {
-					is.close();
-				} catch (Throwable t) {
-				}
-			}
-		}
+		translation = bundle;
 	}
 
 	public static String get(String key) {
 		if (translation.containsKey(key)) {
-			return translation.getProperty(key).trim();
+			return translation.getString(key).trim();
 		}
 		return key;
 	}

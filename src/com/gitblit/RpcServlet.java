@@ -91,28 +91,31 @@ public class RpcServlet extends JsonServlet {
 			}
 			result = repositories;
 		} else if (RpcRequest.LIST_BRANCHES.equals(reqType)) {
-			// list all branches in all repositories accessible to user
-			Map<String, List<String>> allBranches = new HashMap<String, List<String>>();
+			// list all local branches in all repositories accessible to user
+			Map<String, List<String>> localBranches = new HashMap<String, List<String>>();
 			List<RepositoryModel> models = GitBlit.self().getRepositoryModels(user);
 			for (RepositoryModel model : models) {
 				if (!model.hasCommits) {
 					// skip empty repository
 					continue;
 				}
-				// get branches
+				// get local branches
 				Repository repository = GitBlit.self().getRepository(model.name);
 				List<RefModel> refs = JGitUtils.getLocalBranches(repository, false, -1);
-				refs.addAll(JGitUtils.getRemoteBranches(repository, false, -1));
+				if (model.showRemoteBranches) {
+					// add remote branches if repository displays them
+					refs.addAll(JGitUtils.getRemoteBranches(repository, false, -1));
+				}
 				if (refs.size() > 0) {
 					List<String> branches = new ArrayList<String>();
 					for (RefModel ref : refs) {
 						branches.add(ref.getName());
 					}
-					allBranches.put(model.name, branches);
+					localBranches.put(model.name, branches);
 				}
 				repository.close();
 			}
-			result = allBranches;
+			result = localBranches;
 		} else if (RpcRequest.LIST_USERS.equals(reqType)) {
 			// list users
 			List<String> names = GitBlit.self().getAllUsernames();

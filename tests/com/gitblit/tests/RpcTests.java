@@ -244,7 +244,7 @@ public class RpcTests extends TestCase {
 	}
 
 	public void testBranches() throws Exception {
-		Map<String, Collection<String>> branches = RpcUtils.getAllBranches(url, account,
+		Map<String, Collection<String>> branches = RpcUtils.getBranches(url, account,
 				password.toCharArray());
 		assertTrue(branches != null);
 		assertTrue(branches.size() > 0);

@@ -27,6 +27,7 @@ import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
+import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -389,7 +390,7 @@ public class RpcUtils {
 	}
 
 	/**
-	 * Retrieves a map of all branches in the Gitblit server keyed by
+	 * Retrieves a map of local branches in the Gitblit server keyed by
 	 * repository.
 	 * 
 	 * @param serverUrl
@@ -398,12 +399,36 @@ public class RpcUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Map<String, Collection<String>> getAllBranches(String serverUrl,
-			String account, char[] password) throws IOException {
+	public static Map<String, Collection<String>> getBranches(String serverUrl, String account,
+			char[] password) throws IOException {
 		String url = asLink(serverUrl, RpcRequest.LIST_BRANCHES);
-		Map<String, Collection<String>> allReferences = JsonUtils.retrieveJson(url,
-				BRANCHES_TYPE, account, password);
-		return allReferences;
+		Map<String, Collection<String>> branches = JsonUtils.retrieveJson(url, BRANCHES_TYPE,
+				account, password);
+		return branches;
+	}
+
+	/**
+	 * Retrieves a list of available branch feeds in the Gitblit server.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return
+	 * @throws IOException
+	 */
+	public static List<FeedModel> getBranchFeeds(String serverUrl, String account, char[] password)
+			throws IOException {
+		List<FeedModel> feeds = new ArrayList<FeedModel>();
+		Map<String, Collection<String>> allBranches = getBranches(serverUrl, account, password);
+		for (Map.Entry<String, Collection<String>> entry : allBranches.entrySet()) {
+			for (String branch : entry.getValue()) {
+				FeedModel feed = new FeedModel();
+				feed.repository = entry.getKey();
+				feed.branch = branch;
+				feeds.add(feed);
+			}
+		}
+		return feeds;
 	}
 
 	/**

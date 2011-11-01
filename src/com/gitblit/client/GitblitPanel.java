@@ -56,6 +56,7 @@ import javax.swing.table.TableRowSorter;
 
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.client.ClosableTabComponent.CloseTabListener;
+import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.SyndicatedEntryModel;
@@ -127,7 +128,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
-		tabs.addTab(Translation.get("gb.recentCommits"), createFeedsPanel());
+		tabs.addTab(Translation.get("gb.recentActivity"), createFeedsPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
@@ -186,11 +187,12 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		subscribeRepository.setEnabled(false);
 		subscribeRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				subscribeRepository(getSelectedRepositories().get(0));
+				List<FeedModel> feeds = gitblit.getAvailableFeeds(getSelectedRepositories().get(0));
+				subscribeFeeds(feeds);
 			}
 		});
 
-		NameRenderer nameRenderer = new NameRenderer(true);
+		SubscribedRepositoryRenderer nameRenderer = new SubscribedRepositoryRenderer(gitblit);
 		IndicatorsRenderer typeRenderer = new IndicatorsRenderer();
 
 		DefaultTableCellRenderer sizeRenderer = new DefaultTableCellRenderer();
@@ -333,19 +335,34 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		});
 
+		JButton subscribeFeeds = new JButton(Translation.get("gb.subscribe") + "...");
+		subscribeFeeds.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				subscribeFeeds(gitblit.getAvailableFeeds());
+			}
+		});
+
 		JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
 		controls.add(refreshFeeds);
+		controls.add(subscribeFeeds);
 		controls.add(viewCommit);
 		controls.add(viewCommitDiff);
 		controls.add(viewTree);
 
 		NameRenderer nameRenderer = new NameRenderer();
 		syndicationModel = new SyndicatedEntryTableModel();
-		feedsHeader = new HeaderPanel(Translation.get("gb.recentCommits"), "feed_16x16.png");
+		feedsHeader = new HeaderPanel(Translation.get("gb.recentActivity"), "feed_16x16.png");
 		syndicationEntriesTable = Utils.newTable(syndicationModel, Utils.DATE_FORMAT);
 		String name = syndicationEntriesTable
 				.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
 		syndicationEntriesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
+		syndicationEntriesTable.getColumn(name).setCellRenderer(nameRenderer);
+		name = syndicationEntriesTable.getColumnName(SyndicatedEntryTableModel.Columns.Repository
+				.ordinal());
+		syndicationEntriesTable.getColumn(name).setCellRenderer(nameRenderer);
+
+		name = syndicationEntriesTable.getColumnName(SyndicatedEntryTableModel.Columns.Branch
+				.ordinal());
 		syndicationEntriesTable.getColumn(name).setCellRenderer(nameRenderer);
 
 		syndicationEntriesTable.addMouseListener(new MouseAdapter() {
@@ -656,7 +673,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		syndicationModel.entries.clear();
 		syndicationModel.entries.addAll(gitblit.getSyndicatedEntries());
 		syndicationModel.fireTableDataChanged();
-		feedsHeader.setText(Translation.get("gb.recentCommits") + " ("
+		feedsHeader.setText(Translation.get("gb.recentActivity") + " ("
 				+ gitblit.getSyndicatedEntries().size() + ")");
 	}
 
@@ -921,40 +938,21 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		}
 	}
 
-	protected void subscribeRepository(final RepositoryModel repository) {
-		if (repository == null) {
-			return;
-		}
-		// TODO this is lame. need better ui.
-		if (gitblit.isSubscribed(repository, null)) {
-			// unsubscribe
-			String msg = MessageFormat.format("Do you want to unsubscribe from {0}?",
-					repository.name);
-			String[] options = { "no", "yes" };
-			int result = JOptionPane.showOptionDialog(GitblitPanel.this, msg, "Unsubscribe?",
-					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-					options[0]);
-			if (result == 1) {
-				if (gitblit.unsubscribe(repository, null)) {
-					updateFeedsTable();
-					updateRepositoriesTable();
-					listener.saveRegistration(repository.name, gitblit.reg);
-				}
+	protected void subscribeFeeds(final List<FeedModel> feeds) {
+		SubscriptionsDialog dialog = new SubscriptionsDialog(feeds) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void save() {
+				gitblit.updateSubscribedFeeds(feeds);
+				listener.saveRegistration(gitblit.reg.name, gitblit.reg);
+				setVisible(false);
+				updateRepositoriesTable();
 			}
-		} else {
-			// subscribe
-			String msg = MessageFormat.format("Do you want to subscribe to {0}?", repository.name);
-			String[] options = { "no", "yes" };
-			int result = JOptionPane.showOptionDialog(GitblitPanel.this, msg, "Subscribe?",
-					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-					options[0]);
-			if (result == 1) {
-				if (gitblit.subscribe(repository, null)) {
-					updateRepositoriesTable();
-					listener.saveRegistration(repository.name, gitblit.reg);
-				}
-			}
-		}
+		};
+		dialog.setLocationRelativeTo(GitblitPanel.this);
+		dialog.setVisible(true);
 	}
 
 	protected void refreshFeeds() {

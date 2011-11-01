@@ -17,27 +17,26 @@ package com.gitblit.client;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedModel;
 
 /**
- * Table model for a list of retrieved feed entries.
+ * Table model of a list of available feeds.
  * 
  * @author James Moger
  * 
  */
-public class SyndicatedEntryTableModel extends AbstractTableModel {
+public class FeedsTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	List<SyndicatedEntryModel> entries;
+	List<FeedModel> list;
 
 	enum Columns {
-		Date, Repository, Branch, Author, Message;
+		Subscribed, Repository, Branch, Max_Length;
 
 		@Override
 		public String toString() {
@@ -45,22 +44,18 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		}
 	}
 
-	public SyndicatedEntryTableModel() {
-		this(new ArrayList<SyndicatedEntryModel>());
+	public FeedsTableModel() {
+		this(new ArrayList<FeedModel>());
 	}
 
-	public SyndicatedEntryTableModel(List<SyndicatedEntryModel> entries) {
-		setEntries(entries);
-	}
-
-	public void setEntries(List<SyndicatedEntryModel> entries) {
-		this.entries = entries;
-		Collections.sort(entries);
+	public FeedsTableModel(List<FeedModel> feeds) {
+		this.list = feeds;
+		Collections.sort(this.list);
 	}
 
 	@Override
 	public int getRowCount() {
-		return entries.size();
+		return list.size();
 	}
 
 	@Override
@@ -72,16 +67,10 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 	public String getColumnName(int column) {
 		Columns col = Columns.values()[column];
 		switch (col) {
-		case Date:
-			return Translation.get("gb.date");
 		case Repository:
 			return Translation.get("gb.repository");
 		case Branch:
 			return Translation.get("gb.branch");
-		case Author:
-			return Translation.get("gb.author");
-		case Message:
-			return Translation.get("gb.message");
 		}
 		return "";
 	}
@@ -94,32 +83,44 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 	 * @return the Object.class
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
-		if (Columns.Date.ordinal() == columnIndex) {
-			return Date.class;
+		Columns col = Columns.values()[columnIndex];
+		switch (col) {
+		case Subscribed:
+			return Boolean.class;
+		case Max_Length:
+			return Integer.class;
 		}
 		return String.class;
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		SyndicatedEntryModel entry = entries.get(rowIndex);
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
-		case Date:
-			return entry.published;
+		case Subscribed:
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		FeedModel model = list.get(rowIndex);
+		Columns col = Columns.values()[columnIndex];
+		switch (col) {
 		case Repository:
-			return entry.repository;
+			return model.repository;
 		case Branch:
-			return entry.branch;
-		case Author:
-			return entry.author;
-		case Message:
-			return entry.title;
+			return model.branch;
+		case Max_Length:
+			return model.maxRetrieval;
+		case Subscribed:
+			return model.subscribed;
 		}
 		return null;
 	}
 
-	public SyndicatedEntryModel get(int modelRow) {
-		return entries.get(modelRow);
+	public FeedModel get(int modelRow) {
+		return list.get(modelRow);
 	}
 }
