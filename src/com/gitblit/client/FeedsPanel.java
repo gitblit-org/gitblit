@@ -24,6 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +59,7 @@ public abstract class FeedsPanel extends JPanel {
 
 	private final GitblitClient gitblit;
 
-	private final String ALL = "ALL";
+	private final String ALL = "*";
 
 	private SyndicatedEntryTableModel tableModel;
 
@@ -69,6 +70,12 @@ public abstract class FeedsPanel extends JPanel {
 	private JTable table;
 
 	private DefaultComboBoxModel repositoryChoices;
+
+	private JComboBox repositorySelector;
+
+	private DefaultComboBoxModel authorChoices;
+
+	private JComboBox authorSelector;
 
 	public FeedsPanel(GitblitClient gitblit) {
 		super();
@@ -162,21 +169,28 @@ public abstract class FeedsPanel extends JPanel {
 		});
 
 		repositoryChoices = new DefaultComboBoxModel();
-		final JComboBox repositorySelector = new JComboBox(repositoryChoices);
+		repositorySelector = new JComboBox(repositoryChoices);
 		repositorySelector.setRenderer(nameRenderer);
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				String repository = ALL;
-				if (repositorySelector.getSelectedIndex() > -1) {
-					repository = repositorySelector.getSelectedItem().toString();
-				}
-				filterRepositories(repository);
+				filterFeeds();
+			}
+		});
+		authorChoices = new DefaultComboBoxModel();
+		authorSelector = new JComboBox(authorChoices);
+		authorSelector.setRenderer(nameRenderer);
+		authorSelector.setForeground(nameRenderer.getForeground());
+		authorSelector.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				filterFeeds();
 			}
 		});
 		JPanel northControls = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 0));
 		northControls.add(new JLabel(Translation.get("gb.repository")));
 		northControls.add(repositorySelector);
+		northControls.add(new JLabel(Translation.get("gb.author")));
+		northControls.add(authorSelector);
 
 		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
 		northPanel.add(header, BorderLayout.NORTH);
@@ -221,16 +235,30 @@ public abstract class FeedsPanel extends JPanel {
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
 		}
+		// determine unique repositories and authors
 		Set<String> uniqueRepositories = new HashSet<String>();
+		Set<String> uniqueAuthors = new HashSet<String>();
 		for (SyndicatedEntryModel entry : tableModel.entries) {
 			uniqueRepositories.add(entry.repository);
+			uniqueAuthors.add(entry.author);
 		}
+
+		// repositories
 		List<String> sortedRespositories = new ArrayList<String>(uniqueRepositories);
 		StringUtils.sortRepositorynames(sortedRespositories);
 		repositoryChoices.removeAllElements();
 		repositoryChoices.addElement(ALL);
 		for (String repo : sortedRespositories) {
 			repositoryChoices.addElement(repo);
+		}
+
+		// authors
+		List<String> sortedAuthors = new ArrayList<String>(uniqueAuthors);
+		Collections.sort(sortedAuthors);
+		authorChoices.removeAllElements();
+		authorChoices.addElement(ALL);
+		for (String author : sortedAuthors) {
+			authorChoices.addElement(author);
 		}
 	}
 
@@ -256,18 +284,57 @@ public abstract class FeedsPanel extends JPanel {
 		Utils.browse(entry.link.replace("/commit/", "/tree/"));
 	}
 
-	protected void filterRepositories(final String repository) {
-		if (StringUtils.isEmpty(repository) || repository.equals(ALL)) {
+	protected void filterFeeds() {
+		final String repository;
+		if (repositorySelector.getSelectedIndex() > -1) {
+			repository = repositorySelector.getSelectedItem().toString();
+		} else {
+			repository = ALL;
+		}
+
+		final String author;
+		if (authorSelector.getSelectedIndex() > -1) {
+			author = authorSelector.getSelectedItem().toString();
+		} else {
+			author = ALL;
+		}
+
+		if (repository.equals(ALL) && author.equals(ALL)) {
 			table.setRowSorter(defaultSorter);
 			return;
 		}
-		final int index = SyndicatedEntryTableModel.Columns.Repository.ordinal();
-		RowFilter<SyndicatedEntryTableModel, Object> containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
-			public boolean include(
-					Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
-				return entry.getStringValue(index).equalsIgnoreCase(repository);
-			}
-		};
+		final int repositoryIndex = SyndicatedEntryTableModel.Columns.Repository.ordinal();
+		final int authorIndex = SyndicatedEntryTableModel.Columns.Author.ordinal();
+		RowFilter<SyndicatedEntryTableModel, Object> containsFilter;
+		if (repository.equals(ALL)) {
+			// author filter
+			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+				public boolean include(
+						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+					return entry.getStringValue(authorIndex).equalsIgnoreCase(author);
+				}
+			};
+		} else if (author.equals(ALL)) {
+			// repository filter
+			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+				public boolean include(
+						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+					return entry.getStringValue(repositoryIndex).equalsIgnoreCase(repository);
+				}
+			};
+		} else {
+			// repository-author filter
+			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+				public boolean include(
+						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+					boolean authorMatch = entry.getStringValue(authorIndex)
+							.equalsIgnoreCase(author);
+					boolean repositoryMatch = entry.getStringValue(repositoryIndex)
+							.equalsIgnoreCase(repository);
+					return authorMatch && repositoryMatch;
+				}
+			};
+		}
 		TableRowSorter<SyndicatedEntryTableModel> sorter = new TableRowSorter<SyndicatedEntryTableModel>(
 				tableModel);
 		sorter.setRowFilter(containsFilter);
