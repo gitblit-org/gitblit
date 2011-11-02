@@ -126,7 +126,7 @@ public class SyndicationUtils {
 			parameters.add("h=" + branch);
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(MessageFormat.format("{0}/feed/{1}", url, repository));
+		sb.append(MessageFormat.format("{0}" + Constants.SYNDICATION_PATH + "{1}", url, repository));
 		if (parameters.size() > 0) {
 			boolean first = true;
 			for (String parameter : parameters) {

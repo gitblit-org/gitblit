@@ -23,18 +23,27 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableRowSorter;
 
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.utils.StringUtils;
 
 /**
  * RSS Feeds Panel displays recent entries and launches the browser to view the
@@ -49,11 +58,17 @@ public abstract class FeedsPanel extends JPanel {
 
 	private final GitblitClient gitblit;
 
+	private final String ALL = "ALL";
+
 	private SyndicatedEntryTableModel tableModel;
+
+	private TableRowSorter<SyndicatedEntryTableModel> defaultSorter;
 
 	private HeaderPanel header;
 
 	private JTable table;
+
+	private DefaultComboBoxModel repositoryChoices;
 
 	public FeedsPanel(GitblitClient gitblit) {
 		super();
@@ -111,6 +126,7 @@ public abstract class FeedsPanel extends JPanel {
 		tableModel = new SyndicatedEntryTableModel();
 		header = new HeaderPanel(Translation.get("gb.timeline"), "feed_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
+		defaultSorter = new TableRowSorter<SyndicatedEntryTableModel>(tableModel);
 		String name = table.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
 		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
@@ -145,8 +161,29 @@ public abstract class FeedsPanel extends JPanel {
 			}
 		});
 
+		repositoryChoices = new DefaultComboBoxModel();
+		final JComboBox repositorySelector = new JComboBox(repositoryChoices);
+		repositorySelector.setRenderer(nameRenderer);
+		repositorySelector.setForeground(nameRenderer.getForeground());
+		repositorySelector.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				String repository = ALL;
+				if (repositorySelector.getSelectedIndex() > -1) {
+					repository = repositorySelector.getSelectedItem().toString();
+				}
+				filterRepositories(repository);
+			}
+		});
+		JPanel northControls = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 0));
+		northControls.add(new JLabel(Translation.get("gb.repository")));
+		northControls.add(repositorySelector);
+
+		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
+		northPanel.add(header, BorderLayout.NORTH);
+		northPanel.add(northControls, BorderLayout.CENTER);
+
 		setLayout(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
-		add(header, BorderLayout.NORTH);
+		add(northPanel, BorderLayout.NORTH);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 		add(controls, BorderLayout.SOUTH);
 	}
@@ -184,6 +221,17 @@ public abstract class FeedsPanel extends JPanel {
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
 		}
+		Set<String> uniqueRepositories = new HashSet<String>();
+		for (SyndicatedEntryModel entry : tableModel.entries) {
+			uniqueRepositories.add(entry.repository);
+		}
+		List<String> sortedRespositories = new ArrayList<String>(uniqueRepositories);
+		StringUtils.sortRepositorynames(sortedRespositories);
+		repositoryChoices.removeAllElements();
+		repositoryChoices.addElement(ALL);
+		for (String repo : sortedRespositories) {
+			repositoryChoices.addElement(repo);
+		}
 	}
 
 	protected SyndicatedEntryModel getSelectedSyndicatedEntry() {
@@ -206,5 +254,23 @@ public abstract class FeedsPanel extends JPanel {
 	protected void viewTree() {
 		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link.replace("/commit/", "/tree/"));
+	}
+
+	protected void filterRepositories(final String repository) {
+		if (StringUtils.isEmpty(repository) || repository.equals(ALL)) {
+			table.setRowSorter(defaultSorter);
+			return;
+		}
+		final int index = SyndicatedEntryTableModel.Columns.Repository.ordinal();
+		RowFilter<SyndicatedEntryTableModel, Object> containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+			public boolean include(
+					Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+				return entry.getStringValue(index).equalsIgnoreCase(repository);
+			}
+		};
+		TableRowSorter<SyndicatedEntryTableModel> sorter = new TableRowSorter<SyndicatedEntryTableModel>(
+				tableModel);
+		sorter.setRowFilter(containsFilter);
+		table.setRowSorter(sorter);
 	}
 }

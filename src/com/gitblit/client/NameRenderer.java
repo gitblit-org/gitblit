@@ -18,7 +18,9 @@ package com.gitblit.client;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
@@ -28,14 +30,16 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author James Moger
  * 
  */
-public class NameRenderer extends DefaultTableCellRenderer {
+public class NameRenderer extends DefaultTableCellRenderer implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Color CORNFLOWER = new Color(0x00, 0x69, 0xD6);
 
 	private final String groupSpan;
 
 	public NameRenderer() {
-		this(Color.gray, new Color(0x00, 0x69, 0xD6));
+		this(Color.gray, CORNFLOWER);
 	}
 
 	private NameRenderer(Color group, Color repo) {
@@ -55,6 +59,25 @@ public class NameRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+		setValue(value, isSelected);
+		return this;
+	}
+
+	@Override
+	public Component getListCellRendererComponent(JList list, Object value, int index,
+			boolean isSelected, boolean cellHasFocus) {
+		setValue(value, isSelected);
+		if (isSelected) {
+			setBackground(list.getSelectionBackground());
+			setForeground(list.getSelectionForeground());
+		} else {
+			setBackground(list.getBackground());
+			setForeground(CORNFLOWER);
+		}
+		return this;
+	}
+
+	private void setValue(Object value, boolean isSelected) {
 		String name = value.toString();
 		int lastSlash = name.lastIndexOf('/');
 		if (!isSelected && lastSlash > -1) {
@@ -64,6 +87,5 @@ public class NameRenderer extends DefaultTableCellRenderer {
 		} else {
 			this.setText(name);
 		}
-		return this;
 	}
 }

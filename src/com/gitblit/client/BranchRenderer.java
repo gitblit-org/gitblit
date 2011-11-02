@@ -64,11 +64,11 @@ public class BranchRenderer extends JPanel implements TableCellRenderer, Seriali
 		if (name.startsWith(R_HEADS)) {
 			bg = Color.decode("#CCFFCC");
 			name = name.substring(R_HEADS.length());
-			border = new LineBorder(Color.decode("#00CC33"), 1, true);
+			border = new LineBorder(Color.decode("#00CC33"), 1);
 		} else if (name.startsWith(R_REMOTES)) {
 			bg = Color.decode("#CAC2F5");
 			name = name.substring(R_REMOTES.length());
-			border = new LineBorder(Color.decode("#6C6CBF"), 1, true);
+			border = new LineBorder(Color.decode("#6C6CBF"), 1);
 		}
 		branchLabel.setText(" " + name + " ");
 		branchLabel.setBackground(bg);
