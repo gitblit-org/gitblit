@@ -8,25 +8,26 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.concurrent.Executors;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.gitblit.GitBlitServer;
 
-public class GitServletTest extends TestCase {
+public class GitServletTest {
 
 	File folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
 
-	int port = 8180;
+	static int port = 8180;
 
-	int shutdownPort = 8181;
+	static int shutdownPort = 8181;
 
-	@Override
-	protected void setUp() throws Exception {
+	@BeforeClass
+	public static void startGitblit() throws Exception {
 		// Start a Gitblit instance
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			public void run() {
@@ -41,8 +42,8 @@ public class GitServletTest extends TestCase {
 		Thread.sleep(2500);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@AfterClass
+	public static void stopGitblit() throws Exception {
 		// Stop Gitblit
 		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
 
@@ -50,6 +51,7 @@ public class GitServletTest extends TestCase {
 		Thread.sleep(2500);
 	}
 
+	@Test
 	public void testClone() throws Exception {
 		if (folder.exists()) {
 			FileUtils.delete(folder, FileUtils.RECURSIVE);
@@ -62,6 +64,7 @@ public class GitServletTest extends TestCase {
 		clone.call();
 	}
 
+	@Test
 	public void testAnonymousCommit() throws Exception {
 		Git git = Git.open(folder);
 		File file = new File(folder, "TODO");
@@ -74,7 +77,8 @@ public class GitServletTest extends TestCase {
 		git.push().setPushAll().call();
 		git.getRepository().close();
 	}
-		
+
+	@Test
 	public void testBogusLoginClone() throws Exception {
 		File folder = new File(GitBlitSuite.REPOSITORIES, "working/gitblit");
 		if (folder.exists()) {

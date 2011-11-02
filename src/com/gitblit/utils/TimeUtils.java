@@ -15,6 +15,7 @@
  */
 package com.gitblit.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -53,9 +54,10 @@ public class TimeUtils {
 	 */
 	public static boolean isYesterday(Date date) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		cal.add(Calendar.DATE, 1);
-		return (System.currentTimeMillis() - cal.getTimeInMillis()) < ONEDAY;
+		cal.setTime(new Date());
+		cal.add(Calendar.DATE, -1);
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		return df.format(cal.getTime()).equals(df.format(date));
 	}
 
 	/**

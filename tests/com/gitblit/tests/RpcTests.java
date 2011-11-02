@@ -15,16 +15,23 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
+import com.gitblit.GitBlitServer;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
@@ -41,18 +48,48 @@ import com.gitblit.utils.RpcUtils;
  * @author James Moger
  * 
  */
-public class RpcTests extends TestCase {
+public class RpcTests {
 
-	String url = "https://localhost:8443";
+	static int port = 8180;
+	static int shutdownPort = 8181;
+
+	String url = "http://localhost:" + port;
 	String account = "admin";
 	String password = "admin";
 
+	@BeforeClass
+	public static void startGitblit() throws Exception {
+		// Start a Gitblit instance
+		Executors.newSingleThreadExecutor().execute(new Runnable() {
+			public void run() {
+				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
+						"" + shutdownPort, "--repositoriesFolder",
+						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
+						"distrib/users.properties");
+			}
+		});
+
+		// Wait a few seconds for it to be running
+		Thread.sleep(2500);
+	}
+
+	@AfterClass
+	public static void stopGitblit() throws Exception {
+		// Stop Gitblit
+		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
+
+		// Wait a few seconds for it to be running
+		Thread.sleep(2500);
+	}
+
+	@Test
 	public void testListRepositories() throws IOException {
 		Map<String, RepositoryModel> map = RpcUtils.getRepositories(url, null, null);
 		assertTrue("Repository list is null!", map != null);
 		assertTrue("Repository list is empty!", map.size() > 0);
 	}
 
+	@Test
 	public void testListUsers() throws IOException {
 		List<UserModel> list = null;
 		try {
@@ -65,6 +102,7 @@ public class RpcTests extends TestCase {
 		assertTrue("User list is empty!", list.size() > 0);
 	}
 
+	@Test
 	public void testUserAdministration() throws IOException {
 		UserModel user = new UserModel("garbage");
 		user.canAdmin = true;
@@ -109,6 +147,7 @@ public class RpcTests extends TestCase {
 		return retrievedUser;
 	}
 
+	@Test
 	public void testRepositoryAdministration() throws IOException {
 		RepositoryModel model = new RepositoryModel();
 		model.name = "garbagerepo.git";
@@ -186,39 +225,46 @@ public class RpcTests extends TestCase {
 		return retrievedRepository;
 	}
 
+	@Test
 	public void testFederationRegistrations() throws Exception {
 		List<FederationModel> registrations = RpcUtils.getFederationRegistrations(url, account,
 				password.toCharArray());
-		assertTrue("No federation registrations wre retrieved!", registrations.size() > 0);
+		assertTrue("No federation registrations were retrieved!", registrations.size() >= 0);
 	}
 
+	@Test
 	public void testFederationResultRegistrations() throws Exception {
 		List<FederationModel> registrations = RpcUtils.getFederationResultRegistrations(url,
 				account, password.toCharArray());
-		assertTrue("No federation result registrations were retrieved!", registrations.size() > 0);
+		assertTrue("No federation result registrations were retrieved!", registrations.size() >= 0);
 	}
 
+	@Test
 	public void testFederationProposals() throws Exception {
 		List<FederationProposal> proposals = RpcUtils.getFederationProposals(url, account,
 				password.toCharArray());
-		assertTrue("No federation proposals were retrieved!", proposals.size() > 0);
+		assertTrue("No federation proposals were retrieved!", proposals.size() >= 0);
 	}
 
+	@Test
 	public void testFederationSets() throws Exception {
 		List<FederationSet> sets = RpcUtils.getFederationSets(url, account, password.toCharArray());
-		assertTrue("No federation sets were retrieved!", sets.size() > 0);
+		assertTrue("No federation sets were retrieved!", sets.size() >= 0);
 	}
 
+	@Test
 	public void testSettings() throws Exception {
 		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
 		assertTrue("No settings were retrieved!", settings != null);
 	}
 
+	@Test
 	public void testServerStatus() throws Exception {
 		ServerStatus status = RpcUtils.getStatus(url, account, password.toCharArray());
 		assertTrue("No status was retrieved!", status != null);
 	}
 
+	@Test
 	public void testUpdateSettings() throws Exception {
 		Map<String, String> updated = new HashMap<String, String>();
 
@@ -229,8 +275,7 @@ public class RpcTests extends TestCase {
 
 		// update setting
 		updated.put(Keys.web.showRepositorySizes, String.valueOf(showSizes));
-		boolean success = RpcUtils.updateSettings(updated, "http://localhost:8080/gb", account,
-				password.toCharArray());
+		boolean success = RpcUtils.updateSettings(updated, url, account, password.toCharArray());
 		assertTrue("Failed to update server settings", success);
 
 		// confirm setting change
@@ -243,6 +288,7 @@ public class RpcTests extends TestCase {
 		updated.put(Keys.web.showRepositorySizes, String.valueOf(newValue));
 	}
 
+	@Test
 	public void testBranches() throws Exception {
 		Map<String, Collection<String>> branches = RpcUtils.getBranches(url, account,
 				password.toCharArray());
