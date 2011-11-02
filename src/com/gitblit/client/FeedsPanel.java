@@ -174,6 +174,18 @@ public abstract class FeedsPanel extends JPanel {
 		repositorySelector.setForeground(nameRenderer.getForeground());
 		repositorySelector.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
+				// repopulate the author list based on repository selection
+				// preserve author selection, if possible
+				String selectedAuthor = null;
+				if (authorSelector.getSelectedIndex() > -1) {
+					selectedAuthor = authorSelector.getSelectedItem().toString();
+				}
+				updateAuthors();
+				if (selectedAuthor != null) {
+					if (authorChoices.getIndexOf(selectedAuthor) > -1) {
+						authorChoices.setSelectedItem(selectedAuthor);
+					}
+				}
 				filterFeeds();
 			}
 		});
@@ -235,12 +247,10 @@ public abstract class FeedsPanel extends JPanel {
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
 		}
-		// determine unique repositories and authors
+		// determine unique repositories
 		Set<String> uniqueRepositories = new HashSet<String>();
-		Set<String> uniqueAuthors = new HashSet<String>();
 		for (SyndicatedEntryModel entry : tableModel.entries) {
 			uniqueRepositories.add(entry.repository);
-			uniqueAuthors.add(entry.author);
 		}
 
 		// repositories
@@ -251,7 +261,18 @@ public abstract class FeedsPanel extends JPanel {
 		for (String repo : sortedRespositories) {
 			repositoryChoices.addElement(repo);
 		}
+	}
 
+	private void updateAuthors() {
+		String repository = repositorySelector.getSelectedItem().toString();
+
+		// determine unique repositories and authors
+		Set<String> uniqueAuthors = new HashSet<String>();
+		for (SyndicatedEntryModel entry : tableModel.entries) {
+			if (repository.equals(ALL) || entry.repository.equalsIgnoreCase(repository)) {
+				uniqueAuthors.add(entry.author);
+			}
+		}
 		// authors
 		List<String> sortedAuthors = new ArrayList<String>(uniqueAuthors);
 		Collections.sort(sortedAuthors);
