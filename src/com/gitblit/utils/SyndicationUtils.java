@@ -22,11 +22,15 @@ import java.io.OutputStreamWriter;
 import java.net.URLConnection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.utils.JGitUtils.SearchType;
+import com.sun.syndication.feed.synd.SyndCategory;
+import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -84,10 +88,21 @@ public class SyndicationUtils {
 			entry.setLink(entryModel.link);
 			entry.setPublishedDate(entryModel.published);
 
+			if (entryModel.tags != null && entryModel.tags.size() > 0) {
+				List<SyndCategory> tags = new ArrayList<SyndCategory>();
+				for (String tag : entryModel.tags) {
+					SyndCategoryImpl cat = new SyndCategoryImpl();
+					cat.setName(tag);
+					tags.add(cat);
+				}
+				entry.setCategories(tags);
+			}
+
 			SyndContent content = new SyndContentImpl();
 			content.setType(entryModel.contentType);
 			content.setValue(entryModel.content);
 			entry.setDescription(content);
+			
 			entries.add(entry);
 		}
 		feed.setEntries(entries);
@@ -125,6 +140,63 @@ public class SyndicationUtils {
 		if (!StringUtils.isEmpty(branch)) {
 			parameters.add("h=" + branch);
 		}
+		return readFeed(url, parameters, repository, branch, username, password);
+	}
+
+	/**
+	 * Reads a Gitblit RSS search feed.
+	 * 
+	 * @param url
+	 *            the url of the Gitblit server
+	 * @param repository
+	 *            the repository name
+	 * @param fragment
+	 *            the search fragment
+	 * @param searchType
+	 *            the search type (optional, defaults to COMMIT)
+	 * @param numberOfEntries
+	 *            the number of entries to retrieve. if <= 0 the server default
+	 *            is used.
+	 * @param username
+	 * @param password
+	 * @return a list of SyndicationModel entries
+	 * @throws {@link IOException}
+	 */
+	public static List<SyndicatedEntryModel> readSearchFeed(String url, String repository,
+			String branch, String fragment, SearchType searchType, int numberOfEntries,
+			String username, char[] password) throws IOException {
+		// determine parameters
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("s=" + StringUtils.encodeURL(fragment));
+		if (numberOfEntries > 0) {
+			parameters.add("l=" + numberOfEntries);
+		}
+		if (!StringUtils.isEmpty(branch)) {
+			parameters.add("h=" + branch);
+		}
+		if (searchType != null) {
+			parameters.add("st=" + searchType.name());
+		}
+		return readFeed(url, parameters, repository, branch, username, password);
+	}
+
+	/**
+	 * Reads a Gitblit RSS feed.
+	 * 
+	 * @param url
+	 *            the url of the Gitblit server
+	 * @param parameters
+	 *            the list of RSS parameters
+	 * @param repository
+	 *            the repository name
+	 * @param username
+	 * @param password
+	 * @return a list of SyndicationModel entries
+	 * @throws {@link IOException}
+	 */
+	private static List<SyndicatedEntryModel> readFeed(String url, List<String> parameters,
+			String repository, String branch, String username, char[] password) throws IOException {
+		// build url
 		StringBuilder sb = new StringBuilder();
 		sb.append(MessageFormat.format("{0}" + Constants.SYNDICATION_PATH + "{1}", url, repository));
 		if (parameters.size() > 0) {
@@ -140,7 +212,6 @@ public class SyndicationUtils {
 			}
 		}
 		String feedUrl = sb.toString();
-
 		URLConnection conn = ConnectionUtils.openReadConnection(feedUrl, username, password);
 		InputStream is = conn.getInputStream();
 		SyndFeedInput input = new SyndFeedInput();
@@ -163,6 +234,14 @@ public class SyndicationUtils {
 			model.link = entry.getLink();
 			model.content = entry.getDescription().getValue();
 			model.contentType = entry.getDescription().getType();
+			if (entry.getCategories() != null && entry.getCategories().size() > 0) {
+				List<String> tags = new ArrayList<String>();
+				for (Object p : entry.getCategories()) {
+					SyndCategory cat = (SyndCategory) p;
+					tags.add(cat.getName());
+				}
+				model.tags = tags;
+			}
 			entries.add(model);
 		}
 		return entries;

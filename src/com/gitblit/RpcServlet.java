@@ -232,6 +232,7 @@ public class RpcServlet extends JsonServlet {
 				List<String> keys = new ArrayList<String>();
 				keys.add(Keys.web.siteName);
 				keys.add(Keys.web.mountParameters);
+				keys.add(Keys.web.syndicationEntries);
 				
 				if (allowManagement) {
 					// keys necessary for repository and/or user management

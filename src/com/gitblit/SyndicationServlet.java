@@ -18,18 +18,22 @@ package com.gitblit;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
@@ -126,6 +130,14 @@ public class SyndicationServlet extends HttpServlet {
 		String repositoryName = url;
 		String objectId = request.getParameter("h");
 		String l = request.getParameter("l");
+		String searchString = request.getParameter("s");
+		SearchType searchType = SearchType.COMMIT;
+		if (!StringUtils.isEmpty(request.getParameter("st"))) {
+			SearchType type = SearchType.forName(request.getParameter("st"));
+			if (type != null) {
+				searchType = type;
+			}
+		}
 		int length = GitBlit.getInteger(Keys.web.syndicationEntries, 25);
 		if (StringUtils.isEmpty(objectId)) {
 			objectId = org.eclipse.jgit.lib.Constants.HEAD;
@@ -140,7 +152,16 @@ public class SyndicationServlet extends HttpServlet {
 		response.setContentType("application/rss+xml; charset=UTF-8");
 		Repository repository = GitBlit.self().getRepository(repositoryName);
 		RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-		List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, 0, length);
+		List<RevCommit> commits;
+		if (StringUtils.isEmpty(searchString)) {
+			// standard log/history lookup
+			commits = JGitUtils.getRevLog(repository, objectId, 0, length);
+		} else {
+			// repository search
+			commits = JGitUtils.searchRevlogs(repository, objectId, searchString, searchType, 0,
+					length);
+		}
+		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
 		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
 
 		boolean mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true);
@@ -165,6 +186,14 @@ public class SyndicationServlet extends HttpServlet {
 			entry.content = commit.getFullMessage();
 			entry.repository = model.name;
 			entry.branch = objectId;
+			List<RefModel> refs = allRefs.get(commit.getId());
+			if (refs != null && refs.size() > 0) {
+				List<String> tags = new ArrayList<String>();
+				for (RefModel ref : refs) {
+					tags.add(ref.getName());
+				}
+				entry.tags = tags;
+			}
 			entries.add(entry);
 		}
 		String feedLink;

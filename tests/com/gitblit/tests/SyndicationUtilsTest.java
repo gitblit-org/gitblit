@@ -57,4 +57,12 @@ public class SyndicationUtilsTest extends TestCase {
 		assertTrue(feed.size() > 0);
 		assertEquals(5, feed.size());
 	}
+
+	public void testSearchFeedRead() throws Exception {
+		List<SyndicatedEntryModel> feed = SyndicationUtils.readSearchFeed("https://localhost:8443",
+				"ticgit.git", null, "documentation", null, 5, "admin", "admin".toCharArray());
+		assertTrue(feed != null);
+		assertTrue(feed.size() > 0);
+		assertEquals(2, feed.size());
+	}
 }
