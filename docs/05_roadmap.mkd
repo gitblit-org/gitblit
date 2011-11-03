@@ -7,7 +7,6 @@ This list is volatile.
 
 * Eclipse: create plugin to enumerate repositories and delegate cloning to EGit
 * Manager: support federation RPCs
-* Manager: RSS feed reader tab  
 
 ### TODO (medium priority)
 

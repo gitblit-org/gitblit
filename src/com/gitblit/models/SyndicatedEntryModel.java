@@ -17,6 +17,7 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * SyndicationEntryModel represents an entry in a syndication (RSS) feed.
@@ -33,6 +34,7 @@ public class SyndicatedEntryModel implements Serializable, Comparable<Syndicated
 	public String link;
 	public String content;
 	public String contentType;
+	public List<String> tags;
 
 	private static final long serialVersionUID = 1L;
 

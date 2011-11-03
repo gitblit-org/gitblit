@@ -400,7 +400,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 	}
 
 	private void loadFeedCache(GitblitRegistration reg) {
-		File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg.url)
+		File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg.toString())
 				+ ".cache");
 		if (!feedCache.exists()) {
 			// no cache for this registration
@@ -429,8 +429,8 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 
 	private void writeFeedCache(GitblitRegistration reg) {
 		try {
-			File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg.url)
-					+ ".cache");
+			File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg
+					.toString()) + ".cache");
 			FileWriter writer = new FileWriter(feedCache);
 			for (FeedModel feed : reg.feeds) {
 				writer.append(MessageFormat.format("{0}={1,date,yyyy-MM-dd'T'HH:mm:ss}\n",

@@ -71,11 +71,16 @@ public class GitblitRegistration implements Serializable, Comparable<GitblitRegi
 		}
 	}
 
+	protected void cacheFeeds() {
+	}
+
 	@Override
 	public int compareTo(GitblitRegistration o) {
 		return name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
 
-	protected void cacheFeeds() {
+	@Override
+	public String toString() {
+		return name + " (" + url + ")";
 	}
 }

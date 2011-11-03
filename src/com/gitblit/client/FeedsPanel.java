@@ -41,7 +41,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.StringUtils;
@@ -130,8 +129,8 @@ public abstract class FeedsPanel extends JPanel {
 		controls.add(viewTree);
 
 		NameRenderer nameRenderer = new NameRenderer();
-		tableModel = new SyndicatedEntryTableModel(gitblit);
-		header = new HeaderPanel(Translation.get("gb.timeline"), "feed_16x16.png");
+		tableModel = new SyndicatedEntryTableModel();
+		header = new HeaderPanel(Translation.get("gb.activity"), "feed_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		defaultSorter = new TableRowSorter<SyndicatedEntryTableModel>(tableModel);
 		String name = table.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
@@ -142,6 +141,9 @@ public abstract class FeedsPanel extends JPanel {
 
 		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Branch.ordinal());
 		table.getColumn(name).setCellRenderer(new BranchRenderer());
+
+		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Message.ordinal());
+		table.getColumn(name).setCellRenderer(new MessageRenderer(gitblit));
 
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
@@ -220,8 +222,7 @@ public abstract class FeedsPanel extends JPanel {
 	}
 
 	protected void refreshFeeds() {
-		// TODO change request type here
-		GitblitWorker worker = new GitblitWorker(FeedsPanel.this, RpcRequest.LIST_USERS) {
+		GitblitWorker worker = new GitblitWorker(FeedsPanel.this, null) {
 			@Override
 			protected Boolean doRequest() throws IOException {
 				gitblit.refreshSubscribedFeeds();
@@ -242,7 +243,7 @@ public abstract class FeedsPanel extends JPanel {
 		tableModel.entries.clear();
 		tableModel.entries.addAll(gitblit.getSyndicatedEntries());
 		tableModel.fireTableDataChanged();
-		header.setText(Translation.get("gb.timeline") + " ("
+		header.setText(Translation.get("gb.activity") + " ("
 				+ gitblit.getSyndicatedEntries().size() + ")");
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);

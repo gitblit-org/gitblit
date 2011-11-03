@@ -17,24 +17,18 @@ package com.gitblit.client;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.io.Serializable;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
- * Branch renderer displays refs/heads and refs/remotes in a style like the
- * site.
+ * Branch renderer displays refs/heads and refs/remotes in a color similar to
+ * the site.
  * 
  * @author James Moger
  * 
  */
-public class BranchRenderer extends JPanel implements TableCellRenderer, Serializable {
+public class BranchRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -42,37 +36,20 @@ public class BranchRenderer extends JPanel implements TableCellRenderer, Seriali
 
 	private static final String R_REMOTES = "refs/remotes/";
 
-	private JLabel branchLabel;
-
-	public BranchRenderer() {
-		super(new FlowLayout(FlowLayout.CENTER, 0, 1));
-		branchLabel = new JLabel();
-		branchLabel.setOpaque(true);
-		add(branchLabel);
-	}
-
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
-		if (isSelected)
-			setBackground(table.getSelectionBackground());
-		else
-			setBackground(table.getBackground());
-
+		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 		String name = value.toString();
-		Color bg = getBackground();
-		Border border = null;
+		Color fg = getForeground();
 		if (name.startsWith(R_HEADS)) {
-			bg = Color.decode("#CCFFCC");
 			name = name.substring(R_HEADS.length());
-			border = new LineBorder(Color.decode("#00CC33"), 1);
+			fg = new Color(0, 0x80, 0);
 		} else if (name.startsWith(R_REMOTES)) {
-			bg = Color.decode("#CAC2F5");
 			name = name.substring(R_REMOTES.length());
-			border = new LineBorder(Color.decode("#6C6CBF"), 1);
+			fg = Color.decode("#6C6CBF");
 		}
-		branchLabel.setText(" " + name + " ");
-		branchLabel.setBackground(bg);
-		branchLabel.setBorder(border);
+		setText(name);
+		setForeground(isSelected ? table.getSelectionForeground() : fg);
 		return this;
 	}
 }

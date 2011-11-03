@@ -61,7 +61,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
-		tabs.addTab(Translation.get("gb.timeline"), createFeedsPanel());
+		tabs.addTab(Translation.get("gb.activity"), createFeedsPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());

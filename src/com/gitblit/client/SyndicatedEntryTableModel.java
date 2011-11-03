@@ -34,12 +34,10 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	private final GitblitClient gitblit;
-
 	List<SyndicatedEntryModel> entries;
 
 	enum Columns {
-		Date, Repository, Author, Message, Branch;
+		Date, Repository, Branch, Author, Message;
 
 		@Override
 		public String toString() {
@@ -47,8 +45,7 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		}
 	}
 
-	public SyndicatedEntryTableModel(GitblitClient gitblit) {
-		this.gitblit = gitblit;
+	public SyndicatedEntryTableModel() {
 		this.entries = new ArrayList<SyndicatedEntryModel>();
 	}
 
@@ -95,6 +92,8 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		if (Columns.Date.ordinal() == columnIndex) {
 			return Date.class;
+		} else if (Columns.Message.ordinal() == columnIndex) {
+			return SyndicatedEntryModel.class;
 		}
 		return String.class;
 	}
@@ -113,11 +112,7 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		case Author:
 			return entry.author;
 		case Message:
-			Date lastRefresh = gitblit.getLastFeedRefresh(entry.repository, entry.branch);
-			if (entry.published.after(lastRefresh)) {
-				return "<html><body><b>" + entry.title;
-			}
-			return entry.title;
+			return entry;
 		}
 		return null;
 	}
