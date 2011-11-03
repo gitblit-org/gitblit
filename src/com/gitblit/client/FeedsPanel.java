@@ -130,7 +130,7 @@ public abstract class FeedsPanel extends JPanel {
 		controls.add(viewTree);
 
 		NameRenderer nameRenderer = new NameRenderer();
-		tableModel = new SyndicatedEntryTableModel();
+		tableModel = new SyndicatedEntryTableModel(gitblit);
 		header = new HeaderPanel(Translation.get("gb.timeline"), "feed_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		defaultSorter = new TableRowSorter<SyndicatedEntryTableModel>(tableModel);
@@ -264,7 +264,10 @@ public abstract class FeedsPanel extends JPanel {
 	}
 
 	private void updateAuthors() {
-		String repository = repositorySelector.getSelectedItem().toString();
+		String repository = ALL;
+		if (repositorySelector.getSelectedIndex() > -1) {
+			repository = repositorySelector.getSelectedItem().toString();
+		}
 
 		// determine unique repositories and authors
 		Set<String> uniqueAuthors = new HashSet<String>();

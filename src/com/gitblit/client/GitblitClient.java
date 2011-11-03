@@ -51,6 +51,8 @@ public class GitblitClient implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Date NEVER = new Date(0);
+
 	protected final GitblitRegistration reg;
 
 	public final String url;
@@ -213,12 +215,14 @@ public class GitblitClient implements Serializable {
 		Set<SyndicatedEntryModel> allEntries = new HashSet<SyndicatedEntryModel>();
 		if (reg.feeds.size() > 0) {
 			for (FeedModel feed : reg.feeds) {
-				feed.lastRefresh = new Date();
+				feed.lastRefreshDate = feed.currentRefreshDate;
+				feed.currentRefreshDate = new Date();
 				List<SyndicatedEntryModel> entries = SyndicationUtils.readFeed(url,
 						feed.repository, feed.branch, -1, account, password);
 				allEntries.addAll(entries);
 			}
 		}
+		reg.cacheFeeds();
 		syndicatedEntries.clear();
 		syndicatedEntries.addAll(allEntries);
 		Collections.sort(syndicatedEntries);
@@ -239,6 +243,18 @@ public class GitblitClient implements Serializable {
 				subscribedRepositories.add(feed.repository.toLowerCase());
 			}
 		}
+	}
+
+	public Date getLastFeedRefresh(String repository, String branch) {
+		FeedModel feed = new FeedModel();
+		feed.repository = repository;
+		feed.branch = branch;
+		if (reg.feeds.contains(feed)) {
+			int idx = reg.feeds.indexOf(feed);
+			feed = reg.feeds.get(idx);
+			return feed.lastRefreshDate;
+		}
+		return NEVER;
 	}
 
 	public boolean isSubscribed(RepositoryModel repository) {

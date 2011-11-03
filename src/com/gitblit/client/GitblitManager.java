@@ -25,7 +25,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.MessageFormat;
@@ -34,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -310,7 +314,13 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 				} else {
 					password = new String(Base64.decode(pw)).toCharArray();
 				}
-				GitblitRegistration reg = new GitblitRegistration(server, url, account, password);
+				GitblitRegistration reg = new GitblitRegistration(server, url, account, password) {
+					private static final long serialVersionUID = 1L;
+
+					protected void cacheFeeds() {
+						writeFeedCache(this);
+					}
+				};
 				String[] feeds = config.getStringList(SERVER, server, FEED);
 				if (feeds != null) {
 					// deserialize the field definitions
@@ -320,6 +330,7 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 					}
 				}
 				reg.lastLogin = lastLogin;
+				loadFeedCache(reg);
 				registrations.put(reg.name, reg);
 			}
 		} catch (Throwable t) {
@@ -386,6 +397,49 @@ public class GitblitManager extends JFrame implements RegistrationsDialog.Regist
 		FileBasedConfig config = new FileBasedConfig(configFile, FS.detect());
 		config.load();
 		return config;
+	}
+
+	private void loadFeedCache(GitblitRegistration reg) {
+		File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg.url)
+				+ ".cache");
+		if (!feedCache.exists()) {
+			// no cache for this registration
+			return;
+		}
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(feedCache));
+			Map<String, Date> cache = new HashMap<String, Date>();
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				String[] kvp = line.split("=");
+				cache.put(kvp[0], df.parse(kvp[1]));
+			}
+			reader.close();
+			for (FeedModel feed : reg.feeds) {
+				String name = feed.toString();
+				if (cache.containsKey(name)) {
+					feed.currentRefreshDate = cache.get(name);
+				}
+			}
+		} catch (Exception e) {
+			Utils.showException(GitblitManager.this, e);
+		}
+	}
+
+	private void writeFeedCache(GitblitRegistration reg) {
+		try {
+			File feedCache = new File(configFile.getParentFile(), StringUtils.getSHA1(reg.url)
+					+ ".cache");
+			FileWriter writer = new FileWriter(feedCache);
+			for (FeedModel feed : reg.feeds) {
+				writer.append(MessageFormat.format("{0}={1,date,yyyy-MM-dd'T'HH:mm:ss}\n",
+						feed.toString(), feed.currentRefreshDate));
+			}
+			writer.close();
+		} catch (Exception e) {
+			Utils.showException(GitblitManager.this, e);
+		}
 	}
 
 	public static void main(String[] args) {

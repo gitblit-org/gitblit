@@ -29,7 +29,8 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	public String repository;
 	public String branch;
-	public Date lastRefresh;
+	public Date lastRefreshDate;
+	public Date currentRefreshDate;
 
 	public boolean subscribed;
 
@@ -42,7 +43,8 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	public FeedModel(String definition) {
 		subscribed = true;
-		lastRefresh = new Date(0);
+		lastRefreshDate = new Date(0);
+		currentRefreshDate = new Date(0);
 
 		String[] fields = definition.split(":");
 		repository = fields[0];
@@ -76,7 +78,7 @@ public class FeedModel implements Serializable, Comparable<FeedModel> {
 
 	@Override
 	public int hashCode() {
-		return (repository + (StringUtils.isEmpty(branch) ? "" : branch)).toLowerCase().hashCode();
+		return toString().toLowerCase().hashCode();
 	}
 
 	@Override

@@ -75,4 +75,7 @@ public class GitblitRegistration implements Serializable, Comparable<GitblitRegi
 	public int compareTo(GitblitRegistration o) {
 		return name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
+
+	protected void cacheFeeds() {
+	}
 }
