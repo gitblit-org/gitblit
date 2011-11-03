@@ -38,6 +38,7 @@ import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
 /**
@@ -96,6 +97,7 @@ public class GitblitClient implements Serializable {
 	}
 
 	public void login() throws IOException {
+		refreshSettings();
 		refreshAvailableFeeds();
 		refreshRepositories();
 
@@ -110,7 +112,6 @@ public class GitblitClient implements Serializable {
 			// credentials may not have administrator access
 			// or server may have disabled rpc management
 			refreshUsers();
-			refreshSettings();
 			allowManagement = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
@@ -132,7 +133,6 @@ public class GitblitClient implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public boolean allowManagement() {
@@ -145,6 +145,33 @@ public class GitblitClient implements Serializable {
 
 	public boolean isOwner(RepositoryModel model) {
 		return account != null && account.equalsIgnoreCase(model.owner);
+	}
+
+	public String getURL(String action, String repository, String objectId) {
+		boolean mounted = settings.get(Keys.web.mountParameters).getBoolean(true);
+		StringBuilder sb = new StringBuilder();
+		sb.append(url);
+		sb.append('/');
+		sb.append(action);
+		sb.append('/');
+		if (mounted) {
+			// mounted url/action/repository/objectId
+			sb.append(StringUtils.encodeURL(repository));
+			if (!StringUtils.isEmpty(objectId)) {
+				sb.append('/');
+				sb.append(objectId);
+			}
+			return sb.toString();
+		} else {
+			// parameterized url/action/&r=repository&h=objectId
+			sb.append("?r=");
+			sb.append(repository);
+			if (!StringUtils.isEmpty(objectId)) {
+				sb.append("&h=");
+				sb.append(objectId);
+			}
+			return sb.toString();
+		}
 	}
 
 	public ServerSettings getSettings() {

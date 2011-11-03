@@ -201,11 +201,13 @@ public class Constants {
 	 * a client.
 	 */
 	public static enum RpcRequest {
-		LIST_REPOSITORIES, LIST_BRANCHES, CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
-		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER, LIST_REPOSITORY_MEMBERS,
-		SET_REPOSITORY_MEMBERS, LIST_FEDERATION_REGISTRATIONS, LIST_FEDERATION_RESULTS,
-		LIST_FEDERATION_PROPOSALS, LIST_FEDERATION_SETS, LIST_SETTINGS, EDIT_SETTINGS,
-		LIST_STATUS;
+		// Order is important here.  anything above LIST_SETTINGS requires
+		// administrator privileges and web.allowRpcManagement.
+		LIST_REPOSITORIES, LIST_BRANCHES, LIST_SETTINGS, CREATE_REPOSITORY, EDIT_REPOSITORY,
+		DELETE_REPOSITORY, LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER, 
+		LIST_REPOSITORY_MEMBERS, SET_REPOSITORY_MEMBERS, LIST_FEDERATION_REGISTRATIONS,
+		LIST_FEDERATION_RESULTS, LIST_FEDERATION_PROPOSALS, LIST_FEDERATION_SETS,
+		EDIT_SETTINGS, LIST_STATUS;
 
 		public static RpcRequest fromName(String name) {
 			for (RpcRequest type : values()) {
@@ -214,7 +216,7 @@ public class Constants {
 				}
 			}
 			return null;
-		}
+		}		
 
 		public boolean exceeds(RpcRequest type) {
 			return this.ordinal() > type.ordinal();

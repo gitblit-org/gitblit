@@ -32,8 +32,6 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
@@ -145,13 +143,22 @@ public class SyndicationServlet extends HttpServlet {
 		List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, 0, length);
 		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
 
+		boolean mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true);
+		String urlPattern;
+		if (mountParameters) {
+			// mounted parameters
+			urlPattern = "{0}/commit/{1}/{2}";
+		} else {
+			// parameterized parameters
+			urlPattern = "{0}/commit/?r={1}&h={2}";
+		}
 		String gitblitUrl = HttpUtils.getGitblitURL(request);
 		// convert RevCommit to SyndicatedEntryModel
 		for (RevCommit commit : commits) {
 			SyndicatedEntryModel entry = new SyndicatedEntryModel();
 			entry.title = commit.getShortMessage();
 			entry.author = commit.getAuthorIdent().getName();
-			entry.link = MessageFormat.format("{0}/commit/{1}/{2}", gitblitUrl,
+			entry.link = MessageFormat.format(urlPattern, gitblitUrl,
 					StringUtils.encodeURL(model.name), commit.getName());
 			entry.published = commit.getCommitterIdent().getWhen();
 			entry.contentType = "text/plain";
@@ -160,9 +167,20 @@ public class SyndicationServlet extends HttpServlet {
 			entry.branch = objectId;
 			entries.add(entry);
 		}
+		String feedLink;
+		if (mountParameters) {
+			// mounted url
+			feedLink = MessageFormat.format("{0}/summary/{1}", gitblitUrl,
+					StringUtils.encodeURL(model.name));
+		} else {
+			// parameterized url
+			feedLink = MessageFormat.format("{0}/summary/?r={1}", gitblitUrl,
+					StringUtils.encodeURL(model.name));
+		}
+
 		try {
-			SyndicationUtils.toRSS(gitblitUrl, getTitle(model.name, objectId), model.description,
-					model.name, entries, response.getOutputStream());
+			SyndicationUtils.toRSS(gitblitUrl, feedLink, getTitle(model.name, objectId),
+					model.description, model.name, entries, response.getOutputStream());
 		} catch (Exception e) {
 			logger.error("An error occurred during feed generation", e);
 		}

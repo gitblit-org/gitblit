@@ -26,7 +26,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,9 +90,8 @@ public abstract class RepositoriesPanel extends JPanel {
 		browseRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
-				String u = MessageFormat.format("{0}/summary/{1}", gitblit.url,
-						StringUtils.encodeURL(model.name));
-				Utils.browse(u);
+				String url = gitblit.getURL("summary", model.name, null);
+				Utils.browse(url);
 			}
 		});
 

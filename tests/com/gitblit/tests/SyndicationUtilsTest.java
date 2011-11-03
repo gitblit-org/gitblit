@@ -42,8 +42,8 @@ public class SyndicationUtilsTest extends TestCase {
 			entries.add(entry);
 		}
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		SyndicationUtils.toRSS("http://localhost", "Title", "Description", "Repository", entries,
-				os);
+		SyndicationUtils.toRSS("http://localhost", "", "Title", "Description", "Repository",
+				entries, os);
 		String feed = os.toString();
 		os.close();
 		assertTrue(feed.indexOf("<title>Title</title>") > -1);

@@ -51,6 +51,7 @@ public class SyndicationUtils {
 	 * Outputs an RSS feed of the list of entries to the outputstream.
 	 * 
 	 * @param hostUrl
+	 * @param feedLink
 	 * @param title
 	 * @param description
 	 * @param repository
@@ -59,16 +60,15 @@ public class SyndicationUtils {
 	 * @throws IOException
 	 * @throws FeedException
 	 */
-	public static void toRSS(String hostUrl, String title, String description, String repository,
-			List<SyndicatedEntryModel> entryModels, OutputStream os) throws IOException,
-			FeedException {
+	public static void toRSS(String hostUrl, String feedLink, String title, String description,
+			String repository, List<SyndicatedEntryModel> entryModels, OutputStream os)
+			throws IOException, FeedException {
 
 		SyndFeed feed = new SyndFeedImpl();
 		feed.setFeedType("rss_2.0");
 		feed.setEncoding("UTF-8");
 		feed.setTitle(title);
-		feed.setLink(MessageFormat.format("{0}/summary/{1}", hostUrl,
-				StringUtils.encodeURL(repository)));
+		feed.setLink(feedLink);
 		feed.setDescription(description);
 		SyndImageImpl image = new SyndImageImpl();
 		image.setTitle(Constants.NAME);

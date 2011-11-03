@@ -64,7 +64,7 @@ public class RpcFilter extends AuthenticationFilter {
 			return;
 		}
 
-		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_BRANCHES);
+		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_SETTINGS);
 
 		// conditionally reject all rpc requests
 		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, true)) {
@@ -86,8 +86,8 @@ public class RpcFilter extends AuthenticationFilter {
 
 		// conditionally reject rpc management/administration requests
 		if (adminRequest && !GitBlit.getBoolean(Keys.web.enableRpcManagement, false)) {
-			logger.warn(Keys.web.enableRpcManagement
-					+ " must be set TRUE for management/administrative rpc requests.");
+			logger.warn(MessageFormat.format("{0} must be set TRUE for {1} rpc requests.",
+					Keys.web.enableRpcManagement, requestType.toString()));
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}

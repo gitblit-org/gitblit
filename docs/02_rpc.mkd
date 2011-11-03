@@ -19,6 +19,7 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td colspan='5'><em>web.enableRpcServlet=true</em></td></tr>
 <tr><td>LIST_REPOSITORIES</td><td>-</td><td>-</td><td>-</td><td>Map&lt;String, RepositoryModel&gt;</td></tr>
 <tr><td>LIST_BRANCHES</td><td>-</td><td>-</td><td>-</td><td>Map&lt;String, List&lt;String&gt;&gt;</td></tr>
+<tr><td>LIST_SETTINGS</td><td>-</td><td><em>-</em></td><td>-</td><td>ServerSettings (basic keys)</td></tr>
 <tr><td colspan='5'><em>web.enableRpcManagement=true</em></td></tr>
 <tr><td>CREATE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>EDIT_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>RepositoryModel</td><td>-</td></tr>

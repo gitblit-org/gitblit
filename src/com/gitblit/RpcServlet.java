@@ -68,9 +68,13 @@ public class RpcServlet extends JsonServlet {
 		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType,
 				request.getRemoteAddr()));
 
-		boolean allowAdmin = GitBlit.getBoolean(Keys.web.enableRpcAdministration, false);
-
 		UserModel user = (UserModel) request.getUserPrincipal();
+
+		boolean allowManagement = user != null && user.canAdmin
+				&& GitBlit.getBoolean(Keys.web.enableRpcManagement, false);
+
+		boolean allowAdmin = user != null && user.canAdmin
+				&& GitBlit.getBoolean(Keys.web.enableRpcAdministration, false);
 
 		Object result = null;
 		if (RpcRequest.LIST_REPOSITORIES.equals(reqType)) {
@@ -224,9 +228,18 @@ public class RpcServlet extends JsonServlet {
 				// return all settings
 				result = settings;
 			} else {
-				// return management settings only
-				String[] keys = { Keys.realm.minPasswordLength, Keys.realm.passwordStorage,
-						Keys.federation.sets };
+				// anonymous users get a few settings to allow browser launching
+				List<String> keys = new ArrayList<String>();
+				keys.add(Keys.web.siteName);
+				keys.add(Keys.web.mountParameters);
+				
+				if (allowManagement) {
+					// keys necessary for repository and/or user management
+					keys.add(Keys.realm.minPasswordLength);
+					keys.add(Keys.realm.passwordStorage);
+					keys.add(Keys.federation.sets);
+				}
+				// build the settings
 				ServerSettings managementSettings = new ServerSettings();
 				for (String key : keys) {
 					managementSettings.add(settings.get(key));
