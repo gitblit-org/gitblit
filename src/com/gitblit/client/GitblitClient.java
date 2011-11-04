@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
@@ -213,17 +214,31 @@ public class GitblitClient implements Serializable {
 		return status;
 	}
 
+	public List<String> getBranches(String repository) {
+		List<FeedModel> feeds = getAvailableFeeds(repository);
+		List<String> branches = new ArrayList<String>();
+		for (FeedModel feed : feeds) {
+			branches.add(feed.branch);
+		}
+		Collections.sort(branches);
+		return branches;
+	}
+
 	public List<FeedModel> getAvailableFeeds() {
 		return availableFeeds;
 	}
 
 	public List<FeedModel> getAvailableFeeds(RepositoryModel repository) {
+		return getAvailableFeeds(repository.name);
+	}
+
+	public List<FeedModel> getAvailableFeeds(String repository) {
 		List<FeedModel> repositoryFeeds = new ArrayList<FeedModel>();
 		if (repository == null) {
 			return repositoryFeeds;
 		}
 		for (FeedModel feed : availableFeeds) {
-			if (feed.repository.equalsIgnoreCase(repository.name)) {
+			if (feed.repository.equalsIgnoreCase(repository)) {
 				repositoryFeeds.add(feed);
 			}
 		}
@@ -290,6 +305,12 @@ public class GitblitClient implements Serializable {
 
 	public List<SyndicatedEntryModel> getSyndicatedEntries() {
 		return syndicatedEntries;
+	}
+
+	public List<SyndicatedEntryModel> search(String repository, String branch, String fragment,
+			Constants.SearchType type, int numberOfEntries) throws IOException {
+		return SyndicationUtils.readSearchFeed(url, repository, branch, fragment, type,
+				numberOfEntries, account, password);
 	}
 
 	public List<FederationModel> refreshFederationRegistrations() throws IOException {

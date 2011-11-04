@@ -454,6 +454,7 @@
 			<resource file="${basedir}/resources/health_16x16.png" />
 			<resource file="${basedir}/resources/feed_16x16.png" />
 			<resource file="${basedir}/resources/bullet_feed.png" />
+			<resource file="${basedir}/resources/search-icon.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
 				
@@ -490,6 +491,7 @@
 				<classpath refid="master-classpath" />
 				<classfilter>
 					<exclude name="com.google.gson." />
+					<exclude name="com.sun.syndication." />
 				</classfilter>
 				<manifest>
 					<attribute name="Specification-Version" value="${gb.version}" />
@@ -506,6 +508,9 @@
 					<include name="gson*.jar" />
 					<exclude name="gson*-sources.jar" />
 					<exclude name="gson*-javadoc.jar" />
+					<include name="rome*.jar" />
+					<exclude name="rome*-sources.jar" />
+					<exclude name="rome*-javadoc.jar" />
 				</fileset>
 			</zip>
 		</target>

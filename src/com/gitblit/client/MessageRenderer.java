@@ -53,6 +53,10 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 
 	private final JLabel branchLabel;
 
+	public MessageRenderer() {
+		this(null);
+	}
+
 	public MessageRenderer(GitblitClient gitblit) {
 		super(new FlowLayout(FlowLayout.LEFT, 10, 1));
 		this.gitblit = gitblit;
@@ -75,12 +79,17 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 		messageLabel.setForeground(isSelected ? table.getSelectionForeground() : table
 				.getForeground());
 		SyndicatedEntryModel entry = (SyndicatedEntryModel) value;
-		
-		// show message in BOLD if its a new entry
-		if (entry.published.after(gitblit.getLastFeedRefresh(entry.repository, entry.branch))) {
-			messageLabel.setText("<html><body><b>" + entry.title);
-		} else {
+
+		if (gitblit == null) {
+			// no gitblit client, just display message
 			messageLabel.setText(entry.title);
+		} else {
+			// show message in BOLD if its a new entry
+			if (entry.published.after(gitblit.getLastFeedRefresh(entry.repository, entry.branch))) {
+				messageLabel.setText("<html><body><b>" + entry.title);
+			} else {
+				messageLabel.setText(entry.title);
+			}
 		}
 
 		// reset ref label

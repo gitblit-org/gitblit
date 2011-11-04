@@ -18,7 +18,9 @@ package com.gitblit.client;
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.ListCellRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 
 /**
@@ -28,7 +30,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author James Moger
  * 
  */
-public class BranchRenderer extends DefaultTableCellRenderer {
+public class BranchRenderer extends DefaultTableCellRenderer implements ListCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -39,7 +41,32 @@ public class BranchRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		String name = value.toString();
+		if (value == null) {
+			return this;
+		}
+		setText(value.toString());
+		if (isSelected) {
+			setForeground(table.getSelectionForeground());
+		}
+		return this;
+	}
+
+	@Override
+	public Component getListCellRendererComponent(JList list, Object value, int index,
+			boolean isSelected, boolean cellHasFocus) {
+		setText(value.toString());
+		if (isSelected) {
+			setBackground(list.getSelectionBackground());
+			setForeground(list.getSelectionForeground());
+		} else {
+			setBackground(list.getBackground());
+		}
+		return this;
+	}
+
+	@Override
+	public void setText(String text) {
+		String name = text;
 		Color fg = getForeground();
 		if (name.startsWith(R_HEADS)) {
 			name = name.substring(R_HEADS.length());
@@ -48,8 +75,7 @@ public class BranchRenderer extends DefaultTableCellRenderer {
 			name = name.substring(R_REMOTES.length());
 			fg = Color.decode("#6C6CBF");
 		}
-		setText(name);
-		setForeground(isSelected ? table.getSelectionForeground() : fg);
-		return this;
+		setForeground(fg);
+		super.setText(name);
 	}
 }

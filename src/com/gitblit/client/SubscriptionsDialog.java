@@ -101,7 +101,7 @@ public abstract class SubscriptionsDialog extends JDialog {
 		feedsTable.getColumn(repository).setCellRenderer(nameRenderer);
 
 		String branch = feedsTable.getColumnName(FeedsTableModel.Columns.Branch.ordinal());
-		feedsTable.getColumn(branch).setCellRenderer(nameRenderer);
+		feedsTable.getColumn(branch).setCellRenderer(new BranchRenderer());
 
 		String subscribed = feedsTable.getColumnName(FeedsTableModel.Columns.Subscribed.ordinal());
 		feedsTable.getColumn(subscribed).setCellRenderer(new BooleanCellRenderer());

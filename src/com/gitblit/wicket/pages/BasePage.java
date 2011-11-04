@@ -84,6 +84,7 @@ public abstract class BasePage extends WebPage {
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
 			GitBlit.self().setCookie(response, user);
+			continueToOriginalDestination();
 		}
 	}
 

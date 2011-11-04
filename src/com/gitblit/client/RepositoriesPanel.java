@@ -134,6 +134,15 @@ public abstract class RepositoriesPanel extends JPanel {
 			}
 		});
 
+		final JButton searchRepository = new JButton(Translation.get("gb.search") + "...");
+		searchRepository.setEnabled(false);
+		searchRepository.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RepositoryModel model = getSelectedRepositories().get(0);
+				searchRepository(model);
+			}
+		});
+
 		SubscribedRepositoryRenderer nameRenderer = new SubscribedRepositoryRenderer(gitblit);
 		IndicatorsRenderer typeRenderer = new IndicatorsRenderer();
 
@@ -164,10 +173,18 @@ public abstract class RepositoriesPanel extends JPanel {
 					return;
 				}
 				boolean singleSelection = table.getSelectedRowCount() == 1;
-				boolean selected = table.getSelectedRow() > -1;
-				browseRepository.setEnabled(singleSelection);
-				delRepository.setEnabled(selected);
-				subscribeRepository.setEnabled(singleSelection);
+				boolean selected = table.getSelectedRow() > -1;				
+				if (singleSelection) {
+					RepositoryModel repository = getSelectedRepositories().get(0);
+					browseRepository.setEnabled(repository.hasCommits);
+					searchRepository.setEnabled(repository.hasCommits);
+					subscribeRepository.setEnabled(repository.hasCommits);
+				} else {
+					browseRepository.setEnabled(false);
+					searchRepository.setEnabled(false);
+					subscribeRepository.setEnabled(false);
+				}
+				delRepository.setEnabled(selected);				
 				if (selected) {
 					int viewRow = table.getSelectedRow();
 					int modelRow = table.convertRowIndexToModel(viewRow);
@@ -216,6 +233,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		repositoryControls.add(editRepository);
 		repositoryControls.add(delRepository);
 		repositoryControls.add(subscribeRepository);
+		repositoryControls.add(searchRepository);
 
 		setLayout(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
 		header = new HeaderPanel(Translation.get("gb.repositories"), "gitweb-favicon.png");
@@ -449,4 +467,12 @@ public abstract class RepositoriesPanel extends JPanel {
 		}
 	}
 
+	protected void searchRepository(final RepositoryModel repository) {
+		SearchDialog searchDialog = new SearchDialog(gitblit);
+		if (repository != null) {
+			searchDialog.selectRepository(repository);
+		}
+		searchDialog.setLocationRelativeTo(this);
+		searchDialog.setVisible(true);
+	}
 }
