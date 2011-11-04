@@ -8,7 +8,7 @@
     - ![view](shield_16x16.png) *Authenticated View, Clone & Push*
     - ![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
 - Ability to federate with one or more other Gitblit instances
-- JSON RPC interface
+- RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool 
 - Gitweb inspired web UI
 - Administrators may create, edit, rename, or delete repositories through the web UI or RPC interface

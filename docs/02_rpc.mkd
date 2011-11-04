@@ -1,4 +1,4 @@
-## JSON Remote Procedure Call (RPC) Interface
+## Remote Management, Administration and Integration
 
 *SINCE 0.7.0*
 
@@ -9,9 +9,51 @@ Gitblit optionally allows a remote client to administer the Gitblit server.  Thi
 
 **https** is strongly recommended because passwords are insecurely transmitted form your browser/rpc client using Basic authentication!
 
-The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication.  Making an *admin* request will trigger Gitblit's basic authentication mechanism.  Listing of repositories, generally, will not trigger this authentication mechanism unless *web.authenticateViewPages=true*.  That means its possible to allow anonymous enumeration of repositories that are not *view restricted* or *clone restricted*.  Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.
+The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed servlet, etc, supports request-based authentication.  Making an *admin* request will trigger Gitblit's basic authentication mechanism.  Listing of repositories, generally, will not trigger this authentication mechanism unless *web.authenticateViewPages=true*.  That means its possible to allow anonymous enumeration of repositories that are not *view restricted* or *clone restricted*.  Of course, if credentials are provided then all private repositories that are available to the user account will be enumerated in the JSON response.
 
-### RPC Requests
+### Gitblit Manager
+
+[Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote management (repository and user objects) and administration (server settings) of a Gitblit server.
+  
+This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](http://code.google.com/p/gitblit/downloads/detail?name=%API%) library.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
+
+**NOTE:**  
+Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
+
+### EGit "Import from Gitblit" Feature (Planning)
+
+One obvious goal of a Gitblit RPC mechanism would be to have an EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Cloning (hopefully batch) would be delegated to EGit.
+
+This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
+
+One proposal from the EGit team is to define a common JSON RPC method for enumeration of repositories which can be implemented by Git hosts.  The EGit team would then implement the UI and the client-side enumeration code.  This idea was raised as part of this [feature request for EGit](https://bugs.eclipse.org/bugs/show_bug.cgi?id=361251).
+
+Currently this project is in the planning stage.
+
+## RSS Query Interface
+
+At present, Gitblit does not yet support retrieving Git objects (commits, etc) via the JSON RPC mechanism.  However, the repository/branch RSS feeds can be used to extract log/history information from a repository branch.
+
+The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The Gitblit Manager uses these methods to allow branch activity monitoring and repository searching.
+
+<table>
+<tr><th>url parameter</th><th>default</th><th>description</th></tr>
+<tr><td colspan='3'><b>standard query</b></td></tr>
+<tr><td><em>repository</em></td><td><em>required</em></td><td>repository name is part of the url (see examples below)</td></tr>
+<tr><td>h=</td><td><em>optional</em><br/>default: HEAD</td><td>starting branch, ref, or commit id</td></tr>
+<tr><td>l=</td><td><em>optional</em><br/>default: web.syndicationEntries</td><td>maximum return count</td></tr>
+<tr><td colspan='3'><b>search query</b></td></tr>
+<tr><td>s=</td><td><em>required</em></td><td>search string</td></tr>
+<tr><td>st=</td><td><em>optional</em><br/>default: COMMIT</td><td>search type</td></tr>
+</table>
+
+### Example RSS Queries
+
+    https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master
+    https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master&s=documentation
+    https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master&s=james&st=author
+
+## JSON Remote Procedure Call (RPC) Interface
 
 <table>
 <tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>user<br/>permission</th><th colspan='2'>json</th></tr>
@@ -51,24 +93,6 @@ The Gitblit RPC mechanism, like the Gitblit JGit servlet, syndication/feed servl
 <tr><td>500</td><td>server error</td><td>Gitblit failed to process the request likely because the input object created a conflict</td></tr>
 <tr><td>501</td><td>unknown request</td><td>Gitblit does not recognize the RPC request type</td></tr>
 </table>
-
-### Gitblit Manager
-
-[Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote administration of a Gitblit server.  
-This application exercises many, but not all, methods from the utility class `com.gitblit.utils.RpcUtils`.
-
-**NOTE:**  
-Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
-
-### EGit "Import from Gitblit" Feature (Planning)
-
-One obvious goal of a Gitblit RPC mechanism would be to have an EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Cloning (hopefully batch) would be delegated to EGit.
-
-This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
-
-One proposal from the EGit team is to define a common JSON RPC method for enumeration of repositories which can be implemented by Git hosts.  The EGit team would then implement the UI and the client-side enumeration code.  This idea was raised as part of this [feature request for EGit](https://bugs.eclipse.org/bugs/show_bug.cgi?id=361251).
-
-Currently this project is in the planning stage.
 
 ### Example: LIST_REPOSITORIES
 

@@ -18,7 +18,7 @@ Gitblit is available in two variations:
 
 ### Tools
 
-- *Gitblit API* - a JSON RPC client library for integrating Gitblit into your systems
+- *Gitblit API* - an RSS/JSON RPC client library for integrating Gitblit into your systems
 - *Gitblit Manager* - a Java/Swing application for remote administration of a Gitblit server which uses the Gitblit API library
 - *Gitblit Federation Client* - a command line tool to clone/pull groups of repositories and optionally users and settings
 
@@ -39,7 +39,7 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
     **New:** *web.enableRpcServlet = true*  
     **New:** *web.enableRpcManagement = false*  
     **New:** *web.enableRpcAdministration = false*
-- added: Gitblit API JSON RPC library
+- added: Gitblit API RSS/JSON RPC library
 - added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
 - added: per-repository setting to skip size calculation (faster repositories page loading)
 - added: per-repository setting to skip summary metrics calculation (faster summary page loading)
@@ -54,10 +54,10 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 - fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
 - fixed: Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
 - fixed: RSS feeds are now properly encoded to UTF-8
-- fixed: RSS feeds now properly generated parameterized links if *web.mountParameters=false*
+- fixed: RSS feeds now properly generate parameterized links if *web.mountParameters=false*
 - fixed: Null pointer exception if did not set federation strategy (issue 20)
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
-- updated: MarkdownPapers 1.2.4
+- updated: MarkdownPapers 1.2.5
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]
