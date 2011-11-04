@@ -39,13 +39,13 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.IChartData;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.HttpUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
@@ -311,7 +311,7 @@ public class WicketUtils {
 	}
 
 	public static PageParameters newSearchParameter(String repositoryName, String commitId,
-			String search, SearchType type) {
+			String search, Constants.SearchType type) {
 		if (StringUtils.isEmpty(commitId)) {
 			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name());
 		}
@@ -320,7 +320,7 @@ public class WicketUtils {
 	}
 
 	public static PageParameters newSearchParameter(String repositoryName, String commitId,
-			String search, SearchType type, int pageNumber) {
+			String search, Constants.SearchType type, int pageNumber) {
 		if (StringUtils.isEmpty(commitId)) {
 			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name()
 					+ ",page=" + pageNumber);

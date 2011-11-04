@@ -33,7 +33,6 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
@@ -131,9 +130,9 @@ public class SyndicationServlet extends HttpServlet {
 		String objectId = request.getParameter("h");
 		String l = request.getParameter("l");
 		String searchString = request.getParameter("s");
-		SearchType searchType = SearchType.COMMIT;
+		Constants.SearchType searchType = Constants.SearchType.COMMIT;
 		if (!StringUtils.isEmpty(request.getParameter("st"))) {
-			SearchType type = SearchType.forName(request.getParameter("st"));
+			Constants.SearchType type = Constants.SearchType.forName(request.getParameter("st"));
 			if (type != null) {
 				searchType = type;
 			}

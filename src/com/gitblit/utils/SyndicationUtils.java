@@ -22,13 +22,11 @@ import java.io.OutputStreamWriter;
 import java.net.URLConnection;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.SyndicatedEntryModel;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -163,7 +161,7 @@ public class SyndicationUtils {
 	 * @throws {@link IOException}
 	 */
 	public static List<SyndicatedEntryModel> readSearchFeed(String url, String repository,
-			String branch, String fragment, SearchType searchType, int numberOfEntries,
+			String branch, String fragment, Constants.SearchType searchType, int numberOfEntries,
 			String username, char[] password) throws IOException {
 		// determine parameters
 		List<String> parameters = new ArrayList<String>();

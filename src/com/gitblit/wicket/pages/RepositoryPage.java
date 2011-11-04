@@ -38,12 +38,12 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -206,7 +206,7 @@ public abstract class RepositoryPage extends BasePage {
 	protected abstract String getPageName();
 
 	protected Component createPersonPanel(String wicketId, PersonIdent identity,
-			SearchType searchType) {
+			Constants.SearchType searchType) {
 		String name = identity == null ? "" : identity.getName();
 		String address = identity == null ? "" : identity.getEmailAddress();
 		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
@@ -241,10 +241,10 @@ public abstract class RepositoryPage extends BasePage {
 		}
 	}
 
-	protected void setPersonSearchTooltip(Component component, String value, SearchType searchType) {
-		if (searchType.equals(SearchType.AUTHOR)) {
+	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {
+		if (searchType.equals(Constants.SearchType.AUTHOR)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
-		} else if (searchType.equals(SearchType.COMMITTER)) {
+		} else if (searchType.equals(Constants.SearchType.COMMITTER)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForCommitter") + " " + value);
 		}
 	}
@@ -298,13 +298,13 @@ public abstract class RepositoryPage extends BasePage {
 
 		private final IModel<String> searchBoxModel = new Model<String>("");
 
-		private final IModel<SearchType> searchTypeModel = new Model<SearchType>(SearchType.COMMIT);
+		private final IModel<Constants.SearchType> searchTypeModel = new Model<Constants.SearchType>(Constants.SearchType.COMMIT);
 
 		public SearchForm(String id, String repositoryName) {
 			super(id);
 			this.repositoryName = repositoryName;
-			DropDownChoice<SearchType> searchType = new DropDownChoice<SearchType>("searchType",
-					Arrays.asList(SearchType.values()));
+			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>("searchType",
+					Arrays.asList(Constants.SearchType.values()));
 			searchType.setModel(searchTypeModel);
 			add(searchType.setVisible(GitBlit.getBoolean(Keys.web.showSearchTypeSelection, false)));
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
@@ -320,13 +320,13 @@ public abstract class RepositoryPage extends BasePage {
 
 		@Override
 		public void onSubmit() {
-			SearchType searchType = searchTypeModel.getObject();
+			Constants.SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
 			if (searchString == null) {
 				// FIXME IE intermittently has no searchString. Wicket bug?
 				return;
 			}
-			for (SearchType type : SearchType.values()) {
+			for (Constants.SearchType type : Constants.SearchType.values()) {
 				if (searchString.toLowerCase().startsWith(type.name().toLowerCase() + ":")) {
 					searchType = type;
 					searchString = searchString.substring(type.name().toLowerCase().length() + 1)

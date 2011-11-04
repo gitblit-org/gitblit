@@ -28,11 +28,11 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
@@ -47,7 +47,7 @@ public class SearchPanel extends BasePanel {
 	private boolean hasMore;
 
 	public SearchPanel(String wicketId, final String repositoryName, final String objectId,
-			final String value, SearchType searchType, Repository r, int limit, int pageOffset) {
+			final String value, Constants.SearchType searchType, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
@@ -93,8 +93,8 @@ public class SearchPanel extends BasePanel {
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
 						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
-								author, SearchType.AUTHOR));
-				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
+								author, Constants.SearchType.AUTHOR));
+				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 
 				// merge icon

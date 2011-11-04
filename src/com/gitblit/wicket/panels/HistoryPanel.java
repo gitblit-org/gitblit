@@ -30,13 +30,13 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -109,8 +109,8 @@ public class HistoryPanel extends BasePanel {
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
 						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
-								author, SearchType.AUTHOR));
-				setPersonSearchTooltip(authorLink, author, SearchType.AUTHOR);
+								author, Constants.SearchType.AUTHOR));
+				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 
 				// merge icon

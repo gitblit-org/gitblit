@@ -27,7 +27,6 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -80,7 +79,7 @@ public class TagPage extends RepositoryPage {
 				linkClass, linkParameters));
 		add(new Label("taggedObjectType", getString(typeKey)));
 
-		add(createPersonPanel("tagger", tagRef.getAuthorIdent(), SearchType.AUTHOR));
+		add(createPersonPanel("tagger", tagRef.getAuthorIdent(), com.gitblit.Constants.SearchType.AUTHOR));
 		Date when = new Date(0);
 		if (tagRef.getAuthorIdent() != null) {
 			when = tagRef.getAuthorIdent().getWhen();

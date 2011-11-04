@@ -31,13 +31,13 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
@@ -78,12 +78,12 @@ public class CommitPage extends RepositoryPage {
 		addRefs(r, c);
 
 		// author
-		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), SearchType.AUTHOR));
+		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
 				getTimeZone()));
 
 		// committer
-		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), SearchType.COMMITTER));
+		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));
 		add(WicketUtils.createTimestampLabel("commitCommitterDate",
 				c.getCommitterIdent().getWhen(), getTimeZone()));
 
@@ -125,7 +125,7 @@ public class CommitPage extends RepositoryPage {
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
 				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
-						SearchType.AUTHOR));
+						Constants.SearchType.AUTHOR));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone()));
 				item.add(new Label("noteContent", GitBlit.self().processCommitMessage(

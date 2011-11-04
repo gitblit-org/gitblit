@@ -18,7 +18,7 @@ package com.gitblit.wicket.pages;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
-import com.gitblit.utils.JGitUtils.SearchType;
+import com.gitblit.Constants;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.SearchPanel;
 
@@ -29,7 +29,7 @@ public class SearchPage extends RepositoryPage {
 
 		String value = WicketUtils.getSearchString(params);
 		String type = WicketUtils.getSearchType(params);
-		SearchType searchType = SearchType.forName(type);
+		Constants.SearchType searchType = Constants.SearchType.forName(type);
 
 		int pageNumber = WicketUtils.getPage(params);
 		int prevPage = Math.max(0, pageNumber - 1);

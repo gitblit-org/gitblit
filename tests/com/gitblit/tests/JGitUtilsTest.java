@@ -42,7 +42,6 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JGitUtils.SearchType;
 import com.gitblit.utils.StringUtils;
 
 public class JGitUtilsTest extends TestCase {
@@ -306,37 +305,37 @@ public class JGitUtilsTest extends TestCase {
 	}
 
 	public void testSearchTypes() throws Exception {
-		assertTrue(SearchType.forName("commit").equals(SearchType.COMMIT));
-		assertTrue(SearchType.forName("committer").equals(SearchType.COMMITTER));
-		assertTrue(SearchType.forName("author").equals(SearchType.AUTHOR));
-		assertTrue(SearchType.forName("unknown").equals(SearchType.COMMIT));
+		assertTrue(com.gitblit.Constants.SearchType.forName("commit").equals(com.gitblit.Constants.SearchType.COMMIT));
+		assertTrue(com.gitblit.Constants.SearchType.forName("committer").equals(com.gitblit.Constants.SearchType.COMMITTER));
+		assertTrue(com.gitblit.Constants.SearchType.forName("author").equals(com.gitblit.Constants.SearchType.AUTHOR));
+		assertTrue(com.gitblit.Constants.SearchType.forName("unknown").equals(com.gitblit.Constants.SearchType.COMMIT));
 
-		assertTrue(SearchType.COMMIT.toString().equals("commit"));
-		assertTrue(SearchType.COMMITTER.toString().equals("committer"));
-		assertTrue(SearchType.AUTHOR.toString().equals("author"));
+		assertTrue(com.gitblit.Constants.SearchType.COMMIT.toString().equals("commit"));
+		assertTrue(com.gitblit.Constants.SearchType.COMMITTER.toString().equals("committer"));
+		assertTrue(com.gitblit.Constants.SearchType.AUTHOR.toString().equals("author"));
 	}
 
 	public void testSearchRevlogs() throws Exception {
-		assertTrue(JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0, 0).size() == 0);
-		List<RevCommit> results = JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0,
+		assertTrue(JGitUtils.searchRevlogs(null, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0, 0).size() == 0);
+		List<RevCommit> results = JGitUtils.searchRevlogs(null, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0,
 				3);
 		assertTrue(results.size() == 0);
 
 		// test commit message search
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		results = JGitUtils.searchRevlogs(repository, null, "java", SearchType.COMMIT, 0, 3);
+		results = JGitUtils.searchRevlogs(repository, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0, 3);
 		assertTrue(results.size() == 3);
 
 		// test author search
-		results = JGitUtils.searchRevlogs(repository, null, "timothy", SearchType.AUTHOR, 0, -1);
+		results = JGitUtils.searchRevlogs(repository, null, "timothy", com.gitblit.Constants.SearchType.AUTHOR, 0, -1);
 		assertTrue(results.size() == 1);
 
 		// test committer search
-		results = JGitUtils.searchRevlogs(repository, null, "mike", SearchType.COMMITTER, 0, 10);
+		results = JGitUtils.searchRevlogs(repository, null, "mike", com.gitblit.Constants.SearchType.COMMITTER, 0, 10);
 		assertTrue(results.size() == 10);
 
 		// test paging and offset
-		RevCommit commit = JGitUtils.searchRevlogs(repository, null, "mike", SearchType.COMMITTER,
+		RevCommit commit = JGitUtils.searchRevlogs(repository, null, "mike", com.gitblit.Constants.SearchType.COMMITTER,
 				9, 1).get(0);
 		assertTrue(results.get(9).equals(commit));
 

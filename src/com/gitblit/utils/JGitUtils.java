@@ -925,27 +925,6 @@ public class JGitUtils {
 	}
 
 	/**
-	 * Enumeration of the search types.
-	 */
-	public static enum SearchType {
-		AUTHOR, COMMITTER, COMMIT;
-
-		public static SearchType forName(String name) {
-			for (SearchType type : values()) {
-				if (type.name().equalsIgnoreCase(name)) {
-					return type;
-				}
-			}
-			return COMMIT;
-		}
-
-		@Override
-		public String toString() {
-			return name().toLowerCase();
-		}
-	}
-
-	/**
 	 * Search the commit history for a case-insensitive match to the value.
 	 * Search results require a specified SearchType of AUTHOR, COMMITTER, or
 	 * COMMIT. Results may be paginated using offset and maxCount. If the
@@ -963,7 +942,7 @@ public class JGitUtils {
 	 * @return matching list of commits
 	 */
 	public static List<RevCommit> searchRevlogs(Repository repository, String objectId,
-			String value, final SearchType type, int offset, int maxCount) {
+			String value, final com.gitblit.Constants.SearchType type, int offset, int maxCount) {
 		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
 		if (maxCount == 0) {
