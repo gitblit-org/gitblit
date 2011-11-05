@@ -59,14 +59,14 @@ public class NameRenderer extends DefaultTableCellRenderer implements ListCellRe
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		setValue(value, isSelected);
+		setValue(value == null ? "" : value, isSelected);
 		return this;
 	}
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index,
 			boolean isSelected, boolean cellHasFocus) {
-		setValue(value, isSelected);
+		setValue(value == null ? "" : value, isSelected);
 		if (isSelected) {
 			setBackground(list.getSelectionBackground());
 			setForeground(list.getSelectionForeground());

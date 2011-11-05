@@ -203,9 +203,16 @@ public class SearchDialog extends JFrame {
 					selectedBranch = branchSelector.getSelectedItem().toString();
 				}
 				updateBranches();
-				if (selectedBranch != null) {
+				if (StringUtils.isEmpty(selectedBranch)) {
+					// do not select branch
+					branchSelector.setSelectedIndex(-1);
+				} else {
 					if (branchChoices.getIndexOf(selectedBranch) > -1) {
+						// select branch
 						branchChoices.setSelectedItem(selectedBranch);
+					} else {
+						// branch does not exist, do not select branch
+						branchSelector.setSelectedIndex(-1);
 					}
 				}
 			}
@@ -213,7 +220,7 @@ public class SearchDialog extends JFrame {
 
 		branchChoices = new DefaultComboBoxModel();
 		branchSelector = new JComboBox(branchChoices);
-		branchSelector.setRenderer(new BranchRenderer());
+		branchSelector.setRenderer(new BranchRenderer());		
 
 		searchTypeSelector = new JComboBox(Constants.SearchType.values());
 		searchTypeSelector.setSelectedItem(Constants.SearchType.COMMIT);
@@ -228,19 +235,26 @@ public class SearchDialog extends JFrame {
 			}
 		});
 
-		JPanel northControls = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 0));
-		northControls.add(new JLabel(Translation.get("gb.repository")));
-		northControls.add(repositorySelector);
-		northControls.add(new JLabel(Translation.get("gb.branch")));
-		northControls.add(branchSelector);
-		northControls.add(new JLabel(Translation.get("gb.type")));
-		northControls.add(searchTypeSelector);
-		northControls.add(new JLabel(Translation.get("gb.maxHits")));
-		northControls.add(maxHitsSelector);
-		northControls.add(searchFragment);
-		northControls.add(search);
-		northControls.add(prev);
-		northControls.add(next);
+		JPanel queryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 0));
+		queryPanel.add(new JLabel(Translation.get("gb.repository")));
+		queryPanel.add(repositorySelector);
+		queryPanel.add(new JLabel(Translation.get("gb.branch")));
+		queryPanel.add(branchSelector);
+		queryPanel.add(new JLabel(Translation.get("gb.type")));
+		queryPanel.add(searchTypeSelector);
+		queryPanel.add(new JLabel(Translation.get("gb.maxHits")));
+		queryPanel.add(maxHitsSelector);
+
+		JPanel actionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 0));
+		actionsPanel.add(search);
+		actionsPanel.add(prev);
+		actionsPanel.add(next);
+
+		JPanel northControls = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
+		northControls.add(queryPanel, BorderLayout.WEST);
+		northControls.add(searchFragment, BorderLayout.CENTER);
+		northControls.add(actionsPanel, BorderLayout.EAST);
+		
 
 		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
 		northPanel.add(header, BorderLayout.NORTH);

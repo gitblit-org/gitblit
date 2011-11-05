@@ -41,10 +41,7 @@ public class BranchRenderer extends DefaultTableCellRenderer implements ListCell
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-		if (value == null) {
-			return this;
-		}
-		setText(value.toString());
+		setText(value == null ? "" : value.toString());
 		if (isSelected) {
 			setForeground(table.getSelectionForeground());
 		}
@@ -54,7 +51,7 @@ public class BranchRenderer extends DefaultTableCellRenderer implements ListCell
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index,
 			boolean isSelected, boolean cellHasFocus) {
-		setText(value.toString());
+		setText(value == null ? "" : value.toString());
 		if (isSelected) {
 			setBackground(list.getSelectionBackground());
 			setForeground(list.getSelectionForeground());

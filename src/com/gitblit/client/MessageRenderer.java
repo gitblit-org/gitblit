@@ -78,6 +78,9 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 			setBackground(table.getBackground());
 		messageLabel.setForeground(isSelected ? table.getSelectionForeground() : table
 				.getForeground());
+		if (value == null) {
+			return this;
+		}
 		SyndicatedEntryModel entry = (SyndicatedEntryModel) value;
 
 		if (gitblit == null) {
