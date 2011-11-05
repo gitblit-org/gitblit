@@ -100,7 +100,7 @@ public class SyndicationUtils {
 			content.setType(entryModel.contentType);
 			content.setValue(entryModel.content);
 			entry.setDescription(content);
-			
+
 			entries.add(entry);
 		}
 		feed.setEntries(entries);
@@ -123,17 +123,22 @@ public class SyndicationUtils {
 	 * @param numberOfEntries
 	 *            the number of entries to retrieve. if <= 0 the server default
 	 *            is used.
+	 * @param page
+	 *            0-indexed. used to paginate the results.
 	 * @param username
 	 * @param password
 	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
 	public static List<SyndicatedEntryModel> readFeed(String url, String repository, String branch,
-			int numberOfEntries, String username, char[] password) throws IOException {
+			int numberOfEntries, int page, String username, char[] password) throws IOException {
 		// build feed url
 		List<String> parameters = new ArrayList<String>();
 		if (numberOfEntries > 0) {
 			parameters.add("l=" + numberOfEntries);
+		}
+		if (page > 0) {
+			parameters.add("pg=" + page);
 		}
 		if (!StringUtils.isEmpty(branch)) {
 			parameters.add("h=" + branch);
@@ -155,6 +160,8 @@ public class SyndicationUtils {
 	 * @param numberOfEntries
 	 *            the number of entries to retrieve. if <= 0 the server default
 	 *            is used.
+	 * @param page
+	 *            0-indexed. used to paginate the results.
 	 * @param username
 	 * @param password
 	 * @return a list of SyndicationModel entries
@@ -162,12 +169,15 @@ public class SyndicationUtils {
 	 */
 	public static List<SyndicatedEntryModel> readSearchFeed(String url, String repository,
 			String branch, String fragment, Constants.SearchType searchType, int numberOfEntries,
-			String username, char[] password) throws IOException {
+			int page, String username, char[] password) throws IOException {
 		// determine parameters
 		List<String> parameters = new ArrayList<String>();
 		parameters.add("s=" + StringUtils.encodeURL(fragment));
 		if (numberOfEntries > 0) {
 			parameters.add("l=" + numberOfEntries);
+		}
+		if (page > 0) {
+			parameters.add("pg=" + page);
 		}
 		if (!StringUtils.isEmpty(branch)) {
 			parameters.add("h=" + branch);

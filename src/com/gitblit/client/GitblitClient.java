@@ -101,13 +101,7 @@ public class GitblitClient implements Serializable {
 		refreshSettings();
 		refreshAvailableFeeds();
 		refreshRepositories();
-
-		try {
-			// RSS feeds may be disabled by server
-			refreshSubscribedFeeds();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		refreshSubscribedFeeds(0);
 
 		try {
 			// credentials may not have administrator access
@@ -253,14 +247,14 @@ public class GitblitClient implements Serializable {
 		return availableFeeds;
 	}
 
-	public List<SyndicatedEntryModel> refreshSubscribedFeeds() throws IOException {
+	public List<SyndicatedEntryModel> refreshSubscribedFeeds(int page) throws IOException {
 		Set<SyndicatedEntryModel> allEntries = new HashSet<SyndicatedEntryModel>();
 		if (reg.feeds.size() > 0) {
 			for (FeedModel feed : reg.feeds) {
 				feed.lastRefreshDate = feed.currentRefreshDate;
 				feed.currentRefreshDate = new Date();
 				List<SyndicatedEntryModel> entries = SyndicationUtils.readFeed(url,
-						feed.repository, feed.branch, -1, account, password);
+						feed.repository, feed.branch, -1, page, account, password);
 				allEntries.addAll(entries);
 			}
 		}
@@ -308,9 +302,9 @@ public class GitblitClient implements Serializable {
 	}
 
 	public List<SyndicatedEntryModel> search(String repository, String branch, String fragment,
-			Constants.SearchType type, int numberOfEntries) throws IOException {
+			Constants.SearchType type, int numberOfEntries, int page) throws IOException {
 		return SyndicationUtils.readSearchFeed(url, repository, branch, fragment, type,
-				numberOfEntries, account, password);
+				numberOfEntries, page, account, password);
 	}
 
 	public List<FederationModel> refreshFederationRegistrations() throws IOException {

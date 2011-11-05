@@ -284,9 +284,9 @@ public class WicketUtils {
 			return newObjectParameter(repositoryName, objectId);
 		}
 		if (StringUtils.isEmpty(objectId)) {
-			return new PageParameters("r=" + repositoryName + ",page=" + pageNumber);
+			return new PageParameters("r=" + repositoryName + ",pg=" + pageNumber);
 		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",page=" + pageNumber);
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",pg=" + pageNumber);
 	}
 
 	public static PageParameters newHistoryPageParameter(String repositoryName, String objectId,
@@ -295,10 +295,10 @@ public class WicketUtils {
 			return newObjectParameter(repositoryName, objectId);
 		}
 		if (StringUtils.isEmpty(objectId)) {
-			return new PageParameters("r=" + repositoryName + ",f=" + path + ",page=" + pageNumber);
+			return new PageParameters("r=" + repositoryName + ",f=" + path + ",pg=" + pageNumber);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path
-				+ ",page=" + pageNumber);
+				+ ",pg=" + pageNumber);
 	}
 
 	public static PageParameters newBlobDiffParameter(String repositoryName, String baseCommitId,
@@ -323,10 +323,10 @@ public class WicketUtils {
 			String search, Constants.SearchType type, int pageNumber) {
 		if (StringUtils.isEmpty(commitId)) {
 			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name()
-					+ ",page=" + pageNumber);
+					+ ",pg=" + pageNumber);
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search
-				+ ",st=" + type.name() + ",page=" + pageNumber);
+				+ ",st=" + type.name() + ",pg=" + pageNumber);
 	}
 
 	public static String getRepositoryName(PageParameters params) {
@@ -355,7 +355,7 @@ public class WicketUtils {
 
 	public static int getPage(PageParameters params) {
 		// index from 1
-		return params.getInt("page", 1);
+		return params.getInt("pg", 1);
 	}
 
 	public static String getUsername(PageParameters params) {

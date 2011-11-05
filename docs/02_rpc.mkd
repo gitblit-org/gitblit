@@ -42,6 +42,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td><em>repository</em></td><td><em>required</em></td><td>repository name is part of the url (see examples below)</td></tr>
 <tr><td>h=</td><td><em>optional</em><br/>default: HEAD</td><td>starting branch, ref, or commit id</td></tr>
 <tr><td>l=</td><td><em>optional</em><br/>default: web.syndicationEntries</td><td>maximum return count</td></tr>
+<tr><td>pg=</td><td><em>optional</em><br/>default: 0</td><td>page number for paging<br/>(offset into history = pagenumber*maximum return count)</td></tr>
 <tr><td colspan='3'><b>search query</b></td></tr>
 <tr><td>s=</td><td><em>required</em></td><td>search string</td></tr>
 <tr><td>st=</td><td><em>optional</em><br/>default: COMMIT</td><td>search type</td></tr>
@@ -51,7 +52,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 
     https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master
     https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master&s=documentation
-    https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master&s=james&st=author
+    https://localhost:8443/feed/gitblit.git?l=50&h=refs/heads/master&s=james&st=author&pg=2
 
 ## JSON Remote Procedure Call (RPC) Interface
 

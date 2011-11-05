@@ -129,6 +129,7 @@ public class SyndicationServlet extends HttpServlet {
 		String repositoryName = url;
 		String objectId = request.getParameter("h");
 		String l = request.getParameter("l");
+		String page = request.getParameter("pg");
 		String searchString = request.getParameter("s");
 		Constants.SearchType searchType = Constants.SearchType.COMMIT;
 		if (!StringUtils.isEmpty(request.getParameter("st"))) {
@@ -147,6 +148,13 @@ public class SyndicationServlet extends HttpServlet {
 			} catch (NumberFormatException x) {
 			}
 		}
+		int offset = 0;
+		if (!StringUtils.isEmpty(page)) {
+			try {
+				offset = length * Integer.parseInt(page);
+			} catch (NumberFormatException x) {
+			}
+		}
 
 		response.setContentType("application/rss+xml; charset=UTF-8");
 		Repository repository = GitBlit.self().getRepository(repositoryName);
@@ -154,11 +162,11 @@ public class SyndicationServlet extends HttpServlet {
 		List<RevCommit> commits;
 		if (StringUtils.isEmpty(searchString)) {
 			// standard log/history lookup
-			commits = JGitUtils.getRevLog(repository, objectId, 0, length);
+			commits = JGitUtils.getRevLog(repository, objectId, offset, length);
 		} else {
 			// repository search
-			commits = JGitUtils.searchRevlogs(repository, objectId, searchString, searchType, 0,
-					length);
+			commits = JGitUtils.searchRevlogs(repository, objectId, searchString, searchType,
+					offset, length);
 		}
 		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
 		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();

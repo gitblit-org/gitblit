@@ -18,6 +18,7 @@ package com.gitblit.client;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -77,6 +78,12 @@ public class SearchDialog extends JFrame {
 
 	private JComboBox maxHitsSelector;
 
+	private int page;
+
+	private JButton prev;
+
+	private JButton next;
+
 	public SearchDialog(GitblitClient gitblit) {
 		super();
 		this.gitblit = gitblit;
@@ -88,10 +95,28 @@ public class SearchDialog extends JFrame {
 
 	private void initialize() {
 
+		prev = new JButton("<");
+		prev.setToolTipText(Translation.get("gb.pagePrevious"));
+		prev.setEnabled(false);
+		prev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				search(--page);
+			}
+		});
+
+		next = new JButton(">");
+		next.setToolTipText(Translation.get("gb.pageNext"));
+		next.setEnabled(false);
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				search(++page);
+			}
+		});
+
 		final JButton search = new JButton(Translation.get("gb.search"));
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				search();
+				search(0);
 			}
 		});
 
@@ -194,12 +219,12 @@ public class SearchDialog extends JFrame {
 		searchTypeSelector.setSelectedItem(Constants.SearchType.COMMIT);
 
 		maxHitsSelector = new JComboBox(new Integer[] { 25, 50, 75, 100 });
-		maxHitsSelector.setSelectedIndex(-1);
+		maxHitsSelector.setSelectedIndex(0);
 
 		searchFragment = new JTextField(25);
 		searchFragment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				search();
+				search(0);
 			}
 		});
 
@@ -214,6 +239,8 @@ public class SearchDialog extends JFrame {
 		northControls.add(maxHitsSelector);
 		northControls.add(searchFragment);
 		northControls.add(search);
+		northControls.add(prev);
+		northControls.add(next);
 
 		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
 		northPanel.add(header, BorderLayout.NORTH);
@@ -263,7 +290,8 @@ public class SearchDialog extends JFrame {
 		}
 	}
 
-	protected void search() {
+	protected void search(final int page) {
+		this.page = page;
 		final String repository = repositorySelector.getSelectedItem().toString();
 		final String branch = branchSelector.getSelectedIndex() > -1 ? branchSelector
 				.getSelectedItem().toString() : null;
@@ -272,13 +300,15 @@ public class SearchDialog extends JFrame {
 		final String fragment = searchFragment.getText();
 		final int maxEntryCount = maxHitsSelector.getSelectedIndex() > -1 ? ((Integer) maxHitsSelector
 				.getSelectedItem()) : -1;
+
 		if (StringUtils.isEmpty(fragment)) {
 			return;
 		}
 		SwingWorker<List<SyndicatedEntryModel>, Void> worker = new SwingWorker<List<SyndicatedEntryModel>, Void>() {
 			@Override
 			protected List<SyndicatedEntryModel> doInBackground() throws IOException {
-				return gitblit.search(repository, branch, fragment, searchType, maxEntryCount);
+				return gitblit
+						.search(repository, branch, fragment, searchType, maxEntryCount, page);
 			}
 
 			@Override
@@ -298,11 +328,18 @@ public class SearchDialog extends JFrame {
 		tableModel.entries.clear();
 		tableModel.entries.addAll(entries);
 		tableModel.fireTableDataChanged();
-		setTitle(Translation.get("gb.search") + ": " + fragment + " (" + entries.size() + ")");
+		setTitle(Translation.get("gb.search") + ": " + fragment + " (" + entries.size()
+				+ (page > 0 ? (", pg " + (page + 1)) : "") + ")");
 		header.setText(getTitle());
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
 		}
+		table.scrollRectToVisible(new Rectangle(table.getCellRect(0, 0, true)));
+
+		// update pagination buttons
+		int maxHits = (Integer) maxHitsSelector.getSelectedItem();
+		next.setEnabled(entries.size() == maxHits);
+		prev.setEnabled(page > 0);
 	}
 
 	protected SyndicatedEntryModel getSelectedSyndicatedEntry() {

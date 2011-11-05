@@ -18,7 +18,9 @@ package com.gitblit.tests;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -51,16 +53,24 @@ public class SyndicationUtilsTest extends TestCase {
 	}
 
 	public void testFeedRead() throws Exception {
-		List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed("https://localhost:8443",
-				"ticgit.git", "master", 5, "admin", "admin".toCharArray());
-		assertTrue(feed != null);
-		assertTrue(feed.size() > 0);
-		assertEquals(5, feed.size());
+		Set<String> links = new HashSet<String>();
+		for (int i = 0; i < 2; i++) {
+			List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed("https://localhost:8443",
+					"ticgit.git", "master", 5, i, "admin", "admin".toCharArray());
+			assertTrue(feed != null);
+			assertTrue(feed.size() > 0);
+			assertEquals(5, feed.size());
+			for (SyndicatedEntryModel entry : feed) {
+				links.add(entry.link);
+			}
+		}
+		// confirm we have 10 unique commits
+		assertEquals("Feed pagination failed", 10, links.size());
 	}
 
 	public void testSearchFeedRead() throws Exception {
 		List<SyndicatedEntryModel> feed = SyndicationUtils.readSearchFeed("https://localhost:8443",
-				"ticgit.git", null, "documentation", null, 5, "admin", "admin".toCharArray());
+				"ticgit.git", null, "documentation", null, 5, 0, "admin", "admin".toCharArray());
 		assertTrue(feed != null);
 		assertTrue(feed.size() > 0);
 		assertEquals(2, feed.size());

@@ -18,6 +18,7 @@ package com.gitblit.client;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -76,6 +77,12 @@ public abstract class FeedsPanel extends JPanel {
 
 	private JComboBox authorSelector;
 
+	private int page;
+
+	private JButton prev;
+
+	private JButton next;
+
 	public FeedsPanel(GitblitClient gitblit) {
 		super();
 		this.gitblit = gitblit;
@@ -83,10 +90,29 @@ public abstract class FeedsPanel extends JPanel {
 	}
 
 	private void initialize() {
+
+		prev = new JButton("<");
+		prev.setToolTipText(Translation.get("gb.pagePrevious"));
+		prev.setEnabled(false);
+		prev.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshFeeds(--page);
+			}
+		});
+
+		next = new JButton(">");
+		next.setToolTipText(Translation.get("gb.pageNext"));
+		next.setEnabled(false);
+		next.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				refreshFeeds(++page);
+			}
+		});
+
 		JButton refreshFeeds = new JButton(Translation.get("gb.refresh"));
 		refreshFeeds.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				refreshFeeds();
+				refreshFeeds(0);
 			}
 		});
 
@@ -205,6 +231,8 @@ public abstract class FeedsPanel extends JPanel {
 		northControls.add(repositorySelector);
 		northControls.add(new JLabel(Translation.get("gb.author")));
 		northControls.add(authorSelector);
+//		northControls.add(prev);
+//		northControls.add(next);
 
 		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
 		northPanel.add(header, BorderLayout.NORTH);
@@ -221,11 +249,12 @@ public abstract class FeedsPanel extends JPanel {
 		return Utils.INSETS;
 	}
 
-	protected void refreshFeeds() {
+	protected void refreshFeeds(final int page) {
+		this.page = page;
 		GitblitWorker worker = new GitblitWorker(FeedsPanel.this, null) {
 			@Override
 			protected Boolean doRequest() throws IOException {
-				gitblit.refreshSubscribedFeeds();
+				gitblit.refreshSubscribedFeeds(page);
 				return true;
 			}
 
@@ -244,24 +273,33 @@ public abstract class FeedsPanel extends JPanel {
 		tableModel.entries.addAll(gitblit.getSyndicatedEntries());
 		tableModel.fireTableDataChanged();
 		header.setText(Translation.get("gb.activity") + " ("
-				+ gitblit.getSyndicatedEntries().size() + ")");
+				+ gitblit.getSyndicatedEntries().size() + (page > 0 ? (", pg " + (page + 1)) : "")
+				+ ")");
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
 		}
-		// determine unique repositories
-		Set<String> uniqueRepositories = new HashSet<String>();
-		for (SyndicatedEntryModel entry : tableModel.entries) {
-			uniqueRepositories.add(entry.repository);
+		table.scrollRectToVisible(new Rectangle(table.getCellRect(0, 0, true)));
+
+		if (page == 0) {
+			// determine unique repositories
+			Set<String> uniqueRepositories = new HashSet<String>();
+			for (SyndicatedEntryModel entry : tableModel.entries) {
+				uniqueRepositories.add(entry.repository);
+			}
+
+			// repositories
+			List<String> sortedRespositories = new ArrayList<String>(uniqueRepositories);
+			StringUtils.sortRepositorynames(sortedRespositories);
+			repositoryChoices.removeAllElements();
+			repositoryChoices.addElement(ALL);
+			for (String repo : sortedRespositories) {
+				repositoryChoices.addElement(repo);
+			}
 		}
 
-		// repositories
-		List<String> sortedRespositories = new ArrayList<String>(uniqueRepositories);
-		StringUtils.sortRepositorynames(sortedRespositories);
-		repositoryChoices.removeAllElements();
-		repositoryChoices.addElement(ALL);
-		for (String repo : sortedRespositories) {
-			repositoryChoices.addElement(repo);
-		}
+		// update pagination buttons
+		next.setEnabled(tableModel.entries.size() > 0);
+		prev.setEnabled(page > 0);
 	}
 
 	private void updateAuthors() {
