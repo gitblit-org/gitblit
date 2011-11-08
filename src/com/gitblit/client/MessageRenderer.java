@@ -28,7 +28,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.TableCellRenderer;
 
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 
 /**
  * Message renderer displays the short log message and then any refs in a style
@@ -81,7 +81,7 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 		if (value == null) {
 			return this;
 		}
-		SyndicatedEntryModel entry = (SyndicatedEntryModel) value;
+		FeedEntryModel entry = (FeedEntryModel) value;
 
 		if (gitblit == null) {
 			// no gitblit client, just display message

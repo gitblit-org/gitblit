@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -169,7 +169,7 @@ public class SyndicationServlet extends HttpServlet {
 					offset, length);
 		}
 		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
-		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();
 
 		boolean mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true);
 		String urlPattern;
@@ -183,7 +183,7 @@ public class SyndicationServlet extends HttpServlet {
 		String gitblitUrl = HttpUtils.getGitblitURL(request);
 		// convert RevCommit to SyndicatedEntryModel
 		for (RevCommit commit : commits) {
-			SyndicatedEntryModel entry = new SyndicatedEntryModel();
+			FeedEntryModel entry = new FeedEntryModel();
 			entry.title = commit.getShortMessage();
 			entry.author = commit.getAuthorIdent().getName();
 			entry.link = MessageFormat.format(urlPattern, gitblitUrl,

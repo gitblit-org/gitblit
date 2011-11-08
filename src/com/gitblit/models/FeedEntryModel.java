@@ -20,11 +20,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * SyndicationEntryModel represents an entry in a syndication (RSS) feed.
+ * FeedEntryModel represents an entry in a syndication (RSS) feed.
  * 
  * @author James Moger
  */
-public class SyndicatedEntryModel implements Serializable, Comparable<SyndicatedEntryModel> {
+public class FeedEntryModel implements Serializable, Comparable<FeedEntryModel> {
 
 	public String repository;
 	public String branch;
@@ -38,11 +38,11 @@ public class SyndicatedEntryModel implements Serializable, Comparable<Syndicated
 
 	private static final long serialVersionUID = 1L;
 
-	public SyndicatedEntryModel() {
+	public FeedEntryModel() {
 	}
 
 	@Override
-	public int compareTo(SyndicatedEntryModel o) {
+	public int compareTo(FeedEntryModel o) {
 		return o.published.compareTo(published);
 	}
 
@@ -53,7 +53,7 @@ public class SyndicatedEntryModel implements Serializable, Comparable<Syndicated
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof SyndicatedEntryModel) {
+		if (o instanceof FeedEntryModel) {
 			return hashCode() == o.hashCode();
 		}
 		return false;

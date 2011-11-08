@@ -26,7 +26,7 @@ import java.util.List;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndCategoryImpl;
 import com.sun.syndication.feed.synd.SyndContent;
@@ -63,7 +63,7 @@ public class SyndicationUtils {
 	 * @throws FeedException
 	 */
 	public static void toRSS(String hostUrl, String feedLink, String title, String description,
-			String repository, List<SyndicatedEntryModel> entryModels, OutputStream os)
+			String repository, List<FeedEntryModel> entryModels, OutputStream os)
 			throws IOException, FeedException {
 
 		SyndFeed feed = new SyndFeedImpl();
@@ -79,7 +79,7 @@ public class SyndicationUtils {
 		feed.setImage(image);
 
 		List<SyndEntry> entries = new ArrayList<SyndEntry>();
-		for (SyndicatedEntryModel entryModel : entryModels) {
+		for (FeedEntryModel entryModel : entryModels) {
 			SyndEntry entry = new SyndEntryImpl();
 			entry.setTitle(entryModel.title);
 			entry.setAuthor(entryModel.author);
@@ -130,7 +130,7 @@ public class SyndicationUtils {
 	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
-	public static List<SyndicatedEntryModel> readFeed(String url, String repository, String branch,
+	public static List<FeedEntryModel> readFeed(String url, String repository, String branch,
 			int numberOfEntries, int page, String username, char[] password) throws IOException {
 		// build feed url
 		List<String> parameters = new ArrayList<String>();
@@ -167,7 +167,7 @@ public class SyndicationUtils {
 	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
-	public static List<SyndicatedEntryModel> readSearchFeed(String url, String repository,
+	public static List<FeedEntryModel> readSearchFeed(String url, String repository,
 			String branch, String fragment, Constants.SearchType searchType, int numberOfEntries,
 			int page, String username, char[] password) throws IOException {
 		// determine parameters
@@ -202,7 +202,7 @@ public class SyndicationUtils {
 	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
-	private static List<SyndicatedEntryModel> readFeed(String url, List<String> parameters,
+	private static List<FeedEntryModel> readFeed(String url, List<String> parameters,
 			String repository, String branch, String username, char[] password) throws IOException {
 		// build url
 		StringBuilder sb = new StringBuilder();
@@ -230,10 +230,10 @@ public class SyndicationUtils {
 			throw new GitBlitException(f);
 		}
 		is.close();
-		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();
 		for (Object o : feed.getEntries()) {
 			SyndEntryImpl entry = (SyndEntryImpl) o;
-			SyndicatedEntryModel model = new SyndicatedEntryModel();
+			FeedEntryModel model = new FeedEntryModel();
 			model.repository = repository;
 			model.branch = branch;
 			model.title = entry.getTitle();

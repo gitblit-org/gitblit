@@ -25,15 +25,15 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import com.gitblit.Constants.SearchType;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.SyndicationUtils;
 
 public class SyndicationUtilsTest extends TestCase {
 
 	public void testSyndication() throws Exception {
-		List<SyndicatedEntryModel> entries = new ArrayList<SyndicatedEntryModel>();
+		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();
 		for (int i = 0; i < 10; i++) {
-			SyndicatedEntryModel entry = new SyndicatedEntryModel();
+			FeedEntryModel entry = new FeedEntryModel();
 			entry.title = "Title " + i;
 			entry.author = "Author " + i;
 			entry.link = "Link " + i;
@@ -61,13 +61,13 @@ public class SyndicationUtilsTest extends TestCase {
 	public void testFeedRead() throws Exception {
 		Set<String> links = new HashSet<String>();
 		for (int i = 0; i < 2; i++) {
-			List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url,
+			List<FeedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url,
 					"ticgit.git", "master", 5, i, GitBlitSuite.account,
 					GitBlitSuite.password.toCharArray());
 			assertTrue(feed != null);
 			assertTrue(feed.size() > 0);
 			assertEquals(5, feed.size());
-			for (SyndicatedEntryModel entry : feed) {
+			for (FeedEntryModel entry : feed) {
 				links.add(entry.link);
 			}
 		}
@@ -76,7 +76,7 @@ public class SyndicationUtilsTest extends TestCase {
 	}
 
 	public void testSearchFeedRead() throws Exception {
-		List<SyndicatedEntryModel> feed = SyndicationUtils.readSearchFeed(GitBlitSuite.url,
+		List<FeedEntryModel> feed = SyndicationUtils.readSearchFeed(GitBlitSuite.url,
 				"ticgit.git", null, "test", null, 5, 0, GitBlitSuite.account,
 				GitBlitSuite.password.toCharArray());
 		assertTrue(feed != null);

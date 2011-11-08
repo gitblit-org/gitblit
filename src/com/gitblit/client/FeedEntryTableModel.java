@@ -22,7 +22,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 
 /**
  * Table model for a list of retrieved feed entries.
@@ -30,11 +30,11 @@ import com.gitblit.models.SyndicatedEntryModel;
  * @author James Moger
  * 
  */
-public class SyndicatedEntryTableModel extends AbstractTableModel {
+public class FeedEntryTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	List<SyndicatedEntryModel> entries;
+	List<FeedEntryModel> entries;
 
 	enum Columns {
 		Date, Repository, Branch, Author, Message;
@@ -45,11 +45,11 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		}
 	}
 
-	public SyndicatedEntryTableModel() {
-		this.entries = new ArrayList<SyndicatedEntryModel>();
+	public FeedEntryTableModel() {
+		this.entries = new ArrayList<FeedEntryModel>();
 	}
 
-	public void setEntries(List<SyndicatedEntryModel> entries) {
+	public void setEntries(List<FeedEntryModel> entries) {
 		this.entries = entries;
 		Collections.sort(entries);
 	}
@@ -93,14 +93,14 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		if (Columns.Date.ordinal() == columnIndex) {
 			return Date.class;
 		} else if (Columns.Message.ordinal() == columnIndex) {
-			return SyndicatedEntryModel.class;
+			return FeedEntryModel.class;
 		}
 		return String.class;
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		SyndicatedEntryModel entry = entries.get(rowIndex);
+		FeedEntryModel entry = entries.get(rowIndex);
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Date:
@@ -117,7 +117,7 @@ public class SyndicatedEntryTableModel extends AbstractTableModel {
 		return null;
 	}
 
-	public SyndicatedEntryModel get(int modelRow) {
+	public FeedEntryModel get(int modelRow) {
 		return entries.get(modelRow);
 	}
 }

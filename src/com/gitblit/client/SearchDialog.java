@@ -44,7 +44,7 @@ import javax.swing.event.ListSelectionListener;
 
 import com.gitblit.Constants;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -58,9 +58,11 @@ public class SearchDialog extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
+	private final boolean isSearch;
+
 	private final GitblitClient gitblit;
 
-	private SyndicatedEntryTableModel tableModel;
+	private FeedEntryTableModel tableModel;
 
 	private HeaderPanel header;
 
@@ -84,13 +86,15 @@ public class SearchDialog extends JFrame {
 
 	private JButton next;
 
-	public SearchDialog(GitblitClient gitblit) {
+	public SearchDialog(GitblitClient gitblit, boolean isSearch) {
 		super();
 		this.gitblit = gitblit;
-		setTitle(Translation.get("gb.search"));
-		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
+		this.isSearch = isSearch;
+		setTitle(Translation.get(isSearch ? "gb.search" : "gb.log"));
+		setIconImage(new ImageIcon(getClass().getResource(
+				isSearch ? "/gitblt-favicon.png" : "/commit_changes_16x16.png")).getImage());
 		initialize();
-		setSize(900, 400);
+		setSize(900, 550);
 	}
 
 	private void initialize() {
@@ -113,7 +117,7 @@ public class SearchDialog extends JFrame {
 			}
 		});
 
-		final JButton search = new JButton(Translation.get("gb.search"));
+		final JButton search = new JButton(Translation.get(isSearch ? "gb.search" : "gb.refresh"));
 		search.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				search(0);
@@ -150,20 +154,21 @@ public class SearchDialog extends JFrame {
 		controls.add(viewTree);
 
 		NameRenderer nameRenderer = new NameRenderer();
-		tableModel = new SyndicatedEntryTableModel();
-		header = new HeaderPanel(Translation.get("gb.search"), "search-icon.png");
+		tableModel = new FeedEntryTableModel();
+		header = new HeaderPanel(Translation.get(isSearch ? "gb.search" : "gb.log"),
+				isSearch ? "search-icon.png" : "commit_changes_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 
-		String name = table.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
+		String name = table.getColumnName(FeedEntryTableModel.Columns.Author.ordinal());
 		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Repository.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Repository.ordinal());
 		table.getColumn(name).setCellRenderer(nameRenderer);
 
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Branch.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Branch.ordinal());
 		table.getColumn(name).setCellRenderer(new BranchRenderer());
 
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Message.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Message.ordinal());
 		table.getColumn(name).setCellRenderer(new MessageRenderer());
 
 		table.addMouseListener(new MouseAdapter() {
@@ -220,7 +225,7 @@ public class SearchDialog extends JFrame {
 
 		branchChoices = new DefaultComboBoxModel();
 		branchSelector = new JComboBox(branchChoices);
-		branchSelector.setRenderer(new BranchRenderer());		
+		branchSelector.setRenderer(new BranchRenderer());
 
 		searchTypeSelector = new JComboBox(Constants.SearchType.values());
 		searchTypeSelector.setSelectedItem(Constants.SearchType.COMMIT);
@@ -240,8 +245,10 @@ public class SearchDialog extends JFrame {
 		queryPanel.add(repositorySelector);
 		queryPanel.add(new JLabel(Translation.get("gb.branch")));
 		queryPanel.add(branchSelector);
-		queryPanel.add(new JLabel(Translation.get("gb.type")));
-		queryPanel.add(searchTypeSelector);
+		if (isSearch) {
+			queryPanel.add(new JLabel(Translation.get("gb.type")));
+			queryPanel.add(searchTypeSelector);
+		}
 		queryPanel.add(new JLabel(Translation.get("gb.maxHits")));
 		queryPanel.add(maxHitsSelector);
 
@@ -252,9 +259,10 @@ public class SearchDialog extends JFrame {
 
 		JPanel northControls = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
 		northControls.add(queryPanel, BorderLayout.WEST);
-		northControls.add(searchFragment, BorderLayout.CENTER);
+		if (isSearch) {
+			northControls.add(searchFragment, BorderLayout.CENTER);
+		}
 		northControls.add(actionsPanel, BorderLayout.EAST);
-		
 
 		JPanel northPanel = new JPanel(new BorderLayout(0, Utils.MARGIN));
 		northPanel.add(header, BorderLayout.NORTH);
@@ -275,17 +283,19 @@ public class SearchDialog extends JFrame {
 		contentPanel.add(controls, BorderLayout.SOUTH);
 		setLayout(new BorderLayout());
 		add(contentPanel, BorderLayout.CENTER);
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowOpened(WindowEvent event) {
-				searchFragment.requestFocus();
-			}
+		if (isSearch) {
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowOpened(WindowEvent event) {
+					searchFragment.requestFocus();
+				}
 
-			@Override
-			public void windowActivated(WindowEvent event) {
-				searchFragment.requestFocus();
-			}
-		});
+				@Override
+				public void windowActivated(WindowEvent event) {
+					searchFragment.requestFocus();
+				}
+			});
+		}
 	}
 
 	public void selectRepository(RepositoryModel repository) {
@@ -311,25 +321,33 @@ public class SearchDialog extends JFrame {
 				.getSelectedItem().toString() : null;
 		final Constants.SearchType searchType = (Constants.SearchType) searchTypeSelector
 				.getSelectedItem();
-		final String fragment = searchFragment.getText();
+		final String fragment = isSearch ? searchFragment.getText() : null;
 		final int maxEntryCount = maxHitsSelector.getSelectedIndex() > -1 ? ((Integer) maxHitsSelector
 				.getSelectedItem()) : -1;
 
-		if (StringUtils.isEmpty(fragment)) {
+		if (isSearch && StringUtils.isEmpty(fragment)) {
 			return;
 		}
-		SwingWorker<List<SyndicatedEntryModel>, Void> worker = new SwingWorker<List<SyndicatedEntryModel>, Void>() {
+		SwingWorker<List<FeedEntryModel>, Void> worker = new SwingWorker<List<FeedEntryModel>, Void>() {
 			@Override
-			protected List<SyndicatedEntryModel> doInBackground() throws IOException {
-				return gitblit
-						.search(repository, branch, fragment, searchType, maxEntryCount, page);
+			protected List<FeedEntryModel> doInBackground() throws IOException {
+				if (isSearch) {
+					return gitblit.search(repository, branch, fragment, searchType, maxEntryCount,
+							page);
+				} else {
+					return gitblit.log(repository, branch, maxEntryCount, page);
+				}
 			}
 
 			@Override
 			protected void done() {
 				try {
-					List<SyndicatedEntryModel> results = get();
-					updateTable(true, fragment, results);
+					List<FeedEntryModel> results = get();
+					if (isSearch) {
+						updateTable(true, fragment, results);
+					} else {
+						updateTable(true, branch == null ? "" : branch, results);
+					}
 				} catch (Throwable t) {
 					Utils.showException(SearchDialog.this, t);
 				}
@@ -338,12 +356,12 @@ public class SearchDialog extends JFrame {
 		worker.execute();
 	}
 
-	protected void updateTable(boolean pack, String fragment, List<SyndicatedEntryModel> entries) {
+	protected void updateTable(boolean pack, String text, List<FeedEntryModel> entries) {
 		tableModel.entries.clear();
 		tableModel.entries.addAll(entries);
 		tableModel.fireTableDataChanged();
-		setTitle(Translation.get("gb.search") + ": " + fragment + " (" + entries.size()
-				+ (page > 0 ? (", pg " + (page + 1)) : "") + ")");
+		setTitle(Translation.get(isSearch ? "gb.search" : "gb.log") + ": " + text + " ("
+				+ entries.size() + (page > 0 ? (", pg " + (page + 1)) : "") + ")");
 		header.setText(getTitle());
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
@@ -356,25 +374,25 @@ public class SearchDialog extends JFrame {
 		prev.setEnabled(page > 0);
 	}
 
-	protected SyndicatedEntryModel getSelectedSyndicatedEntry() {
+	protected FeedEntryModel getSelectedSyndicatedEntry() {
 		int viewRow = table.getSelectedRow();
 		int modelRow = table.convertRowIndexToModel(viewRow);
-		SyndicatedEntryModel entry = tableModel.get(modelRow);
+		FeedEntryModel entry = tableModel.get(modelRow);
 		return entry;
 	}
 
 	protected void viewCommit() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link);
 	}
 
 	protected void viewCommitDiff() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link.replace("/commit/", "/commitdiff/"));
 	}
 
 	protected void viewTree() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link.replace("/commit/", "/tree/"));
 	}
 }

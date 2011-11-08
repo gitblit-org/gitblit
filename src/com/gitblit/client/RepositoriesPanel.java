@@ -134,12 +134,21 @@ public abstract class RepositoriesPanel extends JPanel {
 			}
 		});
 
+		final JButton logRepository = new JButton(Translation.get("gb.log") + "...");
+		logRepository.setEnabled(false);
+		logRepository.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RepositoryModel model = getSelectedRepositories().get(0);
+				showSearchDialog(false, model);
+			}
+		});
+
 		final JButton searchRepository = new JButton(Translation.get("gb.search") + "...");
 		searchRepository.setEnabled(false);
 		searchRepository.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
-				searchRepository(model);
+				showSearchDialog(true, model);
 			}
 		});
 
@@ -173,18 +182,20 @@ public abstract class RepositoriesPanel extends JPanel {
 					return;
 				}
 				boolean singleSelection = table.getSelectedRowCount() == 1;
-				boolean selected = table.getSelectedRow() > -1;				
+				boolean selected = table.getSelectedRow() > -1;
 				if (singleSelection) {
 					RepositoryModel repository = getSelectedRepositories().get(0);
 					browseRepository.setEnabled(repository.hasCommits);
+					logRepository.setEnabled(repository.hasCommits);
 					searchRepository.setEnabled(repository.hasCommits);
 					subscribeRepository.setEnabled(repository.hasCommits);
 				} else {
 					browseRepository.setEnabled(false);
+					logRepository.setEnabled(false);
 					searchRepository.setEnabled(false);
 					subscribeRepository.setEnabled(false);
 				}
-				delRepository.setEnabled(selected);				
+				delRepository.setEnabled(selected);
 				if (selected) {
 					int viewRow = table.getSelectedRow();
 					int modelRow = table.convertRowIndexToModel(viewRow);
@@ -233,6 +244,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		repositoryControls.add(editRepository);
 		repositoryControls.add(delRepository);
 		repositoryControls.add(subscribeRepository);
+		repositoryControls.add(logRepository);
 		repositoryControls.add(searchRepository);
 
 		setLayout(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
@@ -467,12 +479,12 @@ public abstract class RepositoriesPanel extends JPanel {
 		}
 	}
 
-	protected void searchRepository(final RepositoryModel repository) {
-		SearchDialog searchDialog = new SearchDialog(gitblit);
+	private void showSearchDialog(boolean isSearch, final RepositoryModel repository) {
+		final SearchDialog dialog = new SearchDialog(gitblit, isSearch);
 		if (repository != null) {
-			searchDialog.selectRepository(repository);
+			dialog.selectRepository(repository);
 		}
-		searchDialog.setLocationRelativeTo(this);
-		searchDialog.setVisible(true);
+		dialog.setLocationRelativeTo(this);
+		dialog.setVisible(true);
 	}
 }

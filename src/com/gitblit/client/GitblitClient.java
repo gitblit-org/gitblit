@@ -36,7 +36,7 @@ import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
@@ -77,7 +77,7 @@ public class GitblitClient implements Serializable {
 
 	private final List<FeedModel> availableFeeds;
 
-	private final List<SyndicatedEntryModel> syndicatedEntries;
+	private final List<FeedEntryModel> syndicatedEntries;
 
 	private final Set<String> subscribedRepositories;
 
@@ -93,7 +93,7 @@ public class GitblitClient implements Serializable {
 		this.allRepositories = new ArrayList<RepositoryModel>();
 		this.federationRegistrations = new ArrayList<FederationModel>();
 		this.availableFeeds = new ArrayList<FeedModel>();
-		this.syndicatedEntries = new ArrayList<SyndicatedEntryModel>();
+		this.syndicatedEntries = new ArrayList<FeedEntryModel>();
 		this.subscribedRepositories = new HashSet<String>();
 	}
 
@@ -247,13 +247,13 @@ public class GitblitClient implements Serializable {
 		return availableFeeds;
 	}
 
-	public List<SyndicatedEntryModel> refreshSubscribedFeeds(int page) throws IOException {
-		Set<SyndicatedEntryModel> allEntries = new HashSet<SyndicatedEntryModel>();
+	public List<FeedEntryModel> refreshSubscribedFeeds(int page) throws IOException {
+		Set<FeedEntryModel> allEntries = new HashSet<FeedEntryModel>();
 		if (reg.feeds.size() > 0) {
 			for (FeedModel feed : reg.feeds) {
 				feed.lastRefreshDate = feed.currentRefreshDate;
 				feed.currentRefreshDate = new Date();
-				List<SyndicatedEntryModel> entries = SyndicationUtils.readFeed(url,
+				List<FeedEntryModel> entries = SyndicationUtils.readFeed(url,
 						feed.repository, feed.branch, -1, page, account, password);
 				allEntries.addAll(entries);
 			}
@@ -297,11 +297,17 @@ public class GitblitClient implements Serializable {
 		return subscribedRepositories.contains(repository.name.toLowerCase());
 	}
 
-	public List<SyndicatedEntryModel> getSyndicatedEntries() {
+	public List<FeedEntryModel> getSyndicatedEntries() {
 		return syndicatedEntries;
 	}
 
-	public List<SyndicatedEntryModel> search(String repository, String branch, String fragment,
+	public List<FeedEntryModel> log(String repository, String branch, int numberOfEntries,
+			int page) throws IOException {
+		return SyndicationUtils.readFeed(url, repository, branch, numberOfEntries, page, account,
+				password);
+	}
+
+	public List<FeedEntryModel> search(String repository, String branch, String fragment,
 			Constants.SearchType type, int numberOfEntries, int page) throws IOException {
 		return SyndicationUtils.readSearchFeed(url, repository, branch, fragment, type,
 				numberOfEntries, page, account, password);

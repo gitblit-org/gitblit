@@ -43,7 +43,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import com.gitblit.models.FeedModel;
-import com.gitblit.models.SyndicatedEntryModel;
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -61,9 +61,9 @@ public abstract class FeedsPanel extends JPanel {
 
 	private final String ALL = "*";
 
-	private SyndicatedEntryTableModel tableModel;
+	private FeedEntryTableModel tableModel;
 
-	private TableRowSorter<SyndicatedEntryTableModel> defaultSorter;
+	private TableRowSorter<FeedEntryTableModel> defaultSorter;
 
 	private HeaderPanel header;
 
@@ -155,20 +155,20 @@ public abstract class FeedsPanel extends JPanel {
 		controls.add(viewTree);
 
 		NameRenderer nameRenderer = new NameRenderer();
-		tableModel = new SyndicatedEntryTableModel();
+		tableModel = new FeedEntryTableModel();
 		header = new HeaderPanel(Translation.get("gb.activity"), "feed_16x16.png");
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
-		defaultSorter = new TableRowSorter<SyndicatedEntryTableModel>(tableModel);
-		String name = table.getColumnName(SyndicatedEntryTableModel.Columns.Author.ordinal());
+		defaultSorter = new TableRowSorter<FeedEntryTableModel>(tableModel);
+		String name = table.getColumnName(FeedEntryTableModel.Columns.Author.ordinal());
 		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Repository.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Repository.ordinal());
 		table.getColumn(name).setCellRenderer(nameRenderer);
 
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Branch.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Branch.ordinal());
 		table.getColumn(name).setCellRenderer(new BranchRenderer());
 
-		name = table.getColumnName(SyndicatedEntryTableModel.Columns.Message.ordinal());
+		name = table.getColumnName(FeedEntryTableModel.Columns.Message.ordinal());
 		table.getColumn(name).setCellRenderer(new MessageRenderer(gitblit));
 
 		table.addMouseListener(new MouseAdapter() {
@@ -283,7 +283,7 @@ public abstract class FeedsPanel extends JPanel {
 		if (page == 0) {
 			// determine unique repositories
 			Set<String> uniqueRepositories = new HashSet<String>();
-			for (SyndicatedEntryModel entry : tableModel.entries) {
+			for (FeedEntryModel entry : tableModel.entries) {
 				uniqueRepositories.add(entry.repository);
 			}
 
@@ -310,7 +310,7 @@ public abstract class FeedsPanel extends JPanel {
 
 		// determine unique repositories and authors
 		Set<String> uniqueAuthors = new HashSet<String>();
-		for (SyndicatedEntryModel entry : tableModel.entries) {
+		for (FeedEntryModel entry : tableModel.entries) {
 			if (repository.equals(ALL) || entry.repository.equalsIgnoreCase(repository)) {
 				uniqueAuthors.add(entry.author);
 			}
@@ -325,25 +325,25 @@ public abstract class FeedsPanel extends JPanel {
 		}
 	}
 
-	protected SyndicatedEntryModel getSelectedSyndicatedEntry() {
+	protected FeedEntryModel getSelectedSyndicatedEntry() {
 		int viewRow = table.getSelectedRow();
 		int modelRow = table.convertRowIndexToModel(viewRow);
-		SyndicatedEntryModel entry = tableModel.get(modelRow);
+		FeedEntryModel entry = tableModel.get(modelRow);
 		return entry;
 	}
 
 	protected void viewCommit() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link);
 	}
 
 	protected void viewCommitDiff() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link.replace("/commit/", "/commitdiff/"));
 	}
 
 	protected void viewTree() {
-		SyndicatedEntryModel entry = getSelectedSyndicatedEntry();
+		FeedEntryModel entry = getSelectedSyndicatedEntry();
 		Utils.browse(entry.link.replace("/commit/", "/tree/"));
 	}
 
@@ -366,30 +366,30 @@ public abstract class FeedsPanel extends JPanel {
 			table.setRowSorter(defaultSorter);
 			return;
 		}
-		final int repositoryIndex = SyndicatedEntryTableModel.Columns.Repository.ordinal();
-		final int authorIndex = SyndicatedEntryTableModel.Columns.Author.ordinal();
-		RowFilter<SyndicatedEntryTableModel, Object> containsFilter;
+		final int repositoryIndex = FeedEntryTableModel.Columns.Repository.ordinal();
+		final int authorIndex = FeedEntryTableModel.Columns.Author.ordinal();
+		RowFilter<FeedEntryTableModel, Object> containsFilter;
 		if (repository.equals(ALL)) {
 			// author filter
-			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
 				public boolean include(
-						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					return entry.getStringValue(authorIndex).equalsIgnoreCase(author);
 				}
 			};
 		} else if (author.equals(ALL)) {
 			// repository filter
-			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
 				public boolean include(
-						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					return entry.getStringValue(repositoryIndex).equalsIgnoreCase(repository);
 				}
 			};
 		} else {
 			// repository-author filter
-			containsFilter = new RowFilter<SyndicatedEntryTableModel, Object>() {
+			containsFilter = new RowFilter<FeedEntryTableModel, Object>() {
 				public boolean include(
-						Entry<? extends SyndicatedEntryTableModel, ? extends Object> entry) {
+						Entry<? extends FeedEntryTableModel, ? extends Object> entry) {
 					boolean authorMatch = entry.getStringValue(authorIndex)
 							.equalsIgnoreCase(author);
 					boolean repositoryMatch = entry.getStringValue(repositoryIndex)
@@ -398,7 +398,7 @@ public abstract class FeedsPanel extends JPanel {
 				}
 			};
 		}
-		TableRowSorter<SyndicatedEntryTableModel> sorter = new TableRowSorter<SyndicatedEntryTableModel>(
+		TableRowSorter<FeedEntryTableModel> sorter = new TableRowSorter<FeedEntryTableModel>(
 				tableModel);
 		sorter.setRowFilter(containsFilter);
 		table.setRowSorter(sorter);
