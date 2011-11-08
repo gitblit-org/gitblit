@@ -410,22 +410,22 @@ public class Build {
 				"78aa1cbf0fa3b259abdc7d87f9f6788d785aac2a");
 
 		public static final MavenObject WICKET = new MavenObject("Apache Wicket",
-				"org/apache/wicket", "wicket", "1.4.18", 1960000, 1906000, 6818000,
-				"921a50dbbebdf034f0042f2294760e7535cb7041",
-				"b432d60b32449fdfb216ac23af8a3ed3e0a3368c",
-				"435e70f9de94975ee30c3f1b1aa1401aea9b4e70");
+				"org/apache/wicket", "wicket", "1.4.19", 1960000, 1906000, 6818000,
+				"7e6af5cadaf6c9b7e068e45cf2ffbea3cc91592f",
+				"5e91cf00efaf2fedeef98e13464a4230e5966588",
+				"5dde8afbe5eb2314a704cb74938c1b651b2cf190");
 
 		public static final MavenObject WICKET_EXT = new MavenObject("Apache Wicket Extensions",
-				"org/apache/wicket", "wicket-extensions", "1.4.18", 1180000, 1118000, 1458000,
-				"f568bd2ad382db935ab06fdccfdead3f10ed1f15",
-				"c00a4979d7647d3367c6e4897a2fd7d0f78a73cc",
-				"5e76ab69f6307e3ecb2638779008b3adf5cbf9aa");
+				"org/apache/wicket", "wicket-extensions", "1.4.19", 1180000, 1118000, 1458000,
+				"c7a1d343e216cdc2e692b6fabc6eaeca9aa24ca4",
+				"6c2e2ad89b69fc9977c24467e3aa0d7f6c75a579",
+				"3a3082fb106173f7ca069a6f5969cc8d347d9f44");
 
 		public static final MavenObject WICKET_AUTH_ROLES = new MavenObject(
-				"Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.18",
-				44000, 45000, 166000, "44cf0647e1adca377cc4258cd7fac33aa1dd11ab",
-				"2a7e9c6a9687136c2527afa2e53148cfa82696c6",
-				"6e280995097e84b72b283132b8fe6796595caa38");
+				"Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.19",
+				44000, 45000, 166000, "70c26ac4cd167bf7323372d2d49eb2a9beff73b9",
+				"ca219726c1768a9483e4a0bb6550881babfe46d6",
+				"17753908f8a9e997c464a69765b4682126fa1fd6");
 
 		public static final MavenObject WICKET_GOOGLE_CHARTS = new MavenObject(
 				"Apache Wicket Google Charts Add-On", "org/wicketstuff", "googlecharts", "1.4.18",

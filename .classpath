@@ -66,21 +66,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/googlecharts-1.4.17-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-1.4.18.jar" sourcepath="ext/wicket-1.4.18-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-1.4.18-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.18.jar" sourcepath="ext/wicket-auth-roles-1.4.18-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-auth-roles-1.4.18-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.18.jar" sourcepath="ext/wicket-extensions-1.4.18-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.18-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.1.0.201109151100-r.jar" sourcepath="ext/org.eclipse.jgit-1.1.0.201109151100-r-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-1.1.0.201109151100-r-javadoc.jar!/"/>
@@ -95,6 +80,21 @@
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.5.jar" sourcepath="ext/markdownpapers-core-1.2.5-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/markdownpapers-core-1.2.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-1.4.19.jar" sourcepath="ext/wicket-1.4.19-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-1.4.19-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.19.jar" sourcepath="ext/wicket-auth-roles-1.4.19-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-auth-roles-1.4.19-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.19.jar" sourcepath="ext/wicket-extensions-1.4.19-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.19-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
