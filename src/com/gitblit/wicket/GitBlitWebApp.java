@@ -69,6 +69,11 @@ public class GitBlitWebApp extends WebApplication {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
+		// configure the resource cache duration to 90 days for deployment
+		if (!GitBlit.isDebugMode()) {
+			getResourceSettings().setDefaultCacheDuration(90 * 86400);
+		}
+
 		// setup the standard gitweb-ish urls
 		mount("/summary", SummaryPage.class, "r");
 		mount("/log", LogPage.class, "r", "h");
