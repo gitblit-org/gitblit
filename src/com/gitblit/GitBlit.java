@@ -65,7 +65,6 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
-import com.gitblit.models.ObjectCache;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -76,6 +75,7 @@ import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
+import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 
 /**

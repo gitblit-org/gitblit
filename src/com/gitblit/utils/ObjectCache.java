@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.models;
+package com.gitblit.utils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,7 +21,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Reusable object cache.
+ * Reusable coarse date-based object cache. The date precision is in
+ * milliseconds and in fast, concurrent systems this cache is too simplistic.
+ * However, for the cases where its being used in Gitblit this cache technique
+ * is just fine.
  * 
  * @author James Moger
  * 
@@ -60,7 +63,10 @@ public class ObjectCache<X> implements Serializable {
 	}
 
 	public X getObject(String name) {
-		return cache.get(name).object;
+		if (cache.containsKey(name)) {
+			return cache.get(name).object;
+		}
+		return null;
 	}
 
 	public void updateObject(String name, X object) {
