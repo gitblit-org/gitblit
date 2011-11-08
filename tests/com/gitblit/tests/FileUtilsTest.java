@@ -28,6 +28,14 @@ public class FileUtilsTest extends TestCase {
 		String rawContent = FileUtils.readContent(new File(dir, "LICENSE"), "\n");
 		assertTrue(rawContent.trim().startsWith("Apache License"));
 	}
+	
+	public void testWriteContent() throws Exception {
+		String contentA = "this is a test";
+		File tmp = File.createTempFile("gitblit-", ".test");
+		FileUtils.writeContent(tmp, contentA);
+		String contentB = FileUtils.readContent(tmp, "\n").trim();
+		assertEquals(contentA, contentB);
+	}
 
 	public void testFolderSize() throws Exception {
 		assertEquals(-1, FileUtils.folderSize(null));

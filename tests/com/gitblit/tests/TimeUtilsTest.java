@@ -47,49 +47,55 @@ public class TimeUtilsTest extends TestCase {
 	}
 
 	public void testDurations() throws Exception {
-		assertTrue(TimeUtils.duration(1).equals("1 day"));
-		assertTrue(TimeUtils.duration(5).equals("5 days"));
-		assertTrue(TimeUtils.duration(75).equals("3 months"));
-		assertTrue(TimeUtils.duration(364).equals("12 months"));
-		assertTrue(TimeUtils.duration(365 + 0).equals("1 year"));
-		assertTrue(TimeUtils.duration(365 + 10).equals("1 year"));
-		assertTrue(TimeUtils.duration(365 + 15).equals("1 year, 1 month"));
-		assertTrue(TimeUtils.duration(365 + 30).equals("1 year, 1 month"));
-		assertTrue(TimeUtils.duration(365 + 44).equals("1 year, 1 month"));
-		assertTrue(TimeUtils.duration(365 + 45).equals("1 year, 2 months"));
-		assertTrue(TimeUtils.duration(365 + 60).equals("1 year, 2 months"));
+		assertEquals("1 day", TimeUtils.duration(1));
+		assertEquals("5 days", TimeUtils.duration(5));
+		assertEquals("3 months", TimeUtils.duration(75));
+		assertEquals("12 months", TimeUtils.duration(364));
+		assertEquals("1 year", TimeUtils.duration(365 + 0));
+		assertEquals("1 year", TimeUtils.duration(365 + 10));
+		assertEquals("1 year, 1 month", TimeUtils.duration(365 + 15));
+		assertEquals("1 year, 1 month", TimeUtils.duration(365 + 30));
+		assertEquals("1 year, 1 month", TimeUtils.duration(365 + 44));
+		assertEquals("1 year, 2 months", TimeUtils.duration(365 + 45));
+		assertEquals("1 year, 2 months", TimeUtils.duration(365 + 60));
 
-		assertTrue(TimeUtils.duration(2 * 365 + 0).equals("2 years"));
-		assertTrue(TimeUtils.duration(2 * 365 + 10).equals("2 years"));
-		assertTrue(TimeUtils.duration(2 * 365 + 15).equals("2 years, 1 month"));
-		assertTrue(TimeUtils.duration(2 * 365 + 30).equals("2 years, 1 month"));
-		assertTrue(TimeUtils.duration(2 * 365 + 44).equals("2 years, 1 month"));
-		assertTrue(TimeUtils.duration(2 * 365 + 45).equals("2 years, 2 months"));
-		assertTrue(TimeUtils.duration(2 * 365 + 60).equals("2 years, 2 months"));
+		assertEquals("2 years", TimeUtils.duration(2 * 365 + 0));
+		assertEquals("2 years", TimeUtils.duration(2 * 365 + 10));
+		assertEquals("2 years, 1 month", TimeUtils.duration(2 * 365 + 15));
+		assertEquals("2 years, 1 month", TimeUtils.duration(2 * 365 + 30));
+		assertEquals("2 years, 1 month", TimeUtils.duration(2 * 365 + 44));
+		assertEquals("2 years, 2 months", TimeUtils.duration(2 * 365 + 45));
+		assertEquals("2 years, 2 months", TimeUtils.duration(2 * 365 + 60));
 	}
 
 	public void testTimeAgo() throws Exception {
 		// standard time ago tests
-		assertTrue(TimeUtils.timeAgo(offset(1 * TimeUtils.MIN)).equals("1 min ago"));
-		assertTrue(TimeUtils.timeAgo(offset(60 * TimeUtils.MIN)).equals("60 mins ago"));
-		assertTrue(TimeUtils.timeAgo(offset(120 * TimeUtils.MIN)).equals("2 hours ago"));
-		assertTrue(TimeUtils.timeAgo(offset(15 * TimeUtils.ONEHOUR)).equals("15 hours ago"));
-		assertTrue(TimeUtils.timeAgo(offset(24 * TimeUtils.ONEHOUR)).equals("yesterday"));
-		assertTrue(TimeUtils.timeAgo(offset(2 * TimeUtils.ONEDAY)).equals("2 days ago"));
-		assertTrue(TimeUtils.timeAgo(offset(35 * TimeUtils.ONEDAY)).equals("5 weeks ago"));
-		assertTrue(TimeUtils.timeAgo(offset(84 * TimeUtils.ONEDAY)).equals("3 months ago"));
-		assertTrue(TimeUtils.timeAgo(offset(95 * TimeUtils.ONEDAY)).equals("3 months ago"));
-		assertTrue(TimeUtils.timeAgo(offset(104 * TimeUtils.ONEDAY)).equals("4 months ago"));
-		assertTrue(TimeUtils.timeAgo(offset(365 * TimeUtils.ONEDAY)).equals("1 year ago"));
-		assertTrue(TimeUtils.timeAgo(offset(395 * TimeUtils.ONEDAY)).equals("13 months ago"));
-		assertTrue(TimeUtils.timeAgo(offset((2 * 365 + 30) * TimeUtils.ONEDAY)).equals(
-				"2 years ago"));
+		assertEquals("1 min ago", TimeUtils.timeAgo(offset(1 * TimeUtils.MIN)));
+		assertEquals("60 mins ago", TimeUtils.timeAgo(offset(60 * TimeUtils.MIN)));
+		assertEquals("2 hours ago", TimeUtils.timeAgo(offset(120 * TimeUtils.MIN)));
+		assertEquals("15 hours ago", TimeUtils.timeAgo(offset(15 * TimeUtils.ONEHOUR)));
+		assertEquals("yesterday", TimeUtils.timeAgo(offset(24 * TimeUtils.ONEHOUR)));
+		assertEquals("2 days ago", TimeUtils.timeAgo(offset(2 * TimeUtils.ONEDAY)));
+		assertEquals("5 weeks ago", TimeUtils.timeAgo(offset(35 * TimeUtils.ONEDAY)));
+		assertEquals("3 months ago", TimeUtils.timeAgo(offset(84 * TimeUtils.ONEDAY)));
+		assertEquals("3 months ago", TimeUtils.timeAgo(offset(95 * TimeUtils.ONEDAY)));
+		assertEquals("4 months ago", TimeUtils.timeAgo(offset(104 * TimeUtils.ONEDAY)));
+		assertEquals("1 year ago", TimeUtils.timeAgo(offset(365 * TimeUtils.ONEDAY)));
+		assertEquals("13 months ago", TimeUtils.timeAgo(offset(395 * TimeUtils.ONEDAY)));
+		assertEquals("2 years ago", TimeUtils.timeAgo(offset((2 * 365 + 30) * TimeUtils.ONEDAY)));
 
 		// css class tests
-		assertTrue(TimeUtils.timeAgoCss(offset(1 * TimeUtils.MIN)).equals("age0"));
-		assertTrue(TimeUtils.timeAgoCss(offset(60 * TimeUtils.MIN)).equals("age0"));
-		assertTrue(TimeUtils.timeAgoCss(offset(120 * TimeUtils.MIN)).equals("age1"));
-		assertTrue(TimeUtils.timeAgoCss(offset(24 * TimeUtils.ONEHOUR)).equals("age1"));
-		assertTrue(TimeUtils.timeAgoCss(offset(2 * TimeUtils.ONEDAY)).equals("age2"));
+		assertEquals("age0", TimeUtils.timeAgoCss(offset(1 * TimeUtils.MIN)));
+		assertEquals("age0", TimeUtils.timeAgoCss(offset(60 * TimeUtils.MIN)));
+		assertEquals("age1", TimeUtils.timeAgoCss(offset(120 * TimeUtils.MIN)));
+		assertEquals("age1", TimeUtils.timeAgoCss(offset(24 * TimeUtils.ONEHOUR)));
+		assertEquals("age2", TimeUtils.timeAgoCss(offset(2 * TimeUtils.ONEDAY)));
+	}
+
+	public void testFrequency() {
+		assertEquals(5, TimeUtils.convertFrequencyToMinutes("2 mins"));
+		assertEquals(10, TimeUtils.convertFrequencyToMinutes("10 mins"));
+		assertEquals(600, TimeUtils.convertFrequencyToMinutes("10 hours"));
+		assertEquals(14400, TimeUtils.convertFrequencyToMinutes(" 10 days "));
 	}
 }

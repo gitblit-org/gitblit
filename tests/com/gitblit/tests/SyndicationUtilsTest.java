@@ -24,6 +24,7 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import com.gitblit.Constants.SearchType;
 import com.gitblit.models.SyndicatedEntryModel;
 import com.gitblit.utils.SyndicationUtils;
 
@@ -41,6 +42,11 @@ public class SyndicationUtilsTest extends TestCase {
 			entry.content = "Content " + i;
 			entry.repository = "Repository " + i;
 			entry.branch = "Branch " + i;
+			List<String> tags = new ArrayList<String>();
+			for (int j = 0; j < 5; j++) {
+				tags.add("Tag " + j);
+			}
+			entry.tags = tags;
 			entries.add(entry);
 		}
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -55,8 +61,9 @@ public class SyndicationUtilsTest extends TestCase {
 	public void testFeedRead() throws Exception {
 		Set<String> links = new HashSet<String>();
 		for (int i = 0; i < 2; i++) {
-			List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed("https://localhost:8443",
-					"ticgit.git", "master", 5, i, "admin", "admin".toCharArray());
+			List<SyndicatedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url,
+					"ticgit.git", "master", 5, i, GitBlitSuite.account,
+					GitBlitSuite.password.toCharArray());
 			assertTrue(feed != null);
 			assertTrue(feed.size() > 0);
 			assertEquals(5, feed.size());
@@ -69,10 +76,16 @@ public class SyndicationUtilsTest extends TestCase {
 	}
 
 	public void testSearchFeedRead() throws Exception {
-		List<SyndicatedEntryModel> feed = SyndicationUtils.readSearchFeed("https://localhost:8443",
-				"ticgit.git", null, "documentation", null, 5, 0, "admin", "admin".toCharArray());
+		List<SyndicatedEntryModel> feed = SyndicationUtils.readSearchFeed(GitBlitSuite.url,
+				"ticgit.git", null, "test", null, 5, 0, GitBlitSuite.account,
+				GitBlitSuite.password.toCharArray());
 		assertTrue(feed != null);
 		assertTrue(feed.size() > 0);
-		assertEquals(2, feed.size());
+		assertEquals(5, feed.size());
+		feed = SyndicationUtils.readSearchFeed(GitBlitSuite.url, "ticgit.git", "master", "test",
+				SearchType.COMMIT, 5, 1, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
+		assertTrue(feed != null);
+		assertTrue(feed.size() > 0);
+		assertEquals(5, feed.size());
 	}
 }

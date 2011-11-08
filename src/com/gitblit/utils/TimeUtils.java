@@ -253,11 +253,9 @@ public class TimeUtils {
 		int mins = 60;
 		if (!StringUtils.isEmpty(frequency)) {
 			try {
-				String str;
+				String str = frequency.trim();
 				if (frequency.indexOf(' ') > -1) {
-					str = frequency.substring(0, frequency.indexOf(' ')).trim();
-				} else {
-					str = frequency.trim();
+					str = str.substring(0, str.indexOf(' ')).trim();
 				}
 				mins = (int) Float.parseFloat(str);
 			} catch (NumberFormatException e) {
@@ -268,7 +266,7 @@ public class TimeUtils {
 		}
 		if (frequency.indexOf("day") > -1) {
 			// convert to minutes
-			mins *= 24 * 60;
+			mins *= 1440;
 		} else if (frequency.indexOf("hour") > -1) {
 			// convert to minutes
 			mins *= 60;

@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.util.concurrent.Executors;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -28,11 +29,20 @@ import com.gitblit.FileSettings;
 import com.gitblit.FileUserService;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
+import com.gitblit.GitBlitServer;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 
 public class GitBlitSuite extends TestSetup {
+
 	public static final File REPOSITORIES = new File("git");
+
+	static int port = 8280;
+	static int shutdownPort = 8281;
+
+	public static String url = "http://localhost:" + port;
+	public static String account = "admin";
+	public static String password = "admin";
 
 	private GitBlitSuite(TestSuite suite) {
 		super(suite);
@@ -43,7 +53,10 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(FileUtilsTest.class);
 		suite.addTestSuite(TimeUtilsTest.class);
 		suite.addTestSuite(StringUtilsTest.class);
+		suite.addTestSuite(Base64Test.class);
+		suite.addTestSuite(JsonUtilsTest.class);
 		suite.addTestSuite(ByteFormatTest.class);
+		suite.addTestSuite(ObjectCacheTest.class);
 		suite.addTestSuite(MarkdownUtilsTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
 		suite.addTestSuite(SyndicationUtilsTest.class);
@@ -51,6 +64,7 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(MetricUtilsTest.class);
 		suite.addTestSuite(TicgitUtilsTest.class);
 		suite.addTestSuite(GitBlitTest.class);
+		suite.addTestSuite(RpcTests.class);
 		return new GitBlitSuite(suite);
 	}
 
@@ -68,6 +82,29 @@ public class GitBlitSuite extends TestSetup {
 
 	public static Repository getBluezGnomeRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "test/bluez-gnome.git"));
+	}
+
+	public static void startGitblit() throws Exception {
+		// Start a Gitblit instance
+		Executors.newSingleThreadExecutor().execute(new Runnable() {
+			public void run() {
+				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
+						"" + shutdownPort, "--repositoriesFolder",
+						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
+						"distrib/users.properties");
+			}
+		});
+
+		// Wait a few seconds for it to be running
+		Thread.sleep(2500);
+	}
+
+	public static void stopGitblit() throws Exception {
+		// Stop Gitblit
+		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
+
+		// Wait a few seconds for it to be running
+		Thread.sleep(2500);
 	}
 
 	@Override
@@ -90,6 +127,13 @@ public class GitBlitSuite extends TestSetup {
 			showRemoteBranches("ticgit.git");
 			showRemoteBranches("test/jgit.git");
 		}
+
+		startGitblit();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		stopGitblit();
 	}
 
 	private void cloneOrFetch(String name, String fromUrl) throws Exception {

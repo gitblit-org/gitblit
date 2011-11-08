@@ -15,15 +15,13 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
+
+import junit.framework.TestCase;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -31,7 +29,6 @@ import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
-import com.gitblit.GitBlitServer;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
@@ -48,38 +45,21 @@ import com.gitblit.utils.RpcUtils;
  * @author James Moger
  * 
  */
-public class RpcTests {
-
-	static int port = 8180;
-	static int shutdownPort = 8181;
-
-	String url = "http://localhost:" + port;
-	String account = "admin";
-	String password = "admin";
+public class RpcTests extends TestCase {
+	
+	String url = GitBlitSuite.url;
+	String account = GitBlitSuite.account;
+	String password = GitBlitSuite.password;
+	
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
-		// Start a Gitblit instance
-		Executors.newSingleThreadExecutor().execute(new Runnable() {
-			public void run() {
-				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
-						"" + shutdownPort, "--repositoriesFolder",
-						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"distrib/users.properties");
-			}
-		});
-
-		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+		GitBlitSuite.startGitblit();
 	}
 
 	@AfterClass
 	public static void stopGitblit() throws Exception {
-		// Stop Gitblit
-		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
-
-		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+		GitBlitSuite.stopGitblit();
 	}
 
 	@Test

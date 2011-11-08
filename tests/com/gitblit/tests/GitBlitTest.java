@@ -111,13 +111,13 @@ public class GitBlitTest extends TestCase {
 	public void testGitblitSettings() throws Exception {
 		// These are already tested by above test method.
 		assertTrue(GitBlit.getBoolean("missing", true));
-		assertTrue(GitBlit.getString("missing", "default").equals("default"));
-		assertTrue(GitBlit.getInteger("missing", 10) == 10);
-		assertTrue(GitBlit.getInteger("realm.userService", 5) == 5);
+		assertEquals("default", GitBlit.getString("missing", "default"));
+		assertEquals(10, GitBlit.getInteger("missing", 10));
+		assertEquals(5, GitBlit.getInteger("realm.userService", 5));
 
 		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false));
-		assertTrue(GitBlit.getString("realm.userService", null).equals("users.properties"));
-		assertTrue(GitBlit.getInteger("realm.minPasswordLength", 0) == 5);
+		assertEquals("distrib/users.properties", GitBlit.getString("realm.userService", null));
+		assertEquals(5, GitBlit.getInteger("realm.minPasswordLength", 0));
 		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);
 		assertTrue(mdExtensions.contains("md"));
