@@ -20,6 +20,7 @@
 - added: setting to control Gitblit GO context path for proxy setups  
     **New:** *server.contextPath = /*
 - added: *combined-md5* password storage option which stores the hash of username+password as the password
+- added: RSS feeds now include regex substitutions on commit messages for bug trackers, etc
 - fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
     **This breaks 0.6.0 federation clients/servers.**
 - fixed: collision on rename for repositories and users

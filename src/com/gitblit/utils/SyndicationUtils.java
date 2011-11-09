@@ -97,8 +97,14 @@ public class SyndicationUtils {
 			}
 
 			SyndContent content = new SyndContentImpl();
-			content.setType(entryModel.contentType);
-			content.setValue(entryModel.content);
+			if (StringUtils.isEmpty(entryModel.contentType)
+					|| entryModel.contentType.equalsIgnoreCase("text/plain")) {
+				content.setType("text/html");
+				content.setValue(StringUtils.breakLinesForHtml(entryModel.content));
+			} else {
+				content.setType(entryModel.contentType);
+				content.setValue(entryModel.content);
+			}
 			entry.setDescription(content);
 
 			entries.add(entry);
@@ -167,9 +173,9 @@ public class SyndicationUtils {
 	 * @return a list of SyndicationModel entries
 	 * @throws {@link IOException}
 	 */
-	public static List<FeedEntryModel> readSearchFeed(String url, String repository,
-			String branch, String fragment, Constants.SearchType searchType, int numberOfEntries,
-			int page, String username, char[] password) throws IOException {
+	public static List<FeedEntryModel> readSearchFeed(String url, String repository, String branch,
+			String fragment, Constants.SearchType searchType, int numberOfEntries, int page,
+			String username, char[] password) throws IOException {
 		// determine parameters
 		List<String> parameters = new ArrayList<String>();
 		parameters.add("s=" + StringUtils.encodeURL(fragment));

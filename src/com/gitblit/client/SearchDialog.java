@@ -43,8 +43,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.gitblit.Constants;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.FeedEntryModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
 
 /**

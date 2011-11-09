@@ -28,9 +28,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -189,8 +189,9 @@ public class SyndicationServlet extends HttpServlet {
 			entry.link = MessageFormat.format(urlPattern, gitblitUrl,
 					StringUtils.encodeURL(model.name), commit.getName());
 			entry.published = commit.getCommitterIdent().getWhen();
-			entry.contentType = "text/plain";
-			entry.content = commit.getFullMessage();
+			entry.contentType = "text/html";
+			String message = GitBlit.self().processCommitMessage(model.name, commit.getFullMessage());
+			entry.content = message;
 			entry.repository = model.name;
 			entry.branch = objectId;
 			List<RefModel> refs = allRefs.get(commit.getId());

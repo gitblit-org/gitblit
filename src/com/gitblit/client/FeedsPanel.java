@@ -42,8 +42,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import com.gitblit.models.FeedModel;
 import com.gitblit.models.FeedEntryModel;
+import com.gitblit.models.FeedModel;
 import com.gitblit.utils.StringUtils;
 
 /**
