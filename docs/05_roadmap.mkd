@@ -19,6 +19,7 @@ This list is volatile.
     * optional automatic push to origin/remotes?
     * optional manual push to origin/remotes?
 * Gitblit: Lucene integration with multi-repository search (issue 16)
+* Gitblit: Repository regex substitutions should be stored in .git/.config, not gitblit.properties
 
 ### TODO (low priority)
 

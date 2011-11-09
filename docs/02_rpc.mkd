@@ -5,6 +5,7 @@
 Gitblit optionally allows a remote client to administer the Gitblit server.  This client could be a Java-based tool or perhaps a tool written in another language.
 
     web.enableRpcServlet=true
+    web.enableRpcManagement=false
     web.enableRpcAdministration=false
 
 **https** is strongly recommended because passwords are insecurely transmitted form your browser/rpc client using Basic authentication!
@@ -15,14 +16,14 @@ The Gitblit JSON RPC mechanism, like the Gitblit JGit servlet, syndication/feed 
 
 [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) is an example Java/Swing application that allows remote management (repository and user objects) and administration (server settings) of a Gitblit server.
   
-This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](http://code.google.com/p/gitblit/downloads/detail?name=%API%) library.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
+This application uses a combination of RSS feeds and the JSON RPC interface, both of which are part of the [Gitblit API](http://code.google.com/p/gitblit/downloads/detail?name=%API%) library, to present live information from a Gitblit server.  Some JSON RPC methods from the utility class `com.gitblit.utils.RpcUtils` are not currently used by the Gitblit Manager.
 
 **NOTE:**  
 Gitblit Manager stores your login credentials **INSECURELY** in homedir/.gitblit/config.
 
-### EGit "Import from Gitblit" Feature (Planning)
+### Eclipse/EGit "Import from Gitblit" Feature (Planning)
 
-One obvious goal of a Gitblit RPC mechanism would be to have an EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Cloning (hopefully batch) would be delegated to EGit.
+One obvious goal of a Gitblit RPC mechanism would be to have an Eclipse/EGit Feature that allows authentication and enumeration of Gitblit repositories from the Eclipse *Import...* menu.  Batch cloning would be supported and delegated to EGit.
 
 This particular project should not be difficult as the only external dependency for `com.gitblit.utils.RpcUtils` is [google-gson](http://google-gson.googlecode.com) which is already a dependency of the EGit/GitHub Mylyn feature.
 

@@ -1,4 +1,35 @@
-## Gitblit Features
+## Why Gitblit?
+
+### Single-Stack Solution
+
+*Gitblit GO* is an integrated, single-stack solution for serving and browsing Git repositories with a per-repository authentication and authorization mechanism.  
+You do not need Apache httpd, Perl, Git, Gitweb, or Gitolite.  Should you want to use some or all of those, you still can; Gitblit plays nice with the other kids on the block.  It should be noted that Gitblit does not currently offer fine-grained access controls like [Gitolite](http://sitaramc.github.com/gitolite).
+
+*Gitblit WAR = Gitblit GO - integrated Jetty*  
+You provide the servlet container (e.g. Tomcat, Resin, etc) and deploy the WAR like any other webapp.  Gitblit WAR offers all the same capabilities as the GO integrated stack except as noted below. 
+
+### You decide how to use Gitblit
+
+Gitblit can be used as a dumb repository viewer with no administrative controls or user accounts.  
+Gitblit can be used as a complete Git stack for cloning, pushing, and repository access control.
+
+### Easy Web Management
+
+Administrators can create and manage all repositories & user accounts from the *web UI*.  
+Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](%MANAGER%) or your own custom tooling. 
+
+### Integration
+
+Gitblit has a pluggable user service mechanism which allows you to implement your own authentication, authorization, and user management.
+
+Gitblit offers RSS feeds, a JSON-based RPC mechanism, and a [Java client API library](%API%) which allow you to integrate Gitblit into your systems.
+
+### Backup Strategy
+
+Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](%FEDCLIENT%).  Similarly you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
+
+
+## Standard Features (GO/WAR)
 - JGit SmartHTTP servlet
 - Browser and git client authentication
 - Four *per-repository* access control configurations with a Read-Only control flag
