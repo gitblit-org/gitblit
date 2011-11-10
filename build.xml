@@ -456,6 +456,7 @@
 			<resource file="${basedir}/resources/bullet_feed.png" />
 			<resource file="${basedir}/resources/search-icon.png" />
 			<resource file="${basedir}/resources/commit_changes_16x16.png" />
+			<resource file="${basedir}/resources/commit_merge_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
 				

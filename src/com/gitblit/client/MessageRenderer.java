@@ -21,12 +21,15 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.Serializable;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.table.TableCellRenderer;
+
+import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.models.FeedEntryModel;
 
@@ -41,33 +44,91 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String R_TAGS = "refs/tags/";
-
-	private static final String R_HEADS = "refs/heads/";
-
-	private static final String R_REMOTES = "refs/remotes/";
-
 	private final GitblitClient gitblit;
-
+	
+	private final ImageIcon mergeIcon;
+	
+	private final ImageIcon blankIcon;
+	
 	private final JLabel messageLabel;
 
+	private final JLabel headLabel;
+
 	private final JLabel branchLabel;
+
+	private final JLabel remoteLabel;
+
+	private final JLabel tagLabel;
 
 	public MessageRenderer() {
 		this(null);
 	}
 
 	public MessageRenderer(GitblitClient gitblit) {
-		super(new FlowLayout(FlowLayout.LEFT, 10, 1));
+		super(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 1));
 		this.gitblit = gitblit;
+	
+		mergeIcon = new ImageIcon(getClass().getResource("/commit_merge_16x16.png"));
+		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
 
 		messageLabel = new JLabel();
-		branchLabel = new JLabel();
-		branchLabel.setOpaque(true);
-		Font font = branchLabel.getFont();
-		branchLabel.setFont(font.deriveFont(font.getSize2D() - 1f));
+	
+		headLabel = newRefLabel();
+		branchLabel = newRefLabel();
+		remoteLabel = newRefLabel();
+		tagLabel = newRefLabel();
+
 		add(messageLabel);
+		add(headLabel);
 		add(branchLabel);
+		add(remoteLabel);
+		add(tagLabel);
+	}
+
+	private JLabel newRefLabel() {		
+		JLabel label = new JLabel();
+		label.setOpaque(true);
+		Font font = label.getFont();
+		label.setFont(font.deriveFont(font.getSize2D() - 1f));
+		return label;
+	}
+
+	private void resetRef(JLabel label) {
+		label.setText("");
+		label.setBackground(messageLabel.getBackground());
+		label.setBorder(null);
+		label.setVisible(false);
+	}
+
+	private void showRef(String ref, JLabel label) {
+		String name = ref;
+		Color bg = getBackground();
+		Border border = null;
+		if (name.startsWith(Constants.R_HEADS)) {
+			// local branch
+			bg = Color.decode("#CCFFCC");
+			name = name.substring(Constants.R_HEADS.length());
+			border = new LineBorder(Color.decode("#00CC33"), 1);
+		} else if (name.startsWith(Constants.R_REMOTES)) {
+			// remote branch
+			bg = Color.decode("#CAC2F5");
+			name = name.substring(Constants.R_REMOTES.length());
+			border = new LineBorder(Color.decode("#6C6CBF"), 1);
+		} else if (name.startsWith(Constants.R_TAGS)) {
+			// tag
+			bg = Color.decode("#FFFFAA");
+			name = name.substring(Constants.R_TAGS.length());
+			border = new LineBorder(Color.decode("#FFCC00"), 1);
+		} else if (name.equals(Constants.HEAD)) {
+			// HEAD
+			bg = Color.decode("#FFAAFF");
+			border = new LineBorder(Color.decode("#FF00EE"), 1);
+		} else {
+		}
+		label.setText(name);
+		label.setBackground(bg);
+		label.setBorder(border);
+		label.setVisible(true);
 	}
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -96,46 +157,49 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 		}
 
 		// reset ref label
-		branchLabel.setText("");
-		branchLabel.setBackground(messageLabel.getBackground());
-		branchLabel.setBorder(null);
+		resetRef(headLabel);
+		resetRef(branchLabel);
+		resetRef(remoteLabel);
+		resetRef(tagLabel);
 
+		int parentCount = 0;
 		if (entry.tags != null) {
 			for (String tag : entry.tags) {
+				if (tag.startsWith("ref:")) {
+					// strip ref:
+					tag = tag.substring("ref:".length());
+				} else {
+					// count parents
+					if (tag.startsWith("parent:")) {
+						parentCount++;
+					}
+				}
 				if (tag.equals(entry.branch)) {
+					// skip current branch label
 					continue;
 				}
-				String name = tag;
-				Color bg = getBackground();
-				Border border = null;
-				if (name.startsWith(R_HEADS)) {
+				if (tag.startsWith(Constants.R_HEADS)) {
 					// local branch
-					bg = Color.decode("#CCFFCC");
-					name = name.substring(R_HEADS.length());
-					border = new LineBorder(Color.decode("#00CC33"), 1);
-				} else if (name.startsWith(R_REMOTES)) {
-					// origin branch
-					bg = Color.decode("#CAC2F5");
-					name = name.substring(R_REMOTES.length());
-					border = new LineBorder(Color.decode("#6C6CBF"), 1);
-				} else if (name.startsWith(R_TAGS)) {
+					showRef(tag, branchLabel);
+				} else if (tag.startsWith(Constants.R_REMOTES)) {
+					// remote branch
+					showRef(tag, remoteLabel);
+				} else if (tag.startsWith(Constants.R_TAGS)) {
 					// tag
-					bg = Color.decode("#FFFFAA");
-					name = name.substring(R_TAGS.length());
-					border = new LineBorder(Color.decode("#FFCC00"), 1);
-				} else if (name.equals("HEAD")) {
+					showRef(tag, tagLabel);
+				} else if (tag.equals(Constants.HEAD)) {
 					// HEAD
-					bg = Color.decode("#FFAAFF");
-					border = new LineBorder(Color.decode("#FF00EE"), 1);
-				} else {
-
+					showRef(tag, headLabel);
 				}
-				branchLabel.setText(" " + name + " ");
-				branchLabel.setBackground(bg);
-				branchLabel.setBorder(border);
 			}
 		}
 
+		if (parentCount > 1) {
+			// multiple parents, show merge icon
+			messageLabel.setIcon(mergeIcon);
+		} else {
+			messageLabel.setIcon(blankIcon);
+		}
 		return this;
 	}
 }

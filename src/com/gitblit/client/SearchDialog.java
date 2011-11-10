@@ -92,8 +92,7 @@ public class SearchDialog extends JFrame {
 		this.gitblit = gitblit;
 		this.isSearch = isSearch;
 		setTitle(Translation.get(isSearch ? "gb.search" : "gb.log"));
-		setIconImage(new ImageIcon(getClass().getResource(
-				isSearch ? "/gitblt-favicon.png" : "/commit_changes_16x16.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 		initialize();
 		setSize(900, 550);
 	}
