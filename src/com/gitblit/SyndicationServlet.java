@@ -190,18 +190,26 @@ public class SyndicationServlet extends HttpServlet {
 					StringUtils.encodeURL(model.name), commit.getName());
 			entry.published = commit.getCommitterIdent().getWhen();
 			entry.contentType = "text/html";
-			String message = GitBlit.self().processCommitMessage(model.name, commit.getFullMessage());
+			String message = GitBlit.self().processCommitMessage(model.name,
+					commit.getFullMessage());
 			entry.content = message;
 			entry.repository = model.name;
-			entry.branch = objectId;
+			entry.branch = objectId;			
+			entry.tags = new ArrayList<String>();
+			
+			// add commit id and parent commit ids
+			entry.tags.add("commit:" + commit.getName());
+			for (RevCommit parent : commit.getParents()) {
+				entry.tags.add("parent:" + parent.getName());
+			}
+			
+			// add refs to tabs list
 			List<RefModel> refs = allRefs.get(commit.getId());
 			if (refs != null && refs.size() > 0) {
-				List<String> tags = new ArrayList<String>();
 				for (RefModel ref : refs) {
-					tags.add(ref.getName());
+					entry.tags.add("ref:" + ref.getName());
 				}
-				entry.tags = tags;
-			}
+			}			
 			entries.add(entry);
 		}
 		String feedLink;
