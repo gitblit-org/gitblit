@@ -16,6 +16,7 @@
 package com.gitblit.client;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -328,6 +329,7 @@ public class SearchDialog extends JFrame {
 		if (isSearch && StringUtils.isEmpty(fragment)) {
 			return;
 		}
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		SwingWorker<List<FeedEntryModel>, Void> worker = new SwingWorker<List<FeedEntryModel>, Void>() {
 			@Override
 			protected List<FeedEntryModel> doInBackground() throws IOException {
@@ -341,6 +343,7 @@ public class SearchDialog extends JFrame {
 
 			@Override
 			protected void done() {
+				setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 				try {
 					List<FeedEntryModel> results = get();
 					if (isSearch) {

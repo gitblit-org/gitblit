@@ -16,6 +16,7 @@
 package com.gitblit.client;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -37,6 +38,7 @@ public abstract class GitblitWorker extends SwingWorker<Boolean, Void> {
 	public GitblitWorker(Component parent, RpcRequest request) {
 		this.parent = parent;
 		this.request = request;
+		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}
 
 	protected RpcRequest getRequestType() {
@@ -49,6 +51,7 @@ public abstract class GitblitWorker extends SwingWorker<Boolean, Void> {
 	}
 
 	protected void done() {
+		parent.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		try {
 			Boolean success = get();
 			if (success) {
