@@ -106,15 +106,15 @@ public class StatusPanel extends JPanel {
 		propertiesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		propertiesTable.getColumn(name).setCellRenderer(nameRenderer);
 
-		JPanel centerPanel = new JPanel(new BorderLayout());
+		JPanel centerPanel = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
 		centerPanel.add(fieldsPanel, BorderLayout.NORTH);
 		centerPanel.add(new JScrollPane(propertiesTable), BorderLayout.CENTER);
 
-		JPanel controls = new JPanel();
+		JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.MARGIN, 0));
 		controls.add(refreshStatus);
 
 		header = new HeaderPanel(Translation.get("gb.status"), "health_16x16.png");
-		setLayout(new BorderLayout());
+		setLayout(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
 		add(header, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
 		add(controls, BorderLayout.SOUTH);

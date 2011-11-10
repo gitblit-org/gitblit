@@ -284,19 +284,23 @@ public class SearchDialog extends JFrame {
 		contentPanel.add(controls, BorderLayout.SOUTH);
 		setLayout(new BorderLayout());
 		add(contentPanel, BorderLayout.CENTER);
-		if (isSearch) {
-			addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowOpened(WindowEvent event) {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowOpened(WindowEvent event) {
+				if (isSearch) {
 					searchFragment.requestFocus();
+				} else {
+					search(0);
 				}
+			}
 
-				@Override
-				public void windowActivated(WindowEvent event) {
+			@Override
+			public void windowActivated(WindowEvent event) {
+				if (isSearch) {
 					searchFragment.requestFocus();
 				}
-			});
-		}
+			}
+		});
 	}
 
 	public void selectRepository(RepositoryModel repository) {
@@ -363,8 +367,9 @@ public class SearchDialog extends JFrame {
 		tableModel.entries.clear();
 		tableModel.entries.addAll(entries);
 		tableModel.fireTableDataChanged();
-		setTitle(Translation.get(isSearch ? "gb.search" : "gb.log") + ": " + text + " ("
-				+ entries.size() + (page > 0 ? (", pg " + (page + 1)) : "") + ")");
+		setTitle(Translation.get(isSearch ? "gb.search" : "gb.log")
+				+ (StringUtils.isEmpty(text) ? "" : (": " + text)) + " (" + entries.size()
+				+ (page > 0 ? (", pg " + (page + 1)) : "") + ")");
 		header.setText(getTitle());
 		if (pack) {
 			Utils.packColumns(table, Utils.MARGIN);
