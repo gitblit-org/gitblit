@@ -44,7 +44,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean canAccessRepository(String repositoryName) {
-		return canAdmin || repositories.contains(repositoryName.toLowerCase());
+		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		return canAdmin || repositories.contains(repositoryName.toLowerCase()) || repository.owner.equalsIgnoreCase(username);
 	}
 
 	public void addRepository(String name) {
