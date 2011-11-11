@@ -13,14 +13,24 @@ This list is volatile.
 
 * Gitblit: editable settings page in GO/WAR
 * Gitblit: tag repositories and offer views of repositories by tag (issue 27)
-* Gitblit: aggregate RSS feeds by tag or subfolder
-* Gitblit: investigate create-on-push possibility
+* Gitblit: investigate create-repository-on-push.
+    * Maybe a new user role to allow this?
+    * Maybe a server setting to disable this completely?
+    * Pusher/Creator becomes repository owner and can then manipulate access lists, etc?
 * Gitblit: Clone Repository feature (issue 5)
     * optional scheduled pulls
     * optional automatic push to origin/remotes?
     * optional manual push to origin/remotes?
 * Gitblit: Lucene integration with multi-repository search (issue 16)
 * Gitblit: Repository regex substitutions should be stored in .git/.config, not gitblit.properties
+* Gitblit: Consider allowing git:// protocol using JGit
+    * new setting *git.allowGitProtocol* to enable/disable git:// protocol
+    * unrestricted repositories would have anonymous RW git:// access
+    * push-restricted repositories would have anonymous R git:// access
+    * clone-restricted repositories would prohibit git:// access
+    * view-restricted repositories would prohibit git:// access
+* Gitblit: Consider using Git-style config file instead of Java properties file for user storage (users.config vs. users.properties)
+    * this would allow for additional fields per user without bringing in a database
 
 ### TODO (low priority)
 
@@ -29,4 +39,6 @@ This list is volatile.
 
 ### IDEAS
 
+* Gitblit: aggregate RSS feeds by tag or subfolder
+* Gitblit: Consider creating more Git model objects and exposing them via the JSON RPC interface to allow inspection/retrieval of Git commits, Git trees, etc from Gitblit.
 * Gitblit: Stronger ticgit integration (issue 8)

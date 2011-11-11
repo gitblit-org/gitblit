@@ -85,7 +85,7 @@
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
-		<property name="manager.jarfile" value="manager-${gb.version}.jar" />
+		<property name="manager.zipfile" value="manager-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
 	</target>
 	
@@ -274,7 +274,7 @@
 				<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 				<arg value="--substitute" />
-				<arg value="%MANAGER%=${manager.jarfile}" />
+				<arg value="%MANAGER%=${manager.zipfile}" />
 
 				<arg value="--substitute" />
 				<arg value="%API%=${gbapi.zipfile}" />
@@ -422,6 +422,8 @@
 		<zip destfile="${fedclient.zipfile}">
 			<fileset dir="${basedir}">
 				<include name="fedclient.jar" />
+				<include name="LICENSE" />
+				<include name="NOTICE" />
 			</fileset>
 			<fileset dir="${basedir}/distrib">
 				<include name="federation.properties" />
@@ -438,7 +440,7 @@
 	<target name="buildManager" depends="compile" description="Builds the stand-alone Gitblit Manager">
 		<echo>Building Gitblit Manager ${gb.version}</echo>
 	
-		<genjar jarfile="${manager.jarfile}">
+		<genjar jarfile="maanager-${gb.version}.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
 			<resource file="${basedir}/resources/gitweb-favicon.png" />
@@ -478,6 +480,14 @@
 			</manifest>
 		</genjar>
 		
+		<!-- Build Manager Zip file -->
+		<zip destfile="${manager.zipfile}">
+			<fileset dir="${basedir}">
+				<include name="manager-${gb.version}.jar" />
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
+		</zip>
 	</target>
 	
 	<!-- 
@@ -488,7 +498,9 @@
 		<target name="buildApiLibrary" depends="compile" description="Builds the Gitblit RPC client library">
 			<echo>Building Gitblit API Library ${gb.version}</echo>
 		
-			<genjar jarfile="gbapi.jar">
+			<!-- Build API Library jar -->
+			<genjar jarfile="gbapi-${gb.version}.jar">
+				<class name="com.gitblit.Keys" />
 				<class name="com.gitblit.client.GitblitClient" />
 				<classpath refid="master-classpath" />
 				<classfilter>
@@ -501,10 +513,41 @@
 				</manifest>
 			</genjar>
 			
+			<!-- Build API sources jar -->
+			<zip destfile="gbapi-${gb.version}-sources.jar">
+				<fileset dir="${basedir}/src" defaultexcludes="yes">
+					<include name="com/gitblit/Constants.java"/>
+					<include name="com/gitblit/GitBlitException.java"/>
+					<include name="com/gitblit/Keys.java"/>
+			  		<include name="com/gitblit/client/**/*.java"/>
+			  		<include name="com/gitblit/models/**/*.java"/>
+			  		<include name="com/gitblit/utils/**/*.java"/>			  		
+				</fileset>
+			</zip>
+			
+			<!-- Build API JavaDoc jar -->
+			<javadoc destdir="${basedir}/javadoc">
+				<fileset dir="${basedir}/src" defaultexcludes="yes">
+					<include name="com/gitblit/Constants.java"/>
+					<include name="com/gitblit/GitBlitException.java"/>
+					<include name="com/gitblit/Keys.java"/>
+			  		<include name="com/gitblit/client/**/*.java"/>
+			  		<include name="com/gitblit/models/**/*.java"/>
+			  		<include name="com/gitblit/utils/**/*.java"/>			  		
+				</fileset>
+			</javadoc>
+			<zip destfile="gbapi-${gb.version}-javadoc.jar">
+				<fileset dir="${basedir}/javadoc" />
+			</zip>
+			
 			<!-- Build the API library zip file -->
 			<zip destfile="${gbapi.zipfile}">
 				<fileset dir="${basedir}">
-					<include name="gbapi.jar" />
+					<include name="gbapi-${gb.version}.jar" />
+					<include name="gbapi-${gb.version}-sources.jar" />
+					<include name="gbapi-${gb.version}-javadoc.jar" />
+					<include name="LICENSE" />
+					<include name="NOTICE" />
 				</fileset>
 				<fileset dir="${basedir}/ext">
 					<include name="gson*.jar" />
@@ -634,7 +677,7 @@
 			<arg value="%FEDCLIENT%=${fedclient.zipfile}" />
 
 			<arg value="--substitute" />
-			<arg value="%MANAGER%=${manager.jarfile}" />
+			<arg value="%MANAGER%=${manager.zipfile}" />
 
 			<arg value="--substitute" />
 			<arg value="%API%=${gbapi.zipfile}" />
@@ -721,8 +764,8 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${manager.jarfile}" 
-			targetfilename="manager-${gb.version}.jar"
+			filename="${manager.zipfile}" 
+			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
 			labels="Featured, Type-Package, OpSys-All" />
 		

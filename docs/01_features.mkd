@@ -16,17 +16,17 @@ Gitblit can be used as a complete Git stack for cloning, pushing, and repository
 ### Easy Web Management
 
 Administrators can create and manage all repositories & user accounts from the *web UI*.  
-Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](%MANAGER%) or your own custom tooling. 
+Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
 
 ### Integration
 
 Gitblit has a pluggable user service mechanism which allows you to implement your own authentication, authorization, and user management.
 
-Gitblit offers RSS feeds, a JSON-based RPC mechanism, and a [Java client API library](%API%) which allow you to integrate Gitblit into your systems.
+Gitblit offers RSS feeds, a JSON-based RPC mechanism, and a [Java Client API library](http://code.google.com/p/gitblit/downloads/detail?name=%API%) which allows you to integrate Gitblit into your systems.
 
 ### Backup Strategy
 
-Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](%FEDCLIENT%).  Similarly you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
+Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
 
 
 ## Standard Features (GO/WAR)
@@ -69,7 +69,7 @@ Gitblit includes a backup mechanism (*federation*) which can be used to backup r
 - A Windows service installation script and configuration tool
 
 ## Limitations
-- HTTP/HTTPS are the only supported protocols
+- HTTP/HTTPS are the only supported Git protocols
 - Access controls are not path-based, they are repository-based
 - Only Administrators can create, rename or delete repositories
 - Only Administrators can create, modify or delete users
