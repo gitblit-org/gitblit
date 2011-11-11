@@ -313,7 +313,7 @@ public class Build {
 						lastProgress = progress;
 						updateDownload(progress, targetFile);
 						if (downloadListener != null) {
-							int percent = Math.round(100 * progress);
+							int percent = Math.min(100, Math.round(100 * progress));
 							downloadListener.downloading(mo.name + " (" + percent + "%)");
 						}
 					}
