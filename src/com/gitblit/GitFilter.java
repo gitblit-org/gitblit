@@ -110,7 +110,7 @@ public class GitFilter extends AccessRestrictionFilter {
 		}
 		boolean readOnly = repository.isFrozen;
 		if (readOnly || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
-			boolean authorizedUser = user.canAccessRepository(repository.name);
+			boolean authorizedUser = user.canAccessRepository(repository);
 			if (action.equals(gitReceivePack)) {
 				// Push request
 				if (!readOnly && authorizedUser) {

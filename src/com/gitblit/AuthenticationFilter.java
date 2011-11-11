@@ -171,7 +171,7 @@ public abstract class AuthenticationFilter implements Filter {
 			super(req);
 			user = new UserModel("anonymous");
 		}
-		
+
 		UserModel getUser() {
 			return user;
 		}
@@ -190,6 +190,9 @@ public abstract class AuthenticationFilter implements Filter {
 			if (role.equals(Constants.ADMIN_ROLE)) {
 				return user.canAdmin;
 			}
+			// Gitblit does not currently use actual roles in the traditional
+			// servlet container sense.  That is the reason this is marked
+			// deprecated, but I may want to revisit this.
 			return user.canAccessRepository(role);
 		}
 

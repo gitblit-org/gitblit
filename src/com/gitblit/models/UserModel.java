@@ -20,6 +20,8 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.gitblit.utils.StringUtils;
+
 /**
  * UserModel is a serializable model class that represents a user and the user's
  * restricted repository memberships. Instances of UserModels are also used as
@@ -43,8 +45,22 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		this.username = username;
 	}
 
+	/**
+	 * This method does not take into consideration Ownership where the
+	 * administrator has not explicitly granted access to the owner.
+	 * 
+	 * @param repositoryName
+	 * @return
+	 */
+	@Deprecated
 	public boolean canAccessRepository(String repositoryName) {
 		return canAdmin || repositories.contains(repositoryName.toLowerCase());
+	}
+
+	public boolean canAccessRepository(RepositoryModel repository) {
+		boolean isOwner = !StringUtils.isEmpty(repository.owner)
+				&& repository.owner.equals(username);
+		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase());
 	}
 
 	public void addRepository(String name) {

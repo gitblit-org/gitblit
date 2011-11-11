@@ -52,9 +52,10 @@ public class GitBlitTest extends TestCase {
 		model.canAdmin = false;
 		assertFalse("Admin should not have #admin!", model.canAdmin);
 		String repository = GitBlitSuite.getHelloworldRepository().getDirectory().getName();
-		assertFalse("Admin can still access repository!", model.canAccessRepository(repository));
+		RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(model, repository);
+		assertFalse("Admin can still access repository!", model.canAccessRepository(repositoryModel));
 		model.addRepository(repository);
-		assertTrue("Admin can't access repository!", model.canAccessRepository(repository));
+		assertTrue("Admin can't access repository!", model.canAccessRepository(repositoryModel));
 		assertEquals(GitBlit.self().getRepositoryModel(model, "pretend"), null);
 		assertNotNull(GitBlit.self().getRepositoryModel(model, repository));
 		assertTrue(GitBlit.self().getRepositoryModels(model).size() > 0);

@@ -555,7 +555,7 @@ public class GitBlit implements ServletContextListener {
 			return null;
 		}
 		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
-			if (user != null && user.canAccessRepository(model.name)) {
+			if (user != null && user.canAccessRepository(model)) {
 				return model;
 			}
 			return null;

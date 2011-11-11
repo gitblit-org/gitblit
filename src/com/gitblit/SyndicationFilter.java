@@ -76,7 +76,7 @@ public class SyndicationFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
-		return user.canAccessRepository(repository.name);
+		return user.canAccessRepository(repository);
 	}
 
 }
