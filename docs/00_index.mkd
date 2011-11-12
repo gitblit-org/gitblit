@@ -1,5 +1,15 @@
-## Why use Gitblit?
-<a href="screenshots.html" title="Screenshots"><img class="overview" src="thumbs/00.png" alt="Screenshots" /></a>
+## What is Gitblit?
+<div class="well" style="float:right;padding: 14px 14px;">
+<b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
+<div style="padding:5px;"><a style="text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
+<div style="padding:5px;"><a style="text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
+<div style="padding:5px;"><a style="text-decoration:none;" class="btn primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
+	<div style="text-align:center;">
+		<a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> | <a href="http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%">Gitblit Federation Client</a>
+		<br/>
+		<a href="screenshots.html" title="Screenshots"><img style="margin-top:5px;border:1px solid #ccc;" src="thumbs/00.png" alt="Screenshots" /></a>
+	</div>
+</div>
 
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
 It's designed primarily as a tool for small workgroups who want to host centralized repositories.
@@ -42,44 +52,12 @@ Administrators can create and manage all repositories & user accounts from the *
 
 Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
 
-### Current Release
+### Project Management and Community
 
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
-
-- **security**: fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
-- improved: updated ui with Twitter's Bootstrap CSS toolkit  
-    **New:** *web.loginMessage = gitblit*
-- improved: repositories list performance by caching repository sizes (issue 27)
-- improved: summary page performance by caching metric calculations (issue 25)
-- added: authenticated JSON RPC mechanism   
-    **New:** *web.enableRpcServlet = true*  
-    **New:** *web.enableRpcManagement = false*  
-    **New:** *web.enableRpcAdministration = false*
-- added: Gitblit API RSS/JSON RPC library
-- added: Gitblit Manager (Java/Swing Application) for remote administration of a Gitblit server.
-- added: per-repository setting to skip size calculation (faster repositories page loading)
-- added: per-repository setting to skip summary metrics calculation (faster summary page loading)
-- added: IUserService.setup(IStoredSettings) for custom user service implementations
-- added: setting to control Gitblit GO context path for proxy setups *(Github/trygvis)*  
-    **New:** *server.contextPath = /*
-- added: *combined-md5* password storage option which stores the hash of username+password as the password *(Github/alyandon)*
-- added: repository owners are automatically granted access for git, feeds, and zip downloads without explicitly selecting them *(Github/dadalar)*
-- added: RSS feeds now include regex substitutions on commit messages for bug trackers, etc
-- fixed: federation protocol timestamps.  dates are now serialized to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  
-    **This breaks 0.6.0 federation clients/servers.**
-- fixed: collision on rename for repositories and users
-- fixed: Gitblit can now browse the Linux kernel repository (issue 25)
-- fixed: Gitblit now runs on Servlet 3.0 webservers (e.g. Tomcat 7, Jetty 8) (issue 23)
-- fixed: Set the RSS content type of syndication feeds for Firefox 4 (issue 22)
-- fixed: RSS feeds are now properly encoded to UTF-8
-- fixed: RSS feeds now properly generate parameterized links if *web.mountParameters=false*
-- fixed: Null pointer exception if did not set federation strategy (issue 20)
-- fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
-- updated: MarkdownPapers 1.2.5
-- updated: Wicket 1.4.19
-
-issues, binaries, and sources @ [Google Code][googlecode]<br/>
-sources @ [Github][gitbltsrc]
+issues, binaries, and sources @ [Google Code][googlecode]  
+sources @ [Github][gitbltsrc]  
+group discussion @ the [Gitblit Discussion Group](http://groups.google.com/group/gitblit)  
+follow Gitblit @ [google+](https://plus.google.com/114464678392593421684)
 
 ### Java Runtime Requirement
 
