@@ -1,30 +1,46 @@
-## Overview
+## Why use Gitblit?
 <a href="screenshots.html" title="Screenshots"><img class="overview" src="thumbs/00.png" alt="Screenshots" /></a>
 
-Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.<br/>
-Its designed primarily as a tool for small workgroups who want to host centralized repositories.
+Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
+It's designed primarily as a tool for small workgroups who want to host centralized repositories.
 
-Gitblit is available in two variations:
+### GO: Single-Stack Solution
 
-1. *Gitblit GO* - a complete & integrated pure Java stack
+*Gitblit GO* is an integrated, single-stack solution based on Jetty.
+  
+You do not need Apache httpd, Perl, Git, or Gitweb.  Should you want to use some or all of those, you still can; Gitblit plays nice with the other kids on the block.
+
+This is what you should download if you want to go from zero to Git in less than 5 mins.
+   
+All dependencies are downloaded on first execution.
+
+### WAR: For Your Servlet Container
+*Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  
+Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
     
-    This is what you should download if you want to go from zero to Git in less than 5 mins.  
-    Gitblit GO is like a mashup of Apache httpd, [Git][git], and Gitweb with simplified configuration and maintenance.  
-    All dependencies are downloaded on first execution.
-2. *Gitblit WAR* - a traditional WAR distribution
-    
-    This is what you should download if you want to deploy Gitblit into your own servlet container (e.g. Tomcat, Jetty, etc).  
-    All dependencies are bundled.
+All dependencies are bundled.
 
-### Tools
+### You decide how to use Gitblit
 
-- *Gitblit API* - an RSS/JSON RPC client library for integrating Gitblit into your systems
-- *Gitblit Manager* - a Java/Swing application for remote administration of a Gitblit server which uses the Gitblit API library
-- *Gitblit Federation Client* - a command line tool to clone/pull groups of repositories and optionally users and settings
+Gitblit can be used as a dumb repository viewer with no administrative controls or user accounts.  
+Gitblit can be used as a complete Git stack for cloning, pushing, and repository access control.  
+Gitblit can be used without any other Git tooling (including actual Git) or it can cooperate with your established tools.
 
-### Java Runtime Requirement
+### Easy Web Management
 
-Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit (JDK).
+Administrators can create and manage all repositories & user accounts from the *Web UI*.  
+Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
+
+### Integration and Mining
+
+- Pluggable user service mechanism for custom authentication, authorization, and user management
+- Rich RSS feeds
+- JSON-based RPC mechanism
+- [Java Client API library](http://code.google.com/p/gitblit/downloads/detail?name=%API%) for custom integration
+
+### Backup Strategy
+
+Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
 
 ### Current Release
 
@@ -64,6 +80,10 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 issues, binaries, and sources @ [Google Code][googlecode]<br/>
 sources @ [Github][gitbltsrc]
+
+### Java Runtime Requirement
+
+Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit (JDK).
 
 ### License
 Gitblit is distributed under the terms of the [Apache Software Foundation license, version 2.0][apachelicense]
