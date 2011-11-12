@@ -492,6 +492,7 @@ table.plain th, table.plain td {
 }
 
 table.pretty {
+	border:1px solid #ddd;
 	border-radius: 0 0 3px 3px;	
 }
 
@@ -516,6 +517,7 @@ table.comments td {
 }
 
 table.repositories {	
+	border:1px solid #ddd;
 	border-spacing: 0px;
 }
 
@@ -591,6 +593,7 @@ table.gitnotes td.message {
 }
 
 table.annotated {
+	border:1px solid #ddd;
 }
 
 table.annotated tr.even {

@@ -1,5 +1,5 @@
 ## What is Gitblit?
-<div class="well" style="float:right;padding: 14px 14px;">
+<div class="well" style="margin-left:5px;float:right;padding: 10px 10px;">
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
 <div style="padding:5px;"><a style="text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
 <div style="padding:5px;"><a style="text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
@@ -9,6 +9,22 @@
 		<br/>
 		<a href="screenshots.html" title="Screenshots"><img style="margin-top:5px;border:1px solid #ccc;" src="thumbs/00.png" alt="Screenshots" /></a>
 	</div>
+	
+	<div style="padding-top:5px;">
+	<table class="condensed-table">
+		<tbody>
+		<tr><th>License</th><td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, version 2.0</a></td></tr>
+		<tr><th>Sources</th><td><a href="http://github.com/gitblit">GitHub</a> &amp; <a href="http://code.google.com/p/gitblit/source/list">GoogleCode</a></td></tr>		
+		<tr><th>Issues</th><td><a href="http://code.google.com/p/gitblit/issues/list">GoogleCode</a></td></tr>
+		<tr><th>Discussion</th><td><a href="http://groups.google.com/group/gitblit">Gitblit Group</a></td></tr>
+		<tr><th>Google+</th><td><a href="https://plus.google.com/114464678392593421684">Gitblit+</a></td></tr>
+		</tbody>
+		</table>		
+	</div>
+	
+	<a target="_top" href="http://www.ohloh.net/p/gitblit">
+		<img style="padding-top:5px;" border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" />
+	</a>
 </div>
 
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
@@ -25,8 +41,7 @@ This is what you should download if you want to go from zero to Git in less than
 All dependencies are downloaded on first execution.
 
 ### WAR: For Your Servlet Container
-*Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  
-Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
+*Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
     
 All dependencies are bundled.
 
@@ -41,33 +56,20 @@ Gitblit can be used without any other Git tooling (including actual Git) or it c
 Administrators can create and manage all repositories & user accounts from the *Web UI*.  
 Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
 
-### Integration and Mining
+### Integration with Your Infrastructure
 
 - Pluggable user service mechanism for custom authentication, authorization, and user management
 - Rich RSS feeds
 - JSON-based RPC mechanism
-- [Java Client API library](http://code.google.com/p/gitblit/downloads/detail?name=%API%) for custom integration
+- [Java Client RSS/JSON API library](http://code.google.com/p/gitblit/downloads/detail?name=%API%) for custom integration
 
 ### Backup Strategy
 
 Gitblit includes a backup mechanism (*federation*) which can be used to backup repositories and, optionally, user accounts & server settings from your Gitblit instance to another Gitblit instance or to a [Gitblit Federation Client](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%).  Similarly, you can use the federation mechanism to aggregate individual workspace Gitblit instances to a common, centralized server.
 
-### Project Management and Community
-
-issues, binaries, and sources @ [Google Code][googlecode]  
-sources @ [Github][gitbltsrc]  
-group discussion @ the [Gitblit Discussion Group](http://groups.google.com/group/gitblit)  
-follow Gitblit @ [google+](https://plus.google.com/114464678392593421684)
-
 ### Java Runtime Requirement
 
 Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit (JDK).
 
-### License
-Gitblit is distributed under the terms of the [Apache Software Foundation license, version 2.0][apachelicense]
-
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
-[gitbltsrc]: http://github.com/gitblit "gitblit git repository"
-[googlecode]: http://code.google.com/p/gitblit "gitblit project management"
-[apachelicense]: http://www.apache.org/licenses/LICENSE-2.0 "Apache License, Version 2.0"
