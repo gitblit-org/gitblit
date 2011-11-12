@@ -1,5 +1,5 @@
 ## What is Gitblit?
-<div class="well" style="margin-left:5px;float:right;padding: 10px 10px;">
+<div class="well" style="margin-left:5px;float:right;width:275px;padding: 10px 10px;">
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
 <div style="padding:5px;"><a style="text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
 <div style="padding:5px;"><a style="text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
