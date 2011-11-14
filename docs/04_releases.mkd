@@ -3,6 +3,13 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- added: optional Gravatar integration  
+    **New:** *web.allowGravatar = true*   
+
+### Older Releases
+
+**0.7.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.7.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.7.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.7.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-11-11*
+
 - **security**: fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
     **New:** *web.loginMessage = gitblit*
@@ -34,8 +41,6 @@
 - fixed: Gitblit GO allows SSL renegotiation if running on Java 1.6.0_22 or later
 - updated: MarkdownPapers 1.2.5
 - updated: Wicket 1.4.19
-
-### Older Releases
 
 **0.6.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.6.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-09-27*
 

@@ -38,6 +38,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.GravatarImage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
@@ -81,7 +82,8 @@ public class CommitPage extends RepositoryPage {
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
 				getTimeZone()));
-
+		add(new GravatarImage("authorAvatar", c.getAuthorIdent()));
+		
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));
 		add(WicketUtils.createTimestampLabel("commitCommitterDate",
@@ -126,6 +128,7 @@ public class CommitPage extends RepositoryPage {
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
 				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
 						Constants.SearchType.AUTHOR));
+				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone()));
 				item.add(new Label("noteContent", GitBlit.self().processCommitMessage(
