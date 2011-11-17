@@ -5,6 +5,11 @@
 
 - added: optional Gravatar integration  
     **New:** *web.allowGravatar = true*   
+- added: multi-repository activity page.  this is a timeline of commit activity over the last N days for one or more repositories.
+   **New:** *web.activityDuration = 14*  
+   **New:** *web.timeFormat = HH:mm*  
+   **New:** *web.datestampLongFormat = EEEE, MMMM d, yyyy*  
+
 
 ### Older Releases
 

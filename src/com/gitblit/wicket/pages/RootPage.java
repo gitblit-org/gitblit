@@ -82,6 +82,7 @@ public abstract class RootPage extends BasePage {
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
 		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class));
+		pages.add(new PageRegistration("gb.activity", ActivityPage.class));
 		if (showAdmin) {
 			pages.add(new PageRegistration("gb.users", UsersPage.class));
 		}

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<div wicket:id="activity">
+		<div class="header"><span wicket:id="title">[title]</span></div>
+		<table wicket:id="commits">
+			<tr wicket:id="commit"></tr>		
+		</table>	
+	</div>
+	
+	<wicket:fragment wicket:id="commitFragment">
+		<td class="date" style="width:40px; vertical-align: middle;" ><span wicket:id="time">[time of day]</span></td>
+		<td style="width:30px;vertical-align: middle;"><img wicket:id="avatar" style="vertical-align: middle;"></img></td>
+		<td class="author" style="vertical-align: middle;">
+			<img wicket:id="commitIcon" style="vertical-align: middle;"></img>
+			<span wicket:id="message">[shortlog commit link]</span><br/>
+			<span wicket:id="author" style="padding-left:20px;">[author link]</span> committed <span wicket:id="commitid">[commit id]</span> to <span wicket:id="branch"></span>
+		</td>
+		<td style="text-align:right;vertical-align: middle;">
+			<div wicket:id="commitRefs">[commit refs]</div>
+			<span wicket:id="repository">[repository link]</span>
+		</td>
+		<td class="rightAlign" style="width:7em;vertical-align: middle;">
+        	<span class="link">
+				<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+			</span>
+		</td>		
+	</wicket:fragment>
+	
+</wicket:panel>
+</body>
+</html>

@@ -25,6 +25,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -103,6 +104,8 @@ public class GitBlitWebApp extends WebApplication {
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
+		
+		mount("/activity", ActivityPage.class, "r", "h");
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
