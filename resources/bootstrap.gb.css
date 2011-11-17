@@ -170,6 +170,13 @@ img.overview {
 	border:1px solid #CCCCCC;
 }
 
+img.gravatar {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 2px;
+}
+
 div.header, div.commitHeader, table.repositories th {
 	background-color:#e0e0e0;
 	background-repeat:repeat-x;

@@ -24,7 +24,7 @@ import java.io.Serializable;
  * @author James Moger
  * 
  */
-public class Metric implements Serializable {
+public class Metric implements Serializable, Comparable<Metric> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,5 +35,16 @@ public class Metric implements Serializable {
 
 	public Metric(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public int compareTo(Metric o) {
+		if (count > o.count) {
+			return -1;
+		}
+		if (count < o.count) {
+			return 1;
+		}
+		return 0;
 	}
 }

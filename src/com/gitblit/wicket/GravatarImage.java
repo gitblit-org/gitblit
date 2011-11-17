@@ -50,6 +50,7 @@ public class GravatarImage extends WebComponent {
 		String url = MessageFormat.format("http://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", authorhash, width);
 		add(new AttributeModifier("src", true, new Model<String>(url)));
 		setVisible(GitBlit.getBoolean(Keys.web.allowGravatar, true));
+		WicketUtils.setCssClass(this, "gravatar");
 	}
 
 	@Override
