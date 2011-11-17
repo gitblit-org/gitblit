@@ -17,6 +17,7 @@ package com.gitblit.tests;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -287,20 +288,24 @@ public class JGitUtilsTest extends TestCase {
 	public void testRevlog() throws Exception {
 		assertTrue(JGitUtils.getRevLog(null, 0).size() == 0);
 		List<RevCommit> commits = JGitUtils.getRevLog(null, 10);
-		assertTrue(commits.size() == 0);
+		assertEquals(0, commits.size());
 
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		// get most recent 10 commits
 		commits = JGitUtils.getRevLog(repository, 10);
-		assertTrue(commits.size() == 10);
+		assertEquals(10, commits.size());
 
 		// test paging and offset by getting the 10th most recent commit
 		RevCommit lastCommit = JGitUtils.getRevLog(repository, null, 9, 1).get(0);
-		assertTrue(commits.get(9).equals(lastCommit));
+		assertEquals(lastCommit, commits.get(9));
 
 		// grab the two most recent commits to java.java
 		commits = JGitUtils.getRevLog(repository, null, "java.java", 0, 2);
-		assertTrue(commits.size() == 2);
+		assertEquals(2, commits.size());
+		
+		// grab the commits since 2008-07-15
+		commits = JGitUtils.getRevLog(repository, null, new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
+		assertEquals(12, commits.size());
 		repository.close();
 	}
 

@@ -62,6 +62,7 @@ import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -821,6 +822,45 @@ public class JGitUtils {
 		}
 		// FIXME missing permissions
 		return "missing";
+	}
+
+	/**
+	 * Returns a list of commits since the minimum date starting from the
+	 * specified object id.
+	 * 
+	 * @param repository
+	 * @param objectId
+	 *            if unspecified, HEAD is assumed.
+	 * @param minimumDate
+	 * @return list of commits
+	 */
+	public static List<RevCommit> getRevLog(Repository repository, String objectId, Date minimumDate) {
+		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		try {
+			// resolve branch
+			ObjectId branchObject;
+			if (StringUtils.isEmpty(objectId)) {
+				branchObject = getDefaultBranch(repository);
+			} else {
+				branchObject = repository.resolve(objectId);
+			}
+
+			RevWalk rw = new RevWalk(repository);
+			rw.markStart(rw.parseCommit(branchObject));
+			rw.setRevFilter(CommitTimeRevFilter.after(minimumDate));
+			Iterable<RevCommit> revlog = rw;
+			for (RevCommit rev : revlog) {
+				list.add(rev);
+			}
+			rw.dispose();
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to get {1} revlog for minimum date {2}", objectId,
+					minimumDate);
+		}
+		return list;
 	}
 
 	/**
