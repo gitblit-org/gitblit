@@ -133,7 +133,20 @@ public class GitBlitServer {
 
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
-		logger.info(Constants.getGitBlitVersion());
+		logger.info("            _____  _  _    _      _  _  _");
+		logger.info("           |  __ \\(_)| |  | |    | |(_)| |");
+		logger.info("           | |  \\/ _ | |_ | |__  | | _ | |_");
+		logger.info("           | | __ | || __|| '_ \\ | || || __|");
+		logger.info("           | |_\\ \\| || |_ | |_) || || || |_");
+		logger.info("            \\____/|_| \\__||_.__/ |_||_| \\__|");
+		int spacing = (Constants.BORDER.length() - Constants.getGitBlitVersion().length()) / 2;
+		StringBuilder sb = new StringBuilder();
+		while (spacing > 0) {
+			spacing--;
+			sb.append(' ');
+		}
+		logger.info(sb.toString() + Constants.getGitBlitVersion());
+		logger.info("");
 		logger.info(Constants.BORDER);
 
 		String osname = System.getProperty("os.name");
@@ -170,8 +183,9 @@ public class GitBlitServer {
 						params.useNIO, params.securePort);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
-					logger.warn(MessageFormat.format("Binding ssl connector on port {0,number,0} to {1}",
-							params.securePort, bindInterface));
+					logger.warn(MessageFormat.format(
+							"Binding ssl connector on port {0,number,0} to {1}", params.securePort,
+							bindInterface));
 					secureConnector.setHost(bindInterface);
 				}
 				if (params.securePort < 1024 && !isWindows()) {
@@ -328,7 +342,7 @@ public class GitBlitServer {
 		if (allowRenegotiation) {
 			logger.info("   allowing SSL renegotiation on Java " + v);
 			connector.setAllowRenegotiate(allowRenegotiation);
-		}		
+		}
 		connector.setKeystore(keystore.getAbsolutePath());
 		connector.setPassword(password);
 		connector.setPort(port);
