@@ -160,6 +160,15 @@ span.link em, div.link span em {
 	font-size: 11px;	
 }
 
+span.repositorySwatch {
+	border-radius: 3px;
+	padding: 2px 5px;	
+	color: #ffffff;
+}
+span.repositorySwatch a {
+	color: inherit;
+}
+
 img.inlineIcon {
 	padding-left: 1px;
 	padding-right: 1px;

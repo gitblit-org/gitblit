@@ -120,6 +120,7 @@ public class RepositoriesPanel extends BasePanel {
 		}
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
+		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
 
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
@@ -146,13 +147,19 @@ public class RepositoriesPanel extends BasePanel {
 				}
 				Fragment row = new Fragment("rowContent", "repositoryRow", this);
 				item.add(row);
-				
+
 				// try to strip group name for less cluttered list
 				String repoName = entry.name;
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-				
+
+				// repository swatch
+				Label swatch = new Label("repositorySwatch", " ");
+				WicketUtils.setCssBackground(swatch, entry.name);
+				row.add(swatch);
+				swatch.setVisible(showSwatch);
+
 				if (entry.hasCommits && linksActive) {
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
 					row.add(new LinkPanel("repositoryName", "list", repoName, SummaryPage.class, pp));
