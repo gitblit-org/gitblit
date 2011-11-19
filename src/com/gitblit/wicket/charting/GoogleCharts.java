@@ -1,5 +1,5 @@
 /*
- Copyright 2011 comSysto GmbH
+ Copyright 2011 gitblit.com.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ public class GoogleCharts implements IHeaderContributor {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<GoogleChart> charts = new ArrayList<GoogleChart>();
+	public final List<GoogleChart> charts = new ArrayList<GoogleChart>();
 
 	public void addChart(GoogleChart chart) {
 		charts.add(chart);

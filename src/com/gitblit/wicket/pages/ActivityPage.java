@@ -15,35 +15,27 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
-import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
-import com.gitblit.models.DailyActivity;
+import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
-import com.gitblit.models.RefModel;
-import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.GoogleChart;
@@ -64,16 +56,50 @@ public class ActivityPage extends RootPage {
 	public ActivityPage(PageParameters params) {
 		super();
 		setupPage("", "");
-		final UserModel user = GitBlitWebSession.get().getUser();
 
 		// parameters
 		int daysBack = WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
 			daysBack = 14;
-		}		
+		}
+		String objectId = WicketUtils.getObject(params);
+
+		// determine repositories to view and retrieve the activity
+		List<RepositoryModel> models = getRepositories(params);
+		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, daysBack, objectId);
+
+		if (recentActivity.size() == 0) {
+			// no activity, skip graphs and activity panel
+			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityNone"),
+					daysBack)));
+			add(new Label("activityPanel"));
+		} else {
+			// calculate total commits and total authors
+			int totalCommits = 0;
+			Set<String> uniqueAuthors = new HashSet<String>();
+			for (Activity activity : recentActivity) {
+				totalCommits += activity.commits.size();
+				uniqueAuthors.addAll(activity.getAuthorMetrics().keySet());
+			}
+			int totalAuthors = uniqueAuthors.size();
+
+			// add the subheader with stat numbers
+			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityStats"),
+					daysBack, totalCommits, totalAuthors)));
+
+			// create the activity charts
+			GoogleCharts charts = createCharts(recentActivity);
+			add(new HeaderContributor(charts));
+
+			// add activity panel
+			add(new ActivityPanel("activityPanel", recentActivity));
+		}
+	}
+
+	private List<RepositoryModel> getRepositories(PageParameters params) {
+		final UserModel user = GitBlitWebSession.get().getUser();
 		String set = WicketUtils.getSet(params);
 		String repositoryName = WicketUtils.getRepositoryName(params);
-		String objectId = WicketUtils.getObject(params);
 
 		List<RepositoryModel> models = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
@@ -103,110 +129,41 @@ public class ActivityPage extends RootPage {
 			}
 			models = setModels;
 		}
+		return models;
+	}
 
-		// Activity panel shows last daysBack of activity across all
-		// repositories.
-		Date thresholdDate = new Date(System.currentTimeMillis() - daysBack * TimeUtils.ONEDAY);
-
-		// Build a map of DailyActivity from the available repositories for the
-		// specified threshold date.
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar cal = Calendar.getInstance();
-
-		Map<String, DailyActivity> activity = new HashMap<String, DailyActivity>();
-		for (RepositoryModel model : models) {
-			if (model.hasCommits && model.lastChange.after(thresholdDate)) {
-				Repository repository = GitBlit.self().getRepository(model.name);
-				List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, thresholdDate);
-				Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
-				repository.close();
-
-				// determine commit branch
-				String branch = objectId;
-				if (StringUtils.isEmpty(branch)) {
-					List<RefModel> headRefs = allRefs.get(commits.get(0).getId());
-					List<String> localBranches = new ArrayList<String>();
-					for (RefModel ref : headRefs) {
-						if (ref.getName().startsWith(Constants.R_HEADS)) {
-							localBranches.add(ref.getName().substring(Constants.R_HEADS.length()));
-						}
-					}
-					// determine branch
-					if (localBranches.size() == 1) {
-						// only one branch, choose it
-						branch = localBranches.get(0);
-					} else if (localBranches.size() > 1) {
-						if (localBranches.contains("master")) {
-							// choose master
-							branch = "master";
-						} else {
-							// choose first branch
-							branch = localBranches.get(0);
-						}
-					}
-				}
-
-				for (RevCommit commit : commits) {
-					Date date = JGitUtils.getCommitDate(commit);
-					String dateStr = df.format(date);
-					if (!activity.containsKey(dateStr)) {
-						// Normalize the date to midnight
-						cal.setTime(date);
-						cal.set(Calendar.HOUR_OF_DAY, 0);
-						cal.set(Calendar.MINUTE, 0);
-						cal.set(Calendar.SECOND, 0);
-						cal.set(Calendar.MILLISECOND, 0);
-						activity.put(dateStr, new DailyActivity(cal.getTime()));
-					}
-					RepositoryCommit commitModel = new RepositoryCommit(model.name, branch, commit);
-					commitModel.setRefs(allRefs.get(commit.getId()));
-					activity.get(dateStr).commits.add(commitModel);
-				}
-			}
-		}
-
+	/**
+	 * Creates the daily activity line chart, the active repositories pie chart,
+	 * and the active authors pie chart
+	 * 
+	 * @param recentActivity
+	 * @return
+	 */
+	private GoogleCharts createCharts(List<Activity> recentActivity) {
 		// activity metrics
-		Map<String, Metric> dayMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
 
-		// prepare day metrics
-		cal.setTimeInMillis(System.currentTimeMillis());
-		for (int i = 0; i < daysBack; i++) {
-			cal.add(Calendar.DATE, -1);
-			String key = df.format(cal.getTime());
-			dayMetrics.put(key, new Metric(key));
-		}
+		// aggregate repository and author metrics
+		for (Activity activity : recentActivity) {
 
-		// calculate activity metrics
-		for (Map.Entry<String, DailyActivity> entry : activity.entrySet()) {
-			// day metrics
-			Metric day = dayMetrics.get(entry.getKey());
-			day.count = entry.getValue().commits.size();
-
-			for (RepositoryCommit commit : entry.getValue().commits) {
-				// repository metrics
-				String repository = commit.repository;
-				if (!repositoryMetrics.containsKey(repository)) {
-					repositoryMetrics.put(repository, new Metric(repository));
-				}
-				repositoryMetrics.get(repository).count++;
-
-				// author metrics
-				String author = commit.getAuthorIdent().getEmailAddress().toLowerCase();
+			// aggregate author metrics
+			for (Map.Entry<String, Metric> entry : activity.getAuthorMetrics().entrySet()) {
+				String author = entry.getKey();
 				if (!authorMetrics.containsKey(author)) {
 					authorMetrics.put(author, new Metric(author));
 				}
-				authorMetrics.get(author).count++;
+				authorMetrics.get(author).count += entry.getValue().count;
 			}
-		}
 
-		// sort the activity groups and their commit contents
-		int totalCommits = 0;
-		List<DailyActivity> recentActivity = new ArrayList<DailyActivity>(activity.values());
-		for (DailyActivity daily : recentActivity) {
-			Collections.sort(daily.commits);
-			totalCommits += daily.commits.size();
+			// aggregate repository metrics
+			for (Map.Entry<String, Metric> entry : activity.getRepositoryMetrics().entrySet()) {
+				String repository = entry.getKey();
+				if (!repositoryMetrics.containsKey(repository)) {
+					repositoryMetrics.put(repository, new Metric(repository));
+				}
+				repositoryMetrics.get(repository).count += entry.getValue().count;
+			}
 		}
 
 		// build google charts
@@ -221,9 +178,9 @@ public class ActivityPage extends RootPage {
 		// daily line chart
 		GoogleChart chart = new GoogleLineChart("chartDaily", getString("gb.dailyActivity"), "day",
 				getString("gb.commits"));
-		df = new SimpleDateFormat("MMM dd");
-		for (DailyActivity metric : recentActivity) {
-			chart.addValue(df.format(metric.date), metric.commits.size());
+		SimpleDateFormat df = new SimpleDateFormat("MMM dd");
+		for (Activity metric : recentActivity) {
+			chart.addValue(df.format(metric.startDate), metric.commits.size());
 		}
 		chart.setWidth(w);
 		chart.setHeight(h);
@@ -249,12 +206,6 @@ public class ActivityPage extends RootPage {
 		chart.setHeight(h);
 		charts.addChart(chart);
 
-		add(new HeaderContributor(charts));
-
-		add(new Label("subheader", MessageFormat.format(getString("gb.recentActivitySubheader"),
-				daysBack, totalCommits, authorMetrics.size())));
-
-		// add activity panel
-		add(new ActivityPanel("activityPanel", recentActivity));
+		return charts;
 	}
 }

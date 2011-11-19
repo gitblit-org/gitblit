@@ -16,6 +16,7 @@
 package com.gitblit.wicket;
 
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -57,6 +58,12 @@ public class WicketUtils {
 
 	public static void setCssStyle(Component container, String value) {
 		container.add(new SimpleAttributeModifier("style", value));
+	}
+
+	public static void setCssBackground(Component container, String value) {
+		String background = MessageFormat.format("background-color:{0};",
+				StringUtils.getColor(value));
+		container.add(new SimpleAttributeModifier("style", background));
 	}
 
 	public static void setHtmlTooltip(Component container, String value) {
@@ -129,7 +136,7 @@ public class WicketUtils {
 			filename = "bullet_white.png";
 			break;
 		case PENDING:
-		case NOCHANGE:			
+		case NOCHANGE:
 		default:
 			filename = "bullet_black.png";
 		}
@@ -239,11 +246,11 @@ public class WicketUtils {
 			}
 		});
 	}
-	
+
 	public static PageParameters newTokenParameter(String token) {
 		return new PageParameters("t=" + token);
 	}
-	
+
 	public static PageParameters newRegistrationParameter(String url, String name) {
 		return new PageParameters("u=" + url + ",n=" + name);
 	}
@@ -297,8 +304,8 @@ public class WicketUtils {
 		if (StringUtils.isEmpty(objectId)) {
 			return new PageParameters("r=" + repositoryName + ",f=" + path + ",pg=" + pageNumber);
 		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path
-				+ ",pg=" + pageNumber);
+		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path + ",pg="
+				+ pageNumber);
 	}
 
 	public static PageParameters newBlobDiffParameter(String repositoryName, String baseCommitId,
@@ -373,7 +380,7 @@ public class WicketUtils {
 	public static String getToken(PageParameters params) {
 		return params.getString("t", "");
 	}
-	
+
 	public static String getUrlParameter(PageParameters params) {
 		return params.getString("u", "");
 	}
@@ -411,7 +418,7 @@ public class WicketUtils {
 		}
 		return label;
 	}
-	
+
 	public static Label createTimeLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.timeFormat, "HH:mm");
 		DateFormat df = new SimpleDateFormat(format);
@@ -432,7 +439,7 @@ public class WicketUtils {
 		}
 		return label;
 	}
-	
+
 	public static Label createDatestampLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
 		DateFormat df = new SimpleDateFormat(format);

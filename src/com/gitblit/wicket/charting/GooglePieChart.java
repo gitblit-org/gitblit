@@ -18,6 +18,8 @@ package com.gitblit.wicket.charting;
 import java.text.MessageFormat;
 import java.util.Collections;
 
+import com.gitblit.utils.StringUtils;
+
 /**
  * Builds an interactive pie chart using the Visualization API.
  * 
@@ -43,13 +45,21 @@ public class GooglePieChart extends GoogleChart {
 
 		Collections.sort(values);
 
+		StringBuilder colors = new StringBuilder("colors:[");
 		for (int i = 0; i < values.size(); i++) {
 			ChartValue value = values.get(i);
+			colors.append('\'');
+			colors.append(StringUtils.getColor(value.name));
+			colors.append('\'');
+			if (i < values.size() - 1) {
+				colors.append(',');
+			}
 			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, ''{2}'');", dName, i,
 					value.name));
 			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 1, {2,number,0.0});", dName,
 					i, value.value));
 		}
+		colors.append(']');
 
 		// instantiate chart
 		String cName = "chart_" + dataName;
@@ -58,8 +68,8 @@ public class GooglePieChart extends GoogleChart {
 				cName, tagId));
 		line(sb,
 				MessageFormat
-						.format("{0}.draw({1}, '{'width: {2,number,0}, height: {3,number,0}, chartArea:'{'left:20,top:20'}', title: ''{4}'' '}');",
-								cName, dName, width, height, title));
+						.format("{0}.draw({1}, '{'width: {2,number,0}, height: {3,number,0}, chartArea:'{'left:20,top:20'}', title: ''{4}'', {5} '}');",
+								cName, dName, width, height, title, colors.toString()));
 		line(sb, "");
 	}
 }

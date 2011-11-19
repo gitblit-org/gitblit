@@ -25,8 +25,9 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.Constants;
-import com.gitblit.models.DailyActivity;
-import com.gitblit.models.RepositoryCommit;
+import com.gitblit.models.Activity;
+import com.gitblit.models.Activity.RepositoryCommit;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GravatarImage;
 import com.gitblit.wicket.WicketUtils;
@@ -47,18 +48,18 @@ public class ActivityPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public ActivityPanel(String wicketId, List<DailyActivity> recentActivity) {
+	public ActivityPanel(String wicketId, List<Activity> recentActivity) {
 		super(wicketId);
 
 		Collections.sort(recentActivity);
 
-		DataView<DailyActivity> activityView = new DataView<DailyActivity>("activity",
-				new ListDataProvider<DailyActivity>(recentActivity)) {
+		DataView<Activity> activityView = new DataView<Activity>("activity",
+				new ListDataProvider<Activity>(recentActivity)) {
 			private static final long serialVersionUID = 1L;
 
-			public void populateItem(final Item<DailyActivity> item) {
-				final DailyActivity entry = item.getModelObject();
-				item.add(WicketUtils.createDatestampLabel("title", entry.date, GitBlitWebSession
+			public void populateItem(final Item<Activity> item) {
+				final Activity entry = item.getModelObject();
+				item.add(WicketUtils.createDatestampLabel("title", entry.startDate, GitBlitWebSession
 						.get().getTimezone()));
 
 				// display the commits in chronological order
@@ -93,10 +94,11 @@ public class ActivityPanel extends BasePanel {
 						setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 						fragment.add(authorLink);
 
-						// repository summary page link
-						LinkPanel repositoryLink = new LinkPanel("repository", "list",
+						// repository
+						LinkPanel repositoryLink = new LinkPanel("repository", null,
 								commit.repository, SummaryPage.class,
 								WicketUtils.newRepositoryParameter(commit.repository));
+						WicketUtils.setCssBackground(repositoryLink, commit.repository);
 						fragment.add(repositoryLink);
 
 						// repository branch
@@ -113,9 +115,13 @@ public class ActivityPanel extends BasePanel {
 
 						// message/commit link
 						String shortMessage = commit.getShortMessage();
-						LinkPanel shortlog = new LinkPanel("message", "list subject", shortMessage,
-								CommitPage.class, WicketUtils.newObjectParameter(commit.repository,
-										commit.getName()));
+						String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+						LinkPanel shortlog = new LinkPanel("message", "list subject",
+								trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
+										commit.repository, commit.getName()));
+						if (!shortMessage.equals(trimmedMessage)) {
+							WicketUtils.setHtmlTooltip(shortlog, shortMessage);
+						}
 						fragment.add(shortlog);
 
 						// refs
