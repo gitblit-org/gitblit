@@ -145,15 +145,13 @@ public class TimeUtils {
 	 * Return the difference in days between now and the date.
 	 * 
 	 * @param date
-	 * @param roundup
 	 * @return days ago
 	 */
-	public static int daysAgo(Date date, boolean roundup) {
-		long diff = System.currentTimeMillis() - date.getTime();
+	public static int daysAgo(Date date) {
+		long today = ONEDAY * (System.currentTimeMillis()/ONEDAY);
+		long day = ONEDAY * (date.getTime()/ONEDAY);
+		long diff = today - day;
 		int days = (int) (diff / ONEDAY);
-		if (roundup && (diff % ONEDAY) > 0) {
-			days++;
-		}
 		return days;
 	}
 
@@ -208,7 +206,7 @@ public class TimeUtils {
 			if (css) {
 				return "age2";
 			}
-			int days = daysAgo(date, true);
+			int days = daysAgo(date);
 			if (days < 365) {
 				if (days <= 30) {
 					return days + " days ago";

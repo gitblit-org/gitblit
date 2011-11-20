@@ -453,7 +453,11 @@ public class WicketUtils {
 			dateString = df.format(date);
 		}
 		String title = null;
-		if (date.getTime() <= System.currentTimeMillis()) {
+		if (TimeUtils.isToday(date)) {
+			title = "today";
+		} else if (TimeUtils.isYesterday(date)) {
+				title = "yesterday";
+		} else if (date.getTime() <= System.currentTimeMillis()) {
 			// past
 			title = TimeUtils.timeAgo(date);
 		}

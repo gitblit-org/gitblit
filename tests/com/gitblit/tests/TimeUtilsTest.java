@@ -28,14 +28,13 @@ public class TimeUtilsTest extends TestCase {
 	}
 
 	public void testBasicTimeFunctions() throws Exception {
-		assertTrue(TimeUtils.minutesAgo(offset(2 * TimeUtils.MIN), false) == 2);
-		assertTrue(TimeUtils.minutesAgo(offset((2 * TimeUtils.MIN) + (35 * 1000L)), true) == 3);
+		assertEquals(2, TimeUtils.minutesAgo(offset(2 * TimeUtils.MIN), false));
+		assertEquals(3, TimeUtils.minutesAgo(offset((2 * TimeUtils.MIN) + (35 * 1000L)), true));
 
-		assertTrue(TimeUtils.hoursAgo(offset(2 * TimeUtils.ONEHOUR), false) == 2);
-		assertTrue(TimeUtils.hoursAgo(offset(5 * TimeUtils.HALFHOUR), true) == 3);
+		assertEquals(2, TimeUtils.hoursAgo(offset(2 * TimeUtils.ONEHOUR), false));
+		assertEquals(3, TimeUtils.hoursAgo(offset(5 * TimeUtils.HALFHOUR), true));
 
-		assertTrue(TimeUtils.daysAgo(offset(4 * TimeUtils.ONEDAY), false) == 4);
-		assertTrue(TimeUtils.daysAgo(offset(4 * TimeUtils.ONEDAY + 12 * TimeUtils.ONEHOUR), true) == 5);
+		assertEquals(4, TimeUtils.daysAgo(offset(4 * TimeUtils.ONEDAY)));
 	}
 
 	public void testToday() throws Exception {

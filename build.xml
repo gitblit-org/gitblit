@@ -440,7 +440,7 @@
 	<target name="buildManager" depends="compile" description="Builds the stand-alone Gitblit Manager">
 		<echo>Building Gitblit Manager ${gb.version}</echo>
 	
-		<genjar jarfile="maanager-${gb.version}.jar">
+		<genjar jarfile="manager-${gb.version}.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
 			<resource file="${basedir}/resources/gitweb-favicon.png" />
