@@ -33,16 +33,26 @@ public class LinkPanel extends Panel {
 
 	public LinkPanel(String wicketId, String linkCssClass, String label,
 			Class<? extends WebPage> clazz) {
-		this(wicketId, linkCssClass, new Model<String>(label), clazz, null);
+		this(wicketId, linkCssClass, new Model<String>(label), clazz, null, false);
 	}
 
 	public LinkPanel(String wicketId, String linkCssClass, String label,
 			Class<? extends WebPage> clazz, PageParameters parameters) {
-		this(wicketId, linkCssClass, new Model<String>(label), clazz, parameters);
+		this(wicketId, linkCssClass, new Model<String>(label), clazz, parameters, false);
+	}
+
+	public LinkPanel(String wicketId, String linkCssClass, String label,
+			Class<? extends WebPage> clazz, PageParameters parameters, boolean newWindow) {
+		this(wicketId, linkCssClass, new Model<String>(label), clazz, parameters, newWindow);
 	}
 
 	public LinkPanel(String wicketId, String linkCssClass, IModel<String> model,
 			Class<? extends WebPage> clazz, PageParameters parameters) {
+		this(wicketId, linkCssClass, model, clazz, parameters, false);
+	}
+
+	public LinkPanel(String wicketId, String linkCssClass, IModel<String> model,
+			Class<? extends WebPage> clazz, PageParameters parameters, boolean newWindow) {
 		super(wicketId);
 		this.labelModel = model;
 		Link<Void> link = null;
@@ -50,6 +60,9 @@ public class LinkPanel extends Panel {
 			link = new BookmarkablePageLink<Void>("link", clazz);
 		} else {
 			link = new BookmarkablePageLink<Void>("link", clazz, parameters);
+		}
+		if (newWindow) {
+			link.add(new SimpleAttributeModifier("target", "_blank"));
 		}
 		if (linkCssClass != null) {
 			link.add(new SimpleAttributeModifier("class", linkCssClass));

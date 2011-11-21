@@ -29,7 +29,6 @@ import com.gitblit.models.Activity;
 import com.gitblit.models.Activity.RepositoryCommit;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.GravatarImage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
@@ -90,27 +89,27 @@ public class ActivityPanel extends BasePanel {
 						String author = commit.getAuthorIdent().getName();
 						LinkPanel authorLink = new LinkPanel("author", "list", author,
 								SearchPage.class, WicketUtils.newSearchParameter(commit.repository,
-										commit.getName(), author, Constants.SearchType.AUTHOR));
+										commit.getName(), author, Constants.SearchType.AUTHOR), true);
 						setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 						fragment.add(authorLink);
 
 						// repository
 						LinkPanel repositoryLink = new LinkPanel("repository", null,
 								commit.repository, SummaryPage.class,
-								WicketUtils.newRepositoryParameter(commit.repository));
+								WicketUtils.newRepositoryParameter(commit.repository), true);
 						WicketUtils.setCssBackground(repositoryLink, commit.repository);
 						fragment.add(repositoryLink);
 
 						// repository branch
 						LinkPanel branchLink = new LinkPanel("branch", "list", commit.branch,
 								LogPage.class, WicketUtils.newObjectParameter(commit.repository,
-										commit.branch));
+										commit.branch), true);
 						WicketUtils.setCssStyle(branchLink, "color: #008000;");
 						fragment.add(branchLink);
 
 						LinkPanel commitid = new LinkPanel("commitid", "list subject",
 								commit.getShortName(), CommitPage.class,
-								WicketUtils.newObjectParameter(commit.repository, commit.getName()));
+								WicketUtils.newObjectParameter(commit.repository, commit.getName()), true);
 						fragment.add(commitid);
 
 						// message/commit link
@@ -118,7 +117,7 @@ public class ActivityPanel extends BasePanel {
 						String trimmedMessage = StringUtils.trimShortLog(shortMessage);
 						LinkPanel shortlog = new LinkPanel("message", "list subject",
 								trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
-										commit.repository, commit.getName()));
+										commit.repository, commit.getName()), true);
 						if (!shortMessage.equals(trimmedMessage)) {
 							WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 						}

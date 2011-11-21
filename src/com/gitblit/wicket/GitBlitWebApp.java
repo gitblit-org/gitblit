@@ -34,6 +34,7 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
+import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.MarkdownPage;
@@ -104,8 +105,9 @@ public class GitBlitWebApp extends WebApplication {
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");
 		mount("/registration", FederationRegistrationPage.class, "u", "n");
-		
+
 		mount("/activity", ActivityPage.class, "r", "h");
+		mount("/gravatar", GravatarProfilePage.class, "h");
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
