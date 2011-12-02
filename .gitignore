@@ -21,3 +21,5 @@
 /bin/
 /.settings/
 /javadoc
+/express
+/build-demo.xml

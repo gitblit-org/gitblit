@@ -16,6 +16,7 @@
 	<property name="project.war.dir" value="${basedir}/war" />
 	<property name="project.site.dir" value="${basedir}/site" />
 	<property name="project.resources.dir" value="${basedir}/resources" />	
+	<property name="project.express.dir" value="${basedir}/express" />
 	<available property="hasBuildProps" file="${basedir}/build.properties"/>
 
 	<!--
@@ -87,6 +88,7 @@
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
 		<property name="manager.zipfile" value="manager-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
+		<property name="express.zipfile" value="express-${gb.version}.zip" />
 	</target>
 	
 	
@@ -157,6 +159,7 @@
 			<fileset dir="${basedir}/distrib">
 				<include name="**/*" />
 				<exclude name="federation.properties" />
+				<exclude name="openshift.mkd" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
@@ -280,6 +283,9 @@
 				<arg value="%API%=${gbapi.zipfile}" />
 
 				<arg value="--substitute" />
+				<arg value="%EXPRESS%=${express.zipfile}" />
+
+				<arg value="--substitute" />
 				<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 				<arg value="--substitute" />
@@ -313,7 +319,7 @@
 		
 		<echo>Building Gitblit WAR ${gb.version}</echo>
 		
-		<delete dir="${project.war.dir}" />		
+		<delete dir="${project.war.dir}" />
 
 		<!-- Copy web.xml and users.properties to WEB-INF -->
 		<copy todir="${project.war.dir}/WEB-INF">
@@ -376,7 +382,7 @@
 		<mkdir dir="${project.war.dir}/WEB-INF/classes"/>
 		<copy todir="${project.war.dir}/WEB-INF/classes">
 			<fileset dir="${project.build.dir}">
-				<exclude name="WEB-INF/web.xml" />
+				<exclude name="WEB-INF/" />
 				<exclude name="com/gitblit/tests/" />
 				<exclude name="com/gitblit/build/**" />
 				<exclude name="com/gitblit/client/**" />
@@ -434,12 +440,100 @@
 
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build a Gitblit filesystem for deployment to RedHat OpenShif Expresst
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildOpenShift" depends="compile" description="Build exploded WAR file suitable for deployment to OpenShift Express">
+		<echo>Building Gitblit Express for RedHat OpenShift ${gb.version}</echo>
+		
+		<delete dir="${project.express.dir}" />
+		
+		<!-- Create the OpenShift filesystem -->
+		<property name="deployments.root" value="${project.express.dir}/deployments/ROOT.war"/>
+		<mkdir dir="${deployments.root}" />
+		<touch file="${project.express.dir}/deployments/ROOT.war.dodeploy" />
+
+		<!-- Copy the Gitblit OpenShift readme file -->
+		<copy tofile="${project.express.dir}/README.gitblit" 
+			file="${basedir}/distrib/openshift.mkd"/>
+
+		<!-- Copy LICENSE and NOTICE to WEB-INF -->
+		<copy todir="${deployments.root}/WEB-INF">
+			<fileset dir="${basedir}">
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
+		</copy>
+
+		<!-- Copy gitblit.properties as reference.properties -->
+		<copy tofile="${deployments.root}/WEB-INF/reference.properties" 
+			file="${basedir}/distrib/gitblit.properties"/>
+
+		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties -->
+		<!-- THIS FILE IS NOT OVERRIDDEN ONCE IT IS BUILT!!! -->
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildWebXml">
+			<classpath refid="master-classpath" />
+
+			<arg value="--sourceFile" />
+			<arg value="${basedir}/src/WEB-INF/web.xml" />
+
+			<arg value="--destinationFile" />
+			<arg value="${deployments.root}/WEB-INF/web.xml" />
+
+			<arg value="--propertiesFile" />
+			<arg value="${basedir}/distrib/gitblit.properties" />
+		</java>
+
+		<!-- Gitblit resources -->
+		<copy todir="${deployments.root}">
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
+
+		<!-- Gitblit library dependencies -->
+		<mkdir dir="${deployments.root}/WEB-INF/lib"/>
+		<copy todir="${deployments.root}/WEB-INF/lib">
+			<fileset dir="${basedir}/ext">
+				<exclude name="*-sources.jar" />
+				<exclude name="*-javadoc.jar" />
+				<exclude name="jcommander*.jar" />
+				<exclude name="jetty*.jar" />
+				<exclude name="junit*.jar" />
+				<exclude name="servlet*.jar" />
+			</fileset>
+		</copy>
+
+		<!-- Gitblit classes -->
+		<mkdir dir="${deployments.root}/WEB-INF/classes"/>
+		<copy todir="${deployments.root}/WEB-INF/classes">
+			<fileset dir="${project.build.dir}">
+				<exclude name="WEB-INF/" />
+				<exclude name="com/gitblit/tests/" />
+				<exclude name="com/gitblit/build/**" />
+				<exclude name="com/gitblit/client/**" />
+				<exclude name="com/gitblit/GitBlitServer*.class" />
+				<exclude name="com/gitblit/Launcher*.class" />
+				<exclude name="com/gitblit/MakeCertificate*.class" />
+			</fileset>
+		</copy>
+
+		<!-- Build Express Zip file -->
+		<zip destfile="${express.zipfile}">
+			<fileset dir="${project.express.dir}" />
+		</zip>
+
+	</target>
+
+
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build the stand-alone, Gitblit Manager
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="buildManager" depends="compile" description="Builds the stand-alone Gitblit Manager">
 		<echo>Building Gitblit Manager ${gb.version}</echo>
-	
+
 		<genjar jarfile="manager-${gb.version}.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
@@ -461,7 +555,7 @@
 			<resource file="${basedir}/resources/commit_merge_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
-				
+
 			<class name="com.gitblit.client.GitblitManagerLauncher" />
 			<classfilter>
 				<exclude name="org.apache." />
@@ -479,7 +573,7 @@
 				<attribute name="Release-Date" value="${gb.versionDate}" />
 			</manifest>
 		</genjar>
-		
+
 		<!-- Build Manager Zip file -->
 		<zip destfile="${manager.zipfile}">
 			<fileset dir="${basedir}">
@@ -683,6 +777,9 @@
 			<arg value="%API%=${gbapi.zipfile}" />
 
 			<arg value="--substitute" />
+			<arg value="%EXPRESS%=${express.zipfile}" />
+
+			<arg value="--substitute" />
 			<arg value="%BUILDDATE%=${gb.versionDate}" />
 
 			<arg value="--substitute" />
@@ -705,30 +802,31 @@
 
 		</java>	
 	</target>
-		
+
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildFederationClient,buildManager,buildApiLibrary,buildSite">		
+	<target name="buildAll" depends="buildGO,buildWAR,buildOpenShift,buildFederationClient,buildManager,buildApiLibrary,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />
 		<delete dir="${project.deploy.dir}" />
+		<delete dir="${project.express.dir}" />
 	</target>
-				
-	
+
+
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Publish binaries to Google Code
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" depends="buildGO,buildWAR,buildFederationClient,buildManager" description="Publish the Gitblit binaries to Google Code">
-		
+	<target name="publishBinaries" depends="buildGO,buildWAR,buildOpenShift,buildFederationClient,buildManager" description="Publish the Gitblit binaries to Google Code">
+
 		<echo>Uploading Gitblit ${gb.version} binaries</echo>
-		
+
 		<!-- Upload Gitblit GO ZIP file -->
 		<gcupload 
 			 username="${googlecode.user}" 
@@ -738,7 +836,7 @@
 			 targetfilename="gitblit-${gb.version}.zip"
 			 summary="Gitblit GO v${gb.version} (standalone, integrated Gitblit server)"
 			 labels="Featured, Type-Package, OpSys-All" />
-			
+
 		<!-- Upload Gitblit WAR file -->
 		<gcupload 
 		     username="${googlecode.user}" 
@@ -748,7 +846,7 @@
 		     targetfilename="gitblit-${gb.version}.war"
 		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
-		
+
 		<!-- Upload Gitblit FedClient -->
 		<gcupload 
 			username="${googlecode.user}" 
@@ -768,7 +866,7 @@
 			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
 			labels="Featured, Type-Package, OpSys-All" />
-		
+
 		<!-- Upload Gitblit API Library -->
 		<gcupload 
 			username="${googlecode.user}" 
@@ -778,19 +876,30 @@
 			targetfilename="gbapi-${gb.version}.zip"
 			summary="Gitblit API Library v${gb.version} (JSON RPC library to integrate with your software)"
 			labels="Featured, Type-Package, OpSys-All" />
+
+		<!-- Upload Gitblit Express for RedHat OpenShift -->
+		<gcupload 
+			username="${googlecode.user}" 
+			password="${googlecode.password}" 
+			projectname="gitblit" 
+			filename="${express.zipfile}" 
+			targetfilename="express-${gb.version}.zip"
+			summary="Gitblit Express v${gb.version} (run Gitblit on RedHat's OpenShift cloud)"
+			labels="Featured, Type-Package, OpSys-All" />
+
 	</target>
 
-	
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-		Publish site to hosting service
+		Publish site to site hosting service
 		You must add ext/commons-net-1.4.0.jar to your ANT classpath.
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="publishSite" depends="buildSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)" >
-		
+
 		<echo>Uploading Gitblit ${gb.version} website</echo>
-		
+
 		<ftp server="${ftp.server}"
 			userid="${ftp.user}"
 			password="${ftp.password}"
@@ -801,7 +910,7 @@
 		</ftp>
 	</target>
 
-	
+
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Compile from source, publish binaries, and build & deploy site

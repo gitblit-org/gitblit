@@ -1,15 +1,16 @@
 ## What is Gitblit?
 <div class="well" style="margin-left:5px;float:right;width:275px;padding: 10px 10px;">
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
-<div style="padding:5px;"><a style="text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
-<div style="padding:5px;"><a style="text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="text-decoration:none;" class="btn primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
-	<div style="text-align:center;">
+<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
+<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
+<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a></div>
+<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
+	<div style="text-align:center">
 		<a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> | <a href="http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%">Gitblit Federation Client</a>
 		<br/>
 		<a href="screenshots.html" title="Screenshots"><img style="margin-top:5px;border:1px solid #ccc;" src="thumbs/00.png" alt="Screenshots" /></a>
 	</div>
-	
+
 	<div style="padding-top:5px;">
 	<table class="condensed-table">
 		<tbody>
@@ -19,9 +20,9 @@
 		<tr><th>Discussion</th><td><a href="http://groups.google.com/group/gitblit">Gitblit Group</a></td></tr>
 		<tr><th>Google+</th><td><a href="https://plus.google.com/114464678392593421684">Gitblit+</a></td></tr>
 		</tbody>
-		</table>		
+		</table>
 	</div>
-	
+
 	<a target="_top" href="http://www.ohloh.net/p/gitblit">
 		<img style="padding-top:5px;" border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" />
 	</a>
@@ -30,19 +31,26 @@
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
 It's designed primarily as a tool for small workgroups who want to host centralized repositories.
 
+You can browse a live demo [here](http://demo-gitblit.rhcloud.com) hosted on [RedHat's OpenShift][rhcloud] cloud service.
+
 ### GO: Single-Stack Solution
 
 *Gitblit GO* is an integrated, single-stack solution based on Jetty.
-  
+
 You do not need Apache httpd, Perl, Git, or Gitweb.  Should you want to use some or all of those, you still can; Gitblit plays nice with the other kids on the block.
 
 This is what you should download if you want to go from zero to Git in less than 5 mins.
-   
+
 All dependencies are downloaded on first execution.
 
 ### WAR: For Your Servlet Container
 *Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
-    
+
+All dependencies are bundled.
+
+### Express: For the Cloud
+*Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
+
 All dependencies are bundled.
 
 ### You decide how to use Gitblit
@@ -73,3 +81,4 @@ Gitblit requires a Java 6 Runtime Environment (JRE) or a Java 6 Development Kit 
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
 [git]: http://git-scm.com "Official Git Site"
+[rhcloud]: https://openshift.redhat.com/app "RedHat OpenShift"

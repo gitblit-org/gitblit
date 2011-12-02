@@ -35,7 +35,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 	@Override
 	public String getInitParameter(String name) {
 		if (name.equals("base-path")) {
-			return GitBlit.getString(Keys.git.repositoriesFolder, "git");
+			return GitBlit.getRepositoriesFolder().getAbsolutePath();
 		} else if (name.equals("export-all")) {
 			return "1";
 		}

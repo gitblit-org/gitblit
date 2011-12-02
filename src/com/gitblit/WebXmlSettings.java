@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -38,11 +39,10 @@ public class WebXmlSettings extends IStoredSettings {
 
 	private final Properties properties = new Properties();
 
-	private final ServletContext context;
+	private File overrideFile;
 
 	public WebXmlSettings(ServletContext context) {
 		super(WebXmlSettings.class);
-		this.context = context;
 		Enumeration<?> keys = context.getInitParameterNames();
 		while (keys.hasMoreElements()) {
 			String key = keys.nextElement().toString();
@@ -50,15 +50,21 @@ public class WebXmlSettings extends IStoredSettings {
 			properties.put(key, decodeValue(value));
 			logger.debug(key + "=" + properties.getProperty(key));
 		}
+	}
+
+	public void applyOverrides(File overrideFile) {
+		this.overrideFile = overrideFile;
+		
 		// apply any web-configured overrides
-		File file = new File(context.getRealPath("/WEB-INF/web.properties"));
-		if (file.exists()) {
+		if (overrideFile.exists()) {
 			try {
-				InputStream is = new FileInputStream(file);
+				InputStream is = new FileInputStream(overrideFile);
 				properties.load(is);
 				is.close();
 			} catch (Throwable t) {
-				logger.error("Failed to load web.properties setting overrides", t);
+				logger.error(
+						MessageFormat.format("Failed to apply {0} setting overrides",
+								overrideFile.getAbsolutePath()), t);
 			}
 		}
 	}
@@ -78,19 +84,18 @@ public class WebXmlSettings extends IStoredSettings {
 		try {
 			Properties props = new Properties();
 			// load pre-existing web-configuration
-			File file = new File(context.getRealPath("/WEB-INF/web.properties"));
-			if (file.exists()) {
-				InputStream is = new FileInputStream(file);
+			if (overrideFile.exists()) {
+				InputStream is = new FileInputStream(overrideFile);
 				props.load(is);
 				is.close();
 			}
-			
+
 			// put all new settings and persist
 			props.putAll(settings);
-			OutputStream os = new FileOutputStream(file);
+			OutputStream os = new FileOutputStream(overrideFile);
 			props.store(os, null);
 			os.close();
-			
+
 			// override current runtime settings
 			properties.putAll(settings);
 			return true;

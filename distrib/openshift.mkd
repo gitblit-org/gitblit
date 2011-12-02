@@ -1,0 +1,35 @@
+## Gitblit on RedHat's OpenShift Cloud Service
+
+The Gitblit Express distribution can be copied to the root of your RedHat OpenShift
+application repository.  Gitblit Express is an exploded WAR file with all appropriate
+dependencies bundled.
+
+You should delete the `pom.xml` file and the `src` folder from your application repository
+as this Gitblit Express is not a source distribution to be built with Maven on OpenShift.
+
+Gitblit automatically adjusts itself to running on OpenShift.  Repositories, users,
+federation proposals, and setting overrides are stored in *OPENSHIFT_DATA_DIR*.
+
+It is recommended to enable all RPC settings in the `web.xml` file to allow remote
+administration and, more importantly, configuration of your Gitblit Express
+installation using the Gitblit Manager.
+
+Please do not change the following settings unless you know exactly what you are
+doing:
+
+- *git.repositoriesFolder*
+- *federation.proposalsFolder*
+- *realm.userService* (for standard users.properties)
+ 
+Additionally, it is recommended to force your Gitblit installation to cleanup up
+older versions on your OpenShift filesystem to maximize available space for your
+repositories.
+
+Append the following command to your ./openshift/action_hooks/build file:
+
+    rm -fr $OPENSHIFT_APP_DIR/jbossas-7.0/standalone/tmp/vfs/*
+
+For more detailed instructions on how to setup and deploy an OpenShift application
+please see this excellent turorial:
+
+https://github.com/opensas/play-demo/wiki/Step-12.5---deploy-to-openshift

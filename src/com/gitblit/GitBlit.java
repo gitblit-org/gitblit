@@ -247,6 +247,54 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns the file object for the specified configuration key.
+	 * 
+	 * @return the file
+	 */
+	public static File getFileOrFolder(String key, String defaultFileOrFolder) {
+		String fileOrFolder = GitBlit.getString(key, defaultFileOrFolder);
+		return getFileOrFolder(fileOrFolder);
+	}
+
+	/**
+	 * Returns the file object which may have it's base-path determined by
+	 * environment variables for running on a cloud hosting service. All Gitblit
+	 * file or folder retrievals are (at least initially) funneled through this
+	 * method so it is the correct point to globally override/alter filesystem
+	 * access based on environment or some other indicator.
+	 * 
+	 * @return the file
+	 */
+	public static File getFileOrFolder(String fileOrFolder) {
+		String openShift = System.getenv("OPENSHIFT_DATA_DIR");
+		if (!StringUtils.isEmpty(openShift)) {
+			// running on RedHat OpenShift
+			return new File(openShift, fileOrFolder);
+		}
+		return new File(fileOrFolder);
+	}
+
+	/**
+	 * Returns the path of the repositories folder. This method checks to see if
+	 * Gitblit is running on a cloud service and may return an adjusted path.
+	 * 
+	 * @return the repositories folder path
+	 */
+	public static File getRepositoriesFolder() {
+		return getFileOrFolder(Keys.git.repositoriesFolder, "git");
+	}
+
+	/**
+	 * Returns the path of the proposals folder. This method checks to see if
+	 * Gitblit is running on a cloud service and may return an adjusted path.
+	 * 
+	 * @return the proposals folder path
+	 */
+	public static File getProposalsFolder() {
+		return getFileOrFolder(Keys.federation.proposalsFolder, "proposals");
+	}
+
+	/**
 	 * Updates the list of server settings.
 	 * 
 	 * @param settings
@@ -1120,8 +1168,7 @@ public class GitBlit implements ServletContextListener {
 
 		try {
 			// make the proposals folder
-			File proposalsFolder = new File(getString(Keys.federation.proposalsFolder, "proposals")
-					.trim());
+			File proposalsFolder = getProposalsFolder();
 			proposalsFolder.mkdirs();
 
 			// cache json to a file
@@ -1153,7 +1200,7 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public List<FederationProposal> getPendingFederationProposals() {
 		List<FederationProposal> list = new ArrayList<FederationProposal>();
-		File folder = new File(getString(Keys.federation.proposalsFolder, "proposals").trim());
+		File folder = getProposalsFolder();
 		if (folder.exists()) {
 			File[] files = folder.listFiles(new FileFilter() {
 				@Override
@@ -1276,7 +1323,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the proposal was deleted
 	 */
 	public boolean deletePendingFederationProposal(FederationProposal proposal) {
-		File folder = new File(getString(Keys.federation.proposalsFolder, "proposals").trim());
+		File folder = getProposalsFolder();
 		File file = new File(folder, proposal.token + Constants.PROPOSAL_EXT);
 		return file.delete();
 	}
@@ -1391,7 +1438,7 @@ public class GitBlit implements ServletContextListener {
 	public void configureContext(IStoredSettings settings, boolean startFederation) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.settings = settings;
-		repositoriesFolder = new File(settings.getString(Keys.git.repositoriesFolder, "git"));
+		repositoriesFolder = getRepositoriesFolder();
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
 		serverStatus = new ServerStatus(isGO());
@@ -1406,16 +1453,26 @@ public class GitBlit implements ServletContextListener {
 		} catch (Throwable t) {
 			// not a login service class or class could not be instantiated.
 			// try to use default file login service
-			File realmFile = new File(realm);
-			if (!realmFile.exists()) {
+			File realmFile = getFileOrFolder(Keys.realm.userService, "users.properties");
+			if (realmFile.exists()) {
+				// load the existing realm file
+				loginService = new FileUserService(realmFile);
+			} else {
+				// create a new realm file and add the default admin account.
+				// this is necessary for bootstrapping a dynamic environment
+				// like running on a cloud service.
 				try {
 					realmFile.createNewFile();
+					loginService = new FileUserService(realmFile);
+					UserModel admin = new UserModel("admin");
+					admin.password = "admin";
+					admin.canAdmin = true;
+					loginService.updateUserModel(admin);
 				} catch (IOException x) {
 					logger.error(
 							MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmFile), x);
 				}
 			}
-			loginService = new FileUserService(realmFile);
 		}
 		setUserService(loginService);
 		mailExecutor = new MailExecutor(settings);
@@ -1441,7 +1498,21 @@ public class GitBlit implements ServletContextListener {
 		settingsModel = loadSettingModels();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
-			WebXmlSettings webxmlSettings = new WebXmlSettings(contextEvent.getServletContext());
+			ServletContext context = contextEvent.getServletContext();
+			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
+
+			// 0.7.0 web.properties in the deployed war folder
+			File overrideFile = new File(context.getRealPath("/WEB-INF/web.properties"));
+			if (overrideFile.exists()) {
+				webxmlSettings.applyOverrides(overrideFile);
+			}
+
+			// 0.8.0 gitblit.properties file located outside the deployed war
+			// folder lie, for example, on RedHat OpenShift.
+			overrideFile = getFileOrFolder("gitblit.properties");
+			if (!overrideFile.getPath().equals("gitblit.properties")) {
+				webxmlSettings.applyOverrides(overrideFile);
+			}
 			configureContext(webxmlSettings, true);
 		}
 
