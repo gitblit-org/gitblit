@@ -96,7 +96,7 @@ public class GitBlitTest extends TestCase {
 		assertTrue(settings.getInteger("realm.realmFile", 5) == 5);
 
 		assertTrue(settings.getBoolean("git.enableGitServlet", false));
-		assertTrue(settings.getString("realm.userService", null).equals("users.properties"));
+		assertTrue(settings.getString("realm.userService", null).equals("users.conf"));
 		assertTrue(settings.getInteger("realm.minPasswordLength", 0) == 5);
 		List<String> mdExtensions = settings.getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);
@@ -117,7 +117,7 @@ public class GitBlitTest extends TestCase {
 		assertEquals(5, GitBlit.getInteger("realm.userService", 5));
 
 		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false));
-		assertEquals("distrib/users.properties", GitBlit.getString("realm.userService", null));
+		assertEquals("distrib/users.conf", GitBlit.getString("realm.userService", null));
 		assertEquals(5, GitBlit.getInteger("realm.minPasswordLength", 0));
 		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);

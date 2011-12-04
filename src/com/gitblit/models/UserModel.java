@@ -63,8 +63,16 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase());
 	}
 
+	public boolean hasRepository(String name) {
+		return repositories.contains(name.toLowerCase());
+	}
+
 	public void addRepository(String name) {
 		repositories.add(name.toLowerCase());
+	}
+
+	public void removeRepository(String name) {
+		repositories.remove(name.toLowerCase());
 	}
 
 	@Override

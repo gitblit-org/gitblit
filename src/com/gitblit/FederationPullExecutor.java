@@ -285,9 +285,9 @@ public class FederationPullExecutor implements Runnable {
 			Collection<UserModel> users = FederationUtils.getUsers(registration);
 			if (users != null && users.size() > 0) {
 				File realmFile = new File(registrationFolderFile, registration.name
-						+ "_users.properties");
+						+ "_users.conf");
 				realmFile.delete();
-				FileUserService userService = new FileUserService(realmFile);
+				ConfigUserService userService = new ConfigUserService(realmFile);
 				for (UserModel user : users) {
 					userService.updateUserModel(user.username, user);
 

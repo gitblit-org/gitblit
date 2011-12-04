@@ -2,11 +2,11 @@
 
 1. Download [Gitblit WAR %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) to the webapps folder of your servlet container.  
 2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
-3. Copy the `WEB-INF/users.properties` file to a location outside the webapps folder that is accessible by your servlet container.  
+3. Copy the `WEB-INF/users.conf` file to a location outside the webapps folder that is accessible by your servlet container.  
 4. The Gitblit webapp is configured through its `web.xml` file.  
 Open `web.xml` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
-    - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.properties`)
+    - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.conf`)
 5. You may have to restart your servlet container. 
 6. Open your browser to <http://localhost/gitblit> or whatever the url should be.
 7. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
@@ -89,17 +89,22 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
     
 **Example**
 
-    java -jar gitblit.jar --userService c:\myrealm.properties --storePassword something
+    java -jar gitblit.jar --userService c:\myrealm.config --storePassword something
 
 ## Upgrading Gitblit
 Generally, upgrading is easy.
 
-Since Gitblit does not use a database the only files you have to worry about are your configuration file (`gitblit.properties` or `web.xml`) and possibly your `users.properties` file.
+Since Gitblit does not use a database the only files you have to worry about are your configuration file (`gitblit.properties` or `web.xml`) and possibly your `users.conf` or `users.properties` file.
 
 Any important changes to the setting keys or default values will always be mentioned in the [release log](releases.html).
 
+Gitblit v0.8.0 introduced a new default user service implementation which serializes and deserializes user objects into `users.conf`.  A `users.conf` file will be automatically created from an existing `users.properties` file on the first launch after an upgrade.  To use the `users.conf` service, *realm.userService=users.conf* must be set.  This revised user service allows for more sophisticated Gitblit user objects and will facilitate the development of more advanced features without adding the complexity of an embedded SQL database.
+
+`users.properties` and its user service implementation are deprecated as of v0.8.0.
+
 ### Upgrading Gitblit WAR
-1. Backup your `web.xml` file
+1. Backup your `web.xml` file  
+Backup your `web.properties` file (if you have one, these are the setting overrides from using the RPC administration service)
 2. Delete currently deployed gitblit WAR
 3. Deploy new WAR and overwrite the `web.xml` file with your backup
 4. Review and optionally apply any new settings as indicated in the [release log](releases.html). 
@@ -107,10 +112,14 @@ Any important changes to the setting keys or default values will always be menti
 ### Upgrading Gitblit GO
  
 1. Backup your `gitblit.properties` file
-2. Backup your `users.properties` file *(if it is located in the Gitblit GO folder)*
+2. Backup your `users.properties` file *(if it is located in the Gitblit GO folder)*  
+OR  
+Backup your `users.conf` file *(if it is located in the Gitblit GO folder)*
 3. Unzip Gitblit GO to a new folder
 4. Overwrite the `gitblit.properties` file with your backup
-5. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*
+5. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*  
+OR  
+Overwrite the `users.conf` file with your backup *(if it was located in the Gitblit GO folder)*
 6. Review and optionally apply any new settings as indicated in the [release log](releases.html).
 
 #### Upgrading Windows Service
@@ -148,7 +157,20 @@ All repositories created with Gitblit are *bare* and will automatically have *.g
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
 
-### Administering Users
+### Administering Users (Gitblit v0.8.0+)
+All users are stored in the `users.conf` file or in the file you specified in `gitblit.properties`.<br/>
+The `users.conf` file uses a Git-style configuration format:
+
+    [user "admin"]
+	    password = admin
+	    role = "#admin"
+	    role = "#notfederated"
+	    repository = repo1.git
+	    repository = repo2.git
+
+The `users.conf` file allows flexibility for adding new fields to a UserModel object that the original `users.properties` file does not afford without imposing the complexity of relying on an embedded SQL database. 
+
+### Administering Users (Gitblit v0.5.0 - v0.7.0)
 All users are stored in the `users.properties` file or in the file you specified in `gitblit.properties`.<br/>
 The format of `users.properties` follows Jetty's convention for HashRealms:
 
@@ -165,7 +187,7 @@ User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *combined-md5* f
 There are two actual *roles* in Gitblit: *#admin*, which grants administrative powers to that user, and *#notfederated*, which prevents an account from being pulled by another Gitblit instance.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
 ## Authentication and Authorization Customization
-Instead of maintaining a `users.properties` file, you may want to integrate Gitblit into an existing environment.
+Instead of maintaining a `users.conf` or `users.properties` file, you may want to integrate Gitblit into an existing environment.
 
 You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.
 

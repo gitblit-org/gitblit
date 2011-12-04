@@ -34,7 +34,7 @@ public class GitServletTest {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"distrib/users.properties");
+						"distrib/users.conf");
 			}
 		});
 

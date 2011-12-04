@@ -155,9 +155,9 @@ If they do not match, the repository is skipped and this is indicated in the log
 
 By default all user accounts except the *admin* account are automatically pulled when using the *ALL* token or the *USERS_AND_REPOSITORIES* token.  You may exclude a user account from being pulled by a federated Gitblit instance by checking *exclude from federation* in the edit user page.
 
-The pulling Gitblit instance will store a registration-specific `users.properties` file for the pulled user accounts and their repository permissions. This file is stored in the *federation.N.folder* folder.
+The pulling Gitblit instance will store a registration-specific `users.conf` file for the pulled user accounts and their repository permissions. This file is stored in the *federation.N.folder* folder.
 
-If you specify *federation.N.mergeAccounts=true*, then the user accounts from the origin Gitblit instance will be integrated into the `users.properties` file of your Gitblit instance and allow sign-on of those users.
+If you specify *federation.N.mergeAccounts=true*, then the user accounts from the origin Gitblit instance will be integrated into the `users.conf` file of your Gitblit instance and allow sign-on of those users.
 
 **NOTE:**  
 Upgrades from older Gitblit versions will not have the *#notfederated* role assigned to the *admin* account.  Without that role, your admin account WILL be transferred with an *ALL* or *USERS_AND_REPOSITORIES* token.  
@@ -214,7 +214,7 @@ By default, federated repositories can not be pushed to, they are read-only by t
 
 <tr><th>federation.N.mergeAccounts</th>
 <td>boolean</td>
-<td>if <b>true</b>, merge the retrieved accounts into the <code>users.properties</code> of <b>this</b> Gitblit instance.<br/><em>default is false</em></td>
+<td>if <b>true</b>, merge the retrieved accounts into the <code>users.conf</code> of <b>this</b> Gitblit instance.<br/><em>default is false</em></td>
 </tr>
 
 <tr><th>federation.N.sendStatus</th>
@@ -248,7 +248,7 @@ These examples would be entered into the `gitblit.properties` file of the pullin
 
 This assumes that the *token* is the *ALL* token from the origin gitblit instance.
 
-The repositories, example1_users.properties, and example1_gitblit.properties will be put in *git.repositoriesFolder* and the origin user accounts will be merged into the local user accounts, including passwords and all roles.  The Gitblit instance will also send a status acknowledgment to the origin Gitblit instance at the end of the pull operation.  The status report will include the state of each repository pull (EXCLUDED, SKIPPED, NOCHANGE, PULLED, MIRRORED).  This way the origin Gitblit instance can monitor the health of its mirrors.
+The repositories, example1_users.conf, and example1_gitblit.properties will be put in *git.repositoriesFolder* and the origin user accounts will be merged into the local user accounts, including passwords and all roles.  The Gitblit instance will also send a status acknowledgment to the origin Gitblit instance at the end of the pull operation.  The status report will include the state of each repository pull (EXCLUDED, SKIPPED, NOCHANGE, PULLED, MIRRORED).  This way the origin Gitblit instance can monitor the health of its mirrors.
 
 This example is considered *nearly* perfect because while the origin Gitblit's server settings are pulled and saved locally, they are not merged with your server settings so its not a true mirror, but its likely the mirror you'd want to configure.
 

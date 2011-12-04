@@ -34,14 +34,19 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
 /**
- * FileUserService is Gitblit's default user service implementation.
+ * FileUserService is Gitblit's original default user service implementation.
  * 
  * Users and their repository memberships are stored in a simple properties file
  * which is cached and dynamically reloaded when modified.
  * 
+ * This class was deprecated in Gitblit 0.8.0 in favor of ConfigUserService
+ * which is still a human-readable, editable, plain-text file but it is more
+ * flexible for storing additional fields.
+ * 
  * @author James Moger
  * 
  */
+@Deprecated
 public class FileUserService extends FileSettings implements IUserService {
 
 	private final Logger logger = LoggerFactory.getLogger(FileUserService.class);
@@ -360,12 +365,11 @@ public class FileUserService extends FileSettings implements IUserService {
 				StringBuilder sb = new StringBuilder();
 				sb.append(password);
 				sb.append(',');
-				List<String> revisedRoles = new ArrayList<String>();
+
 				// skip first value (password)
 				for (int i = 1; i < values.length; i++) {
 					String value = values[i];
 					if (!value.equalsIgnoreCase(role)) {
-						revisedRoles.add(value);
 						sb.append(value);
 						sb.append(',');
 					}
@@ -406,7 +410,7 @@ public class FileUserService extends FileSettings implements IUserService {
 				for (int i = 1; i < roles.length; i++) {
 					String r = roles[i];
 					if (r.equalsIgnoreCase(oldRole)) {
-						needsRenameRole.remove(username);
+						needsRenameRole.add(username);
 						break;
 					}
 				}
@@ -420,13 +424,13 @@ public class FileUserService extends FileSettings implements IUserService {
 				StringBuilder sb = new StringBuilder();
 				sb.append(password);
 				sb.append(',');
-				List<String> revisedRoles = new ArrayList<String>();
-				revisedRoles.add(newRole);
+				sb.append(newRole);
+				sb.append(',');
+				
 				// skip first value (password)
 				for (int i = 1; i < values.length; i++) {
 					String value = values[i];
 					if (!value.equalsIgnoreCase(oldRole)) {
-						revisedRoles.add(value);
 						sb.append(value);
 						sb.append(',');
 					}
@@ -467,7 +471,7 @@ public class FileUserService extends FileSettings implements IUserService {
 				for (int i = 1; i < roles.length; i++) {
 					String r = roles[i];
 					if (r.equalsIgnoreCase(role)) {
-						needsDeleteRole.remove(username);
+						needsDeleteRole.add(username);
 						break;
 					}
 				}
@@ -481,12 +485,10 @@ public class FileUserService extends FileSettings implements IUserService {
 				StringBuilder sb = new StringBuilder();
 				sb.append(password);
 				sb.append(',');
-				List<String> revisedRoles = new ArrayList<String>();
 				// skip first value (password)
 				for (int i = 1; i < values.length; i++) {
 					String value = values[i];
 					if (!value.equalsIgnoreCase(role)) {
-						revisedRoles.add(value);
 						sb.append(value);
 						sb.append(',');
 					}
@@ -557,5 +559,10 @@ public class FileUserService extends FileSettings implements IUserService {
 			}
 		}
 		return allUsers;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "(" + propertiesFile.getAbsolutePath() + ")";
 	}
 }

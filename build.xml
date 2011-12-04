@@ -103,7 +103,7 @@
 		<copy todir="${basedir}" overwrite="false">
 			<fileset dir="${basedir}/distrib">
 				<include name="gitblit.properties" />
-				<include name="users.properties" />
+				<include name="users.conf" />
 			</fileset>
 		</copy>
 
@@ -321,10 +321,10 @@
 		
 		<delete dir="${project.war.dir}" />
 
-		<!-- Copy web.xml and users.properties to WEB-INF -->
+		<!-- Copy web.xml and users.conf to WEB-INF -->
 		<copy todir="${project.war.dir}/WEB-INF">
 			<fileset dir="${basedir}/distrib">
-			 	<include name="users.properties" />
+			 	<include name="users.conf" />
 			</fileset>
 			<fileset dir="${basedir}/src/WEB-INF">
 			 	<include name="web.xml" />

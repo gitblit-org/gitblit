@@ -25,8 +25,8 @@ import junit.framework.TestSuite;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
 
+import com.gitblit.ConfigUserService;
 import com.gitblit.FileSettings;
-import com.gitblit.FileUserService;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.GitBlitServer;
@@ -57,6 +57,7 @@ public class GitBlitSuite extends TestSetup {
 		suite.addTestSuite(JsonUtilsTest.class);
 		suite.addTestSuite(ByteFormatTest.class);
 		suite.addTestSuite(ObjectCacheTest.class);
+		suite.addTestSuite(UserServiceTest.class);
 		suite.addTestSuite(MarkdownUtilsTest.class);
 		suite.addTestSuite(JGitUtilsTest.class);
 		suite.addTestSuite(SyndicationUtilsTest.class);
@@ -91,7 +92,7 @@ public class GitBlitSuite extends TestSetup {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"distrib/users.properties");
+						"distrib/users.conf");
 			}
 		});
 
@@ -111,7 +112,7 @@ public class GitBlitSuite extends TestSetup {
 	protected void setUp() throws Exception {
 		FileSettings settings = new FileSettings("distrib/gitblit.properties");
 		GitBlit.self().configureContext(settings, true);
-		FileUserService loginService = new FileUserService(new File("distrib/users.properties"));
+		ConfigUserService loginService = new ConfigUserService(new File("distrib/users.conf"));
 		GitBlit.self().setUserService(loginService);
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {

@@ -29,8 +29,6 @@ This list is volatile.
     * push-restricted repositories would have anonymous R git:// access
     * clone-restricted repositories would prohibit git:// access
     * view-restricted repositories would prohibit git:// access
-* Gitblit: Consider using Git-style config file instead of Java properties file for user storage (users.config vs. users.properties)
-    * this would allow for additional fields per user without bringing in a database
 
 ### TODO (low priority)
 
@@ -39,6 +37,7 @@ This list is volatile.
 
 ### IDEAS
 
+* Gitblit: consider user-subscribed email notifications for a repository branch
 * Gitblit: aggregate RSS feeds by tag or subfolder
 * Gitblit: Consider creating more Git model objects and exposing them via the JSON RPC interface to allow inspection/retrieval of Git commits, Git trees, etc from Gitblit.
 * Gitblit: Stronger ticgit integration (issue 8)

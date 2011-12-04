@@ -34,7 +34,7 @@ Run the server as *root* (security concern) or change the ports you are serving 
 2. Confirm that the servlet container process has full read-write-execute permissions to your *git.repositoriesFolder*.
 
 ### Gitblit WAR will not authenticate any users?!
-Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.properties` file.
+Confirm that the &lt;context-param&gt; *realm.userService* value in your `web.xml` file actually points to a `users.conf` or `users.properties` file.
 
 ### Gitblit won't open my grouped repository (/group/myrepo.git) or browse my log/branch/tag/ref?!
 This is likely an url encoding/decoding problem with forward slashes:
@@ -111,9 +111,9 @@ Yes.
 Gitblit will run just fine with a JRE.  Gitblit can optionally use `keytool` from the JDK to generate self-signed certificates, but normally Gitblit uses [BouncyCastle][bouncycastle] for that need.
 
 ### Does Gitblit use a database to store its data?
-No.  Gitblit stores its repository configuration information within the `.git/config` file and its user information in `users.properties` or whatever filename is configured in `gitblit.properties`.
+No.  Gitblit stores its repository configuration information within the `.git/config` file and its user information in `users.conf`, `users.properties`, or whatever filename is configured in `gitblit.properties`.
 
-### Can I manually edit users.properties, gitblit.properties, or .git/config?
+### Can I manually edit users.conf, users.properties, gitblit.properties, or .git/config?
 Yes.  You can manually manipulate all of them and (most) changes will be immediately available to Gitblit.<br/>Exceptions to this are noted in `gitblit.properties`.
 
 **NOTE:**  
