@@ -157,8 +157,13 @@ All repositories created with Gitblit are *bare* and will automatically have *.g
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
 
-### Administering Users (Gitblit v0.8.0+)
-All users are stored in the `users.conf` file or in the file you specified in `gitblit.properties`.<br/>
+### Teams
+
+Since v0.8.0, Gitblit supports *teams* for the original `users.properties` user service and the current default user service `users.conf`.  Teams have assigned users and assigned repositories.  A user can be a member of multiple teams and a repository may belong to multiple teams.  This allows the administrator to quickly add a user to a team without having to keep track of all the appropriate repositories. 
+
+### Administering Users (users.conf, Gitblit v0.8.0+)
+All users are stored in the `users.conf` file or in the file you specified in `gitblit.properties`. Your file extension must be *.conf* in order to use this user service.
+
 The `users.conf` file uses a Git-style configuration format:
 
     [user "admin"]
@@ -167,14 +172,35 @@ The `users.conf` file uses a Git-style configuration format:
 	    role = "#notfederated"
 	    repository = repo1.git
 	    repository = repo2.git
+	    
+	[user "hannibal"]
+		password = bossman
+
+	[user "faceman"]
+		password = vanity
+
+	[user "murdock"]
+		password = crazy		
+	    
+	[user "babaracus"]
+		password = grrrr
+	    
+	[team "ateam"]
+		user = hannibal
+		user = faceman
+		user = murdock
+		user = babaracus
+		repository = topsecret.git
 
 The `users.conf` file allows flexibility for adding new fields to a UserModel object that the original `users.properties` file does not afford without imposing the complexity of relying on an embedded SQL database. 
 
-### Administering Users (Gitblit v0.5.0 - v0.7.0)
-All users are stored in the `users.properties` file or in the file you specified in `gitblit.properties`.<br/>
+### Administering Users (users.properties, Gitblit v0.5.0 - v0.7.0)
+All users are stored in the `users.properties` file or in the file you specified in `gitblit.properties`. Your file extension must be *.properties* in order to use this user service.
+
 The format of `users.properties` follows Jetty's convention for HashRealms:
 
     username,password,role1,role2,role3...
+    @teamname,!username1,!username2,!username3,repository1,repository2,repository3...
 
 #### Usernames
 Usernames must be unique and are case-insensitive.  
@@ -191,149 +217,8 @@ Instead of maintaining a `users.conf` or `users.properties` file, you may want t
 
 You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.
 
-Your user service class must be on Gitblit's classpath and must have a public default constructor. 
-
-%BEGINCODE%
-public interface IUserService {
-
-	/**
-	 * Setup the user service.
-	 * 
-	 * @param settings
-	 * @since 0.7.0
-	 */
-	@Override
-	public void setup(IStoredSettings settings) {
-	}
-	
-	/**
-	 * Does the user service support cookie authentication?
-	 * 
-	 * @return true or false
-	 */
-	boolean supportsCookies();
-
-	/**
-	 * Returns the cookie value for the specified user.
-	 * 
-	 * @param model
-	 * @return cookie value
-	 */
-	char[] getCookie(UserModel model);
-
-	/**
-	 * Authenticate a user based on their cookie.
-	 * 
-	 * @param cookie
-	 * @return a user object or null
-	 */
-	UserModel authenticate(char[] cookie);
-
-	/**
-	 * Authenticate a user based on a username and password.
-	 * 
-	 * @param username
-	 * @param password
-	 * @return a user object or null
-	 */
-	UserModel authenticate(String username, char[] password);
-
-	/**
-	 * Retrieve the user object for the specified username.
-	 * 
-	 * @param username
-	 * @return a user object or null
-	 */
-	UserModel getUserModel(String username);
-
-	/**
-	 * Updates/writes a complete user object.
-	 * 
-	 * @param model
-	 * @return true if update is successful
-	 */
-	boolean updateUserModel(UserModel model);
-
-	/**
-	 * Adds/updates a user object keyed by username. This method allows for
-	 * renaming a user.
-	 * 
-	 * @param username
-	 *            the old username
-	 * @param model
-	 *            the user object to use for username
-	 * @return true if update is successful
-	 */
-	boolean updateUserModel(String username, UserModel model);
-
-	/**
-	 * Deletes the user object from the user service.
-	 * 
-	 * @param model
-	 * @return true if successful
-	 */
-	boolean deleteUserModel(UserModel model);
-
-	/**
-	 * Delete the user object with the specified username
-	 * 
-	 * @param username
-	 * @return true if successful
-	 */
-	boolean deleteUser(String username);
-
-	/**
-	 * Returns the list of all users available to the login service.
-	 * 
-	 * @return list of all usernames
-	 */
-	List<String> getAllUsernames();
-
-	/**
-	 * Returns the list of all users who are allowed to bypass the access
-	 * restriction placed on the specified repository.
-	 * 
-	 * @param role
-	 *            the repository name
-	 * @return list of all usernames that can bypass the access restriction
-	 */
-	List<String> getUsernamesForRepositoryRole(String role);
-
-	/**
-	 * Sets the list of all uses who are allowed to bypass the access
-	 * restriction placed on the specified repository.
-	 * 
-	 * @param role
-	 *            the repository name
-	 * @param usernames
-	 * @return true if successful
-	 */
-	boolean setUsernamesForRepositoryRole(String role, List<String> usernames);
-
-	/**
-	 * Renames a repository role.
-	 * 
-	 * @param oldRole
-	 * @param newRole
-	 * @return true if successful
-	 */
-	boolean renameRepositoryRole(String oldRole, String newRole);
-
-	/**
-	 * Removes a repository role from all users.
-	 * 
-	 * @param role
-	 * @return true if successful
-	 */
-	boolean deleteRepositoryRole(String role);
-
-	/**
-	 * @See java.lang.Object.toString();
-	 * @return string representation of the login service
-	 */
-	String toString();
-}
-%ENDCODE%
+Your user service class must be on Gitblit's classpath and must have a public default constructor.  
+Please see the following interface definition [com.gitblit.IUserService](https://github.com/gitblit/gitblit/blob/master/src/com/gitblit/IUserService.java).
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates

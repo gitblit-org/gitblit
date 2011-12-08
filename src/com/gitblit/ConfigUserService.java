@@ -32,7 +32,9 @@ import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -51,6 +53,16 @@ import com.gitblit.utils.StringUtils;
  */
 public class ConfigUserService implements IUserService {
 
+	private static final String TEAM = "team";
+
+	private static final String USER = "user";
+
+	private static final String PASSWORD = "password";
+
+	private static final String REPOSITORY = "repository";
+
+	private static final String ROLE = "role";
+
 	private final File realmFile;
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
@@ -59,13 +71,7 @@ public class ConfigUserService implements IUserService {
 
 	private final Map<String, UserModel> cookies = new ConcurrentHashMap<String, UserModel>();
 
-	private final String userSection = "user";
-
-	private final String passwordField = "password";
-
-	private final String repositoryField = "repository";
-
-	private final String roleField = "role";
+	private final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
 
 	private volatile long lastModified;
 
@@ -77,7 +83,7 @@ public class ConfigUserService implements IUserService {
 	 * Setup the user service.
 	 * 
 	 * @param settings
-	 * @since 0.6.1
+	 * @since 0.7.0
 	 */
 	@Override
 	public void setup(IStoredSettings settings) {
@@ -172,6 +178,11 @@ public class ConfigUserService implements IUserService {
 	public UserModel getUserModel(String username) {
 		read();
 		UserModel model = users.get(username.toLowerCase());
+		if (model != null) {
+			// clone the model, otherwise all changes to this object are
+			// live and unpersisted
+			model = DeepCopier.copy(model);
+		}
 		return model;
 	}
 
@@ -200,8 +211,34 @@ public class ConfigUserService implements IUserService {
 	public boolean updateUserModel(String username, UserModel model) {
 		try {
 			read();
-			users.remove(username.toLowerCase());
+			UserModel oldUser = users.remove(username.toLowerCase());
 			users.put(model.username.toLowerCase(), model);
+			// null check on "final" teams because JSON-sourced UserModel
+			// can have a null teams object
+			if (model.teams != null) {
+				for (TeamModel team : model.teams) {
+					TeamModel t = teams.get(team.name.toLowerCase());
+					if (t == null) {
+						// new team
+						team.addUser(username);
+						teams.put(team.name.toLowerCase(), team);
+					} else {
+						// do not clobber existing team definition
+						// maybe because this is a federated user
+						t.removeUser(username);
+						t.addUser(model.username);
+					}
+				}
+
+				// check for implicit team removal
+				if (oldUser != null) {
+					for (TeamModel team : oldUser.teams) {
+						if (!model.isTeamMember(team.name)) {
+							team.removeUser(username);
+						}
+					}
+				}
+			}
 			write();
 			return true;
 		} catch (Throwable t) {
@@ -233,11 +270,189 @@ public class ConfigUserService implements IUserService {
 		try {
 			// Read realm file
 			read();
-			users.remove(username.toLowerCase());
+			UserModel model = users.remove(username.toLowerCase());
+			// remove user from team
+			for (TeamModel team : model.teams) {
+				TeamModel t = teams.get(team.name);
+				if (t == null) {
+					// new team
+					team.removeUser(username);
+					teams.put(team.name.toLowerCase(), team);
+				} else {
+					// existing team
+					t.removeUser(username);
+				}
+			}
 			write();
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to delete user {0}!", username), t);
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */
+	@Override
+	public List<String> getAllTeamNames() {
+		read();
+		List<String> list = new ArrayList<String>(teams.keySet());
+		return list;
+	}
+	
+	/**
+	 * Returns the list of all users who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @return list of all usernames that can bypass the access restriction
+	 */
+	@Override
+	public List<String> getTeamnamesForRepositoryRole(String role) {
+		List<String> list = new ArrayList<String>();
+		try {
+			read();
+			for (Map.Entry<String, TeamModel> entry : teams.entrySet()) {
+				TeamModel model = entry.getValue();
+				if (model.hasRepository(role)) {
+					list.add(model.name);
+				}
+			}
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to get teamnames for role {0}!", role), t);
+		}
+		return list;
+	}
+
+	/**
+	 * Sets the list of all teams who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @param teamnames
+	 * @return true if successful
+	 */
+	@Override
+	public boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
+		try {
+			Set<String> specifiedTeams = new HashSet<String>();
+			for (String teamname : teamnames) {
+				specifiedTeams.add(teamname.toLowerCase());
+			}
+
+			read();
+
+			// identify teams which require add or remove role
+			for (TeamModel team : teams.values()) {
+				// team has role, check against revised team list
+				if (specifiedTeams.contains(team.name.toLowerCase())) {
+					team.addRepository(role);
+				} else {
+					// remove role from team
+					team.removeRepository(role);
+				}
+			}
+
+			// persist changes
+			write();
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to set teams for role {0}!", role), t);
+		}
+		return false;
+	}
+
+	/**
+	 * Retrieve the team object for the specified team name.
+	 * 
+	 * @param teamname
+	 * @return a team object or null
+	 * @since 0.8.0
+	 */
+	@Override
+	public TeamModel getTeamModel(String teamname) {
+		read();
+		TeamModel model = teams.get(teamname.toLowerCase());
+		if (model != null) {
+			// clone the model, otherwise all changes to this object are
+			// live and unpersisted
+			model = DeepCopier.copy(model);
+		}
+		return model;
+	}
+
+	/**
+	 * Updates/writes a complete team object.
+	 * 
+	 * @param model
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean updateTeamModel(TeamModel model) {
+		return updateTeamModel(model.name, model);
+	}
+
+	/**
+	 * Updates/writes and replaces a complete team object keyed by teamname.
+	 * This method allows for renaming a team.
+	 * 
+	 * @param teamname
+	 *            the old teamname
+	 * @param model
+	 *            the team object to use for teamname
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean updateTeamModel(String teamname, TeamModel model) {
+		try {
+			read();
+			teams.remove(teamname.toLowerCase());
+			teams.put(model.name.toLowerCase(), model);
+			write();
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update team model {0}!", model.name), t);
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes the team object from the user service.
+	 * 
+	 * @param model
+	 * @return true if successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean deleteTeamModel(TeamModel model) {
+		return deleteTeam(model.name);
+	}
+
+	/**
+	 * Delete the team object with the specified teamname
+	 * 
+	 * @param teamname
+	 * @return true if successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean deleteTeam(String teamname) {
+		try {
+			// Read realm file
+			read();
+			teams.remove(teamname.toLowerCase());
+			write();
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to delete team {0}!", teamname), t);
 		}
 		return false;
 	}
@@ -337,6 +552,13 @@ public class ConfigUserService implements IUserService {
 				}
 			}
 
+			// identify teams which require role rename
+			for (TeamModel model : teams.values()) {
+				if (model.hasRepository(oldRole)) {
+					model.removeRepository(oldRole);
+					model.addRepository(newRole);
+				}
+			}
 			// persist changes
 			write();
 			return true;
@@ -363,6 +585,11 @@ public class ConfigUserService implements IUserService {
 				user.removeRepository(role);
 			}
 
+			// identify teams which require role rename
+			for (TeamModel team : teams.values()) {
+				team.removeRepository(role);
+			}
+
 			// persist changes
 			write();
 			return true;
@@ -383,8 +610,10 @@ public class ConfigUserService implements IUserService {
 		File realmFileCopy = new File(realmFile.getAbsolutePath() + ".tmp");
 
 		StoredConfig config = new FileBasedConfig(realmFileCopy, FS.detect());
+
+		// write users
 		for (UserModel model : users.values()) {
-			config.setString(userSection, model.username, passwordField, model.password);
+			config.setString(USER, model.username, PASSWORD, model.password);
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -394,12 +623,33 @@ public class ConfigUserService implements IUserService {
 			if (model.excludeFromFederation) {
 				roles.add(Constants.NOT_FEDERATED_ROLE);
 			}
-			config.setStringList(userSection, model.username, roleField, roles);
+			config.setStringList(USER, model.username, ROLE, roles);
 
 			// repository memberships
-			config.setStringList(userSection, model.username, repositoryField,
-					new ArrayList<String>(model.repositories));
+			// null check on "final" repositories because JSON-sourced UserModel
+			// can have a null repositories object
+			if (model.repositories != null) {
+				config.setStringList(USER, model.username, REPOSITORY, new ArrayList<String>(
+						model.repositories));
+			}
 		}
+
+		// write teams
+		for (TeamModel model : teams.values()) {
+			// null check on "final" repositories because JSON-sourced TeamModel
+			// can have a null repositories object
+			if (model.repositories != null) {
+				config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
+						model.repositories));
+			}
+
+			// null check on "final" users because JSON-sourced TeamModel
+			// can have a null users object
+			if (model.users != null) {
+				config.setStringList(TEAM, model.name, USER, new ArrayList<String>(model.users));
+			}
+		}
+
 		config.save();
 
 		// If the write is successful, delete the current file and rename
@@ -429,23 +679,25 @@ public class ConfigUserService implements IUserService {
 			lastModified = realmFile.lastModified();
 			users.clear();
 			cookies.clear();
+			teams.clear();
+
 			try {
 				StoredConfig config = new FileBasedConfig(realmFile, FS.detect());
 				config.load();
-				Set<String> usernames = config.getSubsections(userSection);
+				Set<String> usernames = config.getSubsections(USER);
 				for (String username : usernames) {
 					UserModel user = new UserModel(username);
-					user.password = config.getString(userSection, username, passwordField);
+					user.password = config.getString(USER, username, PASSWORD);
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
-							userSection, username, roleField)));
+							USER, username, ROLE)));
 					user.canAdmin = roles.contains(Constants.ADMIN_ROLE);
 					user.excludeFromFederation = roles.contains(Constants.NOT_FEDERATED_ROLE);
 
 					// repository memberships
 					Set<String> repositories = new HashSet<String>(Arrays.asList(config
-							.getStringList(userSection, username, repositoryField)));
+							.getStringList(USER, username, REPOSITORY)));
 					for (String repository : repositories) {
 						user.addRepository(repository);
 					}
@@ -453,6 +705,25 @@ public class ConfigUserService implements IUserService {
 					// update cache
 					users.put(username, user);
 					cookies.put(StringUtils.getSHA1(username + user.password), user);
+				}
+
+				// load the teams
+				Set<String> teamnames = config.getSubsections(TEAM);
+				for (String teamname : teamnames) {
+					TeamModel team = new TeamModel(teamname);
+					team.addRepositories(Arrays.asList(config.getStringList(TEAM, teamname,
+							REPOSITORY)));
+					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));
+
+					teams.put(team.name.toLowerCase(), team);
+
+					// set the teams on the users
+					for (String user : team.users) {
+						UserModel model = users.get(user);
+						if (model != null) {
+							model.teams.add(team);
+						}
+					}
 				}
 			} catch (Exception e) {
 				logger.error(MessageFormat.format("Failed to read {0}", realmFile), e);

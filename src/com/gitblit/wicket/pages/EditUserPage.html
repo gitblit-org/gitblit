@@ -7,7 +7,7 @@
 <wicket:extend>
 <body onload="document.getElementById('username').focus();">
 	<!-- User Table -->
-	<form wicket:id="editForm">
+	<form style="padding-top:5px;" wicket:id="editForm">
 		<table class="plain">
 			<tbody>
 				<tr><th><wicket:message key="gb.username"></wicket:message></th><td class="edit"><input type="text" wicket:id="username" id="username" size="30" tabindex="1" /></td></tr>
@@ -15,6 +15,9 @@
 				<tr><th><wicket:message key="gb.confirmPassword"></wicket:message></th><td class="edit"><input type="password" wicket:id="confirmPassword" size="30" tabindex="3" /></td></tr>
 				<tr><th><wicket:message key="gb.canAdmin"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="canAdmin" tabindex="6" /> &nbsp;<i><wicket:message key="gb.canAdminDescription"></wicket:message></i></td></tr>				
 				<tr><th><wicket:message key="gb.excludeFromFederation"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="excludeFromFederation" tabindex="7" /> &nbsp;<i><wicket:message key="gb.excludeFromFederationDescription"></wicket:message></i></td></tr>				
+				<tr><td colspan="2"><hr></hr></td></tr>
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.teamMemberships"></wicket:message></th><td style="padding:2px;"><span wicket:id="teams"></span></td></tr>
+				<tr><td colspan="2"><hr></hr></td></tr>
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.restrictedRepositories"></wicket:message></th><td style="padding:2px;"><span wicket:id="repositories"></span></td></tr>
 				<tr><th></th><td class="editButton"><input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="8" /> &nbsp; <input class="btn primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="9" /></td></tr>
 			</tbody>

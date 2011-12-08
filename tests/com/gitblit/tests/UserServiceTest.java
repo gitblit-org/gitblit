@@ -38,6 +38,7 @@ public class UserServiceTest {
 		file.delete();
 		IUserService service = new FileUserService(file);
 		testUsers(service);
+		testTeams(service);
 		file.delete();
 	}
 
@@ -47,6 +48,7 @@ public class UserServiceTest {
 		file.delete();
 		IUserService service = new ConfigUserService(file);
 		testUsers(service);
+		testTeams(service);
 		file.delete();
 	}
 
@@ -105,5 +107,110 @@ public class UserServiceTest {
 		service.renameRepositoryRole("repo1", "newrepo1");
 		testUser = service.getUserModel("test");
 		assertTrue(testUser.hasRepository("newrepo1"));
+	}
+
+	protected void testTeams(IUserService service) {
+
+		// confirm we have no teams
+		assertEquals(0, service.getAllTeamNames().size());
+
+		// remove newrepo1 from test user
+		// now test user has no repositories
+		UserModel user = service.getUserModel("test");
+		user.repositories.clear();
+		service.updateUserModel(user);
+		user = service.getUserModel("test");
+		assertEquals(0, user.repositories.size());
+		assertFalse(user.canAccessRepository("newrepo1"));
+		assertFalse(user.canAccessRepository("NEWREPO1"));
+
+		// create test team and add test user and newrepo1
+		TeamModel team = new TeamModel("testteam");
+		team.addUser("test");
+		team.addRepository("newrepo1");
+		service.updateTeamModel(team);
+
+		// confirm 1 user and 1 repo
+		team = service.getTeamModel("testteam");
+		assertEquals(1, team.repositories.size());
+		assertEquals(1, team.users.size());
+
+		// confirm team membership
+		user = service.getUserModel("test");
+		assertEquals(0, user.repositories.size());
+		assertEquals(1, user.teams.size());
+
+		// confirm team access
+		assertTrue(team.hasRepository("newrepo1"));
+		assertTrue(user.hasTeamAccess("newrepo1"));
+		assertTrue(team.hasRepository("NEWREPO1"));
+		assertTrue(user.hasTeamAccess("NEWREPO1"));
+
+		// rename the team and add new repository
+		team.addRepository("newrepo2");
+		team.name = "testteam2";
+		service.updateTeamModel("testteam", team);
+
+		team = service.getTeamModel("testteam2");
+		user = service.getUserModel("test");
+
+		// confirm user and team can access newrepo2
+		assertEquals(2, team.repositories.size());
+		assertTrue(team.hasRepository("newrepo2"));
+		assertTrue(user.hasTeamAccess("newrepo2"));
+		assertTrue(team.hasRepository("NEWREPO2"));
+		assertTrue(user.hasTeamAccess("NEWREPO2"));
+
+		// delete testteam2
+		service.deleteTeam("testteam2");
+		team = service.getTeamModel("testteam2");
+		user = service.getUserModel("test");
+
+		// confirm team does not exist and user can not access newrepo1 and 2
+		assertEquals(null, team);
+		assertFalse(user.canAccessRepository("newrepo1"));
+		assertFalse(user.canAccessRepository("newrepo2"));
+
+		// create new team and add it to user
+		// this tests the inverse team creation/team addition
+		team = new TeamModel("testteam");
+		team.addRepository("NEWREPO1");
+		team.addRepository("NEWREPO2");
+		user.teams.add(team);
+		service.updateUserModel(user);
+
+		// confirm the inverted team addition
+		user = service.getUserModel("test");
+		team = service.getTeamModel("testteam");
+		assertTrue(user.hasTeamAccess("newrepo1"));
+		assertTrue(user.hasTeamAccess("newrepo2"));
+		assertTrue(team.hasUser("test"));
+
+		// drop testteam from user and add nextteam to user
+		team = new TeamModel("nextteam");
+		team.addRepository("NEWREPO1");
+		team.addRepository("NEWREPO2");
+		user.teams.clear();
+		user.teams.add(team);
+		service.updateUserModel(user);
+
+		// confirm implicit drop
+		user = service.getUserModel("test");
+		team = service.getTeamModel("testteam");
+		assertTrue(user.hasTeamAccess("newrepo1"));
+		assertTrue(user.hasTeamAccess("newrepo2"));
+		assertFalse(team.hasUser("test"));
+		team = service.getTeamModel("nextteam");
+		assertTrue(team.hasUser("test"));
+
+		// delete the user and confirm team no longer has user
+		service.deleteUser("test");
+		team = service.getTeamModel("testteam");
+		assertFalse(team.hasUser("test"));
+
+		// delete both teams
+		service.deleteTeam("testteam");
+		service.deleteTeam("nextteam");
+		assertEquals(0, service.getAllTeamNames().size());
 	}
 }

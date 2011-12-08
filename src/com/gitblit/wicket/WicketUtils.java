@@ -259,6 +259,10 @@ public class WicketUtils {
 		return new PageParameters("user=" + username);
 	}
 
+	public static PageParameters newTeamnameParameter(String teamname) {
+		return new PageParameters("team=" + teamname);
+	}
+
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		return new PageParameters("r=" + repositoryName);
 	}
@@ -375,6 +379,10 @@ public class WicketUtils {
 
 	public static String getUsername(PageParameters params) {
 		return params.getString("user", "");
+	}
+
+	public static String getTeamname(PageParameters params) {
+		return params.getString("team", "");
 	}
 
 	public static String getToken(PageParameters params) {

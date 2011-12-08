@@ -40,6 +40,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canAdmin;
 	public boolean excludeFromFederation;
 	public final Set<String> repositories = new HashSet<String>();
+	public final Set<TeamModel> teams = new HashSet<TeamModel>();
 
 	public UserModel(String username) {
 		this.username = username;
@@ -54,13 +55,24 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 */
 	@Deprecated
 	public boolean canAccessRepository(String repositoryName) {
-		return canAdmin || repositories.contains(repositoryName.toLowerCase());
+		return canAdmin || repositories.contains(repositoryName.toLowerCase())
+				|| hasTeamAccess(repositoryName);
 	}
 
 	public boolean canAccessRepository(RepositoryModel repository) {
 		boolean isOwner = !StringUtils.isEmpty(repository.owner)
 				&& repository.owner.equals(username);
-		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase());
+		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase())
+				|| hasTeamAccess(repository.name);
+	}
+
+	public boolean hasTeamAccess(String repositoryName) {
+		for (TeamModel team : teams) {
+			if (team.hasRepository(repositoryName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean hasRepository(String name) {
@@ -73,6 +85,15 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 	public void removeRepository(String name) {
 		repositories.remove(name.toLowerCase());
+	}
+
+	public boolean isTeamMember(String teamname) {
+		for (TeamModel team : teams) {
+			if (team.name.equalsIgnoreCase(teamname)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

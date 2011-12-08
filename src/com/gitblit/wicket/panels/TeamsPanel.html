@@ -12,15 +12,15 @@
 		<table class="repositories">
 		<tr>
 			<th class="left">
-				<img style="vertical-align: middle; border: 1px solid #888; background-color: white;" src="user_16x16.png"/>
-				<wicket:message key="gb.users">[users]</wicket:message>
+				<img style="vertical-align: middle; border: 1px solid #888; background-color: white;" src="users_16x16.png"/>
+				<wicket:message key="gb.teams">[teams]</wicket:message>
 			</th>
 			<th class="right"></th>
 		</tr>
 		<tbody>		
-       		<tr wicket:id="userRow">
-       			<td class="left" ><div class="list" wicket:id="username">[username]</div></td>
-       			<td class="rightAlign"><span wicket:id="userLinks"></span></td>      			
+       		<tr wicket:id="teamRow">
+       			<td class="left" ><div class="list" wicket:id="teamname">[teamname]</div></td>
+       			<td class="rightAlign"><span wicket:id="teamLinks"></span></td>      			
        		</tr>
     	</tbody>
 	</table>
@@ -29,14 +29,14 @@
 		<!-- page nav links -->	
 		<div class="admin_nav">
 			<img style="vertical-align: middle;" src="add_16x16.png"/>
-			<a wicket:id="newUser">
-				<wicket:message key="gb.newUser"></wicket:message>
+			<a wicket:id="newTeam">
+				<wicket:message key="gb.newTeam"></wicket:message>
 			</a>
 		</div>	
 	</wicket:fragment>
 	
-	<wicket:fragment wicket:id="userAdminLinks">
-		<span class="link"><a wicket:id="editUser"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="deleteUser"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
+	<wicket:fragment wicket:id="teamAdminLinks">
+		<span class="link"><a wicket:id="editTeam"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="deleteTeam"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
 	</wicket:fragment>
 	
 </wicket:panel>

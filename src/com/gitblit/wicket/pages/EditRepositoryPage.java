@@ -75,12 +75,14 @@ public class EditRepositoryPage extends RootSubPage {
 
 		List<String> federationSets = new ArrayList<String>();
 		List<String> repositoryUsers = new ArrayList<String>();
+		List<String> repositoryTeams = new ArrayList<String>();
 		if (isCreate) {
 			super.setupPage(getString("gb.newRepository"), "");
 		} else {
 			super.setupPage(getString("gb.edit"), repositoryModel.name);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
 				repositoryUsers.addAll(GitBlit.self().getRepositoryUsers(repositoryModel));
+				repositoryTeams.addAll(GitBlit.self().getRepositoryTeams(repositoryModel));
 				Collections.sort(repositoryUsers);
 			}
 			federationSets.addAll(repositoryModel.federationSets);
@@ -91,6 +93,11 @@ public class EditRepositoryPage extends RootSubPage {
 		// users palette
 		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(
 				repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()),
+				new ChoiceRenderer<String>("", ""), 10, false);
+
+		// teams palette
+		final Palette<String> teamsPalette = new Palette<String>("teams", new ListModel<String>(
+				repositoryTeams), new CollectionModel<String>(GitBlit.self().getAllTeamnames()),
 				new ChoiceRenderer<String>("", ""), 10, false);
 
 		// federation sets palette
@@ -165,8 +172,9 @@ public class EditRepositoryPage extends RootSubPage {
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
-					// save the repository access list
+					// repository access
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
+						// save the user access list
 						Iterator<String> users = usersPalette.getSelectedChoices();
 						List<String> repositoryUsers = new ArrayList<String>();
 						while (users.hasNext()) {
@@ -178,6 +186,14 @@ public class EditRepositoryPage extends RootSubPage {
 							repositoryUsers.add(repositoryModel.owner);
 						}
 						GitBlit.self().setRepositoryUsers(repositoryModel, repositoryUsers);
+						
+						// save the team access list
+						Iterator<String> teams = teamsPalette.getSelectedChoices();
+						List<String> repositoryTeams = new ArrayList<String>();
+						while (teams.hasNext()) {
+							repositoryTeams.add(teams.next());
+						}
+						GitBlit.self().setRepositoryTeams(repositoryModel, repositoryTeams);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
@@ -215,6 +231,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
 		form.add(usersPalette);
+		form.add(teamsPalette);
 		form.add(federationSetsPalette);
 
 		form.add(new Button("save"));

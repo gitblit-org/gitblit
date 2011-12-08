@@ -13,6 +13,7 @@
 - Gitweb inspired web UI
 - Administrators may create, edit, rename, or delete repositories through the web UI or RPC interface
 - Administrators may create, edit, rename, or delete users through the web UI or RPC interface
+- Administrators may create, edit, rename, or delete teams through the web UI or RPC interface
 - Repository Owners may edit repositories through the web UI
 - Git-notes display support
 - Branch metrics (uses Google Charts)

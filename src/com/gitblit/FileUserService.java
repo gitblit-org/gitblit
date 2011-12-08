@@ -30,7 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -53,6 +55,8 @@ public class FileUserService extends FileSettings implements IUserService {
 
 	private final Map<String, String> cookies = new ConcurrentHashMap<String, String>();
 
+	private final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
+
 	public FileUserService(File realmFile) {
 		super(realmFile.getAbsolutePath());
 	}
@@ -61,7 +65,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	 * Setup the user service.
 	 * 
 	 * @param settings
-	 * @since 0.6.1
+	 * @since 0.7.0
 	 */
 	@Override
 	public void setup(IStoredSettings settings) {
@@ -181,6 +185,12 @@ public class FileUserService extends FileSettings implements IUserService {
 				model.addRepository(role);
 			}
 		}
+		// set the teams for the user
+		for (TeamModel team : teams.values()) {
+			if (team.hasUser(username)) {
+				model.teams.add(DeepCopier.copy(team));
+			}
+		}
 		return model;
 	}
 
@@ -209,6 +219,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	public boolean updateUserModel(String username, UserModel model) {
 		try {
 			Properties allUsers = read();
+			UserModel oldUser = getUserModel(username);
 			ArrayList<String> roles = new ArrayList<String>(model.repositories);
 
 			// Permissions
@@ -230,6 +241,32 @@ public class FileUserService extends FileSettings implements IUserService {
 			sb.setLength(sb.length() - 1);
 			allUsers.remove(username);
 			allUsers.put(model.username, sb.toString());
+
+			// null check on "final" teams because JSON-sourced UserModel
+			// can have a null teams object
+			if (model.teams != null) {
+				// update team cache
+				for (TeamModel team : model.teams) {
+					TeamModel t = getTeamModel(team.name);
+					if (t == null) {
+						// new team
+						t = team;
+					}
+					t.removeUser(username);
+					t.addUser(model.username);
+					updateTeamCache(allUsers, t.name, t);
+				}
+
+				// check for implicit team removal
+				if (oldUser != null) {
+					for (TeamModel team : oldUser.teams) {
+						if (!model.isTeamMember(team.name)) {
+							team.removeUser(username);
+							updateTeamCache(allUsers, team.name, team);
+						}
+					}
+				}
+			}
 
 			write(allUsers);
 			return true;
@@ -262,7 +299,17 @@ public class FileUserService extends FileSettings implements IUserService {
 		try {
 			// Read realm file
 			Properties allUsers = read();
+			UserModel user = getUserModel(username);
 			allUsers.remove(username);
+			for (TeamModel team : user.teams) {
+				TeamModel t = getTeamModel(team.name);
+				if (t == null) {
+					// new team
+					t = team;
+				}
+				t.removeUser(username);
+				updateTeamCache(allUsers, t.name, t);
+			}
 			write(allUsers);
 			return true;
 		} catch (Throwable t) {
@@ -279,7 +326,14 @@ public class FileUserService extends FileSettings implements IUserService {
 	@Override
 	public List<String> getAllUsernames() {
 		Properties allUsers = read();
-		List<String> list = new ArrayList<String>(allUsers.stringPropertyNames());
+		List<String> list = new ArrayList<String>();
+		for (String user : allUsers.stringPropertyNames()) {
+			if (user.charAt(0) == '@') {
+				// skip team user definitions
+				continue;
+			}
+			list.add(user);
+		}
 		return list;
 	}
 
@@ -297,6 +351,9 @@ public class FileUserService extends FileSettings implements IUserService {
 		try {
 			Properties allUsers = read();
 			for (String username : allUsers.stringPropertyNames()) {
+				if (username.charAt(0) == '@') {
+					continue;
+				}
 				String value = allUsers.getProperty(username);
 				String[] values = value.split(",");
 				// skip first value (password)
@@ -315,7 +372,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
-	 * Sets the list of all uses who are allowed to bypass the access
+	 * Sets the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
 	 * 
 	 * @param role
@@ -426,7 +483,7 @@ public class FileUserService extends FileSettings implements IUserService {
 				sb.append(',');
 				sb.append(newRole);
 				sb.append(',');
-				
+
 				// skip first value (password)
 				for (int i = 1; i < values.length; i++) {
 					String value = values[i];
@@ -520,7 +577,7 @@ public class FileUserService extends FileSettings implements IUserService {
 		FileWriter writer = new FileWriter(realmFileCopy);
 		properties
 				.store(writer,
-						"# Gitblit realm file format: username=password,\\#permission,repository1,repository2...");
+						" Gitblit realm file format:\n   username=password,\\#permission,repository1,repository2...\n   @teamname=!username1,!username2,!username3,repository1,repository2...");
 		writer.close();
 		// If the write is successful, delete the current file and rename
 		// the temporary copy to the original filename.
@@ -551,11 +608,31 @@ public class FileUserService extends FileSettings implements IUserService {
 		if (lastRead != lastModified()) {
 			// reload hash cache
 			cookies.clear();
+			teams.clear();
+
 			for (String username : allUsers.stringPropertyNames()) {
 				String value = allUsers.getProperty(username);
 				String[] roles = value.split(",");
-				String password = roles[0];
-				cookies.put(StringUtils.getSHA1(username + password), username);
+				if (username.charAt(0) == '@') {
+					// team definition
+					TeamModel team = new TeamModel(username.substring(1));
+					List<String> repositories = new ArrayList<String>();
+					List<String> users = new ArrayList<String>();
+					for (String role : roles) {
+						if (role.charAt(0) == '!') {
+							users.add(role.substring(1));
+						} else {
+							repositories.add(role);
+						}
+					}
+					team.addRepositories(repositories);
+					team.addUsers(users);
+					teams.put(team.name.toLowerCase(), team);
+				} else {
+					// user definition
+					String password = roles[0];
+					cookies.put(StringUtils.getSHA1(username + password), username);
+				}
 			}
 		}
 		return allUsers;
@@ -564,5 +641,237 @@ public class FileUserService extends FileSettings implements IUserService {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "(" + propertiesFile.getAbsolutePath() + ")";
+	}
+
+	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */
+	@Override
+	public List<String> getAllTeamNames() {
+		List<String> list = new ArrayList<String>(teams.keySet());
+		return list;
+	}
+
+	/**
+	 * Returns the list of all teams who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @return list of all teamnames that can bypass the access restriction
+	 */
+	@Override
+	public List<String> getTeamnamesForRepositoryRole(String role) {
+		List<String> list = new ArrayList<String>();
+		try {
+			Properties allUsers = read();
+			for (String team : allUsers.stringPropertyNames()) {
+				if (team.charAt(0) != '@') {
+					// skip users
+					continue;
+				}
+				String value = allUsers.getProperty(team);
+				String[] values = value.split(",");
+				for (int i = 0; i < values.length; i++) {
+					String r = values[i];
+					if (r.equalsIgnoreCase(role)) {
+						// strip leading @
+						list.add(team.substring(1));
+						break;
+					}
+				}
+			}
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to get teamnames for role {0}!", role), t);
+		}
+		return list;
+	}
+
+	/**
+	 * Sets the list of all teams who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @param teamnames
+	 * @return true if successful
+	 */
+	@Override
+	public boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
+		try {
+			Set<String> specifiedTeams = new HashSet<String>(teamnames);
+			Set<String> needsAddRole = new HashSet<String>(specifiedTeams);
+			Set<String> needsRemoveRole = new HashSet<String>();
+
+			// identify teams which require add and remove role
+			Properties allUsers = read();
+			for (String team : allUsers.stringPropertyNames()) {
+				if (team.charAt(0) != '@') {
+					// skip users
+					continue;
+				}
+				String name = team.substring(1);
+				String value = allUsers.getProperty(team);
+				String[] values = value.split(",");
+				for (int i = 0; i < values.length; i++) {
+					String r = values[i];
+					if (r.equalsIgnoreCase(role)) {
+						// team has role, check against revised team list
+						if (specifiedTeams.contains(name)) {
+							needsAddRole.remove(name);
+						} else {
+							// remove role from team
+							needsRemoveRole.add(name);
+						}
+						break;
+					}
+				}
+			}
+
+			// add roles to teams
+			for (String name : needsAddRole) {
+				String team = "@" + name;
+				String teamValues = allUsers.getProperty(team);
+				teamValues += "," + role;
+				allUsers.put(team, teamValues);
+			}
+
+			// remove role from team
+			for (String name : needsRemoveRole) {
+				String team = "@" + name;
+				String[] values = allUsers.getProperty(team).split(",");				
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < values.length; i++) {
+					String value = values[i];
+					if (!value.equalsIgnoreCase(role)) {
+						sb.append(value);
+						sb.append(',');
+					}
+				}
+				sb.setLength(sb.length() - 1);
+
+				// update properties
+				allUsers.put(team, sb.toString());
+			}
+
+			// persist changes
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to set teamnames for role {0}!", role), t);
+		}
+		return false;
+	}
+
+	/**
+	 * Retrieve the team object for the specified team name.
+	 * 
+	 * @param teamname
+	 * @return a team object or null
+	 * @since 0.8.0
+	 */
+	@Override
+	public TeamModel getTeamModel(String teamname) {
+		read();
+		TeamModel team = teams.get(teamname.toLowerCase());
+		if (team != null) {
+			// clone the model, otherwise all changes to this object are
+			// live and unpersisted
+			team = DeepCopier.copy(team);
+		}
+		return team;
+	}
+
+	/**
+	 * Updates/writes a complete team object.
+	 * 
+	 * @param model
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean updateTeamModel(TeamModel model) {
+		return updateTeamModel(model.name, model);
+	}
+
+	/**
+	 * Updates/writes and replaces a complete team object keyed by teamname.
+	 * This method allows for renaming a team.
+	 * 
+	 * @param teamname
+	 *            the old teamname
+	 * @param model
+	 *            the team object to use for teamname
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean updateTeamModel(String teamname, TeamModel model) {
+		try {
+			Properties allUsers = read();
+			updateTeamCache(allUsers, teamname, model);
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update team model {0}!", model.name), t);
+		}
+		return false;
+	}
+
+	private void updateTeamCache(Properties allUsers, String teamname, TeamModel model) {
+		StringBuilder sb = new StringBuilder();
+		for (String repository : model.repositories) {
+			sb.append(repository);
+			sb.append(',');
+		}
+		for (String user : model.users) {
+			sb.append('!');
+			sb.append(user);
+			sb.append(',');
+		}
+		// trim trailing comma
+		sb.setLength(sb.length() - 1);
+		allUsers.remove("@" + teamname);
+		allUsers.put("@" + model.name, sb.toString());
+
+		// update team cache
+		teams.remove(teamname.toLowerCase());
+		teams.put(model.name.toLowerCase(), model);
+	}
+
+	/**
+	 * Deletes the team object from the user service.
+	 * 
+	 * @param model
+	 * @return true if successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean deleteTeamModel(TeamModel model) {
+		return deleteTeam(model.name);
+	}
+
+	/**
+	 * Delete the team object with the specified teamname
+	 * 
+	 * @param teamname
+	 * @return true if successful
+	 * @since 0.8.0
+	 */
+	@Override
+	public boolean deleteTeam(String teamname) {
+		Properties allUsers = read();
+		teams.remove(teamname.toLowerCase());
+		allUsers.remove("@" + teamname);
+		try {
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to delete team {0}!", teamname), t);
+		}
+		return false;
 	}
 }

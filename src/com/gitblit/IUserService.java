@@ -17,6 +17,7 @@ package com.gitblit;
 
 import java.util.List;
 
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
 /**
@@ -120,6 +121,84 @@ public interface IUserService {
 	 * @return list of all usernames
 	 */
 	List<String> getAllUsernames();
+
+	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */	
+	List<String> getAllTeamNames();
+	
+	/**
+	 * Returns the list of all users who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @return list of all usernames that can bypass the access restriction
+	 */	
+	List<String> getTeamnamesForRepositoryRole(String role);
+
+	/**
+	 * Sets the list of all teams who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @param role
+	 *            the repository name
+	 * @param teamnames
+	 * @return true if successful
+	 */	
+	boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames);
+	
+	/**
+	 * Retrieve the team object for the specified team name.
+	 * 
+	 * @param teamname
+	 * @return a team object or null
+	 * @since 0.8.0
+	 */	
+	TeamModel getTeamModel(String teamname);
+
+	/**
+	 * Updates/writes a complete team object.
+	 * 
+	 * @param model
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */	
+	boolean updateTeamModel(TeamModel model);
+
+	/**
+	 * Updates/writes and replaces a complete team object keyed by teamname.
+	 * This method allows for renaming a team.
+	 * 
+	 * @param teamname
+	 *            the old teamname
+	 * @param model
+	 *            the team object to use for teamname
+	 * @return true if update is successful
+	 * @since 0.8.0
+	 */
+	boolean updateTeamModel(String teamname, TeamModel model);
+
+	/**
+	 * Deletes the team object from the user service.
+	 * 
+	 * @param model
+	 * @return true if successful
+	 * @since 0.8.0
+	 */
+	boolean deleteTeamModel(TeamModel model);
+
+	/**
+	 * Delete the team object with the specified teamname
+	 * 
+	 * @param teamname
+	 * @return true if successful
+	 * @since 0.8.0
+	 */	
+	boolean deleteTeam(String teamname);
 
 	/**
 	 * Returns the list of all users who are allowed to bypass the access

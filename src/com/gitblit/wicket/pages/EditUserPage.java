@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
@@ -82,10 +84,19 @@ public class EditUserPage extends RootSubPage {
 				repos.add(repo);
 			}
 		}
+		List<String> userTeams = new ArrayList<String>();
+		for (TeamModel team : userModel.teams) {
+			userTeams.add(team.name);
+		}
+		Collections.sort(userTeams);
+		
 		final String oldName = userModel.username;
 		final Palette<String> repositories = new Palette<String>("repositories",
 				new ListModel<String>(new ArrayList<String>(userModel.repositories)),
 				new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
+		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
+				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
+				.getAllTeamnames()), new ChoiceRenderer<String>("", ""), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -109,7 +120,8 @@ public class EditUserPage extends RootSubPage {
 						return;
 					}
 				}
-				boolean rename = !StringUtils.isEmpty(oldName) && !oldName.equalsIgnoreCase(username);
+				boolean rename = !StringUtils.isEmpty(oldName)
+						&& !oldName.equalsIgnoreCase(username);
 				if (!userModel.password.equals(confirmPassword.getObject())) {
 					error("Passwords do not match!");
 					return;
@@ -154,6 +166,17 @@ public class EditUserPage extends RootSubPage {
 				}
 				userModel.repositories.clear();
 				userModel.repositories.addAll(repos);
+
+				Iterator<String> selectedTeams = teams.getSelectedChoices();
+				userModel.teams.clear();
+				while (selectedTeams.hasNext()) {
+					TeamModel team = GitBlit.self().getTeamModel(selectedTeams.next());
+					if (team == null) {
+						continue;
+					}
+					userModel.teams.add(team);
+				}
+
 				try {
 					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
@@ -185,6 +208,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new CheckBox("canAdmin"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);
+		form.add(teams);
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

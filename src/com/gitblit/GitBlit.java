@@ -69,6 +69,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
@@ -508,6 +509,83 @@ public class GitBlit implements ServletContextListener {
 		if (!userService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
+	}
+
+	/**
+	 * Returns the list of available teams that a user or repository may be
+	 * assigned to.
+	 * 
+	 * @return the list of teams
+	 */
+	public List<String> getAllTeamnames() {
+		List<String> teams = new ArrayList<String>(userService.getAllTeamNames());
+		Collections.sort(teams);
+		return teams;
+	}
+
+	/**
+	 * Returns the TeamModel object for the specified name.
+	 * 
+	 * @param teamname
+	 * @return a TeamModel object or null
+	 */
+	public TeamModel getTeamModel(String teamname) {
+		return userService.getTeamModel(teamname);
+	}
+
+	/**
+	 * Returns the list of all teams who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @see IUserService.getTeamnamesForRepositoryRole(String)
+	 * @param repository
+	 * @return list of all teamnames that can bypass the access restriction
+	 */
+	public List<String> getRepositoryTeams(RepositoryModel repository) {
+		return userService.getTeamnamesForRepositoryRole(repository.name);
+	}
+
+	/**
+	 * Sets the list of all uses who are allowed to bypass the access
+	 * restriction placed on the specified repository.
+	 * 
+	 * @see IUserService.setTeamnamesForRepositoryRole(String, List<String>)
+	 * @param repository
+	 * @param teamnames
+	 * @return true if successful
+	 */
+	public boolean setRepositoryTeams(RepositoryModel repository, List<String> repositoryTeams) {
+		return userService.setTeamnamesForRepositoryRole(repository.name, repositoryTeams);
+	}
+	/**
+	 * Updates the TeamModel object for the specified name.
+	 * 
+	 * @param teamname
+	 * @param team
+	 * @param isCreate
+	 */
+	public void updateTeamModel(String teamname, TeamModel team, boolean isCreate) throws GitBlitException {
+		if (!teamname.equalsIgnoreCase(team.name)) {
+			if (userService.getTeamModel(team.name) != null) {
+				throw new GitBlitException(MessageFormat.format(
+						"Failed to rename ''{0}'' because ''{1}'' already exists.", teamname,
+						team.name));
+			}
+		}
+		if (!userService.updateTeamModel(teamname, team)) {
+			throw new GitBlitException(isCreate ? "Failed to add team!" : "Failed to update team!");
+		}
+	}
+	
+	/**
+	 * Delete the team object with the specified teamname
+	 * 
+	 * @see IUserService.deleteTeam(String)
+	 * @param teamname
+	 * @return true if successful
+	 */
+	public boolean deleteTeam(String teamname) {
+		return userService.deleteTeam(teamname);
 	}
 
 	/**
@@ -1115,6 +1193,7 @@ public class GitBlit implements ServletContextListener {
 		case PULL_REPOSITORIES:
 			return token.equals(all) || token.equals(unr) || token.equals(jur);
 		case PULL_USERS:
+		case PULL_TEAMS:
 			return token.equals(all) || token.equals(unr);
 		case PULL_SETTINGS:
 			return token.equals(all);
@@ -1473,7 +1552,7 @@ public class GitBlit implements ServletContextListener {
 							configService.updateUserModel(userModel);
 						}
 					}
-					
+
 					// issue suggestion about switching to users.conf
 					logger.warn("Please consider using \"users.conf\" instead of the deprecated \"users.properties\" file");
 				} else if (realmFile.getName().toLowerCase().endsWith(".conf")) {
