@@ -15,14 +15,19 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.utils.ObjectCache;
 
-public class ObjectCacheTest extends TestCase {
+public class ObjectCacheTest {
 
+	@Test
 	public void testCache() throws Exception {
 		ObjectCache<String> cache = new ObjectCache<String>();
 		cache.updateObject("test", "alpha");

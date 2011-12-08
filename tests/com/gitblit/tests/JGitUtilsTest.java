@@ -15,6 +15,12 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -22,8 +28,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
 
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
@@ -35,7 +39,9 @@ import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
+import org.junit.Test;
 
+import com.gitblit.Constants.SearchType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
@@ -45,56 +51,62 @@ import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
-public class JGitUtilsTest extends TestCase {
+public class JGitUtilsTest {
 
+	@Test
 	public void testDisplayName() throws Exception {
-		assertTrue(JGitUtils.getDisplayName(new PersonIdent("Napoleon Bonaparte", "")).equals(
-				"Napoleon Bonaparte"));
-		assertTrue(JGitUtils.getDisplayName(new PersonIdent("", "someone@somewhere.com")).equals(
-				"<someone@somewhere.com>"));
-		assertTrue(JGitUtils.getDisplayName(
-				new PersonIdent("Napoleon Bonaparte", "someone@somewhere.com")).equals(
-				"Napoleon Bonaparte <someone@somewhere.com>"));
+		assertEquals("Napoleon Bonaparte",
+				JGitUtils.getDisplayName(new PersonIdent("Napoleon Bonaparte", "")));
+		assertEquals("<someone@somewhere.com>",
+				JGitUtils.getDisplayName(new PersonIdent("", "someone@somewhere.com")));
+		assertEquals("Napoleon Bonaparte <someone@somewhere.com>",
+				JGitUtils.getDisplayName(new PersonIdent("Napoleon Bonaparte",
+						"someone@somewhere.com")));
 	}
 
+	@Test
 	public void testFindRepositories() {
 		List<String> list = JGitUtils.getRepositoryList(null, true, true);
-		assertTrue(list.size() == 0);
+		assertEquals(0, list.size());
 		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true));
-		assertTrue(list.size() == 0);
+		assertEquals(0, list.size());
 		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, true, true));
 		assertTrue("No repositories found in " + GitBlitSuite.REPOSITORIES, list.size() > 0);
 	}
 
+	@Test
 	public void testOpenRepository() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		repository.close();
-		assertTrue("Could not find repository!", repository != null);
+		assertNotNull("Could not find repository!", repository);
 	}
 
+	@Test
 	public void testFirstCommit() throws Exception {
-		assertTrue(JGitUtils.getFirstChange(null, null).equals(new Date(0)));
+		assertEquals(new Date(0), JGitUtils.getFirstChange(null, null));
 
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getFirstCommit(repository, null);
 		Date firstChange = JGitUtils.getFirstChange(repository, null);
 		repository.close();
-		assertTrue("Could not get first commit!", commit != null);
-		assertTrue("Incorrect first commit!",
-				commit.getName().equals("f554664a346629dc2b839f7292d06bad2db4aece"));
+		assertNotNull("Could not get first commit!", commit);
+		assertEquals("Incorrect first commit!", "f554664a346629dc2b839f7292d06bad2db4aece",
+				commit.getName());
 		assertTrue(firstChange.equals(new Date(commit.getCommitTime() * 1000L)));
 	}
 
+	@Test
 	public void testLastCommit() throws Exception {
-		assertTrue(JGitUtils.getLastChange(null, null).equals(new Date(0)));
+		assertEquals(new Date(0), JGitUtils.getLastChange(null, null));
 
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		assertTrue(JGitUtils.getCommit(repository, null) != null);
 		Date date = JGitUtils.getLastChange(repository, null);
 		repository.close();
-		assertTrue("Could not get last repository change date!", date != null);
+		assertNotNull("Could not get last repository change date!", date);
 	}
 
+	@Test
 	public void testCreateRepository() throws Exception {
 		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
 		for (String repositoryName : repositories) {
@@ -102,18 +114,19 @@ public class JGitUtilsTest extends TestCase {
 					repositoryName);
 			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
 					FS.DETECTED);
-			assertTrue(repository != null);
+			assertNotNull(repository);
 			assertFalse(JGitUtils.hasCommits(repository));
-			assertTrue(JGitUtils.getFirstCommit(repository, null) == null);
-			assertTrue(JGitUtils.getFirstChange(repository, null).getTime() == folder
-					.lastModified());
-			assertTrue(JGitUtils.getLastChange(repository, null).getTime() == folder.lastModified());
-			assertTrue(JGitUtils.getCommit(repository, null) == null);
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+			assertEquals(folder.lastModified(), JGitUtils.getFirstChange(repository, null)
+					.getTime());
+			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository, null).getTime());
+			assertNull(JGitUtils.getCommit(repository, null));
 			repository.close();
 			assertTrue(GitBlit.self().deleteRepository(repositoryName));
 		}
 	}
 
+	@Test
 	public void testRefs() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		Map<ObjectId, List<RefModel>> map = JGitUtils.getAllRefs(repository);
@@ -123,13 +136,13 @@ public class JGitUtilsTest extends TestCase {
 			List<RefModel> list = entry.getValue();
 			for (RefModel ref : list) {
 				if (ref.displayName.equals("refs/tags/spearce-gpg-pub")) {
-					assertTrue(ref.toString().equals("refs/tags/spearce-gpg-pub"));
-					assertTrue(ref.getObjectId().getName()
-							.equals("8bbde7aacf771a9afb6992434f1ae413e010c6d8"));
-					assertTrue(ref.getAuthorIdent().getEmailAddress().equals("spearce@spearce.org"));
+					assertEquals("refs/tags/spearce-gpg-pub", ref.toString());
+					assertEquals("8bbde7aacf771a9afb6992434f1ae413e010c6d8", ref.getObjectId()
+							.getName());
+					assertEquals("spearce@spearce.org", ref.getAuthorIdent().getEmailAddress());
 					assertTrue(ref.getShortMessage().startsWith("GPG key"));
 					assertTrue(ref.getFullMessage().startsWith("GPG key"));
-					assertTrue(ref.getReferencedObjectType() == Constants.OBJ_BLOB);
+					assertEquals(Constants.OBJ_BLOB, ref.getReferencedObjectType());
 				} else if (ref.displayName.equals("refs/tags/v0.12.1")) {
 					assertTrue(ref.isAnnotatedTag());
 				}
@@ -137,6 +150,7 @@ public class JGitUtilsTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testBranches() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		assertTrue(JGitUtils.getLocalBranches(repository, true, 0).size() == 0);
@@ -160,6 +174,7 @@ public class JGitUtilsTest extends TestCase {
 		repository.close();
 	}
 
+	@Test
 	public void testTags() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		assertTrue(JGitUtils.getTags(repository, true, 5).size() == 5);
@@ -180,13 +195,13 @@ public class JGitUtilsTest extends TestCase {
 			if (model.getObjectId().getName().equals("728643ec0c438c77e182898c2f2967dbfdc231c8")) {
 				assertFalse(model.isAnnotatedTag());
 				assertTrue(model.getAuthorIdent().getEmailAddress().equals("marcel@holtmann.org"));
-				assertTrue(model.getFullMessage().equals(
-						"Update changelog and bump version number\n"));
+				assertEquals("Update changelog and bump version number\n", model.getFullMessage());
 			}
 		}
 		repository.close();
 	}
 
+	@Test
 	public void testCommitNotes() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -194,10 +209,11 @@ public class JGitUtilsTest extends TestCase {
 		List<GitNote> list = JGitUtils.getNotesOnCommit(repository, commit);
 		repository.close();
 		assertTrue(list.size() > 0);
-		assertTrue(list.get(0).notesRef.getReferencedObjectId().getName()
-				.equals("183474d554e6f68478a02d9d7888b67a9338cdff"));
+		assertEquals("183474d554e6f68478a02d9d7888b67a9338cdff", list.get(0).notesRef
+				.getReferencedObjectId().getName());
 	}
 
+	@Test
 	public void testCreateOrphanedBranch() throws Exception {
 		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");
 		assertTrue(JGitUtils.createOrphanBranch(repository,
@@ -205,6 +221,7 @@ public class JGitUtilsTest extends TestCase {
 		FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
 	}
 
+	@Test
 	public void testStringContent() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		String contentA = JGitUtils.getStringContent(repository, null, "java.java");
@@ -222,10 +239,11 @@ public class JGitUtilsTest extends TestCase {
 		assertTrue("ContentA is null!", contentA != null && contentA.length() > 0);
 		assertTrue("ContentB is null!", contentB != null && contentB.length() > 0);
 		assertTrue(contentA.equals(contentB));
-		assertTrue(contentC == null);
+		assertNull(contentC);
 		assertTrue(contentA.equals(contentD));
 	}
 
+	@Test
 	public void testFilesInCommit() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -248,19 +266,21 @@ public class JGitUtilsTest extends TestCase {
 			assertTrue("PathChangeModel equals itself failed!", path.equals(path));
 			assertFalse("PathChangeModel equals string failed!", path.equals(""));
 		}
-		assertTrue(deletions.get(0).changeType.equals(ChangeType.DELETE));
-		assertTrue(additions.get(0).changeType.equals(ChangeType.ADD));
+		assertEquals(ChangeType.DELETE, deletions.get(0).changeType);
+		assertEquals(ChangeType.ADD, additions.get(0).changeType);
 		assertTrue(latestChanges.size() > 0);
 	}
 
+	@Test
 	public void testFilesInPath() throws Exception {
-		assertTrue(JGitUtils.getFilesInPath(null, null, null).size() == 0);
+		assertEquals(0, JGitUtils.getFilesInPath(null, null, null).size());
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<PathModel> files = JGitUtils.getFilesInPath(repository, null, null);
 		repository.close();
 		assertTrue(files.size() > 10);
 	}
 
+	@Test
 	public void testDocuments() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
@@ -274,17 +294,19 @@ public class JGitUtilsTest extends TestCase {
 		assertTrue(allFiles.size() > markdownDocs.size());
 	}
 
+	@Test
 	public void testFileModes() throws Exception {
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.TREE.getBits()).equals("drwxr-xr-x"));
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.REGULAR_FILE.getBits()).equals(
-				"-rw-r--r--"));
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.EXECUTABLE_FILE.getBits()).equals(
-				"-rwxr-xr-x"));
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.SYMLINK.getBits()).equals("symlink"));
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.GITLINK.getBits()).equals("gitlink"));
-		assertTrue(JGitUtils.getPermissionsFromMode(FileMode.MISSING.getBits()).equals("missing"));
+		assertEquals("drwxr-xr-x", JGitUtils.getPermissionsFromMode(FileMode.TREE.getBits()));
+		assertEquals("-rw-r--r--",
+				JGitUtils.getPermissionsFromMode(FileMode.REGULAR_FILE.getBits()));
+		assertEquals("-rwxr-xr-x",
+				JGitUtils.getPermissionsFromMode(FileMode.EXECUTABLE_FILE.getBits()));
+		assertEquals("symlink", JGitUtils.getPermissionsFromMode(FileMode.SYMLINK.getBits()));
+		assertEquals("gitlink", JGitUtils.getPermissionsFromMode(FileMode.GITLINK.getBits()));
+		assertEquals("missing", JGitUtils.getPermissionsFromMode(FileMode.MISSING.getBits()));
 	}
 
+	@Test
 	public void testRevlog() throws Exception {
 		assertTrue(JGitUtils.getRevLog(null, 0).size() == 0);
 		List<RevCommit> commits = JGitUtils.getRevLog(null, 10);
@@ -302,51 +324,55 @@ public class JGitUtilsTest extends TestCase {
 		// grab the two most recent commits to java.java
 		commits = JGitUtils.getRevLog(repository, null, "java.java", 0, 2);
 		assertEquals(2, commits.size());
-		
+
 		// grab the commits since 2008-07-15
-		commits = JGitUtils.getRevLog(repository, null, new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
+		commits = JGitUtils.getRevLog(repository, null,
+				new SimpleDateFormat("yyyy-MM-dd").parse("2008-07-15"));
 		assertEquals(12, commits.size());
 		repository.close();
 	}
 
+	@Test
 	public void testSearchTypes() throws Exception {
-		assertTrue(com.gitblit.Constants.SearchType.forName("commit").equals(com.gitblit.Constants.SearchType.COMMIT));
-		assertTrue(com.gitblit.Constants.SearchType.forName("committer").equals(com.gitblit.Constants.SearchType.COMMITTER));
-		assertTrue(com.gitblit.Constants.SearchType.forName("author").equals(com.gitblit.Constants.SearchType.AUTHOR));
-		assertTrue(com.gitblit.Constants.SearchType.forName("unknown").equals(com.gitblit.Constants.SearchType.COMMIT));
+		assertEquals(SearchType.COMMIT, SearchType.forName("commit"));
+		assertEquals(SearchType.COMMITTER, SearchType.forName("committer"));
+		assertEquals(SearchType.AUTHOR, SearchType.forName("author"));
+		assertEquals(SearchType.COMMIT, SearchType.forName("unknown"));
 
-		assertTrue(com.gitblit.Constants.SearchType.COMMIT.toString().equals("commit"));
-		assertTrue(com.gitblit.Constants.SearchType.COMMITTER.toString().equals("committer"));
-		assertTrue(com.gitblit.Constants.SearchType.AUTHOR.toString().equals("author"));
+		assertEquals("commit", SearchType.COMMIT.toString());
+		assertEquals("committer", SearchType.COMMITTER.toString());
+		assertEquals("author", SearchType.AUTHOR.toString());
 	}
 
+	@Test
 	public void testSearchRevlogs() throws Exception {
-		assertTrue(JGitUtils.searchRevlogs(null, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0, 0).size() == 0);
-		List<RevCommit> results = JGitUtils.searchRevlogs(null, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0,
+		assertEquals(0, JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0, 0).size());
+		List<RevCommit> results = JGitUtils.searchRevlogs(null, null, "java", SearchType.COMMIT, 0,
 				3);
-		assertTrue(results.size() == 0);
+		assertEquals(0, results.size());
 
 		// test commit message search
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		results = JGitUtils.searchRevlogs(repository, null, "java", com.gitblit.Constants.SearchType.COMMIT, 0, 3);
-		assertTrue(results.size() == 3);
+		results = JGitUtils.searchRevlogs(repository, null, "java", SearchType.COMMIT, 0, 3);
+		assertEquals(3, results.size());
 
 		// test author search
-		results = JGitUtils.searchRevlogs(repository, null, "timothy", com.gitblit.Constants.SearchType.AUTHOR, 0, -1);
-		assertTrue(results.size() == 1);
+		results = JGitUtils.searchRevlogs(repository, null, "timothy", SearchType.AUTHOR, 0, -1);
+		assertEquals(1, results.size());
 
 		// test committer search
-		results = JGitUtils.searchRevlogs(repository, null, "mike", com.gitblit.Constants.SearchType.COMMITTER, 0, 10);
-		assertTrue(results.size() == 10);
+		results = JGitUtils.searchRevlogs(repository, null, "mike", SearchType.COMMITTER, 0, 10);
+		assertEquals(10, results.size());
 
 		// test paging and offset
-		RevCommit commit = JGitUtils.searchRevlogs(repository, null, "mike", com.gitblit.Constants.SearchType.COMMITTER,
+		RevCommit commit = JGitUtils.searchRevlogs(repository, null, "mike", SearchType.COMMITTER,
 				9, 1).get(0);
-		assertTrue(results.get(9).equals(commit));
+		assertEquals(results.get(9), commit);
 
 		repository.close();
 	}
 
+	@Test
 	public void testZip() throws Exception {
 		assertFalse(JGitUtils.zip(null, null, null, null));
 		Repository repository = GitBlitSuite.getHelloworldRepository();

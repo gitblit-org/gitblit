@@ -15,15 +15,18 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertTrue;
+
 import javax.mail.Message;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.FileSettings;
 import com.gitblit.MailExecutor;
 
-public class MailTest extends TestCase {
+public class MailTest {
 
+	@Test
 	public void testSendMail() throws Exception {
 		FileSettings settings = new FileSettings("mailtest.properties");
 		MailExecutor mail = new MailExecutor(settings);
@@ -31,7 +34,7 @@ public class MailTest extends TestCase {
 		message.setSubject("Test");
 		message.setText("this is a test");
 		mail.queue(message);
-		mail.run();		
+		mail.run();
 
 		assertTrue("mail queue is not empty!", mail.hasEmptyQueue());
 	}

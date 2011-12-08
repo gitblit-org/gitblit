@@ -15,33 +15,42 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.ConfigUserService;
 import com.gitblit.FileUserService;
 import com.gitblit.IUserService;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
-public class UserServiceTest extends TestCase {
+public class UserServiceTest {
 
+	@Test
 	public void testFileUserService() throws IOException {
 		File file = new File("us-test.properties");
 		file.delete();
-		test(new FileUserService(file));
+		IUserService service = new FileUserService(file);
+		testUsers(service);
 		file.delete();
 	}
 
+	@Test
 	public void testConfigUserService() throws IOException {
 		File file = new File("us-test.conf");
 		file.delete();
-		test(new ConfigUserService(file));
+		IUserService service = new ConfigUserService(file);
+		testUsers(service);
 		file.delete();
 	}
 
-	protected void test(IUserService service) {
+	protected void testUsers(IUserService service) {
 
 		UserModel admin = service.getUserModel("admin");
 		assertTrue(admin == null);

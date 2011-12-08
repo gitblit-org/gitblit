@@ -15,6 +15,9 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,14 +25,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.Constants.SearchType;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.SyndicationUtils;
 
-public class SyndicationUtilsTest extends TestCase {
+public class SyndicationUtilsTest {
 
+	@Test
 	public void testSyndication() throws Exception {
 		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();
 		for (int i = 0; i < 10; i++) {
@@ -58,12 +62,12 @@ public class SyndicationUtilsTest extends TestCase {
 		assertTrue(feed.indexOf("<description>Description</description>") > -1);
 	}
 
+	@Test
 	public void testFeedRead() throws Exception {
 		Set<String> links = new HashSet<String>();
 		for (int i = 0; i < 2; i++) {
-			List<FeedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url,
-					"ticgit.git", "deving", 5, i, GitBlitSuite.account,
-					GitBlitSuite.password.toCharArray());
+			List<FeedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url, "ticgit.git",
+					"deving", 5, i, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
 			assertTrue(feed != null);
 			assertTrue(feed.size() > 0);
 			assertEquals(5, feed.size());
@@ -75,10 +79,11 @@ public class SyndicationUtilsTest extends TestCase {
 		assertEquals("Feed pagination failed", 10, links.size());
 	}
 
+	@Test
 	public void testSearchFeedRead() throws Exception {
-		List<FeedEntryModel> feed = SyndicationUtils.readSearchFeed(GitBlitSuite.url,
-				"ticgit.git", null, "test", null, 5, 0, GitBlitSuite.account,
-				GitBlitSuite.password.toCharArray());
+		List<FeedEntryModel> feed = SyndicationUtils
+				.readSearchFeed(GitBlitSuite.url, "ticgit.git", null, "test", null, 5, 0,
+						GitBlitSuite.account, GitBlitSuite.password.toCharArray());
 		assertTrue(feed != null);
 		assertTrue(feed.size() > 0);
 		assertEquals(5, feed.size());

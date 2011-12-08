@@ -17,23 +17,42 @@ package com.gitblit.tests;
 
 import java.io.File;
 import java.util.concurrent.Executors;
-
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
-import com.gitblit.ConfigUserService;
-import com.gitblit.FileSettings;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.GitBlitServer;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 
-public class GitBlitSuite extends TestSetup {
+/**
+ * The GitBlitSuite uses test-gitblit.properties and test-users.conf. The suite
+ * is fairly comprehensive for all lower-level functionality. Wicket pages are
+ * currently not unit-tested.
+ * 
+ * This suite starts a Gitblit server instance within the same JVM instance as
+ * the unit tests. This allows the unit tests to access the GitBlit static
+ * singleton while also being able to communicate with the instance via tcp/ip
+ * for testing rpc requests, federation requests, and git servlet operations.
+ * 
+ * @author James Moger
+ * 
+ */
+@RunWith(Suite.class)
+@SuiteClasses({ FileUtilsTest.class, TimeUtilsTest.class, StringUtilsTest.class, Base64Test.class,
+		JsonUtilsTest.class, ByteFormatTest.class, ObjectCacheTest.class, UserServiceTest.class,
+		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
+		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, GitBlitTest.class,
+		FederationTests.class, RpcTests.class, GitServletTest.class })
+public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("git");
 
@@ -44,30 +63,7 @@ public class GitBlitSuite extends TestSetup {
 	public static String account = "admin";
 	public static String password = "admin";
 
-	private GitBlitSuite(TestSuite suite) {
-		super(suite);
-	}
-
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
-		suite.addTestSuite(FileUtilsTest.class);
-		suite.addTestSuite(TimeUtilsTest.class);
-		suite.addTestSuite(StringUtilsTest.class);
-		suite.addTestSuite(Base64Test.class);
-		suite.addTestSuite(JsonUtilsTest.class);
-		suite.addTestSuite(ByteFormatTest.class);
-		suite.addTestSuite(ObjectCacheTest.class);
-		suite.addTestSuite(UserServiceTest.class);
-		suite.addTestSuite(MarkdownUtilsTest.class);
-		suite.addTestSuite(JGitUtilsTest.class);
-		suite.addTestSuite(SyndicationUtilsTest.class);
-		suite.addTestSuite(DiffUtilsTest.class);
-		suite.addTestSuite(MetricUtilsTest.class);
-		suite.addTestSuite(TicgitUtilsTest.class);
-		suite.addTestSuite(GitBlitTest.class);
-		suite.addTestSuite(RpcTests.class);
-		return new GitBlitSuite(suite);
-	}
+	private static AtomicBoolean started = new AtomicBoolean(false);
 
 	public static Repository getHelloworldRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "helloworld.git"));
@@ -85,19 +81,26 @@ public class GitBlitSuite extends TestSetup {
 		return new FileRepository(new File(REPOSITORIES, "test/bluez-gnome.git"));
 	}
 
-	public static void startGitblit() throws Exception {
+	public static boolean startGitblit() throws Exception {
+		if (started.get()) {
+			// already started
+			return false;
+		}
 		// Start a Gitblit instance
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			public void run() {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"distrib/users.conf");
+						"test-users.conf", "--settings", "test-gitblit.properties");
 			}
 		});
 
 		// Wait a few seconds for it to be running
 		Thread.sleep(2500);
+
+		started.set(true);
+		return true;
 	}
 
 	public static void stopGitblit() throws Exception {
@@ -108,12 +111,9 @@ public class GitBlitSuite extends TestSetup {
 		Thread.sleep(2500);
 	}
 
-	@Override
-	protected void setUp() throws Exception {
-		FileSettings settings = new FileSettings("distrib/gitblit.properties");
-		GitBlit.self().configureContext(settings, true);
-		ConfigUserService loginService = new ConfigUserService(new File("distrib/users.conf"));
-		GitBlit.self().setUserService(loginService);
+	@BeforeClass
+	public static void setUp() throws Exception {
+		startGitblit();
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
 			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");
@@ -128,22 +128,20 @@ public class GitBlitSuite extends TestSetup {
 			showRemoteBranches("ticgit.git");
 			showRemoteBranches("test/jgit.git");
 		}
-
-		startGitblit();
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@AfterClass
+	public static void tearDown() throws Exception {
 		stopGitblit();
 	}
 
-	private void cloneOrFetch(String name, String fromUrl) throws Exception {
+	private static void cloneOrFetch(String name, String fromUrl) throws Exception {
 		System.out.print("Fetching " + name + "... ");
 		JGitUtils.cloneRepository(REPOSITORIES, name, fromUrl);
 		System.out.println("done.");
 	}
 
-	private void enableTickets(String repositoryName) {
+	private static void enableTickets(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.useTickets = true;
@@ -153,7 +151,7 @@ public class GitBlitSuite extends TestSetup {
 		}
 	}
 
-	private void enableDocs(String repositoryName) {
+	private static void enableDocs(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.useDocs = true;
@@ -163,7 +161,7 @@ public class GitBlitSuite extends TestSetup {
 		}
 	}
 
-	private void showRemoteBranches(String repositoryName) {
+	private static void showRemoteBranches(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.showRemoteBranches = true;

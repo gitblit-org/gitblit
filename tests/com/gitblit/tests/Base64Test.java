@@ -15,14 +15,17 @@
  */
 package com.gitblit.tests;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 import com.gitblit.utils.Base64;
 
-public class Base64Test extends TestCase {
+public class Base64Test {
 
+	@Test
 	public void testBase64() {
-		String source = "this is a test";		
+		String source = "this is a test";
 		String base64 = Base64.encodeBytes(source.getBytes());
 		assertEquals("dGhpcyBpcyBhIHRlc3Q=", base64);
 		String decoded = new String(Base64.decode(base64));

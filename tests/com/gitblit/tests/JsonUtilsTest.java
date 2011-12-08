@@ -15,18 +15,21 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.utils.JsonUtils;
 import com.google.gson.reflect.TypeToken;
 
-public class JsonUtilsTest extends TestCase {
+public class JsonUtilsTest {
 
+	@Test
 	public void testSerialization() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("a", "alligator");

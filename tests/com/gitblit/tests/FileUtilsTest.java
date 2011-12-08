@@ -15,20 +15,25 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.utils.FileUtils;
 
-public class FileUtilsTest extends TestCase {
+public class FileUtilsTest {
 
+	@Test
 	public void testReadContent() throws Exception {
 		File dir = new File(System.getProperty("user.dir"));
 		String rawContent = FileUtils.readContent(new File(dir, "LICENSE"), "\n");
 		assertTrue(rawContent.trim().startsWith("Apache License"));
 	}
-	
+
+	@Test
 	public void testWriteContent() throws Exception {
 		String contentA = "this is a test";
 		File tmp = File.createTempFile("gitblit-", ".test");
@@ -37,6 +42,7 @@ public class FileUtilsTest extends TestCase {
 		assertEquals(contentA, contentB);
 	}
 
+	@Test
 	public void testFolderSize() throws Exception {
 		assertEquals(-1, FileUtils.folderSize(null));
 		assertEquals(-1, FileUtils.folderSize(new File(System.getProperty("user.dir"), "pretend")));
@@ -47,7 +53,6 @@ public class FileUtilsTest extends TestCase {
 
 		File file = new File(System.getProperty("user.dir"), "LICENSE");
 		size = FileUtils.folderSize(file);
-		assertTrue("size is actually " + size, size == 11556L);
-
+		assertEquals("size is actually " + size, 11556L, size);
 	}
 }

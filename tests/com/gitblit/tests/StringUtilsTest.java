@@ -15,15 +15,20 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.utils.StringUtils;
 
-public class StringUtilsTest extends TestCase {
+public class StringUtilsTest {
 
+	@Test
 	public void testIsEmpty() throws Exception {
 		assertTrue(StringUtils.isEmpty(null));
 		assertTrue(StringUtils.isEmpty(""));
@@ -31,86 +36,99 @@ public class StringUtilsTest extends TestCase {
 		assertFalse(StringUtils.isEmpty("A"));
 	}
 
+	@Test
 	public void testBreakLinesForHtml() throws Exception {
 		String input = "this\nis\r\na\rtest\r\n\r\nof\n\nline\r\rbreaking";
 		String output = "this<br/>is<br/>a<br/>test<br/><br/>of<br/><br/>line<br/><br/>breaking";
-		assertTrue(StringUtils.breakLinesForHtml(input).equals(output));
+		assertEquals(output, StringUtils.breakLinesForHtml(input));
 	}
 
+	@Test
 	public void testEncodeUrl() throws Exception {
 		String input = "test /";
 		String output = "test%20%2F";
-		assertTrue(StringUtils.encodeURL(input).equals(output));
+		assertEquals(output, StringUtils.encodeURL(input));
 	}
 
+	@Test
 	public void testEscapeForHtml() throws Exception {
 		String input = "& < > \" \t";
 		String outputNoChange = "&amp; &lt; &gt; &quot; \t";
 		String outputChange = "&amp;&nbsp;&lt;&nbsp;&gt;&nbsp;&quot;&nbsp; &nbsp; &nbsp;";
-		assertTrue(StringUtils.escapeForHtml(input, false).equals(outputNoChange));
-		assertTrue(StringUtils.escapeForHtml(input, true).equals(outputChange));
+		assertEquals(outputNoChange, StringUtils.escapeForHtml(input, false));
+		assertEquals(outputChange, StringUtils.escapeForHtml(input, true));
 	}
 
+	@Test
 	public void testDecodeForHtml() throws Exception {
 		String input = "&amp; &lt; &gt; &quot;";
 		String output = "& < > \"";
-		assertTrue(StringUtils.decodeFromHtml(input).equals(output));
+		assertEquals(output, StringUtils.decodeFromHtml(input));
 	}
 
+	@Test
 	public void testFlattenStrings() throws Exception {
 		String[] strings = { "A", "B", "C", "D" };
-		assertTrue(StringUtils.flattenStrings(Arrays.asList(strings)).equals("A B C D"));
+		assertEquals("A B C D", StringUtils.flattenStrings(Arrays.asList(strings)));
 	}
 
+	@Test
 	public void testTrim() throws Exception {
 		String input = "123456789 123456789 123456789 123456789 123456789 123456789 123456789 ";
 		String output = "123456789 123456789 123456789 123456789 123456789 1234567...";
-		assertTrue(StringUtils.trimShortLog(input).equals(output));
-		assertTrue(StringUtils.trimString(input, input.length()).equals(input));
+		assertEquals(output, StringUtils.trimShortLog(input));
+		assertEquals(input, StringUtils.trimString(input, input.length()));
 	}
 
+	@Test
 	public void testPadding() throws Exception {
 		String input = "test";
-		assertTrue(StringUtils.leftPad(input, 6 + input.length(), ' ').equals("      test"));
-		assertTrue(StringUtils.rightPad(input, 6 + input.length(), ' ').equals("test      "));
+		assertEquals("      test", StringUtils.leftPad(input, 6 + input.length(), ' '));
+		assertEquals("test      ", StringUtils.rightPad(input, 6 + input.length(), ' '));
 
-		assertTrue(StringUtils.leftPad(input, input.length(), ' ').equals(input));
-		assertTrue(StringUtils.rightPad(input, input.length(), ' ').equals(input));
+		assertEquals(input, StringUtils.leftPad(input, input.length(), ' '));
+		assertEquals(input, StringUtils.rightPad(input, input.length(), ' '));
 	}
 
+	@Test
 	public void testSHA1() throws Exception {
-		assertTrue(StringUtils.getSHA1("blob 16\000what is up, doc?").equals(
-				"bd9dbf5aae1a3862dd1526723246b20206e5fc37"));
+		assertEquals("bd9dbf5aae1a3862dd1526723246b20206e5fc37",
+				StringUtils.getSHA1("blob 16\000what is up, doc?"));
 	}
 
+	@Test
 	public void testMD5() throws Exception {
-		assertTrue(StringUtils.getMD5("blob 16\000what is up, doc?").equals(
-				"77fb8d95331f0d557472f6776d3aedf6"));
+		assertEquals("77fb8d95331f0d557472f6776d3aedf6",
+				StringUtils.getMD5("blob 16\000what is up, doc?"));
 	}
 
+	@Test
 	public void testRootPath() throws Exception {
 		String input = "/nested/path/to/repository";
 		String output = "/nested/path/to";
-		assertTrue(StringUtils.getRootPath(input).equals(output));
-		assertTrue(StringUtils.getRootPath("repository").equals(""));
+		assertEquals(output, StringUtils.getRootPath(input));
+		assertEquals("", StringUtils.getRootPath("repository"));
 	}
 
+	@Test
 	public void testStringsFromValue() throws Exception {
 		List<String> strings = StringUtils.getStringsFromValue("A B C D");
-		assertTrue(strings.size() == 4);
-		assertTrue(strings.get(0).equals("A"));
-		assertTrue(strings.get(1).equals("B"));
-		assertTrue(strings.get(2).equals("C"));
-		assertTrue(strings.get(3).equals("D"));
+		assertEquals(4, strings.size());
+		assertEquals("A", strings.get(0));
+		assertEquals("B", strings.get(1));
+		assertEquals("C", strings.get(2));
+		assertEquals("D", strings.get(3));
 	}
 
+	@Test
 	public void testStringsFromValue2() throws Exception {
 		List<String> strings = StringUtils.getStringsFromValue("common/* libraries/*");
-		assertTrue(strings.size() == 2);
-		assertTrue(strings.get(0).equals("common/*"));
-		assertTrue(strings.get(1).equals("libraries/*"));
+		assertEquals(2, strings.size());
+		assertEquals("common/*", strings.get(0));
+		assertEquals("libraries/*", strings.get(1));
 	}
 
+	@Test
 	public void testFuzzyMatching() throws Exception {
 		assertTrue(StringUtils.fuzzyMatch("12345", "12345"));
 		assertTrue(StringUtils.fuzzyMatch("AbCdEf", "abcdef"));

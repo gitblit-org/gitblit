@@ -15,18 +15,22 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import com.gitblit.utils.TimeUtils;
 
-public class TimeUtilsTest extends TestCase {
+public class TimeUtilsTest {
 
 	private Date offset(long subtract) {
 		return new Date(System.currentTimeMillis() - subtract);
 	}
 
+	@Test
 	public void testBasicTimeFunctions() throws Exception {
 		assertEquals(2, TimeUtils.minutesAgo(offset(2 * TimeUtils.MIN), false));
 		assertEquals(3, TimeUtils.minutesAgo(offset((2 * TimeUtils.MIN) + (35 * 1000L)), true));
@@ -37,14 +41,17 @@ public class TimeUtilsTest extends TestCase {
 		assertEquals(4, TimeUtils.daysAgo(offset(4 * TimeUtils.ONEDAY)));
 	}
 
+	@Test
 	public void testToday() throws Exception {
 		assertTrue(TimeUtils.isToday(new Date()));
 	}
 
+	@Test
 	public void testYesterday() throws Exception {
 		assertTrue(TimeUtils.isYesterday(offset(TimeUtils.ONEDAY)));
 	}
 
+	@Test
 	public void testDurations() throws Exception {
 		assertEquals("1 day", TimeUtils.duration(1));
 		assertEquals("5 days", TimeUtils.duration(5));
@@ -67,6 +74,7 @@ public class TimeUtilsTest extends TestCase {
 		assertEquals("2 years, 2 months", TimeUtils.duration(2 * 365 + 60));
 	}
 
+	@Test
 	public void testTimeAgo() throws Exception {
 		// standard time ago tests
 		assertEquals("1 min ago", TimeUtils.timeAgo(offset(1 * TimeUtils.MIN)));
@@ -91,6 +99,7 @@ public class TimeUtilsTest extends TestCase {
 		assertEquals("age2", TimeUtils.timeAgoCss(offset(2 * TimeUtils.ONEDAY)));
 	}
 
+	@Test
 	public void testFrequency() {
 		assertEquals(5, TimeUtils.convertFrequencyToMinutes("2 mins"));
 		assertEquals(10, TimeUtils.convertFrequencyToMinutes("10 mins"));

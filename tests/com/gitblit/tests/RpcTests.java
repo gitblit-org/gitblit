@@ -15,13 +15,17 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import junit.framework.TestCase;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,27 +49,30 @@ import com.gitblit.utils.RpcUtils;
  * @author James Moger
  * 
  */
-public class RpcTests extends TestCase {
-	
+public class RpcTests {
+
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
 	String password = GitBlitSuite.password;
-	
+
+	private static final AtomicBoolean started = new AtomicBoolean(false);
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
-		GitBlitSuite.startGitblit();
+		started.set(GitBlitSuite.startGitblit());
 	}
 
 	@AfterClass
 	public static void stopGitblit() throws Exception {
-		GitBlitSuite.stopGitblit();
+		if (started.get()) {
+			GitBlitSuite.stopGitblit();
+		}
 	}
 
 	@Test
 	public void testListRepositories() throws IOException {
 		Map<String, RepositoryModel> map = RpcUtils.getRepositories(url, null, null);
-		assertTrue("Repository list is null!", map != null);
+		assertNotNull("Repository list is null!", map);
 		assertTrue("Repository list is empty!", map.size() > 0);
 	}
 
@@ -76,7 +83,7 @@ public class RpcTests extends TestCase {
 			list = RpcUtils.getUsers(url, null, null);
 		} catch (UnauthorizedException e) {
 		}
-		assertTrue("Server allows anyone to admin!", list == null);
+		assertNull("Server allows anyone to admin!", list);
 
 		list = RpcUtils.getUsers(url, "admin", "admin".toCharArray());
 		assertTrue("User list is empty!", list.size() > 0);
@@ -93,7 +100,7 @@ public class RpcTests extends TestCase {
 				RpcUtils.createUser(user, url, account, password.toCharArray()));
 
 		UserModel retrievedUser = findUser(user.username);
-		assertTrue("Failed to find " + user.username, retrievedUser != null);
+		assertNotNull("Failed to find " + user.username, retrievedUser);
 		assertTrue("Retrieved user can not administer Gitblit", retrievedUser.canAdmin);
 
 		// rename and toggle admin permission
@@ -104,7 +111,7 @@ public class RpcTests extends TestCase {
 				RpcUtils.updateUser(originalName, user, url, account, password.toCharArray()));
 
 		retrievedUser = findUser(user.username);
-		assertTrue("Failed to find " + user.username, retrievedUser != null);
+		assertNotNull("Failed to find " + user.username, retrievedUser);
 		assertTrue("Retrieved user did not update", !retrievedUser.canAdmin);
 
 		// delete
@@ -112,7 +119,7 @@ public class RpcTests extends TestCase {
 				RpcUtils.deleteUser(retrievedUser, url, account, password.toCharArray()));
 
 		retrievedUser = findUser(user.username);
-		assertTrue("Failed to delete " + user.username, retrievedUser == null);
+		assertNull("Failed to delete " + user.username, retrievedUser);
 	}
 
 	private UserModel findUser(String name) throws IOException {
@@ -140,9 +147,8 @@ public class RpcTests extends TestCase {
 				RpcUtils.createRepository(model, url, account, password.toCharArray()));
 
 		RepositoryModel retrievedRepository = findRepository(model.name);
-		assertTrue("Failed to find " + model.name, retrievedRepository != null);
-		assertTrue("Access retriction type is wrong",
-				AccessRestrictionType.VIEW.equals(retrievedRepository.accessRestriction));
+		assertNotNull("Failed to find " + model.name, retrievedRepository);
+		assertEquals(AccessRestrictionType.VIEW, retrievedRepository.accessRestriction);
 
 		// rename and change access restriciton
 		String originalName = model.name;
@@ -152,16 +158,18 @@ public class RpcTests extends TestCase {
 				url, account, password.toCharArray()));
 
 		retrievedRepository = findRepository(model.name);
-		assertTrue("Failed to find " + model.name, retrievedRepository != null);
+		assertNotNull("Failed to find " + model.name, retrievedRepository);
 		assertTrue("Access retriction type is wrong",
 				AccessRestrictionType.PUSH.equals(retrievedRepository.accessRestriction));
 
 		// memberships
-		String testMember = "justadded";
+		UserModel testMember = new UserModel("justadded");
+		assertTrue(RpcUtils.createUser(testMember, url, account, password.toCharArray()));
+
 		List<String> members = RpcUtils.getRepositoryMembers(retrievedRepository, url, account,
 				password.toCharArray());
-		assertTrue("Membership roster is not empty!", members.size() == 0);
-		members.add(testMember);
+		assertEquals("Membership roster is not empty!", 0, members.size());
+		members.add(testMember.username);
 		assertTrue(
 				"Failed to set memberships!",
 				RpcUtils.setRepositoryMembers(retrievedRepository, members, url, account,
@@ -170,7 +178,7 @@ public class RpcTests extends TestCase {
 				password.toCharArray());
 		boolean foundMember = false;
 		for (String member : members) {
-			if (member.equalsIgnoreCase(testMember)) {
+			if (member.equalsIgnoreCase(testMember.username)) {
 				foundMember = true;
 				break;
 			}
@@ -182,11 +190,11 @@ public class RpcTests extends TestCase {
 				url, account, password.toCharArray()));
 
 		retrievedRepository = findRepository(model.name);
-		assertTrue("Failed to delete " + model.name, retrievedRepository == null);
+		assertNull("Failed to delete " + model.name, retrievedRepository);
 
 		for (UserModel u : RpcUtils.getUsers(url, account, password.toCharArray())) {
-			if (u.username.equals(testMember)) {
-				RpcUtils.deleteUser(u, url, account, password.toCharArray());
+			if (u.username.equals(testMember.username)) {
+				assertTrue(RpcUtils.deleteUser(u, url, account, password.toCharArray()));
 				break;
 			}
 		}
@@ -235,13 +243,13 @@ public class RpcTests extends TestCase {
 	@Test
 	public void testSettings() throws Exception {
 		ServerSettings settings = RpcUtils.getSettings(url, account, password.toCharArray());
-		assertTrue("No settings were retrieved!", settings != null);
+		assertNotNull("No settings were retrieved!", settings);
 	}
 
 	@Test
 	public void testServerStatus() throws Exception {
 		ServerStatus status = RpcUtils.getStatus(url, account, password.toCharArray());
-		assertTrue("No status was retrieved!", status != null);
+		assertNotNull("No status was retrieved!", status);
 	}
 
 	@Test
@@ -272,7 +280,7 @@ public class RpcTests extends TestCase {
 	public void testBranches() throws Exception {
 		Map<String, Collection<String>> branches = RpcUtils.getBranches(url, account,
 				password.toCharArray());
-		assertTrue(branches != null);
+		assertNotNull(branches);
 		assertTrue(branches.size() > 0);
 	}
 }

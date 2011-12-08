@@ -15,55 +15,48 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.GitBlitServer;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
 
-public class FederationTests extends TestCase {
+public class FederationTests {
 
-	int port = 8180;
+	String url = GitBlitSuite.url;
+	String account = GitBlitSuite.account;
+	String password = GitBlitSuite.password;
 
-	int shutdownPort = 8181;
+	private static final AtomicBoolean started = new AtomicBoolean(false);
 
-	@Override
-	protected void setUp() throws Exception {
-		// Start a Gitblit instance
-		Executors.newSingleThreadExecutor().execute(new Runnable() {
-			public void run() {
-				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
-						"" + shutdownPort, "--repositoriesFolder",
-						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"distrib/users.conf");
-			}
-		});
-
-		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+	@BeforeClass
+	public static void startGitblit() throws Exception {
+		started.set(GitBlitSuite.startGitblit());
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		// Stop Gitblit
-		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
-
-		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+	@AfterClass
+	public static void stopGitblit() throws Exception {
+		if (started.get()) {
+			GitBlitSuite.stopGitblit();
+		}
 	}
 
+	@Test
 	public void testProposal() throws Exception {
 		// create dummy repository data
 		Map<String, RepositoryModel> repositories = new HashMap<String, RepositoryModel>();
@@ -83,16 +76,16 @@ public class FederationTests extends TestCase {
 				"testtoken", repositories);
 
 		// propose federation
-		assertEquals("proposal refused",
-				FederationUtils.propose("http://localhost:" + port, proposal),
+		assertEquals("proposal refused", FederationUtils.propose(url, proposal),
 				FederationProposalResult.NO_PROPOSALS);
 	}
 
+	@Test
 	public void testPullRepositories() throws Exception {
 		try {
-			String url = FederationUtils.asLink("http://localhost:" + port, "testtoken",
+			String requrl = FederationUtils.asLink(url, "d7cc58921a80b37e0329a4dae2f9af38bf61ef5c",
 					FederationRequest.PULL_REPOSITORIES);
-			String json = JsonUtils.retrieveJsonString(url, null, null);
+			String json = JsonUtils.retrieveJsonString(requrl, null, null);
 		} catch (IOException e) {
 			if (!e.getMessage().contains("403")) {
 				throw e;

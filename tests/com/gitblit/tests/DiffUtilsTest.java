@@ -15,27 +15,31 @@
  */
 package com.gitblit.tests;
 
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
+import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Test;
 
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 
-public class DiffUtilsTest extends TestCase {
+public class DiffUtilsTest {
 
+	@Test
 	public void testDiffOutputTypes() throws Exception {
-		assertTrue(DiffOutputType.forName("plain").equals(DiffOutputType.PLAIN));
-		assertTrue(DiffOutputType.forName("gitweb").equals(DiffOutputType.GITWEB));
-		assertTrue(DiffOutputType.forName("gitblit").equals(DiffOutputType.GITBLIT));
-		assertTrue(DiffOutputType.forName(null) == null);
+		assertEquals(DiffOutputType.PLAIN, DiffOutputType.forName("plain"));
+		assertEquals(DiffOutputType.GITWEB, DiffOutputType.forName("gitweb"));
+		assertEquals(DiffOutputType.GITBLIT, DiffOutputType.forName("gitblit"));
+		assertEquals(null, DiffOutputType.forName(null));
 	}
 
+	@Test
 	public void testParentCommitDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -47,6 +51,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(diff.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testArbitraryCommitDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
@@ -60,6 +65,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(diff.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testPlainFileDiff() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -71,6 +77,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(diff.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testFilePatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit commit = JGitUtils.getCommit(repository,
@@ -82,6 +89,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(patch.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testArbitraryFilePatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
@@ -95,6 +103,7 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(patch.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testArbitraryCommitPatch() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RevCommit baseCommit = JGitUtils.getCommit(repository,
@@ -108,12 +117,13 @@ public class DiffUtilsTest extends TestCase {
 		assertTrue(patch.indexOf(expected) > -1);
 	}
 
+	@Test
 	public void testBlame() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<AnnotatedLine> lines = DiffUtils.blame(repository, "java.java",
 				"1d0c2933a4ae69c362f76797d42d6bd182d05176");
 		repository.close();
 		assertTrue(lines.size() > 0);
-		assertTrue(lines.get(0).commitId.equals("c6d31dccf5cc75e8e46299fc62d38f60ec6d41e0"));
+		assertEquals("c6d31dccf5cc75e8e46299fc62d38f60ec6d41e0", lines.get(0).commitId);
 	}
 }

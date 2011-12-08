@@ -130,6 +130,11 @@ public class GitBlitServer {
 	 */
 	private static void start(Params params) {
 		FileSettings settings = Params.FILESETTINGS;
+		if (!StringUtils.isEmpty(params.settingsfile)) {
+			if (new File(params.settingsfile).exists()) {
+				settings = new FileSettings(params.settingsfile);				
+			}
+		}
 
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
@@ -461,6 +466,12 @@ public class GitBlitServer {
 
 		@Parameter(names = "--shutdownPort", description = "Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)")
 		public Integer shutdownPort = FILESETTINGS.getInteger(Keys.server.shutdownPort, 8081);
+
+		/*
+		 * Setting overrides
+		 */
+		@Parameter(names = { "--settings" }, description = "Path to alternative settings")
+		public String settingsfile;
 
 	}
 }

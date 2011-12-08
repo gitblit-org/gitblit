@@ -15,31 +15,38 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jgit.lib.Repository;
+import org.junit.Test;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Comment;
 import com.gitblit.utils.TicgitUtils;
 
-public class TicgitUtilsTest extends TestCase {
+public class TicgitUtilsTest {
 
+	@Test
 	public void testTicgitBranch() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		RefModel branch = TicgitUtils.getTicketsBranch(repository);
 		repository.close();
-		assertTrue("Ticgit branch does not exist!", branch != null);
+		assertNotNull("Ticgit branch does not exist!", branch);
 
 		repository = GitBlitSuite.getHelloworldRepository();
 		branch = TicgitUtils.getTicketsBranch(repository);
 		repository.close();
-		assertTrue("Ticgit branch exists!", branch == null);
+		assertNull("Ticgit branch exists!", branch);
 	}
 
+	@Test
 	public void testRetrieveTickets() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		List<TicketModel> ticketsA = TicgitUtils.getTickets(repository);
@@ -57,24 +64,26 @@ public class TicgitUtilsTest extends TestCase {
 				Comment commentB = ticketB.comments.get(j);
 				assertTrue("Comments are not equal!", commentA.equals(commentB));
 				assertFalse(commentA.equals(""));
-				assertTrue(commentA.hashCode() == commentA.text.hashCode());
+				assertEquals(commentA.hashCode(), commentA.text.hashCode());
 			}
 		}
 
 		repository = GitBlitSuite.getHelloworldRepository();
 		List<TicketModel> ticketsC = TicgitUtils.getTickets(repository);
 		repository.close();
-		assertTrue(ticketsC == null);
+		assertNull(ticketsC);
 	}
 
+	@Test
 	public void testReadTicket() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
 		List<TicketModel> tickets = TicgitUtils.getTickets(repository);
 		TicketModel ticket = TicgitUtils
 				.getTicket(repository, tickets.get(tickets.size() - 1).name);
 		repository.close();
-		assertTrue(ticket != null);
-		assertTrue(ticket.name
-				.equals("1254123752_comments-on-ticgits-longer-than-5-lines-can-t-be-viewed-entirely_266"));
+		assertNotNull(ticket);
+		assertEquals(
+				"1254123752_comments-on-ticgits-longer-than-5-lines-can-t-be-viewed-entirely_266",
+				ticket.name);
 	}
 }

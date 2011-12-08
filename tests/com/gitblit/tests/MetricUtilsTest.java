@@ -15,17 +15,20 @@
  */
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jgit.lib.Repository;
+import org.junit.Test;
 
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 
-public class MetricUtilsTest extends TestCase {
+public class MetricUtilsTest {
 
+	@Test
 	public void testMetrics() throws Exception {
 		testMetrics(GitBlitSuite.getHelloworldRepository());
 		testMetrics(GitBlitSuite.getBluezGnomeRepository());
@@ -37,12 +40,13 @@ public class MetricUtilsTest extends TestCase {
 		assertTrue("No date metrics found!", metrics.size() > 0);
 	}
 
+	@Test
 	public void testAuthorMetrics() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<Metric> byEmail = MetricUtils.getAuthorMetrics(repository, null, true);
 		List<Metric> byName = MetricUtils.getAuthorMetrics(repository, null, false);
 		repository.close();
-		assertTrue("No author metrics found!", byEmail.size() == 9);
-		assertTrue("No author metrics found!", byName.size() == 8);
+		assertEquals("No author metrics found!", 9, byEmail.size());
+		assertEquals("No author metrics found!", 8, byName.size());
 	}
 }
