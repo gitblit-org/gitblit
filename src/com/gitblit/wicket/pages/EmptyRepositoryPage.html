@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:head>
+  	<link href="markdown.css" type="text/css" rel="stylesheet" />
+</wicket:head>
+
+<body>
+<wicket:extend>
+
+	<!-- markdown message -->
+	<div class="markdown" style="margin-top:-15px;padding-bottom:10px;">
+		<h2>Empty Repository</h2>
+		<p></p>
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> is an empty repository and can not be viewed by Gitblit.
+		<p></p>
+		Please push some commits to <span wicket:id="pushurl"></span>
+		<p></p>
+		<h3>Git Command-Line Syntax</h3>		
+		<pre wicket:id="syntax"></pre>
+		<p></p>
+		<h3>Learn Git</h3>
+		If you are lost or don't know what to do with this information, consider reviewing the excellent <a href="http://progit.org/book" target="_blank">Pro Git</a> book for a better understanding on how to use Git.
+		<p></p>
+		<h4>Open Source Git Clients</h4>
+		<ul>
+			<li><a href="http://git-scm.com">Git</a> - the official, command-line Git</li>
+			<li><a href="http://tortoisegit.googlecode.com">TortoiseGit</a> - Windows file explorer integration (requires official, command-line Git)</li>
+			<li><a href="http://eclipse.org/egit">Eclipse/EGit</a> - Git for the Eclipse IDE (based on JGit, like Gitblit)</li>
+		</ul>
+		<p></p>
+		<h4>Commercial Git Clients</h4>
+		<ul>
+			<li><a href="http://www.syntevo.com/smartgit">SmartGit</a> - Java application (requires official, command-line Git)</li>
+		</ul>
+	</div>	
+</wicket:extend>	
+</body>
+</html>

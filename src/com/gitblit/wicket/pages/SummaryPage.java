@@ -51,6 +51,7 @@ import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LogPanel;
+import com.gitblit.wicket.panels.RepositoryUrlPanel;
 import com.gitblit.wicket.panels.TagsPanel;
 
 public class SummaryPage extends RepositoryPage {
@@ -66,6 +67,7 @@ public class SummaryPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
+
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
 		if (!model.skipSummaryMetrics && GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
@@ -123,9 +125,12 @@ public class SummaryPage extends RepositoryPage {
 			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
 		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
+		
+		String primaryUrl = repositoryUrls.remove(0);
+		add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));
 
-		add(new Label("repositoryCloneUrl", StringUtils.flattenStrings(repositoryUrls, "<br/>"))
-				.setEscapeModelStrings(false));
+		add(new Label("otherUrls", StringUtils.flattenStrings(repositoryUrls, "<br/>"))
+		.setEscapeModelStrings(false));
 
 		add(new LogPanel("commitsPanel", repositoryName, null, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());

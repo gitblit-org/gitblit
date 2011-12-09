@@ -51,7 +51,9 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
+import com.gitblit.wicket.pages.EmptyRepositoryPage;
 import com.gitblit.wicket.pages.SummaryPage;
 
 public class RepositoriesPanel extends BasePanel {
@@ -160,17 +162,25 @@ public class RepositoriesPanel extends BasePanel {
 				row.add(swatch);
 				swatch.setVisible(showSwatch);
 
-				if (entry.hasCommits && linksActive) {
+				if (linksActive) {
+					Class<? extends BasePage> linkPage;
+					if (entry.hasCommits) {
+						// repository has content
+						linkPage = SummaryPage.class;
+					} else {
+						// new/empty repository OR proposed repository
+						linkPage = EmptyRepositoryPage.class;
+					}
+
 					PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-					row.add(new LinkPanel("repositoryName", "list", repoName, SummaryPage.class, pp));
+					row.add(new LinkPanel("repositoryName", "list", repoName, linkPage, pp));
 					row.add(new LinkPanel("repositoryDescription", "list", entry.description,
-							SummaryPage.class, pp));
+							linkPage, pp));
 				} else {
-					// new/empty repository OR proposed repository
+					// no links like on a federation page
 					row.add(new Label("repositoryName", repoName));
 					row.add(new Label("repositoryDescription", entry.description));
 				}
-
 				if (entry.hasCommits) {
 					// Existing repository
 					row.add(new Label("repositorySize", entry.size).setVisible(showSize));

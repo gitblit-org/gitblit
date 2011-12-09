@@ -6,7 +6,7 @@
 - added: new default user service implementation: com.gitblit.ConfigUserService (users.conf)  
 This user service implementation allows for serialization and deserialization of more sophisticated Gitblit User objects and will open the door for more advanced Gitblit features. For upgrading installations, a `users.conf` file will automatically be created for you from your existing `users.properties` file on your first launch of Gitblit.  You will have to manually set *realm.userService=users.conf* to switch to the new user service.  The original `users.properties` file and it's corresponding implementation are deprecated.  
     **New:** *realm.userService = users.conf*
-- added: Teams for specifying user-repository access
+- added: Teams for specifying user-repository access in bulk
 - added: Gitblit Express bundle to get started running Gitblit on RedHat's OpenShift cloud
 - added: optional Gravatar integration  
     **New:** *web.allowGravatar = true*   
@@ -15,6 +15,9 @@ This user service implementation allows for serialization and deserialization of
    **New:** *web.timeFormat = HH:mm*  
    **New:** *web.datestampLongFormat = EEEE, MMMM d, yyyy*  
 - fixed: several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete
+- added: primitive technique for manual *copy to clipboard* of the primary repository url
+- improved: empty repositories now link to the *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
+- improved: unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
 
 
 ### Older Releases

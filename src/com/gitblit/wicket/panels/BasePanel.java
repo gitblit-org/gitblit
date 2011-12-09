@@ -72,17 +72,16 @@ public abstract class BasePanel extends Panel {
 
 		private static final long serialVersionUID = 1L;
 
-		public JavascriptTextPrompt(String event, String msg) {
+		private String initialValue = "";
+		
+		public JavascriptTextPrompt(String event, String msg, String value) {
 			super(event, true, new Model<String>(msg));
+			initialValue = value;
 		}
 
 		protected String newValue(final String currentValue, final String message) {
 			String result = "var userText = prompt('" + message + "','"
-					+ (currentValue == null ? "" : currentValue) + "'); " + "return userText; ";
-			// String result = prefix;
-			// if (currentValue != null) {
-			// result = prefix + currentValue;
-			// }
+					+ (initialValue == null ? "" : initialValue) + "'); " + "return userText; ";
 			return result;
 		}
 	}

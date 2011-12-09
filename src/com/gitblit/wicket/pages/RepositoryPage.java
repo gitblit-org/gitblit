@@ -73,6 +73,10 @@ public abstract class RepositoryPage extends BasePage {
 			error(MessageFormat.format("Repository not specified for {0}!", getPageName()), true);
 		}
 
+		if (!getRepositoryModel().hasCommits) {
+			setResponsePage(EmptyRepositoryPage.class, params);
+		}
+
 		// register the available page links for this page and user
 		registeredPages = registerPages();
 
