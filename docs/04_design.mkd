@@ -11,6 +11,7 @@
 The following dependencies are bundled with Gitblit.
 
 - [Bootstrap](http://twitter.github.com/bootstrap) (Apache 2.0)
+- [Clippy](https://github.com/mojombo/clippy) (MIT)
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)
 - magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)

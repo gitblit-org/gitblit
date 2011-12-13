@@ -15,7 +15,9 @@ This user service implementation allows for serialization and deserialization of
    **New:** *web.timeFormat = HH:mm*  
    **New:** *web.datestampLongFormat = EEEE, MMMM d, yyyy*  
 - fixed: several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete
-- added: primitive technique for manual *copy to clipboard* of the primary repository url
+- added: optional flash-based 1-step *copy to clipboard* of the primary repository url
+- added: javascript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url
+   **New:** *web.allowFlashCopyToClipboard = true*  
 - improved: empty repositories now link to the *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
 - improved: unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
 

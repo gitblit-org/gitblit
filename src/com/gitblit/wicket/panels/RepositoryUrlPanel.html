@@ -8,6 +8,25 @@
 </wicket:head>
 
 <wicket:panel>
-	<span wicket:id="repositoryUrl" style="color: blue;">[repository url]</span><span style="padding-left:5px;"><span class="btn" style="padding:0px 3px;vertical-align:middle;"><img wicket:id="copyIcon" style="padding-top:1px;"></img></span></span>	
-</wicket:panel>	
+	<span wicket:id="repositoryUrl" style="color: blue;">[repository url]</span><span wicket:id="copyFunction"></span>
+    
+    <!-- Plain JavaScript manual copy & paste -->
+    <wicket:fragment wicket:id="jsPanel">
+    	<span class="btn" style="padding:0px 3px 0px 3px;vertical-align:middle;">
+    		<img wicket:id="copyIcon" style="padding-top:1px;"></img>
+    	</span>
+    </wicket:fragment>
+    
+    <!-- flash-based button-press copy & paste -->
+    <wicket:fragment wicket:id="clippyPanel">
+   		<object style="padding:0px 2px;vertical-align:middle;"
+   			wicket:id="clippy"
+   			width="110" 
+   			height="14"
+   			bgcolor="#ffffff" 
+       		quality="high"
+       		wmode="transparent"
+       		allowScriptAccess="always"></object>
+	</wicket:fragment>
+</wicket:panel>
 </html>

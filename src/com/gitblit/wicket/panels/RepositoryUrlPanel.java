@@ -17,7 +17,11 @@ package com.gitblit.wicket.panels;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.panel.Fragment;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class RepositoryUrlPanel extends BasePanel {
@@ -27,9 +31,22 @@ public class RepositoryUrlPanel extends BasePanel {
 	public RepositoryUrlPanel(String wicketId, String url) {
 		super(wicketId);
 		add(new Label("repositoryUrl", url));
-		ContextImage img = WicketUtils.newImage("copyIcon", "clipboard_13x13.png");
-		WicketUtils.setHtmlTooltip(img, "Manual Copy to Clipboard");
-		img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", url));
-		add(img);
+		if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
+			// clippy: flash-based copy & paste
+			Fragment fragment = new Fragment("copyFunction", "clippyPanel", this);
+			String baseUrl = WicketUtils.getGitblitURL(getRequest());
+			ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
+			clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(url));
+			fragment.add(clippy);
+			add(fragment);
+		} else {
+			// javascript: manual copy & paste with modal browser prompt dialog
+			Fragment fragment = new Fragment("copyFunction", "jsPanel", this);
+			ContextImage img = WicketUtils.newImage("copyIcon", "clipboard_13x13.png");
+			WicketUtils.setHtmlTooltip(img, "Manual Copy to Clipboard");
+			img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", url));
+			fragment.add(img);
+			add(fragment);
+		}
 	}
 }
