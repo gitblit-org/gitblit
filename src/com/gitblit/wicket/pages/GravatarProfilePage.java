@@ -51,7 +51,10 @@ public class GravatarProfilePage extends RootPage {
 		} catch (IOException e) {
 			error(MessageFormat.format("Failed to find Gravatar profile for {0}", object), e, true);
 		}
-
+		
+		if (profile == null) {
+			error(MessageFormat.format("Failed to find Gravatar profile for {0}", object), true);
+		}
 		add(new Label("displayName", profile.displayName));
 		add(new Label("username", profile.preferredUsername));
 		add(new Label("location", profile.currentLocation));
