@@ -135,6 +135,8 @@ public class RpcFilter extends AuthenticationFilter {
 
 	private boolean canAccess(UserModel user, RpcRequest requestType) {
 		switch (requestType) {
+		case GET_PROTOCOL:
+			return true;
 		case LIST_REPOSITORIES:
 			return true;
 		default:

@@ -33,33 +33,29 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JRootPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
-public class EditUserDialog extends JDialog {
+public class EditTeamDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
-	private final String username;
+	private final String teamname;
 
-	private final UserModel user;
+	private final TeamModel team;
 
 	private final ServerSettings settings;
 
@@ -67,38 +63,30 @@ public class EditUserDialog extends JDialog {
 
 	private boolean canceled = true;
 
-	private JTextField usernameField;
-
-	private JPasswordField passwordField;
-
-	private JPasswordField confirmPasswordField;
-
-	private JCheckBox canAdminCheckbox;
-
-	private JCheckBox notFederatedCheckbox;
+	private JTextField teamnameField;
 
 	private JPalette<String> repositoryPalette;
-	
-	private JPalette<TeamModel> teamsPalette;
 
-	private Set<String> usernames;
+	private JPalette<String> userPalette;
 
-	public EditUserDialog(int protocolVersion, ServerSettings settings) {
-		this(protocolVersion, new UserModel(""), settings);
+	private Set<String> teamnames;
+
+	public EditTeamDialog(int protocolVersion, ServerSettings settings) {
+		this(protocolVersion, new TeamModel(""), settings);
 		this.isCreate = true;
-		setTitle(Translation.get("gb.newUser"));
+		setTitle(Translation.get("gb.newTeam"));
 	}
 
-	public EditUserDialog(int protocolVersion, UserModel anUser, ServerSettings settings) {
+	public EditTeamDialog(int protocolVersion, TeamModel aTeam, ServerSettings settings) {
 		super();
-		this.username = anUser.username;
-		this.user = new UserModel("");
+		this.teamname = aTeam.name;
+		this.team = new TeamModel("");
 		this.settings = settings;
-		this.usernames = new HashSet<String>();
+		this.teamnames = new HashSet<String>();
 		this.isCreate = false;
-		initialize(protocolVersion, anUser);
+		initialize(protocolVersion, aTeam);
 		setModal(true);
-		setTitle(Translation.get("gb.edit") + ": " + anUser.username);
+		setTitle(Translation.get("gb.edit") + ": " + aTeam.name);
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 	}
 
@@ -114,27 +102,15 @@ public class EditUserDialog extends JDialog {
 		return rootPane;
 	}
 
-	private void initialize(int protocolVersion, UserModel anUser) {
-		usernameField = new JTextField(anUser.username == null ? "" : anUser.username, 25);
-		passwordField = new JPasswordField(anUser.password == null ? "" : anUser.password, 25);
-		confirmPasswordField = new JPasswordField(anUser.password == null ? "" : anUser.password,
-				25);
-		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);
-		notFederatedCheckbox = new JCheckBox(
-				Translation.get("gb.excludeFromFederationDescription"),
-				anUser.excludeFromFederation);
+	private void initialize(int protocolVersion, TeamModel aTeam) {
+		teamnameField = new JTextField(aTeam.name == null ? "" : aTeam.name, 25);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.password"), passwordField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.confirmPassword"), confirmPasswordField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.canAdmin"), canAdminCheckbox));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
-				notFederatedCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.teamName"), teamnameField));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new JPalette<String>();
-		teamsPalette = new JPalette<TeamModel>();
+		userPalette = new JPalette<String>();
 		
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
@@ -149,7 +125,7 @@ public class EditUserDialog extends JDialog {
 		};
 		repositoriesPanel.add(repositoryPalette, BorderLayout.CENTER);
 
-		JPanel teamsPanel = new JPanel(new BorderLayout()) {
+		JPanel usersPanel = new JPanel(new BorderLayout()) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -157,13 +133,11 @@ public class EditUserDialog extends JDialog {
 				return _insets;
 			}
 		};
-		teamsPanel.add(teamsPalette, BorderLayout.CENTER);
+		usersPanel.add(userPalette, BorderLayout.CENTER);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanelTop);
-		if (protocolVersion > 1) {
-			panel.addTab(Translation.get("gb.teamMemberships"), teamsPanel);
-		}
+		panel.addTab(Translation.get("gb.teamMembers"), usersPanel);
 		panel.addTab(Translation.get("gb.restrictedRepositories"), repositoriesPanel);
 
 
@@ -217,96 +191,50 @@ public class EditUserDialog extends JDialog {
 	}
 
 	private boolean validateFields() {
-		String uname = usernameField.getText();
-		if (StringUtils.isEmpty(uname)) {
-			error("Please enter a username!");
+		String tname = teamnameField.getText();
+		if (StringUtils.isEmpty(tname)) {
+			error("Please enter a team name!");
 			return false;
 		}
 
 		boolean rename = false;
-		// verify username uniqueness on create
+		// verify teamname uniqueness on create
 		if (isCreate) {
-			if (usernames.contains(uname.toLowerCase())) {
-				error(MessageFormat.format("Username ''{0}'' is unavailable.", uname));
+			if (teamnames.contains(tname.toLowerCase())) {
+				error(MessageFormat.format("Team name ''{0}'' is unavailable.", tname));
 				return false;
 			}
 		} else {
 			// check rename collision
-			rename = !StringUtils.isEmpty(username) && !username.equalsIgnoreCase(uname);
+			rename = !StringUtils.isEmpty(teamname) && !teamname.equalsIgnoreCase(tname);
 			if (rename) {
-				if (usernames.contains(uname.toLowerCase())) {
+				if (teamnames.contains(tname.toLowerCase())) {
 					error(MessageFormat.format(
-							"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
-							uname));
+							"Failed to rename ''{0}'' because ''{1}'' already exists.", teamname,
+							tname));
 					return false;
 				}
 			}
 		}
-		user.username = uname;
+		team.name = tname;
 
-		int minLength = settings.get(Keys.realm.minPasswordLength).getInteger(5);
-		if (minLength < 4) {
-			minLength = 4;
-		}
-
-		String password = new String(passwordField.getPassword());
-		if (StringUtils.isEmpty(password) || password.length() < minLength) {
-			error(MessageFormat.format("Password is too short. Minimum length is {0} characters.",
-					minLength));
-			return false;
-		}
-		if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
-				&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-			String cpw = new String(confirmPasswordField.getPassword());
-			if (cpw == null || cpw.length() != password.length()) {
-				error("Please confirm the password!");
-				return false;
-			}
-			if (!password.equals(cpw)) {
-				error("Passwords do not match!");
-				return false;
-			}
-
-			String type = settings.get(Keys.realm.passwordStorage).getString("md5");
-			if (type.equalsIgnoreCase("md5")) {
-				// store MD5 digest of password
-				user.password = StringUtils.MD5_TYPE + StringUtils.getMD5(password);
-			} else if (type.equalsIgnoreCase("combined-md5")) {
-				// store MD5 digest of username+password
-				user.password = StringUtils.COMBINED_MD5_TYPE
-						+ StringUtils.getMD5(username.toLowerCase() + password);
-			} else {
-				// plain-text password
-				user.password = password;
-			}
-		} else if (rename && password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-			error("Gitblit is configured for combined-md5 password hashing. You must enter a new password on account rename.");
-			return false;
-		} else {
-			// no change in password
-			user.password = password;
-		}
-
-		user.canAdmin = canAdminCheckbox.isSelected();
-		user.excludeFromFederation = notFederatedCheckbox.isSelected();
-
-		user.repositories.clear();
-		user.repositories.addAll(repositoryPalette.getSelections());
+		team.repositories.clear();
+		team.repositories.addAll(repositoryPalette.getSelections());
 		
-		user.teams.clear();
-		user.teams.addAll(teamsPalette.getSelections());
+		team.users.clear();
+		team.users.addAll(userPalette.getSelections());
 		return true;
 	}
 
 	private void error(String message) {
-		JOptionPane.showMessageDialog(EditUserDialog.this, message, Translation.get("gb.error"),
+		JOptionPane.showMessageDialog(EditTeamDialog.this, message, Translation.get("gb.error"),
 				JOptionPane.ERROR_MESSAGE);
 	}
 
-	public void setUsers(List<UserModel> users) {
-		usernames.clear();
-		for (UserModel user : users) {
-			usernames.add(user.username.toLowerCase());
+	public void setTeams(List<TeamModel> teams) {
+		teamnames.clear();
+		for (TeamModel team : teams) {
+			teamnames.add(team.name.toLowerCase());
 		}
 	}
 
@@ -324,18 +252,18 @@ public class EditUserDialog extends JDialog {
 		repositoryPalette.setObjects(restricted, selected);
 	}
 	
-	public void setTeams(List<TeamModel> teams, List<TeamModel> selected) {
-		Collections.sort(teams);
+	public void setUsers(List<String> users, List<String> selected) {
+		Collections.sort(users);
 		if (selected != null) {
 			Collections.sort(selected);
 		}
-		teamsPalette.setObjects(teams, selected);
+		userPalette.setObjects(users, selected);
 	}
 
-	public UserModel getUser() {
+	public TeamModel getTeam() {
 		if (canceled) {
 			return null;
 		}
-		return user;
+		return team;
 	}
 }

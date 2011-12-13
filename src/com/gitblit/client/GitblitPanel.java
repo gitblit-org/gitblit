@@ -50,6 +50,8 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	private FeedsPanel feedsPanel;
 
 	private UsersPanel usersPanel;
+	
+	private TeamsPanel teamsPanel;
 
 	private SettingsPanel settingsPanel;
 
@@ -62,6 +64,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		tabs = new JTabbedPane(JTabbedPane.BOTTOM);
 		tabs.addTab(Translation.get("gb.repositories"), createRepositoriesPanel());
 		tabs.addTab(Translation.get("gb.activity"), createFeedsPanel());
+		tabs.addTab(Translation.get("gb.teams"), createTeamsPanel());
 		tabs.addTab(Translation.get("gb.users"), createUsersPanel());
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
@@ -89,6 +92,11 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			protected void updateUsersTable() {
 				usersPanel.updateTable(false);
 			}
+			
+			@Override
+			protected void updateTeamsTable() {
+				teamsPanel.updateTable(false);
+			}
 
 		};
 		return repositoriesPanel;
@@ -107,9 +115,30 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	}
 
 	private JPanel createUsersPanel() {
-		usersPanel = new UsersPanel(gitblit);
+		usersPanel = new UsersPanel(gitblit) {
+			
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			protected void updateTeamsTable() {
+				teamsPanel.updateTable(false);
+			}
+		};
 		return usersPanel;
 	}
+	
+	private JPanel createTeamsPanel() {
+		teamsPanel = new TeamsPanel(gitblit) {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void updateUsersTable() {
+				usersPanel.updateTable(false);
+			}
+		};
+		return teamsPanel;
+	}	
 
 	private JPanel createSettingsPanel() {
 		settingsPanel = new SettingsPanel(gitblit);
@@ -128,6 +157,19 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		feedsPanel.updateTable(true);
 
 		if (gitblit.allowManagement()) {
+			if (gitblit.getProtocolVersion() >= 2) {
+				// refresh teams panel
+				teamsPanel.updateTable(false);
+			} else {
+				// remove teams panel
+				String teams = Translation.get("gb.teams");
+				for (int i = 0; i < tabs.getTabCount(); i++) {
+					if (teams.equals(tabs.getTitleAt(i))) {
+						tabs.removeTabAt(i);
+						break;
+					}
+				}
+			}
 			usersPanel.updateTable(false);
 		} else {
 			// user does not have administrator privileges

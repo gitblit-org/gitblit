@@ -37,6 +37,7 @@ import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
@@ -63,6 +64,8 @@ public class GitblitClient implements Serializable {
 
 	private final char[] password;
 
+	private volatile int protocolVersion;
+
 	private volatile boolean allowManagement;
 
 	private volatile boolean allowAdministration;
@@ -72,6 +75,8 @@ public class GitblitClient implements Serializable {
 	private final List<RepositoryModel> allRepositories;
 
 	private final List<UserModel> allUsers;
+
+	private final List<TeamModel> allTeams;
 
 	private final List<FederationModel> federationRegistrations;
 
@@ -90,6 +95,7 @@ public class GitblitClient implements Serializable {
 		this.password = reg.password;
 
 		this.allUsers = new ArrayList<UserModel>();
+		this.allTeams = new ArrayList<TeamModel>();
 		this.allRepositories = new ArrayList<RepositoryModel>();
 		this.federationRegistrations = new ArrayList<FederationModel>();
 		this.availableFeeds = new ArrayList<FeedModel>();
@@ -98,6 +104,7 @@ public class GitblitClient implements Serializable {
 	}
 
 	public void login() throws IOException {
+		protocolVersion = RpcUtils.getProtocolVersion(url, account, password);
 		refreshSettings();
 		refreshAvailableFeeds();
 		refreshRepositories();
@@ -107,6 +114,9 @@ public class GitblitClient implements Serializable {
 			// credentials may not have administrator access
 			// or server may have disabled rpc management
 			refreshUsers();
+			if (protocolVersion > 1) {
+				refreshTeams();
+			}
 			allowManagement = true;
 		} catch (UnauthorizedException e) {
 		} catch (ForbiddenException e) {
@@ -128,6 +138,10 @@ public class GitblitClient implements Serializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public int getProtocolVersion() {
+		return protocolVersion;
 	}
 
 	public boolean allowManagement() {
@@ -198,6 +212,13 @@ public class GitblitClient implements Serializable {
 		return allUsers;
 	}
 
+	public List<TeamModel> refreshTeams() throws IOException {
+		List<TeamModel> teams = RpcUtils.getTeams(url, account, password);
+		allTeams.clear();
+		allTeams.addAll(teams);
+		return allTeams;
+	}
+
 	public ServerSettings refreshSettings() throws IOException {
 		settings = RpcUtils.getSettings(url, account, password);
 		return settings;
@@ -253,8 +274,8 @@ public class GitblitClient implements Serializable {
 			for (FeedModel feed : reg.feeds) {
 				feed.lastRefreshDate = feed.currentRefreshDate;
 				feed.currentRefreshDate = new Date();
-				List<FeedEntryModel> entries = SyndicationUtils.readFeed(url,
-						feed.repository, feed.branch, -1, page, account, password);
+				List<FeedEntryModel> entries = SyndicationUtils.readFeed(url, feed.repository,
+						feed.branch, -1, page, account, password);
 				allEntries.addAll(entries);
 			}
 		}
@@ -301,8 +322,8 @@ public class GitblitClient implements Serializable {
 		return syndicatedEntries;
 	}
 
-	public List<FeedEntryModel> log(String repository, String branch, int numberOfEntries,
-			int page) throws IOException {
+	public List<FeedEntryModel> log(String repository, String branch, int numberOfEntries, int page)
+			throws IOException {
 		return SyndicationUtils.readFeed(url, repository, branch, numberOfEntries, page, account,
 				password);
 	}
@@ -343,6 +364,29 @@ public class GitblitClient implements Serializable {
 		return usernames;
 	}
 
+	public List<TeamModel> getTeams() {
+		return allTeams;
+	}
+
+	public List<String> getTeamnames() {
+		List<String> teamnames = new ArrayList<String>();
+		for (TeamModel team : this.allTeams) {
+			teamnames.add(team.name);
+		}
+		Collections.sort(teamnames);
+		return teamnames;
+	}
+
+	public List<String> getPermittedTeamnames(RepositoryModel repository) {
+		List<String> teamnames = new ArrayList<String>();
+		for (TeamModel team : this.allTeams) {
+			if (team.repositories.contains(repository.name)) {
+				teamnames.add(team.name);
+			}
+		}
+		return teamnames;
+	}
+
 	public List<String> getFederationSets() {
 		return settings.get(Keys.federation.sets).getStrings();
 	}
@@ -353,11 +397,21 @@ public class GitblitClient implements Serializable {
 
 	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers)
 			throws IOException {
+		return createRepository(repository, permittedUsers, null);
+	}
+
+	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers,
+			List<String> permittedTeams) throws IOException {
 		boolean success = true;
 		success &= RpcUtils.createRepository(repository, url, account, password);
-		if (permittedUsers.size() > 0) {
+		if (permittedUsers != null && permittedUsers.size() > 0) {
 			// if new repository has named members, set them
 			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
+					password);
+		}
+		if (permittedTeams != null && permittedTeams.size() > 0) {
+			// if new repository has named teams, set them
+			success &= RpcUtils.setRepositoryTeams(repository, permittedTeams, url, account,
 					password);
 		}
 		return success;
@@ -365,11 +419,22 @@ public class GitblitClient implements Serializable {
 
 	public boolean updateRepository(String name, RepositoryModel repository,
 			List<String> permittedUsers) throws IOException {
+		return updateRepository(name, repository, permittedUsers, null);
+	}
+
+	public boolean updateRepository(String name, RepositoryModel repository,
+			List<String> permittedUsers, List<String> permittedTeams) throws IOException {
 		boolean success = true;
 		success &= RpcUtils.updateRepository(name, repository, url, account, password);
-		// always set the repository members
-		success &= RpcUtils
-				.setRepositoryMembers(repository, permittedUsers, url, account, password);
+		// set the repository members
+		if (permittedUsers != null) {
+			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
+					password);
+		}
+		if (permittedTeams != null) {
+			success &= RpcUtils.setRepositoryTeams(repository, permittedTeams, url, account,
+					password);
+		}
 		return success;
 	}
 
@@ -387,6 +452,18 @@ public class GitblitClient implements Serializable {
 
 	public boolean deleteUser(UserModel user) throws IOException {
 		return RpcUtils.deleteUser(user, url, account, password);
+	}
+
+	public boolean createTeam(TeamModel team) throws IOException {
+		return RpcUtils.createTeam(team, url, account, password);
+	}
+
+	public boolean updateTeam(String name, TeamModel team) throws IOException {
+		return RpcUtils.updateTeam(name, team, url, account, password);
+	}
+
+	public boolean deleteTeam(TeamModel team) throws IOException {
+		return RpcUtils.deleteTeam(team, url, account, password);
 	}
 
 	public boolean updateSettings(Map<String, String> newSettings) throws IOException {

@@ -33,6 +33,7 @@ import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -47,6 +48,8 @@ import com.gitblit.utils.RpcUtils;
 public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
+
+	public static final int PROTOCOL_VERSION = 2;
 
 	public RpcServlet() {
 		super();
@@ -77,7 +80,10 @@ public class RpcServlet extends JsonServlet {
 				&& GitBlit.getBoolean(Keys.web.enableRpcAdministration, false);
 
 		Object result = null;
-		if (RpcRequest.LIST_REPOSITORIES.equals(reqType)) {
+		if (RpcRequest.GET_PROTOCOL.equals(reqType)) {
+			// Return the protocol version
+			result = PROTOCOL_VERSION;
+		} else if (RpcRequest.LIST_REPOSITORIES.equals(reqType)) {
 			// Determine the Gitblit clone url
 			String gitblitUrl = HttpUtils.getGitblitURL(request);
 			StringBuilder sb = new StringBuilder();
@@ -128,6 +134,14 @@ public class RpcServlet extends JsonServlet {
 				users.add(GitBlit.self().getUserModel(name));
 			}
 			result = users;
+		} else if (RpcRequest.LIST_TEAMS.equals(reqType)) {
+			// list teams
+			List<String> names = GitBlit.self().getAllTeamnames();
+			List<TeamModel> teams = new ArrayList<TeamModel>();
+			for (String name : names) {
+				teams.add(GitBlit.self().getTeamModel(name));
+			}
+			result = teams;
 		} else if (RpcRequest.CREATE_REPOSITORY.equals(reqType)) {
 			// create repository
 			RepositoryModel model = deserialize(request, response, RepositoryModel.class);
@@ -180,6 +194,33 @@ public class RpcServlet extends JsonServlet {
 			if (!GitBlit.self().deleteUser(model.username)) {
 				response.setStatus(failureCode);
 			}
+		} else if (RpcRequest.CREATE_TEAM.equals(reqType)) {
+			// create team
+			TeamModel model = deserialize(request, response, TeamModel.class);
+			try {
+				GitBlit.self().updateTeamModel(model.name, model, true);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
+		} else if (RpcRequest.EDIT_TEAM.equals(reqType)) {
+			// edit team
+			TeamModel model = deserialize(request, response, TeamModel.class);
+			// name parameter specifies original team name in event of rename
+			String teamname = objectName;
+			if (teamname == null) {
+				teamname = model.name;
+			}
+			try {
+				GitBlit.self().updateTeamModel(teamname, model, false);
+			} catch (GitBlitException e) {
+				response.setStatus(failureCode);
+			}
+		} else if (RpcRequest.DELETE_TEAM.equals(reqType)) {
+			// delete team
+			TeamModel model = deserialize(request, response, TeamModel.class);
+			if (!GitBlit.self().deleteTeam(model.name)) {
+				response.setStatus(failureCode);
+			}
 		} else if (RpcRequest.LIST_REPOSITORY_MEMBERS.equals(reqType)) {
 			// get repository members
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
@@ -190,6 +231,18 @@ public class RpcServlet extends JsonServlet {
 			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
 			List<String> users = new ArrayList<String>(names);
 			if (!GitBlit.self().setRepositoryUsers(model, users)) {
+				response.setStatus(failureCode);
+			}
+		} else if (RpcRequest.LIST_REPOSITORY_TEAMS.equals(reqType)) {
+			// get repository teams
+			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
+			result = GitBlit.self().getRepositoryTeams(model);
+		} else if (RpcRequest.SET_REPOSITORY_TEAMS.equals(reqType)) {
+			// update repository team access list
+			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
+			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
+			List<String> teams = new ArrayList<String>(names);
+			if (!GitBlit.self().setRepositoryTeams(model, teams)) {
 				response.setStatus(failureCode);
 			}
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
@@ -233,7 +286,7 @@ public class RpcServlet extends JsonServlet {
 				keys.add(Keys.web.siteName);
 				keys.add(Keys.web.mountParameters);
 				keys.add(Keys.web.syndicationEntries);
-				
+
 				if (allowManagement) {
 					// keys necessary for repository and/or user management
 					keys.add(Keys.realm.minPasswordLength);

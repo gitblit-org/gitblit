@@ -52,6 +52,7 @@ import javax.swing.ListCellRenderer;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -96,24 +97,26 @@ public class EditRepositoryDialog extends JDialog {
 	private JComboBox ownerField;
 
 	private JPalette<String> usersPalette;
-
+	
 	private JPalette<String> setsPalette;
+	
+	private JPalette<String> teamsPalette;
 
 	private Set<String> repositoryNames;
 
-	public EditRepositoryDialog() {
-		this(new RepositoryModel());
+	public EditRepositoryDialog(int protocolVersion) {
+		this(protocolVersion, new RepositoryModel());
 		this.isCreate = true;
 		setTitle(Translation.get("gb.newRepository"));
 	}
 
-	public EditRepositoryDialog(RepositoryModel aRepository) {
+	public EditRepositoryDialog(int protocolVersion, RepositoryModel aRepository) {
 		super();
 		this.repositoryName = aRepository.name;
 		this.repository = new RepositoryModel();
 		this.repositoryNames = new HashSet<String>();
 		this.isCreate = false;
-		initialize(aRepository);
+		initialize(protocolVersion, aRepository);
 		setModal(true);
 		setResizable(false);
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
@@ -132,7 +135,7 @@ public class EditRepositoryDialog extends JDialog {
 		return rootPane;
 	}
 
-	private void initialize(RepositoryModel anRepository) {
+	private void initialize(int protocolVersion, RepositoryModel anRepository) {
 		nameField = new JTextField(anRepository.name == null ? "" : anRepository.name, 35);
 		descriptionField = new JTextField(anRepository.description == null ? ""
 				: anRepository.description, 35);
@@ -195,6 +198,11 @@ public class EditRepositoryDialog extends JDialog {
 		accessPanel.add(newFieldPanel(Translation.get("gb.permittedUsers"), usersPalette),
 				BorderLayout.CENTER);
 
+		teamsPalette = new JPalette<String>();
+		JPanel teamsPanel = new JPanel(new BorderLayout(5, 5));
+		teamsPanel.add(newFieldPanel(Translation.get("gb.permittedTeams"), teamsPalette),
+				BorderLayout.CENTER);
+
 		setsPalette = new JPalette<String>();
 		JPanel federationPanel = new JPanel(new BorderLayout(5, 5));
 		federationPanel.add(
@@ -206,6 +214,9 @@ public class EditRepositoryDialog extends JDialog {
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanel);
 		panel.addTab(Translation.get("gb.accessRestriction"), accessPanel);
+		if (protocolVersion >= 2) {
+			panel.addTab(Translation.get("gb.teams"), teamsPanel);
+		}
 		panel.addTab(Translation.get("gb.federation"), federationPanel);
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
@@ -358,6 +369,10 @@ public class EditRepositoryDialog extends JDialog {
 		}
 		usersPalette.setObjects(all, selected);
 	}
+	
+	public void setTeams(List<String> all, List<String> selected) {
+		teamsPalette.setObjects(all, selected);
+	}
 
 	public void setRepositories(List<RepositoryModel> repositories) {
 		repositoryNames.clear();
@@ -383,6 +398,10 @@ public class EditRepositoryDialog extends JDialog {
 
 	public List<String> getPermittedUsers() {
 		return usersPalette.getSelections();
+	}
+
+	public List<String> getPermittedTeams() {
+		return teamsPalette.getSelections();
 	}
 
 	/**

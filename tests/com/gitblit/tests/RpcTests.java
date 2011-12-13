@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +35,14 @@ import org.junit.Test;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
+import com.gitblit.RpcServlet;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.RpcUtils;
 
@@ -70,6 +73,12 @@ public class RpcTests {
 	}
 
 	@Test
+	public void testGetProtocolVersion() throws IOException {
+		int protocol = RpcUtils.getProtocolVersion(url, null, null);
+		assertEquals(RpcServlet.PROTOCOL_VERSION, protocol);
+	}
+
+	@Test
 	public void testListRepositories() throws IOException {
 		Map<String, RepositoryModel> map = RpcUtils.getRepositories(url, null, null);
 		assertNotNull("Repository list is null!", map);
@@ -87,6 +96,20 @@ public class RpcTests {
 
 		list = RpcUtils.getUsers(url, "admin", "admin".toCharArray());
 		assertTrue("User list is empty!", list.size() > 0);
+	}
+
+	@Test
+	public void testListTeams() throws IOException {
+		List<TeamModel> list = null;
+		try {
+			list = RpcUtils.getTeams(url, null, null);
+		} catch (UnauthorizedException e) {
+		}
+		assertNull("Server allows anyone to admin!", list);
+
+		list = RpcUtils.getTeams(url, "admin", "admin".toCharArray());
+		assertTrue("Team list is empty!", list.size() > 0);
+		assertEquals("admins", list.get(0).name);
 	}
 
 	@Test
@@ -211,6 +234,61 @@ public class RpcTests {
 			}
 		}
 		return retrievedRepository;
+	}
+
+	@Test
+	public void testTeamAdministration() throws IOException {
+		List<TeamModel> teams = RpcUtils.getTeams(url, account, password.toCharArray());
+		assertEquals(1, teams.size());
+		
+		// Create the A-Team
+		TeamModel aTeam = new TeamModel("A-Team");
+		aTeam.users.add("admin");
+		aTeam.repositories.add("helloworld.git");
+		assertTrue(RpcUtils.createTeam(aTeam, url, account, password.toCharArray()));
+
+		aTeam = null;
+		teams = RpcUtils.getTeams(url, account, password.toCharArray());
+		assertEquals(2, teams.size());
+		for (TeamModel team : teams) {
+			if (team.name.equals("A-Team")) {
+				aTeam = team;
+				break;
+			}
+		}
+		assertNotNull(aTeam);
+		assertTrue(aTeam.hasUser("admin"));
+		assertTrue(aTeam.hasRepository("helloworld.git"));
+
+		RepositoryModel helloworld = null;
+		Map<String, RepositoryModel> repositories = RpcUtils.getRepositories(url, account,
+				password.toCharArray());
+		for (RepositoryModel repository : repositories.values()) {
+			if (repository.name.equals("helloworld.git")) {
+				helloworld = repository;
+				break;
+			}
+		}
+		assertNotNull(helloworld);
+		
+		// Confirm that we have added the team
+		List<String> helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
+				password.toCharArray());
+		assertEquals(1, helloworldTeams.size());
+		assertTrue(helloworldTeams.contains(aTeam.name));
+
+		// set no teams
+		assertTrue(RpcUtils.setRepositoryTeams(helloworld, new ArrayList<String>(), url, account,
+				password.toCharArray()));
+		helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
+				password.toCharArray());
+		assertEquals(0, helloworldTeams.size());
+		
+		// delete the A-Team
+		assertTrue(RpcUtils.deleteTeam(aTeam, url, account, password.toCharArray()));
+
+		teams = RpcUtils.getTeams(url, account, password.toCharArray());
+		assertEquals(1, teams.size());
 	}
 
 	@Test

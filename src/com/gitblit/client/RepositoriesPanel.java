@@ -277,6 +277,8 @@ public abstract class RepositoriesPanel extends JPanel {
 	protected abstract void subscribeFeeds(List<FeedModel> feeds);
 
 	protected abstract void updateUsersTable();
+	
+	protected abstract void updateTeamsTable();
 
 	protected void disableManagement() {
 		createRepository.setVisible(false);
@@ -349,14 +351,16 @@ public abstract class RepositoriesPanel extends JPanel {
 	 * 
 	 */
 	protected void createRepository() {
-		EditRepositoryDialog dialog = new EditRepositoryDialog();
+		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion());
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		dialog.setUsers(null, gitblit.getUsernames(), null);
+		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), null);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
+		final List<String> permittedTeams = dialog.getPermittedTeams();
 		if (newRepository == null) {
 			return;
 		}
@@ -365,11 +369,14 @@ public abstract class RepositoriesPanel extends JPanel {
 
 			@Override
 			protected Boolean doRequest() throws IOException {
-				boolean success = gitblit.createRepository(newRepository, permittedUsers);
+				boolean success = gitblit.createRepository(newRepository, permittedUsers, permittedTeams);
 				if (success) {
 					gitblit.refreshRepositories();
 					if (permittedUsers.size() > 0) {
 						gitblit.refreshUsers();
+					}
+					if (permittedTeams.size() > 0) {
+						gitblit.refreshTeams();
 					}
 				}
 				return success;
@@ -379,6 +386,7 @@ public abstract class RepositoriesPanel extends JPanel {
 			protected void onSuccess() {
 				updateTable(false);
 				updateUsersTable();
+				updateTeamsTable();
 			}
 
 			@Override
@@ -397,16 +405,18 @@ public abstract class RepositoriesPanel extends JPanel {
 	 * @param repository
 	 */
 	protected void editRepository(final RepositoryModel repository) {
-		EditRepositoryDialog dialog = new EditRepositoryDialog(repository);
+		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion(), repository);
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
 		List<String> members = gitblit.getPermittedUsernames(repository);
 		dialog.setUsers(repository.owner, usernames, members);
+		dialog.setTeams(gitblit.getTeamnames(), gitblit.getPermittedTeamnames(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
+		final List<String> permittedTeams = dialog.getPermittedTeams();
 		if (revisedRepository == null) {
 			return;
 		}
@@ -416,10 +426,11 @@ public abstract class RepositoriesPanel extends JPanel {
 			@Override
 			protected Boolean doRequest() throws IOException {
 				boolean success = gitblit.updateRepository(repository.name, revisedRepository,
-						permittedUsers);
+						permittedUsers, permittedTeams);
 				if (success) {
 					gitblit.refreshRepositories();
 					gitblit.refreshUsers();
+					gitblit.refreshTeams();
 				}
 				return success;
 			}
@@ -428,6 +439,7 @@ public abstract class RepositoriesPanel extends JPanel {
 			protected void onSuccess() {
 				updateTable(false);
 				updateUsersTable();
+				updateTeamsTable();
 			}
 
 			@Override
@@ -460,6 +472,7 @@ public abstract class RepositoriesPanel extends JPanel {
 					if (success) {
 						gitblit.refreshRepositories();
 						gitblit.refreshUsers();
+						gitblit.refreshTeams();
 					}
 					return success;
 				}
@@ -468,6 +481,7 @@ public abstract class RepositoriesPanel extends JPanel {
 				protected void onSuccess() {
 					updateTable(false);
 					updateUsersTable();
+					updateTeamsTable();
 				}
 
 				@Override

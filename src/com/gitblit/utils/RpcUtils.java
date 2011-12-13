@@ -24,6 +24,7 @@ import java.util.Map;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -31,6 +32,7 @@ import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -52,6 +54,9 @@ public class RpcUtils {
 	}.getType();
 
 	private static final Type USERS_TYPE = new TypeToken<Collection<UserModel>>() {
+	}.getType();
+
+	private static final Type TEAMS_TYPE = new TypeToken<Collection<TeamModel>>() {
 	}.getType();
 
 	private static final Type REGISTRATIONS_TYPE = new TypeToken<Collection<FederationModel>>() {
@@ -96,7 +101,28 @@ public class RpcUtils {
 			req = RpcRequest.LIST_REPOSITORIES;
 		}
 		return remoteURL + Constants.RPC_PATH + "?req=" + req.name().toLowerCase()
-				+ (name == null ? "" : ("&name=" + name));
+				+ (name == null ? "" : ("&name=" + StringUtils.encodeURL(name)));
+	}
+
+	/**
+	 * Returns the version of the RPC protocol on the server.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return the protocol version
+	 * @throws IOException
+	 */
+	public static int getProtocolVersion(String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.GET_PROTOCOL);
+		int protocol = 1;
+		try {
+			protocol = JsonUtils.retrieveJson(url, Integer.class, account, password);
+		} catch (UnknownRequestException e) {
+			// v0.7.0 (protocol 1) did not have this request type 
+		}
+		return protocol;
 	}
 
 	/**
@@ -131,6 +157,24 @@ public class RpcUtils {
 		String url = asLink(serverUrl, RpcRequest.LIST_USERS);
 		Collection<UserModel> models = JsonUtils.retrieveJson(url, USERS_TYPE, account, password);
 		List<UserModel> list = new ArrayList<UserModel>(models);
+		return list;
+	}
+
+	/**
+	 * Tries to pull the gitblit team definitions from the remote gitblit
+	 * instance.
+	 * 
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return a collection of UserModel objects
+	 * @throws IOException
+	 */
+	public static List<TeamModel> getTeams(String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_TEAMS);
+		Collection<TeamModel> models = JsonUtils.retrieveJson(url, TEAMS_TYPE, account, password);
+		List<TeamModel> list = new ArrayList<TeamModel>(models);
 		return list;
 	}
 
@@ -236,6 +280,53 @@ public class RpcUtils {
 	}
 
 	/**
+	 * Create a team on the Gitblit server.
+	 * 
+	 * @param team
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean createTeam(TeamModel team, String serverUrl, String account,
+			char[] password) throws IOException {
+		return doAction(RpcRequest.CREATE_TEAM, null, team, serverUrl, account, password);
+
+	}
+
+	/**
+	 * Send a revised version of the team model to the Gitblit server.
+	 * 
+	 * @param team
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean updateTeam(String teamname, TeamModel team, String serverUrl,
+			String account, char[] password) throws IOException {
+		return doAction(RpcRequest.EDIT_TEAM, teamname, team, serverUrl, account, password);
+
+	}
+
+	/**
+	 * Deletes a team from the Gitblit server.
+	 * 
+	 * @param team
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean deleteTeam(TeamModel team, String serverUrl, String account,
+			char[] password) throws IOException {
+		return doAction(RpcRequest.DELETE_TEAM, null, team, serverUrl, account, password);
+	}
+
+	/**
 	 * Retrieves the list of users that can access the specified repository.
 	 * 
 	 * @param repository
@@ -253,7 +344,7 @@ public class RpcUtils {
 	}
 
 	/**
-	 * Sets the repository membership list.
+	 * Sets the repository user membership list.
 	 * 
 	 * @param repository
 	 * @param memberships
@@ -267,6 +358,41 @@ public class RpcUtils {
 			List<String> memberships, String serverUrl, String account, char[] password)
 			throws IOException {
 		return doAction(RpcRequest.SET_REPOSITORY_MEMBERS, repository.name, memberships, serverUrl,
+				account, password);
+	}
+
+	/**
+	 * Retrieves the list of teams that can access the specified repository.
+	 * 
+	 * @param repository
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return list of teams
+	 * @throws IOException
+	 */
+	public static List<String> getRepositoryTeams(RepositoryModel repository, String serverUrl,
+			String account, char[] password) throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_TEAMS, repository.name);
+		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
+		return new ArrayList<String>(list);
+	}
+
+	/**
+	 * Sets the repository team membership list.
+	 * 
+	 * @param repository
+	 * @param teams
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return true if the action succeeded
+	 * @throws IOException
+	 */
+	public static boolean setRepositoryTeams(RepositoryModel repository,
+			List<String> teams, String serverUrl, String account, char[] password)
+			throws IOException {
+		return doAction(RpcRequest.SET_REPOSITORY_TEAMS, repository.name, teams, serverUrl,
 				account, password);
 	}
 

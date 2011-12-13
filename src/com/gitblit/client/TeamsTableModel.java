@@ -21,22 +21,22 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.models.UserModel;
+import com.gitblit.models.TeamModel;
 
 /**
- * Table model of a list of users.
+ * Table model of a list of teams.
  * 
  * @author James Moger
  * 
  */
-public class UsersTableModel extends AbstractTableModel {
+public class TeamsTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	List<UserModel> list;
+	List<TeamModel> list;
 
 	enum Columns {
-		Name, AccessLevel, Teams, Repositories;
+		Name, Members, Repositories;
 
 		@Override
 		public String toString() {
@@ -44,12 +44,12 @@ public class UsersTableModel extends AbstractTableModel {
 		}
 	}
 
-	public UsersTableModel() {
-		this(new ArrayList<UserModel>());
+	public TeamsTableModel() {
+		this(new ArrayList<TeamModel>());
 	}
 
-	public UsersTableModel(List<UserModel> users) {
-		this.list = users;
+	public TeamsTableModel(List<TeamModel> teams) {
+		this.list = teams;
 		Collections.sort(this.list);
 	}
 
@@ -69,10 +69,8 @@ public class UsersTableModel extends AbstractTableModel {
 		switch (col) {
 		case Name:
 			return Translation.get("gb.name");
-		case AccessLevel:
-			return Translation.get("gb.accessLevel");
-		case Teams:
-			return Translation.get("gb.teamMemberships");
+		case Members:
+			return Translation.get("gb.teamMembers");
 		case Repositories:
 			return Translation.get("gb.repositories");
 		}
@@ -92,22 +90,15 @@ public class UsersTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		UserModel model = list.get(rowIndex);
+		TeamModel model = list.get(rowIndex);
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
 		case Name:
-			return model.username;
-		case AccessLevel:
-			if (model.canAdmin) {
-				return "administrator";
-			}
-			return "";
-		case Teams:
-			return (model.teams == null || model.teams.size() == 0) ? "" : String
-					.valueOf(model.teams.size());
+			return model.name;
+		case Members:
+			return model.users.size() == 0 ? "" : String.valueOf(model.users.size());
 		case Repositories:
-			return (model.repositories == null || model.repositories.size() == 0) ? "" : String
-					.valueOf(model.repositories.size());
+			return model.repositories.size() == 0 ? "" : String.valueOf(model.repositories.size());
 		}
 		return null;
 	}
