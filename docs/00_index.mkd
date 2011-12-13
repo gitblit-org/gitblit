@@ -3,7 +3,7 @@
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
 <div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
 <div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a></div>
+<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a> <span class="label warning">BETA</span></div>
 <div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
 	<div style="text-align:center">
 		<a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> | <a href="http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%">Gitblit Federation Client</a>
@@ -48,7 +48,7 @@ All dependencies are downloaded on first execution.
 
 All dependencies are bundled.
 
-### Express: For the Cloud
+### Express: For the Cloud <span class="label warning" style="vertical-align: middle;">BETA</span>
 *Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
 
 All dependencies are bundled.
@@ -59,10 +59,10 @@ Gitblit can be used as a dumb repository viewer with no administrative controls 
 Gitblit can be used as a complete Git stack for cloning, pushing, and repository access control.  
 Gitblit can be used without any other Git tooling (including actual Git) or it can cooperate with your established tools.
 
-### Easy Web Management
+### Easy Remote Management
 
-Administrators can create and manage all repositories & user accounts from the *Web UI*.  
-Administrators can create and manage all repositories & user accounts from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
+Administrators can create and manage all repositories, user accounts, and teams from the *Web UI*.  
+Administrators can create and manage all repositories, user accounts, and teams from the *JSON RPC interface* using the [Gitblit Manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) or your own custom tooling. 
 
 ### Integration with Your Infrastructure
 
