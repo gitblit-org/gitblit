@@ -13,7 +13,9 @@ Please review all the documentation to understand how it works and its limitatio
 
 ### Important Changes to Note
 
-The Gitblit 0.7.0 federation protocol is incompatible with the 0.6.0 federation protocol because of a change in the way timestamps are formatted.
+The *Gitblit 0.8.0* federation protocol adds retrieval of team definitions.  Older clients will not know to request team information. 
+
+The *Gitblit 0.7.0* federation protocol is incompatible with the 0.6.0 federation protocol because of a change in the way timestamps are formatted.
 
 Gitblit 0.6.0 uses the default [google-gson](http://google-gson.googlecode.com) timestamp serializer which generates locally formatted timestamps.  Unfortunately, this creates problems for distributed repositories and distributed developers.  Gitblit 0.7.0 corrects this error by serializing dates to the [iso8601](http://en.wikipedia.org/wiki/ISO_8601) standard.  As a result 0.7.0 is not compatible with 0.6.0.  A partial backwards-compatibility fallback was considered but it would only work one direction and since the federation mechanism is bidirectional it was not implemented.
 
@@ -151,13 +153,13 @@ After a repository has been cloned it is flagged as *isFederated* (which identif
 During a federated pull operation, Gitblit does check that the *origin* of the local repository starts with the url of the federation registration.  
 If they do not match, the repository is skipped and this is indicated in the log.
 
-#### User Accounts
+#### User Accounts & Teams
 
-By default all user accounts except the *admin* account are automatically pulled when using the *ALL* token or the *USERS_AND_REPOSITORIES* token.  You may exclude a user account from being pulled by a federated Gitblit instance by checking *exclude from federation* in the edit user page.
+By default all user accounts and teams (except the *admin* account) are automatically pulled when using the *ALL* token or the *USERS_AND_REPOSITORIES* token.  You may exclude a user account from being pulled by a federated Gitblit instance by checking *exclude from federation* in the edit user page.
 
 The pulling Gitblit instance will store a registration-specific `users.conf` file for the pulled user accounts and their repository permissions. This file is stored in the *federation.N.folder* folder.
 
-If you specify *federation.N.mergeAccounts=true*, then the user accounts from the origin Gitblit instance will be integrated into the `users.conf` file of your Gitblit instance and allow sign-on of those users.
+If you specify *federation.N.mergeAccounts=true*, then the user accounts and team definitions from the origin Gitblit instance will be integrated into the `users.conf` file of your Gitblit instance and allow sign-on of those users.
 
 **NOTE:**  
 Upgrades from older Gitblit versions will not have the *#notfederated* role assigned to the *admin* account.  Without that role, your admin account WILL be transferred with an *ALL* or *USERS_AND_REPOSITORIES* token.  

@@ -96,6 +96,18 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return false;
 	}
 
+	public TeamModel getTeam(String teamname) {
+		if (teams == null) {
+			return null;
+		}
+		for (TeamModel team : teams) {
+			if (team.name.equalsIgnoreCase(teamname)) {
+				return team;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public String getName() {
 		return username;

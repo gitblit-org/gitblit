@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
@@ -90,7 +91,7 @@ public class FederationServlet extends JsonServlet {
 			if (proposal == null) {
 				return;
 			}
-			
+
 			// reject proposal, if not receipt prohibited
 			if (!GitBlit.getBoolean(Keys.federation.allowProposals, false)) {
 				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
@@ -198,6 +199,23 @@ public class FederationServlet extends JsonServlet {
 					}
 				}
 				result = users;
+			} else if (FederationRequest.PULL_TEAMS.equals(reqType)) {
+				// pull teams
+				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+					// invalid token to pull teams
+					logger.warn(MessageFormat.format(
+							"Federation token from {0} not authorized to pull TEAMS",
+							request.getRemoteAddr()));
+					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+					return;
+				}
+				List<String> teamnames = GitBlit.self().getAllTeamnames();
+				List<TeamModel> teams = new ArrayList<TeamModel>();
+				for (String teamname : teamnames) {
+					TeamModel user = GitBlit.self().getTeamModel(teamname);
+					teams.add(user);
+				}
+				result = teams;
 			}
 		}
 

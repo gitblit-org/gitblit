@@ -47,6 +47,7 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
@@ -282,10 +283,12 @@ public class FederationPullExecutor implements Runnable {
 
 		try {
 			// Pull USERS
+			// TeamModels are automatically pulled because they are contained
+			// within the UserModel. The UserService creates unknown teams
+			// and updates existing teams.
 			Collection<UserModel> users = FederationUtils.getUsers(registration);
 			if (users != null && users.size() > 0) {
-				File realmFile = new File(registrationFolderFile, registration.name
-						+ "_users.conf");
+				File realmFile = new File(registrationFolderFile, registration.name + "_users.conf");
 				realmFile.delete();
 				ConfigUserService userService = new ConfigUserService(realmFile);
 				for (UserModel user : users) {
@@ -317,6 +320,31 @@ public class FederationPullExecutor implements Runnable {
 							localUser.password = user.password;
 							localUser.canAdmin = user.canAdmin;
 							GitBlit.self().updateUserModel(localUser.username, localUser, false);
+						}
+
+						for (String teamname : GitBlit.self().getAllTeamnames()) {
+							TeamModel team = GitBlit.self().getTeamModel(teamname);
+							if (user.isTeamMember(teamname) && !team.hasUser(user.username)) {
+								// new team member
+								team.addUser(user.username);
+								GitBlit.self().updateTeamModel(teamname, team, false);
+							} else if (!user.isTeamMember(teamname) && team.hasUser(user.username)) {
+								// remove team member
+								team.removeUser(user.username);
+								GitBlit.self().updateTeamModel(teamname, team, false);
+							}
+
+							// update team repositories
+							TeamModel remoteTeam = user.getTeam(teamname);
+							if (remoteTeam != null && remoteTeam.repositories != null) {
+								int before = team.repositories.size();
+								team.addRepositories(remoteTeam.repositories);
+								int after = team.repositories.size();
+								if (after > before) {
+									// repository count changed, update
+									GitBlit.self().updateTeamModel(teamname, team, false);
+								}
+							}
 						}
 					}
 				}

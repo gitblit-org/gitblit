@@ -38,6 +38,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -56,6 +57,9 @@ public class FederationUtils {
 	}.getType();
 
 	private static final Type USERS_TYPE = new TypeToken<Collection<UserModel>>() {
+	}.getType();
+
+	private static final Type TEAMS_TYPE = new TypeToken<Collection<TeamModel>>() {
 	}.getType();
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FederationUtils.class);
@@ -277,6 +281,20 @@ public class FederationUtils {
 		String url = asLink(registration.url, registration.token, FederationRequest.PULL_USERS);
 		Collection<UserModel> models = JsonUtils.retrieveJson(url, USERS_TYPE);
 		List<UserModel> list = new ArrayList<UserModel>(models);
+		return list;
+	}
+
+	/**
+	 * Tries to pull the gitblit team definitions from the remote gitblit instance.
+	 * 
+	 * @param registration
+	 * @return a collection of TeamModel objects
+	 * @throws Exception
+	 */
+	public static List<TeamModel> getTeams(FederationModel registration) throws Exception {
+		String url = asLink(registration.url, registration.token, FederationRequest.PULL_TEAMS);
+		Collection<TeamModel> models = JsonUtils.retrieveJson(url, TEAMS_TYPE);
+		List<TeamModel> list = new ArrayList<TeamModel>(models);
 		return list;
 	}
 

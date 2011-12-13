@@ -16,10 +16,12 @@
 package com.gitblit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,16 +33,21 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationProposalResult;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
+import com.gitblit.utils.RpcUtils;
 
 public class FederationTests {
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
 	String password = GitBlitSuite.password;
+	String token = "d7cc58921a80b37e0329a4dae2f9af38bf61ef5c";
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -81,15 +88,72 @@ public class FederationTests {
 	}
 
 	@Test
+	public void testJsonRepositories() throws Exception {
+		String requrl = FederationUtils.asLink(url, token, FederationRequest.PULL_REPOSITORIES);
+		String json = JsonUtils.retrieveJsonString(requrl, null, null);
+		assertNotNull(json);
+	}
+
+	@Test
+	public void testJsonUsers() throws Exception {
+		String requrl = FederationUtils.asLink(url, token, FederationRequest.PULL_USERS);
+		String json = JsonUtils.retrieveJsonString(requrl, null, null);
+		assertNotNull(json);
+	}
+
+	@Test
+	public void testJsonTeams() throws Exception {
+		String requrl = FederationUtils.asLink(url, token, FederationRequest.PULL_TEAMS);
+		String json = JsonUtils.retrieveJsonString(requrl, null, null);
+		assertNotNull(json);
+	}
+
+	private FederationModel getRegistration() {
+		FederationModel model = new FederationModel("localhost");
+		model.url = this.url;
+		model.token = this.token;
+		return model;
+	}
+
+	@Test
 	public void testPullRepositories() throws Exception {
-		try {
-			String requrl = FederationUtils.asLink(url, "d7cc58921a80b37e0329a4dae2f9af38bf61ef5c",
-					FederationRequest.PULL_REPOSITORIES);
-			String json = JsonUtils.retrieveJsonString(requrl, null, null);
-		} catch (IOException e) {
-			if (!e.getMessage().contains("403")) {
-				throw e;
-			}
-		}
+		Map<String, RepositoryModel> repos = FederationUtils.getRepositories(getRegistration(),
+				false);
+		assertNotNull(repos);
+		assertTrue(repos.size() > 0);
+	}
+
+	@Test
+	public void testPullUsers() throws Exception {
+		List<UserModel> users = FederationUtils.getUsers(getRegistration());
+		assertNotNull(users);
+		// admin is excluded
+		assertEquals(0, users.size());
+		
+		UserModel newUser = new UserModel("test");
+		newUser.password = "whocares";
+		assertTrue(RpcUtils.createUser(newUser, url, account, password.toCharArray()));
+		
+		TeamModel team = new TeamModel("testteam");
+		team.addUser("test");
+		team.addRepository("helloworld.git");
+		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
+		
+		users = FederationUtils.getUsers(getRegistration());
+		assertNotNull(users);
+		assertEquals(1, users.size());
+		
+		newUser = users.get(0);
+		assertTrue(newUser.isTeamMember("testteam"));		
+		
+		assertTrue(RpcUtils.deleteUser(newUser, url, account, password.toCharArray()));
+		assertTrue(RpcUtils.deleteTeam(team, url, account, password.toCharArray()));
+	}
+
+	@Test
+	public void testPullTeams() throws Exception {
+		List<TeamModel> teams = FederationUtils.getTeams(getRegistration());
+		assertNotNull(teams);
+		assertTrue(teams.size() > 0);
 	}
 }
