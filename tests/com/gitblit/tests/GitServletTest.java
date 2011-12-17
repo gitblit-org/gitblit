@@ -97,12 +97,14 @@ public class GitServletTest {
 	public void testAnonymousCommit() throws Exception {
 		Git git = Git.open(folder);
 		File file = new File(folder, "TODO");
-		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
-		BufferedWriter w = new BufferedWriter(os);
-		w.write("// " + new Date().toString() + "\n");
-		w.close();
-		git.add().addFilepattern(file.getName()).call();
-		git.commit().setMessage("test commit").call();
+		for (int i = 0; i < 3; i++) {
+			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+			BufferedWriter w = new BufferedWriter(os);
+			w.write("// " + new Date().toString() + "\n");
+			w.close();
+			git.add().addFilepattern(file.getName()).call();
+			git.commit().setMessage("test commit #" + (i + 1)).call();
+		}
 		git.push().setPushAll().call();
 		git.getRepository().close();
 	}

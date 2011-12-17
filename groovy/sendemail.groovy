@@ -93,20 +93,42 @@ switch(repository.name) {
 		toAddresses.add "dev-team@somewhere.com"
 		toAddresses.add "qa-team@somewhere.com"
 		break
-	default:		
-		break
 }
 
-// get the create/update commits from the repository to build message content
-def commits = []
-for (ReceiveCommand command:commands) {
+// construct a simple text summary of the changes contained in the push
+def commitCount = 0
+def changes = ""
+def table = { it.id.name[0..8] + " " + it.authorIdent.name.padRight(20, " ") + it.shortMessage }
+for (command in commands) {
 	switch (command.type) {
-		case ReceiveCommand.Type.UPDATE:
 		case ReceiveCommand.Type.CREATE:
-			RevCommit commit = JGitUtils.getCommit(r, command.newId.name)
-			commits.add(commit)
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			commitCount += commits.size()
+			// new branch commits table
+			changes += "created ${command.refName}\n\n"
+			changes += commits.collect(table).join("\n")
+			changes += "\n"
 			break
-			
+		case ReceiveCommand.Type.UPDATE:
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			commitCount += commits.size()
+			// fast-forward branch commits table
+			changes += "updated ${command.refName}\n\n"
+			changes += commits.collect(table).join("\n")
+			changes += "\n"
+			break
+		case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			commitCount += commits.size()
+			// non-fast-forward branch commits table
+			changes += "updated ${command.refName} (NON fast-forward)\n\n"
+			changes += commits.collect(table).join("\n")
+			changes += "\n"
+			break
+		case ReceiveCommand.Type.DELETE:
+			// deleted branch
+			changes += "deleted ${command.refName}\n\n"
+			break
 		default:
 			break
 	}
@@ -121,14 +143,10 @@ if (gitblit.getBoolean(Keys.web.mountParameters, true))
 else
 	summaryUrl = url + "/summary?r=" + repository.name
 
-// create a simple commits table
-def table = commits.collect { it.id.name[0..8] + " " + it.authorIdent.name.padRight(20, " ") + it.shortMessage }.join("\n")
-
 // create the message body
-def msg = """${user.username} pushed ${commits.size} commits to ${repository.name}
-${summaryUrl}
+def msg = """${summaryUrl}
 
-${table}"""
+${changes}"""
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.notifyUsers("${emailprefix} ${user.username} pushed ${commits.size} commits => ${repository.name}", msg, toAddresses)
+gitblit.notifyUsers("${emailprefix} ${user.username} pushed ${commitCount} commits => ${repository.name}", msg, toAddresses)

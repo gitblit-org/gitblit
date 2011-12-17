@@ -965,6 +965,43 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Returns a list of commits for the repository within the range specified
+	 * by startRangeId and endRangeId. If the repository does not exist or is
+	 * empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param startRangeId
+	 *            the first commit (not included in results)
+	 * @param endRangeId
+	 *            the end commit (included in results)
+	 * @return a list of commits
+	 */
+	public static List<RevCommit> getRevLog(Repository repository, String startRangeId,
+			String endRangeId) {
+		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		try {
+			ObjectId endRange = repository.resolve(endRangeId);
+			ObjectId startRange = repository.resolve(startRangeId);
+
+			RevWalk rw = new RevWalk(repository);
+			rw.markStart(rw.parseCommit(endRange));
+			rw.markUninteresting(rw.parseCommit(startRange));
+
+			Iterable<RevCommit> revlog = rw;
+			for (RevCommit rev : revlog) {
+				list.add(rev);
+			}
+			rw.dispose();
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to get revlog for {1}..{2}", startRangeId, endRangeId);
+		}
+		return list;
+	}
+
+	/**
 	 * Search the commit history for a case-insensitive match to the value.
 	 * Search results require a specified SearchType of AUTHOR, COMMITTER, or
 	 * COMMIT. Results may be paginated using offset and maxCount. If the

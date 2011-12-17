@@ -333,6 +333,16 @@ public class JGitUtilsTest {
 	}
 
 	@Test
+	public void testRevLogRange() throws Exception {
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		List<RevCommit> commits = JGitUtils.getRevLog(repository,
+				"fbd14fa6d1a01d4aefa1fca725792683800fc67e",
+				"85a0e4087b8439c0aa6b1f4f9e08c26052ab7e87");
+		repository.close();
+		assertEquals(14, commits.size());
+	}
+
+	@Test
 	public void testSearchTypes() throws Exception {
 		assertEquals(SearchType.COMMIT, SearchType.forName("commit"));
 		assertEquals(SearchType.COMMITTER, SearchType.forName("committer"));
