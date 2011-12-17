@@ -87,6 +87,9 @@ if (mailinglist != null) {
 // add all mailing lists defined in gitblit.properties or web.xml
 toAddresses.addAll(gitblit.getStrings(Keys.mail.mailingLists))
 
+// add all mail recipients for the repository
+toAddresses.addAll(repository.mailRecipients)
+
 // special custom cases
 switch(repository.name) {
 	case "ex@mple.git":
@@ -149,4 +152,4 @@ def msg = """${summaryUrl}
 ${changes}"""
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.notifyUsers("${emailprefix} ${user.username} pushed ${commitCount} commits => ${repository.name}", msg, toAddresses)
+gitblit.sendEmail("${emailprefix} ${user.username} pushed ${commitCount} commits => ${repository.name}", msg, toAddresses)

@@ -1421,7 +1421,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param subject
 	 * @param message
 	 */
-	public void notifyAdministrators(String subject, String message) {
+	public void sendEmailToAdministrators(String subject, String message) {
 		try {
 			Message mail = mailExecutor.createMessageForAdministrators();
 			if (mail != null) {
@@ -1441,8 +1441,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 * @param toAddresses
 	 */
-	public void notifyUsers(String subject, String message, ArrayList<String> toAddresses) {
-		this.notifyUsers(subject, message, toAddresses.toArray(new String[0]));
+	public void sendEmail(String subject, String message, ArrayList<String> toAddresses) {
+		this.sendEmail(subject, message, toAddresses.toArray(new String[0]));
 	}
 
 	/**
@@ -1452,7 +1452,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 * @param toAddresses
 	 */
-	public void notifyUsers(String subject, String message, String... toAddresses) {
+	public void sendEmail(String subject, String message, String... toAddresses) {
 		try {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
@@ -1553,7 +1553,6 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param settings
 	 */
-	@SuppressWarnings("deprecation")
 	public void configureContext(IStoredSettings settings, boolean startFederation) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.settings = settings;
@@ -1570,53 +1569,11 @@ public class GitBlit implements ServletContextListener {
 				loginService = (IUserService) realmClass.newInstance();
 			}
 		} catch (Throwable t) {
-			// not a login service class or class could not be instantiated.
-			// try to use default file login service
-			File realmFile = getFileOrFolder(Keys.realm.userService, "users.conf");
-			if (realmFile.exists()) {
-				// load the existing realm file
-				if (realmFile.getName().toLowerCase().endsWith(".properties")) {
-					// load the v0.5.0 - v0.7.0 properties-based realm file
-					loginService = new FileUserService(realmFile);
-
-					// automatically create a users.conf realm file from the
-					// original users.properties file
-					File usersConfig = new File(realmFile.getParentFile(), "users.conf");
-					if (!usersConfig.exists()) {
-						logger.info(MessageFormat.format("Automatically creating {0} based on {1}",
-								usersConfig.getAbsolutePath(), realmFile.getAbsolutePath()));
-						ConfigUserService configService = new ConfigUserService(usersConfig);
-						for (String username : loginService.getAllUsernames()) {
-							UserModel userModel = loginService.getUserModel(username);
-							configService.updateUserModel(userModel);
-						}
-					}
-
-					// issue suggestion about switching to users.conf
-					logger.warn("Please consider using \"users.conf\" instead of the deprecated \"users.properties\" file");
-				} else if (realmFile.getName().toLowerCase().endsWith(".conf")) {
-					// load the config-based realm file
-					loginService = new ConfigUserService(realmFile);
+			loginService = new UserServiceWrapper() {
+				@Override
+				public void setupService(IStoredSettings settings) {
 				}
-			} else {
-				// Create a new realm file and add the default admin
-				// account. This is necessary for bootstrapping a dynamic
-				// environment like running on a cloud service.
-				// As of v0.8.0 the default realm file is ConfigUserService.
-				try {
-					realmFile = getFileOrFolder(Keys.realm.userService, "users.conf");
-					realmFile.createNewFile();
-					loginService = new ConfigUserService(realmFile);
-					UserModel admin = new UserModel("admin");
-					admin.password = "admin";
-					admin.canAdmin = true;
-					admin.excludeFromFederation = true;
-					loginService.updateUserModel(admin);
-				} catch (IOException x) {
-					logger.error(
-							MessageFormat.format("COULD NOT CREATE REALM FILE {0}!", realmFile), x);
-				}
-			}
+			};
 		}
 		setUserService(loginService);
 		mailExecutor = new MailExecutor(settings);
