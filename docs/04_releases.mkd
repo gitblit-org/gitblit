@@ -3,6 +3,8 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- updated: Gitblit GO is now monolithic like the WAR build. (issue 30)  
+Either the dependencies are downloaded on first execution OR the dependencies are bundled, either way you would need the dependencies.  This change helps adoption of GO in environments without an internet connection or with a restricted connection.
 - added: Groovy 1.8.4 and sample pre- and post- push Groovy hook scripts.  Hook scripts can be set per-repository or globally for all repositories.  
 Unfortunately this adds another 6 MB to the 8MB Gitblit package, but it allows for a *very* powerful, flexible, platform-independent hook script mechanism.  
     **New:** *groovy.scriptsFolder = groovy*  

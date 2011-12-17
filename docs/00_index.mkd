@@ -41,7 +41,7 @@ You do not need Apache httpd, Perl, Git, or Gitweb.  Should you want to use some
 
 This is what you should download if you want to go from zero to Git in less than 5 mins.
 
-All dependencies are downloaded on first execution.
+All dependencies are bundled.
 
 ### WAR: For Your Servlet Container
 *Gitblit WAR* is what you should download if you already have a servlet container available that you wish to use.  Jetty 6/7/8 and Tomcat 6/7 are known to work.  Generally, any Servlet 2.5 or Servlet 3.0 container should work.
