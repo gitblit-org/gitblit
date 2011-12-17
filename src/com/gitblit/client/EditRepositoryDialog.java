@@ -52,7 +52,6 @@ import javax.swing.ListCellRenderer;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -89,6 +88,8 @@ public class EditRepositoryDialog extends JDialog {
 	private JCheckBox skipSummaryMetrics;
 
 	private JCheckBox isFrozen;
+	
+	private JTextField mailRecipientsField;
 
 	private JComboBox accessRestriction;
 
@@ -159,6 +160,9 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.skipSummaryMetrics);
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
 
+		mailRecipientsField = new JTextField(anRepository.mailRecipients == null ? ""
+				: StringUtils.flattenStrings(anRepository.mailRecipients, " "), 50);
+		
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
@@ -190,6 +194,7 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"), skipSummaryMetrics));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailRecipients"), mailRecipientsField));
 
 		usersPalette = new JPalette<String>();
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
@@ -347,6 +352,8 @@ public class EditRepositoryDialog extends JDialog {
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
 		repository.isFrozen = isFrozen.isSelected();
+		
+		repository.mailRecipients = StringUtils.getStringsFromValue(mailRecipientsField.getText().trim(), " ");
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();
 		repository.federationStrategy = (FederationStrategy) federationStrategy.getSelectedItem();

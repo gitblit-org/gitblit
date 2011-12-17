@@ -731,6 +731,8 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "preReceiveScript")));
 			model.postReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "postReceiveScript")));
+			model.mailRecipients = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "mailRecipient")));
 		}
 		r.close();
 		return model;
@@ -950,8 +952,16 @@ public class GitBlit implements ServletContextListener {
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
-		config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
-		config.setStringList("gitblit", null, "postReceiveScript", repository.postReceiveScripts);
+		if (repository.preReceiveScripts != null) {
+			config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
+		}
+		if (repository.postReceiveScripts != null) {
+			config.setStringList("gitblit", null, "postReceiveScript",
+					repository.postReceiveScripts);
+		}
+		if (repository.mailRecipients != null) {
+			config.setStringList("gitblit", null, "mailRecipient", repository.mailRecipients);
+		}
 		try {
 			config.save();
 		} catch (IOException e) {

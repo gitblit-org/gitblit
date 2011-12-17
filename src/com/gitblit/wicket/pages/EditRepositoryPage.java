@@ -33,6 +33,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -52,6 +54,8 @@ public class EditRepositoryPage extends RootSubPage {
 	private final boolean isCreate;
 
 	private boolean isAdmin;
+
+	private IModel<String> mailRecipients;
 
 	public EditRepositoryPage() {
 		// create constructor
@@ -86,8 +90,7 @@ public class EditRepositoryPage extends RootSubPage {
 				Collections.sort(repositoryUsers);
 			}
 			federationSets.addAll(repositoryModel.federationSets);
-		}		
-		
+		}
 
 		final String oldName = repositoryModel.name;
 		// users palette
@@ -169,6 +172,13 @@ public class EditRepositoryPage extends RootSubPage {
 						}
 					}
 
+					// set mail recipients
+					String ml = mailRecipients.getObject();
+					if (!StringUtils.isEmpty(ml)) {
+						List<String> list = StringUtils.getStringsFromValue(ml.trim(), " ");
+						repositoryModel.mailRecipients = list;
+					}
+
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
@@ -186,7 +196,7 @@ public class EditRepositoryPage extends RootSubPage {
 							repositoryUsers.add(repositoryModel.owner);
 						}
 						GitBlit.self().setRepositoryUsers(repositoryModel, repositoryUsers);
-						
+
 						// save the team access list
 						Iterator<String> teams = teamsPalette.getSelectedChoices();
 						List<String> repositoryTeams = new ArrayList<String>();
@@ -230,6 +240,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
+		mailRecipients = new Model<String>(repositoryModel.mailRecipients == null ? ""
+				: StringUtils.flattenStrings(repositoryModel.mailRecipients, " "));
+		form.add(new TextField<String>("mailRecipients", mailRecipients));
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
