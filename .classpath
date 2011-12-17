@@ -97,5 +97,10 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.19-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="ext/groovy-all-1.8.4.jar" sourcepath="ext/groovy-all-1.8.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/groovy-all-1.8.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

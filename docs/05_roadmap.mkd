@@ -37,7 +37,10 @@ This list is volatile.
 
 ### IDEAS
 
-* Gitblit: consider user-subscribed email notifications for a repository branch
+* Gitblit: implement branch permission controls as Groovy pre-receive script.  
+*Maintain permissions text file similar to a gitolite configuration file or svn authz file.*
+* Gitblit: consider user-subscribed email notifications for a repository branch as a built-in feature.  
+*There is a sample Groovy post-receive hook script which can send emails.*
 * Gitblit: aggregate RSS feeds by tag or subfolder
 * Gitblit: Consider creating more Git model objects and exposing them via the JSON RPC interface to allow inspection/retrieval of Git commits, Git trees, etc from Gitblit.
 * Gitblit: Stronger ticgit integration (issue 8)

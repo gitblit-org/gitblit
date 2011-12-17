@@ -3,6 +3,13 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+- added: Groovy 1.8.4 and sample pre- and post- push Groovy hook scripts.  Hook scripts can be set per-repository or globally for all repositories.  
+Unfortunately this adds another 6 MB to the 8MB Gitblit package, but it allows for a *very* powerful, flexible, platform-independent hook script mechanism.  
+    **New:** *groovy.scriptsFolder = groovy*  
+    **New:** *groovy.preReceiveScripts =*  
+    **New:** *groovy.postReceiveScripts =*
+- added: New key for mailing lists.  This is _currently_ used in conjunction with the example *sendemail.groovy* post-receive hook script.  
+    **New:** *mail.mailingLists =*
 - added: new default user service implementation: com.gitblit.ConfigUserService (users.conf)  
 This user service implementation allows for serialization and deserialization of more sophisticated Gitblit User objects and will open the door for more advanced Gitblit features. For upgrading installations, a `users.conf` file will automatically be created for you from your existing `users.properties` file on your first launch of Gitblit.  You will have to manually set *realm.userService=users.conf* to switch to the new user service.  The original `users.properties` file and it's corresponding implementation are deprecated.  
     **New:** *realm.userService = users.conf*
@@ -20,7 +27,6 @@ This user service implementation allows for serialization and deserialization of
    **New:** *web.allowFlashCopyToClipboard = true*  
 - improved: empty repositories now link to the *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
 - improved: unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
-
 
 ### Older Releases
 

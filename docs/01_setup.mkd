@@ -3,9 +3,11 @@
 1. Download [Gitblit WAR %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) to the webapps folder of your servlet container.  
 2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
 3. Copy the `WEB-INF/users.conf` file to a location outside the webapps folder that is accessible by your servlet container.  
+Optionally copy the example hook scripts in `WEB-INF/groovy` to a location outside the webapps folder that is accesible by your servlet container.
 4. The Gitblit webapp is configured through its `web.xml` file.  
 Open `web.xml` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
+    - &lt;context-parameter&gt; *groovy.scriptsFolder* (set the full path to your Groovy hook scripts folder)
     - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.conf`)
 5. You may have to restart your servlet container. 
 6. Open your browser to <http://localhost/gitblit> or whatever the url should be.
@@ -19,6 +21,7 @@ Open `web.xml` in your favorite text editor and make sure to review and set:
 2. The server itself is configured through a simple text file.  
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
     - *git.repositoryFolder* (path may be relative or absolute)
+    - *groovy.scriptsFolder* (path may be relative or absolute)
     - *server.tempFolder* (path may be relative or absolute)
     - *server.httpPort* and *server.httpsPort*
     - *server.httpBindInterface* and *server.httpsBindInterface*  
@@ -115,12 +118,13 @@ Backup your `web.properties` file (if you have one, these are the setting overri
 2. Backup your `users.properties` file *(if it is located in the Gitblit GO folder)*  
 OR  
 Backup your `users.conf` file *(if it is located in the Gitblit GO folder)*
-3. Unzip Gitblit GO to a new folder
-4. Overwrite the `gitblit.properties` file with your backup
-5. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*  
+3. Backup your Groovy hook scripts
+4. Unzip Gitblit GO to a new folder
+5. Overwrite the `gitblit.properties` file with your backup
+6. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*  
 OR  
 Overwrite the `users.conf` file with your backup *(if it was located in the Gitblit GO folder)*
-6. Review and optionally apply any new settings as indicated in the [release log](releases.html).
+7. Review and optionally apply any new settings as indicated in the [release log](releases.html).
 
 #### Upgrading Windows Service
 You may need to delete your old service definition and install a new one depending on what has changed in the release.
@@ -197,10 +201,10 @@ The `users.conf` file allows flexibility for adding new fields to a UserModel ob
 ### Administering Users (users.properties, Gitblit v0.5.0 - v0.7.0)
 All users are stored in the `users.properties` file or in the file you specified in `gitblit.properties`. Your file extension must be *.properties* in order to use this user service.
 
-The format of `users.properties` follows Jetty's convention for HashRealms:
+The format of `users.properties` loosely follows Jetty's convention for HashRealms:
 
-    username,password,role1,role2,role3...
-    @teamname,!username1,!username2,!username3,repository1,repository2,repository3...
+    username=password,role1,role2,role3...
+    @teamname=!username1,!username2,!username3,repository1,repository2,repository3...
 
 #### Usernames
 Usernames must be unique and are case-insensitive.  
@@ -219,6 +223,21 @@ You may use your own custom *com.gitblit.IUserService* implementation by specify
 
 Your user service class must be on Gitblit's classpath and must have a public default constructor.  
 Please see the following interface definition [com.gitblit.IUserService](https://github.com/gitblit/gitblit/blob/master/src/com/gitblit/IUserService.java).
+
+## Groovy Hook Scripts
+
+*SINCE 0.8.0*
+
+The preferred hook mechanism is Groovy.  This mechanism only executes when pushing to Gitblit, not when pushing to some other Git tooling in your stack.
+
+The Groovy hook mechanism allows for dynamic extension of Gitblit to execute custom tasks on receiving and processing push events.  The scripts run within the context of your Gitblit instance and therefore have access to Gitblit's internals at runtime.
+
+Your Groovy scripts should be stored in the *groovy.scriptsFolder* as specified in `gitblit.properties` or `web.xml`.
+
+Scripts must be explicitly specified to be executed.  A script can be run on *all repositories* by adding the script file name to *groovy.preReceiveScripts* or *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`. Alternatively, you may specify per-repository scripts in the repository settings.  Global/shared scripts are executed first in their listed order, followed by per-repository scripts in their listed order.
+
+Some primitive sample scripts are included in the GO and WAR distributions to show you how you can tap into Gitblit with the provided bound variables.  
+Hook contributions and improvements are welcome.
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates

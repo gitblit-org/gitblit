@@ -15,6 +15,7 @@
  */
 package com.gitblit;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -24,6 +25,7 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.regex.Pattern;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -152,11 +154,23 @@ public class MailExecutor implements Runnable {
 			InternetAddress from = new InternetAddress(fromAddress, "Gitblit");
 			message.setFrom(from);
 
-			InternetAddress[] tos = new InternetAddress[toAddresses.size()];
-			for (int i = 0; i < toAddresses.size(); i++) {
-				tos[i] = new InternetAddress(toAddresses.get(i));
+			Set<String> uniques = new HashSet<String>(toAddresses);
+			Pattern validEmail = Pattern
+					.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
+			List<InternetAddress> tos = new ArrayList<InternetAddress>();
+			for (String address : uniques) {
+				if (StringUtils.isEmpty(address)) {
+					continue;
+				}
+				if (validEmail.matcher(address).find()) {
+					try {
+						tos.add(new InternetAddress(address));
+					} catch (Throwable t) {
+					}
+				}
 			}
-			message.setRecipients(Message.RecipientType.TO, tos);
+			message.setRecipients(Message.RecipientType.TO,
+					tos.toArray(new InternetAddress[tos.size()]));
 			message.setSentDate(new Date());
 		} catch (Exception e) {
 			logger.error("Failed to properly create message", e);

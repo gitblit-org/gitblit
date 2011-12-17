@@ -15,10 +15,47 @@
  */
 package com.gitblit;
 
+import groovy.lang.Binding;
+import groovy.util.GroovyScriptEngine;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.List;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
+import org.eclipse.jgit.http.server.resolver.DefaultReceivePackFactory;
+import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.PostReceiveHook;
+import org.eclipse.jgit.transport.PreReceiveHook;
+import org.eclipse.jgit.transport.ReceiveCommand;
+import org.eclipse.jgit.transport.ReceiveCommand.Result;
+import org.eclipse.jgit.transport.ReceivePack;
+import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
+import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
+import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.StringUtils;
+
 /**
  * The GitServlet exists to force configuration of the JGit GitServlet based on
  * the Gitblit settings from either gitblit.properties or from context
  * parameters in the web.xml file.
+ * 
+ * It also implements and registers the Groovy hook mechanism.
  * 
  * Access to this servlet is protected by the GitFilter.
  * 
@@ -28,6 +65,8 @@ package com.gitblit;
 public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
+
+	private GroovyScriptEngine gse;
 
 	/**
 	 * Configure the servlet from Gitblit's configuration.
@@ -40,5 +79,233 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			return "1";
 		}
 		return super.getInitParameter(name);
+	}
+
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		String groovyRoot = GitBlit.getString(Keys.groovy.scriptsFolder, "groovy");
+		try {
+			gse = new GroovyScriptEngine(groovyRoot);
+		} catch (IOException e) {
+			throw new ServletException("Failed to instantiate Groovy Script Engine!", e);
+		}
+
+		// set the Gitblit receive hook
+		setReceivePackFactory(new DefaultReceivePackFactory() {
+			@Override
+			public ReceivePack create(HttpServletRequest req, Repository db)
+					throws ServiceNotEnabledException, ServiceNotAuthorizedException {
+				ReceivePack rp = super.create(req, db);
+				GitblitReceiveHook hook = new GitblitReceiveHook();
+				hook.gitblitUrl = HttpUtils.getGitblitURL(req);
+				rp.setPreReceiveHook(hook);
+				rp.setPostReceiveHook(hook);
+				return rp;
+			}
+		});
+		super.init(config);
+	}
+
+	/**
+	 * The Gitblit receive hook allows for special processing on push events.
+	 * That might include rejecting writes to specific branches or executing a
+	 * script.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
+	private class GitblitReceiveHook implements PreReceiveHook, PostReceiveHook {
+
+		protected final Logger logger = LoggerFactory.getLogger(GitblitReceiveHook.class);
+
+		protected String gitblitUrl;
+
+		/**
+		 * Instrumentation point where the incoming push event has been parsed,
+		 * validated, objects created BUT refs have not been updated. You might
+		 * use this to enforce a branch-write permissions model.
+		 */
+		@Override
+		public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
+			List<String> scripts = GitBlit.getStrings(Keys.groovy.preReceiveScripts);
+			RepositoryModel repository = getRepositoryModel(rp);
+			scripts.addAll(repository.preReceiveScripts);
+			UserModel user = getUserModel(rp);
+			runGroovy(repository, user, commands, scripts);
+			for (ReceiveCommand cmd : commands) {
+				if (!Result.NOT_ATTEMPTED.equals(cmd.getResult())) {
+					logger.warn(MessageFormat.format("{0} {1} because \"{2}\"", cmd.getNewId()
+							.getName(), cmd.getResult(), cmd.getMessage()));
+				}
+			}
+
+			// Experimental
+			// runNativeScript(rp, "hooks/pre-receive", commands);
+		}
+
+		/**
+		 * Instrumentation point where the incoming push has been applied to the
+		 * repository. This is the point where we would trigger a Jenkins build
+		 * or send an email.
+		 */
+		@Override
+		public void onPostReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
+			if (commands.size() == 0) {
+				logger.info("skipping post-receive hooks, no refs created, updated, or removed");
+				return;
+			}
+			List<String> scripts = GitBlit.getStrings(Keys.groovy.postReceiveScripts);
+			RepositoryModel repository = getRepositoryModel(rp);
+			scripts.addAll(repository.postReceiveScripts);
+			UserModel user = getUserModel(rp);
+			runGroovy(repository, user, commands, scripts);
+
+			// Experimental
+			// runNativeScript(rp, "hooks/post-receive", commands);
+		}
+
+		/**
+		 * Returns the RepositoryModel for the repository we are pushing into.
+		 * 
+		 * @param rp
+		 * @return a RepositoryModel
+		 */
+		protected RepositoryModel getRepositoryModel(ReceivePack rp) {
+			Repository repository = rp.getRepository();
+			String rootPath = GitBlit.getRepositoriesFolder().getAbsolutePath();
+			String repositoryName = repository.getDirectory().getAbsolutePath();
+			repositoryName = repositoryName.substring(rootPath.length() + 1);
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			return model;
+		}
+
+		/**
+		 * Returns the UserModel for the user pushing the changes.
+		 * 
+		 * @param rp
+		 * @return a UserModel
+		 */
+		protected UserModel getUserModel(ReceivePack rp) {
+			PersonIdent person = rp.getRefLogIdent();
+			UserModel user = GitBlit.self().getUserModel(person.getName());
+			if (user == null) {
+				// anonymous push, create a temporary usermodel
+				user = new UserModel(person.getName());
+			}
+			return user;
+		}
+
+		/**
+		 * Runs the specified Groovy hook scripts.
+		 * 
+		 * @param repository
+		 * @param user
+		 * @param commands
+		 * @param scripts
+		 */
+		protected void runGroovy(RepositoryModel repository, UserModel user,
+				Collection<ReceiveCommand> commands, List<String> scripts) {
+			if (scripts == null || scripts.size() == 0) {
+				// no Groovy scripts to execute
+				return;
+			}
+
+			Binding binding = new Binding();
+			binding.setVariable("gitblit", GitBlit.self());
+			binding.setVariable("repository", repository);
+			binding.setVariable("user", user);
+			binding.setVariable("commands", commands);
+			binding.setVariable("url", gitblitUrl);
+			binding.setVariable("logger", logger);
+			for (String script : scripts) {
+				if (StringUtils.isEmpty(script)) {
+					continue;
+				}
+				try {
+					Object result = gse.run(script, binding);
+					if (result instanceof Boolean) {
+						if (!((Boolean) result)) {
+							logger.error(MessageFormat.format(
+									"Groovy script {0} has failed!  Hook scripts aborted.", script));
+							break;
+						}
+					}
+				} catch (Exception e) {
+					logger.error(
+							MessageFormat.format("Failed to execute Groovy script {0}", script), e);
+				}
+			}
+		}
+
+		/**
+		 * Runs the native push hook script.
+		 * 
+		 * http://book.git-scm.com/5_git_hooks.html
+		 * http://longair.net/blog/2011/04/09/missing-git-hooks-documentation/
+		 * 
+		 * @param rp
+		 * @param script
+		 * @param commands
+		 */
+		@SuppressWarnings("unused")
+		protected void runNativeScript(ReceivePack rp, String script,
+				Collection<ReceiveCommand> commands) {
+
+			Repository repository = rp.getRepository();
+			File scriptFile = new File(repository.getDirectory(), script);
+
+			int resultCode = 0;
+			if (scriptFile.exists()) {
+				try {
+					logger.debug("executing " + scriptFile);
+					Process process = Runtime.getRuntime().exec(scriptFile.getAbsolutePath(), null,
+							repository.getDirectory());
+					BufferedReader reader = new BufferedReader(new InputStreamReader(
+							process.getInputStream()));
+					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+							process.getOutputStream()));
+					for (ReceiveCommand command : commands) {
+						switch (command.getType()) {
+						case UPDATE:
+							// updating a ref
+							writer.append(MessageFormat.format("{0} {1} {2}\n", command.getOldId()
+									.getName(), command.getNewId().getName(), command.getRefName()));
+							break;
+						case CREATE:
+							// new ref
+							// oldrev hard-coded to 40? weird.
+							writer.append(MessageFormat.format("40 {0} {1}\n", command.getNewId()
+									.getName(), command.getRefName()));
+							break;
+						}
+					}
+					resultCode = process.waitFor();
+
+					// read and buffer stdin
+					// this is supposed to be piped back to the git client.
+					// not sure how to do that right now.
+					StringBuilder sb = new StringBuilder();
+					String line = null;
+					while ((line = reader.readLine()) != null) {
+						sb.append(line).append('\n');
+					}
+					logger.debug(sb.toString());
+				} catch (Throwable e) {
+					resultCode = -1;
+					logger.error(
+							MessageFormat.format("Failed to execute {0}",
+									scriptFile.getAbsolutePath()), e);
+				}
+			}
+
+			// reject push
+			if (resultCode != 0) {
+				for (ReceiveCommand command : commands) {
+					command.setResult(Result.REJECTED_OTHER_REASON, MessageFormat.format(
+							"Native script {0} rejected push or failed",
+							scriptFile.getAbsolutePath()));
+				}
+			}
+		}
 	}
 }

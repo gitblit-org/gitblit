@@ -66,6 +66,7 @@ Administrators can create and manage all repositories, user accounts, and teams 
 
 ### Integration with Your Infrastructure
 
+- Groovy push hook scripts
 - Pluggable user service mechanism for custom authentication, authorization, and user management
 - Rich RSS feeds
 - JSON-based RPC mechanism

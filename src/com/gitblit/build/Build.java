@@ -89,6 +89,7 @@ public class Build {
 		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.MAIL, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.GROOVY, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -114,7 +115,8 @@ public class Build {
 		downloadFromApache(MavenObject.JDOM, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.GSON, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.MAIL, BuildType.COMPILETIME);
-
+		downloadFromApache(MavenObject.GROOVY, BuildType.COMPILETIME);
+		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
 
@@ -494,6 +496,10 @@ public class Build {
 		public static final MavenObject MAIL = new MavenObject("javax.mail", "javax/mail", "mail",
 				"1.4.3", 462000, 642000, 0, "8154bf8d666e6db154c548dc31a8d512c273f5ee",
 				"5875e2729de83a4e46391f8f979ec8bd03810c10", null);
+
+		public static final MavenObject GROOVY = new MavenObject("groovy", "org/codehaus/groovy", "groovy-all",
+				"1.8.4", 6143000, 2290000, 4608000, "b5e7c2a5e6af43ccccf643ad656d6fe4b773be2b",
+				"a527e83e5c715540108d8f2b86ca19a3c9c78ac1", "8e5da5584fff57b14adbb4ee25cca09f5a00b013");
 
 		public final String name;
 		public final String group;

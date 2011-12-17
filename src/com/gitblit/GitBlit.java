@@ -557,6 +557,7 @@ public class GitBlit implements ServletContextListener {
 	public boolean setRepositoryTeams(RepositoryModel repository, List<String> repositoryTeams) {
 		return userService.setTeamnamesForRepositoryRole(repository.name, repositoryTeams);
 	}
+
 	/**
 	 * Updates the TeamModel object for the specified name.
 	 * 
@@ -564,7 +565,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param team
 	 * @param isCreate
 	 */
-	public void updateTeamModel(String teamname, TeamModel team, boolean isCreate) throws GitBlitException {
+	public void updateTeamModel(String teamname, TeamModel team, boolean isCreate)
+			throws GitBlitException {
 		if (!teamname.equalsIgnoreCase(team.name)) {
 			if (userService.getTeamModel(team.name) != null) {
 				throw new GitBlitException(MessageFormat.format(
@@ -576,7 +578,7 @@ public class GitBlit implements ServletContextListener {
 			throw new GitBlitException(isCreate ? "Failed to add team!" : "Failed to update team!");
 		}
 	}
-	
+
 	/**
 	 * Delete the team object with the specified teamname
 	 * 
@@ -725,6 +727,10 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
 			model.origin = config.getString("remote", "origin", "url");
+			model.preReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "preReceiveScript")));
+			model.postReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "postReceiveScript")));
 		}
 		r.close();
 		return model;
@@ -944,6 +950,8 @@ public class GitBlit implements ServletContextListener {
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
+		config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
+		config.setStringList("gitblit", null, "postReceiveScript", repository.postReceiveScripts);
 		try {
 			config.save();
 		} catch (IOException e) {
@@ -1416,6 +1424,37 @@ public class GitBlit implements ServletContextListener {
 	public void notifyAdministrators(String subject, String message) {
 		try {
 			Message mail = mailExecutor.createMessageForAdministrators();
+			if (mail != null) {
+				mail.setSubject(subject);
+				mail.setText(message);
+				mailExecutor.queue(mail);
+			}
+		} catch (MessagingException e) {
+			logger.error("Messaging error", e);
+		}
+	}
+
+	/**
+	 * Notify users by email of something.
+	 * 
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	public void notifyUsers(String subject, String message, ArrayList<String> toAddresses) {
+		this.notifyUsers(subject, message, toAddresses.toArray(new String[0]));
+	}
+
+	/**
+	 * Notify users by email of something.
+	 * 
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	public void notifyUsers(String subject, String message, String... toAddresses) {
+		try {
+			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
 				mail.setText(message);

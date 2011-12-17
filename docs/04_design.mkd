@@ -35,6 +35,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [jdom](http://www.jdom.org) (Apache-style JDOM license)
 - [google-gson](http://code.google.com/google-gson) (Apache 2.0)
 - [javamail](http://kenai.com/projects/javamail) (CDDL-1.0, BSD, GPL-2.0, GNU-Classpath)
+- [Groovy](http://groovy.codehaus.org) (Apache 2.0)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

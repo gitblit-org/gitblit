@@ -186,6 +186,14 @@
 			<param name="docs.output.dir" value="${project.deploy.dir}/docs" />
 		</antcall>
 		
+		<!-- Copy the sample Groovy hook scripts -->
+		<mkdir dir="${project.deploy.dir}/groovy" />
+		<copy todir="${project.deploy.dir}/groovy">
+			<fileset dir="${basedir}/groovy">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+	
 		<!-- Create Zip deployment -->		
 		<zip destfile="${distribution.zipfile}">
 			<fileset dir="${project.deploy.dir}">
@@ -343,7 +351,15 @@
 		<antcall target="buildDocs" inheritall="true" inheritrefs="true">
 			<param name="docs.output.dir" value="${project.war.dir}/WEB-INF/docs" />
 		</antcall>
-		
+
+		<!-- Copy the sample Groovy hook scripts -->
+		<mkdir dir="${project.war.dir}/WEB-INF/groovy" />
+		<copy todir="${project.war.dir}/WEB-INF/groovy">
+			<fileset dir="${basedir}/groovy">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+
 		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties --> 
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildWebXml">
 			<classpath refid="master-classpath" />
