@@ -276,7 +276,7 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.LIST_SETTINGS.equals(reqType)) {
 			// return the server's settings
-			ServerSettings settings = GitBlit.self().getSettingsModel();
+			ServerSettings settings = GitBlit.self().getSettingsModel();			
 			if (allowAdmin) {
 				// return all settings
 				result = settings;
@@ -294,9 +294,12 @@ public class RpcServlet extends JsonServlet {
 					keys.add(Keys.federation.sets);
 				}
 				// build the settings
-				ServerSettings managementSettings = new ServerSettings();
+				ServerSettings managementSettings = new ServerSettings();				
 				for (String key : keys) {
 					managementSettings.add(settings.get(key));
+				}
+				if (allowManagement) {
+					settings.pushScripts = settings.pushScripts;
 				}
 				result = managementSettings;
 			}

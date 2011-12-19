@@ -183,6 +183,13 @@ public class GitblitClient implements Serializable {
 		}
 	}
 
+	public List<String> getAvailableScripts() {
+		if (settings.pushScripts == null) {
+			return new ArrayList<String>();
+		}
+		return settings.pushScripts;
+	}
+
 	public ServerSettings getSettings() {
 		return settings;
 	}

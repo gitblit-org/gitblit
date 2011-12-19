@@ -277,7 +277,7 @@ public abstract class RepositoriesPanel extends JPanel {
 	protected abstract void subscribeFeeds(List<FeedModel> feeds);
 
 	protected abstract void updateUsersTable();
-	
+
 	protected abstract void updateTeamsTable();
 
 	protected void disableManagement() {
@@ -357,6 +357,8 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), null);
+		dialog.setPreReceiveScripts(gitblit.getAvailableScripts(), null);
+		dialog.setPostReceiveScripts(gitblit.getAvailableScripts(), null);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
@@ -369,7 +371,8 @@ public abstract class RepositoriesPanel extends JPanel {
 
 			@Override
 			protected Boolean doRequest() throws IOException {
-				boolean success = gitblit.createRepository(newRepository, permittedUsers, permittedTeams);
+				boolean success = gitblit.createRepository(newRepository, permittedUsers,
+						permittedTeams);
 				if (success) {
 					gitblit.refreshRepositories();
 					if (permittedUsers.size() > 0) {
@@ -405,7 +408,8 @@ public abstract class RepositoriesPanel extends JPanel {
 	 * @param repository
 	 */
 	protected void editRepository(final RepositoryModel repository) {
-		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion(), repository);
+		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion(),
+				repository);
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
 		List<String> members = gitblit.getPermittedUsernames(repository);
@@ -413,6 +417,8 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), gitblit.getPermittedTeamnames(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
+		dialog.setPreReceiveScripts(gitblit.getAvailableScripts(), repository.preReceiveScripts);
+		dialog.setPostReceiveScripts(gitblit.getAvailableScripts(), repository.postReceiveScripts);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();

@@ -35,6 +35,8 @@ public class ServerSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public List<String> pushScripts;
+
 	public ServerSettings() {
 		settings = new TreeMap<String, SettingModel>();
 	}

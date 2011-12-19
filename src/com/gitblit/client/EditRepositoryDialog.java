@@ -88,7 +88,7 @@ public class EditRepositoryDialog extends JDialog {
 	private JCheckBox skipSummaryMetrics;
 
 	private JCheckBox isFrozen;
-	
+
 	private JTextField mailRecipientsField;
 
 	private JComboBox accessRestriction;
@@ -98,10 +98,14 @@ public class EditRepositoryDialog extends JDialog {
 	private JComboBox ownerField;
 
 	private JPalette<String> usersPalette;
-	
+
 	private JPalette<String> setsPalette;
-	
+
 	private JPalette<String> teamsPalette;
+
+	private JPalette<String> preReceivePalette;
+
+	private JPalette<String> postReceivePalette;
 
 	private Set<String> repositoryNames;
 
@@ -162,7 +166,7 @@ public class EditRepositoryDialog extends JDialog {
 
 		mailRecipientsField = new JTextField(anRepository.mailRecipients == null ? ""
 				: StringUtils.flattenStrings(anRepository.mailRecipients, " "), 50);
-		
+
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
@@ -216,6 +220,18 @@ public class EditRepositoryDialog extends JDialog {
 		federationPanel.add(newFieldPanel(Translation.get("gb.federationSets"), setsPalette),
 				BorderLayout.CENTER);
 
+		preReceivePalette = new JPalette<String>(true);
+		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
+		preReceivePanel.add(
+				newFieldPanel(Translation.get("gb.preReceiveScripts"), preReceivePalette),
+				BorderLayout.CENTER);
+
+		postReceivePalette = new JPalette<String>(true);
+		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
+		postReceivePanel.add(
+				newFieldPanel(Translation.get("gb.postReceiveScripts"), postReceivePalette),
+				BorderLayout.CENTER);
+
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanel);
 		panel.addTab(Translation.get("gb.accessRestriction"), accessPanel);
@@ -223,6 +239,8 @@ public class EditRepositoryDialog extends JDialog {
 			panel.addTab(Translation.get("gb.teams"), teamsPanel);
 		}
 		panel.addTab(Translation.get("gb.federation"), federationPanel);
+		panel.addTab(Translation.get("gb.preReceiveScripts"), preReceivePanel);
+		panel.addTab(Translation.get("gb.postReceiveScripts"), postReceivePanel);
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
@@ -352,8 +370,9 @@ public class EditRepositoryDialog extends JDialog {
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
 		repository.isFrozen = isFrozen.isSelected();
-		
-		repository.mailRecipients = StringUtils.getStringsFromValue(mailRecipientsField.getText().trim(), " ");
+
+		repository.mailRecipients = StringUtils.getStringsFromValue(mailRecipientsField.getText()
+				.trim(), " ");
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();
 		repository.federationStrategy = (FederationStrategy) federationStrategy.getSelectedItem();
@@ -361,6 +380,9 @@ public class EditRepositoryDialog extends JDialog {
 		if (repository.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
 			repository.federationSets = setsPalette.getSelections();
 		}
+
+		repository.preReceiveScripts = preReceivePalette.getSelections();
+		repository.postReceiveScripts = postReceivePalette.getSelections();
 		return true;
 	}
 
@@ -376,7 +398,7 @@ public class EditRepositoryDialog extends JDialog {
 		}
 		usersPalette.setObjects(all, selected);
 	}
-	
+
 	public void setTeams(List<String> all, List<String> selected) {
 		teamsPalette.setObjects(all, selected);
 	}
@@ -394,6 +416,14 @@ public class EditRepositoryDialog extends JDialog {
 
 	public void setFederationSets(List<String> all, List<String> selected) {
 		setsPalette.setObjects(all, selected);
+	}
+
+	public void setPreReceiveScripts(List<String> all, List<String> selected) {
+		preReceivePalette.setObjects(all, selected);
+	}
+
+	public void setPostReceiveScripts(List<String> all, List<String> selected) {
+		postReceivePalette.setObjects(all, selected);
 	}
 
 	public RepositoryModel getRepository() {

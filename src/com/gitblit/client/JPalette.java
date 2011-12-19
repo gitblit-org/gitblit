@@ -40,6 +40,10 @@ public class JPalette<T> extends JPanel {
 	private PaletteModel<T> selectedModel;
 
 	public JPalette() {
+		this(false);
+	}
+
+	public JPalette(boolean controlOrder) {
 		super(new BorderLayout(5, 5));
 
 		availableModel = new PaletteModel<T>();
@@ -86,9 +90,37 @@ public class JPalette<T> extends JPanel {
 			}
 		});
 
+		JButton up = new JButton("\u2191");
+		up.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int row = selected.getSelectedRow();
+				if (row > 0) {
+					T o = selectedModel.list.remove(row);
+					selectedModel.list.add(row - 1, o);
+					selectedModel.fireTableDataChanged();
+				}
+			}
+		});
+
+		JButton down = new JButton("\u2193");
+		down.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent event) {
+				int row = selected.getSelectedRow();
+				if (row < selected.getRowCount() - 1) {
+					T o = selectedModel.list.remove(row);
+					selectedModel.list.add(row + 1, o);
+					selectedModel.fireTableDataChanged();
+				}
+			}
+		});
+
 		JPanel controls = new JPanel(new GridLayout(0, 1, 0, 5));
 		controls.add(add);
 		controls.add(subtract);
+		if (controlOrder) {
+			controls.add(up);
+			controls.add(down);
+		}
 
 		JPanel center = new JPanel(new GridBagLayout());
 		center.add(controls);
