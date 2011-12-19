@@ -77,7 +77,7 @@ def emailprefix = config.getString('hooks', null, 'emailprefix')
 // set default values
 def toAddresses = []
 if (emailprefix == null)
-emailprefix = '"[Gitblit]'
+emailprefix = '[Gitblit]'
 
 if (mailinglist != null) {
 	def addrs = mailinglist.split('(,|\\s)')
@@ -99,7 +99,7 @@ switch(repository.name) {
 }
 
 // define the summary and commit urls
-def repo =  + repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
+def repo = repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
 def summaryUrl
 def commitUrl
 if (gitblit.getBoolean(Keys.web.mountParameters, true)) {	
