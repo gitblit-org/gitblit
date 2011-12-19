@@ -99,14 +99,15 @@ switch(repository.name) {
 }
 
 // define the summary and commit urls
+def repo =  + repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
 def summaryUrl
 def commitUrl
-if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
-	summaryUrl = url + '/summary/' + repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
-	commitUrl = url + '/commit/'
+if (gitblit.getBoolean(Keys.web.mountParameters, true)) {	
+	summaryUrl = url + "/summary/$repo"
+	commitUrl = url + "/commit/$repo/"
 } else {
-	summaryUrl = url + '/summary?r=' + repository.name
-	commitUrl = url + '/commit?h='
+	summaryUrl = url + "/summary?r=$repo"
+	commitUrl = url + "/commit?r=$repo&h="
 }
 
 // construct a simple text summary of the changes contained in the push
