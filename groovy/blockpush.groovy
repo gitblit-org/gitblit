@@ -67,10 +67,10 @@ logger.info("blockpush hook triggered by ${user.username} for ${repository.name}
  */
 def blocked = false
 switch (repository.name) {
-	case "ex@mple.git":
+	case 'ex@mple.git':
 		for (ReceiveCommand command : commands) {
 			def updatedRef = command.refName
-			if (updatedRef.equals("refs/heads/master")) {
+			if (updatedRef.equals('refs/heads/master')) {
 				// to reject a command set it's result to anything other than Result.NOT_ATTEMPTED
 				command.setResult(Result.REJECTED_OTHER_REASON, "You are not permitted to write to ${repository.name}:${updatedRef}")
 				blocked = true

@@ -71,16 +71,16 @@ Repository r = gitblit.getRepository(repository.name)
 
 // reuse some existing repository config settings, if available
 Config config = r.getConfig()
-def mailinglist = config.getString("hooks", null, "mailinglist")
-def emailprefix = config.getString("hooks", null, "emailprefix")
+def mailinglist = config.getString('hooks', null, 'mailinglist')
+def emailprefix = config.getString('hooks', null, 'emailprefix')
 
 // set default values
 def toAddresses = []
 if (emailprefix == null)
-	emailprefix = "[Gitblit]"
+emailprefix = '"[Gitblit]'
 
 if (mailinglist != null) {
-	def addrs = mailinglist.split("(,|\\s)")
+	def addrs = mailinglist.split('(,|\\s)')
 	toAddresses.addAll(addrs)
 }
 
@@ -92,45 +92,57 @@ toAddresses.addAll(repository.mailRecipients)
 
 // special custom cases
 switch(repository.name) {
-	case "ex@mple.git":
-		toAddresses.add "dev-team@somewhere.com"
-		toAddresses.add "qa-team@somewhere.com"
+	case 'ex@mple.git':
+		toAddresses.add 'dev-team@somewhere.com'
+		toAddresses.add 'qa-team@somewhere.com'
 		break
+}
+
+// define the summary and commit urls
+def summaryUrl
+def commitUrl
+if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
+	summaryUrl = url + '/summary/' + repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
+	commitUrl = url + '/commit/'
+} else {
+	summaryUrl = url + '/summary?r=' + repository.name
+	commitUrl = url + '/commit?h='
 }
 
 // construct a simple text summary of the changes contained in the push
 def commitCount = 0
-def changes = ""
-def table = { it.id.name[0..8] + " " + it.authorIdent.name.padRight(20, " ") + it.shortMessage }
+def changes = ''
+def table = { it.authorIdent.name.padRight(25, ' ') + it.shortMessage + "\n$commitUrl" + it.id.name }
 for (command in commands) {
+	def ref = command.refName.substring('refs/heads/'.length())
 	switch (command.type) {
 		case ReceiveCommand.Type.CREATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// new branch commits table
-			changes += "created ${command.refName}\n\n"
-			changes += commits.collect(table).join("\n")
-			changes += "\n"
+			changes += "created $ref ($commits.size commits)\n\n"
+			changes += commits.collect(table).join('\n\n')
+			changes += '\n'
 			break
 		case ReceiveCommand.Type.UPDATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// fast-forward branch commits table
-			changes += "updated ${command.refName}\n\n"
-			changes += commits.collect(table).join("\n")
-			changes += "\n"
+			changes += "updated $ref ($commits.size commits)\n\n"
+			changes += commits.collect(table).join('\n\n')
+			changes += '\n'
 			break
 		case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
-			changes += "updated ${command.refName} (NON fast-forward)\n\n"
-			changes += commits.collect(table).join("\n")
-			changes += "\n"
+			changes += "updated $ref [NON fast-forward] ($commits.size commits)\n\n"
+			changes += commits.collect(table).join('\n\n')
+			changes += '\n'
 			break
 		case ReceiveCommand.Type.DELETE:
 			// deleted branch
-			changes += "deleted ${command.refName}\n\n"
+			changes += "deleted $ref\n\n"
 			break
 		default:
 			break
@@ -139,17 +151,5 @@ for (command in commands) {
 // close the repository reference
 r.close()
 
-// build a link to the summary page, either mounted or parameterized
-def summaryUrl
-if (gitblit.getBoolean(Keys.web.mountParameters, true))
-	summaryUrl = url + "/summary/" + repository.name.replace("/", gitblit.getString(Keys.web.forwardSlashCharacter, "/"))
-else
-	summaryUrl = url + "/summary?r=" + repository.name
-
-// create the message body
-def msg = """${summaryUrl}
-
-${changes}"""
-
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.sendEmail("${emailprefix} ${user.username} pushed ${commitCount} commits => ${repository.name}", msg, toAddresses)
+gitblit.sendEmail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n\n$changes", toAddresses)
