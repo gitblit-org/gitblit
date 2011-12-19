@@ -80,6 +80,9 @@ public class EditRepositoryPage extends RootSubPage {
 		List<String> federationSets = new ArrayList<String>();
 		List<String> repositoryUsers = new ArrayList<String>();
 		List<String> repositoryTeams = new ArrayList<String>();
+		List<String> preReceiveScripts = new ArrayList<String>();
+		List<String> postReceiveScripts = new ArrayList<String>();
+
 		if (isCreate) {
 			super.setupPage(getString("gb.newRepository"), "");
 		} else {
@@ -101,13 +104,29 @@ public class EditRepositoryPage extends RootSubPage {
 		// teams palette
 		final Palette<String> teamsPalette = new Palette<String>("teams", new ListModel<String>(
 				repositoryTeams), new CollectionModel<String>(GitBlit.self().getAllTeamnames()),
-				new ChoiceRenderer<String>("", ""), 10, false);
+				new ChoiceRenderer<String>("", ""), 5, false);
 
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
 		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
 				new ListModel<String>(federationSets), new CollectionModel<String>(sets),
-				new ChoiceRenderer<String>("", ""), 10, false);
+				new ChoiceRenderer<String>("", ""), 5, false);
+
+		// pre-receive palette
+		if (repositoryModel.preReceiveScripts != null) {
+			preReceiveScripts.addAll(repositoryModel.preReceiveScripts);
+		}
+		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
+				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
+						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12, true);
+
+		// post-receive palette
+		if (repositoryModel.postReceiveScripts != null) {
+			postReceiveScripts.addAll(repositoryModel.postReceiveScripts);
+		}
+		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
+				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
+						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12, true);
 
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
@@ -179,6 +198,22 @@ public class EditRepositoryPage extends RootSubPage {
 						repositoryModel.mailRecipients = list;
 					}
 
+					// pre-receive scripts
+					List<String> preReceiveScripts = new ArrayList<String>();
+					Iterator<String> pres = preReceivePalette.getSelectedChoices();
+					while (pres.hasNext()) {
+						preReceiveScripts.add(pres.next());
+					}
+					repositoryModel.preReceiveScripts = preReceiveScripts;
+
+					// post-receive scripts
+					List<String> postReceiveScripts = new ArrayList<String>();
+					Iterator<String> post = postReceivePalette.getSelectedChoices();
+					while (post.hasNext()) {
+						postReceiveScripts.add(post.next());
+					}
+					repositoryModel.postReceiveScripts = postReceiveScripts;
+
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
@@ -246,6 +281,8 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
+		form.add(preReceivePalette);
+		form.add(postReceivePalette);
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

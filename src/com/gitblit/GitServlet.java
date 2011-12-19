@@ -26,7 +26,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -68,6 +69,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private GroovyScriptEngine gse;
 
+	private File groovyDir;
+
 	/**
 	 * Configure the servlet from Gitblit's configuration.
 	 */
@@ -83,9 +86,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		String groovyRoot = GitBlit.getString(Keys.groovy.scriptsFolder, "groovy");
+		groovyDir = GitBlit.getGroovyScriptsFolder();		
 		try {
-			gse = new GroovyScriptEngine(groovyRoot);
+			gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
 		} catch (IOException e) {
 			throw new ServletException("Failed to instantiate Groovy Script Engine!", e);
 		}
@@ -127,7 +130,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 */
 		@Override
 		public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
-			List<String> scripts = GitBlit.getStrings(Keys.groovy.preReceiveScripts);
+			Set<String> scripts = new LinkedHashSet<String>();
+			scripts.addAll(GitBlit.getStrings(Keys.groovy.preReceiveScripts));
 			RepositoryModel repository = getRepositoryModel(rp);
 			scripts.addAll(repository.preReceiveScripts);
 			UserModel user = getUserModel(rp);
@@ -154,7 +158,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				logger.info("skipping post-receive hooks, no refs created, updated, or removed");
 				return;
 			}
-			List<String> scripts = GitBlit.getStrings(Keys.groovy.postReceiveScripts);
+			Set<String> scripts = new LinkedHashSet<String>();
+			scripts.addAll(GitBlit.getStrings(Keys.groovy.postReceiveScripts));
 			RepositoryModel repository = getRepositoryModel(rp);
 			scripts.addAll(repository.postReceiveScripts);
 			UserModel user = getUserModel(rp);
@@ -204,7 +209,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 * @param scripts
 		 */
 		protected void runGroovy(RepositoryModel repository, UserModel user,
-				Collection<ReceiveCommand> commands, List<String> scripts) {
+				Collection<ReceiveCommand> commands, Set<String> scripts) {
 			if (scripts == null || scripts.size() == 0) {
 				// no Groovy scripts to execute
 				return;
@@ -220,6 +225,15 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			for (String script : scripts) {
 				if (StringUtils.isEmpty(script)) {
 					continue;
+				}
+				// allow script to be specified without .groovy extension
+				// this is easier to read in the settings
+				File file = new File(groovyDir, script);
+				if (!file.exists() && !script.toLowerCase().endsWith(".groovy")) {
+					file = new File(groovyDir, script + ".groovy");
+					if (file.exists()) {
+						script = file.getName();
+					}
 				}
 				try {
 					Object result = gse.run(script, binding);

@@ -9,7 +9,8 @@
 	<!-- Repository Table -->
 	<form style="padding-top:5px;" wicket:id="editForm">
 		<table class="plain">
-			<tbody>
+			<tbody class="settings">
+				<tr><td colspan="2"><h3><wicket:message key="gb.general"></wicket:message></h3></td></tr>
 				<tr><th><wicket:message key="gb.name"></wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="name" id="name" size="40" tabindex="1" /> &nbsp;<i><wicket:message key="gb.nameDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit"><input class="span6" type="text" wicket:id="description" size="40" tabindex="2" /></td></tr>
 				<tr><th><wicket:message key="gb.origin"></wicket:message></th><td class="edit"><input class="span7" type="text" wicket:id="origin" size="80" tabindex="3" /></td></tr>
@@ -22,13 +23,16 @@
 				<tr><th><wicket:message key="gb.skipSummaryMetrics"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="skipSummaryMetrics" tabindex="10" /> &nbsp;<i><wicket:message key="gb.skipSummaryMetricsDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="isFrozen" tabindex="11" /> &nbsp;<i><wicket:message key="gb.isFrozenDescription"></wicket:message></i></td></tr>
 				<tr><th><wicket:message key="gb.mailRecipients"></wicket:message></th><td class="edit"><input class="span9" type="text" wicket:id="mailRecipients" size="40" tabindex="12" /> &nbsp;<i><wicket:message key="gb.mailRecipientsDescription"></wicket:message></i></td></tr>
-				<tr><td colspan="2"><hr></hr></td></tr>
+				<tr><td colspan="2"><h3><wicket:message key="gb.accessRestriction"></wicket:message></h3></td></tr>	
 				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span6" wicket:id="accessRestriction" tabindex="13" /></td></tr>				
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.permittedUsers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.permittedTeams"></wicket:message></th><td style="padding:2px;"><span wicket:id="teams"></span></td></tr>
-				<tr><td colspan="2"><hr></hr></td></tr>		
+				<tr><td colspan="2"><h3><wicket:message key="gb.federation"></wicket:message></h3></td></tr>	
 				<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span6" wicket:id="federationStrategy" tabindex="14" /></td></tr>
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>
+				<tr><td colspan="2"><h3><wicket:message key="gb.hookScripts"></wicket:message></h3></td></tr>	
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.preReceiveScripts"></wicket:message></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.postReceiveScripts"></wicket:message></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
 				<tr><th></th><td class="editButton"><input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="15" /> &nbsp; <input class="btn primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="16" /> </td></tr>
 			</tbody>
 		</table>

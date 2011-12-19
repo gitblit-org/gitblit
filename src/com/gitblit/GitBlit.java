@@ -27,9 +27,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -293,6 +295,16 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static File getProposalsFolder() {
 		return getFileOrFolder(Keys.federation.proposalsFolder, "proposals");
+	}
+
+	/**
+	 * Returns the path of the Groovy folder. This method checks to see if
+	 * Gitblit is running on a cloud service and may return an adjusted path.
+	 * 
+	 * @return the Groovy scripts folder path
+	 */
+	public static File getGroovyScriptsFolder() {
+		return getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
 	}
 
 	/**
@@ -1426,6 +1438,48 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns the list of all available Groovy push hook scripts that are not
+	 * already specified globally for all repositories. Script files must have
+	 * .groovy extension
+	 * 
+	 * @return list of available hook scripts
+	 */
+	public List<String> getAvailableScripts() {
+		File groovyFolder = getGroovyScriptsFolder();
+		File[] files = groovyFolder.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.isFile() && pathname.getName().endsWith(".groovy");
+			}
+		});
+
+		Set<String> globals = new HashSet<String>();
+		String[] keys = { Keys.groovy.preReceiveScripts, Keys.groovy.postReceiveScripts };
+		for (String key : keys) {
+			for (String script : getStrings(key)) {
+				if (script.endsWith(".groovy")) {
+					globals.add(script.substring(0, script.lastIndexOf('.')));
+				} else {
+					globals.add(script);
+				}
+			}
+		}
+
+		// create list of available scripts by excluding scripts that are
+		// globally specified
+		List<String> scripts = new ArrayList<String>();
+		if (files != null) {
+			for (File file : files) {
+				String script = file.getName().substring(0, file.getName().lastIndexOf('.'));
+				if (!globals.contains(script)) {
+					scripts.add(script);
+				}
+			}
+		}
+		return scripts;
+	}
+
+	/**
 	 * Notify the administrators by email.
 	 * 
 	 * @param subject
@@ -1488,6 +1542,7 @@ public class GitBlit implements ServletContextListener {
 				setting.currentValue = settings.getString(key, "");
 			}
 		}
+		settingsModel.pushScripts = getAvailableScripts();
 		return settingsModel;
 	}
 
