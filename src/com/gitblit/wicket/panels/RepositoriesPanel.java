@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.OrderByBorder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -157,7 +158,7 @@ public class RepositoriesPanel extends BasePanel {
 				}
 
 				// repository swatch
-				Label swatch = new Label("repositorySwatch", " ");
+				Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
 				WicketUtils.setCssBackground(swatch, entry.name);
 				row.add(swatch);
 				swatch.setVisible(showSwatch);

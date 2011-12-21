@@ -89,7 +89,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox isFrozen;
 
-	private JTextField mailRecipientsField;
+	private JTextField mailingListsField;
 
 	private JComboBox accessRestriction;
 
@@ -164,8 +164,8 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.skipSummaryMetrics);
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
 
-		mailRecipientsField = new JTextField(anRepository.mailRecipients == null ? ""
-				: StringUtils.flattenStrings(anRepository.mailRecipients, " "), 50);
+		mailingListsField = new JTextField(anRepository.mailingLists == null ? ""
+				: StringUtils.flattenStrings(anRepository.mailingLists, " "), 50);
 
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
@@ -198,7 +198,7 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"), skipSummaryMetrics));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailRecipients"), mailRecipientsField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
 
 		usersPalette = new JPalette<String>();
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
@@ -371,8 +371,17 @@ public class EditRepositoryDialog extends JDialog {
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
 		repository.isFrozen = isFrozen.isSelected();
 
-		repository.mailRecipients = StringUtils.getStringsFromValue(mailRecipientsField.getText()
-				.trim(), " ");
+		String ml = mailingListsField.getText();
+		if (!StringUtils.isEmpty(ml)) {
+			Set<String> list = new HashSet<String>();
+			for (String address : ml.split("(,|\\s)")) {
+				if (StringUtils.isEmpty(address)) {
+					continue;
+				}
+				list.add(address.toLowerCase());
+			}
+			repository.mailingLists = new ArrayList<String>(list);
+		}
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();
 		repository.federationStrategy = (FederationStrategy) federationStrategy.getSelectedItem();

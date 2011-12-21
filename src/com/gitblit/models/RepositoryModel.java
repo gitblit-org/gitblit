@@ -57,7 +57,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String size;
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
-	public List<String> mailRecipients;
+	public List<String> mailingLists;
 
 	public RepositoryModel() {
 		this("", "", "", new Date(0));

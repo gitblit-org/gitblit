@@ -19,9 +19,11 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -55,7 +57,7 @@ public class EditRepositoryPage extends RootSubPage {
 
 	private boolean isAdmin;
 
-	private IModel<String> mailRecipients;
+	private IModel<String> mailingLists;
 
 	public EditRepositoryPage() {
 		// create constructor
@@ -118,7 +120,8 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
 				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12, true);
+						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12,
+				true);
 
 		// post-receive palette
 		if (repositoryModel.postReceiveScripts != null) {
@@ -126,7 +129,8 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
 				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12, true);
+						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12,
+				true);
 
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
@@ -191,11 +195,17 @@ public class EditRepositoryPage extends RootSubPage {
 						}
 					}
 
-					// set mail recipients
-					String ml = mailRecipients.getObject();
+					// set mailing lists
+					String ml = mailingLists.getObject();
 					if (!StringUtils.isEmpty(ml)) {
-						List<String> list = StringUtils.getStringsFromValue(ml.trim(), " ");
-						repositoryModel.mailRecipients = list;
+						Set<String> list = new HashSet<String>();
+						for (String address : ml.split("(,|\\s)")) {
+							if (StringUtils.isEmpty(address)) {
+								continue;
+							}
+							list.add(address.toLowerCase());
+						}
+						repositoryModel.mailingLists = new ArrayList<String>(list);
 					}
 
 					// pre-receive scripts
@@ -275,9 +285,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
-		mailRecipients = new Model<String>(repositoryModel.mailRecipients == null ? ""
-				: StringUtils.flattenStrings(repositoryModel.mailRecipients, " "));
-		form.add(new TextField<String>("mailRecipients", mailRecipients));
+		mailingLists = new Model<String>(repositoryModel.mailingLists == null ? ""
+				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
+		form.add(new TextField<String>("mailingLists", mailingLists));
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);

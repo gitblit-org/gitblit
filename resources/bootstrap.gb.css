@@ -690,6 +690,10 @@ td.treeLinks {
 	width: 13em;
 }
 
+span.help-inline {
+	color: #777;
+}
+
 span.metricsTitle {
 	font-size: 2em;
 }

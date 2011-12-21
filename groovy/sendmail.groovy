@@ -26,7 +26,7 @@ import org.eclipse.jgit.transport.ReceiveCommand.Result
 import org.slf4j.Logger
 
 /**
- * Sample Gitblit Post-Receive Hook: sendemail
+ * Sample Gitblit Post-Receive Hook: sendmail
  *
  * The Post-Receive hook is executed AFTER the pushed commits have been applied
  * to the Git repository.  This is the appropriate point to trigger an
@@ -60,16 +60,16 @@ import org.slf4j.Logger
  */
 
 // Indicate we have started the script
-logger.info("sendemail hook triggered by ${user.username} for ${repository.name}")
+logger.info("sendmail hook triggered by ${user.username} for ${repository.name}")
 
 /*
- * Primitive example email notification with example repository-specific checks.
+ * Primitive email notification.
  * This requires the mail settings to be properly configured in Gitblit.
  */
 
 Repository r = gitblit.getRepository(repository.name)
 
-// reuse some existing repository config settings, if available
+// reuse existing repository config settings, if available
 Config config = r.getConfig()
 def mailinglist = config.getString('hooks', null, 'mailinglist')
 def emailprefix = config.getString('hooks', null, 'emailprefix')
@@ -80,23 +80,15 @@ if (emailprefix == null)
 emailprefix = '[Gitblit]'
 
 if (mailinglist != null) {
-	def addrs = mailinglist.split('(,|\\s)')
+	def addrs = mailinglist.split(/(,|\s)/)
 	toAddresses.addAll(addrs)
 }
 
 // add all mailing lists defined in gitblit.properties or web.xml
 toAddresses.addAll(gitblit.getStrings(Keys.mail.mailingLists))
 
-// add all mail recipients for the repository
-toAddresses.addAll(repository.mailRecipients)
-
-// special custom cases
-switch(repository.name) {
-	case 'ex@mple.git':
-		toAddresses.add 'dev-team@somewhere.com'
-		toAddresses.add 'qa-team@somewhere.com'
-		break
-}
+// add all mailing lists for the repository
+toAddresses.addAll(repository.mailingLists)
 
 // define the summary and commit urls
 def repo = repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
@@ -115,13 +107,19 @@ def commitCount = 0
 def changes = ''
 def table = { it.authorIdent.name.padRight(25, ' ') + it.shortMessage + "\n$commitUrl" + it.id.name }
 for (command in commands) {
-	def ref = command.refName.substring('refs/heads/'.length())
+	def ref = command.refName
+	if (ref.startsWith('refs/heads/')) {
+		ref  = command.refName.substring('refs/heads/'.length())
+	} else if (ref.startsWith('refs/tags/')) {
+		ref  = command.refName.substring('refs/tags/'.length())
+	}
+		
 	switch (command.type) {
 		case ReceiveCommand.Type.CREATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// new branch commits table
-			changes += "created $ref ($commits.size commits)\n\n"
+			changes += "$ref created ($commits.size commits)\n\n"
 			changes += commits.collect(table).join('\n\n')
 			changes += '\n'
 			break
@@ -129,7 +127,7 @@ for (command in commands) {
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// fast-forward branch commits table
-			changes += "updated $ref ($commits.size commits)\n\n"
+			changes += "$ref updated ($commits.size commits)\n\n"
 			changes += commits.collect(table).join('\n\n')
 			changes += '\n'
 			break
@@ -137,13 +135,13 @@ for (command in commands) {
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
-			changes += "updated $ref [NON fast-forward] ($commits.size commits)\n\n"
+			changes += "$ref updated [NON fast-forward] ($commits.size commits)\n\n"
 			changes += commits.collect(table).join('\n\n')
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.DELETE:
 			// deleted branch
-			changes += "deleted $ref\n\n"
+			changes += "$ref deleted\n\n"
 			break
 		default:
 			break
@@ -153,4 +151,4 @@ for (command in commands) {
 r.close()
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.sendEmail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n\n$changes", toAddresses)
+gitblit.sendMail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n\n$changes", toAddresses)

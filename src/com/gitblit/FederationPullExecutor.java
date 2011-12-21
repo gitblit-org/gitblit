@@ -113,7 +113,7 @@ public class FederationPullExecutor implements Runnable {
 						String message = "Federation pull of " + registration.name + " @ "
 								+ registration.url + " is now at " + is.name();
 						GitBlit.self()
-								.sendEmailToAdministrators(
+								.sendMailToAdministrators(
 										"Pull Status of " + registration.name + " is " + is.name(),
 										message);
 					}

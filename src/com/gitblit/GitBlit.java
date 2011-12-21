@@ -743,8 +743,8 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "preReceiveScript")));
 			model.postReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "postReceiveScript")));
-			model.mailRecipients = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "mailRecipient")));
+			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "mailingList")));
 		}
 		r.close();
 		return model;
@@ -971,8 +971,8 @@ public class GitBlit implements ServletContextListener {
 			config.setStringList("gitblit", null, "postReceiveScript",
 					repository.postReceiveScripts);
 		}
-		if (repository.mailRecipients != null) {
-			config.setStringList("gitblit", null, "mailRecipient", repository.mailRecipients);
+		if (repository.mailingLists != null) {
+			config.setStringList("gitblit", null, "mailingList", repository.mailingLists);
 		}
 		try {
 			config.save();
@@ -1485,7 +1485,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param subject
 	 * @param message
 	 */
-	public void sendEmailToAdministrators(String subject, String message) {
+	public void sendMailToAdministrators(String subject, String message) {
 		try {
 			Message mail = mailExecutor.createMessageForAdministrators();
 			if (mail != null) {
@@ -1505,8 +1505,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 * @param toAddresses
 	 */
-	public void sendEmail(String subject, String message, ArrayList<String> toAddresses) {
-		this.sendEmail(subject, message, toAddresses.toArray(new String[0]));
+	public void sendMail(String subject, String message, ArrayList<String> toAddresses) {
+		this.sendMail(subject, message, toAddresses.toArray(new String[0]));
 	}
 
 	/**
@@ -1516,7 +1516,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 * @param toAddresses
 	 */
-	public void sendEmail(String subject, String message, String... toAddresses) {
+	public void sendMail(String subject, String message, String... toAddresses) {
 		try {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
@@ -1634,11 +1634,7 @@ public class GitBlit implements ServletContextListener {
 				loginService = (IUserService) realmClass.newInstance();
 			}
 		} catch (Throwable t) {
-			loginService = new UserServiceWrapper() {
-				@Override
-				public void setupService(IStoredSettings settings) {
-				}
-			};
+			loginService = new GitblitUserService();
 		}
 		setUserService(loginService);
 		mailExecutor = new MailExecutor(settings);
