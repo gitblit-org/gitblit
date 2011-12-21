@@ -65,6 +65,8 @@ public class EditTeamDialog extends JDialog {
 
 	private JTextField teamnameField;
 
+	private JTextField mailingListsField;
+
 	private JPalette<String> repositoryPalette;
 
 	private JPalette<String> userPalette;
@@ -105,16 +107,20 @@ public class EditTeamDialog extends JDialog {
 	private void initialize(int protocolVersion, TeamModel aTeam) {
 		teamnameField = new JTextField(aTeam.name == null ? "" : aTeam.name, 25);
 
+		mailingListsField = new JTextField(aTeam.mailingLists == null ? ""
+				: StringUtils.flattenStrings(aTeam.mailingLists, " "), 50);
+
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.teamName"), teamnameField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new JPalette<String>();
 		userPalette = new JPalette<String>();
-		
+
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
-		
+
 		JPanel repositoriesPanel = new JPanel(new BorderLayout()) {
 
 			private static final long serialVersionUID = 1L;
@@ -140,7 +146,6 @@ public class EditTeamDialog extends JDialog {
 		panel.addTab(Translation.get("gb.teamMembers"), usersPanel);
 		panel.addTab(Translation.get("gb.restrictedRepositories"), repositoriesPanel);
 
-
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -162,7 +167,7 @@ public class EditTeamDialog extends JDialog {
 		JPanel controls = new JPanel();
 		controls.add(cancelButton);
 		controls.add(createButton);
-		
+
 		JPanel centerPanel = new JPanel(new BorderLayout(5, 5)) {
 
 			private static final long serialVersionUID = 1L;
@@ -218,9 +223,22 @@ public class EditTeamDialog extends JDialog {
 		}
 		team.name = tname;
 
+		String ml = mailingListsField.getText();
+		if (!StringUtils.isEmpty(ml)) {
+			Set<String> list = new HashSet<String>();
+			for (String address : ml.split("(,|\\s)")) {
+				if (StringUtils.isEmpty(address)) {
+					continue;
+				}
+				list.add(address.toLowerCase());
+			}
+			team.mailingLists.clear();
+			team.mailingLists.addAll(list);
+		}
+
 		team.repositories.clear();
 		team.repositories.addAll(repositoryPalette.getSelections());
-		
+
 		team.users.clear();
 		team.users.addAll(userPalette.getSelections());
 		return true;
@@ -251,7 +269,7 @@ public class EditTeamDialog extends JDialog {
 		}
 		repositoryPalette.setObjects(restricted, selected);
 	}
-	
+
 	public void setUsers(List<String> users, List<String> selected) {
 		Collections.sort(users);
 		if (selected != null) {

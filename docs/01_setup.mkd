@@ -195,6 +195,7 @@ The `users.conf` file uses a Git-style configuration format:
 		user = murdock
 		user = babaracus
 		repository = topsecret.git
+		mailingList = list@ateam.org
 
 The `users.conf` file allows flexibility for adding new fields to a UserModel object that the original `users.properties` file does not afford without imposing the complexity of relying on an embedded SQL database. 
 
@@ -204,7 +205,7 @@ All users are stored in the `users.properties` file or in the file you specified
 The format of `users.properties` loosely follows Jetty's convention for HashRealms:
 
     username=password,role1,role2,role3...
-    @teamname=!username1,!username2,!username3,repository1,repository2,repository3...
+    @teamname=&mailinglist,!username1,!username2,!username3,repository1,repository2,repository3...
 
 #### Usernames
 Usernames must be unique and are case-insensitive.  
@@ -218,7 +219,7 @@ There are two actual *roles* in Gitblit: *#admin*, which grants administrative p
 
 ## Authentication and Authorization Customization
 
-### Choice 1: Customize Authentication Only
+### Customize Authentication Only
 This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations.  This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.
 
 Please subclass [com.gitblit.GitblitUserService](https://github.com/gitblit/gitblit/blob/master/src/com/gitblit/GitblitUserService.java) and override the *setup()* and *authenticate()* methods.  
@@ -228,7 +229,7 @@ You may use your subclass by specifying its fully qualified classname in the *re
 
 Your subclass must be on Gitblit's classpath and must have a public default constructor.  
 
-### Choice 2: Customize Everything
+### Customize Everything
 Instead of maintaining a `users.conf` or `users.properties` file, you may want to integrate Gitblit into an existing environment.
 
 You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.
@@ -247,15 +248,16 @@ The Groovy hook mechanism allows for dynamic extension of Gitblit to execute cus
 ### Rules, Requirements, & Behaviors
 1. Your Groovy scripts must be stored in the *groovy.scriptsFolder* as specified in `gitblit.properties` or `web.xml`.
 2. All script files must have the *.groovy* extension. Because of this you may omit the extension when specifying the script.
-3. Scripts must be explicitly specified to be executed, no scripts are *automatically* executed by name or extension.
-4. A script can be specified to run on *all repositories* by adding the script file name to *groovy.preReceiveScripts* or *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`.  Be mindful of access retrictions and global properties like *mail.mailingLists* if specifying *sendmail* to run on all repositories.
-5. Scripts may also be specified per-repository in the repository's settings.
-6. Globally specified scripts are excluded from the list of available scripts in a repository's settings 
-7. Globally specified scripts are executed first, in their listed order, followed by per-repository scripts, in their listed order.
-8. A script may only be defined once in a pre-receive list and once in a post-receive list.  
+3. Script filenames must not have spaces!
+4. Scripts must be explicitly specified to be executed, no scripts are *automatically* executed by name or extension.
+5. A script can be specified to run on *all repositories* by adding the script file name to *groovy.preReceiveScripts* or *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`.
+6. Scripts may also be specified per-repository in the repository's settings.
+7. Globally specified scripts are excluded from the list of available scripts in a repository's settings 
+8. Globally specified scripts are executed first, in their listed order, followed by per-repository scripts, in their listed order.
+9. A script may only be defined once in a pre-receive chain and once in a post-receive chain.  
 You may execute the same script on pre-receive and post-receive, just not multiple times within a pre-receive or post-receive event.
-9. Gitblit does not differentiate between what can be a pre-receive script and what can be a post-receive script.
-10. If a script *returns false* then the pre-receive or post-receive hook chain is aborted and none of the subsequent scripts will execute.
+10. Gitblit does not differentiate between what can be a pre-receive script and what can be a post-receive script.
+11. If a script *returns false* then the hook chain is aborted and none of the subsequent scripts will execute.
 
 Some sample scripts are included in the GO and WAR distributions to show you how you can tap into Gitblit with the provided bound variables.  Additional implementation details may be specified in the header comment of these examples.
 
@@ -272,6 +274,33 @@ This is the appropriate point to block a push and is how many Git tools implemen
 Post-Receive scripts execute after all refs have been updated.
 
 This is the appropriate point to trigger continuous integration builds or send email notifications, etc.
+
+## Push Email Notifications
+
+Gitblit implements email notifications in *sendmail.groovy* which uses the Groovy Hook Script mechanism.  This allows for dynamic customization of the notification process at the installation site and serves as an example push script.
+
+### Enabling Push Notifications
+
+In order to send email notifications on a push to Gitblit, this script must be specified somewhere in the *post-receive* script chain.  
+You may specify *sendmail* in one of two places:
+
+1. *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`, globally applied to all repositories
+2. post-receive scripts of a Repository definition
+
+### Destination Addresses
+
+Gitblit does not currently support individual subscriptions to repositories; i.e. a *user* can not subscribe or unsubscribe from push notifications.
+
+However, Repository Managers and Administrators can specify subscribed email addresses in one of three places:
+
+1. *mail.mailingLists* in `gitblit.properties` or `web.xml`, globally applied to all push-notified repositories
+2. mailing lists in a Team definition, applied to all repositories that are part of the team definition
+3. mailing lists in a Repository definition
+
+All three sources are checked and merged into a unique list of destination addresses for push notifications.
+
+**NOTE:**  
+Care should be taken when devising your notification scheme as it relates to any VIEW restricted repositories you might have.  Setting a global mailing list and activating push notifications for a VIEW restricted repository may send unwanted emails.
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates

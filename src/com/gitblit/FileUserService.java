@@ -618,15 +618,19 @@ public class FileUserService extends FileSettings implements IUserService {
 					TeamModel team = new TeamModel(username.substring(1));
 					List<String> repositories = new ArrayList<String>();
 					List<String> users = new ArrayList<String>();
+					List<String> mailingLists = new ArrayList<String>();
 					for (String role : roles) {
 						if (role.charAt(0) == '!') {
 							users.add(role.substring(1));
+						} else if (role.charAt(0) == '&') {
+								mailingLists.add(role.substring(1));
 						} else {
 							repositories.add(role);
 						}
 					}
 					team.addRepositories(repositories);
 					team.addUsers(users);
+					team.addMailingLists(mailingLists);
 					teams.put(team.name.toLowerCase(), team);
 				} else {
 					// user definition
@@ -830,6 +834,11 @@ public class FileUserService extends FileSettings implements IUserService {
 		for (String user : model.users) {
 			sb.append('!');
 			sb.append(user);
+			sb.append(',');
+		}
+		for (String address : model.mailingLists) {
+			sb.append('&');
+			sb.append(address);
 			sb.append(',');
 		}
 		// trim trailing comma

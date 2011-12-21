@@ -62,6 +62,8 @@ public class ConfigUserService implements IUserService {
 	private static final String REPOSITORY = "repository";
 
 	private static final String ROLE = "role";
+	
+	private static final String MAILINGLIST = "mailingList";
 
 	private final File realmFile;
 
@@ -303,7 +305,7 @@ public class ConfigUserService implements IUserService {
 		List<String> list = new ArrayList<String>(teams.keySet());
 		return list;
 	}
-	
+
 	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
@@ -648,6 +650,14 @@ public class ConfigUserService implements IUserService {
 			if (model.users != null) {
 				config.setStringList(TEAM, model.name, USER, new ArrayList<String>(model.users));
 			}
+
+			// null check on "final" mailing lists because JSON-sourced
+			// TeamModel
+			// can have a null users object
+			if (model.mailingLists != null) {
+				config.setStringList(TEAM, model.name, MAILINGLIST, new ArrayList<String>(
+						model.mailingLists));
+			}
 		}
 
 		config.save();
@@ -714,6 +724,7 @@ public class ConfigUserService implements IUserService {
 					team.addRepositories(Arrays.asList(config.getStringList(TEAM, teamname,
 							REPOSITORY)));
 					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));
+					team.addMailingLists(Arrays.asList(config.getStringList(TEAM, teamname, MAILINGLIST)));
 
 					teams.put(team.name.toLowerCase(), team);
 

@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1505,7 +1506,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 * @param toAddresses
 	 */
-	public void sendMail(String subject, String message, ArrayList<String> toAddresses) {
+	public void sendMail(String subject, String message, Collection<String> toAddresses) {
 		this.sendMail(subject, message, toAddresses.toArray(new String[0]));
 	}
 

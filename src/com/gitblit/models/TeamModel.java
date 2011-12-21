@@ -18,6 +18,7 @@ package com.gitblit.models;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -35,6 +36,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public String name;
 	public final Set<String> users = new HashSet<String>();
 	public final Set<String> repositories = new HashSet<String>();
+	public final Set<String> mailingLists = new HashSet<String>();
 
 	public TeamModel(String name) {
 		this.name = name;
@@ -74,6 +76,12 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 	public void removeUser(String name) {
 		users.remove(name.toLowerCase());
+	}
+
+	public void addMailingLists(Collection<String> addresses) {
+		for (String address:addresses) {
+			mailingLists.add(address.toLowerCase());
+		}
 	}
 
 	@Override

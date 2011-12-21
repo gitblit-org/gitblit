@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -127,7 +128,7 @@ public class StringUtils {
 	 * @param values
 	 * @return flattened list
 	 */
-	public static String flattenStrings(List<String> values) {
+	public static String flattenStrings(Collection<String> values) {
 		return flattenStrings(values, " ");
 	}
 
@@ -139,7 +140,7 @@ public class StringUtils {
 	 * @param separator
 	 * @return flattened list
 	 */
-	public static String flattenStrings(List<String> values, String separator) {
+	public static String flattenStrings(Collection<String> values, String separator) {
 		StringBuilder sb = new StringBuilder();
 		for (String value : values) {
 			sb.append(value).append(separator);

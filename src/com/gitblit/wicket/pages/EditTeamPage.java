@@ -18,8 +18,10 @@ package com.gitblit.wicket.pages;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
@@ -28,6 +30,8 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -44,6 +48,8 @@ import com.gitblit.wicket.WicketUtils;
 public class EditTeamPage extends RootSubPage {
 
 	private final boolean isCreate;
+
+	private IModel<String> mailingLists;
 
 	public EditTeamPage() {
 		// create constructor
@@ -128,6 +134,20 @@ public class EditTeamPage extends RootSubPage {
 				teamModel.users.clear();
 				teamModel.users.addAll(members);
 
+				// set mailing lists
+				String ml = mailingLists.getObject();
+				if (!StringUtils.isEmpty(ml)) {
+					Set<String> list = new HashSet<String>();
+					for (String address : ml.split("(,|\\s)")) {
+						if (StringUtils.isEmpty(address)) {
+							continue;
+						}
+						list.add(address.toLowerCase());
+					}
+					teamModel.mailingLists.clear();
+					teamModel.mailingLists.addAll(list);
+				}
+				
 				try {
 					GitBlit.self().updateTeamModel(oldName, teamModel, isCreate);
 				} catch (GitBlitException e) {
@@ -149,8 +169,12 @@ public class EditTeamPage extends RootSubPage {
 
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
-		form.add(repositories);
 		form.add(users);
+		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
+				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
+		form.add(new TextField<String>("mailingLists", mailingLists));
+		
+		form.add(repositories);
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

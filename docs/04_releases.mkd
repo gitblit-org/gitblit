@@ -5,11 +5,12 @@
 
 - updated: Gitblit GO is now monolithic like the WAR build. (issue 30)  
 This change helps adoption of GO in environments without an internet connection or with a restricted connection.
-- added: Groovy 1.8.4 and sample pre- and post- push Groovy hook scripts.  Hook scripts can be set per-repository or globally for all repositories.  
+- added: Groovy 1.8.4 and a push hook script mechanism.  Hook scripts can be set per-repository or globally for all repositories.  
 Unfortunately this adds another 6 MB to the 8MB Gitblit package, but it allows for a *very* powerful, flexible, platform-independent hook script mechanism.  
     **New:** *groovy.scriptsFolder = groovy*  
     **New:** *groovy.preReceiveScripts =*  
     **New:** *groovy.postReceiveScripts =*
+- added: *sendmail.groovy* for optional email notifications on push
 - added: New key for mailing lists.  This is used in conjunction with the *sendmail.groovy* hook script.  
     **New:** *mail.mailingLists =*
 - added: GitblitUserService.  This is a wrapper object for the built-in user service implementations.  For those wanting to only implement *custom authentication* it is recommended to subclass GitblitUserService and override the appropriate methods.  Going forward, this will insulate customized behavior from new IUserService API and changes in model classes.

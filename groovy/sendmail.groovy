@@ -16,6 +16,7 @@
 import com.gitblit.GitBlit
 import com.gitblit.Keys
 import com.gitblit.models.RepositoryModel
+import com.gitblit.models.TeamModel
 import com.gitblit.models.UserModel
 import com.gitblit.utils.JGitUtils
 import org.eclipse.jgit.lib.Repository
@@ -86,6 +87,15 @@ if (mailinglist != null) {
 
 // add all mailing lists defined in gitblit.properties or web.xml
 toAddresses.addAll(gitblit.getStrings(Keys.mail.mailingLists))
+
+// add all team mailing lists
+def teams = gitblit.getRepositoryTeams(repository)
+for (team in teams) {
+	TeamModel model = gitblit.getTeamModel(team)
+	if (model.mailingLists) {
+		toAddresses.addAll(model.mailingLists)
+	}
+}
 
 // add all mailing lists for the repository
 toAddresses.addAll(repository.mailingLists)

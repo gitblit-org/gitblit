@@ -12,6 +12,7 @@
 - Java/Swing Gitblit Manager tool 
 - Gitweb inspired web UI
 - Groovy pre- and post- push hook scripts, per-repository or globally for all repositories
+- Email push notifications *(via sendmail.groovy push script)*
 - Administrators may create, edit, rename, or delete repositories through the web UI or RPC interface
 - Administrators may create, edit, rename, or delete users through the web UI or RPC interface
 - Administrators may create, edit, rename, or delete teams through the web UI or RPC interface
