@@ -471,6 +471,19 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Retrieves a Java Date from a Git commit.
+	 * 
+	 * @param commit
+	 * @return date of the commit or Date(0) if the commit is null
+	 */
+	public static Date getAuthorDate(RevCommit commit) {
+		if (commit == null) {
+			return new Date(0);
+		}
+		return commit.getAuthorIdent().getWhen();
+	}
+
+	/**
 	 * Returns the specified commit from the repository. If the repository does
 	 * not exist or is empty, null is returned.
 	 * 

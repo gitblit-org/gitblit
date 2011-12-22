@@ -19,6 +19,7 @@ import com.gitblit.models.RepositoryModel
 import com.gitblit.models.TeamModel
 import com.gitblit.models.UserModel
 import com.gitblit.utils.JGitUtils
+import java.text.SimpleDateFormat
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.revwalk.RevCommit
@@ -113,9 +114,12 @@ if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
 }
 
 // construct a simple text summary of the changes contained in the push
+def branchBreak = '>---------------------------------------------------------------\n'
+def commitBreak = '\n\n ----\n'
 def commitCount = 0
 def changes = ''
-def table = { it.authorIdent.name.padRight(25, ' ') + it.shortMessage + "\n$commitUrl" + it.id.name }
+SimpleDateFormat df = new SimpleDateFormat(gitblit.getString(Keys.web.datetimestampLongFormat, 'EEEE, MMMM d, yyyy h:mm a z'))
+def table = { "\n ${JGitUtils.getDisplayName(it.authorIdent)}\n ${df.format(JGitUtils.getCommitDate(it))}\n\n $it.shortMessage\n\n $commitUrl$it.id.name" }
 for (command in commands) {
 	def ref = command.refName
 	if (ref.startsWith('refs/heads/')) {
@@ -128,30 +132,38 @@ for (command in commands) {
 		case ReceiveCommand.Type.CREATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
-			// new branch commits table
-			changes += "$ref created ($commits.size commits)\n\n"
-			changes += commits.collect(table).join('\n\n')
-			changes += '\n'
+			if (commits.size() > 0) {
+				// new branch
+				changes += "$branchBreak new branch $ref created ($commits.size commits)\n$branchBreak"
+				changes += commits.collect(table).join(commitBreak)
+				changes += '\n'
+			} else if (ref.command.refName.startsWith('refs/tags/')) {
+				// new tag
+				changes += "$branchBreak new tag $ref created\n$branchBreak"
+			} else if (ref.command.refName.startsWith('refs/heads/')) {
+				// new branch
+				changes += "$branchBreak new $ref branch created\n$branchBreak"
+			}
 			break
 		case ReceiveCommand.Type.UPDATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// fast-forward branch commits table
-			changes += "$ref updated ($commits.size commits)\n\n"
-			changes += commits.collect(table).join('\n\n')
+			changes += "$branchBreak $ref branch updated ($commits.size commits)\n$branchBreak"
+			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
-			changes += "$ref updated [NON fast-forward] ($commits.size commits)\n\n"
-			changes += commits.collect(table).join('\n\n')
+			changes += "$branchBreak $ref branch updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
+			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.DELETE:
-			// deleted branch
-			changes += "$ref deleted\n\n"
+			// deleted branch/tag
+			changes += "$branchBreak $ref deleted\n$branchBreak"
 			break
 		default:
 			break
