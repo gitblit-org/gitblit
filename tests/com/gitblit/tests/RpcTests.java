@@ -352,6 +352,11 @@ public class RpcTests {
 		// restore setting
 		newValue = !newValue;
 		updated.put(Keys.web.showRepositorySizes, String.valueOf(newValue));
+		success = RpcUtils.updateSettings(updated, url, account, password.toCharArray());
+		assertTrue("Failed to update server settings", success);
+		settings = RpcUtils.getSettings(url, account, password.toCharArray());
+		showSizes = settings.get(Keys.web.showRepositorySizes).getBoolean(true);
+		assertEquals(newValue, showSizes);
 	}
 
 	@Test

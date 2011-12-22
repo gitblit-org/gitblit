@@ -57,13 +57,19 @@ public class UserServiceTest {
 		UserModel admin = service.getUserModel("admin");
 		assertTrue(admin == null);
 
-		// add admin
+		// add admin and admins team
+		TeamModel admins = new TeamModel("admins");
+		admins.mailingLists.add("admins@localhost.com");
+		
 		admin = new UserModel("admin");
 		admin.password = "password";
 		admin.canAdmin = true;
 		admin.excludeFromFederation = true;
+		admin.teams.add(admins);
+		
 		service.updateUserModel(admin);
 		admin = null;
+		admins = null;
 
 		// add new user
 		UserModel newUser = new UserModel("test");
@@ -111,8 +117,9 @@ public class UserServiceTest {
 
 	protected void testTeams(IUserService service) {
 
-		// confirm we have no teams
-		assertEquals(0, service.getAllTeamNames().size());
+		// confirm we have 1 team (admins)
+		assertEquals(1, service.getAllTeamNames().size());
+		assertEquals("admins", service.getAllTeamNames().get(0));
 
 		// remove newrepo1 from test user
 		// now test user has no repositories
@@ -211,6 +218,13 @@ public class UserServiceTest {
 		// delete both teams
 		service.deleteTeam("testteam");
 		service.deleteTeam("nextteam");
-		assertEquals(0, service.getAllTeamNames().size());
+		
+		// assert we still have the admins team
+		assertEquals(1, service.getAllTeamNames().size());
+		assertEquals("admins", service.getAllTeamNames().get(0));
+		
+		team = service.getTeamModel("admins");
+		assertEquals(1, team.mailingLists.size());
+		assertTrue(team.mailingLists.contains("admins@localhost.com"));
 	}
 }

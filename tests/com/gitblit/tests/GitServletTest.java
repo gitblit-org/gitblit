@@ -83,7 +83,7 @@ public class GitServletTest {
 			clone.call();
 			cloned = true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			// swallow the exception which we expect
 		}
 
 		// restore anonymous repository access
