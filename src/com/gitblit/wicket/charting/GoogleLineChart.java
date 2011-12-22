@@ -53,7 +53,7 @@ public class GoogleLineChart extends GoogleChart {
 				cName, tagId));
 		line(sb,
 				MessageFormat
-						.format("{0}.draw({1}, '{'width: {2,number,0}, height: {3,number,0}, pointSize: 4, chartArea:'{'left:20,top:20'}', legend: ''none'', title: ''{4}'' '}');",
+						.format("{0}.draw({1}, '{'width: {2,number,0}, height: {3,number,0}, pointSize: 4, chartArea:'{'left:20,top:20'}', vAxis: '{' textPosition: ''none'' '}', legend: ''none'', title: ''{4}'' '}');",
 								cName, dName, width, height, title));
 		line(sb, "");
 	}
