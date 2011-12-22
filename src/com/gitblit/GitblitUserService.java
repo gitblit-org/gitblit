@@ -72,7 +72,7 @@ public class GitblitUserService implements IUserService {
 
 		assert service != null;
 
-		if (realmFile.exists()) {
+		if (!realmFile.exists()) {
 			// Create the Administrator account for a new realm file
 			try {
 				realmFile.createNewFile();
