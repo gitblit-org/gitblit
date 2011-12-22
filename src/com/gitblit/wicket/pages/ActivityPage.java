@@ -17,7 +17,6 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,14 +28,10 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.ActivityUtils;
-import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
@@ -54,7 +49,7 @@ import com.gitblit.wicket.panels.ActivityPanel;
 public class ActivityPage extends RootPage {
 
 	public ActivityPage(PageParameters params) {
-		super();
+		super(params);
 		setupPage("", "");
 
 		// parameters
@@ -94,42 +89,6 @@ public class ActivityPage extends RootPage {
 			// add activity panel
 			add(new ActivityPanel("activityPanel", recentActivity));
 		}
-	}
-
-	private List<RepositoryModel> getRepositories(PageParameters params) {
-		final UserModel user = GitBlitWebSession.get().getUser();
-		String set = WicketUtils.getSet(params);
-		String repositoryName = WicketUtils.getRepositoryName(params);
-
-		List<RepositoryModel> models = null;
-		if (!StringUtils.isEmpty(repositoryName)) {
-			// named repository
-			models = new ArrayList<RepositoryModel>();
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			if (user.canAccessRepository(model)) {
-				models.add(model);
-			}
-		}
-
-		// get all user accessible repositories
-		if (models == null) {
-			models = GitBlit.self().getRepositoryModels(user);
-		}
-
-		// filter the repositories by the specified set
-		if (!StringUtils.isEmpty(set)) {
-			List<String> sets = StringUtils.getStringsFromValue(set, ",");
-			List<RepositoryModel> setModels = new ArrayList<RepositoryModel>();
-			for (RepositoryModel model : models) {
-				for (String curr : sets) {
-					if (model.federationSets.contains(curr)) {
-						setModels.add(model);
-					}
-				}
-			}
-			models = setModels;
-		}
-		return models;
 	}
 
 	/**

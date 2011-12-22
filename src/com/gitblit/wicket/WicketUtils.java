@@ -369,8 +369,16 @@ public class WicketUtils {
 		return params.getInt("pg", 1);
 	}
 
+	public static String getRegEx(PageParameters params) {
+		return params.getString("x", "");
+	}
+
 	public static String getSet(PageParameters params) {
 		return params.getString("set", "");
+	}
+
+	public static String getTeam(PageParameters params) {
+		return params.getString("team", "");
 	}
 
 	public static int getDaysBack(PageParameters params) {

@@ -20,13 +20,16 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.resource.ContextRelativeResource;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -37,8 +40,16 @@ public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {
 		super();
-		setupPage("", "");
+		setup(null);
+	}
 
+	public RepositoriesPage(PageParameters params) {
+		super(params);
+		setup(params);
+	}
+
+	private void setup(PageParameters params) {
+		setupPage("", "");
 		// check to see if we should display a login message
 		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
@@ -56,14 +67,17 @@ public class RepositoriesPage extends RootPage {
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
-		RepositoriesPanel repositories = new RepositoriesPanel("repositoriesPanel", showAdmin,
-				null, getAccessRestrictions());
+
+		List<RepositoryModel> repositories = getRepositories(params);
+
+		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
+				repositories, true, getAccessRestrictions());
 		// push the panel down if we are hiding the admin controls and the
 		// welcome message
 		if (!showAdmin && !repositoriesMessage.isVisible()) {
-			WicketUtils.setCssStyle(repositories, "padding-top:5px;");
+			WicketUtils.setCssStyle(repositoriesPanel, "padding-top:5px;");
 		}
-		add(repositories);
+		add(repositoriesPanel);
 	}
 
 	private String readMarkdown(String messageSource, String resource) {

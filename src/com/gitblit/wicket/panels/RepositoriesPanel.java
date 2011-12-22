@@ -62,22 +62,14 @@ public class RepositoriesPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	public RepositoriesPanel(String wicketId, final boolean showAdmin,
-			List<RepositoryModel> models,
+			List<RepositoryModel> models, boolean enableLinks,
 			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
 		super(wicketId);
 
-		final boolean linksActive;
+		final boolean linksActive = enableLinks;
 		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
 
 		final UserModel user = GitBlitWebSession.get().getUser();
-		if (models == null) {
-			linksActive = true;
-			models = GitBlit.self().getRepositoryModels(user);
-		} else {
-			// disable links if the repositories are already provided
-			// the repositories are most likely from a proposal
-			linksActive = false;
-		}
 
 		final IDataProvider<RepositoryModel> dp;
 

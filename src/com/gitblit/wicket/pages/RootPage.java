@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -30,6 +31,8 @@ import org.apache.wicket.protocol.http.WebResponse;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -88,7 +91,7 @@ public abstract class RootPage extends BasePage {
 		}
 		if (showAdmin || showRegistrations) {
 			pages.add(new PageRegistration("gb.federation", FederationPage.class));
-		}		
+		}
 		NavigationPanel navPanel = new NavigationPanel("navPanel", getClass(), pages);
 		add(navPanel);
 
@@ -162,5 +165,82 @@ public abstract class RootPage extends BasePage {
 				setResponsePage(getApplication().getHomePage());
 			}
 		}
+	}
+
+	protected List<RepositoryModel> getRepositories(PageParameters params) {
+		final UserModel user = GitBlitWebSession.get().getUser();
+		if (params == null) {
+			return GitBlit.self().getRepositoryModels(user);
+		}
+
+		String repositoryName = WicketUtils.getRepositoryName(params);
+		String set = WicketUtils.getSet(params);
+		String regex = WicketUtils.getRegEx(params);
+		String team = WicketUtils.getTeam(params);
+
+		List<RepositoryModel> models = null;
+
+		if (!StringUtils.isEmpty(repositoryName)) {
+			// try named repository
+			models = new ArrayList<RepositoryModel>();
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			if (user.canAccessRepository(model)) {
+				models.add(model);
+			}
+		}
+
+		// get all user accessible repositories
+		if (models == null) {
+			models = GitBlit.self().getRepositoryModels(user);
+		}
+
+		if (!StringUtils.isEmpty(regex)) {
+			// filter the repositories by the regex
+			List<RepositoryModel> accessible = GitBlit.self().getRepositoryModels(user);
+			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
+			Pattern pattern = Pattern.compile(regex);
+			for (RepositoryModel aModel : accessible) {
+				if (pattern.matcher(aModel.name).find()) {
+					matchingModels.add(aModel);
+				}
+			}
+			models = matchingModels;
+		} else if (!StringUtils.isEmpty(set)) {
+			// filter the repositories by the specified sets
+			List<String> sets = StringUtils.getStringsFromValue(set, ",");
+			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
+			for (RepositoryModel model : models) {
+				for (String curr : sets) {
+					if (model.federationSets.contains(curr)) {
+						matchingModels.add(model);
+					}
+				}
+			}
+			models = matchingModels;
+		} else if (!StringUtils.isEmpty(team)) {
+			// filter the repositories by the specified teams
+			List<String> teams = StringUtils.getStringsFromValue(team, ",");
+			
+			// need TeamModels first
+			List<TeamModel> teamModels = new ArrayList<TeamModel>();
+			for (String name : teams) {
+				TeamModel model = GitBlit.self().getTeamModel(name);
+				if (model != null) {
+					teamModels.add(model);
+				}
+			}
+			
+			// brute-force our way through finding the matching models
+			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
+			for (RepositoryModel repositoryModel : models) {
+				for (TeamModel teamModel : teamModels) {
+					if (teamModel.hasRepository(repositoryModel.name)) {
+						matchingModels.add(repositoryModel);
+					}
+				}
+			}
+			models = matchingModels;
+		}
+		return models;
 	}
 }
