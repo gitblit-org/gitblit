@@ -209,9 +209,17 @@ public abstract class RootPage extends BasePage {
 		// custom filters
 		String customFilters = GitBlit.getString(Keys.web.customFilters, null);
 		if (!StringUtils.isEmpty(customFilters)) {
+			boolean addedExpression = false;
 			List<String> expressions = StringUtils.getStringsFromValue(customFilters, "!!!");
 			for (String expression : expressions) {
-				filters.add(new DropDownMenuItem(null, "x", expression));
+				if (!StringUtils.isEmpty(expression)) {
+					addedExpression = true;
+					filters.add(new DropDownMenuItem(null, "x", expression));
+				}
+			}
+			// if we added any custom expressions, add a divider
+			if (addedExpression) {
+				filters.add(new DropDownMenuItem());
 			}
 		}
 
