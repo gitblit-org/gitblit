@@ -57,6 +57,7 @@ public class GitblitUserService implements IUserService {
 	public void setup(IStoredSettings settings) {
 		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "users.conf");
 		serviceImpl = createUserService(realmFile);
+		logger.info("GUS delegating to " + serviceImpl.toString());
 	}
 
 	@SuppressWarnings("deprecation")
@@ -103,6 +104,11 @@ public class GitblitUserService implements IUserService {
 			logger.warn("Please consider using \"users.conf\" instead of the deprecated \"users.properties\" file");
 		}
 		return service;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
 	}
 
 	@Override
