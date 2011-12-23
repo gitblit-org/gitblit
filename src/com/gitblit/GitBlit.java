@@ -1480,6 +1480,30 @@ public class GitBlit implements ServletContextListener {
 		return scripts;
 	}
 
+	public List<String> getInheritedPreReceiveScripts(RepositoryModel repository) {
+		Set<String> globals = new HashSet<String>();
+		for (String script : getStrings(Keys.groovy.preReceiveScripts)) {
+			if (script.endsWith(".groovy")) {
+				globals.add(script.substring(0, script.lastIndexOf('.')));
+			} else {
+				globals.add(script);
+			}
+		}
+		return new ArrayList<String>(globals);
+	}
+	
+	public List<String> getInheritedPostReceiveScripts(RepositoryModel repository) {
+		Set<String> globals = new HashSet<String>();
+		for (String script : getStrings(Keys.groovy.postReceiveScripts)) {
+			if (script.endsWith(".groovy")) {
+				globals.add(script.substring(0, script.lastIndexOf('.')));
+			} else {
+				globals.add(script);
+			}
+		}
+		return new ArrayList<String>(globals);
+	}
+
 	/**
 	 * Notify the administrators by email.
 	 * 

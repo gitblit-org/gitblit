@@ -50,6 +50,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BulletListPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
@@ -292,7 +293,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
 		form.add(preReceivePalette);
+		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self().getInheritedPreReceiveScripts(repositoryModel)));
 		form.add(postReceivePalette);
+		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self().getInheritedPostReceiveScripts(repositoryModel)));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

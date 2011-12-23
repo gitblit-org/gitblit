@@ -22,7 +22,7 @@
 				<tr><th><wicket:message key="gb.skipSizeCalculation"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="skipSizeCalculation" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSizeCalculationDescription"></wicket:message></span></td></tr>
 				<tr><th><wicket:message key="gb.skipSummaryMetrics"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="skipSummaryMetrics" tabindex="10" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSummaryMetricsDescription"></wicket:message></span></td></tr>
 				<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><input type="checkbox" wicket:id="isFrozen" tabindex="11" /> &nbsp;<span class="help-inline"><wicket:message key="gb.isFrozenDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span12" type="text" wicket:id="mailingLists" size="40" tabindex="12" /> &nbsp;<span class="help-inline"><wicket:message key="gb.mailingListsDescription"></wicket:message></span></td></tr>
+				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span14" type="text" wicket:id="mailingLists" size="40" tabindex="12" /></td></tr>
 				<tr><td colspan="2"><h3><wicket:message key="gb.accessPermissions"></wicket:message></h3></td></tr>	
 				<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span6" wicket:id="accessRestriction" tabindex="13" /></td></tr>				
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.permittedUsers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
@@ -31,8 +31,8 @@
 				<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span6" wicket:id="federationStrategy" tabindex="14" /></td></tr>
 				<tr><th style="vertical-align: top;"><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>
 				<tr><td colspan="2"><h3><wicket:message key="gb.hookScripts"></wicket:message></h3></td></tr>	
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.preReceiveScripts"></wicket:message></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.postReceiveScripts"></wicket:message></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.preReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPreReceive"></span></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
+				<tr><th style="vertical-align: top;"><wicket:message key="gb.postReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPostReceive"></span></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
 				<tr><td colspan='2'><div class="actions" "><input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="15" /> &nbsp; <input class="btn primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="16" /></div></td></tr>
 			</tbody>
 		</table>
