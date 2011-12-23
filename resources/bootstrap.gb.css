@@ -27,6 +27,7 @@ hr {
 .topbar a {
   	color: white; 
 	text-shadow: none;
+	outline: 0;
 }
 
 .nav a:hover {
@@ -55,10 +56,48 @@ hr {
 	background-repeat:no-repeat;
 	background-image: url(arrow_page.png);
 	background-position: center bottom;
+	outline: 0;
 }
 
 .topbar .active a {
 	background-color: transparent !important;
+	outline: 0;
+}
+
+.topbar div>ul a.menu:hover,.nav a.menu:hover,.topbar div>ul .dropdown-toggle:hover,.nav .dropdown-toggle:hover {
+	background: inherit;
+	outline: 0;	
+}
+
+.topbar div>ul li.open .menu,.nav li.open .menu,.topbar div>ul .dropdown.open .dropdown-toggle,.nav .dropdown.open .dropdown-toggle {
+	background: #ddd;
+	color: black !important;
+	font-weight: bold;
+	border-radius: 3px 3px 0px 0px;
+	margin-left:1px;
+}
+	
+.topbar div > ul .menu-dropdown, .nav .menu-dropdown, .topbar div > ul .dropdown-menu, .nav .dropdown-menu {
+	background-color: #ddd;
+}
+
+.topbar div > ul .menu-dropdown .divider, .nav .menu-dropdown .divider, .topbar div > ul .dropdown-menu .divider, .nav .dropdown-menu .divider {
+    background-color: #bbb;
+    border-color: #eee;
+}
+
+.topbar div > ul .menu-dropdown li a, .nav .menu-dropdown li a, .topbar div > ul .dropdown-menu li a, .nav .dropdown-menu li a {
+    color: #555;
+    text-shadow: none;
+    outline: 0;
+}
+
+topbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.topbar div>ul .dropdown-menu li a:hover,.nav .dropdown-menu li a:hover{
+	background-color: #000070;
+	background-repeat:no-repeat;
+	background-image:none;
+	text-decoration:underline;
+	color: white !important;
 }
 
 .breadcrumb {
