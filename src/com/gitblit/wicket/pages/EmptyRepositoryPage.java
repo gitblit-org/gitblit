@@ -49,6 +49,7 @@ public class EmptyRepositoryPage extends RootPage {
 		
 		add(new Label("repository", repositoryName));
 		add(new RepositoryUrlPanel("pushurl", repositoryUrls.get(0)));
-		add(new Label("syntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", repositoryUrls.get(0))));
+		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", repositoryUrls.get(0))));
+		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", repositoryUrls.get(0))));
 	}
 }
