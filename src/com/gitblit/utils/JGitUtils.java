@@ -1001,7 +1001,14 @@ public class JGitUtils {
 
 			RevWalk rw = new RevWalk(repository);
 			rw.markStart(rw.parseCommit(endRange));
-			rw.markUninteresting(rw.parseCommit(startRange));
+			if (startRange.equals(ObjectId.zeroId())) {
+				// maybe this is a tag or an orphan branch
+				list.add(rw.parseCommit(endRange));
+				rw.dispose();
+				return list;
+			} else {
+				rw.markUninteresting(rw.parseCommit(startRange));
+			}
 
 			Iterable<RevCommit> revlog = rw;
 			for (RevCommit rev : revlog) {
