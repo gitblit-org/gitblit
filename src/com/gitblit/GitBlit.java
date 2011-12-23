@@ -1479,7 +1479,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return scripts;
 	}
-
+	
 	public List<String> getInheritedPreReceiveScripts(RepositoryModel repository) {
 		Set<String> globals = new HashSet<String>();
 		for (String script : getStrings(Keys.groovy.preReceiveScripts)) {

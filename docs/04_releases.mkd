@@ -26,16 +26,12 @@ The original `users.properties` file and it's corresponding implementation are *
    **New:** *web.activityDuration = 14*  
    **New:** *web.timeFormat = HH:mm*  
    **New:** *web.datestampLongFormat = EEEE, MMMM d, yyyy*  
+- added: filters menu to repositories page and activity page.  You can filter by federation set, team, and simple custom regular expressions (issue 27)  
+   **New:** *web.customFilters=*
 - fixed: several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete
 - added: optional flash-based 1-step *copy to clipboard* of the primary repository url
 - added: javascript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url  
    **New:** *web.allowFlashCopyToClipboard = true*
-- added: Name, regex, set, and team filtering of the repositories list and the activity page via url parameters (issue 27)  
-    Here are some url examples:  
-    localhost/gb?r=myrepo.git  *(specific repository)*  
-    localhost/gb?x=my  *(regex matching. encoding may be an issue. YMMV)*  
-    localhost/gb?set=animal,mineral  *(animal and mineral federation sets)*  
-    localhost/qb/activity?team=qa,qa2 *(qa and qa2 teams)*
 - improved: empty repositories now link to a new *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
 - improved: unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
 

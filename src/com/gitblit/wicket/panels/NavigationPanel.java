@@ -24,6 +24,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 
@@ -31,20 +32,32 @@ public class NavigationPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public NavigationPanel(String id, final Class<? extends BasePage> pageClass, List<PageRegistration> registeredPages) {
+	public NavigationPanel(String id, final Class<? extends BasePage> pageClass,
+			List<PageRegistration> registeredPages) {
 		super(id);
-				
-		ListDataProvider<PageRegistration> refsDp = new ListDataProvider<PageRegistration>(registeredPages);
+
+		ListDataProvider<PageRegistration> refsDp = new ListDataProvider<PageRegistration>(
+				registeredPages);
 		DataView<PageRegistration> refsView = new DataView<PageRegistration>("navLink", refsDp) {
 			private static final long serialVersionUID = 1L;
 
 			public void populateItem(final Item<PageRegistration> item) {
 				PageRegistration entry = item.getModelObject();
-				Component c = new LinkPanel("link", null, getString(entry.translationKey), entry.pageClass, entry.params);
-				if (entry.pageClass.equals(pageClass)) {
-					WicketUtils.setCssClass(item, "active");
+				if (entry instanceof DropDownMenuRegistration) {
+					// drop down menu
+					DropDownMenuRegistration reg = (DropDownMenuRegistration) entry;
+					Component c = new DropDownMenu("link", getString(entry.translationKey), reg);
+					item.add(c);
+					WicketUtils.setCssClass(item, "menu");
+				} else {
+					// standard page link
+					Component c = new LinkPanel("link", null, getString(entry.translationKey),
+							entry.pageClass, entry.params);
+					if (entry.pageClass.equals(pageClass)) {
+						WicketUtils.setCssClass(item, "active");
+					}
+					item.add(c);
 				}
-				item.add(c);
 			}
 		};
 		add(refsView);

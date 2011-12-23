@@ -22,6 +22,7 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,6 +34,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
@@ -80,6 +83,13 @@ public class RepositoriesPage extends RootPage {
 		add(repositoriesPanel);
 	}
 
+	@Override
+	protected void addDropDownMenus(List<PageRegistration> pages) {
+		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters", RepositoriesPage.class);
+		menu.menuItems.addAll(getFilterMenuItems());
+		pages.add(menu);
+	}
+
 	private String readMarkdown(String messageSource, String resource) {
 		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
@@ -118,5 +128,22 @@ public class RepositoriesPage extends RootPage {
 			error(message, t, false);
 		}
 		return message;
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		if (GitBlit.isDebugMode()) {
+			// strip Wicket tags in debug mode for jQuery DOM traversal
+			Application.get().getMarkupSettings().setStripWicketTags(true);
+		}
+		super.onBeforeRender();
+	}
+	@Override
+	protected void onAfterRender() {
+		if (GitBlit.isDebugMode()) {
+			// restore Wicket debug tags
+			Application.get().getMarkupSettings().setStripWicketTags(false);
+		}
+		super.onAfterRender();
 	}
 }

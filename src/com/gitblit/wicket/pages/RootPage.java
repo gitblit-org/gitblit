@@ -17,7 +17,9 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
@@ -37,6 +39,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.NavigationPanel;
 
@@ -64,14 +67,17 @@ public abstract class RootPage extends BasePage {
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
-		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
+		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
+		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+		
+		if (authenticateAdmin) {			
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 			// authentication requires state and session
 			setStatelessHint(false);
 		} else {
-			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
-			if (GitBlit.getBoolean(Keys.web.authenticateViewPages, false)) {
+			showAdmin = allowAdmin;
+			if (authenticateView) {
 				// authentication requires state and session
 				setStatelessHint(false);
 			} else {
@@ -92,6 +98,11 @@ public abstract class RootPage extends BasePage {
 		if (showAdmin || showRegistrations) {
 			pages.add(new PageRegistration("gb.federation", FederationPage.class));
 		}
+
+		if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
+			addDropDownMenus(pages);
+		}
+
 		NavigationPanel navPanel = new NavigationPanel("navPanel", getClass(), pages);
 		add(navPanel);
 
@@ -125,8 +136,8 @@ public abstract class RootPage extends BasePage {
 		WicketUtils.setInputPlaceholder(pwField, getString("gb.password"));
 		loginForm.add(pwField);
 		add(loginForm);
-		if (GitBlit.getBoolean(Keys.web.authenticateViewPages, true)
-				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
+		
+		if (authenticateView || authenticateAdmin) {
 			loginForm.setVisible(!GitBlitWebSession.get().isLoggedIn());
 		} else {
 			loginForm.setVisible(false);
@@ -165,6 +176,53 @@ public abstract class RootPage extends BasePage {
 				setResponsePage(getApplication().getHomePage());
 			}
 		}
+	}
+
+	protected void addDropDownMenus(List<PageRegistration> pages) {
+
+	}
+
+	protected List<DropDownMenuItem> getFilterMenuItems() {
+		final UserModel user = GitBlitWebSession.get().getUser();
+		Set<DropDownMenuItem> filters = new LinkedHashSet<DropDownMenuItem>();
+
+		// accessible repositories by federation set
+		for (RepositoryModel repository : GitBlit.self().getRepositoryModels(user)) {
+			for (String set : repository.federationSets) {
+				filters.add(new DropDownMenuItem(set, "set", set));
+			}
+		}
+		if (filters.size() > 0) {
+			// divider
+			filters.add(new DropDownMenuItem());
+		}
+
+		// user's team memberships
+		if (user != null && user.teams.size() > 0) {
+			for (TeamModel team : user.teams) {
+				filters.add(new DropDownMenuItem(team.name, "team", team.name));
+			}
+			// divider
+			filters.add(new DropDownMenuItem());
+		}
+
+		// custom filters
+		String customFilters = GitBlit.getString(Keys.web.customFilters, null);
+		if (!StringUtils.isEmpty(customFilters)) {
+			List<String> expressions = StringUtils.getStringsFromValue(customFilters, "!!!");
+			for (String expression : expressions) {
+				filters.add(new DropDownMenuItem(null, "x", expression));
+			}
+		}
+
+		if (filters.size() > 0) {
+			// if we have any filters, add the divider
+			filters.add(new DropDownMenuItem());
+			// add All Repositories
+			filters.add(new DropDownMenuItem("All Repositories", null, null));
+		}
+
+		return new ArrayList<DropDownMenuItem>(filters);
 	}
 
 	protected List<RepositoryModel> getRepositories(PageParameters params) {
@@ -220,7 +278,7 @@ public abstract class RootPage extends BasePage {
 		} else if (!StringUtils.isEmpty(team)) {
 			// filter the repositories by the specified teams
 			List<String> teams = StringUtils.getStringsFromValue(team, ",");
-			
+
 			// need TeamModels first
 			List<TeamModel> teamModels = new ArrayList<TeamModel>();
 			for (String name : teams) {
@@ -229,7 +287,7 @@ public abstract class RootPage extends BasePage {
 					teamModels.add(model);
 				}
 			}
-			
+
 			// brute-force our way through finding the matching models
 			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
 			for (RepositoryModel repositoryModel : models) {
