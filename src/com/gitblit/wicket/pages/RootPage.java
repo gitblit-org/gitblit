@@ -224,8 +224,6 @@ public abstract class RootPage extends BasePage {
 		}
 
 		if (filters.size() > 0) {
-			// if we have any filters, add the divider
-			filters.add(new DropDownMenuItem());
 			// add All Repositories
 			filters.add(new DropDownMenuItem("All Repositories", null, null));
 		}
