@@ -26,10 +26,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -71,22 +73,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private File groovyDir;
 
-	/**
-	 * Configure the servlet from Gitblit's configuration.
-	 */
-	@Override
-	public String getInitParameter(String name) {
-		if (name.equals("base-path")) {
-			return GitBlit.getRepositoriesFolder().getAbsolutePath();
-		} else if (name.equals("export-all")) {
-			return "1";
-		}
-		return super.getInitParameter(name);
-	}
-
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		groovyDir = GitBlit.getGroovyScriptsFolder();		
+		groovyDir = GitBlit.getGroovyScriptsFolder();
 		try {
 			gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
 		} catch (IOException e) {
@@ -106,7 +95,48 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				return rp;
 			}
 		});
-		super.init(config);
+		super.init(new GitblitServletConfig(config));
+	}
+
+	/**
+	 * Transitional wrapper class to configure the JGit 1.2 GitFilter.
+	 * This GitServlet will probably be replaced by a GitFilter so that Gitblit
+	 * can serve Git repositories on the root URL and not a /git sub-url.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
+	private class GitblitServletConfig implements ServletConfig {
+		final ServletConfig config;
+
+		GitblitServletConfig(ServletConfig config) {
+			this.config = config;
+		}
+
+		@Override
+		public String getServletName() {
+			return config.getServletName();
+		}
+
+		@Override
+		public ServletContext getServletContext() {
+			return config.getServletContext();
+		}
+
+		@Override
+		public String getInitParameter(String name) {
+			if (name.equals("base-path")) {
+				return GitBlit.getRepositoriesFolder().getAbsolutePath();
+			} else if (name.equals("export-all")) {
+				return "1";
+			}
+			return config.getInitParameter(name);
+		}
+
+		@Override
+		public Enumeration<String> getInitParameterNames() {
+			return config.getInitParameterNames();
+		}
 	}
 
 	/**

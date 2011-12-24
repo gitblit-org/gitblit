@@ -34,6 +34,7 @@ The original `users.properties` file and it's corresponding implementation are *
    **New:** *web.allowFlashCopyToClipboard = true*
 - improved: empty repositories now link to a new *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
 - improved: unit testing framework has been migrated to JUnit4 syntax and the test suite has been redesigned to run all unit tests, including rpc, federation, and git push/clone tests
+- updated: JGit 1.2.0
 
 ### Older Releases
 
