@@ -243,6 +243,7 @@
 				<!-- Copy Doc images -->
 				<fileset dir="${basedir}/docs">
 					<include name="*.png" />
+					<include name="*.gif" />
 				</fileset>
 			</copy>
 
@@ -714,6 +715,7 @@
 			<!-- Copy Doc images -->
 			<fileset dir="${basedir}/docs">
 				<include name="*.png" />
+				<include name="*.gif" />
 				<include name="*.js" />
 			</fileset>
 		</copy>

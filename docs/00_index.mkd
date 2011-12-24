@@ -19,13 +19,12 @@
 		<tr><th>Issues</th><td><a href="http://code.google.com/p/gitblit/issues/list">GoogleCode</a></td></tr>
 		<tr><th>Discussion</th><td><a href="http://groups.google.com/group/gitblit">Gitblit Group</a></td></tr>
 		<tr><th>Google+</th><td><a href="https://plus.google.com/114464678392593421684">Gitblit+</a></td></tr>
+		<tr><th>Ohloh</th><td><a target="_top" href="http://www.ohloh.net/p/gitblit"><img border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" /></a></td></tr>
+		<tr><th>Donations</th><td>If you enjoy Gitblit and want to support it's development, please consider making a donation on behalf of Gitblit to <a href="https://www.helpmegivetostjude.org/gitblit">St. Jude Children's Research Hospital</a>.
+		<a href="https://www.helpmegivetostjude.org/gitblit" alt="St. Jude Children's Research Hospital"><img style="padding-top:10px;" src="stjude_150x150.gif"/></a></td></tr>
 		</tbody>
 		</table>
 	</div>
-
-	<a target="_top" href="http://www.ohloh.net/p/gitblit">
-		<img style="padding-top:5px;" border="0" width="100" height="16" src="http://www.ohloh.net/p/gitblit/widgets/project_thin_badge.gif" alt="Ohloh project report for Gitblit" />
-	</a>
 </div>
 
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
