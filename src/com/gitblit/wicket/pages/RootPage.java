@@ -17,9 +17,13 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
@@ -70,8 +74,8 @@ public abstract class RootPage extends BasePage {
 		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
 		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
-		
-		if (authenticateAdmin) {			
+
+		if (authenticateAdmin) {
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 			// authentication requires state and session
 			setStatelessHint(false);
@@ -136,7 +140,7 @@ public abstract class RootPage extends BasePage {
 		WicketUtils.setInputPlaceholder(pwField, getString("gb.password"));
 		loginForm.add(pwField);
 		add(loginForm);
-		
+
 		if (authenticateView || authenticateAdmin) {
 			loginForm.setVisible(!GitBlitWebSession.get().isLoggedIn());
 		} else {
@@ -185,22 +189,38 @@ public abstract class RootPage extends BasePage {
 	protected List<DropDownMenuItem> getFilterMenuItems() {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		Set<DropDownMenuItem> filters = new LinkedHashSet<DropDownMenuItem>();
+		List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
 
 		// accessible repositories by federation set
-		for (RepositoryModel repository : GitBlit.self().getRepositoryModels(user)) {
+		Map<String, AtomicInteger> setMap = new HashMap<String, AtomicInteger>();
+		for (RepositoryModel repository : repositories) {
 			for (String set : repository.federationSets) {
-				filters.add(new DropDownMenuItem(set, "set", set));
+				String key = set.toLowerCase();
+				if (setMap.containsKey(key)) {
+					setMap.get(key).incrementAndGet();
+				} else {
+					setMap.put(key, new AtomicInteger(1));
+				}
 			}
 		}
-		if (filters.size() > 0) {
+		if (setMap.size() > 0) {
+			List<String> sets = new ArrayList<String>(setMap.keySet());
+			Collections.sort(sets);
+			for (String set : sets) {
+				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", set,
+						setMap.get(set).get()), "set", set));
+			}
 			// divider
 			filters.add(new DropDownMenuItem());
 		}
 
 		// user's team memberships
 		if (user != null && user.teams.size() > 0) {
-			for (TeamModel team : user.teams) {
-				filters.add(new DropDownMenuItem(team.name, "team", team.name));
+			List<TeamModel> teams = new ArrayList<TeamModel>(user.teams);
+			Collections.sort(teams);
+			for (TeamModel team : teams) {
+				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", team.name,
+						team.repositories.size()), "team", team.name));
 			}
 			// divider
 			filters.add(new DropDownMenuItem());
@@ -225,7 +245,8 @@ public abstract class RootPage extends BasePage {
 
 		if (filters.size() > 0) {
 			// add All Repositories
-			filters.add(new DropDownMenuItem("All Repositories", null, null));
+			filters.add(new DropDownMenuItem(MessageFormat.format("All Repositories ({0})",
+					repositories.size()), null, null));
 		}
 
 		return new ArrayList<DropDownMenuItem>(filters);
