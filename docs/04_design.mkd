@@ -1,7 +1,7 @@
 ## Design Principles
 1. [Keep It Simple, Stupid](http://en.wikipedia.org/wiki/KISS_principle)
 2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
-3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies, to keep the Gitblit GO distribution svelte, and to automate the setup of developer environments.  
+3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to automate the setup of developer environments.  
 
 ## Architecture
 

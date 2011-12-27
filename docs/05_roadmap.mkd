@@ -12,7 +12,6 @@ This list is volatile.
 ### TODO (medium priority)
 
 * Gitblit: editable settings page in GO/WAR
-* Gitblit: tag repositories and offer views of repositories by tag (issue 27)
 * Gitblit: investigate create-repository-on-push.
     * Maybe a new user role to allow this?
     * Maybe a server setting to disable this completely?

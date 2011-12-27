@@ -119,13 +119,17 @@ Yes.  You can manually manipulate all of them and (most) changes will be immedia
 **NOTE:**  
 Care must be taken to preserve the relationship between user roles and repository names.<br/>Please see the *User Roles* section of the [setup](/setup.html) page for details.
 
-### Can I restrict access to paths within a repository?
-No.  Access restrictions apply to the repository as a whole.
+### Can I restrict access to branches or paths within a repository?
+No, not out-of-the-box.  Access restrictions apply to the repository as a whole.
 
-Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).  Should you require more fine-grained access controls you might consider using [gitolite](https://github.com/sitaramc/gitolite).
+Gitblit's simple authentication and authorization mechanism can be used to facilitate one or more of the [workflows outlined here](http://progit.org/book/ch5-1.html).
+
+Should you require more fine-grained access controls you might consider writing a Groovy *prereceive* script to block updating branch refs based on some permissions file.  I would be interested in a generic, re-usable script to include with Gitblit, should someone want to implement it.
+
+Alternatively, you could use [gitolite](https://github.com/sitaramc/gitolite) and SSH for your repository access.
 
 ### Can I authenticate users against XYZ?
-Yes.  The user service is pluggable.  You may write your own user service by implementing the *com.gitblit.IUserService* interface.  Set the fully qualified classname as the *realm.userService* property.
+Yes.  The user service is pluggable.  You may write your own complete user service by implementing the *com.gitblit.IUserService* interface.  Or you may subclass *com.gitblit.GitblitUserService* and override just the authentication. Set the fully qualified classname as the *realm.userService* property.
 
 ### Why doesn't Gitblit support SSH?
 Gitblit could integrate [Apache Mina][mina] to provide SSH access.  However, doing so violates Gitblit's first design principle: [KISS](http://en.wikipedia.org/wiki/KISS_principle).<br/>
