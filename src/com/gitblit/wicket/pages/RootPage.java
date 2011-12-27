@@ -245,8 +245,8 @@ public abstract class RootPage extends BasePage {
 
 		if (filters.size() > 0) {
 			// add All Repositories
-			filters.add(new DropDownMenuItem(MessageFormat.format("All Repositories ({0})",
-					repositories.size()), null, null));
+			filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})",
+					getString("gb.tokenJurDescription"), repositories.size()), null, null));
 		}
 
 		return new ArrayList<DropDownMenuItem>(filters);

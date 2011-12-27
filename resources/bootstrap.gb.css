@@ -142,6 +142,10 @@ pre.prettyprint ol {
 	padding-left:25px;
 }
 
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    color: #888;
+}
+
 .age0, .age1, .age2 {
 	font-size: 12px;
 }
