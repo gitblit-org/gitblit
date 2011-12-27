@@ -130,7 +130,7 @@ for (command in commands) {
 		
 	switch (command.type) {
 		case ReceiveCommand.Type.CREATE:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			if (commits.size() > 0) {
 				// new branch
@@ -146,7 +146,7 @@ for (command in commands) {
 			}
 			break
 		case ReceiveCommand.Type.UPDATE:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// fast-forward branch commits table
 			changes += "$branchBreak $ref branch updated ($commits.size commits)\n$branchBreak"
@@ -154,7 +154,7 @@ for (command in commands) {
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name)
+			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
 			changes += "$branchBreak $ref branch updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
