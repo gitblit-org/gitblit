@@ -29,6 +29,7 @@ The original `users.properties` file and it's corresponding implementation are *
 - added: filters menu to repositories page and activity page.  You can filter by federation set, team, and simple custom regular expressions (issue 27)  
    **New:** *web.customFilters=*
 - fixed: several a bugs in FileUserService related to cleaning up old repository permissions on a rename or delete
+- fixed: renaming a repository into a new subfolder failed (issue 33)
 - added: optional flash-based 1-step *copy to clipboard* of the primary repository url
 - added: javascript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url  
    **New:** *web.allowFlashCopyToClipboard = true*

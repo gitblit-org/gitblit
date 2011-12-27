@@ -905,6 +905,11 @@ public class GitBlit implements ServletContextListener {
 									.format("Can not rename repository ''{0}'' to ''{1}'' because ''{1}'' already exists.",
 											repositoryName, repository.name));
 				}
+				File parentFile = destFolder.getParentFile();
+				if (!parentFile.exists() && !parentFile.mkdirs()) {
+					throw new GitBlitException(MessageFormat.format(
+							"Failed to create folder ''{0}''", parentFile.getAbsolutePath()));
+				}
 				if (!folder.renameTo(destFolder)) {
 					throw new GitBlitException(MessageFormat.format(
 							"Failed to rename repository ''{0}'' to ''{1}''.", repositoryName,
