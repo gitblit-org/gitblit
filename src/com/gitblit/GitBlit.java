@@ -28,11 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -1444,13 +1445,12 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the list of all available Groovy push hook scripts that are not
-	 * already specified globally for all repositories. Script files must have
+	 * Returns the list of all Groovy push hook scripts. Script files must have
 	 * .groovy extension
 	 * 
 	 * @return list of available hook scripts
 	 */
-	public List<String> getAvailableScripts() {
+	public List<String> getAllScripts() {
 		File groovyFolder = getGroovyScriptsFolder();
 		File[] files = groovyFolder.listFiles(new FileFilter() {
 			@Override
@@ -1458,55 +1458,115 @@ public class GitBlit implements ServletContextListener {
 				return pathname.isFile() && pathname.getName().endsWith(".groovy");
 			}
 		});
-
-		Set<String> globals = new HashSet<String>();
-		String[] keys = { Keys.groovy.preReceiveScripts, Keys.groovy.postReceiveScripts };
-		for (String key : keys) {
-			for (String script : getStrings(key)) {
-				if (script.endsWith(".groovy")) {
-					globals.add(script.substring(0, script.lastIndexOf('.')));
-				} else {
-					globals.add(script);
-				}
-			}
-		}
-
-		// create list of available scripts by excluding scripts that are
-		// globally specified
 		List<String> scripts = new ArrayList<String>();
 		if (files != null) {
 			for (File file : files) {
 				String script = file.getName().substring(0, file.getName().lastIndexOf('.'));
-				if (!globals.contains(script)) {
-					scripts.add(script);
-				}
+				scripts.add(script);
 			}
 		}
 		return scripts;
 	}
-	
-	public List<String> getInheritedPreReceiveScripts(RepositoryModel repository) {
-		Set<String> globals = new HashSet<String>();
+
+	/**
+	 * Returns the list of pre-receive scripts the repository inherited from the
+	 * global settings and team affiliations.
+	 * 
+	 * @param repository
+	 *            if null only the globally specified scripts are returned
+	 * @return a list of scripts
+	 */
+	public List<String> getPreReceiveScriptsInherited(RepositoryModel repository) {
+		Set<String> scripts = new LinkedHashSet<String>();
+		// Globals
 		for (String script : getStrings(Keys.groovy.preReceiveScripts)) {
 			if (script.endsWith(".groovy")) {
-				globals.add(script.substring(0, script.lastIndexOf('.')));
+				scripts.add(script.substring(0, script.lastIndexOf('.')));
 			} else {
-				globals.add(script);
+				scripts.add(script);
 			}
 		}
-		return new ArrayList<String>(globals);
+
+		// Team Scripts
+		if (repository != null) {
+			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
+				TeamModel team = userService.getTeamModel(teamname);
+				scripts.addAll(team.preReceiveScripts);
+			}
+		}
+		return new ArrayList<String>(scripts);
 	}
-	
-	public List<String> getInheritedPostReceiveScripts(RepositoryModel repository) {
-		Set<String> globals = new HashSet<String>();
+
+	/**
+	 * Returns the list of all available Groovy pre-receive push hook scripts
+	 * that are not already inherited by the repository. Script files must have
+	 * .groovy extension
+	 * 
+	 * @param repository
+	 *            optional parameter
+	 * @return list of available hook scripts
+	 */
+	public List<String> getPreReceiveScriptsUnused(RepositoryModel repository) {
+		Set<String> inherited = new TreeSet<String>(getPreReceiveScriptsInherited(repository));
+
+		// create list of available scripts by excluding inherited scripts
+		List<String> scripts = new ArrayList<String>();
+		for (String script : getAllScripts()) {
+			if (!inherited.contains(script)) {
+				scripts.add(script);
+			}
+		}
+		return scripts;
+	}
+
+	/**
+	 * Returns the list of post-receive scripts the repository inherited from
+	 * the global settings and team affiliations.
+	 * 
+	 * @param repository
+	 *            if null only the globally specified scripts are returned
+	 * @return a list of scripts
+	 */
+	public List<String> getPostReceiveScriptsInherited(RepositoryModel repository) {
+		Set<String> scripts = new LinkedHashSet<String>();
+		// Global Scripts
 		for (String script : getStrings(Keys.groovy.postReceiveScripts)) {
 			if (script.endsWith(".groovy")) {
-				globals.add(script.substring(0, script.lastIndexOf('.')));
+				scripts.add(script.substring(0, script.lastIndexOf('.')));
 			} else {
-				globals.add(script);
+				scripts.add(script);
 			}
 		}
-		return new ArrayList<String>(globals);
+		// Team Scripts
+		if (repository != null) {
+			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
+				TeamModel team = userService.getTeamModel(teamname);
+				scripts.addAll(team.postReceiveScripts);
+			}
+		}
+		return new ArrayList<String>(scripts);
+	}
+
+	/**
+	 * Returns the list of unused Groovy post-receive push hook scripts that are
+	 * not already inherited by the repository. Script files must have .groovy
+	 * extension
+	 * 
+	 * @param repository
+	 *            optional parameter
+	 * @return list of available hook scripts
+	 */
+	public List<String> getPostReceiveScriptsUnused(RepositoryModel repository) {
+		Set<String> inherited = new TreeSet<String>(getPostReceiveScriptsInherited(repository));
+
+		// create list of available scripts by excluding inherited scripts
+		List<String> scripts = new ArrayList<String>();
+		for (String script : getAllScripts()) {
+			if (!inherited.contains(script)) {
+				scripts.add(script);
+			}
+		}
+		return scripts;
 	}
 
 	/**
@@ -1572,7 +1632,7 @@ public class GitBlit implements ServletContextListener {
 				setting.currentValue = settings.getString(key, "");
 			}
 		}
-		settingsModel.pushScripts = getAvailableScripts();
+		settingsModel.pushScripts = getAllScripts();
 		return settingsModel;
 	}
 

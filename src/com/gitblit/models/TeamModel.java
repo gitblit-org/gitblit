@@ -16,6 +16,7 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +38,8 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public final Set<String> users = new HashSet<String>();
 	public final Set<String> repositories = new HashSet<String>();
 	public final Set<String> mailingLists = new HashSet<String>();
+	public final List<String> preReceiveScripts = new ArrayList<String>();
+	public final List<String> postReceiveScripts = new ArrayList<String>();
 
 	public TeamModel(String name) {
 		this.name = name;

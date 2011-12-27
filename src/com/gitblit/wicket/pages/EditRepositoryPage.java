@@ -121,8 +121,8 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
 				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12,
-				true);
+						.self().getPreReceiveScriptsUnused(repositoryModel)),
+				new ChoiceRenderer<String>("", ""), 12, true);
 
 		// post-receive palette
 		if (repositoryModel.postReceiveScripts != null) {
@@ -130,8 +130,8 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
 				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getAvailableScripts()), new ChoiceRenderer<String>("", ""), 12,
-				true);
+						.self().getPostReceiveScriptsUnused(repositoryModel)),
+				new ChoiceRenderer<String>("", ""), 12, true);
 
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
@@ -293,9 +293,11 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
 		form.add(preReceivePalette);
-		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self().getInheritedPreReceiveScripts(repositoryModel)));
+		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
+				.getPreReceiveScriptsInherited(repositoryModel)));
 		form.add(postReceivePalette);
-		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self().getInheritedPostReceiveScripts(repositoryModel)));
+		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
+				.getPostReceiveScriptsInherited(repositoryModel)));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

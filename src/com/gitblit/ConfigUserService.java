@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +63,12 @@ public class ConfigUserService implements IUserService {
 	private static final String REPOSITORY = "repository";
 
 	private static final String ROLE = "role";
-	
+
 	private static final String MAILINGLIST = "mailingList";
+
+	private static final String PRERECEIVE = "preReceiveScript";
+
+	private static final String POSTRECEIVE = "postReceiveScript";
 
 	private final File realmFile;
 
@@ -303,6 +308,7 @@ public class ConfigUserService implements IUserService {
 	public List<String> getAllTeamNames() {
 		read();
 		List<String> list = new ArrayList<String>(teams.keySet());
+		Collections.sort(list);
 		return list;
 	}
 
@@ -328,6 +334,7 @@ public class ConfigUserService implements IUserService {
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to get teamnames for role {0}!", role), t);
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -468,6 +475,7 @@ public class ConfigUserService implements IUserService {
 	public List<String> getAllUsernames() {
 		read();
 		List<String> list = new ArrayList<String>(users.keySet());
+		Collections.sort(list);
 		return list;
 	}
 
@@ -493,6 +501,7 @@ public class ConfigUserService implements IUserService {
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to get usernames for role {0}!", role), t);
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -652,11 +661,22 @@ public class ConfigUserService implements IUserService {
 			}
 
 			// null check on "final" mailing lists because JSON-sourced
-			// TeamModel
-			// can have a null users object
+			// TeamModel can have a null users object
 			if (model.mailingLists != null) {
 				config.setStringList(TEAM, model.name, MAILINGLIST, new ArrayList<String>(
 						model.mailingLists));
+			}
+
+			// null check on "final" preReceiveScripts because JSON-sourced
+			// TeamModel can have a null preReceiveScripts object
+			if (model.preReceiveScripts != null) {
+				config.setStringList(TEAM, model.name, PRERECEIVE, model.preReceiveScripts);
+			}
+
+			// null check on "final" postReceiveScripts because JSON-sourced
+			// TeamModel can have a null postReceiveScripts object
+			if (model.postReceiveScripts != null) {
+				config.setStringList(TEAM, model.name, POSTRECEIVE, model.postReceiveScripts);
 			}
 		}
 
@@ -724,7 +744,12 @@ public class ConfigUserService implements IUserService {
 					team.addRepositories(Arrays.asList(config.getStringList(TEAM, teamname,
 							REPOSITORY)));
 					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));
-					team.addMailingLists(Arrays.asList(config.getStringList(TEAM, teamname, MAILINGLIST)));
+					team.addMailingLists(Arrays.asList(config.getStringList(TEAM, teamname,
+							MAILINGLIST)));
+					team.preReceiveScripts.addAll(Arrays.asList(config.getStringList(TEAM,
+							teamname, PRERECEIVE)));
+					team.postReceiveScripts.addAll(Arrays.asList(config.getStringList(TEAM,
+							teamname, POSTRECEIVE)));
 
 					teams.put(team.name.toLowerCase(), team);
 

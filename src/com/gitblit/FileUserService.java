@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -334,6 +335,7 @@ public class FileUserService extends FileSettings implements IUserService {
 			}
 			list.add(user);
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -368,6 +370,7 @@ public class FileUserService extends FileSettings implements IUserService {
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to get usernames for role {0}!", role), t);
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -619,11 +622,17 @@ public class FileUserService extends FileSettings implements IUserService {
 					List<String> repositories = new ArrayList<String>();
 					List<String> users = new ArrayList<String>();
 					List<String> mailingLists = new ArrayList<String>();
+					List<String> preReceive = new ArrayList<String>();
+					List<String> postReceive = new ArrayList<String>();
 					for (String role : roles) {
 						if (role.charAt(0) == '!') {
 							users.add(role.substring(1));
 						} else if (role.charAt(0) == '&') {
-								mailingLists.add(role.substring(1));
+							mailingLists.add(role.substring(1));
+						} else if (role.charAt(0) == '^') {
+							preReceive.add(role.substring(1));
+						} else if (role.charAt(0) == '%') {
+							postReceive.add(role.substring(1));
 						} else {
 							repositories.add(role);
 						}
@@ -656,6 +665,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	@Override
 	public List<String> getAllTeamNames() {
 		List<String> list = new ArrayList<String>(teams.keySet());
+		Collections.sort(list);
 		return list;
 	}
 
@@ -691,6 +701,7 @@ public class FileUserService extends FileSettings implements IUserService {
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to get teamnames for role {0}!", role), t);
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -839,6 +850,16 @@ public class FileUserService extends FileSettings implements IUserService {
 		for (String address : model.mailingLists) {
 			sb.append('&');
 			sb.append(address);
+			sb.append(',');
+		}
+		for (String script : model.preReceiveScripts) {
+			sb.append('^');
+			sb.append(script);
+			sb.append(',');
+		}
+		for (String script : model.postReceiveScripts) {
+			sb.append('%');
+			sb.append(script);
 			sb.append(',');
 		}
 		// trim trailing comma

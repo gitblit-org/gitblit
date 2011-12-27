@@ -196,6 +196,7 @@ The `users.conf` file uses a Git-style configuration format:
 		user = babaracus
 		repository = topsecret.git
 		mailingList = list@ateam.org
+		postReceiveScript = sendmail
 
 The `users.conf` file allows flexibility for adding new fields to a UserModel object that the original `users.properties` file does not afford without imposing the complexity of relying on an embedded SQL database. 
 
@@ -251,13 +252,14 @@ The Groovy hook mechanism allows for dynamic extension of Gitblit to execute cus
 3. Script filenames must not have spaces!
 4. Scripts must be explicitly specified to be executed, no scripts are *automatically* executed by name or extension.
 5. A script can be specified to run on *all repositories* by adding the script file name to *groovy.preReceiveScripts* or *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`.
-6. Scripts may also be specified per-repository in the repository's settings.
-7. Globally specified scripts are excluded from the list of available scripts in a repository's settings 
-8. Globally specified scripts are executed first, in their listed order, followed by per-repository scripts, in their listed order.
-9. A script may only be defined once in a pre-receive chain and once in a post-receive chain.  
+6. Scripts can be specified for a team.
+7. Scripts may also be specified per-repository in the repository's settings.
+8. Globally-specified scripts and team-specified scripts are excluded from the list of available scripts in a repository's settings 
+9. Globally-specified scripts are executed first, in their listed order; followed by team-specified scripts in their listed order by alphabetical team order; followed by per-repository scripts, in their listed order.
+10. A script may only be defined once in a pre-receive chain and once in a post-receive chain.  
 You may execute the same script on pre-receive and post-receive, just not multiple times within a pre-receive or post-receive event.
-10. Gitblit does not differentiate between what can be a pre-receive script and what can be a post-receive script.
-11. If a script *returns false* then the hook chain is aborted and none of the subsequent scripts will execute.
+11. Gitblit does not differentiate between what can be a pre-receive script and what can be a post-receive script.
+12. If a script *returns false* then the hook chain is aborted and none of the subsequent scripts will execute.
 
 Some sample scripts are included in the GO and WAR distributions to show you how you can tap into Gitblit with the provided bound variables.  Additional implementation details may be specified in the header comment of these examples.
 

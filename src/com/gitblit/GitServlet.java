@@ -99,9 +99,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 	}
 
 	/**
-	 * Transitional wrapper class to configure the JGit 1.2 GitFilter.
-	 * This GitServlet will probably be replaced by a GitFilter so that Gitblit
-	 * can serve Git repositories on the root URL and not a /git sub-url.
+	 * Transitional wrapper class to configure the JGit 1.2 GitFilter. This
+	 * GitServlet will probably be replaced by a GitFilter so that Gitblit can
+	 * serve Git repositories on the root URL and not a /git sub-url.
 	 * 
 	 * @author James Moger
 	 * 
@@ -160,9 +160,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 */
 		@Override
 		public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
-			Set<String> scripts = new LinkedHashSet<String>();
-			scripts.addAll(GitBlit.getStrings(Keys.groovy.preReceiveScripts));
 			RepositoryModel repository = getRepositoryModel(rp);
+			Set<String> scripts = new LinkedHashSet<String>();
+			scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
 			scripts.addAll(repository.preReceiveScripts);
 			UserModel user = getUserModel(rp);
 			runGroovy(repository, user, commands, scripts);
@@ -188,9 +188,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				logger.info("skipping post-receive hooks, no refs created, updated, or removed");
 				return;
 			}
-			Set<String> scripts = new LinkedHashSet<String>();
-			scripts.addAll(GitBlit.getStrings(Keys.groovy.postReceiveScripts));
 			RepositoryModel repository = getRepositoryModel(rp);
+			Set<String> scripts = new LinkedHashSet<String>();
+			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
 			scripts.addAll(repository.postReceiveScripts);
 			UserModel user = getUserModel(rp);
 			runGroovy(repository, user, commands, scripts);

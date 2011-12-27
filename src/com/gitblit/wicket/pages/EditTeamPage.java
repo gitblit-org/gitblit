@@ -43,6 +43,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BulletListPanel;
 
 @RequiresAdminRole
 public class EditTeamPage extends RootSubPage {
@@ -73,7 +74,7 @@ public class EditTeamPage extends RootSubPage {
 		} else {
 			super.setupPage(getString("gb.edit"), teamModel.name);
 		}
-		
+
 		CompoundPropertyModel<TeamModel> model = new CompoundPropertyModel<TeamModel>(teamModel);
 
 		List<String> repos = new ArrayList<String>();
@@ -84,17 +85,42 @@ public class EditTeamPage extends RootSubPage {
 			}
 		}
 		StringUtils.sortRepositorynames(repos);
-		
+
 		List<String> teamUsers = new ArrayList<String>(teamModel.users);
 		Collections.sort(teamUsers);
-		
+		List<String> preReceiveScripts = new ArrayList<String>();
+		List<String> postReceiveScripts = new ArrayList<String>();
+
 		final String oldName = teamModel.name;
+
+		// repositories palette
 		final Palette<String> repositories = new Palette<String>("repositories",
 				new ListModel<String>(new ArrayList<String>(teamModel.repositories)),
 				new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
+
+		// users palette
 		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
 				new ArrayList<String>(teamUsers)), new CollectionModel<String>(GitBlit.self()
 				.getAllUsernames()), new ChoiceRenderer<String>("", ""), 10, false);
+
+		// pre-receive palette
+		if (teamModel.preReceiveScripts != null) {
+			preReceiveScripts.addAll(teamModel.preReceiveScripts);
+		}
+		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
+				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
+						.self().getPreReceiveScriptsUnused(null)), new ChoiceRenderer<String>("",
+						""), 12, true);
+
+		// post-receive palette
+		if (teamModel.postReceiveScripts != null) {
+			postReceiveScripts.addAll(teamModel.postReceiveScripts);
+		}
+		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
+				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
+						.self().getPostReceiveScriptsUnused(null)), new ChoiceRenderer<String>("",
+						""), 12, true);
+
 		Form<TeamModel> form = new Form<TeamModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -147,7 +173,25 @@ public class EditTeamPage extends RootSubPage {
 					teamModel.mailingLists.clear();
 					teamModel.mailingLists.addAll(list);
 				}
-				
+
+				// pre-receive scripts
+				List<String> preReceiveScripts = new ArrayList<String>();
+				Iterator<String> pres = preReceivePalette.getSelectedChoices();
+				while (pres.hasNext()) {
+					preReceiveScripts.add(pres.next());
+				}
+				teamModel.preReceiveScripts.clear();
+				teamModel.preReceiveScripts.addAll(preReceiveScripts);
+
+				// post-receive scripts
+				List<String> postReceiveScripts = new ArrayList<String>();
+				Iterator<String> post = postReceivePalette.getSelectedChoices();
+				while (post.hasNext()) {
+					postReceiveScripts.add(post.next());
+				}
+				teamModel.postReceiveScripts.clear();
+				teamModel.postReceiveScripts.addAll(postReceiveScripts);
+
 				try {
 					GitBlit.self().updateTeamModel(oldName, teamModel, isCreate);
 				} catch (GitBlitException e) {
@@ -173,8 +217,14 @@ public class EditTeamPage extends RootSubPage {
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
-		
+
 		form.add(repositories);
+		form.add(preReceivePalette);
+		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
+				.getPreReceiveScriptsInherited(null)));
+		form.add(postReceivePalette);
+		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
+				.getPostReceiveScriptsInherited(null)));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
