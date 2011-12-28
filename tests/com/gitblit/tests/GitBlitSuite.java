@@ -51,7 +51,7 @@ import com.gitblit.utils.JGitUtils;
 		JsonUtilsTest.class, ByteFormatTest.class, ObjectCacheTest.class, UserServiceTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, GitBlitTest.class,
-		FederationTests.class, RpcTests.class, GitServletTest.class })
+		FederationTests.class, RpcTests.class, GitServletTest.class, GroovyScriptTest.class })
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("git");
