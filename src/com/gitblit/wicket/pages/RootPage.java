@@ -94,8 +94,8 @@ public abstract class RootPage extends BasePage {
 
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
-		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class, getPageParameters()));
-		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getPageParameters()));
+		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class, getRootPageParameters()));
+		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
 		if (showAdmin) {
 			pages.add(new PageRegistration("gb.users", UsersPage.class));
 		}
@@ -162,6 +162,15 @@ public abstract class RootPage extends BasePage {
 		}
 
 		super.setupPage(repositoryName, pageName);
+	}
+	
+	private PageParameters getRootPageParameters() {
+		PageParameters params = getPageParameters();
+		if (params != null) {
+			// remove named repository parameter
+			params.remove("r");
+		}
+		return params;
 	}
 
 	private void loginUser(UserModel user) {
