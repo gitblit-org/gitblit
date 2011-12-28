@@ -121,6 +121,14 @@ public interface IUserService {
 	 * @return list of all usernames
 	 */
 	List<String> getAllUsernames();
+	
+	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @return list of all users
+	 * @since 0.8.0
+	 */
+	List<UserModel> getAllUsers();
 
 	/**
 	 * Returns the list of all teams available to the login service.
@@ -131,12 +139,21 @@ public interface IUserService {
 	List<String> getAllTeamNames();
 	
 	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */	
+	List<TeamModel> getAllTeams();
+	
+	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
 	 * 
 	 * @param role
 	 *            the repository name
 	 * @return list of all usernames that can bypass the access restriction
+	 * @since 0.8.0
 	 */	
 	List<String> getTeamnamesForRepositoryRole(String role);
 
@@ -148,6 +165,7 @@ public interface IUserService {
 	 *            the repository name
 	 * @param teamnames
 	 * @return true if successful
+	 * @since 0.8.0
 	 */	
 	boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames);
 	
@@ -207,6 +225,7 @@ public interface IUserService {
 	 * @param role
 	 *            the repository name
 	 * @return list of all usernames that can bypass the access restriction
+	 * @since 0.8.0
 	 */
 	List<String> getUsernamesForRepositoryRole(String role);
 

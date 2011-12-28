@@ -340,6 +340,22 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @return list of all usernames
+	 */
+	@Override
+	public List<UserModel> getAllUsers() {
+		read();
+		List<UserModel> list = new ArrayList<UserModel>();
+		for (String username : getAllUsernames()) {
+			list.add(getUserModel(username));
+		}
+		Collections.sort(list);
+		return list;
+	}
+
+	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
 	 * 
@@ -670,6 +686,20 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */
+	@Override
+	public List<TeamModel> getAllTeams() {
+		List<TeamModel> list = new ArrayList<TeamModel>(teams.values());
+		list = DeepCopier.copy(list);
+		Collections.sort(list);
+		return list;
+	}
+
+	/**
 	 * Returns the list of all teams who are allowed to bypass the access
 	 * restriction placed on the specified repository.
 	 * 
@@ -757,7 +787,7 @@ public class FileUserService extends FileSettings implements IUserService {
 			// remove role from team
 			for (String name : needsRemoveRole) {
 				String team = "@" + name;
-				String[] values = allUsers.getProperty(team).split(",");				
+				String[] values = allUsers.getProperty(team).split(",");
 				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < values.length; i++) {
 					String value = values[i];

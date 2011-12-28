@@ -18,6 +18,7 @@ package com.gitblit.wicket.panels;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -26,6 +27,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.GitBlit;
+import com.gitblit.models.UserModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.EditUserPage;
 
@@ -40,9 +42,9 @@ public class UsersPanel extends BasePanel {
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		final List<String> usernames = GitBlit.self().getAllUsernames();
-		DataView<String> usersView = new DataView<String>("userRow", new ListDataProvider<String>(
-				usernames)) {
+		final List<UserModel> users = GitBlit.self().getAllUsers();
+		DataView<UserModel> usersView = new DataView<UserModel>("userRow",
+				new ListDataProvider<UserModel>(users)) {
 			private static final long serialVersionUID = 1L;
 			private int counter;
 
@@ -52,31 +54,36 @@ public class UsersPanel extends BasePanel {
 				counter = 0;
 			}
 
-			public void populateItem(final Item<String> item) {
-				final String entry = item.getModelObject();
-				LinkPanel editLink = new LinkPanel("username", "list", entry, EditUserPage.class,
-						WicketUtils.newUsernameParameter(entry));
-				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry);
+			public void populateItem(final Item<UserModel> item) {
+				final UserModel entry = item.getModelObject();
+				LinkPanel editLink = new LinkPanel("username", "list", entry.username,
+						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.username);
 				item.add(editLink);
+				item.add(new Label("accesslevel", entry.canAdmin ? "administrator" : ""));
+				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
+				item.add(new Label("repositories",
+						entry.repositories.size() > 0 ? ("" + entry.repositories.size()) : ""));
 				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
 				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class,
-						WicketUtils.newUsernameParameter(entry)));
+						WicketUtils.newUsernameParameter(entry.username)));
 				Link<Void> deleteLink = new Link<Void>("deleteUser") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteUser(entry)) {
-							usernames.remove(entry);
-							info(MessageFormat.format("User ''{0}'' deleted.", entry));
+						if (GitBlit.self().deleteUser(entry.username)) {
+							users.remove(entry);
+							info(MessageFormat.format("User ''{0}'' deleted.", entry.username));
 						} else {
-							error(MessageFormat.format("Failed to delete user ''{0}''!", entry));
+							error(MessageFormat.format("Failed to delete user ''{0}''!",
+									entry.username));
 						}
 					}
 				};
 				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						"Delete user \"{0}\"?", entry)));
+						"Delete user \"{0}\"?", entry.username)));
 				userLinks.add(deleteLink);
 				item.add(userLinks);
 

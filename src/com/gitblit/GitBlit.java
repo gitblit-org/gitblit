@@ -449,8 +449,18 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public List<String> getAllUsernames() {
 		List<String> names = new ArrayList<String>(userService.getAllUsernames());
-		Collections.sort(names);
 		return names;
+	}
+	
+	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @see IUserService.getAllUsernames()
+	 * @return list of all usernames
+	 */
+	public List<UserModel> getAllUsers() {
+		List<UserModel> users = userService.getAllUsers();
+		return users;
 	}
 
 	/**
@@ -533,7 +543,17 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public List<String> getAllTeamnames() {
 		List<String> teams = new ArrayList<String>(userService.getAllTeamNames());
-		Collections.sort(teams);
+		return teams;
+	}
+	
+	/**
+	 * Returns the list of available teams that a user or repository may be
+	 * assigned to.
+	 * 
+	 * @return the list of teams
+	 */
+	public List<TeamModel> getAllTeams() {
+		List<TeamModel> teams = userService.getAllTeams();
 		return teams;
 	}
 

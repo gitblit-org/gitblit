@@ -18,6 +18,7 @@ package com.gitblit.wicket.panels;
 import java.text.MessageFormat;
 import java.util.List;
 
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -26,6 +27,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.GitBlit;
+import com.gitblit.models.TeamModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.EditTeamPage;
 
@@ -40,9 +42,9 @@ public class TeamsPanel extends BasePanel {
 		adminLinks.add(new BookmarkablePageLink<Void>("newTeam", EditTeamPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
-		final List<String> teamnames = GitBlit.self().getAllTeamnames();
-		DataView<String> teamsView = new DataView<String>("teamRow", new ListDataProvider<String>(
-				teamnames)) {
+		final List<TeamModel> teams = GitBlit.self().getAllTeams();
+		DataView<TeamModel> teamsView = new DataView<TeamModel>("teamRow",
+				new ListDataProvider<TeamModel>(teams)) {
 			private static final long serialVersionUID = 1L;
 			private int counter;
 
@@ -52,31 +54,36 @@ public class TeamsPanel extends BasePanel {
 				counter = 0;
 			}
 
-			public void populateItem(final Item<String> item) {
-				final String entry = item.getModelObject();
-				LinkPanel editLink = new LinkPanel("teamname", "list", entry, EditTeamPage.class,
-						WicketUtils.newTeamnameParameter(entry));
-				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry);
+			public void populateItem(final Item<TeamModel> item) {
+				final TeamModel entry = item.getModelObject();
+				LinkPanel editLink = new LinkPanel("teamname", "list", entry.name,
+						EditTeamPage.class, WicketUtils.newTeamnameParameter(entry.name));
+				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.name);
 				item.add(editLink);
+				item.add(new Label("members", entry.users.size() > 0 ? ("" + entry.users.size())
+						: ""));
+				item.add(new Label("repositories",
+						entry.repositories.size() > 0 ? ("" + entry.repositories.size()) : ""));
 				Fragment teamLinks = new Fragment("teamLinks", "teamAdminLinks", this);
 				teamLinks.add(new BookmarkablePageLink<Void>("editTeam", EditTeamPage.class,
-						WicketUtils.newTeamnameParameter(entry)));
+						WicketUtils.newTeamnameParameter(entry.name)));
 				Link<Void> deleteLink = new Link<Void>("deleteTeam") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteTeam(entry)) {
-							teamnames.remove(entry);
-							info(MessageFormat.format("Team ''{0}'' deleted.", entry));
+						if (GitBlit.self().deleteTeam(entry.name)) {
+							teams.remove(entry);
+							info(MessageFormat.format("Team ''{0}'' deleted.", entry.name));
 						} else {
-							error(MessageFormat.format("Failed to delete team ''{0}''!", entry));
+							error(MessageFormat
+									.format("Failed to delete team ''{0}''!", entry.name));
 						}
 					}
 				};
 				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						"Delete team \"{0}\"?", entry)));
+						"Delete team \"{0}\"?", entry.name)));
 				teamLinks.add(deleteLink);
 				item.add(teamLinks);
 

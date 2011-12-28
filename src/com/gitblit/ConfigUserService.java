@@ -313,6 +313,21 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
+	 * Returns the list of all teams available to the login service.
+	 * 
+	 * @return list of all teams
+	 * @since 0.8.0
+	 */
+	@Override
+	public List<TeamModel> getAllTeams() {
+		read();
+		List<TeamModel> list = new ArrayList<TeamModel>(teams.values());
+		list = DeepCopier.copy(list);
+		Collections.sort(list);
+		return list;
+	}
+
+	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
 	 * 
@@ -478,6 +493,20 @@ public class ConfigUserService implements IUserService {
 		Collections.sort(list);
 		return list;
 	}
+	
+	/**
+	 * Returns the list of all users available to the login service.
+	 * 
+	 * @return list of all usernames
+	 */
+	@Override
+	public List<UserModel> getAllUsers() {
+		read();
+		List<UserModel> list = new ArrayList<UserModel>(users.values());
+		list = DeepCopier.copy(list);
+		Collections.sort(list);
+		return list;
+	}	
 
 	/**
 	 * Returns the list of all users who are allowed to bypass the access

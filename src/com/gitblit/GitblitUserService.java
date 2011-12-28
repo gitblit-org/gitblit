@@ -162,8 +162,18 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	public List<UserModel> getAllUsers() {
+		return serviceImpl.getAllUsers();
+	}
+
+	@Override
 	public List<String> getAllTeamNames() {
 		return serviceImpl.getAllTeamNames();
+	}
+
+	@Override
+	public List<TeamModel> getAllTeams() {
+		return serviceImpl.getAllTeams();
 	}
 
 	@Override
