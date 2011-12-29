@@ -357,8 +357,10 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), null);
-		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null), null);
-		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null), null);
+		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),
+				gitblit.getPreReceiveScriptsInherited(null), null);
+		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null),
+				gitblit.getPostReceiveScriptsInherited(null), null);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
@@ -418,9 +420,9 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(repository),
-				repository.preReceiveScripts);
+				gitblit.getPreReceiveScriptsInherited(repository), repository.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(repository),
-				repository.postReceiveScripts);
+				gitblit.getPostReceiveScriptsInherited(repository), repository.postReceiveScripts);
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();

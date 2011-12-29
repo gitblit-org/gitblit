@@ -73,7 +73,11 @@ public class EditTeamDialog extends JDialog {
 
 	private JPalette<String> preReceivePalette;
 
+	private JLabel preReceiveInherited;
+
 	private JPalette<String> postReceivePalette;
+
+	private JLabel postReceiveInherited;
 
 	private Set<String> teamnames;
 
@@ -146,16 +150,16 @@ public class EditTeamDialog extends JDialog {
 		usersPanel.add(userPalette, BorderLayout.CENTER);
 
 		preReceivePalette = new JPalette<String>(true);
+		preReceiveInherited = new JLabel();
 		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
-		preReceivePanel.add(
-				newFieldPanel(Translation.get("gb.preReceiveScripts"), preReceivePalette),
-				BorderLayout.CENTER);
-
+		preReceivePanel.add(preReceivePalette, BorderLayout.CENTER);
+		preReceivePanel.add(preReceiveInherited, BorderLayout.WEST);
+		
 		postReceivePalette = new JPalette<String>(true);
+		postReceiveInherited = new JLabel();
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
-		postReceivePanel.add(
-				newFieldPanel(Translation.get("gb.postReceiveScripts"), postReceivePalette),
-				BorderLayout.CENTER);
+		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);		
+		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanelTop);
@@ -303,20 +307,36 @@ public class EditTeamDialog extends JDialog {
 		userPalette.setObjects(users, selected);
 	}
 
-	public void setPreReceiveScripts(List<String> unused, List<String> selected) {
+	public void setPreReceiveScripts(List<String> unused, List<String> inherited,
+			List<String> selected) {
 		Collections.sort(unused);
 		if (selected != null) {
 			Collections.sort(selected);
 		}
 		preReceivePalette.setObjects(unused, selected);
+		showInherited(inherited, preReceiveInherited);
 	}
 
-	public void setPostReceiveScripts(List<String> unused, List<String> selected) {
+	public void setPostReceiveScripts(List<String> unused, List<String> inherited,
+			List<String> selected) {
 		Collections.sort(unused);
 		if (selected != null) {
 			Collections.sort(selected);
 		}
 		postReceivePalette.setObjects(unused, selected);
+		showInherited(inherited, postReceiveInherited);
+	}
+
+	private void showInherited(List<String> list, JLabel label) {
+		StringBuilder sb = new StringBuilder();
+		if (list != null && list.size() > 0) {
+			sb.append("<html><body><b>INHERITED</b><ul style=\"margin-left:5px;list-style-type: none;\">");
+			for (String script : list) {
+				sb.append("<li>").append(script).append("</li>");
+			}
+			sb.append("</ul></body></html>");
+		}
+		label.setText(sb.toString());
 	}
 
 	public TeamModel getTeam() {

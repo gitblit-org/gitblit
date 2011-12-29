@@ -257,8 +257,10 @@ public abstract class TeamsPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeams());
 		dialog.setRepositories(gitblit.getRepositories(), null);
 		dialog.setUsers(gitblit.getUsernames(), null);
-		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null), null);
-		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null), null);
+		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),
+				gitblit.getPreReceiveScriptsInherited(null), null);
+		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null),
+				gitblit.getPostReceiveScriptsInherited(null), null);
 		dialog.setVisible(true);
 		final TeamModel newTeam = dialog.getTeam();
 		if (newTeam == null) {
@@ -307,9 +309,9 @@ public abstract class TeamsPanel extends JPanel {
 		dialog.setUsers(gitblit.getUsernames(), team.users == null ? null : new ArrayList<String>(
 				team.users));
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),
-				team.preReceiveScripts);
+				gitblit.getPreReceiveScriptsInherited(null), team.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null),
-				team.postReceiveScripts);
+				gitblit.getPostReceiveScriptsInherited(null), team.postReceiveScripts);
 		dialog.setVisible(true);
 		final TeamModel revisedTeam = dialog.getTeam();
 		if (revisedTeam == null) {

@@ -104,8 +104,12 @@ public class EditRepositoryDialog extends JDialog {
 	private JPalette<String> teamsPalette;
 
 	private JPalette<String> preReceivePalette;
+	
+	private JLabel preReceiveInherited;
 
 	private JPalette<String> postReceivePalette;
+	
+	private JLabel postReceiveInherited;
 
 	private Set<String> repositoryNames;
 
@@ -221,16 +225,16 @@ public class EditRepositoryDialog extends JDialog {
 				BorderLayout.CENTER);
 
 		preReceivePalette = new JPalette<String>(true);
+		preReceiveInherited = new JLabel();
 		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
-		preReceivePanel.add(
-				newFieldPanel(Translation.get("gb.preReceiveScripts"), preReceivePalette),
-				BorderLayout.CENTER);
+		preReceivePanel.add(preReceivePalette, BorderLayout.CENTER);
+		preReceivePanel.add(preReceiveInherited, BorderLayout.WEST);
 
 		postReceivePalette = new JPalette<String>(true);
+		postReceiveInherited = new JLabel();
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
-		postReceivePanel.add(
-				newFieldPanel(Translation.get("gb.postReceiveScripts"), postReceivePalette),
-				BorderLayout.CENTER);
+		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
+		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanel);
@@ -427,12 +431,27 @@ public class EditRepositoryDialog extends JDialog {
 		setsPalette.setObjects(all, selected);
 	}
 
-	public void setPreReceiveScripts(List<String> all, List<String> selected) {
+	public void setPreReceiveScripts(List<String> all, List<String> inherited, List<String> selected) {
 		preReceivePalette.setObjects(all, selected);
+		showInherited(inherited, preReceiveInherited);
 	}
 
-	public void setPostReceiveScripts(List<String> all, List<String> selected) {
+	public void setPostReceiveScripts(List<String> all, List<String> inherited,
+			List<String> selected) {
 		postReceivePalette.setObjects(all, selected);
+		showInherited(inherited, postReceiveInherited);
+	}
+
+	private void showInherited(List<String> list, JLabel label) {
+		StringBuilder sb = new StringBuilder();
+		if (list != null && list.size() > 0) {
+			sb.append("<html><body><b>INHERITED</b><ul style=\"margin-left:5px;list-style-type: none;\">");
+			for (String script : list) {
+				sb.append("<li>").append(script).append("</li>");
+			}
+			sb.append("</ul></body></html>");
+		}
+		label.setText(sb.toString());
 	}
 
 	public RepositoryModel getRepository() {
