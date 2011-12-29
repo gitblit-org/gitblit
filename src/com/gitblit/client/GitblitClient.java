@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlitException.ForbiddenException;
@@ -183,11 +185,105 @@ public class GitblitClient implements Serializable {
 		}
 	}
 
-	public List<String> getAvailableScripts() {
-		if (settings.pushScripts == null) {
-			return new ArrayList<String>();
+	/**
+	 * Returns the list of pre-receive scripts the repository inherited from the
+	 * global settings and team affiliations.
+	 * 
+	 * @param repository
+	 *            if null only the globally specified scripts are returned
+	 * @return a list of scripts
+	 */
+	public List<String> getPreReceiveScriptsInherited(RepositoryModel repository) {
+		Set<String> scripts = new LinkedHashSet<String>();
+		// Globals
+		for (String script : settings.get(Keys.groovy.preReceiveScripts).getStrings()) {
+			if (script.endsWith(".groovy")) {
+				scripts.add(script.substring(0, script.lastIndexOf('.')));
+			} else {
+				scripts.add(script);
+			}
 		}
-		return settings.pushScripts;
+
+		// Team Scripts
+		if (repository != null) {
+			for (String teamname : getPermittedTeamnames(repository)) {
+				TeamModel team = getTeamModel(teamname);
+				scripts.addAll(team.preReceiveScripts);
+			}
+		}
+		return new ArrayList<String>(scripts);
+	}
+
+	/**
+	 * Returns the list of all available Groovy pre-receive push hook scripts
+	 * that are not already inherited by the repository. Script files must have
+	 * .groovy extension
+	 * 
+	 * @param repository
+	 *            optional parameter
+	 * @return list of available hook scripts
+	 */
+	public List<String> getPreReceiveScriptsUnused(RepositoryModel repository) {
+		Set<String> inherited = new TreeSet<String>(getPreReceiveScriptsInherited(repository));
+
+		// create list of available scripts by excluding inherited scripts
+		List<String> scripts = new ArrayList<String>();
+		for (String script : settings.pushScripts) {
+			if (!inherited.contains(script)) {
+				scripts.add(script);
+			}
+		}
+		return scripts;
+	}
+
+	/**
+	 * Returns the list of post-receive scripts the repository inherited from
+	 * the global settings and team affiliations.
+	 * 
+	 * @param repository
+	 *            if null only the globally specified scripts are returned
+	 * @return a list of scripts
+	 */
+	public List<String> getPostReceiveScriptsInherited(RepositoryModel repository) {
+		Set<String> scripts = new LinkedHashSet<String>();
+		// Global Scripts
+		for (String script : settings.get(Keys.groovy.postReceiveScripts).getStrings()) {
+			if (script.endsWith(".groovy")) {
+				scripts.add(script.substring(0, script.lastIndexOf('.')));
+			} else {
+				scripts.add(script);
+			}
+		}
+		// Team Scripts
+		if (repository != null) {
+			for (String teamname : getPermittedTeamnames(repository)) {
+				TeamModel team = getTeamModel(teamname);
+				scripts.addAll(team.postReceiveScripts);
+			}
+		}
+		return new ArrayList<String>(scripts);
+	}
+
+	/**
+	 * Returns the list of unused Groovy post-receive push hook scripts that are
+	 * not already inherited by the repository. Script files must have .groovy
+	 * extension
+	 * 
+	 * @param repository
+	 *            optional parameter
+	 * @return list of available hook scripts
+	 */
+	public List<String> getPostReceiveScriptsUnused(RepositoryModel repository) {
+		Set<String> inherited = new TreeSet<String>(getPostReceiveScriptsInherited(repository));
+
+		// create list of available scripts by excluding inherited scripts
+		List<String> scripts = new ArrayList<String>();
+		for (String script : settings.pushScripts) {
+			if (!inherited.contains(script)) {
+				scripts.add(script);
+			}
+		}
+		return scripts;
 	}
 
 	public ServerSettings getSettings() {
@@ -392,6 +488,15 @@ public class GitblitClient implements Serializable {
 			}
 		}
 		return teamnames;
+	}
+	
+	public TeamModel getTeamModel(String name) {
+		for (TeamModel team : allTeams) {
+			if (team.name.equalsIgnoreCase(name)) {
+				return team;
+			}
+		}
+		return null;
 	}
 
 	public List<String> getFederationSets() {

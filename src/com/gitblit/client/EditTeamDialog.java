@@ -71,6 +71,10 @@ public class EditTeamDialog extends JDialog {
 
 	private JPalette<String> userPalette;
 
+	private JPalette<String> preReceivePalette;
+
+	private JPalette<String> postReceivePalette;
+
 	private Set<String> teamnames;
 
 	public EditTeamDialog(int protocolVersion, ServerSettings settings) {
@@ -141,10 +145,24 @@ public class EditTeamDialog extends JDialog {
 		};
 		usersPanel.add(userPalette, BorderLayout.CENTER);
 
+		preReceivePalette = new JPalette<String>(true);
+		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
+		preReceivePanel.add(
+				newFieldPanel(Translation.get("gb.preReceiveScripts"), preReceivePalette),
+				BorderLayout.CENTER);
+
+		postReceivePalette = new JPalette<String>(true);
+		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
+		postReceivePanel.add(
+				newFieldPanel(Translation.get("gb.postReceiveScripts"), postReceivePalette),
+				BorderLayout.CENTER);
+
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanelTop);
 		panel.addTab(Translation.get("gb.teamMembers"), usersPanel);
 		panel.addTab(Translation.get("gb.restrictedRepositories"), repositoriesPanel);
+		panel.addTab(Translation.get("gb.preReceiveScripts"), preReceivePanel);
+		panel.addTab(Translation.get("gb.postReceiveScripts"), postReceivePanel);
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
@@ -241,6 +259,13 @@ public class EditTeamDialog extends JDialog {
 
 		team.users.clear();
 		team.users.addAll(userPalette.getSelections());
+
+		team.preReceiveScripts.clear();
+		team.preReceiveScripts.addAll(preReceivePalette.getSelections());
+
+		team.postReceiveScripts.clear();
+		team.postReceiveScripts.addAll(postReceivePalette.getSelections());
+
 		return true;
 	}
 
@@ -276,6 +301,22 @@ public class EditTeamDialog extends JDialog {
 			Collections.sort(selected);
 		}
 		userPalette.setObjects(users, selected);
+	}
+
+	public void setPreReceiveScripts(List<String> unused, List<String> selected) {
+		Collections.sort(unused);
+		if (selected != null) {
+			Collections.sort(selected);
+		}
+		preReceivePalette.setObjects(unused, selected);
+	}
+
+	public void setPostReceiveScripts(List<String> unused, List<String> selected) {
+		Collections.sort(unused);
+		if (selected != null) {
+			Collections.sort(selected);
+		}
+		postReceivePalette.setObjects(unused, selected);
 	}
 
 	public TeamModel getTeam() {
