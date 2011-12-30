@@ -17,8 +17,12 @@ package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +98,8 @@ public abstract class RootPage extends BasePage {
 
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
-		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class, getRootPageParameters()));
+		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
+				getRootPageParameters()));
 		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
 		if (showAdmin) {
 			pages.add(new PageRegistration("gb.users", UsersPage.class));
@@ -163,14 +168,21 @@ public abstract class RootPage extends BasePage {
 
 		super.setupPage(repositoryName, pageName);
 	}
-	
+
 	private PageParameters getRootPageParameters() {
-		PageParameters params = getPageParameters();
-		if (params != null) {
-			// remove named repository parameter
-			params.remove("r");
+		if (reusePageParameters()) {
+			PageParameters params = getPageParameters();
+			if (params != null) {
+				// remove named repository parameter
+				params.remove("r");
+			}
+			return params;
 		}
-		return params;
+		return null;
+	}
+
+	protected boolean reusePageParameters() {
+		return false;
 	}
 
 	private void loginUser(UserModel user) {
@@ -195,7 +207,7 @@ public abstract class RootPage extends BasePage {
 
 	}
 
-	protected List<DropDownMenuItem> getFilterMenuItems() {
+	protected List<DropDownMenuItem> getRepositoryFilterItems(PageParameters params) {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		Set<DropDownMenuItem> filters = new LinkedHashSet<DropDownMenuItem>();
 		List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
@@ -217,7 +229,7 @@ public abstract class RootPage extends BasePage {
 			Collections.sort(sets);
 			for (String set : sets) {
 				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", set,
-						setMap.get(set).get()), "set", set));
+						setMap.get(set).get()), "set", set, params));
 			}
 			// divider
 			filters.add(new DropDownMenuItem());
@@ -229,7 +241,7 @@ public abstract class RootPage extends BasePage {
 			Collections.sort(teams);
 			for (TeamModel team : teams) {
 				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", team.name,
-						team.repositories.size()), "team", team.name));
+						team.repositories.size()), "team", team.name, params));
 			}
 			// divider
 			filters.add(new DropDownMenuItem());
@@ -243,22 +255,33 @@ public abstract class RootPage extends BasePage {
 			for (String expression : expressions) {
 				if (!StringUtils.isEmpty(expression)) {
 					addedExpression = true;
-					filters.add(new DropDownMenuItem(null, "x", expression));
+					filters.add(new DropDownMenuItem(null, "x", expression, params));
 				}
 			}
 			// if we added any custom expressions, add a divider
 			if (addedExpression) {
 				filters.add(new DropDownMenuItem());
 			}
-		}
-
-		if (filters.size() > 0) {
-			// add All Repositories
-			filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})",
-					getString("gb.tokenJurDescription"), repositories.size()), null, null));
-		}
-
+		}		
 		return new ArrayList<DropDownMenuItem>(filters);
+	}
+
+	protected List<DropDownMenuItem> getTimeFilterItems(PageParameters params) {
+		// days back choices - additive parameters
+		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
+		if (daysBack < 1) {
+			daysBack = 14;
+		}
+		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
+		Set<Integer> choicesSet = new HashSet<Integer>(Arrays.asList(daysBack, 14, 28, 60, 90, 180));
+		List<Integer> choices = new ArrayList<Integer>(choicesSet);
+		Collections.sort(choices);
+		for (Integer db : choices) {
+			String txt = "last " + db + (db.intValue() > 1 ? " days" : "day");
+			items.add(new DropDownMenuItem(txt, "db", db.toString(), params));
+		}
+		items.add(new DropDownMenuItem());
+		return items;
 	}
 
 	protected List<RepositoryModel> getRepositories(PageParameters params) {
@@ -267,74 +290,96 @@ public abstract class RootPage extends BasePage {
 			return GitBlit.self().getRepositoryModels(user);
 		}
 
+		boolean hasParameter = false;
 		String repositoryName = WicketUtils.getRepositoryName(params);
 		String set = WicketUtils.getSet(params);
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
+		int daysBack = params.getInt("db", 0);
 
-		List<RepositoryModel> models = null;
+		List<RepositoryModel> availableModels = GitBlit.self().getRepositoryModels(user);
+		Set<RepositoryModel> models = new HashSet<RepositoryModel>();
 
 		if (!StringUtils.isEmpty(repositoryName)) {
 			// try named repository
-			models = new ArrayList<RepositoryModel>();
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			if (user.canAccessRepository(model)) {
-				models.add(model);
+			hasParameter = true;
+			for (RepositoryModel model : availableModels) {
+				if (model.name.equalsIgnoreCase(repositoryName)) {
+					models.add(model);
+					break;
+				}
 			}
-		}
-
-		// get all user accessible repositories
-		if (models == null) {
-			models = GitBlit.self().getRepositoryModels(user);
 		}
 
 		if (!StringUtils.isEmpty(regex)) {
 			// filter the repositories by the regex
-			List<RepositoryModel> accessible = GitBlit.self().getRepositoryModels(user);
-			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
+			hasParameter = true;
 			Pattern pattern = Pattern.compile(regex);
-			for (RepositoryModel aModel : accessible) {
-				if (pattern.matcher(aModel.name).find()) {
-					matchingModels.add(aModel);
+			for (RepositoryModel model : availableModels) {
+				if (pattern.matcher(model.name).find()) {
+					models.add(model);
 				}
 			}
-			models = matchingModels;
-		} else if (!StringUtils.isEmpty(set)) {
+		}
+
+		if (!StringUtils.isEmpty(set)) {
 			// filter the repositories by the specified sets
+			hasParameter = true;
 			List<String> sets = StringUtils.getStringsFromValue(set, ",");
-			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
-			for (RepositoryModel model : models) {
+			for (RepositoryModel model : availableModels) {
 				for (String curr : sets) {
 					if (model.federationSets.contains(curr)) {
-						matchingModels.add(model);
+						models.add(model);
 					}
 				}
 			}
-			models = matchingModels;
-		} else if (!StringUtils.isEmpty(team)) {
+		}
+
+		if (!StringUtils.isEmpty(team)) {
 			// filter the repositories by the specified teams
+			hasParameter = true;
 			List<String> teams = StringUtils.getStringsFromValue(team, ",");
 
 			// need TeamModels first
 			List<TeamModel> teamModels = new ArrayList<TeamModel>();
 			for (String name : teams) {
-				TeamModel model = GitBlit.self().getTeamModel(name);
-				if (model != null) {
-					teamModels.add(model);
+				TeamModel teamModel = GitBlit.self().getTeamModel(name);
+				if (teamModel != null) {
+					teamModels.add(teamModel);
 				}
 			}
 
 			// brute-force our way through finding the matching models
-			List<RepositoryModel> matchingModels = new ArrayList<RepositoryModel>();
-			for (RepositoryModel repositoryModel : models) {
+			for (RepositoryModel repositoryModel : availableModels) {
 				for (TeamModel teamModel : teamModels) {
 					if (teamModel.hasRepository(repositoryModel.name)) {
-						matchingModels.add(repositoryModel);
+						models.add(repositoryModel);
 					}
 				}
 			}
-			models = matchingModels;
 		}
-		return models;
+
+		if (!hasParameter) {
+			models.addAll(availableModels);
+		}
+		
+		// time-filter the list
+		if (daysBack > 0) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.add(Calendar.DATE, -1 * daysBack);
+			Date threshold = cal.getTime();
+			Set<RepositoryModel> timeFiltered = new HashSet<RepositoryModel>();
+			for (RepositoryModel model : models) {
+				if (model.lastChange.after(threshold)) {
+					timeFiltered.add(model);
+				}
+			}
+			models = timeFiltered;
+		}
+		return new ArrayList<RepositoryModel>(models);
 	}
 }

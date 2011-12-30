@@ -76,6 +76,7 @@ public class PageRegistration implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
+		final PageParameters params;
 		final String displayText;
 		final String parameter;
 		final String value;
@@ -87,6 +88,7 @@ public class PageRegistration implements Serializable {
 			displayText = null;
 			parameter = null;
 			value = null;
+			params = null;
 		}
 
 		/**
@@ -97,9 +99,33 @@ public class PageRegistration implements Serializable {
 		 * @param value
 		 */
 		public DropDownMenuItem(String displayText, String parameter, String value) {
+			this(displayText, parameter, value, null);
+		}
+
+		/**
+		 * Standard Menu Item constructor that preserves aggregate parameters.
+		 * 
+		 * @param displayText
+		 * @param parameter
+		 * @param value
+		 */
+		public DropDownMenuItem(String displayText, String parameter, String value,
+				PageParameters params) {
 			this.displayText = displayText;
 			this.parameter = parameter;
 			this.value = value;
+			if (params == null) {
+				this.params = new PageParameters();
+			} else {
+				this.params = new PageParameters(params);
+			}
+			if (!StringUtils.isEmpty(parameter)) {
+				if (StringUtils.isEmpty(value)) {
+					this.params.remove(parameter);
+				} else {
+					this.params.put(parameter, value);	
+				}
+			}
 		}
 
 		public String formatParameter() {
@@ -107,6 +133,10 @@ public class PageRegistration implements Serializable {
 				return "";
 			}
 			return parameter + "=" + value;
+		}
+
+		public PageParameters getPageParameters() {
+			return params;
 		}
 
 		public boolean isDivider() {

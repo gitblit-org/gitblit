@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.panels;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -46,7 +45,7 @@ public class DropDownMenu extends Panel {
 					WicketUtils.setCssClass(item, "divider");
 				} else {
 					item.add(new LinkPanel("menuItem", null, entry.toString(), menu.pageClass,
-							new PageParameters(entry.formatParameter())).setRenderBodyOnly(true));
+							entry.getPageParameters()).setRenderBodyOnly(true));
 				}
 			}
 		};

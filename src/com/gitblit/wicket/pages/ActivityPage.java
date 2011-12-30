@@ -30,11 +30,13 @@ import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.GoogleChart;
@@ -94,12 +96,37 @@ public class ActivityPage extends RootPage {
 			add(new ActivityPanel("activityPanel", recentActivity));
 		}
 	}
-	
+
+	@Override
+	protected boolean reusePageParameters() {
+		return true;
+	}
+
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters", ActivityPage.class);
-		menu.menuItems.addAll(getFilterMenuItems());
-		pages.add(menu);
+		DropDownMenuRegistration filters = new DropDownMenuRegistration("gb.filters",
+				ActivityPage.class);
+
+		PageParameters currentParameters = getPageParameters();
+		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
+		if (currentParameters.containsKey("db")) {
+			daysBack = currentParameters.getInt("db");
+		}
+		if (daysBack < 1) {
+			daysBack = 14;
+		}
+
+		// preserve time filter options on repository choices
+		filters.menuItems.addAll(getRepositoryFilterItems(new PageParameters("db=" + daysBack)));
+				
+		// preserve repository filter options on time choices
+		filters.menuItems.addAll(getTimeFilterItems(currentParameters));
+
+		if (filters.menuItems.size() > 0) {
+			// Reset Filter
+			filters.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+		}
+		pages.add(filters);
 	}
 
 	/**
@@ -178,7 +205,7 @@ public class ActivityPage extends RootPage {
 
 		return charts;
 	}
-	
+
 	@Override
 	protected void onBeforeRender() {
 		if (GitBlit.isDebugMode()) {
@@ -187,6 +214,7 @@ public class ActivityPage extends RootPage {
 		}
 		super.onBeforeRender();
 	}
+
 	@Override
 	protected void onAfterRender() {
 		if (GitBlit.isDebugMode()) {

@@ -35,6 +35,7 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
@@ -49,6 +50,11 @@ public class RepositoriesPage extends RootPage {
 	public RepositoriesPage(PageParameters params) {
 		super(params);
 		setup(params);
+	}
+
+	@Override
+	protected boolean reusePageParameters() {
+		return true;
 	}
 
 	private void setup(PageParameters params) {
@@ -85,8 +91,29 @@ public class RepositoriesPage extends RootPage {
 
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
-		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters", RepositoriesPage.class);
-		menu.menuItems.addAll(getFilterMenuItems());
+		int daysBack = 0;
+		PageParameters currentParameters = getPageParameters();
+		if (currentParameters != null && currentParameters.containsKey("db")) {
+			daysBack = currentParameters.getInt("db");
+		}
+		PageParameters params = null;
+		if (daysBack > 0) {
+			params = new PageParameters("db=" + daysBack);
+		}
+
+		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
+				RepositoriesPage.class);
+		// preserve time filter option on repository choices
+		menu.menuItems.addAll(getRepositoryFilterItems(params));
+		
+		// preserve repository filter option on time choices
+		menu.menuItems.addAll(getTimeFilterItems(currentParameters));
+		
+		if (menu.menuItems.size() > 0) {
+			// Reset Filter			
+			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+		}
+
 		pages.add(menu);
 	}
 
@@ -129,7 +156,7 @@ public class RepositoriesPage extends RootPage {
 		}
 		return message;
 	}
-	
+
 	@Override
 	protected void onBeforeRender() {
 		if (GitBlit.isDebugMode()) {
@@ -138,6 +165,7 @@ public class RepositoriesPage extends RootPage {
 		}
 		super.onBeforeRender();
 	}
+
 	@Override
 	protected void onAfterRender() {
 		if (GitBlit.isDebugMode()) {
