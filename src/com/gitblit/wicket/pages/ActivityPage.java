@@ -109,16 +109,13 @@ public class ActivityPage extends RootPage {
 
 		PageParameters currentParameters = getPageParameters();
 		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
-		if (currentParameters.containsKey("db")) {
-			daysBack = currentParameters.getInt("db");
-		}
-		if (daysBack < 1) {
-			daysBack = 14;
+		if (currentParameters != null && !currentParameters.containsKey("db")) {
+			currentParameters.put("db", daysBack);
 		}
 
 		// preserve time filter options on repository choices
-		filters.menuItems.addAll(getRepositoryFilterItems(new PageParameters("db=" + daysBack)));
-				
+		filters.menuItems.addAll(getRepositoryFilterItems(currentParameters));
+
 		// preserve repository filter options on time choices
 		filters.menuItems.addAll(getTimeFilterItems(currentParameters));
 

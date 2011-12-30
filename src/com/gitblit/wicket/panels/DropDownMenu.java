@@ -43,9 +43,12 @@ public class DropDownMenu extends Panel {
 				if (entry.isDivider()) {
 					item.add(new Label("menuItem").setRenderBodyOnly(true));
 					WicketUtils.setCssClass(item, "divider");
-				} else {
+				} else {					
 					item.add(new LinkPanel("menuItem", null, entry.toString(), menu.pageClass,
 							entry.getPageParameters()).setRenderBodyOnly(true));
+					if (entry.isSelected()) {
+						WicketUtils.setCssClass(item, "selected");
+					}
 				}
 			}
 		};

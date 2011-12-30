@@ -86,10 +86,20 @@ hr {
     border-color: #eee;
 }
 
+.topbar div > ul .menu-dropdown .selected, .nav .menu-dropdown .selected, .topbar div > ul .dropdown-menu .selected, .nav .dropdown-menu .selected {
+	background-image: url("bullet_blue.png");
+	background-repeat: no-repeat;
+	background-position: left;	
+}
+
 .topbar div > ul .menu-dropdown li a, .nav .menu-dropdown li a, .topbar div > ul .dropdown-menu li a, .nav .dropdown-menu li a {
     color: #555;
     text-shadow: none;
     outline: 0;
+}
+
+.topbar ul .menu-dropdown li a, .topbar ul .dropdown-menu li a {
+    padding: 4px 22px;    
 }
 
 topbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.topbar div>ul .dropdown-menu li a:hover,.nav .dropdown-menu li a:hover{

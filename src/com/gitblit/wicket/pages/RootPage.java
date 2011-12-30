@@ -171,12 +171,19 @@ public abstract class RootPage extends BasePage {
 
 	private PageParameters getRootPageParameters() {
 		if (reusePageParameters()) {
-			PageParameters params = getPageParameters();
-			if (params != null) {
+			PageParameters pp = getPageParameters();
+			if (pp != null) {
+				PageParameters params = new PageParameters(pp);
 				// remove named repository parameter
 				params.remove("r");
-			}
-			return params;
+
+				// remove days back parameter if it is the default value
+				if (params.containsKey("db")
+						&& params.getInt("db") == GitBlit.getInteger(Keys.web.activityDuration, 14)) {
+					params.remove("db");
+				}
+				return params;
+			}			
 		}
 		return null;
 	}
@@ -262,7 +269,7 @@ public abstract class RootPage extends BasePage {
 			if (addedExpression) {
 				filters.add(new DropDownMenuItem());
 			}
-		}		
+		}
 		return new ArrayList<DropDownMenuItem>(filters);
 	}
 
@@ -362,7 +369,7 @@ public abstract class RootPage extends BasePage {
 		if (!hasParameter) {
 			models.addAll(availableModels);
 		}
-		
+
 		// time-filter the list
 		if (daysBack > 0) {
 			Calendar cal = Calendar.getInstance();

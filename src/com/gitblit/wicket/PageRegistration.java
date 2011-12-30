@@ -76,19 +76,17 @@ public class PageRegistration implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		final PageParameters params;
+		final PageParameters parameters;
 		final String displayText;
 		final String parameter;
 		final String value;
+		final boolean isSelected;
 
 		/**
 		 * Divider constructor.
 		 */
 		public DropDownMenuItem() {
-			displayText = null;
-			parameter = null;
-			value = null;
-			params = null;
+			this(null, null, null, null);
 		}
 
 		/**
@@ -114,16 +112,37 @@ public class PageRegistration implements Serializable {
 			this.displayText = displayText;
 			this.parameter = parameter;
 			this.value = value;
+
 			if (params == null) {
-				this.params = new PageParameters();
+				// no parameters specified
+				parameters = new PageParameters();
+				setParameter(parameter, value);
+				isSelected = false;
 			} else {
-				this.params = new PageParameters(params);
+				parameters = new PageParameters(params);
+				if (parameters.containsKey(parameter)) {
+					isSelected = params.getString(parameter).equals(value);
+					if (isSelected) {
+						// already selected, so remove this enables toggling
+						parameters.remove(parameter);
+					} else {
+						// set the new selection value
+						setParameter(parameter, value);
+					}
+				} else {
+					// not currently selected
+					isSelected = false;
+					setParameter(parameter, value);
+				}
 			}
+		}
+
+		private void setParameter(String parameter, String value) {
 			if (!StringUtils.isEmpty(parameter)) {
 				if (StringUtils.isEmpty(value)) {
-					this.params.remove(parameter);
+					this.parameters.remove(parameter);
 				} else {
-					this.params.put(parameter, value);	
+					this.parameters.put(parameter, value);
 				}
 			}
 		}
@@ -136,11 +155,15 @@ public class PageRegistration implements Serializable {
 		}
 
 		public PageParameters getPageParameters() {
-			return params;
+			return parameters;
 		}
 
 		public boolean isDivider() {
 			return displayText == null && value == null && parameter == null;
+		}
+
+		public boolean isSelected() {
+			return isSelected;
 		}
 
 		@Override
