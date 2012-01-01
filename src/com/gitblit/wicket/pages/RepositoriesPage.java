@@ -91,22 +91,18 @@ public class RepositoriesPage extends RootPage {
 
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
-		PageParameters currentParameters = getPageParameters();
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
-		if (currentParameters != null && !currentParameters.containsKey("db")) {
-			currentParameters.put("db", daysBack);
-		}
+		PageParameters params = getPageParameters();
 
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
 				RepositoriesPage.class);
 		// preserve time filter option on repository choices
-		menu.menuItems.addAll(getRepositoryFilterItems(currentParameters));
-		
+		menu.menuItems.addAll(getRepositoryFilterItems(params));
+
 		// preserve repository filter option on time choices
-		menu.menuItems.addAll(getTimeFilterItems(currentParameters));
-		
+		menu.menuItems.addAll(getTimeFilterItems(params));
+
 		if (menu.menuItems.size() > 0) {
-			// Reset Filter			
+			// Reset Filter
 			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
 		}
 
