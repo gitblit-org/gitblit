@@ -85,7 +85,7 @@ public class ActivityUtils {
 
 				// determine commit branch
 				String branch = objectId;
-				if (StringUtils.isEmpty(branch)) {
+				if (StringUtils.isEmpty(branch) && !commits.isEmpty()) {
 					List<RefModel> headRefs = allRefs.get(commits.get(0).getId());
 					List<String> localBranches = new ArrayList<String>();
 					for (RefModel ref : headRefs) {
