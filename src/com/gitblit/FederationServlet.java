@@ -15,12 +15,15 @@
  */
 package com.gitblit;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,6 +33,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -216,6 +220,41 @@ public class FederationServlet extends JsonServlet {
 					teams.add(user);
 				}
 				result = teams;
+			} else if (FederationRequest.PULL_SCRIPTS.equals(reqType)) {
+				// pull scripts
+				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+					// invalid token to pull script
+					logger.warn(MessageFormat.format(
+							"Federation token from {0} not authorized to pull SCRIPTS",
+							request.getRemoteAddr()));
+					response.sendError(HttpServletResponse.SC_FORBIDDEN);
+					return;
+				}
+				Map<String, String> scripts = new HashMap<String, String>();
+				
+				Set<String> names = new HashSet<String>();
+				names.addAll(GitBlit.getStrings(Keys.groovy.preReceiveScripts));
+				names.addAll(GitBlit.getStrings(Keys.groovy.postReceiveScripts));
+				for (TeamModel team :  GitBlit.self().getAllTeams()) {
+					names.addAll(team.preReceiveScripts);
+					names.addAll(team.postReceiveScripts);
+				}
+				File scriptsFolder = GitBlit.getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
+				for (String name : names) {
+					File file = new File(scriptsFolder, name);
+					if (!file.exists() && !file.getName().endsWith(".groovy")) {
+						file = new File(scriptsFolder, name + ".groovy");
+					}
+					if (file.exists()) {
+						// read the script
+						String content = FileUtils.readContent(file, "\n");
+						scripts.put(name, content);
+					} else {
+						// missing script?!
+						logger.warn(MessageFormat.format("Failed to find push script \"{0}\"", name));
+					}
+				}
+				result = scripts;
 			}
 		}
 

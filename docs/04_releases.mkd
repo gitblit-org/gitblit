@@ -5,7 +5,7 @@
 
 - updated: Gitblit GO is now monolithic like the WAR build. (issue 30)  
 This change helps adoption of GO in environments without an internet connection or with a restricted connection.
-- added: Groovy 1.8.4 and a push hook script mechanism.  Hook scripts can be set per-repository, pre-team, or globally for all repositories.  
+- added: Groovy 1.8.4 and a push hook script mechanism.  Hook scripts can be set per-repository, per-team, or globally for all repositories.  
 Unfortunately this adds another 6 MB to the 8MB Gitblit package, but it allows for a *very* powerful, flexible, platform-independent hook script mechanism.  
     **New:** *groovy.scriptsFolder = groovy*  
     **New:** *groovy.preReceiveScripts =*  
@@ -18,11 +18,11 @@ Unfortunately this adds another 6 MB to the 8MB Gitblit package, but it allows f
 This user service implementation allows for serialization and deserialization of more sophisticated Gitblit User objects and will open the door for more advanced Gitblit features. For upgrading installations, a `users.conf` file will automatically be created for you from your existing `users.properties` file on your first launch of Gitblit.  You will have to manually set *realm.userService=users.conf* to switch to the new user service.  
 The original `users.properties` file and it's corresponding implementation are **deprecated**.  
     **New:** *realm.userService = users.conf*
-- added: Teams for specifying user-repository access in bulk
+- added: Teams for specifying user-repository access in bulk.  Teams may also specify mailing lists addresses and pre- & post- receive hook scripts.
 - added: Gitblit Express bundle to get started running Gitblit on RedHat's OpenShift cloud
 - added: optional Gravatar integration  
     **New:** *web.allowGravatar = true*   
-- added: multi-repository activity page.  this is a timeline of commit activity over the last N days for one or more repositories.  
+- added: aggregated repository activity page.  this is a timeline of commit activity over the last N days for one or more repositories.  
    **New:** *web.activityDuration = 14*  
    **New:** *web.timeFormat = HH:mm*  
    **New:** *web.datestampLongFormat = EEEE, MMMM d, yyyy*  

@@ -117,7 +117,7 @@ public class Constants {
 	 * Enumeration representing the types of federation requests.
 	 */
 	public static enum FederationRequest {
-		POKE, PROPOSAL, PULL_REPOSITORIES, PULL_USERS, PULL_TEAMS, PULL_SETTINGS, STATUS;
+		POKE, PROPOSAL, PULL_REPOSITORIES, PULL_USERS, PULL_TEAMS, PULL_SETTINGS, PULL_SCRIPTS, STATUS;
 
 		public static FederationRequest fromName(String name) {
 			for (FederationRequest type : values()) {

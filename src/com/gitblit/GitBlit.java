@@ -1253,6 +1253,7 @@ public class GitBlit implements ServletContextListener {
 		case PULL_TEAMS:
 			return token.equals(all) || token.equals(unr);
 		case PULL_SETTINGS:
+		case PULL_SCRIPTS:
 			return token.equals(all);
 		}
 		return false;

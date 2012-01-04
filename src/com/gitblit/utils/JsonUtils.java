@@ -108,6 +108,19 @@ public class JsonUtils {
 			UnauthorizedException {
 		return retrieveJson(url, type, null, null);
 	}
+	
+	/**
+	 * Reads a gson object from the specified url.
+	 * 
+	 * @param url
+	 * @param type
+	 * @return the deserialized object
+	 * @throws {@link IOException}
+	 */
+	public static <X> X retrieveJson(String url, Class<? extends X> clazz) throws IOException,
+			UnauthorizedException {
+		return retrieveJson(url, clazz, null, null);
+	}
 
 	/**
 	 * Reads a gson object from the specified url.

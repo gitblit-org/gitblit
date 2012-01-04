@@ -285,7 +285,8 @@ public class FederationUtils {
 	}
 
 	/**
-	 * Tries to pull the gitblit team definitions from the remote gitblit instance.
+	 * Tries to pull the gitblit team definitions from the remote gitblit
+	 * instance.
 	 * 
 	 * @param registration
 	 * @return a collection of TeamModel objects
@@ -310,6 +311,19 @@ public class FederationUtils {
 		String url = asLink(registration.url, registration.token, FederationRequest.PULL_SETTINGS);
 		Map<String, String> settings = JsonUtils.retrieveJson(url, SETTINGS_TYPE);
 		return settings;
+	}
+
+	/**
+	 * Tries to pull the referenced scripts from the remote gitblit instance.
+	 * 
+	 * @param registration
+	 * @return a map of the remote gitblit scripts by script name
+	 * @throws Exception
+	 */
+	public static Map<String, String> getScripts(FederationModel registration) throws Exception {
+		String url = asLink(registration.url, registration.token, FederationRequest.PULL_SCRIPTS);
+		Map<String, String> scripts = JsonUtils.retrieveJson(url, SETTINGS_TYPE);
+		return scripts;
 	}
 
 	/**

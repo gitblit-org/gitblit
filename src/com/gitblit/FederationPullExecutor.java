@@ -50,6 +50,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.FederationUtils;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.CloneResult;
 import com.gitblit.utils.StringUtils;
@@ -281,6 +282,8 @@ public class FederationPullExecutor implements Runnable {
 			r.close();
 		}
 
+		IUserService userService = null;
+
 		try {
 			// Pull USERS
 			// TeamModels are automatically pulled because they are contained
@@ -290,7 +293,7 @@ public class FederationPullExecutor implements Runnable {
 			if (users != null && users.size() > 0) {
 				File realmFile = new File(registrationFolderFile, registration.name + "_users.conf");
 				realmFile.delete();
-				ConfigUserService userService = new ConfigUserService(realmFile);
+				userService = new ConfigUserService(realmFile);
 				for (UserModel user : users) {
 					userService.updateUserModel(user.username, user);
 
@@ -358,6 +361,27 @@ public class FederationPullExecutor implements Runnable {
 		}
 
 		try {
+			// Pull TEAMS
+			// We explicitly pull these even though they are embedded in
+			// UserModels because it is possible to use teams to specify
+			// mailing lists or push scripts without specifying users.
+			if (userService != null) {
+				Collection<TeamModel> teams = FederationUtils.getTeams(registration);
+				if (teams != null && teams.size() > 0) {
+					for (TeamModel team : teams) {
+						userService.updateTeamModel(team);
+					}
+				}
+			}
+		} catch (ForbiddenException e) {
+			// ignore forbidden exceptions
+		} catch (IOException e) {
+			logger.warn(MessageFormat.format(
+					"Failed to retrieve TEAMS from federated gitblit ({0} @ {1})",
+					registration.name, registration.url), e);
+		}
+
+		try {
 			// Pull SETTINGS
 			Map<String, String> settings = FederationUtils.getSettings(registration);
 			if (settings != null && settings.size() > 0) {
@@ -373,6 +397,27 @@ public class FederationPullExecutor implements Runnable {
 		} catch (IOException e) {
 			logger.warn(MessageFormat.format(
 					"Failed to retrieve SETTINGS from federated gitblit ({0} @ {1})",
+					registration.name, registration.url), e);
+		}
+		
+		try {
+			// Pull SCRIPTS
+			Map<String, String> scripts = FederationUtils.getScripts(registration);
+			if (scripts != null && scripts.size() > 0) {
+				for (Map.Entry<String, String> script : scripts.entrySet()) {
+					String scriptName = script.getKey();
+					if (scriptName.endsWith(".groovy")) {
+						scriptName = scriptName.substring(0,  scriptName.indexOf(".groovy"));
+					}
+					File file = new File(registrationFolderFile, registration.name + "_" + scriptName + ".groovy");
+					FileUtils.writeContent(file, script.getValue());
+				}
+			}
+		} catch (ForbiddenException e) {
+			// ignore forbidden exceptions
+		} catch (IOException e) {
+			logger.warn(MessageFormat.format(
+					"Failed to retrieve SCRIPTS from federated gitblit ({0} @ {1})",
 					registration.name, registration.url), e);
 		}
 	}

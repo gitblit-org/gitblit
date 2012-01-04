@@ -156,4 +156,11 @@ public class FederationTests {
 		assertNotNull(teams);
 		assertTrue(teams.size() > 0);
 	}
+	
+	@Test
+	public void testPullScripts() throws Exception {
+		Map<String, String> scripts = FederationUtils.getScripts(getRegistration());
+		assertNotNull(scripts);
+		assertTrue(scripts.keySet().contains("sendmail"));
+	}
 }
