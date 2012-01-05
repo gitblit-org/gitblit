@@ -47,11 +47,12 @@ import com.gitblit.utils.JGitUtils;
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({ FileUtilsTest.class, TimeUtilsTest.class, StringUtilsTest.class, Base64Test.class,
-		JsonUtilsTest.class, ByteFormatTest.class, ObjectCacheTest.class, UserServiceTest.class,
-		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
-		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, GitBlitTest.class,
-		FederationTests.class, RpcTests.class, GitServletTest.class, GroovyScriptTest.class })
+@SuiteClasses({ ArrayUtilsTest.class, FileUtilsTest.class, TimeUtilsTest.class,
+		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
+		ObjectCacheTest.class, UserServiceTest.class, MarkdownUtilsTest.class, JGitUtilsTest.class,
+		SyndicationUtilsTest.class, DiffUtilsTest.class, MetricUtilsTest.class,
+		TicgitUtilsTest.class, GitBlitTest.class, FederationTests.class, RpcTests.class,
+		GitServletTest.class, GroovyScriptTest.class })
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("git");
