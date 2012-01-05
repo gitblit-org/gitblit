@@ -182,9 +182,11 @@
 		</jar>
 
 		<!-- Gitblit library dependencies -->
-		<mkdir dir="${project.deploy.dir}/lib"/>
-		<copy todir="${project.deploy.dir}/lib">
+		<mkdir dir="${project.deploy.dir}/ext"/>
+		<copy todir="${project.deploy.dir}/ext">
 			<fileset dir="${basedir}/ext">
+				<exclude name="junit*.jar" />
+				<exclude name="commons-net*.jar" />
 				<exclude name="*-sources.jar" />
 				<exclude name="*-javadoc.jar" />
 			</fileset>
