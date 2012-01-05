@@ -134,22 +134,22 @@ for (command in commands) {
 			commitCount += commits.size()
 			if (commits.size() > 0) {
 				// new branch
-				changes += "$branchBreak new branch $ref created ($commits.size commits)\n$branchBreak"
+				changes += "\n$branchBreak new branch $ref created ($commits.size commits)\n$branchBreak"
 				changes += commits.collect(table).join(commitBreak)
 				changes += '\n'
 			} else if (ref.command.refName.startsWith('refs/tags/')) {
 				// new tag
-				changes += "$branchBreak new tag $ref created\n$branchBreak"
+				changes += "\n$branchBreak new tag $ref created\n$branchBreak"
 			} else if (ref.command.refName.startsWith('refs/heads/')) {
 				// new branch
-				changes += "$branchBreak new $ref branch created\n$branchBreak"
+				changes += "\n$branchBreak new $ref branch created\n$branchBreak"
 			}
 			break
 		case ReceiveCommand.Type.UPDATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// fast-forward branch commits table
-			changes += "$branchBreak $ref branch updated ($commits.size commits)\n$branchBreak"
+			changes += "\n$branchBreak $ref branch updated ($commits.size commits)\n$branchBreak"
 			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
@@ -157,13 +157,13 @@ for (command in commands) {
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
-			changes += "$branchBreak $ref branch updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
+			changes += "\n$branchBreak $ref branch updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
 			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.DELETE:
 			// deleted branch/tag
-			changes += "$branchBreak $ref deleted\n$branchBreak"
+			changes += "\n$branchBreak $ref deleted\n$branchBreak"
 			break
 		default:
 			break
@@ -173,4 +173,4 @@ for (command in commands) {
 r.close()
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.sendMail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n\n$changes", toAddresses)
+gitblit.sendMail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n$changes", toAddresses)

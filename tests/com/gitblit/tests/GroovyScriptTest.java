@@ -73,6 +73,9 @@ public class GroovyScriptTest {
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
 		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
