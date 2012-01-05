@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
@@ -868,29 +869,39 @@ public class FileUserService extends FileSettings implements IUserService {
 
 	private void updateTeamCache(Properties allUsers, String teamname, TeamModel model) {
 		StringBuilder sb = new StringBuilder();
-		for (String repository : model.repositories) {
-			sb.append(repository);
-			sb.append(',');
+		if (!ArrayUtils.isEmpty(model.repositories)) {
+			for (String repository : model.repositories) {
+				sb.append(repository);
+				sb.append(',');
+			}
 		}
-		for (String user : model.users) {
-			sb.append('!');
-			sb.append(user);
-			sb.append(',');
+		if (!ArrayUtils.isEmpty(model.users)) {
+			for (String user : model.users) {
+				sb.append('!');
+				sb.append(user);
+				sb.append(',');
+			}
 		}
-		for (String address : model.mailingLists) {
-			sb.append('&');
-			sb.append(address);
-			sb.append(',');
+		if (!ArrayUtils.isEmpty(model.mailingLists)) {
+			for (String address : model.mailingLists) {
+				sb.append('&');
+				sb.append(address);
+				sb.append(',');
+			}
 		}
-		for (String script : model.preReceiveScripts) {
-			sb.append('^');
-			sb.append(script);
-			sb.append(',');
+		if (!ArrayUtils.isEmpty(model.preReceiveScripts)) {
+			for (String script : model.preReceiveScripts) {
+				sb.append('^');
+				sb.append(script);
+				sb.append(',');
+			}
 		}
-		for (String script : model.postReceiveScripts) {
-			sb.append('%');
-			sb.append(script);
-			sb.append(',');
+		if (!ArrayUtils.isEmpty(model.postReceiveScripts)) {
+			for (String script : model.postReceiveScripts) {
+				sb.append('%');
+				sb.append(script);
+				sb.append(',');
+			}
 		}
 		// trim trailing comma
 		sb.setLength(sb.length() - 1);

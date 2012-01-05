@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
@@ -668,7 +669,7 @@ public class ConfigUserService implements IUserService {
 			// repository memberships
 			// null check on "final" repositories because JSON-sourced UserModel
 			// can have a null repositories object
-			if (model.repositories != null) {
+			if (!ArrayUtils.isEmpty(model.repositories)) {
 				config.setStringList(USER, model.username, REPOSITORY, new ArrayList<String>(
 						model.repositories));
 			}
@@ -678,33 +679,33 @@ public class ConfigUserService implements IUserService {
 		for (TeamModel model : teams.values()) {
 			// null check on "final" repositories because JSON-sourced TeamModel
 			// can have a null repositories object
-			if (model.repositories != null) {
+			if (!ArrayUtils.isEmpty(model.repositories)) {
 				config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
 						model.repositories));
 			}
 
 			// null check on "final" users because JSON-sourced TeamModel
 			// can have a null users object
-			if (model.users != null) {
+			if (!ArrayUtils.isEmpty(model.users)) {
 				config.setStringList(TEAM, model.name, USER, new ArrayList<String>(model.users));
 			}
 
 			// null check on "final" mailing lists because JSON-sourced
 			// TeamModel can have a null users object
-			if (model.mailingLists != null) {
+			if (!ArrayUtils.isEmpty(model.mailingLists)) {
 				config.setStringList(TEAM, model.name, MAILINGLIST, new ArrayList<String>(
 						model.mailingLists));
 			}
 
 			// null check on "final" preReceiveScripts because JSON-sourced
 			// TeamModel can have a null preReceiveScripts object
-			if (model.preReceiveScripts != null) {
+			if (!ArrayUtils.isEmpty(model.preReceiveScripts)) {
 				config.setStringList(TEAM, model.name, PRERECEIVE, model.preReceiveScripts);
 			}
 
 			// null check on "final" postReceiveScripts because JSON-sourced
 			// TeamModel can have a null postReceiveScripts object
-			if (model.postReceiveScripts != null) {
+			if (!ArrayUtils.isEmpty(model.postReceiveScripts)) {
 				config.setStringList(TEAM, model.name, POSTRECEIVE, model.postReceiveScripts);
 			}
 		}

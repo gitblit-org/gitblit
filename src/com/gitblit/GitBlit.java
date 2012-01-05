@@ -75,6 +75,7 @@ import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
@@ -991,14 +992,14 @@ public class GitBlit implements ServletContextListener {
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
-		if (repository.preReceiveScripts != null) {
+		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
 			config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
 		}
-		if (repository.postReceiveScripts != null) {
+		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
 			config.setStringList("gitblit", null, "postReceiveScript",
 					repository.postReceiveScripts);
 		}
-		if (repository.mailingLists != null) {
+		if (!ArrayUtils.isEmpty(repository.mailingLists)) {
 			config.setStringList("gitblit", null, "mailingList", repository.mailingLists);
 		}
 		try {

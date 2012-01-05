@@ -41,6 +41,7 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
@@ -208,7 +209,9 @@ public class GitblitClient implements Serializable {
 		if (repository != null) {
 			for (String teamname : getPermittedTeamnames(repository)) {
 				TeamModel team = getTeamModel(teamname);
-				scripts.addAll(team.preReceiveScripts);
+				if (!ArrayUtils.isEmpty(team.preReceiveScripts)) {
+					scripts.addAll(team.preReceiveScripts);
+				}
 			}
 		}
 		return new ArrayList<String>(scripts);
@@ -258,7 +261,9 @@ public class GitblitClient implements Serializable {
 		if (repository != null) {
 			for (String teamname : getPermittedTeamnames(repository)) {
 				TeamModel team = getTeamModel(teamname);
-				scripts.addAll(team.postReceiveScripts);
+				if (!ArrayUtils.isEmpty(team.postReceiveScripts)) {
+					scripts.addAll(team.postReceiveScripts);
+				}
 			}
 		}
 		return new ArrayList<String>(scripts);
@@ -278,9 +283,11 @@ public class GitblitClient implements Serializable {
 
 		// create list of available scripts by excluding inherited scripts
 		List<String> scripts = new ArrayList<String>();
-		for (String script : settings.pushScripts) {
-			if (!inherited.contains(script)) {
-				scripts.add(script);
+		if (!ArrayUtils.isEmpty(settings.pushScripts)) {			
+			for (String script : settings.pushScripts) {
+				if (!inherited.contains(script)) {
+					scripts.add(script);
+				}
 			}
 		}
 		return scripts;
@@ -489,7 +496,7 @@ public class GitblitClient implements Serializable {
 		}
 		return teamnames;
 	}
-	
+
 	public TeamModel getTeamModel(String name) {
 		for (TeamModel team : allTeams) {
 			if (team.name.equalsIgnoreCase(name)) {

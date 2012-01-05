@@ -52,6 +52,7 @@ import javax.swing.ListCellRenderer;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -104,11 +105,11 @@ public class EditRepositoryDialog extends JDialog {
 	private JPalette<String> teamsPalette;
 
 	private JPalette<String> preReceivePalette;
-	
+
 	private JLabel preReceiveInherited;
 
 	private JPalette<String> postReceivePalette;
-	
+
 	private JLabel postReceiveInherited;
 
 	private Set<String> repositoryNames;
@@ -168,7 +169,7 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.skipSummaryMetrics);
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
 
-		mailingListsField = new JTextField(anRepository.mailingLists == null ? ""
+		mailingListsField = new JTextField(ArrayUtils.isEmpty(anRepository.mailingLists) ? ""
 				: StringUtils.flattenStrings(anRepository.mailingLists, " "), 50);
 
 		accessRestriction = new JComboBox(AccessRestrictionType.values());

@@ -47,6 +47,7 @@ import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -116,7 +117,7 @@ public class EditRepositoryPage extends RootSubPage {
 				new ChoiceRenderer<String>("", ""), 5, false);
 
 		// pre-receive palette
-		if (repositoryModel.preReceiveScripts != null) {
+		if (!ArrayUtils.isEmpty(repositoryModel.preReceiveScripts)) {
 			preReceiveScripts.addAll(repositoryModel.preReceiveScripts);
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
@@ -125,7 +126,7 @@ public class EditRepositoryPage extends RootSubPage {
 				new ChoiceRenderer<String>("", ""), 12, true);
 
 		// post-receive palette
-		if (repositoryModel.postReceiveScripts != null) {
+		if (!ArrayUtils.isEmpty(repositoryModel.postReceiveScripts)) {
 			postReceiveScripts.addAll(repositoryModel.postReceiveScripts);
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
@@ -286,7 +287,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
-		mailingLists = new Model<String>(repositoryModel.mailingLists == null ? ""
+		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 		form.add(usersPalette);

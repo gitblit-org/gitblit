@@ -49,6 +49,7 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
@@ -339,7 +340,7 @@ public class FederationPullExecutor implements Runnable {
 
 							// update team repositories
 							TeamModel remoteTeam = user.getTeam(teamname);
-							if (remoteTeam != null && remoteTeam.repositories != null) {
+							if (remoteTeam != null && !ArrayUtils.isEmpty(remoteTeam.repositories)) {
 								int before = team.repositories.size();
 								team.addRepositories(remoteTeam.repositories);
 								int after = team.repositories.size();
@@ -399,7 +400,7 @@ public class FederationPullExecutor implements Runnable {
 					"Failed to retrieve SETTINGS from federated gitblit ({0} @ {1})",
 					registration.name, registration.url), e);
 		}
-		
+
 		try {
 			// Pull SCRIPTS
 			Map<String, String> scripts = FederationUtils.getScripts(registration);
@@ -407,9 +408,10 @@ public class FederationPullExecutor implements Runnable {
 				for (Map.Entry<String, String> script : scripts.entrySet()) {
 					String scriptName = script.getKey();
 					if (scriptName.endsWith(".groovy")) {
-						scriptName = scriptName.substring(0,  scriptName.indexOf(".groovy"));
+						scriptName = scriptName.substring(0, scriptName.indexOf(".groovy"));
 					}
-					File file = new File(registrationFolderFile, registration.name + "_" + scriptName + ".groovy");
+					File file = new File(registrationFolderFile, registration.name + "_"
+							+ scriptName + ".groovy");
 					FileUtils.writeContent(file, script.getValue());
 				}
 			}
