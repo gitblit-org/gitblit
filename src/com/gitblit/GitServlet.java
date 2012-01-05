@@ -208,8 +208,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		protected RepositoryModel getRepositoryModel(ReceivePack rp) {
 			Repository repository = rp.getRepository();
 			String rootPath = GitBlit.getRepositoriesFolder().getAbsolutePath();
-			String repositoryName = repository.getDirectory().getAbsolutePath();
-			repositoryName = repositoryName.substring(rootPath.length() + 1);
+			String repositoryName = StringUtils.getRelativePath(rootPath, repository.getDirectory()
+					.getAbsolutePath());
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			return model;
 		}
