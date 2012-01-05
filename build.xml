@@ -197,11 +197,12 @@
 			<param name="docs.output.dir" value="${project.deploy.dir}/docs" />
 		</antcall>
 		
-		<!-- Copy the sample Groovy hook scripts -->
+		<!-- Copy the supported Groovy hook scripts -->
 		<mkdir dir="${project.deploy.dir}/groovy" />
 		<copy todir="${project.deploy.dir}/groovy">
 			<fileset dir="${basedir}/groovy">
-				<include name="**/*" />
+				<include name="sendmail.groovy" />
+				<include name="jenkins.groovy" />
 			</fileset>
 		</copy>
 	
@@ -364,11 +365,12 @@
 			<param name="docs.output.dir" value="${project.war.dir}/WEB-INF/docs" />
 		</antcall>
 
-		<!-- Copy the sample Groovy hook scripts -->
+		<!-- Copy the supported Groovy hook scripts -->
 		<mkdir dir="${project.war.dir}/WEB-INF/groovy" />
 		<copy todir="${project.war.dir}/WEB-INF/groovy">
 			<fileset dir="${basedir}/groovy">
-				<include name="**/*" />
+				<include name="sendmail.groovy" />
+				<include name="jenkins.groovy" />
 			</fileset>
 		</copy>
 
