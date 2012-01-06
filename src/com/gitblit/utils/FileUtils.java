@@ -15,11 +15,14 @@
  */
 package com.gitblit.utils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
@@ -102,5 +105,48 @@ public class FileUtils {
 			}
 		}
 		return length;
+	}
+
+	/**
+	 * Copies a file or folder (recursively) to a destination folder.
+	 * 
+	 * @param destinationFolder
+	 * @param filesOrFolders
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static void copy(File destinationFolder, File... filesOrFolders)
+			throws FileNotFoundException, IOException {
+		destinationFolder.mkdirs();
+		for (File file : filesOrFolders) {
+			if (file.isDirectory()) {
+				copy(new File(destinationFolder, file.getName()), file.listFiles());
+			} else {
+				File dFile = new File(destinationFolder, file.getName());
+				BufferedInputStream bufin = null;
+				FileOutputStream fos = null;
+				try {
+					bufin = new BufferedInputStream(new FileInputStream(file));
+					fos = new FileOutputStream(dFile);
+					int len = 8196;
+					byte[] buff = new byte[len];
+					int n = 0;
+					while ((n = bufin.read(buff, 0, len)) != -1) {
+						fos.write(buff, 0, n);
+					}
+				} finally {
+					try {
+						bufin.close();
+					} catch (Throwable t) {
+					}
+					try {
+						fos.close();
+					} catch (Throwable t) {
+					}
+				}
+				dFile.setLastModified(file.lastModified());
+			}
+		}
 	}
 }

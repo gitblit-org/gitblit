@@ -499,6 +499,15 @@
 		<copy tofile="${deployments.root}/WEB-INF/reference.properties" 
 			file="${basedir}/distrib/gitblit.properties"/>
 
+		<!-- Copy the supported Groovy hook scripts -->
+		<mkdir dir="${deployments.root}/WEB-INF/groovy" />
+		<copy todir="${deployments.root}/WEB-INF/groovy">
+			<fileset dir="${basedir}/groovy">
+				<include name="sendmail.groovy" />
+				<include name="jenkins.groovy" />
+			</fileset>
+		</copy>
+					
 		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties -->
 		<!-- THIS FILE IS NOT OVERRIDDEN ONCE IT IS BUILT!!! -->
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildWebXml">

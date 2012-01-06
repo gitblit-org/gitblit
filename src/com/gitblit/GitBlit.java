@@ -452,7 +452,7 @@ public class GitBlit implements ServletContextListener {
 		List<String> names = new ArrayList<String>(userService.getAllUsernames());
 		return names;
 	}
-	
+
 	/**
 	 * Returns the list of all users available to the login service.
 	 * 
@@ -546,7 +546,7 @@ public class GitBlit implements ServletContextListener {
 		List<String> teams = new ArrayList<String>(userService.getAllTeamNames());
 		return teams;
 	}
-	
+
 	/**
 	 * Returns the list of available teams that a user or repository may be
 	 * assigned to.
@@ -1788,6 +1788,21 @@ public class GitBlit implements ServletContextListener {
 				webxmlSettings.applyOverrides(overrideFile);
 			}
 			configureContext(webxmlSettings, true);
+
+			// Copy the included scripts to the configured groovy folder
+			File localScripts = getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
+			if (!localScripts.exists()) {
+				File includedScripts = new File(context.getRealPath("/WEB-INF/groovy"));
+				if (!includedScripts.equals(localScripts)) {
+					try {
+						com.gitblit.utils.FileUtils.copy(localScripts, includedScripts.listFiles());
+					} catch (IOException e) {
+						logger.error(MessageFormat.format(
+								"Failed to copy included Groovy scripts from {0} to {1}",
+								includedScripts, localScripts));
+					}
+				}
+			}
 		}
 
 		serverStatus.servletContainer = servletContext.getServerInfo();
