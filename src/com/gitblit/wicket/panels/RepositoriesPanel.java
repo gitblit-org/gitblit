@@ -148,10 +148,10 @@ public class RepositoriesPanel extends BasePanel {
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-
+				
 				// repository swatch
 				Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
-				WicketUtils.setCssBackground(swatch, entry.name);
+				WicketUtils.setCssBackground(swatch, entry.toString());
 				row.add(swatch);
 				swatch.setVisible(showSwatch);
 

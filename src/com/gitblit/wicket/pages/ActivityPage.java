@@ -35,6 +35,7 @@ import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
@@ -152,7 +153,7 @@ public class ActivityPage extends RootPage {
 
 			// aggregate repository metrics
 			for (Map.Entry<String, Metric> entry : activity.getRepositoryMetrics().entrySet()) {
-				String repository = entry.getKey();
+				String repository = StringUtils.stripDotGit(entry.getKey());
 				if (!repositoryMetrics.containsKey(repository)) {
 					repositoryMetrics.put(repository, new Metric(repository));
 				}
