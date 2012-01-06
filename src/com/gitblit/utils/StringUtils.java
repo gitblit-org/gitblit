@@ -488,4 +488,11 @@ public class StringUtils {
 		String bs = Integer.toHexString((int) (b * 256));
 		return "#" + rs + gs + bs;
 	}
+	
+	public static String stripDotGit(String value) {
+		if (value.toLowerCase().endsWith(".git")) {
+			return value.substring(0, value.length() - 4);
+		}
+		return value;
+	}
 }

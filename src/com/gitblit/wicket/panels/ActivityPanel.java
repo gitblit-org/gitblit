@@ -94,8 +94,9 @@ public class ActivityPanel extends BasePanel {
 						fragment.add(authorLink);
 
 						// repository
+						String repoName = StringUtils.stripDotGit(commit.repository);
 						LinkPanel repositoryLink = new LinkPanel("repository", null,
-								commit.repository, SummaryPage.class,
+								repoName, SummaryPage.class,
 								WicketUtils.newRepositoryParameter(commit.repository), true);
 						WicketUtils.setCssBackground(repositoryLink, commit.repository);
 						fragment.add(repositoryLink);

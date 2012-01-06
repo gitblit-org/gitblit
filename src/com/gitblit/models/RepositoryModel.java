@@ -59,6 +59,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
 
+	private String displayName;
+	
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
 	}
@@ -75,7 +77,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 
 	@Override
 	public String toString() {
-		return name;
+		if (displayName == null) {
+			displayName = StringUtils.stripDotGit(name);
+		}
+		return displayName;
 	}
 
 	@Override

@@ -144,7 +144,7 @@ public class RepositoriesPanel extends BasePanel {
 				item.add(row);
 
 				// try to strip group name for less cluttered list
-				String repoName = entry.name;
+				String repoName = entry.toString();
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}

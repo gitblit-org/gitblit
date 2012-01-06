@@ -141,8 +141,8 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	@Override
-	protected void setupPage(String repositoryName, String pageName) {
-		add(new LinkPanel("repositoryName", null, repositoryName, SummaryPage.class,
+	protected void setupPage(String repositoryName, String pageName) {		
+		add(new LinkPanel("repositoryName", null, StringUtils.stripDotGit(repositoryName), SummaryPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
 
