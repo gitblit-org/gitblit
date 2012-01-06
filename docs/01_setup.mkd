@@ -284,10 +284,11 @@ Gitblit implements email notifications in *sendmail.groovy* which uses the Groov
 ### Enabling Push Notifications
 
 In order to send email notifications on a push to Gitblit, this script must be specified somewhere in the *post-receive* script chain.  
-You may specify *sendmail* in one of two places:
+You may specify *sendmail* in one of three places:
 
 1. *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`, globally applied to all repositories
-2. post-receive scripts of a Repository definition
+2. post-receive scripts of a Team definition
+3. post-receive scripts of a Repository definition
 
 ### Destination Addresses
 
