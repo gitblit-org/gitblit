@@ -28,6 +28,7 @@ import org.eclipse.jgit.lib.Repository;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
@@ -73,6 +74,8 @@ public class TagPage extends RepositoryPage {
 			break;
 		}
 		add(new LinkPanel("commit", "title", tagRef.displayName, linkClass, linkParameters));
+		add(new GravatarImage("taggerAvatar", tagRef.getAuthorIdent()));
+		
 		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));
 		add(new Label("tagId", tagRef.getObjectId().getName()));
 		add(new LinkPanel("taggedObject", "list", tagRef.getReferencedObjectId().getName(),
