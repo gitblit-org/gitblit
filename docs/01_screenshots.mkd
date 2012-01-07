@@ -8,8 +8,19 @@
 	<a rel="screenshots_group" href="screenshots/00b.png" title="Repository List (Admin)"><img alt="Repositories (Admin)" src="thumbs/00b.png" /></a>
 	<br/>Repository List (Admin)
 </td><td>
+	<a rel="screenshots_group" href="screenshots/00c.png" title="Activity"><img alt="Activity" src="thumbs/00c.png" /></a>
+	<br/>Activity
+</td></tr>
+
+<tr><td>
+	<a rel="screenshots_group" href="screenshots/01c.png" title="Users &amp; Teams"><img alt="Users &amp; Teams" src="thumbs/01c.png" /></a>
+	<br/>Users &amp; Teams
+</td><td>
 	<a rel="screenshots_group" href="screenshots/01.png" title="New User"><img alt="New User" src="thumbs/01.png" /></a>
 	<br/>New User
+</td><td>
+	<a rel="screenshots_group" href="screenshots/01b.png" title="New Team"><img alt="New Team" src="thumbs/01b.png" /></a>
+	<br/>New Team
 </td></tr>
 
 <tr><td>
@@ -56,9 +67,13 @@
 	<br/>Detailed Status of a Registration
 </td></tr>
 
-<tr><td colspan='3'>
+<tr><td>
 	<a rel="screenshots_group" href="screenshots/14.png" title="Send Proposal"><img alt="Propose" src="thumbs/14.png" /></a>
 	<br/>Send Proposal
+</td><td>
+	<a rel="screenshots_group" href="screenshots/15.png" title="Empty Repository"><img alt="Empty Repository" src="thumbs/15.png" /></a>
+	<br/>Empty Repository
+</td><td>
 </td></tr>
 
 <tr><td colspan='3'><h3>Gitblit Manager</h3></td></tr>
