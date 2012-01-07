@@ -25,9 +25,11 @@ import com.gitblit.models.RepositoryModel;
 
 public class GitServletTest {
 
-	File folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
+	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
 	
-	File jgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/jgit");
+	static File ticgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit2");
+
+	static File jgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/jgit");
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
@@ -37,6 +39,7 @@ public class GitServletTest {
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
+		deleteWorkingFolders();
 		started.set(GitBlitSuite.startGitblit());
 	}
 
@@ -45,20 +48,30 @@ public class GitServletTest {
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
 		}
+		deleteWorkingFolders();
+	}
+	
+	private static void deleteWorkingFolders() throws Exception {
+		if (ticgitFolder.exists()) {
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE);
+		}
+		if (ticgit2Folder.exists()) {
+			FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
+		}
+		if (jgitFolder.exists()) {
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE);
+		}
 	}
 
 	@Test
 	public void testClone() throws Exception {
-		if (folder.exists()) {
-			FileUtils.delete(folder, FileUtils.RECURSIVE);
-		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
-		clone.setDirectory(folder);
+		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		clone.call();
+		close(clone.call());		
 		assertTrue(true);
 	}
 
@@ -69,20 +82,16 @@ public class GitServletTest {
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
-		// delete any existing working folder
-		File folder = new File(GitBlitSuite.REPOSITORIES, "working/gitblit");
-		if (folder.exists()) {
-			FileUtils.delete(folder, FileUtils.RECURSIVE);
-		}
+		// delete any existing working folder		
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
 			clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
-			clone.setDirectory(folder);
+			clone.setDirectory(ticgit2Folder);
 			clone.setBare(false);
 			clone.setCloneAllBranches(true);
 			clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider("bogus", "bogus"));
-			clone.call();
+			close(clone.call());
 			cloned = true;
 		} catch (Exception e) {
 			// swallow the exception which we expect
@@ -97,45 +106,46 @@ public class GitServletTest {
 
 	@Test
 	public void testAnonymousPush() throws Exception {
-		Git git = Git.open(folder);
-		File file = new File(folder, "TODO");
-		for (int i = 0; i < 3; i++) {
-			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
-			BufferedWriter w = new BufferedWriter(os);
-			w.write("// " + new Date().toString() + "\n");
-			w.close();
-			git.add().addFilepattern(file.getName()).call();
-			git.commit().setMessage("test commit #" + (i + 1)).call();
-		}
+		Git git = Git.open(ticgitFolder);
+		File file = new File(ticgitFolder, "TODO");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
-		git.getRepository().close();
+		close(git);
 	}
-	
+
 	@Test
 	public void testSubfolderPush() throws Exception {
-		if (jgitFolder.exists()) {
-			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE);
-		}
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		clone.call();
+		close(clone.call());
 		assertTrue(true);
-		
+
 		Git git = Git.open(jgitFolder);
 		File file = new File(jgitFolder, "TODO");
-		for (int i = 0; i < 3; i++) {
-			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
-			BufferedWriter w = new BufferedWriter(os);
-			w.write("// " + new Date().toString() + "\n");
-			w.close();
-			git.add().addFilepattern(file.getName()).call();
-			git.commit().setMessage("test commit #" + (i + 1)).call();
-		}
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
-		git.getRepository().close();
+		close(git);
+	}
+	
+	private void close(Git git) {
+		// really close the repository
+		// decrement the use counter to 0
+		for (int i = 0; i < 2; i++) {
+			git.getRepository().close();
+		}
 	}
 }

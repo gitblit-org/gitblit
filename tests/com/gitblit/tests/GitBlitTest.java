@@ -43,7 +43,7 @@ public class GitBlitTest {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		assertTrue("Helloworld model is null!", model != null);
-		assertEquals(GitBlitSuite.getHelloworldRepository().getDirectory().getName(), model.toString());
+		assertEquals(GitBlitSuite.getHelloworldRepository().getDirectory().getName(), model.name);
 		assertTrue(GitBlit.self().calculateSize(model) > 22000L);
 	}
 
