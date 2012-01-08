@@ -37,13 +37,13 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
-import com.gitblit.Constants;
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -116,17 +116,14 @@ public class SummaryPage extends RepositoryPage {
 			default:
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
-			StringBuilder sb = new StringBuilder();
-			sb.append(WicketUtils.getGitblitURL(getRequestCycle().getRequest()));
-			sb.append(Constants.GIT_PATH);
-			sb.append(repositoryName);
-			repositoryUrls.add(sb.toString());
+			// add the Gitblit repository url
+			repositoryUrls.add(getRepositoryUrl(getRepositoryModel()));
 		} else {
 			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
 		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
 		
-		String primaryUrl = repositoryUrls.remove(0);
+		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
 		add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));
 
 		add(new Label("otherUrls", StringUtils.flattenStrings(repositoryUrls, "<br/>"))

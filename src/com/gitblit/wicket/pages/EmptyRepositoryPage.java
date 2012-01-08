@@ -22,9 +22,10 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
 
@@ -34,22 +35,21 @@ public class EmptyRepositoryPage extends RootPage {
 		super(params);
 
 		String repositoryName = WicketUtils.getRepositoryName(params);
+		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
 		setupPage(repositoryName, getString("gb.emptyRepository"));
 
 		List<String> repositoryUrls = new ArrayList<String>();
 
 		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(WicketUtils.getGitblitURL(getRequestCycle().getRequest()));
-			sb.append(Constants.GIT_PATH);
-			sb.append(repositoryName);
-			repositoryUrls.add(sb.toString());
+			// add the Gitblit repository url
+			repositoryUrls.add(getRepositoryUrl(repository));
 		}
 		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
 		
+		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.get(0);
 		add(new Label("repository", repositoryName));
-		add(new RepositoryUrlPanel("pushurl", repositoryUrls.get(0)));
+		add(new RepositoryUrlPanel("pushurl", primaryUrl));
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", repositoryUrls.get(0))));
-		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", repositoryUrls.get(0))));
+		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
 	}
 }

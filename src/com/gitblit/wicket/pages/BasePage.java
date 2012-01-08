@@ -43,6 +43,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -165,6 +166,21 @@ public abstract class BasePage extends WebPage {
 		ServletWebRequest servletWebRequest = (ServletWebRequest) getRequest();
 		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
 		return req.getServerName();
+	}
+	
+	protected String getRepositoryUrl(RepositoryModel repository) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(WicketUtils.getGitblitURL(getRequestCycle().getRequest()));
+		sb.append(Constants.GIT_PATH);
+		sb.append(repository.name);
+		
+		// inject username into repository url if authentication is required
+		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
+				&& GitBlitWebSession.get().isLoggedIn()) {
+			String username = GitBlitWebSession.get().getUser().username;
+			sb.insert(sb.indexOf("://") + 3, username + "@");
+		}
+		return sb.toString();
 	}
 
 	public void warn(String message, Throwable t) {
