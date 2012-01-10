@@ -48,29 +48,7 @@ public class TicgitUtils {
 	 * @return a refmodel for the ticgit branch or null
 	 */
 	public static RefModel getTicketsBranch(Repository repository) {
-		RefModel ticgitBranch = null;
-		try {
-			// search for ticgit branch in local heads
-			for (RefModel ref : JGitUtils.getLocalBranches(repository, false, -1)) {
-				if (ref.displayName.endsWith("ticgit")) {
-					ticgitBranch = ref;
-					break;
-				}
-			}
-
-			// search for ticgit branch in remote heads
-			if (ticgitBranch == null) {
-				for (RefModel ref : JGitUtils.getRemoteBranches(repository, false, -1)) {
-					if (ref.displayName.endsWith("ticgit")) {
-						ticgitBranch = ref;
-						break;
-					}
-				}
-			}
-		} catch (Throwable t) {
-			LOGGER.error("Failed to find ticgit branch!", t);
-		}
-		return ticgitBranch;
+		return JGitUtils.getBranch(repository, "ticgit");
 	}
 
 	/**
