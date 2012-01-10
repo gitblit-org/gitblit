@@ -9,6 +9,7 @@ This list is volatile.
 * Manager: support federation RPCs
 * Manager: redesign ref indicators in log, search, and activity views to support multiple local branches, remote branches, and tags
 * Gitblit: Lucene integration with multi-repository search (issue 16)
+* Gitblit: Serve repositories on root URL rather than /git (investigate JGit 1.2 GitFilter)
 
 ### TODO (medium priority)
 
@@ -31,6 +32,8 @@ This list is volatile.
 
 ### IDEAS
 
+* Gitblit: Re-use the EGit branch visualization table cell renderer as some sort of servlet
+* Gitblit: Support personal repositories (~username/repo)
 * Gitblit: diff should highlight inserted/removed fragment compared to original line
 * Gitblit: implement branch permission controls as Groovy pre-receive script.  
 *Maintain permissions text file similar to a gitolite configuration file or svn authz file.*

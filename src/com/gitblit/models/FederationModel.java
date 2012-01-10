@@ -114,7 +114,7 @@ public class FederationModel implements Serializable, Comparable<FederationModel
 	 * @param status
 	 */
 	public void updateStatus(RepositoryModel repository, FederationPullStatus status) {
-		if (!results.containsKey(repository)) {
+		if (!results.containsKey(repository.name)) {
 			results.put(repository.name, FederationPullStatus.PENDING);
 		}
 		if (status != null) {

@@ -1759,9 +1759,7 @@ public class GitBlit implements ServletContextListener {
 		try {
 			// check to see if this "file" is a login service class
 			Class<?> realmClass = Class.forName(realm);
-			if (IUserService.class.isAssignableFrom(realmClass)) {
-				loginService = (IUserService) realmClass.newInstance();
-			}
+			loginService = (IUserService) realmClass.newInstance();
 		} catch (Throwable t) {
 			loginService = new GitblitUserService();
 		}

@@ -32,8 +32,6 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.ClientInfo;
 import org.apache.wicket.util.value.IValueMap;
 
-import com.gitblit.wicket.WicketUtils;
-
 /**
  * https://cwiki.apache.org/WICKET/object-container-adding-flash-to-a-wicket-application.html
  */

@@ -37,9 +37,9 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RepositoryModel;

@@ -268,8 +268,6 @@ public class TimeUtils {
 		} else if (frequency.indexOf("hour") > -1) {
 			// convert to minutes
 			mins *= 60;
-		} else if (frequency.indexOf("min") > -1) {
-			// default mins
 		}
 		return mins;
 	}
