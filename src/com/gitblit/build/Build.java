@@ -498,8 +498,8 @@ public class Build {
 				"5875e2729de83a4e46391f8f979ec8bd03810c10", null);
 
 		public static final MavenObject GROOVY = new MavenObject("groovy", "org/codehaus/groovy", "groovy-all",
-				"1.8.4", 6143000, 2290000, 4608000, "b5e7c2a5e6af43ccccf643ad656d6fe4b773be2b",
-				"a527e83e5c715540108d8f2b86ca19a3c9c78ac1", "8e5da5584fff57b14adbb4ee25cca09f5a00b013");
+				"1.8.5", 6143000, 2290000, 4608000, "3be3914c49ca7d8e8afb29a7772a74c30a1f1b28",
+				"1435cc8c90e3a91e5fee7bb53e83aad96e93aeb7", "5a214b52286523f9e2a4b5fed526506c763fa6f1");
 
 		public final String name;
 		public final String group;

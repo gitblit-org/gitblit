@@ -87,11 +87,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/wicket-extensions-1.4.19-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="ext/groovy-all-1.8.4.jar" sourcepath="ext/groovy-all-1.8.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/groovy-all-1.8.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.2.0.201112221803-r.jar" sourcepath="ext/org.eclipse.jgit-1.1.0.201109151100-r-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit-1.2.0.201112221803-r-javadoc.jar!/"/>
@@ -100,6 +95,11 @@
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-1.2.0.201112221803-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-1.2.0.201112221803-r-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/org.eclipse.jgit.http.server-1.2.0.201112221803-r-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="ext/groovy-all-1.8.5.jar" sourcepath="ext/groovy-all-1.8.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/groovy-all-1.8.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="bin"/>

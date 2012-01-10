@@ -52,7 +52,7 @@ This change helps adoption of GO in environments without an internet connection 
 #### dependency changes
 
 - updated to JGit 1.2.0
-- added Groovy 1.8.4 
+- added Groovy 1.8.5 
 - added Clippy (bundled)
 
 ### Older Releases
