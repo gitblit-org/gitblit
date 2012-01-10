@@ -1284,6 +1284,39 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Returns a RefModel for the gh-pages branch in the repository. If the
+	 * branch can not be found, null is returned.
+	 * 
+	 * @param repository
+	 * @return a refmodel for the gh-pages branch or null
+	 */
+	public static RefModel getPagesBranch(Repository repository) {
+		RefModel ghPages = null;
+		try {
+			// search for gh-pages branch in local heads
+			for (RefModel ref : JGitUtils.getLocalBranches(repository, false, -1)) {
+				if (ref.displayName.endsWith("gh-pages")) {
+					ghPages = ref;
+					break;
+				}
+			}
+
+			// search for gh-pages branch in remote heads
+			if (ghPages == null) {
+				for (RefModel ref : JGitUtils.getRemoteBranches(repository, false, -1)) {
+					if (ref.displayName.endsWith("gh-pages")) {
+						ghPages = ref;
+						break;
+					}
+				}
+			}
+		} catch (Throwable t) {
+			LOGGER.error("Failed to find gh-pages branch!", t);
+		}
+		return ghPages;
+	}
+
+	/**
 	 * Returns the list of notes entered about the commit from the refs/notes
 	 * namespace. If the repository does not exist or is empty, an empty list is
 	 * returned.

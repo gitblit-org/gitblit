@@ -82,6 +82,14 @@ public class GitBlitSuite {
 		return new FileRepository(new File(REPOSITORIES, "test/bluez-gnome.git"));
 	}
 
+	public static Repository getAmbitionRepository() throws Exception {
+		return new FileRepository(new File(REPOSITORIES, "test/ambition.git"));
+	}
+
+	public static Repository getTheoreticalPhysicsRepository() throws Exception {
+		return new FileRepository(new File(REPOSITORIES, "test/theoretical-physics.git"));
+	}
+
 	public static boolean startGitblit() throws Exception {
 		if (started.get()) {
 			// already started
@@ -123,7 +131,9 @@ public class GitBlitSuite {
 					"https://git.kernel.org/pub/scm/bluetooth/bluez-gnome.git");
 			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
-
+			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
+			cloneOrFetch("test/theoretical-physics.git", "https://github.com/certik/theoretical-physics.git");
+			
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");

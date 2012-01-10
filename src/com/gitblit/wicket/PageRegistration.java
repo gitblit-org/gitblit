@@ -49,6 +49,24 @@ public class PageRegistration implements Serializable {
 	}
 
 	/**
+	 * Represents a page link to a non-Wicket page. Might be external.
+	 * 
+	 * @author James Moger
+	 * 
+	 */
+	public static class OtherPageLink extends PageRegistration {
+
+		private static final long serialVersionUID = 1L;
+
+		public final String url;
+
+		public OtherPageLink(String translationKey, String url) {
+			super(translationKey, null);
+			this.url = url;
+		}
+	}
+
+	/**
 	 * Represents a DropDownMenu for the topbar
 	 * 
 	 * @author James Moger

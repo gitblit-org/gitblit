@@ -41,6 +41,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.PagesServlet;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
@@ -48,6 +49,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
@@ -123,6 +125,12 @@ public abstract class RepositoryPage extends BasePage {
 		if (model.useDocs) {
 			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params));
 		}
+		if (JGitUtils.getPagesBranch(r) != null) {
+			OtherPageLink pagesLink = new OtherPageLink("gb.pages", PagesServlet.asLink(
+					getRequest().getRelativePathPrefixToContextRoot(), repositoryName, null));
+			pages.put("pages", pagesLink);
+		}
+
 		// Conditionally add edit link
 		final boolean showAdmin;
 		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
@@ -141,9 +149,9 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	@Override
-	protected void setupPage(String repositoryName, String pageName) {		
-		add(new LinkPanel("repositoryName", null, StringUtils.stripDotGit(repositoryName), SummaryPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName)));
+	protected void setupPage(String repositoryName, String pageName) {
+		add(new LinkPanel("repositoryName", null, StringUtils.stripDotGit(repositoryName),
+				SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
 
 		super.setupPage(repositoryName, pageName);
@@ -245,7 +253,8 @@ public abstract class RepositoryPage extends BasePage {
 		}
 	}
 
-	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {
+	protected void setPersonSearchTooltip(Component component, String value,
+			Constants.SearchType searchType) {
 		if (searchType.equals(Constants.SearchType.AUTHOR)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
 		} else if (searchType.equals(Constants.SearchType.COMMITTER)) {
@@ -302,13 +311,14 @@ public abstract class RepositoryPage extends BasePage {
 
 		private final IModel<String> searchBoxModel = new Model<String>("");
 
-		private final IModel<Constants.SearchType> searchTypeModel = new Model<Constants.SearchType>(Constants.SearchType.COMMIT);
+		private final IModel<Constants.SearchType> searchTypeModel = new Model<Constants.SearchType>(
+				Constants.SearchType.COMMIT);
 
 		public SearchForm(String id, String repositoryName) {
 			super(id);
 			this.repositoryName = repositoryName;
-			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>("searchType",
-					Arrays.asList(Constants.SearchType.values()));
+			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>(
+					"searchType", Arrays.asList(Constants.SearchType.values()));
 			searchType.setModel(searchTypeModel);
 			add(searchType.setVisible(GitBlit.getBoolean(Keys.web.showSearchTypeSelection, false)));
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);

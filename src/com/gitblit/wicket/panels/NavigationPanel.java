@@ -25,6 +25,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
+import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 
@@ -43,7 +44,12 @@ public class NavigationPanel extends Panel {
 
 			public void populateItem(final Item<PageRegistration> item) {
 				PageRegistration entry = item.getModelObject();
-				if (entry instanceof DropDownMenuRegistration) {
+				if (entry instanceof OtherPageLink) {
+					// other link
+					OtherPageLink link = (OtherPageLink) entry;
+					Component c = new LinkPanel("link", null, getString(entry.translationKey), link.url);
+					item.add(c);
+				} else if (entry instanceof DropDownMenuRegistration) {
 					// drop down menu
 					DropDownMenuRegistration reg = (DropDownMenuRegistration) entry;
 					Component c = new DropDownMenu("link", getString(entry.translationKey), reg);

@@ -82,8 +82,23 @@
 		<servlet-name>RpcServlet</servlet-name>
 		<url-pattern>/rpc/*</url-pattern>
 	</servlet-mapping>	
+
+
+	<!-- Pages Servlet
+		 <url-pattern> MUST match: 
+			* PagesFilter
+			* com.gitblit.Constants.PAGES_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>PagesServlet</servlet-name>
+		<servlet-class>com.gitblit.PagesServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PagesServlet</servlet-name>		
+		<url-pattern>/pages/*</url-pattern>
+	</servlet-mapping>	
 	
-	
+
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
 			* GitServlet
@@ -143,7 +158,22 @@
 		<url-pattern>/rpc/*</url-pattern>
 	</filter-mapping>
 
-		
+
+	<!-- Pges Restriction Filter
+		 <url-pattern> MUST match: 
+			* PagesServlet
+			* com.gitblit.Constants.PAGES_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<filter>
+		<filter-name>PagesFilter</filter-name>
+		<filter-class>com.gitblit.PagesFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>PagesFilter</filter-name>
+		<url-pattern>/pages/*</url-pattern>
+	</filter-mapping>
+
+
 	<!-- Wicket Filter -->
     <filter>
         <filter-name>wicketFilter</filter-name>
@@ -168,8 +198,11 @@
              	* com.gitblit.Constants.ZIP_PATH
              	* FederationServlet <url-pattern>
              	* RpcFilter <url-pattern>
-             	* RpcServlet <url-pattern> -->
-            <param-value>git/,feed/,zip/,federation/,rpc/</param-value>
+             	* RpcServlet <url-pattern>
+             	* PagesFilter <url-pattern>
+             	* PagesServlet <url-pattern>
+             	* com.gitblit.Constants.PAGES_PATH -->
+            <param-value>git/,feed/,zip/,federation/,rpc/,pages/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

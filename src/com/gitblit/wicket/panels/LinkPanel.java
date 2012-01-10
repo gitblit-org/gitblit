@@ -20,6 +20,7 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -61,6 +62,25 @@ public class LinkPanel extends Panel {
 		} else {
 			link = new BookmarkablePageLink<Void>("link", clazz, parameters);
 		}
+		if (newWindow) {
+			link.add(new SimpleAttributeModifier("target", "_blank"));
+		}
+		if (linkCssClass != null) {
+			link.add(new SimpleAttributeModifier("class", linkCssClass));
+		}
+		link.add(new Label("label", labelModel));
+		add(link);
+	}
+
+	public LinkPanel(String wicketId, String linkCssClass, String label, String href) {
+		this(wicketId, linkCssClass, label, href, false);
+	}
+
+	public LinkPanel(String wicketId, String linkCssClass, String label, String href,
+			boolean newWindow) {
+		super(wicketId);
+		this.labelModel = new Model<String>(label);
+		ExternalLink link = new ExternalLink("link", href);
 		if (newWindow) {
 			link.add(new SimpleAttributeModifier("target", "_blank"));
 		}

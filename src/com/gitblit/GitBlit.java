@@ -653,21 +653,38 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository or null
 	 */
 	public Repository getRepository(String repositoryName) {
+		return getRepository(repositoryName, true);
+	}
+
+	/**
+	 * Returns the JGit repository for the specified name.
+	 * 
+	 * @param repositoryName
+	 * @param logError
+	 * @return repository or null
+	 */
+	public Repository getRepository(String repositoryName, boolean logError) {
 		Repository r = null;
 		try {
 			r = repositoryResolver.open(null, repositoryName);
 		} catch (RepositoryNotFoundException e) {
 			r = null;
-			logger.error("GitBlit.getRepository(String) failed to find "
-					+ new File(repositoriesFolder, repositoryName).getAbsolutePath());
+			if (logError) {
+				logger.error("GitBlit.getRepository(String) failed to find "
+						+ new File(repositoriesFolder, repositoryName).getAbsolutePath());
+			}
 		} catch (ServiceNotAuthorizedException e) {
 			r = null;
-			logger.error("GitBlit.getRepository(String) failed to find "
-					+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
+			if (logError) {
+				logger.error("GitBlit.getRepository(String) failed to find "
+						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
+			}
 		} catch (ServiceNotEnabledException e) {
 			r = null;
-			logger.error("GitBlit.getRepository(String) failed to find "
-					+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
+			if (logError) {
+				logger.error("GitBlit.getRepository(String) failed to find "
+						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
+			}
 		}
 		return r;
 	}
