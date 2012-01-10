@@ -47,15 +47,20 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
+import org.eclipse.jgit.lib.CommitBuilder;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.RefUpdate;
+import org.eclipse.jgit.lib.RefUpdate.Result;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
@@ -1360,37 +1365,74 @@ public class JGitUtils {
 	}
 
 	/**
-	 * Create an orphaned branch in a repository. This code does not work.
+	 * Create an orphaned branch in a repository.
 	 * 
 	 * @param repository
-	 * @param name
-	 * @return
+	 * @param branchName
+	 * @param author
+	 *            if unspecified, Gitblit will be the author of this new branch
+	 * @return true if successful
 	 */
-	public static boolean createOrphanBranch(Repository repository, String name) {
-		return true;
-		// boolean success = false;
-		// try {
-		// ObjectId prev = repository.resolve(Constants.HEAD + "^1");
-		// // create the orphan branch
-		// RefUpdate orphanRef = repository.updateRef(Constants.R_HEADS + name);
-		// orphanRef.setNewObjectId(prev);
-		// orphanRef.setExpectedOldObjectId(ObjectId.zeroId());
-		// Result updateResult = orphanRef.update();
-		//
-		// switch (updateResult) {
-		// case NEW:
-		// success = true;
-		// break;
-		// case NO_CHANGE:
-		// default:
-		// break;
-		// }
-		//
-		// } catch (Throwable t) {
-		// error(t, repository, "{0} failed to create orphaned branch {1}",
-		// name);
-		// }
-		// return success;
+	public static boolean createOrphanBranch(Repository repository, String branchName,
+			PersonIdent author) {
+		boolean success = false;
+		String message = "Created branch " + branchName;
+		if (author == null) {
+			author = new PersonIdent("Gitblit", "gitblit@localhost");
+		}
+		try {
+			ObjectInserter odi = repository.newObjectInserter();
+			try {
+				// Create a blob object to insert into a tree
+				ObjectId blobId = odi.insert(Constants.OBJ_BLOB,
+						message.getBytes(Constants.CHARACTER_ENCODING));
+
+				// Create a tree object to reference from a commit
+				TreeFormatter tree = new TreeFormatter();
+				tree.append("NEWBRANCH", FileMode.REGULAR_FILE, blobId);
+				ObjectId treeId = odi.insert(tree);
+
+				// Create a commit object
+				CommitBuilder commit = new CommitBuilder();
+				commit.setAuthor(author);
+				commit.setCommitter(author);
+				commit.setEncoding(Constants.CHARACTER_ENCODING);
+				commit.setMessage(message);
+				commit.setTreeId(treeId);
+
+				// Insert the commit into the repository
+				ObjectId commitId = odi.insert(commit);
+				odi.flush();
+
+				RevWalk revWalk = new RevWalk(repository);
+				try {
+					RevCommit revCommit = revWalk.parseCommit(commitId);
+					if (!branchName.startsWith("refs/")) {
+						branchName = "refs/heads/" + branchName;
+					}
+					RefUpdate ru = repository.updateRef(branchName);
+					ru.setNewObjectId(commitId);
+					ru.setRefLogMessage("commit: " + revCommit.getShortMessage(), false);
+					Result rc = ru.forceUpdate();
+					switch (rc) {
+					case NEW:
+					case FORCED:
+					case FAST_FORWARD:
+						success = true;
+						break;
+					default:
+						success = false;
+					}
+				} finally {
+					revWalk.release();
+				}
+			} finally {
+				odi.release();
+			}
+		} catch (Throwable t) {
+			error(t, repository, "Failed to create orphan branch {1} in repository {0}", branchName);
+		}
+		return success;
 	}
 
 	/**

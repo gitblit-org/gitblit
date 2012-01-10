@@ -217,8 +217,8 @@ public class JGitUtilsTest {
 	public void testCreateOrphanedBranch() throws Exception {
 		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");
 		assertTrue(JGitUtils.createOrphanBranch(repository,
-				"x" + Long.toHexString(System.currentTimeMillis()).toUpperCase()));
-		FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+				"x" + Long.toHexString(System.currentTimeMillis()).toUpperCase(), null));
+		 FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
 	}
 
 	@Test
