@@ -15,8 +15,12 @@
  */
 package com.gitblit;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.Date;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -79,7 +84,7 @@ public class DownloadZipServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
-		
+
 		String repository = request.getParameter("r");
 		String basePath = request.getParameter("p");
 		String objectId = request.getParameter("h");
@@ -98,8 +103,18 @@ public class DownloadZipServlet extends HttpServlet {
 			}
 
 			Repository r = GitBlit.self().getRepository(repository);
+			if (r == null) {
+				error(response, MessageFormat.format("# Error\nFailed to find repository {0}", repository));
+				return;
+			}
 			RevCommit commit = JGitUtils.getCommit(r, objectId);
+			if (commit == null) {
+				error(response, MessageFormat.format("# Error\nFailed to find commit {0}", objectId));
+				r.close();
+				return;
+			}
 			Date date = JGitUtils.getCommitDate(commit);
+
 			String contentType = "application/octet-stream";
 			response.setContentType(contentType + "; charset=" + response.getCharacterEncoding());
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".zip"
@@ -115,9 +130,19 @@ public class DownloadZipServlet extends HttpServlet {
 			} catch (Throwable t) {
 				logger.error("Failed to write attachment to client", t);
 			}
+
+			// close the repository
+			r.close();
 		} catch (Throwable t) {
 			logger.error("Failed to write attachment to client", t);
 		}
+	}
+
+	private void error(HttpServletResponse response, String mkd) throws ServletException,
+			IOException, ParseException {
+		String content = MarkdownUtils.transformMarkdown(mkd);
+		response.setContentType("text/html; charset=" + Constants.ENCODING);
+		response.getWriter().write(content);
 	}
 
 	@Override

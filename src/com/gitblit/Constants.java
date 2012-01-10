@@ -54,13 +54,17 @@ public class Constants {
 	public static final String FEDERATION_PATH = "/federation/";
 
 	public static final String RPC_PATH = "/rpc/";
+	
+	public static final String PAGES= "/pages/";
 
 	public static final String BORDER = "***********************************************************";
 
 	public static final String FEDERATION_USER = "$gitblit";
 
 	public static final String PROPOSAL_EXT = ".json";
-
+	
+	public static final String ENCODING = "UTF-8";
+	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
 	}
