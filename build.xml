@@ -883,7 +883,7 @@
 		Publish binaries to Google Code
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager" description="Publish the Gitblit binaries to Google Code">
+	<target name="publishBinaries" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary" description="Publish the Gitblit binaries to Google Code">
 
 		<echo>Uploading Gitblit ${gb.version} binaries</echo>
 
