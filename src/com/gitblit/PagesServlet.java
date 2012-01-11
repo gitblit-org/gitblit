@@ -159,27 +159,47 @@ public class PagesServlet extends HttpServlet {
 				}
 			} else {
 				// specific resource
-				String contentType = context.getMimeType(resource);
-				if (contentType.startsWith("text")) {
-					content = JGitUtils.getStringContent(r, tree, resource).getBytes(
-							Constants.ENCODING);
-				} else {
-					content = JGitUtils.getByteContent(r, tree, resource);
+				try {
+					String contentType = context.getMimeType(resource);
+					if (contentType == null) {
+						contentType = "text/plain";
+					}
+					if (contentType.startsWith("text")) {
+						content = JGitUtils.getStringContent(r, tree, resource).getBytes(
+								Constants.ENCODING);
+					} else {
+						content = JGitUtils.getByteContent(r, tree, resource);
+					}
+					response.setContentType(contentType);
+				} catch (Exception e) {
 				}
-				response.setContentType(contentType);
 			}
 
 			// no content, try custom 404 page
 			if (ArrayUtils.isEmpty(content)) {
-				content = JGitUtils.getStringContent(r, tree, "404.html").getBytes(
-						Constants.ENCODING);
+				String custom404 = JGitUtils.getStringContent(r, tree, "404.html");
+				if (!StringUtils.isEmpty(custom404)) {
+					content = custom404.getBytes(Constants.ENCODING);
+				}
+
 				// still no content
 				if (ArrayUtils.isEmpty(content)) {
-					content = (MessageFormat.format(
+					String str = MessageFormat.format(
 							"# Error\nSorry, the requested resource **{0}** was not found.",
-							resource)).getBytes(Constants.ENCODING);
-					resource = "404.mkd";
+							resource);
+					content = MarkdownUtils.transformMarkdown(str).getBytes(Constants.ENCODING);
 				}
+
+				try {
+					// output the content
+					logger.warn("Pages 404: " + resource);
+					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+					response.getOutputStream().write(content);
+					response.flushBuffer();
+				} catch (Throwable t) {
+					logger.error("Failed to write page to client", t);
+				}
+				return;
 			}
 
 			// check to see if we should transform markdown files
