@@ -857,6 +857,26 @@
 		<delete dir="${project.express.dir}" />
 	</target>
 
+	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+		Update the gh-pages branch with the current site
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="updateGhPages" depends="buildSite">
+		<!-- Build gh-pages branch -->
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildGhPages">
+			<classpath refid="master-classpath" />
+			<arg value="--sourceFolder" />
+			<arg value="${basedir}/site" />
+
+			<arg value="--repository" />
+			<arg value="${basedir}" />
+			
+			<arg value="--obliterate" />
+		</java>
+	</target>
+	
 
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -936,7 +956,7 @@
 		You must add ext/commons-net-1.4.0.jar to your ANT classpath.
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishSite" depends="buildSite" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)" >
+	<target name="publishSite" depends="buildSite,updateGhPages" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)" >
 
 		<echo>Uploading Gitblit ${gb.version} website</echo>
 
