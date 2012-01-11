@@ -242,7 +242,7 @@ Please see the following interface definition [com.gitblit.IUserService](https:/
 
 *SINCE 0.8.0*
 
-The preferred hook mechanism is Groovy.  This mechanism only executes when pushing to Gitblit, not when pushing to some other Git tooling in your stack.
+Gitblit uses Groovy for its push hook mechanism.  This mechanism only executes when pushing to Gitblit, not when pushing to some other Git tooling in your stack.
 
 The Groovy hook mechanism allows for dynamic extension of Gitblit to execute custom tasks on receiving and processing push events.  The scripts run within the context of your Gitblit instance and therefore have access to Gitblit's internals at runtime.
 

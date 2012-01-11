@@ -12,7 +12,7 @@ Hook scripts can be set per-repository, per-team, or globally for all repositori
     **New:** *groovy.postReceiveScripts =*
 - *sendmail.groovy* for optional email notifications on push.  
 You must properly configure your SMTP server settings in `gitblit.properties` or `web.xml` to use *sendmail.groovy*.
-- New global key for mailing lists.  This is used in conjunction with the *sendmail.groovy* hook script.  All repositories that use the *sendmail.groovy* script will include these addresses in the notification process.  
+- New global key for mailing lists.  This is used in conjunction with the *sendmail.groovy* hook script.  All repositories that use the *sendmail.groovy* script will include these addresses in the notification process.  Please see the Setup page for more details about configuring sendmail.  
     **New:** *mail.mailingLists =*
 - *com.gitblit.GitblitUserService*.  This is a wrapper object for the built-in user service implementations.  For those wanting to only implement custom authentication it is recommended to subclass GitblitUserService and override the appropriate methods.  Going forward, this will help insulate custom authentication from new IUserService API and/or changes in model classes.
 - New default user service implementation: *com.gitblit.ConfigUserService* (`users.conf`)  
@@ -33,8 +33,7 @@ The original `users.properties` file and it's corresponding implementation are *
    **New:** *web.allowFlashCopyToClipboard = true*
 - JavaScript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url in the event that you do not want to use Flash on your installation
 - Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
-- automatic *gh-pages* branch serving (Jekyll is not supported)  
-Gitblit does not checkout your gh-pages branch to a temporary filesystem, all page and resource requests are live through the repository
+- Repositories with a *gh-pages* branch will now have a *pages* link which will serve the content of this branch.  All resource requests are against the repository, Gitblit does not checkout/export this branch to a temporary filesystem.  Jekyll templating is not supported.
 - Gitblit Express bundle to get started running Gitblit on RedHat's OpenShift cloud <span class="label warning">BETA</span>
 
 #### changes
