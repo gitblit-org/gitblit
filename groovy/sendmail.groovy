@@ -122,34 +122,28 @@ SimpleDateFormat df = new SimpleDateFormat(gitblit.getString(Keys.web.datetimest
 def table = { "\n ${JGitUtils.getDisplayName(it.authorIdent)}\n ${df.format(JGitUtils.getCommitDate(it))}\n\n $it.shortMessage\n\n $commitUrl$it.id.name" }
 for (command in commands) {
 	def ref = command.refName
+	def refType = 'branch'
 	if (ref.startsWith('refs/heads/')) {
 		ref  = command.refName.substring('refs/heads/'.length())
 	} else if (ref.startsWith('refs/tags/')) {
 		ref  = command.refName.substring('refs/tags/'.length())
+		refType = 'tag'
 	}
 		
 	switch (command.type) {
 		case ReceiveCommand.Type.CREATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
-			if (commits.size() > 0) {
-				// new branch
-				changes += "\n$branchBreak new branch $ref created ($commits.size commits)\n$branchBreak"
-				changes += commits.collect(table).join(commitBreak)
-				changes += '\n'
-			} else if (ref.command.refName.startsWith('refs/tags/')) {
-				// new tag
-				changes += "\n$branchBreak new tag $ref created\n$branchBreak"
-			} else if (ref.command.refName.startsWith('refs/heads/')) {
-				// new branch
-				changes += "\n$branchBreak new $ref branch created\n$branchBreak"
-			}
+			// new branch
+			changes += "\n$branchBreak new $refType $ref created ($commits.size commits)\n$branchBreak"
+			changes += commits.collect(table).join(commitBreak)
+			changes += '\n'
 			break
 		case ReceiveCommand.Type.UPDATE:
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// fast-forward branch commits table
-			changes += "\n$branchBreak $ref branch updated ($commits.size commits)\n$branchBreak"
+			changes += "\n$branchBreak $ref $refType updated ($commits.size commits)\n$branchBreak"
 			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
@@ -157,13 +151,13 @@ for (command in commands) {
 			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
 			commitCount += commits.size()
 			// non-fast-forward branch commits table
-			changes += "\n$branchBreak $ref branch updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
+			changes += "\n$branchBreak $ref $refType updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
 			changes += commits.collect(table).join(commitBreak)
 			changes += '\n'
 			break
 		case ReceiveCommand.Type.DELETE:
 			// deleted branch/tag
-			changes += "\n$branchBreak $ref deleted\n$branchBreak"
+			changes += "\n$branchBreak $ref $refType deleted\n$branchBreak"
 			break
 		default:
 			break
