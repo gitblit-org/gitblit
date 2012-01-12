@@ -3,6 +3,12 @@
 ### Current Release
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+#### fixes
+
+- Include missing icon resource for the manager (issue 40)
+
+**0.8.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.0.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.0.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
+
 #### additions
 
 - Platform-independent, Groovy push hook script mechanism.  
