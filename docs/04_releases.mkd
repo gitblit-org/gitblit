@@ -6,6 +6,7 @@
 #### fixes
 
 - Include missing icon resource for the manager (issue 40)
+- Fixed sendmail.groovy message content with incorrect tag/branch labels
 
 **0.8.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.0.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.0.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
 
