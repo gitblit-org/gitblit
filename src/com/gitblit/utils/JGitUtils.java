@@ -24,7 +24,6 @@ import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -748,25 +747,40 @@ public class JGitUtils {
 	}
 
 	/**
-	 * Returns the list of files in the repository that match one of the
-	 * specified extensions. This is a CASE-SENSITIVE search. If the repository
-	 * does not exist or is empty, an empty list is returned.
+	 * Returns the list of files in the repository on the default branch that
+	 * match one of the specified extensions. This is a CASE-SENSITIVE search.
+	 * If the repository does not exist or is empty, an empty list is returned.
 	 * 
 	 * @param repository
 	 * @param extensions
 	 * @return list of files in repository with a matching extension
 	 */
 	public static List<PathModel> getDocuments(Repository repository, List<String> extensions) {
+		return getDocuments(repository, extensions, null);
+	}
+
+	/**
+	 * Returns the list of files in the repository in the specified commit that
+	 * match one of the specified extensions. This is a CASE-SENSITIVE search.
+	 * If the repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param extensions
+	 * @param objectId
+	 * @return list of files in repository with a matching extension
+	 */
+	public static List<PathModel> getDocuments(Repository repository, List<String> extensions,
+			String objectId) {
 		List<PathModel> list = new ArrayList<PathModel>();
 		if (!hasCommits(repository)) {
 			return list;
 		}
-		RevCommit commit = getCommit(repository, null);
+		RevCommit commit = getCommit(repository, objectId);
 		final TreeWalk tw = new TreeWalk(repository);
 		try {
 			tw.addTree(commit.getTree());
 			if (extensions != null && extensions.size() > 0) {
-				Collection<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
+				List<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
 				for (String extension : extensions) {
 					if (extension.charAt(0) == '.') {
 						suffixFilters.add(PathSuffixFilter.create("\\" + extension));
@@ -775,7 +789,12 @@ public class JGitUtils {
 						suffixFilters.add(PathSuffixFilter.create("\\." + extension));
 					}
 				}
-				TreeFilter filter = OrTreeFilter.create(suffixFilters);
+				TreeFilter filter;
+				if (suffixFilters.size() == 1) {
+					filter = suffixFilters.get(0);
+				} else {
+					filter = OrTreeFilter.create(suffixFilters);
+				}
 				tw.setFilter(filter);
 				tw.setRecursive(true);
 			}

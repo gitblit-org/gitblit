@@ -90,6 +90,10 @@ public class GitBlitSuite {
 		return new FileRepository(new File(REPOSITORIES, "test/theoretical-physics.git"));
 	}
 
+	public static Repository getIssuesTestRepository() throws Exception {
+		return new FileRepository(new File(REPOSITORIES, "gb-issues.git"));
+	}
+
 	public static boolean startGitblit() throws Exception {
 		if (started.get()) {
 			// already started
@@ -134,6 +138,8 @@ public class GitBlitSuite {
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/theoretical-physics.git", "https://github.com/certik/theoretical-physics.git");
 			
+			JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
+
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
