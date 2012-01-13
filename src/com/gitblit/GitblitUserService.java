@@ -95,8 +95,8 @@ public class GitblitUserService implements IUserService {
 				logger.info(MessageFormat.format("Automatically creating {0} based on {1}",
 						usersConfig.getAbsolutePath(), realmFile.getAbsolutePath()));
 				ConfigUserService configService = new ConfigUserService(usersConfig);
-				for (String username : serviceImpl.getAllUsernames()) {
-					UserModel userModel = serviceImpl.getUserModel(username);
+				for (String username : service.getAllUsernames()) {
+					UserModel userModel = service.getUserModel(username);
 					configService.updateUserModel(userModel);
 				}
 			}
