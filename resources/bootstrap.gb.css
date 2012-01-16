@@ -350,15 +350,10 @@ div.login input:focus {
 	color: white;
 }
 
-div.commit_message {
-	font-family: monospace;
+pre.commit_message {	
 	padding: 8px;
 	border: solid #ccc;
 	border-width: 1px 0px 0px;
-}
-
-div.commit_message a {
-	font-family: monospace;
 }
 
 div.bug_open, span.bug_open {
