@@ -1408,7 +1408,7 @@ public class JGitUtils {
 
 				// Create a tree object to reference from a commit
 				TreeFormatter tree = new TreeFormatter();
-				tree.append("NEWBRANCH", FileMode.REGULAR_FILE, blobId);
+				tree.append(".branch", FileMode.REGULAR_FILE, blobId);
 				ObjectId treeId = odi.insert(tree);
 
 				// Create a commit object

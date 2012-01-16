@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -30,16 +31,23 @@ import com.gitblit.models.IssueModel.Attachment;
 import com.gitblit.models.IssueModel.Change;
 import com.gitblit.models.IssueModel.Field;
 import com.gitblit.models.IssueModel.Priority;
+import com.gitblit.models.IssueModel.Status;
 import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.IssueUtils.IssueFilter;
 
+/**
+ * Tests the mechanics of distributed issue management on the gb-issues branch.
+ * 
+ * @author James Moger
+ * 
+ */
 public class IssuesTest {
 
 	@Test
-	public void testInsertion() throws Exception {
+	public void testCreation() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
 		// create and insert the issue
-		Change c1 = newChange("Test issue " + Long.toHexString(System.currentTimeMillis()));
+		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
 		IssueModel issue = IssueUtils.createIssue(repository, c1);
 		assertNotNull(issue.id);
 
@@ -47,68 +55,165 @@ public class IssuesTest {
 		IssueModel constructed = IssueUtils.getIssue(repository, issue.id);
 		compare(issue, constructed);
 
-		// add a note and update
-		Change c2 = new Change();
-		c2.author = "dave";
-		c2.comment("yeah, this is working");		
+		assertEquals(1, constructed.changes.size());
+	}
+
+	@Test
+	public void testUpdates() throws Exception {
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		// C1: create the issue
+		Change c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
+		IssueModel issue = IssueUtils.createIssue(repository, c1);
+		assertNotNull(issue.id);
+
+		IssueModel constructed = IssueUtils.getIssue(repository, issue.id);
+		compare(issue, constructed);
+
+		// C2: set owner
+		Change c2 = new Change("C2");
+		c2.comment("I'll fix this");
+		c2.setField(Field.Owner, c2.author);
 		assertTrue(IssueUtils.updateIssue(repository, issue.id, c2));
+		constructed = IssueUtils.getIssue(repository, issue.id);
+		assertEquals(2, constructed.changes.size());
+		assertEquals(c2.author, constructed.owner);
+
+		// C3: add a note
+		Change c3 = new Change("C3");
+		c3.comment("yeah, this is working");
+		assertTrue(IssueUtils.updateIssue(repository, issue.id, c3));
+		constructed = IssueUtils.getIssue(repository, issue.id);
+		assertEquals(3, constructed.changes.size());
+
+		// C4: add attachment
+		Change c4 = new Change("C4");
+		Attachment a = newAttachment();
+		c4.addAttachment(a);
+		assertTrue(IssueUtils.updateIssue(repository, issue.id, c4));
+
+		Attachment a1 = IssueUtils.getIssueAttachment(repository, issue.id, a.name);
+		assertEquals(a.content.length, a1.content.length);
+		assertTrue(Arrays.areEqual(a.content, a1.content));
+
+		// C5: close the issue
+		Change c5 = new Change("C5");
+		c5.comment("closing issue");
+		c5.setField(Field.Status, Status.Fixed);
+		assertTrue(IssueUtils.updateIssue(repository, issue.id, c5));
 
 		// retrieve issue again
 		constructed = IssueUtils.getIssue(repository, issue.id);
 
-		assertEquals(2, constructed.changes.size());
+		assertEquals(5, constructed.changes.size());
+		assertTrue(constructed.status.isClosed());
 
-		Attachment a = IssueUtils.getIssueAttachment(repository, issue.id, "test.txt");
 		repository.close();
-
-		assertEquals(10, a.content.length);
-		assertTrue(Arrays.areEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, a.content));
 	}
 
 	@Test
 	public void testQuery() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		List<IssueModel> list = IssueUtils.getIssues(repository, null);
-		List<IssueModel> list2 = IssueUtils.getIssues(repository, new IssueFilter() {
-			boolean hasFirst = false;
+		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
+
+		List<IssueModel> openIssues = IssueUtils.getIssues(repository, new IssueFilter() {
 			@Override
 			public boolean accept(IssueModel issue) {
-				if (!hasFirst) {
-					hasFirst = true;
-					return true;
-				}
-				return false;
+				return !issue.status.isClosed();
 			}
 		});
+
+		List<IssueModel> closedIssues = IssueUtils.getIssues(repository, new IssueFilter() {
+			@Override
+			public boolean accept(IssueModel issue) {
+				return issue.status.isClosed();
+			}
+		});
+
 		repository.close();
-		assertTrue(list.size() > 0);
-		assertEquals(1, list2.size());
+		assertTrue(allIssues.size() > 0);
+		assertEquals(1, openIssues.size());
+		assertEquals(1, closedIssues.size());
+	}
+
+	@Test
+	public void testDelete() throws Exception {
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
+		// delete all issues
+		for (IssueModel issue : allIssues) {
+			assertTrue(IssueUtils.deleteIssue(repository, issue.id, "D"));
+		}
+		repository.close();
+	}
+
+	@Test
+	public void testChangeComment() throws Exception {
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		// C1: create the issue
+		Change c1 = newChange("testChangeComment() " + Long.toHexString(System.currentTimeMillis()));
+		IssueModel issue = IssueUtils.createIssue(repository, c1);
+		assertNotNull(issue.id);
+		assertTrue(issue.changes.get(0).hasComment());
+
+		assertTrue(IssueUtils.changeComment(repository, issue, c1, "E1", "I changed the comment"));
+		issue = IssueUtils.getIssue(repository, issue.id);
+		assertTrue(issue.changes.get(0).hasComment());
+		assertEquals("I changed the comment", issue.changes.get(0).comment.text);
+
+		assertTrue(IssueUtils.deleteIssue(repository, issue.id, "D"));
+
+		repository.close();
+	}
+
+	@Test
+	public void testDeleteComment() throws Exception {
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		// C1: create the issue
+		Change c1 = newChange("testDeleteComment() " + Long.toHexString(System.currentTimeMillis()));
+		IssueModel issue = IssueUtils.createIssue(repository, c1);
+		assertNotNull(issue.id);
+		assertTrue(issue.changes.get(0).hasComment());
+
+		assertTrue(IssueUtils.deleteComment(repository, issue, c1, "D1"));
+		issue = IssueUtils.getIssue(repository, issue.id);
+		assertEquals(1, issue.changes.size());
+		assertFalse(issue.changes.get(0).hasComment());
+
+		issue = IssueUtils.getIssue(repository, issue.id, false);
+		assertEquals(2, issue.changes.size());
+		assertTrue(issue.changes.get(0).hasComment());
+		assertFalse(issue.changes.get(1).hasComment());
+
+		assertTrue(IssueUtils.deleteIssue(repository, issue.id, "D"));
+
+		repository.close();
 	}
 
 	private Change newChange(String summary) {
-		Change change = new Change();
-		change.setField(Field.Reporter, "james");
-		change.setField(Field.Owner, "dave");
+		Change change = new Change("C1");
 		change.setField(Field.Summary, summary);
 		change.setField(Field.Description, "this is my description");
 		change.setField(Field.Priority, Priority.High);
 		change.setField(Field.Labels, "helpdesk");
 		change.comment("my comment");
-		
-		Attachment attachment = new Attachment("test.txt");		
-		attachment.content = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-		change.addAttachment(attachment);		
-		
 		return change;
+	}
+
+	private Attachment newAttachment() {
+		Attachment attachment = new Attachment(Long.toHexString(System.currentTimeMillis())
+				+ ".txt");
+		attachment.content = new byte[] { 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+				0x4a };
+		return attachment;
 	}
 
 	private void compare(IssueModel issue, IssueModel constructed) {
 		assertEquals(issue.id, constructed.id);
 		assertEquals(issue.reporter, constructed.reporter);
 		assertEquals(issue.owner, constructed.owner);
-		assertEquals(issue.created.getTime() / 1000, constructed.created.getTime() / 1000);
 		assertEquals(issue.summary, constructed.summary);
 		assertEquals(issue.description, constructed.description);
+		assertEquals(issue.created, constructed.created);
 
 		assertTrue(issue.hasLabel("helpdesk"));
 	}
