@@ -80,12 +80,15 @@ public class UserServiceTest {
 		service.updateUserModel(newUser);
 
 		// add one more new user and then test reload of first new user
-		newUser = new UserModel("garbage");
+		newUser = new UserModel("GARBAGE");
 		newUser.password = "garbage";
 		service.updateUserModel(newUser);
 
 		// confirm all added users
 		assertEquals(3, service.getAllUsernames().size());
+		assertTrue(service.getUserModel("garbage") != null);
+		assertTrue(service.getUserModel("GaRbAgE") != null);
+		assertTrue(service.getUserModel("GARBAGE") != null);
 
 		// confirm reloaded test user
 		newUser = service.getUserModel("test");

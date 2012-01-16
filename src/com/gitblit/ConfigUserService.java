@@ -746,7 +746,7 @@ public class ConfigUserService implements IUserService {
 				config.load();
 				Set<String> usernames = config.getSubsections(USER);
 				for (String username : usernames) {
-					UserModel user = new UserModel(username);
+					UserModel user = new UserModel(username.toLowerCase());
 					user.password = config.getString(USER, username, PASSWORD);
 
 					// user roles
@@ -763,8 +763,8 @@ public class ConfigUserService implements IUserService {
 					}
 
 					// update cache
-					users.put(username, user);
-					cookies.put(StringUtils.getSHA1(username + user.password), user);
+					users.put(user.username, user);
+					cookies.put(StringUtils.getSHA1(user.username + user.password), user);
 				}
 
 				// load the teams

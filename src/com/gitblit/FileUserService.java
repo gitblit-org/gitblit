@@ -165,11 +165,11 @@ public class FileUserService extends FileSettings implements IUserService {
 	@Override
 	public UserModel getUserModel(String username) {
 		Properties allUsers = read();
-		String userInfo = allUsers.getProperty(username);
+		String userInfo = allUsers.getProperty(username.toLowerCase());
 		if (userInfo == null) {
 			return null;
 		}
-		UserModel model = new UserModel(username);
+		UserModel model = new UserModel(username.toLowerCase());
 		String[] userValues = userInfo.split(",");
 		model.password = userValues[0];
 		for (int i = 1; i < userValues.length; i++) {
@@ -219,7 +219,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	 */
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
-		try {
+		try {			
 			Properties allUsers = read();
 			UserModel oldUser = getUserModel(username);
 			ArrayList<String> roles = new ArrayList<String>(model.repositories);
@@ -241,8 +241,8 @@ public class FileUserService extends FileSettings implements IUserService {
 			}
 			// trim trailing comma
 			sb.setLength(sb.length() - 1);
-			allUsers.remove(username);
-			allUsers.put(model.username, sb.toString());
+			allUsers.remove(username.toLowerCase());
+			allUsers.put(model.username.toLowerCase(), sb.toString());
 
 			// null check on "final" teams because JSON-sourced UserModel
 			// can have a null teams object
@@ -661,7 +661,7 @@ public class FileUserService extends FileSettings implements IUserService {
 				} else {
 					// user definition
 					String password = roles[0];
-					cookies.put(StringUtils.getSHA1(username + password), username);
+					cookies.put(StringUtils.getSHA1(username.toLowerCase() + password), username.toLowerCase());
 				}
 			}
 		}

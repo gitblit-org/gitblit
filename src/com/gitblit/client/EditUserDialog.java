@@ -78,7 +78,7 @@ public class EditUserDialog extends JDialog {
 	private JCheckBox notFederatedCheckbox;
 
 	private JPalette<String> repositoryPalette;
-	
+
 	private JPalette<TeamModel> teamsPalette;
 
 	private Set<String> usernames;
@@ -135,10 +135,10 @@ public class EditUserDialog extends JDialog {
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new JPalette<String>();
 		teamsPalette = new JPalette<TeamModel>();
-		
+
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
-		
+
 		JPanel repositoriesPanel = new JPanel(new BorderLayout()) {
 
 			private static final long serialVersionUID = 1L;
@@ -166,7 +166,6 @@ public class EditUserDialog extends JDialog {
 		}
 		panel.addTab(Translation.get("gb.restrictedRepositories"), repositoriesPanel);
 
-
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -188,7 +187,7 @@ public class EditUserDialog extends JDialog {
 		JPanel controls = new JPanel();
 		controls.add(cancelButton);
 		controls.add(createButton);
-		
+
 		JPanel centerPanel = new JPanel(new BorderLayout(5, 5)) {
 
 			private static final long serialVersionUID = 1L;
@@ -217,16 +216,15 @@ public class EditUserDialog extends JDialog {
 	}
 
 	private boolean validateFields() {
-		String uname = usernameField.getText();
-		if (StringUtils.isEmpty(uname)) {
+		if (StringUtils.isEmpty(usernameField.getText())) {
 			error("Please enter a username!");
 			return false;
 		}
-
+		String uname = usernameField.getText().toLowerCase();
 		boolean rename = false;
 		// verify username uniqueness on create
 		if (isCreate) {
-			if (usernames.contains(uname.toLowerCase())) {
+			if (usernames.contains(uname)) {
 				error(MessageFormat.format("Username ''{0}'' is unavailable.", uname));
 				return false;
 			}
@@ -234,7 +232,7 @@ public class EditUserDialog extends JDialog {
 			// check rename collision
 			rename = !StringUtils.isEmpty(username) && !username.equalsIgnoreCase(uname);
 			if (rename) {
-				if (usernames.contains(uname.toLowerCase())) {
+				if (usernames.contains(uname)) {
 					error(MessageFormat.format(
 							"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
 							uname));
@@ -274,7 +272,7 @@ public class EditUserDialog extends JDialog {
 			} else if (type.equalsIgnoreCase("combined-md5")) {
 				// store MD5 digest of username+password
 				user.password = StringUtils.COMBINED_MD5_TYPE
-						+ StringUtils.getMD5(username.toLowerCase() + password);
+						+ StringUtils.getMD5(user.username + password);
 			} else {
 				// plain-text password
 				user.password = password;
@@ -292,7 +290,7 @@ public class EditUserDialog extends JDialog {
 
 		user.repositories.clear();
 		user.repositories.addAll(repositoryPalette.getSelections());
-		
+
 		user.teams.clear();
 		user.teams.addAll(teamsPalette.getSelections());
 		return true;
@@ -323,7 +321,7 @@ public class EditUserDialog extends JDialog {
 		}
 		repositoryPalette.setObjects(restricted, selected);
 	}
-	
+
 	public void setTeams(List<TeamModel> teams, List<TeamModel> selected) {
 		Collections.sort(teams);
 		if (selected != null) {

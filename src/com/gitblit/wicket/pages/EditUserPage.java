@@ -108,11 +108,13 @@ public class EditUserPage extends RootSubPage {
 			 */
 			@Override
 			protected void onSubmit() {
-				String username = userModel.username;
-				if (StringUtils.isEmpty(username)) {
+				if (StringUtils.isEmpty(userModel.username)) {
 					error("Please enter a username!");
 					return;
 				}
+				// force username to lower-case
+				userModel.username = userModel.username.toLowerCase();
+				String username = userModel.username;
 				if (isCreate) {
 					UserModel model = GitBlit.self().getUserModel(username);
 					if (model != null) {
@@ -151,7 +153,7 @@ public class EditUserPage extends RootSubPage {
 					} else if (type.equalsIgnoreCase("combined-md5")) {
 						// store MD5 digest of username+password
 						userModel.password = StringUtils.COMBINED_MD5_TYPE
-								+ StringUtils.getMD5(username.toLowerCase() + userModel.password);
+								+ StringUtils.getMD5(username + userModel.password);
 					}
 				} else if (rename
 						&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
@@ -177,7 +179,7 @@ public class EditUserPage extends RootSubPage {
 					userModel.teams.add(team);
 				}
 
-				try {
+				try {					
 					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
