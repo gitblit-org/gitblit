@@ -32,8 +32,10 @@ import com.gitblit.models.IssueModel.Change;
 import com.gitblit.models.IssueModel.Field;
 import com.gitblit.models.IssueModel.Priority;
 import com.gitblit.models.IssueModel.Status;
+import com.gitblit.models.SearchResult;
 import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.IssueUtils.IssueFilter;
+import com.gitblit.utils.LuceneUtils;
 
 /**
  * Tests the mechanics of distributed issue management on the gb-issues branch.
@@ -134,6 +136,40 @@ public class IssuesTest {
 		assertEquals(1, openIssues.size());
 		assertEquals(1, closedIssues.size());
 	}
+
+	@Test
+	public void testLuceneIndexAndQuery() throws Exception {		
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		LuceneUtils.deleteIndex(repository);
+		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
+		assertTrue(allIssues.size() > 0);
+		for (IssueModel issue : allIssues) {
+			LuceneUtils.index(repository, issue, false);
+		}
+		List<SearchResult> hits = LuceneUtils.search(repository, "working");
+		assertTrue(hits.size() > 0);
+		
+		// reindex an issue
+		IssueModel issue = allIssues.get(0);
+		Change change = new Change("reindex");
+		change.comment("this is a test of reindexing an issue");
+		IssueUtils.updateIssue(repository, issue.id, change);
+		issue = IssueUtils.getIssue(repository, issue.id);
+		LuceneUtils.index(repository, issue, true);
+		
+		LuceneUtils.close();
+		repository.close();
+	}
+	
+	@Test
+	public void testLuceneQuery() throws Exception {
+		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		List<SearchResult> hits = LuceneUtils.search(repository, "working");
+		LuceneUtils.close();
+		repository.close();
+		assertTrue(hits.size() > 0);
+	}
+
 
 	@Test
 	public void testDelete() throws Exception {

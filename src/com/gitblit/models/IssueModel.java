@@ -106,6 +106,16 @@ public class IssueModel implements Serializable, Comparable<IssueModel> {
 		return attachment;
 	}
 
+	public List<Attachment> getAttachments() {
+		List<Attachment> list = new ArrayList<Attachment>();
+		for (Change change : changes) {
+			if (change.hasAttachments()) {
+				list.addAll(change.attachments);
+			}
+		}
+		return list;
+	}
+
 	public void applyChange(Change change) {
 		changes.add(change);
 

@@ -740,7 +740,7 @@ public class IssueUtils {
 	 * @param issueId
 	 * @return the root path of the issue content on the gb-issues branch
 	 */
-	private static String getIssuePath(String issueId) {
+	static String getIssuePath(String issueId) {
 		return issueId.substring(0, 2) + "/" + issueId.substring(2);
 	}
 

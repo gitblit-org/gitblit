@@ -90,6 +90,7 @@ public class Build {
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.MAIL, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.GROOVY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -116,6 +117,7 @@ public class Build {
 		downloadFromApache(MavenObject.GSON, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.MAIL, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.GROOVY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.LUCENE, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -500,6 +502,10 @@ public class Build {
 		public static final MavenObject GROOVY = new MavenObject("groovy", "org/codehaus/groovy", "groovy-all",
 				"1.8.5", 6143000, 2290000, 4608000, "3be3914c49ca7d8e8afb29a7772a74c30a1f1b28",
 				"1435cc8c90e3a91e5fee7bb53e83aad96e93aeb7", "5a214b52286523f9e2a4b5fed526506c763fa6f1");
+
+		public static final MavenObject LUCENE = new MavenObject("lucene", "org/apache/lucene", "lucene-core",
+				"3.5.0", 1470000, 1347000, 3608000, "90ff0731fafb05c01fee4f2247140d56e9c30a3b",
+				"0757113199f9c8c18c678c96d61c2c4160b9baa6", "19f8e80e5e7f6ec88a41d4f63495994692e31bf1");
 
 		public final String name;
 		public final String group;
