@@ -1190,12 +1190,28 @@ public class JGitUtils {
 	 */
 	public static void setDefaultHead(Repository repository, Ref ref) {
 		try {
-			RefUpdate head = repository.updateRef(Constants.HEAD);
-			RefUpdate.Result result = head.link(ref.getName());
-			LOGGER.debug(MessageFormat.format("Set repository {0} default head to {1} ({2})",
-					repository.getDirectory().getAbsolutePath(), ref.getName(), result));
-		} catch (IOException e) {
-			LOGGER.error("Failed to set default head!", e);
+			boolean detach = !ref.getName().startsWith(Constants.R_HEADS); // detach if not a branch
+			RefUpdate.Result result;
+			RefUpdate head = repository.updateRef(Constants.HEAD, detach);
+			if (detach) { // Tag
+				RevCommit commit = getCommit(repository, ref.getObjectId().getName());
+				head.setNewObjectId(commit.getId());
+				result = head.forceUpdate();
+			} else {
+				result = head.link(ref.getName());
+			}
+			switch (result) {
+			case NEW:
+			case FORCED:
+			case NO_CHANGE:
+			case FAST_FORWARD:
+				break;
+			default:
+				LOGGER.error(MessageFormat.format("{0} failed to set default head to {1} ({2})",
+						repository.getDirectory().getAbsolutePath(), ref.getName(), result));
+			}
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to set default head to {1}", ref.getName());
 		}
 	}
 
