@@ -1156,6 +1156,50 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Returns the default HEAD for a repository. Normally returns the ref HEAD points to, but if HEAD points to nothing
+	 * it returns null.
+	 *
+	 * @param repository
+	 * @return the refmodel for HEAD or null
+	 */
+	public static RefModel getDefaultHead(Repository repository) {
+		RefModel ref = null;
+		try {
+			Ref head = repository.getRef(Constants.HEAD);
+			if (head != null) {
+				Ref target = head.getTarget();
+				RevWalk rw = new RevWalk(repository);
+				ObjectId targetId = target.getObjectId();
+				if (targetId != null) {
+					RevObject object = rw.parseAny(targetId);
+					ref = new RefModel(target.getName(), target, object);
+				}
+				rw.dispose();
+			}
+		} catch (Throwable t) {
+			LOGGER.error("Failed to get default head!", t);
+		}
+		return ref;
+	}
+
+	/**
+	 * Sets the default HEAD symbolic ref for a repository.
+	 *
+	 * @param repository
+	 * @param ref
+	 */
+	public static void setDefaultHead(Repository repository, Ref ref) {
+		try {
+			RefUpdate head = repository.updateRef(Constants.HEAD);
+			RefUpdate.Result result = head.link(ref.getName());
+			LOGGER.debug(MessageFormat.format("Set repository {0} default head to {1} ({2})",
+					repository.getDirectory().getAbsolutePath(), ref.getName(), result));
+		} catch (IOException e) {
+			LOGGER.error("Failed to set default head!", e);
+		}
+	}
+
+	/**
 	 * Returns all refs grouped by their associated object id.
 	 * 
 	 * @param repository

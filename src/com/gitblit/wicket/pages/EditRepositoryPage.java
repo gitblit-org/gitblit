@@ -45,6 +45,7 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -271,6 +272,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
 		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
+		// enable alteration of the default branch after clone
+		form.add(new DropDownChoice<RefModel>("defaultHead", repositoryModel.availableHeads,
+				new RefModelRenderer()).setEnabled(GitBlitWebSession.get().canAdmin()));
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
@@ -358,6 +362,21 @@ public class EditRepositoryPage extends RootSubPage {
 		} else {
 			// No Administration Permitted
 			error("Administration is disabled", true);
+		}
+	}
+
+	private class RefModelRenderer implements IChoiceRenderer<RefModel> {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getDisplayValue(RefModel type) {
+			return type.displayName;
+		}
+
+		@Override
+		public String getIdValue(RefModel type, int index) {
+			return type.getName();
 		}
 	}
 
