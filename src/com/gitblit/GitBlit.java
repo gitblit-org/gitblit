@@ -69,7 +69,6 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
-import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -787,10 +786,8 @@ public class GitBlit implements ServletContextListener {
 			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "mailingList")));
 		}
-		model.defaultHead = JGitUtils.getDefaultHead(r);
-		model.availableHeads = new ArrayList<RefModel>();
-		model.availableHeads.addAll(JGitUtils.getLocalBranches(r, true, -1));
-		model.availableHeads.addAll(JGitUtils.getTags(r, true, -1));
+		model.defaultHead = JGitUtils.getSymbolicHeadTarget(r);
+		model.availableHeads = JGitUtils.getAvailableHeadTargets(r);
 		r.close();
 		return model;
 	}
@@ -986,8 +983,10 @@ public class GitBlit implements ServletContextListener {
 		// update settings
 		if (r != null) {
 			updateConfiguration(r, repository);
-			if (repository.defaultHead != null) {
-				JGitUtils.setDefaultHead(r, repository.defaultHead.reference);
+			// only update symbolic head if it changes
+			if (!StringUtils.isEmpty(repository.defaultHead) &&
+					!repository.defaultHead.equals(JGitUtils.getSymbolicHeadTarget(r))) {
+				JGitUtils.setSymbolicHeadTarget(r, repository.defaultHead);
 			}
 			r.close();
 		}
