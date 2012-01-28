@@ -786,6 +786,8 @@ public class GitBlit implements ServletContextListener {
 			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "mailingList")));
 		}
+		model.defaultHead = JGitUtils.getSymbolicHeadTarget(r);
+		model.availableHeads = JGitUtils.getAvailableHeadTargets(r);
 		r.close();
 		return model;
 	}
@@ -981,6 +983,11 @@ public class GitBlit implements ServletContextListener {
 		// update settings
 		if (r != null) {
 			updateConfiguration(r, repository);
+			// only update symbolic head if it changes
+			if (!StringUtils.isEmpty(repository.defaultHead) &&
+					!repository.defaultHead.equals(JGitUtils.getSymbolicHeadTarget(r))) {
+				JGitUtils.setSymbolicHeadTarget(r, repository.defaultHead);
+			}
 			r.close();
 		}
 	}
