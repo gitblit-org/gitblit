@@ -271,6 +271,8 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
 		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
+		// enable alteration of the default branch after clone
+		form.add(new DropDownChoice<String>("defaultHead", repositoryModel.availableHeads));
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
