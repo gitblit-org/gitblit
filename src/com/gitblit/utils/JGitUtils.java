@@ -340,7 +340,7 @@ public class JGitUtils {
 					String repository = StringUtils.getRelativePath(basePath,
 							file.getAbsolutePath());
 					list.add(repository);
-				} else if (searchSubfolders) {
+				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
 					list.addAll(getRepositoryList(basePath, file, exportAll, searchSubfolders));
 				}
