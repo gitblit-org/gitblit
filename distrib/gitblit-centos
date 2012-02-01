@@ -25,7 +25,7 @@ case "$1" in
   stop)
     if [ -f $GITBLIT_PATH/gitblit.jar ];
       then
-      echo $"Starting gitblit server"
+      echo $"Stopping gitblit server"
       $JAVA $GITBLIT_PATH/gitblit.jar --stop > /dev/null &
       echo "."
       exit $RETVAL
