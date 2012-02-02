@@ -16,6 +16,7 @@ case "$1" in
     if [ -f $GITBLIT_PATH/gitblit.jar ];
       then
       echo $"Starting gitblit server"
+      cd $GITBLIT_PATH
       $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT > /dev/null &
       echo "."
       exit $RETVAL
@@ -26,6 +27,7 @@ case "$1" in
     if [ -f $GITBLIT_PATH/gitblit.jar ];
       then
       echo $"Stopping gitblit server"
+      cd $GITBLIT_PATH
       $JAVA $GITBLIT_PATH/gitblit.jar --stop > /dev/null &
       echo "."
       exit $RETVAL
