@@ -117,7 +117,7 @@
 
 		<delete dir="${project.build.dir}" />
 		<mkdir dir="${project.build.dir}" />
-		<javac debug="true" srcdir="${basedir}/src" destdir="${project.build.dir}">
+		<javac debug="true" srcdir="${basedir}/src" destdir="${project.build.dir}" includeantruntime="false">
 			<include name="com/gitblit/build/Build.java" />			
 			<include name="com/gitblit/Constants.java" />
 			<include name="com/gitblit/utils/StringUtils.java" />			
@@ -131,7 +131,7 @@
 			</fileset>
 			<pathelement path="${project.build.dir}" />				
 		</path>
-		<javac debug="true" destdir="${project.build.dir}" failonerror="false">
+		<javac debug="true" destdir="${project.build.dir}" failonerror="false" includeantruntime="false">
 			<src path="${basedir}/src" />
 			<classpath refid="master-classpath" />
 		</javac>
