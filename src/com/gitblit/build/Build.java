@@ -270,7 +270,7 @@ public class Build {
 		if (BuildType.RUNTIME.equals(type)) {
 			jars = new String[] { "" };
 		} else if (BuildType.COMPILETIME.equals(type)) {
-			jars = new String[] { "-sources", "-javadoc" };
+			jars = new String[] { "-sources" };
 		}
 		for (String jar : jars) {
 			File targetFile = mo.getLocalFile("ext", jar);
