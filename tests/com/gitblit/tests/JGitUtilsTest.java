@@ -212,6 +212,28 @@ public class JGitUtilsTest {
 		assertEquals("183474d554e6f68478a02d9d7888b67a9338cdff", list.get(0).notesRef
 				.getReferencedObjectId().getName());
 	}
+	
+	@Test
+	public void testRelinkHEAD() throws Exception {
+		Repository repository = GitBlitSuite.getJGitRepository();
+		// confirm HEAD is master
+		String currentRef = JGitUtils.getHEADRef(repository);
+		assertEquals("refs/heads/master", currentRef);
+		List<String> availableHeads = JGitUtils.getAvailableHeadTargets(repository);
+		assertTrue(availableHeads.size() > 0);
+		
+		// set HEAD to stable-1.2
+		JGitUtils.setHEADtoRef(repository, "refs/heads/stable-1.2");
+		currentRef = JGitUtils.getHEADRef(repository);
+		assertEquals("refs/heads/stable-1.2", currentRef);
+
+		// restore HEAD to master
+		JGitUtils.setHEADtoRef(repository, "refs/heads/master");
+		currentRef = JGitUtils.getHEADRef(repository);
+		assertEquals("refs/heads/master", currentRef);
+		
+		repository.close();
+	}
 
 	@Test
 	public void testCreateOrphanedBranch() throws Exception {

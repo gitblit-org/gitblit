@@ -273,11 +273,11 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
 		
 		// allow relinking HEAD to a branch or tag other than master on edit repository
-		List<String> availableHeads = new ArrayList<String>();
-		if (!ArrayUtils.isEmpty(repositoryModel.availableHeads)) {
-			availableHeads.addAll(repositoryModel.availableHeads);
+		List<String> availableRefs = new ArrayList<String>();
+		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
+			availableRefs.addAll(repositoryModel.availableRefs);
 		}
-		form.add(new DropDownChoice<String>("defaultHead", availableHeads).setEnabled(!isCreate));
+		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(!isCreate));
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.

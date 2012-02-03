@@ -98,7 +98,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox ownerField;
 
-	private JComboBox defaultHeadField;
+	private JComboBox headRefField;
 
 	private JPalette<String> usersPalette;
 
@@ -158,13 +158,13 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.origin == null ? "" : anRepository.origin, 40);
 		originField.setEditable(false);
 
-		if (ArrayUtils.isEmpty(anRepository.availableHeads)) {
-			defaultHeadField = new JComboBox();
-			defaultHeadField.setEnabled(false);			
+		if (ArrayUtils.isEmpty(anRepository.availableRefs)) {
+			headRefField = new JComboBox();
+			headRefField.setEnabled(false);			
 		} else {
-			defaultHeadField = new JComboBox(
-					anRepository.availableHeads.toArray());
-			defaultHeadField.setSelectedItem(anRepository.defaultHead);
+			headRefField = new JComboBox(
+					anRepository.availableRefs.toArray());
+			headRefField.setSelectedItem(anRepository.HEAD);
 		}
 
 		ownerField = new JComboBox();
@@ -213,8 +213,7 @@ public class EditRepositoryDialog extends JDialog {
 				descriptionField));
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.origin"), originField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.defaultHead"),
-				defaultHeadField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.head"), headRefField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
@@ -404,8 +403,8 @@ public class EditRepositoryDialog extends JDialog {
 		repository.description = descriptionField.getText();
 		repository.owner = ownerField.getSelectedItem() == null ? null
 				: ownerField.getSelectedItem().toString();
-		repository.defaultHead = defaultHeadField.getSelectedItem() == null ? null
-				: defaultHeadField.getSelectedItem().toString();
+		repository.HEAD = headRefField.getSelectedItem() == null ? null
+				: headRefField.getSelectedItem().toString();
 		repository.useTickets = useTickets.isSelected();
 		repository.useDocs = useDocs.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();

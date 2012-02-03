@@ -786,8 +786,8 @@ public class GitBlit implements ServletContextListener {
 			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "mailingList")));
 		}
-		model.defaultHead = JGitUtils.getSymbolicHeadTarget(r);
-		model.availableHeads = JGitUtils.getAvailableHeadTargets(r);
+		model.HEAD = JGitUtils.getHEADRef(r);
+		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
 		r.close();
 		return model;
 	}
@@ -984,15 +984,14 @@ public class GitBlit implements ServletContextListener {
 		if (r != null) {
 			updateConfiguration(r, repository);
 			// only update symbolic head if it changes
-			String currentHead = JGitUtils.getSymbolicHeadTarget(r);
-			if (!StringUtils.isEmpty(repository.defaultHead)  &&
-					!repository.defaultHead.equals(currentHead)) {
+			String currentRef = JGitUtils.getHEADRef(r);
+			if (!StringUtils.isEmpty(repository.HEAD) && !repository.HEAD.equals(currentRef)) {
 				logger.info(MessageFormat.format("Relinking {0} HEAD from {1} to {2}", 
-						repository.name, currentHead, repository.defaultHead));
-				JGitUtils.setSymbolicHeadTarget(r, repository.defaultHead);
-
-				// clear the cache
-				clearRepositoryCache(repository.name);
+						repository.name, currentRef, repository.HEAD));
+				if (JGitUtils.setHEADtoRef(r, repository.HEAD)) {
+					// clear the cache
+					clearRepositoryCache(repository.name);
+				}
 			}
 
 			// close the repository object

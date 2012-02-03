@@ -1163,9 +1163,9 @@ public class JGitUtils {
 	 * no match is found, the SHA1 is returned.
 	 *
 	 * @param repository
-	 * @return the ref name or the SHA1 for detached HEADs
+	 * @return the ref name or the SHA1 for a detached HEAD
 	 */
-	public static String getSymbolicHeadTarget(Repository repository) {
+	public static String getHEADRef(Repository repository) {
 		String target = null;
 		try {
 			target = repository.getFullBranch();
@@ -1193,58 +1193,56 @@ public class JGitUtils {
 	}
 	
 	/**
-	 * Sets the HEAD symbolic ref name for a repository. The HEAD will
-	 * be detached if the name does not reference a branch.
+	 * Sets the symbolic ref HEAD to the specified target ref. The
+	 * HEAD will be detached if the target ref is not a branch.
 	 *
 	 * @param repository
-	 * @param name
+	 * @param targetRef
+	 * @return true if successful
 	 */
-	public static void setSymbolicHeadTarget(Repository repository, String name) {
+	public static boolean setHEADtoRef(Repository repository, String targetRef) {
 		try {
-			boolean detach = !name.startsWith(Constants.R_HEADS); // detach if not a branch
+			 // detach HEAD if target ref is not a branch
+			boolean detach = !targetRef.startsWith(Constants.R_HEADS);
 			RefUpdate.Result result;
 			RefUpdate head = repository.updateRef(Constants.HEAD, detach);
 			if (detach) { // Tag
-				RevCommit commit = getCommit(repository, name);
+				RevCommit commit = getCommit(repository, targetRef);
 				head.setNewObjectId(commit.getId());
 				result = head.forceUpdate();
 			} else {
-				result = head.link(name);
+				result = head.link(targetRef);
 			}
 			switch (result) {
 			case NEW:
 			case FORCED:
 			case NO_CHANGE:
 			case FAST_FORWARD:
-				break;
+				return true;				
 			default:
-				LOGGER.error(MessageFormat.format("{0} symbolic HEAD update to {1} returned result {2}",
-						repository.getDirectory().getAbsolutePath(), name, result));
+				LOGGER.error(MessageFormat.format("{0} HEAD update to {1} returned result {2}",
+						repository.getDirectory().getAbsolutePath(), targetRef, result));
 			}
 		} catch (Throwable t) {
-			error(t, repository, "{0} failed to set symbolic HEAD to {1}", name);
+			error(t, repository, "{0} failed to set HEAD to {1}", targetRef);
 		}
+		return false;
 	}
 	
 	/**
-	 * Get the full branch and tag ref names for any potential symbolic head targets.
+	 * Get the full branch and tag ref names for any potential HEAD targets.
 	 *
 	 * @param repository
 	 * @return a list of ref names
 	 */
 	public static List<String> getAvailableHeadTargets(Repository repository) {
 		List<String> targets = new ArrayList<String>();
-		List<RefModel> branchModels = JGitUtils.getLocalBranches(repository, true, -1);
-		if (branchModels.size() > 0) {
-			for (RefModel branchModel : branchModels) {
-				targets.add(branchModel.getName());
-			}
+		for (RefModel branchModel : JGitUtils.getLocalBranches(repository, true, -1)) {
+			targets.add(branchModel.getName());
 		}
-		List<RefModel> tagModels = JGitUtils.getTags(repository, true, -1);
-		if (tagModels.size() > 0) {
-			for (RefModel tagModel : tagModels) {
-				targets.add(tagModel.getName());
-			}
+
+		for (RefModel tagModel : JGitUtils.getTags(repository, true, -1)) {
+			targets.add(tagModel.getName());
 		}
 		return targets;
 	}
