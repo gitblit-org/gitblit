@@ -14,6 +14,7 @@
 
 #### fixes 
 
+- Prevent add/edit team with no selected repositories (issue 56) 
 - Disallow browser autocomplete on add/edit user/team/repository pages
 - Fixed username case-sensitivity issues (issue 43)
 - Disregard searching a subfolder if Gitblit does not have filesystem permissions (Github/lemval issue 51)

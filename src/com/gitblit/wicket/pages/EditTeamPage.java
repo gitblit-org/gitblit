@@ -150,6 +150,10 @@ public class EditTeamPage extends RootSubPage {
 				while (selectedRepositories.hasNext()) {
 					repos.add(selectedRepositories.next().toLowerCase());
 				}
+				if (repos.size() == 0) {
+					error("A team must specify at least one repository.");
+					return;
+				}
 				teamModel.repositories.clear();
 				teamModel.repositories.addAll(repos);
 
