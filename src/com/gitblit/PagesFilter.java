@@ -77,6 +77,18 @@ public class PagesFilter extends AccessRestrictionFilter {
 	}
 
 	/**
+	 * Determine if the action may be executed on the repository.
+	 * 
+	 * @param repository
+	 * @param action
+	 * @return true if the action may be performed
+	 */
+	@Override
+	protected boolean isActionAllowed(RepositoryModel repository, String action) {
+		return true;
+	}
+	
+	/**
 	 * Determine if the repository requires authentication.
 	 * 
 	 * @param repository

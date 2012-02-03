@@ -53,14 +53,14 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean skipSizeCalculation;
 	public boolean skipSummaryMetrics;
 	public String frequency;
+	public boolean isBare;
 	public String origin;
+	public String HEAD;
+	public List<String> availableRefs;
 	public String size;
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
-	public String HEAD;
-	public List<String> availableRefs;
-
 	private String displayName;
 	
 	public RepositoryModel() {

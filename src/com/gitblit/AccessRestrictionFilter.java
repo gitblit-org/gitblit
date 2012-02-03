@@ -62,6 +62,15 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	protected abstract String getUrlRequestAction(String url);
 
 	/**
+	 * Determine if the action may be executed on the repository.
+	 * 
+	 * @param repository
+	 * @param action
+	 * @return true if the action may be performed
+	 */
+	protected abstract boolean isActionAllowed(RepositoryModel repository, String action);
+
+	/**
 	 * Determine if the repository requires authentication.
 	 * 
 	 * @param repository
@@ -108,6 +117,14 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 			logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
 					HttpServletResponse.SC_NOT_FOUND));
 			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		
+		// Confirm that the action may be executed on the repository
+		if (!isActionAllowed(model, urlRequestType)) {
+			logger.info(MessageFormat.format("ARF: action {0} on {1} forbidden ({2})",
+					urlRequestType, model, HttpServletResponse.SC_FORBIDDEN));
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 

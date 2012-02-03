@@ -6,6 +6,7 @@
 
 #### changes
 
+- block pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
 - web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 50)
 
 #### additions

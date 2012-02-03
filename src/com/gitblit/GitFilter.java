@@ -81,6 +81,25 @@ public class GitFilter extends AccessRestrictionFilter {
 		}
 		return null;
 	}
+	
+	/**
+	 * Determine if the repository can receive pushes.
+	 * 
+	 * @param repository
+	 * @param action
+	 * @return true if the action may be performed
+	 */
+	@Override
+	protected boolean isActionAllowed(RepositoryModel repository, String action) {
+		if (action.equals(gitReceivePack)) {
+			// Push request
+			if (!repository.isBare) {
+				logger.warn("Gitblit does not allow pushes to repositories with a working copy");
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Determine if the repository requires authentication.
@@ -107,8 +126,8 @@ public class GitFilter extends AccessRestrictionFilter {
 		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
 			// Git Servlet disabled
 			return false;
-		}
-		boolean readOnly = repository.isFrozen;
+		}		
+		boolean readOnly = repository.isFrozen;	
 		if (readOnly || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
 			boolean authorizedUser = user.canAccessRepository(repository);
 			if (action.equals(gitReceivePack)) {

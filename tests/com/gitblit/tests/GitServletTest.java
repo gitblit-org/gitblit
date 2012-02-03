@@ -30,6 +30,8 @@ public class GitServletTest {
 	static File ticgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit2");
 
 	static File jgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/jgit");
+	
+	static File jgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/jgit2");
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;
@@ -60,6 +62,9 @@ public class GitServletTest {
 		}
 		if (jgitFolder.exists()) {
 			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE);
+		}
+		if (jgit2Folder.exists()) {
+			FileUtils.delete(jgit2Folder, FileUtils.RECURSIVE);
 		}
 	}
 
@@ -138,6 +143,34 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
+		close(git);
+	}
+	
+	@Test
+	public void testPushToNonBareRepository() throws Exception {
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/working/jgit", url));
+		clone.setDirectory(jgit2Folder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
+		close(clone.call());
+		assertTrue(true);
+
+		Git git = Git.open(jgit2Folder);
+		File file = new File(jgit2Folder, "NONBARE");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("test commit followed by push to non-bare repository").call();
+		try {
+			git.push().setPushAll().call();
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e.getCause().getMessage().contains("git-receive-pack not permitted"));
+		}
 		close(git);
 	}
 	

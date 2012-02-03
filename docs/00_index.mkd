@@ -30,10 +30,7 @@
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
 It's designed primarily as a tool for small workgroups who want to host centralized repositories.
 
-You can browse a live demo [here](http://demo-gitblit.rhcloud.com) hosted on [RedHat's OpenShift][rhcloud] cloud service.
-
-**NOTE:**  
-The demo is a bit unstable due to a bug in JBossAS7/Tomcat when running in LOW_MEMORY mode which OpenShift mandates.  RedHat engineers hope to have this issue resolved soon.
+You can browse a live demo [here](https://demo-gitblit.rhcloud.com) hosted on [RedHat's OpenShift][rhcloud] cloud service.
 
 ### GO: Single-Stack Solution
 
