@@ -984,10 +984,18 @@ public class GitBlit implements ServletContextListener {
 		if (r != null) {
 			updateConfiguration(r, repository);
 			// only update symbolic head if it changes
-			if (!StringUtils.isEmpty(repository.defaultHead) &&
-					!repository.defaultHead.equals(JGitUtils.getSymbolicHeadTarget(r))) {
+			String currentHead = JGitUtils.getSymbolicHeadTarget(r);
+			if (!StringUtils.isEmpty(repository.defaultHead)  &&
+					!repository.defaultHead.equals(currentHead)) {
+				logger.info(MessageFormat.format("Relinking {0} HEAD from {1} to {2}", 
+						repository.name, currentHead, repository.defaultHead));
 				JGitUtils.setSymbolicHeadTarget(r, repository.defaultHead);
+
+				// clear the cache
+				clearRepositoryCache(repository.name);
 			}
+
+			// close the repository object
 			r.close();
 		}
 	}
