@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -210,6 +211,9 @@ public class EditTeamPage extends RootSubPage {
 				}
 			}
 		};
+
+		// do not let the browser pre-populate these fields
+		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
