@@ -492,7 +492,7 @@ public class WicketUtils {
 
 	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
-				"EEEE, MMMM d, yyyy h:mm a z");
+				"EEEE, MMMM d, yyyy HH:mm Z");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone != null) {
 			df.setTimeZone(timeZone);

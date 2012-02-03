@@ -66,7 +66,7 @@ public class BlamePage extends RepositoryPage {
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 
 		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
-				"EEEE, MMMM d, yyyy h:mm a z");
+				"EEEE, MMMM d, yyyy HH:mm Z");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
