@@ -208,11 +208,9 @@ public class EditTeamPage extends RootSubPage {
 					// create another team
 					info(MessageFormat.format("New team ''{0}'' successfully created.",
 							teamModel.name));
-					setResponsePage(EditTeamPage.class);
-				} else {
-					// back to users page
-					setResponsePage(UsersPage.class);
 				}
+				// back to users page
+				setResponsePage(UsersPage.class);
 			}
 		};
 
