@@ -98,6 +98,8 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox ownerField;
 
+	private JComboBox defaultHeadField;
+
 	private JPalette<String> usersPalette;
 
 	private JPalette<String> setsPalette;
@@ -130,7 +132,8 @@ public class EditRepositoryDialog extends JDialog {
 		setModal(true);
 		setResizable(false);
 		setTitle(Translation.get("gb.edit") + ": " + aRepository.name);
-		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
+		setIconImage(new ImageIcon(getClass()
+				.getResource("/gitblt-favicon.png")).getImage());
 	}
 
 	@Override
@@ -146,31 +149,48 @@ public class EditRepositoryDialog extends JDialog {
 	}
 
 	private void initialize(int protocolVersion, RepositoryModel anRepository) {
-		nameField = new JTextField(anRepository.name == null ? "" : anRepository.name, 35);
+		nameField = new JTextField(anRepository.name == null ? ""
+				: anRepository.name, 35);
 		descriptionField = new JTextField(anRepository.description == null ? ""
 				: anRepository.description, 35);
 
-		JTextField originField = new JTextField(anRepository.origin == null ? ""
-				: anRepository.origin, 40);
+		JTextField originField = new JTextField(
+				anRepository.origin == null ? "" : anRepository.origin, 40);
 		originField.setEditable(false);
+
+		if (ArrayUtils.isEmpty(anRepository.availableHeads)) {
+			defaultHeadField = new JComboBox();
+			defaultHeadField.setEnabled(false);			
+		} else {
+			defaultHeadField = new JComboBox(
+					anRepository.availableHeads.toArray());
+			defaultHeadField.setSelectedItem(anRepository.defaultHead);
+		}
 
 		ownerField = new JComboBox();
 
 		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
 				anRepository.useTickets);
-		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"), anRepository.useDocs);
-		showRemoteBranches = new JCheckBox(Translation.get("gb.showRemoteBranchesDescription"),
+		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"),
+				anRepository.useDocs);
+		showRemoteBranches = new JCheckBox(
+				Translation.get("gb.showRemoteBranchesDescription"),
 				anRepository.showRemoteBranches);
 		showReadme = new JCheckBox(Translation.get("gb.showReadmeDescription"),
 				anRepository.showReadme);
-		skipSizeCalculation = new JCheckBox(Translation.get("gb.skipSizeCalculationDescription"),
+		skipSizeCalculation = new JCheckBox(
+				Translation.get("gb.skipSizeCalculationDescription"),
 				anRepository.skipSizeCalculation);
-		skipSummaryMetrics = new JCheckBox(Translation.get("gb.skipSummaryMetricsDescription"),
+		skipSummaryMetrics = new JCheckBox(
+				Translation.get("gb.skipSummaryMetricsDescription"),
 				anRepository.skipSummaryMetrics);
-		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"), anRepository.isFrozen);
+		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"),
+				anRepository.isFrozen);
 
-		mailingListsField = new JTextField(ArrayUtils.isEmpty(anRepository.mailingLists) ? ""
-				: StringUtils.flattenStrings(anRepository.mailingLists, " "), 50);
+		mailingListsField = new JTextField(
+				ArrayUtils.isEmpty(anRepository.mailingLists) ? ""
+						: StringUtils.flattenStrings(anRepository.mailingLists,
+								" "), 50);
 
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
@@ -189,41 +209,55 @@ public class EditRepositoryDialog extends JDialog {
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.name"), nameField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.description"), descriptionField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.origin"), originField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.description"),
+				descriptionField));
+		fieldsPanel
+				.add(newFieldPanel(Translation.get("gb.origin"), originField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.defaultHead"),
+				defaultHeadField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"), useTickets));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
+				useTickets));
 		fieldsPanel
-				.add(newFieldPanel(Translation.get("gb.showRemoteBranches"), showRemoteBranches));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"), showReadme));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"),
-				skipSizeCalculation));
+				.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
+				showRemoteBranches));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"),
+				showReadme));
 		fieldsPanel
-				.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"), skipSummaryMetrics));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
+				.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"),
+						skipSizeCalculation));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"),
+				skipSummaryMetrics));
+		fieldsPanel
+				.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"),
+				mailingListsField));
 
 		usersPalette = new JPalette<String>();
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
-		accessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"), accessRestriction),
-				BorderLayout.NORTH);
-		accessPanel.add(newFieldPanel(Translation.get("gb.permittedUsers"), usersPalette),
-				BorderLayout.CENTER);
+		accessPanel.add(
+				newFieldPanel(Translation.get("gb.accessRestriction"),
+						accessRestriction), BorderLayout.NORTH);
+		accessPanel.add(
+				newFieldPanel(Translation.get("gb.permittedUsers"),
+						usersPalette), BorderLayout.CENTER);
 
 		teamsPalette = new JPalette<String>();
 		JPanel teamsPanel = new JPanel(new BorderLayout(5, 5));
-		teamsPanel.add(newFieldPanel(Translation.get("gb.permittedTeams"), teamsPalette),
-				BorderLayout.CENTER);
+		teamsPanel.add(
+				newFieldPanel(Translation.get("gb.permittedTeams"),
+						teamsPalette), BorderLayout.CENTER);
 
 		setsPalette = new JPalette<String>();
 		JPanel federationPanel = new JPanel(new BorderLayout(5, 5));
 		federationPanel.add(
-				newFieldPanel(Translation.get("gb.federationStrategy"), federationStrategy),
-				BorderLayout.NORTH);
-		federationPanel.add(newFieldPanel(Translation.get("gb.federationSets"), setsPalette),
-				BorderLayout.CENTER);
+				newFieldPanel(Translation.get("gb.federationStrategy"),
+						federationStrategy), BorderLayout.NORTH);
+		federationPanel
+				.add(newFieldPanel(Translation.get("gb.federationSets"),
+						setsPalette), BorderLayout.CENTER);
 
 		preReceivePalette = new JPalette<String>(true);
 		preReceiveInherited = new JLabel();
@@ -327,7 +361,8 @@ public class EditRepositoryDialog extends JDialog {
 		// confirm valid characters in repository name
 		Character c = StringUtils.findInvalidCharacter(rname);
 		if (c != null) {
-			error(MessageFormat.format("Illegal character ''{0}'' in repository name!", c));
+			error(MessageFormat.format(
+					"Illegal character ''{0}'' in repository name!", c));
 			return false;
 		}
 
@@ -338,17 +373,18 @@ public class EditRepositoryDialog extends JDialog {
 			// is case-insensitive, regardless of the Gitblit server's
 			// filesystem
 			if (repositoryNames.contains(rname.toLowerCase())) {
-				error(MessageFormat.format(
-						"Can not create repository ''{0}'' because it already exists.", rname));
+				error(MessageFormat
+						.format("Can not create repository ''{0}'' because it already exists.",
+								rname));
 				return false;
 			}
 		} else {
 			// check rename collision
 			if (!repositoryName.equalsIgnoreCase(rname)) {
 				if (repositoryNames.contains(rname.toLowerCase())) {
-					error(MessageFormat.format(
-							"Failed to rename ''{0}'' because ''{1}'' already exists.",
-							repositoryName, rname));
+					error(MessageFormat
+							.format("Failed to rename ''{0}'' because ''{1}'' already exists.",
+									repositoryName, rname));
 					return false;
 				}
 			}
@@ -366,8 +402,10 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.name = rname;
 		repository.description = descriptionField.getText();
-		repository.owner = ownerField.getSelectedItem() == null ? null : ownerField
-				.getSelectedItem().toString();
+		repository.owner = ownerField.getSelectedItem() == null ? null
+				: ownerField.getSelectedItem().toString();
+		repository.defaultHead = defaultHeadField.getSelectedItem() == null ? null
+				: defaultHeadField.getSelectedItem().toString();
 		repository.useTickets = useTickets.isSelected();
 		repository.useDocs = useDocs.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
@@ -388,8 +426,10 @@ public class EditRepositoryDialog extends JDialog {
 			repository.mailingLists = new ArrayList<String>(list);
 		}
 
-		repository.accessRestriction = (AccessRestrictionType) accessRestriction.getSelectedItem();
-		repository.federationStrategy = (FederationStrategy) federationStrategy.getSelectedItem();
+		repository.accessRestriction = (AccessRestrictionType) accessRestriction
+				.getSelectedItem();
+		repository.federationStrategy = (FederationStrategy) federationStrategy
+				.getSelectedItem();
 
 		if (repository.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
 			repository.federationSets = setsPalette.getSelections();
@@ -432,7 +472,8 @@ public class EditRepositoryDialog extends JDialog {
 		setsPalette.setObjects(all, selected);
 	}
 
-	public void setPreReceiveScripts(List<String> all, List<String> inherited, List<String> selected) {
+	public void setPreReceiveScripts(List<String> all, List<String> inherited,
+			List<String> selected) {
 		preReceivePalette.setObjects(all, selected);
 		showInherited(inherited, preReceiveInherited);
 	}
@@ -475,13 +516,14 @@ public class EditRepositoryDialog extends JDialog {
 	 * restriction.
 	 * 
 	 */
-	private class AccessRestrictionRenderer extends JLabel implements ListCellRenderer {
+	private class AccessRestrictionRenderer extends JLabel implements
+			ListCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
 			if (value instanceof AccessRestrictionType) {
 				AccessRestrictionType restriction = (AccessRestrictionType) value;
 				switch (restriction) {
@@ -509,13 +551,14 @@ public class EditRepositoryDialog extends JDialog {
 	 * ListCellRenderer to display descriptive text about the federation
 	 * strategy.
 	 */
-	private class FederationStrategyRenderer extends JLabel implements ListCellRenderer {
+	private class FederationStrategyRenderer extends JLabel implements
+			ListCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value,
+				int index, boolean isSelected, boolean cellHasFocus) {
 			if (value instanceof FederationStrategy) {
 				FederationStrategy strategy = (FederationStrategy) value;
 				switch (strategy) {
