@@ -155,7 +155,7 @@ public class RepositoriesPanel extends BasePanel {
 					swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
 				} else {
 					swatch = new Label("repositorySwatch", "!");
-					WicketUtils.setHtmlTooltip(swatch, "This repository has a working copy and can not receive pushes");
+					WicketUtils.setHtmlTooltip(swatch, getString("gb.workingCopyWarning"));
 				}
 				WicketUtils.setCssBackground(swatch, entry.toString());
 				row.add(swatch);

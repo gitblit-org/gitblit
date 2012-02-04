@@ -153,6 +153,13 @@ public abstract class RepositoryPage extends BasePage {
 		add(new LinkPanel("repositoryName", null, StringUtils.stripDotGit(repositoryName),
 				SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName));
+		if (getRepositoryModel().isBare) {
+			add(new Label("workingCopy").setVisible(false));
+		} else {
+			Label lbl = new Label("workingCopy", getString("gb.workingCopy"));
+			WicketUtils.setHtmlTooltip(lbl,  getString("gb.workingCopyWarning"));
+			add(lbl);
+		}
 
 		super.setupPage(repositoryName, pageName);
 	}

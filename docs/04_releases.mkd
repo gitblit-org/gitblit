@@ -13,6 +13,7 @@
 
 - On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (issue 49)  
 Push requests to these repositories will be rejected.
+- On all non-bare Repository pages show *WORKING COPY* in the upper right corner (issue 49)
 - New setting to prevent display/serving non-bare repositories  
     **New:** *git.onlyAccessBareRepositories = false*
 - Allow relinking HEAD to a branch or a tag (Github/plm)
