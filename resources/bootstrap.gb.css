@@ -713,7 +713,7 @@ td.date {
 	font-style: italic !important;	
 }
 
-span.sha1, span.sha1 a, span.sha1 a span {
+span.sha1, span.sha1 a, span.sha1 a span, pre.commit_message {
 	font-family: monospace;
 	font-size: 13px;
 }

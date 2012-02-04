@@ -40,6 +40,7 @@ import org.wicketstuff.googlecharts.ShapeMarker;
 
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 
@@ -48,7 +49,11 @@ public class MetricsPage extends RepositoryPage {
 	public MetricsPage(PageParameters params) {
 		super(params);
 		Repository r = getRepository();
-		add(new Label("branchTitle", objectId));
+		if (StringUtils.isEmpty(objectId)) {
+			add(new Label("branchTitle", getRepositoryModel().HEAD));
+		} else {
+			add(new Label("branchTitle", objectId));
+		}
 		Metric metricsTotal = null;
 		List<Metric> metrics = MetricUtils.getDateMetrics(r, objectId, true, null);
 		metricsTotal = metrics.remove(0);
