@@ -290,21 +290,21 @@ public class JGitUtils {
 	 * Returns a list of repository names in the specified folder.
 	 * 
 	 * @param repositoriesFolder
-	 * @param exportAll
-	 *            if true, all repositories are listed. If false only the
-	 *            repositories with a "git-daemon-export-ok" file are included
+	 * @param onlyBare
+	 *            if true, only bare repositories repositories are listed. If
+	 *            false all repositories are included.
 	 * @param searchSubfolders
 	 *            recurse into subfolders to find grouped repositories
 	 * @return list of repository names
 	 */
-	public static List<String> getRepositoryList(File repositoriesFolder, boolean exportAll,
+	public static List<String> getRepositoryList(File repositoriesFolder, boolean onlyBare,
 			boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
 		if (repositoriesFolder == null || !repositoriesFolder.exists()) {
 			return list;
 		}
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
-				exportAll, searchSubfolders));
+				onlyBare, searchSubfolders));
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
@@ -316,24 +316,21 @@ public class JGitUtils {
 	 *            basePath is stripped from the repository name as repositories
 	 *            are relative to this path
 	 * @param searchFolder
-	 * @param exportAll
-	 *            if true all repositories are listed. If false only the
-	 *            repositories with a "git-daemon-export-ok" file are included
+	 * @param onlyBare
+	 *            if true only bare repositories will be listed. if false all
+	 *            repositories are included.
 	 * @param searchSubfolders
 	 *            recurse into subfolders to find grouped repositories
 	 * @return
 	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
-			boolean exportAll, boolean searchSubfolders) {
+			boolean onlyBare, boolean searchSubfolders) {
 		List<String> list = new ArrayList<String>();
 		for (File file : searchFolder.listFiles()) {
 			if (file.isDirectory()) {
 				File gitDir = FileKey.resolve(new File(searchFolder, file.getName()), FS.DETECTED);
 				if (gitDir != null) {
-					boolean exportRepository = exportAll
-							|| new File(gitDir, "git-daemon-export-ok").exists();
-
-					if (!exportRepository) {
+					if (onlyBare && gitDir.getName().equals(".git")) {
 						continue;
 					}
 					// determine repository name relative to base path
@@ -342,7 +339,7 @@ public class JGitUtils {
 					list.add(repository);
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
-					list.addAll(getRepositoryList(basePath, file, exportAll, searchSubfolders));
+					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders));
 				}
 			}
 		}

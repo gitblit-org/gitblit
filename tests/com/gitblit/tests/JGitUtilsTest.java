@@ -66,7 +66,7 @@ public class JGitUtilsTest {
 
 	@Test
 	public void testFindRepositories() {
-		List<String> list = JGitUtils.getRepositoryList(null, true, true);
+		List<String> list = JGitUtils.getRepositoryList(null, false, true);
 		assertEquals(0, list.size());
 		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true));
 		assertEquals(0, list.size());

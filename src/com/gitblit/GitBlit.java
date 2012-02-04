@@ -123,8 +123,6 @@ public class GitBlit implements ServletContextListener {
 
 	private File repositoriesFolder;
 
-	private boolean exportAll = true;
-
 	private IUserService userService;
 
 	private IStoredSettings settings;
@@ -642,7 +640,8 @@ public class GitBlit implements ServletContextListener {
 	 * @return list of all repositories
 	 */
 	public List<String> getRepositoryList() {
-		return JGitUtils.getRepositoryList(repositoriesFolder, exportAll,
+		return JGitUtils.getRepositoryList(repositoriesFolder, 
+				settings.getBoolean(Keys.git.onlyAccessBareRepositories, false),
 				settings.getBoolean(Keys.git.searchRepositoriesSubfolders, true));
 	}
 
@@ -1767,7 +1766,7 @@ public class GitBlit implements ServletContextListener {
 		this.settings = settings;
 		repositoriesFolder = getRepositoriesFolder();
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
-		repositoryResolver = new FileResolver<Void>(repositoriesFolder, exportAll);
+		repositoryResolver = new FileResolver<Void>(repositoriesFolder, true);
 		serverStatus = new ServerStatus(isGO());
 		String realm = settings.getString(Keys.realm.userService, "users.properties");
 		IUserService loginService = null;

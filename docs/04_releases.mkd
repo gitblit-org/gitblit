@@ -11,6 +11,8 @@
 
 #### additions
 
+- New setting to prevent display/serving non-bare repositories  
+    **New:** *git.onlyAccessBareRepositories = false*
 - Allow relinking HEAD to a branch or a tag (Github/plm)
 
 #### fixes 
