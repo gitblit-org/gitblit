@@ -76,13 +76,13 @@ public class LogPanel extends BasePanel {
 		if (pageResults) {
 			// shortlog page
 			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
+			add(new LinkPanel("header", "title", objectId, SummaryPage.class,
 					WicketUtils.newRepositoryParameter(repositoryName)));
 		} else {
 			// summary page
 			// show shortlog page link
-			add(new LinkPanel("header", "title", new StringResourceModel("gb.log", this, null),
-					LogPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new LinkPanel("header", "title", objectId, LogPage.class,
+					WicketUtils.newRepositoryParameter(repositoryName)));
 		}
 
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);

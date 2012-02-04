@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LogPanel;
 
@@ -31,7 +32,11 @@ public class LogPage extends RepositoryPage {
 		int pageNumber = WicketUtils.getPage(params);
 		int prevPage = Math.max(0, pageNumber - 1);
 		int nextPage = pageNumber + 1;
-		LogPanel logPanel = new LogPanel("logPanel", repositoryName, objectId, getRepository(), -1,
+		String refid = objectId;
+		if (StringUtils.isEmpty(refid)) {
+			refid = getRepositoryModel().HEAD;
+		}
+		LogPanel logPanel = new LogPanel("logPanel", repositoryName, refid, getRepository(), -1,
 				pageNumber - 1);
 		boolean hasMore = logPanel.hasMore();
 		add(logPanel);
