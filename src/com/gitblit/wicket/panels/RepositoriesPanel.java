@@ -148,9 +148,15 @@ public class RepositoriesPanel extends BasePanel {
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-				
+								
 				// repository swatch
-				Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
+				Component swatch;
+				if (entry.isBare){
+					swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
+				} else {
+					swatch = new Label("repositorySwatch", "!");
+					WicketUtils.setHtmlTooltip(swatch, "This repository has a working copy and can not receive pushes");
+				}
 				WicketUtils.setCssBackground(swatch, entry.toString());
 				row.add(swatch);
 				swatch.setVisible(showSwatch);

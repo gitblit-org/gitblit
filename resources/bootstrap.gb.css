@@ -219,9 +219,11 @@ span.link em, div.link span em {
 }
 
 span.repositorySwatch {
-	border-radius: 3px;
-	padding: 2px 5px;	
+	border-radius: 3px;	
+	padding: 1px 4px 2px 4px;	
 	color: #ffffff;
+	font-weight: bold;
+	vertical-align: center;
 }
 span.repositorySwatch a {
 	color: inherit;
