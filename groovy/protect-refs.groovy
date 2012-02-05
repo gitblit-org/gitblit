@@ -1,5 +1,7 @@
 /*
- * Copyright 2011 gitblit.com.
+ * Copyright 2012 Philip L. McMahon.
+ *
+ * Derived from blockpush.groovy, copyright 2011 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +21,19 @@ import com.gitblit.models.UserModel
 
 import org.eclipse.jgit.transport.ReceiveCommand
 import org.eclipse.jgit.transport.ReceiveCommand.Result
-import org.eclipse.jgit.transport.ReceiveCommand.Type
 import org.slf4j.Logger
 
 /**
  * Sample Gitblit Pre-Receive Hook: protect-refs
  * 
- * This script provides basic authorization for receive command types for a list
+ * This script provides basic authorization of receive command types for a list
  * of known ref patterns. Command types and unmatched ref patterns will be
  * ignored, meaning this script has an "allow by default" policy.
  *
  * This script works best when a repository requires authentication on push, but
  * can be used to enforce fast-forward commits or prohibit ref deletion by
- * setting the authorizedTeams variable to an empty list.
+ * setting the *authorizedTeams* variable to an empty list and adding a ".+"
+ * entry to the *protectedRefs* list.
  *
  * The Pre-Receive hook is executed after an incoming push has been parsed,
  * validated, and objects have been written but BEFORE the refs are updated.
@@ -51,8 +53,8 @@ import org.slf4j.Logger
  * This script is dynamically reloaded and it is executed within it's own
  * exception handler so it will not crash another script nor crash Gitblit.
  * 
- * If you want this hook script to fail and abort all subsequent scripts in the
- * chain, "return false" at the appropriate failure points.
+ * This script may reject one or more commands, but will never return false.
+ * Subsequent scripts, if any, will always be invoked.
  *
  * Bound Variables:
  *  gitblit		Gitblit Server	 		com.gitblit.GitBlit
@@ -64,33 +66,43 @@ import org.slf4j.Logger
  *  
  */
 
-def protectedCmds = [ Type.UPDATE_NONFASTFORWARD, Type.DELETE ]
-def protectedRefs = [ "refs/heads/master", "refs/tags/.+" ]
+// map of protected command types to returned results type
+// commands not included will skip authz check
+def protectedCmds = [
+	UPDATE_NONFASTFORWARD:	Result.REJECTED_NONFASTFORWARD,
+	DELETE:					Result.REJECTED_NODELETE
+]
+
+// list of regex patterns for protected refs
+def protectedRefs = [
+	"refs/heads/master",
+	"refs/tags/.+"
+]
+
+// teams which are authorized to perform protected commands on protected refs
 def authorizedTeams = [ "admins" ]
-def blocked = false
 
 for (ReceiveCommand command : commands) {
 	def updateType = command.type
 	def updatedRef = command.refName
 	
-	// find first regex which matches updated ref
-	def protectedRef = protectedRefs.find { updatedRef.matches ~it }
+	// find first regex which matches updated ref, if any
+	def refPattern = protectedRefs.find { updatedRef.matches ~it }
 	
-	// ...and check if command type requires authz check
-	if (protectedRef && updateType in protectedCmds) {
+	// find rejection result for update type, if any
+	def result = protectedCmds[updateType.name()]
+	
+	// command requires authz if ref is protected and has a mapped rejection result
+	if (refPattern && result) {
 	
 		// verify user is a member of any authorized team
 		def team = authorizedTeams.find { user.isTeamMember it }
 		if (team) {
-			logger.info "authorized ${command} for ${team} member ${user.username}"
+			// don't adjust command result
+			logger.info "${user.username} authorized for ${updateType} of protected ref ${repository.name}:${updatedRef} (${command.oldId.name} -> ${command.newId.name})"
 		} else {
-			command.setResult(Result.REJECTED_OTHER_REASON, "${user.username} cannot ${updateType} protected ref ${repository.name}:${updatedRef} (matched pattern ${protectedRef})")
-			blocked = true
+			// mark command result as rejected
+			command.setResult(result, "${user.username} cannot ${updateType} protected ref ${repository.name}:${updatedRef} matching pattern ${refPattern}")
 		}
 	}
-}
-
-if (blocked) {
-	// return false to break the push hook chain
-	return false
 }
