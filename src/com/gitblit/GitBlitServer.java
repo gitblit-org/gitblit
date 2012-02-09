@@ -30,6 +30,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jetty.ajp.Ajp13SocketConnector;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -203,6 +204,21 @@ public class GitBlitServer {
 			}
 		}
 
+		// conditionally configure the ajp connector
+		if (params.ajpPort > 0) {
+			Connector ajpConnector = createAJPConnector(params.ajpPort);
+			String bindInterface = settings.getString(Keys.server.ajpBindInterface, null);
+			if (!StringUtils.isEmpty(bindInterface)) {
+				logger.warn(MessageFormat.format("Binding connector on port {0,number,0} to {1}",
+						params.ajpPort, bindInterface));
+				ajpConnector.setHost(bindInterface);
+			}
+			if (params.ajpPort < 1024 && !isWindows()) {
+				logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+			}
+			connectors.add(ajpConnector);
+		}
+
 		// tempDir is where the embedded Gitblit web application is expanded and
 		// where Jetty creates any necessary temporary files
 		File tempDir = new File(params.temp);
@@ -298,9 +314,6 @@ public class GitBlitServer {
 
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
-		if (port < 1024 && !isWindows()) {
-			logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
-		}
 		return connector;
 	}
 
@@ -353,6 +366,22 @@ public class GitBlitServer {
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
 		return connector;
+	}
+	
+	/**
+	 * Creates an ajp connector.
+	 * 
+	 * @param port
+	 * @return an ajp connector
+	 */
+	private static Connector createAJPConnector(int port) {
+		logger.info("Setting up AJP Connector on port " + port);
+		Ajp13SocketConnector ajp = new Ajp13SocketConnector();
+		ajp.setPort(port);
+		if (port < 1024 && !isWindows()) {
+			logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
+		}
+		return ajp;
 	}
 
 	/**
@@ -460,6 +489,9 @@ public class GitBlitServer {
 
 		@Parameter(names = "--httpsPort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
 		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 443);
+
+		@Parameter(names = "--ajpPort", description = "AJP port to serve.  (port <= 0 will disable this connector)")
+		public Integer ajpPort = FILESETTINGS.getInteger(Keys.server.ajpPort, 0);
 
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
 		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");

@@ -26,5 +26,6 @@
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.2.0.201112221803-r.jar" sourcepath="ext/org.eclipse.jgit-1.1.0.201109151100-r-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-1.2.0.201112221803-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-1.2.0.201112221803-r-sources.jar"/>
 	<classpathentry kind="lib" path="ext/groovy-all-1.8.5.jar" sourcepath="ext/groovy-all-1.8.5-sources.jar"/>
+	<classpathentry kind="lib" path="ext/jetty-ajp-7.4.3.v20110701.jar" sourcepath="ext/jetty-ajp-7.4.3.v20110701-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

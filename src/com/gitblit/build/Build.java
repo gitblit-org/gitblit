@@ -73,6 +73,7 @@ public class Build {
 	public static void runtime() {
 		downloadFromApache(MavenObject.JCOMMANDER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JETTY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JETTY_AJP, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SERVLET, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.SLF4LOG4J, BuildType.RUNTIME);
@@ -99,6 +100,7 @@ public class Build {
 		downloadFromApache(MavenObject.JUNIT, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JCOMMANDER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JETTY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.JETTY_AJP, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.SERVLET, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.SLF4JAPI, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.SLF4LOG4J, BuildType.COMPILETIME);
@@ -388,6 +390,10 @@ public class Build {
 				2720000, "bde072b178f9650e2308f0babe58a4baaa469e3c",
 				"bc75f05dd4f7fa848720ac669b8b438ee4a6b146",
 				"dcd42f672e734521d1a6ccc0c2f9ecded1a1a281");
+
+		public static final MavenObject JETTY_AJP = new MavenObject("Jetty-AJP",
+				"org/eclipse/jetty", "jetty-ajp", "7.4.3.v20110701", 32000, 22000,
+				97000, "ddeb533bcf29e9b95555a9c0f34c1de3ab14c430", "bc4798286d705ea972643b3a0b31f46a0c53f605", "");
 
 		public static final MavenObject SERVLET = new MavenObject("Servlet 3.0", "org/glassfish",
 				"javax.servlet", "3.0.1", 84000, 211000, 0,
