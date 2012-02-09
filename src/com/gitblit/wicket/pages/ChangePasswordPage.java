@@ -120,6 +120,8 @@ public class ChangePasswordPage extends RootSubPage {
 
 			@Override
 			public void onSubmit() {
+				setRedirect(false);
+				error("Password change aborted.");
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
