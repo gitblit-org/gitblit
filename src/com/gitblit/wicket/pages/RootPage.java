@@ -195,7 +195,10 @@ public abstract class RootPage extends BasePage {
 	private void loginUser(UserModel user) {
 		if (user != null) {
 			// Set the user into the session
-			GitBlitWebSession.get().setUser(user);
+			GitBlitWebSession session = GitBlitWebSession.get();
+			// issue 62: fix session fixation vulnerability
+			session.replaceSession();
+			session.setUser(user);
 
 			// Set Cookie
 			if (GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {

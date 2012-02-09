@@ -80,7 +80,10 @@ public abstract class BasePage extends WebPage {
 		// Login the user
 		if (user != null) {
 			// Set the user into the session
-			GitBlitWebSession.get().setUser(user);
+			GitBlitWebSession session = GitBlitWebSession.get();
+			// issue 62: fix session fixation vulnerability
+			session.replaceSession();
+			session.setUser(user);
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
