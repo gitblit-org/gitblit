@@ -93,6 +93,14 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
 **Example**
 
     java -jar gitblit.jar --userService c:\myrealm.config --storePassword something
+
+#### Overriding Gitblit GO's Log4j Configuration
+
+You can override Gitblit GO's default Log4j configuration with a command-line parameter to the JVM.
+
+    java -Dlog4j.configuration=file:///home/james/log4j.properties -jar gitblit.jar <optional_gitblit_args>
+    
+For reference, here is [Gitblit's default Log4j configuration](https://github.com/gitblit/gitblit/blob/master/src/log4j.properties).  It includes some file appenders that are disabled by default. 
     
 ## Running Gitblit behind Apache
 
