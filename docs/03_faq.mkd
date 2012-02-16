@@ -48,7 +48,7 @@ This is likely an url encoding/decoding problem with forward slashes:
     http://192.168.1.2/log/myrepo.git/refs%2Fheads%2Fmaster
 
 **NOTE:**  
-You can not trust the url in the address bar of your browser since your browser may *prettify* the url.  When in doubt, *View Source* of the generated html to confirm the *href*.
+You can not trust the url in the address bar of your browser since your browser may decode it for presentation.  When in doubt, *View Source* of the generated html to confirm the *href*.
 
 There are two possible workarounds for this issue.  In `gitblit.properties` or `web.xml`:
 
@@ -59,7 +59,7 @@ There are two possible workarounds for this issue.  In `gitblit.properties` or `
 
 You must ensure that the proxy does not decode and then re-encode request urls with interpretation of forward-slashes (*%2F*).  If your proxy layer does re-encode embedded forward-slashes then you may not be able to browse grouped repositories or logs, branches, and tags **unless** you set *web.mountParameters=false*.
 
-If you are using Apache mod_proxy, specify [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
+If you are using Apache mod_proxy you may have luck with specifying [AllowEncodedSlashes NoDecode](http://httpd.apache.org/docs/2.2/mod/core.html#allowencodedslashes).
 
 ### Running Gitblit on Tomcat
 
@@ -67,7 +67,7 @@ Tomcat takes the extra precaution of [disallowing embedded slashes by default](h
 You have a few options on how to handle this scenario:
 
 1. [Tweak Tomcat](http://tomcat.apache.org/security-6.html#Fixed_in_Apache_Tomcat_6.0.10)  
-Add *org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true* to *CATALINA_OPTS*
+Add *-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true* to *CATALINA_OPTS* or to your JVM launch parameters
 2. *web.mountParameters = false* and use non-pretty, parameterized urls
 3. *web.forwardSlashCharacter = !* which tells Gitblit to use **!** instead of **/**
 

@@ -37,7 +37,7 @@ At present, Gitblit does not yet support retrieving Git objects (commits, etc) v
 
 The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The Gitblit Manager uses these methods to allow branch activity monitoring and repository searching.
 
-<table>
+<table class="table">
 <tr><th>url parameter</th><th>default</th><th>description</th></tr>
 <tr><td colspan='3'><b>standard query</b></td></tr>
 <tr><td><em>repository</em></td><td><em>required</em></td><td>repository name is part of the url (see examples below)</td></tr>
@@ -58,7 +58,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 ## JSON Remote Procedure Call (RPC) Interface
 
 ### RPC Protocol Versions
-<table>
+<table class="table">
 <tbody>
 <tr><th>Release</th><th>Protocol Version</th></tr>
 <tr><td>Gitblit v0.7.0</td><td>1 (inferred version)</td></tr>
@@ -67,7 +67,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 </table>
 
 ### RPC Request and Response Types
-<table>
+<table class="table">
 <tr><th colspan='2'>url parameters</th><th rowspan='2'>required<br/>user<br/>permission</th><th rowspan='2'>protocol<br/>version</th><th colspan='2'>json</th></tr>
 <tr><th>req=</th><th>name=</th><th>post body</th><th>response body</th></tr>
 <tr><td colspan='6'><em>web.enableRpcServlet=true</em></td></tr>
@@ -103,7 +103,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 </table>
 
 ### RPC/HTTP Response Codes
-<table>
+<table class="table">
 <tr><th>code</th><th>name</th><th>description</th></tr>
 <tr><td>200</td><td>success</td><td>Gitblit processed the request successfully</td></tr>
 <tr><td>401</td><td>unauthorized</td><td>Gitblit requires user credentials to process the request</td></tr>

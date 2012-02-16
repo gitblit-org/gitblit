@@ -2,29 +2,22 @@
 <html>
 	<head>
 		<title>Gitblit</title>
-		<link rel="stylesheet" type="text/css" href="./bootstrap.140.css"/>
-		<link rel="stylesheet" type="text/css" href="./bootstrap.gb.css"/>
-		<link rel="stylesheet" type="text/css" href="./markdown.css"/>
+		<link rel="stylesheet" href="./bootstrap/css/bootstrap.css"/>
+		<link rel="stylesheet" type="text/css" href="./gitblit.css"/>
 		<link rel="shortcut icon" type="image/png" href="./gitblt-favicon.png" />
 		<meta name="ROBOTS" content="INDEX">
 		<meta http-equiv="imagetoolbar" content="no" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<meta name="keywords" content="java git server" />
+
+		<script type="text/javascript" src="./bootstrap/js/jquery.js"></script>
+		<script type="text/javascript" src="./bootstrap/js/bootstrap.js"></script>
 		
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-		<script>
-			!window.jQuery && document.write('<script src="./fancybox/jquery-1.4.3.min.js"><\/script>');
-		</script>
 		<script type="text/javascript" src="./fancybox/query.mousewheel-3.0.4.pack.js"></script>
 		<script type="text/javascript" src="./fancybox/jquery.fancybox-1.3.4.pack.js"></script>
 		<link rel="stylesheet" type="text/css" href="./fancybox/jquery.fancybox-1.3.4.css" media="screen" />
 		
-		<script type="text/javascript" src="./screenshots.js"></script>
-		<style>
-			ul.noBullets '{'
-				list-style: none;
-			'}'
-		</style>
+		<script type="text/javascript" src="./screenshots.js"></script>		
 		
 		<script type="text/javascript" src="prettify/prettify.js"></script>
 		<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
@@ -36,9 +29,9 @@
 		
 		<!-- ANALYTICS -->
 	</head>
-	<body style="padding-top:40px;"  onload="prettyPrint()">
-		<div class="topbar">
-			<div class="fill">
+	<body onload="prettyPrint()">
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
 				<div class="container">
 					<a class="brand" href="http://gitblit.com" title="gitblit homepage">
 						<img src="gitblt_25_white.png" width="79" height="25" alt="gitblit" class="logo"/>
@@ -55,5 +48,4 @@
 			</div>
 		</div>
 		<div class="container">
-			<div class="content">
-				<div class="markdown">
+			<div class="markdown">

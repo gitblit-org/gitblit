@@ -16,7 +16,7 @@
 #### additions
 
 - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)  
-    **New:** *server.ajpPort = 0*
+    **New:** *server.ajpPort = 0*  
     **New:** *server.ajpBindInterface = localhost*
 - On the Repositories page show a bang *!* character in the color swatch of a repository with a working copy (issue 49)  
 Push requests to these repositories will be rejected.
@@ -32,11 +32,22 @@ Push requests to these repositories will be rejected.
 - Fixed username case-sensitivity issues (issue 43)
 - Disregard searching a subfolder if Gitblit does not have filesystem permissions (Github/lemval issue 51)
 
+#### dependency changes
+
+- updated to Bootstrap 2.0
+- added GLYPHICONS (as bundled with Bootstrap 2.0)
+
+<hr/>
+
+### Older Releases
+
 **0.8.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.2.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.2.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.2.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.2.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.2.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.2.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-13*
 
 #### fixes
 
 - Fixed bug when upgrading from users.properties to users.conf (issue 41)
+
+<hr/>
 
 **0.8.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.1.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.1.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.1.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.1.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.1.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.1.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
 
@@ -44,6 +55,8 @@ Push requests to these repositories will be rejected.
 
 - Include missing icon resource for the manager (issue 40)
 - Fixed sendmail.groovy message content with incorrect tag/branch labels
+
+<hr/>
 
 **0.8.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.0.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.0.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
 
@@ -78,7 +91,7 @@ The original `users.properties` file and it's corresponding implementation are *
 - JavaScript-based 3-step (click, ctrl+c, enter) *copy to clipboard* of the primary repository url in the event that you do not want to use Flash on your installation
 - Empty repositories now link to an *empty repository* page which gives some direction to the user for the next step in using Gitblit.  This page displays the primary push/clone url of the repository and gives sample syntax for the git command-line client. (issue 31)
 - Repositories with a *gh-pages* branch will now have a *pages* link which will serve the content of this branch.  All resource requests are against the repository, Gitblit does not checkout/export this branch to a temporary filesystem.  Jekyll templating is not supported.
-- Gitblit Express bundle to get started running Gitblit on RedHat's OpenShift cloud <span class="label warning">BETA</span>
+- Gitblit Express bundle to get started running Gitblit on RedHat's OpenShift cloud <span class="label label-warning">BETA</span>
 
 #### changes
 
@@ -98,7 +111,7 @@ This change helps adoption of GO in environments without an internet connection 
 - added Groovy 1.8.5 
 - added Clippy (bundled)
 
-### Older Releases
+<hr/>
 
 **0.7.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.7.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.7.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.7.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-11-11*
 
@@ -134,6 +147,8 @@ This change helps adoption of GO in environments without an internet connection 
 - updated: MarkdownPapers 1.2.5
 - updated: Wicket 1.4.19
 
+<hr/>
+
 **0.6.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.6.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-09-27*
 
 - added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.  
@@ -153,6 +168,8 @@ This change helps adoption of GO in environments without an internet connection 
 - fixed: syndication urls for WAR deployments
 - fixed: authentication for zip downloads
 
+<hr/>
+
 **0.5.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-07-27*
 
 - fixed: active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
@@ -169,11 +186,15 @@ This change helps adoption of GO in environments without an internet connection 
 - updated: MarkdownPapers 1.1.0
 - updated: Jetty 7.4.3
 
+<hr/>
+
 **0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-06-28*
 
 - clarified SSL certificate generation and configuration for both server-side and client-side
 - added some more troubleshooting information to documentation
 - replaced JavaService with Apache Commons Daemon
+
+<hr/>
 
 **0.5.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-06-26*
 

@@ -3,11 +3,6 @@
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
       lang="en"> 
-
-<wicket:head>
-  	<link href="markdown.css" type="text/css" rel="stylesheet" />
-</wicket:head>
-
 <body>
 <wicket:extend>
 	
@@ -39,7 +34,17 @@
 	<div style="padding-bottom:10px;" wicket:id="branchesPanel">[branches panel]</div>
 	
 	<!-- markdown readme -->
-	<div wicket:id="readme" class="markdown" style="clear:both;padding-bottom:5px;"></div>
+	<div wicket:id="readme"></div>
+	
+	<wicket:fragment wicket:id="markdownPanel">
+		<div class="header" style="margin-top:10px;" >
+			<img style="vertical-align: middle; border: 1px solid #888;" src="book_16x16.png"/>
+			<span style="font-weight:bold;vertical-align:middle;" wicket:id="readmeFile"></span>
+		</div>
+		<div style="border:1px solid #ddd;border-radius: 0 0 3px 3px;padding: 20px;">
+			<div wicket:id="readmeContent" class="markdown"></div>
+		</div>
+	</wicket:fragment>	
 </wicket:extend>	
 </body>
 </html>

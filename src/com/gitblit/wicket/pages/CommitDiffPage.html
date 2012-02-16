@@ -16,12 +16,13 @@
 	<div wicket:id="commitHeader">[commit header]</div>
 
 	<!-- changed paths -->
-	<div style="padding-top:15px">
+	<div style="padding-top:15px;">
 		<!-- commit legend -->
 		<div style="text-align:right;" wicket:id="commitLegend"></div>
 	
 		<div class="header"><wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
 	</div>
+	
 	<table class="pretty">
 		<tr wicket:id="changedPath">
 			<td class="changeType"><span wicket:id="changeType">[change type]</span></td>		
@@ -35,7 +36,7 @@
 	</table>
 	
 	<!--  diff content -->
-	<pre wicket:id="diffText">[diff text]</pre>
+	<pre style="padding-top:10px;" wicket:id="diffText">[diff text]</pre>
 	
 </wicket:extend>
 </body>

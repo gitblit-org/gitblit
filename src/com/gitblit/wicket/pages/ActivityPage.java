@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
@@ -202,23 +201,5 @@ public class ActivityPage extends RootPage {
 		charts.addChart(chart);
 
 		return charts;
-	}
-
-	@Override
-	protected void onBeforeRender() {
-		if (GitBlit.isDebugMode()) {
-			// strip Wicket tags in debug mode for jQuery DOM traversal
-			Application.get().getMarkupSettings().setStripWicketTags(true);
-		}
-		super.onBeforeRender();
-	}
-
-	@Override
-	protected void onAfterRender() {
-		if (GitBlit.isDebugMode()) {
-			// restore Wicket debug tags
-			Application.get().getMarkupSettings().setStripWicketTags(false);
-		}
-		super.onAfterRender();
 	}
 }

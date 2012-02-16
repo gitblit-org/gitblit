@@ -34,7 +34,7 @@ public class TicketPage extends RepositoryPage {
 	public TicketPage(PageParameters params) {
 		super(params);
 
-		final String ticketFolder = WicketUtils.getObject(params);
+		final String ticketFolder = WicketUtils.getPath(params);
 
 		Repository r = getRepository();
 		TicketModel t = TicgitUtils.getTicket(r, ticketFolder);

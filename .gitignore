@@ -24,3 +24,4 @@
 /express
 /build-demo.xml
 /users.conf
+*.directory

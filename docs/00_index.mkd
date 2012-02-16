@@ -1,10 +1,10 @@
 ## What is Gitblit?
 <div class="well" style="margin-left:5px;float:right;width:275px;padding: 10px 10px;">
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
-<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
-<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a> <span class="label warning">BETA</span></div>
-<div style="padding:5px;"><a style="width:150px;text-decoration:none;" class="btn primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a> <span class="label label-warning">BETA</span></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
 	<div style="text-align:center">
 		<a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> | <a href="http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%">Gitblit Federation Client</a>
 		<br/>
@@ -12,7 +12,7 @@
 	</div>
 
 	<div style="padding-top:5px;">
-	<table class="condensed-table">
+	<table class="table condensed-table">
 		<tbody>
 		<tr><th>License</th><td><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, version 2.0</a></td></tr>
 		<tr><th>Sources</th><td><a href="http://github.com/gitblit">GitHub</a> &amp; <a href="http://code.google.com/p/gitblit/source/list">GoogleCode</a></td></tr>		
@@ -47,7 +47,7 @@ All dependencies are bundled.
 
 All dependencies are bundled.
 
-### Express: For the Cloud <span class="label warning" style="vertical-align: middle;">BETA</span>
+### Express: For the Cloud <span class="label label-warning" style="vertical-align: middle;">BETA</span>
 *Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
 
 All dependencies are bundled.

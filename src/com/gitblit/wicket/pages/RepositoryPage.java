@@ -156,9 +156,11 @@ public abstract class RepositoryPage extends BasePage {
 		if (getRepositoryModel().isBare) {
 			add(new Label("workingCopy").setVisible(false));
 		} else {
+			Fragment fragment = new Fragment("workingCopy", "workingCopyFragment", this);
 			Label lbl = new Label("workingCopy", getString("gb.workingCopy"));
 			WicketUtils.setHtmlTooltip(lbl,  getString("gb.workingCopyWarning"));
-			add(lbl);
+			fragment.add(lbl);
+			add(fragment);
 		}
 
 		super.setupPage(repositoryName, pageName);

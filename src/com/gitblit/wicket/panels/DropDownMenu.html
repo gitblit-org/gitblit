@@ -4,31 +4,9 @@
       xml:lang="en"  
       lang="en"> 
 
-<wicket:head>
-	<script src="jquery.min.js" type="text/javascript" ></script>
-	<script type="text/javascript">
-		
-		function clearMenu() {
-			// hide the menu
-			$('a.menu, .dropdown-toggle').parent('li').removeClass('open')
-		} 
-		
-		$(document).ready(function() {
-			// hide menu when clicking anywhere else in page
-			$('html').bind('click', clearMenu)
-			$('a.menu, .dropdown-toggle').click(
-					function (e) {
-						var $li = $(this).parent('li').toggleClass('open');
-						return false;
-					}
-			);
-		});
-	</script>
-</wicket:head>
-
 <wicket:panel>
-	<a class="menu" href=""><span wicket:id="label">label</span></a>
-	<ul class="menu-dropdown">
+	<a class="dropdown-toggle" href="#" data-toggle="dropdown"><span wicket:id="label">label</span><b class="caret"></b></a>
+	<ul class="dropdown-menu">
 		<li wicket:id="menuItems"><span wicket:id="menuItem">[MenuItem]</span></li>
 	</ul>	
 </wicket:panel>

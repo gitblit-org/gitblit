@@ -22,6 +22,7 @@ import java.util.TimeZone;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
@@ -64,6 +65,24 @@ public abstract class BasePage extends WebPage {
 		logger = LoggerFactory.getLogger(getClass());
 		loginByCookie();
 	}
+	
+	@Override
+	protected void onBeforeRender() {
+		if (GitBlit.isDebugMode()) {
+			// strip Wicket tags in debug mode for jQuery DOM traversal
+			Application.get().getMarkupSettings().setStripWicketTags(true);
+		}
+		super.onBeforeRender();
+	}
+
+	@Override
+	protected void onAfterRender() {
+		if (GitBlit.isDebugMode()) {
+			// restore Wicket debug tags
+			Application.get().getMarkupSettings().setStripWicketTags(false);
+		}
+		super.onAfterRender();
+	}	
 
 	private void loginByCookie() {
 		if (!GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {

@@ -227,9 +227,8 @@
 			<copy todir="${docs.output.dir}">
 				<!-- Copy selected Gitblit resources -->
 				<fileset dir="${project.resources.dir}">
-					<include name="bootstrap.140.css" />
-					<include name="bootstrap.gb.css" />
-					<include name="markdown.css" />
+					<include name="bootstrap/**/*" />
+					<include name="gitblit.css" />
 					<include name="gitblt_25_white.png" />
 					<include name="gitblt-favicon.png" />
 					<include name="lock_go_16x16.png" />
@@ -710,9 +709,8 @@
 		<copy todir="${project.site.dir}">
 			<!-- Copy selected Gitblit resources -->
 			<fileset dir="${project.resources.dir}">
-				<include name="bootstrap.140.css" />
-				<include name="bootstrap.gb.css" />
-				<include name="markdown.css" />
+				<include name="bootstrap/**/*" />
+				<include name="gitblit.css" />
 				<include name="gitblt_25_white.png" />
 				<include name="gitblt-favicon.png" />
 				<include name="lock_go_16x16.png" />

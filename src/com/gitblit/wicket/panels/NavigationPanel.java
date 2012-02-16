@@ -48,17 +48,20 @@ public class NavigationPanel extends Panel {
 					// other link
 					OtherPageLink link = (OtherPageLink) entry;
 					Component c = new LinkPanel("link", null, getString(entry.translationKey), link.url);
+					c.setRenderBodyOnly(true);
 					item.add(c);
 				} else if (entry instanceof DropDownMenuRegistration) {
 					// drop down menu
 					DropDownMenuRegistration reg = (DropDownMenuRegistration) entry;
 					Component c = new DropDownMenu("link", getString(entry.translationKey), reg);
+					c.setRenderBodyOnly(true);
 					item.add(c);
-					WicketUtils.setCssClass(item, "menu");
+					WicketUtils.setCssClass(item, "dropdown");
 				} else {
 					// standard page link
 					Component c = new LinkPanel("link", null, getString(entry.translationKey),
 							entry.pageClass, entry.params);
+					c.setRenderBodyOnly(true);
 					if (entry.pageClass.equals(pageClass)) {
 						WicketUtils.setCssClass(item, "active");
 					}

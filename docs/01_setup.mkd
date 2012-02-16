@@ -86,6 +86,7 @@ Command-Line parameters override the values in `gitblit.properties` at runtime.
     --useNio               Use NIO Connector else use Socket Connector.
     --httpPort             HTTP port for to serve. (port <= 0 will disable this connector)
     --httpsPort            HTTPS port to serve.  (port <= 0 will disable this connector)
+    --ajpPort              AJP port to serve.  (port <= 0 will disable this connector)
     --storePassword        Password for SSL (https) keystore.
     --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
     --tempFolder           Folder for server to extract built-in webapp

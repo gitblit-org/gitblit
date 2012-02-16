@@ -22,7 +22,6 @@ import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.util.List;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -147,23 +146,5 @@ public class RepositoriesPage extends RootPage {
 			error(message, t, false);
 		}
 		return message;
-	}
-
-	@Override
-	protected void onBeforeRender() {
-		if (GitBlit.isDebugMode()) {
-			// strip Wicket tags in debug mode for jQuery DOM traversal
-			Application.get().getMarkupSettings().setStripWicketTags(true);
-		}
-		super.onBeforeRender();
-	}
-
-	@Override
-	protected void onAfterRender() {
-		if (GitBlit.isDebugMode()) {
-			// restore Wicket debug tags
-			Application.get().getMarkupSettings().setStripWicketTags(false);
-		}
-		super.onAfterRender();
 	}
 }

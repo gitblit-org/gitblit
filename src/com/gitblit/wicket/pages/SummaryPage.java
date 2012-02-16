@@ -22,9 +22,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.wicketstuff.googlecharts.Chart;
@@ -135,11 +137,11 @@ public class SummaryPage extends RepositoryPage {
 
 		if (getRepositoryModel().showReadme) {
 			String htmlText = null;
+			String readme = null;
 			try {
 				RevCommit head = JGitUtils.getCommit(r, null);
 				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
-				String readme = null;
+				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);				
 				for (PathModel path : paths) {
 					if (!path.isTree()) {
 						String name = path.name.toLowerCase();
@@ -162,9 +164,12 @@ public class SummaryPage extends RepositoryPage {
 			} catch (ParseException p) {
 				error(p.getMessage());
 			}
+			Fragment fragment = new Fragment("readme", "markdownPanel");
+			fragment.add(new Label("readmeFile", readme));
 			// Add the html to the page
-			add(new Label("readme", htmlText).setEscapeModelStrings(false).setVisible(
-					!StringUtils.isEmpty(htmlText)));
+			Component content = new Label("readmeContent", htmlText).setEscapeModelStrings(false);
+			fragment.add(content.setVisible(!StringUtils.isEmpty(htmlText)));
+			add(fragment);
 		} else {
 			add(new Label("readme").setVisible(false));
 		}

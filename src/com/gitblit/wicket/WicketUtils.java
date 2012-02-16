@@ -95,11 +95,11 @@ public class WicketUtils {
 	public static void setTicketCssClass(Component container, String state) {
 		String css = null;
 		if (state.equals("open")) {
-			css = "label important";
+			css = "label label-important";
 		} else if (state.equals("hold")) {
-			css = "label warning";
+			css = "label label-warning";
 		} else if (state.equals("resolved")) {
-			css = "label success";
+			css = "label label-success";
 		} else if (state.equals("invalid")) {
 			css = "label";
 		}
