@@ -102,5 +102,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/gitblit/ext/groovy-all-1.8.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="ext/lucene-core-3.5.0.jar" sourcepath="ext/lucene-core-3.5.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
