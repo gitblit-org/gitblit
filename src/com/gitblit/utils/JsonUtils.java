@@ -295,7 +295,8 @@ public class JsonUtils {
 				JsonDeserializationContext jsonDeserializationContext) {
 			try {
 				synchronized (dateFormat) {
-					return dateFormat.parse(jsonElement.getAsString());
+					Date date = dateFormat.parse(jsonElement.getAsString());					
+					return new Date((date.getTime() / 1000) * 1000);
 				}
 			} catch (ParseException e) {
 				throw new JsonSyntaxException(jsonElement.getAsString(), e);

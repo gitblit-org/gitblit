@@ -59,7 +59,8 @@ public class IssueModel implements Serializable, Comparable<IssueModel> {
 	public List<Change> changes;
 
 	public IssueModel() {
-		created = new Date((System.currentTimeMillis() / 1000) * 1000);
+		// the first applied change set the date appropriately
+		created = new Date(0);
 
 		type = Type.Defect;
 		status = Status.New;
@@ -117,6 +118,10 @@ public class IssueModel implements Serializable, Comparable<IssueModel> {
 	}
 
 	public void applyChange(Change change) {
+		if (changes.size() == 0) {
+			// first change created the issue
+			created = change.created;
+		}
 		changes.add(change);
 
 		if (change.hasFieldChanges()) {
