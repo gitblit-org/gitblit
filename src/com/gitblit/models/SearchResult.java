@@ -25,6 +25,8 @@ public class SearchResult implements Serializable {
 	public String committer;
 
 	public String summary;
+	
+	public String repository;
 
 	public String id;
 
@@ -37,6 +39,6 @@ public class SearchResult implements Serializable {
 
 	@Override
 	public String toString() {
-		return type.name() + ": " + id;
+		return  score + " : " + type.name() + " : " + repository + " : " + id;
 	}
 }

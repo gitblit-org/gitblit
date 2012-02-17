@@ -8,7 +8,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +26,7 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -90,13 +91,32 @@ public class LuceneUtils {
 	private static final String FIELD_LABEL = "label";
 	private static final String FIELD_ATTACHMENT = "attachment";
 
-	private static Set<String> excludes = new TreeSet<String>(Arrays.asList("7z", "arc", "arj",
-			"bin", "bmp", "dll", "doc", "docx", "exe", "gif", "gz", "jar", "jpg", "lib", "lzh",
-			"odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls", "xlsx", "zip"));
+	private static Set<String> excludedExtensions = new TreeSet<String>(
+			Arrays.asList("7z", "arc", "arj", "bin", "bmp", "dll", "doc",
+					"docx", "exe", "gif", "gz", "jar", "jpg", "lib", "lzh", 
+					"odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls",
+					"xlsx", "zip"));
+
+	private static Set<String> excludedBranches = new TreeSet<String>(
+			Arrays.asList("/refs/heads/gb-issues"));
 
 	private static final Map<File, IndexSearcher> SEARCHERS = new ConcurrentHashMap<File, IndexSearcher>();
 	private static final Map<File, IndexWriter> WRITERS = new ConcurrentHashMap<File, IndexWriter>();
 
+	/**
+	 * Returns the name of the repository.
+	 * 
+	 * @param repository
+	 * @return the repository name
+	 */
+	private static String getName(Repository repository) {
+		if (repository.isBare()) {
+			return repository.getDirectory().getName();
+		} else {
+			return repository.getDirectory().getParentFile().getName();
+		}
+	}
+	
 	/**
 	 * Deletes the Lucene index for the specified repository.
 	 * 
@@ -125,6 +145,7 @@ public class LuceneUtils {
 	 */
 	public static boolean index(Repository repository) {
 		try {
+			String repositoryName = getName(repository);
 			Set<String> indexedCommits = new TreeSet<String>();
 			IndexWriter writer = getIndexWriter(repository, true);
 			// build a quick lookup of tags
@@ -139,6 +160,9 @@ public class LuceneUtils {
 			// walk through each branch
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
 			for (RefModel branch : branches) {
+				if (excludedBranches.contains(branch.getName())) {
+					continue;
+				}
 				RevWalk revWalk = new RevWalk(repository);
 				RevCommit rev = revWalk.parseCommit(branch.getObjectId());
 
@@ -154,6 +178,8 @@ public class LuceneUtils {
 					Document doc = new Document();
 					doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES,
 							Index.NOT_ANALYZED_NO_NORMS));
+					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_OBJECT_ID, treeWalk.getPathString(), Store.YES,
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
@@ -171,7 +197,7 @@ public class LuceneUtils {
 						ext = name.substring(name.lastIndexOf('.') + 1);
 					}
 
-					if (StringUtils.isEmpty(ext) || !excludes.contains(ext)) {
+					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
 						// read the blob content
 						ObjectId entid = treeWalk.getObjectId(0);
 						FileMode entmode = treeWalk.getFileMode(0);
@@ -199,6 +225,8 @@ public class LuceneUtils {
 				String head = rev.getId().getName();
 				if (indexedCommits.add(head)) {
 					Document doc = createDocument(rev, tags.get(head));
+					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+							Index.NOT_ANALYZED));
 					writer.addDocument(doc);
 				}
 
@@ -208,6 +236,8 @@ public class LuceneUtils {
 					String hash = rev.getId().getName();
 					if (indexedCommits.add(hash)) {
 						Document doc = createDocument(rev, tags.get(hash));
+						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+								Index.NOT_ANALYZED));
 						writer.addDocument(doc);
 					}
 				}
@@ -221,6 +251,8 @@ public class LuceneUtils {
 				List<IssueModel> issues = IssueUtils.getIssues(repository, null);
 				for (IssueModel issue : issues) {
 					Document doc = createDocument(issue);
+					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+							Index.NOT_ANALYZED));
 					writer.addDocument(doc);
 				}
 			}
@@ -344,6 +376,9 @@ public class LuceneUtils {
 	 */
 	private static boolean index(Repository repository, Document doc) {
 		try {
+			String repositoryName = getName(repository);
+			doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+					Index.NOT_ANALYZED));
 			IndexWriter writer = getIndexWriter(repository, false);
 			writer.addDocument(doc);
 			resetIndexSearcher(repository);
@@ -363,6 +398,7 @@ public class LuceneUtils {
 		result.author = doc.get(FIELD_AUTHOR);
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = ObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
+		result.repository = doc.get(FIELD_REPOSITORY);
 		result.id = doc.get(FIELD_OBJECT_ID);
 		if (doc.get(FIELD_LABEL) != null) {
 			result.labels = StringUtils.getStringsFromValue(doc.get(FIELD_LABEL));
@@ -437,17 +473,27 @@ public class LuceneUtils {
 	}
 
 	/**
-	 * Search the repository for the given text or query
+	 * Searches the specified repositories for the given text or query
 	 * 
-	 * @param repository
 	 * @param text
-	 * @return a list of SearchResults
+	 *            if the text is null or empty, null is returned
+	 * @param maximumHits
+	 *            the maximum number of hits to collect
+	 * @param repositories
+	 *            a list of repositories to search. if no repositories are
+	 *            specified null is returned.
+	 * @return a list of SearchResults in order from highest to the lowest score
+	 * 
 	 */
-	public static List<SearchResult> search(Repository repository, String text) {
+	public static List<SearchResult> search(String text, int maximumHits,
+			Repository... repositories) {
 		if (StringUtils.isEmpty(text)) {
 			return null;
 		}
-		Set<SearchResult> results = new HashSet<SearchResult>();
+		if (repositories.length == 0) {
+			return null;
+		}
+		Set<SearchResult> results = new LinkedHashSet<SearchResult>();
 		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
 		try {
 			// default search checks summary and content
@@ -461,10 +507,23 @@ public class LuceneUtils {
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
 
-			IndexSearcher searcher = getIndexSearcher(repository);
+			IndexSearcher searcher;
+			if (repositories.length == 1) {
+				// single repository search
+				searcher = getIndexSearcher(repositories[0]);
+			} else {
+				// multiple repository search
+				List<IndexReader> readers = new ArrayList<IndexReader>();
+				for (Repository repository : repositories) {
+					IndexSearcher repositoryIndex = getIndexSearcher(repository);
+					readers.add(repositoryIndex.getIndexReader());
+				}			
+				IndexReader [] rdrs = readers.toArray(new IndexReader[readers.size()]);
+				MultiReader reader = new MultiReader(rdrs);			
+				searcher = new IndexSearcher(reader);
+			}
 			Query rewrittenQuery = searcher.rewrite(query);
-
-			TopScoreDocCollector collector = TopScoreDocCollector.create(200, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(maximumHits, true);
 			searcher.search(rewrittenQuery, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
 			for (int i = 0; i < hits.length; i++) {
@@ -477,7 +536,7 @@ public class LuceneUtils {
 			e.printStackTrace();
 		}
 		return new ArrayList<SearchResult>(results);
-	}
+	}	
 
 	/**
 	 * Close all the index writers and searchers

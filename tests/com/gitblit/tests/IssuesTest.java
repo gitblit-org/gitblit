@@ -146,7 +146,7 @@ public class IssuesTest {
 		for (IssueModel issue : allIssues) {
 			LuceneUtils.index(repository, issue, false);
 		}
-		List<SearchResult> hits = LuceneUtils.search(repository, "working");
+		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
 		assertTrue(hits.size() > 0);
 		
 		// reindex an issue
@@ -164,7 +164,7 @@ public class IssuesTest {
 	@Test
 	public void testLuceneQuery() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		List<SearchResult> hits = LuceneUtils.search(repository, "working");
+		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
 		LuceneUtils.close();
 		repository.close();
 		assertTrue(hits.size() > 0);
