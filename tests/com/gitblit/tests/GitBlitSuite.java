@@ -52,7 +52,7 @@ import com.gitblit.utils.JGitUtils;
 		ObjectCacheTest.class, UserServiceTest.class, MarkdownUtilsTest.class, JGitUtilsTest.class,
 		SyndicationUtilsTest.class, DiffUtilsTest.class, MetricUtilsTest.class,
 		TicgitUtilsTest.class, GitBlitTest.class, FederationTests.class, RpcTests.class,
-		GitServletTest.class, GroovyScriptTest.class })
+		GitServletTest.class, GroovyScriptTest.class, LuceneUtilsTest.class, IssuesTest.class })
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("git");
@@ -88,6 +88,10 @@ public class GitBlitSuite {
 
 	public static Repository getTheoreticalPhysicsRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "test/theoretical-physics.git"));
+	}
+
+	public static Repository getIssuesTestRepository() throws Exception {
+		return new FileRepository(new File(REPOSITORIES, "gb-issues.git"));
 	}
 
 	public static boolean startGitblit() throws Exception {
@@ -134,6 +138,8 @@ public class GitBlitSuite {
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/theoretical-physics.git", "https://github.com/certik/theoretical-physics.git");
 			
+			JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
+
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");

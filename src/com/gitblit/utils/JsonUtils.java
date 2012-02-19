@@ -38,6 +38,8 @@ import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -108,7 +110,7 @@ public class JsonUtils {
 			UnauthorizedException {
 		return retrieveJson(url, type, null, null);
 	}
-	
+
 	/**
 	 * Reads a gson object from the specified url.
 	 * 
@@ -169,10 +171,11 @@ public class JsonUtils {
 	 */
 	public static String retrieveJsonString(String url, String username, char[] password)
 			throws IOException {
-		try {			
+		try {
 			URLConnection conn = ConnectionUtils.openReadConnection(url, username, password);
 			InputStream is = conn.getInputStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is, ConnectionUtils.CHARSET));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is,
+					ConnectionUtils.CHARSET));
 			StringBuilder json = new StringBuilder();
 			char[] buffer = new char[4096];
 			int len = 0;
@@ -260,10 +263,13 @@ public class JsonUtils {
 
 	// build custom gson instance with GMT date serializer/deserializer
 	// http://code.google.com/p/google-gson/issues/detail?id=281
-	private static Gson gson() {
+	public static Gson gson(ExclusionStrategy... strategies) {
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Date.class, new GmtDateTypeAdapter());
 		builder.setPrettyPrinting();
+		if (!ArrayUtils.isEmpty(strategies)) {
+			builder.setExclusionStrategies(strategies);
+		}
 		return builder.create();
 	}
 
@@ -289,11 +295,32 @@ public class JsonUtils {
 				JsonDeserializationContext jsonDeserializationContext) {
 			try {
 				synchronized (dateFormat) {
-					return dateFormat.parse(jsonElement.getAsString());
+					Date date = dateFormat.parse(jsonElement.getAsString());					
+					return new Date((date.getTime() / 1000) * 1000);
 				}
 			} catch (ParseException e) {
 				throw new JsonSyntaxException(jsonElement.getAsString(), e);
 			}
+		}
+	}
+
+	public static class ExcludeField implements ExclusionStrategy {
+
+		private Class<?> c;
+		private String fieldName;
+
+		public ExcludeField(String fqfn) throws SecurityException, NoSuchFieldException,
+				ClassNotFoundException {
+			this.c = Class.forName(fqfn.substring(0, fqfn.lastIndexOf(".")));
+			this.fieldName = fqfn.substring(fqfn.lastIndexOf(".") + 1);
+		}
+
+		public boolean shouldSkipClass(Class<?> arg0) {
+			return false;
+		}
+
+		public boolean shouldSkipField(FieldAttributes f) {
+			return (f.getDeclaringClass() == c && f.getName().equals(fieldName));
 		}
 	}
 }
