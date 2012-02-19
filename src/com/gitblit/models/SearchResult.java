@@ -27,6 +27,8 @@ public class SearchResult implements Serializable {
 	public String summary;
 	
 	public String repository;
+	
+	public String branch;
 
 	public String id;
 
@@ -39,6 +41,6 @@ public class SearchResult implements Serializable {
 
 	@Override
 	public String toString() {
-		return  score + " : " + type.name() + " : " + repository + " : " + id;
+		return  score + " : " + type.name() + " : " + repository + " : " + id + " (" + branch + ")";
 	}
 }

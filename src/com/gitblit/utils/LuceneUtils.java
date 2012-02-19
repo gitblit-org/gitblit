@@ -38,6 +38,7 @@ import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -50,6 +51,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 
 import com.gitblit.models.IssueModel;
 import com.gitblit.models.IssueModel.Attachment;
+import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SearchResult;
 
@@ -82,6 +84,7 @@ public class LuceneUtils {
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_OBJECT_ID = "id";
+	private static final String FIELD_BRANCH = "branch";
 	private static final String FIELD_REPOSITORY = "repository";
 	private static final String FIELD_SUMMARY = "summary";
 	private static final String FIELD_CONTENT = "content";
@@ -163,6 +166,7 @@ public class LuceneUtils {
 				if (excludedBranches.contains(branch.getName())) {
 					continue;
 				}
+				String branchName = branch.getName();
 				RevWalk revWalk = new RevWalk(repository);
 				RevCommit rev = revWalk.parseCommit(branch.getObjectId());
 
@@ -179,6 +183,8 @@ public class LuceneUtils {
 					doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES,
 							Index.NOT_ANALYZED_NO_NORMS));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_OBJECT_ID, treeWalk.getPathString(), Store.YES,
 							Index.NOT_ANALYZED));
@@ -227,6 +233,8 @@ public class LuceneUtils {
 					Document doc = createDocument(rev, tags.get(head));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
 							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
+							Index.NOT_ANALYZED));
 					writer.addDocument(doc);
 				}
 
@@ -237,6 +245,8 @@ public class LuceneUtils {
 					if (indexedCommits.add(hash)) {
 						Document doc = createDocument(rev, tags.get(hash));
 						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+								Index.NOT_ANALYZED));
+						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
 								Index.NOT_ANALYZED));
 						writer.addDocument(doc);
 					}
@@ -272,11 +282,69 @@ public class LuceneUtils {
 	 * repository.
 	 * 
 	 * @param repository
+	 * @param branch
+	 *            the fully qualified branch name (e.g. refs/heads/master)
 	 * @param commit
 	 * @return true, if successful
 	 */
-	public static boolean index(Repository repository, RevCommit commit) {
-		try {
+	public static boolean index(Repository repository, String branch, RevCommit commit) {
+		try {			
+			if (excludedBranches.contains(branch)) {
+				if (IssueUtils.GB_ISSUES.equals(branch)) {
+					// index an issue
+					String issueId = commit.getShortMessage().substring(2).trim();
+					IssueModel issue = IssueUtils.getIssue(repository, issueId);
+					return index(repository, issue, true);
+				}
+				return false;
+			}
+			List<PathChangeModel> changedPaths = JGitUtils.getFilesInCommit(repository, commit);
+			String repositoryName = getName(repository);
+			String revDate = DateTools.timeToString(commit.getCommitTime() * 1000L,
+					Resolution.MINUTE);
+			IndexWriter writer = getIndexWriter(repository, false);
+			for (PathChangeModel path : changedPaths) {
+				// delete the indexed blob
+				writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.blob.name()),
+						new Term(FIELD_BRANCH, branch),
+						new Term(FIELD_OBJECT_ID, path.path));
+				
+				// re-index the blob
+				if (!ChangeType.DELETE.equals(path.changeType)) {
+					Document doc = new Document();
+					doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES,
+							Index.NOT_ANALYZED_NO_NORMS));
+					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
+							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_OBJECT_ID, path.path, Store.YES,
+							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
+					doc.add(new Field(FIELD_AUTHOR, commit.getAuthorIdent().getName(), Store.YES,
+							Index.NOT_ANALYZED_NO_NORMS));
+					doc.add(new Field(FIELD_COMMITTER, commit.getCommitterIdent().getName(),
+							Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+					doc.add(new Field(FIELD_LABEL, branch, Store.YES, Index.ANALYZED));
+
+					// determine extension to compare to the extension
+					// blacklist
+					String ext = null;
+					String name = path.name.toLowerCase();
+					if (name.indexOf('.') > -1) {
+						ext = name.substring(name.lastIndexOf('.') + 1);
+					}
+
+					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
+						// read the blob content
+						String str = JGitUtils.getStringContent(repository, 
+								commit.getTree(), path.path);
+						doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
+						writer.addDocument(doc);
+					}
+				}
+			}
+			writer.commit();
+			
 			Document doc = createDocument(commit, null);
 			return index(repository, doc);
 		} catch (Exception e) {
@@ -324,6 +392,7 @@ public class LuceneUtils {
 		doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.issue.name(), Store.YES,
 				Field.Index.NOT_ANALYZED_NO_NORMS));
 		doc.add(new Field(FIELD_OBJECT_ID, issue.id, Store.YES, Index.NOT_ANALYZED));
+		doc.add(new Field(FIELD_BRANCH, IssueUtils.GB_ISSUES, Store.YES, Index.NOT_ANALYZED));
 		doc.add(new Field(FIELD_DATE, DateTools.dateToString(issue.created, Resolution.MINUTE),
 				Store.YES, Field.Index.NO));
 		doc.add(new Field(FIELD_AUTHOR, issue.reporter, Store.YES, Index.NOT_ANALYZED_NO_NORMS));
@@ -399,6 +468,7 @@ public class LuceneUtils {
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = ObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
 		result.repository = doc.get(FIELD_REPOSITORY);
+		result.branch = doc.get(FIELD_BRANCH);
 		result.id = doc.get(FIELD_OBJECT_ID);
 		if (doc.get(FIELD_LABEL) != null) {
 			result.labels = StringUtils.getStringsFromValue(doc.get(FIELD_LABEL));
