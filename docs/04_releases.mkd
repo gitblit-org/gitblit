@@ -36,6 +36,7 @@ Push requests to these repositories will be rejected.
 
 - updated to Bootstrap 2.0
 - added GLYPHICONS (as bundled with Bootstrap 2.0)
+- updated to MarkdownPapers 1.2.7
 
 <hr/>
 

@@ -447,10 +447,10 @@ public class Build {
 				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
 
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers",
-				"org/tautua/markdownpapers", "markdownpapers-core", "1.2.5", 87000, 58000, 268000,
-				"295910b1893d73d4803f9ea2790ee1d10c466364",
-				"2170f358f29886aea8794c4bfdb6f1b27b152b9b",
-				"481599f34cb2abe4a9ebc771d8d81823375ec1ce");
+				"org/tautua/markdownpapers", "markdownpapers-core", "1.2.7", 87000, 58000, 268000,
+				"84ac5636ac7ddfad9d2ee8456a0f4f69709b6ee0",
+				"453cf00a289c46a0e4f6f019a28d2a2605f652c8",
+				"");
 
 		public static final MavenObject BOUNCYCASTLE = new MavenObject("BouncyCastle",
 				"org/bouncycastle", "bcprov-jdk16", "1.46", 1900000, 1400000, 4670000,
