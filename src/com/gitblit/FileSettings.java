@@ -37,6 +37,8 @@ public class FileSettings extends IStoredSettings {
 	private final Properties properties = new Properties();
 
 	private volatile long lastModified;
+	
+	private volatile boolean forceReload;
 
 	public FileSettings(String file) {
 		super(FileSettings.class);
@@ -49,7 +51,7 @@ public class FileSettings extends IStoredSettings {
 	 */
 	@Override
 	protected synchronized Properties read() {
-		if (propertiesFile.exists() && (propertiesFile.lastModified() > lastModified)) {
+		if (propertiesFile.exists() && (forceReload || (propertiesFile.lastModified() > lastModified))) {
 			FileInputStream is = null;
 			try {
 				Properties props = new Properties();
@@ -60,6 +62,7 @@ public class FileSettings extends IStoredSettings {
 				properties.clear();
 				properties.putAll(props);
 				lastModified = propertiesFile.lastModified();
+				forceReload = false;
 			} catch (FileNotFoundException f) {
 				// IGNORE - won't happen because file.exists() check above
 			} catch (Throwable t) {
@@ -88,6 +91,9 @@ public class FileSettings extends IStoredSettings {
 			content = content.replaceAll(regex, setting.getKey() + " = " + setting.getValue());
 		}
 		FileUtils.writeContent(propertiesFile, content);
+		// manually set the forceReload flag because not all JVMs support real
+		// millisecond resolution of lastModified. (issue-55)		
+		forceReload = true;
 		return true;
 	}
 	
@@ -100,6 +106,13 @@ public class FileSettings extends IStoredSettings {
 	 */
 	protected long lastModified() {
 		return lastModified;
+	}
+
+	/**
+	 * @return the state of the force reload flag
+	 */
+	protected boolean forceReload() {
+		return forceReload;
 	}
 
 	@Override

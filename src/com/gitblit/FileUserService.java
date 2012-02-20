@@ -624,8 +624,9 @@ public class FileUserService extends FileSettings implements IUserService {
 	@Override
 	protected synchronized Properties read() {
 		long lastRead = lastModified();
+		boolean reload = forceReload();
 		Properties allUsers = super.read();
-		if (lastRead != lastModified()) {
+		if (reload || (lastRead != lastModified())) {
 			// reload hash cache
 			cookies.clear();
 			teams.clear();

@@ -82,6 +82,8 @@ public class ConfigUserService implements IUserService {
 	private final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
 
 	private volatile long lastModified;
+	
+	private volatile boolean forceReload;
 
 	public ConfigUserService(File realmFile) {
 		this.realmFile = realmFile;
@@ -711,6 +713,9 @@ public class ConfigUserService implements IUserService {
 		}
 
 		config.save();
+		// manually set the forceReload flag because not all JVMs support real
+		// millisecond resolution of lastModified. (issue-55)
+		forceReload = true;
 
 		// If the write is successful, delete the current file and rename
 		// the temporary copy to the original filename.
@@ -735,7 +740,8 @@ public class ConfigUserService implements IUserService {
 	 * Reads the realm file and rebuilds the in-memory lookup tables.
 	 */
 	protected synchronized void read() {
-		if (realmFile.exists() && (realmFile.lastModified() > lastModified)) {
+		if (realmFile.exists() && (forceReload || (realmFile.lastModified() != lastModified))) {
+			forceReload = false;
 			lastModified = realmFile.lastModified();
 			users.clear();
 			cookies.clear();
