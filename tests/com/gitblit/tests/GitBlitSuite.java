@@ -78,10 +78,6 @@ public class GitBlitSuite {
 		return new FileRepository(new File(REPOSITORIES, "test/jgit.git"));
 	}
 
-	public static Repository getBluezGnomeRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "test/bluez-gnome.git"));
-	}
-
 	public static Repository getAmbitionRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "test/ambition.git"));
 	}
@@ -92,6 +88,10 @@ public class GitBlitSuite {
 
 	public static Repository getIssuesTestRepository() throws Exception {
 		return new FileRepository(new File(REPOSITORIES, "gb-issues.git"));
+	}
+	
+	public static Repository getGitectiveRepository() throws Exception {
+		return new FileRepository(new File("test/gitective.git"));
 	}
 
 	public static boolean startGitblit() throws Exception {
@@ -137,6 +137,7 @@ public class GitBlitSuite {
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/theoretical-physics.git", "https://github.com/certik/theoretical-physics.git");
+			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
 			
 			JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
 

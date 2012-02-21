@@ -190,12 +190,12 @@ public class JGitUtilsTest {
 		}
 		repository.close();
 
-		repository = GitBlitSuite.getBluezGnomeRepository();
+		repository = GitBlitSuite.getGitectiveRepository();
 		for (RefModel model : JGitUtils.getTags(repository, true, -1)) {
-			if (model.getObjectId().getName().equals("728643ec0c438c77e182898c2f2967dbfdc231c8")) {
+			if (model.getObjectId().getName().equals("035254295a9bba11f72b1f9d6791a6b957abee7b")) {
 				assertFalse(model.isAnnotatedTag());
-				assertTrue(model.getAuthorIdent().getEmailAddress().equals("marcel@holtmann.org"));
-				assertEquals("Update changelog and bump version number\n", model.getFullMessage());
+				assertTrue(model.getAuthorIdent().getEmailAddress().equals("kevinsawicki@gmail.com"));
+				assertEquals("Add scm and issue tracker elements to pom.xml\n", model.getFullMessage());
 			}
 		}
 		repository.close();

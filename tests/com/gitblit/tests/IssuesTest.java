@@ -46,9 +46,10 @@ import com.gitblit.utils.LuceneUtils;
 public class IssuesTest {
 
 	@Test
-	public void testCreation() throws Exception {
+	public void testLifecycle() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		// create and insert the issue
+		
+		// create and insert an issue
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
 		IssueModel issue = IssueUtils.createIssue(repository, c1);
 		assertNotNull(issue.id);
@@ -58,18 +59,15 @@ public class IssuesTest {
 		compare(issue, constructed);
 
 		assertEquals(1, constructed.changes.size());
-	}
-
-	@Test
-	public void testUpdates() throws Exception {
-		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		
 		// C1: create the issue
-		Change c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
-		IssueModel issue = IssueUtils.createIssue(repository, c1);
+		c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
+		issue = IssueUtils.createIssue(repository, c1);
 		assertNotNull(issue.id);
 
-		IssueModel constructed = IssueUtils.getIssue(repository, issue.id);
+		constructed = IssueUtils.getIssue(repository, issue.id);
 		compare(issue, constructed);
+		assertEquals(1, constructed.changes.size());
 
 		// C2: set owner
 		Change c2 = new Change("C2");
@@ -109,21 +107,13 @@ public class IssuesTest {
 		assertEquals(5, constructed.changes.size());
 		assertTrue(constructed.status.isClosed());
 
-		repository.close();
-	}
-
-	@Test
-	public void testQuery() throws Exception {
-		Repository repository = GitBlitSuite.getIssuesTestRepository();
 		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
-
 		List<IssueModel> openIssues = IssueUtils.getIssues(repository, new IssueFilter() {
 			@Override
 			public boolean accept(IssueModel issue) {
 				return !issue.status.isClosed();
 			}
 		});
-
 		List<IssueModel> closedIssues = IssueUtils.getIssues(repository, new IssueFilter() {
 			@Override
 			public boolean accept(IssueModel issue) {
@@ -131,57 +121,35 @@ public class IssuesTest {
 			}
 		});
 
-		repository.close();
 		assertTrue(allIssues.size() > 0);
 		assertEquals(1, openIssues.size());
 		assertEquals(1, closedIssues.size());
-	}
-
-	@Test
-	public void testLuceneIndexAndQuery() throws Exception {		
-		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		
+		// build a new Lucene index
 		LuceneUtils.deleteIndex(repository);
-		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
-		assertTrue(allIssues.size() > 0);
-		for (IssueModel issue : allIssues) {
-			LuceneUtils.index(repository, issue, false);
+		for (IssueModel anIssue : allIssues) {
+			LuceneUtils.index(repository, anIssue, false);
 		}
 		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
 		assertTrue(hits.size() > 0);
 		
 		// reindex an issue
-		IssueModel issue = allIssues.get(0);
+		issue = allIssues.get(0);
 		Change change = new Change("reindex");
 		change.comment("this is a test of reindexing an issue");
 		IssueUtils.updateIssue(repository, issue.id, change);
 		issue = IssueUtils.getIssue(repository, issue.id);
 		LuceneUtils.index(repository, issue, true);
-		
+
+		// delete all issues
+		for (IssueModel anIssue : allIssues) {
+			assertTrue(IssueUtils.deleteIssue(repository, anIssue.id, "D"));
+		}
+				
 		LuceneUtils.close();
 		repository.close();
 	}
 	
-	@Test
-	public void testLuceneQuery() throws Exception {
-		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
-		LuceneUtils.close();
-		repository.close();
-		assertTrue(hits.size() > 0);
-	}
-
-
-	@Test
-	public void testDelete() throws Exception {
-		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		List<IssueModel> allIssues = IssueUtils.getIssues(repository, null);
-		// delete all issues
-		for (IssueModel issue : allIssues) {
-			assertTrue(IssueUtils.deleteIssue(repository, issue.id, "D"));
-		}
-		repository.close();
-	}
-
 	@Test
 	public void testChangeComment() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();

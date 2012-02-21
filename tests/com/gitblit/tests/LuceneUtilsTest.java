@@ -45,8 +45,8 @@ public class LuceneUtilsTest {
 		LuceneUtils.index(repository);
 		repository.close();
 
-		// reindex bluez-gnome
-		repository = GitBlitSuite.getBluezGnomeRepository();
+		// reindex JGit
+		repository = GitBlitSuite.getJGitRepository();
 		LuceneUtils.index(repository);
 		repository.close();
 
@@ -59,6 +59,9 @@ public class LuceneUtilsTest {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		List<SearchResult> results = LuceneUtils.search("ada", 10, repository);
 		assertEquals(2, results.size());
+		for (SearchResult res : results) {
+			assertEquals("refs/heads/master", res.branch);
+		}
 
 		// author test
 		results = LuceneUtils.search("author: tinogomes", 10, repository);
@@ -76,6 +79,7 @@ public class LuceneUtilsTest {
 		assertEquals(1, results.size());
 		assertEquals("Ondrej Certik", results.get(0).author);
 		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).id);
+		assertEquals("refs/heads/gh-pages", results.get(0).branch);
 		
 		// tag test
 		results = LuceneUtils.search("\"qft split\"", 10, repository);
@@ -97,10 +101,10 @@ public class LuceneUtilsTest {
 		repository.close();
 		
 		// annotated tag test
-		repository = GitBlitSuite.getBluezGnomeRepository();
-		results = LuceneUtils.search("\"release 1.8\"", 10, repository);
+		repository = GitBlitSuite.getJGitRepository();
+		results = LuceneUtils.search("I663208919f297836a9c16bf458e4a43ffaca4c12", 10, repository);
 		assertEquals(1, results.size());
-		assertEquals("[1.8]", results.get(0).labels.toString());
+		assertEquals("[v1.3.0.201202151440-r]", results.get(0).labels.toString());
 
 		repository.close();
 		
@@ -111,7 +115,7 @@ public class LuceneUtilsTest {
 	public void testMultiSearch() throws Exception {
 		List<SearchResult> results = LuceneUtils.search("test", 10,
 				GitBlitSuite.getHelloworldRepository(), 
-				GitBlitSuite.getBluezGnomeRepository());
+				GitBlitSuite.getJGitRepository());
 		LuceneUtils.close();
 		assertEquals(10, results.size());
 	}

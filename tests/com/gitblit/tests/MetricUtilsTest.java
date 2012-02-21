@@ -31,7 +31,7 @@ public class MetricUtilsTest {
 	@Test
 	public void testMetrics() throws Exception {
 		testMetrics(GitBlitSuite.getHelloworldRepository());
-		testMetrics(GitBlitSuite.getBluezGnomeRepository());
+		testMetrics(GitBlitSuite.getJGitRepository());
 	}
 
 	private void testMetrics(Repository repository) throws Exception {
