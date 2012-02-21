@@ -23,16 +23,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -103,7 +106,7 @@ import com.gitblit.utils.StringUtils;
 public class GitBlit implements ServletContextListener {
 
 	private static GitBlit gitblit;
-
+	
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
 	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(5);
@@ -132,6 +135,8 @@ public class GitBlit implements ServletContextListener {
 	private ServerStatus serverStatus;
 
 	private MailExecutor mailExecutor;
+	
+	private TimeZone timezone;
 
 	public GitBlit() {
 		if (gitblit == null) {
@@ -159,6 +164,23 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static boolean isGO() {
 		return self().settings instanceof FileSettings;
+	}
+	
+	/**
+	 * Returns the preferred timezone for the Gitblit instance.
+	 * 
+	 * @return a timezone
+	 */
+	public static TimeZone getTimezone() {
+		if (self().timezone == null) {
+			String tzid = getString("web.timezone", null);
+			if (StringUtils.isEmpty(tzid)) {
+				self().timezone = TimeZone.getDefault();
+				return self().timezone;
+			}
+			self().timezone = TimeZone.getTimeZone(tzid);
+		}
+		return self().timezone;
 	}
 
 	/**
@@ -1767,6 +1789,10 @@ public class GitBlit implements ServletContextListener {
 		repositoriesFolder = getRepositoriesFolder();
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 		repositoryResolver = new FileResolver<Void>(repositoriesFolder, true);
+		
+		logTimezone("JVM", TimeZone.getDefault());
+		logTimezone(Constants.NAME, getTimezone());
+
 		serverStatus = new ServerStatus(isGO());
 		String realm = settings.getString(Keys.realm.userService, "users.properties");
 		IUserService loginService = null;
@@ -1786,7 +1812,14 @@ public class GitBlit implements ServletContextListener {
 		}
 		if (startFederation) {
 			configureFederation();
-		}
+		}		
+	}
+	
+	private void logTimezone(String type, TimeZone zone) {
+		SimpleDateFormat df = new SimpleDateFormat("z Z");
+		df.setTimeZone(zone);
+		String offset = df.format(new Date());
+		logger.info(type + " timezone is " + zone.getID() + " (" + offset + ")");
 	}
 
 	/**

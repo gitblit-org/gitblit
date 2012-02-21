@@ -10,12 +10,14 @@
 
 #### changes
 
-- block pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
-- web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 50)
-- expanded commit age coloring from 2 days to 30 days (issue 57)
+- Block pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
+- Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 50)
+- Expanded commit age coloring from 2 days to 30 days (issue 57)
 
 #### additions
 
+- Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 54)  
+    **New:** *web.timezone =*  
 - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)  
     **New:** *server.ajpPort = 0*  
     **New:** *server.ajpBindInterface = localhost*
@@ -28,6 +30,7 @@ Push requests to these repositories will be rejected.
 
 #### fixes 
 
+- Fixed timezone bug on the activity apge (issue 54)
 - Prevent add/edit team with no selected repositories (issue 56) 
 - Disallow browser autocomplete on add/edit user/team/repository pages
 - Fixed username case-sensitivity issues (issue 43)

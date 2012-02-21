@@ -181,7 +181,7 @@ public abstract class BasePage extends WebPage {
 
 	protected TimeZone getTimeZone() {
 		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : TimeZone.getDefault();
+				.getTimezone() : GitBlit.getTimezone();
 	}
 
 	protected String getServerName() {

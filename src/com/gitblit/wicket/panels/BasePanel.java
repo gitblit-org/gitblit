@@ -38,7 +38,7 @@ public abstract class BasePanel extends Panel {
 
 	protected TimeZone getTimeZone() {
 		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : TimeZone.getDefault();
+				.getTimezone() : GitBlit.getTimezone();
 	}
 
 	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {

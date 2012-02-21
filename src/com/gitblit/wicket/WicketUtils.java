@@ -408,9 +408,10 @@ public class WicketUtils {
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
-		if (timeZone != null) {
-			df.setTimeZone(timeZone);
+		if (timeZone == null) {
+			timeZone = GitBlit.getTimezone();
 		}
+		df.setTimeZone(timeZone);
 		String dateString;
 		if (date.getTime() == 0) {
 			dateString = "--";
@@ -438,9 +439,10 @@ public class WicketUtils {
 	public static Label createTimeLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.timeFormat, "HH:mm");
 		DateFormat df = new SimpleDateFormat(format);
-		if (timeZone != null) {
-			df.setTimeZone(timeZone);
+		if (timeZone == null) {
+			timeZone = GitBlit.getTimezone();
 		}
+		df.setTimeZone(timeZone);
 		String timeString;
 		if (date.getTime() == 0) {
 			timeString = "--";
@@ -449,7 +451,6 @@ public class WicketUtils {
 		}
 		String title = TimeUtils.timeAgo(date);
 		Label label = new Label(wicketId, timeString);
-		WicketUtils.setCssClass(label, TimeUtils.timeAgoCss(date));
 		if (!StringUtils.isEmpty(title)) {
 			WicketUtils.setHtmlTooltip(label, title);
 		}
@@ -459,9 +460,10 @@ public class WicketUtils {
 	public static Label createDatestampLabel(String wicketId, Date date, TimeZone timeZone) {
 		String format = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
 		DateFormat df = new SimpleDateFormat(format);
-		if (timeZone != null) {
-			df.setTimeZone(timeZone);
+		if (timeZone == null) {
+			timeZone = GitBlit.getTimezone();
 		}
+		df.setTimeZone(timeZone);
 		String dateString;
 		if (date.getTime() == 0) {
 			dateString = "--";
@@ -483,7 +485,6 @@ public class WicketUtils {
 			title = tmp;
 		}
 		Label label = new Label(wicketId, dateString);
-		WicketUtils.setCssClass(label, TimeUtils.timeAgoCss(date));
 		if (!StringUtils.isEmpty(title)) {
 			WicketUtils.setHtmlTooltip(label, title);
 		}
@@ -494,9 +495,10 @@ public class WicketUtils {
 		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		DateFormat df = new SimpleDateFormat(format);
-		if (timeZone != null) {
-			df.setTimeZone(timeZone);
+		if (timeZone == null) {
+			timeZone = GitBlit.getTimezone();
 		}
+		df.setTimeZone(timeZone);
 		String dateString;
 		if (date.getTime() == 0) {
 			dateString = "--";
