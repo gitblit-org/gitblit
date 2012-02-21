@@ -152,26 +152,51 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #888;
 }
 
-.age0, .age1, .age2 {
+.age0, .age1, .age2, .age3, .age4 {	
 	font-size: 12px;
 }
 
-/* age0: age < 60*60*2 */
+/* age0: age < 2 hours */
 .age0 {
-	color: #008000;
 	font-style: italic;
+	color: #008000;
 	font-weight: bold;
 }
 
-/* age1: 60*60*2 <= age < 60*60*24*2 */
+/* age1: 2 hours <= age < 2 days */
 .age1 {
-	color: #008000;
 	font-style: italic;
+	color: #0000ff;
+	font-weight: bold;	
 }
 
-/* age2: 60*60*24*2 <= age */
+/* age2: 2 days < age <= 7 days */
 .age2 {
 	font-style: italic;
+	color: #2b60de;
+}
+
+/* age3: 7 days < age <= 30 days */
+.age3 {
+	color: #800080;
+}
+
+/* age4: > 30 days */
+.age4 {
+}
+
+/* Ensure that hovered ages are white */
+tr.light:hover .age0,
+tr.light:hover .age1,
+tr.light:hover .age2,
+tr.light:hover .age3,
+tr.light:hover .age4,
+tr.dark:hover .age0,
+tr.dark:hover .age1,
+tr.dark:hover .age2,
+tr.dark:hover .age3,
+tr.dark:hover .age4 {
+	color: #ffffff !important;
 }
 
 a.list {
@@ -218,7 +243,6 @@ span.repositorySwatch {
 	border-radius: 3px;	
 	padding: 1px 4px 2px 4px;	
 	color: #ffffff;
-	font-weight: bold;
 	vertical-align: center;
 }
 span.repositorySwatch a {
@@ -713,7 +737,7 @@ td.author {
 }
 
 td.date {
-	font-style: italic !important;	
+	/*font-style: italic !important;*/	
 }
 
 span.sha1, span.sha1 a, span.sha1 a span, pre.commit_message {

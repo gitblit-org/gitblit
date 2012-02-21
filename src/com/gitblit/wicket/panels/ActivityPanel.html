@@ -8,19 +8,19 @@
 <wicket:panel>
 
 	<div wicket:id="activity">
-		<div class="header"><span wicket:id="title">[title]</span></div>
+		<div class="header"><span style="font-weight:bold;" wicket:id="title">[title]</span></div>
 		<table class="activity" wicket:id="commits">
 			<tr wicket:id="commit"></tr>		
 		</table>	
 	</div>
 	
 	<wicket:fragment wicket:id="commitFragment">
-		<td class="date" style="width:40px; vertical-align: middle;" ><span wicket:id="time">[time of day]</span></td>
+		<td class="date" style="width:50px; vertical-align: middle;" ><span wicket:id="time">[time of day]</span></td>
 		<td style="width:10em;text-align:left;vertical-align: middle;">
 			<span wicket:id="repository" class="repositorySwatch">[repository link]</span>
 		</td>
 		<td style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
-		<td class="author" style="vertical-align: middle;">
+		<td style="vertical-align: middle;">
 			<img wicket:id="commitIcon" style="vertical-align: middle;"></img>
 			<span wicket:id="message">[shortlog commit link]</span><br/>
 			<span wicket:id="author" style="padding-left:20px;">[author link]</span> committed <span wicket:id="commitid">[commit id]</span> to <span wicket:id="branch"></span>

@@ -203,10 +203,16 @@ public class TimeUtils {
 			}
 			return mins + " min" + (mins > 1 ? "s" : "") + " ago";
 		} else {
-			if (css) {
-				return "age2";
-			}
 			int days = daysAgo(date);
+			if (css) {
+				if (days <= 7) {
+					return "age2";
+				} if (days <= 30) {
+					return "age3";
+				} else {
+					return "age4";
+				}
+			}
 			if (days < 365) {
 				if (days <= 30) {
 					return days + " days ago";
