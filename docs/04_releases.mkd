@@ -30,7 +30,9 @@ Push requests to these repositories will be rejected.
 
 #### fixes 
 
-- Fixed timezone bug on the activity apge (issue 54)
+- Fixed possible nullpointer from the servlet container on startup (issue 67)
+- Fixed UTF-8 encoding bug on diff page (issue 66)
+- Fixed timezone bug on the activity page (issue 54)
 - Prevent add/edit team with no selected repositories (issue 56) 
 - Disallow browser autocomplete on add/edit user/team/repository pages
 - Fixed username case-sensitivity issues (issue 43)
