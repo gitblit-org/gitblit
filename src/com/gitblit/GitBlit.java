@@ -1838,14 +1838,18 @@ public class GitBlit implements ServletContextListener {
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
 
 			// 0.7.0 web.properties in the deployed war folder
-			File overrideFile = new File(context.getRealPath("/WEB-INF/web.properties"));
-			if (overrideFile.exists()) {
-				webxmlSettings.applyOverrides(overrideFile);
+			String webProps = context.getRealPath("/WEB-INF/web.properties");
+			if (!StringUtils.isEmpty(webProps)) {
+				File overrideFile = new File(webProps);
+				if (overrideFile.exists()) {
+					webxmlSettings.applyOverrides(overrideFile);
+				}
 			}
+			
 
 			// 0.8.0 gitblit.properties file located outside the deployed war
 			// folder lie, for example, on RedHat OpenShift.
-			overrideFile = getFileOrFolder("gitblit.properties");
+			File overrideFile = getFileOrFolder("gitblit.properties");
 			if (!overrideFile.getPath().equals("gitblit.properties")) {
 				webxmlSettings.applyOverrides(overrideFile);
 			}
