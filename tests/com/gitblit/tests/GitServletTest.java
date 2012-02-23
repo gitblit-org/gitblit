@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.AfterClass;
@@ -113,9 +114,9 @@ public class GitServletTest {
 	public void testAnonymousPush() throws Exception {
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
-		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
 		BufferedWriter w = new BufferedWriter(os);
-		w.write("// " + new Date().toString() + "\n");
+		w.write("// hellol中文 " + new Date().toString() + "\n");
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
@@ -136,7 +137,7 @@ public class GitServletTest {
 
 		Git git = Git.open(jgitFolder);
 		File file = new File(jgitFolder, "TODO");
-		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
 		BufferedWriter w = new BufferedWriter(os);
 		w.write("// " + new Date().toString() + "\n");
 		w.close();
@@ -159,7 +160,7 @@ public class GitServletTest {
 
 		Git git = Git.open(jgit2Folder);
 		File file = new File(jgit2Folder, "NONBARE");
-		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true));
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
 		BufferedWriter w = new BufferedWriter(os);
 		w.write("// " + new Date().toString() + "\n");
 		w.close();

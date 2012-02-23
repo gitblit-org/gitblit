@@ -15,11 +15,14 @@
  */
 package com.gitblit.utils;
 
+import static org.eclipse.jgit.lib.Constants.encode;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.util.RawParseUtils;
 
 /**
  * Generates an html snippet of a diff in Gitblit's style.
@@ -86,11 +89,9 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 			break;
 		}
 		os.write(prefix);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		text.writeLine(bos, cur);
-		String line = bos.toString();
+		String line = text.getString(cur);
 		line = StringUtils.escapeForHtml(line, false);
-		os.write(line.getBytes());
+		os.write(encode(line));
 		switch (prefix) {
 		case '+':
 		case '-':
@@ -110,7 +111,8 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	 */
 	@Override
 	public String getHtml() {
-		String html = os.toString();
+		ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
+		String html = RawParseUtils.decode(bos.toByteArray());
 		String[] lines = html.split("\n");
 		StringBuilder sb = new StringBuilder();
 		boolean inFile = false;

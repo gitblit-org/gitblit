@@ -15,6 +15,7 @@
  */
 package com.gitblit.utils;
 
+import static org.eclipse.jgit.lib.Constants.encode;
 import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
 import java.io.ByteArrayOutputStream;
@@ -23,6 +24,7 @@ import java.io.OutputStream;
 
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
+import org.eclipse.jgit.util.RawParseUtils;
 
 /**
  * Returns an html snippet of the diff in the standard Gitweb style.
@@ -111,11 +113,9 @@ public class GitWebDiffFormatter extends DiffFormatter {
 			break;
 		}
 		os.write(prefix);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		text.writeLine(bos, cur);
-		String line = bos.toString();
+		String line = text.getString(cur);
 		line = StringUtils.escapeForHtml(line, false);
-		os.write(line.getBytes());
+		os.write(encode(line));
 		switch (prefix) {
 		case '+':
 		case '-':
@@ -133,7 +133,8 @@ public class GitWebDiffFormatter extends DiffFormatter {
 	 * @return
 	 */
 	public String getHtml() {
-		String html = os.toString();
+		ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
+		String html = RawParseUtils.decode(bos.toByteArray());
 		String[] lines = html.split("\n");
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"diff\">");
