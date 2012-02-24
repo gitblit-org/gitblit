@@ -30,6 +30,7 @@ Push requests to these repositories will be rejected.
 
 #### fixes 
 
+- Fixed (harmless) nullpointer on pushing to an empty repository (issue 69)
 - Fixed possible nullpointer from the servlet container on startup (issue 67)
 - Fixed UTF-8 encoding bug on diff page (issue 66)
 - Fixed timezone bug on the activity page (issue 54)

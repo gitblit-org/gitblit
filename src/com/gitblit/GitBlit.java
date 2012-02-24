@@ -780,7 +780,7 @@ public class GitBlit implements ServletContextListener {
 		RepositoryModel model = new RepositoryModel();
 		model.name = repositoryName;
 		model.hasCommits = JGitUtils.hasCommits(r);
-		model.lastChange = JGitUtils.getLastChange(r, null);
+		model.lastChange = JGitUtils.getLastChange(r);
 		model.isBare = r.isBare();
 		StoredConfig config = JGitUtils.readConfig(r);
 		if (config != null) {

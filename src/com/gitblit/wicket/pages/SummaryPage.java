@@ -84,7 +84,7 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryOwner", getRepositoryModel().owner));
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
-				JGitUtils.getLastChange(r, null), getTimeZone()));
+				JGitUtils.getLastChange(r), getTimeZone()));
 		if (metricsTotal == null) {
 			add(new Label("branchStats", ""));
 		} else {

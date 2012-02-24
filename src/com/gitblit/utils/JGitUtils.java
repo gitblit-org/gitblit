@@ -423,11 +423,9 @@ public class JGitUtils {
 	 * last modified date of the repository folder is returned.
 	 * 
 	 * @param repository
-	 * @param branch
-	 *            if unspecified, all branches are checked.
 	 * @return
 	 */
-	public static Date getLastChange(Repository repository, String branch) {
+	public static Date getLastChange(Repository repository) {
 		if (!hasCommits(repository)) {
 			// null repository
 			if (repository == null) {
@@ -436,26 +434,21 @@ public class JGitUtils {
 			// fresh repository
 			return new Date(repository.getDirectory().lastModified());
 		}
-		if (StringUtils.isEmpty(branch)) {
-			List<RefModel> branchModels = getLocalBranches(repository, true, -1);
-			if (branchModels.size() > 0) {
-				// find most recent branch update
-				Date lastChange = new Date(0);
-				for (RefModel branchModel : branchModels) {
-					if (branchModel.getDate().after(lastChange)) {
-						lastChange = branchModel.getDate();
-					}
-				}
-				return lastChange;
-			} else {
-				// try to find head
-				branch = Constants.HEAD;
-			}
-		}
 
-		// lookup specified branch
-		RevCommit commit = getCommit(repository, branch);
-		return getCommitDate(commit);
+		List<RefModel> branchModels = getLocalBranches(repository, true, -1);
+		if (branchModels.size() > 0) {
+			// find most recent branch update
+			Date lastChange = new Date(0);
+			for (RefModel branchModel : branchModels) {
+				if (branchModel.getDate().after(lastChange)) {
+					lastChange = branchModel.getDate();
+				}
+			}
+			return lastChange;
+		}
+		
+		// default to the repository folder modification date
+		return new Date(repository.getDirectory().lastModified());
 	}
 
 	/**
@@ -961,6 +954,9 @@ public class JGitUtils {
 				branchObject = getDefaultBranch(repository);
 			} else {
 				branchObject = repository.resolve(objectId);
+			}
+			if (branchObject == null) {
+				return list;
 			}
 
 			RevWalk rw = new RevWalk(repository);
