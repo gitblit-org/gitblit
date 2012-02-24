@@ -28,7 +28,6 @@ import com.gitblit.Constants;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Activity.RepositoryCommit;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
@@ -62,7 +61,7 @@ public class ActivityPanel extends BasePanel {
 
 				// display the commits in chronological order
 				DataView<RepositoryCommit> commits = new DataView<RepositoryCommit>("commits",
-						new ListDataProvider<RepositoryCommit>(entry.commits)) {
+						new ListDataProvider<RepositoryCommit>(entry.getCommits())) {
 					private static final long serialVersionUID = 1L;
 
 					public void populateItem(final Item<RepositoryCommit> item) {

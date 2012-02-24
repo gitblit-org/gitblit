@@ -30,10 +30,11 @@ Push requests to these repositories will be rejected.
 
 #### fixes 
 
+- Activity page now displays all local branches (issue 65)
 - Fixed (harmless) nullpointer on pushing to an empty repository (issue 69)
 - Fixed possible nullpointer from the servlet container on startup (issue 67)
 - Fixed UTF-8 encoding bug on diff page (issue 66)
-- Fixed timezone bug on the activity page (issue 54)
+- Fixed timezone bugs on the activity page (issue 54)
 - Prevent add/edit team with no selected repositories (issue 56) 
 - Disallow browser autocomplete on add/edit user/team/repository pages
 - Fixed username case-sensitivity issues (issue 43)

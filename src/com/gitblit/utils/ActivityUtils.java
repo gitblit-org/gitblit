@@ -23,7 +23,6 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +58,8 @@ public class ActivityUtils {
 	 * @param daysBack
 	 *            the number of days back from Now to collect
 	 * @param objectId
-	 *            the branch to retrieve. If this value is null the default
-	 *            branch of the repository is used.
+	 *            the branch to retrieve. If this value is null or empty all
+	 *            branches are queried.
 	 * @return
 	 */
 	public static List<Activity> getRecentActivity(List<RepositoryModel> models, int daysBack,
@@ -73,64 +72,60 @@ public class ActivityUtils {
 		// Build a map of DailyActivity from the available repositories for the
 		// specified threshold date.
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		df.setTimeZone(GitBlit.getTimezone());
 		Calendar cal = Calendar.getInstance();
+		cal.setTimeZone(GitBlit.getTimezone());
 
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
 			if (model.hasCommits && model.lastChange.after(thresholdDate)) {
-				Repository repository = GitBlit.self().getRepository(model.name);
-				List<RevCommit> commits = JGitUtils.getRevLog(repository, objectId, thresholdDate);
-				Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
+				Repository repository = GitBlit.self()
+						.getRepository(model.name);
+				List<String> branches = new ArrayList<String>();
+				if (StringUtils.isEmpty(objectId)) {
+					for (RefModel local : JGitUtils.getLocalBranches(
+							repository, true, -1)) {
+						branches.add(local.getName());
+					}
+				} else {
+					branches.add(objectId);
+				}
+				Map<ObjectId, List<RefModel>> allRefs = JGitUtils
+						.getAllRefs(repository);
+
+				for (String branch : branches) {
+					String shortName = branch;
+					if (shortName.startsWith(Constants.R_HEADS)) {
+						shortName = shortName.substring(Constants.R_HEADS.length());
+					}
+					List<RevCommit> commits = JGitUtils.getRevLog(repository,
+							branch, thresholdDate);
+					for (RevCommit commit : commits) {
+						Date date = JGitUtils.getCommitDate(commit);
+						String dateStr = df.format(date);
+						if (!activity.containsKey(dateStr)) {
+							// Normalize the date to midnight
+							cal.setTime(date);
+							cal.set(Calendar.HOUR_OF_DAY, 0);
+							cal.set(Calendar.MINUTE, 0);
+							cal.set(Calendar.SECOND, 0);
+							cal.set(Calendar.MILLISECOND, 0);
+							activity.put(dateStr, new Activity(cal.getTime()));
+						}
+						RepositoryCommit commitModel = activity.get(dateStr)
+								.addCommit(model.name, shortName, commit);
+						if (commitModel != null) {
+							commitModel.setRefs(allRefs.get(commit.getId()));
+						}
+					}
+				}
+				
+				// close the repository
 				repository.close();
-
-				// determine commit branch
-				String branch = objectId;
-				if (StringUtils.isEmpty(branch) && !commits.isEmpty()) {
-					List<RefModel> headRefs = allRefs.get(commits.get(0).getId());
-					List<String> localBranches = new ArrayList<String>();
-					for (RefModel ref : headRefs) {
-						if (ref.getName().startsWith(Constants.R_HEADS)) {
-							localBranches.add(ref.getName().substring(Constants.R_HEADS.length()));
-						}
-					}
-					// determine branch
-					if (localBranches.size() == 1) {
-						// only one branch, choose it
-						branch = localBranches.get(0);
-					} else if (localBranches.size() > 1) {
-						if (localBranches.contains("master")) {
-							// choose master
-							branch = "master";
-						} else {
-							// choose first branch
-							branch = localBranches.get(0);
-						}
-					}
-				}
-
-				for (RevCommit commit : commits) {
-					Date date = JGitUtils.getCommitDate(commit);
-					String dateStr = df.format(date);
-					if (!activity.containsKey(dateStr)) {
-						// Normalize the date to midnight
-						cal.setTime(date);
-						cal.set(Calendar.HOUR_OF_DAY, 0);
-						cal.set(Calendar.MINUTE, 0);
-						cal.set(Calendar.SECOND, 0);
-						cal.set(Calendar.MILLISECOND, 0);
-						activity.put(dateStr, new Activity(cal.getTime()));
-					}
-					RepositoryCommit commitModel = activity.get(dateStr).addCommit(model.name,
-							branch, commit);
-					commitModel.setRefs(allRefs.get(commit.getId()));
-				}
 			}
 		}
 
 		List<Activity> recentActivity = new ArrayList<Activity>(activity.values());
-		for (Activity daily : recentActivity) {
-			Collections.sort(daily.commits);
-		}
 		return recentActivity;
 	}
 

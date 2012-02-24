@@ -17,10 +17,13 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -41,7 +44,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 
 	public final Date endDate;
 
-	public final List<RepositoryCommit> commits;
+	private final Set<RepositoryCommit> commits;
 
 	private final Map<String, Metric> authorMetrics;
 
@@ -67,26 +70,48 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public Activity(Date date, long duration) {
 		startDate = date;
 		endDate = new Date(date.getTime() + duration);
-		commits = new ArrayList<RepositoryCommit>();
+		commits = new LinkedHashSet<RepositoryCommit>();
 		authorMetrics = new HashMap<String, Metric>();
 		repositoryMetrics = new HashMap<String, Metric>();
 	}
 
+	/**
+	 * Adds a commit to the activity object as long as the commit is not a
+	 * duplicate.
+	 * 
+	 * @param repository
+	 * @param branch
+	 * @param commit
+	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
+	 *         commit
+	 */
 	public RepositoryCommit addCommit(String repository, String branch, RevCommit commit) {
 		RepositoryCommit commitModel = new RepositoryCommit(repository, branch, commit);
-		commits.add(commitModel);
+		if (commits.add(commitModel)) {
+			if (!repositoryMetrics.containsKey(repository)) {
+				repositoryMetrics.put(repository, new Metric(repository));
+			}
+			repositoryMetrics.get(repository).count++;
 
-		if (!repositoryMetrics.containsKey(repository)) {
-			repositoryMetrics.put(repository, new Metric(repository));
+			String author = commit.getAuthorIdent().getEmailAddress()
+					.toLowerCase();
+			if (!authorMetrics.containsKey(author)) {
+				authorMetrics.put(author, new Metric(author));
+			}
+			authorMetrics.get(author).count++;
+			return commitModel;
 		}
-		repositoryMetrics.get(repository).count++;
-
-		String author = commit.getAuthorIdent().getEmailAddress().toLowerCase();
-		if (!authorMetrics.containsKey(author)) {
-			authorMetrics.put(author, new Metric(author));
-		}
-		authorMetrics.get(author).count++;
-		return commitModel;
+		return null;
+	}
+	
+	public int getCommitCount() {
+		return commits.size();
+	}
+	
+	public List<RepositoryCommit> getCommits() {
+		List<RepositoryCommit> list = new ArrayList<RepositoryCommit>(commits);
+		Collections.sort(list);
+		return list;
 	}
 
 	public Map<String, Metric> getAuthorMetrics() {
@@ -153,6 +178,20 @@ public class Activity implements Serializable, Comparable<Activity> {
 
 		public PersonIdent getAuthorIdent() {
 			return commit.getAuthorIdent();
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof RepositoryCommit) {
+				RepositoryCommit commit = (RepositoryCommit) o;
+				return repository.equals(commit.repository) && getName().equals(commit.getName());
+			}
+			return false;
+		}
+		
+		@Override
+		public int hashCode() {
+			return (repository + commit).hashCode();
 		}
 
 		@Override

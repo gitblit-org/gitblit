@@ -79,7 +79,7 @@ public class ActivityPage extends RootPage {
 			int totalCommits = 0;
 			Set<String> uniqueAuthors = new HashSet<String>();
 			for (Activity activity : recentActivity) {
-				totalCommits += activity.commits.size();
+				totalCommits += activity.getCommitCount();
 				uniqueAuthors.addAll(activity.getAuthorMetrics().keySet());
 			}
 			int totalAuthors = uniqueAuthors.size();
@@ -174,7 +174,7 @@ public class ActivityPage extends RootPage {
 				getString("gb.commits"));
 		SimpleDateFormat df = new SimpleDateFormat("MMM dd");
 		for (Activity metric : recentActivity) {
-			chart.addValue(df.format(metric.startDate), metric.commits.size());
+			chart.addValue(df.format(metric.startDate), metric.getCommitCount());
 		}
 		chart.setWidth(w);
 		chart.setHeight(h);
