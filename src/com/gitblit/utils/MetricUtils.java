@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
@@ -84,10 +85,11 @@ public class MetricUtils {
 	 *            if null or empty, HEAD is assumed.
 	 * @param includeTotal
 	 * @param dateFormat
+	 * @param timezone
 	 * @return list of metrics
 	 */
 	public static List<Metric> getDateMetrics(Repository repository, String objectId,
-			boolean includeTotal, String dateFormat) {
+			boolean includeTotal, String dateFormat, TimeZone timezone) {
 		Metric total = new Metric("TOTAL");
 		final Map<String, Metric> metricMap = new HashMap<String, Metric>();
 
@@ -130,6 +132,7 @@ public class MetricUtils {
 					// use specified date format
 					df = new SimpleDateFormat(dateFormat);
 				}
+				df.setTimeZone(timezone);
 
 				Iterable<RevCommit> revlog = revWalk;
 				for (RevCommit rev : revlog) {

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.TimeZone;
 
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
@@ -35,7 +36,8 @@ public class MetricUtilsTest {
 	}
 
 	private void testMetrics(Repository repository) throws Exception {
-		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null);
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null,
+				TimeZone.getDefault());
 		repository.close();
 		assertTrue("No date metrics found!", metrics.size() > 0);
 	}

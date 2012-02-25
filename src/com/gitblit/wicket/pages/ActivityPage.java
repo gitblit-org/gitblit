@@ -67,7 +67,8 @@ public class ActivityPage extends RootPage {
 
 		// determine repositories to view and retrieve the activity
 		List<RepositoryModel> models = getRepositories(params);
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, daysBack, objectId);
+		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, 
+				daysBack, objectId, getTimeZone());
 
 		if (recentActivity.size() == 0) {
 			// no activity, skip graphs and activity panel
@@ -173,6 +174,7 @@ public class ActivityPage extends RootPage {
 		GoogleChart chart = new GoogleLineChart("chartDaily", getString("gb.dailyActivity"), "day",
 				getString("gb.commits"));
 		SimpleDateFormat df = new SimpleDateFormat("MMM dd");
+		df.setTimeZone(getTimeZone());
 		for (Activity metric : recentActivity) {
 			chart.addValue(df.format(metric.startDate), metric.getCommitCount());
 		}

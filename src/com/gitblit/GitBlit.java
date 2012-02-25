@@ -882,7 +882,7 @@ public class GitBlit implements ServletContextListener {
 		if (repositoryMetricsCache.hasCurrent(model.name, model.lastChange)) {
 			return new ArrayList<Metric>(repositoryMetricsCache.getObject(model.name));
 		}
-		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null);
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null, getTimezone());
 		repositoryMetricsCache.updateObject(model.name, model.lastChange, metrics);
 		return new ArrayList<Metric>(metrics);
 	}

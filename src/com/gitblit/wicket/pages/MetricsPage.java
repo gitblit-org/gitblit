@@ -55,7 +55,7 @@ public class MetricsPage extends RepositoryPage {
 			add(new Label("branchTitle", objectId));
 		}
 		Metric metricsTotal = null;
-		List<Metric> metrics = MetricUtils.getDateMetrics(r, objectId, true, null);
+		List<Metric> metrics = MetricUtils.getDateMetrics(r, objectId, true, null, getTimeZone());
 		metricsTotal = metrics.remove(0);
 		if (metricsTotal == null) {
 			add(new Label("branchStats", ""));
@@ -135,7 +135,7 @@ public class MetricsPage extends RepositoryPage {
 	}
 
 	private List<Metric> getDayOfWeekMetrics(Repository repository, String objectId) {
-		List<Metric> list = MetricUtils.getDateMetrics(repository, objectId, false, "E");
+		List<Metric> list = MetricUtils.getDateMetrics(repository, objectId, false, "E", getTimeZone());
 		SimpleDateFormat sdf = new SimpleDateFormat("E");
 		Calendar cal = Calendar.getInstance();
 

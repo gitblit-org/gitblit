@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -60,10 +61,12 @@ public class ActivityUtils {
 	 * @param objectId
 	 *            the branch to retrieve. If this value is null or empty all
 	 *            branches are queried.
+	 * @param timezone
+	 *            the timezone for aggregating commits
 	 * @return
 	 */
 	public static List<Activity> getRecentActivity(List<RepositoryModel> models, int daysBack,
-			String objectId) {
+			String objectId, TimeZone timezone) {
 
 		// Activity panel shows last daysBack of activity across all
 		// repositories.
@@ -72,9 +75,9 @@ public class ActivityUtils {
 		// Build a map of DailyActivity from the available repositories for the
 		// specified threshold date.
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		df.setTimeZone(GitBlit.getTimezone());
+		df.setTimeZone(timezone);
 		Calendar cal = Calendar.getInstance();
-		cal.setTimeZone(GitBlit.getTimezone());
+		cal.setTimeZone(timezone);
 
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
