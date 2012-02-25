@@ -131,8 +131,6 @@ public class GitBlitSuite {
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
 			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git");
-			cloneOrFetch("test/bluez-gnome.git",
-					"https://git.kernel.org/pub/scm/bluetooth/bluez-gnome.git");
 			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
