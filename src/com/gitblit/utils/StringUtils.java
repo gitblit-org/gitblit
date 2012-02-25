@@ -169,16 +169,6 @@ public class StringUtils {
 	}
 
 	/**
-	 * Returns a trimmed shortlog message.
-	 * 
-	 * @param string
-	 * @return trimmed shortlog message
-	 */
-	public static String trimShortLog(String string) {
-		return trimString(string, 60);
-	}
-
-	/**
 	 * Left pad a string with the specified character, if the string length is
 	 * less than the specified length.
 	 * 

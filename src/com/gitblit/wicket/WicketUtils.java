@@ -220,6 +220,19 @@ public class WicketUtils {
 		return img;
 	}
 
+	public static Label newIcon(String wicketId, String css) {
+		Label lbl = new Label(wicketId);
+		setCssClass(lbl, css);		
+		return lbl;
+	}
+	
+	public static Label newBlankIcon(String wicketId) {
+		Label lbl = new Label(wicketId);
+		setCssClass(lbl, "");
+		lbl.setRenderBodyOnly(true);
+		return lbl;
+	}
+	
 	public static ContextRelativeResource getResource(String file) {
 		return new ContextRelativeResource(file);
 	}

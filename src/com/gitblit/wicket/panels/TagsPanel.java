@@ -36,7 +36,6 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoryPage;
-import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TreePage;
@@ -59,9 +58,7 @@ public class TagsPanel extends BasePanel {
 					TagsPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
 		} else {
 			// tags page
-			// show repository summary page link
-			add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
-					WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new Label("header", new StringResourceModel("gb.tags", this, null)));
 		}
 
 		ListDataProvider<RefModel> tagsDp = new ListDataProvider<RefModel>(tags);
@@ -92,7 +89,8 @@ public class TagsPanel extends BasePanel {
 								.getReferencedObjectId().getName())));
 
 				// workaround for RevTag returning a lengthy shortlog. :(
-				String message = StringUtils.trimShortLog(entry.getShortMessage());
+				String message = StringUtils.trimString(entry.getShortMessage(), 
+						com.gitblit.Constants.LEN_SHORTLOG);
 
 				if (linkClass.equals(BlobPage.class)) {
 					// Blob Tag Object

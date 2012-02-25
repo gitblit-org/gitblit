@@ -113,7 +113,12 @@ public class ActivityPanel extends BasePanel {
 
 						// message/commit link
 						String shortMessage = commit.getShortMessage();
-						String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+						String trimmedMessage = shortMessage;
+						if (commit.getRefs() != null && commit.getRefs().size() > 0) {
+							trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG_REFS);
+						} else {
+							trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
+						}
 						LinkPanel shortlog = new LinkPanel("message", "list subject",
 								trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
 										commit.repository, commit.getName()), true);

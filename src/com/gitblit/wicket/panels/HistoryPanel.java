@@ -121,7 +121,12 @@ public class HistoryPanel extends BasePanel {
 				}
 
 				String shortMessage = entry.getShortMessage();
-				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+				String trimmedMessage = shortMessage;
+				if (allRefs.containsKey(entry.getId())) {
+					trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG_REFS);
+				} else {
+					trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
+				}
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
 						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
 								repositoryName, entry.getName()));

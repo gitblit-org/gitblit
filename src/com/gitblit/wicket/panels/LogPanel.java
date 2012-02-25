@@ -40,7 +40,6 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class LogPanel extends BasePanel {
@@ -75,9 +74,7 @@ public class LogPanel extends BasePanel {
 		// header
 		if (pageResults) {
 			// shortlog page
-			// show repository summary page link
-			add(new LinkPanel("header", "title", objectId, SummaryPage.class,
-					WicketUtils.newRepositoryParameter(repositoryName)));
+			add(new Label("header", objectId));
 		} else {
 			// summary page
 			// show shortlog page link
@@ -113,7 +110,12 @@ public class LogPanel extends BasePanel {
 
 				// short message
 				String shortMessage = entry.getShortMessage();
-				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+				String trimmedMessage = shortMessage;
+				if (allRefs.containsKey(entry.getId())) {
+					trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG_REFS);
+				} else {
+					trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
+				}
 				LinkPanel shortlog = new LinkPanel("commitShortMessage", "list subject",
 						trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
 								repositoryName, entry.getName()));

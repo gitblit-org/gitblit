@@ -41,7 +41,6 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.SearchPage;
-import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class BranchesPanel extends BasePanel {
@@ -73,9 +72,7 @@ public class BranchesPanel extends BasePanel {
 					null), BranchesPage.class, WicketUtils.newRepositoryParameter(model.name)));
 		} else {
 			// branches page
-			// show repository summary page link
-			add(new LinkPanel("branches", "title", model.name, SummaryPage.class,
-					WicketUtils.newRepositoryParameter(model.name)));
+			add(new Label("branches", new StringResourceModel("gb.branches", this, null)));
 		}
 
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
@@ -101,7 +98,7 @@ public class BranchesPanel extends BasePanel {
 
 				// short message
 				String shortMessage = entry.getShortMessage();
-				String trimmedMessage = StringUtils.trimShortLog(shortMessage);
+				String trimmedMessage = StringUtils.trimString(shortMessage, Constants.LEN_SHORTLOG);
 				LinkPanel shortlog = new LinkPanel("branchLog", "list subject", trimmedMessage,
 						CommitPage.class, WicketUtils.newObjectParameter(model.name,
 								entry.getName()));

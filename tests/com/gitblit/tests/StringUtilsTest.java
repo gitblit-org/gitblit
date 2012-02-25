@@ -76,7 +76,7 @@ public class StringUtilsTest {
 	public void testTrim() throws Exception {
 		String input = "123456789 123456789 123456789 123456789 123456789 123456789 123456789 ";
 		String output = "123456789 123456789 123456789 123456789 123456789 1234567...";
-		assertEquals(output, StringUtils.trimShortLog(input));
+		assertEquals(output, StringUtils.trimString(input, 60));
 		assertEquals(input, StringUtils.trimString(input, input.length()));
 	}
 

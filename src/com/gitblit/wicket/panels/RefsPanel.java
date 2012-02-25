@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -54,19 +55,48 @@ public class RefsPanel extends Panel {
 		Collections.sort(refs, new Comparator<RefModel>() {
 			@Override
 			public int compare(RefModel o1, RefModel o2) {
+				// sort remote heads last, otherwise sort by name
+				// this is so we can insert a break on the refs panel
+				// [head][branch][branch][tag][tag]
+				// [remote][remote][remote]
+				boolean remote1 = o1.displayName.startsWith(Constants.R_REMOTES);
+				boolean remote2 = o2.displayName.startsWith(Constants.R_REMOTES);
+				if (remote1 && remote2) {
+					// both are remote heads, sort by name
+					return o1.displayName.compareTo(o2.displayName);	
+				}
+				if (remote1) {
+					// o1 is remote, o2 comes first
+					return 1;
+				}
+				if (remote2) {
+					// remote is o2, o1 comes first
+					return -1;
+				}
+				// standard sort
 				return o1.displayName.compareTo(o2.displayName);
 			}
 		});
-
+		
+		// count remote and determine if we should insert a break
+		int remoteCount = 0;
+		for (RefModel ref : refs) {
+			if (ref.displayName.startsWith(Constants.R_REMOTES)) {
+				remoteCount++;
+			}
+		}
+		final boolean shouldBreak = remoteCount < refs.size();
+		
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
 			private static final long serialVersionUID = 1L;
+			private boolean alreadyInsertedBreak = !shouldBreak;
 
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 				String name = entry.displayName;
 				String objectid = entry.getReferencedObjectId().getName();
-
+				boolean breakLine = false;
 				Class<? extends RepositoryPage> linkClass = CommitPage.class;
 				String cssClass = "";
 				if (name.startsWith(Constants.R_HEADS)) {
@@ -83,6 +113,10 @@ public class RefsPanel extends Panel {
 					linkClass = LogPage.class;
 					name = name.substring(Constants.R_REMOTES.length());
 					cssClass = "remoteBranch";
+					if (!alreadyInsertedBreak) {
+						breakLine = true;
+						alreadyInsertedBreak = true;
+					}
 				} else if (name.startsWith(Constants.R_TAGS)) {
 					// tag
 					if (entry.isAnnotatedTag()) {
@@ -104,6 +138,10 @@ public class RefsPanel extends Panel {
 				WicketUtils.setCssClass(c, cssClass);
 				WicketUtils.setHtmlTooltip(c, name);
 				item.add(c);
+				Label lb = new Label("lineBreak", "<br/>");
+				lb.setVisible(breakLine);
+				lb.setRenderBodyOnly(true);
+				item.add(lb.setEscapeModelStrings(false));
 			}
 		};
 		add(refsView);
