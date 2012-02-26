@@ -128,7 +128,7 @@ public class IssuesTest {
 		// build a new Lucene index
 		LuceneUtils.deleteIndex(repository);
 		for (IssueModel anIssue : allIssues) {
-			LuceneUtils.index(repository, anIssue, false);
+			LuceneUtils.index(repository, anIssue);
 		}
 		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
 		assertTrue(hits.size() > 0);
@@ -139,7 +139,7 @@ public class IssuesTest {
 		change.comment("this is a test of reindexing an issue");
 		IssueUtils.updateIssue(repository, issue.id, change);
 		issue = IssueUtils.getIssue(repository, issue.id);
-		LuceneUtils.index(repository, issue, true);
+		LuceneUtils.index(repository, issue);
 
 		// delete all issues
 		for (IssueModel anIssue : allIssues) {

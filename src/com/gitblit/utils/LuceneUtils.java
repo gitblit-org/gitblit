@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,7 +48,9 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.util.FS;
 
 import com.gitblit.models.IssueModel;
 import com.gitblit.models.IssueModel.Attachment;
@@ -81,6 +84,7 @@ public class LuceneUtils {
 	}
 
 	private static final Version LUCENE_VERSION = Version.LUCENE_35;
+	private static final int INDEX_VERSION = 1;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_OBJECT_ID = "id";
@@ -94,17 +98,21 @@ public class LuceneUtils {
 	private static final String FIELD_LABEL = "label";
 	private static final String FIELD_ATTACHMENT = "attachment";
 
-	private static Set<String> excludedExtensions = new TreeSet<String>(
-			Arrays.asList("7z", "arc", "arj", "bin", "bmp", "dll", "doc",
-					"docx", "exe", "gif", "gz", "jar", "jpg", "lib", "lzh", 
-					"odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls",
-					"xlsx", "zip"));
+	private static Set<String> excludedExtensions = new TreeSet<String>(Arrays.asList("7z", "arc",
+			"arj", "bin", "bmp", "dll", "doc", "docx", "exe", "gif", "gz", "jar", "jpg", "lib",
+			"lzh", "odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls", "xlsx", "zip"));
 
 	private static Set<String> excludedBranches = new TreeSet<String>(
 			Arrays.asList("/refs/heads/gb-issues"));
 
 	private static final Map<File, IndexSearcher> SEARCHERS = new ConcurrentHashMap<File, IndexSearcher>();
 	private static final Map<File, IndexWriter> WRITERS = new ConcurrentHashMap<File, IndexWriter>();
+
+	private static final String CONF_FILE = "lucene.conf";
+	private static final String CONF_INDEX = "index";
+	private static final String CONF_VERSION = "version";
+	private static final String CONF_ALIAS = "aliases";
+	private static final String CONF_BRANCH = "branches";
 
 	/**
 	 * Returns the name of the repository.
@@ -119,7 +127,49 @@ public class LuceneUtils {
 			return repository.getDirectory().getParentFile().getName();
 		}
 	}
-	
+
+	/**
+	 * Construct a keyname from the branch.
+	 * 
+	 * @param branchName
+	 * @return a keyname appropriate for the Git config file format
+	 */
+	private static String getBranchKey(String branchName) {
+		return StringUtils.getSHA1(branchName);
+	}
+
+	/**
+	 * Returns the Lucene configuration for the specified repository.
+	 * 
+	 * @param repository
+	 * @return a config object
+	 */
+	private static FileBasedConfig getConfig(Repository repository) {
+		File file = new File(repository.getDirectory(), CONF_FILE);
+		FileBasedConfig config = new FileBasedConfig(file, FS.detect());
+		return config;
+	}
+
+	/**
+	 * Reads the Lucene config file for the repository to check the index
+	 * version. If the index version is different, then rebuild the repository
+	 * index.
+	 * 
+	 * @param repository
+	 * @return true of the on-disk index format is different than INDEX_VERSION
+	 */
+	public static boolean shouldReindex(Repository repository) {
+		try {
+			FileBasedConfig config = getConfig(repository);
+			config.load();
+			int indexVersion = config.getInt(CONF_INDEX, CONF_VERSION, 0);
+			// reindex if versions do not match
+			return indexVersion != INDEX_VERSION;
+		} catch (Throwable t) {
+		}
+		return true;
+	}
+
 	/**
 	 * Deletes the Lucene index for the specified repository.
 	 * 
@@ -132,6 +182,10 @@ public class LuceneUtils {
 			if (luceneIndex.exists()) {
 				org.eclipse.jgit.util.FileUtils.delete(luceneIndex,
 						org.eclipse.jgit.util.FileUtils.RECURSIVE);
+			}
+			File luceneConfig = new File(repository.getDirectory(), CONF_FILE);
+			if (luceneConfig.exists()) {
+				luceneConfig.delete();
 			}
 			return true;
 		} catch (IOException e) {
@@ -146,14 +200,22 @@ public class LuceneUtils {
 	 * @param repository
 	 * @return true if the indexing has succeeded
 	 */
-	public static boolean index(Repository repository) {
+	public static boolean reindex(Repository repository) {
+		if (!LuceneUtils.deleteIndex(repository)) {
+			return false;
+		}
 		try {
 			String repositoryName = getName(repository);
+			FileBasedConfig config = getConfig(repository);
 			Set<String> indexedCommits = new TreeSet<String>();
 			IndexWriter writer = getIndexWriter(repository, true);
 			// build a quick lookup of tags
 			Map<String, List<String>> tags = new HashMap<String, List<String>>();
 			for (RefModel tag : JGitUtils.getTags(repository, false, -1)) {
+				if (!tag.isAnnotatedTag()) {
+					// skip non-annotated tags
+					continue;
+				}
 				if (!tags.containsKey(tag.getObjectId())) {
 					tags.put(tag.getReferencedObjectId().getName(), new ArrayList<String>());
 				}
@@ -170,6 +232,10 @@ public class LuceneUtils {
 				RevWalk revWalk = new RevWalk(repository);
 				RevCommit rev = revWalk.parseCommit(branch.getObjectId());
 
+				String keyName = getBranchKey(branchName);
+				config.setString(CONF_ALIAS, null, keyName, branchName);
+				config.setString(CONF_BRANCH, null, keyName, rev.getName());
+
 				// index the blob contents of the tree
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				byte[] tmp = new byte[32767];
@@ -184,8 +250,7 @@ public class LuceneUtils {
 							Index.NOT_ANALYZED_NO_NORMS));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
 							Index.NOT_ANALYZED));
-					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
-							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_OBJECT_ID, treeWalk.getPathString(), Store.YES,
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
@@ -233,8 +298,7 @@ public class LuceneUtils {
 					Document doc = createDocument(rev, tags.get(head));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
 							Index.NOT_ANALYZED));
-					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
-							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.NOT_ANALYZED));
 					writer.addDocument(doc);
 				}
 
@@ -246,8 +310,7 @@ public class LuceneUtils {
 						Document doc = createDocument(rev, tags.get(hash));
 						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
 								Index.NOT_ANALYZED));
-						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES,
-								Index.NOT_ANALYZED));
+						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.NOT_ANALYZED));
 						writer.addDocument(doc);
 					}
 				}
@@ -268,6 +331,8 @@ public class LuceneUtils {
 			}
 
 			// commit all changes and reset the searcher
+			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
+			config.save();
 			resetIndexSearcher(repository);
 			writer.commit();
 			return true;
@@ -288,13 +353,22 @@ public class LuceneUtils {
 	 * @return true, if successful
 	 */
 	public static boolean index(Repository repository, String branch, RevCommit commit) {
-		try {			
+		try {
 			if (excludedBranches.contains(branch)) {
 				if (IssueUtils.GB_ISSUES.equals(branch)) {
 					// index an issue
 					String issueId = commit.getShortMessage().substring(2).trim();
 					IssueModel issue = IssueUtils.getIssue(repository, issueId);
-					return index(repository, issue, true);
+					if (issue == null) {
+						// delete the old issue from the index, if exists
+						IndexWriter writer = getIndexWriter(repository, false);
+						writer.deleteDocuments(
+								new Term(FIELD_OBJECT_TYPE, ObjectType.issue.name()), new Term(
+										FIELD_OBJECT_ID, issueId));
+						writer.commit();
+						return true;
+					}
+					return index(repository, issue);
 				}
 				return false;
 			}
@@ -306,9 +380,8 @@ public class LuceneUtils {
 			for (PathChangeModel path : changedPaths) {
 				// delete the indexed blob
 				writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.blob.name()),
-						new Term(FIELD_BRANCH, branch),
-						new Term(FIELD_OBJECT_ID, path.path));
-				
+						new Term(FIELD_BRANCH, branch), new Term(FIELD_OBJECT_ID, path.path));
+
 				// re-index the blob
 				if (!ChangeType.DELETE.equals(path.changeType)) {
 					Document doc = new Document();
@@ -317,8 +390,7 @@ public class LuceneUtils {
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.NOT_ANALYZED));
-					doc.add(new Field(FIELD_OBJECT_ID, path.path, Store.YES,
-							Index.NOT_ANALYZED));
+					doc.add(new Field(FIELD_OBJECT_ID, path.path, Store.YES, Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
 					doc.add(new Field(FIELD_AUTHOR, commit.getAuthorIdent().getName(), Store.YES,
 							Index.NOT_ANALYZED_NO_NORMS));
@@ -336,15 +408,15 @@ public class LuceneUtils {
 
 					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
 						// read the blob content
-						String str = JGitUtils.getStringContent(repository, 
-								commit.getTree(), path.path);
+						String str = JGitUtils.getStringContent(repository, commit.getTree(),
+								path.path);
 						doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
 						writer.addDocument(doc);
 					}
 				}
 			}
 			writer.commit();
-			
+
 			Document doc = createDocument(commit, null);
 			return index(repository, doc);
 		} catch (Exception e) {
@@ -359,26 +431,84 @@ public class LuceneUtils {
 	 * 
 	 * @param repository
 	 * @param issue
-	 * @param reindex
-	 *            if true, the old index entry for this issue will be deleted.
-	 *            This is only appropriate for pre-existing/indexed issues.
 	 * @return true, if successful
 	 */
-	public static boolean index(Repository repository, IssueModel issue, boolean reindex) {
+	public static boolean index(Repository repository, IssueModel issue) {
 		try {
+			// delete the old issue from the index, if exists
+			IndexWriter writer = getIndexWriter(repository, false);
+			writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.issue.name()), new Term(
+					FIELD_OBJECT_ID, String.valueOf(issue.id)));
+			writer.commit();
+
 			Document doc = createDocument(issue);
-			if (reindex) {
-				// delete the old issue from the index, if exists
-				IndexWriter writer = getIndexWriter(repository, false);
-				writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.issue.name()),
-						new Term(FIELD_OBJECT_ID, String.valueOf(issue.id)));
-				writer.commit();
-			}
 			return index(repository, doc);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	/**
+	 * Updates a repository index incrementally from the last indexed commits.
+	 * 
+	 * @param repository
+	 */
+	public static boolean updateIndex(Repository repository) {
+		boolean success = false;
+		try {
+			FileBasedConfig config = getConfig(repository);
+			config.load();
+
+			// build a quick lookup of annotated tags
+			Map<String, List<String>> tags = new HashMap<String, List<String>>();
+			for (RefModel tag : JGitUtils.getTags(repository, false, -1)) {
+				if (!tag.isAnnotatedTag()) {
+					// skip non-annotated tags
+					continue;
+				}
+				if (!tags.containsKey(tag.getObjectId())) {
+					tags.put(tag.getReferencedObjectId().getName(), new ArrayList<String>());
+				}
+				tags.get(tag.getReferencedObjectId().getName()).add(tag.displayName);
+			}
+
+			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
+			// TODO detect branch deletion
+
+			// walk through each branch
+			for (RefModel branch : branches) {
+				// determine last commit
+				String branchName = branch.getName();
+				String keyName = getBranchKey(branchName);
+				String lastCommit = config.getString(CONF_BRANCH, null, keyName);
+
+				List<RevCommit> revs;
+				if (StringUtils.isEmpty(lastCommit)) {
+					// new branch/unindexed branch, get all commits on branch
+					revs = JGitUtils.getRevLog(repository, branchName, 0, -1);
+				} else {
+					// pre-existing branch, get changes since last commit
+					revs = JGitUtils.getRevLog(repository, lastCommit, branchName);
+				}
+
+				// reverse the list of commits so we start with the first commit
+				Collections.reverse(revs);
+				for (RevCommit commit : revs) {
+					index(repository, branchName, commit);
+				}
+
+				// update the config
+				config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
+				config.setString(CONF_ALIAS, null, keyName, branchName);
+				config.setString(CONF_BRANCH, null, keyName, branch.getObjectId().getName());
+				config.save();
+			}
+			success = true;
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
+		return success;
 	}
 
 	/**
@@ -446,8 +576,7 @@ public class LuceneUtils {
 	private static boolean index(Repository repository, Document doc) {
 		try {
 			String repositoryName = getName(repository);
-			doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES,
-					Index.NOT_ANALYZED));
+			doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.NOT_ANALYZED));
 			IndexWriter writer = getIndexWriter(repository, false);
 			writer.addDocument(doc);
 			resetIndexSearcher(repository);
@@ -587,9 +716,9 @@ public class LuceneUtils {
 				for (Repository repository : repositories) {
 					IndexSearcher repositoryIndex = getIndexSearcher(repository);
 					readers.add(repositoryIndex.getIndexReader());
-				}			
-				IndexReader [] rdrs = readers.toArray(new IndexReader[readers.size()]);
-				MultiReader reader = new MultiReader(rdrs);			
+				}
+				IndexReader[] rdrs = readers.toArray(new IndexReader[readers.size()]);
+				MultiReader reader = new MultiReader(rdrs);
 				searcher = new IndexSearcher(reader);
 			}
 			Query rewrittenQuery = searcher.rewrite(query);
@@ -606,7 +735,7 @@ public class LuceneUtils {
 			e.printStackTrace();
 		}
 		return new ArrayList<SearchResult>(results);
-	}	
+	}
 
 	/**
 	 * Close all the index writers and searchers

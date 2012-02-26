@@ -37,17 +37,17 @@ public class LuceneUtilsTest {
 	public void testFullIndex() throws Exception {
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		LuceneUtils.index(repository);
+		LuceneUtils.reindex(repository);
 		repository.close();
 
 		// reindex theoretical physics
 		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
-		LuceneUtils.index(repository);
+		LuceneUtils.reindex(repository);
 		repository.close();
 
 		// reindex JGit
 		repository = GitBlitSuite.getJGitRepository();
-		LuceneUtils.index(repository);
+		LuceneUtils.reindex(repository);
 		repository.close();
 
 		LuceneUtils.close();

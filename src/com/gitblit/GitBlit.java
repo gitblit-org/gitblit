@@ -136,6 +136,8 @@ public class GitBlit implements ServletContextListener {
 
 	private MailExecutor mailExecutor;
 	
+	private LuceneExecutor luceneExecutor;
+	
 	private TimeZone timezone;
 
 	public GitBlit() {
@@ -1806,9 +1808,17 @@ public class GitBlit implements ServletContextListener {
 		setUserService(loginService);
 		mailExecutor = new MailExecutor(settings);
 		if (mailExecutor.isReady()) {
+			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
 			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
+		}
+		luceneExecutor = new LuceneExecutor(settings);
+		if (luceneExecutor.isReady()) {
+			logger.info("Lucene executor is scheduled to process the repository queue every 10 minutes.");
+			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 10, TimeUnit.MINUTES);
+		} else {
+			logger.warn("Lucene executor is disabled.");
 		}
 		if (startFederation) {
 			configureFederation();
