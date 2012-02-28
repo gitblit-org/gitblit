@@ -1697,6 +1697,15 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Update the Lucene index of a repository.
+	 * 
+	 * @param repository
+	 */
+	public void updateLuceneIndex(RepositoryModel repository) {
+		luceneExecutor.queue(repository);
+	}
+
+	/**
 	 * Returns the descriptions/comments of the Gitblit config settings.
 	 * 
 	 * @return SettingsModel
@@ -1892,5 +1901,6 @@ public class GitBlit implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent contextEvent) {
 		logger.info("Gitblit context destroyed by servlet container.");
 		scheduledExecutor.shutdownNow();
+		luceneExecutor.close();
 	}
 }

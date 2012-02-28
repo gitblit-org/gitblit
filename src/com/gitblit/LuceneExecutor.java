@@ -54,7 +54,7 @@ public class LuceneExecutor implements Runnable {
 	public LuceneExecutor(IStoredSettings settings) {
 		this.settings = settings;
 		this.isLuceneEnabled = settings.getBoolean("lucene.enableLucene", false);
-		this.isPollingMode = settings.getBoolean("lucene.pollingMode", false);		
+		this.isPollingMode = settings.getBoolean("lucene.pollingMode", false);
 	}
 
 	/**
@@ -94,9 +94,9 @@ public class LuceneExecutor implements Runnable {
 		if (!isLuceneEnabled) {
 			return;
 		}
-		
+
 		if (firstRun.get() || isPollingMode) {
-			// update all indexes on first run or if polling mode 
+			// update all indexes on first run or if polling mode
 			firstRun.set(false);
 			queue.addAll(GitBlit.self().getRepositoryList());
 		}
@@ -117,7 +117,7 @@ public class LuceneExecutor implements Runnable {
 								"Lucene executor could not find repository {0}. Skipping.",
 								repositoryName));
 						continue;
-					}					
+					}
 					index(repositoryName, repository);
 					repository.close();
 					processed.add(repositoryName);
@@ -173,5 +173,13 @@ public class LuceneExecutor implements Runnable {
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Lucene indexing failure for {0}", repositoryName), t);
 		}
+	}
+
+	/**
+	 * Close all Lucene indexers.
+	 * 
+	 */
+	public void close() {
+		LuceneUtils.close();
 	}
 }

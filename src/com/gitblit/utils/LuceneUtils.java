@@ -473,13 +473,24 @@ public class LuceneUtils {
 				tags.get(tag.getReferencedObjectId().getName()).add(tag.displayName);
 			}
 
+			// detect branch deletion
+			// first assume all branches are deleted and then remove each
+			// existing branch from deletedBranches during indexing			
+			Set<String> deletedBranches = new TreeSet<String>();
+			for (String alias : config.getNames(CONF_ALIAS)) {
+				String branch = config.getString(CONF_ALIAS, null, alias);
+				deletedBranches.add(branch);
+			}
+			
+			// walk through each branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
-			// TODO detect branch deletion
-
-			// walk through each branch
 			for (RefModel branch : branches) {
-				// determine last commit
 				String branchName = branch.getName();
+
+				// remove this branch from the deletedBranches set
+				deletedBranches.remove(branchName);
+
+				// determine last commit				
 				String keyName = getBranchKey(branchName);
 				String lastCommit = config.getString(CONF_BRANCH, null, keyName);
 
@@ -503,6 +514,16 @@ public class LuceneUtils {
 				config.setString(CONF_ALIAS, null, keyName, branchName);
 				config.setString(CONF_BRANCH, null, keyName, branch.getObjectId().getName());
 				config.save();
+			}
+			
+			// the deletedBranches set will normally be empty by this point
+			// unless a branch really was deleted and no longer exists
+			if (deletedBranches.size() > 0) {
+				for (String branch : deletedBranches) {
+					IndexWriter writer = getIndexWriter(repository, false);
+					writer.deleteDocuments(new Term(FIELD_BRANCH, branch));
+					writer.commit();
+				}
 			}
 			success = true;
 		} catch (Throwable t) {
