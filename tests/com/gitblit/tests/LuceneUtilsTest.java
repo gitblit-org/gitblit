@@ -81,13 +81,6 @@ public class LuceneUtilsTest {
 		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).id);
 		assertEquals("refs/heads/gh-pages", results.get(0).branch);
 		
-		// tag test
-		results = LuceneUtils.search("\"qft split\"", 10, repository);
-		assertEquals(1, results.size());
-		assertEquals("Ondrej Certik", results.get(0).author);
-		assertEquals("57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", results.get(0).id);
-		assertEquals("[1st-edition]", results.get(0).labels.toString());
-
 		results = LuceneUtils.search("type:blob AND \"src/intro.rst\"", 10, repository);
 		assertEquals(4, results.size());
 		
