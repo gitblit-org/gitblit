@@ -1824,8 +1824,8 @@ public class GitBlit implements ServletContextListener {
 		}
 		luceneExecutor = new LuceneExecutor(settings);
 		if (luceneExecutor.isReady()) {
-			logger.info("Lucene executor is scheduled to process the repository queue every 10 minutes.");
-			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 10, TimeUnit.MINUTES);
+			logger.info("Lucene executor is scheduled to process the repository queue every 2 minutes.");
+			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Lucene executor is disabled.");
 		}

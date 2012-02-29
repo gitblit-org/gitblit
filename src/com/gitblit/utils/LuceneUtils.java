@@ -52,6 +52,7 @@ import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.util.FS;
 
+import com.gitblit.GitBlit;
 import com.gitblit.models.IssueModel;
 import com.gitblit.models.IssueModel.Attachment;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -121,10 +122,13 @@ public class LuceneUtils {
 	 * @return the repository name
 	 */
 	private static String getName(Repository repository) {
+		String rootPath = GitBlit.getRepositoriesFolder().getAbsolutePath();
 		if (repository.isBare()) {
-			return repository.getDirectory().getName();
+			return StringUtils.getRelativePath(rootPath, repository.getDirectory()
+					.getAbsolutePath());
 		} else {
-			return repository.getDirectory().getParentFile().getName();
+			return StringUtils.getRelativePath(rootPath, repository.getDirectory().getParentFile()
+					.getAbsolutePath());
 		}
 	}
 
@@ -198,11 +202,12 @@ public class LuceneUtils {
 	 * index.
 	 * 
 	 * @param repository
-	 * @return true if the indexing has succeeded
+	 * @return IndexResult
 	 */
-	public static boolean reindex(Repository repository) {
+	public static IndexResult reindex(Repository repository) {
+		IndexResult result = new IndexResult();
 		if (!LuceneUtils.deleteIndex(repository)) {
-			return false;
+			return result;
 		}
 		try {
 			String repositoryName = getName(repository);
@@ -300,6 +305,7 @@ public class LuceneUtils {
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.NOT_ANALYZED));
 					writer.addDocument(doc);
+					result.commitCount += 1;
 				}
 
 				// traverse the log and index the previous commit objects
@@ -312,6 +318,7 @@ public class LuceneUtils {
 								Index.NOT_ANALYZED));
 						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.NOT_ANALYZED));
 						writer.addDocument(doc);
+						result.commitCount += 1;
 					}
 				}
 
@@ -335,11 +342,11 @@ public class LuceneUtils {
 			config.save();
 			resetIndexSearcher(repository);
 			writer.commit();
-			return true;
+			result.success = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return false;
+		return result;
 	}
 
 	/**
@@ -453,9 +460,10 @@ public class LuceneUtils {
 	 * Updates a repository index incrementally from the last indexed commits.
 	 * 
 	 * @param repository
+	 * @return IndexResult
 	 */
-	public static boolean updateIndex(Repository repository) {
-		boolean success = false;
+	public static IndexResult updateIndex(Repository repository) {
+		IndexResult result = new IndexResult();
 		try {
 			FileBasedConfig config = getConfig(repository);
 			config.load();
@@ -475,13 +483,13 @@ public class LuceneUtils {
 
 			// detect branch deletion
 			// first assume all branches are deleted and then remove each
-			// existing branch from deletedBranches during indexing			
+			// existing branch from deletedBranches during indexing
 			Set<String> deletedBranches = new TreeSet<String>();
 			for (String alias : config.getNames(CONF_ALIAS)) {
 				String branch = config.getString(CONF_ALIAS, null, alias);
 				deletedBranches.add(branch);
 			}
-			
+
 			// walk through each branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
 			for (RefModel branch : branches) {
@@ -490,7 +498,7 @@ public class LuceneUtils {
 				// remove this branch from the deletedBranches set
 				deletedBranches.remove(branchName);
 
-				// determine last commit				
+				// determine last commit
 				String keyName = getBranchKey(branchName);
 				String lastCommit = config.getString(CONF_BRANCH, null, keyName);
 
@@ -507,6 +515,7 @@ public class LuceneUtils {
 				Collections.reverse(revs);
 				for (RevCommit commit : revs) {
 					index(repository, branchName, commit);
+					result.commitCount += 1;
 				}
 
 				// update the config
@@ -515,7 +524,7 @@ public class LuceneUtils {
 				config.setString(CONF_BRANCH, null, keyName, branch.getObjectId().getName());
 				config.save();
 			}
-			
+
 			// the deletedBranches set will normally be empty by this point
 			// unless a branch really was deleted and no longer exists
 			if (deletedBranches.size() > 0) {
@@ -525,11 +534,11 @@ public class LuceneUtils {
 					writer.commit();
 				}
 			}
-			success = true;
+			result.success = true;
 		} catch (Throwable t) {
 			t.printStackTrace();
 		}
-		return success;
+		return result;
 	}
 
 	/**
@@ -781,5 +790,10 @@ public class LuceneUtils {
 			}
 		}
 		SEARCHERS.clear();
+	}
+
+	public static class IndexResult {
+		public boolean success;
+		public int commitCount;
 	}
 }

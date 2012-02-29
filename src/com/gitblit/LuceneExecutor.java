@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.LuceneUtils;
+import com.gitblit.utils.LuceneUtils.IndexResult;
 
 /**
  * The Lucene executor handles indexing repositories synchronously and
@@ -53,8 +54,8 @@ public class LuceneExecutor implements Runnable {
 
 	public LuceneExecutor(IStoredSettings settings) {
 		this.settings = settings;
-		this.isLuceneEnabled = settings.getBoolean("lucene.enableLucene", false);
-		this.isPollingMode = settings.getBoolean("lucene.pollingMode", false);
+		this.isLuceneEnabled = settings.getBoolean(Keys.lucene.enable, false);
+		this.isPollingMode = settings.getBoolean(Keys.lucene.pollingMode, false);
 	}
 
 	/**
@@ -144,11 +145,14 @@ public class LuceneExecutor implements Runnable {
 				if (LuceneUtils.shouldReindex(repository)) {
 					// (re)build the entire index
 					long start = System.currentTimeMillis();
-					boolean success = LuceneUtils.reindex(repository);
+					IndexResult result = LuceneUtils.reindex(repository);
 					long duration = System.currentTimeMillis() - start;
-					if (success) {
-						String msg = "Built {0} Lucene index in {1} msecs";
-						logger.info(MessageFormat.format(msg, repositoryName, duration));
+					if (result.success) {
+						if (result.commitCount > 0) {
+							String msg = "Built {0} Lucene index from {1} commits in {2} msecs";
+							logger.info(MessageFormat.format(msg, repositoryName,
+									result.commitCount, duration));
+						}
 					} else {
 						String msg = "Could not build {0} Lucene index!";
 						logger.error(MessageFormat.format(msg, repositoryName));
@@ -156,11 +160,14 @@ public class LuceneExecutor implements Runnable {
 				} else {
 					// update the index with latest commits
 					long start = System.currentTimeMillis();
-					boolean success = LuceneUtils.updateIndex(repository);
+					IndexResult result = LuceneUtils.updateIndex(repository);
 					long duration = System.currentTimeMillis() - start;
-					if (success) {
-						String msg = "Updated {0} Lucene index in {1} msecs";
-						logger.info(MessageFormat.format(msg, repositoryName, duration));
+					if (result.success) {
+						if (result.commitCount > 0) {
+							String msg = "Updated {0} Lucene index with {1} commits in {2} msecs";
+							logger.info(MessageFormat.format(msg, repositoryName,
+									result.commitCount, duration));
+						}
 					} else {
 						String msg = "Could not update {0} Lucene index!";
 						logger.error(MessageFormat.format(msg, repositoryName));

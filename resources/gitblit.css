@@ -266,6 +266,18 @@ img.gravatar {
     padding: 2px;
 }
 
+div.searchResult {
+	padding:5px;
+}
+
+div.searchResult .summary {
+	font-weight: bold;
+}
+
+div.searchResult .branch {
+	color: #008000;
+}
+
 div.header, div.commitHeader, table.repositories th {
 	background-color:#e0e0e0;
 	background-repeat:repeat-x;
