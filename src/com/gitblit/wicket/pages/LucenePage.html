@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+<body onload="document.getElementById('fragment').focus();">
+<wicket:extend>
+	<div class="pageTitle">
+		<h2><wicket:message key="gb.search"></wicket:message><small> lucene</small></h2>
+	</div>
+	<form class="form-inline" wicket:id="searchForm">
+		<input class="span6" wicket:id="fragment" placeholder="enter search text"></input>
+		<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
+	</form>
+	<div class="searchResult" wicket:id="searchResults">
+		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
+		<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>
+		<span wicket:id="author"></span> <span wicket:id="date"></span>
+	</div>
+</wicket:extend>
+</body>
+</html>
