@@ -278,6 +278,14 @@ div.searchResult .branch {
 	color: #008000;
 }
 
+div.searchResult .author {
+	font-style: italic !important;
+}
+
+div.searchResult .date {
+	color:#999;
+}
+
 div.header, div.commitHeader, table.repositories th {
 	background-color:#e0e0e0;
 	background-repeat:repeat-x;

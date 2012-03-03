@@ -26,11 +26,13 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
+import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.LuceneUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -77,8 +79,8 @@ public class LucenePage extends RootPage {
 					break;
 				}
 				}
-				item.add(new Label("repository", sr.repository));
-				item.add(new Label("branch", sr.branch));
+				item.add(new LinkPanel("repository", null, sr.repository, SummaryPage.class, WicketUtils.newRepositoryParameter(sr.repository)));
+				item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
 				item.add(new Label("author", sr.author));
 				item.add(WicketUtils.createTimestampLabel("date", sr.date, getTimeZone()));
 			}
