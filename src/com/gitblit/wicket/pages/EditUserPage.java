@@ -26,7 +26,6 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
@@ -44,6 +43,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
+import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 
 @RequiresAdminRole
@@ -94,10 +94,10 @@ public class EditUserPage extends RootSubPage {
 		final String oldName = userModel.username;
 		final Palette<String> repositories = new Palette<String>("repositories",
 				new ListModel<String>(new ArrayList<String>(userModel.repositories)),
-				new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
+				new CollectionModel<String>(repos), new StringChoiceRenderer(), 10, false);
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
-				.getAllTeamnames()), new ChoiceRenderer<String>("", ""), 10, false);
+				.getAllTeamnames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;

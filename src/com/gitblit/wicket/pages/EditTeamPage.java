@@ -27,7 +27,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -43,6 +42,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
+import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
 
@@ -97,12 +97,12 @@ public class EditTeamPage extends RootSubPage {
 		// repositories palette
 		final Palette<String> repositories = new Palette<String>("repositories",
 				new ListModel<String>(new ArrayList<String>(teamModel.repositories)),
-				new CollectionModel<String>(repos), new ChoiceRenderer<String>("", ""), 10, false);
+				new CollectionModel<String>(repos), new StringChoiceRenderer(), 10, false);
 
 		// users palette
 		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
 				new ArrayList<String>(teamUsers)), new CollectionModel<String>(GitBlit.self()
-				.getAllUsernames()), new ChoiceRenderer<String>("", ""), 10, false);
+				.getAllUsernames()), new StringChoiceRenderer(), 10, false);
 
 		// pre-receive palette
 		if (teamModel.preReceiveScripts != null) {
@@ -110,8 +110,8 @@ public class EditTeamPage extends RootSubPage {
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
 				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPreReceiveScriptsUnused(null)), new ChoiceRenderer<String>("",
-						""), 12, true);
+						.self().getPreReceiveScriptsUnused(null)), new StringChoiceRenderer(),
+						12, true);
 
 		// post-receive palette
 		if (teamModel.postReceiveScripts != null) {
@@ -119,8 +119,8 @@ public class EditTeamPage extends RootSubPage {
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
 				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPostReceiveScriptsUnused(null)), new ChoiceRenderer<String>("",
-						""), 12, true);
+						.self().getPostReceiveScriptsUnused(null)), new StringChoiceRenderer(),
+								12, true);
 
 		Form<TeamModel> form = new Form<TeamModel>("editForm", model) {
 

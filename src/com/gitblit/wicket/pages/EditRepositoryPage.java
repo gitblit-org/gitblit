@@ -30,7 +30,6 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -51,6 +50,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
 
@@ -104,18 +104,18 @@ public class EditRepositoryPage extends RootSubPage {
 		// users palette
 		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(
 				repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()),
-				new ChoiceRenderer<String>("", ""), 10, false);
+				new StringChoiceRenderer(), 10, false);
 
 		// teams palette
 		final Palette<String> teamsPalette = new Palette<String>("teams", new ListModel<String>(
 				repositoryTeams), new CollectionModel<String>(GitBlit.self().getAllTeamnames()),
-				new ChoiceRenderer<String>("", ""), 5, false);
+				new StringChoiceRenderer(), 5, false);
 
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
 		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
 				new ListModel<String>(federationSets), new CollectionModel<String>(sets),
-				new ChoiceRenderer<String>("", ""), 5, false);
+				new StringChoiceRenderer(), 5, false);
 
 		// pre-receive palette
 		if (!ArrayUtils.isEmpty(repositoryModel.preReceiveScripts)) {
@@ -124,7 +124,7 @@ public class EditRepositoryPage extends RootSubPage {
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
 				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
 						.self().getPreReceiveScriptsUnused(repositoryModel)),
-				new ChoiceRenderer<String>("", ""), 12, true);
+				new StringChoiceRenderer(), 12, true);
 
 		// post-receive palette
 		if (!ArrayUtils.isEmpty(repositoryModel.postReceiveScripts)) {
@@ -133,7 +133,7 @@ public class EditRepositoryPage extends RootSubPage {
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
 				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
 						.self().getPostReceiveScriptsUnused(repositoryModel)),
-				new ChoiceRenderer<String>("", ""), 12, true);
+				new StringChoiceRenderer(), 12, true);
 
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
