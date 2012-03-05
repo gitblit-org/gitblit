@@ -1453,10 +1453,23 @@ public class JGitUtils {
 		List<RefModel> noteBranches = getNoteBranches(repository, true, -1);
 		for (RefModel notesRef : noteBranches) {
 			RevTree notesTree = JGitUtils.getCommit(repository, notesRef.getName()).getTree();
+			// flat notes list
+			String notePath = commit.getName();
+			String text = getStringContent(repository, notesTree, notePath);
+			if (!StringUtils.isEmpty(text)) {
+				List<RevCommit> history = getRevLog(repository, notesRef.getName(), notePath, 0, -1);
+				RefModel noteRef = new RefModel(notesRef.displayName, null, history.get(history
+						.size() - 1));
+				GitNote gitNote = new GitNote(noteRef, text);
+				list.add(gitNote);
+				continue;
+			}
+			
+			// folder structure
 			StringBuilder sb = new StringBuilder(commit.getName());
 			sb.insert(2, '/');
-			String notePath = sb.toString();
-			String text = getStringContent(repository, notesTree, notePath);
+			notePath = sb.toString();
+			text = getStringContent(repository, notesTree, notePath);
 			if (!StringUtils.isEmpty(text)) {
 				List<RevCommit> history = getRevLog(repository, notesRef.getName(), notePath, 0, -1);
 				RefModel noteRef = new RefModel(notesRef.displayName, null, history.get(history
