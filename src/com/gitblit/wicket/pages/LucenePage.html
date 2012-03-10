@@ -6,16 +6,45 @@
 <body onload="document.getElementById('fragment').focus();">
 <wicket:extend>
 	<div class="pageTitle">
-		<h2><wicket:message key="gb.search"></wicket:message><small> lucene</small></h2>
+		<h2><wicket:message key="gb.search"></wicket:message></h2>
 	</div>
-	<form class="form-inline" wicket:id="searchForm">
-		<input class="span6" wicket:id="fragment" placeholder="enter search text"></input>
-		<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
+	<form class="form-inline" style="margin:0px;" wicket:id="searchForm">
+		<div class="row-fluid">
+			<div class="span3">
+				<h3><wicket:message key="gb.repositories"></wicket:message></h3>
+				<select wicket:id="repositories" ></select>
+			</div>
+			<div class="span9">
+				<div>
+					<h3><wicket:message key="gb.query"></wicket:message></h3>
+					<input class="span8" wicket:id="fragment" placeholder="enter search text"></input>
+					<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
+				</div>
+				<div style="margin-top:10px;">
+					<div style="margin-left:0px;" class="span4">
+						<div class="alert alert">
+							<b>type:</b> commit or blob<br/>
+							<b>id:</b> commit id or file path<br/>
+							<b>branch:</b><br/>
+							<b>author:</b><br/>
+							<b>committer:</b><br/>
+							<b>tag:</b> tag<br/>
+						</div>
+					</div>
+					<div class="span5">
+						<wicket:message key="gb.queryHelp"></wicket:message>
+					</div>
+				</div>
+			</div>
+		</div>
 	</form>
+	<hr/>
+	<div class="row-fluid">
 	<div class="searchResult" wicket:id="searchResults">
 		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
 		<span class="author" wicket:id="author"></span> committed to <span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span><br/>
 		<span class="date" wicket:id="date"></span>
+	</div>
 	</div>
 </wicket:extend>
 </body>

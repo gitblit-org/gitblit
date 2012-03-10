@@ -36,6 +36,7 @@ import com.gitblit.models.SearchResult;
 import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.IssueUtils.IssueFilter;
 import com.gitblit.utils.LuceneUtils;
+import com.gitblit.utils.StringUtils;
 
 /**
  * Tests the mechanics of distributed issue management on the gb-issues branch.
@@ -48,6 +49,8 @@ public class IssuesTest {
 	@Test
 	public void testLifecycle() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
+		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+				repository.getDirectory().getAbsolutePath());
 		
 		// create and insert an issue
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
@@ -128,7 +131,7 @@ public class IssuesTest {
 		// build a new Lucene index
 		LuceneUtils.deleteIndex(repository);
 		for (IssueModel anIssue : allIssues) {
-			LuceneUtils.index(repository, anIssue);
+			LuceneUtils.index(name, repository, anIssue);
 		}
 		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
 		assertTrue(hits.size() > 0);
@@ -139,7 +142,7 @@ public class IssuesTest {
 		change.comment("this is a test of reindexing an issue");
 		IssueUtils.updateIssue(repository, issue.id, change);
 		issue = IssueUtils.getIssue(repository, issue.id);
-		LuceneUtils.index(repository, issue);
+		LuceneUtils.index(name, repository, issue);
 
 		// delete all issues
 		for (IssueModel anIssue : allIssues) {

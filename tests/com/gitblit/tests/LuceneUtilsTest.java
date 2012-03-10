@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.LuceneUtils;
+import com.gitblit.utils.StringUtils;
 
 /**
  * Tests Lucene indexing and querying.
@@ -37,19 +38,25 @@ public class LuceneUtilsTest {
 	public void testFullIndex() throws Exception {
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		LuceneUtils.reindex(repository);
+		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+				repository.getDirectory().getAbsolutePath());
+		LuceneUtils.reindex(name, repository, false);
 		repository.close();
 
 		// reindex theoretical physics
 		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
-		LuceneUtils.reindex(repository);
+		name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+				repository.getDirectory().getAbsolutePath());
+		LuceneUtils.reindex(name, repository, false);
 		repository.close();
-
+		
 		// reindex JGit
 		repository = GitBlitSuite.getJGitRepository();
-		LuceneUtils.reindex(repository);
+		name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+				repository.getDirectory().getAbsolutePath());
+		LuceneUtils.reindex(name, repository, false);
 		repository.close();
-
+		
 		LuceneUtils.close();
 	}
 

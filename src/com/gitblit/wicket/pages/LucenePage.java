@@ -20,7 +20,8 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.ListMultipleChoice;
+import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -29,6 +30,7 @@ import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Constants.SearchType;
 import com.gitblit.GitBlit;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.LuceneUtils;
@@ -50,6 +52,18 @@ public class LucenePage extends RootPage {
 
 	private void setup(PageParameters params) {
 		setupPage("", "");
+		
+		String repository = null;		
+		String value = null;
+		com.gitblit.Constants.SearchType searchType = null;
+
+		if (params != null) {
+			repository = WicketUtils.getRepositoryName(params);
+			value = WicketUtils.getSearchString(params);
+			String type = WicketUtils.getSearchType(params);
+			searchType = com.gitblit.Constants.SearchType.forName(type);
+		}
+		
 		final List<SearchResult> results = new ArrayList<SearchResult>();
 		ListDataProvider<SearchResult> resultsDp = new ListDataProvider<SearchResult>(results);
 		final DataView<SearchResult> resultsView = new DataView<SearchResult>("searchResults", resultsDp) {
@@ -86,26 +100,70 @@ public class LucenePage extends RootPage {
 			}
 		};		
 		
+		// initial query
 		final Model<String> fragment = new Model<String>();
-		Form<Void> form = new Form<Void>("searchForm") {
+		if (!StringUtils.isEmpty(value)) {
+			if (searchType == SearchType.COMMIT) {
+				fragment.setObject("type:" + searchType.name().toLowerCase() + " AND \"" + value + "\"");	
+			} else {
+				fragment.setObject(searchType.name().toLowerCase() + ":\"" + value + "\"");
+			}
+		}
+		
+		// selected repositories
+		final Model<ArrayList<String>> repositories = new Model<ArrayList<String>>();
+		if (!StringUtils.isEmpty(repository)) {			
+			ArrayList<String> list = new ArrayList<String>();
+			list.add(repository);
+			repositories.setObject(list);
+		}
+		
+		// search form
+		StatelessForm<Void> form = new StatelessForm<Void>("searchForm") {
+			
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onSubmit() {
 				String f = fragment.getObject();
-				List<Repository> repositories = new ArrayList<Repository>();
-				for (String r : GitBlit.self().getRepositoryList()) {
-					repositories.add(GitBlit.self().getRepository(r));
+				if (StringUtils.isEmpty(f)) {
+					error("Query is empty!");
+					return;
+				}				
+				if (repositories.getObject().size() == 0) {
+					error("Please select one or more repositories!");
+					return;
 				}
-				List<SearchResult> srs = LuceneUtils.search(f, 100, repositories.toArray(new Repository[repositories.size()]));
 				results.clear();
-				results.addAll(srs);
-				for (Repository r : repositories) {
-					r.close();
-				}
+				results.addAll(search(repositories, fragment));
 				resultsView.setVisible(true);
 			}
 		};
+		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", repositories, GitBlit.self().getRepositoryList());
+		selections.setMaxRows(11);
+		form.add(selections);
 		form.add(new TextField<String>("fragment", fragment));
 		add(form);
-		add(resultsView.setVisible(false));
+		if (!StringUtils.isEmpty(repository) && !StringUtils.isEmpty(fragment.getObject())) {
+			// search is defined by url parameters
+			results.clear();
+			results.addAll(search(repositories, fragment));
+			add(resultsView.setVisible(true));
+		} else {
+			// no pre-defined search
+			add(resultsView.setVisible(false));
+		}
+	}
+	
+	private List<SearchResult> search(Model<ArrayList<String>> repositories, Model<String> fragment) {
+		List<Repository> repos = new ArrayList<Repository>();
+		for (String r : repositories.getObject()) {
+			repos.add(GitBlit.self().getRepository(r));
+		}
+		List<SearchResult> srs = LuceneUtils.search(fragment.getObject(), 100, repos.toArray(new Repository[repos.size()]));
+		for (Repository r : repos) {
+			r.close();
+		}
+		return srs;
 	}
 }

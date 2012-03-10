@@ -47,6 +47,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
+import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
@@ -228,6 +229,8 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected Component createPersonPanel(String wicketId, PersonIdent identity,
 			Constants.SearchType searchType) {
+		GitBlitWebApp app = (GitBlitWebApp) GitBlitWebSession.get().getApplication();
+		final Class<? extends BasePage> searchPageClass = app.getSearchPageClass();
 		String name = identity == null ? "" : identity.getName();
 		String address = identity == null ? "" : identity.getEmailAddress();
 		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
@@ -241,20 +244,20 @@ public abstract class RepositoryPage extends BasePage {
 				}
 			}
 			Fragment partial = new Fragment(wicketId, "partialPersonIdent", this);
-			LinkPanel link = new LinkPanel("personName", "list", value, SearchPage.class,
+			LinkPanel link = new LinkPanel("personName", "list", value, searchPageClass,
 					WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType));
 			setPersonSearchTooltip(link, value, searchType);
 			partial.add(link);
 			return partial;
 		} else {
 			Fragment fullPerson = new Fragment(wicketId, "fullPersonIdent", this);
-			LinkPanel nameLink = new LinkPanel("personName", "list", name, SearchPage.class,
+			LinkPanel nameLink = new LinkPanel("personName", "list", name, searchPageClass,
 					WicketUtils.newSearchParameter(repositoryName, objectId, name, searchType));
 			setPersonSearchTooltip(nameLink, name, searchType);
 			fullPerson.add(nameLink);
 
 			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + address + ">",
-					SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+					searchPageClass, WicketUtils.newSearchParameter(repositoryName, objectId,
 							address, searchType));
 			setPersonSearchTooltip(addressLink, address, searchType);
 			fullPerson.add(addressLink);
@@ -357,7 +360,8 @@ public abstract class RepositoryPage extends BasePage {
 					break;
 				}
 			}
-			setResponsePage(SearchPage.class,
+			GitBlitWebApp app = (GitBlitWebApp) GitBlitWebSession.get().getApplication();
+			setResponsePage(app.getSearchPageClass(),
 					WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType));
 		}
 	}

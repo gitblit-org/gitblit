@@ -184,6 +184,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return self().timezone;
 	}
+	
 
 	/**
 	 * Returns the boolean value for the specified key. If the key does not

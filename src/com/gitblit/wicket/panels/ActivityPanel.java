@@ -28,7 +28,10 @@ import com.gitblit.Constants;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Activity.RepositoryCommit;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebApp;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -50,6 +53,9 @@ public class ActivityPanel extends BasePanel {
 		super(wicketId);
 
 		Collections.sort(recentActivity);
+		
+		GitBlitWebApp app = (GitBlitWebApp) GitBlitWebSession.get().getApplication();
+		final Class<? extends BasePage> searchPageClass = app.getSearchPageClass();
 
 		DataView<Activity> activityView = new DataView<Activity>("activity",
 				new ListDataProvider<Activity>(recentActivity)) {
@@ -86,7 +92,7 @@ public class ActivityPanel extends BasePanel {
 						// author search link
 						String author = commit.getAuthorIdent().getName();
 						LinkPanel authorLink = new LinkPanel("author", "list", author,
-								SearchPage.class, WicketUtils.newSearchParameter(commit.repository,
+								searchPageClass, WicketUtils.newSearchParameter(commit.repository,
 										commit.getName(), author, Constants.SearchType.AUTHOR), true);
 						setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 						fragment.add(authorLink);

@@ -38,7 +38,10 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebApp;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
@@ -94,6 +97,9 @@ public class HistoryPanel extends BasePanel {
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 
+		GitBlitWebApp app = (GitBlitWebApp) GitBlitWebSession.get().getApplication();
+		final Class<? extends BasePage> searchPageClass = app.getSearchPageClass();
+
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
@@ -108,7 +114,7 @@ public class HistoryPanel extends BasePanel {
 				// author search link
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
-						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+						searchPageClass, WicketUtils.newSearchParameter(repositoryName, objectId,
 								author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);

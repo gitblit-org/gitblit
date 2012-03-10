@@ -32,6 +32,8 @@ public class SearchResult implements Serializable {
 
 	public String id;
 
+	public List<String> tags;
+	
 	public List<String> labels;
 
 	public ObjectType type;
