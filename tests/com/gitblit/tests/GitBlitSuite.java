@@ -91,7 +91,7 @@ public class GitBlitSuite {
 	}
 	
 	public static Repository getGitectiveRepository() throws Exception {
-		return new FileRepository(new File("test/gitective.git"));
+		return new FileRepository(new File(REPOSITORIES, "test/gitective.git"));
 	}
 
 	public static boolean startGitblit() throws Exception {

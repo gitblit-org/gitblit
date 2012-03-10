@@ -35,7 +35,7 @@ import com.gitblit.utils.StringUtils;
 public class LuceneUtilsTest {
 
 	@Test
-	public void testFullIndex() throws Exception {
+	public void testQuickIndex() throws Exception {
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
@@ -57,6 +57,20 @@ public class LuceneUtilsTest {
 		LuceneUtils.reindex(name, repository, false);
 		repository.close();
 		
+		LuceneUtils.close();
+	}
+
+	@Test
+	public void testFullIndex() throws Exception {
+		// reindex helloworld
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
+				repository.getDirectory().getAbsolutePath());
+		LuceneUtils.reindex(name, repository, true);
+		SearchResult result = LuceneUtils.search("type:blob AND id:bit.bit", 1, repository).get(0);		
+		repository.close();
+		assertEquals("Mike Donaghy", result.author);
+		//assertEquals("Mike Donaghy", result.date);
 		LuceneUtils.close();
 	}
 

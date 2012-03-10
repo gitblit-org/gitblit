@@ -292,12 +292,13 @@ public class LuceneUtils {
 				TreeWalk treeWalk = new TreeWalk(repository);
 				treeWalk.addTree(branchHead.getTree());
 				treeWalk.setRecursive(true);
+								
 				
 				while (treeWalk.next()) {
 					result.blobCount++;
 					String blobPath = treeWalk.getPathString();
 					RevCommit blobRev = branchHead;
-					
+				
 					RevWalk blobWalk = null;
 					if (fullIndex) {
 						// XXX this is _really_ slow, there must be a better way
@@ -308,11 +309,7 @@ public class LuceneUtils {
 								PathFilterGroup.createFromStrings(Collections.singleton(blobPath)),
 								TreeFilter.ANY_DIFF);
 						blobWalk.setTreeFilter(filter);
-
-						for (RevCommit commit : blobWalk) {
-							blobRev = commit;
-							break;
-						}
+						blobRev = blobWalk.next();
 					}
 					
 					String blobAuthor = getAuthor(blobRev);
@@ -321,7 +318,7 @@ public class LuceneUtils {
 							Resolution.MINUTE);
 					
 					if (blobWalk != null) {
-						blobWalk.dispose();
+						blobWalk.dispose();						
 					}
 					
 					Document doc = new Document();
