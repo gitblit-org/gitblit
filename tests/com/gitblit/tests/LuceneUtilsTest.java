@@ -41,9 +41,9 @@ public class LuceneUtilsTest {
 		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
 				repository.getDirectory().getAbsolutePath());
 		LuceneUtils.reindex(name, repository);
-		SearchResult result = LuceneUtils.search("type:blob AND id:bit.bit", 1, repository).get(0);		
+		SearchResult result = LuceneUtils.search("type:blob AND path:bit.bit", 1, repository).get(0);		
 		assertEquals("Mike Donaghy", result.author);
-		result = LuceneUtils.search("type:blob AND id:clipper.prg", 1, repository).get(0);		
+		result = LuceneUtils.search("type:blob AND path:clipper.prg", 1, repository).get(0);		
 		assertEquals("tinogomes", result.author);
 		repository.close();
 
@@ -82,24 +82,24 @@ public class LuceneUtilsTest {
 		// blob test
 		results = LuceneUtils.search("type: blob AND \"import std.stdio\"", 10, repository);
 		assertEquals(1, results.size());
-		assertEquals("d.D", results.get(0).id);
+		assertEquals("d.D", results.get(0).path);
 		
 		// 1 occurrence on the gh-pages branch
 		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
 		results = LuceneUtils.search("\"add the .nojekyll file\"", 10, repository);
 		assertEquals(1, results.size());
 		assertEquals("Ondrej Certik", results.get(0).author);
-		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).id);
+		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).commitId);
 		assertEquals("refs/heads/gh-pages", results.get(0).branch);
 		
 		results = LuceneUtils.search("type:blob AND \"src/intro.rst\"", 10, repository);
 		assertEquals(4, results.size());
 		
 		// hash id tests
-		results = LuceneUtils.search("id:57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", 10, repository);
+		results = LuceneUtils.search("commit:57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", 10, repository);
 		assertEquals(1, results.size());
 
-		results = LuceneUtils.search("id:57c4f26f157*", 10, repository);
+		results = LuceneUtils.search("commit:57c4f26f157*", 10, repository);
 		assertEquals(1, results.size());
 
 		repository.close();

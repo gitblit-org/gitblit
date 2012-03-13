@@ -24,8 +24,9 @@
 					<div style="margin-left:0px;" class="span4">
 						<div class="alert alert">
 							<b>type:</b> commit or blob<br/>
-							<b>id:</b> commit id or file path<br/>
-							<b>branch:</b><br/>
+							<b>commit:</b> commit id<br/>
+							<b>path:</b> blob path<br/>
+							<b>branch:</b> refs/heads/master<br/>
 							<b>author:</b><br/>
 							<b>committer:</b><br/>
 							<b>tag:</b> tag<br/>
@@ -42,8 +43,12 @@
 	<div class="row-fluid">
 	<div class="searchResult" wicket:id="searchResults">
 		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
-		<span class="author" wicket:id="author"></span> committed to <span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span><br/>
-		<span class="date" wicket:id="date"></span>
+		<div class="body">
+			<div class="fragment" wicket:id="fragment"></div>
+			<span class="author" wicket:id="author"></span> committed to <span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span><br/>
+			<span class="date" wicket:id="date"></span>
+			<hr/>
+		</div>
 	</div>
 	</div>
 </wicket:extend>

@@ -425,7 +425,7 @@ public class IssueUtils {
 	 * Updates an issue in the gb-issues branch of the repository.
 	 * 
 	 * @param repository
-	 * @param issue
+	 * @param issueId
 	 * @param change
 	 * @return true if successful
 	 */
@@ -619,7 +619,7 @@ public class IssueUtils {
 	 * distributed merging.
 	 * 
 	 * @param repository
-	 * @param issue
+	 * @param issueId
 	 * @param change
 	 * @return true, if the change was committed
 	 */

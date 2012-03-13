@@ -75,24 +75,25 @@ public class LucenePage extends RootPage {
 					Label icon = WicketUtils.newIcon("type", "icon-refresh");
 					WicketUtils.setHtmlTooltip(icon, "commit");
 					item.add(icon);
-					item.add(new LinkPanel("summary", null, sr.summary, CommitPage.class, WicketUtils.newObjectParameter(sr.repository, sr.id)));
+					item.add(new LinkPanel("summary", null, sr.summary, CommitPage.class, WicketUtils.newObjectParameter(sr.repository, sr.commitId)));
 					break;
 				}
 				case blob: {
 					Label icon = WicketUtils.newIcon("type", "icon-file");
 					WicketUtils.setHtmlTooltip(icon, "blob");
 					item.add(icon);
-					item.add(new LinkPanel("summary", null, sr.id, BlobPage.class, WicketUtils.newPathParameter(sr.repository, sr.branch, sr.id)));
+					item.add(new LinkPanel("summary", null, sr.path, BlobPage.class, WicketUtils.newPathParameter(sr.repository, sr.branch, sr.path)));
 					break;
 				}
 				case issue: {
 					Label icon = WicketUtils.newIcon("type", "icon-file");
 					WicketUtils.setHtmlTooltip(icon, "issue");
 					item.add(icon);
-					item.add(new Label("summary", "issue: " + sr.id));
+					item.add(new Label("summary", "issue: " + sr.issueId));
 					break;
 				}
 				}
+				item.add(new Label("fragment", sr.fragment).setEscapeModelStrings(false).setVisible(!StringUtils.isEmpty(sr.fragment)));
 				item.add(new LinkPanel("repository", null, sr.repository, SummaryPage.class, WicketUtils.newRepositoryParameter(sr.repository)));
 				item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
 				item.add(new Label("author", sr.author));
@@ -140,7 +141,7 @@ public class LucenePage extends RootPage {
 			}
 		};
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", repositories, GitBlit.self().getRepositoryList());
-		selections.setMaxRows(11);
+		selections.setMaxRows(10);
 		form.add(selections);
 		form.add(new TextField<String>("fragment", fragment));
 		add(form);

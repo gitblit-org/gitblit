@@ -35,6 +35,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
@@ -55,6 +57,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.highlight.Fragmenter;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.SimpleSpanFragmenter;
+import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -107,7 +116,9 @@ public class LuceneUtils {
 	private static final int INDEX_VERSION = 1;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
-	private static final String FIELD_OBJECT_ID = "id";
+	private static final String FIELD_ISSUE = "issue";
+	private static final String FIELD_PATH = "path";
+	private static final String FIELD_COMMIT = "commit";
 	private static final String FIELD_BRANCH = "branch";
 	private static final String FIELD_REPOSITORY = "repository";
 	private static final String FIELD_SUMMARY = "summary";
@@ -361,7 +372,8 @@ public class LuceneUtils {
 						doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_OBJECT_ID, path, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_PATH, path, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_DATE, blobDate, Store.YES, Index.NO));
 						doc.add(new Field(FIELD_AUTHOR, blobAuthor, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));					
@@ -385,7 +397,7 @@ public class LuceneUtils {
 							in.close();
 							byte[] content = os.toByteArray();
 							String str = new String(content, Constants.CHARACTER_ENCODING);
-							doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
+							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
 							os.reset();
 						}							
 						
@@ -462,8 +474,9 @@ public class LuceneUtils {
 	protected static RevTree getTree(final RevWalk walk, final RevCommit commit)
 			throws IOException {
 		final RevTree tree = commit.getTree();
-		if (tree != null)
+		if (tree != null) {
 			return tree;
+		}
 		walk.parseHeaders(commit);
 		return commit.getTree();
 	}
@@ -493,7 +506,7 @@ public class LuceneUtils {
 						IndexWriter writer = getIndexWriter(repository, false);
 						writer.deleteDocuments(
 								new Term(FIELD_OBJECT_TYPE, ObjectType.issue.name()), new Term(
-										FIELD_OBJECT_ID, issueId));
+										FIELD_ISSUE, issueId));
 						writer.commit();
 						result.success = true;
 						return result;
@@ -512,7 +525,7 @@ public class LuceneUtils {
 			for (PathChangeModel path : changedPaths) {
 				// delete the indexed blob
 				writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.blob.name()),
-						new Term(FIELD_BRANCH, branch), new Term(FIELD_OBJECT_ID, path.path));
+						new Term(FIELD_BRANCH, branch), new Term(FIELD_PATH, path.path));
 
 				// re-index the blob
 				if (!ChangeType.DELETE.equals(path.changeType)) {
@@ -522,7 +535,8 @@ public class LuceneUtils {
 							Index.NOT_ANALYZED));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_OBJECT_ID, path.path, Store.YES, Index.ANALYZED));
+					doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
+					doc.add(new Field(FIELD_PATH, path.path, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
 					doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), Store.YES, Index.ANALYZED));
@@ -539,7 +553,7 @@ public class LuceneUtils {
 						// read the blob content
 						String str = JGitUtils.getStringContent(repository, commit.getTree(),
 								path.path);
-						doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
+						doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
 						writer.addDocument(doc);
 					}
 				}
@@ -568,7 +582,7 @@ public class LuceneUtils {
 			// delete the old issue from the index, if exists
 			IndexWriter writer = getIndexWriter(repository, false);
 			writer.deleteDocuments(new Term(FIELD_OBJECT_TYPE, ObjectType.issue.name()), new Term(
-					FIELD_OBJECT_ID, String.valueOf(issue.id)));
+					FIELD_ISSUE, String.valueOf(issue.id)));
 			writer.commit();
 
 			Document doc = createDocument(issue);
@@ -678,7 +692,7 @@ public class LuceneUtils {
 		Document doc = new Document();
 		doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.issue.name(), Store.YES,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(FIELD_OBJECT_ID, issue.id, Store.YES, Index.ANALYZED));
+		doc.add(new Field(FIELD_ISSUE, issue.id, Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_BRANCH, IssueUtils.GB_ISSUES, Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_DATE, DateTools.dateToString(issue.created, Resolution.MINUTE),
 				Store.YES, Field.Index.NO));
@@ -707,7 +721,7 @@ public class LuceneUtils {
 		Document doc = new Document();
 		doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.commit.name(), Store.YES,
 				Index.NOT_ANALYZED));
-		doc.add(new Field(FIELD_OBJECT_ID, commit.getName(), Store.YES, Index.ANALYZED));
+		doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_DATE, DateTools.timeToString(commit.getCommitTime() * 1000L,
 				Resolution.MINUTE), Store.YES, Index.NO));
 		doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), Store.YES, Index.ANALYZED));
@@ -746,14 +760,15 @@ public class LuceneUtils {
 		SearchResult result = new SearchResult();
 		result.score = score;
 		result.date = DateTools.stringToDate(doc.get(FIELD_DATE));
-		result.summary = doc.get(FIELD_SUMMARY);
-		result.content = doc.get(FIELD_CONTENT);
+		result.summary = doc.get(FIELD_SUMMARY);		
 		result.author = doc.get(FIELD_AUTHOR);
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = ObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
 		result.repository = doc.get(FIELD_REPOSITORY);
 		result.branch = doc.get(FIELD_BRANCH);
-		result.id = doc.get(FIELD_OBJECT_ID);
+		result.commitId = doc.get(FIELD_COMMIT);
+		result.issueId = doc.get(FIELD_ISSUE);
+		result.path = doc.get(FIELD_PATH);
 		if (doc.get(FIELD_TAG) != null) {
 			result.tags = StringUtils.getStringsFromValue(doc.get(FIELD_TAG));
 		}
@@ -887,12 +902,45 @@ public class LuceneUtils {
 				int docId = hits[i].doc;
 				Document doc = searcher.doc(docId);
 				SearchResult result = createSearchResult(doc, hits[i].score);
+				String content = doc.get(FIELD_CONTENT);
+				result.fragment = getHighlightedFragment(analyzer, query, content);
 				results.add(result);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new ArrayList<SearchResult>(results);
+	}
+	
+	private static String getHighlightedFragment(Analyzer analyzer, Query query,
+			String content) throws IOException, InvalidTokenOffsetsException {
+		content = content == null ? "":StringUtils.escapeForHtml(content, false);	
+		TokenStream stream = TokenSources.getTokenStream("content", content, analyzer);
+		QueryScorer scorer = new QueryScorer(query, "content");
+		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 150);
+
+		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter("<span class=\"highlight\">", "</span>");
+		Highlighter highlighter = new Highlighter(formatter, scorer);
+		
+		highlighter.setTextFragmenter(fragmenter);
+		String [] fragments = highlighter.getBestFragments(stream, content, 5);
+		if (ArrayUtils.isEmpty(fragments)) {
+			return content;
+		}
+		if (fragments.length == 1) {
+			return "<pre>" + fragments[0] + "</pre>";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0, len = fragments.length; i < len; i++) {
+			String fragment = fragments[i].trim();			
+			sb.append("<pre>");
+			sb.append(fragment);
+			sb.append("</pre>");
+			if (i < len - 1) {
+				sb.append("<span class=\"ellipses\">...</span><br/>");
+			}
+		}
+		return sb.toString();
 	}
 
 	/**

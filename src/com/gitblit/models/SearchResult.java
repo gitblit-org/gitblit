@@ -26,13 +26,17 @@ public class SearchResult implements Serializable {
 
 	public String summary;
 	
-	public String content;
+	public String fragment;
 	
 	public String repository;
 	
 	public String branch;
 
-	public String id;
+	public String commitId;
+	
+	public String path;
+	
+	public String issueId;
 
 	public List<String> tags;
 	
@@ -42,9 +46,21 @@ public class SearchResult implements Serializable {
 
 	public SearchResult() {
 	}
+	
+	public String getId() {
+		switch (type) {
+		case blob:
+			return path;
+		case commit:
+			return commitId;
+		case issue:
+			return issueId;
+		}
+		return commitId;
+	}
 
 	@Override
 	public String toString() {
-		return  score + " : " + type.name() + " : " + repository + " : " + id + " (" + branch + ")";
+		return  score + " : " + type.name() + " : " + repository + " : " + getId() + " (" + branch + ")";
 	}
 }
