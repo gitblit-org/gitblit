@@ -121,6 +121,7 @@ public class LuceneExecutor implements Runnable {
 					}
 					index(name, repository);
 					repository.close();
+					System.gc();
 					processed.add(name);
 				} catch (Throwable e) {
 					logger.error(MessageFormat.format("Failed to update {0} Lucene index",
@@ -145,18 +146,16 @@ public class LuceneExecutor implements Runnable {
 				if (LuceneUtils.shouldReindex(repository)) {
 					// (re)build the entire index
 					long start = System.currentTimeMillis();
-					String msg = "Building {0} Lucene index...";
-					logger.info(MessageFormat.format(msg, name));
-					IndexResult result = LuceneUtils.reindex(name, repository, true);
+					IndexResult result = LuceneUtils.reindex(name, repository);
 					float duration = (System.currentTimeMillis() - start)/1000f;
 					if (result.success) {
 						if (result.commitCount > 0) {
-							msg = "Built {0} Lucene index from {1} commits and {2} files across {3} branches in {4} secs";
+							String msg = "Built {0} Lucene index from {1} commits and {2} files across {3} branches in {4} secs";
 							logger.info(MessageFormat.format(msg, name,
 									result.commitCount, result.blobCount, result.branchCount, duration));
 						}
 					} else {
-						msg = "Could not build {0} Lucene index!";
+						String msg = "Could not build {0} Lucene index!";
 						logger.error(MessageFormat.format(msg, name));
 					}
 				} else {

@@ -35,42 +35,32 @@ import com.gitblit.utils.StringUtils;
 public class LuceneUtilsTest {
 
 	@Test
-	public void testQuickIndex() throws Exception {
+	public void testIndex() throws Exception {
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
 				repository.getDirectory().getAbsolutePath());
-		LuceneUtils.reindex(name, repository, false);
+		LuceneUtils.reindex(name, repository);
+		SearchResult result = LuceneUtils.search("type:blob AND id:bit.bit", 1, repository).get(0);		
+		assertEquals("Mike Donaghy", result.author);
+		result = LuceneUtils.search("type:blob AND id:clipper.prg", 1, repository).get(0);		
+		assertEquals("tinogomes", result.author);
 		repository.close();
 
 		// reindex theoretical physics
 		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
 		name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
 				repository.getDirectory().getAbsolutePath());
-		LuceneUtils.reindex(name, repository, false);
+		LuceneUtils.reindex(name, repository);
 		repository.close();
 		
 		// reindex JGit
 		repository = GitBlitSuite.getJGitRepository();
 		name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
 				repository.getDirectory().getAbsolutePath());
-		LuceneUtils.reindex(name, repository, false);
+		LuceneUtils.reindex(name, repository);
 		repository.close();
 		
-		LuceneUtils.close();
-	}
-
-	@Test
-	public void testFullIndex() throws Exception {
-		// reindex helloworld
-		Repository repository = GitBlitSuite.getHelloworldRepository();
-		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
-				repository.getDirectory().getAbsolutePath());
-		LuceneUtils.reindex(name, repository, true);
-		SearchResult result = LuceneUtils.search("type:blob AND id:bit.bit", 1, repository).get(0);		
-		repository.close();
-		assertEquals("Mike Donaghy", result.author);
-		//assertEquals("Mike Donaghy", result.date);
 		LuceneUtils.close();
 	}
 

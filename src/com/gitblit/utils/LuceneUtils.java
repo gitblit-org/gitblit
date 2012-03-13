@@ -15,6 +15,8 @@
  */
 package com.gitblit.utils;
 
+import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -23,11 +25,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,18 +60,16 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.TreeWalk;
-import org.eclipse.jgit.treewalk.filter.AndTreeFilter;
-import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
-import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 
 import com.gitblit.models.IssueModel;
@@ -241,15 +243,9 @@ public class LuceneUtils {
 	 * 
 	 * @param repositoryName
 	 * @param repository
-	 * @param fullIndex
-	 *            If false blob metadata is set to the HEAD revision of each
-	 *            branch.  If true, each the last commit of each blob is
-	 *            determined to properly index the author, committer, and date.
-	 *            Full indexing can be time-consuming.
 	 * @return IndexResult
 	 */
-	public static IndexResult reindex(String repositoryName, Repository repository,
-			boolean fullIndex) {
+	public static IndexResult reindex(String repositoryName, Repository repository) {
 		IndexResult result = new IndexResult();
 		if (!LuceneUtils.deleteIndex(repository)) {
 			return result;
@@ -270,101 +266,139 @@ public class LuceneUtils {
 				}
 				tags.get(tag.getReferencedObjectId().getName()).add(tag.displayName);
 			}
+			
+			ObjectReader reader = repository.newObjectReader();
 
-			// walk through each branch
+			// get the local branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
+			
+			// sort them by most recently updated
+			Collections.sort(branches, new Comparator<RefModel>() {
+				@Override
+				public int compare(RefModel ref1, RefModel ref2) {
+					return ref2.getDate().compareTo(ref1.getDate());
+				}
+			});
+			
+			// reorder default branch to first position
+			RefModel defaultBranch = null;
+			ObjectId defaultBranchId = JGitUtils.getDefaultBranch(repository);
+			for (RefModel branch :  branches) {
+				if (branch.getObjectId().equals(defaultBranchId)) {
+					defaultBranch = branch;					
+					break;
+				}
+			}
+			branches.remove(defaultBranch);
+			branches.add(0, defaultBranch);
+			
+			// walk through each branch
 			for (RefModel branch : branches) {
 				if (excludedBranches.contains(branch.getName())) {
 					continue;
 				}
+
 				String branchName = branch.getName();
-				RevWalk revWalk = new RevWalk(repository);
-				RevCommit branchHead = revWalk.parseCommit(branch.getObjectId());
-				String head = branchHead.getId().getName();
+				RevWalk revWalk = new RevWalk(reader);
+				RevCommit tip = revWalk.parseCommit(branch.getObjectId());
+				String tipId = tip.getId().getName();
 
 				String keyName = getBranchKey(branchName);
 				config.setString(CONF_ALIAS, null, keyName, branchName);
-				config.setString(CONF_BRANCH, null, keyName, head);
+				config.setString(CONF_BRANCH, null, keyName, tipId);
 
 				// index the blob contents of the tree
+				TreeWalk treeWalk = new TreeWalk(repository);
+				treeWalk.addTree(tip.getTree());
+				treeWalk.setRecursive(true);								
+				
+				Map<String, ObjectId> paths = new TreeMap<String, ObjectId>();
+				while (treeWalk.next()) {
+					paths.put(treeWalk.getPathString(), treeWalk.getObjectId(0));
+				}				
+
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				byte[] tmp = new byte[32767];
-				TreeWalk treeWalk = new TreeWalk(repository);
-				treeWalk.addTree(branchHead.getTree());
-				treeWalk.setRecursive(true);
-								
-				
-				while (treeWalk.next()) {
-					result.blobCount++;
-					String blobPath = treeWalk.getPathString();
-					RevCommit blobRev = branchHead;
-				
-					RevWalk blobWalk = null;
-					if (fullIndex) {
-						// XXX this is _really_ slow, there must be a better way
-						// determine the most recent commit for this blob
-						blobWalk = new RevWalk(repository);
-						blobWalk.markStart(blobWalk.parseCommit(branch.getObjectId()));
-						TreeFilter filter = AndTreeFilter.create(
-								PathFilterGroup.createFromStrings(Collections.singleton(blobPath)),
-								TreeFilter.ANY_DIFF);
-						blobWalk.setTreeFilter(filter);
-						blobRev = blobWalk.next();
-					}
-					
-					String blobAuthor = getAuthor(blobRev);
-					String blobCommitter = getCommitter(blobRev);
-					String blobDate = DateTools.timeToString(blobRev.getCommitTime() * 1000L,
-							Resolution.MINUTE);
-					
-					if (blobWalk != null) {
-						blobWalk.dispose();						
-					}
-					
-					Document doc = new Document();
-					doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_OBJECT_ID, blobPath, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_DATE, blobDate, Store.YES, Index.NO));
-					doc.add(new Field(FIELD_AUTHOR, blobAuthor, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));					
 
-					// determine extension to compare to the extension
-					// blacklist
-					String ext = null;
-					String name = blobPath.toLowerCase();
-					if (name.indexOf('.') > -1) {
-						ext = name.substring(name.lastIndexOf('.') + 1);
+				RevWalk commitWalk = new RevWalk(reader);
+				commitWalk.markStart(tip);
+				
+				RevCommit commit;
+				while ((paths.size() > 0) && (commit = commitWalk.next()) != null) {
+					TreeWalk diffWalk = new TreeWalk(reader);
+					int parentCount = commit.getParentCount();
+					switch (parentCount) {
+					case 0:
+						diffWalk.addTree(new EmptyTreeIterator());
+						break;
+					case 1:
+						diffWalk.addTree(getTree(commitWalk, commit.getParent(0)));
+						break;
+					default:
+						// skip merge commits
+						continue;
 					}
-
-					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
-						// read the blob content
-						ObjectId entid = treeWalk.getObjectId(0);
-						FileMode entmode = treeWalk.getFileMode(0);
-						RevObject ro = revWalk.lookupAny(entid, entmode.getObjectType());
-						revWalk.parseBody(ro);
-						ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
-						InputStream in = ldr.openStream();
-						os.reset();
-						int n = 0;
-						while ((n = in.read(tmp)) > 0) {
-							os.write(tmp, 0, n);
+					diffWalk.addTree(getTree(commitWalk, commit));
+					diffWalk.setFilter(ANY_DIFF);
+					diffWalk.setRecursive(true);
+					while ((paths.size() > 0) && diffWalk.next()) {
+						String path = diffWalk.getPathString();
+						if (!paths.containsKey(path)) {
+							continue;
 						}
-						in.close();
-						byte[] content = os.toByteArray();
-						String str = new String(content, "UTF-8");
-						doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
+						
+						// remove path from set
+						ObjectId blobId = paths.remove(path);
+						result.blobCount++;
+						
+						// index the blob metadata
+						String blobAuthor = getAuthor(commit);
+						String blobCommitter = getCommitter(commit);
+						String blobDate = DateTools.timeToString(commit.getCommitTime() * 1000L,
+								Resolution.MINUTE);
+						
+						Document doc = new Document();
+						doc.add(new Field(FIELD_OBJECT_TYPE, ObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
+						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_OBJECT_ID, path, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_DATE, blobDate, Store.YES, Index.NO));
+						doc.add(new Field(FIELD_AUTHOR, blobAuthor, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));					
+
+						// determine extension to compare to the extension
+						// blacklist
+						String ext = null;
+						String name = path.toLowerCase();
+						if (name.indexOf('.') > -1) {
+							ext = name.substring(name.lastIndexOf('.') + 1);
+						}
+
+						// index the blob content
+						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {							
+							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
+							InputStream in = ldr.openStream();							
+							int n;
+							while ((n = in.read(tmp)) > 0) {
+								os.write(tmp, 0, n);
+							}
+							in.close();
+							byte[] content = os.toByteArray();
+							String str = new String(content, Constants.CHARACTER_ENCODING);
+							doc.add(new Field(FIELD_CONTENT, str, Store.NO, Index.ANALYZED));
+							os.reset();
+						}							
+						
+						// add the blob to the index
 						writer.addDocument(doc);
 					}
 				}
 
 				os.close();
-				treeWalk.release();
 
-				// index the head commit object
-				if (indexedCommits.add(head)) {
-					Document doc = createDocument(branchHead, tags.get(head));
+				// index the tip commit object
+				if (indexedCommits.add(tipId)) {
+					Document doc = createDocument(tip, tags.get(tipId));
 					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
 					writer.addDocument(doc);
@@ -373,10 +407,10 @@ public class LuceneUtils {
 				}
 
 				// traverse the log and index the previous commit objects
-				revWalk.reset();
-				revWalk.markStart(branchHead);
+				RevWalk historyWalk = new RevWalk(reader);
+				historyWalk.markStart(historyWalk.parseCommit(tip.getId()));
 				RevCommit rev;
-				while ((rev = revWalk.next()) != null) {
+				while ((rev = historyWalk.next()) != null) {
 					String hash = rev.getId().getName();
 					if (indexedCommits.add(hash)) {
 						Document doc = createDocument(rev, tags.get(hash));
@@ -386,11 +420,11 @@ public class LuceneUtils {
 						result.commitCount += 1;
 					}
 				}
-
-				// finished
-				revWalk.dispose();
 			}
 
+			// finished
+			reader.release();
+			
 			// this repository has a gb-issues branch, index all issues
 			if (IssueUtils.getIssuesBranch(repository) != null) {
 				List<IssueModel> issues = IssueUtils.getIssues(repository, null);
@@ -415,6 +449,23 @@ public class LuceneUtils {
 			e.printStackTrace();
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the tree associated with the given commit.
+	 *
+	 * @param walk
+	 * @param commit
+	 * @return tree
+	 * @throws IOException
+	 */
+	protected static RevTree getTree(final RevWalk walk, final RevCommit commit)
+			throws IOException {
+		final RevTree tree = commit.getTree();
+		if (tree != null)
+			return tree;
+		walk.parseHeaders(commit);
+		return commit.getTree();
 	}
 
 	/**
@@ -639,7 +690,7 @@ public class LuceneUtils {
 		doc.add(new Field(FIELD_ATTACHMENT, StringUtils.flattenStrings(attachments), Store.YES,
 				Index.ANALYZED));
 		doc.add(new Field(FIELD_SUMMARY, issue.summary, Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_CONTENT, issue.toString(), Store.NO, Index.ANALYZED));
+		doc.add(new Field(FIELD_CONTENT, issue.toString(), Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_LABEL, StringUtils.flattenStrings(issue.getLabels()), Store.YES,
 				Index.ANALYZED));
 		return doc;
@@ -662,7 +713,7 @@ public class LuceneUtils {
 		doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), Store.YES, Index.ANALYZED));
 		doc.add(new Field(FIELD_SUMMARY, commit.getShortMessage(), Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_CONTENT, commit.getFullMessage(), Store.NO, Index.ANALYZED));
+		doc.add(new Field(FIELD_CONTENT, commit.getFullMessage(), Store.YES, Index.ANALYZED));
 		if (!ArrayUtils.isEmpty(tags)) {
 			doc.add(new Field(FIELD_TAG, StringUtils.flattenStrings(tags), Store.YES, Index.ANALYZED));
 		}
@@ -696,6 +747,7 @@ public class LuceneUtils {
 		result.score = score;
 		result.date = DateTools.stringToDate(doc.get(FIELD_DATE));
 		result.summary = doc.get(FIELD_SUMMARY);
+		result.content = doc.get(FIELD_CONTENT);
 		result.author = doc.get(FIELD_AUTHOR);
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = ObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));

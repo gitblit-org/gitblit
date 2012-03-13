@@ -26,6 +26,8 @@ public class SearchResult implements Serializable {
 
 	public String summary;
 	
+	public String content;
+	
 	public String repository;
 	
 	public String branch;
