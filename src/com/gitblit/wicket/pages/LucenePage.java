@@ -118,7 +118,9 @@ public class LucenePage extends RootPage {
 		UserModel user = GitBlitWebSession.get().getUser();
 		List<String> availableRepositories = new ArrayList<String>();
 		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
-			availableRepositories.add(model.name);
+			if (model.hasCommits) {
+				availableRepositories.add(model.name);
+			}
 		}
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
 				repositoriesModel, availableRepositories, new StringChoiceRenderer());
