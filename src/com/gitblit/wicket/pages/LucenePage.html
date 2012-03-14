@@ -3,8 +3,17 @@
       xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
       xml:lang="en"  
       lang="en"> 
-<body onload="document.getElementById('fragment').focus();">
+
+<!-- contribute google-code-prettify resources to the page header -->
+<wicket:head>
+  <wicket:link>
+   	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="prettify/prettify.js"></script>
+  </wicket:link>
+</wicket:head>
+      
 <wicket:extend>
+<body onload="document.getElementById('query').focus(); prettyPrint();">
 	<div class="pageTitle">
 		<h2><wicket:message key="gb.search"></wicket:message></h2>
 	</div>
@@ -17,7 +26,7 @@
 			<div class="span9">
 				<div>
 					<h3><wicket:message key="gb.query"></wicket:message></h3>
-					<input class="span8" wicket:id="query" placeholder="enter search text"></input>
+					<input class="span8" id="query" wicket:id="query" placeholder="enter search text"></input>
 					<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
 				</div>
 				<div style="margin-top:10px;">
@@ -45,12 +54,11 @@
 		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
 		<div class="body">
 			<div class="fragment" wicket:id="fragment"></div>
-			<span class="author" wicket:id="author"></span> committed to <span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span><br/>
-			<span class="date" wicket:id="date"></span>
-			<hr/>
+			<div><span class="author" wicket:id="author"></span> <span class="date" ><wicket:message key="gb.authored"></wicket:message> <span class="date" wicket:id="date"></span></span></div>
+			<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>			
 		</div>
 	</div>
 	</div>
-</wicket:extend>
 </body>
+</wicket:extend>
 </html>

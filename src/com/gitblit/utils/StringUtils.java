@@ -485,4 +485,11 @@ public class StringUtils {
 		}
 		return value;
 	}
+	
+	public static int countLines(String value) {
+		if (isEmpty(value)) {
+			return 0;
+		}
+		return value.split("\n").length;
+	}
 }

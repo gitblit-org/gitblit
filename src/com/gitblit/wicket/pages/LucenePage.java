@@ -32,10 +32,14 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.SearchType;
 import com.gitblit.GitBlit;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.LuceneUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -110,7 +114,14 @@ public class LucenePage extends RootPage {
 				setResponsePage(LucenePage.class, params);
 			}
 		};
-		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", repositoriesModel, GitBlit.self().getRepositoryList());
+		
+		UserModel user = GitBlitWebSession.get().getUser();
+		List<String> availableRepositories = new ArrayList<String>();
+		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
+			availableRepositories.add(model.name);
+		}
+		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
+				repositoriesModel, availableRepositories, new StringChoiceRenderer());
 		selections.setMaxRows(10);
 		form.add(selections);
 		form.add(new TextField<String>("query", queryModel));
@@ -153,7 +164,7 @@ public class LucenePage extends RootPage {
 				item.add(new LinkPanel("repository", null, sr.repository, SummaryPage.class, WicketUtils.newRepositoryParameter(sr.repository)));
 				item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
 				item.add(new Label("author", sr.author));
-				item.add(WicketUtils.createTimestampLabel("date", sr.date, getTimeZone()));
+				item.add(WicketUtils.createDatestampLabel("date", sr.date, getTimeZone()));
 			}
 		};
 		add(resultsView.setVisible(results.size() > 0));

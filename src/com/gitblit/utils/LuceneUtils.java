@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -903,7 +904,8 @@ public class LuceneUtils {
 				Document doc = searcher.doc(docId);
 				SearchResult result = createSearchResult(doc, hits[i].score);
 				String content = doc.get(FIELD_CONTENT);
-				result.fragment = getHighlightedFragment(analyzer, query, content);
+				
+				result.fragment = getHighlightedFragment(analyzer, query, content, result);
 				results.add(result);
 			}
 		} catch (Exception e) {
@@ -913,34 +915,65 @@ public class LuceneUtils {
 	}
 	
 	private static String getHighlightedFragment(Analyzer analyzer, Query query,
-			String content) throws IOException, InvalidTokenOffsetsException {
-		content = content == null ? "":StringUtils.escapeForHtml(content, false);	
+			String content, SearchResult result) throws IOException, InvalidTokenOffsetsException {
+		content = content == null ? "":StringUtils.escapeForHtml(content, false);
+		
 		TokenStream stream = TokenSources.getTokenStream("content", content, analyzer);
 		QueryScorer scorer = new QueryScorer(query, "content");
-		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, 150);
-
-		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter("<span class=\"highlight\">", "</span>");
-		Highlighter highlighter = new Highlighter(formatter, scorer);
+		Fragmenter fragmenter;
 		
+		if (ObjectType.commit == result.type) {
+			fragmenter = new SimpleSpanFragmenter(scorer, 1024); 
+		} else {
+			fragmenter = new SimpleSpanFragmenter(scorer, 150);
+		}
+
+		// use an artificial delimiter for the token
+		String termTag = "<!--[";
+		String termTagEnd = "]-->";
+		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(termTag, termTagEnd);
+		Highlighter highlighter = new Highlighter(formatter, scorer);		
 		highlighter.setTextFragmenter(fragmenter);
+		
 		String [] fragments = highlighter.getBestFragments(stream, content, 5);
 		if (ArrayUtils.isEmpty(fragments)) {
-			return content;
-		}
-		if (fragments.length == 1) {
-			return "<pre>" + fragments[0] + "</pre>";
+			if (ObjectType.blob  == result.type) {
+				return "";
+			}
+			return "<pre class=\"text\">" + content + "</pre>";
 		}
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0, len = fragments.length; i < len; i++) {
-			String fragment = fragments[i].trim();			
-			sb.append("<pre>");
-			sb.append(fragment);
+			String fragment = fragments[i];
+			
+			// resurrect the raw fragment from removing the artificial delimiters
+			String raw = fragment.replace(termTag, "").replace(termTagEnd, "");			
+			sb.append(getPreTag(result, raw, content));
+			
+			// replace the artificial delimiter with html tags
+			String html = fragment.replace(termTag, "<span class=\"highlight\">").replace(termTagEnd, "</span>");
+			sb.append(html);
 			sb.append("</pre>");
 			if (i < len - 1) {
 				sb.append("<span class=\"ellipses\">...</span><br/>");
 			}
 		}
 		return sb.toString();
+	}
+	
+	private static String getPreTag(SearchResult result, String fragment, String content) {
+		String pre = "<pre class=\"text\">";
+		if (ObjectType.blob  == result.type) {
+			int line = StringUtils.countLines(content.substring(0, content.indexOf(fragment)));			
+			int lastDot = result.path.lastIndexOf('.');
+			if (lastDot > -1) {
+				String ext = result.path.substring(lastDot + 1).toLowerCase();
+				pre = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0} lang-{1}\">", line, ext);	
+			} else {
+				pre = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0}\">", line);
+			}
+		}
+		return pre;
 	}
 
 	/**
