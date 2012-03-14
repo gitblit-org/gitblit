@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-1.3.0.201202151440-r.jar" sourcepath="ext/org.eclipse.jgit-1.3.0.201202151440-r-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-1.3.0.201202151440-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-1.3.0.201202151440-r-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lucene-highlighter-3.5.0.jar" sourcepath="ext/lucene-highlighter-3.5.0-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lucene-memory-3.5.0.jar" sourcepath="ext/lucene-memory-3.5.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -93,6 +93,7 @@ public class Build {
 		downloadFromApache(MavenObject.GROOVY, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -122,6 +123,7 @@ public class Build {
 		downloadFromApache(MavenObject.GROOVY, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -518,6 +520,10 @@ public class Build {
 		public static final MavenObject LUCENE_HIGHLIGHTER = new MavenObject("lucene highlighter", "org/apache/lucene", "lucene-highlighter",
 				"3.5.0", 88000, 82334, 0, "9b38acfa185337dac65e350073a26fe2416f2b0e",
 				"200a9b9857e589b9f5bc9f65ecf5daa37e19527d", "");
+
+		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
+				"3.5.0", 30000, 23000, 0, "7908e954e8c1b4b2463aa712b34fa4a5612e241d",
+				"69b19b38d78cc3b27ea5542a14f0ebbb1625ffdd", "");
 
 		
 		public final String name;
