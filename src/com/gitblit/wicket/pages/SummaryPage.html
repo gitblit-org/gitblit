@@ -13,7 +13,7 @@
 		</div>	
 	
 		<!-- Repository info -->
-		<div> 
+		<div style="padding-bottom: 10px;"> 
 			<table class="plain">
 				<tr><th><wicket:message key="gb.description">[description]</wicket:message></th><td><span wicket:id="repositoryDescription">[repository description]</span></td></tr>
 				<tr><th><wicket:message key="gb.owner">[owner]</wicket:message></th><td><span wicket:id="repositoryOwner">[repository owner]</span></td></tr>
@@ -25,19 +25,19 @@
 	</div>
 
 	<!-- commits -->
-	<div style="padding-bottom:10px;" wicket:id="commitsPanel">[commits panel]</div>	
+	<div style="padding-bottom:15px;" wicket:id="commitsPanel">[commits panel]</div>	
 
 	<!-- tags -->
-	<div style="padding-bottom:10px;" wicket:id="tagsPanel">[tags panel]</div>
+	<div style="padding-bottom:15px;" wicket:id="tagsPanel">[tags panel]</div>
 
 	<!-- branches -->
-	<div style="padding-bottom:10px;" wicket:id="branchesPanel">[branches panel]</div>
+	<div style="padding-bottom:15px;" wicket:id="branchesPanel">[branches panel]</div>
 	
 	<!-- markdown readme -->
 	<div wicket:id="readme"></div>
 	
 	<wicket:fragment wicket:id="markdownPanel">
-		<div class="header" style="margin-top:10px;" >
+		<div class="header" style="margin-top:0px;" >
 			<i style="vertical-align: middle;" class="icon-book"></i>
 			<span style="font-weight:bold;vertical-align:middle;" wicket:id="readmeFile"></span>
 		</div>
