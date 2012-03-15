@@ -871,6 +871,9 @@ public class GitBlit implements ServletContextListener {
 				repository.close();
 			}
 		}
+		
+		// close any open index writer/searcher in the Lucene executor
+		luceneExecutor.close(repositoryName);
 	}
 
 	/**

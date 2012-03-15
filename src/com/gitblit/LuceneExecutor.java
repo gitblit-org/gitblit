@@ -233,6 +233,31 @@ public class LuceneExecutor implements Runnable {
 			logger.error(MessageFormat.format("Lucene indexing failure for {0}", name), t);
 		}
 	}
+	
+	/**
+	 * Close the writer/searcher objects for a repository.
+	 * 
+	 * @param repositoryName
+	 */
+	public void close(String repositoryName) {
+		try {
+			IndexWriter writer = writers.remove(repositoryName);
+			if (writer != null) {
+				writer.close();
+			}
+		} catch (Exception e) {
+			logger.error("Failed to close index writer for " + repositoryName, e);
+		}
+
+		try {
+			IndexSearcher searcher = searchers.remove(repositoryName);
+			if (searcher != null) {
+				searcher.close();
+			}
+		} catch (Exception e) {
+			logger.error("Failed to close index searcher for " + repositoryName, e);
+		}
+	}
 
 	/**
 	 * Close all Lucene indexers.
