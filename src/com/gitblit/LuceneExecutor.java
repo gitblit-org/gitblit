@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -103,14 +104,13 @@ import com.gitblit.utils.StringUtils;
 public class LuceneExecutor implements Runnable {
 	
 		
-	private static final int INDEX_VERSION = 1;
+	private static final int INDEX_VERSION = 2;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_ISSUE = "issue";
 	private static final String FIELD_PATH = "path";
 	private static final String FIELD_COMMIT = "commit";
 	private static final String FIELD_BRANCH = "branch";
-	private static final String FIELD_REPOSITORY = "repository";
 	private static final String FIELD_SUMMARY = "summary";
 	private static final String FIELD_CONTENT = "content";
 	private static final String FIELD_AUTHOR = "author";
@@ -335,6 +335,24 @@ public class LuceneExecutor implements Runnable {
 		}
 		return name;
 	}
+	
+	/**
+	 * Get the tree associated with the given commit.
+	 *
+	 * @param walk
+	 * @param commit
+	 * @return tree
+	 * @throws IOException
+	 */
+	protected RevTree getTree(final RevWalk walk, final RevCommit commit)
+			throws IOException {
+		final RevTree tree = commit.getTree();
+		if (tree != null) {
+			return tree;
+		}
+		walk.parseHeaders(commit);
+		return commit.getTree();
+	}
 
 	/**
 	 * Construct a keyname from the branch.
@@ -501,7 +519,6 @@ public class LuceneExecutor implements Runnable {
 						
 						Document doc = new Document();
 						doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_PATH, path, Store.YES, Index.ANALYZED));
@@ -542,7 +559,6 @@ public class LuceneExecutor implements Runnable {
 				// index the tip commit object
 				if (indexedCommits.add(tipId)) {
 					Document doc = createDocument(tip, tags.get(tipId));
-					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
 					writer.addDocument(doc);
 					result.commitCount += 1;
@@ -557,7 +573,6 @@ public class LuceneExecutor implements Runnable {
 					String hash = rev.getId().getName();
 					if (indexedCommits.add(hash)) {
 						Document doc = createDocument(rev, tags.get(hash));
-						doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
 						writer.addDocument(doc);
 						result.commitCount += 1;
@@ -577,7 +592,6 @@ public class LuceneExecutor implements Runnable {
 				for (IssueModel issue : issues) {
 					result.issueCount++;
 					Document doc = createDocument(issue);
-					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 					writer.addDocument(doc);
 				}
 			}
@@ -594,24 +608,6 @@ public class LuceneExecutor implements Runnable {
 		return result;
 	}
 	
-	/**
-	 * Get the tree associated with the given commit.
-	 *
-	 * @param walk
-	 * @param commit
-	 * @return tree
-	 * @throws IOException
-	 */
-	protected RevTree getTree(final RevWalk walk, final RevCommit commit)
-			throws IOException {
-		final RevTree tree = commit.getTree();
-		if (tree != null) {
-			return tree;
-		}
-		walk.parseHeaders(commit);
-		return commit.getTree();
-	}
-
 	/**
 	 * Incrementally update the index with the specified commit for the
 	 * repository.
@@ -659,7 +655,6 @@ public class LuceneExecutor implements Runnable {
 					Document doc = new Document();
 					doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), Store.YES,
 							Index.NOT_ANALYZED));
-					doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
 					doc.add(new Field(FIELD_PATH, path.path, Store.YES, Index.ANALYZED));
@@ -844,7 +839,7 @@ public class LuceneExecutor implements Runnable {
 		}
 		return result;
 	}
-
+	
 	/**
 	 * Creates a Lucene document from an issue.
 	 * 
@@ -906,7 +901,6 @@ public class LuceneExecutor implements Runnable {
 	 */
 	private boolean index(String repositoryName, Document doc) {
 		try {			
-			doc.add(new Field(FIELD_REPOSITORY, repositoryName, Store.YES, Index.NOT_ANALYZED));
 			IndexWriter writer = getIndexWriter(repositoryName);
 			writer.addDocument(doc);
 			resetIndexSearcher(repositoryName);
@@ -926,7 +920,6 @@ public class LuceneExecutor implements Runnable {
 		result.author = doc.get(FIELD_AUTHOR);
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = SearchObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
-		result.repository = doc.get(FIELD_REPOSITORY);
 		result.branch = doc.get(FIELD_BRANCH);
 		result.commitId = doc.get(FIELD_COMMIT);
 		result.issueId = doc.get(FIELD_ISSUE);
@@ -1057,7 +1050,7 @@ public class LuceneExecutor implements Runnable {
 					readers.add(repositoryIndex.getIndexReader());
 				}
 				IndexReader[] rdrs = readers.toArray(new IndexReader[readers.size()]);
-				MultiReader reader = new MultiReader(rdrs);
+				MultiSourceReader reader = new MultiSourceReader(rdrs);
 				searcher = new IndexSearcher(reader);
 			}
 			Query rewrittenQuery = searcher.rewrite(query);
@@ -1067,8 +1060,17 @@ public class LuceneExecutor implements Runnable {
 			for (int i = 0; i < hits.length; i++) {
 				int docId = hits[i].doc;
 				Document doc = searcher.doc(docId);
-				// TODO identify the source index for the doc, then eliminate FIELD_REPOSITORY
+				// TODO identify the source index for the doc, then eliminate FIELD_REPOSITORY				
 				SearchResult result = createSearchResult(doc, hits[i].score);
+				if (repositories.length == 1) {
+					// single repository search
+					result.repository = repositories[0];
+				} else {
+					// multi-repository search
+					MultiSourceReader reader = (MultiSourceReader) searcher.getIndexReader();
+					int index = reader.getSourceIndex(docId);
+					result.repository = repositories[index];
+				}
 				String content = doc.get(FIELD_CONTENT);				
 				result.fragment = getHighlightedFragment(analyzer, query, content, result);
 				results.add(result);
@@ -1186,6 +1188,40 @@ public class LuceneExecutor implements Runnable {
 		
 		float duration() {
 			return (endTime - startTime)/1000f;
+		}
+	}
+	
+	/**
+	 * Custom subclass of MultiReader to identify the source index for a given
+	 * doc id.  This would not be necessary of there was a public method to
+	 * obtain this information.
+	 *  
+	 */
+	private class MultiSourceReader extends MultiReader {
+		
+		final Method method;
+		
+		MultiSourceReader(IndexReader[] subReaders) {
+			super(subReaders);
+			Method m = null;
+			try {
+				m = MultiReader.class.getDeclaredMethod("readerIndex", int.class);
+				m.setAccessible(true);
+			} catch (Exception e) {
+				logger.error("Error getting readerIndex method", e);
+			}
+			method = m;
+		}
+		
+		int getSourceIndex(int docId) {
+			int index = -1;
+			try {
+				Object o = method.invoke(this, docId);
+				index = (Integer) o;
+			} catch (Exception e) {
+				logger.error("Error getting source index", e);
+			}
+			return index;
 		}
 	}
 }
