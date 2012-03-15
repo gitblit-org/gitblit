@@ -28,7 +28,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.SearchType;
 import com.gitblit.GitBlit;
@@ -36,7 +35,6 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.LuceneUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
@@ -131,7 +129,9 @@ public class LucenePage extends RootPage {
 				
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();
-		results.addAll(search(repositories, query));
+		if (!ArrayUtils.isEmpty(repositories) && !StringUtils.isEmpty(query)) {
+			results.addAll(GitBlit.self().search(query, 100, repositories));
+		}
 		
 		// search results view
 		ListDataProvider<SearchResult> resultsDp = new ListDataProvider<SearchResult>(results);
@@ -170,20 +170,5 @@ public class LucenePage extends RootPage {
 			}
 		};
 		add(resultsView.setVisible(results.size() > 0));
-	}
-	
-	private List<SearchResult> search(List<String> repositories, String query) {
-		if (ArrayUtils.isEmpty(repositories) || StringUtils.isEmpty(query)) {
-			return new ArrayList<SearchResult>();
-		}
-		List<Repository> repos = new ArrayList<Repository>();
-		for (String r : repositories) {
-			repos.add(GitBlit.self().getRepository(r));
-		}
-		List<SearchResult> srs = LuceneUtils.search(query, 100, repos.toArray(new Repository[repos.size()]));
-		for (Repository r : repos) {
-			r.close();
-		}
-		return srs;
-	}
+	}	
 }

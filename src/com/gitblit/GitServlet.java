@@ -197,9 +197,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 			// Experimental
 			// runNativeScript(rp, "hooks/post-receive", commands);
-			
-			// Update the Lucene search index
-			GitBlit.self().updateLuceneIndex(repository);
 		}
 
 		/**

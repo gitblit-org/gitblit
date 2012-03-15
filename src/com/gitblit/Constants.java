@@ -15,6 +15,7 @@
  */
 package com.gitblit;
 
+
 /**
  * Constant values used by Gitblit.
  * 
@@ -256,6 +257,22 @@ public class Constants {
 		@Override
 		public String toString() {
 			return name().toLowerCase();
+		}
+	}
+	
+	/**
+	 * The types of objects that can be indexed and queried.
+	 */
+	public static enum SearchObjectType {
+		commit, blob, issue;
+
+		static SearchObjectType fromName(String name) {
+			for (SearchObjectType value : values()) {
+				if (value.name().equals(name)) {
+					return value;
+				}
+			}
+			return null;
 		}
 	}
 }

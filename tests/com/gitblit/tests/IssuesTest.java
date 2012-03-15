@@ -26,6 +26,7 @@ import org.bouncycastle.util.Arrays;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 
+import com.gitblit.LuceneExecutor;
 import com.gitblit.models.IssueModel;
 import com.gitblit.models.IssueModel.Attachment;
 import com.gitblit.models.IssueModel.Change;
@@ -35,7 +36,6 @@ import com.gitblit.models.IssueModel.Status;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.IssueUtils.IssueFilter;
-import com.gitblit.utils.LuceneUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -123,17 +123,18 @@ public class IssuesTest {
 				return issue.status.isClosed();
 			}
 		});
-
+		
 		assertTrue(allIssues.size() > 0);
 		assertEquals(1, openIssues.size());
 		assertEquals(1, closedIssues.size());
 		
 		// build a new Lucene index
-		LuceneUtils.deleteIndex(repository);
+		LuceneExecutor lucene = new LuceneExecutor(null, GitBlitSuite.REPOSITORIES);
+		lucene.deleteIndex(name);
 		for (IssueModel anIssue : allIssues) {
-			LuceneUtils.index(name, repository, anIssue);
+			lucene.index(name, anIssue);
 		}
-		List<SearchResult> hits = LuceneUtils.search("working", 10, repository);
+		List<SearchResult> hits = lucene.search("working", 10, name);
 		assertTrue(hits.size() > 0);
 		
 		// reindex an issue
@@ -142,14 +143,14 @@ public class IssuesTest {
 		change.comment("this is a test of reindexing an issue");
 		IssueUtils.updateIssue(repository, issue.id, change);
 		issue = IssueUtils.getIssue(repository, issue.id);
-		LuceneUtils.index(name, repository, issue);
+		lucene.index(name, issue);
 
 		// delete all issues
 		for (IssueModel anIssue : allIssues) {
 			assertTrue(IssueUtils.deleteIssue(repository, anIssue.id, "D"));
 		}
 				
-		LuceneUtils.close();
+		lucene.close();
 		repository.close();
 	}
 	

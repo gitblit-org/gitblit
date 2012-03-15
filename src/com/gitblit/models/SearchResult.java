@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.gitblit.utils.LuceneUtils.ObjectType;
+import com.gitblit.Constants.SearchObjectType;
 
 /**
  * Model class that represents a search result.
@@ -42,7 +42,7 @@ public class SearchResult implements Serializable {
 	
 	public List<String> labels;
 
-	public ObjectType type;
+	public SearchObjectType type;
 
 	public SearchResult() {
 	}

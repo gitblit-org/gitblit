@@ -73,6 +73,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
@@ -86,6 +87,7 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
@@ -1646,6 +1648,19 @@ public class GitBlit implements ServletContextListener {
 		}
 		return scripts;
 	}
+	
+	/**
+	 * Search the specified repositories using the Lucene query.
+	 * 
+	 * @param query
+	 * @param maximumHits
+	 * @param repositories
+	 * @return
+	 */
+	public List<SearchResult> search(String query, int maximumHits, List<String> repositories) {
+		List<SearchResult> srs = luceneExecutor.search(query, maximumHits, repositories);
+		return srs;
+	}
 
 	/**
 	 * Notify the administrators by email.
@@ -1695,15 +1710,6 @@ public class GitBlit implements ServletContextListener {
 		} catch (MessagingException e) {
 			logger.error("Messaging error", e);
 		}
-	}
-
-	/**
-	 * Update the Lucene index of a repository.
-	 * 
-	 * @param repository
-	 */
-	public void updateLuceneIndex(RepositoryModel repository) {
-		luceneExecutor.queue(repository);
 	}
 
 	/**
@@ -1823,12 +1829,18 @@ public class GitBlit implements ServletContextListener {
 		} else {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
 		}
-		luceneExecutor = new LuceneExecutor(settings);
+		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
 		if (luceneExecutor.isReady()) {
-			logger.info("Lucene executor is scheduled to process the repository queue every 2 minutes.");
-			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
+			String idle = settings.getString(Keys.lucene.frequency, "2 mins");
+			int mins = TimeUtils.convertFrequencyToMinutes(idle);
+			if (mins <= 2) {
+				mins = 2;
+				idle = mins + " mins";
+			}
+			logger.info("Lucene executor is scheduled to process ref changes every " + idle);
+			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, mins, TimeUnit.MINUTES);
 		} else {
-			logger.warn("Lucene executor is disabled.");
+			logger.warn("Lucene integration is disabled.");
 		}
 		if (startFederation) {
 			configureFederation();
