@@ -30,6 +30,8 @@ Push requests to these repositories will be rejected.
 
 #### fixes 
 
+- Ensure that Welcome message is parsed using UTF-8 encoding (issue 74) 
+- Activity page graph layout broken by Google (issue 73)
 - Uppercase repositories not selectable in edit palettes (issue 71)
 - Not all git notes were properly displayed on the commit page (issue 70)
 - Activity page now displays all local branches (issue 65)

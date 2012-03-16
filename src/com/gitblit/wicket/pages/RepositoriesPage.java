@@ -16,7 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
@@ -26,6 +26,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.resource.ContextRelativeResource;
+import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -119,8 +120,11 @@ public class RepositoriesPage extends RootPage {
 				File file = new File(messageSource);
 				if (file.exists()) {
 					try {
-						FileReader reader = new FileReader(file);
+						FileInputStream fis = new FileInputStream(file);
+						InputStreamReader reader = new InputStreamReader(fis,
+								Constants.CHARACTER_ENCODING);
 						message = MarkdownUtils.transformMarkdown(reader);
+						reader.close();
 					} catch (Throwable t) {
 						message = "Failed to read " + file;
 						warn(message, t);
@@ -138,7 +142,7 @@ public class RepositoriesPage extends RootPage {
 		try {
 			ContextRelativeResource res = WicketUtils.getResource(file);
 			InputStream is = res.getResourceStream().getInputStream();
-			InputStreamReader reader = new InputStreamReader(is);
+			InputStreamReader reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
 			message = MarkdownUtils.transformMarkdown(reader);
 			reader.close();
 		} catch (Throwable t) {
