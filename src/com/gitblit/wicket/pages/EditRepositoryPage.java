@@ -39,6 +39,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
+import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -82,6 +83,7 @@ public class EditRepositoryPage extends RootSubPage {
 		// ensure this user can create or edit this repository
 		checkPermissions(repositoryModel);
 
+		List<String> indexedBranches = new ArrayList<String>();
 		List<String> federationSets = new ArrayList<String>();
 		List<String> repositoryUsers = new ArrayList<String>();
 		List<String> repositoryTeams = new ArrayList<String>();
@@ -98,6 +100,9 @@ public class EditRepositoryPage extends RootSubPage {
 				Collections.sort(repositoryUsers);
 			}
 			federationSets.addAll(repositoryModel.federationSets);
+			if (!ArrayUtils.isEmpty(repositoryModel.indexedBranches)) {
+				indexedBranches.addAll(repositoryModel.indexedBranches);
+			}
 		}
 
 		final String oldName = repositoryModel.name;
@@ -109,13 +114,28 @@ public class EditRepositoryPage extends RootSubPage {
 		// teams palette
 		final Palette<String> teamsPalette = new Palette<String>("teams", new ListModel<String>(
 				repositoryTeams), new CollectionModel<String>(GitBlit.self().getAllTeamnames()),
-				new StringChoiceRenderer(), 5, false);
+				new StringChoiceRenderer(), 8, false);
 
+		// indexed local branches palette
+		List<String> allLocalBranches = new ArrayList<String>();
+		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
+			for (String ref : repositoryModel.availableRefs) {
+				if (ref.startsWith(Constants.R_HEADS)) {
+					allLocalBranches.add(ref);
+				}
+			}
+		}
+		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
+				indexedBranches), new CollectionModel<String>(allLocalBranches),
+				new StringChoiceRenderer(), 8, false);
+		indexedBranchesPalette.setEnabled(allLocalBranches.size() > 0);
+
+		
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
 		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
 				new ListModel<String>(federationSets), new CollectionModel<String>(sets),
-				new StringChoiceRenderer(), 5, false);
+				new StringChoiceRenderer(), 8, false);
 
 		// pre-receive palette
 		if (!ArrayUtils.isEmpty(repositoryModel.preReceiveScripts)) {
@@ -211,6 +231,14 @@ public class EditRepositoryPage extends RootSubPage {
 						repositoryModel.mailingLists = new ArrayList<String>(list);
 					}
 
+					// indexed branches
+					List<String> indexedBranches = new ArrayList<String>();
+					Iterator<String> branches = indexedBranchesPalette.getSelectedChoices();
+					while (branches.hasNext()) {
+						indexedBranches.add(branches.next());
+					}
+					repositoryModel.indexedBranches = indexedBranches;
+
 					// pre-receive scripts
 					List<String> preReceiveScripts = new ArrayList<String>();
 					Iterator<String> pres = preReceivePalette.getSelectedChoices();
@@ -293,7 +321,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
 				new FederationTypeRenderer()));
 		form.add(new CheckBox("useTickets"));
-		form.add(new CheckBox("useDocs"));
+		form.add(new CheckBox("useDocs"));		
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
@@ -301,6 +329,7 @@ public class EditRepositoryPage extends RootSubPage {
 		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
+		form.add(indexedBranchesPalette);
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);

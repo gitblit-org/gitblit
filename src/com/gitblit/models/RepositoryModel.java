@@ -57,6 +57,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String origin;
 	public String HEAD;
 	public List<String> availableRefs;
+	public List<String> indexedBranches;
 	public String size;
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
@@ -74,7 +75,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
 		this.federationSets = new ArrayList<String>();
-		this.federationStrategy = FederationStrategy.FEDERATE_THIS;
+		this.federationStrategy = FederationStrategy.FEDERATE_THIS;		
 	}
 
 	@Override

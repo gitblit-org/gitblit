@@ -88,9 +88,30 @@ public class LucenePage extends RootPage {
 			}
 		}
 		
+		// display user-accessible selections
+		UserModel user = GitBlitWebSession.get().getUser();
+		List<String> availableRepositories = new ArrayList<String>();
+		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
+			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
+				availableRepositories.add(model.name);
+			}
+		}
+		
+		if (availableRepositories.size() == 0) {
+			info(getString("gb.noIndexedRepositoriesWarning"));
+		}
+
+		// enforce user-accessible repository selections
+		ArrayList<String> searchRepositories = new ArrayList<String>();
+		for (String selectedRepository : repositories) {
+			if (availableRepositories.contains(selectedRepository)) {
+				searchRepositories.add(selectedRepository);
+			}
+		}
+		
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
-		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(repositories);
+		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(searchRepositories);
 		StatelessForm<Void> form = new StatelessForm<Void>("searchForm") {
 			
 			private static final long serialVersionUID = 1L;
@@ -99,11 +120,11 @@ public class LucenePage extends RootPage {
 			public void onSubmit() {
 				String q = queryModel.getObject();
 				if (StringUtils.isEmpty(q)) {
-					error("Query is empty!");
+					error(getString("gb.undefinedQueryWarning"));
 					return;
 				}				
 				if (repositoriesModel.getObject().size() == 0) {
-					error("Please select one or more repositories!");
+					error(getString("gb.noSelectedRepositoriesWarning"));
 					return;
 				}
 				PageParameters params = new PageParameters();
@@ -112,14 +133,7 @@ public class LucenePage extends RootPage {
 				setResponsePage(LucenePage.class, params);
 			}
 		};
-		
-		UserModel user = GitBlitWebSession.get().getUser();
-		List<String> availableRepositories = new ArrayList<String>();
-		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
-			if (model.hasCommits) {
-				availableRepositories.add(model.name);
-			}
-		}
+				
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
 				repositoriesModel, availableRepositories, new StringChoiceRenderer());
 		selections.setMaxRows(10);
@@ -129,8 +143,8 @@ public class LucenePage extends RootPage {
 				
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();
-		if (!ArrayUtils.isEmpty(repositories) && !StringUtils.isEmpty(query)) {
-			results.addAll(GitBlit.self().search(query, 100, repositories));
+		if (!ArrayUtils.isEmpty(searchRepositories) && !StringUtils.isEmpty(query)) {
+			results.addAll(GitBlit.self().search(query, 100, searchRepositories));
 		}
 		
 		// search results view

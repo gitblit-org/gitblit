@@ -812,6 +812,8 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "postReceiveScript")));
 			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "mailingList")));
+			model.indexedBranches = new ArrayList<String>(Arrays.asList(config.getStringList(
+					"gitblit", null, "indexBranch")));
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
@@ -955,6 +957,12 @@ public class GitBlit implements ServletContextListener {
 			// create repository
 			logger.info("create repository " + repository.name);
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name);
+			
+			// automatically index master branch if Lucene integration is enabled
+			if (luceneExecutor.isReady()) {
+				repository.indexedBranches = new ArrayList<String>();
+				repository.indexedBranches.add("refs/heads/master");
+			}
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
@@ -1062,6 +1070,9 @@ public class GitBlit implements ServletContextListener {
 		}
 		if (!ArrayUtils.isEmpty(repository.mailingLists)) {
 			config.setStringList("gitblit", null, "mailingList", repository.mailingLists);
+		}
+		if (!ArrayUtils.isEmpty(repository.indexedBranches)) {
+			config.setStringList("gitblit", null, "indexBranch", repository.indexedBranches);
 		}
 		try {
 			config.save();

@@ -89,6 +89,7 @@ import com.gitblit.models.IssueModel;
 import com.gitblit.models.IssueModel.Attachment;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.IssueUtils;
@@ -141,9 +142,6 @@ public class LuceneExecutor implements Runnable {
 			"arj", "bin", "bmp", "dll", "doc", "docx", "exe", "gif", "gz", "jar", "jpg", "lib",
 			"lzh", "odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls", "xlsx", "zip"));
 
-	private final Set<String> excludedBranches = new TreeSet<String>(
-			Arrays.asList("/refs/heads/gb-issues"));
-	
 	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
 		this.storedSettings = settings;
 		this.repositoriesFolder = repositoriesFolder;
@@ -170,18 +168,14 @@ public class LuceneExecutor implements Runnable {
 			return;
 		}
 
-		for (String repositoryName : GitBlit.self().getRepositoryList()) {
-			Repository repository = GitBlit.self().getRepository(repositoryName);
-			if (repository == null) {
-				logger.warn(MessageFormat.format(
-						"Lucene executor could not find repository {0}. Skipping.",
-						repositoryName));
-				continue;
+		for (String repositoryName: GitBlit.self().getRepositoryList()) {
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
+				Repository repository = GitBlit.self().getRepository(model.name);
+				index(model, repository);				
+				repository.close();
+				System.gc();
 			}
-			// TODO allow repository to bypass Lucene indexing				
-			index(repositoryName, repository);
-			repository.close();
-			System.gc();
 		}
 	}
 
@@ -194,43 +188,38 @@ public class LuceneExecutor implements Runnable {
 	 * @param repository
 	 *            the repository object
 	 */
-	protected void index(String name, Repository repository) {
+	protected void index(RepositoryModel model, Repository repository) {
 		try {
-			if (JGitUtils.hasCommits(repository)) {
-				if (shouldReindex(repository)) {
-					// (re)build the entire index					
-					IndexResult result = reindex(name, repository);
-					
-					if (result.success) {
-						if (result.commitCount > 0) {
-							String msg = "Built {0} Lucene index from {1} commits and {2} files across {3} branches in {4} secs";
-							logger.info(MessageFormat.format(msg, name,
-									result.commitCount, result.blobCount, result.branchCount, result.duration()));
-						}
-					} else {
-						String msg = "Could not build {0} Lucene index!";
-						logger.error(MessageFormat.format(msg, name));
+			if (shouldReindex(repository)) {
+				// (re)build the entire index
+				IndexResult result = reindex(model, repository);
+
+				if (result.success) {
+					if (result.commitCount > 0) {
+						String msg = "Built {0} Lucene index from {1} commits and {2} files across {3} branches in {4} secs";
+						logger.info(MessageFormat.format(msg, model.name, result.commitCount,
+								result.blobCount, result.branchCount, result.duration()));
 					}
 				} else {
-					// update the index with latest commits					
-					IndexResult result = updateIndex(name, repository);
-					if (result.success) {
-						if (result.commitCount > 0) {
-							String msg = "Updated {0} Lucene index with {1} commits and {2} files across {3} branches in {4} secs";
-							logger.info(MessageFormat.format(msg, name,
-									result.commitCount, result.blobCount, result.branchCount, result.duration()));
-						}
-					} else {
-						String msg = "Could not update {0} Lucene index!";
-						logger.error(MessageFormat.format(msg, name));
-					}
+					String msg = "Could not build {0} Lucene index!";
+					logger.error(MessageFormat.format(msg, model.name));
 				}
 			} else {
-				logger.info(MessageFormat.format("Skipped Lucene index of empty repository {0}",
-						name));
+				// update the index with latest commits
+				IndexResult result = updateIndex(model, repository);
+				if (result.success) {
+					if (result.commitCount > 0) {
+						String msg = "Updated {0} Lucene index with {1} commits and {2} files across {3} branches in {4} secs";
+						logger.info(MessageFormat.format(msg, model.name, result.commitCount,
+								result.blobCount, result.branchCount, result.duration()));
+					}
+				} else {
+					String msg = "Could not update {0} Lucene index!";
+					logger.error(MessageFormat.format(msg, model.name));
+				}
 			}
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Lucene indexing failure for {0}", name), t);
+			logger.error(MessageFormat.format("Lucene indexing failure for {0}", model.name), t);
 		}
 	}
 	
@@ -430,15 +419,15 @@ public class LuceneExecutor implements Runnable {
 	 * @param repository
 	 * @return IndexResult
 	 */
-	public IndexResult reindex(String repositoryName, Repository repository) {
+	public IndexResult reindex(RepositoryModel model, Repository repository) {
 		IndexResult result = new IndexResult();
-		if (!deleteIndex(repositoryName)) {
+		if (!deleteIndex(model.name)) {
 			return result;
 		}
 		try {			
 			FileBasedConfig config = getConfig(repository);
 			Set<String> indexedCommits = new TreeSet<String>();
-			IndexWriter writer = getIndexWriter(repositoryName);
+			IndexWriter writer = getIndexWriter(model.name);
 			// build a quick lookup of tags
 			Map<String, List<String>> tags = new HashMap<String, List<String>>();
 			for (RefModel tag : JGitUtils.getTags(repository, false, -1)) {
@@ -479,7 +468,9 @@ public class LuceneExecutor implements Runnable {
 			
 			// walk through each branch
 			for (RefModel branch : branches) {
-				if (excludedBranches.contains(branch.getName())) {
+
+				// if this branch is not specifically indexed then skip
+				if (!model.indexedBranches.contains(branch.getName())) {
 					continue;
 				}
 
@@ -624,11 +615,11 @@ public class LuceneExecutor implements Runnable {
 			// commit all changes and reset the searcher
 			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
-			resetIndexSearcher(repositoryName);
+			resetIndexSearcher(model.name);
 			writer.commit();
 			result.success();
 		} catch (Exception e) {
-			logger.error("Exception while reindexing " + repositoryName, e);
+			logger.error("Exception while reindexing " + model.name, e);
 		}
 		return result;
 	}
@@ -648,24 +639,6 @@ public class LuceneExecutor implements Runnable {
 			String branch, RevCommit commit) {
 		IndexResult result = new IndexResult();
 		try {
-			if (excludedBranches.contains(branch)) {
-				if (IssueUtils.GB_ISSUES.equals(branch)) {
-					// index an issue
-					String issueId = commit.getShortMessage().substring(2).trim();
-					IssueModel issue = IssueUtils.getIssue(repository, issueId);
-					if (issue == null) {
-						// issue was deleted, remove from index
-						deleteIssue(repositoryName, issueId);
-						result.success = true;
-						return result;
-					}
-					result.success = index(repositoryName, issue);
-					result.issueCount++;
-					return result;
-					
-				}
-				return result;
-			}
 			List<PathChangeModel> changedPaths = JGitUtils.getFilesInCommit(repository, commit);
 			String revDate = DateTools.timeToString(commit.getCommitTime() * 1000L,
 					Resolution.MINUTE);
@@ -779,11 +752,11 @@ public class LuceneExecutor implements Runnable {
 	/**
 	 * Updates a repository index incrementally from the last indexed commits.
 	 * 
-	 * @param repositoryName
+	 * @param model
 	 * @param repository
 	 * @return IndexResult
 	 */
-	protected IndexResult updateIndex(String repositoryName, Repository repository) {
+	protected IndexResult updateIndex(RepositoryModel model, Repository repository) {
 		IndexResult result = new IndexResult();
 		try {
 			FileBasedConfig config = getConfig(repository);
@@ -816,6 +789,12 @@ public class LuceneExecutor implements Runnable {
 			for (RefModel branch : branches) {
 				String branchName = branch.getName();
 
+				// determine if we should skip this branch
+				if (!IssueUtils.GB_ISSUES.equals(branch)
+						&& !model.indexedBranches.contains(branch.getName())) {
+					continue;
+				}
+				
 				// remove this branch from the deletedBranches set
 				deletedBranches.remove(branchName);
 
@@ -836,10 +815,33 @@ public class LuceneExecutor implements Runnable {
 					result.branchCount += 1;
 				}
 				
+				// track the issue ids that we have already indexed
+				Set<String> indexedIssues = new TreeSet<String>();
+				
 				// reverse the list of commits so we start with the first commit				
 				Collections.reverse(revs);
-				for (RevCommit commit : revs) {
-					result.add(index(repositoryName, repository, branchName, commit));					
+				for (RevCommit commit : revs) {					
+					if (IssueUtils.GB_ISSUES.equals(branch)) {
+						// only index an issue once during updateIndex
+						String issueId = commit.getShortMessage().substring(2).trim();
+						if (indexedIssues.contains(issueId)) {
+							continue;
+						}
+						indexedIssues.add(issueId);
+						
+						IssueModel issue = IssueUtils.getIssue(repository, issueId);
+						if (issue == null) {
+							// issue was deleted, remove from index
+							deleteIssue(model.name, issueId);
+						} else {
+							// issue was updated
+							index(model.name, issue);
+							result.issueCount++;
+						}
+					} else {
+						// index a commit
+						result.add(index(model.name, repository, branchName, commit));
+					}
 				}
 
 				// update the config
@@ -853,14 +855,14 @@ public class LuceneExecutor implements Runnable {
 			// unless a branch really was deleted and no longer exists
 			if (deletedBranches.size() > 0) {
 				for (String branch : deletedBranches) {
-					IndexWriter writer = getIndexWriter(repositoryName);
+					IndexWriter writer = getIndexWriter(model.name);
 					writer.deleteDocuments(new Term(FIELD_BRANCH, branch));
 					writer.commit();
 				}
 			}
 			result.success = true;
 		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Exception while updating {0} Lucene index", repositoryName), t);
+			logger.error(MessageFormat.format("Exception while updating {0} Lucene index", model.name), t);
 		}
 		return result;
 	}
