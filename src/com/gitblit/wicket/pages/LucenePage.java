@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Constants.SearchType;
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.UserModel;
@@ -40,6 +42,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.PagerPanel;
 
 public class LucenePage extends RootPage {
 
@@ -59,12 +62,16 @@ public class LucenePage extends RootPage {
 		// default values
 		ArrayList<String> repositories = new ArrayList<String>();				
 		String query = "";
+		int page = 1;
+		int pageSize = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
 
 		if (params != null) {
 			String repository = WicketUtils.getRepositoryName(params);
 			if (!StringUtils.isEmpty(repository)) {
 				repositories.add(repository);
 			}
+
+			page = WicketUtils.getPage(params);	
 			
 			if (params.containsKey("repositories")) {
 				String value = params.getString("repositories", "");
@@ -144,7 +151,18 @@ public class LucenePage extends RootPage {
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();
 		if (!ArrayUtils.isEmpty(searchRepositories) && !StringUtils.isEmpty(query)) {
-			results.addAll(GitBlit.self().search(query, 100, searchRepositories));
+			results.addAll(GitBlit.self().search(query, page, pageSize, searchRepositories));
+		}
+		
+		// results header
+		if (results.size() == 0) {
+			add(new Label("resultsHeader").setVisible(false));
+			add(new Label("resultsCount").setVisible(false));
+		} else {
+			add(new Label("resultsHeader", query).setRenderBodyOnly(true));
+			add(new Label("resultsCount", MessageFormat.format("results {0} - {1} ({2} hits)",
+					results.get(0).hitId, results.get(results.size() - 1).hitId, results.get(0).totalHits)).
+					setRenderBodyOnly(true));
 		}
 		
 		// search results view
@@ -178,11 +196,74 @@ public class LucenePage extends RootPage {
 				}
 				item.add(new Label("fragment", sr.fragment).setEscapeModelStrings(false).setVisible(!StringUtils.isEmpty(sr.fragment)));
 				item.add(new LinkPanel("repository", null, sr.repository, SummaryPage.class, WicketUtils.newRepositoryParameter(sr.repository)));
-				item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
+				if (StringUtils.isEmpty(sr.branch)) {
+					item.add(new Label("branch", "null"));
+				} else {
+					item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
+				}
 				item.add(new Label("author", sr.author));
 				item.add(WicketUtils.createDatestampLabel("date", sr.date, getTimeZone()));
 			}
 		};
 		add(resultsView.setVisible(results.size() > 0));
-	}	
+		
+		PageParameters pagerParams = new PageParameters();
+		pagerParams.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
+		pagerParams.put("query", queryModel.getObject());
+		
+		int totalPages = 0;
+		if (results.size() > 0) {
+			totalPages = (results.get(0).totalHits / pageSize) + (results.get(0).totalHits % pageSize > 0 ? 1 : 0);
+		}
+		
+		add(new PagerPanel("topPager", page, totalPages, LucenePage.class, pagerParams));
+		add(new PagerPanel("bottomPager", page, totalPages, LucenePage.class, pagerParams));
+	}
+	
+//	private String buildPager(int currentPage, int count, int total) {
+//		int pages = (total / count) + (total % count == 0 ? 0 : 1);
+//		
+//		// pages are 1-indexed
+//		// previous page link
+//		if (currentPage <= 1) {
+//			sb.append(MessageFormat.format(li, "disabled", "#", "&larr;"));
+//		} else {
+//			List<String> parameters = new ArrayList<String>();
+//			if (!StringUtils.isEmpty(penString)) {
+//				parameters.add(penString);
+//			}
+//			parameters.add(MessageFormat.format(pg, currentPage - 1));
+//			sb.append(MessageFormat.format(li, "", StringUtils.flattenStrings(parameters, "&"), "&larr;"));
+//		}
+//
+//		// page links in middle
+//		int minpage = Math.max(1, currentPage - Math.min(2, 2));
+//		int maxpage = Math.min(pages, minpage + 4);
+//		for (int i = minpage; i <= maxpage; i++) {
+//			String cssClass = "";
+//			if (i == currentPage) {
+//				cssClass = "active";
+//			}
+//			List<String> parameters = new ArrayList<String>();
+//			if (!StringUtils.isEmpty(penString)) {
+//				parameters.add(penString);
+//			}
+//			parameters.add(MessageFormat.format(pg, i));
+//			sb.append(MessageFormat.format(li, cssClass, StringUtils.flattenStrings(parameters, "&"), i));
+//		}
+//
+//		// next page link
+//		if (currentPage == pages) {
+//			sb.append(MessageFormat.format(li, "disabled", "#", "&rarr;"));
+//		} else {
+//			List<String> parameters = new ArrayList<String>();
+//			if (!StringUtils.isEmpty(penString)) {
+//				parameters.add(penString);
+//			}
+//			parameters.add(MessageFormat.format(pg, currentPage + 1));
+//			sb.append(MessageFormat.format(li, "", StringUtils.flattenStrings(parameters, "&"), "&rarr;"));
+//		}
+//		return sb.toString();
+//	}
+
 }

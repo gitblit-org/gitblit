@@ -15,6 +15,10 @@ import com.gitblit.Constants.SearchObjectType;
 public class SearchResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public int hitId;
+	
+	public int totalHits;
 
 	public float score;
 

@@ -1667,12 +1667,13 @@ public class GitBlit implements ServletContextListener {
 	 * Search the specified repositories using the Lucene query.
 	 * 
 	 * @param query
-	 * @param maximumHits
+	 * @param page
+	 * @param pageSize
 	 * @param repositories
 	 * @return
 	 */
-	public List<SearchResult> search(String query, int maximumHits, List<String> repositories) {
-		List<SearchResult> srs = luceneExecutor.search(query, maximumHits, repositories);
+	public List<SearchResult> search(String query, int page, int pageSize, List<String> repositories) {		
+		List<SearchResult> srs = luceneExecutor.search(query, page, pageSize, repositories);
 		return srs;
 	}
 

@@ -48,8 +48,18 @@
 			</div>
 		</div>
 	</form>
-	<hr/>
-	<div class="row-fluid">
+
+	<div class="row-fluid">	
+	<!-- results header -->
+	<div class="span8">
+		<h3><span wicket:id="resultsHeader"></span> <small><span wicket:id="resultsCount"></span></small></h3>
+	</div>
+	<!-- pager links -->
+	<div class="span4" wicket:id="topPager"></div>
+	</div>
+	
+	<div class="row-fluid">	
+	<!--  search result repeater -->
 	<div class="searchResult" wicket:id="searchResults">
 		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
 		<div class="body">
@@ -58,7 +68,11 @@
 			<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>			
 		</div>
 	</div>
-	</div>
+
+	<!-- pager links -->
+	<div wicket:id="bottomPager"></div>
+
+	</div>	
 </body>
 </wicket:extend>
 </html>

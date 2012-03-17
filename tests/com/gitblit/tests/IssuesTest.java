@@ -134,7 +134,7 @@ public class IssuesTest {
 		for (IssueModel anIssue : allIssues) {
 			lucene.index(name, anIssue);
 		}
-		List<SearchResult> hits = lucene.search("working", 10, name);
+		List<SearchResult> hits = lucene.search("working", 1, 10, name);
 		assertTrue(hits.size() > 0);
 		
 		// reindex an issue

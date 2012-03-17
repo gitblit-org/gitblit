@@ -66,9 +66,9 @@ public class LuceneExecutorTest {
 		lucene.reindex(model, repository);
 		repository.close();
 		
-		SearchResult result = lucene.search("type:blob AND path:bit.bit", 1, model.name).get(0);		
+		SearchResult result = lucene.search("type:blob AND path:bit.bit", 1, 1, model.name).get(0);		
 		assertEquals("Mike Donaghy", result.author);
-		result = lucene.search("type:blob AND path:clipper.prg", 1, model.name).get(0);		
+		result = lucene.search("type:blob AND path:clipper.prg", 1, 1, model.name).get(0);		
 		assertEquals("tinogomes", result.author);		
 
 		// reindex theoretical physics
@@ -95,18 +95,18 @@ public class LuceneExecutorTest {
 		RepositoryModel model = newRepositoryModel(repository);
 		repository.close();
 		
-		List<SearchResult> results = lucene.search("ada", 10, model.name);
+		List<SearchResult> results = lucene.search("ada", 1, 10, model.name);
 		assertEquals(2, results.size());
 		for (SearchResult res : results) {
 			assertEquals("refs/heads/master", res.branch);
 		}
 
 		// author test
-		results = lucene.search("author: tinogomes AND type:commit", 10, model.name);
+		results = lucene.search("author: tinogomes AND type:commit", 1, 10, model.name);
 		assertEquals(2, results.size());
 		
 		// blob test
-		results = lucene.search("type: blob AND \"import std.stdio\"", 10, model.name);
+		results = lucene.search("type: blob AND \"import std.stdio\"", 1, 10, model.name);
 		assertEquals(1, results.size());
 		assertEquals("d.D", results.get(0).path);
 		
@@ -115,20 +115,20 @@ public class LuceneExecutorTest {
 		model = newRepositoryModel(repository);
 		repository.close();
 		
-		results = lucene.search("\"add the .nojekyll file\"", 10, model.name);
+		results = lucene.search("\"add the .nojekyll file\"", 1, 10, model.name);
 		assertEquals(1, results.size());
 		assertEquals("Ondrej Certik", results.get(0).author);
 		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).commitId);
 		assertEquals("refs/heads/gh-pages", results.get(0).branch);
 		
-		results = lucene.search("type:blob AND \"src/intro.rst\"", 10, model.name);
+		results = lucene.search("type:blob AND \"src/intro.rst\"", 1, 10, model.name);
 		assertEquals(4, results.size());
 		
 		// hash id tests
-		results = lucene.search("commit:57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", 10, model.name);
+		results = lucene.search("commit:57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", 1, 10, model.name);
 		assertEquals(1, results.size());
 
-		results = lucene.search("commit:57c4f26f157*", 10, model.name);
+		results = lucene.search("commit:57c4f26f157*", 1, 10, model.name);
 		assertEquals(1, results.size());		
 		
 		// annotated tag test
@@ -136,7 +136,7 @@ public class LuceneExecutorTest {
 		model = newRepositoryModel(repository);
 		repository.close();
 		
-		results = lucene.search("I663208919f297836a9c16bf458e4a43ffaca4c12", 10, model.name);
+		results = lucene.search("I663208919f297836a9c16bf458e4a43ffaca4c12", 1, 10, model.name);
 		assertEquals(1, results.size());
 		assertEquals("[v1.3.0.201202151440-r]", results.get(0).tags.toString());		
 		
@@ -155,7 +155,7 @@ public class LuceneExecutorTest {
 		list.add(newRepositoryModel(repository).name);
 		repository.close();
 
-		List<SearchResult> results = lucene.search("test", 10, list);
+		List<SearchResult> results = lucene.search("test", 1, 10, list);
 		lucene.close();
 		assertEquals(10, results.size());
 	}

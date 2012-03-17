@@ -940,8 +940,10 @@ public class LuceneExecutor implements Runnable {
 		return false;
 	}
 
-	private SearchResult createSearchResult(Document doc, float score) throws ParseException {
+	private SearchResult createSearchResult(Document doc, float score, int hitId, int totalHits) throws ParseException {
 		SearchResult result = new SearchResult();
+		result.hitId = hitId;
+		result.totalHits = totalHits;
 		result.score = score;
 		result.date = DateTools.stringToDate(doc.get(FIELD_DATE));
 		result.summary = doc.get(FIELD_SUMMARY);		
@@ -1017,19 +1019,21 @@ public class LuceneExecutor implements Runnable {
 	 * 
 	 * @param text
 	 *            if the text is null or empty, null is returned
-	 * @param maximumHits
-	 *            the maximum number of hits to collect
+	 * @param page
+	 *            the page number to retrieve. page is 1-indexed.
+	 * @param pageSize
+	 *            the number of elements to return for this page
 	 * @param repositories
 	 *            a list of repositories to search. if no repositories are
 	 *            specified null is returned.
 	 * @return a list of SearchResults in order from highest to the lowest score
 	 * 
 	 */
-	public List<SearchResult> search(String text, int maximumHits, List<String> repositories) {
+	public List<SearchResult> search(String text, int page, int pageSize, List<String> repositories) {
 		if (ArrayUtils.isEmpty(repositories)) {
 			return null;
 		}
-		return search(text, maximumHits, repositories.toArray(new String[0]));
+		return search(text, page, pageSize, repositories.toArray(new String[0]));
 	}
 	
 	/**
@@ -1037,15 +1041,17 @@ public class LuceneExecutor implements Runnable {
 	 * 
 	 * @param text
 	 *            if the text is null or empty, null is returned
-	 * @param maximumHits
-	 *            the maximum number of hits to collect
+	 * @param page
+	 *            the page number to retrieve. page is 1-indexed.
+	 * @param pageSize
+	 *            the number of elements to return for this page
 	 * @param repositories
 	 *            a list of repositories to search. if no repositories are
 	 *            specified null is returned.
 	 * @return a list of SearchResults in order from highest to the lowest score
 	 * 
-	 */	
-	public List<SearchResult> search(String text, int maximumHits, String... repositories) {
+	 */
+	public List<SearchResult> search(String text, int page, int pageSize, String... repositories) {
 		if (StringUtils.isEmpty(text)) {
 			return null;
 		}
@@ -1082,14 +1088,15 @@ public class LuceneExecutor implements Runnable {
 				searcher = new IndexSearcher(reader);
 			}
 			Query rewrittenQuery = searcher.rewrite(query);
-			TopScoreDocCollector collector = TopScoreDocCollector.create(maximumHits, true);
+			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
 			searcher.search(rewrittenQuery, collector);
-			ScoreDoc[] hits = collector.topDocs().scoreDocs;
+			int offset = Math.max(0, (page - 1) * pageSize);
+			ScoreDoc[] hits = collector.topDocs(offset, pageSize).scoreDocs;
+			int totalHits = collector.getTotalHits();
 			for (int i = 0; i < hits.length; i++) {
 				int docId = hits[i].doc;
 				Document doc = searcher.doc(docId);
-				// TODO identify the source index for the doc, then eliminate FIELD_REPOSITORY				
-				SearchResult result = createSearchResult(doc, hits[i].score);
+				SearchResult result = createSearchResult(doc, hits[i].score, offset + i + 1, totalHits);
 				if (repositories.length == 1) {
 					// single repository search
 					result.repository = repositories[0];
