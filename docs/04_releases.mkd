@@ -46,8 +46,8 @@ Push requests to these repositories will be rejected.
 
 #### dependency changes
 
-- updated to Bootstrap 2.0
-- added GLYPHICONS (as bundled with Bootstrap 2.0)
+- updated to Bootstrap 2.0.2
+- added GLYPHICONS (as bundled with Bootstrap 2.0.2)
 - updated to MarkdownPapers 1.2.7
 - updated to JGit 1.3.0.201202151440-r
 
