@@ -680,6 +680,7 @@ public class LuceneExecutor implements Runnable {
 			writer.commit();
 
 			Document doc = createDocument(commit, null);
+			doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
 			result.commitCount++;
 			result.success = index(repositoryName, doc);
 		} catch (Exception e) {
