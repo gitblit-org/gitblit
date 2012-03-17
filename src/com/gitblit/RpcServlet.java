@@ -49,7 +49,7 @@ public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 2;
+	public static final int PROTOCOL_VERSION = 3;
 
 	public RpcServlet() {
 		super();

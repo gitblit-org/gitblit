@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -76,6 +77,19 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.accessRestriction = AccessRestrictionType.NONE;
 		this.federationSets = new ArrayList<String>();
 		this.federationStrategy = FederationStrategy.FEDERATE_THIS;		
+	}
+	
+	public List<String> getLocalBranches() {
+		if (ArrayUtils.isEmpty(availableRefs)) {
+			return new ArrayList<String>();
+		}
+		List<String> localBranches = new ArrayList<String>();
+		for (String ref : availableRefs) {
+			if (ref.startsWith("refs/heads")) {
+				localBranches.add(ref);
+			}
+		}
+		return localBranches;
 	}
 
 	@Override

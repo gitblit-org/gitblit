@@ -105,6 +105,8 @@ public class EditRepositoryDialog extends JDialog {
 	private JPalette<String> setsPalette;
 
 	private JPalette<String> teamsPalette;
+	
+	private JPalette<String> indexedBranchesPalette;
 
 	private JPalette<String> preReceivePalette;
 
@@ -258,6 +260,12 @@ public class EditRepositoryDialog extends JDialog {
 				.add(newFieldPanel(Translation.get("gb.federationSets"),
 						setsPalette), BorderLayout.CENTER);
 
+		indexedBranchesPalette = new JPalette<String>();
+		JPanel indexedBranchesPanel = new JPanel(new BorderLayout(5, 5));
+		indexedBranchesPanel
+				.add(newFieldPanel(Translation.get("gb.indexedBranches"),
+						indexedBranchesPalette), BorderLayout.CENTER);
+
 		preReceivePalette = new JPalette<String>(true);
 		preReceiveInherited = new JLabel();
 		JPanel preReceivePanel = new JPanel(new BorderLayout(5, 5));
@@ -277,6 +285,9 @@ public class EditRepositoryDialog extends JDialog {
 			panel.addTab(Translation.get("gb.teams"), teamsPanel);
 		}
 		panel.addTab(Translation.get("gb.federation"), federationPanel);
+		if (protocolVersion >= 3) {
+			panel.addTab(Translation.get("gb.indexedBranches"), indexedBranchesPanel);
+		}
 		panel.addTab(Translation.get("gb.preReceiveScripts"), preReceivePanel);
 		panel.addTab(Translation.get("gb.postReceiveScripts"), postReceivePanel);
 
@@ -433,7 +444,8 @@ public class EditRepositoryDialog extends JDialog {
 		if (repository.federationStrategy.exceeds(FederationStrategy.EXCLUDE)) {
 			repository.federationSets = setsPalette.getSelections();
 		}
-
+		
+		repository.indexedBranches = indexedBranchesPalette.getSelections();
 		repository.preReceiveScripts = preReceivePalette.getSelections();
 		repository.postReceiveScripts = postReceivePalette.getSelections();
 		return true;
@@ -469,6 +481,10 @@ public class EditRepositoryDialog extends JDialog {
 
 	public void setFederationSets(List<String> all, List<String> selected) {
 		setsPalette.setObjects(all, selected);
+	}
+	
+	public void setIndexedBranches(List<String> all, List<String> selected) {
+		indexedBranchesPalette.setObjects(all, selected);
 	}
 
 	public void setPreReceiveScripts(List<String> all, List<String> inherited,

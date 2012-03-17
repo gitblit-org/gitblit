@@ -39,7 +39,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
-import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -117,14 +116,8 @@ public class EditRepositoryPage extends RootSubPage {
 				new StringChoiceRenderer(), 8, false);
 
 		// indexed local branches palette
-		List<String> allLocalBranches = new ArrayList<String>();
-		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
-			for (String ref : repositoryModel.availableRefs) {
-				if (ref.startsWith(Constants.R_HEADS)) {
-					allLocalBranches.add(ref);
-				}
-			}
-		}
+		List<String> allLocalBranches = repositoryModel.getLocalBranches();
+
 		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);

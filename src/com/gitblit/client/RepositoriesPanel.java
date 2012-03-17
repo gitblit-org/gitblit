@@ -357,6 +357,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), null);
+		dialog.setIndexedBranches(new ArrayList<String>(), null);
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),
 				gitblit.getPreReceiveScriptsInherited(null), null);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null),
@@ -419,6 +420,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), gitblit.getPermittedTeamnames(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
+		dialog.setIndexedBranches(repository.getLocalBranches(), repository.indexedBranches);
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(repository),
 				gitblit.getPreReceiveScriptsInherited(repository), repository.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(repository),
