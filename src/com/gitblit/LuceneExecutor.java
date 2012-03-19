@@ -228,7 +228,16 @@ public class LuceneExecutor implements Runnable {
 	 * 
 	 * @param repositoryName
 	 */
-	public void close(String repositoryName) {
+	public synchronized void close(String repositoryName) {
+		try {
+			IndexSearcher searcher = searchers.remove(repositoryName);
+			if (searcher != null) {
+				searcher.getIndexReader().close();
+			}
+		} catch (Exception e) {
+			logger.error("Failed to close index searcher for " + repositoryName, e);
+		}
+		
 		try {
 			IndexWriter writer = writers.remove(repositoryName);
 			if (writer != null) {
@@ -236,23 +245,14 @@ public class LuceneExecutor implements Runnable {
 			}
 		} catch (Exception e) {
 			logger.error("Failed to close index writer for " + repositoryName, e);
-		}
-
-		try {
-			IndexSearcher searcher = searchers.remove(repositoryName);
-			if (searcher != null) {
-				searcher.close();
-			}
-		} catch (Exception e) {
-			logger.error("Failed to close index searcher for " + repositoryName, e);
-		}
+		}		
 	}
 
 	/**
 	 * Close all Lucene indexers.
 	 * 
 	 */
-	public void close() {
+	public synchronized void close() {
 		// close all writers
 		for (String writer : writers.keySet()) {
 			try {
@@ -266,7 +266,7 @@ public class LuceneExecutor implements Runnable {
 		// close all searchers
 		for (String searcher : searchers.keySet()) {
 			try {
-				searchers.get(searcher).close();
+				searchers.get(searcher).getIndexReader().close();
 			} catch (Throwable t) {
 				logger.error("Failed to close Lucene searcher for " + searcher, t);
 			}
@@ -283,18 +283,9 @@ public class LuceneExecutor implements Runnable {
 	 */
 	public boolean deleteIndex(String repositoryName) {
 		try {
-			// remove the repository index writer from the cache and close it
-			IndexWriter writer = writers.remove(repositoryName);
-			if (writer != null) {
-				writer.close();
-				writer = null;
-			}
-			// remove the repository index searcher from the cache and close it
-			IndexSearcher searcher = searchers.remove(repositoryName);
-			if (searcher != null) {
-				searcher.close();
-				searcher = null;
-			}
+			// close any open writer/searcher
+			close(repositoryName);
+
 			// delete the index folder
 			File repositoryFolder = new File(repositoriesFolder, repositoryName);
 			File luceneIndex = new File(repositoryFolder, LUCENE_DIR);
@@ -420,7 +411,7 @@ public class LuceneExecutor implements Runnable {
 	 * @return IndexResult
 	 */
 	public IndexResult reindex(RepositoryModel model, Repository repository) {
-		IndexResult result = new IndexResult();
+		IndexResult result = new IndexResult();		
 		if (!deleteIndex(model.name)) {
 			return result;
 		}
@@ -615,8 +606,8 @@ public class LuceneExecutor implements Runnable {
 			// commit all changes and reset the searcher
 			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
-			resetIndexSearcher(model.name);
 			writer.commit();
+			resetIndexSearcher(model.name);
 			result.success();
 		} catch (Exception e) {
 			logger.error("Exception while reindexing " + model.name, e);
@@ -931,8 +922,8 @@ public class LuceneExecutor implements Runnable {
 		try {			
 			IndexWriter writer = getIndexWriter(repositoryName);
 			writer.addDocument(doc);
-			resetIndexSearcher(repositoryName);
 			writer.commit();
+			resetIndexSearcher(repositoryName);
 			return true;
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("Exception while incrementally updating {0} Lucene index", repositoryName), e);
@@ -966,7 +957,7 @@ public class LuceneExecutor implements Runnable {
 	private synchronized void resetIndexSearcher(String repository) throws IOException {
 		IndexSearcher searcher = searchers.remove(repository);
 		if (searcher != null) {
-			searcher.close();
+			searcher.getIndexReader().close();
 		}
 	}
 
