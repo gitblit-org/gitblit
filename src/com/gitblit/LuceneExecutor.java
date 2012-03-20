@@ -1124,7 +1124,7 @@ public class LuceneExecutor implements Runnable {
 		Highlighter highlighter = new Highlighter(formatter, scorer);		
 		highlighter.setTextFragmenter(fragmenter);
 		
-		String [] fragments = highlighter.getBestFragments(analyzer, "content", content, 5);
+		String [] fragments = highlighter.getBestFragments(analyzer, "content", content, 3);
 		if (ArrayUtils.isEmpty(fragments)) {
 			if (SearchObjectType.blob  == result.type) {
 				return "";
