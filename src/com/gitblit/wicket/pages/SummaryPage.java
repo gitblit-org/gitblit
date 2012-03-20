@@ -188,7 +188,7 @@ public class SummaryPage extends RepositoryPage {
 				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
-			ChartProvider provider = new ChartProvider(new Dimension(400, 100), ChartType.LINE,
+			ChartProvider provider = new ChartProvider(new Dimension(340, 100), ChartType.LINE,
 					data);
 			ChartAxis dateAxis = new ChartAxis(ChartAxisType.BOTTOM);
 			dateAxis.setLabels(new String[] { metrics.get(0).name,
