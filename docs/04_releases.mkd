@@ -29,12 +29,13 @@ Push requests to these repositories will be rejected.
 - On all non-bare Repository pages show *WORKING COPY* in the upper right corner (issue 49)
 - New setting to prevent display/serving non-bare repositories  
     **New:** *git.onlyAccessBareRepositories = false*
-- Allow relinking HEAD to a branch or a tag (Github/plm)
+- Added *protect-refs.groovy* (Github/plm) 
+- Allow setting default branch (relinking HEAD) to a branch or a tag (Github/plm)
 
 #### fixes 
 
 - Ensure that Welcome message is parsed using UTF-8 encoding (issue 74) 
-- Activity page graph layout broken by Google (issue 73)
+- Activity page chart layout broken by Google (issue 73)
 - Uppercase repositories not selectable in edit palettes (issue 71)
 - Not all git notes were properly displayed on the commit page (issue 70)
 - Activity page now displays all local branches (issue 65)

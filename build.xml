@@ -203,6 +203,7 @@
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
 				<include name="jenkins.groovy" />
+				<include name="protect-refs.groovy" />
 			</fileset>
 		</copy>
 	
@@ -370,6 +371,7 @@
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
 				<include name="jenkins.groovy" />
+				<include name="protect-refs.groovy" />
 			</fileset>
 		</copy>
 
@@ -504,6 +506,7 @@
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
 				<include name="jenkins.groovy" />
+				<include name="protect-refs.groovy" />
 			</fileset>
 		</copy>
 					
