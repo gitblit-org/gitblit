@@ -38,7 +38,7 @@ public class Constants {
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String JGIT_VERSION = "JGit 1.2.0 (201112221803-r)";
+	public static final String JGIT_VERSION = "JGit 1.3.0 (201202151440-r)";
 
 	public static final String ADMIN_ROLE = "#admin";
 

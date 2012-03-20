@@ -10,12 +10,15 @@
 
 #### changes
 
-- Block pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
+- Reject pushes to a repository with a working copy (i.e. non-bare repository) (issue-49)
 - Changed default web.datetimestampLongFormat from *EEEE, MMMM d, yyyy h:mm a z* to *EEEE, MMMM d, yyyy HH:mm Z* (issue 50)
 - Expanded commit age coloring from 2 days to 30 days (issue 57)
 
 #### additions
 
+- Added optional Lucene branch indexing (issue 16)  
+Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you have to specify which branches to index within the *Edit Repository* page.  Indexes are automatically built and incrementally updated on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after specifying a branch to be indexed before the index will be built.)<br/><br/>
+If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page.  If the repository does not specify any indexed branches then the traditional repository commit search is used.
 - Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 54)  
     **New:** *web.timezone =*  
 - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)  

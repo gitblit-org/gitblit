@@ -72,6 +72,22 @@ Jetty
    http://eclipse.org/jetty
 
 ---------------------------------------------------------------------------
+Apache Lucene
+---------------------------------------------------------------------------
+   Apache Lucene, released under the
+   Apache Software License, Version 2.0.
+
+   http://lucene.apache.org
+
+---------------------------------------------------------------------------
+Groovy
+---------------------------------------------------------------------------
+   Groovy, released under the
+   Apache Software License, Version 2.0.
+
+   http://groovy.codehaus.org
+
+---------------------------------------------------------------------------
 SLF4J
 ---------------------------------------------------------------------------
    SLF4J, released under the
@@ -190,4 +206,12 @@ magnifying glass search icon
    Creative Commons CC-BY License.
 
    http://gnome.org
-   
+
+---------------------------------------------------------------------------
+GLYHPICONS
+---------------------------------------------------------------------------
+   GLPYHICONS, released under the
+   Creative Commons CC-BY License.
+
+   http://glyphicons.com
+      

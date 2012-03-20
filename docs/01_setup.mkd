@@ -141,15 +141,6 @@ ProxyPreserveHost On
 	Allow from all
 &lt;/Proxy&gt;
  
-# Turn on Proxy status reporting at /status
-# This should be better protected than: Allow from all
-ProxyStatus On
-&lt;Location /status&gt;
-	SetHandler server-status
-	Order Deny,Allow
-	Allow from all
-&lt;/Location&gt;
-
 # The proxy context path must match the Gitblit context path.
 # For Gitblit GO, see server.contextPath in gitblit.properties.
 
@@ -375,6 +366,23 @@ All three sources are checked and merged into a unique list of destination addre
 
 **NOTE:**  
 Care should be taken when devising your notification scheme as it relates to any VIEW restricted repositories you might have.  Setting a global mailing list and activating push notifications for a VIEW restricted repository may send unwanted emails.
+
+## Lucene Search Integration
+
+*SINCE 0.9.0*
+
+Repositories may optionally be indexed using the Lucene search engine.  Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  Like anything else, this has benefits and drawbacks.
+
+You may specify which branches should be indexed per-repository in the *Edit Repository* page.  New/empty repositories can not pre-specify indexed branches; you can only specify indexed branches for a repository with commits.  Indexes are built and incrementally updated on a 2 minute cycle so you may have to wait a few minutes before your index is built or before your latest pushes get indexed.
+
+**NOTE:**  
+Repositories that specify indexed branches will redirect to the Lucene search page from the search box in the upper right corner of a repository page.  Repositories that do not specify any indexed branches will use the traditional commit search.
+
+The Lucene search offers several advantages over the traditional commit search:
+
+1. multi-term searches
+2. term-highlighted and syntax-highlighted fragment matches
+3. multi-repository searches
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates
