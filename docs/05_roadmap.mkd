@@ -8,7 +8,6 @@ This list is volatile.
 * Eclipse: create plugin to enumerate repositories and delegate cloning to EGit
 * Manager: support federation RPCs
 * Manager: redesign ref indicators in log, search, and activity views to support multiple local branches, remote branches, and tags
-* Gitblit: Lucene integration with multi-repository search (issue 16)
 * Gitblit: Serve repositories on root URL rather than /git (investigate JGit 1.2 GitFilter)
 
 ### TODO (medium priority)
@@ -42,4 +41,3 @@ This list is volatile.
 * Gitblit: Consider creating more Git model objects and exposing them via the JSON RPC interface to allow inspection/retrieval of Git commits, Git trees, etc from Gitblit.
 * Gitblit: Blame coloring by author (issue 2)
 * Gitblit: View binary files in blob page (issue 6)
-* Gitblit: Stronger ticgit integration (issue 8)

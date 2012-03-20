@@ -43,6 +43,7 @@
     (includes script to generate a self-signed certificate for *your hostname*, see [setup](/setup.html) for details)
 - Single text file for configuring server and gitblit
 - A Windows service installation script and configuration tool
+- Built-in AJP connector for Apache httpd 
 
 ## Limitations
 - HTTP/HTTPS are the only supported Git protocols
@@ -53,7 +54,6 @@
 - Native Git may be needed to periodically run git-gc as [JGit][jgit] does not fully support the git-gc featureset.
 
 ### Caveats
-- Gitblit may eat your data.  Use at your own risk.
 - Gitblit may have security holes.  Patches welcome.  :)
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"
