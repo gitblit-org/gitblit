@@ -68,11 +68,11 @@
 	<div class="row-fluid">	
 	<!--  search result repeater -->
 	<div class="searchResult" wicket:id="searchResults">
-		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span></div>
+		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span> <span wicket:id="tags" style="padding-left:10px;"></span></div>
 		<div class="body">
 			<div class="fragment" wicket:id="fragment"></div>
 			<div><span class="author" wicket:id="author"></span> <span class="date" ><wicket:message key="gb.authored"></wicket:message> <span class="date" wicket:id="date"></span></span></div>
-			<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>			
+			<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>		
 		</div>
 	</div>
 
@@ -81,5 +81,12 @@
 
 	</div>	
 </body>
+
+	<wicket:fragment wicket:id="tagsPanel">
+		<span wicket:id="tag">
+			<span wicket:id="tagLink">[tag]</span>
+		</span>	
+	</wicket:fragment>
+
 </wicket:extend>
 </html>

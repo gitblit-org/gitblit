@@ -19,11 +19,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -71,7 +73,7 @@ public class LuceneSearchPage extends RootPage {
 				repositories.add(repository);
 			}
 
-			page = WicketUtils.getPage(params);	
+			page = WicketUtils.getPage(params);
 			
 			if (params.containsKey("repositories")) {
 				String value = params.getString("repositories", "");
@@ -175,13 +177,32 @@ public class LuceneSearchPage extends RootPage {
 		final DataView<SearchResult> resultsView = new DataView<SearchResult>("searchResults", resultsDp) {
 			private static final long serialVersionUID = 1L;
 			public void populateItem(final Item<SearchResult> item) {
-				SearchResult sr = item.getModelObject();
+				final SearchResult sr = item.getModelObject();
 				switch(sr.type) {
 				case commit: {
 					Label icon = WicketUtils.newIcon("type", "icon-refresh");
 					WicketUtils.setHtmlTooltip(icon, "commit");
 					item.add(icon);
 					item.add(new LinkPanel("summary", null, sr.summary, CommitPage.class, WicketUtils.newObjectParameter(sr.repository, sr.commitId)));
+					// show tags
+					Fragment fragment = new Fragment("tags", "tagsPanel", LuceneSearchPage.this);
+					List<String> tags = sr.tags;
+					if (tags == null) {
+						tags = new ArrayList<String>();
+					}
+					ListDataProvider<String> tagsDp = new ListDataProvider<String>(tags);
+					final DataView<String> tagsView = new DataView<String>("tag", tagsDp) {
+						private static final long serialVersionUID = 1L;
+						public void populateItem(final Item<String> item) {
+							String tag = item.getModelObject();
+							Component c = new LinkPanel("tagLink", null, tag, TagPage.class,
+									WicketUtils.newObjectParameter(sr.repository, Constants.R_TAGS + tag));
+							WicketUtils.setCssClass(c, "tagRef");							
+							item.add(c);
+						}
+					};
+					fragment.add(tagsView);
+					item.add(fragment);
 					break;
 				}
 				case blob: {
@@ -189,6 +210,7 @@ public class LuceneSearchPage extends RootPage {
 					WicketUtils.setHtmlTooltip(icon, "blob");
 					item.add(icon);
 					item.add(new LinkPanel("summary", null, sr.path, BlobPage.class, WicketUtils.newPathParameter(sr.repository, sr.branch, sr.path)));
+					item.add(new Label("tags").setVisible(false));
 					break;
 				}
 				case issue: {
@@ -196,6 +218,7 @@ public class LuceneSearchPage extends RootPage {
 					WicketUtils.setHtmlTooltip(icon, "issue");
 					item.add(icon);
 					item.add(new Label("summary", "issue: " + sr.issueId));
+					item.add(new Label("tags").setVisible(false));
 					break;
 				}
 				}
@@ -224,51 +247,4 @@ public class LuceneSearchPage extends RootPage {
 		add(new PagerPanel("topPager", page, totalPages, LuceneSearchPage.class, pagerParams));
 		add(new PagerPanel("bottomPager", page, totalPages, LuceneSearchPage.class, pagerParams));
 	}
-	
-//	private String buildPager(int currentPage, int count, int total) {
-//		int pages = (total / count) + (total % count == 0 ? 0 : 1);
-//		
-//		// pages are 1-indexed
-//		// previous page link
-//		if (currentPage <= 1) {
-//			sb.append(MessageFormat.format(li, "disabled", "#", "&larr;"));
-//		} else {
-//			List<String> parameters = new ArrayList<String>();
-//			if (!StringUtils.isEmpty(penString)) {
-//				parameters.add(penString);
-//			}
-//			parameters.add(MessageFormat.format(pg, currentPage - 1));
-//			sb.append(MessageFormat.format(li, "", StringUtils.flattenStrings(parameters, "&"), "&larr;"));
-//		}
-//
-//		// page links in middle
-//		int minpage = Math.max(1, currentPage - Math.min(2, 2));
-//		int maxpage = Math.min(pages, minpage + 4);
-//		for (int i = minpage; i <= maxpage; i++) {
-//			String cssClass = "";
-//			if (i == currentPage) {
-//				cssClass = "active";
-//			}
-//			List<String> parameters = new ArrayList<String>();
-//			if (!StringUtils.isEmpty(penString)) {
-//				parameters.add(penString);
-//			}
-//			parameters.add(MessageFormat.format(pg, i));
-//			sb.append(MessageFormat.format(li, cssClass, StringUtils.flattenStrings(parameters, "&"), i));
-//		}
-//
-//		// next page link
-//		if (currentPage == pages) {
-//			sb.append(MessageFormat.format(li, "disabled", "#", "&rarr;"));
-//		} else {
-//			List<String> parameters = new ArrayList<String>();
-//			if (!StringUtils.isEmpty(penString)) {
-//				parameters.add(penString);
-//			}
-//			parameters.add(MessageFormat.format(pg, currentPage + 1));
-//			sb.append(MessageFormat.format(li, "", StringUtils.flattenStrings(parameters, "&"), "&rarr;"));
-//		}
-//		return sb.toString();
-//	}
-
 }
