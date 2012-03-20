@@ -87,7 +87,6 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
@@ -957,12 +956,6 @@ public class GitBlit implements ServletContextListener {
 			// create repository
 			logger.info("create repository " + repository.name);
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name);
-			
-			// automatically index master branch if Lucene integration is enabled
-			if (luceneExecutor.isReady()) {
-				repository.indexedBranches = new ArrayList<String>();
-				repository.indexedBranches.add("refs/heads/master");
-			}
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
@@ -1845,18 +1838,8 @@ public class GitBlit implements ServletContextListener {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
 		}
 		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
-		if (luceneExecutor.isReady()) {
-			String idle = settings.getString(Keys.lucene.frequency, "2 mins");
-			int mins = TimeUtils.convertFrequencyToMinutes(idle);
-			if (mins <= 2) {
-				mins = 2;
-				idle = mins + " mins";
-			}
-			logger.info("Lucene executor is scheduled to process ref changes every " + idle);
-			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, mins, TimeUnit.MINUTES);
-		} else {
-			logger.warn("Lucene integration is disabled.");
-		}
+		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
 		if (startFederation) {
 			configureFederation();
 		}		

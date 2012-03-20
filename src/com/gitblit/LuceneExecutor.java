@@ -148,26 +148,12 @@ public class LuceneExecutor implements Runnable {
 	}
 
 	/**
-	 * Indicates if the Lucene executor can index repositories.
-	 * 
-	 * @return true if the Lucene executor is ready to index repositories
-	 */
-	public boolean isReady() {
-		return storedSettings.getBoolean(Keys.lucene.enable, false);
-	}
-
-	/**
-	 * Run is executed by the gitblit executor service at whatever frequency
-	 * is specified in the settings.  Because this is called by an executor
-	 * service, calls will queue - i.e. there can never be concurrent execution
-	 * of repository index updates.
+	 * Run is executed by the Gitblit executor service.  Because this is called 
+	 * by an executor service, calls will queue - i.e. there can never be
+	 * concurrent execution of repository index updates.
 	 */
 	@Override
 	public void run() {
-		if (!isReady()) {
-			return;
-		}
-
 		for (String repositoryName: GitBlit.self().getRepositoryList()) {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
