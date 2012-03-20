@@ -622,7 +622,7 @@ public class LuceneExecutor implements Runnable {
 			IndexWriter writer = getIndexWriter(repositoryName);
 			for (PathChangeModel path : changedPaths) {
 				// delete the indexed blob
-				deleteBlob(repositoryName, branch, path.path);
+				deleteBlob(repositoryName, branch, path.name);
 
 				// re-index the blob
 				if (!ChangeType.DELETE.equals(path.changeType)) {

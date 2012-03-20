@@ -721,6 +721,10 @@ public class JGitUtils {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
 								.getNewMode().getBits(), commit.getId().getName(), diff
 								.getChangeType()));
+					} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
+						list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
+								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getChangeType()));
 					} else {
 						list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
 								.getNewMode().getBits(), commit.getId().getName(), diff
