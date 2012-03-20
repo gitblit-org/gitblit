@@ -655,8 +655,17 @@ public class LuceneExecutor implements Runnable {
 				}
 			}
 			writer.commit();
-
-			Document doc = createDocument(commit, null);
+			
+			// get any annotated commit tags
+			List<String> commitTags = new ArrayList<String>();
+			for (RefModel ref : JGitUtils.getTags(repository, true, -1)) {
+				if (ref.isAnnotatedTag() && ref.getReferencedObjectId().equals(commit.getId())) {
+					commitTags.add(ref.displayName);
+				}
+			}
+			
+			// create and write the Lucene document
+			Document doc = createDocument(commit, commitTags);
 			doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
 			result.commitCount++;
 			result.success = index(repositoryName, doc);
