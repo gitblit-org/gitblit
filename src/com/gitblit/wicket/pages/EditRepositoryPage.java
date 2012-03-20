@@ -302,7 +302,7 @@ public class EditRepositoryPage extends RootSubPage {
 		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
 			availableRefs.addAll(repositoryModel.availableRefs);
 		}
-		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(!isCreate));
+		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
