@@ -44,14 +44,14 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PagerPanel;
 
-public class LucenePage extends RootPage {
+public class LuceneSearchPage extends RootPage {
 
-	public LucenePage() {
+	public LuceneSearchPage() {
 		super();
 		setup(null);
 	}
 
-	public LucenePage(PageParameters params) {
+	public LuceneSearchPage(PageParameters params) {
 		super(params);
 		setup(params);
 	}
@@ -137,13 +137,13 @@ public class LucenePage extends RootPage {
 				PageParameters params = new PageParameters();
 				params.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
 				params.put("query", queryModel.getObject());
-				setResponsePage(LucenePage.class, params);
+				setResponsePage(LuceneSearchPage.class, params);
 			}
 		};
 				
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
 				repositoriesModel, availableRepositories, new StringChoiceRenderer());
-		selections.setMaxRows(10);
+		selections.setMaxRows(8);
 		form.add(selections);
 		form.add(new TextField<String>("query", queryModel));
 		add(form);
@@ -216,8 +216,8 @@ public class LucenePage extends RootPage {
 			totalPages = (results.get(0).totalHits / pageSize) + (results.get(0).totalHits % pageSize > 0 ? 1 : 0);
 		}
 		
-		add(new PagerPanel("topPager", page, totalPages, LucenePage.class, pagerParams));
-		add(new PagerPanel("bottomPager", page, totalPages, LucenePage.class, pagerParams));
+		add(new PagerPanel("topPager", page, totalPages, LuceneSearchPage.class, pagerParams));
+		add(new PagerPanel("bottomPager", page, totalPages, LuceneSearchPage.class, pagerParams));
 	}
 	
 //	private String buildPager(int currentPage, int count, int total) {

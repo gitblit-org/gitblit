@@ -30,18 +30,25 @@
 					<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
 				</div>
 				<div style="margin-top:10px;">
-					<div style="margin-left:0px;" class="span4">
+					<div style="margin-left:0px;" class="span3">
 						<div class="alert alert">
 							<b>type:</b> commit or blob<br/>
 							<b>commit:</b> commit id<br/>
-							<b>path:</b> blob path<br/>
+							<b>path:</b> path/to/blob<br/>
 							<b>branch:</b> refs/heads/master<br/>
-							<b>author:</b><br/>
-							<b>committer:</b><br/>
-							<b>tag:</b> tag<br/>
+							<b>author:</b> or <b>committer:</b>							
 						</div>
 					</div>
-					<div class="span5">
+					<div class="span4">						
+						<div class="alert alert-info">
+							type:commit AND "bug fix"<br/>
+							type:commit AND author:james*<br/>
+							type:blob AND "int errorCode"<br/>
+							type:blob AND test AND path:*.java<br/>
+							commit:d91e5*
+						</div>
+					</div>
+					<div class="span2">
 						<wicket:message key="gb.queryHelp"></wicket:message>
 					</div>
 				</div>

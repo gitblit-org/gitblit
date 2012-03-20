@@ -26,7 +26,6 @@ import org.apache.wicket.protocol.http.WebApplication;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.wicket.pages.ActivityPage;
-import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -35,16 +34,17 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
+import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
-import com.gitblit.wicket.pages.SearchPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
@@ -91,12 +91,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/commitdiff", CommitDiffPage.class, "r", "h");
 		mount("/patch", PatchPage.class, "r", "h", "f");
 		mount("/history", HistoryPage.class, "r", "h", "f");
-		if (GitBlit.getBoolean(Keys.lucene.enable, false)) {
-			// TODO switch this to LucenePage when it is ready
-			mount("/search", SearchPage.class);
-		} else {
-			mount("/search", SearchPage.class);
-		}
+		mount("/search", GitSearchPage.class);
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
 
@@ -114,6 +109,7 @@ public class GitBlitWebApp extends WebApplication {
 
 		mount("/activity", ActivityPage.class, "r", "h");
 		mount("/gravatar", GravatarProfilePage.class, "h");
+		mount("/lucene", LuceneSearchPage.class);
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
@@ -131,20 +127,6 @@ public class GitBlitWebApp extends WebApplication {
 		return RepositoriesPage.class;
 	}
 	
-	/**
-	 * Returns the preferred search page class.
-	 * 
-	 * @return a Wicket class representing a search page
-	 */
-	public Class<? extends BasePage> getSearchPageClass() {
-		if (GitBlit.getBoolean(Keys.lucene.enable, false)) {
-			// TODO switch this to LucenePage when it is ready
-			return SearchPage.class;//LucenePage.class;
-		}
-		return SearchPage.class;
-	}
-
-
 	@Override
 	public final Session newSession(Request request, Response response) {
 		return new GitBlitWebSession(request);

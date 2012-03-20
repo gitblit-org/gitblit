@@ -37,7 +37,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.SearchPage;
+import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class SearchPanel extends BasePanel {
@@ -92,7 +92,7 @@ public class SearchPanel extends BasePanel {
 				// author search link
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
-						SearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
+						GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
 								author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);

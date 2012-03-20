@@ -22,9 +22,9 @@ import com.gitblit.Constants;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.SearchPanel;
 
-public class SearchPage extends RepositoryPage {
+public class GitSearchPage extends RepositoryPage {
 
-	public SearchPage(PageParameters params) {
+	public GitSearchPage(PageParameters params) {
 		super(params);
 
 		String value = WicketUtils.getSearchString(params);
@@ -40,23 +40,23 @@ public class SearchPage extends RepositoryPage {
 		boolean hasMore = search.hasMore();
 		add(search);
 
-		add(new BookmarkablePageLink<Void>("firstPageTop", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("firstPageTop", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("prevPageTop", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("prevPageTop", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType,
 						prevPage)).setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("nextPageTop", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("nextPageTop", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType,
 						nextPage)).setEnabled(hasMore));
 
-		add(new BookmarkablePageLink<Void>("firstPageBottom", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("firstPageBottom", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("prevPageBottom", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("prevPageBottom", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType,
 						prevPage)).setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("nextPageBottom", SearchPage.class,
+		add(new BookmarkablePageLink<Void>("nextPageBottom", GitSearchPage.class,
 				WicketUtils.newSearchParameter(repositoryName, objectId, value, searchType,
 						nextPage)).setEnabled(hasMore));
 

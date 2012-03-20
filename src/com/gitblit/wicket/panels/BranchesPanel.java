@@ -35,15 +35,12 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitBlitWebApp;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.MetricsPage;
-import com.gitblit.wicket.pages.SearchPage;
+import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class BranchesPanel extends BasePanel {
@@ -78,9 +75,6 @@ public class BranchesPanel extends BasePanel {
 			add(new Label("branches", new StringResourceModel("gb.branches", this, null)));
 		}
 
-		GitBlitWebApp app = (GitBlitWebApp) GitBlitWebSession.get().getApplication();
-		final Class<? extends BasePage> searchPageClass = app.getSearchPageClass();
-
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
@@ -97,7 +91,7 @@ public class BranchesPanel extends BasePanel {
 
 				String author = entry.getAuthorIdent().getName();
 				LinkPanel authorLink = new LinkPanel("branchAuthor", "list", author,
-						searchPageClass, WicketUtils.newSearchParameter(model.name,
+						GitSearchPage.class, WicketUtils.newSearchParameter(model.name,
 								entry.getName(), author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
