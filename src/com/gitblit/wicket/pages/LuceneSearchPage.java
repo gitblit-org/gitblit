@@ -156,8 +156,13 @@ public class LuceneSearchPage extends RootPage {
 		
 		// results header
 		if (results.size() == 0) {
-			add(new Label("resultsHeader").setVisible(false));
-			add(new Label("resultsCount").setVisible(false));
+			if (!ArrayUtils.isEmpty(searchRepositories) && !StringUtils.isEmpty(query)) {
+				add(new Label("resultsHeader", query).setRenderBodyOnly(true));
+				add(new Label("resultsCount", "0 hits").setRenderBodyOnly(true));
+			} else {
+				add(new Label("resultsHeader").setVisible(false));
+				add(new Label("resultsCount").setVisible(false));
+			}
 		} else {
 			add(new Label("resultsHeader", query).setRenderBodyOnly(true));
 			add(new Label("resultsCount", MessageFormat.format("results {0} - {1} ({2} hits)",
