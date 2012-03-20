@@ -215,7 +215,7 @@ public class EditRepositoryDialog extends JDialog {
 				descriptionField));
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.origin"), originField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.head"), headRefField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.headRef"), headRefField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
