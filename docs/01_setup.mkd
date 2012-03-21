@@ -145,6 +145,11 @@ ProxyPreserveHost On
 # For Gitblit GO, see server.contextPath in gitblit.properties.
 
 #ProxyPass /gitblit http://localhost:8080/gitblit
+#ProxyPassreverse /gitblit http://localhost:8080/gitblit
+
+# If your httpd frontend is https but you are proxying http Gitblit WAR or GO
+#Header edit Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
+
 #ProxyPass /gitblit ajp://localhost:8009/gitblit
 %ENDCODE%  
 **Please** make sure to:  
