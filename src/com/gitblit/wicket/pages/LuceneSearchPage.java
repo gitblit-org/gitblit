@@ -239,12 +239,14 @@ public class LuceneSearchPage extends RootPage {
 		pagerParams.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
 		pagerParams.put("query", queryModel.getObject());
 		
+		boolean showPager = false;
 		int totalPages = 0;
 		if (results.size() > 0) {
 			totalPages = (results.get(0).totalHits / pageSize) + (results.get(0).totalHits % pageSize > 0 ? 1 : 0);
+			showPager = results.get(0).totalHits > pageSize;
 		}
 		
-		add(new PagerPanel("topPager", page, totalPages, LuceneSearchPage.class, pagerParams));
-		add(new PagerPanel("bottomPager", page, totalPages, LuceneSearchPage.class, pagerParams));
+		add(new PagerPanel("topPager", page, totalPages, LuceneSearchPage.class, pagerParams).setVisible(showPager));
+		add(new PagerPanel("bottomPager", page, totalPages, LuceneSearchPage.class, pagerParams).setVisible(showPager));
 	}
 }
