@@ -1114,17 +1114,14 @@ public class LuceneExecutor implements Runnable {
 	 */
 	private String getHighlightedFragment(Analyzer analyzer, Query query,
 			String content, SearchResult result) throws IOException, InvalidTokenOffsetsException {
-		content = content == null ? "":StringUtils.escapeForHtml(content, false);
-		
+		if (content == null) {
+			content = "";
+		}		
+
+		int fragmentLength = SearchObjectType.commit == result.type ? 512 : 150;
+
 		QueryScorer scorer = new QueryScorer(query, "content");
-		Fragmenter fragmenter;
-		
-		// TODO improve the fragmenter - hopefully on line breaks
-		if (SearchObjectType.commit == result.type) {
-			fragmenter = new SimpleSpanFragmenter(scorer, 1024); 
-		} else {
-			fragmenter = new SimpleSpanFragmenter(scorer, 150);
-		}
+		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, fragmentLength); 
 
 		// use an artificial delimiter for the token
 		String termTag = "<!--[";
@@ -1132,22 +1129,64 @@ public class LuceneExecutor implements Runnable {
 		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(termTag, termTagEnd);
 		Highlighter highlighter = new Highlighter(formatter, scorer);		
 		highlighter.setTextFragmenter(fragmenter);
-		
+
 		String [] fragments = highlighter.getBestFragments(analyzer, "content", content, 3);
 		if (ArrayUtils.isEmpty(fragments)) {
 			if (SearchObjectType.blob  == result.type) {
 				return "";
 			}
-			return "<pre class=\"text\">" + content + "</pre>";
+			// clip commit message
+			String fragment = content;
+			if (fragment.length() > fragmentLength) {
+				fragment = fragment.substring(0, fragmentLength) + "...";
+			}
+			return "<pre class=\"text\">" + StringUtils.escapeForHtml(fragment, true) + "</pre>";
 		}
+		
+		int contentPos = 0;
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0, len = fragments.length; i < len; i++) {
 			String fragment = fragments[i];
-			
+			String tag = "<pre class=\"text\">";
+
 			// resurrect the raw fragment from removing the artificial delimiters
-			String raw = fragment.replace(termTag, "").replace(termTagEnd, "");			
-			sb.append(getPreTag(result, raw, content));
+			String raw = fragment.replace(termTag, "").replace(termTagEnd, "");
+
+			// determine position of the raw fragment in the content
+			int pos = content.indexOf(raw, contentPos);
+				
+			// restore complete first line of fragment
+			int c = pos;
+			while (c > 0) {
+				c--;
+				if (content.charAt(c) == '\n') {
+					break;
+				}
+			}
+			if (c > 0) {
+				// inject leading chunk of first fragment line
+				fragment = content.substring(c + 1, pos) + fragment;
+			}
+				
+			if (SearchObjectType.blob  == result.type) {
+				// count lines as offset into the content for this fragment
+				int line = StringUtils.countLines(content.substring(0, pos));
+				
+				// create fragment tag with line number and language
+				String lang = "";
+				String ext = StringUtils.getFileExtension(result.path).toLowerCase();
+				if (!StringUtils.isEmpty(ext)) {
+					// maintain leading space!
+					lang = " lang-" + ext;
+				}
+				tag = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0}{1}\">", line, lang);
+								
+				// update offset into content				
+				contentPos = pos + raw.length() + 1;
+			}
 			
+			sb.append(tag);
+
 			// replace the artificial delimiter with html tags
 			String html = fragment.replace(termTag, "<span class=\"highlight\">").replace(termTagEnd, "</span>");
 			sb.append(html);
@@ -1157,31 +1196,7 @@ public class LuceneExecutor implements Runnable {
 			}
 		}
 		return sb.toString();
-	}
-	
-	/**
-	 * Returns the appropriate tag for a fragment. Commit messages are visually
-	 * differentiated from blob fragments.
-	 * 
-	 * @param result
-	 * @param fragment
-	 * @param content
-	 * @return an html tag appropriate for the fragment
-	 */
-	private String getPreTag(SearchResult result, String fragment, String content) {
-		String pre = "<pre class=\"text\">";
-		if (SearchObjectType.blob  == result.type) {
-			int line = StringUtils.countLines(content.substring(0, content.indexOf(fragment)));			
-			int lastDot = result.path.lastIndexOf('.');
-			if (lastDot > -1) {
-				String ext = result.path.substring(lastDot + 1).toLowerCase();
-				pre = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0} lang-{1}\">", line, ext);	
-			} else {
-				pre = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0}\">", line);
-			}
-		}
-		return pre;
-	}
+	}	
 	
 	/**
 	 * Simple class to track the results of an index update. 

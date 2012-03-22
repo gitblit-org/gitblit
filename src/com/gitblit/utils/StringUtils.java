@@ -479,6 +479,12 @@ public class StringUtils {
 		return "#" + rs + gs + bs;
 	}
 	
+	/**
+	 * Strips a trailing ".git" from the value.
+	 * 
+	 * @param value
+	 * @return a stripped value or the original value if .git is not found
+	 */
 	public static String stripDotGit(String value) {
 		if (value.toLowerCase().endsWith(".git")) {
 			return value.substring(0, value.length() - 4);
@@ -486,10 +492,30 @@ public class StringUtils {
 		return value;
 	}
 	
+	/**
+	 * Count the number of lines in a string.
+	 * 
+	 * @param value
+	 * @return the line count
+	 */
 	public static int countLines(String value) {
 		if (isEmpty(value)) {
 			return 0;
 		}
 		return value.split("\n").length;
+	}
+	
+	/**
+	 * Returns the file extension of a path.
+	 * 
+	 * @param path
+	 * @return a blank string or a file extension
+	 */
+	public static String getFileExtension(String path) {
+		int lastDot = path.lastIndexOf('.');
+		if (lastDot > -1) {
+			return path.substring(lastDot + 1);
+		}
+		return "";
 	}
 }
