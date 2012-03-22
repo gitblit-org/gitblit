@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -138,10 +137,9 @@ public class LuceneExecutor implements Runnable {
 	private final Map<String, IndexSearcher> searchers = new ConcurrentHashMap<String, IndexSearcher>();
 	private final Map<String, IndexWriter> writers = new ConcurrentHashMap<String, IndexWriter>();
 	
-	private final Set<String> excludedExtensions = new TreeSet<String>(Arrays.asList("7z", "arc",
-			"arj", "bin", "bmp", "dll", "doc", "docx", "exe", "gif", "gz", "jar", "jpg", "lib",
-			"lzh", "odg", "pdf", "ppt", "png", "so", "swf", "xcf", "xls", "xlsx", "zip"));
-
+	private final String luceneIgnoreExtensions = "7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip";
+	private Set<String> excludedExtensions;
+	
 	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
 		this.storedSettings = settings;
 		this.repositoriesFolder = repositoriesFolder;
@@ -154,6 +152,10 @@ public class LuceneExecutor implements Runnable {
 	 */
 	@Override
 	public void run() {
+		// reload the excluded extensions
+		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
+		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
+
 		for (String repositoryName: GitBlit.self().getRepositoryList()) {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {

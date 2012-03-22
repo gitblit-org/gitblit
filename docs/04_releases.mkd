@@ -17,8 +17,10 @@
 #### additions
 
 - Added optional Lucene branch indexing (issue 16)  
-Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you have to specify which branches to index within the *Edit Repository* page.  Indexes are automatically built and incrementally updated on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after specifying a branch to be indexed before the index will be built.)<br/><br/>
-If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page.  If the repository does not specify any indexed branches then the traditional repository commit search is used.
+    **New:** *web.luceneIgnoreExtensions = 7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip*  
+Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you must specify which branches to index within the *Edit Repository* page; _no repositories are automatically indexed_.  Gitblit will build or incrementally update enrolled repositories on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after respecifying indexed branches or pushing new commits before Gitblit will build/update the repository's Lucene index.)  
+If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page and only the content of those branches can be searched.  
+If the repository does not specify any indexed branches then repository commit-traversal search is used.
 - Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 54)  
     **New:** *web.timezone =*  
 - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)  
