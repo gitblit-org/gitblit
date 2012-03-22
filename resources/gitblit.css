@@ -759,6 +759,7 @@ table.annotated td {
 
 table.activity {
 	width: 100%;
+	margin-top: 5px;
 }
 
 tr th a { background-position: right; padding-right: 15px; background-repeat:no-repeat; }
