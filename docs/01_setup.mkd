@@ -148,7 +148,7 @@ ProxyPreserveHost On
 #ProxyPassreverse /gitblit http://localhost:8080/gitblit
 
 # If your httpd frontend is https but you are proxying http Gitblit WAR or GO
-#Header edit Location ^http://([^/]+)/gitblit/ https://$1/gitblit/
+#Header edit Location &#94;http://([&#94;&#8260;]+)/gitblit/ https://&#36;1/gitblit/
 
 #ProxyPass /gitblit ajp://localhost:8009/gitblit
 %ENDCODE%  
@@ -376,18 +376,37 @@ Care should be taken when devising your notification scheme as it relates to any
 
 *SINCE 0.9.0*
 
-Repositories may optionally be indexed using the Lucene search engine.  Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  Like anything else, this has benefits and drawbacks.
+Repositories may optionally be indexed using the Lucene search engine.  The Lucene search offers several advantages over commit-traversal search:
 
+1. very fast commit and blob searches
+2. multi-term searches
+3. term-highlighted and syntax-highlighted fragment matches
+4. multi-repository searches
+
+### How do I use it?
+
+Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  
+Like anything else, this design has pros and cons.
+
+#### Pros
+1. no wasted cycles on repositories you will never search
+2. you specify exactly what branches are indexed; experimental/dead/personal branches can be ignored
+
+#### Cons
+1. you have to opt-in a repository _after_ it is created and has some commits
+2. you specify exactly what branches are indexed
+
+#### Why does Gitblit check every 2 mins for repository/branch changes?
+
+Gitblit has to balance its design as a complete, integrated Git server and its utility as a repository viewer in an existing Git setup.
+
+Gitblit could build indexes immediately on *edit repository* or on *receiving pushes*, but that design would not work if someone is pushing via ssh://, git://, or file:// (i.e. not pushing to Gitblit http(s)://).  For this reason Gitblit has a polling mechanism to check for ref changes every 2 mins.  This design works well for all use cases, aside from adding a little lag in updating the index.
+
+#### Indexing Branches
 You may specify which branches should be indexed per-repository in the *Edit Repository* page.  New/empty repositories can not pre-specify indexed branches; you can only specify indexed branches for a repository with commits.  Indexes are built and incrementally updated on a 2 minute cycle so you may have to wait a few minutes before your index is built or before your latest pushes get indexed.
 
 **NOTE:**  
-Repositories that specify indexed branches will redirect to the Lucene search page from the search box in the upper right corner of a repository page.  Repositories that do not specify any indexed branches will use the traditional commit search.
-
-The Lucene search offers several advantages over the traditional commit search:
-
-1. multi-term searches
-2. term-highlighted and syntax-highlighted fragment matches
-3. multi-repository searches
+After specifying branches, only the content from those branches can be searched via Gitblit.  Gitblit will automatically redirect any queries entered on a repository's search box to the Lucene search page. Repositories that do not specify any indexed branches will use the traditional commit-traversal search.
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates
