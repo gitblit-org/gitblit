@@ -176,7 +176,7 @@ public class LuceneExecutor implements Runnable {
 	 * @param repository
 	 *            the repository object
 	 */
-	protected void index(RepositoryModel model, Repository repository) {
+	private void index(RepositoryModel model, Repository repository) {
 		try {
 			if (shouldReindex(repository)) {
 				// (re)build the entire index
@@ -337,7 +337,7 @@ public class LuceneExecutor implements Runnable {
 	 * @return tree
 	 * @throws IOException
 	 */
-	protected RevTree getTree(final RevWalk walk, final RevCommit commit)
+	private RevTree getTree(final RevWalk walk, final RevCommit commit)
 			throws IOException {
 		final RevTree tree = commit.getTree();
 		if (tree != null) {
@@ -377,7 +377,7 @@ public class LuceneExecutor implements Runnable {
 	 * @param repository
 	 * @return true of the on-disk index format is different than INDEX_VERSION
 	 */
-	protected boolean shouldReindex(Repository repository) {
+	private boolean shouldReindex(Repository repository) {
 		try {
 			FileBasedConfig config = getConfig(repository);
 			config.load();
@@ -745,7 +745,7 @@ public class LuceneExecutor implements Runnable {
 	 * @param repository
 	 * @return IndexResult
 	 */
-	protected IndexResult updateIndex(RepositoryModel model, Repository repository) {
+	private IndexResult updateIndex(RepositoryModel model, Repository repository) {
 		IndexResult result = new IndexResult();
 		try {
 			FileBasedConfig config = getConfig(repository);
@@ -1126,8 +1126,8 @@ public class LuceneExecutor implements Runnable {
 		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, fragmentLength); 
 
 		// use an artificial delimiter for the token
-		String termTag = "<!--[";
-		String termTagEnd = "]-->";
+		String termTag = "!!--[";
+		String termTagEnd = "]--!!";
 		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(termTag, termTagEnd);
 		Highlighter highlighter = new Highlighter(formatter, scorer);		
 		highlighter.setTextFragmenter(fragmenter);
@@ -1190,7 +1190,8 @@ public class LuceneExecutor implements Runnable {
 			sb.append(tag);
 
 			// replace the artificial delimiter with html tags
-			String html = fragment.replace(termTag, "<span class=\"highlight\">").replace(termTagEnd, "</span>");
+			String html = StringUtils.escapeForHtml(fragment, false);
+			html = html.replace(termTag, "<span class=\"highlight\">").replace(termTagEnd, "</span>");
 			sb.append(html);
 			sb.append("</pre>");
 			if (i < len - 1) {
