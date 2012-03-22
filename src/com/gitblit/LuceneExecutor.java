@@ -1172,7 +1172,7 @@ public class LuceneExecutor implements Runnable {
 				
 			if (SearchObjectType.blob  == result.type) {
 				// count lines as offset into the content for this fragment
-				int line = StringUtils.countLines(content.substring(0, pos));
+				int line = Math.max(1, StringUtils.countLines(content.substring(0, pos)));
 				
 				// create fragment tag with line number and language
 				String lang = "";
