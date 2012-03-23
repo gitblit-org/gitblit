@@ -272,6 +272,17 @@ public class FederationPullExecutor implements Runnable {
 					federationSets.addAll(repository.federationSets);
 				}
 				repository.federationSets = new ArrayList<String>(federationSets);
+				
+				// merge indexed branches
+				Set<String> indexedBranches = new HashSet<String>();
+				if (rm.indexedBranches != null) {
+					indexedBranches.addAll(rm.indexedBranches);
+				}
+				if (repository.indexedBranches != null) {
+					indexedBranches.addAll(repository.indexedBranches);
+				}
+				repository.indexedBranches = new ArrayList<String>(indexedBranches);
+
 			}
 			// only repositories that are actually _cloned_ from the origin
 			// Gitblit repository are marked as federated. If the origin
