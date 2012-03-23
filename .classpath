@@ -17,11 +17,11 @@
 	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.3.v20110701.jar" sourcepath="ext/jetty-webapp-7.4.3.v20110701-sources.jar"/>
 	<classpathentry kind="lib" path="ext/gson-1.7.1.jar" sourcepath="ext/gson-1.7.1-sources.jar"/>
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/mail-1.4.3-sources.jar"/>
-	<classpathentry kind="lib" path="ext/googlecharts-1.4.18.jar" sourcepath="ext/googlecharts-1.4.18-sources.jar"/>
+	<classpathentry kind="lib" path="ext/googlecharts-1.4.20.jar" sourcepath="ext/googlecharts-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/javax.servlet-3.0.1.jar" sourcepath="ext/javax.servlet-3.0.1-sources.jar"/>
-	<classpathentry kind="lib" path="ext/wicket-1.4.19.jar" sourcepath="ext/wicket-1.4.19-sources.jar"/>
-	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.19.jar" sourcepath="ext/wicket-auth-roles-1.4.19-sources.jar"/>
-	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.19.jar" sourcepath="ext/wicket-extensions-1.4.19-sources.jar"/>
+	<classpathentry kind="lib" path="ext/wicket-1.4.20.jar" sourcepath="ext/wicket-1.4.20-sources.jar"/>
+	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.20.jar" sourcepath="ext/wicket-auth-roles-1.4.20-sources.jar"/>
+	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.20.jar" sourcepath="ext/wicket-extensions-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/groovy-all-1.8.5.jar" sourcepath="ext/groovy-all-1.8.5-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jetty-ajp-7.4.3.v20110701.jar" sourcepath="ext/jetty-ajp-7.4.3.v20110701-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lucene-core-3.5.0.jar" sourcepath="ext/lucene-core-3.5.0-sources.jar"/>

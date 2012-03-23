@@ -424,28 +424,28 @@ public class Build {
 				"78aa1cbf0fa3b259abdc7d87f9f6788d785aac2a");
 
 		public static final MavenObject WICKET = new MavenObject("Apache Wicket",
-				"org/apache/wicket", "wicket", "1.4.19", 1960000, 1906000, 6818000,
-				"7e6af5cadaf6c9b7e068e45cf2ffbea3cc91592f",
-				"5e91cf00efaf2fedeef98e13464a4230e5966588",
-				"5dde8afbe5eb2314a704cb74938c1b651b2cf190");
+				"org/apache/wicket", "wicket", "1.4.20", 1960000, 1906000, 6818000,
+				"bafe47d8ce8647cabeff691b5fc1ffd241ffee00",
+				"7a6570df4ee7fbad71a38042c53780d46b5856db",
+				"");
 
 		public static final MavenObject WICKET_EXT = new MavenObject("Apache Wicket Extensions",
-				"org/apache/wicket", "wicket-extensions", "1.4.19", 1180000, 1118000, 1458000,
-				"c7a1d343e216cdc2e692b6fabc6eaeca9aa24ca4",
-				"6c2e2ad89b69fc9977c24467e3aa0d7f6c75a579",
-				"3a3082fb106173f7ca069a6f5969cc8d347d9f44");
+				"org/apache/wicket", "wicket-extensions", "1.4.20", 1180000, 1118000, 1458000,
+				"5dc6353c3c69e39e6d5a0aaeedbbaf7a53e539c4",
+				"c30112665f4c4874489d7df9fc8f866c57f93cc8",
+				"");
 
 		public static final MavenObject WICKET_AUTH_ROLES = new MavenObject(
-				"Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.19",
-				44000, 45000, 166000, "70c26ac4cd167bf7323372d2d49eb2a9beff73b9",
-				"ca219726c1768a9483e4a0bb6550881babfe46d6",
-				"17753908f8a9e997c464a69765b4682126fa1fd6");
+				"Apache Wicket Auth Roles", "org/apache/wicket", "wicket-auth-roles", "1.4.20",
+				44000, 45000, 166000, "7e8f99b96bce03cc0a115e6a70d9eed7fbcf6a4b",
+				"d7d0479ecca239bd020b247e82562fe047f53620",
+				"");
 
 		public static final MavenObject WICKET_GOOGLE_CHARTS = new MavenObject(
-				"Apache Wicket Google Charts Add-On", "org/wicketstuff", "googlecharts", "1.4.18",
-				34000, 18750, 161000, "1f763cc8a04e62840b63787a77a479b04ad99c75",
-				"1521ed6397192c464e89787502f937bc96ece8f8",
-				"8b0398d58bce63ba7f7a9232c4ca24160c9b1a11");
+				"Apache Wicket Google Charts Add-On", "org/wicketstuff", "googlecharts", "1.4.20",
+				34000, 18750, 161000, "a4bed7d4a3632f95f3e204017ee60332a95da7c6",
+				"16bda0794345b113c8dd5c8775e1ce493541dc67",
+				"");
 
 		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "4.8.2",
 				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
