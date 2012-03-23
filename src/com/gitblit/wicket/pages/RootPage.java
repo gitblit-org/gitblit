@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -48,6 +47,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.NavigationPanel;
 
@@ -117,7 +117,7 @@ public abstract class RootPage extends BasePage {
 		add(navPanel);
 
 		// login form
-		StatelessForm<Void> loginForm = new StatelessForm<Void>("loginForm") {
+		SessionlessForm<Void> loginForm = new SessionlessForm<Void>("loginForm", getClass(), getPageParameters()) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -208,8 +208,16 @@ public abstract class RootPage extends BasePage {
 			}
 
 			if (!continueToOriginalDestination()) {
-				// Redirect to home page
-				setResponsePage(getApplication().getHomePage());
+				PageParameters params = getPageParameters();
+				if (params == null) {
+					// redirect to this page
+					setResponsePage(getClass());
+				} else {
+					// Strip username and password and redirect to this page
+					params.remove("username");
+					params.remove("password");
+					setResponsePage(getClass(), params);
+				}
 			}
 		}
 	}

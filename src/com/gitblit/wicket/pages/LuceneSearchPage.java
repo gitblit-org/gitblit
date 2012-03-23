@@ -23,7 +23,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -41,6 +40,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -121,7 +121,7 @@ public class LuceneSearchPage extends RootPage {
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
 		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(searchRepositories);
-		StatelessForm<Void> form = new StatelessForm<Void>("searchForm") {
+		SessionlessForm<Void> form = new SessionlessForm<Void>("searchForm", getClass()) {
 			
 			private static final long serialVersionUID = 1L;
 

@@ -27,7 +27,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -51,6 +50,7 @@ import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
@@ -314,7 +314,7 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
-	private static class SearchForm extends StatelessForm<Void> implements Serializable {
+	private class SearchForm extends SessionlessForm<Void> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final String repositoryName;
@@ -325,7 +325,7 @@ public abstract class RepositoryPage extends BasePage {
 				Constants.SearchType.COMMIT);
 
 		public SearchForm(String id, String repositoryName) {
-			super(id);
+			super(id, RepositoryPage.this.getClass(), RepositoryPage.this.getPageParameters());
 			this.repositoryName = repositoryName;
 			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>(
 					"searchType", Arrays.asList(Constants.SearchType.values()));
