@@ -143,6 +143,11 @@ public class LuceneExecutor implements Runnable {
 	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
 		this.storedSettings = settings;
 		this.repositoriesFolder = repositoriesFolder;
+		String exts = luceneIgnoreExtensions;
+		if (settings != null) {
+			exts = settings.getString(Keys.web.luceneIgnoreExtensions, exts);
+		}
+		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
 	}
 
 	/**
@@ -532,7 +537,7 @@ public class LuceneExecutor implements Runnable {
 						// index the blob content
 						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {							
 							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
-							InputStream in = ldr.openStream();							
+							InputStream in = ldr.openStream();						
 							int n;
 							while ((n = in.read(tmp)) > 0) {
 								os.write(tmp, 0, n);
