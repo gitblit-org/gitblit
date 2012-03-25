@@ -16,6 +16,10 @@
 	<h5>Activity</h5>
 </li>
 <li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/00d.png" title="Lucene Search"><img alt="Lucene Search" src="thumbs/00d.png" /></a>
+	<h5>Lucene Search</h5>
+</li>
+<li class="span3">
 	<a class="thumbnail" rel="screenshots_group" href="screenshots/01c.png" title="Users &amp; Teams"><img alt="Users &amp; Teams" src="thumbs/01c.png" /></a>
 	<h5>Users &amp; Teams</h5>
 </li>
@@ -38,10 +42,6 @@
 <li class="span3">
 	<a class="thumbnail" rel="screenshots_group" href="screenshots/04.png" title="Repository Log"><img alt="Log" src="thumbs/04.png" /></a>
 	<h5>Repository Log</h5>
-</li>
-<li class="span3">
-	<a class="thumbnail" rel="screenshots_group" href="screenshots/10.png" title="Repository Tags"><img alt="Tags" src="thumbs/10.png" /></a>
-	<h5>Repository Tags</h5>
 </li>
 <li class="span3">
 	<a class="thumbnail" rel="screenshots_group" href="screenshots/05.png" title="Repository Tree"><img alt="Tree" src="thumbs/05.png" /></a>
