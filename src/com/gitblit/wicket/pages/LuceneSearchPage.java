@@ -105,9 +105,13 @@ public class LuceneSearchPage extends RootPage {
 				availableRepositories.add(model.name);
 			}
 		}
-		
-		if (availableRepositories.size() == 0) {
-			info(getString("gb.noIndexedRepositoriesWarning"));
+		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
+		if (luceneEnabled) {
+			if (availableRepositories.size() == 0) {
+				info(getString("gb.noIndexedRepositoriesWarning"));
+			}
+		} else {
+			error(getString("gb.luceneDisabled"));
 		}
 
 		// enforce user-accessible repository selections
@@ -146,9 +150,9 @@ public class LuceneSearchPage extends RootPage {
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
 				repositoriesModel, availableRepositories, new StringChoiceRenderer());
 		selections.setMaxRows(8);
-		form.add(selections);
-		form.add(new TextField<String>("query", queryModel));
-		add(form);
+		form.add(selections.setEnabled(luceneEnabled));
+		form.add(new TextField<String>("query", queryModel).setEnabled(luceneEnabled));
+		add(form.setEnabled(luceneEnabled));
 				
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();

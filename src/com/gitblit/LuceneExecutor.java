@@ -157,6 +157,10 @@ public class LuceneExecutor implements Runnable {
 	 */
 	@Override
 	public void run() {
+		if (!storedSettings.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			// Lucene indexing is disabled
+			return;
+		}
 		// reload the excluded extensions
 		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));

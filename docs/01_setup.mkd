@@ -385,11 +385,11 @@ Repositories may optionally be indexed using the Lucene search engine.  The Luce
 
 ### How do I use it?
 
-Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  
+First you must ensure that *web.allowLuceneIndexing* is set *true* in `gitblit.properties` or `web.xml`.  Then you must understand that Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  
 Like anything else, this design has pros and cons.
 
 #### Pros
-1. no wasted cycles on repositories you will never search
+1. no wasted cycles indexing repositories you will never search
 2. you specify exactly what branches are indexed; experimental/dead/personal branches can be ignored
 
 #### Cons
@@ -407,6 +407,10 @@ You may specify which branches should be indexed per-repository in the *Edit Rep
 
 **NOTE:**  
 After specifying branches, only the content from those branches can be searched via Gitblit.  Gitblit will automatically redirect any queries entered on a repository's search box to the Lucene search page. Repositories that do not specify any indexed branches will use the traditional commit-traversal search.
+
+#### Adequate Heap
+
+The initial indexing of an existing repository can potentially exhaust the memory allocated to your Java instance and may throw OutOfMemory exceptions.  Be sure to provide your Gitblit server adequate heap space to index your repositories.  The heap is set using the *-Xmx* JVM parameter in your Gitblit launch command (e.g. -Xmx1024M).
 
 ## Client Setup and Configuration
 ### Https with Self-Signed Certificates

@@ -117,12 +117,11 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// indexed local branches palette
 		List<String> allLocalBranches = repositoryModel.getLocalBranches();
-
+		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
 		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);
-		indexedBranchesPalette.setEnabled(allLocalBranches.size() > 0);
-
+		indexedBranchesPalette.setEnabled(luceneEnabled && (allLocalBranches.size() > 0));
 		
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);

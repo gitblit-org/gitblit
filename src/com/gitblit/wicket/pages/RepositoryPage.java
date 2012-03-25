@@ -360,7 +360,8 @@ public abstract class RepositoryPage extends BasePage {
 			}
 			Class<? extends BasePage> searchPageClass = GitSearchPage.class;
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			if (!ArrayUtils.isEmpty(model.indexedBranches)) {
+			if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)
+					&& !ArrayUtils.isEmpty(model.indexedBranches)) {
 				// this repository is Lucene-indexed
 				searchPageClass = LuceneSearchPage.class;
 			}

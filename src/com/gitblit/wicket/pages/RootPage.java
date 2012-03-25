@@ -101,7 +101,9 @@ public abstract class RootPage extends BasePage {
 		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 				getRootPageParameters()));
 		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-		pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
+		if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
+		}
 		if (showAdmin) {
 			pages.add(new PageRegistration("gb.users", UsersPage.class));
 		}

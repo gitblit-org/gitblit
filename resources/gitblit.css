@@ -310,7 +310,8 @@ div.searchResult pre {
 }
 
 div.searchResult .text {
-	border-left: 5px solid #EEEEEE;
+	border-left: 2px solid #ccc;
+	border-radius: 0px;
 	
     padding: 0 0 0 15px;
 }
