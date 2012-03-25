@@ -831,7 +831,7 @@ span.metricsTitle {
 	font-size: 2em;
 }
 
-span .tagRef, span .headRef, span .localBranch, span .remoteBranch, span .otherRef {	
+.tagRef, .headRef, .localBranch, .remoteBranch, .otherRef {	
 	padding: 0px 3px;
 	margin-right:2px;
 	font-family: sans-serif;
@@ -841,41 +841,38 @@ span .tagRef, span .headRef, span .localBranch, span .remoteBranch, span .otherR
 	color: black;	
 }
 
-span .tagRef a span, span .headRef a span, span .localBranch a span, span .remoteBranch a span, span .otherRef a span {
+.tagRef a, .headRef a, .localBranch a, .remoteBranch a, .otherRef a {
 	font-size: 9px;
-}
-
-span .tagRef a, span .headRef a, span .localBranch a, span .remoteBranch a, span .otherRef a {
 	text-decoration: none;
 	color: black !important;
 }
 
-span .tagRef a:hover, span .headRef a:hover, span .localBranch a:hover, span .remoteBranch a:hover, span .otherRef a:hover {
+.tagRef a:hover, .headRef a:hover, .localBranch a:hover, .remoteBranch a:hover, .otherRef a:hover {
 	color: black !important;
 	text-decoration: underline;
 }
 
-span .otherRef {
+.otherRef {
 	background-color: #b0e0f0;
 	border-color: #80aaaa;	
 }
 
-span .remoteBranch {
+.remoteBranch {
 	background-color: #cAc2f5;
 	border-color: #6c6cbf;
 }
 
-span .tagRef {
+.tagRef {
 	background-color: #ffffaa;
 	border-color: #ffcc00;
 }
 
-span .headRef {
+.headRef {
 	background-color: #ffaaff;
 	border-color: #ff00ee;
 }
 
-span .localBranch {
+.localBranch {
 	background-color: #ccffcc;
 	border-color: #00cc33;
 }
