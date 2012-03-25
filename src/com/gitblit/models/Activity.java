@@ -179,7 +179,11 @@ public class Activity implements Serializable, Comparable<Activity> {
 		public PersonIdent getAuthorIdent() {
 			return commit.getAuthorIdent();
 		}
-		
+
+		public PersonIdent getCommitterIdent() {
+			return commit.getCommitterIdent();
+		}
+
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof RepositoryCommit) {

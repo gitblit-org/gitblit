@@ -68,8 +68,8 @@ public class ActivityPanel extends BasePanel {
 						final RepositoryCommit commit = item.getModelObject();
 						Fragment fragment = new Fragment("commit", "commitFragment", this);
 
-						// time of day
-						fragment.add(WicketUtils.createTimeLabel("time", commit.getAuthorIdent()
+						// commit time of day
+						fragment.add(WicketUtils.createTimeLabel("time", commit.getCommitterIdent()
 								.getWhen(), getTimeZone()));
 
 						// avatar
