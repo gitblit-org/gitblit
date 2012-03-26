@@ -46,7 +46,7 @@ public class ReviewProposalPage extends RootSubPage {
 
 		FederationProposal proposal = GitBlit.self().getPendingFederationProposal(token);
 		if (proposal == null) {
-			error("Could not find federation proposal!", true);
+			error(getString("gb.couldNotFindFederationProposal"), true);
 		}
 
 		setupPage(getString("gb.proposals"), proposal.url);

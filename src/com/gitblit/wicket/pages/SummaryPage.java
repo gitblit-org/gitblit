@@ -89,7 +89,7 @@ public class SummaryPage extends RepositoryPage {
 			add(new Label("branchStats", ""));
 		} else {
 			add(new Label("branchStats",
-					MessageFormat.format("{0} commits and {1} tags in {2}", metricsTotal.count,
+					MessageFormat.format(getString("gb.branchStats"), metricsTotal.count,
 							metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
 		}
 		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,

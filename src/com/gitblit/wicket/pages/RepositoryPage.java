@@ -73,7 +73,7 @@ public abstract class RepositoryPage extends BasePage {
 		objectId = WicketUtils.getObject(params);
 
 		if (StringUtils.isEmpty(repositoryName)) {
-			error(MessageFormat.format("Repository not specified for {0}!", getPageName()), true);
+			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
 		}
 
 		if (!getRepositoryModel().hasCommits) {
@@ -177,7 +177,7 @@ public abstract class RepositoryPage extends BasePage {
 		if (r == null) {
 			Repository r = GitBlit.self().getRepository(repositoryName);
 			if (r == null) {
-				error("Can not load repository " + repositoryName, true);
+				error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 				return null;
 			}
 			this.r = r;
@@ -190,7 +190,7 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				authenticationError("Unauthorized access for repository " + repositoryName);
+				authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
 				return null;
 			}
 			m = model;
@@ -201,7 +201,7 @@ public abstract class RepositoryPage extends BasePage {
 	protected RevCommit getCommit() {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {
-			error(MessageFormat.format("Failed to find commit \"{0}\" in {1} for {2} page!",
+			error(MessageFormat.format(getString("gb.failedToFindCommit"),
 					objectId, repositoryName, getPageName()), true);
 		}
 		return commit;
@@ -347,7 +347,6 @@ public abstract class RepositoryPage extends BasePage {
 			Constants.SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
 			if (searchString == null) {
-				// FIXME IE intermittently has no searchString. Wicket bug?
 				return;
 			}
 			for (Constants.SearchType type : Constants.SearchType.values()) {

@@ -126,11 +126,11 @@ public class RepositoriesPage extends RootPage {
 						message = MarkdownUtils.transformMarkdown(reader);
 						reader.close();
 					} catch (Throwable t) {
-						message = "Failed to read " + file;
+						message = getString("gb.failedToRead") + " " + file;
 						warn(message, t);
 					}
 				} else {
-					message = messageSource + " is not a valid file.";
+					message = messageSource + " " + getString("gb.isNotValidFile");
 				}
 			}
 		}
@@ -146,7 +146,7 @@ public class RepositoriesPage extends RootPage {
 			message = MarkdownUtils.transformMarkdown(reader);
 			reader.close();
 		} catch (Throwable t) {
-			message = MessageFormat.format("Failed to read default message from {0}!", file);
+			message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
 			error(message, t, false);
 		}
 		return message;

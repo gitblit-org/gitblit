@@ -51,7 +51,7 @@ public class TagPage extends RepositoryPage {
 
 		// Failed to find tag!
 		if (tagRef == null) {
-			error(MessageFormat.format("Could not find tag {0}", objectId), true);
+			error(MessageFormat.format(getString("gb.couldNotFindTag"), objectId), true);
 		}
 
 		// Display tag.

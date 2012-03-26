@@ -130,11 +130,11 @@ public abstract class RootPage extends BasePage {
 
 				UserModel user = GitBlit.self().authenticate(username, password);
 				if (user == null) {
-					error("Invalid username or password!");
+					error(getString("gb.invalidUsernameOrPassword"));
 				} else if (user.username.equals(Constants.FEDERATION_USER)) {
 					// disallow the federation user from logging in via the
 					// web ui
-					error("Invalid username or password!");
+					error(getString("gb.invalidUsernameOrPassword"));
 					user = null;
 				} else {
 					loginUser(user);
@@ -162,9 +162,9 @@ public abstract class RootPage extends BasePage {
 		} else if (showAdmin) {
 			int pendingProposals = GitBlit.self().getPendingFederationProposals().size();
 			if (pendingProposals == 1) {
-				info("There is 1 federation proposal awaiting review.");
+				info(getString("gb.OneProposalToReview"));
 			} else if (pendingProposals > 1) {
-				info(MessageFormat.format("There are {0} federation proposals awaiting review.",
+				info(MessageFormat.format(getString("gb.nFederationProposalsToReview"),
 						pendingProposals));
 			}
 		}

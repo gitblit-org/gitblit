@@ -41,7 +41,7 @@ public class FederationRegistrationPage extends RootSubPage {
 
 		FederationModel registration = GitBlit.self().getFederationRegistration(url, name);
 		if (registration == null) {
-			error("Could not find federation registration!", true);
+			error(getString("gb.couldNotFindFederationRegistration"), true);
 		}
 
 		setupPage(registration.isResultData() ? getString("gb.federationResults")

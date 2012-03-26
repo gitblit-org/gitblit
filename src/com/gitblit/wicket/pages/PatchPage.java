@@ -34,7 +34,7 @@ public class PatchPage extends WebPage {
 		super(params);
 
 		if (!params.containsKey("r")) {
-			GitBlitWebSession.get().cacheErrorMessage("Repository not specified!");
+			GitBlitWebSession.get().cacheErrorMessage(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}
@@ -46,14 +46,14 @@ public class PatchPage extends WebPage {
 
 		Repository r = GitBlit.self().getRepository(repositoryName);
 		if (r == null) {
-			GitBlitWebSession.get().cacheErrorMessage("Can not load repository " + repositoryName);
+			GitBlitWebSession.get().cacheErrorMessage(getString("gb.canNotLoadRepository") + " " + repositoryName);
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {
-			GitBlitWebSession.get().cacheErrorMessage("Commit is null");
+			GitBlitWebSession.get().cacheErrorMessage(getString("gb.commitIsNull"));
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}

@@ -110,7 +110,7 @@ public class EditUserPage extends RootSubPage {
 			@Override
 			protected void onSubmit() {
 				if (StringUtils.isEmpty(userModel.username)) {
-					error("Please enter a username!");
+					error(getString("gb.pleaseSetUsername"));
 					return;
 				}
 				// force username to lower-case
@@ -119,14 +119,14 @@ public class EditUserPage extends RootSubPage {
 				if (isCreate) {
 					UserModel model = GitBlit.self().getUserModel(username);
 					if (model != null) {
-						error(MessageFormat.format("Username ''{0}'' is unavailable.", username));
+						error(MessageFormat.format(getString("gb.usernameUnavailable"), username));
 						return;
 					}
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
 				if (!userModel.password.equals(confirmPassword.getObject())) {
-					error("Passwords do not match!");
+					error(getString("gb.passwordsDoNotMatch"));
 					return;
 				}
 				String password = userModel.password;
@@ -139,8 +139,7 @@ public class EditUserPage extends RootSubPage {
 						minLength = 4;
 					}
 					if (password.trim().length() < minLength) {
-						error(MessageFormat.format(
-								"Password is too short. Minimum length is {0} characters.",
+						error(MessageFormat.format(getString("gb.passwordTooShort"),
 								minLength));
 						return;
 					}
@@ -158,7 +157,7 @@ public class EditUserPage extends RootSubPage {
 					}
 				} else if (rename
 						&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-					error("Gitblit is configured for combined-md5 password hashing. You must enter a new password on account rename.");
+					error(getString("gb.combinedMd5Rename"));
 					return;
 				}
 
@@ -189,7 +188,7 @@ public class EditUserPage extends RootSubPage {
 				setRedirect(false);
 				if (isCreate) {
 					// create another user
-					info(MessageFormat.format("New user ''{0}'' successfully created.",
+					info(MessageFormat.format(getString("gb.userCreated"),
 							userModel.username));
 					setResponsePage(EditUserPage.class);
 				} else {
@@ -216,8 +215,8 @@ public class EditUserPage extends RootSubPage {
 		form.add(repositories);
 		form.add(teams);
 
-		form.add(new Button("save"));
-		Button cancel = new Button("cancel") {
+		form.add(new Button(getString("gb.save")));
+		Button cancel = new Button(getString("gb.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

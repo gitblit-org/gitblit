@@ -135,13 +135,13 @@ public class EditTeamPage extends RootSubPage {
 			protected void onSubmit() {
 				String teamname = teamModel.name;
 				if (StringUtils.isEmpty(teamname)) {
-					error("Please enter a teamname!");
+					error(getString("gb.pleaseSetTeamName"));
 					return;
 				}
 				if (isCreate) {
 					TeamModel model = GitBlit.self().getTeamModel(teamname);
 					if (model != null) {
-						error(MessageFormat.format("Team name ''{0}'' is unavailable.", teamname));
+						error(MessageFormat.format(getString("gb.teamNameUnavailable"), teamname));
 						return;
 					}
 				}
@@ -151,7 +151,7 @@ public class EditTeamPage extends RootSubPage {
 					repos.add(selectedRepositories.next().toLowerCase());
 				}
 				if (repos.size() == 0) {
-					error("A team must specify at least one repository.");
+					error(getString("gb.teamMustSpecifyRepository"));
 					return;
 				}
 				teamModel.repositories.clear();
@@ -206,7 +206,7 @@ public class EditTeamPage extends RootSubPage {
 				setRedirect(false);
 				if (isCreate) {
 					// create another team
-					info(MessageFormat.format("New team ''{0}'' successfully created.",
+					info(MessageFormat.format(getString("gb.teamCreated"),
 							teamModel.name));
 				}
 				// back to users page
@@ -232,8 +232,8 @@ public class EditTeamPage extends RootSubPage {
 		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
 				.getPostReceiveScriptsInherited(null)));
 
-		form.add(new Button("save"));
-		Button cancel = new Button("cancel") {
+		form.add(new Button(getString("gb.save")));
+		Button cancel = new Button(getString("gb.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

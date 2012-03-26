@@ -59,7 +59,7 @@ public class SendProposalPage extends RootSubPage {
 		// temporary proposal
 		FederationProposal proposal = GitBlit.self().createFederationProposal(myUrl, token);
 		if (proposal == null) {
-			error("Could not create federation proposal!", true);
+			error(getString("gb.couldNotCreateFederationProposal"), true);
 		}
 
 		CompoundPropertyModel<SendProposalPage> model = new CompoundPropertyModel<SendProposalPage>(
@@ -72,11 +72,11 @@ public class SendProposalPage extends RootSubPage {
 			protected void onSubmit() {
 				// confirm a repository name was entered
 				if (StringUtils.isEmpty(myUrl)) {
-					error("Please enter your Gitblit url!");
+					error(getString("gb.pleaseSetGitblitUrl"));
 					return;
 				}
 				if (StringUtils.isEmpty(destinationUrl)) {
-					error("Please enter a destination url for your proposal!");
+					error(getString("gb.pleaseSetDestinationUrl"));
 					return;
 				}
 
@@ -89,32 +89,29 @@ public class SendProposalPage extends RootSubPage {
 							.propose(destinationUrl, proposal);
 					switch (res) {
 					case ACCEPTED:
-						info(MessageFormat.format("Proposal successfully received by {0}.",
+						info(MessageFormat.format(getString("gb.proposalReceived"),
 								destinationUrl));
 						setResponsePage(RepositoriesPage.class);
 						break;
 					case NO_POKE:
-						error(MessageFormat.format(
-								"Sorry, {0} could not find a Gitblit instance at {1}.",
+						error(MessageFormat.format(getString("noGitblitFound"),
 								destinationUrl, myUrl));
 						break;
 					case NO_PROPOSALS:
-						error(MessageFormat.format(
-								"Sorry, {0} is not accepting proposals at this time.",
+						error(MessageFormat.format(getString("gb.noProposals"),
 								destinationUrl));
 						break;
 					case FEDERATION_DISABLED:
 						error(MessageFormat
-								.format("Sorry, {0} is not configured to federate with any Gitblit instances.",
+								.format(getString("gb.noFederation"),
 										destinationUrl));
 						break;
 					case MISSING_DATA:
-						error(MessageFormat.format("Sorry, {0} did not receive any proposal data!",
+						error(MessageFormat.format(getString("gb.proposalFailed"),
 								destinationUrl));
 						break;
 					case ERROR:
-						error(MessageFormat.format(
-								"Sorry, {0} reports that an unexpected error occurred!",
+						error(MessageFormat.format(getString("gb.proposalError"),
 								destinationUrl));
 						break;
 					}
@@ -122,7 +119,7 @@ public class SendProposalPage extends RootSubPage {
 					if (!StringUtils.isEmpty(e.getMessage())) {
 						error(e.getMessage());
 					} else {
-						error("Failed to send proposal!");
+						error(getString("gb.failedToSendProposal"));
 					}
 				}
 			}
@@ -133,8 +130,8 @@ public class SendProposalPage extends RootSubPage {
 		form.add(new Label("tokenType", proposal.tokenType.name()));
 		form.add(new Label("token", proposal.token));
 
-		form.add(new Button("save"));
-		Button cancel = new Button("cancel") {
+		form.add(new Button(getString("gb.save")));
+		Button cancel = new Button(getString("gb.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

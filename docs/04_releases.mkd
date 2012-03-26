@@ -36,6 +36,7 @@ Push requests to these repositories will be rejected.
 - Added *protect-refs.groovy* (Github/plm) 
 - Allow setting default branch (relinking HEAD) to a branch or a tag (Github/plm)
 - Added Ubuntu service init script (issue 72)
+- Added partial Japanese translation (Github/zakki)
 
 #### fixes 
 
