@@ -134,7 +134,7 @@ pre, code, pre.prettyprint, pre.plainprint {
 }
 
 table {
-	margin-bottom:5px !important;
+	margin-bottom: 5px;
 	font-size: inherit;
 }
 
