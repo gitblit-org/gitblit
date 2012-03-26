@@ -669,7 +669,7 @@ public class LuceneExecutor implements Runnable {
 			
 			// get any annotated commit tags
 			List<String> commitTags = new ArrayList<String>();
-			for (RefModel ref : JGitUtils.getTags(repository, true, -1)) {
+			for (RefModel ref : JGitUtils.getTags(repository, false, -1)) {
 				if (ref.isAnnotatedTag() && ref.getReferencedObjectId().equals(commit.getId())) {
 					commitTags.add(ref.displayName);
 				}
