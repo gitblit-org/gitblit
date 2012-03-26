@@ -406,6 +406,7 @@
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
 				<exclude name="servlet*.jar" />
+				<exclude name="javax.servlet*.jar" />
 			</fileset>
 		</copy>
 
@@ -542,6 +543,7 @@
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
 				<exclude name="servlet*.jar" />
+				<exclude name="javax.servlet*.jar" />
 			</fileset>
 		</copy>
 
