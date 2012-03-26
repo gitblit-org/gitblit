@@ -15,7 +15,7 @@
          		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
          		<td class="author"><span wicket:id="commitAuthor">[commit author]</span></td>
          		<td class="icon"><img wicket:id="commitIcon" /></td>
-         		<td><div class="references" wicket:id="commitRefs">[commit refs]</div><div style="vertical-align:middle;" wicket:id="commitShortMessage">[commit short message]</div></td>
+         		<td class="message"><table class="nestedTable"><tr><td><span style="vertical-align:middle;" wicket:id="commitShortMessage">[commit short message]</span></td><td><div style="text-align:right;" wicket:id="commitRefs">[commit refs]</div></td></tr></table></td>
          		<td class="rightAlign">
          			<span class="link">
 						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>

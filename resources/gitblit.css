@@ -16,6 +16,9 @@ body, input, select {
 ul, ol {
 	margin-bottom: 10px !important;
 }
+a:focus {
+	outline: none;
+}
 
 hr {
 	margin-top: 10px;
@@ -655,6 +658,16 @@ table.pretty td.icon img {
 table.pretty td {
 	padding: 2px 4px;
 	border-left: 0;
+}
+
+table.pretty td.message {
+	padding: 0px;
+}
+
+table.pretty table.nestedTable {
+	width: 100%;
+	margin-left: 4px !important;
+	margin-bottom: 0px !important;
 }
 
 table.comments td {
