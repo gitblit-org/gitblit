@@ -37,7 +37,7 @@ public class RawPage extends WebPage {
 		super(params);
 
 		if (!params.containsKey("r")) {
-			error("Repository not specified!");
+			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
 		}
 		final String repositoryName = WicketUtils.getRepositoryName(params);
@@ -46,7 +46,7 @@ public class RawPage extends WebPage {
 
 		Repository r = GitBlit.self().getRepository(repositoryName);
 		if (r == null) {
-			error("Can not load repository " + repositoryName);
+			error(getString("gb.canNotLoadRepository") + " " + repositoryName);
 			redirectToInterceptPage(new RepositoriesPage());
 			return;
 		}

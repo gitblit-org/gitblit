@@ -143,6 +143,11 @@ public class LuceneExecutor implements Runnable {
 	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
 		this.storedSettings = settings;
 		this.repositoriesFolder = repositoriesFolder;
+		String exts = luceneIgnoreExtensions;
+		if (settings != null) {
+			exts = settings.getString(Keys.web.luceneIgnoreExtensions, exts);
+		}
+		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
 	}
 
 	/**
@@ -152,6 +157,10 @@ public class LuceneExecutor implements Runnable {
 	 */
 	@Override
 	public void run() {
+		if (!storedSettings.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			// Lucene indexing is disabled
+			return;
+		}
 		// reload the excluded extensions
 		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
@@ -532,7 +541,7 @@ public class LuceneExecutor implements Runnable {
 						// index the blob content
 						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {							
 							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
-							InputStream in = ldr.openStream();							
+							InputStream in = ldr.openStream();						
 							int n;
 							while ((n = in.read(tmp)) > 0) {
 								os.write(tmp, 0, n);
@@ -660,7 +669,7 @@ public class LuceneExecutor implements Runnable {
 			
 			// get any annotated commit tags
 			List<String> commitTags = new ArrayList<String>();
-			for (RefModel ref : JGitUtils.getTags(repository, true, -1)) {
+			for (RefModel ref : JGitUtils.getTags(repository, false, -1)) {
 				if (ref.isAnnotatedTag() && ref.getReferencedObjectId().equals(commit.getId())) {
 					commitTags.add(ref.displayName);
 				}

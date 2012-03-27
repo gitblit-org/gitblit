@@ -33,6 +33,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -46,6 +49,7 @@ import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.models.FederationModel;
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -197,7 +201,7 @@ public class FederationPullExecutor implements Runnable {
 				config.load();
 				String origin = config.getString("remote", "origin", "url");
 				RevCommit commit = JGitUtils.getCommit(existingRepository,
-						"refs/remotes/origin/master");
+						org.eclipse.jgit.lib.Constants.FETCH_HEAD);
 				if (commit != null) {
 					fetchHead = commit.getName();
 				}
@@ -232,15 +236,30 @@ public class FederationPullExecutor implements Runnable {
 			} else {
 				// fetch and update
 				boolean fetched = false;
-				RevCommit commit = JGitUtils.getCommit(r, "refs/remotes/origin/master");
-				String origin = commit.getName();
-				fetched = fetchHead == null || !fetchHead.equals(origin);
+				RevCommit commit = JGitUtils.getCommit(r, org.eclipse.jgit.lib.Constants.FETCH_HEAD);
+				String newFetchHead = commit.getName();
+				fetched = fetchHead == null || !fetchHead.equals(newFetchHead);
 
 				if (registration.mirror) {
 					// mirror
 					if (fetched) {
-						// reset the local HEAD to origin/master
-						Ref ref = JGitUtils.resetHEAD(r, "origin/master");
+						// find the first branch name that FETCH_HEAD points to
+						List<RefModel> refs = JGitUtils.getAllRefs(r).get(commit.getId());
+						if (!ArrayUtils.isEmpty(refs)) {
+							for (RefModel ref : refs) {
+								if (ref.displayName.startsWith(org.eclipse.jgit.lib.Constants.R_REMOTES)) {
+									newFetchHead = ref.displayName;
+									break;
+								}
+							}
+						}
+						// reset HEAD to the FETCH_HEAD branch.
+						// if no branch was found, reset HEAD to the commit id.
+						Git git = new Git(r);
+						ResetCommand reset = git.reset();
+						reset.setMode(ResetType.SOFT);
+						reset.setRef(newFetchHead);
+						Ref ref = reset.call();
 						logger.info(MessageFormat.format("     resetting HEAD of {0} to {1}",
 								repository.name, ref.getObjectId().getName()));
 						registration.updateStatus(repository, FederationPullStatus.MIRRORED);
@@ -272,6 +291,17 @@ public class FederationPullExecutor implements Runnable {
 					federationSets.addAll(repository.federationSets);
 				}
 				repository.federationSets = new ArrayList<String>(federationSets);
+				
+				// merge indexed branches
+				Set<String> indexedBranches = new HashSet<String>();
+				if (rm.indexedBranches != null) {
+					indexedBranches.addAll(rm.indexedBranches);
+				}
+				if (repository.indexedBranches != null) {
+					indexedBranches.addAll(repository.indexedBranches);
+				}
+				repository.indexedBranches = new ArrayList<String>(indexedBranches);
+
 			}
 			// only repositories that are actually _cloned_ from the origin
 			// Gitblit repository are marked as federated. If the origin

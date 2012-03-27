@@ -17,19 +17,17 @@ package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 
@@ -56,8 +54,7 @@ public class GravatarImage extends Panel {
 				WicketUtils.newObjectParameter(hash));
 		link.add(new SimpleAttributeModifier("target", "_blank"));
 		String url = ActivityUtils.getGravatarThumbnailUrl(email, width);
-		Image image = new Image("image");
-		image.add(new AttributeModifier("src", true, new Model<String>(url)));
+		ExternalImage image = new ExternalImage("image", url);
 		WicketUtils.setCssClass(image, "gravatar");
 		link.add(image);
 		WicketUtils.setHtmlTooltip(link,

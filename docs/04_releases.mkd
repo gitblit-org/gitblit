@@ -17,10 +17,12 @@
 #### additions
 
 - Added optional Lucene branch indexing (issue 16)  
+    **New:** *web.allowLuceneIndexing = true*  
     **New:** *web.luceneIgnoreExtensions = 7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip*  
 Repository branches may be optionally indexed by Lucene for improved searching.  To use this feature you must specify which branches to index within the *Edit Repository* page; _no repositories are automatically indexed_.  Gitblit will build or incrementally update enrolled repositories on a 2 minute cycle. (i.e you will have to wait 2-3 minutes after respecifying indexed branches or pushing new commits before Gitblit will build/update the repository's Lucene index.)  
 If a repository has Lucene-indexed branches the *search* form on the repository pages will redirect to the root-level Lucene search page and only the content of those branches can be searched.  
-If the repository does not specify any indexed branches then repository commit-traversal search is used.
+If the repository does not specify any indexed branches then repository commit-traversal search is used.  
+**Note:** Initial indexing of an existing repository can be memory-exhaustive. Be sure to provide your Gitblit server adequate heap space to index your repositories (e.g. -Xmx1024M).
 - Allow specifying timezone to use for Gitblit which is independent of both the JVM and the system timezone (issue 54)  
     **New:** *web.timezone =*  
 - Added a built-in AJP connector for integrating Gitblit GO into an Apache mod_proxy setup (issue 59)  
@@ -34,6 +36,7 @@ Push requests to these repositories will be rejected.
 - Added *protect-refs.groovy* (Github/plm) 
 - Allow setting default branch (relinking HEAD) to a branch or a tag (Github/plm)
 - Added Ubuntu service init script (issue 72)
+- Added partial Japanese translation (Github/zakki)
 
 #### fixes 
 
@@ -57,6 +60,7 @@ Push requests to these repositories will be rejected.
 - added GLYPHICONS (as bundled with Bootstrap 2.0.2)
 - updated to MarkdownPapers 1.2.7
 - updated to JGit 1.3.0.201202151440-r
+- updated to Wicket 1.4.20
 
 <hr/>
 

@@ -142,6 +142,7 @@ public class RefsPanel extends Panel {
 				lb.setVisible(breakLine);
 				lb.setRenderBodyOnly(true);
 				item.add(lb.setEscapeModelStrings(false));
+				item.setRenderBodyOnly(true);
 			}
 		};
 		add(refsView);

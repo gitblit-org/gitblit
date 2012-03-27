@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.form.PasswordTextField;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -48,6 +47,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.NavigationPanel;
 
@@ -101,7 +101,9 @@ public abstract class RootPage extends BasePage {
 		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 				getRootPageParameters()));
 		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-		pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
+		if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+			pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
+		}
 		if (showAdmin) {
 			pages.add(new PageRegistration("gb.users", UsersPage.class));
 		}
@@ -117,7 +119,7 @@ public abstract class RootPage extends BasePage {
 		add(navPanel);
 
 		// login form
-		StatelessForm<Void> loginForm = new StatelessForm<Void>("loginForm") {
+		SessionlessForm<Void> loginForm = new SessionlessForm<Void>("loginForm", getClass(), getPageParameters()) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -128,11 +130,11 @@ public abstract class RootPage extends BasePage {
 
 				UserModel user = GitBlit.self().authenticate(username, password);
 				if (user == null) {
-					error("Invalid username or password!");
+					error(getString("gb.invalidUsernameOrPassword"));
 				} else if (user.username.equals(Constants.FEDERATION_USER)) {
 					// disallow the federation user from logging in via the
 					// web ui
-					error("Invalid username or password!");
+					error(getString("gb.invalidUsernameOrPassword"));
 					user = null;
 				} else {
 					loginUser(user);
@@ -160,9 +162,9 @@ public abstract class RootPage extends BasePage {
 		} else if (showAdmin) {
 			int pendingProposals = GitBlit.self().getPendingFederationProposals().size();
 			if (pendingProposals == 1) {
-				info("There is 1 federation proposal awaiting review.");
+				info(getString("gb.OneProposalToReview"));
 			} else if (pendingProposals > 1) {
-				info(MessageFormat.format("There are {0} federation proposals awaiting review.",
+				info(MessageFormat.format(getString("gb.nFederationProposalsToReview"),
 						pendingProposals));
 			}
 		}
@@ -208,8 +210,16 @@ public abstract class RootPage extends BasePage {
 			}
 
 			if (!continueToOriginalDestination()) {
-				// Redirect to home page
-				setResponsePage(getApplication().getHomePage());
+				PageParameters params = getPageParameters();
+				if (params == null) {
+					// redirect to this page
+					setResponsePage(getClass());
+				} else {
+					// Strip username and password and redirect to this page
+					params.remove("username");
+					params.remove("password");
+					setResponsePage(getClass(), params);
+				}
 			}
 		}
 	}

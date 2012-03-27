@@ -27,7 +27,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -51,6 +50,7 @@ import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
@@ -73,7 +73,7 @@ public abstract class RepositoryPage extends BasePage {
 		objectId = WicketUtils.getObject(params);
 
 		if (StringUtils.isEmpty(repositoryName)) {
-			error(MessageFormat.format("Repository not specified for {0}!", getPageName()), true);
+			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
 		}
 
 		if (!getRepositoryModel().hasCommits) {
@@ -177,7 +177,7 @@ public abstract class RepositoryPage extends BasePage {
 		if (r == null) {
 			Repository r = GitBlit.self().getRepository(repositoryName);
 			if (r == null) {
-				error("Can not load repository " + repositoryName, true);
+				error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 				return null;
 			}
 			this.r = r;
@@ -190,7 +190,7 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				authenticationError("Unauthorized access for repository " + repositoryName);
+				authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
 				return null;
 			}
 			m = model;
@@ -201,7 +201,7 @@ public abstract class RepositoryPage extends BasePage {
 	protected RevCommit getCommit() {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {
-			error(MessageFormat.format("Failed to find commit \"{0}\" in {1} for {2} page!",
+			error(MessageFormat.format(getString("gb.failedToFindCommit"),
 					objectId, repositoryName, getPageName()), true);
 		}
 		return commit;
@@ -314,7 +314,7 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
-	private static class SearchForm extends StatelessForm<Void> implements Serializable {
+	private class SearchForm extends SessionlessForm<Void> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
 		private final String repositoryName;
@@ -325,7 +325,7 @@ public abstract class RepositoryPage extends BasePage {
 				Constants.SearchType.COMMIT);
 
 		public SearchForm(String id, String repositoryName) {
-			super(id);
+			super(id, RepositoryPage.this.getClass(), RepositoryPage.this.getPageParameters());
 			this.repositoryName = repositoryName;
 			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>(
 					"searchType", Arrays.asList(Constants.SearchType.values()));
@@ -347,7 +347,6 @@ public abstract class RepositoryPage extends BasePage {
 			Constants.SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
 			if (searchString == null) {
-				// FIXME IE intermittently has no searchString. Wicket bug?
 				return;
 			}
 			for (Constants.SearchType type : Constants.SearchType.values()) {
@@ -360,7 +359,8 @@ public abstract class RepositoryPage extends BasePage {
 			}
 			Class<? extends BasePage> searchPageClass = GitSearchPage.class;
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			if (!ArrayUtils.isEmpty(model.indexedBranches)) {
+			if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)
+					&& !ArrayUtils.isEmpty(model.indexedBranches)) {
 				// this repository is Lucene-indexed
 				searchPageClass = LuceneSearchPage.class;
 			}

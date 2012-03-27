@@ -49,11 +49,11 @@ public class GravatarProfilePage extends RootPage {
 				profile = ActivityUtils.getGravatarProfile(object);
 			}
 		} catch (IOException e) {
-			error(MessageFormat.format("Failed to find Gravatar profile for {0}", object), e, true);
+			error(MessageFormat.format(getString("gb.failedToFindGravatarProfile"), object), e, true);
 		}
 		
 		if (profile == null) {
-			error(MessageFormat.format("Failed to find Gravatar profile for {0}", object), true);
+			error(MessageFormat.format(getString("gb.failedToFindGravatarProfile"), object), true);
 		}
 		add(new Label("displayName", profile.displayName));
 		add(new Label("username", profile.preferredUsername));

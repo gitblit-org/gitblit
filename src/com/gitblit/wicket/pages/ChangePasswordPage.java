@@ -62,7 +62,7 @@ public class ChangePasswordPage extends RootSubPage {
 				String confirmPassword = ChangePasswordPage.this.confirmPassword.getObject();
 				// ensure passwords match
 				if (!password.equals(confirmPassword)) {
-					error("Passwords do not match!");
+					error(getString("gb.passwordsDoNotMatch"));
 					return;
 				}
 
@@ -72,8 +72,7 @@ public class ChangePasswordPage extends RootSubPage {
 					minLength = 4;
 				}
 				if (password.length() < minLength) {
-					error(MessageFormat.format(
-							"Password is too short. Minimum length is {0} characters.", minLength));
+					error(MessageFormat.format(getString("gb.passwordTooShort"), minLength));
 					return;
 				}
 
@@ -102,7 +101,7 @@ public class ChangePasswordPage extends RootSubPage {
 					return;
 				}
 				setRedirect(false);
-				info("Password successfully changed.");
+				info(getString("gb.passwordChanged"));
 				setResponsePage(RepositoriesPage.class);
 			}
 		};
@@ -114,14 +113,14 @@ public class ChangePasswordPage extends RootSubPage {
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
 
-		form.add(new Button("save"));
-		Button cancel = new Button("cancel") {
+		form.add(new Button(getString("gb.save")));
+		Button cancel = new Button(getString("gb.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
 				setRedirect(false);
-				error("Password change aborted.");
+				error(getString("gb.passwordChangeAborted"));
 				setResponsePage(RepositoriesPage.class);
 			}
 		};

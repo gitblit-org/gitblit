@@ -117,12 +117,11 @@ public class EditRepositoryPage extends RootSubPage {
 
 		// indexed local branches palette
 		List<String> allLocalBranches = repositoryModel.getLocalBranches();
-
+		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
 		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);
-		indexedBranchesPalette.setEnabled(allLocalBranches.size() > 0);
-
+		indexedBranchesPalette.setEnabled(luceneEnabled && (allLocalBranches.size() > 0));
 		
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
@@ -159,7 +158,7 @@ public class EditRepositoryPage extends RootSubPage {
 				try {
 					// confirm a repository name was entered
 					if (StringUtils.isEmpty(repositoryModel.name)) {
-						error("Please set repository name!");
+						error(getString("gb.pleaseSetRepositoryName"));
 						return;
 					}
 
@@ -170,35 +169,35 @@ public class EditRepositoryPage extends RootSubPage {
 
 					// prohibit folder paths
 					if (repositoryModel.name.startsWith("/")) {
-						error("Leading root folder references (/) are prohibited.");
+						error(getString("gb.illegalLeadingSlash"));
 						return;
 					}
 					if (repositoryModel.name.startsWith("../")) {
-						error("Relative folder references (../) are prohibited.");
+						error(getString("gb.illegalRelativeSlash"));
 						return;
 					}
 					if (repositoryModel.name.contains("/../")) {
-						error("Relative folder references (../) are prohibited.");
+						error(getString("gb.illegalRelativeSlash"));
 						return;
 					}
 
 					// confirm valid characters in repository name
 					Character c = StringUtils.findInvalidCharacter(repositoryModel.name);
 					if (c != null) {
-						error(MessageFormat.format("Illegal character ''{0}'' in repository name!",
+						error(MessageFormat.format(getString("gb.illegalCharacterRepositoryName"),
 								c));
 						return;
 					}
 
 					// confirm access restriction selection
 					if (repositoryModel.accessRestriction == null) {
-						error("Please select access restriction!");
+						error(getString("gb.selectAccessRestriction"));
 						return;
 					}
 
 					// confirm federation strategy selection
 					if (repositoryModel.federationStrategy == null) {
-						error("Please select federation strategy!");
+						error(getString("gb.selectFederationStrategy"));
 						return;
 					}
 
@@ -333,8 +332,8 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
 				.getPostReceiveScriptsInherited(repositoryModel)));
 
-		form.add(new Button("save"));
-		Button cancel = new Button("cancel") {
+		form.add(new Button(getString("gb.save")));
+		Button cancel = new Button(getString("gb.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

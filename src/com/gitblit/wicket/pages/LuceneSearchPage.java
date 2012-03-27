@@ -23,7 +23,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ListMultipleChoice;
-import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
@@ -41,6 +40,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -105,9 +105,13 @@ public class LuceneSearchPage extends RootPage {
 				availableRepositories.add(model.name);
 			}
 		}
-		
-		if (availableRepositories.size() == 0) {
-			info(getString("gb.noIndexedRepositoriesWarning"));
+		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
+		if (luceneEnabled) {
+			if (availableRepositories.size() == 0) {
+				info(getString("gb.noIndexedRepositoriesWarning"));
+			}
+		} else {
+			error(getString("gb.luceneDisabled"));
 		}
 
 		// enforce user-accessible repository selections
@@ -121,7 +125,7 @@ public class LuceneSearchPage extends RootPage {
 		// search form
 		final Model<String> queryModel = new Model<String>(query);
 		final Model<ArrayList<String>> repositoriesModel = new Model<ArrayList<String>>(searchRepositories);
-		StatelessForm<Void> form = new StatelessForm<Void>("searchForm") {
+		SessionlessForm<Void> form = new SessionlessForm<Void>("searchForm", getClass()) {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -146,9 +150,9 @@ public class LuceneSearchPage extends RootPage {
 		ListMultipleChoice<String> selections = new ListMultipleChoice<String>("repositories", 
 				repositoriesModel, availableRepositories, new StringChoiceRenderer());
 		selections.setMaxRows(8);
-		form.add(selections);
-		form.add(new TextField<String>("query", queryModel));
-		add(form);
+		form.add(selections.setEnabled(luceneEnabled));
+		form.add(new TextField<String>("query", queryModel).setEnabled(luceneEnabled));
+		add(form.setEnabled(luceneEnabled));
 				
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();
@@ -160,14 +164,14 @@ public class LuceneSearchPage extends RootPage {
 		if (results.size() == 0) {
 			if (!ArrayUtils.isEmpty(searchRepositories) && !StringUtils.isEmpty(query)) {
 				add(new Label("resultsHeader", query).setRenderBodyOnly(true));
-				add(new Label("resultsCount", "0 hits").setRenderBodyOnly(true));
+				add(new Label("resultsCount", getString("gb.noHits")).setRenderBodyOnly(true));
 			} else {
 				add(new Label("resultsHeader").setVisible(false));
 				add(new Label("resultsCount").setVisible(false));
 			}
 		} else {
 			add(new Label("resultsHeader", query).setRenderBodyOnly(true));
-			add(new Label("resultsCount", MessageFormat.format("results {0} - {1} ({2} hits)",
+			add(new Label("resultsCount", MessageFormat.format(getString("gb.queryResults"),
 					results.get(0).hitId, results.get(results.size() - 1).hitId, results.get(0).totalHits)).
 					setRenderBodyOnly(true));
 		}
