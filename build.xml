@@ -418,6 +418,7 @@
 				<exclude name="com/gitblit/tests/" />
 				<exclude name="com/gitblit/build/**" />
 				<exclude name="com/gitblit/client/**" />
+				<exclude name="com/gitblit/AddIndexedBranch*.class" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />
