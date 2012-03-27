@@ -4,6 +4,12 @@
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+#### fixes
+
+- Lucene folder was stored in working copy instead of in .git folder
+
+**0.9.0** *released 2012-03-27*
+
 #### security
 
 - Fixed session fixation vulnerability where the session identifier was not reset during the login process (issue 62)
@@ -75,7 +81,7 @@ Push requests to these repositories will be rejected.
 
 <hr/>
 
-**0.8.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.1.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.1.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.1.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.1.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.1.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.1.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
+**0.8.1** &nbsp; *released 2012-01-11*
 
 #### fixes
 
@@ -84,7 +90,7 @@ Push requests to these repositories will be rejected.
 
 <hr/>
 
-**0.8.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.0.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.0.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.0.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-11*
+**0.8.0** &nbsp; *released 2012-01-11*
 
 #### additions
 
@@ -139,7 +145,7 @@ This change helps adoption of GO in environments without an internet connection 
 
 <hr/>
 
-**0.7.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.7.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.7.0.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.7.0.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.7.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-11-11*
+**0.7.0** &nbsp; *released 2011-11-11*
 
 - **security**: fixed security hole when cloning clone-restricted repository with TortoiseGit (issue 28)
 - improved: updated ui with Twitter's Bootstrap CSS toolkit  
@@ -175,7 +181,7 @@ This change helps adoption of GO in environments without an internet connection 
 
 <hr/>
 
-**0.6.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.6.0.war) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.6.0.zip)) based on [JGit 1.1.0 (201109151100-r)][jgit] &nbsp; *released 2011-09-27*
+**0.6.0** &nbsp; *released 2011-09-27*
 
 - added: federation feature to allow gitblit instances (or gitblit federation clients) to pull repositories and, optionally, settings and accounts from other gitblit instances.  This is something like [svn-sync](http://svnbook.red-bean.com/en/1.5/svn.ref.svnsync.html) for gitblit.  
     **New:** *federation.name =*  
@@ -196,7 +202,7 @@ This change helps adoption of GO in environments without an internet connection 
 
 <hr/>
 
-**0.5.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.2.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-07-27*
+**0.5.2** &nbsp; *released 2011-07-27*
 
 - fixed: active repositories with a HEAD that pointed to an empty branch caused internal errors (issue 14)
 - fixed: bare-cloned repositories were listed as (empty) and were not clickable (issue 13)
@@ -214,7 +220,7 @@ This change helps adoption of GO in environments without an internet connection 
 
 <hr/>
 
-**0.5.1** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.1.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-06-28*
+**0.5.1** &nbsp; *released 2011-06-28*
 
 - clarified SSL certificate generation and configuration for both server-side and client-side
 - added some more troubleshooting information to documentation
@@ -222,7 +228,7 @@ This change helps adoption of GO in environments without an internet connection 
 
 <hr/>
 
-**0.5.0** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.5.0.war)) based on [JGit 1.0.0 (201106090707-r)][jgit] &nbsp; *released 2011-06-26*
+**0.5.0** &nbsp; *released 2011-06-26*
 
 - initial release
 

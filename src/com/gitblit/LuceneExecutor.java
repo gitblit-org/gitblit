@@ -73,6 +73,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -1042,8 +1043,8 @@ public class LuceneExecutor implements Runnable {
 	 * @throws IOException
 	 */
 	private IndexWriter getIndexWriter(String repository) throws IOException {
-		IndexWriter indexWriter = writers.get(repository);		
-		File repositoryFolder = new File(repositoriesFolder, repository);
+		IndexWriter indexWriter = writers.get(repository);				
+		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
 		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
 		Directory directory = FSDirectory.open(indexFolder);		
 
