@@ -656,7 +656,8 @@ public class ConfigUserService implements IUserService {
 
 		// write users
 		for (UserModel model : users.values()) {
-			config.setString(USER, model.username, PASSWORD, model.password);
+			if (model.password != null)
+				config.setString(USER, model.username, PASSWORD, model.password);
 
 			// user roles
 			List<String> roles = new ArrayList<String>();

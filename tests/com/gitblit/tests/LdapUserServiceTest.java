@@ -9,6 +9,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,10 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.util.FS;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,6 +111,14 @@ public class LdapUserServiceTest {
 	public void teardown() throws Exception {
 		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.conf");
 		f.delete();
+	}
+	
+	public StoredConfig getBackingConfiguration() throws IOException, ConfigInvalidException {
+		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.conf");
+		StoredConfig config = new FileBasedConfig(f, FS.detect());
+		config.load();
+		
+		return config;
 	}
 	
 	private MockDirContext getMockDirContext() {
@@ -260,5 +274,30 @@ public class LdapUserServiceTest {
 		assertTrue("Repository Wrong", user.canAccessRepository("repotwo.git"));
 		assertTrue("Repository Wrong", user.canAccessRepository("myrepos/nestedrepo.git"));		
 	}
+	
+	@Test
+	public void testUpdate() throws IOException, ConfigInvalidException {
+		TeamModel team = ldapUserService.getTeamModel("Git_Users");
+		
+		assertNotNull("No Team returned", team);
+		assertEquals("Team Name Wrong", "Git_Users", team.name);
+		assertEquals("Team Number of repositories wrong", 3, team.repositories.size());
+		assertFalse("Repository Wrong", team.hasRepository("testing.git"));
+		
+		team.addRepository("testing.git");
+		ldapUserService.updateTeamModel(team);
+		
+		StoredConfig config = getBackingConfiguration();
+		List<String> repositories = Arrays.asList(config.getStringList("team", "Git_Users", "repository"));
+		assertTrue("Repository Wrong", repositories.contains("testing.git"));
+		assertEquals("Wrong number of repositories written", 4, repositories.size());
+		
+		repositories = Arrays.asList(config.getStringList("user", "jcrygier", "repository"));
+		assertTrue("Repository Wrong", repositories.contains("repothree.git"));
+		assertEquals("Wrong number of repositories written", 1, repositories.size());
+		
+		assertEquals("AnotherUser is populated", 0, config.getNames("user", "anotherUser").size());
+	}
+
 
 }

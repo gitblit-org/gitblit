@@ -1,6 +1,7 @@
 package com.gitblit;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.DeepCopier;
 
 
 public class LdapUserService extends ConfigUserService {
@@ -32,7 +34,9 @@ public class LdapUserService extends ConfigUserService {
 	
 	private IStoredSettings settings;
 	private DirContext ctx;
-	private IUserService fileUserService;
+	private ConfigUserService fileUserService;
+	private long lastRefreshed = 0;
+	private long refreshInterval = 0;
 	
 	public LdapUserService() {
 		super(new File("."));		// Needs a dummy file
@@ -41,8 +45,10 @@ public class LdapUserService extends ConfigUserService {
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
-		File realmFile = GitBlit.getFileOrFolder(Keys.realm_ldap.alternateConfiguration, "users.conf");
+		String alternateConfiguration = settings.getString(Keys.realm_ldap.alternateConfiguration, "users.conf");
+		File realmFile = GitBlit.getFileOrFolder(alternateConfiguration);
 		fileUserService = new ConfigUserService(realmFile);
+		this.refreshInterval = settings.getInteger(Keys.realm_ldap.refreshInterval, 3600) * 60 * 1000;
 		
 		this.ctx = getLdapDirContext(settings.getRequiredString(Keys.realm_ldap.principal), settings.getRequiredString(Keys.realm_ldap.credentials));
 	}
@@ -88,21 +94,28 @@ public class LdapUserService extends ConfigUserService {
 	
 	@Override
 	protected synchronized void read() {
-		readAllUsersFromLdap();
-		readAllTeamsFromLdap();
-		
-		// Push Teams into Users
-		for (UserModel userModel : users.values()) {
-			Set<TeamModel> allTeams = new HashSet<TeamModel>();
-			for (TeamModel teamModel : userModel.teams) {
-				TeamModel model = teams.get(teamModel.name.toLowerCase());
+		if (System.currentTimeMillis() > refreshInterval + lastRefreshed) {
+			users.clear();
+			teams.clear();
+			
+			readAllUsersFromLdap();
+			readAllTeamsFromLdap();
+			
+			// Push Teams into Users
+			for (UserModel userModel : users.values()) {
+				Set<TeamModel> allTeams = new HashSet<TeamModel>();
+				for (TeamModel teamModel : userModel.teams) {
+					TeamModel model = teams.get(teamModel.name.toLowerCase());
+					
+					if (model != null)		// We might have read a team membership that is not part of the teams we're interested in
+						allTeams.add(model);
+				}
 				
-				if (model != null)		// We might have read a team membership that is not part of the teams we're interested in
-					allTeams.add(model);
+				userModel.teams.clear();
+				userModel.teams.addAll(allTeams);
 			}
 			
-			userModel.teams.clear();
-			userModel.teams.addAll(allTeams);
+			lastRefreshed = System.currentTimeMillis();
 		}
 	}
 	
@@ -149,8 +162,34 @@ public class LdapUserService extends ConfigUserService {
 	}
 	
 	@Override
-	protected void write() {
-		// TODO: Write
+	protected void write() throws IOException {
+		// Push the users down
+		fileUserService.users.clear();
+		for (UserModel userModel : users.values()) {
+			UserModel copy = DeepCopier.copy(userModel);
+			if (isUserRepositoryLinkInLdap())
+				copy.repositories.clear();
+			else if (isTeamUserLinkInLdap())
+				copy.teams.clear();
+			
+			copy.password = null;
+			copy.canAdmin = false;
+			fileUserService.users.put(copy.getName().toLowerCase(), copy);
+		}
+		
+		// Push the teams down
+		fileUserService.teams.clear();
+		for (TeamModel teamModel : teams.values()) {
+			TeamModel copy = DeepCopier.copy(teamModel);
+			if (isTeamUserLinkInLdap())
+				copy.users.clear();
+			else if (isTeamRepositoryLinkInLdap())
+				copy.repositories.clear();
+			
+			fileUserService.teams.put(copy.name.toLowerCase(), copy);
+		}
+		
+		fileUserService.write();
 	}
 	
 	/* LDAP Search Helper Methods */
