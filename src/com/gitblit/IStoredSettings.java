@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.codehaus.groovy.control.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,6 +157,25 @@ public abstract class IStoredSettings {
 			}
 		}
 		return defaultValue;
+	}
+	
+	/**
+	 * Returns teh string value for the specified key.  If the key does not exist
+	 * or the return value can not be interpred as a string, an exception is thrown.
+	 * 
+	 * @param key
+	 * @return key value
+	 */
+	public String getRequiredString(String name) {
+		Properties props = getSettings();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			if (value != null) {
+				return value.trim();
+			}
+		}
+		
+		throw new ConfigurationException("Property (" + name + ") does not exist");
 	}
 
 	/**
