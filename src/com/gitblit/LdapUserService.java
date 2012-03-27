@@ -75,6 +75,10 @@ public class LdapUserService extends ConfigUserService {
 	
 	@Override
 	public UserModel authenticate(String username, char[] password) {
+		String domainName = settings.getString(Keys.realm_ldap.domainName, "");
+		if (domainName.trim().length() > 0)
+			username = domainName + "\\" + username;
+		
 		DirContext ctx = getLdapDirContext(username, new String(password));
 		if (ctx != null) {
 			try {
