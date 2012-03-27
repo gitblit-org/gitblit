@@ -70,6 +70,8 @@ public class Constants {
 	
 	public static final int LEN_SHORTLOG_REFS = 60;
 	
+	public static final String DEFAULT_BRANCH = "default";
+	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
 	}

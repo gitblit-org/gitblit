@@ -42,6 +42,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
@@ -116,12 +117,14 @@ public class EditRepositoryPage extends RootSubPage {
 				new StringChoiceRenderer(), 8, false);
 
 		// indexed local branches palette
-		List<String> allLocalBranches = repositoryModel.getLocalBranches();
+		List<String> allLocalBranches = new ArrayList<String>();
+		allLocalBranches.add(Constants.DEFAULT_BRANCH);
+		allLocalBranches.addAll(repositoryModel.getLocalBranches());
 		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
 		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);
-		indexedBranchesPalette.setEnabled(luceneEnabled && (allLocalBranches.size() > 0));
+		indexedBranchesPalette.setEnabled(luceneEnabled);
 		
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);

@@ -27,6 +27,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -44,6 +45,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
@@ -357,7 +359,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), null);
-		dialog.setIndexedBranches(new ArrayList<String>(), null);
+		dialog.setIndexedBranches(new ArrayList<String>(Arrays.asList(Constants.DEFAULT_BRANCH)), null);
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),
 				gitblit.getPreReceiveScriptsInherited(null), null);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(null),
@@ -420,7 +422,10 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setTeams(gitblit.getTeamnames(), gitblit.getPermittedTeamnames(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
-		dialog.setIndexedBranches(repository.getLocalBranches(), repository.indexedBranches);
+		List<String> allLocalBranches = new ArrayList<String>();
+		allLocalBranches.add(Constants.DEFAULT_BRANCH);
+		allLocalBranches.addAll(repository.getLocalBranches());
+		dialog.setIndexedBranches(allLocalBranches, repository.indexedBranches);
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(repository),
 				gitblit.getPreReceiveScriptsInherited(repository), repository.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(repository),
