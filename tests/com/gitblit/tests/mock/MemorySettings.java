@@ -21,6 +21,10 @@ public class MemorySettings extends IStoredSettings {
 		
 		return props;
 	}
+	
+	public void put(Object key, Object value) {
+		backingMap.put(key, value);
+	}
 
 	@Override
 	public boolean saveSettings(Map<String, String> updatedSettings) {

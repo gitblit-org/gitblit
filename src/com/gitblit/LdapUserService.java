@@ -3,6 +3,9 @@ package com.gitblit;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -169,11 +172,15 @@ public class LdapUserService extends ConfigUserService {
 			UserModel copy = DeepCopier.copy(userModel);
 			if (isUserRepositoryLinkInLdap())
 				copy.repositories.clear();
-			else if (isTeamUserLinkInLdap())
+			if (isTeamUserLinkInLdap())
 				copy.teams.clear();
+			if (isAdminAttributeInLdap())
+				copy.canAdmin = false;
+			if (isExcludeFromFederationInLdap())
+				copy.excludeFromFederation = false;
 			
-			copy.password = null;
-			copy.canAdmin = false;
+			copy.password = null;		// Password is ALWAYS going against LDAP
+			
 			fileUserService.users.put(copy.getName().toLowerCase(), copy);
 		}
 		
@@ -183,7 +190,7 @@ public class LdapUserService extends ConfigUserService {
 			TeamModel copy = DeepCopier.copy(teamModel);
 			if (isTeamUserLinkInLdap())
 				copy.users.clear();
-			else if (isTeamRepositoryLinkInLdap())
+			if (isTeamRepositoryLinkInLdap())
 				copy.repositories.clear();
 			
 			fileUserService.teams.put(copy.name.toLowerCase(), copy);
@@ -231,14 +238,17 @@ public class LdapUserService extends ConfigUserService {
 		public String[] getRequestedAttributes() {
 			return new String[] { settings.getString(Keys.realm_ldap.userNameAttribute, null), 
 					              settings.getString(Keys.realm_ldap.adminAttributeName, null),
-					              settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeName)};
+					              settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeName),
+					              settings.getString(Keys.realm_ldap.excludeFromFederationAttributeName, null)};
 		}
 		
 		@Override
 		public UserModel doCallback(SearchResult searchResult) {
 			String userNameAttribute = settings.getRequiredString(Keys.realm_ldap.userNameAttribute);
-			String adminAttributeName = settings.getRequiredString(Keys.realm_ldap.adminAttributeName);
-			String adminAttributeValue = settings.getRequiredString(Keys.realm_ldap.adminAttributeValue);
+			String adminAttributeName = settings.getString(Keys.realm_ldap.adminAttributeName, null);
+			String adminAttributeValue = settings.getString(Keys.realm_ldap.adminAttributeValue, null);
+			String excludeFromFederationAttributeName = settings.getString(Keys.realm_ldap.excludeFromFederationAttributeName, null);
+			String excludeFromFederationAttributeValue = settings.getString(Keys.realm_ldap.excludeFromFederationAttributeValue, null);
 			String userTeamLinkAttributeName = settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeName);
 			String userTeamLinkAttributeRegex = settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeRegex);
 			Integer userTeamLinkAttributeRegexGroup = settings.getInteger(Keys.realm_ldap.userTeamLinkAttributeRegexGroup, 0);
@@ -246,23 +256,22 @@ public class LdapUserService extends ConfigUserService {
 			Attributes nodeAttributes = searchResult.getAttributes();
 			
 			try {
-				UserModel answer = new UserModel(nodeAttributes.get(userNameAttribute).get().toString());
+				String userName = nodeAttributes.get(userNameAttribute).get().toString();
+				UserModel answer = fileUserService.getUserModel(userName);
+				if (answer == null)
+					answer = new UserModel(userName);
 				
 				// Get the admin attribute
-				Attribute adminAttribute = nodeAttributes.get(adminAttributeName);
-				for (int i = 0; i < adminAttribute.size(); i++) {
-					if (adminAttribute.get(i).toString().equals(adminAttributeValue))
-						answer.canAdmin = true;
-				}
+				if (isAdminAttributeInLdap())
+					answer.canAdmin = getBooleanAttributeFromLdap(nodeAttributes, adminAttributeName, adminAttributeValue);
+				
+				// Get the Exclude from federation attribute
+				if (isExcludeFromFederationInLdap())
+					answer.excludeFromFederation = getBooleanAttributeFromLdap(nodeAttributes, excludeFromFederationAttributeName, excludeFromFederationAttributeValue);
 				
 				// Get the repositories for this User
 				if (isUserRepositoryLinkInLdap())
 					throw new IllegalArgumentException("LDAP Lookup of repositories not implemented"); // TODO: Implement User->Repository lookup in LDAP
-				else {
-					UserModel fileUserModel = fileUserService.getUserModel(answer.getName());
-					if (fileUserModel != null && fileUserModel.repositories != null)
-						answer.repositories.addAll(fileUserModel.repositories);
-				}
 				
 				// Get the teams that this user belongs to
 				if (isTeamUserLinkInLdap()) {
@@ -274,13 +283,7 @@ public class LdapUserService extends ConfigUserService {
 							answer.teams.add(new TeamModel(teamName));		// Add a shell of a team model - to be filled in later (performance)
 						}
 					}
-				} else {
-					UserModel fileUserModel = fileUserService.getUserModel(answer.getName());
-					if (fileUserModel != null && fileUserModel.teams != null)
-						answer.teams.addAll(fileUserModel.teams);
 				}
-				
-				// TODO: excludeFromFederation
 				
 				return answer;
 			} catch (NamingException e) {
@@ -295,7 +298,10 @@ public class LdapUserService extends ConfigUserService {
 		@Override
 		public String[] getRequestedAttributes() {
 			return new String[] { settings.getRequiredString(Keys.realm_ldap.teamNameAttribute),
-					              settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeName) };
+					              settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeName),
+					              settings.getString(Keys.realm_ldap.mailingListsAttributeName, null),
+					              settings.getString(Keys.realm_ldap.preReceiveScriptsAttributeName, null),
+					              settings.getString(Keys.realm_ldap.postReceiveScriptsAttributeName, null)};
 		}
 		
 		@Override
@@ -304,11 +310,17 @@ public class LdapUserService extends ConfigUserService {
 			String teamUserLinkAttributeName = settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeName);
 			String teamUserLinkAttributeRegex = settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeRegex);
 			Integer teamUserLinkAttributeRegexGroup = settings.getInteger(Keys.realm_ldap.teamUserLinkAttributeRegexGroup, 0);
+			String mailingListsAttributeName = settings.getString(Keys.realm_ldap.mailingListsAttributeName, null);
+			String preReceiveScriptsAttributeName = settings.getString(Keys.realm_ldap.preReceiveScriptsAttributeName, null);
+			String postReceiveScriptsAttributeName = settings.getString(Keys.realm_ldap.postReceiveScriptsAttributeName, null);
 			
 			Attributes nodeAttributes = searchResult.getAttributes();
 			
 			try {
-				TeamModel answer = new TeamModel(nodeAttributes.get(teamNameAttribute).get().toString());
+				String teamName = nodeAttributes.get(teamNameAttribute).get().toString();
+				TeamModel answer = fileUserService.getTeamModel(teamName);
+				if (answer == null)
+					answer = new TeamModel(teamName);
 				
 				// Get the users that belong to this team
 				if (isTeamUserLinkInLdap()) {
@@ -321,24 +333,22 @@ public class LdapUserService extends ConfigUserService {
 						}
 					}
 				}
-				else {
-					TeamModel fileTeamModel = fileUserService.getTeamModel(answer.name);
-					if (fileTeamModel != null && fileTeamModel.users != null)
-						answer.users.addAll(fileTeamModel.users);
-				}
 				
 				// Get the repositories for this team
 				if (isTeamRepositoryLinkInLdap())
 					throw new IllegalArgumentException("LDAP Lookup of repositories not implemented"); // TODO: Implement Team->Repository lookup in LDAP
-				else {
-					TeamModel fileTeamModel = fileUserService.getTeamModel(answer.name);
-					if (fileTeamModel != null && fileTeamModel.repositories != null)
-						answer.repositories.addAll(fileTeamModel.repositories);
-				}
 				
-				// TODO: Get mailingLists
-				// TODO: Get preReceiveScripts
-				// TODO: Get postReceiveScripts
+				// Get mailingLists
+				if (isMailingListsInLdap())
+					answer.mailingLists.addAll(getCommaSeparatedStringListAttributeFromLdap(nodeAttributes, mailingListsAttributeName));
+				
+				// Get preReceiveScripts
+				if (isPreReceiveScriptInLdap())
+					answer.preReceiveScripts.addAll(getCommaSeparatedStringListAttributeFromLdap(nodeAttributes, preReceiveScriptsAttributeName));
+				
+				// Get postReceiveScripts
+				if (isPostReceiveScriptInLdap())
+					answer.postReceiveScripts.addAll(getCommaSeparatedStringListAttributeFromLdap(nodeAttributes, postReceiveScriptsAttributeName));
 				
 				return answer;
 			} catch (NamingException e) {
@@ -347,7 +357,35 @@ public class LdapUserService extends ConfigUserService {
 			
 			return null;
 		}
+
+		
 	};
+	
+	private Collection<String> getCommaSeparatedStringListAttributeFromLdap(Attributes nodeAttributes, String attributeName) throws NamingException {
+		if (attributeName != null && attributeName.trim().length() > 0) {
+			if (nodeAttributes.get(attributeName) != null) {
+				Object attributeValue = nodeAttributes.get(attributeName).get();
+				if (attributeValue != null) {
+					return Arrays.asList(attributeValue.toString().split(","));
+					
+				}
+			}
+		}
+		
+		return Collections.EMPTY_LIST;
+	}
+	
+	private boolean getBooleanAttributeFromLdap(Attributes nodeAttributes, String attributeName, String attributeValue) throws NamingException {
+		if (attributeName != null && attributeName.trim().length() > 0) {
+			Attribute attribute = nodeAttributes.get(attributeName);
+			for (int i = 0; i < attribute.size(); i++) {
+				if (attribute.get(i).toString().equals(attributeValue))
+					return true;
+			}
+		}
+	
+		return false;
+	}
 	
 	private String matchRegularExpression(String pattern, String toCheck, Integer groupToReturn) {
 		Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
@@ -377,6 +415,31 @@ public class LdapUserService extends ConfigUserService {
 	
 	protected boolean isTeamRepositoryLinkInLdap() {
 		return settings.getBoolean(Keys.realm_ldap.isTeamRepositoryLinkInLdap, true);
+	}
+	
+	protected boolean isAdminAttributeInLdap() {
+		return isSettingPresent(Keys.realm_ldap.adminAttributeName);
+	}
+	
+	protected boolean isExcludeFromFederationInLdap() {
+		return isSettingPresent(Keys.realm_ldap.excludeFromFederationAttributeName);
+	}
+	
+	protected boolean isMailingListsInLdap() {
+		return isSettingPresent(Keys.realm_ldap.mailingListsAttributeName);
+	}
+	
+	protected boolean isPreReceiveScriptInLdap() {
+		return isSettingPresent(Keys.realm_ldap.preReceiveScriptsAttributeName);
+	}
+	
+	protected boolean isPostReceiveScriptInLdap() {
+		return isSettingPresent(Keys.realm_ldap.postReceiveScriptsAttributeName);
+	}
+	
+	protected boolean isSettingPresent(String setting) {
+		String settingValue = settings.getString(setting, null);
+		return settingValue != null && settingValue.trim().length() > 0;
 	}
 
 }

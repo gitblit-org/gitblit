@@ -51,6 +51,7 @@ import com.gitblit.tests.mock.MockDirContext;
 public class LdapUserServiceTest {
 	
 	private LdapUserService ldapUserService;
+	MemorySettings settings;
 	
 	@Before
 	public void setup() throws Exception {
@@ -77,9 +78,13 @@ public class LdapUserServiceTest {
 		props.put("realm_ldap.teamUserLinkAttributeName", "member");
 		props.put("realm_ldap.teamUserLinkAttributeRegex", "cn=([^,]+),");
 		props.put("realm_ldap.teamUserLinkAttributeRegexGroup", "1");
+		props.put("realm_ldap.excludeFromFederationAttributeName", "");
+		props.put("realm_ldap.excludeFromFederationAttributeValue", "");
+		props.put("realm_ldap.preReceiveScriptsAttributeName", "");
+		props.put("realm_ldap.postReceiveScriptsAttributeName", "");
 		
 		// Mock out our settings
-		IStoredSettings settings = new MemorySettings(props);
+		settings = new MemorySettings(props);
 		gitBlit.configureContext(settings, false);
 		
 		// Mock out our LDAP
@@ -99,8 +104,13 @@ public class LdapUserServiceTest {
 			out.write("\trepository = helloworld.git\n");
 			out.write("\trepository = repoTwo.git\n");
 			out.write("\trepository = myRepos/nestedRepo.git\n");
+			out.write("\tpreReceiveScript = testscript\n");
+			out.write("\tpreReceiveScript = jenkins\n");
+			out.write("\tpostReceiveScript = postReceiveOne\n");
+			out.write("\tpostReceiveScript = postReceiveTwo\n");
 			out.write("[user \"jcrygier\"]\n");
 			out.write("\trepository = repothree.git\n");
+			out.write("\trole = \"#notfederated\"\n");
 			
 			out.flush();
 			out.close();
@@ -111,6 +121,8 @@ public class LdapUserServiceTest {
 	public void teardown() throws Exception {
 		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.conf");
 		f.delete();
+		
+		settings = null;
 	}
 	
 	public StoredConfig getBackingConfiguration() throws IOException, ConfigInvalidException {
@@ -127,6 +139,7 @@ public class LdapUserServiceTest {
 		// Mock User Search - jcrygier
 		Attributes jcrygierSearch = new BasicAttributes();
 		jcrygierSearch.put("name", "jcrygier");
+		jcrygierSearch.put("excludeFromFederation", "true");
 		Attribute jcrygierMemberOfAttribute = new BasicAttribute("memberOf");
 		jcrygierSearch.put(jcrygierMemberOfAttribute);
 		jcrygierMemberOfAttribute.add("CN=Git_Admins,OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
@@ -138,6 +151,7 @@ public class LdapUserServiceTest {
 		// Mock User Search - anotherUser
 		Attributes anotherUserSearch = new BasicAttributes();
 		anotherUserSearch.put("name", "anotherUser");
+		anotherUserSearch.put("excludeFromFederation", "false");
 		anotherUserSearch.put("memberOf", "CN=Git_Users,OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
 		SearchResult anotherUserSearchResult = new SearchResult("cn", "anotherUser", anotherUserSearch);
 		anotherUserSearchResult.setNameInNamespace("CN=anotherUser,OU=User_Accounts,OU=User_Control,OU=myOrganization,DC=myCompany");
@@ -157,6 +171,8 @@ public class LdapUserServiceTest {
 		// Mock Team Search - Git_Users 
 		Attributes gitUsers = new BasicAttributes();
 		gitUsers.put("name", "Git_Users");
+		gitUsers.put("preReceiveScriptsAttributeName", "jenkins,testscript");
+		gitUsers.put("postReceiveScriptsAttributeName", "postReceiveOne,postReceiveOne");
 		Attribute gitUsersMemberAttribute = new BasicAttribute("member");
 		gitUsers.put(gitUsersMemberAttribute);
 		gitUsersMemberAttribute.add("CN=jcrygier,CN=Git_Users,OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
@@ -276,7 +292,7 @@ public class LdapUserServiceTest {
 	}
 	
 	@Test
-	public void testUpdate() throws IOException, ConfigInvalidException {
+	public void testUpdateTeam() throws IOException, ConfigInvalidException {
 		TeamModel team = ldapUserService.getTeamModel("Git_Users");
 		
 		assertNotNull("No Team returned", team);
@@ -297,6 +313,103 @@ public class LdapUserServiceTest {
 		assertEquals("Wrong number of repositories written", 1, repositories.size());
 		
 		assertEquals("AnotherUser is populated", 0, config.getNames("user", "anotherUser").size());
+	}
+	
+	@Test
+	public void testUpdateUser() throws IOException, ConfigInvalidException {
+		UserModel user = ldapUserService.getUserModel("jcrygier");
+		
+		assertNotNull("No User returned", user);
+		assertEquals("User Name Wrong", "jcrygier", user.getName());
+		assertTrue(user.excludeFromFederation);
+		
+		user.excludeFromFederation = false;
+		ldapUserService.updateUserModel(user);
+		
+		StoredConfig config = getBackingConfiguration();
+		List<String> roles = Arrays.asList(config.getStringList("user", "jcrygier", "role"));
+		assertFalse("Exclude From Federation role missing Wrong", roles.contains("#notfederated"));
+		
+		user = ldapUserService.getUserModel("anotherUser");
+		
+		assertNotNull("No User returned", user);
+		assertFalse(user.excludeFromFederation);
+	}
+	
+	@Test
+	public void testExcludeFedarationFromLdap() {
+		settings.put("realm_ldap.excludeFromFederationAttributeName", "excludeFromFederation");
+		settings.put("realm_ldap.excludeFromFederationAttributeValue", "true");
+		
+		UserModel user = ldapUserService.getUserModel("jcrygier");
+		
+		assertNotNull("No User returned", user);
+		assertTrue(user.excludeFromFederation);
+		
+		user = ldapUserService.getUserModel("anotherUser");
+		
+		assertNotNull("No User returned", user);
+		assertFalse(user.excludeFromFederation);
+	}
+	
+	@Test
+	public void testPreReceiveScriptsFromLdap() {
+		settings.put("realm_ldap.preReceiveScriptsAttributeName", "preReceiveScriptsAttributeName");
+		
+		TeamModel team = ldapUserService.getTeamModel("Git_Users");
+		
+		assertNotNull(team);
+		assertTrue(team.preReceiveScripts.contains("jenkins"));
+		assertTrue(team.preReceiveScripts.contains("testscript"));
+		
+		team = ldapUserService.getTeamModel("Git_Admins");
+		
+		assertNotNull(team);
+		assertTrue(team.preReceiveScripts.isEmpty());
+	}
+	
+	@Test
+	public void testPreReceiveScriptsFromConfig() {
+		TeamModel team = ldapUserService.getTeamModel("Git_Users");
+		
+		assertNotNull(team);
+		assertTrue(team.preReceiveScripts.contains("jenkins"));
+		assertTrue(team.preReceiveScripts.contains("testscript"));
+		
+		team = ldapUserService.getTeamModel("Git_Admins");
+		
+		assertNotNull(team);
+		assertTrue(team.preReceiveScripts.isEmpty());
+	}
+	
+	@Test
+	public void testPostReceiveScriptsFromLdap() {
+		settings.put("realm_ldap.postReceiveScriptsAttributeName", "postReceiveScriptsAttributeName");
+		
+		TeamModel team = ldapUserService.getTeamModel("Git_Users");
+		
+		assertNotNull(team);
+		assertTrue(team.postReceiveScripts.contains("postReceiveOne"));
+		assertTrue(team.postReceiveScripts.contains("postReceiveTwo"));
+		
+		team = ldapUserService.getTeamModel("Git_Admins");
+		
+		assertNotNull(team);
+		assertTrue(team.postReceiveScripts.isEmpty());
+	}
+	
+	@Test
+	public void testPostReceiveScriptsFromConfig() {
+		TeamModel team = ldapUserService.getTeamModel("Git_Users");
+		
+		assertNotNull(team);
+		assertTrue(team.postReceiveScripts.contains("postReceiveOne"));
+		assertTrue(team.postReceiveScripts.contains("postReceiveTwo"));
+		
+		team = ldapUserService.getTeamModel("Git_Admins");
+		
+		assertNotNull(team);
+		assertTrue(team.postReceiveScripts.isEmpty());
 	}
 
 
