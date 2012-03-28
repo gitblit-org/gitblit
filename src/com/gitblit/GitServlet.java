@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -207,9 +208,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 */
 		protected RepositoryModel getRepositoryModel(ReceivePack rp) {
 			Repository repository = rp.getRepository();
-			String rootPath = GitBlit.getRepositoriesFolder().getAbsolutePath();
-			String repositoryName = StringUtils.getRelativePath(rootPath, repository.getDirectory()
-					.getAbsolutePath());
+			String repositoryName = FileUtils.getRelativePath(GitBlit.getRepositoriesFolder(), repository.getDirectory());
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			return model;
 		}

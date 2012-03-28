@@ -6,6 +6,12 @@
 
 #### fixes
 
+- Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (issue 78)
+
+**0.9.1** *released 2012-03-27*
+
+#### fixes
+
 - Lucene folder was stored in working copy instead of in .git folder
 
 **0.9.0** *released 2012-03-27*

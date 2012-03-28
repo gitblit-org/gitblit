@@ -34,9 +34,9 @@ import com.gitblit.models.IssueModel.Field;
 import com.gitblit.models.IssueModel.Priority;
 import com.gitblit.models.IssueModel.Status;
 import com.gitblit.models.SearchResult;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.IssueUtils.IssueFilter;
-import com.gitblit.utils.StringUtils;
 
 /**
  * Tests the mechanics of distributed issue management on the gb-issues branch.
@@ -49,8 +49,7 @@ public class IssuesTest {
 	@Test
 	public void testLifecycle() throws Exception {
 		Repository repository = GitBlitSuite.getIssuesTestRepository();
-		String name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
-				repository.getDirectory().getAbsolutePath());
+		String name = FileUtils.getRelativePath(GitBlitSuite.REPOSITORIES, repository.getDirectory());
 		
 		// create and insert an issue
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));

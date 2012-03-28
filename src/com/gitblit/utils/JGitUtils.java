@@ -301,6 +301,7 @@ public class JGitUtils {
 	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
 			boolean onlyBare, boolean searchSubfolders) {
+		File baseFile = new File(basePath);
 		List<String> list = new ArrayList<String>();
 		for (File file : searchFolder.listFiles()) {
 			if (file.isDirectory()) {
@@ -310,8 +311,7 @@ public class JGitUtils {
 						continue;
 					}
 					// determine repository name relative to base path
-					String repository = StringUtils.getRelativePath(basePath,
-							file.getAbsolutePath());
+					String repository = FileUtils.getRelativePath(baseFile, file);
 					list.add(repository);
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
