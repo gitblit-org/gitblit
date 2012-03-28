@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -30,6 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gitblit.FileUserService;
 import com.gitblit.GitBlit;
 import com.gitblit.LdapUserService;
 import com.gitblit.models.TeamModel;
@@ -47,7 +49,7 @@ import com.gitblit.tests.mock.MockDirContext;
  *   - Repo List persisted in users.conf
  *   - User List persisted in LDAP
  */
-public class LdapUserServiceTest {
+public class LdapPropertiesBackedUserServiceTest {
 	
 	private LdapUserService ldapUserService;
 	MemorySettings settings;
@@ -57,27 +59,29 @@ public class LdapUserServiceTest {
 		GitBlit gitBlit = new GitBlit();
 		
 		// Mock out the backing configuration
-		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.conf");
+		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.properties");
 		if (f.createNewFile()) {
-			BufferedWriter out = new BufferedWriter(new FileWriter("ldapUserServiceTest.conf"));
-			out.write("[team \"Git_Users\"]\n");
-			out.write("\trepository = helloworld.git\n");
-			out.write("\trepository = repoTwo.git\n");
-			out.write("\trepository = myRepos/nestedRepo.git\n");
-			out.write("\tpreReceiveScript = testscript\n");
-			out.write("\tpreReceiveScript = jenkins\n");
-			out.write("\tpostReceiveScript = postReceiveOne\n");
-			out.write("\tpostReceiveScript = postReceiveTwo\n");
-			out.write("[user \"jcrygier\"]\n");
-			out.write("\trepository = repothree.git\n");
-			out.write("\trole = \"#notfederated\"\n");
+			BufferedWriter out = new BufferedWriter(new FileWriter("ldapUserServiceTest.properties"));
+			out.write("@Git_Users=helloworld.git,myRepos/nestedRepo.git,repoTwo.git,^testscript,^jenkins,%postReceiveOne,%postReceiveTwo\n");
+			out.write("jcrygier=null,#notfederated,repothree.git\n");
+//			out.write("[team \"Git_Users\"]\n");
+//			out.write("\trepository = helloworld.git\n");
+//			out.write("\trepository = repoTwo.git\n");
+//			out.write("\trepository = myRepos/nestedRepo.git\n");
+//			out.write("\tpreReceiveScript = testscript\n");
+//			out.write("\tpreReceiveScript = jenkins\n");
+//			out.write("\tpostReceiveScript = postReceiveOne\n");
+//			out.write("\tpostReceiveScript = postReceiveTwo\n");
+//			out.write("[user \"jcrygier\"]\n");
+//			out.write("\trepository = repothree.git\n");
+//			out.write("\trole = \"#notfederated\"\n");
 			
 			out.flush();
 			out.close();
 		}
 		
 		Map<Object, Object> props = new HashMap<Object, Object>();
-		props.put("realm_ldap.alternateConfiguration", "ldapUserServiceTest.conf");
+		props.put("realm_ldap.alternateConfiguration", "ldapUserServiceTest.properties");
 		props.put("realm_ldap.serverUrl", "notneeded");
 		props.put("realm_ldap.principal", "jcrygier");
 		props.put("realm_ldap.credentials", "mocked");
@@ -127,12 +131,11 @@ public class LdapUserServiceTest {
 		settings = null;
 	}
 	
-	public StoredConfig getBackingConfiguration() throws IOException, ConfigInvalidException {
-		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.conf");
-		StoredConfig config = new FileBasedConfig(f, FS.detect());
-		config.load();
+	public FileUserService getBackingConfiguration() throws IOException, ConfigInvalidException {
+		File f = GitBlit.getFileOrFolder("ldapUserServiceTest.properties");
+		FileUserService answer = new FileUserService(f);
 		
-		return config;
+		return answer;
 	}
 	
 	private MockDirContext getMockDirContext() {
@@ -305,16 +308,14 @@ public class LdapUserServiceTest {
 		team.addRepository("testing.git");
 		ldapUserService.updateTeamModel(team);
 		
-		StoredConfig config = getBackingConfiguration();
-		List<String> repositories = Arrays.asList(config.getStringList("team", "Git_Users", "repository"));
+		FileUserService config = getBackingConfiguration();
+		Set<String> repositories = config.getTeamModel("Git_Users").repositories;
 		assertTrue("Repository Wrong", repositories.contains("testing.git"));
 		assertEquals("Wrong number of repositories written", 4, repositories.size());
 		
-		repositories = Arrays.asList(config.getStringList("user", "jcrygier", "repository"));
+		repositories = config.getUserModel("jcrygier").repositories;
 		assertTrue("Repository Wrong", repositories.contains("repothree.git"));
 		assertEquals("Wrong number of repositories written", 1, repositories.size());
-		
-		assertEquals("AnotherUser is populated", 0, config.getNames("user", "anotherUser").size());
 	}
 	
 	@Test
@@ -328,9 +329,8 @@ public class LdapUserServiceTest {
 		user.excludeFromFederation = false;
 		ldapUserService.updateUserModel(user);
 		
-		StoredConfig config = getBackingConfiguration();
-		List<String> roles = Arrays.asList(config.getStringList("user", "jcrygier", "role"));
-		assertFalse("Exclude From Federation role missing Wrong", roles.contains("#notfederated"));
+		FileUserService config = getBackingConfiguration();
+		assertFalse("Exclude From Federation role missing Wrong", config.getUserModel("jcrygier").excludeFromFederation);
 		
 		user = ldapUserService.getUserModel("anotherUser");
 		

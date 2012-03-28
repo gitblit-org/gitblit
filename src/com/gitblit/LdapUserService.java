@@ -37,7 +37,7 @@ public class LdapUserService extends ConfigUserService {
 	
 	private IStoredSettings settings;
 	private DirContext ctx;
-	private ConfigUserService fileUserService;
+	private IUserService fileUserService;
 	private long lastRefreshed = 0;
 	private long refreshInterval = 0;
 	
@@ -50,7 +50,7 @@ public class LdapUserService extends ConfigUserService {
 		this.settings = settings;
 		String alternateConfiguration = settings.getString(Keys.realm_ldap.alternateConfiguration, "users.conf");
 		File realmFile = GitBlit.getFileOrFolder(alternateConfiguration);
-		fileUserService = new ConfigUserService(realmFile);
+		fileUserService = new GitblitUserService(realmFile);
 		this.refreshInterval = settings.getInteger(Keys.realm_ldap.refreshInterval, 3600) * 60 * 1000;
 		
 		this.ctx = getLdapDirContext(settings.getRequiredString(Keys.realm_ldap.principal), settings.getRequiredString(Keys.realm_ldap.credentials));
@@ -171,7 +171,7 @@ public class LdapUserService extends ConfigUserService {
 	@Override
 	protected void write() throws IOException {
 		// Push the users down
-		fileUserService.users.clear();
+		//fileUserService.users.clear();
 		for (UserModel userModel : users.values()) {
 			UserModel copy = DeepCopier.copy(userModel);
 			if (isUserRepositoryLinkInLdap())
@@ -185,11 +185,12 @@ public class LdapUserService extends ConfigUserService {
 			
 			copy.password = null;		// Password is ALWAYS going against LDAP
 			
-			fileUserService.users.put(copy.getName().toLowerCase(), copy);
+			fileUserService.updateUserModel(copy);
+			//fileUserService.users.put(copy.getName().toLowerCase(), copy);
 		}
 		
 		// Push the teams down
-		fileUserService.teams.clear();
+		//fileUserService.teams.clear();
 		for (TeamModel teamModel : teams.values()) {
 			TeamModel copy = DeepCopier.copy(teamModel);
 			if (isTeamUserLinkInLdap())
@@ -197,10 +198,11 @@ public class LdapUserService extends ConfigUserService {
 			if (isTeamRepositoryLinkInLdap())
 				copy.repositories.clear();
 			
-			fileUserService.teams.put(copy.name.toLowerCase(), copy);
+			fileUserService.updateTeamModel(copy);
+			//fileUserService.teams.put(copy.name.toLowerCase(), copy);
 		}
 		
-		fileUserService.write();
+		//fileUserService.write();
 	}
 	
 	/* LDAP Search Helper Methods */
