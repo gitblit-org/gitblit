@@ -30,7 +30,7 @@ public class Constants {
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String VERSION = "0.9.0-SNAPSHOT";
+	public static final String VERSION = "1.0.0-SNAPSHOT";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
@@ -69,6 +69,8 @@ public class Constants {
 	public static final int LEN_SHORTLOG = 80;
 	
 	public static final int LEN_SHORTLOG_REFS = 60;
+	
+	public static final String DEFAULT_BRANCH = "default";
 	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;

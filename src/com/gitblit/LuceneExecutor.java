@@ -73,6 +73,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -447,7 +448,7 @@ public class LuceneExecutor implements Runnable {
 			ObjectId defaultBranchId = JGitUtils.getDefaultBranch(repository);
 			for (RefModel branch :  branches) {
 				if (branch.getObjectId().equals(defaultBranchId)) {
-					defaultBranch = branch;					
+					defaultBranch = branch;
 					break;
 				}
 			}
@@ -457,8 +458,22 @@ public class LuceneExecutor implements Runnable {
 			// walk through each branch
 			for (RefModel branch : branches) {
 
+				boolean indexBranch = false;
+				if (model.indexedBranches.contains(com.gitblit.Constants.DEFAULT_BRANCH)
+						&& branch.equals(defaultBranch)) {
+					// indexing "default" branch
+					indexBranch = true;
+				} else if (IssueUtils.GB_ISSUES.equals(branch)) {
+					// skip the GB_ISSUES branch because it is indexed later
+					// note: this is different than updateIndex
+					indexBranch = false;
+				} else {
+					// normal explicit branch check
+					indexBranch = model.indexedBranches.contains(branch.getName());
+				}
+				
 				// if this branch is not specifically indexed then skip
-				if (!model.indexedBranches.contains(branch.getName())) {
+				if (!indexBranch) {
 					continue;
 				}
 
@@ -782,20 +797,55 @@ public class LuceneExecutor implements Runnable {
 				deletedBranches.add(branch);
 			}
 
-			// walk through each branches
+			// get the local branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
+			
+			// sort them by most recently updated
+			Collections.sort(branches, new Comparator<RefModel>() {
+				@Override
+				public int compare(RefModel ref1, RefModel ref2) {
+					return ref2.getDate().compareTo(ref1.getDate());
+				}
+			});
+						
+			// reorder default branch to first position
+			RefModel defaultBranch = null;
+			ObjectId defaultBranchId = JGitUtils.getDefaultBranch(repository);
+			for (RefModel branch :  branches) {
+				if (branch.getObjectId().equals(defaultBranchId)) {
+					defaultBranch = branch;
+					break;
+				}
+			}
+			branches.remove(defaultBranch);
+			branches.add(0, defaultBranch);
+			
+			// walk through each branches
 			for (RefModel branch : branches) {
 				String branchName = branch.getName();
 
-				// determine if we should skip this branch
-				if (!IssueUtils.GB_ISSUES.equals(branch)
-						&& !model.indexedBranches.contains(branch.getName())) {
+				boolean indexBranch = false;
+				if (model.indexedBranches.contains(com.gitblit.Constants.DEFAULT_BRANCH)
+						&& branch.equals(defaultBranch)) {
+					// indexing "default" branch
+					indexBranch = true;
+				} else if (IssueUtils.GB_ISSUES.equals(branch)) {
+					// update issues modified on the GB_ISSUES branch
+					// note: this is different than reindex
+					indexBranch = true;
+				} else {
+					// normal explicit branch check
+					indexBranch = model.indexedBranches.contains(branch.getName());
+				}
+				
+				// if this branch is not specifically indexed then skip
+				if (!indexBranch) {
 					continue;
 				}
 				
 				// remove this branch from the deletedBranches set
 				deletedBranches.remove(branchName);
-
+				
 				// determine last commit
 				String keyName = getBranchKey(branchName);
 				String lastCommit = config.getString(CONF_BRANCH, null, keyName);
@@ -993,8 +1043,8 @@ public class LuceneExecutor implements Runnable {
 	 * @throws IOException
 	 */
 	private IndexWriter getIndexWriter(String repository) throws IOException {
-		IndexWriter indexWriter = writers.get(repository);		
-		File repositoryFolder = new File(repositoriesFolder, repository);
+		IndexWriter indexWriter = writers.get(repository);				
+		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
 		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
 		Directory directory = FSDirectory.open(indexFolder);		
 
