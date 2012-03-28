@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.codehaus.groovy.control.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,7 +174,7 @@ public abstract class IStoredSettings {
 			}
 		}
 		
-		throw new ConfigurationException("Property (" + name + ") does not exist");
+		throw new RuntimeException("Property (" + name + ") does not exist");
 	}
 
 	/**
