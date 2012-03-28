@@ -1,5 +1,6 @@
 #!/bin/bash
 # chkconfig: 3 21 91
+# description: Starts and Stops gitblit
 # Source function library.
 . /etc/init.d/functions
 
