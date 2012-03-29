@@ -36,10 +36,12 @@ public class LdapUserService extends ConfigUserService {
 	public static final Logger logger = LoggerFactory.getLogger(LdapUserService.class);
 	
 	private IStoredSettings settings;
-	private DirContext ctx;
 	private IUserService fileUserService;
 	private long lastRefreshed = 0;
 	private long refreshInterval = 0;
+	
+	private String ldapPrincipal;
+	private String ldapCredentials;
 	
 	public LdapUserService() {
 		super(new File("."));		// Needs a dummy file
@@ -53,7 +55,12 @@ public class LdapUserService extends ConfigUserService {
 		fileUserService = new GitblitUserService(realmFile);
 		this.refreshInterval = settings.getInteger(Keys.realm_ldap.refreshInterval, 3600) * 60 * 1000;
 		
-		this.ctx = getLdapDirContext(settings.getRequiredString(Keys.realm_ldap.principal), settings.getRequiredString(Keys.realm_ldap.credentials));
+		this.ldapPrincipal = settings.getRequiredString(Keys.realm_ldap.principal);
+		this.ldapCredentials = settings.getRequiredString(Keys.realm_ldap.credentials);
+	}
+	
+	private DirContext getLdapDirContext() {
+		return getLdapDirContext(ldapPrincipal, ldapCredentials);
 	}
 	
 	protected DirContext getLdapDirContext(String principal, String credentials) {
@@ -226,7 +233,7 @@ public class LdapUserService extends ConfigUserService {
 		ctls.setReturningAttributes(requestedAttributes);
 		
 		try {
-			NamingEnumeration<SearchResult> searchResults = ctx.search(searchFromNode, searchCriteria, searchCriteriaArgs, ctls);
+			NamingEnumeration<SearchResult> searchResults = getLdapDirContext().search(searchFromNode, searchCriteria, searchCriteriaArgs, ctls);
 			
 			while (searchResults.hasMore())
 				answer.add(callback.doCallback(searchResults.next()));
