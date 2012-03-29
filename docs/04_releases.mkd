@@ -7,6 +7,8 @@
 #### fixes
 
 - Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (issue 78)
+- Fixed row layout on activity page (issue 79)
+- Fixed Centos service script (Github/mohamedmansour)
 
 **0.9.1** *released 2012-03-27*
 
