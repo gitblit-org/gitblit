@@ -18,6 +18,8 @@ package com.gitblit.wicket.panels;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 
@@ -35,7 +37,8 @@ public class CommitHeaderPanel extends BasePanel {
 
 	public CommitHeaderPanel(String id, String repositoryName, RevCommit c) {
 		super(id);
-		add(new LinkPanel("shortmessage", "title", c.getShortMessage(), CommitPage.class,
+		add(new LinkPanel("shortmessage", "title", StringUtils.trimString(c.getShortMessage(),
+				Constants.LEN_SHORTLOG), CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, c.getName())));
 		add(new Label("commitid", "(" + c.getName().substring(0, 8) + ")"));
 		add(new Label("author", c.getAuthorIdent().getName()));
