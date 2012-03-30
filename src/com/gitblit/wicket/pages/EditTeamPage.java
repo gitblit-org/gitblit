@@ -232,8 +232,8 @@ public class EditTeamPage extends RootSubPage {
 		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
 				.getPostReceiveScriptsInherited(null)));
 
-		form.add(new Button(getString("gb.save")));
-		Button cancel = new Button(getString("gb.cancel")) {
+		form.add(new Button("save"));
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

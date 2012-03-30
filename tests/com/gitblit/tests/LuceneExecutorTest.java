@@ -23,10 +23,12 @@ import java.util.List;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 
+import com.gitblit.GitBlit;
 import com.gitblit.LuceneExecutor;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -44,8 +46,7 @@ public class LuceneExecutorTest {
 	
 	private RepositoryModel newRepositoryModel(Repository repository) {		
 		RepositoryModel model = new RepositoryModel();
-		model.name = StringUtils.getRelativePath(GitBlitSuite.REPOSITORIES.getAbsolutePath(),
-				repository.getDirectory().getAbsolutePath());
+		model.name = FileUtils.getRelativePath(GitBlitSuite.REPOSITORIES, repository.getDirectory());
 		model.hasCommits = JGitUtils.hasCommits(repository);
 		
 		// index all local branches

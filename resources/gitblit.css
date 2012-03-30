@@ -776,6 +776,11 @@ table.activity {
 	margin-top: 10px;
 }
 
+table.activity td {
+	padding-top:7px;
+	padding-bottom:7px;
+}
+
 tr th a { background-position: right; padding-right: 15px; background-repeat:no-repeat; }
 tr th.wicket_orderDown a {background-image: url(arrow_down.png); }
 tr th.wicket_orderUp a { background-image: url(arrow_up.png); }

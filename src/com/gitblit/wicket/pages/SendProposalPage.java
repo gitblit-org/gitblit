@@ -130,8 +130,8 @@ public class SendProposalPage extends RootSubPage {
 		form.add(new Label("tokenType", proposal.tokenType.name()));
 		form.add(new Label("token", proposal.token));
 
-		form.add(new Button(getString("gb.save")));
-		Button cancel = new Button(getString("gb.cancel")) {
+		form.add(new Button("save"));
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -31,8 +30,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.GitSearchPage;
+import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TreePage;
 
@@ -55,32 +54,31 @@ public class ActivityPanel extends BasePanel {
 				new ListDataProvider<Activity>(recentActivity)) {
 			private static final long serialVersionUID = 1L;
 
-			public void populateItem(final Item<Activity> item) {
-				final Activity entry = item.getModelObject();
-				item.add(WicketUtils.createDatestampLabel("title", entry.startDate, getTimeZone()));
+			public void populateItem(final Item<Activity> activityItem) {
+				final Activity entry = activityItem.getModelObject();
+				activityItem.add(WicketUtils.createDatestampLabel("title", entry.startDate, getTimeZone()));
 
 				// display the commits in chronological order
-				DataView<RepositoryCommit> commits = new DataView<RepositoryCommit>("commits",
+				DataView<RepositoryCommit> commits = new DataView<RepositoryCommit>("commit",
 						new ListDataProvider<RepositoryCommit>(entry.getCommits())) {
 					private static final long serialVersionUID = 1L;
 
-					public void populateItem(final Item<RepositoryCommit> item) {
-						final RepositoryCommit commit = item.getModelObject();
-						Fragment fragment = new Fragment("commit", "commitFragment", this);
+					public void populateItem(final Item<RepositoryCommit> commitItem) {
+						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// commit time of day
-						fragment.add(WicketUtils.createTimeLabel("time", commit.getCommitterIdent()
+						commitItem.add(WicketUtils.createTimeLabel("time", commit.getCommitterIdent()
 								.getWhen(), getTimeZone()));
 
 						// avatar
-						fragment.add(new GravatarImage("avatar", commit.getAuthorIdent(), 36));
+						commitItem.add(new GravatarImage("avatar", commit.getAuthorIdent(), 36));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {
-							fragment.add(WicketUtils.newImage("commitIcon",
+							commitItem.add(WicketUtils.newImage("commitIcon",
 									"commit_merge_16x16.png"));
 						} else {
-							fragment.add(WicketUtils.newBlankImage("commitIcon"));
+							commitItem.add(WicketUtils.newBlankImage("commitIcon"));
 						}
 
 						// author search link
@@ -89,7 +87,7 @@ public class ActivityPanel extends BasePanel {
 								GitSearchPage.class, WicketUtils.newSearchParameter(commit.repository,
 										commit.getName(), author, Constants.SearchType.AUTHOR), true);
 						setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
-						fragment.add(authorLink);
+						commitItem.add(authorLink);
 
 						// repository
 						String repoName = StringUtils.stripDotGit(commit.repository);
@@ -97,19 +95,19 @@ public class ActivityPanel extends BasePanel {
 								repoName, SummaryPage.class,
 								WicketUtils.newRepositoryParameter(commit.repository), true);
 						WicketUtils.setCssBackground(repositoryLink, repoName);
-						fragment.add(repositoryLink);
+						commitItem.add(repositoryLink);
 
 						// repository branch
 						LinkPanel branchLink = new LinkPanel("branch", "list", commit.branch,
 								LogPage.class, WicketUtils.newObjectParameter(commit.repository,
 										commit.branch), true);
 						WicketUtils.setCssStyle(branchLink, "color: #008000;");
-						fragment.add(branchLink);
+						commitItem.add(branchLink);
 
 						LinkPanel commitid = new LinkPanel("commitid", "list subject",
 								commit.getShortName(), CommitPage.class,
 								WicketUtils.newObjectParameter(commit.repository, commit.getName()), true);
-						fragment.add(commitid);
+						commitItem.add(commitid);
 
 						// message/commit link
 						String shortMessage = commit.getShortMessage();
@@ -125,25 +123,23 @@ public class ActivityPanel extends BasePanel {
 						if (!shortMessage.equals(trimmedMessage)) {
 							WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 						}
-						fragment.add(shortlog);
+						commitItem.add(shortlog);
 
 						// refs
-						fragment.add(new RefsPanel("commitRefs", commit.repository, commit
+						commitItem.add(new RefsPanel("commitRefs", commit.repository, commit
 								.getRefs()));
 
 						// view, diff, tree links
-						fragment.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
+						commitItem.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
 								WicketUtils.newObjectParameter(commit.repository, commit.getName())));
-						fragment.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
+						commitItem.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
 								WicketUtils.newObjectParameter(commit.repository, commit.getName()))
 								.setEnabled(commit.getParentCount() > 0));
-						fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-								WicketUtils.newObjectParameter(commit.repository, commit.getName())));
-
-						item.add(fragment);
+						commitItem.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
+								WicketUtils.newObjectParameter(commit.repository, commit.getName())));						
 					}
 				};
-				item.add(commits);
+				activityItem.add(commits);
 			}
 		};
 		add(activityView);

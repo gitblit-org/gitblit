@@ -215,8 +215,8 @@ public class EditUserPage extends RootSubPage {
 		form.add(repositories);
 		form.add(teams);
 
-		form.add(new Button(getString("gb.save")));
-		Button cancel = new Button(getString("gb.cancel")) {
+		form.add(new Button("save"));
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

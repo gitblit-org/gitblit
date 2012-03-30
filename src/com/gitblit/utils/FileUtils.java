@@ -149,4 +149,33 @@ public class FileUtils {
 			}
 		}
 	}
+	
+	/**
+	 * Determine the relative path between two files.  Takes into account
+	 * canonical paths, if possible.
+	 * 
+	 * @param basePath
+	 * @param path
+	 * @return a relative path from basePath to path
+	 */
+	public static String getRelativePath(File basePath, File path) {
+		File exactBase = getExactFile(basePath);
+		File exactPath = getExactFile(path);
+		return StringUtils.getRelativePath(exactBase.getPath(), exactPath.getPath());
+	}
+	
+	/**
+	 * Returns the exact path for a file. This path will be the canonical path
+	 * unless an exception is thrown in which case it will be the absolute path.
+	 * 
+	 * @param path
+	 * @return the exact file
+	 */
+	public static File getExactFile(File path) {
+		try {
+			return path.getCanonicalFile();
+		} catch (IOException e) {
+			return path.getAbsoluteFile();
+		}
+	}
 }
