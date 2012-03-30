@@ -20,7 +20,9 @@ import static org.junit.Assert.assertTrue;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +71,7 @@ public class GroovyScriptTest {
 	public void testSendMail() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
@@ -80,7 +83,7 @@ public class GroovyScriptTest {
 		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
 
-		test("sendmail.groovy", gitblit, logger, commands, repository);
+		test("sendmail.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(1, logger.messages.size());
 		assertEquals(1, gitblit.messages.size());
 		MockMail m = gitblit.messages.get(0);
@@ -92,26 +95,28 @@ public class GroovyScriptTest {
 	public void testProtectRefsCreateBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 	}
 	
 	@Test
 	public void testProtectRefsCreateTag() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId.zeroId(), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/tags/v1.0"));
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
 	
@@ -119,6 +124,7 @@ public class GroovyScriptTest {
 	public void testProtectRefsFastForward() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
@@ -126,7 +132,7 @@ public class GroovyScriptTest {
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
 	
@@ -134,6 +140,7 @@ public class GroovyScriptTest {
 	public void testProtectRefsDeleteMasterBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		ReceiveCommand command = new ReceiveCommand(ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
@@ -142,7 +149,7 @@ public class GroovyScriptTest {
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
 		assertEquals(0, logger.messages.size());
 	}
@@ -151,6 +158,7 @@ public class GroovyScriptTest {
 	public void testProtectRefsDeleteOtherBranch() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
@@ -158,7 +166,7 @@ public class GroovyScriptTest {
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(0, logger.messages.size());
 	}
 	
@@ -166,6 +174,7 @@ public class GroovyScriptTest {
 	public void testProtectRefsDeleteTag() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		ReceiveCommand command = new ReceiveCommand(ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), ObjectId.zeroId(),
@@ -174,7 +183,7 @@ public class GroovyScriptTest {
 		
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
-		test("protect-refs.groovy", gitblit, logger, commands, repository);
+		test("protect-refs.groovy", gitblit, logger, clientLogger, commands, repository);
 		assertEquals(ReceiveCommand.Result.REJECTED_NODELETE, command.getResult());
 		assertEquals(0, logger.messages.size());
 	}
@@ -183,6 +192,7 @@ public class GroovyScriptTest {
 	public void testBlockPush() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
 		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
 		commands.add(new ReceiveCommand(ObjectId
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
@@ -191,14 +201,41 @@ public class GroovyScriptTest {
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());		
 
 		try {
-			test("blockpush.groovy", gitblit, logger, commands, repository);
+			test("blockpush.groovy", gitblit, logger, clientLogger, commands, repository);
 			assertTrue("blockpush should have failed!", false);
 		} catch (GitBlitException e) {
 			assertTrue(e.getMessage().contains("failed"));
 		}
 	}
+	
+	@Test
+	public void testClientLogging() throws Exception {
+		MockGitblit gitblit = new MockGitblit();
+		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
+		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+		
+		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
+		
+		File groovyDir = GitBlit.getGroovyScriptsFolder();
+		File tempScript = File.createTempFile("testClientLogging", "groovy", groovyDir);
+		tempScript.deleteOnExit();
+		
+		BufferedWriter writer = new BufferedWriter(new FileWriter(tempScript));
+		
+		writer.write("import com.gitblit.utils.ClientLogger\n");
+		writer.write("clientLogger.sendMessage('this is a test message')\n");
+		writer.flush();
+		writer.close();
 
-	private void test(String script, MockGitblit gitblit, MockLogger logger,
+		test(tempScript.getName(), gitblit, logger, clientLogger, commands, repository);
+		assertTrue("Message Missing", clientLogger.messages.contains("this is a test message"));
+	}
+
+	private void test(String script, MockGitblit gitblit, MockLogger logger, MockClientLogger clientLogger,
 			List<ReceiveCommand> commands, RepositoryModel repository) throws Exception {
 
 		UserModel user = new UserModel("mock");
@@ -215,6 +252,7 @@ public class GroovyScriptTest {
 		binding.setVariable("commands", commands);
 		binding.setVariable("url", gitblitUrl);
 		binding.setVariable("logger", logger);
+		binding.setVariable("clientLogger", clientLogger);
 
 		Object result = gse.run(script, binding);
 		if (result instanceof Boolean) {
@@ -263,6 +301,14 @@ public class GroovyScriptTest {
 		List<String> messages = new ArrayList<String>();
 
 		public void info(String message) {
+			messages.add(message);
+		}
+	}
+	
+	class MockClientLogger {
+		List<String> messages = new ArrayList<String>();
+
+		public void sendMessage(String message) {
 			messages.add(message);
 		}
 	}
