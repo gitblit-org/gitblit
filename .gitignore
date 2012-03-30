@@ -25,3 +25,4 @@
 /build-demo.xml
 /users.conf
 *.directory
+/.gradle
