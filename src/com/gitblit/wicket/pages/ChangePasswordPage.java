@@ -113,8 +113,8 @@ public class ChangePasswordPage extends RootSubPage {
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField);
 
-		form.add(new Button(getString("gb.save")));
-		Button cancel = new Button(getString("gb.cancel")) {
+		form.add(new Button("save"));
+		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
