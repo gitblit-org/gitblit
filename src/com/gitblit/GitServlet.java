@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
@@ -166,7 +167,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
 			scripts.addAll(repository.preReceiveScripts);
 			UserModel user = getUserModel(rp);
-			runGroovy(repository, user, commands, scripts);
+			runGroovy(repository, user, commands, rp, scripts);
 			for (ReceiveCommand cmd : commands) {
 				if (!Result.NOT_ATTEMPTED.equals(cmd.getResult())) {
 					logger.warn(MessageFormat.format("{0} {1} because \"{2}\"", cmd.getNewId()
@@ -194,7 +195,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
 			scripts.addAll(repository.postReceiveScripts);
 			UserModel user = getUserModel(rp);
-			runGroovy(repository, user, commands, scripts);
+			runGroovy(repository, user, commands, rp, scripts);
 
 			// Experimental
 			// runNativeScript(rp, "hooks/post-receive", commands);
@@ -238,7 +239,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 * @param scripts
 		 */
 		protected void runGroovy(RepositoryModel repository, UserModel user,
-				Collection<ReceiveCommand> commands, Set<String> scripts) {
+				Collection<ReceiveCommand> commands, ReceivePack rp, Set<String> scripts) {
 			if (scripts == null || scripts.size() == 0) {
 				// no Groovy scripts to execute
 				return;
@@ -251,6 +252,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			binding.setVariable("commands", commands);
 			binding.setVariable("url", gitblitUrl);
 			binding.setVariable("logger", logger);
+			binding.setVariable("clientLogger", new ClientLogger(rp));
 			for (String script : scripts) {
 				if (StringUtils.isEmpty(script)) {
 					continue;

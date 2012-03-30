@@ -21,6 +21,7 @@ import com.gitblit.models.UserModel
 import org.eclipse.jgit.transport.ReceiveCommand
 import org.eclipse.jgit.transport.ReceiveCommand.Result
 import org.slf4j.Logger
+import com.gitblit.utils.ClientLogger
 
 /**
  * Sample Gitblit Pre-Receive Hook: blockpush
@@ -50,12 +51,13 @@ import org.slf4j.Logger
  * chain, "return false" at the appropriate failure points.
  *
  * Bound Variables:
- *  gitblit		Gitblit Server	 		com.gitblit.GitBlit
- *  repository	Gitblit Repository		com.gitblit.models.RepositoryModel
- *  user		Gitblit User			com.gitblit.models.UserModel
- *  commands	JGit commands 			Collection<org.eclipse.jgit.transport.ReceiveCommand>
- *	url			Base url for Gitblit	String
- *  log			Logger instance			org.slf4j.Logger
+ *  gitblit			Gitblit Server	 		com.gitblit.GitBlit
+ *  repository		Gitblit Repository		com.gitblit.models.RepositoryModel
+ *  user			Gitblit User			com.gitblit.models.UserModel
+ *  clientLogger	Logs messages to client	com.gitblit.utils.ClientLogger
+ *  commands		JGit commands			Collection<org.eclipse.jgit.transport.ReceiveCommand>
+ *	url				Base url for Gitblit	String
+ *  logger			Logger instance			org.slf4j.Logger
  *  
  */
 
