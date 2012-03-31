@@ -658,6 +658,8 @@ public class FileUserService extends FileSettings implements IUserService {
 					team.addRepositories(repositories);
 					team.addUsers(users);
 					team.addMailingLists(mailingLists);
+					team.preReceiveScripts.addAll(preReceive);
+					team.postReceiveScripts.addAll(postReceive);
 					teams.put(team.name.toLowerCase(), team);
 				} else {
 					// user definition

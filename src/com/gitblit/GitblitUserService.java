@@ -52,6 +52,11 @@ public class GitblitUserService implements IUserService {
 
 	public GitblitUserService() {
 	}
+	
+	public GitblitUserService(File realmFile) {
+		serviceImpl = createUserService(realmFile);
+		logger.info("GUS delegating to " + serviceImpl.toString());
+	}
 
 	@Override
 	public void setup(IStoredSettings settings) {

@@ -448,3 +448,152 @@ Nothing special to configure, EGit figures out everything.
 - **Command-line Git**  
 My testing indicates that your username must be embedded in the url.  YMMV.  
 <pre>https://username@yourserver/git/your/repository</pre>
+
+## LDAP Support
+*SINCE 1.0.0*
+
+### Example Diagram (with attributes)
+![block diagram](ldapSample.png "LDAP Sample")
+
+<table border="1" cellpadding="1" cellspacing="1">
+	<thead>
+		<tr><th scope="col">ID</th><th scope="col">DN (Distinguished Name)</th><th scope="col">Attributes</th></tr>
+	</thead>
+	<tbody>
+		<tr><td>1</td><td>DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>2</td><td>OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>3</td><td>OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>4</td><td>OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>5</td><td>OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>6</td><td>CN=Git_Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = group
+name = Git_Admins
+member = CN=UserOne,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td></tr>
+		<tr><td>7</td><td>CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = group
+name = Git_Users
+preReceiveScripts = scriptOne,scriptTwo
+member = CN=UserOne,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+member = CN=UserTwo,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+member = CN=UserThree,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+member = CN=UserFour,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td></tr>
+		<tr><td>8</td><td>OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>9</td><td>OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td>N/A</td></tr>
+		<tr><td>10</td><td>CN=UserOne,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = user
+name = UserOne
+excludeFromFederation = true
+memberOf = CN=Git_Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
+memberOf = CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td></tr>
+		<tr><td>11</td><td>CN=UserTwo,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = user
+name = UserTwo
+excludeFromFederation = false
+memberOf = CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td>
+		</tr><tr><td>12</td><td>CN=UserThree,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = user
+name = UserThree
+excludeFromFederation = false
+memberOf = CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td></tr>
+		<tr><td>13</td><td>CN=UserFour,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td><td><pre>
+objectClass = user
+name = UserFour
+excludeFromFederation = false
+memberOf = CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</pre></td></tr>
+	</tbody>
+</table>
+
+### GitBlit Properties (Not a full list - see docs in gitblit.properties)
+The following is are descriptions of the properties that would follow the sample layout of an LDAP (or Active Directory) setup above.
+
+<table border="1" cellpadding="1" cellspacing="1">
+<tr>
+  <td>realm_ldap.usersRootNodeDn = OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>All users will be children of the "Users" node (5)</td>
+</tr>
+<tr>
+  <td>realm_ldap.allUsersSearchCriteria = (objectClass=user)</td>
+  <td>Find users who have an attribute "objectClass" equal to "user" (This matches 10, 11, 12, 13 - if subtree searching is true)</td>
+</tr>
+<tr>
+  <td>realm_ldap.teamsRootNodeDn = OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>All teams will be children of the "Groups" node (4)</td>
+</tr>
+<tr>
+  <td>realm_ldap.allTeamsSearchCriteria = (&(objectClass=group)(cn=git*))</td>
+  <td>Find teams who have an attribute "objectClass" equal to "group" AND cn starting with "git" (This matches 6, 7 - but wouldn't match a group "Svn_Users")</td>
+</tr>
+<tr>
+  <td>realm_ldap.userNameAttribute = name</td>
+  <td>When looking at a USER node, use the "name" attribute to get the name of that user (e.g. 11 would be "UserTwo")</td>
+</tr>
+<tr>
+  <td>realm_ldap.teamNameAttribute = name</td>
+  <td>When looking at a TEAM node, use the "name" attribute to get the name of that team (e.g. 7 would be "Git_Users")</td>
+</tr>
+<tr>
+  <td>realm_ldap.adminAttributeName = memberOf</td>
+  <td>When looking at a USER node, use the "memberOf" attribute to determine if the user is an admin.  The attribute must match the literal value in realm_ldap.adminAttributeValue</td>
+</tr>
+<tr>
+  <td>realm_ldap.adminAttributeValue = CN=Git_Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>Combined with above, if the memberOf attribute of a USER contains "CN=Git_Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain", it is considered an admin.  This setup indicates that users in the group "Git_Admins" are admins.</td>
+</tr>
+<tr>
+  <td>realm_ldap.preReceiveScriptsAttributeName = preReceiveScripts</td>
+  <td>In this setup, we're using LDAP to get the list of pre-receive scripts for a particular TEAM.  This is the attribute to look at.  In this example, Git_Users would have "scriptOne" and "scriptTwo"</td>
+</tr>
+<tr>
+  <td>realm_ldap.excludeFromFederationAttributeName = excludeFromFederation</td>
+  <td>If you are going to store information to exclude this user from federation in LDAP, specify the attribute here.</td>
+</tr>
+<tr>
+  <td>realm_ldap.excludeFromFederationAttributeValue = true</td>
+  <td>If you are going to store information to exclude this user from federation in LDAP, specify the value the attribute must have here.</td>
+</tr>
+<tr>
+  <td>realm_ldap.userTeamLinkAttributeName = memberOf</td>
+  <td>This is the attribute to look at on a USER record that indicates which teams they are members of.  Use in combination with userTeamLinkAttributeRegex and userTeamLinkAttributeRegexGroup to pick out the TEAM NAME</td>
+</tr>
+<tr>
+  <td>realm_ldap.userTeamLinkAttributeRegex = cn=([^,]+),</td>
+  <td>This is the RegEx to look at on the attribute above.  It MUST return at least one group that contains the TEAM NAME</td>
+</tr>
+<tr>
+  <td>realm_ldap.userTeamLinkAttributeRegexGroup = 1</td>
+  <td>This is the RegEx Group to look at on the attribute above.  In this case, we're matching the CN portion of the memberOf attribute (e.g. "Git_Admins" and "Git_Users" for 10)</td>
+</tr>
+<tr>
+  <td>realm_ldap.teamUserLinkAttributeName = member</td>
+  <td>Same as above, except this will be an attribute on a TEAM record</td>
+</tr>
+<tr>
+  <td>realm_ldap.teamUserLinkAttributeRegex = cn=([^,]+),</td>
+  <td>See user documentation</td>
+</tr>
+<tr>
+  <td>realm_ldap.teamUserLinkAttributeRegexGroup = 1</td>
+  <td>See user documentation (e.g. "UserOne" is returned for 6)</td>
+</tr>
+</table>
+
+You may notice that there are no properties to find the password on the User record.  This is intentional, and the service utilizes the LDAP login process to verify that the user credentials are correct.
+
+It's important to note that there is a two way link here.  This is important for the architecture of GitBlit, as it is necessary to be able to lookup a user from a team, and a team from a user.  Other properties that are not listed here:
+
+- realm_ldap.domainName: Use if everyone will be logging in from the same domain.  This way, your URL's don't need to be "https://domain\\user@localhost/repository.git" and you don't need to specify the domain when logging into the UI.
+- realm_ldap.serverUrl: Required to be the URL of your LDAP server
+- realm_ldap.principal: What username will be used to log into the LDAP server itself
+- realm_ldap.credentials: What is the password to log into the LDAP Server itself
+- realm_ldap.mailingListsAttributeName: The attribute on a team to get the mailing list.  It must exist as a comma delimited value in LDAP.  Leave blank to get from the users.conf file.
+- realm_ldap.postReceiveScriptsAttributeName: The attribute on a team to get the pre receive hooks.  It must exist as a comma delimited value in LDAP.  Leave blank to get from the users.conf file.
+- realm_ldap.authenticationType: JNDI allows for "none", "simple", "strong"
+- realm_ldap.isSubtreeSearch: Do you want to search multiple levels in a hierachy, or just one (performance reasons).  NOTE: We leave this as "true" in this sample, because of the "US" and "Canada" level"
+- realm_ldap.isUsersInLdap: Should we get user information from LDAP (true) or users.conf (false)
+- realm_ldap.isTeamsInLdap: Should we get team information from LDAP (true) or users.conf (false)
+- realm_ldap.isUserRepositoryLinkInLdap: Is the User -> Repository link in LDAP?  NOTE: this is an unimplimented feature if you set it to true, since this would require writing back to LDAP.
+- realm_ldap.isTeamRepositoryLinkInLdap: Is the Team -> Repository link in LDAP?  NOTE: this is an unimplimented feature if you set it to true, since this would require writing back to LDAP.
+- realm_ldap.isTeamUserLinkInLdap: Are the links between User <--> Team in LDAP?  This example shows that they are by the User having a memberOf attribute and the Team having the member attribute.
+
+Finally, writing back to LDAP is not implemented at this time, so do not worry about corrupting your corporate LDAP.  Many orgnizations are likely to go through a different flow to update their LDAP, so it's unlikely that this will become a feature.
+Due to this, updating user records becomes slightly weird.  Core GitBlit requires a password to be entered, so you must put one in just to hit save.  However, please rest easy, no passwords are getting updated.
