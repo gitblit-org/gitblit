@@ -4,11 +4,16 @@
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+#### changes
+
+- Added *clientLogger* bound variable to Groovy hook mechanism to allow custom info and error messages to be returned to the client (Github/jcrygier)
+
 #### fixes
 
 - Fixed absolute path/canonical path discrepancy between Gitblit and JGit regarding use of symlinks (issue 78)
 - Fixed row layout on activity page (issue 79)
 - Fixed Centos service script (Github/mohamedmansour)
+- Removed wrong char from EditRepositoryPage, which caused IE8 to not display the save button (Github/jonnybbb)
 
 **0.9.1** *released 2012-03-27*
 
