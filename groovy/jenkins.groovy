@@ -46,12 +46,13 @@ import org.slf4j.Logger
  * exception handler so it will not crash another script nor crash Gitblit.
  * 
  * Bound Variables:
- *  gitblit		Gitblit Server	 		com.gitblit.GitBlit
- *  repository	Gitblit Repository		com.gitblit.models.RepositoryModel
- *  user		Gitblit User			com.gitblit.models.UserModel
- *  commands	JGit commands 			Collection<org.eclipse.jgit.transport.ReceiveCommand>
- *	url			Base url for Gitblit	String
- *  logger		Logger instance			org.slf4j.Logger
+ *  gitblit			Gitblit Server	 			com.gitblit.GitBlit
+ *  repository		Gitblit Repository			com.gitblit.models.RepositoryModel
+ *  user			Gitblit User				com.gitblit.models.UserModel
+ *  commands		JGit commands 				Collection<org.eclipse.jgit.transport.ReceiveCommand>
+ *	url				Base url for Gitblit		String
+ *  logger			Logs messages to Gitblit 	org.slf4j.Logger
+ *  clientLogger	Logs messages to Git client	com.gitblit.utils.ClientLogger
  *  
  */
 // Indicate we have started the script

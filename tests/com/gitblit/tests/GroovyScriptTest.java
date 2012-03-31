@@ -23,6 +23,8 @@ import groovy.util.GroovyScriptEngine;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -226,8 +228,7 @@ public class GroovyScriptTest {
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(tempScript));
 		
-		writer.write("import com.gitblit.utils.ClientLogger\n");
-		writer.write("clientLogger.sendMessage('this is a test message')\n");
+		writer.write("clientLogger.info('this is a test message')\n");
 		writer.flush();
 		writer.close();
 
@@ -308,8 +309,22 @@ public class GroovyScriptTest {
 	class MockClientLogger {
 		List<String> messages = new ArrayList<String>();
 
-		public void sendMessage(String message) {
+		public void info(String message) {
 			messages.add(message);
+		}
+		
+		public void error(String message) {
+			messages.add(message);
+		}
+		
+		public void error(String message, Throwable t) {
+			PrintWriter writer = new PrintWriter(new StringWriter());
+			if (!StringUtils.isEmpty(message)) {
+				writer.append(message);
+				writer.append('\n');
+			}
+			t.printStackTrace(writer);
+			messages.add(writer.toString());
 		}
 	}
 
