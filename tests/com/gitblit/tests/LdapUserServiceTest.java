@@ -77,30 +77,30 @@ public class LdapUserServiceTest {
 		}
 		
 		Map<Object, Object> props = new HashMap<Object, Object>();
-		props.put("realm_ldap.alternateConfiguration", "ldapUserServiceTest.conf");
-		props.put("realm_ldap.serverUrl", "notneeded");
-		props.put("realm_ldap.principal", "jcrygier");
-		props.put("realm_ldap.credentials", "mocked");
-		props.put("realm_ldap.usersRootNodeDn", "OU=User_Accounts,OU=User_Control,OU=myOrganization,DC=myCompany");
-		props.put("realm_ldap.allUsersSearchCriteria", "(objectClass=user)");
-		props.put("realm_ldap.teamsRootNodeDn", "OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
-		props.put("realm_ldap.allTeamsSearchCriteria", "(&(objectClass=group)(cn=git*))");
-		props.put("realm_ldap.userNameAttribute", "name");
-		props.put("realm_ldap.adminAttributeName", "memberOf");
-		props.put("realm_ldap.adminAttributeValue", "CN=Git_Admins,OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
-		props.put("realm_ldap.teamNameAttribute", "name");
-		props.put("realm_ldap.isUserRepositoryLinkInLdap", "false");
-		props.put("realm_ldap.isTeamRepositoryLinkInLdap", "false");
-		props.put("realm_ldap.userTeamLinkAttributeName", "memberOf");
-		props.put("realm_ldap.userTeamLinkAttributeRegex", "cn=([^,]+),");
-		props.put("realm_ldap.userTeamLinkAttributeRegexGroup", "1");
-		props.put("realm_ldap.teamUserLinkAttributeName", "member");
-		props.put("realm_ldap.teamUserLinkAttributeRegex", "cn=([^,]+),");
-		props.put("realm_ldap.teamUserLinkAttributeRegexGroup", "1");
-		props.put("realm_ldap.excludeFromFederationAttributeName", "");
-		props.put("realm_ldap.excludeFromFederationAttributeValue", "");
-		props.put("realm_ldap.preReceiveScriptsAttributeName", "");
-		props.put("realm_ldap.postReceiveScriptsAttributeName", "");
+		props.put("realm.ldap.alternateConfiguration", "ldapUserServiceTest.conf");
+		props.put("realm.ldap.serverUrl", "notneeded");
+		props.put("realm.ldap.principal", "jcrygier");
+		props.put("realm.ldap.credentials", "mocked");
+		props.put("realm.ldap.usersRootNodeDn", "OU=User_Accounts,OU=User_Control,OU=myOrganization,DC=myCompany");
+		props.put("realm.ldap.allUsersSearchCriteria", "(objectClass=user)");
+		props.put("realm.ldap.teamsRootNodeDn", "OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
+		props.put("realm.ldap.allTeamsSearchCriteria", "(&(objectClass=group)(cn=git*))");
+		props.put("realm.ldap.userNameAttribute", "name");
+		props.put("realm.ldap.adminAttributeName", "memberOf");
+		props.put("realm.ldap.adminAttributeValue", "CN=Git_Admins,OU=Security_Groups,OU=User_Control,OU=myOrganization,DC=myCompany");
+		props.put("realm.ldap.teamNameAttribute", "name");
+		props.put("realm.ldap.isUserRepositoryLinkInLdap", "false");
+		props.put("realm.ldap.isTeamRepositoryLinkInLdap", "false");
+		props.put("realm.ldap.userTeamLinkAttributeName", "memberOf");
+		props.put("realm.ldap.userTeamLinkAttributeRegex", "cn=([^,]+),");
+		props.put("realm.ldap.userTeamLinkAttributeRegexGroup", "1");
+		props.put("realm.ldap.teamUserLinkAttributeName", "member");
+		props.put("realm.ldap.teamUserLinkAttributeRegex", "cn=([^,]+),");
+		props.put("realm.ldap.teamUserLinkAttributeRegexGroup", "1");
+		props.put("realm.ldap.excludeFromFederationAttributeName", "");
+		props.put("realm.ldap.excludeFromFederationAttributeValue", "");
+		props.put("realm.ldap.preReceiveScriptsAttributeName", "");
+		props.put("realm.ldap.postReceiveScriptsAttributeName", "");
 		
 		// Mock out our settings
 		settings = new MemorySettings(props);
@@ -340,8 +340,8 @@ public class LdapUserServiceTest {
 	
 	@Test
 	public void testExcludeFedarationFromLdap() {
-		settings.put("realm_ldap.excludeFromFederationAttributeName", "excludeFromFederation");
-		settings.put("realm_ldap.excludeFromFederationAttributeValue", "true");
+		settings.put("realm.ldap.excludeFromFederationAttributeName", "excludeFromFederation");
+		settings.put("realm.ldap.excludeFromFederationAttributeValue", "true");
 		
 		UserModel user = ldapUserService.getUserModel("jcrygier");
 		
@@ -356,7 +356,7 @@ public class LdapUserServiceTest {
 	
 	@Test
 	public void testPreReceiveScriptsFromLdap() {
-		settings.put("realm_ldap.preReceiveScriptsAttributeName", "preReceiveScriptsAttributeName");
+		settings.put("realm.ldap.preReceiveScriptsAttributeName", "preReceiveScriptsAttributeName");
 		
 		TeamModel team = ldapUserService.getTeamModel("Git_Users");
 		
@@ -386,7 +386,7 @@ public class LdapUserServiceTest {
 	
 	@Test
 	public void testPostReceiveScriptsFromLdap() {
-		settings.put("realm_ldap.postReceiveScriptsAttributeName", "postReceiveScriptsAttributeName");
+		settings.put("realm.ldap.postReceiveScriptsAttributeName", "postReceiveScriptsAttributeName");
 		
 		TeamModel team = ldapUserService.getTeamModel("Git_Users");
 		
@@ -416,7 +416,7 @@ public class LdapUserServiceTest {
 	
 	@Test
 	public void testPropertiesBacking() {
-		settings.put("realm_ldap.alternateConfiguration", "ldapUserServiceTest.properties");
+		settings.put("realm.ldap.alternateConfiguration", "ldapUserServiceTest.properties");
 		
 		TeamModel team = ldapUserService.getTeamModel("Git_Users");
 		

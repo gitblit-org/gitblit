@@ -50,13 +50,13 @@ public class LdapUserService extends ConfigUserService {
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
-		String alternateConfiguration = settings.getString(Keys.realm_ldap.alternateConfiguration, "users.conf");
+		String alternateConfiguration = settings.getString(Keys.realm.ldap_alternateConfiguration, "users.conf");
 		File realmFile = GitBlit.getFileOrFolder(alternateConfiguration);
 		fileUserService = new GitblitUserService(realmFile);
-		this.refreshInterval = settings.getInteger(Keys.realm_ldap.refreshInterval, 3600) * 60 * 1000;
+		this.refreshInterval = settings.getInteger(Keys.realm.ldap_refreshInterval, 3600) * 60 * 1000;
 		
-		this.ldapPrincipal = settings.getRequiredString(Keys.realm_ldap.principal);
-		this.ldapCredentials = settings.getRequiredString(Keys.realm_ldap.credentials);
+		this.ldapPrincipal = settings.getRequiredString(Keys.realm.ldap_principal);
+		this.ldapCredentials = settings.getRequiredString(Keys.realm.ldap_credentials);
 	}
 	
 	private DirContext getLdapDirContext() {
@@ -66,9 +66,9 @@ public class LdapUserService extends ConfigUserService {
 	protected DirContext getLdapDirContext(String principal, String credentials) {
 		try {
 			Hashtable<String, String> env = new Hashtable<String, String>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
-			env.put(Context.PROVIDER_URL, settings.getRequiredString(Keys.realm_ldap.serverUrl));
-			env.put(Context.SECURITY_AUTHENTICATION, settings.getString(Keys.realm_ldap.authenticationType, "simple"));
+			env.put(Context.INITIAL_CONTEXT_FACTORY,settings.getString(Keys.realm.ldap_initialContextFactory, "com.sun.jndi.ldap.LdapCtxFactory"));
+			env.put(Context.PROVIDER_URL, settings.getRequiredString(Keys.realm.ldap_serverUrl));
+			env.put(Context.SECURITY_AUTHENTICATION, settings.getString(Keys.realm.ldap_authenticationType, "simple"));
 			env.put(Context.SECURITY_PRINCIPAL, principal);
 			env.put(Context.SECURITY_CREDENTIALS, credentials);
 			
@@ -82,7 +82,7 @@ public class LdapUserService extends ConfigUserService {
 	
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		String domainName = settings.getString(Keys.realm_ldap.domainName, "");
+		String domainName = settings.getString(Keys.realm.ldap_domainName, "");
 		if (domainName.trim().length() > 0)
 			username = domainName + "\\" + username;
 		
@@ -100,7 +100,7 @@ public class LdapUserService extends ConfigUserService {
 				username = username.substring(lastSlash + 1);			
 			
 			return getUserModel(username);
-		}
+		} 
 		
 		return null;
 		
@@ -141,8 +141,8 @@ public class LdapUserService extends ConfigUserService {
 		List<UserModel> allUsers;
 		
 		if (isUsersInLdap()) {
-			String searchFromNode = settings.getRequiredString(Keys.realm_ldap.usersRootNodeDn);
-			String searchCriteria = settings.getRequiredString(Keys.realm_ldap.allUsersSearchCriteria);
+			String searchFromNode = settings.getRequiredString(Keys.realm.ldap_usersRootNodeDn);
+			String searchCriteria = settings.getRequiredString(Keys.realm.ldap_allUsersSearchCriteria);
 			Object[] searchCriteriaArgs = {  };
 			
 			allUsers = searchLdap(searchFromNode, searchCriteria, searchCriteriaArgs, userModelConverter);
@@ -162,8 +162,8 @@ public class LdapUserService extends ConfigUserService {
 		List<TeamModel> allTeams;
 		
 		if (isTeamsInLdap()) {
-			String searchFromNode = settings.getRequiredString(Keys.realm_ldap.teamsRootNodeDn);
-			String searchCriteria = settings.getRequiredString(Keys.realm_ldap.allTeamsSearchCriteria);
+			String searchFromNode = settings.getRequiredString(Keys.realm.ldap_teamsRootNodeDn);
+			String searchCriteria = settings.getRequiredString(Keys.realm.ldap_allTeamsSearchCriteria);
 			Object[] searchCriteriaArgs = {  };
 			
 			allTeams = searchLdap(searchFromNode, searchCriteria, searchCriteriaArgs, teamModelConverter);
@@ -225,7 +225,7 @@ public class LdapUserService extends ConfigUserService {
 		SearchControls ctls = new SearchControls();
 		ctls.setReturningObjFlag(true);
 		
-		boolean subtreeSearch = settings.getBoolean(Keys.realm_ldap.isSubtreeSearch, true);
+		boolean subtreeSearch = settings.getBoolean(Keys.realm.ldap_isSubtreeSearch, true);
 		if (subtreeSearch)
 			ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 		
@@ -249,22 +249,22 @@ public class LdapUserService extends ConfigUserService {
 		
 		@Override
 		public String[] getRequestedAttributes() {
-			return new String[] { settings.getString(Keys.realm_ldap.userNameAttribute, null), 
-					              settings.getString(Keys.realm_ldap.adminAttributeName, null),
-					              settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeName),
-					              settings.getString(Keys.realm_ldap.excludeFromFederationAttributeName, null)};
+			return new String[] { settings.getString(Keys.realm.ldap_userNameAttribute, null), 
+					              settings.getString(Keys.realm.ldap_adminAttributeName, null),
+					              settings.getRequiredString(Keys.realm.ldap_userTeamLinkAttributeName),
+					              settings.getString(Keys.realm.ldap_excludeFromFederationAttributeName, null)};
 		}
 		
 		@Override
 		public UserModel doCallback(SearchResult searchResult) {
-			String userNameAttribute = settings.getRequiredString(Keys.realm_ldap.userNameAttribute);
-			String adminAttributeName = settings.getString(Keys.realm_ldap.adminAttributeName, null);
-			String adminAttributeValue = settings.getString(Keys.realm_ldap.adminAttributeValue, null);
-			String excludeFromFederationAttributeName = settings.getString(Keys.realm_ldap.excludeFromFederationAttributeName, null);
-			String excludeFromFederationAttributeValue = settings.getString(Keys.realm_ldap.excludeFromFederationAttributeValue, null);
-			String userTeamLinkAttributeName = settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeName);
-			String userTeamLinkAttributeRegex = settings.getRequiredString(Keys.realm_ldap.userTeamLinkAttributeRegex);
-			Integer userTeamLinkAttributeRegexGroup = settings.getInteger(Keys.realm_ldap.userTeamLinkAttributeRegexGroup, 0);
+			String userNameAttribute = settings.getRequiredString(Keys.realm.ldap_userNameAttribute);
+			String adminAttributeName = settings.getString(Keys.realm.ldap_adminAttributeName, null);
+			String adminAttributeValue = settings.getString(Keys.realm.ldap_adminAttributeValue, null);
+			String excludeFromFederationAttributeName = settings.getString(Keys.realm.ldap_excludeFromFederationAttributeName, null);
+			String excludeFromFederationAttributeValue = settings.getString(Keys.realm.ldap_excludeFromFederationAttributeValue, null);
+			String userTeamLinkAttributeName = settings.getRequiredString(Keys.realm.ldap_userTeamLinkAttributeName);
+			String userTeamLinkAttributeRegex = settings.getRequiredString(Keys.realm.ldap_userTeamLinkAttributeRegex);
+			Integer userTeamLinkAttributeRegexGroup = settings.getInteger(Keys.realm.ldap_userTeamLinkAttributeRegexGroup, 0);
 			
 			Attributes nodeAttributes = searchResult.getAttributes();
 			
@@ -310,22 +310,22 @@ public class LdapUserService extends ConfigUserService {
 	public LdapSearchCallback<TeamModel> teamModelConverter = new LdapSearchCallback<TeamModel>() {
 		@Override
 		public String[] getRequestedAttributes() {
-			return new String[] { settings.getRequiredString(Keys.realm_ldap.teamNameAttribute),
-					              settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeName),
-					              settings.getString(Keys.realm_ldap.mailingListsAttributeName, null),
-					              settings.getString(Keys.realm_ldap.preReceiveScriptsAttributeName, null),
-					              settings.getString(Keys.realm_ldap.postReceiveScriptsAttributeName, null)};
+			return new String[] { settings.getRequiredString(Keys.realm.ldap_teamNameAttribute),
+					              settings.getRequiredString(Keys.realm.ldap_teamUserLinkAttributeName),
+					              settings.getString(Keys.realm.ldap_mailingListsAttributeName, null),
+					              settings.getString(Keys.realm.ldap_preReceiveScriptsAttributeName, null),
+					              settings.getString(Keys.realm.ldap_postReceiveScriptsAttributeName, null)};
 		}
 		
 		@Override
 		public TeamModel doCallback(SearchResult searchResult) {
-			String teamNameAttribute = settings.getRequiredString(Keys.realm_ldap.teamNameAttribute);
-			String teamUserLinkAttributeName = settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeName);
-			String teamUserLinkAttributeRegex = settings.getRequiredString(Keys.realm_ldap.teamUserLinkAttributeRegex);
-			Integer teamUserLinkAttributeRegexGroup = settings.getInteger(Keys.realm_ldap.teamUserLinkAttributeRegexGroup, 0);
-			String mailingListsAttributeName = settings.getString(Keys.realm_ldap.mailingListsAttributeName, null);
-			String preReceiveScriptsAttributeName = settings.getString(Keys.realm_ldap.preReceiveScriptsAttributeName, null);
-			String postReceiveScriptsAttributeName = settings.getString(Keys.realm_ldap.postReceiveScriptsAttributeName, null);
+			String teamNameAttribute = settings.getRequiredString(Keys.realm.ldap_teamNameAttribute);
+			String teamUserLinkAttributeName = settings.getRequiredString(Keys.realm.ldap_teamUserLinkAttributeName);
+			String teamUserLinkAttributeRegex = settings.getRequiredString(Keys.realm.ldap_teamUserLinkAttributeRegex);
+			Integer teamUserLinkAttributeRegexGroup = settings.getInteger(Keys.realm.ldap_teamUserLinkAttributeRegexGroup, 0);
+			String mailingListsAttributeName = settings.getString(Keys.realm.ldap_mailingListsAttributeName, null);
+			String preReceiveScriptsAttributeName = settings.getString(Keys.realm.ldap_preReceiveScriptsAttributeName, null);
+			String postReceiveScriptsAttributeName = settings.getString(Keys.realm.ldap_postReceiveScriptsAttributeName, null);
 			
 			Attributes nodeAttributes = searchResult.getAttributes();
 			
@@ -385,7 +385,7 @@ public class LdapUserService extends ConfigUserService {
 			}
 		}
 		
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 	private boolean getBooleanAttributeFromLdap(Attributes nodeAttributes, String attributeName, String attributeValue) throws NamingException {
@@ -411,43 +411,43 @@ public class LdapUserService extends ConfigUserService {
 	}
 	
 	protected boolean isUsersInLdap() {
-		return settings.getBoolean(Keys.realm_ldap.isUsersInLdap, true);
+		return settings.getBoolean(Keys.realm.ldap_isUsersInLdap, true);
 	}
 	
 	protected boolean isTeamsInLdap() {
-		return settings.getBoolean(Keys.realm_ldap.isTeamsInLdap, true);
+		return settings.getBoolean(Keys.realm.ldap_isTeamsInLdap, true);
 	}
 	
 	protected boolean isUserRepositoryLinkInLdap() {
-		return settings.getBoolean(Keys.realm_ldap.isUserRepositoryLinkInLdap, true);
+		return settings.getBoolean(Keys.realm.ldap_isUserRepositoryLinkInLdap, true);
 	}
 	
 	protected boolean isTeamUserLinkInLdap() {
-		return settings.getBoolean(Keys.realm_ldap.isTeamUserLinkInLdap, true);
+		return settings.getBoolean(Keys.realm.ldap_isTeamUserLinkInLdap, true);
 	}
 	
 	protected boolean isTeamRepositoryLinkInLdap() {
-		return settings.getBoolean(Keys.realm_ldap.isTeamRepositoryLinkInLdap, true);
+		return settings.getBoolean(Keys.realm.ldap_isTeamRepositoryLinkInLdap, true);
 	}
 	
 	protected boolean isAdminAttributeInLdap() {
-		return isSettingPresent(Keys.realm_ldap.adminAttributeName);
+		return isSettingPresent(Keys.realm.ldap_adminAttributeName);
 	}
 	
 	protected boolean isExcludeFromFederationInLdap() {
-		return isSettingPresent(Keys.realm_ldap.excludeFromFederationAttributeName);
+		return isSettingPresent(Keys.realm.ldap_excludeFromFederationAttributeName);
 	}
 	
 	protected boolean isMailingListsInLdap() {
-		return isSettingPresent(Keys.realm_ldap.mailingListsAttributeName);
+		return isSettingPresent(Keys.realm.ldap_mailingListsAttributeName);
 	}
 	
 	protected boolean isPreReceiveScriptInLdap() {
-		return isSettingPresent(Keys.realm_ldap.preReceiveScriptsAttributeName);
+		return isSettingPresent(Keys.realm.ldap_preReceiveScriptsAttributeName);
 	}
 	
 	protected boolean isPostReceiveScriptInLdap() {
-		return isSettingPresent(Keys.realm_ldap.postReceiveScriptsAttributeName);
+		return isSettingPresent(Keys.realm.ldap_postReceiveScriptsAttributeName);
 	}
 	
 	protected boolean isSettingPresent(String setting) {
