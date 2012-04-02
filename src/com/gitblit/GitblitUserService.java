@@ -235,4 +235,9 @@ public class GitblitUserService implements IUserService {
 	public boolean deleteRepositoryRole(String role) {
 		return serviceImpl.deleteRepositoryRole(role);
 	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return serviceImpl.isMaintainsPassword();
+	}
 }

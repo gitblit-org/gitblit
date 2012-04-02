@@ -948,4 +948,9 @@ public class FileUserService extends FileSettings implements IUserService {
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return true;
+	}
 }

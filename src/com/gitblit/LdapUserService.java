@@ -454,5 +454,10 @@ public class LdapUserService extends ConfigUserService {
 		String settingValue = settings.getString(setting, null);
 		return settingValue != null && settingValue.trim().length() > 0;
 	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return false;
+	}
 
 }

@@ -807,9 +807,16 @@ public class ConfigUserService implements IUserService {
 	protected long lastModified() {
 		return lastModified;
 	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return true;
+	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "(" + realmFile.getAbsolutePath() + ")";
 	}
+
+	
 }

@@ -596,4 +596,3 @@ It's important to note that there is a two way link here.  This is important for
 - realm_ldap.isTeamUserLinkInLdap: Are the links between User <--> Team in LDAP?  This example shows that they are by the User having a memberOf attribute and the Team having the member attribute.
 
 Finally, writing back to LDAP is not implemented at this time, so do not worry about corrupting your corporate LDAP.  Many orgnizations are likely to go through a different flow to update their LDAP, so it's unlikely that this will become a feature.
-Due to this, updating user records becomes slightly weird.  Core GitBlit requires a password to be entered, so you must put one in just to hit save.  However, please rest easy, no passwords are getting updated.
