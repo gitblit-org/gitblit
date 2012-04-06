@@ -377,6 +377,22 @@ public class GitBlit implements ServletContextListener {
 		this.userService = userService;
 		this.userService.setup(settings);
 	}
+	
+	/**
+	 * 
+	 * @return true if the user service supports credential changes
+	 */
+	public boolean supportsCredentialChanges() {
+		return userService.supportsCredentialChanges();
+	}
+
+	/**
+	 * 
+	 * @return true if the user service supports team membership changes
+	 */
+	public boolean supportsTeamMembershipChanges() {
+		return userService.supportsTeamMembershipChanges();
+	}
 
 	/**
 	 * Authenticate a user based on a username and password.

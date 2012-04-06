@@ -39,7 +39,8 @@ public class UsersPanel extends BasePanel {
 		super(wicketId);
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class)
+				.setVisible(GitBlit.self().supportsCredentialChanges()));
 		add(adminLinks.setVisible(showAdmin));
 
 		final List<UserModel> users = GitBlit.self().getAllUsers();

@@ -74,6 +74,27 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Does the user service support changes to credentials?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsCredentialChanges() {
+		return true;
+	}
+
+	/**
+	 * Does the user service support changes to team memberships?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	public boolean supportsTeamMembershipChanges() {
+		return true;
+	}
+
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false
@@ -233,7 +254,9 @@ public class FileUserService extends FileSettings implements IUserService {
 			}
 
 			StringBuilder sb = new StringBuilder();
-			sb.append(model.password);
+			if (!StringUtils.isEmpty(model.password)) {
+				sb.append(model.password);
+			}
 			sb.append(',');
 			for (String role : roles) {
 				sb.append(role);
@@ -658,6 +681,8 @@ public class FileUserService extends FileSettings implements IUserService {
 					team.addRepositories(repositories);
 					team.addUsers(users);
 					team.addMailingLists(mailingLists);
+					team.preReceiveScripts.addAll(preReceive);
+					team.postReceiveScripts.addAll(postReceive);
 					teams.put(team.name.toLowerCase(), team);
 				} else {
 					// user definition

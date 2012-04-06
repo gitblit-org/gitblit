@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.DeepCopier;
 
 /**
  * This class wraps the default user service and is recommended as the starting
@@ -112,6 +113,16 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	public boolean supportsCredentialChanges() {
+		return serviceImpl.supportsCredentialChanges();
+	}
+
+	@Override
+	public boolean supportsTeamMembershipChanges() {
+		return serviceImpl.supportsTeamMembershipChanges();
+	}
+
+	@Override
 	public boolean supportsCookies() {
 		return serviceImpl.supportsCookies();
 	}
@@ -143,9 +154,27 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
-		return serviceImpl.updateUserModel(username, model);
+		if (supportsCredentialChanges()) {
+			if (!supportsTeamMembershipChanges()) {
+				//  teams are externally controlled
+				model = DeepCopier.copy(model);
+				model.teams.clear();
+			}
+			return serviceImpl.updateUserModel(username, model);
+		}
+		if (model.username.equals(username)) {
+			// passwords are not persisted by the backing user service
+			model.password = null;
+			if (!supportsTeamMembershipChanges()) {
+				//  teams are externally controlled
+				model = DeepCopier.copy(model);
+				model.teams.clear();
+			}
+			return serviceImpl.updateUserModel(username, model);
+		}
+		logger.error("Users can not be renamed!");
+		return false;
 	}
-
 	@Override
 	public boolean deleteUserModel(UserModel model) {
 		return serviceImpl.deleteUserModel(model);
@@ -198,6 +227,11 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public boolean updateTeamModel(String teamname, TeamModel model) {
+		if (!supportsTeamMembershipChanges()) {
+			// teams are externally controlled
+			model = DeepCopier.copy(model);
+			model.users.clear();
+		}
 		return serviceImpl.updateTeamModel(teamname, model);
 	}
 

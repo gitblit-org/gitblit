@@ -54,6 +54,10 @@ public class EditUserPage extends RootSubPage {
 	public EditUserPage() {
 		// create constructor
 		super();
+		if (!GitBlit.self().supportsCredentialChanges()) {
+			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
+					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
+		}
 		isCreate = true;
 		setupPage(new UserModel(""));
 	}
@@ -200,20 +204,26 @@ public class EditUserPage extends RootSubPage {
 		
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
+		
+		// not all user services support manipulating username and password
+		boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+
+		// not all user services support manipulating team memberships
+		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges();
 
 		// field names reflective match UserModel fields
-		form.add(new TextField<String>("username"));
+		form.add(new TextField<String>("username").setEnabled(editCredentials));
 		PasswordTextField passwordField = new PasswordTextField("password");
 		passwordField.setResetPassword(false);
-		form.add(passwordField);
+		form.add(passwordField.setEnabled(editCredentials));
 		PasswordTextField confirmPasswordField = new PasswordTextField("confirmPassword",
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
-		form.add(confirmPasswordField);
+		form.add(confirmPasswordField.setEnabled(editCredentials));
 		form.add(new CheckBox("canAdmin"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);
-		form.add(teams);
+		form.add(teams.setEnabled(editTeams));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

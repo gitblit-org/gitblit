@@ -100,6 +100,27 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
+	 * Does the user service support changes to credentials?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsCredentialChanges() {
+		return true;
+	}
+	
+	/**
+	 * Does the user service support changes to team memberships?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	public boolean supportsTeamMembershipChanges() {
+		return true;
+	}
+	
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false
@@ -656,7 +677,9 @@ public class ConfigUserService implements IUserService {
 
 		// write users
 		for (UserModel model : users.values()) {
-			config.setString(USER, model.username, PASSWORD, model.password);
+			if (!StringUtils.isEmpty(model.password)) {
+				config.setString(USER, model.username, PASSWORD, model.password);
+			}
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
