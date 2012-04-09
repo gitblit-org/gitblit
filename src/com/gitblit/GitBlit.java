@@ -1050,21 +1050,43 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
 		config.setBoolean("gitblit", null, "skipSizeCalculation", repository.skipSizeCalculation);
 		config.setBoolean("gitblit", null, "skipSummaryMetrics", repository.skipSummaryMetrics);
-		config.setStringList("gitblit", null, "federationSets", repository.federationSets);
 		config.setString("gitblit", null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
-		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
+
+		// federation sets
+		if (ArrayUtils.isEmpty(repository.federationSets)) {
+			config.unset("gitblit", null, "federationSets");
+		} else {
+			config.setStringList("gitblit", null, "federationSets", repository.federationSets);
+		}
+
+		// pre receive scripts
+		if (ArrayUtils.isEmpty(repository.preReceiveScripts)) {
+			config.unset("gitblit", null, "preReceiveScript");
+		} else {
 			config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
 		}
-		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
+		
+		// post receive scripts
+		if (ArrayUtils.isEmpty(repository.postReceiveScripts)) {
+			config.unset("gitblit", null, "postReceiveScript");
+		} else {
 			config.setStringList("gitblit", null, "postReceiveScript",
 					repository.postReceiveScripts);
 		}
-		if (!ArrayUtils.isEmpty(repository.mailingLists)) {
+		
+		// mailing lists
+		if (ArrayUtils.isEmpty(repository.mailingLists)) {
+			config.unset("gitblit", null, "mailingList");
+		} else {
 			config.setStringList("gitblit", null, "mailingList", repository.mailingLists);
 		}
-		if (!ArrayUtils.isEmpty(repository.indexedBranches)) {
+		
+		// indexed branches
+		if (ArrayUtils.isEmpty(repository.indexedBranches)) {
+			config.unset("gitblit", null, "indexBranch");
+		} else {
 			config.setStringList("gitblit", null, "indexBranch", repository.indexedBranches);
 		}
 		try {
