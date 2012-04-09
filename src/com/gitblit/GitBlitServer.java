@@ -155,10 +155,12 @@ public class GitBlitServer {
 		logger.info("");
 		logger.info(Constants.BORDER);
 
+		System.setProperty("java.awt.headless", "true");
+
 		String osname = System.getProperty("os.name");
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
-
+		
 		List<Connector> connectors = new ArrayList<Connector>();
 
 		// conditionally configure the http connector

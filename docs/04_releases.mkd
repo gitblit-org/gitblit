@@ -7,6 +7,7 @@
 #### fixes
 
 - Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (issue 81)
+- Automatically set *java.awt.headless=true* for Gitblit GO
 
 **0.9.2** *released 2012-04-04*
 

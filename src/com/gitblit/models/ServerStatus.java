@@ -62,6 +62,7 @@ public class ServerStatus implements Serializable {
 		this.systemProperties = new TreeMap<String, String>();
 		put("file.encoding");
 		put("java.home");
+		put("java.awt.headless");
 		put("java.io.tmpdir");
 		put("java.runtime.name");
 		put("java.runtime.version");
