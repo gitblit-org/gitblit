@@ -504,6 +504,6 @@ The following is are descriptions of the properties that would follow the sample
 
 You may notice that there are no properties to find the password on the User record.  This is intentional, and the service utilizes the LDAP login process to verify that the user credentials are correct.
 
-You can also start Gitblit GO with an in-memory (backed by an LDIF file) LDAP server by using the --ldapLdifFile property.  It will always start at ldap://localhost:389, so be sure to set that in gitblit.settings.  It reads the user / password in gitblit.settings to create the root user login.
+You can also start Gitblit GO with an in-memory (backed by an LDIF file) LDAP server by using the --ldapLdifFile property.  It will listen where ever gitblit.settings is pointed to.  However, it only supports ldap...not ldaps, so be sure to set that in gitblit.settings.  It reads the user / password in gitblit.settings to create the root user login.
 
 Finally, writing back to LDAP is not implemented at this time, so do not worry about corrupting your corporate LDAP.  Many orgnizations are likely to go through a different flow to update their LDAP, so it's unlikely that this will become a feature.

@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.ProtectionDomain;
@@ -277,21 +278,27 @@ public class GitBlitServer {
 			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
 				File ldifFile = new File(params.ldapLdifFile);
 				if (ldifFile != null && ldifFile.exists()) {
+					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap_server));
 					String firstLine = new Scanner(ldifFile).nextLine();
 					String rootDN = firstLine.substring(4);
 					String bindUserName = settings.getString(Keys.realm.ldap_username, "");
 					String bindPassword = settings.getString(Keys.realm.ldap_password, "");
 					
+					// Get the port
+					int port = ldapUrl.getPort();
+					if (port == -1)
+						port = 389;
+					
 					InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(rootDN);
 					config.addAdditionalBindCredentials(bindUserName, bindPassword);
-					config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", 389));
+					config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", port));
 					config.setSchema(null);
 					
 					InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
 					ds.importFromLDIF(true, new LDIFReader(ldifFile));
 					ds.startListening();
 					
-					logger.info("LDAP Server started at ldap://localhost:389");
+					logger.info("LDAP Server started at ldap://localhost:" + port);
 				}
 			}
 		} catch (Exception e) {
