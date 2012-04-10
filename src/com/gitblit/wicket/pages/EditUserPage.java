@@ -129,40 +129,42 @@ public class EditUserPage extends RootSubPage {
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
-				if (!userModel.password.equals(confirmPassword.getObject())) {
-					error(getString("gb.passwordsDoNotMatch"));
-					return;
-				}
-				String password = userModel.password;
-				if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
-						&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-					// This is a plain text password.
-					// Check length.
-					int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
-					if (minLength < 4) {
-						minLength = 4;
-					}
-					if (password.trim().length() < minLength) {
-						error(MessageFormat.format(getString("gb.passwordTooShort"),
-								minLength));
+				if (GitBlit.self().supportsCredentialChanges()) {
+					if (!userModel.password.equals(confirmPassword.getObject())) {
+						error(getString("gb.passwordsDoNotMatch"));
 						return;
 					}
-
-					// Optionally store the password MD5 digest.
-					String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
-					if (type.equalsIgnoreCase("md5")) {
-						// store MD5 digest of password
-						userModel.password = StringUtils.MD5_TYPE
-								+ StringUtils.getMD5(userModel.password);
-					} else if (type.equalsIgnoreCase("combined-md5")) {
-						// store MD5 digest of username+password
-						userModel.password = StringUtils.COMBINED_MD5_TYPE
-								+ StringUtils.getMD5(username + userModel.password);
+					String password = userModel.password;
+					if (!password.toUpperCase().startsWith(StringUtils.MD5_TYPE)
+							&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+						// This is a plain text password.
+						// Check length.
+						int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
+						if (minLength < 4) {
+							minLength = 4;
+						}
+						if (password.trim().length() < minLength) {
+							error(MessageFormat.format(getString("gb.passwordTooShort"),
+									minLength));
+							return;
+						}
+	
+						// Optionally store the password MD5 digest.
+						String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
+						if (type.equalsIgnoreCase("md5")) {
+							// store MD5 digest of password
+							userModel.password = StringUtils.MD5_TYPE
+									+ StringUtils.getMD5(userModel.password);
+						} else if (type.equalsIgnoreCase("combined-md5")) {
+							// store MD5 digest of username+password
+							userModel.password = StringUtils.COMBINED_MD5_TYPE
+									+ StringUtils.getMD5(username + userModel.password);
+						}
+					} else if (rename
+							&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
+						error(getString("gb.combinedMd5Rename"));
+						return;
 					}
-				} else if (rename
-						&& password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-					error(getString("gb.combinedMd5Rename"));
-					return;
 				}
 
 				Iterator<String> selectedRepositories = repositories.getSelectedChoices();

@@ -17,23 +17,25 @@
 package com.gitblit;
 
 import java.io.File;
-import java.text.MessageFormat;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ConnectionUtils.BlindSSLSocketFactory;
 import com.gitblit.utils.StringUtils;
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
 
 /**
  * Implementation of an LDAP user service.
@@ -43,8 +45,7 @@ import com.gitblit.utils.StringUtils;
 public class LdapUserService extends GitblitUserService {
 
 	public static final Logger logger = LoggerFactory.getLogger(LdapUserService.class);
-	private final String CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";
-
+	
 	private IStoredSettings settings;
 
 	public LdapUserService() {
@@ -59,6 +60,36 @@ public class LdapUserService extends GitblitUserService {
 
 		serviceImpl = createUserService(realmFile);
 		logger.info("LDAP User Service backed by " + serviceImpl.toString());
+	}
+	
+	private LDAPConnection getLdapConnection() {
+		try {
+			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap_server));
+			String bindUserName = settings.getString(Keys.realm.ldap_username, "");
+			String bindPassword = settings.getString(Keys.realm.ldap_password, "");
+			int ldapPort = ldapUrl.getPort();
+			
+			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
+				if (ldapPort == -1)	// Default Port
+					ldapPort = 636;
+				
+				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager()); 
+				return new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+			} else {
+				if (ldapPort == -1)	// Default Port
+					ldapPort = 389;
+				
+				return new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+			}
+		} catch (URISyntaxException e) {
+			logger.error("Bad LDAP URL, should be in the form: ldap(s)://<server>:<port>", e);
+		} catch (GeneralSecurityException e) {
+			logger.error("Unable to create SSL Connection", e);
+		} catch (LDAPException e) {
+			logger.error("Error Connecting to LDAP", e);
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -98,75 +129,128 @@ public class LdapUserService extends GitblitUserService {
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		String domainUser = getDomainUsername(username);		
-		DirContext ctx = getDirContext(domainUser, new String(password));
-		// TODO do we need a bind here?
-		if (ctx != null) {
-			String simpleUsername = getSimpleUsername(username);
-			UserModel user = getUserModel(simpleUsername);
-			if (user == null) {
-				// create user object for new authenticated user
-				user = new UserModel(simpleUsername.toLowerCase());
-			}
-			user.password = new String(password);
+		String simpleUsername = getSimpleUsername(username);
+		
+		LDAPConnection ldapConnection = getLdapConnection();		
+		if (ldapConnection != null) {
+			// Find the logging in user's DN
+			String accountBase = settings.getString(Keys.realm.ldap_accountBase, "");
+			String accountPattern = settings.getString(Keys.realm.ldap_accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+			accountPattern = StringUtils.replace(accountPattern, "${username}", simpleUsername);
 
-			if (!supportsTeamMembershipChanges()) {
-				// Teams are specified in LDAP server
-				// TODO search LDAP for team memberships
-				Set<String> foundTeams = new HashSet<String>();
-				for (String team : foundTeams) {					
-					TeamModel model = getTeamModel(team);
-					if (model == null) {
-						// create the team
-						model = new TeamModel(team.toLowerCase());
-						updateTeamModel(model);
+			SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+			if (result != null && result.getEntryCount() == 1) {
+				SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
+				String loggingInUserDN = loggingInUser.getDN();
+				
+				if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
+					logger.debug("Authenitcated: " + username);
+					
+					UserModel user = getUserModel(simpleUsername);
+					if (user == null)	// create user object for new authenticated user
+						user = createUserFromLdap(loggingInUser);
+					
+					user.password = "StoredInLDAP";
+					
+					if (!supportsTeamMembershipChanges())
+						getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
+					
+					// Get Admin Attributes
+					setAdminAttribute(user);
+
+					// Push the ldap looked up values to backing file
+					super.updateUserModel(user);
+					if (!supportsTeamMembershipChanges()) {
+						for (TeamModel userTeam : user.teams)
+							updateTeamModel(userTeam);
 					}
-					// add team to the user
-					user.teams.add(model);
+							
+					return user;
 				}
 			}
-			
-			try {
-				ctx.close();
-			} catch (NamingException e) {
-				logger.error("Can not close context", e);
-			}
-			return user;
-		}		
+		}
+		
 		return null;		
-	}	
-	
-	protected DirContext getDirContext() {
-		String username = settings.getString(Keys.realm.ldap_username, "");
-		String password = settings.getString(Keys.realm.ldap_password, "");
-		return getDirContext(username, password);
 	}
 
-	protected DirContext getDirContext(String username, String password) {
-		try {
-			String server = settings.getRequiredString(Keys.realm.ldap_server);
-			Hashtable<String, String> env = new Hashtable<String, String>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY, CONTEXT_FACTORY);
-			env.put(Context.PROVIDER_URL, server);
-			if (server.startsWith("ldaps:")) {
-				env.put("java.naming.ldap.factory.socket", BlindSSLSocketFactory.class.getName());
-			}
-			// TODO consider making this a setting
-			env.put("com.sun.jndi.ldap.read.timeout", "5000");
+	private void setAdminAttribute(UserModel user) {
+		String adminString = settings.getString(Keys.realm.ldap_admins, "");
+		String[] admins = adminString.split(" ");
+		user.canAdmin = false;
+		for (String admin : admins) {
+			if (admin.startsWith("@")) { // Team
+				if (user.getTeam(admin.substring(1)) != null)
+					user.canAdmin = true;
+			} else
+				if (user.getName().equalsIgnoreCase(admin))
+					user.canAdmin = true;
+		}
+	}
 
-			if (!StringUtils.isEmpty(username)) {
-				// authenticated login
-				env.put(Context.SECURITY_AUTHENTICATION, "simple");
-				env.put(Context.SECURITY_PRINCIPAL, getDomainUsername(username));
-				env.put(Context.SECURITY_CREDENTIALS, password == null ? "":password.trim());
+	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
+		String loggingInUserDN = loggingInUser.getDN();
+		
+		user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
+		String groupBase = settings.getString(Keys.realm.ldap_groupBase, "");
+		String groupMemberPattern = settings.getString(Keys.realm.ldap_groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
+		
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", loggingInUserDN);
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", simpleUsername);
+		
+		// Fill in attributes into groupMemberPattern
+		for (Attribute userAttribute : loggingInUser.getAttributes())
+			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", userAttribute.getValue());
+		
+		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
+		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+				String teamName = teamEntry.getAttribute("cn").getValue();
+				
+				TeamModel teamModel = getTeamModel(teamName);
+				if (teamModel == null)
+					teamModel = createTeamFromLdap(teamEntry);
+					
+				user.teams.add(teamModel);
+				teamModel.addUser(user.getName());
 			}
-			return new InitialDirContext(env);
-		} catch (NamingException e) {
-			logger.warn(MessageFormat.format("Error connecting to LDAP with credentials. Please check {0}, {1}, and {2}",
-					Keys.realm.ldap_server, Keys.realm.ldap_username, Keys.realm.ldap_password), e);
+		}
+	}
+	
+	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
+		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
+		// If attributes other than team name ever from from LDAP, this is where to get them
+		
+		return answer;		
+	}
+	
+	private UserModel createUserFromLdap(SearchResultEntry userEntry) {
+		UserModel answer = new UserModel(userEntry.getAttributeValue("cn"));
+		//If attributes other than user name ever from from LDAP, this is where to get them
+		
+		return answer;
+	}
+
+	private SearchResult doSearch(LDAPConnection ldapConnection, String base, String filter) {
+		try {
+			return ldapConnection.search(base, SearchScope.SUB, filter);
+		} catch (LDAPSearchException e) {
+			logger.error("Problem Searching LDAP", e);
+			
 			return null;
 		}
 	}
+	
+	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
+		try {
+			ldapConnection.bind(userDn, password);
+			return true;
+		} catch (LDAPException e) {
+			logger.error("Error authenitcating user", e);
+			return false;
+		}
+	}
+
 	
 	/**
 	 * Returns a simple username without any domain prefixes.
@@ -180,21 +264,5 @@ public class LdapUserService extends GitblitUserService {
 			username = username.substring(lastSlash + 1);
 		}
 		return username;
-	}
-
-	/**
-	 * Returns a username with a domain prefix as long as the username does not
-	 * already have a comain prefix.
-	 * 
-	 * @param username
-	 * @return a domain username
-	 */
-	protected String getDomainUsername(String username) {
-		String domain = settings.getString(Keys.realm.ldap_domain, null);
-		String domainUsername = username;
-		if (!StringUtils.isEmpty(domain) && (domainUsername.indexOf('\\') == -1)) {
-			domainUsername = domain + "\\" + username;
-		}
-		return domainUsername.trim();
 	}
 }

@@ -156,9 +156,12 @@ public class GitblitUserService implements IUserService {
 	public boolean updateUserModel(String username, UserModel model) {
 		if (supportsCredentialChanges()) {
 			if (!supportsTeamMembershipChanges()) {
-				//  teams are externally controlled
+				//  teams are externally controlled - copy from original model
+				UserModel existingModel = getUserModel(username);
+				
 				model = DeepCopier.copy(model);
 				model.teams.clear();
+				model.teams.addAll(existingModel.teams);
 			}
 			return serviceImpl.updateUserModel(username, model);
 		}
@@ -166,9 +169,12 @@ public class GitblitUserService implements IUserService {
 			// passwords are not persisted by the backing user service
 			model.password = null;
 			if (!supportsTeamMembershipChanges()) {
-				//  teams are externally controlled
+				//  teams are externally controlled- copy from original model
+				UserModel existingModel = getUserModel(username);
+				
 				model = DeepCopier.copy(model);
 				model.teams.clear();
+				model.teams.addAll(existingModel.teams);
 			}
 			return serviceImpl.updateUserModel(username, model);
 		}
@@ -228,9 +234,12 @@ public class GitblitUserService implements IUserService {
 	@Override
 	public boolean updateTeamModel(String teamname, TeamModel model) {
 		if (!supportsTeamMembershipChanges()) {
-			// teams are externally controlled
+			// teams are externally controlled - copy from original model
+			TeamModel existingModel = getTeamModel(teamname);
+			
 			model = DeepCopier.copy(model);
 			model.users.clear();
+			model.users.addAll(existingModel.users);
 		}
 		return serviceImpl.updateTeamModel(teamname, model);
 	}
