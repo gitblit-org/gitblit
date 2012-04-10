@@ -1054,45 +1054,29 @@ public class GitBlit implements ServletContextListener {
 				repository.federationStrategy.name());
 		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
 
-		// federation sets
-		if (ArrayUtils.isEmpty(repository.federationSets)) {
-			config.unset("gitblit", null, "federationSets");
-		} else {
-			config.setStringList("gitblit", null, "federationSets", repository.federationSets);
-		}
+		updateList(config, "federationSets", repository.federationSets);
+		updateList(config, "preReceiveScript", repository.preReceiveScripts);
+		updateList(config, "postReceiveScript", repository.postReceiveScripts);
+		updateList(config, "mailingList", repository.mailingLists);
+		updateList(config, "indexBranch", repository.indexedBranches);
 
-		// pre receive scripts
-		if (ArrayUtils.isEmpty(repository.preReceiveScripts)) {
-			config.unset("gitblit", null, "preReceiveScript");
-		} else {
-			config.setStringList("gitblit", null, "preReceiveScript", repository.preReceiveScripts);
-		}
-		
-		// post receive scripts
-		if (ArrayUtils.isEmpty(repository.postReceiveScripts)) {
-			config.unset("gitblit", null, "postReceiveScript");
-		} else {
-			config.setStringList("gitblit", null, "postReceiveScript",
-					repository.postReceiveScripts);
-		}
-		
-		// mailing lists
-		if (ArrayUtils.isEmpty(repository.mailingLists)) {
-			config.unset("gitblit", null, "mailingList");
-		} else {
-			config.setStringList("gitblit", null, "mailingList", repository.mailingLists);
-		}
-		
-		// indexed branches
-		if (ArrayUtils.isEmpty(repository.indexedBranches)) {
-			config.unset("gitblit", null, "indexBranch");
-		} else {
-			config.setStringList("gitblit", null, "indexBranch", repository.indexedBranches);
-		}
 		try {
 			config.save();
 		} catch (IOException e) {
 			logger.error("Failed to save repository config!", e);
+		}
+	}
+	
+	private void updateList(StoredConfig config, String field, List<String> list) {
+		// a null list is skipped, not cleared
+		// this is for RPC administration where an older manager might be used
+		if (list == null) {
+			return;
+		}
+		if (ArrayUtils.isEmpty(list)) {
+			config.unset("gitblit", null, field);
+		} else {
+			config.setStringList("gitblit", null, field, list);
 		}
 	}
 
