@@ -204,6 +204,7 @@
 				<include name="sendmail.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
+				<include name="localclone.groovy" />
 			</fileset>
 		</copy>
 	
@@ -372,6 +373,7 @@
 				<include name="sendmail.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
+				<include name="localclone.groovy" />
 			</fileset>
 		</copy>
 
