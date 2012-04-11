@@ -439,6 +439,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return null;
 	}
+	
+	public boolean isUserServiceMaintainsPassword() {
+		return userService.isMaintainsPassword();
+	}
 
 	/**
 	 * Sets a cookie for the specified user.

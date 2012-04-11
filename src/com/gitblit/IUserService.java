@@ -256,10 +256,18 @@ public interface IUserService {
 	 * @return true if successful
 	 */
 	boolean deleteRepositoryRole(String role);
+	
+	/**
+	 * Does this particular instance allow for maintaining of the password?
+	 * @return
+	 */
+	boolean isMaintainsPassword();
 
 	/**
 	 * @See java.lang.Object.toString();
 	 * @return string representation of the login service
 	 */
 	String toString();
+
+	
 }

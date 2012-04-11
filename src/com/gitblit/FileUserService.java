@@ -658,6 +658,8 @@ public class FileUserService extends FileSettings implements IUserService {
 					team.addRepositories(repositories);
 					team.addUsers(users);
 					team.addMailingLists(mailingLists);
+					team.preReceiveScripts.addAll(preReceive);
+					team.postReceiveScripts.addAll(postReceive);
 					teams.put(team.name.toLowerCase(), team);
 				} else {
 					// user definition
@@ -945,5 +947,10 @@ public class FileUserService extends FileSettings implements IUserService {
 			logger.error(MessageFormat.format("Failed to delete team {0}!", teamname), t);
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return true;
 	}
 }

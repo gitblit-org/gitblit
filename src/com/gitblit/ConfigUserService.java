@@ -75,11 +75,11 @@ public class ConfigUserService implements IUserService {
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
 
-	private final Map<String, UserModel> users = new ConcurrentHashMap<String, UserModel>();
+	protected final Map<String, UserModel> users = new ConcurrentHashMap<String, UserModel>();
 
-	private final Map<String, UserModel> cookies = new ConcurrentHashMap<String, UserModel>();
+	protected final Map<String, UserModel> cookies = new ConcurrentHashMap<String, UserModel>();
 
-	private final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
+	protected final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
 
 	private volatile long lastModified;
 	
@@ -648,7 +648,7 @@ public class ConfigUserService implements IUserService {
 	 * @param properties
 	 * @throws IOException
 	 */
-	private synchronized void write() throws IOException {
+	protected synchronized void write() throws IOException {
 		// Write a temporary copy of the users file
 		File realmFileCopy = new File(realmFile.getAbsolutePath() + ".tmp");
 
@@ -656,7 +656,8 @@ public class ConfigUserService implements IUserService {
 
 		// write users
 		for (UserModel model : users.values()) {
-			config.setString(USER, model.username, PASSWORD, model.password);
+			if (model.password != null)
+				config.setString(USER, model.username, PASSWORD, model.password);
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -806,9 +807,16 @@ public class ConfigUserService implements IUserService {
 	protected long lastModified() {
 		return lastModified;
 	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return true;
+	}
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "(" + realmFile.getAbsolutePath() + ")";
 	}
+
+	
 }

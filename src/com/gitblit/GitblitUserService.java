@@ -52,6 +52,11 @@ public class GitblitUserService implements IUserService {
 
 	public GitblitUserService() {
 	}
+	
+	public GitblitUserService(File realmFile) {
+		serviceImpl = createUserService(realmFile);
+		logger.info("GUS delegating to " + serviceImpl.toString());
+	}
 
 	@Override
 	public void setup(IStoredSettings settings) {
@@ -229,5 +234,10 @@ public class GitblitUserService implements IUserService {
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		return serviceImpl.deleteRepositoryRole(role);
+	}
+	
+	@Override
+	public boolean isMaintainsPassword() {
+		return serviceImpl.isMaintainsPassword();
 	}
 }
