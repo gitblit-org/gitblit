@@ -148,7 +148,7 @@ public class LdapUserService extends GitblitUserService {
 					
 					UserModel user = getUserModel(simpleUsername);
 					if (user == null)	// create user object for new authenticated user
-						user = createUserFromLdap(loggingInUser);
+						user = createUserFromLdap(simpleUsername, loggingInUser);
 					
 					user.password = "StoredInLDAP";
 					
@@ -224,8 +224,8 @@ public class LdapUserService extends GitblitUserService {
 		return answer;		
 	}
 	
-	private UserModel createUserFromLdap(SearchResultEntry userEntry) {
-		UserModel answer = new UserModel(userEntry.getAttributeValue("cn"));
+	private UserModel createUserFromLdap(String simpleUserName, SearchResultEntry userEntry) {
+		UserModel answer = new UserModel(simpleUserName);
 		//If attributes other than user name ever from from LDAP, this is where to get them
 		
 		return answer;
