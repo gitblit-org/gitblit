@@ -27,9 +27,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import com.gitblit.Constants;
@@ -182,66 +180,139 @@ public class Build {
 		List<String> keys = new ArrayList<String>(properties.stringPropertyNames());
 		Collections.sort(keys);
 
-		// Determine static key group classes
-		Map<String, List<String>> staticClasses = new HashMap<String, List<String>>();
-		staticClasses.put("", new ArrayList<String>());
+		KeyGroup root = new KeyGroup();
 		for (String key : keys) {
-			String clazz = "";
-			String field = key;
-			if (key.indexOf('.') > -1) {
-				clazz = key.substring(0, key.indexOf('.'));
-				field = key.substring(key.indexOf('.') + 1);
-			}
-			if (!staticClasses.containsKey(clazz)) {
-				staticClasses.put(clazz, new ArrayList<String>());
-			}
-			staticClasses.get(clazz).add(field);
+			root.addKey(key);
 		}
-
-		// Assemble Keys source file
-		StringBuilder sb = new StringBuilder();
-		sb.append("package com.gitblit;\n");
-		sb.append('\n');
-		sb.append("/*\n");
-		sb.append(" * This class is auto-generated from the properties file.\n");
-		sb.append(" * Do not version control!\n");
-		sb.append(" */\n");
-		sb.append("public final class Keys {\n");
-		sb.append('\n');
-		List<String> classSet = new ArrayList<String>(staticClasses.keySet());
-		Collections.sort(classSet);
-		for (String clazz : classSet) {
-			List<String> keySet = staticClasses.get(clazz);
-			if (clazz.equals("")) {
-				// root keys
-				for (String key : keySet) {
-					sb.append(MessageFormat.format(
-							"\tpublic static final String {0} = \"{1}\";\n\n",
-							key.replace('.', '_'), key));
-				}
-			} else {
-				// class keys
-				sb.append(MessageFormat.format("\tpublic static final class {0} '{'\n\n", clazz));
-				sb.append(MessageFormat.format(
-						"\t\tpublic static final String _ROOT = \"{0}\";\n\n", clazz));
-				for (String key : keySet) {
-					sb.append(MessageFormat.format(
-							"\t\tpublic static final String {0} = \"{1}\";\n\n",
-							key.replace('.', '_'), clazz + "." + key));
-				}
-				sb.append("\t}\n\n");
-			}
-		}
-		sb.append('}');
 
 		// Save Keys class definition
 		try {
 			File file = new File("src/com/gitblit/Keys.java");
 			FileWriter fw = new FileWriter(file, false);
-			fw.write(sb.toString());
+			fw.write(root.generateClass("com.gitblit", "Keys"));
 			fw.close();
 		} catch (Throwable t) {
 			t.printStackTrace();
+		}
+	}
+	
+	private static class KeyGroup {
+		final KeyGroup parent;
+		final String namespace;
+		
+		String name;
+		List<KeyGroup> children;		
+		List<String> fields;		
+		
+		KeyGroup() {
+			this.parent = null;
+			this.namespace = "";
+			this.name = "";	
+		}
+		
+		KeyGroup(String namespace, KeyGroup parent) {
+			this.parent = parent;
+			this.namespace = namespace;
+			if (parent.children == null) {
+				parent.children = new ArrayList<KeyGroup>();
+			}
+			parent.children.add(this);
+		}
+		
+		void addKey(String key) {
+			String keyspace = "";
+			String field = key;
+			if (key.indexOf('.') > -1) {
+				keyspace = key.substring(0, key.lastIndexOf('.'));
+				field = key.substring(key.lastIndexOf('.') + 1);
+				KeyGroup group = addKeyGroup(keyspace);
+				group.addKey(field);
+			} else {
+				if (fields == null) {
+					fields = new ArrayList<String>();
+				}
+				fields.add(key);
+			}
+		}
+				
+		KeyGroup addKeyGroup(String keyspace) {
+			KeyGroup parent = this;
+			KeyGroup node = null;			
+			String [] space = keyspace.split("\\.");
+			for (int i = 0; i < space.length; i++) {
+				StringBuilder namespace = new StringBuilder();
+				for (int j = 0; j <= i; j++) {
+					namespace.append(space[j]);
+					if (j < i) {
+						namespace.append('.');
+					}
+				}
+				if (parent.children != null) {
+					for (KeyGroup child : parent.children) {
+						if (child.name.equals(space[i])) {
+							node = child;					
+						}
+					}
+				}
+				if (node == null) {
+					node = new KeyGroup(namespace.toString(), parent);
+					node.name = space[i];
+				}
+				parent = node;
+				node = null;
+			}
+			return parent;
+		}		
+		
+		String fullKey(String field) {
+			if (namespace.equals("")) {
+				return field;
+			}
+			return namespace + "." + field;
+		}
+		
+		String generateClass(String packageName, String className) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("package ").append(packageName).append(";\n");
+			sb.append('\n');
+			sb.append("/*\n");
+			sb.append(" * This class is auto-generated from the properties file.\n");
+			sb.append(" * Do not version control!\n");
+			sb.append(" */\n");
+			sb.append(MessageFormat.format("public final class {0} '{'\n\n", className));
+			sb.append(generateClass(this, 0));
+			sb.append("}\n");
+			return sb.toString();
+		}
+		
+		String generateClass(KeyGroup group, int level) {
+			String classIndent = StringUtils.leftPad("", level, '\t');
+			String fieldIndent = StringUtils.leftPad("", level + 1, '\t');
+			
+			// begin class
+			StringBuilder sb = new StringBuilder();
+			if (!group.namespace.equals("")) {
+				sb.append(classIndent).append(MessageFormat.format("public static final class {0} '{'\n\n", group.name));
+				sb.append(fieldIndent).append(MessageFormat.format("public static final String _ROOT = \"{0}\";\n\n", group.namespace));
+			}
+			
+			if (group.fields != null) {
+				// fields
+				for (String field : group.fields) {					
+					sb.append(fieldIndent).append(MessageFormat.format("public static final String {0} = \"{1}\";\n\n", field, group.fullKey(field)));
+				}
+			}
+			if (group.children != null) {
+				// inner classes
+				for (KeyGroup child : group.children) {
+					sb.append(generateClass(child, level + 1));
+				}
+			}
+			// end class
+			if (!group.namespace.equals("")) {
+				sb.append(classIndent).append("}\n\n");
+			}
+			return sb.toString();			
 		}
 	}
 

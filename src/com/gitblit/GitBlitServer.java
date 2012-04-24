@@ -280,11 +280,11 @@ public class GitBlitServer {
 			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
 				File ldifFile = new File(params.ldapLdifFile);
 				if (ldifFile != null && ldifFile.exists()) {
-					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap_server));
+					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
 					String firstLine = new Scanner(ldifFile).nextLine();
 					String rootDN = firstLine.substring(4);
-					String bindUserName = settings.getString(Keys.realm.ldap_username, "");
-					String bindPassword = settings.getString(Keys.realm.ldap_password, "");
+					String bindUserName = settings.getString(Keys.realm.ldap.username, "");
+					String bindPassword = settings.getString(Keys.realm.ldap.password, "");
 					
 					// Get the port
 					int port = ldapUrl.getPort();

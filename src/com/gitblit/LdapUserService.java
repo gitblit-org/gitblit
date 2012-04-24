@@ -56,7 +56,7 @@ public class LdapUserService extends GitblitUserService {
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
-		String file = settings.getString(Keys.realm.ldap_backingUserService, "users.conf");
+		String file = settings.getString(Keys.realm.ldap.backingUserService, "users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
 
 		serviceImpl = createUserService(realmFile);
@@ -65,9 +65,9 @@ public class LdapUserService extends GitblitUserService {
 	
 	private LDAPConnection getLdapConnection() {
 		try {
-			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap_server));
-			String bindUserName = settings.getString(Keys.realm.ldap_username, "");
-			String bindPassword = settings.getString(Keys.realm.ldap_password, "");
+			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
+			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
+			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
 			int ldapPort = ldapUrl.getPort();
 			
 			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
@@ -114,7 +114,7 @@ public class LdapUserService extends GitblitUserService {
 	 * @since 1.0.0
 	 */	
 	public boolean supportsTeamMembershipChanges() {
-		return !settings.getBoolean(Keys.realm.ldap_maintainTeams, false);
+		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
 	}
 
 	/**
@@ -135,8 +135,8 @@ public class LdapUserService extends GitblitUserService {
 		LDAPConnection ldapConnection = getLdapConnection();		
 		if (ldapConnection != null) {
 			// Find the logging in user's DN
-			String accountBase = settings.getString(Keys.realm.ldap_accountBase, "");
-			String accountPattern = settings.getString(Keys.realm.ldap_accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+			String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+			String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
 			accountPattern = StringUtils.replace(accountPattern, "${username}", simpleUsername);
 
 			SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
@@ -176,7 +176,7 @@ public class LdapUserService extends GitblitUserService {
 
 	private void setAdminAttribute(UserModel user) {
 	    user.canAdmin = false;
-	    List<String>  admins = settings.getStrings(Keys.realm.ldap_admins);
+	    List<String>  admins = settings.getStrings(Keys.realm.ldap.admins);
 	    for (String admin : admins) {
 	        if (admin.startsWith("@")) { // Team
 	            if (user.getTeam(admin.substring(1)) != null)
@@ -191,8 +191,8 @@ public class LdapUserService extends GitblitUserService {
 		String loggingInUserDN = loggingInUser.getDN();
 		
 		user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
-		String groupBase = settings.getString(Keys.realm.ldap_groupBase, "");
-		String groupMemberPattern = settings.getString(Keys.realm.ldap_groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
+		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
+		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
 		
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", loggingInUserDN);
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", simpleUsername);
