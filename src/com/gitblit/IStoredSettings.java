@@ -157,6 +157,24 @@ public abstract class IStoredSettings {
 		}
 		return defaultValue;
 	}
+	
+	/**
+	 * Returns the string value for the specified key.  If the key does not
+	 * exist an exception is thrown.
+	 * 
+	 * @param key
+	 * @return key value
+	 */
+	public String getRequiredString(String name) {
+		Properties props = getSettings();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			if (value != null) {
+				return value.trim();
+			}
+		}		
+		throw new RuntimeException("Property (" + name + ") does not exist");
+	}
 
 	/**
 	 * Returns a list of space-separated strings from the specified key.

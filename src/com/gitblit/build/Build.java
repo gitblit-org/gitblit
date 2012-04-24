@@ -94,6 +94,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -124,6 +125,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -524,6 +526,10 @@ public class Build {
 		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
 				"3.5.0", 30000, 23000, 0, "7908e954e8c1b4b2463aa712b34fa4a5612e241d",
 				"69b19b38d78cc3b27ea5542a14f0ebbb1625ffdd", "");
+		
+		public static final MavenObject UNBOUND_ID = new MavenObject("unbound id", "com/unboundid", "unboundid-ldapsdk",
+				"2.3.0", 1383417, 1439721, 0, "6fde8d9fb4ee3e7e3d7e764e3ea57195971e2eb2",
+				"5276d3d29630693dba99ab9f7ea54f4c471d3af1", "");
 
 		
 		public final String name;

@@ -112,13 +112,24 @@ public class StringUtilsTest {
 
 	@Test
 	public void testStringsFromValue() throws Exception {
-		List<String> strings = StringUtils.getStringsFromValue("A B C D");
-		assertEquals(4, strings.size());
-		assertEquals("A", strings.get(0));
-		assertEquals("B", strings.get(1));
-		assertEquals("C", strings.get(2));
-		assertEquals("D", strings.get(3));
-	}
+        List<String> strings = StringUtils.getStringsFromValue("\"A A \" B \"C C\" D \"\" \"E\"");
+        assertEquals(6, strings.size());
+        assertEquals("A A", strings.get(0));
+        assertEquals("B", strings.get(1));
+        assertEquals("C C", strings.get(2));
+        assertEquals("D", strings.get(3));
+        assertEquals("", strings.get(4));
+        assertEquals("E", strings.get(5));
+
+        strings = StringUtils.getStringsFromValue("\"A A \", B, \"C C\", D, \"\", \"E\"", ",");
+        assertEquals(6, strings.size());
+        assertEquals("A A", strings.get(0));
+        assertEquals("B", strings.get(1));
+        assertEquals("C C", strings.get(2));
+        assertEquals("D", strings.get(3));
+        assertEquals("", strings.get(4));
+        assertEquals("E", strings.get(5));
+    }
 
 	@Test
 	public void testStringsFromValue2() throws Exception {

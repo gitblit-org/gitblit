@@ -217,9 +217,12 @@ public class EditTeamPage extends RootSubPage {
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
+		// not all user services support manipulating team memberships
+		boolean editMemberships = GitBlit.self().supportsTeamMembershipChanges();
+		
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
-		form.add(users);
+		form.add(users.setEnabled(editMemberships));
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));

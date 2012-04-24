@@ -23,12 +23,14 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.ProtectionDomain;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import org.eclipse.jetty.ajp.Ajp13SocketConnector;
 import org.eclipse.jetty.server.Connector;
@@ -50,6 +52,10 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.utils.StringUtils;
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
+import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldif.LDIFReader;
 
 /**
  * GitBlitServer is the embedded Jetty server for Gitblit GO. This class starts
@@ -268,6 +274,39 @@ public class GitBlitServer {
 		// Override settings from the command-line
 		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
+		
+		// Start up an in-memory LDAP server, if configured
+		try {
+			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
+				File ldifFile = new File(params.ldapLdifFile);
+				if (ldifFile != null && ldifFile.exists()) {
+					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap_server));
+					String firstLine = new Scanner(ldifFile).nextLine();
+					String rootDN = firstLine.substring(4);
+					String bindUserName = settings.getString(Keys.realm.ldap_username, "");
+					String bindPassword = settings.getString(Keys.realm.ldap_password, "");
+					
+					// Get the port
+					int port = ldapUrl.getPort();
+					if (port == -1)
+						port = 389;
+					
+					InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(rootDN);
+					config.addAdditionalBindCredentials(bindUserName, bindPassword);
+					config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", port));
+					config.setSchema(null);
+					
+					InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
+					ds.importFromLDIF(true, new LDIFReader(ldifFile));
+					ds.startListening();
+					
+					logger.info("LDAP Server started at ldap://localhost:" + port);
+				}
+			}
+		} catch (Exception e) {
+			// Completely optional, just show a warning
+			logger.warn("Unable to start LDAP server", e);
+		}
 
 		// Set the server's contexts
 		server.setHandler(rootContext);
@@ -506,6 +545,9 @@ public class GitBlitServer {
 		 */
 		@Parameter(names = { "--settings" }, description = "Path to alternative settings")
 		public String settingsfile;
+		
+		@Parameter(names = { "--ldapLdifFile" }, description = "Path to LDIF file.  This will cause an in-memory LDAP server to be started according to gitblit settings")
+		public String ldapLdifFile;
 
 	}
 }

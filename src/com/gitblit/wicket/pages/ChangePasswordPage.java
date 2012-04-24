@@ -50,6 +50,12 @@ public class ChangePasswordPage extends RootSubPage {
 			// no authentication enabled
 			throw new RestartResponseException(getApplication().getHomePage());
 		}
+		
+		if (!GitBlit.self().supportsCredentialChanges()) {
+			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitPasswordChanges"),
+					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
+		}
+		
 		setupPage(getString("gb.changePassword"), GitBlitWebSession.get().getUser().username);
 
 		StatelessForm<Void> form = new StatelessForm<Void>("passwordForm") {
