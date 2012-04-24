@@ -16,7 +16,9 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +32,6 @@ import com.gitblit.tests.mock.MemorySettings;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldif.LDIFReader;
 
 /**
@@ -44,11 +45,13 @@ public class LdapUserServiceTest {
 	
 	private LdapUserService ldapUserService;
 	
+	int ldapPort = 1389;
+	
 	@Before
 	public void createInMemoryLdapServer() throws Exception {
 		InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig("dc=MyDomain");
 		config.addAdditionalBindCredentials("cn=Directory Manager", "password");
-		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", 389));
+		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", ldapPort));
 		config.setSchema(null);
 		
 		InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
@@ -59,7 +62,7 @@ public class LdapUserServiceTest {
 	@Before
 	public void createLdapUserService() {
 		Map<Object, Object> backingMap = new HashMap<Object, Object>();
-		backingMap.put("realm.ldap.server", "ldap://localhost:389");
+		backingMap.put("realm.ldap.server", "ldap://localhost:" + ldapPort);
 		backingMap.put("realm.ldap.domain", "");
 		backingMap.put("realm.ldap.username", "cn=Directory Manager");
 		backingMap.put("realm.ldap.password", "password");
