@@ -69,7 +69,7 @@ public class LdapUserServiceTest {
 		backingMap.put("realm.ldap.accountPattern", "(&(objectClass=person)(sAMAccountName=${username}))");
 		backingMap.put("realm.ldap.groupBase", "OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain");
 		backingMap.put("realm.ldap.groupPattern", "(&(objectClass=group)(member=${dn}))");
-		backingMap.put("realm.ldap.admins", "UserThree @Git_Admins");
+		backingMap.put("realm.ldap.admins", "UserThree @Git_Admins \"@Git Admins\"");
 		
 		MemorySettings ms = new MemorySettings(backingMap);
 		
@@ -92,7 +92,8 @@ public class LdapUserServiceTest {
 		assertNotNull(userTwoModel);
 		assertNotNull(userTwoModel.getTeam("git_users"));
 		assertNull(userTwoModel.getTeam("git_admins"));
-		assertFalse(userTwoModel.canAdmin);
+		assertNotNull(userTwoModel.getTeam("git admins"));
+		assertTrue(userTwoModel.canAdmin);
 		
 		UserModel userThreeModel = ldapUserService.authenticate("UserThree", "userThreePassword".toCharArray());
 		assertNotNull(userThreeModel);

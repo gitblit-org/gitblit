@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -174,17 +175,16 @@ public class LdapUserService extends GitblitUserService {
 	}
 
 	private void setAdminAttribute(UserModel user) {
-		String adminString = settings.getString(Keys.realm.ldap_admins, "");
-		String[] admins = adminString.split(" ");
-		user.canAdmin = false;
-		for (String admin : admins) {
-			if (admin.startsWith("@")) { // Team
-				if (user.getTeam(admin.substring(1)) != null)
-					user.canAdmin = true;
-			} else
-				if (user.getName().equalsIgnoreCase(admin))
-					user.canAdmin = true;
-		}
+	    user.canAdmin = false;
+	    List<String>  admins = settings.getStrings(Keys.realm.ldap_admins);
+	    for (String admin : admins) {
+	        if (admin.startsWith("@")) { // Team
+	            if (user.getTeam(admin.substring(1)) != null)
+	                user.canAdmin = true;
+	        } else
+	            if (user.getName().equalsIgnoreCase(admin))
+	                user.canAdmin = true;
+	    }
 	}
 
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {

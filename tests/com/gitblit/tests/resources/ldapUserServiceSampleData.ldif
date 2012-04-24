@@ -25,6 +25,13 @@ cn: Git_Admins
 sAMAccountName: Git_Admins
 member: CN=UserOne,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
 
+dn: CN=Git Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
+objectClass: top
+objectClass: group
+cn: Git Admins
+sAMAccountName: Git_Admins_With_Space
+member: CN=UserTwo,OU=US,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+
 dn: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 objectClass: top
 objectClass: group
@@ -64,6 +71,7 @@ objectClass: person
 sAMAccountName: UserTwo
 userPassword: userTwoPassword
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
+memberOf: CN=Git Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 
 dn: CN=UserThree,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
 objectClass: user
