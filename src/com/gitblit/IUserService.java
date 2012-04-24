@@ -40,6 +40,22 @@ public interface IUserService {
 	void setup(IStoredSettings settings);
 
 	/**
+	 * Does the user service support changes to credentials?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	boolean supportsCredentialChanges();
+	
+	/**
+	 * Does the user service support changes to team memberships?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	boolean supportsTeamMembershipChanges();
+	
+	/**
 	 * Does the user service support cookie authentication?
 	 * 
 	 * @return true or false

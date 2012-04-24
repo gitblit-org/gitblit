@@ -254,9 +254,11 @@ public abstract class BasePage extends WebPage {
 				add(new Label("username", GitBlitWebSession.get().getUser().toString() + ":"));
 				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
 						LogoutPage.class));
+				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
 				// quick and dirty hack for showing a separator
-				add(new Label("separator", "|"));
-				add(new BookmarkablePageLink<Void>("changePasswordLink", ChangePasswordPage.class));
+				add(new Label("separator", "|").setVisible(editCredentials));
+				add(new BookmarkablePageLink<Void>("changePasswordLink", 
+						ChangePasswordPage.class).setVisible(editCredentials));
 			} else {
 				// login
 				add(new Label("username").setVisible(false));
