@@ -222,6 +222,8 @@ public class EditUserPage extends RootSubPage {
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField.setEnabled(editCredentials));
+		form.add(new TextField<String>("displayName").setEnabled(editCredentials));
+		form.add(new TextField<String>("emailAddress").setEnabled(editCredentials));
 		form.add(new CheckBox("canAdmin"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);

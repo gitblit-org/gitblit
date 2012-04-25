@@ -28,6 +28,7 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.GitBlit;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.EditUserPage;
 
@@ -59,8 +60,18 @@ public class UsersPanel extends BasePanel {
 				final UserModel entry = item.getModelObject();
 				LinkPanel editLink = new LinkPanel("username", "list", entry.username,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
-				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.username);
+				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 				item.add(editLink);
+				
+				if (StringUtils.isEmpty(entry.displayName)) {
+					item.add(new Label("displayName").setVisible(false));
+				} else {
+					editLink = new LinkPanel("displayName", "list", entry.getDisplayName(),
+						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
+					item.add(editLink);
+				}
+				
 				item.add(new Label("accesslevel", entry.canAdmin ? "administrator" : ""));
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
