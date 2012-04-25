@@ -285,9 +285,75 @@ User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *combined-md5* f
 #### User Roles
 There are two actual *roles* in Gitblit: *#admin*, which grants administrative powers to that user, and *#notfederated*, which prevents an account from being pulled by another Gitblit instance.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
 
-## Authentication and Authorization Customization
+## Alternative Authentication and Authorization
 
-### Customize Authentication Only
+### LDAP Authentication
+*SINCE 1.0.0*
+
+LDAP can be used to authenticate Users and optionally control Team memberships.  When properly configured, Gitblit will delegate authentication to your LDAP server and will cache some user information in the usual users file (.conf or .properties).
+
+When using the LDAP User Service, new user accounts can not be manually created from Gitblit.  Gitblit user accounts are automatically created for new users on their first succesful authentication through Gitblit against the LDAP server.  It is also important to note that the LDAP User Service does not retrieve or store user passwords nor does it implement any LDAP-write functionality.
+
+To use the *LdapUserService* set *realm.userService=com.gitblit.LdapUserService* in your `gitblit.properties` file or your `web.xml` file and then configure the *realm.ldap* settings appropriately for your LDAP environment.
+
+#### Example LDAP Layout
+![block diagram](ldapSample.png "LDAP Sample")
+
+Please see [ldapUserServiceSampleData.ldif](https://github.com/gitblit/gitblit/blob/master/tests/com/gitblit/tests/resources/ldapUserServiceSampleData.ldif) to see the data in LDAP that reflects the above picture.
+
+#### Gitblit Settings for Example LDAP Layout
+The following are the settings required to configure Gitblit to authenticate against the example LDAP server with LDAP-controlled team memberships.
+
+<table class="table">
+<thead>
+<tr><th>parameter</th><th>value</th><th>description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <th>realm.ldap.server</th><td>ldap://localhost:389</td>
+  <td>Tells Gitblit to connect to the LDAP server on localhost port 389.  The URL Must be of form ldap(s)://&lt;server&gt;:&lt;port&gt; with port being optional (389 for ldap, 636 for ldaps).</td>
+</tr>
+<tr>
+  <th>realm.ldap.username</th><td>cn=Directory Manager</td>
+  <td>The credentials that will log into the LDAP server</td>
+</tr>
+<tr>
+  <th>realm.ldap.password</th><td>password</td>
+  <td>The credentials that will log into the LDAP server</td>
+</tr>
+<tr>
+  <th>realm.ldap.backingUserService</th><td>users.conf</td>
+  <td>Where to store all information that is used by Gitblit.  All information will be synced here upon user login.</td>
+</tr>
+<tr>
+  <th>realm.ldap.maintainTeams</th><td>true</td>
+  <td>Are team memberships maintained in LDAP (<em>true</em>) or manually in Gitblit (<em>false</em>).</td>
+</tr>
+<tr>
+  <th>realm.ldap.accountBase</th><td>OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>What is the root node for all users in this LDAP system.  Subtree searches will start from this node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.accountPattern</th><td>(&(objectClass=person)(sAMAccountName=${username}))</td><td>The LDAP search filter that will match a particular user in LDAP.  ${username} will be replaced with whatever the user enters as their username in the Gitblit login panel.</td>
+</tr>
+<tr>
+  <th>realm.ldap.groupBase</th><td>OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
+  <td>What is the root node for all teams in this LDAP system.  Subtree searches will start from this node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.groupMemberPattern</th><td>(&(objectClass=group)(member=${dn}))</td><td>The LDAP search filter that will match all teams for the authenticating user.  ${username} will be replaced with whatever the user enters as their username in the Gitblit login panel.  Anything else in ${} will be replaced by Attributes from the User node.</td>
+</tr>
+<tr>
+  <th>realm.ldap.admins</th><td>@Git_Admins</td><td>A space-delimited list of usernames and/or teams that indicate admin status in Gitblit.  Teams are referenced with a leading <em>@</em> character.</td>
+</tr>
+</tbody>
+</table>
+
+#### LDAP In-Memory Server
+
+You can start Gitblit GO with an in-memory LDAP server by specifying the *--ldapLdifFile* command-line argument.  The LDAP server will listen on localhost of the port specified in *realm.ldap.url* of `gitblit.properties`.  Additionally, a root user record is automatically created for *realm.ldap.username* and *realm.ldap.password*.  Please note that the ldaps:// protocol is not supported for the in-memory server.
+
+### Custom Authentication
 This is the simplest choice where you implement custom authentication and delegate all other standard user and team operations to one of Gitblit's user service implementations.  This choice insulates your customization from changes in User and Team model classes and additional API that may be added to IUserService.
 
 Please subclass [com.gitblit.GitblitUserService](https://github.com/gitblit/gitblit/blob/master/src/com/gitblit/GitblitUserService.java) and override the *setup()* and *authenticate()* methods.  
@@ -297,7 +363,7 @@ You may use your subclass by specifying its fully qualified classname in the *re
 
 Your subclass must be on Gitblit's classpath and must have a public default constructor.  
 
-### Customize Everything
+### Custom Everything
 Instead of maintaining a `users.conf` or `users.properties` file, you may want to integrate Gitblit into an existing environment.
 
 You may use your own custom *com.gitblit.IUserService* implementation by specifying its fully qualified classname in the *realm.userService* setting.
@@ -449,61 +515,3 @@ Nothing special to configure, EGit figures out everything.
 My testing indicates that your username must be embedded in the url.  YMMV.  
 <pre>https://username@yourserver/git/your/repository</pre>
 
-## LDAP Support
-*SINCE 1.0.0*
-
-LDAP can be used with Gitblit to read Users and the Teams that they belong to.  If configured, LDAP will be queried upon every login to the system, and synchronize that information with the traditional Gitblit backed file (.conf or .properties).  This "lazy" reading approach provides for fast reaction times, but will force a user to log in before you can maintain them (or their teams).
-
-### Example Diagram (with attributes)
-![block diagram](ldapSample.png "LDAP Sample")
-
-Please see <gitblit>/tests/com/gitblit/tests/resources/ldapUserServiceSampleData.ldif to see the data in LDAP that reflects the above picture.
-
-### GitBlit Properties (See gitblit.properties for full description)
-The following is are descriptions of the properties that would follow the sample layout of an LDAP (or Active Directory) setup above.
-
-<table border="1" cellpadding="1" cellspacing="1">
-<tr>
-  <td>realm.ldap.server</td><td>ldap://localhost:389</td>
-  <td>Tells Gitblit to connect to the LDAP server on localhost, port 389.  URL Must be of form ldap(s)://<server>:<port> with port being optional (389 for ldap, 636 for ldaps).</td>
-</tr>
-<tr>
-  <td>realm.ldap.username</td><td>cn=Directory Manager</td>
-  <td>The credentials that will log into this gitblit server</td>
-</tr>
-<tr>
-  <td>realm.ldap.password</td><td>password</td>
-  <td>The credentials that will log into this gitblit server</td>
-</tr>
-<tr>
-  <td>realm.ldap.backingUserService</td><td>users.conf</td>
-  <td>Where to store all information that is used by Gitblit.  All information will be synced here upon user login.</td>
-</tr>
-<tr>
-  <td>realm.ldap.maintainTeams</td><td>true</td>
-  <td>Are users maintained in LDAP (true), or manually in Gitblit (false).</td>
-</tr>
-<tr>
-  <td>realm.ldap.accountBase</td><td>OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
-  <td>What is the root node for all users in this LDAP system.  Searches will be subtree searches starting from this node.</td>
-</tr>
-<tr>
-  <td>realm.ldap.accountPattern</td><td>(&(objectClass=person)(sAMAccountName=${username}))</td><td>The LDAP Search filter that will match a particular user in LDAP.  ${username} will be replaced with whatever the user types in as their user name.</td>
-</tr>
-<tr>
-  <td>realm.ldap.groupBase</td><td>OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain</td>
-  <td>What is the root node for all teams in this LDAP system.  Searches will be subtree searches starting from this node.</td>
-</tr>
-<tr>
-  <td>realm.ldap.groupMemberPattern</td><td>(&(objectClass=group)(member=${dn}))</td><td>The LDAP Search filter that will match all teams for the logging in user in LDAP.  ${username} will be replaced with whatever the user types in as their user name.  Anything else in ${} will be replaced by Attributes on the User node.</td>
-</tr>
-<tr>
-  <td>realm.ldap.admins</td><td>@Git_Admins</td><td>A space delimited list of users and teams (if starting with @) that indicate admin status in Gitblit.</td>
-</tr>
-</table>
-
-You may notice that there are no properties to find the password on the User record.  This is intentional, and the service utilizes the LDAP login process to verify that the user credentials are correct.
-
-You can also start Gitblit GO with an in-memory (backed by an LDIF file) LDAP server by using the --ldapLdifFile property.  It will listen where ever gitblit.settings is pointed to.  However, it only supports ldap...not ldaps, so be sure to set that in gitblit.settings.  It reads the user / password in gitblit.settings to create the root user login.
-
-Finally, writing back to LDAP is not implemented at this time, so do not worry about corrupting your corporate LDAP.  Many orgnizations are likely to go through a different flow to update their LDAP, so it's unlikely that this will become a feature.

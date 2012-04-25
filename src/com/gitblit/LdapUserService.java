@@ -219,14 +219,14 @@ public class LdapUserService extends GitblitUserService {
 	
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
 		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
-		// If attributes other than team name ever from from LDAP, this is where to get them
+		// potentially retrieve other attributes here in the future
 		
 		return answer;		
 	}
 	
 	private UserModel createUserFromLdap(String simpleUserName, SearchResultEntry userEntry) {
 		UserModel answer = new UserModel(simpleUserName);
-		//If attributes other than user name ever from from LDAP, this is where to get them
+		// potentially retrieve other attributes here in the future
 		
 		return answer;
 	}

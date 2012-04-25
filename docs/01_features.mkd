@@ -19,6 +19,7 @@
 - Administrators may create, edit, rename, or delete teams through the web UI or RPC interface
 - Repository Owners may edit repositories through the web UI
 - Administrators and Repository Owners may set the default branch through the web UI or RPC interface
+- LDAP authentication and optional LDAP-controlled Team memberships
 - Gravatar integration
 - Git-notes display support
 - gh-pages display support (Jekyll is not supported)
