@@ -106,6 +106,29 @@ public class LdapUserService extends GitblitUserService {
 	}
 	
 	/**
+	 * If no displayName pattern is defined then Gitblit can manage the display name.
+	 *
+	 * @return true if Gitblit can manage the user display name
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsDisplayNameChanges() {
+		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.displayName, ""));
+	}
+	
+	/**
+	 * If no email pattern is defined then Gitblit can manage the email address.
+	 *
+	 * @return true if Gitblit can manage the user email address
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsEmailAddressChanges() {
+		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.email, ""));
+	}
+
+	
+	/**
 	 * If the LDAP server will maintain team memberships then LdapUserService
 	 * will not allow team membership changes.  In this scenario all team
 	 * changes must be made on the LDAP server by the LDAP administrator.
@@ -194,27 +217,31 @@ public class LdapUserService extends GitblitUserService {
 		// Don't want visibility into the real password, make up a dummy
 		user.password = "StoredInLDAP";
 		
-		// Get Attributes for full name / email
-		String displayName = settings.getString(Keys.realm.ldap.displayName, "displayName");
-		String email = settings.getString(Keys.realm.ldap.email, "email");
+		// Get full name Attribute
+		String displayName = settings.getString(Keys.realm.ldap.displayName, "");		
+		if (!StringUtils.isEmpty(displayName)) {
+			// Replace embedded ${} with attributes
+			if (displayName.contains("${")) {
+				for (Attribute userAttribute : userEntry.getAttributes())
+					displayName = StringUtils.replace(displayName, "${" + userAttribute.getName() + "}", userAttribute.getValue());
 
-		// Replace embedded ${} with attributes
-		if (displayName.contains("${")) {
-			for (Attribute userAttribute : userEntry.getAttributes())
-				displayName = StringUtils.replace(displayName, "${" + userAttribute.getName() + "}", userAttribute.getValue());
-			
-			user.displayName = displayName;
-		} else {
-			user.displayName = userEntry.getAttribute(displayName).getValue();
+				user.displayName = displayName;
+			} else {
+				user.displayName = userEntry.getAttribute(displayName).getValue();
+			}
 		}
 		
-		if (email.contains("${")) {
-			for (Attribute userAttribute : userEntry.getAttributes())
-				email = StringUtils.replace(email, "${" + userAttribute.getName() + "}", userAttribute.getValue());
-			
-			user.emailAddress = email;
-		} else {
-			user.emailAddress = userEntry.getAttribute(email).getValue();
+		// Get email address Attribute
+		String email = settings.getString(Keys.realm.ldap.email, "");
+		if (!StringUtils.isEmpty(email)) {
+			if (email.contains("${")) {
+				for (Attribute userAttribute : userEntry.getAttributes())
+					email = StringUtils.replace(email, "${" + userAttribute.getName() + "}", userAttribute.getValue());
+
+				user.emailAddress = email;
+			} else {
+				user.emailAddress = userEntry.getAttribute(email).getValue();
+			}
 		}
 	}
 

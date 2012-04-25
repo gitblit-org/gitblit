@@ -388,6 +388,22 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * 
+	 * @return true if the user service supports display name changes
+	 */
+	public boolean supportsDisplayNameChanges() {
+		return userService.supportsDisplayNameChanges();
+	}
+
+	/**
+	 * 
+	 * @return true if the user service supports email address changes
+	 */
+	public boolean supportsEmailAddressChanges() {
+		return userService.supportsEmailAddressChanges();
+	}
+
+	/**
+	 * 
 	 * @return true if the user service supports team membership changes
 	 */
 	public boolean supportsTeamMembershipChanges() {
@@ -1780,6 +1796,10 @@ public class GitBlit implements ServletContextListener {
 	 */
 	private ServerSettings loadSettingModels() {
 		ServerSettings settingsModel = new ServerSettings();
+		settingsModel.supportsCredentialChanges = userService.supportsCredentialChanges();
+		settingsModel.supportsDisplayNameChanges = userService.supportsDisplayNameChanges();
+		settingsModel.supportsEmailAddressChanges = userService.supportsEmailAddressChanges();
+		settingsModel.supportsTeamMembershipChanges = userService.supportsTeamMembershipChanges();
 		try {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting

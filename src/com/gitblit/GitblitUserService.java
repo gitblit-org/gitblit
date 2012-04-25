@@ -118,6 +118,16 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	public boolean supportsDisplayNameChanges() {
+		return serviceImpl.supportsDisplayNameChanges();
+	}
+
+	@Override
+	public boolean supportsEmailAddressChanges() {
+		return serviceImpl.supportsEmailAddressChanges();
+	}
+
+	@Override
 	public boolean supportsTeamMembershipChanges() {
 		return serviceImpl.supportsTeamMembershipChanges();
 	}

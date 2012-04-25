@@ -113,7 +113,29 @@ public class ConfigUserService implements IUserService {
 	public boolean supportsCredentialChanges() {
 		return true;
 	}
-	
+
+	/**
+	 * Does the user service support changes to user display name?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsDisplayNameChanges() {
+		return true;
+	}
+
+	/**
+	 * Does the user service support changes to user email address?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsEmailAddressChanges() {
+		return true;
+	}
+
 	/**
 	 * Does the user service support changes to team memberships?
 	 * 

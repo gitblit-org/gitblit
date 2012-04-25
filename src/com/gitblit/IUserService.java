@@ -46,6 +46,22 @@ public interface IUserService {
 	 * @since 1.0.0
 	 */	
 	boolean supportsCredentialChanges();
+
+	/**
+	 * Does the user service support changes to user display name?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	boolean supportsDisplayNameChanges();
+
+	/**
+	 * Does the user service support changes to user email address?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */	
+	boolean supportsEmailAddressChanges();
 	
 	/**
 	 * Does the user service support changes to team memberships?

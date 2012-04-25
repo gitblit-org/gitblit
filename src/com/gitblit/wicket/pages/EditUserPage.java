@@ -209,6 +209,12 @@ public class EditUserPage extends RootSubPage {
 		
 		// not all user services support manipulating username and password
 		boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+		
+		// not all user services support manipulating display name
+		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges();
+
+		// not all user services support manipulating email address
+		boolean editEmailAddress = GitBlit.self().supportsEmailAddressChanges();
 
 		// not all user services support manipulating team memberships
 		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges();
@@ -222,8 +228,8 @@ public class EditUserPage extends RootSubPage {
 				confirmPassword);
 		confirmPasswordField.setResetPassword(false);
 		form.add(confirmPasswordField.setEnabled(editCredentials));
-		form.add(new TextField<String>("displayName").setEnabled(editCredentials));
-		form.add(new TextField<String>("emailAddress").setEnabled(editCredentials));
+		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
+		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);

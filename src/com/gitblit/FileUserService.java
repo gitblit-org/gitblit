@@ -85,6 +85,28 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Does the user service support changes to user display name?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsDisplayNameChanges() {
+		return false;
+	}
+
+	/**
+	 * Does the user service support changes to user email address?
+	 * 
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	@Override
+	public boolean supportsEmailAddressChanges() {
+		return false;
+	}
+
+	/**
 	 * Does the user service support changes to team memberships?
 	 * 
 	 * @return true or false
