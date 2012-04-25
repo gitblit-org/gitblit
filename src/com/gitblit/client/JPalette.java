@@ -38,6 +38,10 @@ public class JPalette<T> extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private PaletteModel<T> availableModel;
 	private PaletteModel<T> selectedModel;
+	private JButton add;
+	private JButton subtract;
+	private JButton up;
+	private JButton down;
 
 	public JPalette() {
 		this(false);
@@ -52,7 +56,7 @@ public class JPalette<T> extends JPanel {
 		final JTable available = new JTable(availableModel);
 		final JTable selected = new JTable(selectedModel);
 
-		JButton add = new JButton("->");
+		add = new JButton("->");
 		add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				List<T> move = new ArrayList<T>();
@@ -70,7 +74,7 @@ public class JPalette<T> extends JPanel {
 				selectedModel.fireTableDataChanged();
 			}
 		});
-		JButton subtract = new JButton("<-");
+		subtract = new JButton("<-");
 		subtract.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				List<T> move = new ArrayList<T>();
@@ -90,7 +94,7 @@ public class JPalette<T> extends JPanel {
 			}
 		});
 
-		JButton up = new JButton("\u2191");
+		up = new JButton("\u2191");
 		up.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				int row = selected.getSelectedRow();
@@ -102,7 +106,7 @@ public class JPalette<T> extends JPanel {
 			}
 		});
 
-		JButton down = new JButton("\u2193");
+		down = new JButton("\u2193");
 		down.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				int row = selected.getSelectedRow();
@@ -148,6 +152,15 @@ public class JPalette<T> extends JPanel {
 		panel.add(jlabel, BorderLayout.NORTH);
 		panel.add(jsp, BorderLayout.CENTER);
 		return panel;
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		add.setEnabled(enabled);
+		subtract.setEnabled(enabled);
+		up.setEnabled(enabled);
+		down.setEnabled(enabled);
 	}
 
 	public void setObjects(List<T> all, List<T> selected) {

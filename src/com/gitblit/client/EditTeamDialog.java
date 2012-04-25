@@ -125,7 +125,8 @@ public class EditTeamDialog extends JDialog {
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new JPalette<String>();
 		userPalette = new JPalette<String>();
-
+		userPalette.setEnabled(settings.supportsTeamMembershipChanges);
+		
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
 

@@ -129,6 +129,14 @@ public class EditUserDialog extends JDialog {
 		notFederatedCheckbox = new JCheckBox(
 				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
+		
+		// credentials are optionally controlled by 3rd-party authentication
+		usernameField.setEnabled(settings.supportsCredentialChanges);
+		passwordField.setEnabled(settings.supportsCredentialChanges);
+		confirmPasswordField.setEnabled(settings.supportsCredentialChanges);
+
+		displayNameField.setEnabled(settings.supportsDisplayNameChanges);
+		emailAddressField.setEnabled(settings.supportsEmailAddressChanges);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
@@ -143,6 +151,7 @@ public class EditUserDialog extends JDialog {
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new JPalette<String>();
 		teamsPalette = new JPalette<TeamModel>();
+		teamsPalette.setEnabled(settings.supportsTeamMembershipChanges);
 
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
@@ -340,7 +349,7 @@ public class EditUserDialog extends JDialog {
 		}
 		teamsPalette.setObjects(teams, selected);
 	}
-
+	
 	public UserModel getUser() {
 		if (canceled) {
 			return null;
