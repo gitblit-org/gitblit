@@ -37,6 +37,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	// field names are reflectively mapped in EditUser page
 	public String username;
 	public String password;
+	public String displayName;
+	public String emailAddress;
 	public boolean canAdmin;
 	public boolean excludeFromFederation;
 	public final Set<String> repositories = new HashSet<String>();

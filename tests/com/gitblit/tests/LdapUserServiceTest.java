@@ -16,12 +16,16 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.LdapUserService;
@@ -30,7 +34,6 @@ import com.gitblit.tests.mock.MemorySettings;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldif.LDIFReader;
 
 /**
@@ -44,20 +47,25 @@ public class LdapUserServiceTest {
 	
 	private LdapUserService ldapUserService;
 	
-	@Before
-	public void createInMemoryLdapServer() throws Exception {
+	@BeforeClass
+	public static void createInMemoryLdapServer() throws Exception {
 		InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig("dc=MyDomain");
 		config.addAdditionalBindCredentials("cn=Directory Manager", "password");
 		config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", 389));
 		config.setSchema(null);
 		
 		InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, new LDIFReader(this.getClass().getResourceAsStream("resources/ldapUserServiceSampleData.ldif")));
+		ds.importFromLDIF(true, new LDIFReader(LdapUserServiceTest.class.getResourceAsStream("resources/ldapUserServiceSampleData.ldif")));
 		ds.startListening();
 	}
 	
 	@Before
 	public void createLdapUserService() {
+		ldapUserService = new LdapUserService();
+		ldapUserService.setup(getSettings());
+	}
+	
+	private MemorySettings getSettings() {
 		Map<Object, Object> backingMap = new HashMap<Object, Object>();
 		backingMap.put("realm.ldap.server", "ldap://localhost:389");
 		backingMap.put("realm.ldap.domain", "");
@@ -70,11 +78,11 @@ public class LdapUserServiceTest {
 		backingMap.put("realm.ldap.groupBase", "OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain");
 		backingMap.put("realm.ldap.groupPattern", "(&(objectClass=group)(member=${dn}))");
 		backingMap.put("realm.ldap.admins", "UserThree @Git_Admins \"@Git Admins\"");
+		backingMap.put("realm.ldap.displayName", "displayName");
+		backingMap.put("realm.ldap.email", "email");
 		
 		MemorySettings ms = new MemorySettings(backingMap);
-		
-		ldapUserService = new LdapUserService();
-		ldapUserService.setup(ms);
+		return ms;
 	}
 	
 	@Test
@@ -100,6 +108,49 @@ public class LdapUserServiceTest {
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
 		assertTrue(userThreeModel.canAdmin);
+	}
+	
+	@Test
+	public void testDisplayName() {
+		UserModel userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertEquals("User One", userOneModel.displayName);
+		
+		// Test more complicated scenarios - concat
+		MemorySettings ms = getSettings();
+		ms.put("realm.ldap.displayName", "${personalTitle}. ${givenName} ${surname}");
+		ldapUserService = new LdapUserService();
+		ldapUserService.setup(ms);
+		
+		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertEquals("Mr. User One", userOneModel.displayName);
+	}
+	
+	@Test
+	public void testEmail() {
+		UserModel userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertEquals("userone@gitblit.com", userOneModel.emailAddress);
+		
+		// Test more complicated scenarios - concat
+		MemorySettings ms = getSettings();
+		ms.put("realm.ldap.email", "${givenName}.${surname}@gitblit.com");
+		ldapUserService = new LdapUserService();
+		ldapUserService.setup(ms);
+		
+		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		assertNotNull(userOneModel);
+		assertEquals("User.One@gitblit.com", userOneModel.emailAddress);
+	}
+	
+	@Test
+	public void testLdapInjection() {
+		// Inject so "(&(objectClass=person)(sAMAccountName=${username}))" becomes "(&(objectClass=person)(sAMAccountName=*)(userPassword=userOnePassword))"
+		// Thus searching by password
+		
+		UserModel userOneModel = ldapUserService.authenticate("*)(userPassword=userOnePassword", "userOnePassword".toCharArray());
+		assertNull(userOneModel);
 	}
 
 }

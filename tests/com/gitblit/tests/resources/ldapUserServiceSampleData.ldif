@@ -62,6 +62,11 @@ objectClass: user
 objectClass: person
 sAMAccountName: UserOne
 userPassword: userOnePassword
+displayName: User One
+givenName: User
+surname: One
+personalTitle: Mr
+email: userone@gitblit.com
 memberOf: CN=Git_Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 
@@ -70,6 +75,11 @@ objectClass: user
 objectClass: person
 sAMAccountName: UserTwo
 userPassword: userTwoPassword
+displayName: User Two
+givenName: User
+surname: Two
+personalTitle: Mr
+email: usertwo@gitblit.com
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 memberOf: CN=Git Admins,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 
@@ -78,6 +88,11 @@ objectClass: user
 objectClass: person
 sAMAccountName: UserThree
 userPassword: userThreePassword
+displayName: User Three
+givenName: User
+surname: Three
+personalTitle: Mrs
+email: userthree@gitblit.com
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
 
 dn: CN=UserFour,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
@@ -85,4 +100,9 @@ objectClass: user
 objectClass: person
 sAMAccountName: UserFour
 userPassword: userFourPassword
+displayName: User Four
+givenName: User
+surname: Four
+personalTitle: Miss
+email: userfour@gitblit.com
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain

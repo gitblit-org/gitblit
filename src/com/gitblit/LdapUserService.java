@@ -137,7 +137,7 @@ public class LdapUserService extends GitblitUserService {
 			// Find the logging in user's DN
 			String accountBase = settings.getString(Keys.realm.ldap_accountBase, "");
 			String accountPattern = settings.getString(Keys.realm.ldap_accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-			accountPattern = StringUtils.replace(accountPattern, "${username}", simpleUsername);
+			accountPattern = StringUtils.replace(accountPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 
 			SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
 			if (result != null && result.getEntryCount() == 1) {
@@ -149,15 +149,15 @@ public class LdapUserService extends GitblitUserService {
 					
 					UserModel user = getUserModel(simpleUsername);
 					if (user == null)	// create user object for new authenticated user
-						user = createUserFromLdap(simpleUsername, loggingInUser);
+						user = new UserModel(simpleUsername);
 					
-					user.password = "StoredInLDAP";
+					
 					
 					if (!supportsTeamMembershipChanges())
 						getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
 					
-					// Get Admin Attributes
-					setAdminAttribute(user);
+					// Get User Attributes
+					setUserAttributes(user, loggingInUser);
 
 					// Push the ldap looked up values to backing file
 					super.updateUserModel(user);
@@ -186,6 +186,37 @@ public class LdapUserService extends GitblitUserService {
 	                user.canAdmin = true;
 	    }
 	}
+	
+	private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
+		// Is this user an admin?
+		setAdminAttribute(user);
+		
+		// Don't want visibility into the real password, make up a dummy
+		user.password = "StoredInLDAP";
+		
+		// Get Attributes for full name / email
+		String displayName = settings.getString(Keys.realm.ldap_displayName, "displayName");
+		String email = settings.getString(Keys.realm.ldap_email, "email");
+
+		// Replace embedded ${} with attributes
+		if (displayName.contains("${")) {
+			for (Attribute userAttribute : userEntry.getAttributes())
+				displayName = StringUtils.replace(displayName, "${" + userAttribute.getName() + "}", userAttribute.getValue());
+			
+			user.displayName = displayName;
+		} else {
+			user.displayName = userEntry.getAttribute(displayName).getValue();
+		}
+		
+		if (email.contains("${")) {
+			for (Attribute userAttribute : userEntry.getAttributes())
+				email = StringUtils.replace(email, "${" + userAttribute.getName() + "}", userAttribute.getValue());
+			
+			user.emailAddress = email;
+		} else {
+			user.emailAddress = userEntry.getAttribute(email).getValue();
+		}
+	}
 
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
@@ -194,12 +225,12 @@ public class LdapUserService extends GitblitUserService {
 		String groupBase = settings.getString(Keys.realm.ldap_groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap_groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
 		
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", loggingInUserDN);
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", simpleUsername);
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
+		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 		
 		// Fill in attributes into groupMemberPattern
 		for (Attribute userAttribute : loggingInUser.getAttributes())
-			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", userAttribute.getValue());
+			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
 		
 		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
@@ -223,13 +254,6 @@ public class LdapUserService extends GitblitUserService {
 		
 		return answer;		
 	}
-	
-	private UserModel createUserFromLdap(String simpleUserName, SearchResultEntry userEntry) {
-		UserModel answer = new UserModel(simpleUserName);
-		//If attributes other than user name ever from from LDAP, this is where to get them
-		
-		return answer;
-	}
 
 	private SearchResult doSearch(LDAPConnection ldapConnection, String base, String filter) {
 		try {
@@ -243,6 +267,7 @@ public class LdapUserService extends GitblitUserService {
 	
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
 		try {
+			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
 			ldapConnection.bind(userDn, password);
 			return true;
 		} catch (LDAPException e) {
@@ -263,6 +288,35 @@ public class LdapUserService extends GitblitUserService {
 		if (lastSlash > -1) {
 			username = username.substring(lastSlash + 1);
 		}
+		
 		return username;
+	}
+	
+	// From: https://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
+	public static final String escapeLDAPSearchFilter(String filter) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < filter.length(); i++) {
+			char curChar = filter.charAt(i);
+			switch (curChar) {
+			case '\\':
+				sb.append("\\5c");
+				break;
+			case '*':
+				sb.append("\\2a");
+				break;
+			case '(':
+				sb.append("\\28");
+				break;
+			case ')':
+				sb.append("\\29");
+				break;
+			case '\u0000': 
+				sb.append("\\00"); 
+				break;
+			default:
+				sb.append(curChar);
+			}
+		}
+		return sb.toString();
 	}
 }
