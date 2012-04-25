@@ -60,6 +60,10 @@ public class ConfigUserService implements IUserService {
 	private static final String USER = "user";
 
 	private static final String PASSWORD = "password";
+	
+	private static final String DISPLAYNAME = "displayName";
+	
+	private static final String EMAILADDRESS = "emailAddress";
 
 	private static final String REPOSITORY = "repository";
 
@@ -689,6 +693,12 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.password)) {
 				config.setString(USER, model.username, PASSWORD, model.password);
 			}
+			if (!StringUtils.isEmpty(model.displayName)) {
+				config.setString(USER, model.username, DISPLAYNAME, model.displayName);
+			}
+			if (!StringUtils.isEmpty(model.emailAddress)) {
+				config.setString(USER, model.username, EMAILADDRESS, model.emailAddress);
+			}
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -785,7 +795,9 @@ public class ConfigUserService implements IUserService {
 				Set<String> usernames = config.getSubsections(USER);
 				for (String username : usernames) {
 					UserModel user = new UserModel(username.toLowerCase());
-					user.password = config.getString(USER, username, PASSWORD);
+					user.password = config.getString(USER, username, PASSWORD);					
+					user.displayName = config.getString(USER, username, DISPLAYNAME);
+					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
