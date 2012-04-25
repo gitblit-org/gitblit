@@ -19,13 +19,17 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.GitBlit;
+import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
 
 public class LogoutPage extends WebPage {
 
 	public LogoutPage() {
-		GitBlitWebSession.get().invalidate();
+		GitBlitWebSession session = GitBlitWebSession.get();
+		UserModel user = session.getUser();
 		GitBlit.self().setCookie((WebResponse) getResponse(), null);
+		GitBlit.self().logout(user);
+		session.invalidate();		
 		setRedirect(true);
 		setResponsePage(getApplication().getHomePage());
 	}

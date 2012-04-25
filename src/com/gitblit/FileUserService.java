@@ -178,6 +178,15 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Logout a user.
+	 * 
+	 * @param user
+	 */
+	@Override
+	public void logout(UserModel user) {	
+	}
+
+	/**
 	 * Retrieve the user object for the specified username.
 	 * 
 	 * @param username

@@ -141,6 +141,11 @@ public class GitblitUserService implements IUserService {
 	public UserModel authenticate(String username, char[] password) {
 		return serviceImpl.authenticate(username, password);
 	}
+	
+	@Override
+	public void logout(UserModel user) {
+		serviceImpl.logout(user);
+	}
 
 	@Override
 	public UserModel getUserModel(String username) {

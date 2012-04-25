@@ -88,6 +88,13 @@ public interface IUserService {
 	UserModel authenticate(String username, char[] password);
 
 	/**
+	 * Logout a user.
+	 * 
+	 * @param user
+	 */
+	void logout(UserModel user);
+	
+	/**
 	 * Retrieve the user object for the specified username.
 	 * 
 	 * @param username

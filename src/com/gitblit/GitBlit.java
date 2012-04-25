@@ -481,6 +481,18 @@ public class GitBlit implements ServletContextListener {
 			response.addCookie(userCookie);
 		}
 	}
+	
+	/**
+	 * Logout a user.
+	 * 
+	 * @param user
+	 */
+	public void logout(UserModel user) {
+		if (userService == null) {
+			return;
+		}
+		userService.logout(user);
+	}
 
 	/**
 	 * Returns the list of all users available to the login service.
