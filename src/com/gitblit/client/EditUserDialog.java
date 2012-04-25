@@ -72,6 +72,10 @@ public class EditUserDialog extends JDialog {
 	private JPasswordField passwordField;
 
 	private JPasswordField confirmPasswordField;
+	
+	private JTextField displayNameField;
+	
+	private JTextField emailAddressField;
 
 	private JCheckBox canAdminCheckbox;
 
@@ -119,7 +123,9 @@ public class EditUserDialog extends JDialog {
 		passwordField = new JPasswordField(anUser.password == null ? "" : anUser.password, 25);
 		confirmPasswordField = new JPasswordField(anUser.password == null ? "" : anUser.password,
 				25);
-		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);
+		displayNameField = new JTextField(anUser.displayName == null ? "" : anUser.displayName, 25);
+		emailAddressField = new JTextField(anUser.emailAddress == null ? "" : anUser.emailAddress, 25);
+		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);		
 		notFederatedCheckbox = new JCheckBox(
 				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
@@ -128,6 +134,8 @@ public class EditUserDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.password"), passwordField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.confirmPassword"), confirmPasswordField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.displayName"), displayNameField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.emailAddress"), emailAddressField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.canAdmin"), canAdminCheckbox));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
 				notFederatedCheckbox));
@@ -284,6 +292,9 @@ public class EditUserDialog extends JDialog {
 			// no change in password
 			user.password = password;
 		}
+		
+		user.displayName = displayNameField.getText().trim();
+		user.emailAddress = emailAddressField.getText().trim();
 
 		user.canAdmin = canAdminCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
