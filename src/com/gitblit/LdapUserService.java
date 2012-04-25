@@ -145,7 +145,7 @@ public class LdapUserService extends GitblitUserService {
 				String loggingInUserDN = loggingInUser.getDN();
 				
 				if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
-					logger.debug("Authenitcated: " + username);
+					logger.debug("LDAP authenticated: " + username);
 					
 					UserModel user = getUserModel(simpleUsername);
 					if (user == null)	// create user object for new authenticated user
@@ -246,7 +246,7 @@ public class LdapUserService extends GitblitUserService {
 			ldapConnection.bind(userDn, password);
 			return true;
 		} catch (LDAPException e) {
-			logger.error("Error authenitcating user", e);
+			logger.error("Error authenticating user", e);
 			return false;
 		}
 	}
