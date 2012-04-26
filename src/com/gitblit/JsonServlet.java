@@ -122,6 +122,7 @@ public abstract class JsonServlet extends HttpServlet {
 		if (o != null) {
 			// Send JSON response
 			String json = JsonUtils.toJsonString(o);
+			response.setCharacterEncoding(Constants.ENCODING);
 			response.getWriter().append(json);
 		}
 	}
