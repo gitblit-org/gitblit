@@ -567,10 +567,10 @@ public class Build {
 				"226f851dc44fd94fe70b9c471881b71f88949cbf",
 				"8d7d867b97eeb3a9196c3926da550ad042941c1b");
 
-		public static final MavenObject JDOM = new MavenObject("jdom", "org/jdom", "jdom", "1.1",
-				153000, 235000, 445000, "1d04c0f321ea337f3661cf7ede8f4c6f653a8fdd",
-				"a7ed425c4c46605b8f2bf2ee118c1609682f4f2c",
-				"f3df91edccba2f07a0fced70887c2f7b7836cb75");
+		public static final MavenObject JDOM = new MavenObject("jdom", "jdom", "jdom", "1.0",
+				153000, 235000, 445000, "a2ac1cd690ab4c80defe7f9bce14d35934c35cec",
+				"662abe0196cf554d4d7374f5d6382034171b652c",
+				"");
 
 		public static final MavenObject GSON = new MavenObject("gson", "com/google/code/gson",
 				"gson", "1.7.1", 174000, 142000, 247000,

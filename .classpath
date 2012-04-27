@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="ext/bcmail-jdk16-1.46.jar" sourcepath="ext/bcmail-jdk16-1.46-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jsch-0.1.44-1.jar" sourcepath="ext/jsch-0.1.44-1-sources.jar"/>
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/rome-0.9-sources.jar"/>
-	<classpathentry kind="lib" path="ext/jdom-1.1.jar" sourcepath="ext/jdom-1.1-sources.jar"/>
+	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/jdom-1.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
 	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.3.v20110701.jar" sourcepath="ext/jetty-webapp-7.4.3.v20110701-sources.jar"/>
 	<classpathentry kind="lib" path="ext/gson-1.7.1.jar" sourcepath="ext/gson-1.7.1-sources.jar"/>
