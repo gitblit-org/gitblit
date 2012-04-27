@@ -93,6 +93,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.IVY, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -124,6 +125,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.IVY, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -601,6 +603,10 @@ public class Build {
 		public static final MavenObject UNBOUND_ID = new MavenObject("unbound id", "com/unboundid", "unboundid-ldapsdk",
 				"2.3.0", 1383417, 1439721, 0, "6fde8d9fb4ee3e7e3d7e764e3ea57195971e2eb2",
 				"5276d3d29630693dba99ab9f7ea54f4c471d3af1", "");
+		
+		public static final MavenObject IVY = new MavenObject("ivy", "org/apache/ivy", "ivy",
+				"2.2.0", 948000, 744000, 0, "f9d1e83e82fc085093510f7d2e77d81d52bc2081",
+				"0312527950ad0e8fbab37228fbed3bf41a6fe0a1", "");
 
 		
 		public final String name;

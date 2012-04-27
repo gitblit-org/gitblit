@@ -31,5 +31,6 @@
 	<classpathentry kind="lib" path="ext/lucene-highlighter-3.5.0.jar" sourcepath="ext/lucene-highlighter-3.5.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lucene-memory-3.5.0.jar" sourcepath="ext/lucene-memory-3.5.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/unboundid-ldapsdk-2.3.0.jar" sourcepath="ext/unboundid-ldapsdk-2.3.0-sources.jar"/>
+	<classpathentry kind="lib" path="ext/ivy-2.2.0.jar" sourcepath="ext/ivy-2.2.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
