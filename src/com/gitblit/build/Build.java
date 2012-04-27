@@ -473,11 +473,11 @@ public class Build {
 		public static final MavenObject JETTY_AJP = new MavenObject("Jetty-AJP",
 				"org/eclipse/jetty", "jetty-ajp", "7.4.3.v20110701", 32000, 22000,
 				97000, "ddeb533bcf29e9b95555a9c0f34c1de3ab14c430", "bc4798286d705ea972643b3a0b31f46a0c53f605", "");
-
-		public static final MavenObject SERVLET = new MavenObject("Servlet 3.0", "org/glassfish",
-				"javax.servlet", "3.0.1", 84000, 211000, 0,
-				"58f17c941cd0607bb5edcbcafc491d02265ac9a1",
-				"63f2f8bcdd3f138020bbadd5c847e8f3847b77d2", null);
+		
+		public static final MavenObject SERVLET = new MavenObject("Servlet 3.0", "javax/servlet",
+				"javax.servlet-api", "3.0.1", 84000, 211000, 0,
+				"6bf0ebb7efd993e222fc1112377b5e92a13b38dd",
+				"01952f91d84016a39e31346c9d18bd8c9c4a128a", null);
 
 		public static final MavenObject SLF4JAPI = new MavenObject("SLF4J API", "org/slf4j",
 				"slf4j-api", "1.6.1", 25500, 45000, 182000,

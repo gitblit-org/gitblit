@@ -18,7 +18,7 @@
 	<classpathentry kind="lib" path="ext/gson-1.7.1.jar" sourcepath="ext/gson-1.7.1-sources.jar"/>
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/mail-1.4.3-sources.jar"/>
 	<classpathentry kind="lib" path="ext/googlecharts-1.4.20.jar" sourcepath="ext/googlecharts-1.4.20-sources.jar"/>
-	<classpathentry kind="lib" path="ext/javax.servlet-3.0.1.jar" sourcepath="ext/javax.servlet-3.0.1-sources.jar"/>
+	<classpathentry kind="lib" path="ext/javax.servlet-api-3.0.1.jar" sourcepath="ext/javax.servlet-api-3.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-1.4.20.jar" sourcepath="ext/wicket-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.20.jar" sourcepath="ext/wicket-auth-roles-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.20.jar" sourcepath="ext/wicket-extensions-1.4.20-sources.jar"/>
