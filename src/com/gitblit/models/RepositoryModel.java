@@ -64,7 +64,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
-	public Map<String, String> userDefinedProperties;
+	public Map<String, String> customDefinedProperties;
 	private String displayName;
 	
 	public RepositoryModel() {

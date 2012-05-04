@@ -67,8 +67,8 @@ public class RepositoryModelTest {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		
-		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
-		assertEquals("Hello", model.userDefinedProperties.get("anotherProperty"));
+		assertEquals("\\d", model.customDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("Hello", model.customDefinedProperties.get("anotherProperty"));
 	}
 	
 	@Test
@@ -76,17 +76,17 @@ public class RepositoryModelTest {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		
-		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
-		assertEquals("Hello", model.userDefinedProperties.get("anotherProperty"));
+		assertEquals("\\d", model.customDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("Hello", model.customDefinedProperties.get("anotherProperty"));
 		
-		assertEquals("Hello", model.userDefinedProperties.put("anotherProperty", "GoodBye"));
+		assertEquals("Hello", model.customDefinedProperties.put("anotherProperty", "GoodBye"));
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 		
 		model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		
-		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
-		assertEquals("GoodBye", model.userDefinedProperties.get("anotherProperty"));
+		assertEquals("\\d", model.customDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("GoodBye", model.customDefinedProperties.get("anotherProperty"));
 	}
 
 }
