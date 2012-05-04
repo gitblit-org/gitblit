@@ -19,17 +19,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
-import com.gitblit.GitBlit;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -42,11 +36,6 @@ import com.gitblit.utils.StringUtils;
 public class RepositoryModel implements Serializable, Comparable<RepositoryModel> {
 
 	private static final long serialVersionUID = 1L;
-	
-	public static String CUSTOM_DEFINED_PROP_SECTION = "gitblit";
-	public static String CUSTOM_DEFINED_PROP_SUBSECTION = "customDefinedProperties";
-	
-	private final Logger logger = LoggerFactory.getLogger(RepositoryModel.class);
 
 	// field names are reflectively mapped in EditRepository page
 	public String name;
@@ -75,6 +64,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
+	public Map<String, String> userDefinedProperties;
 	private String displayName;
 	
 	public RepositoryModel() {
@@ -102,37 +92,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 			}
 		}
 		return localBranches;
-	}
-	
-	public String getCustomProperty(String propertyKey) {
-		try {
-			Repository r = GitBlit.self().getRepository(name);
-			StoredConfig config = JGitUtils.readConfig(r);
-			
-			return config.getString(CUSTOM_DEFINED_PROP_SECTION, CUSTOM_DEFINED_PROP_SUBSECTION, propertyKey);
-		} catch (Exception e) {
-			logger.error("Error getting Custom Property", e);
-			
-			return null;
-		}		
-	}
-	
-	public String setCustomProperty(String propertyKey, String propertyValue) {
-		try {
-			Repository r = GitBlit.self().getRepository(name);
-			StoredConfig config = JGitUtils.readConfig(r);
-			
-			String oldValue = config.getString(CUSTOM_DEFINED_PROP_SECTION, CUSTOM_DEFINED_PROP_SUBSECTION, propertyKey);
-			
-			config.setString(CUSTOM_DEFINED_PROP_SECTION, CUSTOM_DEFINED_PROP_SUBSECTION, propertyKey, propertyValue);
-			config.save();
-			
-			return oldValue;
-		} catch (Exception e) {
-			logger.error("Error getting Custom Property", e);
-			
-			return null;
-		}		
 	}
 
 	@Override

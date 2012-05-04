@@ -1,6 +1,6 @@
 package com.gitblit.tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
@@ -24,11 +25,11 @@ public class RepositoryModelTest {
 	public static void startGitBlit() throws Exception {
 		wasStarted = GitBlitSuite.startGitblit() == false;
 		
-		oldSection = RepositoryModel.CUSTOM_DEFINED_PROP_SECTION;
-		oldSubSection = RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION;
+		oldSection = Constants.CUSTOM_DEFINED_PROP_SECTION;
+		oldSubSection = Constants.CUSTOM_DEFINED_PROP_SUBSECTION;
 		
-		RepositoryModel.CUSTOM_DEFINED_PROP_SECTION = "RepositoryModelTest";
-		RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION = "RepositoryModelTestSubSection";
+		Constants.CUSTOM_DEFINED_PROP_SECTION = "RepositoryModelTest";
+		Constants.CUSTOM_DEFINED_PROP_SUBSECTION = "RepositoryModelTestSubSection";
 	}
 	
 	@AfterClass
@@ -36,8 +37,8 @@ public class RepositoryModelTest {
 		if (wasStarted == false)
 			GitBlitSuite.stopGitblit();
 		
-		RepositoryModel.CUSTOM_DEFINED_PROP_SECTION = oldSection;
-		RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION = oldSubSection;
+		Constants.CUSTOM_DEFINED_PROP_SECTION = oldSection;
+		Constants.CUSTOM_DEFINED_PROP_SUBSECTION = oldSubSection;
 	}
 	
 	@Before
@@ -45,9 +46,9 @@ public class RepositoryModelTest {
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = JGitUtils.readConfig(r);
 		
-		config.unsetSection(RepositoryModel.CUSTOM_DEFINED_PROP_SECTION, RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION);
-		config.setString(RepositoryModel.CUSTOM_DEFINED_PROP_SECTION, RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION, "commitMessageRegEx", "\\d");
-		config.setString(RepositoryModel.CUSTOM_DEFINED_PROP_SECTION, RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION, "anotherProperty", "Hello");
+		config.unsetSection(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION);
+		config.setString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, "commitMessageRegEx", "\\d");
+		config.setString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, "anotherProperty", "Hello");
 		
 		config.save();
 	}
@@ -57,7 +58,7 @@ public class RepositoryModelTest {
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = JGitUtils.readConfig(r);
 		
-		config.unsetSection(RepositoryModel.CUSTOM_DEFINED_PROP_SECTION, RepositoryModel.CUSTOM_DEFINED_PROP_SUBSECTION);
+		config.unsetSection(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION);
 		config.save();
 	}
 
@@ -66,8 +67,8 @@ public class RepositoryModelTest {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		
-		assertEquals("\\d", model.getCustomProperty("commitMessageRegEx"));
-		assertEquals("Hello", model.getCustomProperty("anotherProperty"));
+		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("Hello", model.userDefinedProperties.get("anotherProperty"));
 	}
 	
 	@Test
@@ -75,13 +76,17 @@ public class RepositoryModelTest {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 		
-		assertEquals("\\d", model.getCustomProperty("commitMessageRegEx"));
-		assertEquals("Hello", model.getCustomProperty("anotherProperty"));
+		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("Hello", model.userDefinedProperties.get("anotherProperty"));
 		
-		assertEquals("Hello", model.setCustomProperty("anotherProperty", "GoodBye"));
+		assertEquals("Hello", model.userDefinedProperties.put("anotherProperty", "GoodBye"));
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
 		
-		assertEquals("\\d", model.getCustomProperty("commitMessageRegEx"));
-		assertEquals("GoodBye", model.getCustomProperty("anotherProperty"));
+		model = GitBlit.self().getRepositoryModel(
+				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
+		
+		assertEquals("\\d", model.userDefinedProperties.get("commitMessageRegEx"));
+		assertEquals("GoodBye", model.userDefinedProperties.get("anotherProperty"));
 	}
 
 }

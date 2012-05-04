@@ -857,6 +857,12 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "mailingList")));
 			model.indexedBranches = new ArrayList<String>(Arrays.asList(config.getStringList(
 					"gitblit", null, "indexBranch")));
+			
+			// Custom defined properties
+			model.userDefinedProperties = new HashMap<String, String>();
+			for (String aProperty : config.getNames(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION)) {
+				model.userDefinedProperties.put(aProperty, config.getString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, aProperty));
+			}
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
@@ -1103,6 +1109,11 @@ public class GitBlit implements ServletContextListener {
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
 		updateList(config, "mailingList", repository.mailingLists);
 		updateList(config, "indexBranch", repository.indexedBranches);
+		
+		// User Defined Properties
+		for (Entry<String, String> singleProperty : repository.userDefinedProperties.entrySet()) {
+			config.setString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, singleProperty.getKey(), singleProperty.getValue());
+		}
 
 		try {
 			config.save();
