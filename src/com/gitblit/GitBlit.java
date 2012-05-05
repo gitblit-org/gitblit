@@ -1915,7 +1915,6 @@ public class GitBlit implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
 		servletContext = contextEvent.getServletContext();
-		settingsModel = loadSettingModels();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
 			ServletContext context = contextEvent.getServletContext();
@@ -1954,7 +1953,8 @@ public class GitBlit implements ServletContextListener {
 				}
 			}
 		}
-
+		
+		settingsModel = loadSettingModels();
 		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
 
