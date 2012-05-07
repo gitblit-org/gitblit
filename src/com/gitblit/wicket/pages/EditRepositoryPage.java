@@ -165,17 +165,17 @@ public class EditRepositoryPage extends RootSubPage {
 			definedProperties.add(new AbstractMap.SimpleEntry<String, String>(customFieldProperty[0], customFieldProperty[1]));
 		}
 		
-		final ListView<Entry<String, String>> customDefinedProperties = new ListView<Entry<String, String>>("customDefinedProperties", definedProperties) {
+		final ListView<Entry<String, String>> customFieldsListView = new ListView<Entry<String, String>>("customFieldsListView", definedProperties) {
 			@Override
 			protected void populateItem(ListItem<Entry<String, String>> item) {
-				String value = repositoryModel.customDefinedProperties.get(item.getModelObject().getKey());
+				String value = repositoryModel.customFields.get(item.getModelObject().getKey());
 				
 				item.add(new Label(item.getModelObject().getKey(), item.getModelObject().getValue()));		// Used to get the key later
-				item.add(new Label("customLabel", item.getModelObject().getValue()));
-				item.add(new TextField<String>("customValue", new Model<String>(value)));
+				item.add(new Label("customFieldLabel", item.getModelObject().getValue()));
+				item.add(new TextField<String>("customFieldValue", new Model<String>(value)));
 			}
 		};
-		customDefinedProperties.setReuseItems(true);
+		customFieldsListView.setReuseItems(true);
 
 		CompoundPropertyModel<RepositoryModel> model = new CompoundPropertyModel<RepositoryModel>(
 				repositoryModel);
@@ -278,12 +278,12 @@ public class EditRepositoryPage extends RootSubPage {
 					repositoryModel.postReceiveScripts = postReceiveScripts;
 					
 					// Loop over each of the user defined properties
-					for (int i = 0; i < customDefinedProperties.size(); i++) {
-						ListItem<ListItemModel<String>> item = (ListItem<ListItemModel<String>>) customDefinedProperties.get(i);
+					for (int i = 0; i < customFieldsListView.size(); i++) {
+						ListItem<ListItemModel<String>> item = (ListItem<ListItemModel<String>>) customFieldsListView.get(i);
 						String key = item.get(0).getId();		// Item 0 is our 'fake' label
 						String value = ((TextField<String>)item.get(2)).getValue();		// Item 2 is out text box
 						
-						repositoryModel.customDefinedProperties.put(key, value);
+						repositoryModel.customFields.put(key, value);
 					}
 					
 					// save the repository
@@ -371,13 +371,13 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
 				.getPostReceiveScriptsInherited(repositoryModel)));
 		
-		WebMarkupContainer customDefinedPropertiesSection = new WebMarkupContainer("customDefinedPropertiesSection") {
+		WebMarkupContainer customFiledsSection = new WebMarkupContainer("customFiledsSection") {
 			public boolean isVisible() {
 				return GitBlit.getString(Keys.repository.customFields, "").isEmpty() == false;
 			};
 		};
-		customDefinedPropertiesSection.add(customDefinedProperties);
-		form.add(customDefinedPropertiesSection);
+		customFiledsSection.add(customFieldsListView);
+		form.add(customFiledsSection);
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

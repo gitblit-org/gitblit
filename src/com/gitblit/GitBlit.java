@@ -859,9 +859,9 @@ public class GitBlit implements ServletContextListener {
 					"gitblit", null, "indexBranch")));
 			
 			// Custom defined properties
-			model.customDefinedProperties = new HashMap<String, String>();
-			for (String aProperty : config.getNames(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION)) {
-				model.customDefinedProperties.put(aProperty, config.getString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, aProperty));
+			model.customFields = new HashMap<String, String>();
+			for (String aProperty : config.getNames(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION)) {
+				model.customFields.put(aProperty, config.getString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, aProperty));
 			}
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
@@ -1111,8 +1111,8 @@ public class GitBlit implements ServletContextListener {
 		updateList(config, "indexBranch", repository.indexedBranches);
 		
 		// User Defined Properties
-		for (Entry<String, String> singleProperty : repository.customDefinedProperties.entrySet()) {
-			config.setString(Constants.CUSTOM_DEFINED_PROP_SECTION, Constants.CUSTOM_DEFINED_PROP_SUBSECTION, singleProperty.getKey(), singleProperty.getValue());
+		for (Entry<String, String> singleProperty : repository.customFields.entrySet()) {
+			config.setString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, singleProperty.getKey(), singleProperty.getValue());
 		}
 
 		try {

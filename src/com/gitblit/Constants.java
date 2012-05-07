@@ -72,9 +72,9 @@ public class Constants {
 	
 	public static final String DEFAULT_BRANCH = "default";
 	
-	public static String CUSTOM_DEFINED_PROP_SECTION = "gitblit";
+	public static String CUSTOM_FIELDS_PROP_SECTION = "gitblit";
 	
-	public static String CUSTOM_DEFINED_PROP_SUBSECTION = "customDefinedProperties";
+	public static String CUSTOM_FIELDS_PROP_SUBSECTION = "customFields";
 	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
