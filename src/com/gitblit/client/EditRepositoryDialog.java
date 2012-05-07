@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -283,7 +285,8 @@ public class EditRepositoryDialog extends JDialog {
 		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
 		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
 		
-		customFieldsPanel = new JPanel(new VerticalFlowLayout());
+		customFieldsPanel = new JPanel();
+		customFieldsPanel.setLayout(new BoxLayout(customFieldsPanel, BoxLayout.Y_AXIS));
 		JScrollPane customFieldsScrollPane = new JScrollPane(customFieldsPanel);
 		customFieldsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		customFieldsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -564,6 +567,11 @@ public class EditRepositoryDialog extends JDialog {
 			textField.setName(fieldName);
 			
 			customFieldsPanel.add(newFieldPanel(fieldLabel, 250, textField));
+		}
+		
+		if (customFields.size() < 14) {
+			customFieldsPanel.add(Box.createVerticalGlue());
+			customFieldsPanel.add(Box.createRigidArea(new Dimension(300, 300 - (customFields.size() * 22))));
 		}
 	}
 
