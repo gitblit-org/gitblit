@@ -53,7 +53,7 @@ import com.gitblit.utils.JGitUtils;
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class,
-		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class })
+		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class })
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("git");

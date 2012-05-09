@@ -47,6 +47,7 @@ import javax.swing.table.TableRowSorter;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.Keys;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
@@ -430,6 +431,7 @@ public abstract class RepositoriesPanel extends JPanel {
 				gitblit.getPreReceiveScriptsInherited(repository), repository.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(repository),
 				gitblit.getPostReceiveScriptsInherited(repository), repository.postReceiveScripts);
+		dialog.setCustomFields(repository, gitblit.getSettings().get(Keys.repository.customFields).getStrings());
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();
