@@ -28,10 +28,13 @@ import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -44,10 +47,12 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.ScrollPaneConstants;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -117,6 +122,8 @@ public class EditRepositoryDialog extends JDialog {
 	private JLabel postReceiveInherited;
 
 	private Set<String> repositoryNames;
+	
+	private JPanel customFieldsPanel;
 
 	public EditRepositoryDialog(int protocolVersion) {
 		this(protocolVersion, new RepositoryModel());
@@ -277,6 +284,12 @@ public class EditRepositoryDialog extends JDialog {
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
 		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
 		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
+		
+		customFieldsPanel = new JPanel();
+		customFieldsPanel.setLayout(new BoxLayout(customFieldsPanel, BoxLayout.Y_AXIS));
+		JScrollPane customFieldsScrollPane = new JScrollPane(customFieldsPanel);
+		customFieldsScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		customFieldsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanel);
@@ -290,6 +303,9 @@ public class EditRepositoryDialog extends JDialog {
 		}
 		panel.addTab(Translation.get("gb.preReceiveScripts"), preReceivePanel);
 		panel.addTab(Translation.get("gb.postReceiveScripts"), postReceivePanel);
+		
+		panel.addTab(Translation.get("gb.customFields"), customFieldsScrollPane);
+		
 
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
@@ -331,11 +347,15 @@ public class EditRepositoryDialog extends JDialog {
 		pack();
 		nameField.requestFocus();
 	}
-
+	
 	private JPanel newFieldPanel(String label, JComponent comp) {
+		return newFieldPanel(label, 150, comp);
+	}
+
+	private JPanel newFieldPanel(String label, int labelSize, JComponent comp) {
 		JLabel fieldLabel = new JLabel(label);
 		fieldLabel.setFont(fieldLabel.getFont().deriveFont(Font.BOLD));
-		fieldLabel.setPreferredSize(new Dimension(150, 20));
+		fieldLabel.setPreferredSize(new Dimension(labelSize, 20));
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
 		panel.add(fieldLabel);
 		panel.add(comp);
@@ -448,6 +468,15 @@ public class EditRepositoryDialog extends JDialog {
 		repository.indexedBranches = indexedBranchesPalette.getSelections();
 		repository.preReceiveScripts = preReceivePalette.getSelections();
 		repository.postReceiveScripts = postReceivePalette.getSelections();
+		
+		// Custom Fields
+		repository.customFields = new HashMap<String, String>();
+		
+		for (Component aCustomFieldPanel : customFieldsPanel.getComponents()) {
+			JTextField textField = (JTextField) ((JPanel)aCustomFieldPanel).getComponent(1);
+			repository.customFields.put(textField.getName(), textField.getText());
+		}
+		
 		return true;
 	}
 
@@ -524,6 +553,26 @@ public class EditRepositoryDialog extends JDialog {
 
 	public List<String> getPermittedTeams() {
 		return teamsPalette.getSelections();
+	}
+	
+	public void setCustomFields(RepositoryModel repository, List<String> customFields) {
+		customFieldsPanel.removeAll();
+		
+		for (String customFieldDef : customFields) {
+			String[] customFieldProperty = customFieldDef.split("=");
+			String fieldName = customFieldProperty[0];
+			String fieldLabel = customFieldProperty[1];
+			
+			JTextField textField = new JTextField(repository.customFields.get(fieldName), 50);
+			textField.setName(fieldName);
+			
+			customFieldsPanel.add(newFieldPanel(fieldLabel, 250, textField));
+		}
+		
+		if (customFields.size() < 14) {
+			customFieldsPanel.add(Box.createVerticalGlue());
+			customFieldsPanel.add(Box.createRigidArea(new Dimension(300, 300 - (customFields.size() * 22))));
+		}
 	}
 
 	/**

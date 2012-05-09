@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
@@ -63,6 +64,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> preReceiveScripts;
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
+	public Map<String, String> customFields;
 	private String displayName;
 	
 	public RepositoryModel() {
