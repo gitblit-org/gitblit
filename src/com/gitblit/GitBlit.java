@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -252,6 +253,17 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static List<String> getStrings(String key) {
 		return self().settings.getStrings(key);
+	}
+
+	/**
+	 * Returns a map of space-separated key-value pairs from the specified key.
+	 * 
+	 * @see IStoredSettings.getStrings(String key)
+	 * @param name
+	 * @return map of string, string
+	 */
+	public static Map<String, String> getMap(String key) {
+		return self().settings.getMap(key);
 	}
 
 	/**
@@ -859,7 +871,7 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			
 			// Custom defined properties
-			model.customFields = new HashMap<String, String>();
+			model.customFields = new LinkedHashMap<String, String>();
 			for (String aProperty : config.getNames(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS)) {
 				model.customFields.put(aProperty, config.getString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, aProperty));
 			}

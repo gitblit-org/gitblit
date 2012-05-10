@@ -16,15 +16,14 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.wicket.PageParameters;
@@ -39,7 +38,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListItemModel;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -157,22 +155,24 @@ public class EditRepositoryPage extends RootSubPage {
 						.self().getPostReceiveScriptsUnused(repositoryModel)),
 				new StringChoiceRenderer(), 12, true);
 		
-		// Dynamic Custom Defined Properties Properties
-		final List<Entry<String, String>> definedProperties = new ArrayList<Entry<String, String>>();
-		List<String> customFields = GitBlit.getStrings(Keys.repository.customFields);
-		for (String customFieldDef : customFields) {
-			String[] customFieldProperty = customFieldDef.split("=");
-			definedProperties.add(new AbstractMap.SimpleEntry<String, String>(customFieldProperty[0], customFieldProperty[1]));
-		}
-		
-		final ListView<Entry<String, String>> customFieldsListView = new ListView<Entry<String, String>>("customFieldsListView", definedProperties) {
+		// custom fields
+		final Map<String, String> customFieldsMap = GitBlit.getMap(Keys.groovy.customFields);
+		List<String> customKeys = new ArrayList<String>(customFieldsMap.keySet());
+		final ListView<String> customFieldsListView = new ListView<String>("customFieldsListView", customKeys) {
+			
+			private static final long serialVersionUID = 1L;
+
 			@Override
-			protected void populateItem(ListItem<Entry<String, String>> item) {
-				String value = repositoryModel.customFields.get(item.getModelObject().getKey());
+			protected void populateItem(ListItem<String> item) {
+				String key = item.getModelObject();
+				item.add(new Label("customFieldLabel", customFieldsMap.get(key)));
 				
-				item.add(new Label(item.getModelObject().getKey(), item.getModelObject().getValue()));		// Used to get the key later
-				item.add(new Label("customFieldLabel", item.getModelObject().getValue()));
-				item.add(new TextField<String>("customFieldValue", new Model<String>(value)));
+				String value = "";
+				if (repositoryModel.customFields != null && repositoryModel.customFields.containsKey(key)) {
+					value = repositoryModel.customFields.get(key);
+				}
+				TextField<String> field = new TextField<String>("customFieldValue", new Model<String>(value));
+				item.add(field);
 			}
 		};
 		customFieldsListView.setReuseItems(true);
@@ -277,11 +277,14 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 					repositoryModel.postReceiveScripts = postReceiveScripts;
 					
-					// Loop over each of the user defined properties
+					// custom fields
+					repositoryModel.customFields = new LinkedHashMap<String, String>();
 					for (int i = 0; i < customFieldsListView.size(); i++) {
-						ListItem<ListItemModel<String>> item = (ListItem<ListItemModel<String>>) customFieldsListView.get(i);
-						String key = item.get(0).getId();		// Item 0 is our 'fake' label
-						String value = ((TextField<String>)item.get(2)).getValue();		// Item 2 is out text box
+						ListItem<String> child = (ListItem<String>) customFieldsListView.get(i);
+						String key = child.getModelObject();
+
+						TextField<String> field = (TextField<String>) child.get("customFieldValue");
+						String value = field.getValue();
 						
 						repositoryModel.customFields.put(key, value);
 					}
@@ -371,13 +374,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
 				.getPostReceiveScriptsInherited(repositoryModel)));
 		
-		WebMarkupContainer customFiledsSection = new WebMarkupContainer("customFiledsSection") {
-			public boolean isVisible() {
-				return GitBlit.getString(Keys.repository.customFields, "").isEmpty() == false;
-			};
-		};
-		customFiledsSection.add(customFieldsListView);
-		form.add(customFiledsSection);
+		WebMarkupContainer customFieldsSection = new WebMarkupContainer("customFieldsSection");
+		customFieldsSection.add(customFieldsListView);
+		form.add(customFieldsSection.setVisible(!GitBlit.getString(Keys.groovy.customFields, "").isEmpty()));
 
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {

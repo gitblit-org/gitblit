@@ -16,6 +16,7 @@
 package com.gitblit;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -202,6 +203,23 @@ public abstract class IStoredSettings {
 			strings = StringUtils.getStringsFromValue(value, separator);
 		}
 		return strings;
+	}
+	
+	/**
+	 * Returns a map of strings from the specified key.
+	 * 
+	 * @param name
+	 * @return map of string, string
+	 */
+	public Map<String, String> getMap(String name) {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		for (String string : getStrings(name)) {
+			String[] kvp = string.split("=", 2);
+			String key = kvp[0];
+			String value = kvp[1];				
+			map.put(key,  value);
+		}
+		return map;
 	}
 
 	/**

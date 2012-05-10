@@ -53,6 +53,9 @@ import org.slf4j.Logger
  *	url				Base url for Gitblit		String
  *  logger			Logs messages to Gitblit 	org.slf4j.Logger
  *  clientLogger	Logs messages to Git client	com.gitblit.utils.ClientLogger
+ *
+ * Accessing Gitblit Custom Fields:
+ *   def myCustomField = repository.customFields.myCustomField
  *  
  */
 // Indicate we have started the script

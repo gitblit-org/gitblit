@@ -398,6 +398,16 @@ Some sample scripts are included in the GO and WAR distributions to show you how
 
 Hook contributions and improvements are welcome.
 
+### Custom Fields
+
+*SINCE 1.0.0*
+
+Gitblit allows custom repository string fields to be defined in `gitblit.properties` or `web.xml`.  Entry textfields are automatically created for these fields in the Edit Repository page of Gitblit and the Edit Repository dialog of the Gitblit Manager.  These fields are accessible from your Groovy hook scripts as
+
+    repository.customFields.myField
+
+This feature allows you to customize the behavior of your hook scripts without hard-coding values in the hook scripts themselves.
+
 ### Pre-Receive
 
 Pre-Receive scripts execute after the pushed objects have all been written to the Git repository but before the refs have been updated to point to these new objects.
