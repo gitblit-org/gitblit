@@ -54,10 +54,16 @@ public class ServerSettings implements Serializable {
 	}
 
 	public void add(SettingModel setting) {
-		settings.put(setting.name, setting);
+		if (setting != null) {
+			settings.put(setting.name, setting);
+		}
 	}
 
 	public SettingModel get(String key) {
 		return settings.get(key);
+	}
+	
+	public boolean hasKey(String key) {
+		return settings.containsKey(key);
 	}
 }

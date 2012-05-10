@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -431,7 +432,10 @@ public abstract class RepositoriesPanel extends JPanel {
 				gitblit.getPreReceiveScriptsInherited(repository), repository.preReceiveScripts);
 		dialog.setPostReceiveScripts(gitblit.getPostReceiveScriptsUnused(repository),
 				gitblit.getPostReceiveScriptsInherited(repository), repository.postReceiveScripts);
-		dialog.setCustomFields(repository, gitblit.getSettings().get(Keys.repository.customFields).getStrings());
+		if (gitblit.getSettings().hasKey(Keys.groovy.customFields)) {
+			Map<String, String> map = gitblit.getSettings().get(Keys.groovy.customFields).getMap();
+			dialog.setCustomFields(repository, map);
+		}
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
 		final List<String> permittedUsers = dialog.getPermittedUsers();

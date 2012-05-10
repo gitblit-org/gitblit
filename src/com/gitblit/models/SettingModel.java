@@ -17,7 +17,9 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.gitblit.utils.StringUtils;
 
@@ -140,5 +142,21 @@ public class SettingModel implements Serializable {
 		List<String> strings = new ArrayList<String>();
 		strings = StringUtils.getStringsFromValue(currentValue, separator);
 		return strings;
+	}
+	
+	/**
+	 * Returns a map of strings from the current value.
+	 * 
+	 * @return map of string, string
+	 */
+	public Map<String, String> getMap() {
+		Map<String, String> map = new LinkedHashMap<String, String>();
+		for (String string : getStrings()) {
+			String[] kvp = string.split("=", 2);
+			String key = kvp[0];
+			String value = kvp[1];				
+			map.put(key,  value);
+		}
+		return map;
 	}
 }

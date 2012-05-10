@@ -28,12 +28,12 @@ import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -124,6 +124,8 @@ public class EditRepositoryDialog extends JDialog {
 	private Set<String> repositoryNames;
 	
 	private JPanel customFieldsPanel;
+	
+	private List<JTextField> customTextfields;
 
 	public EditRepositoryDialog(int protocolVersion) {
 		this(protocolVersion, new RepositoryModel());
@@ -470,13 +472,14 @@ public class EditRepositoryDialog extends JDialog {
 		repository.postReceiveScripts = postReceivePalette.getSelections();
 		
 		// Custom Fields
-		repository.customFields = new HashMap<String, String>();
-		
-		for (Component aCustomFieldPanel : customFieldsPanel.getComponents()) {
-			JTextField textField = (JTextField) ((JPanel)aCustomFieldPanel).getComponent(1);
-			repository.customFields.put(textField.getName(), textField.getText());
+		repository.customFields = new LinkedHashMap<String, String>();
+		if (customTextfields != null) {
+			for (JTextField field : customTextfields) {
+				String key = field.getName();
+				String value = field.getText();
+				repository.customFields.put(key, value);
+			}
 		}
-		
 		return true;
 	}
 
@@ -555,24 +558,42 @@ public class EditRepositoryDialog extends JDialog {
 		return teamsPalette.getSelections();
 	}
 	
-	public void setCustomFields(RepositoryModel repository, List<String> customFields) {
+	public void setCustomFields(RepositoryModel repository, Map<String, String> customFields) {
 		customFieldsPanel.removeAll();
+		customTextfields = new ArrayList<JTextField>();
 		
-		for (String customFieldDef : customFields) {
-			String[] customFieldProperty = customFieldDef.split("=");
-			String fieldName = customFieldProperty[0];
-			String fieldLabel = customFieldProperty[1];
-			
-			JTextField textField = new JTextField(repository.customFields.get(fieldName), 50);
-			textField.setName(fieldName);
-			
-			customFieldsPanel.add(newFieldPanel(fieldLabel, 250, textField));
-		}
+		final Insets insets = new Insets(5, 5, 5, 5);
+		JPanel fields = new JPanel(new GridLayout(0, 1, 0, 5)) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Insets getInsets() {
+				return insets;
+			}
+		};		
 		
-		if (customFields.size() < 14) {
-			customFieldsPanel.add(Box.createVerticalGlue());
-			customFieldsPanel.add(Box.createRigidArea(new Dimension(300, 300 - (customFields.size() * 22))));
+		for (Map.Entry<String, String> entry : customFields.entrySet()) {
+			String field = entry.getKey();
+			String value = "";
+			if (repository.customFields != null && repository.customFields.containsKey(field)) {
+				value = repository.customFields.get(field);
+			}
+			JTextField textField = new JTextField(value);
+			textField.setName(field);
+			
+			textField.setPreferredSize(new Dimension(450, 26));
+			
+			fields.add(newFieldPanel(entry.getValue(), 250, textField));
+			
+			customTextfields.add(textField);
 		}
+		JScrollPane jsp = new JScrollPane(fields);		
+		jsp.getVerticalScrollBar().setBlockIncrement(100);
+		jsp.getVerticalScrollBar().setUnitIncrement(100);
+		jsp.setViewportBorder(null);
+		customFieldsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		customFieldsPanel.add(jsp);
 	}
 
 	/**
