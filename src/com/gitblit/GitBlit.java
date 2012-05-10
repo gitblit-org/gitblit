@@ -846,22 +846,22 @@ public class GitBlit implements ServletContextListener {
 			model.federationStrategy = FederationStrategy.fromName(getConfig(config,
 					"federationStrategy", null));
 			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "federationSets")));
+					Constants.CONFIG_GITBLIT, null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
 			model.origin = config.getString("remote", "origin", "url");
 			model.preReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "preReceiveScript")));
+					Constants.CONFIG_GITBLIT, null, "preReceiveScript")));
 			model.postReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "postReceiveScript")));
+					Constants.CONFIG_GITBLIT, null, "postReceiveScript")));
 			model.mailingLists = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "mailingList")));
+					Constants.CONFIG_GITBLIT, null, "mailingList")));
 			model.indexedBranches = new ArrayList<String>(Arrays.asList(config.getStringList(
-					"gitblit", null, "indexBranch")));
+					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			
 			// Custom defined properties
 			model.customFields = new HashMap<String, String>();
-			for (String aProperty : config.getNames(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION)) {
-				model.customFields.put(aProperty, config.getString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, aProperty));
+			for (String aProperty : config.getNames(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS)) {
+				model.customFields.put(aProperty, config.getString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, aProperty));
 			}
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
@@ -956,7 +956,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return field value or defaultValue
 	 */
 	private String getConfig(StoredConfig config, String field, String defaultValue) {
-		String value = config.getString("gitblit", null, field);
+		String value = config.getString(Constants.CONFIG_GITBLIT, null, field);
 		if (StringUtils.isEmpty(value)) {
 			return defaultValue;
 		}
@@ -964,7 +964,7 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the gitblit boolean vlaue for the specified key. If key is not
+	 * Returns the gitblit boolean value for the specified key. If key is not
 	 * set, returns defaultValue.
 	 * 
 	 * @param config
@@ -973,7 +973,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return field value or defaultValue
 	 */
 	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
-		return config.getBoolean("gitblit", field, defaultValue);
+		return config.getBoolean(Constants.CONFIG_GITBLIT, field, defaultValue);
 	}
 
 	/**
@@ -1090,19 +1090,19 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		StoredConfig config = JGitUtils.readConfig(r);
-		config.setString("gitblit", null, "description", repository.description);
-		config.setString("gitblit", null, "owner", repository.owner);
-		config.setBoolean("gitblit", null, "useTickets", repository.useTickets);
-		config.setBoolean("gitblit", null, "useDocs", repository.useDocs);
-		config.setString("gitblit", null, "accessRestriction", repository.accessRestriction.name());
-		config.setBoolean("gitblit", null, "showRemoteBranches", repository.showRemoteBranches);
-		config.setBoolean("gitblit", null, "isFrozen", repository.isFrozen);
-		config.setBoolean("gitblit", null, "showReadme", repository.showReadme);
-		config.setBoolean("gitblit", null, "skipSizeCalculation", repository.skipSizeCalculation);
-		config.setBoolean("gitblit", null, "skipSummaryMetrics", repository.skipSummaryMetrics);
-		config.setString("gitblit", null, "federationStrategy",
+		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
+		config.setString(Constants.CONFIG_GITBLIT, null, "owner", repository.owner);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
+		config.setString(Constants.CONFIG_GITBLIT, null, "accessRestriction", repository.accessRestriction.name());
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showRemoteBranches", repository.showRemoteBranches);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFrozen", repository.isFrozen);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showReadme", repository.showReadme);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "skipSizeCalculation", repository.skipSizeCalculation);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "skipSummaryMetrics", repository.skipSummaryMetrics);
+		config.setString(Constants.CONFIG_GITBLIT, null, "federationStrategy",
 				repository.federationStrategy.name());
-		config.setBoolean("gitblit", null, "isFederated", repository.isFederated);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
 
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
@@ -1111,8 +1111,18 @@ public class GitBlit implements ServletContextListener {
 		updateList(config, "indexBranch", repository.indexedBranches);
 		
 		// User Defined Properties
-		for (Entry<String, String> singleProperty : repository.customFields.entrySet()) {
-			config.setString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, singleProperty.getKey(), singleProperty.getValue());
+		if (repository.customFields != null) {
+			if (repository.customFields.size() == 0) {
+				// clear section
+				config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
+			} else {
+				for (Entry<String, String> property : repository.customFields.entrySet()) {
+					// set field
+					String key = property.getKey();
+					String value = property.getValue();
+					config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, key, value);
+				}
+			}
 		}
 
 		try {
@@ -1129,9 +1139,9 @@ public class GitBlit implements ServletContextListener {
 			return;
 		}
 		if (ArrayUtils.isEmpty(list)) {
-			config.unset("gitblit", null, field);
+			config.unset(Constants.CONFIG_GITBLIT, null, field);
 		} else {
-			config.setStringList("gitblit", null, field, list);
+			config.setStringList(Constants.CONFIG_GITBLIT, null, field, list);
 		}
 	}
 

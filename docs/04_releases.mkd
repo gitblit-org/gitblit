@@ -4,6 +4,10 @@
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+#### fixes
+
+- Fixed bug in Basic authentication if passwords had a colon (Github/peterloron)
+
 #### changes
 
 - IUserService interface has changed to better accomodate custom authentication and/or custom authorization
@@ -11,6 +15,8 @@
 #### additions
 
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
+- Added support for custom repository properties for Groovy hooks (Github/jcrygier)
+- Added script to facilicate proxy environment setup on Linux (Github/mragab)
 
 **0.9.3** *released 2012-04-11*
 

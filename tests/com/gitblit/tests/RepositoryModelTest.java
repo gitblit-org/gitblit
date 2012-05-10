@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 John Crygier
+ * Copyright 2012 gitblit.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.gitblit.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -17,28 +33,17 @@ import com.gitblit.utils.JGitUtils;
 
 public class RepositoryModelTest {
 	
-	private static String oldSection;
-	private static String oldSubSection;
 	private static boolean wasStarted = false;
 	
 	@BeforeClass
 	public static void startGitBlit() throws Exception {
 		wasStarted = GitBlitSuite.startGitblit() == false;
-		
-		oldSection = Constants.CUSTOM_FIELDS_PROP_SECTION;
-		oldSubSection = Constants.CUSTOM_FIELDS_PROP_SUBSECTION;
-		
-		Constants.CUSTOM_FIELDS_PROP_SECTION = "RepositoryModelTest";
-		Constants.CUSTOM_FIELDS_PROP_SUBSECTION = "RepositoryModelTestSubSection";
 	}
 	
 	@AfterClass
 	public static void stopGitBlit() throws Exception {
 		if (wasStarted == false)
 			GitBlitSuite.stopGitblit();
-		
-		Constants.CUSTOM_FIELDS_PROP_SECTION = oldSection;
-		Constants.CUSTOM_FIELDS_PROP_SUBSECTION = oldSubSection;
 	}
 	
 	@Before
@@ -46,9 +51,9 @@ public class RepositoryModelTest {
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = JGitUtils.readConfig(r);
 		
-		config.unsetSection(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION);
-		config.setString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, "commitMessageRegEx", "\\d");
-		config.setString(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION, "anotherProperty", "Hello");
+		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
+		config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, "commitMessageRegEx", "\\d");
+		config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, "anotherProperty", "Hello");
 		
 		config.save();
 	}
@@ -58,7 +63,7 @@ public class RepositoryModelTest {
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = JGitUtils.readConfig(r);
 		
-		config.unsetSection(Constants.CUSTOM_FIELDS_PROP_SECTION, Constants.CUSTOM_FIELDS_PROP_SUBSECTION);
+		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
 		config.save();
 	}
 
