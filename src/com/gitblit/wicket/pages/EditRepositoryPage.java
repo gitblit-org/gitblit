@@ -20,6 +20,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -168,8 +169,11 @@ public class EditRepositoryPage extends RootSubPage {
 		final ListView<Entry<String, String>> customFieldsListView = new ListView<Entry<String, String>>("customFieldsListView", definedProperties) {
 			@Override
 			protected void populateItem(ListItem<Entry<String, String>> item) {
-				String value = repositoryModel.customFields.get(item.getModelObject().getKey());
+				String value = "";
 				
+				if (repositoryModel != null && repositoryModel.customFields != null)
+					value = repositoryModel.customFields.get(item.getModelObject().getKey());
+					
 				item.add(new Label(item.getModelObject().getKey(), item.getModelObject().getValue()));		// Used to get the key later
 				item.add(new Label("customFieldLabel", item.getModelObject().getValue()));
 				item.add(new TextField<String>("customFieldValue", new Model<String>(value)));
@@ -276,6 +280,9 @@ public class EditRepositoryPage extends RootSubPage {
 						postReceiveScripts.add(post.next());
 					}
 					repositoryModel.postReceiveScripts = postReceiveScripts;
+					
+					if (repositoryModel.customFields == null)
+						repositoryModel.customFields = new HashMap<String, String>();
 					
 					// Loop over each of the user defined properties
 					for (int i = 0; i < customFieldsListView.size(); i++) {
