@@ -357,6 +357,7 @@ public abstract class RepositoriesPanel extends JPanel {
 	protected void createRepository() {
 		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion());
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
+		dialog.setAccessRestriction(gitblit.getDefaultAccessRestriction());
 		dialog.setUsers(null, gitblit.getUsernames(), null);
 		dialog.setTeams(gitblit.getTeamnames(), null);
 		dialog.setRepositories(gitblit.getRepositories());

@@ -849,7 +849,7 @@ public class GitBlit implements ServletContextListener {
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
-					"accessRestriction", null));
+					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);

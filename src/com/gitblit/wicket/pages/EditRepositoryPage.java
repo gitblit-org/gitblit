@@ -72,7 +72,10 @@ public class EditRepositoryPage extends RootSubPage {
 		// create constructor
 		super();
 		isCreate = true;
-		setupPage(new RepositoryModel());
+		RepositoryModel model = new RepositoryModel();
+		String restriction = GitBlit.getString(Keys.git.defaultAccessRestriction, null);
+		model.accessRestriction = AccessRestrictionType.fromName(restriction);
+		setupPage(model);
 	}
 
 	public EditRepositoryPage(PageParameters params) {

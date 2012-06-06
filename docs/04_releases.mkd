@@ -16,6 +16,8 @@
 
 #### additions
 
+- Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 88)  
+    **New:** *git.defaultAccessRestriction = NONE*  
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
 - Added support for custom repository properties for Groovy hooks (Github/jcrygier)
 - Added script to facilitate proxy environment setup on Linux (Github/mragab)

@@ -487,6 +487,10 @@ public class EditRepositoryDialog extends JDialog {
 		JOptionPane.showMessageDialog(EditRepositoryDialog.this, message,
 				Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 	}
+	
+	public void setAccessRestriction(AccessRestrictionType restriction) {
+		this.accessRestriction.setSelectedItem(restriction);
+	}
 
 	public void setUsers(String owner, List<String> all, List<String> selected) {
 		ownerField.setModel(new DefaultComboBoxModel(all.toArray()));
