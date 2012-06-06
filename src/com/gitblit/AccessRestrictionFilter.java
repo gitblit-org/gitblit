@@ -74,9 +74,10 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	 * Determine if the repository requires authentication.
 	 * 
 	 * @param repository
+	 * @param action
 	 * @return true if authentication required
 	 */
-	protected abstract boolean requiresAuthentication(RepositoryModel repository);
+	protected abstract boolean requiresAuthentication(RepositoryModel repository, String action);
 
 	/**
 	 * Determine if the user can access the repository and perform the specified
@@ -144,7 +145,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		}
 
 		// BASIC authentication challenge and response processing
-		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model)) {
+		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model, urlRequestType)) {
 			if (user == null) {
 				// challenge client to provide credentials. send 401.
 				if (GitBlit.isDebugMode()) {

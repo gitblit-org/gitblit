@@ -6,6 +6,7 @@
 
 #### fixes
 
+- Fixed bug where a repository set as authenticated push did not have anonymous clone access (issue 96)
 - Fixed bug in Basic authentication if passwords had a colon (Github/peterloron)
 
 #### changes

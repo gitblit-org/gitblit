@@ -105,11 +105,19 @@ public class GitFilter extends AccessRestrictionFilter {
 	 * Determine if the repository requires authentication.
 	 * 
 	 * @param repository
+	 * @param action
 	 * @return true if authentication required
 	 */
 	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository) {
-		return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
+	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
+		if (gitUploadPack.equals(action)) {
+			// send to client
+			return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);	
+		} else if (gitReceivePack.equals(action)) {
+			// receive from client
+			return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
+		}
+		return false;
 	}
 
 	/**

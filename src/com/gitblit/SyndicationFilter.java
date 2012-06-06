@@ -70,10 +70,11 @@ public class SyndicationFilter extends AccessRestrictionFilter {
 	 * Determine if the repository requires authentication.
 	 * 
 	 * @param repository
+	 * @param action
 	 * @return true if authentication required
 	 */
 	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository) {
+	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
 		return repository.accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 
