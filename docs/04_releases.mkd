@@ -11,6 +11,7 @@
 #### changes
 
 - IUserService interface has changed to better accomodate custom authentication and/or custom authorization
+- Updated Japanese translation (Github/zakki)
 
 #### additions
 
