@@ -16,7 +16,8 @@
 
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
 - Added support for custom repository properties for Groovy hooks (Github/jcrygier)
-- Added script to facilicate proxy environment setup on Linux (Github/mragab)
+- Added script to facilitate proxy environment setup on Linux (Github/mragab)
+- Added Spanish translation (Eduardo Guervos Narvaez)
 
 **0.9.3** *released 2012-04-11*
 
