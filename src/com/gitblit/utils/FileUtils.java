@@ -34,6 +34,71 @@ import java.nio.charset.Charset;
  * 
  */
 public class FileUtils {
+	
+	/** 1024 (number of bytes in one kilobyte) */
+	public static final int KB = 1024;
+
+	/** 1024 {@link #KB} (number of bytes in one megabyte) */
+	public static final int MB = 1024 * KB;
+
+	/** 1024 {@link #MB} (number of bytes in one gigabyte) */
+	public static final int GB = 1024 * MB;
+
+	/**
+	 * Returns an int from a string representation of a file size.
+	 * e.g. 50m = 50 megabytes
+	 * 
+	 * @param aString
+	 * @param defaultValue
+	 * @return an int value or the defaultValue if aString can not be parsed
+	 */
+	public static int convertSizeToInt(String aString, int defaultValue) {
+		return (int) convertSizeToLong(aString, defaultValue);
+	}
+	
+	/**
+	 * Returns a long from a string representation of a file size.
+	 * e.g. 50m = 50 megabytes
+	 * 
+	 * @param aString
+	 * @param defaultValue
+	 * @return a long value or the defaultValue if aString can not be parsed
+	 */
+	public static long convertSizeToLong(String aString, long defaultValue) {
+		// trim string and remove all spaces 
+		aString = aString.toLowerCase().trim();
+		StringBuilder sb = new StringBuilder();
+		for (String a : aString.split(" ")) {
+			sb.append(a);
+		}
+		aString = sb.toString();
+		
+		// identify value and unit
+		int idx = 0;
+		int len = aString.length();
+		while (Character.isDigit(aString.charAt(idx))) {
+			idx++;
+			if (idx == len) {
+				break;
+			}
+		}
+		long value = 0;
+		String unit = null;
+		try {
+			value = Long.parseLong(aString.substring(0, idx));
+			unit = aString.substring(idx);
+		} catch (Exception e) {
+			return defaultValue;
+		}
+		if (unit.equals("g") || unit.equals("gb")) {
+			return value * GB;
+		} else if (unit.equals("m") || unit.equals("mb")) {
+			return value * MB;
+		} else if (unit.equals("k") || unit.equals("kb")) {
+			return value * KB;
+		}
+		return defaultValue;
+	}
 
 	/**
 	 * Returns the string content of the specified file.

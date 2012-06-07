@@ -120,6 +120,61 @@ public abstract class IStoredSettings {
 	}
 
 	/**
+	 * Returns the long value for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as an long, the
+	 * defaultValue is returned.
+	 * 
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
+	public long getLong(String name, long defaultValue) {
+		Properties props = getSettings();
+		if (props.containsKey(name)) {
+			try {
+				String value = props.getProperty(name);
+				if (!StringUtils.isEmpty(value)) {
+					return Long.parseLong(value.trim());
+				}
+			} catch (NumberFormatException e) {
+				logger.warn("Failed to parse long for " + name + " using default of "
+						+ defaultValue);
+			}
+		}
+		return defaultValue;
+	}
+	
+	/**
+	 * Returns an int filesize from a string value such as 50m or 50mb
+	 * @param name
+	 * @param defaultValue
+	 * @return an int filesize or defaultValue if the key does not exist or can
+	 *         not be parsed
+	 */
+	public int getFilesize(String name, int defaultValue) {
+		String val = getString(name, null);
+		if (StringUtils.isEmpty(val)) {
+			return defaultValue;
+		}
+		return com.gitblit.utils.FileUtils.convertSizeToInt(val, defaultValue);
+	}
+	
+	/**
+	 * Returns an long filesize from a string value such as 50m or 50mb
+	 * @param name
+	 * @param defaultValue
+	 * @return a long filesize or defaultValue if the key does not exist or can
+	 *         not be parsed
+	 */
+	public long getFilesize(String key, long defaultValue) {
+		String val = getString(key, null);
+		if (StringUtils.isEmpty(val)) {
+			return defaultValue;
+		}
+		return com.gitblit.utils.FileUtils.convertSizeToLong(val, defaultValue);
+	}
+
+	/**
 	 * Returns the char value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a char, the
 	 * defaultValue is returned.
