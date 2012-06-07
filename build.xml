@@ -551,8 +551,7 @@
 		</copy>
 
 		<!-- Gitblit classes -->
-		<mkdir dir="${deployments.root}/WEB-INF/classes"/>
-		<copy todir="${deployments.root}/WEB-INF/classes">
+		<jar destfile="${deployments.root}/WEB-INF/lib/gitblit-${gb.version}.jar">
 			<fileset dir="${project.build.dir}">
 				<exclude name="WEB-INF/" />
 				<exclude name="com/gitblit/tests/" />
@@ -562,7 +561,7 @@
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />
 			</fileset>
-		</copy>
+		</jar>
 
 		<!-- Build Express Zip file -->
 		<zip destfile="${express.zipfile}">
