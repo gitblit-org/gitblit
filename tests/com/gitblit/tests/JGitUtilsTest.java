@@ -236,6 +236,25 @@ public class JGitUtilsTest {
 	}
 
 	@Test
+	public void testRelinkBranch() throws Exception {
+		Repository repository = GitBlitSuite.getJGitRepository();
+		
+		// create/set the branch
+		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "3b358ce514ec655d3ff67de1430994d8428cdb04");
+		assertEquals(1, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")).size());
+		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("755dfdb40948f5c1ec79e06bde3b0a78c352f27f")));
+		
+		// reset the branch
+		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "755dfdb40948f5c1ec79e06bde3b0a78c352f27f");
+		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")));
+		assertEquals(1, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("755dfdb40948f5c1ec79e06bde3b0a78c352f27f")).size());
+
+		// delete the branch
+		assertTrue(JGitUtils.deleteBranchRef(repository, "refs/heads/reftest"));
+		repository.close();
+	}
+
+	@Test
 	public void testCreateOrphanedBranch() throws Exception {
 		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, "orphantest");
 		assertTrue(JGitUtils.createOrphanBranch(repository,

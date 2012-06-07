@@ -33,10 +33,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.ResetCommand.ResetType;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -243,25 +239,28 @@ public class FederationPullExecutor implements Runnable {
 				if (registration.mirror) {
 					// mirror
 					if (fetched) {
-						// find the first branch name that FETCH_HEAD points to
-						List<RefModel> refs = JGitUtils.getAllRefs(r).get(commit.getId());
-						if (!ArrayUtils.isEmpty(refs)) {
-							for (RefModel ref : refs) {
-								if (ref.displayName.startsWith(org.eclipse.jgit.lib.Constants.R_REMOTES)) {
-									newFetchHead = ref.displayName;
-									break;
-								}
+						// update local branches to match the remote tracking branches
+						for (RefModel ref : JGitUtils.getRemoteBranches(r, false, -1)) {
+							if (ref.displayName.startsWith("origin/")) {
+								String branch = org.eclipse.jgit.lib.Constants.R_HEADS
+										+ ref.displayName.substring(ref.displayName.indexOf('/') + 1);
+								String hash = ref.getReferencedObjectId().getName();
+								
+								JGitUtils.setBranchRef(r, branch, hash);
+								logger.info(MessageFormat.format("     resetting {0} of {1} to {2}", branch,
+										repository.name, hash));
 							}
 						}
-						// reset HEAD to the FETCH_HEAD branch.
-						// if no branch was found, reset HEAD to the commit id.
-						Git git = new Git(r);
-						ResetCommand reset = git.reset();
-						reset.setMode(ResetType.SOFT);
-						reset.setRef(newFetchHead);
-						Ref ref = reset.call();
+						
+						String newHead;
+						if (StringUtils.isEmpty(repository.HEAD)) {
+							newHead = newFetchHead;
+						} else {
+							newHead = repository.HEAD;
+						}
+						JGitUtils.setHEADtoRef(r, newHead);
 						logger.info(MessageFormat.format("     resetting HEAD of {0} to {1}",
-								repository.name, ref.getObjectId().getName()));
+								repository.name, newHead));
 						registration.updateStatus(repository, FederationPullStatus.MIRRORED);
 					} else {
 						// indicate no commits pulled

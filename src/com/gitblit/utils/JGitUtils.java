@@ -1223,6 +1223,74 @@ public class JGitUtils {
 	}
 	
 	/**
+	 * Sets the local branch ref to point to the specified commit id.
+	 *
+	 * @param repository
+	 * @param branch
+	 * @param commitId
+	 * @return true if successful
+	 */
+	public static boolean setBranchRef(Repository repository, String branch, String commitId) {
+		String branchName = branch;
+		if (!branchName.startsWith(Constants.R_HEADS)) {
+			branchName = Constants.R_HEADS + branch;
+		}
+
+		try {
+			RefUpdate refUpdate = repository.updateRef(branchName, false);
+			refUpdate.setNewObjectId(ObjectId.fromString(commitId));
+			RefUpdate.Result result = refUpdate.forceUpdate();
+
+			switch (result) {
+			case NEW:
+			case FORCED:
+			case NO_CHANGE:
+			case FAST_FORWARD:
+				return true;				
+			default:
+				LOGGER.error(MessageFormat.format("{0} {1} update to {2} returned result {3}",
+						repository.getDirectory().getAbsolutePath(), branchName, commitId, result));
+			}
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to set {1} to {2}", branchName, commitId);
+		}
+		return false;
+	}
+	
+	/**
+	 * Deletes the specified branch ref.
+	 *  
+	 * @param repository
+	 * @param branch
+	 * @return true if successful
+	 */
+	public static boolean deleteBranchRef(Repository repository, String branch) {
+		String branchName = branch;
+		if (!branchName.startsWith(Constants.R_HEADS)) {
+			branchName = Constants.R_HEADS + branch;
+		}
+
+		try {
+			RefUpdate refUpdate = repository.updateRef(branchName, false);
+			refUpdate.setForceUpdate(true);
+			RefUpdate.Result result = refUpdate.delete();
+			switch (result) {
+			case NEW:
+			case FORCED:
+			case NO_CHANGE:
+			case FAST_FORWARD:
+				return true;				
+			default:
+				LOGGER.error(MessageFormat.format("{0} failed to delete to {1} returned result {2}",
+						repository.getDirectory().getAbsolutePath(), branchName, result));
+			}
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to delete {1}", branchName);
+		}
+		return false;
+	}
+	
+	/**
 	 * Get the full branch and tag ref names for any potential HEAD targets.
 	 *
 	 * @param repository
