@@ -141,13 +141,15 @@ public class PagesServlet extends HttpServlet {
 			}
 			response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
 
+			String [] encodings = GitBlit.getEncodings();
+
 			RevTree tree = commit.getTree();
 			byte[] content = null;
 			if (StringUtils.isEmpty(resource)) {
 				// find resource
 				String[] files = { "index.html", "index.htm", "index.mkd" };
 				for (String file : files) {
-					content = JGitUtils.getStringContent(r, tree, file)
+					content = JGitUtils.getStringContent(r, tree, file, encodings)
 							.getBytes(Constants.ENCODING);
 					if (content != null) {
 						resource = file;
@@ -165,7 +167,7 @@ public class PagesServlet extends HttpServlet {
 						contentType = "text/plain";
 					}
 					if (contentType.startsWith("text")) {
-						content = JGitUtils.getStringContent(r, tree, resource).getBytes(
+						content = JGitUtils.getStringContent(r, tree, resource, encodings).getBytes(
 								Constants.ENCODING);
 					} else {
 						content = JGitUtils.getByteContent(r, tree, resource);
@@ -177,7 +179,7 @@ public class PagesServlet extends HttpServlet {
 
 			// no content, try custom 404 page
 			if (ArrayUtils.isEmpty(content)) {
-				String custom404 = JGitUtils.getStringContent(r, tree, "404.html");
+				String custom404 = JGitUtils.getStringContent(r, tree, "404.html", encodings);
 				if (!StringUtils.isEmpty(custom404)) {
 					content = custom404.getBytes(Constants.ENCODING);
 				}

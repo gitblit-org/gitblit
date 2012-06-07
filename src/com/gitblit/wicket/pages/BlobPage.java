@@ -41,7 +41,8 @@ public class BlobPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
-
+		String [] encodings = GitBlit.getEncodings();
+		
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
 
@@ -54,7 +55,7 @@ public class BlobPage extends RepositoryPage {
 			add(new BookmarkablePageLink<Void>("headLink", BlobPage.class).setEnabled(false));
 			add(new CommitHeaderPanel("commitHeader", objectId));
 			add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
-			Component c = new Label("blobText", JGitUtils.getStringContent(r, objectId));
+			Component c = new Label("blobText", JGitUtils.getStringContent(r, objectId, encodings));
 			WicketUtils.setCssClass(c, "plainprint");
 			add(c);
 		} else {
@@ -111,7 +112,7 @@ public class BlobPage extends RepositoryPage {
 				case 1:
 					// PrettyPrint blob text
 					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
-							blobPath));
+							blobPath, encodings));
 					WicketUtils.setCssClass(c, "prettyprint linenums");
 					break;
 				case 2:
@@ -125,14 +126,14 @@ public class BlobPage extends RepositoryPage {
 				default:
 					// plain text
 					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
-							blobPath));
+							blobPath, encodings));
 					WicketUtils.setCssClass(c, "plainprint");
 				}
 				add(c);
 			} else {
 				// plain text
 				Label blobLabel = new Label("blobText", JGitUtils.getStringContent(r,
-						commit.getTree(), blobPath));
+						commit.getTree(), blobPath, encodings));
 				WicketUtils.setCssClass(blobLabel, "plainprint");
 				add(blobLabel);
 			}

@@ -189,6 +189,15 @@ public class GitBlit implements ServletContextListener {
 		return self().timezone;
 	}
 	
+	/**
+	 * Returns the user-defined blob encodings.
+	 * 
+	 * @return an array of encodings, may be empty
+	 */
+	public static String [] getEncodings() {
+		return getStrings(Keys.web.blobEncodings).toArray(new String[0]);
+	}
+	
 
 	/**
 	 * Returns the boolean value for the specified key. If the key does not

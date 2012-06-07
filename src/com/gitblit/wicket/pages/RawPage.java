@@ -43,7 +43,8 @@ public class RawPage extends WebPage {
 		final String repositoryName = WicketUtils.getRepositoryName(params);
 		final String objectId = WicketUtils.getObject(params);
 		final String blobPath = WicketUtils.getPath(params);
-
+		String [] encodings = GitBlit.getEncodings();
+		
 		Repository r = GitBlit.self().getRepository(repositoryName);
 		if (r == null) {
 			error(getString("gb.canNotLoadRepository") + " " + repositoryName);
@@ -53,7 +54,7 @@ public class RawPage extends WebPage {
 
 		if (StringUtils.isEmpty(blobPath)) {
 			// objectid referenced raw view
-			Label blobLabel = new Label("rawText", JGitUtils.getStringContent(r, objectId));
+			Label blobLabel = new Label("rawText", JGitUtils.getStringContent(r, objectId, encodings));
 			WicketUtils.setCssClass(blobLabel, "plainprint");
 			add(blobLabel);
 		} else {
@@ -92,14 +93,14 @@ public class RawPage extends WebPage {
 				default:
 					// plain text
 					c = new Label("rawText", JGitUtils.getStringContent(r, commit.getTree(),
-							blobPath));
+							blobPath, encodings));
 					WicketUtils.setCssClass(c, "plainprint");
 				}
 				add(c);
 			} else {
 				// plain text
 				Label blobLabel = new Label("rawText", JGitUtils.getStringContent(r,
-						commit.getTree(), blobPath));
+						commit.getTree(), blobPath, encodings));
 				WicketUtils.setCssClass(blobLabel, "plainprint");
 				add(blobLabel);
 			}

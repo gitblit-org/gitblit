@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -543,14 +542,15 @@ public class JGitUtils {
 	 * @param tree
 	 *            if null, the RevTree from HEAD is assumed.
 	 * @param blobPath
+	 * @param charsets optional
 	 * @return UTF-8 string content
 	 */
-	public static String getStringContent(Repository repository, RevTree tree, String blobPath) {
+	public static String getStringContent(Repository repository, RevTree tree, String blobPath, String... charsets) {
 		byte[] content = getByteContent(repository, tree, blobPath);
 		if (content == null) {
 			return null;
 		}
-		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
+		return StringUtils.decodeString(content, charsets);
 	}
 
 	/**
@@ -589,14 +589,15 @@ public class JGitUtils {
 	 * 
 	 * @param repository
 	 * @param objectId
+	 * @param charsets optional
 	 * @return UTF-8 string content
 	 */
-	public static String getStringContent(Repository repository, String objectId) {
+	public static String getStringContent(Repository repository, String objectId, String... charsets) {
 		byte[] content = getByteContent(repository, objectId);
 		if (content == null) {
 			return null;
 		}
-		return new String(content, Charset.forName(Constants.CHARACTER_ENCODING));
+		return StringUtils.decodeString(content, charsets);
 	}
 
 	/**

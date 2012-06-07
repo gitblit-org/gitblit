@@ -37,6 +37,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.Test;
@@ -265,7 +266,7 @@ public class JGitUtilsTest {
 	@Test
 	public void testStringContent() throws Exception {
 		Repository repository = GitBlitSuite.getHelloworldRepository();
-		String contentA = JGitUtils.getStringContent(repository, null, "java.java");
+		String contentA = JGitUtils.getStringContent(repository, (RevTree) null, "java.java");
 		RevCommit commit = JGitUtils.getCommit(repository, Constants.HEAD);
 		String contentB = JGitUtils.getStringContent(repository, commit.getTree(), "java.java");
 		String contentC = JGitUtils.getStringContent(repository, commit.getTree(), "missing.txt");

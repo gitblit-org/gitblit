@@ -24,6 +24,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -37,7 +38,8 @@ public class MarkdownPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-
+		String [] encodings = GitBlit.getEncodings();
+		
 		// markdown page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
@@ -49,7 +51,7 @@ public class MarkdownPage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, markdownPath)));
 
 		// Read raw markdown content and transform it to html
-		String markdownText = JGitUtils.getStringContent(r, commit.getTree(), markdownPath);
+		String markdownText = JGitUtils.getStringContent(r, commit.getTree(), markdownPath, encodings);
 		String htmlText;
 		try {
 			htmlText = MarkdownUtils.transformMarkdown(markdownText);

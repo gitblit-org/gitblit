@@ -16,13 +16,23 @@
 package com.gitblit.utils;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -549,5 +559,37 @@ public class StringUtils {
 		sb.append(inString.substring(pos));
 		// remember to append any characters to the right of a match
 		return sb.toString();
+	}
+	
+	/**
+	 * Decodes a string by trying several charsets until one does not throw a
+	 * coding exception.  Last resort is to interpret as UTF-8 with illegal
+	 * character substitution.
+	 * 
+	 * @param content
+	 * @param charsets optional
+	 * @return a string
+	 */
+	public static String decodeString(byte [] content, String... charsets) {
+		Set<String> sets = new LinkedHashSet<String>();
+		if (!ArrayUtils.isEmpty(charsets)) {
+			sets.addAll(Arrays.asList(charsets));
+		}
+		sets.addAll(Arrays.asList("UTF-8", "ISO-8859-1", Charset.defaultCharset().name()));
+		for (String charset : sets) {
+			try {
+				Charset cs = Charset.forName(charset);
+				CharsetDecoder decoder = cs.newDecoder();
+				CharBuffer buffer = decoder.decode(ByteBuffer.wrap(content));
+				return buffer.toString();
+			} catch (CharacterCodingException e) {
+				// ignore and advance to the next charset
+			} catch (IllegalCharsetNameException e) {
+				// ignore illegal charset names
+			} catch (UnsupportedCharsetException e) {
+				// ignore unsupported charsets
+			}
+		}
+		return new String(content, Charset.forName("UTF-8"));
 	}
 }

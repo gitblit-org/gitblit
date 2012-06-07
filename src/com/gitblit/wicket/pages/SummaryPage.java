@@ -158,7 +158,8 @@ public class SummaryPage extends RepositoryPage {
 					}
 				}
 				if (!StringUtils.isEmpty(readme)) {
-					String markdownText = JGitUtils.getStringContent(r, head.getTree(), readme);
+					String [] encodings = GitBlit.getEncodings();
+					String markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
 					htmlText = MarkdownUtils.transformMarkdown(markdownText);
 				}
 			} catch (ParseException p) {

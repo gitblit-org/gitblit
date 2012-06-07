@@ -16,6 +16,8 @@
 
 #### additions
 
+- Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and server's default charset. (issue 97)  
+    **New:** *web.blobEncodings = UTF-8 ISO-8859-1*  
 - Exposed JGit's internal configuration settings in gitblit.properties/web.xml (issue 93)  
     **New:** *git.packedGitWindowSize = 8k*  
     **New:** *git.packedGitLimit = 10m*  

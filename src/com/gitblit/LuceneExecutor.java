@@ -642,6 +642,7 @@ public class LuceneExecutor implements Runnable {
 			String branch, RevCommit commit) {
 		IndexResult result = new IndexResult();
 		try {
+			String [] encodings = storedSettings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 			List<PathChangeModel> changedPaths = JGitUtils.getFilesInCommit(repository, commit);
 			String revDate = DateTools.timeToString(commit.getCommitTime() * 1000L,
 					Resolution.MINUTE);
@@ -674,7 +675,7 @@ public class LuceneExecutor implements Runnable {
 					if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
 						// read the blob content
 						String str = JGitUtils.getStringContent(repository, commit.getTree(),
-								path.path);
+								path.path, encodings);
 						doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
 						writer.addDocument(doc);
 					}
