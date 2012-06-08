@@ -252,7 +252,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		repositoryControls.add(searchRepository);
 
 		setLayout(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
-		header = new HeaderPanel(Translation.get("gb.repositories"), "gitweb-favicon.png");
+		header = new HeaderPanel(Translation.get("gb.repositories"), "git-orange-16x16.png");
 		add(header, BorderLayout.NORTH);
 		add(repositoryTablePanel, BorderLayout.CENTER);
 		add(repositoryControls, BorderLayout.SOUTH);
