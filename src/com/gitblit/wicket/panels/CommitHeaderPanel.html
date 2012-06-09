@@ -6,10 +6,19 @@
 
 <wicket:panel>	
 	<div class="commitHeader">
-		<div style="float:right;">
-			<span wicket:id="author">[author]</span> &nbsp; &nbsp;<span wicket:id="date">[date]</span>
+		<div class="row">
+			<div>
+				<span class="pull-right" wicket:id="authorAvatar"></span>
+			</div>
+			<div class="span9">
+					<div wicket:id="shortmessage">[short message]</div>
+					<div wicket:id="author">[author]</div>
+					<div>
+			 			<span wicket:id="date">[date]</span>
+			 			<span class="hidden-phone" style="padding-left:20px;color:#888;" wicket:id="commitid">[commit id]</span>
+			 		</div>
+			</div>
 		</div>
-		<span wicket:id="shortmessage">[short message]</span> <span wicket:id="commitid">[commit id]</span>
 	</div>
 </wicket:panel>
 </html>

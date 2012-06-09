@@ -82,7 +82,6 @@ public class CommitPage extends RepositoryPage {
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
 				getTimeZone()));
-		add(new GravatarImage("authorAvatar", c.getAuthorIdent()));
 		
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));

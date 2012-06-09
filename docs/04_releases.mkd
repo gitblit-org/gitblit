@@ -11,11 +11,14 @@
 
 #### changes
 
+- Changed default layout for web ui from fixed-width layout to responsive (issue 101)  
 - IUserService interface has changed to better accomodate custom authentication and/or custom authorization
 - Updated Japanese translation (Github/zakki)
 
 #### additions
 
+- Added setting to control responsive or fixed-width layout (issue 101)  
+    **New:** *web.useResponsiveLayout = true*  
 - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and server's default charset. (issue 97)  
     **New:** *web.blobEncodings = UTF-8 ISO-8859-1*  
 - Exposed JGit's internal configuration settings in gitblit.properties/web.xml (issue 93)  
@@ -31,6 +34,11 @@
 - Added support for custom repository properties for Groovy hooks (Github/jcrygier)
 - Added script to facilitate proxy environment setup on Linux (Github/mragab)
 - Added Spanish translation (Eduardo Guervos Narvaez)
+
+#### dependency changes
+
+- updated to Bootstrap 2.0.4
+- added Ivy 2.2.0 (for Grape support in Groovy hook scripts)
 
 **0.9.3** *released 2012-04-11*
 

@@ -19,21 +19,21 @@
 				
 				<div class="nav-collapse" wicket:id="navPanel"></div>
 				
-				<form class="pull-right" style="margin-top:5px;" wicket:id="loginForm">
+				<form class="pull-right" wicket:id="loginForm">
 					<span class="form-search">
 						<input wicket:id="username" class="input-small" type="text" />
 						<input wicket:id="password" class="input-small" type="password" />
-						<button class="btn btn-primary" style="margin-top:0px; "type="submit"><wicket:message key="gb.login"></wicket:message></button>
+						<button class="btn btn-primary" type="submit"><wicket:message key="gb.login"></wicket:message></button>
 					</span>
 				</form>
 			</div>
 		</div>
 	</div>
-	
-	<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
-	
+				
 	<!-- subclass content -->
 	<div class="container">
+		<div style="text-align:center" wicket:id="feedback">[Feedback Panel]</div>
+		
 		<wicket:child/>
 	</div>
 </wicket:extend>

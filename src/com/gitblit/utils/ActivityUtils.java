@@ -151,12 +151,12 @@ public class ActivityUtils {
 	 * @param email
 	 *            address to query Gravatar
 	 * @param width
-	 *            size of thumbnail. if width <= 0, the defalt of 60 is used.
+	 *            size of thumbnail. if width <= 0, the default of 50 is used.
 	 * @return
 	 */
 	public static String getGravatarThumbnailUrl(String email, int width) {
 		if (width <= 0) {
-			width = 60;
+			width = 50;
 		}
 		String emailHash = StringUtils.getMD5(email);
 		String url = MessageFormat.format(

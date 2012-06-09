@@ -83,7 +83,7 @@ public class LinkPanel extends Panel {
 			WicketUtils.setCssClass(icon, bootstrapIcon);
 			link.add(icon);
 		}
-		link.add(new Label("label", labelModel));
+		link.add(new Label("label", labelModel).setRenderBodyOnly(true));
 		add(link);
 	}
 

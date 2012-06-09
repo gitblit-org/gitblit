@@ -40,8 +40,9 @@ public class CommitHeaderPanel extends BasePanel {
 		add(new LinkPanel("shortmessage", "title", StringUtils.trimString(c.getShortMessage(),
 				Constants.LEN_SHORTLOG), CommitPage.class,
 				WicketUtils.newObjectParameter(repositoryName, c.getName())));
-		add(new Label("commitid", "(" + c.getName().substring(0, 8) + ")"));
+		add(new Label("commitid", c.getName()));
 		add(new Label("author", c.getAuthorIdent().getName()));
 		add(WicketUtils.createDateLabel("date", c.getAuthorIdent().getWhen(), getTimeZone()));
+		add(new GravatarImage("authorAvatar", c.getAuthorIdent()));
 	}
 }

@@ -27,6 +27,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -57,13 +58,21 @@ public abstract class BasePage extends WebPage {
 	public BasePage() {
 		super();
 		logger = LoggerFactory.getLogger(getClass());
+		customizeHeader();
 		loginByCookie();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
 		logger = LoggerFactory.getLogger(getClass());
+		customizeHeader();
 		loginByCookie();
+	}
+	
+	private void customizeHeader() {
+		if (GitBlit.getBoolean(Keys.web.useResponsiveLayout, true)) {
+			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
+		}
 	}
 	
 	@Override

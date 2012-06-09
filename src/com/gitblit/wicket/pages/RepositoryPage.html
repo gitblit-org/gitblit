@@ -21,30 +21,32 @@
 				
 					<div class="nav-collapse" wicket:id="navPanel"></div>
 				
-					<a class="brand" style="text-decoration: none;" wicket:id="syndication">
+					<a class="hidden-phone hidden-tablet brand" style="text-decoration: none;" wicket:id="syndication">
 						<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
 					</a>
 				
-						<form class="pull-right" style="margin-top:7px;" wicket:id="searchForm">
-							<span class="search">
-								<select class="small" wicket:id="searchType"/>			
-								<input type="text" id="searchBox" wicket:id="searchBox" value=""/>
-							</span>
-						</form>
+					<form class="hidden-phone hidden-tablet pull-right" style="margin-top:7px;" wicket:id="searchForm">
+						<span class="search">
+							<select class="small" wicket:id="searchType"/>			
+							<input type="text" id="searchBox" wicket:id="searchBox" value=""/>
+						</span>
+					</form>
 				</div>
 			</div>
 		</div>
 				
 		<!-- page content -->
 		<div class="container">
-			<div style="text-align:center;padding-top:5px;" wicket:id="feedback">[Feedback Panel]</div>
+			<div style="text-align:center;" wicket:id="feedback">[Feedback Panel]</div>
 
 			<!-- page header -->
 			<div class="pageTitle">
-				
-				<span wicket:id="workingCopy"></span>
-				
-				<h2><span wicket:id="repositoryName">[repository name]</span> <small><span wicket:id="pageName">[page name]</span></small></h2>
+				<div class="row">
+					<div wicket:id="workingCopy"></div>
+					<div class="span9">
+						<h2><span wicket:id="repositoryName">[repository name]</span> <small><span wicket:id="pageName">[page name]</span></small></h2>
+					</div>
+				</div>
 			</div>
 
 			<wicket:child />

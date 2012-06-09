@@ -11,11 +11,11 @@
 		<div class="header"><i class="icon-refresh" style="vertical-align: middle;"></i> <span style="font-weight:bold;" wicket:id="title">[title]</span></div>
 		<table class="activity">
 			<tr wicket:id="commit">
-				<td class="date" style="width:60px; vertical-align: middle;text-align: right;padding-right:10px;" ><span wicket:id="time">[time of day]</span></td>
+				<td class="hidden-phone date" style="width:60px; vertical-align: middle;text-align: right;padding-right:10px;" ><span wicket:id="time">[time of day]</span></td>
 				<td style="width:10em;text-align:left;vertical-align: middle;">
 					<span wicket:id="repository" class="repositorySwatch">[repository link]</span>
 				</td>
-				<td style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
+				<td class="hidden-phone" style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
 				<td style="vertical-align: middle;">
 					<img wicket:id="commitIcon" style="vertical-align: middle;"></img>
 					<span wicket:id="message">[shortlog commit link]</span><br/>
@@ -24,7 +24,7 @@
 				<td style="text-align:right;vertical-align: middle;">
 					<div wicket:id="commitRefs">[commit refs]</div>
 				</td>
-				<td class="rightAlign" style="width:7em;vertical-align: middle;">
+				<td class="hidden-phone rightAlign" style="width:7em;vertical-align: middle;">
         			<span class="link">
 						<a wicket:id="view" target="_blank"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff" target="_blank"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree" target="_blank"><wicket:message key="gb.tree"></wicket:message></a>
 					</span>

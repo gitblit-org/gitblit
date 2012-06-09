@@ -40,8 +40,16 @@ hr {
 	color: #0069D6;
 }
 
-.navbar {
-	height:40px !important;
+.navbar .brand {
+	padding: 7px 20px;
+}
+
+.navbar .pull-right {
+	margin: 0;
+}
+
+.navbar ul.nav {
+	margin: 0 !important;
 }
 
 .navbar ul.nav li a {
@@ -52,10 +60,14 @@ hr {
 
 .navbar ul.nav li a:hover {
 	color: #abd4ff !important;
+	text-decoration: underline;
+}
+
+.navbar .nav .active > a:hover {
+	text-decoration: underline;
 }
 
 .navbar-inner {
-	height:40px !important;
 	background-color:#000050;
 	background-repeat:repeat-x;
 	background-image:-khtml-gradient(linear, left top, left bottom, from(#000060), to(#000040));
@@ -77,6 +89,7 @@ hr {
 	background-image: url(arrow_page.png);
 	background-position: center bottom;
 	outline: 0;
+	padding-bottom:1px;
 }
 
 .navbar .active a {
@@ -811,7 +824,7 @@ td.author {
 }
 
 td.date {
-	/*font-style: italic !important;*/	
+	/*font-style: italic !important;*/
 }
 
 span.sha1, span.sha1 a, span.sha1 a span, pre.commit_message {

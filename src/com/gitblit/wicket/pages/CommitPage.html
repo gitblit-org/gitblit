@@ -15,9 +15,10 @@
 	<!-- commit header -->
 	<div wicket:id="commitHeader">[commit header]</div>
 	
-	<!--  Author Gravatar -->
-	<span style="float:right;vertical-align: top;" wicket:id="authorAvatar" />
+	<div class="row">
 	
+	
+	<div class="span10">
 	<!-- commit info -->
 	<table class="plain">
 		<tr><th><wicket:message key="gb.refs">refs</wicket:message></th><td><div wicket:id="refsPanel">[references]</div></td></tr>
@@ -43,6 +44,9 @@
 			</td>
 		</tr>
 	</table>
+	</div>
+	
+	</div>
 	
 	<!-- full message -->
 	<pre class="commit_message" wicket:id="fullMessage">[commit message]</pre>
@@ -74,7 +78,7 @@
 		<tr wicket:id="changedPath">
 			<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
 			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
-			<td class="rightAlign">
+			<td class="hidden-phone rightAlign">
 				<span class="link">
 					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
 				</span>
