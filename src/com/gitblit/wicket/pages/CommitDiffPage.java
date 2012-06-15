@@ -59,7 +59,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 		// commit page links
 		if (parents.size() == 0) {
-			add(new Label("parentLink", "none"));
+			add(new Label("parentLink", getString("gb.none")));
 		} else {
 			add(new LinkPanel("parentLink", null, parents.get(0).substring(0, 8),
 					CommitDiffPage.class, newCommitParameter(parents.get(0))));

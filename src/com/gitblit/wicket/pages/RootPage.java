@@ -297,8 +297,9 @@ public abstract class RootPage extends BasePage {
 		Set<Integer> choicesSet = new HashSet<Integer>(Arrays.asList(daysBack, 14, 28, 60, 90, 180));
 		List<Integer> choices = new ArrayList<Integer>(choicesSet);
 		Collections.sort(choices);
+		String lastDaysPattern = getString("gb.lastNDays");
 		for (Integer db : choices) {
-			String txt = "last " + db + (db.intValue() > 1 ? " days" : "day");
+			String txt = MessageFormat.format(lastDaysPattern, db);
 			items.add(new DropDownMenuItem(txt, "db", db.toString(), params));
 		}
 		items.add(new DropDownMenuItem());

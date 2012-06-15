@@ -185,7 +185,7 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(new Label("repositorySize", entry.size).setVisible(showSize));
 				} else {
 					// New repository
-					row.add(new Label("repositorySize", "<span class='empty'>(empty)</span>")
+					row.add(new Label("repositorySize", "<span class='empty'>(" + getString("gb.empty") + ")</span>")
 							.setEscapeModelStrings(false));
 				}
 
@@ -262,20 +262,19 @@ public class RepositoriesPanel extends BasePanel {
 						@Override
 						public void onClick() {
 							if (GitBlit.self().deleteRepositoryModel(entry)) {
-								info(MessageFormat.format("Repository ''{0}'' deleted.", entry));
+								info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
 								if (dp instanceof SortableRepositoriesProvider) {
 									((SortableRepositoriesProvider) dp).remove(entry);
 								} else {
 									((RepositoriesProvider) dp).remove(entry);
 								}
 							} else {
-								error(MessageFormat.format("Failed to delete repository ''{0}''!",
-										entry));
+								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
 							}
 						}
 					};
 					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-							"Delete repository \"{0}\"?", entry)));
+							getString("gb.deleteRepository"), entry)));
 					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
 				} else if (showOwner) {

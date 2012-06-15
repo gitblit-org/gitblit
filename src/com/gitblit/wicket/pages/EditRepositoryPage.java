@@ -371,10 +371,10 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
 		form.add(preReceivePalette);
-		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
+		form.add(new BulletListPanel("inheritedPreReceive", getString("gb.inherited"), GitBlit.self()
 				.getPreReceiveScriptsInherited(repositoryModel)));
 		form.add(postReceivePalette);
-		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
+		form.add(new BulletListPanel("inheritedPostReceive", getString("gb.inherited"), GitBlit.self()
 				.getPostReceiveScriptsInherited(repositoryModel)));
 		
 		WebMarkupContainer customFieldsSection = new WebMarkupContainer("customFieldsSection");
@@ -414,13 +414,13 @@ public class EditRepositoryPage extends RootSubPage {
 			if (authenticateAdmin) {
 				if (user == null) {
 					// No Login Available
-					error("Administration requires a login", true);
+					error(getString("gb.errorAdminLoginRequired"), true);
 				}
 				if (isCreate) {
 					// Create Repository
 					if (!user.canAdmin) {
 						// Only Administrators May Create
-						error("Only an administrator may create a repository", true);
+						error(getString("gb.errorOnlyAdminMayCreateRepository"), true);
 					}
 				} else {
 					// Edit Repository
@@ -431,14 +431,14 @@ public class EditRepositoryPage extends RootSubPage {
 					} else {
 						if (!model.owner.equalsIgnoreCase(user.username)) {
 							// User is not an Admin nor Owner
-							error("Only an administrator or the owner may edit a repository", true);
+							error(getString("gb.errorOnlyAdminOrOwnerMayEditRepository"), true);
 						}
 					}
 				}
 			}
 		} else {
 			// No Administration Permitted
-			error("Administration is disabled", true);
+			error(getString("gb.errorAdministrationDisabled"), true);
 		}
 	}
 

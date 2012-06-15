@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
@@ -26,6 +27,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.resource.ContextRelativeResource;
+import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
@@ -138,13 +140,34 @@ public class RepositoriesPage extends RootPage {
 	}
 
 	private String readDefaultMarkdown(String file) {
+		String content = readDefaultMarkdown(file, getLanguageCode());
+		if (StringUtils.isEmpty(content)) {
+			content = readDefaultMarkdown(file, null);
+		}
+		return content;
+	}
+	
+	private String readDefaultMarkdown(String file, String lc) {
+		if (!StringUtils.isEmpty(lc)) {
+			// convert to file_lc.mkd
+			file = file.substring(0, file.lastIndexOf('.')) + "_" + lc + file.substring(file.lastIndexOf('.'));
+		}
 		String message;
-		try {
+		try {			
 			ContextRelativeResource res = WicketUtils.getResource(file);
 			InputStream is = res.getResourceStream().getInputStream();
 			InputStreamReader reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
 			message = MarkdownUtils.transformMarkdown(reader);
 			reader.close();
+		} catch (ResourceStreamNotFoundException t) {
+			if (lc == null) {
+				// could not find default language resource
+				message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
+				error(message, t, false);
+			} else {
+				// ignore so we can try default language resource
+				message = null;
+			}
 		} catch (Throwable t) {
 			message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
 			error(message, t, false);

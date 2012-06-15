@@ -87,15 +87,15 @@ public class UsersPanel extends BasePanel {
 					public void onClick() {
 						if (GitBlit.self().deleteUser(entry.username)) {
 							users.remove(entry);
-							info(MessageFormat.format("User ''{0}'' deleted.", entry.username));
+							info(MessageFormat.format(getString("gb.userDeleted"), entry.username));
 						} else {
-							error(MessageFormat.format("Failed to delete user ''{0}''!",
+							error(MessageFormat.format(getString("gb.deleteUserFailed"),
 									entry.username));
 						}
 					}
 				};
 				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						"Delete user \"{0}\"?", entry.username)));
+						getString("gb.deleteUser"), entry.username)));
 				userLinks.add(deleteLink);
 				item.add(userLinks);
 
