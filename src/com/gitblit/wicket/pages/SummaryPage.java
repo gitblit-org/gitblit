@@ -49,7 +49,6 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LogPanel;
@@ -84,13 +83,13 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("repositoryOwner", getRepositoryModel().owner));
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
-				JGitUtils.getLastChange(r), getTimeZone()));
+				JGitUtils.getLastChange(r), getTimeZone(), getTimeUtils()));
 		if (metricsTotal == null) {
 			add(new Label("branchStats", ""));
 		} else {
 			add(new Label("branchStats",
 					MessageFormat.format(getString("gb.branchStats"), metricsTotal.count,
-							metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
+							metricsTotal.tag, getTimeUtils().duration(metricsTotal.duration))));
 		}
 		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));

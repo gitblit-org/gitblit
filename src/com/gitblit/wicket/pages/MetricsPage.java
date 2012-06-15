@@ -41,7 +41,6 @@ import org.wicketstuff.googlecharts.ShapeMarker;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class MetricsPage extends RepositoryPage {
@@ -62,7 +61,7 @@ public class MetricsPage extends RepositoryPage {
 		} else {
 			add(new Label("branchStats",
 					MessageFormat.format(getString("gb.branchStats"), metricsTotal.count,
-							metricsTotal.tag, TimeUtils.duration(metricsTotal.duration))));
+							metricsTotal.tag, getTimeUtils().duration(metricsTotal.duration))));
 		}
 		insertLinePlot("commitsChart", metrics);
 		insertBarPlot("dayOfWeekChart", getDayOfWeekMetrics(r, objectId));

@@ -83,7 +83,7 @@ public class BranchesPanel extends BasePanel {
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
-				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone()));
+				item.add(WicketUtils.createDateLabel("branchDate", entry.getDate(), getTimeZone(), getTimeUtils()));
 
 				item.add(new LinkPanel("branchName", "list name", StringUtils.trimString(
 						entry.displayName, 28), LogPage.class, WicketUtils.newObjectParameter(

@@ -87,7 +87,7 @@ public class TagPage extends RepositoryPage {
 		if (tagRef.getAuthorIdent() != null) {
 			when = tagRef.getAuthorIdent().getWhen();
 		}
-		add(WicketUtils.createTimestampLabel("tagDate", when, getTimeZone()));
+		add(WicketUtils.createTimestampLabel("tagDate", when, getTimeZone(), getTimeUtils()));
 
 		addFullText("fullMessage", tagRef.getFullMessage(), true);
 	}

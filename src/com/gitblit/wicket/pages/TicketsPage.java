@@ -52,7 +52,7 @@ public class TicketsPage extends RepositoryPage {
 				WicketUtils.setTicketCssClass(stateLabel, entry.state);
 				item.add(stateLabel);
 				item.add(WicketUtils.createDateLabel("ticketDate", entry.date, GitBlitWebSession
-						.get().getTimezone()));
+						.get().getTimezone(), getTimeUtils()));
 				item.add(new Label("ticketHandler", StringUtils.trimString(
 						entry.handler.toLowerCase(), 30)));
 				item.add(new LinkPanel("ticketTitle", "list subject", StringUtils.trimString(

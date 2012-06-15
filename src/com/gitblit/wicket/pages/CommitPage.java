@@ -81,12 +81,12 @@ public class CommitPage extends RepositoryPage {
 		// author
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
-				getTimeZone()));
+				getTimeZone(), getTimeUtils()));
 		
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));
 		add(WicketUtils.createTimestampLabel("commitCommitterDate",
-				c.getCommitterIdent().getWhen(), getTimeZone()));
+				c.getCommitterIdent().getWhen(), getTimeZone(), getTimeUtils()));
 
 		add(new Label("commitId", c.getName()));
 
@@ -129,7 +129,7 @@ public class CommitPage extends RepositoryPage {
 						Constants.SearchType.AUTHOR));
 				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
-						.getAuthorIdent().getWhen(), getTimeZone()));
+						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
 				item.add(new Label("noteContent", GitBlit.self().processCommitMessage(
 						repositoryName, entry.content)).setEscapeModelStrings(false));
 			}

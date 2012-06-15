@@ -297,8 +297,8 @@ public class IssueModel implements Serializable, Comparable<IssueModel> {
 
 		@Override
 		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(TimeUtils.timeAgo(created));
+			StringBuilder sb = new StringBuilder();			
+			sb.append(new TimeUtils().timeAgo(created));
 			switch (code) {
 			case '+':
 				sb.append(" created by ");

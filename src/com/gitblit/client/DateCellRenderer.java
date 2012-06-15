@@ -37,7 +37,7 @@ public class DateCellRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = 1L;
 
 	private final String pattern;
-
+	
 	public DateCellRenderer(String pattern, Color foreground) {
 		this.pattern = (pattern == null ? "yyyy-MM-dd HH:mm" : pattern);
 		setForeground(foreground);
@@ -55,7 +55,7 @@ public class DateCellRenderer extends DefaultTableCellRenderer {
 				title = "--";
 				dateString = "never";
 			} else {
-				title = TimeUtils.timeAgo(date);
+				title = Translation.getTimeUtils().timeAgo(date);
 				dateString = new SimpleDateFormat(pattern).format((Date) value);
 			}
 

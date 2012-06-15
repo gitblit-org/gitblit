@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import org.apache.wicket.AttributeModifier;
@@ -25,12 +26,15 @@ import org.apache.wicket.model.Model;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
 public abstract class BasePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private transient TimeUtils timeUtils;
 
 	public BasePanel(String wicketId) {
 		super(wicketId);
@@ -39,6 +43,19 @@ public abstract class BasePanel extends Panel {
 	protected TimeZone getTimeZone() {
 		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
 				.getTimezone() : GitBlit.getTimezone();
+	}
+	
+	protected TimeUtils getTimeUtils() {
+		if (timeUtils == null) {
+			ResourceBundle bundle;		
+			try {
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
+			} catch (Throwable t) {
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
+			}
+			timeUtils = new TimeUtils(bundle);
+		}
+		return timeUtils;
 	}
 
 	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {

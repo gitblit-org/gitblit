@@ -56,7 +56,7 @@ public class ActivityPanel extends BasePanel {
 
 			public void populateItem(final Item<Activity> activityItem) {
 				final Activity entry = activityItem.getModelObject();
-				activityItem.add(WicketUtils.createDatestampLabel("title", entry.startDate, getTimeZone()));
+				activityItem.add(WicketUtils.createDatestampLabel("title", entry.startDate, getTimeZone(), getTimeUtils()));
 
 				// display the commits in chronological order
 				DataView<RepositoryCommit> commits = new DataView<RepositoryCommit>("commit",
@@ -68,7 +68,7 @@ public class ActivityPanel extends BasePanel {
 
 						// commit time of day
 						commitItem.add(WicketUtils.createTimeLabel("time", commit.getCommitterIdent()
-								.getWhen(), getTimeZone()));
+								.getWhen(), getTimeZone(), getTimeUtils()));
 
 						// avatar
 						commitItem.add(new GravatarImage("avatar", commit.getAuthorIdent(), 36));

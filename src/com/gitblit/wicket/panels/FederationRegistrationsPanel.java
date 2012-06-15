@@ -66,9 +66,9 @@ public class FederationRegistrationsPanel extends BasePanel {
 
 				item.add(WicketUtils.getRegistrationImage("typeIcon", entry, this));
 
-				item.add(WicketUtils.createDateLabel("lastPull", entry.lastPull, getTimeZone()));
+				item.add(WicketUtils.createDateLabel("lastPull", entry.lastPull, getTimeZone(), getTimeUtils()));
 				item.add(WicketUtils
-						.createTimestampLabel("nextPull", entry.nextPull, getTimeZone()));
+						.createTimestampLabel("nextPull", entry.nextPull, getTimeZone(), getTimeUtils()));
 				item.add(new Label("frequency", entry.frequency));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

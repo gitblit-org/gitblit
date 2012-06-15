@@ -15,9 +15,11 @@
  */
 package com.gitblit.utils;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.ResourceBundle;
 
 /**
  * Utility class of time functions.
@@ -35,6 +37,16 @@ public class TimeUtils {
 	public static final long ONEDAY = ONEHOUR * 24L;
 
 	public static final long ONEYEAR = ONEDAY * 365L;
+	
+	private final ResourceBundle translation;
+	
+	public TimeUtils() {
+		this(null);
+	}
+	
+	public TimeUtils(ResourceBundle translation) {
+		this.translation = translation;
+	}
 
 	/**
 	 * Returns true if date is today.
@@ -67,21 +79,21 @@ public class TimeUtils {
 	 * @param days
 	 * @return duration as string in days, months, and/or years
 	 */
-	public static String duration(int days) {
+	public String duration(int days) {
 		if (days <= 60) {
-			return days + (days > 1 ? " days" : " day");
+			return (days > 1 ? translate(days, "gb.duration.days", "{0} days") : translate("gb.duration.oneDay", "1 day"));
 		} else if (days < 365) {
 			int rem = days % 30;
-			return ((days / 30) + (rem >= 15 ? 1 : 0)) + " months";
+			return translate(((days / 30) + (rem >= 15 ? 1 : 0)), "gb.duration.months", "{0} months");
 		} else {
 			int years = days / 365;
 			int rem = days % 365;
-			String yearsString = years + (years > 1 ? " years" : " year");
+			String yearsString = (years > 1 ? translate(years, "gb.duration.years", "{0} years") : translate("gb.duration.oneYear", "1 year"));
 			if (rem < 30) {
 				if (rem == 0) {
 					return yearsString;
 				} else {
-					return yearsString + (rem >= 15 ? ", 1 month" : "");
+					return yearsString + (rem >= 15 ? (", " + translate("gb.duration.oneMonth", "1 month")): "");
 				}
 			} else {
 				int months = rem / 30;
@@ -89,8 +101,8 @@ public class TimeUtils {
 				if (remDays >= 15) {
 					months++;
 				}
-				String monthsString = yearsString + ", " + months
-						+ (months > 1 ? " months" : " month");
+				String monthsString = yearsString + ", "
+						+ (months > 1 ? translate(months, "gb.duration.months", "{0} months") : translate("gb.duration.oneMonth", "1 month"));
 				return monthsString;
 			}
 		}
@@ -155,6 +167,14 @@ public class TimeUtils {
 		return days;
 	}
 
+	public String today() {
+		return translate("gb.time.today", "today");
+	}
+
+	public String yesterday() {
+		return translate("gb.time.yesterday", "yesterday");
+	}
+
 	/**
 	 * Returns the string representation of the duration between now and the
 	 * date.
@@ -162,7 +182,7 @@ public class TimeUtils {
 	 * @param date
 	 * @return duration as a string
 	 */
-	public static String timeAgo(Date date) {
+	public String timeAgo(Date date) {
 		return timeAgo(date, false);
 	}
 
@@ -172,7 +192,7 @@ public class TimeUtils {
 	 * @param date
 	 * @return the css class
 	 */
-	public static String timeAgoCss(Date date) {
+	public String timeAgoCss(Date date) {
 		return timeAgo(date, true);
 	}
 
@@ -184,7 +204,7 @@ public class TimeUtils {
 	 * @param css
 	 * @return the string representation of the duration OR the css class
 	 */
-	private static String timeAgo(Date date, boolean css) {
+	private String timeAgo(Date date, boolean css) {
 		if (isToday(date) || isYesterday(date)) {
 			int mins = minutesAgo(date, true);
 			if (mins >= 120) {
@@ -193,15 +213,18 @@ public class TimeUtils {
 				}
 				int hours = hoursAgo(date, true);
 				if (hours > 23) {
-					return "yesterday";
+					return yesterday();
 				} else {
-					return hours + " hours ago";
+					return translate(hours, "gb.time.hoursAgo", "{0} hours ago");
 				}
 			}
 			if (css) {
 				return "age0";
 			}
-			return mins + " min" + (mins > 1 ? "s" : "") + " ago";
+			if (mins > 2) {
+				return translate(mins, "gb.time.minsAgo", "{0} mins ago");
+			}
+			return translate("gb.time.justNow", "just now");
 		} else {
 			int days = daysAgo(date);
 			if (css) {
@@ -215,13 +238,13 @@ public class TimeUtils {
 			}
 			if (days < 365) {
 				if (days <= 30) {
-					return days + " days ago";
+					return translate(days, "gb.time.daysAgo", "{0} days ago");
 				} else if (days <= 90) {
 					int weeks = days / 7;
 					if (weeks == 12) {
-						return "3 months ago";
+						return translate(3, "gb.time.monthsAgo", "{0} months ago");
 					} else {
-						return weeks + " weeks ago";
+						return translate(weeks, "gb.time.weeksAgo", "{0} weeks ago");
 					}
 				}
 				int months = days / 30;
@@ -229,20 +252,42 @@ public class TimeUtils {
 				if (weeks >= 2) {
 					months++;
 				}
-				return months + " months ago";
+				return translate(months, "gb.time.monthsAgo", "{0} months ago");
 			} else if (days == 365) {
-				return "1 year ago";
+				return translate("gb.time.oneYearAgo", "1 year ago");
 			} else {
 				int yr = days / 365;
 				days = days % 365;
 				int months = (yr * 12) + (days / 30);
 				if (months > 23) {
-					return yr + " years ago";
+					return translate(yr, "gb.time.yearsAgo", "{0} years ago");
 				} else {
-					return months + " months ago";
+					return translate(months, "gb.time.monthsAgo", "{0} months ago");
 				}
 			}
 		}
+	}
+	
+	private String translate(String key, String defaultValue) {
+		String value = defaultValue;
+		if (translation != null && translation.containsKey(key)) {
+			String aValue = translation.getString(key);
+			if (!StringUtils.isEmpty(aValue)) {
+				value = aValue;
+			}
+		}
+		return value;
+	}
+	
+	private String translate(int val, String key, String defaultPattern) {
+		String pattern = defaultPattern;
+		if (translation != null && translation.containsKey(key)) {
+			String aValue = translation.getString(key);
+			if (!StringUtils.isEmpty(aValue)) {
+				pattern = aValue;
+			}
+		}
+		return MessageFormat.format(pattern, val);
 	}
 
 	/**

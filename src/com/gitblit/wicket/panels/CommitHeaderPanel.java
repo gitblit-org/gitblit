@@ -42,7 +42,7 @@ public class CommitHeaderPanel extends BasePanel {
 				WicketUtils.newObjectParameter(repositoryName, c.getName())));
 		add(new Label("commitid", c.getName()));
 		add(new Label("author", c.getAuthorIdent().getName()));
-		add(WicketUtils.createDateLabel("date", c.getAuthorIdent().getWhen(), getTimeZone()));
+		add(WicketUtils.createDateLabel("date", c.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
 		add(new GravatarImage("authorAvatar", c.getAuthorIdent()));
 	}
 }

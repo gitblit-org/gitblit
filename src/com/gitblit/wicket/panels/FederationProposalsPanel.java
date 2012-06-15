@@ -56,7 +56,7 @@ public class FederationProposalsPanel extends BasePanel {
 				final FederationProposal entry = item.getModelObject();
 				item.add(new LinkPanel("url", "list", entry.url, ReviewProposalPage.class,
 						WicketUtils.newTokenParameter(entry.token)));
-				item.add(WicketUtils.createDateLabel("received", entry.received, getTimeZone()));
+				item.add(WicketUtils.createDateLabel("received", entry.received, getTimeZone(), getTimeUtils()));
 				item.add(new Label("tokenType", entry.tokenType.name()));
 				item.add(new LinkPanel("token", "list", entry.token, ReviewProposalPage.class,
 						WicketUtils.newTokenParameter(entry.token)));

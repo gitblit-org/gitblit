@@ -54,7 +54,7 @@ public class ReviewProposalPage extends RootSubPage {
 
 		add(new Label("url", proposal.url));
 		add(new Label("message", proposal.message));
-		add(WicketUtils.createTimestampLabel("received", proposal.received, getTimeZone()));
+		add(WicketUtils.createTimestampLabel("received", proposal.received, getTimeZone(), getTimeUtils()));
 		add(new Label("token", proposal.token));
 		add(new Label("tokenType", proposal.tokenType.name()));
 		

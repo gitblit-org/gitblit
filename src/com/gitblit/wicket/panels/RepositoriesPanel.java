@@ -49,7 +49,6 @@ import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
@@ -242,11 +241,11 @@ public class RepositoriesPanel extends BasePanel {
 				if (entry.lastChange.getTime() == 0) {
 					lastChange = "--";
 				} else {
-					lastChange = TimeUtils.timeAgo(entry.lastChange);
+					lastChange = getTimeUtils().timeAgo(entry.lastChange);
 				}
 				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
 				row.add(lastChangeLabel);
-				WicketUtils.setCssClass(lastChangeLabel, TimeUtils.timeAgoCss(entry.lastChange));
+				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
 
 				boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
 				if (showAdmin) {

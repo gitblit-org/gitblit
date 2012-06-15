@@ -418,7 +418,7 @@ public class WicketUtils {
 		return params.getString("n", "");
 	}
 
-	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone) {
+	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
@@ -434,7 +434,7 @@ public class WicketUtils {
 		String title = null;
 		if (date.getTime() <= System.currentTimeMillis()) {
 			// past
-			title = TimeUtils.timeAgo(date);
+			title = timeUtils.timeAgo(date);
 		}
 		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
 			String tmp = dateString;
@@ -442,14 +442,14 @@ public class WicketUtils {
 			title = tmp;
 		}
 		Label label = new Label(wicketId, dateString);
-		WicketUtils.setCssClass(label, TimeUtils.timeAgoCss(date));
+		WicketUtils.setCssClass(label, timeUtils.timeAgoCss(date));
 		if (!StringUtils.isEmpty(title)) {
 			WicketUtils.setHtmlTooltip(label, title);
 		}
 		return label;
 	}
 
-	public static Label createTimeLabel(String wicketId, Date date, TimeZone timeZone) {
+	public static Label createTimeLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
 		String format = GitBlit.getString(Keys.web.timeFormat, "HH:mm");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
@@ -462,7 +462,7 @@ public class WicketUtils {
 		} else {
 			timeString = df.format(date);
 		}
-		String title = TimeUtils.timeAgo(date);
+		String title = timeUtils.timeAgo(date);
 		Label label = new Label(wicketId, timeString);
 		if (!StringUtils.isEmpty(title)) {
 			WicketUtils.setHtmlTooltip(label, title);
@@ -470,7 +470,7 @@ public class WicketUtils {
 		return label;
 	}
 
-	public static Label createDatestampLabel(String wicketId, Date date, TimeZone timeZone) {
+	public static Label createDatestampLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
 		String format = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
@@ -485,12 +485,12 @@ public class WicketUtils {
 		}
 		String title = null;
 		if (TimeUtils.isToday(date)) {
-			title = "today";
+			title = timeUtils.today();
 		} else if (TimeUtils.isYesterday(date)) {
-				title = "yesterday";
+				title = timeUtils.yesterday();
 		} else if (date.getTime() <= System.currentTimeMillis()) {
 			// past
-			title = TimeUtils.timeAgo(date);
+			title = timeUtils.timeAgo(date);
 		}
 		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
 			String tmp = dateString;
@@ -504,7 +504,7 @@ public class WicketUtils {
 		return label;
 	}
 
-	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone) {
+	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
 		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		DateFormat df = new SimpleDateFormat(format);
@@ -521,7 +521,7 @@ public class WicketUtils {
 		String title = null;
 		if (date.getTime() <= System.currentTimeMillis()) {
 			// past
-			title = TimeUtils.timeAgo(date);
+			title = timeUtils.timeAgo(date);
 		}
 		Label label = new Label(wicketId, dateString);
 		if (!StringUtils.isEmpty(title)) {

@@ -35,7 +35,6 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.utils.ByteFormat;
-import com.gitblit.utils.TimeUtils;
 
 /**
  * This panel displays the server status.
@@ -155,8 +154,8 @@ public class StatusPanel extends JPanel {
 		ServerStatus status = gitblit.getStatus();
 		header.setText(Translation.get("gb.status"));
 		version.setText(Constants.NAME + (status.isGO ? " GO v" : " WAR v") + status.version);
-		releaseDate.setText(status.releaseDate);
-		bootDate.setText(status.bootDate.toString() + " (" + TimeUtils.timeAgo(status.bootDate)
+		releaseDate.setText(status.releaseDate);		
+		bootDate.setText(status.bootDate.toString() + " (" + Translation.getTimeUtils().timeAgo(status.bootDate)
 				+ ")");
 		url.setText(gitblit.url);
 		servletContainer.setText(status.servletContainer);

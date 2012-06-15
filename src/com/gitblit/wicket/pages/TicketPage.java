@@ -42,7 +42,7 @@ public class TicketPage extends RepositoryPage {
 		add(new Label("ticketTitle", t.title));
 		add(new Label("ticketId", t.id));
 		add(new Label("ticketHandler", t.handler.toLowerCase()));
-		add(WicketUtils.createTimestampLabel("ticketOpenDate", t.date, getTimeZone()));
+		add(WicketUtils.createTimestampLabel("ticketOpenDate", t.date, getTimeZone(), getTimeUtils()));
 		Label stateLabel = new Label("ticketState", t.state);
 		WicketUtils.setTicketCssClass(stateLabel, t.state);
 		add(stateLabel);
@@ -56,7 +56,7 @@ public class TicketPage extends RepositoryPage {
 			public void populateItem(final Item<Comment> item) {
 				final Comment entry = item.getModelObject();
 				item.add(WicketUtils.createDateLabel("commentDate", entry.date, GitBlitWebSession
-						.get().getTimezone()));
+						.get().getTimezone(), getTimeUtils()));
 				item.add(new Label("commentAuthor", entry.author.toLowerCase()));
 				item.add(new Label("commentText", prepareComment(entry.text))
 						.setEscapeModelStrings(false));

@@ -91,7 +91,7 @@ public class LogPanel extends BasePanel {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
 
-				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone()));
+				item.add(WicketUtils.createDateLabel("commitDate", date, getTimeZone(), getTimeUtils()));
 
 				// author search link
 				String author = entry.getAuthorIdent().getName();

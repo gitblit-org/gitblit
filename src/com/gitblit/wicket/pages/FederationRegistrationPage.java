@@ -52,8 +52,8 @@ public class FederationRegistrationPage extends RootSubPage {
 		add(new Label("frequency", registration.frequency));
 		add(new Label("folder", registration.folder));
 		add(new Label("token", showAdmin ? registration.token : "--"));
-		add(WicketUtils.createTimestampLabel("lastPull", registration.lastPull, getTimeZone()));
-		add(WicketUtils.createTimestampLabel("nextPull", registration.nextPull, getTimeZone()));
+		add(WicketUtils.createTimestampLabel("lastPull", registration.lastPull, getTimeZone(), getTimeUtils()));
+		add(WicketUtils.createTimestampLabel("nextPull", registration.nextPull, getTimeZone(), getTimeUtils()));
 
 		StringBuilder inclusions = new StringBuilder();
 		for (String inc : registration.inclusions) {

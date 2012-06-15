@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.TimeZone;
 
 import javax.servlet.http.Cookie;
@@ -47,6 +48,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -54,6 +56,8 @@ import com.gitblit.wicket.panels.LinkPanel;
 public abstract class BasePage extends WebPage {
 
 	private final Logger logger;
+	
+	private transient TimeUtils timeUtils;
 
 	public BasePage() {
 		super();
@@ -73,6 +77,23 @@ public abstract class BasePage extends WebPage {
 		if (GitBlit.getBoolean(Keys.web.useResponsiveLayout, true)) {
 			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
 		}
+	}
+	
+	protected String getLanguageCode() {
+		return GitBlitWebSession.get().getLocale().getLanguage();
+	}
+	
+	protected TimeUtils getTimeUtils() {
+		if (timeUtils == null) {
+			ResourceBundle bundle;		
+			try {
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
+			} catch (Throwable t) {
+				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
+			}
+			timeUtils = new TimeUtils(bundle);
+		}
+		return timeUtils;
 	}
 	
 	@Override

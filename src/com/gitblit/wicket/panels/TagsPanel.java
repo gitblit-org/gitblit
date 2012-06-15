@@ -69,7 +69,7 @@ public class TagsPanel extends BasePanel {
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 
-				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone()));
+				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone(), getTimeUtils()));
 
 				Class<? extends RepositoryPage> linkClass;
 				switch (entry.getReferencedObjectType()) {

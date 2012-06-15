@@ -234,7 +234,7 @@ public class LuceneSearchPage extends RootPage {
 					item.add(new LinkPanel("branch", "branch", StringUtils.getRelativePath(Constants.R_HEADS, sr.branch), LogPage.class, WicketUtils.newObjectParameter(sr.repository, sr.branch)));
 				}
 				item.add(new Label("author", sr.author));
-				item.add(WicketUtils.createDatestampLabel("date", sr.date, getTimeZone()));
+				item.add(WicketUtils.createDatestampLabel("date", sr.date, getTimeZone(), getTimeUtils()));
 			}
 		};
 		add(resultsView.setVisible(results.size() > 0));

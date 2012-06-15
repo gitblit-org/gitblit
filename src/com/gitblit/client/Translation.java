@@ -18,6 +18,8 @@ package com.gitblit.client;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.gitblit.utils.TimeUtils;
+
 /**
  * Loads the Gitblit language resource file.
  * 
@@ -27,6 +29,8 @@ import java.util.ResourceBundle;
 public class Translation {
 
 	private final static ResourceBundle translation;
+	
+	private final static TimeUtils timeUtils;
 
 	static {
 		ResourceBundle bundle;
@@ -38,6 +42,8 @@ public class Translation {
 			bundle = ResourceBundle.getBundle("GitBlitWebApp");
 		}
 		translation = bundle;
+		
+		timeUtils = new TimeUtils(translation);
 	}
 
 	public static String get(String key) {
@@ -45,5 +51,9 @@ public class Translation {
 			return translation.getString(key).trim();
 		}
 		return key;
+	}
+	
+	public static TimeUtils getTimeUtils() {
+		return timeUtils;
 	}
 }
