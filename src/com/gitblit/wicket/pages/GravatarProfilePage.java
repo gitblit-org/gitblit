@@ -18,15 +18,13 @@ package com.gitblit.wicket.pages;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.model.Model;
 
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.utils.ActivityUtils;
+import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
 
 /**
@@ -59,8 +57,7 @@ public class GravatarProfilePage extends RootPage {
 		add(new Label("username", profile.preferredUsername));
 		add(new Label("location", profile.currentLocation));
 		add(new Label("aboutMe", profile.aboutMe));
-		Image image = new Image("profileImage");
-		image.add(new AttributeModifier("src", true, new Model<String>(profile.thumbnailUrl + "?s=256&d=identicon")));
+		ExternalImage image = new ExternalImage("profileImage", profile.thumbnailUrl + "?s=256&d=identicon");
 		add(image);
 		add(new ExternalLink("profileLink", profile.profileUrl));
 	}
