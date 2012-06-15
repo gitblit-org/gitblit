@@ -1823,9 +1823,13 @@ public class GitBlit implements ServletContextListener {
 		// ensure that the current values are updated in the setting models
 		for (String key : settings.getAllKeys(null)) {
 			SettingModel setting = settingsModel.get(key);
-			if (setting != null) {
-				setting.currentValue = settings.getString(key, "");
+			if (setting == null) {
+				// unreferenced setting, create a setting model
+				setting = new SettingModel();
+				setting.name = key;
+				settingsModel.add(setting);
 			}
+			setting.currentValue = settings.getString(key, "");			
 		}
 		settingsModel.pushScripts = getAllScripts();
 		return settingsModel;

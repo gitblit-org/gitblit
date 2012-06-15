@@ -8,6 +8,7 @@
 
 - Fixed bug where a repository set as authenticated push did not have anonymous clone access (issue 96)
 - Fixed bug in Basic authentication if passwords had a colon (Github/peterloron)
+- Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (issue 85)
 
 #### changes
 
@@ -17,6 +18,8 @@
 
 #### additions
 
+- Added setting to allow specification of a robots.txt file (issue 99)  
+    **New:** *web.robots.txt = *  
 - Added setting to control responsive or fixed-width layout (issue 101)  
     **New:** *web.useResponsiveLayout = true*  
 - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and server's default charset. (issue 97)  
