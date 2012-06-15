@@ -12,6 +12,8 @@
 
 #### changes
 
+- **Updated Lucene index version which will force a rebuild of ALL your Lucene indexes**  
+Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (issue 97)
 - Changed default layout for web ui from fixed-width layout to responsive (issue 101)  
 - IUserService interface has changed to better accomodate custom authentication and/or custom authorization
 - Updated Japanese translation (Github/zakki)
