@@ -99,6 +99,19 @@
 	</servlet-mapping>	
 	
 
+	<!-- Robots.txt Servlet
+		 <url-pattern> MUST match: 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>RobotsTxtServlet</servlet-name>
+		<servlet-class>com.gitblit.RobotsTxtServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RobotsTxtServlet</servlet-name>		
+		<url-pattern>/robots.txt</url-pattern>
+	</servlet-mapping>
+
+	
 	<!-- Git Access Restriction Filter
 		 <url-pattern> MUST match: 
 			* GitServlet
@@ -202,7 +215,7 @@
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>git/,feed/,zip/,federation/,rpc/,pages/</param-value>
+            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt</param-value>
         </init-param>
     </filter>
     <filter-mapping>
