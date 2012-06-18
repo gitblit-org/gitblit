@@ -79,7 +79,12 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 	public void init(ServletConfig config) throws ServletException {
 		groovyDir = GitBlit.getGroovyScriptsFolder();
 		try {
-			gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
+			// set Grape root
+			File grapeRoot = new File(GitBlit.getString(Keys.groovy.grapeFolder, "groovy/grape")).getAbsoluteFile();
+			grapeRoot.mkdirs();
+			System.setProperty("grape.root", grapeRoot.getAbsolutePath());
+			
+			gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());			
 		} catch (IOException e) {
 			throw new ServletException("Failed to instantiate Groovy Script Engine!", e);
 		}

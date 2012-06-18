@@ -35,6 +35,8 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
     **New:** *git.packedGitMmap = false*  
 - Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 88)  
     **New:** *git.defaultAccessRestriction = NONE*  
+- Added setting to control Groovy Grape root folder.  [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.  
+    **New:** *groovy.grapeFolder = groovy/grape*  
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
 - Added support for custom repository properties for Groovy hooks (Github/jcrygier)
 - Added script to facilitate proxy environment setup on Linux (Github/mragab)
