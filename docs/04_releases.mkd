@@ -47,6 +47,7 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 
 - updated to Bootstrap 2.0.4
 - added Ivy 2.2.0 (for Grape support in Groovy hook scripts)
+- updated to Apache Commons Daemon 1.0.10
 
 **0.9.3** *released 2012-04-11*
 
