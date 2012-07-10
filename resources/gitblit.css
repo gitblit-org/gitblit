@@ -1,6 +1,6 @@
 body {
 	 /* 50px to start the container 10px below the navbar */
-	padding-top: 50px;
+	padding-top: 60px;
 }
 
 footer {
@@ -41,7 +41,7 @@ hr {
 }
 
 .navbar .brand {
-	padding: 7px 20px;
+	padding: 10px 20px;
 }
 
 .navbar .pull-right {
@@ -50,6 +50,7 @@ hr {
 
 .navbar ul.nav {
 	margin: 0 !important;
+	padding: 4px 0px 0px 0px;
 }
 
 .navbar ul.nav li a {
@@ -89,7 +90,7 @@ hr {
 	background-image: url(arrow_page.png);
 	background-position: center bottom;
 	outline: 0;
-	padding-bottom:1px;
+	padding-bottom:2px;
 }
 
 .navbar .active a {
