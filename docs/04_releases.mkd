@@ -56,7 +56,6 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 - updated to Gson 1.7.2
 - updated to Log4J 1.2.17
 - updated to SLF4J 1.6.6
-- updated to JCommander 1.27
 - updated to Apache Commons Daemon 1.0.10
 - added Ivy 2.2.0
 
