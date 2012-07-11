@@ -6,6 +6,7 @@
 
 #### fixes
 
+- Fixed intermittent bug in identifying line numbers in Lucene search (issue 105)
 - Adjust repository search to handle foo.git and foo/bar.git (issue 104)
 - Fixed bug where a repository set as authenticated push did not have anonymous clone access (issue 96)
 - Fixed bug in Basic authentication if passwords had a colon (Github/peterloron)

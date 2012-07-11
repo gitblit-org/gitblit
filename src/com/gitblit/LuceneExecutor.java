@@ -1205,7 +1205,13 @@ public class LuceneExecutor implements Runnable {
 			return "<pre class=\"text\">" + StringUtils.escapeForHtml(fragment, true) + "</pre>";
 		}
 		
-		int contentPos = 0;
+		// make sure we have unique fragments
+		Set<String> uniqueFragments = new LinkedHashSet<String>();
+		for (String fragment : fragments) {
+			uniqueFragments.add(fragment);
+		}
+		fragments = uniqueFragments.toArray(new String[uniqueFragments.size()]);
+		
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0, len = fragments.length; i < len; i++) {
 			String fragment = fragments[i];
@@ -1215,7 +1221,7 @@ public class LuceneExecutor implements Runnable {
 			String raw = fragment.replace(termTag, "").replace(termTagEnd, "");
 
 			// determine position of the raw fragment in the content
-			int pos = content.indexOf(raw, contentPos);
+			int pos = content.indexOf(raw);
 				
 			// restore complete first line of fragment
 			int c = pos;
@@ -1243,8 +1249,6 @@ public class LuceneExecutor implements Runnable {
 				}
 				tag = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0}{1}\">", line, lang);
 								
-				// update offset into content				
-				contentPos = pos + raw.length() + 1;
 			}
 			
 			sb.append(tag);
