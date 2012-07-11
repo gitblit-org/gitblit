@@ -71,7 +71,7 @@ public class JGitUtilsTest {
 		assertEquals(0, list.size());
 		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true));
 		assertEquals(0, list.size());
-		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, true, true));
+		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true));
 		assertTrue("No repositories found in " + GitBlitSuite.REPOSITORIES, list.size() > 0);
 	}
 

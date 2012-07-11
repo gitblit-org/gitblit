@@ -309,9 +309,14 @@ public class JGitUtils {
 					if (onlyBare && gitDir.getName().equals(".git")) {
 						continue;
 					}
-					// determine repository name relative to base path
-					String repository = FileUtils.getRelativePath(baseFile, file);
-					list.add(repository);
+					if (gitDir.equals(file) || gitDir.getParentFile().equals(file)) {
+						// determine repository name relative to base path
+						String repository = FileUtils.getRelativePath(baseFile, file);
+						list.add(repository);
+					} else if (searchSubfolders && file.canRead()) {
+						// look for repositories in subfolders
+						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders));
+					}
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
 					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders));
