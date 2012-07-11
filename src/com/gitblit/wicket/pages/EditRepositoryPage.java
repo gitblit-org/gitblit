@@ -212,6 +212,9 @@ public class EditRepositoryPage extends RootSubPage {
 					if (repositoryModel.name.contains("/../")) {
 						error(getString("gb.illegalRelativeSlash"));
 						return;
+					}					
+					if (repositoryModel.name.endsWith("/")) {
+						repositoryModel.name = repositoryModel.name.substring(0, repositoryModel.name.length() - 1);
 					}
 
 					// confirm valid characters in repository name

@@ -389,6 +389,9 @@ public class EditRepositoryDialog extends JDialog {
 			error("Relative folder references (../) are prohibited.");
 			return false;
 		}
+		if (rname.endsWith("/")) {
+			rname = rname.substring(0, rname.length() - 1);
+		}
 
 		// confirm valid characters in repository name
 		Character c = StringUtils.findInvalidCharacter(rname);
