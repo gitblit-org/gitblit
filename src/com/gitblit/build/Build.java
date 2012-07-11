@@ -461,10 +461,10 @@ public class Build {
 	private static class MavenObject {
 
 		public static final MavenObject JCOMMANDER = new MavenObject("jCommander", "com/beust",
-				"jcommander", "1.17", 34000, 32000, 141000,
-				"219a3540f3b27d7cc3b1d91d6ea046cd8723290e",
-				"0bb50eec177acf0e94d58e0cf07262fe5164331d",
-				"c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
+				"jcommander", "1.27", 51000, 32000, 141000,
+				"58c9cbf0f1fa296f93c712f2cf46de50471920f9",
+				"fae697ac46477a5227a5ee14f8f3a1270a4627b0",
+				"a3ffcf1c0792a8ab851e99f3973ad8aa7cb825a8");
 
 		public static final MavenObject JETTY = new MavenObject("Jetty",
 				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.4.3.v20110701", 1000000, 680000,

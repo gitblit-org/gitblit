@@ -7,7 +7,7 @@
 	<classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/log4j-1.2.17-sources.jar"/>
 	<classpathentry kind="lib" path="ext/slf4j-api-1.6.6.jar" sourcepath="ext/slf4j-api-1.6.6-sources.jar"/>
 	<classpathentry kind="lib" path="ext/slf4j-log4j12-1.6.6.jar" sourcepath="ext/slf4j-log4j12-1.6.6-sources.jar"/>
-	<classpathentry kind="lib" path="ext/jcommander-1.17.jar" sourcepath="ext/jcommander-1.17-sources.jar"/>
+	<classpathentry kind="lib" path="ext/jcommander-1.27.jar" sourcepath="ext/jcommander-1.27-sources.jar"/>
 	<classpathentry kind="lib" path="ext/bcprov-jdk16-1.46.jar" sourcepath="ext/bcprov-jdk16-1.46-sources.jar"/>
 	<classpathentry kind="lib" path="ext/bcmail-jdk16-1.46.jar" sourcepath="ext/bcmail-jdk16-1.46-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jsch-0.1.44-1.jar" sourcepath="ext/jsch-0.1.44-1-sources.jar"/>
