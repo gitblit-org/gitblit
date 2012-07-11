@@ -17,14 +17,16 @@
 - **Updated Lucene index version which will force a rebuild of ALL your Lucene indexes**  
 Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (issue 97)
 - Changed default layout for web ui from fixed-width layout to responsive (issue 101)  
-- IUserService interface has changed to better accomodate custom authentication and/or custom authorization
+- IUserService interface has changed to better accomodate custom authentication and/or custom authorization  
+    The default `users.conf` now supports persisting display names and email addresses. 
 - Updated Japanese translation (Github/zakki)
 
 #### additions
 
 - Added setting to allow specification of a robots.txt file (issue 99)  
-    **New:** *web.robots.txt = *  
-- Added setting to control responsive or fixed-width layout (issue 101)  
+    **New:** *web.robots.txt =*  
+- Added setting to control Responsive or Fixed-Width layout (issue 101)  
+    Responsive layout is now the default.  This layout gracefully scales the web ui from desktop browser form-factors to phone browser form-factors by hiding page components.  
     **New:** *web.useResponsiveLayout = true*  
 - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and server's default charset. (issue 97)  
     **New:** *web.blobEncodings = UTF-8 ISO-8859-1*  
@@ -37,7 +39,8 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
     **New:** *git.packedGitMmap = false*  
 - Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 88)  
     **New:** *git.defaultAccessRestriction = NONE*  
-- Added setting to control Groovy Grape root folder.  [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.  
+- Added setting to control Groovy Grape root folder.  
+    [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.  
     **New:** *groovy.grapeFolder = groovy/grape*  
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
 - Added support for custom repository properties for Groovy hooks (Github/jcrygier)
@@ -48,8 +51,18 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 #### dependency changes
 
 - updated to Bootstrap 2.0.4
-- added Ivy 2.2.0 (for Grape support in Groovy hook scripts)
+- updated to JGit 2.0.0.201206130900-r
+- updated to Groovy 1.8.6
+- updated to Gson 1.7.2
+- updated to Log4J 1.2.17
+- updated to SLF4J 1.6.6
+- updated to JCommander 1.27
 - updated to Apache Commons Daemon 1.0.10
+- added Ivy 2.2.0
+
+<hr/>
+
+### Older Releases
 
 **0.9.3** *released 2012-04-11*
 
@@ -57,6 +70,8 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 
 - Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (issue 81)
 - Automatically set *java.awt.headless=true* for Gitblit GO
+
+<hr/>
 
 **0.9.2** *released 2012-04-04*
 
@@ -71,11 +86,15 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 - Fixed Centos service script (Github/mohamedmansour)
 - Fixed EditRepositoryPage for IE8; missing save button (issue 80, Github/jonnybbb)
 
+<hr/>
+
 **0.9.1** *released 2012-03-27*
 
 #### fixes
 
 - Lucene folder was stored in working copy instead of in .git folder
+
+<hr/>
 
 **0.9.0** *released 2012-03-27*
 
@@ -139,8 +158,6 @@ Push requests to these repositories will be rejected.
 - updated to Wicket 1.4.20
 
 <hr/>
-
-### Older Releases
 
 **0.8.2** ([go](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.2.zip) | [war](http://code.google.com/p/gitblit/downloads/detail?name=gitblit-0.8.2.war) | [express](http://code.google.com/p/gitblit/downloads/detail?name=express-0.8.2.zip) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=fedclient-0.8.2.zip) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=manager-0.8.2.zip) | [api](http://code.google.com/p/gitblit/downloads/detail?name=gbapi-0.8.2.zip)) based on [JGit 1.2.0 (201112221803-r)][jgit] &nbsp; *released 2012-01-13*
 

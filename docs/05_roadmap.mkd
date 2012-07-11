@@ -22,12 +22,6 @@ This list is volatile.
     * optional automatic push to origin/remotes?
     * optional manual push to origin/remotes?
 * Gitblit: Repository regex substitutions should be stored in .git/.config, not gitblit.properties
-* Gitblit: Consider allowing git:// protocol using JGit
-    * new setting *git.allowGitProtocol* to enable/disable git:// protocol
-    * unrestricted repositories would have anonymous RW git:// access
-    * push-restricted repositories would have anonymous R git:// access
-    * clone-restricted repositories would prohibit git:// access
-    * view-restricted repositories would prohibit git:// access
 
 ### IDEAS
 

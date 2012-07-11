@@ -11,6 +11,7 @@
 - RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool 
 - Gitweb inspired web UI
+- Responsive web UI that subtracts elements to be usable on phones, tablets, and desktop browsers
 - Groovy pre- and post- push hook scripts, per-repository or globally for all repositories
 - Email push notifications *(via sendmail.groovy push script)*
 - Lucene indexing of specified repository branches

@@ -40,6 +40,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [Groovy](http://groovy.codehaus.org) (Apache 2.0)
 - [Lucene](http://lucene.apache.org) (Apache 2.0)
 - [UnboundID](http://www.unboundid.com) (LGPL 2.1)
+- [Ivy](http://ant.apache.org/ivy) (Apache 2.0)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

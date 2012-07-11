@@ -8,7 +8,10 @@ Optionally copy the example hook scripts in `WEB-INF/groovy` to a location outsi
 Open `web.xml` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
     - &lt;context-parameter&gt; *groovy.scriptsFolder* (set the full path to your Groovy hook scripts folder)
+    - &lt;context-parameter&gt; *groovy.grapeFolder* (set the full path to your Groovy Grape artifact cache)
     - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.conf`)
+    - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
+    - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)
 5. You may have to restart your servlet container. 
 6. Open your browser to <http://localhost/gitblit> or whatever the url should be.
 7. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
@@ -22,10 +25,13 @@ Open `web.xml` in your favorite text editor and make sure to review and set:
 Open `gitblit.properties` in your favorite text editor and make sure to review and set:
     - *git.repositoryFolder* (path may be relative or absolute)
     - *groovy.scriptsFolder* (path may be relative or absolute)
+    - *groovy.grapeFolder* (path may be relative or absolute)
     - *server.tempFolder* (path may be relative or absolute)
     - *server.httpPort* and *server.httpsPort*
     - *server.httpBindInterface* and *server.httpsBindInterface*  
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
+    - *git.packedGitLimit* (set larger than the size of your largest repository)
+    - *git.streamFileThreshold* (set larger than the size of your largest committed file)
 3. Execute `gitblit.cmd` or `java -jar gitblit.jar` from a command-line
 4. Wait a minute or two while all dependencies are downloaded and your self-signed *localhost* certificate is generated.  
     Please see the section titled **Creating your own Self-Signed Certificate** to generate a certificate for *your hostname*.
@@ -404,7 +410,7 @@ Hook contributions and improvements are welcome.
 
 [Grape](http://groovy.codehaus.org/Grape) lets you quickly add maven repository dependencies to your Groovy hook script.  
 
-<blockquote>Grape (The Groovy Adaptable Packaging Engine or Groovy Advanced Packaging Engine) is the infrastructure enabling the grab() calls in Groovy, a set of classes leveraging [Ivy](http://ant.apache.org/ivy) to allow for a repository driven module system for Groovy. This allows a developer to write a script with an essentially arbitrary library requirement, and ship just the script. Grape will, at runtime, download as needed and link the named libraries and all dependencies forming a transitive closure when the script is run from existing repositories such as Ibiblio, Codehaus, and java.net.</blockquote>
+<blockquote>Grape (The Groovy Adaptable Packaging Engine or Groovy Advanced Packaging Engine) is the infrastructure enabling the grab() calls in Groovy, a set of classes leveraging <a href="http://ant.apache.org/ivy">Ivy</a> to allow for a repository driven module system for Groovy. This allows a developer to write a script with an essentially arbitrary library requirement, and ship just the script. Grape will, at runtime, download as needed and link the named libraries and all dependencies forming a transitive closure when the script is run from existing repositories such as Ibiblio, Codehaus, and java.net.</blockquote>
 
 %BEGINCODE%
 // create and use a primitive array

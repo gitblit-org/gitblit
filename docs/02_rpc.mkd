@@ -63,7 +63,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><th>Release</th><th>Protocol Version</th></tr>
 <tr><td>Gitblit v0.7.0</td><td>1 (inferred version)</td></tr>
 <tr><td>Gitblit v0.8.0</td><td>2</td></tr>
-<tr><td>Gitblit v0.9.0</td><td>3</td></tr>
+<tr><td>Gitblit v0.9.0+</td><td>3</td></tr>
 </tbody>
 </table>
 

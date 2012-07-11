@@ -138,7 +138,10 @@ SSH support requires creating, exchanging, and managing SSH keys (arguably not m
 You might consider running [Gerrit](http://gerrit.googlecode.org) which does integrate [Apache Mina][mina] and supports SSH or you might consider serving [Git][git] on Linux which would offer real SSH support and also allow use of [many other compelling Git solutions](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools).
 
 ### What types of Search does Gitblit support?
-Gitblit supports case-insensitive searches of *commit message* (default), *author*, and *committer*.<br/>
+
+As of 0.9.0, Gitblit supports Lucene-based searching.
+
+If Lucene indexing is disabled, Gitblit falls back to brute-force commit-traversal search.  Commit-traversal search supports case-insensitive searching of *commit message* (default), *author*, and *committer*.<br/>
 
 To search by *author* or *committer* use the following syntax in the search box:
 
