@@ -281,7 +281,7 @@ public abstract class BasePage extends WebPage {
 
 			if (GitBlitWebSession.get().isLoggedIn()) {
 				// username, logout, and change password
-				add(new Label("username", GitBlitWebSession.get().getUser().toString() + ":"));
+				add(new Label("username", GitBlitWebSession.get().getUser().getDisplayName() + ":"));
 				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
 						LogoutPage.class));
 				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
