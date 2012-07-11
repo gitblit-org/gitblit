@@ -544,15 +544,15 @@ public class Build {
 				"3b7c5f3938f202311bdca0bf7ed46bc0118af081");
 
 		public static final MavenObject JGIT = new MavenObject("JGit", "org/eclipse/jgit",
-				"org.eclipse.jgit", "1.3.0.201202151440-r", 1532000, 1565000, 3460000,
-				"a00dc524b1d1db1abbf95407aa3e6009c3d2c157",
-				"68864beaa0856f539deafecf9e1fe105a7e996c3",
+				"org.eclipse.jgit", "2.0.0.201206130900-r", 1600000, 1565000, 3460000,
+				"c8934e903ef26ec9aa1d0d3b604979c77eda4137",
+				"7e2c1486bf13e7bbdf39b68554e9010abe385c32",
 				"");
 
 		public static final MavenObject JGIT_HTTP = new MavenObject("JGit", "org/eclipse/jgit",
-				"org.eclipse.jgit.http.server", "1.3.0.201202151440-r", 68000, 62000, 110000,
-				"099468bdd59d6f4919d54d5b66022d3ec8077b29",
-				"721ef2b857a7e92989a8f1ee688e361510303bb1",
+				"org.eclipse.jgit.http.server", "2.0.0.201206130900-r", 68000, 62000, 110000,
+				"d42535d996ccfc487092a8850e6e78d368de72d6",
+				"85d5ba16db13144815634aeff31ad6c7d92107e6",
 				"");
 
 		public static final MavenObject JSCH = new MavenObject("JSch", "com/jcraft", "jsch",

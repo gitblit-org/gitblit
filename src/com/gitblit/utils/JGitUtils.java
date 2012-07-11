@@ -35,6 +35,7 @@ import java.util.zip.ZipOutputStream;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.diff.DiffFormatter;
@@ -257,8 +258,12 @@ public class JGitUtils {
 	 * @return Repository
 	 */
 	public static Repository createRepository(File repositoriesFolder, String name) {
-		Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
-		return git.getRepository();
+		try {
+			Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
+			return git.getRepository();
+		} catch (GitAPIException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

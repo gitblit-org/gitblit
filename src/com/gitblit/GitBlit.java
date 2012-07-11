@@ -58,6 +58,7 @@ import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.WindowCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
+import org.eclipse.jgit.transport.ServiceMayNotContinueException;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.RepositoryResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
@@ -783,6 +784,12 @@ public class GitBlit implements ServletContextListener {
 				logger.error("GitBlit.getRepository(String) failed to find "
 						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
 			}
+		} catch (ServiceMayNotContinueException e) {
+			r = null;
+			if (logError) {
+				logger.error("GitBlit.getRepository(String) failed to find "
+						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
+			}
 		}
 		return r;
 	}
@@ -1087,6 +1094,8 @@ public class GitBlit implements ServletContextListener {
 				logger.error("Service not authorized", e);
 			} catch (ServiceNotEnabledException e) {
 				logger.error("Service not enabled", e);
+			} catch (ServiceMayNotContinueException e) {
+				logger.error("Service may not continue", e);
 			}
 		}
 
