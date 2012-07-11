@@ -24,12 +24,12 @@
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.20.jar" sourcepath="ext/wicket-extensions-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/groovy-all-1.8.5.jar" sourcepath="ext/groovy-all-1.8.5-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jetty-ajp-7.4.3.v20110701.jar" sourcepath="ext/jetty-ajp-7.4.3.v20110701-sources.jar"/>
-	<classpathentry kind="lib" path="ext/lucene-core-3.5.0.jar" sourcepath="ext/lucene-core-3.5.0-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lucene-core-3.6.0.jar" sourcepath="ext/lucene-core-3.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.7.jar" sourcepath="ext/markdownpapers-core-1.2.7-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-2.0.0.201206130900-r.jar" sourcepath="ext/org.eclipse.jgit-2.0.0.201206130900-r-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-2.0.0.201206130900-r.jar" sourcepath="ext/org.eclipse.jgit.http.server-2.0.0.201206130900-r-sources.jar"/>
-	<classpathentry kind="lib" path="ext/lucene-highlighter-3.5.0.jar" sourcepath="ext/lucene-highlighter-3.5.0-sources.jar"/>
-	<classpathentry kind="lib" path="ext/lucene-memory-3.5.0.jar" sourcepath="ext/lucene-memory-3.5.0-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lucene-highlighter-3.6.0.jar" sourcepath="ext/lucene-highlighter-3.6.0-sources.jar"/>
+	<classpathentry kind="lib" path="ext/lucene-memory-3.6.0.jar" sourcepath="ext/lucene-memory-3.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/unboundid-ldapsdk-2.3.0.jar" sourcepath="ext/unboundid-ldapsdk-2.3.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/ivy-2.2.0.jar" sourcepath="ext/ivy-2.2.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>

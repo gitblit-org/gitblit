@@ -589,16 +589,16 @@ public class Build {
 				"1435cc8c90e3a91e5fee7bb53e83aad96e93aeb7", "5a214b52286523f9e2a4b5fed526506c763fa6f1");
 
 		public static final MavenObject LUCENE = new MavenObject("lucene", "org/apache/lucene", "lucene-core",
-				"3.5.0", 1470000, 1347000, 3608000, "90ff0731fafb05c01fee4f2247140d56e9c30a3b",
-				"0757113199f9c8c18c678c96d61c2c4160b9baa6", "19f8e80e5e7f6ec88a41d4f63495994692e31bf1");
+				"3.6.0", 1470000, 1347000, 3608000, "8a0429de6b7c9918841fa2c441a6ef4cc07f2a18",
+				"7b0dd31b657868c23220e037d9dc7ba38da1896e", "126f6b68e707ad54bf1ac126199ef0cd289d8f59");
 
 		public static final MavenObject LUCENE_HIGHLIGHTER = new MavenObject("lucene highlighter", "org/apache/lucene", "lucene-highlighter",
-				"3.5.0", 88000, 82334, 0, "9b38acfa185337dac65e350073a26fe2416f2b0e",
-				"200a9b9857e589b9f5bc9f65ecf5daa37e19527d", "");
+				"3.6.0", 88000, 82334, 0, "9ee691f1dcc60f093df433c165d6a686c6d24553",
+				"6e6d7cbb5079519e5925dcd1759ffd538e66df7d", "");
 
 		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
-				"3.5.0", 30000, 23000, 0, "7908e954e8c1b4b2463aa712b34fa4a5612e241d",
-				"69b19b38d78cc3b27ea5542a14f0ebbb1625ffdd", "");
+				"3.6.0", 30000, 23000, 0, "d257d393aa09ed472e7864e20288019a705e637e",
+				"f24912b8aa835ddf45e439b2d7ab099e63269c1e", "");
 		
 		public static final MavenObject UNBOUND_ID = new MavenObject("unbound id", "com/unboundid", "unboundid-ldapsdk",
 				"2.3.0", 1383417, 1439721, 0, "6fde8d9fb4ee3e7e3d7e764e3ea57195971e2eb2",
