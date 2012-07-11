@@ -700,13 +700,18 @@ table.repositories th {
 	border:0;
 }
 
+table.repositories th.right {	
+	border-right: 1px solid #ddd;	
+}	
+
 table.repositories td {
 	padding: 2px;
 	border-left: 0;
 }
 
 table.repositories td.rightAlign {	
-	text-align: right;	
+	text-align: right;
+	border-right: 1px solid #ddd;	
 }	
 
 table.repositories td.icon img {
@@ -826,6 +831,7 @@ td.author {
 
 td.date {
 	/*font-style: italic !important;*/
+	white-space: nowrap;
 }
 
 span.sha1, span.sha1 a, span.sha1 a span, pre.commit_message {

@@ -47,7 +47,7 @@
 			<th class="hidden-phone"></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 			<th class="hidden-phone"></th>
-			<th class="hidden-phone right"></th>
+			<th class="right"></th>
 		</tr>
 	</wicket:fragment>
 	
@@ -62,7 +62,7 @@
 			<th class="hidden-phone"></th>
 			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 			<th class="hidden-phone"></th>
-			<th class="hidden-phone right"></th>
+			<th class="right"></th>
 		</tr>
 	</wicket:fragment>
 	
@@ -77,11 +77,13 @@
         <td class="hidden-phone" style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="federatedIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
         <td><span wicket:id="repositoryLastChange">[last change]</span></td>
         <td class="hidden-phone" style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>
-        <td class="hidden-phone rightAlign">
-        	<span wicket:id="repositoryLinks"></span>
-			<a style="text-decoration: none;" wicket:id="syndication">
-				<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
-			</a>
+        <td class="rightAlign">
+        	<span class="hidden-phone">
+        		<span wicket:id="repositoryLinks"></span>
+				<a style="text-decoration: none;" wicket:id="syndication">
+					<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
+				</a>
+			</span>
 		</td>				
 	</wicket:fragment>
 	
