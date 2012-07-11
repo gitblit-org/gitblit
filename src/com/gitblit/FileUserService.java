@@ -133,13 +133,16 @@ public class FileUserService extends FileSettings implements IUserService {
 	 * @return cookie value
 	 */
 	@Override
-	public char[] getCookie(UserModel model) {
+	public String getCookie(UserModel model) {
+		if (!StringUtils.isEmpty(model.cookie)) {
+			return model.cookie;
+		}
 		Properties allUsers = super.read();
 		String value = allUsers.getProperty(model.username);
 		String[] roles = value.split(",");
 		String password = roles[0];
 		String cookie = StringUtils.getSHA1(model.username + password);
-		return cookie.toCharArray();
+		return cookie;
 	}
 
 	/**

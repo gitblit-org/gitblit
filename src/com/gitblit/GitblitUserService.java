@@ -138,7 +138,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
-	public char[] getCookie(UserModel model) {
+	public String getCookie(UserModel model) {
 		return serviceImpl.getCookie(model);
 	}
 

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.LDAPConnection;
@@ -140,17 +141,6 @@ public class LdapUserService extends GitblitUserService {
 		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
 	}
 
-	/**
-	 * Does the user service support cookie authentication?
-	 * 
-	 * @return true or false
-	 */
-	@Override
-	public boolean supportsCookies() {
-		// TODO cookies need to be reviewed
-		return false;
-	}
-
 	@Override
 	public UserModel authenticate(String username, char[] password) {
 		String simpleUsername = getSimpleUsername(username);
@@ -173,8 +163,11 @@ public class LdapUserService extends GitblitUserService {
 					UserModel user = getUserModel(simpleUsername);
 					if (user == null)	// create user object for new authenticated user
 						user = new UserModel(simpleUsername);
-					
-					
+
+					// create a user cookie
+					if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+						user.cookie = StringUtils.getSHA1(user.username + new String(password));
+					}
 					
 					if (!supportsTeamMembershipChanges())
 						getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);

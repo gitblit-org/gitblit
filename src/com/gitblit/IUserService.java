@@ -84,7 +84,7 @@ public interface IUserService {
 	 * @param model
 	 * @return cookie value
 	 */
-	char[] getCookie(UserModel model);
+	String getCookie(UserModel model);
 
 	/**
 	 * Authenticate a user based on their cookie.

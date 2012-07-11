@@ -64,6 +64,8 @@ public class ConfigUserService implements IUserService {
 	private static final String DISPLAYNAME = "displayName";
 	
 	private static final String EMAILADDRESS = "emailAddress";
+	
+	private static final String COOKIE = "cookie";
 
 	private static final String REPOSITORY = "repository";
 
@@ -163,11 +165,13 @@ public class ConfigUserService implements IUserService {
 	 * @return cookie value
 	 */
 	@Override
-	public char[] getCookie(UserModel model) {
+	public String getCookie(UserModel model) {
+		if (!StringUtils.isEmpty(model.cookie)) {
+			return model.cookie;
+		}
 		read();
 		UserModel storedModel = users.get(model.username.toLowerCase());
-		String cookie = StringUtils.getSHA1(model.username + storedModel.password);
-		return cookie.toCharArray();
+		return storedModel.cookie;
 	}
 
 	/**
@@ -715,6 +719,9 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.password)) {
 				config.setString(USER, model.username, PASSWORD, model.password);
 			}
+			if (!StringUtils.isEmpty(model.cookie)) {
+				config.setString(USER, model.username, COOKIE, model.cookie);
+			}
 			if (!StringUtils.isEmpty(model.displayName)) {
 				config.setString(USER, model.username, DISPLAYNAME, model.displayName);
 			}
@@ -820,6 +827,10 @@ public class ConfigUserService implements IUserService {
 					user.password = config.getString(USER, username, PASSWORD);					
 					user.displayName = config.getString(USER, username, DISPLAYNAME);
 					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
+					user.cookie = config.getString(USER, username, COOKIE);
+					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
+						user.cookie = StringUtils.getSHA1(user.username + user.password);
+					}
 
 					// user roles
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
@@ -836,7 +847,9 @@ public class ConfigUserService implements IUserService {
 
 					// update cache
 					users.put(user.username, user);
-					cookies.put(StringUtils.getSHA1(user.username + user.password), user);
+					if (!StringUtils.isEmpty(user.cookie)) {
+						cookies.put(user.cookie, user);
+					}
 				}
 
 				// load the teams

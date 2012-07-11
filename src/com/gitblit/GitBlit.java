@@ -512,9 +512,15 @@ public class GitBlit implements ServletContextListener {
 				userCookie = new Cookie(Constants.NAME, "");
 			} else {
 				// set cookie for login
-				char[] cookie = userService.getCookie(user);
-				userCookie = new Cookie(Constants.NAME, new String(cookie));
-				userCookie.setMaxAge(Integer.MAX_VALUE);
+				String cookie = userService.getCookie(user);
+				if (StringUtils.isEmpty(cookie)) {
+					// create empty cookie
+					userCookie = new Cookie(Constants.NAME, "");
+				} else {
+					// create real cookie
+					userCookie = new Cookie(Constants.NAME, cookie);
+					userCookie.setMaxAge(Integer.MAX_VALUE);
+				}
 			}
 			userCookie.setPath("/");
 			response.addCookie(userCookie);
