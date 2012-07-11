@@ -737,6 +737,12 @@ public class ConfigUserService implements IUserService {
 			if (model.excludeFromFederation) {
 				roles.add(Constants.NOT_FEDERATED_ROLE);
 			}
+			if (roles.size() == 0) {
+				// we do this to ensure that user record with no password
+				// is written.  otherwise, StoredConfig optimizes that account
+				// away. :(
+				roles.add(Constants.NO_ROLE);
+			}
 			config.setStringList(USER, model.username, ROLE, roles);
 
 			// repository memberships
