@@ -51,6 +51,7 @@ import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TicketPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
+import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
@@ -94,6 +95,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/search", GitSearchPage.class);
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
+		mount("/users", UsersPage.class);
 
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");
