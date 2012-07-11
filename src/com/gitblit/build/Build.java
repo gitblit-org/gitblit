@@ -482,21 +482,21 @@ public class Build {
 				"01952f91d84016a39e31346c9d18bd8c9c4a128a", null);
 
 		public static final MavenObject SLF4JAPI = new MavenObject("SLF4J API", "org/slf4j",
-				"slf4j-api", "1.6.1", 25500, 45000, 182000,
-				"6f3b8a24bf970f17289b234284c94f43eb42f0e4",
-				"46a386136c901748e6a3af67ebde6c22bc6b4524",
-				"e223571d77769cdafde59040da235842f3326453");
+				"slf4j-api", "1.6.6", 25500, 45000, 182000,
+				"ce53b0a0e2cfbb27e8a59d38f79a18a5c6a8d2b0",
+				"bcd0e21b1572960cefd449f8a16efab5b6b8e644",
+				"4253b52aabf1c5a5f20c191a261e6ada0fcf621d");
 
 		public static final MavenObject SLF4LOG4J = new MavenObject("SLF4J LOG4J", "org/slf4j",
-				"slf4j-log4j12", "1.6.1", 9800, 9500, 52400,
-				"bd245d6746cdd4e6203e976e21d597a46f115802",
-				"7a26b08b265f55622fa1fed3bda68bbd37a465ba",
-				"6e4b16bce7994e3692e82002f322a0dd2f32741e");
+				"slf4j-log4j12", "1.6.6", 9800, 9500, 52400,
+				"5cd9b4fbc3ff6a97beaade3206137d76f65df805",
+				"497bfac9a678118e7ff75d1f3b8c3bcc06dc9c8c",
+				"69855e2a85d9249bb577df3c5076bc2cb34975d7");
 
 		public static final MavenObject LOG4J = new MavenObject("Apache LOG4J", "log4j", "log4j",
-				"1.2.16", 481000, 471000, 1455000, "7999a63bfccbc7c247a9aea10d83d4272bd492c6",
-				"bf945d1dc995be7fe64923625f842fbb6bf443be",
-				"78aa1cbf0fa3b259abdc7d87f9f6788d785aac2a");
+				"1.2.17", 481000, 471000, 1455000, "5af35056b4d257e4b64b9e8069c0746e8b08629f",
+				"677abe279b68c5e7490d6d50c6951376238d7d3e",
+				"c10c20168206896442f3192d5417815df7fcbf9a");
 
 		public static final MavenObject WICKET = new MavenObject("Apache Wicket",
 				"org/apache/wicket", "wicket", "1.4.20", 1960000, 1906000, 6818000,
