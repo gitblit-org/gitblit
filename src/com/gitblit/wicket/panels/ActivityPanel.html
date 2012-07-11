@@ -15,13 +15,13 @@
 				<td style="width:10em;text-align:left;vertical-align: middle;">
 					<span wicket:id="repository" class="repositorySwatch">[repository link]</span>
 				</td>
-				<td class="hidden-phone" style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
-				<td style="vertical-align: middle;">
-					<img wicket:id="commitIcon" style="vertical-align: middle;"></img>
+				<td class="hidden-phone hidden-tablet" style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
+				<td style="vertical-align: middle;padding-left:15px;">
+					<img class="hidden-phone hidden-tablet" wicket:id="commitIcon" style="vertical-align: top;"></img>
 					<span wicket:id="message">[shortlog commit link]</span><br/>
-					<span wicket:id="author" style="padding-left:20px;">[author link]</span> <wicket:message key="gb.authored"></wicket:message> <span wicket:id="commitid">[commit id]</span> on <span wicket:id="branch"></span>
+					<span wicket:id="author">[author link]</span> <span class="hidden-phone"><wicket:message key="gb.authored"></wicket:message> <span wicket:id="commitid">[commit id]</span></span> on <span wicket:id="branch"></span>
 				</td>
-				<td style="text-align:right;vertical-align: middle;">
+				<td class="hidden-phone" style="text-align:right;vertical-align: middle;">
 					<div wicket:id="commitRefs">[commit refs]</div>
 				</td>
 				<td class="hidden-phone rightAlign" style="width:7em;vertical-align: middle;">

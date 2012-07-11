@@ -23,7 +23,7 @@
 		<tr wicket:id="changedPath">
 			<td class="icon"><img wicket:id="pathIcon" /></td>
 			<td><span wicket:id="pathName"></span></td>			
-			<td class="size"><span wicket:id="pathSize">[path size]</span></td>
+			<td class="hidden-phone size"><span wicket:id="pathSize">[path size]</span></td>
 			<td class="hidden-phone mode"><span wicket:id="pathPermissions">[path permissions]</span></td>
 			<td class="treeLinks"><span wicket:id="pathLinks">[path links]</span></td>
 		</tr>
@@ -32,14 +32,14 @@
 	<!--  tree links -->
 	<wicket:fragment wicket:id="treeLinks">
 		<span class="link">
-			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="zip"><wicket:message key="gb.zip"></wicket:message></a>
+			<span class="hidden-phone"><a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | </span><a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="zip"><wicket:message key="gb.zip"></wicket:message></a>
 		</span>
 	</wicket:fragment>
 	
 	<!-- blob links -->
 	<wicket:fragment wicket:id="blobLinks">
 		<span class="link">
-			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+			<span class="hidden-phone"><a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="raw"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | </span> <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
 		</span>	
 	</wicket:fragment>
 	

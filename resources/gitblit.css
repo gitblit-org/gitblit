@@ -90,7 +90,7 @@ hr {
 	background-image: url(arrow_page.png);
 	background-position: center bottom;
 	outline: 0;
-	padding-bottom:2px;
+	padding-bottom:3px;
 }
 
 .navbar .active a {
@@ -649,7 +649,7 @@ table.plain {
 
 table.plain th, table.plain td {
 	white-space: nowrap;
-	padding: 1px 6px;
+	padding: 1px 3px;
 	border: 0;
 }
 

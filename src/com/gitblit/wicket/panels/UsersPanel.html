@@ -16,8 +16,8 @@
 				<wicket:message key="gb.users">[users]</wicket:message>
 			</th>
 			<th class="hidden-phone hidden-tablet left"><wicket:message key="gb.displayName">[display name]</wicket:message></th>
-			<th style="width:120px;"><wicket:message key="gb.accessLevel">[access level]</wicket:message></th>
-			<th style="width:140px;"><wicket:message key="gb.teamMemberships">[team memberships]</wicket:message></th>
+			<th class="hidden-phone" style="width:120px;"><wicket:message key="gb.accessLevel">[access level]</wicket:message></th>
+			<th class="hidden-phone" style="width:140px;"><wicket:message key="gb.teamMemberships">[team memberships]</wicket:message></th>
 			<th class="hidden-phone" style="width:100px;"><wicket:message key="gb.repositories">[repositories]</wicket:message></th>
 			<th style="width:80px;" class="right"></th>
 		</tr>
@@ -25,8 +25,8 @@
        		<tr wicket:id="userRow">
        			<td class="left" ><span class="list" wicket:id="username">[username]</span></td>
        			<td class="hidden-phone hidden-tablet left" ><span class="list" wicket:id="displayName">[display name]</span></td>
-       			<td class="left" ><span class="list" wicket:id="accesslevel">[access level]</span></td>
-       			<td class="left" ><span class="list" wicket:id="teams">[team memberships]</span></td>
+       			<td class="hidden-phone left" ><span class="list" wicket:id="accesslevel">[access level]</span></td>
+       			<td class="hidden-phone left" ><span class="list" wicket:id="teams">[team memberships]</span></td>
        			<td class="hidden-phone left" ><span class="list" wicket:id="repositories">[repositories]</span></td>
        			<td class="rightAlign"><span wicket:id="userLinks"></span></td>      			
        		</tr>

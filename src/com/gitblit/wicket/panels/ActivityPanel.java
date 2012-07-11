@@ -71,14 +71,14 @@ public class ActivityPanel extends BasePanel {
 								.getWhen(), getTimeZone(), getTimeUtils()));
 
 						// avatar
-						commitItem.add(new GravatarImage("avatar", commit.getAuthorIdent(), 36));
+						commitItem.add(new GravatarImage("avatar", commit.getAuthorIdent(), 40));
 
 						// merge icon
 						if (commit.getParentCount() > 1) {
 							commitItem.add(WicketUtils.newImage("commitIcon",
 									"commit_merge_16x16.png"));
 						} else {
-							commitItem.add(WicketUtils.newBlankImage("commitIcon"));
+							commitItem.add(WicketUtils.newBlankImage("commitIcon").setVisible(false));
 						}
 
 						// author search link

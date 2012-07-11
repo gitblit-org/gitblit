@@ -53,8 +53,10 @@
 	<wicket:fragment wicket:id="userFragment">
 		<span class="userPanel" wicket:id="username"></span>
 		<span class="userPanel" wicket:id="loginLink"></span>
-		<span class="userPanel" wicket:id="separator"></span>
-		<span class="userPanel"><a wicket:id="changePasswordLink"><wicket:message key="gb.changePassword"></wicket:message></a></span>
+		<span class="hidden-phone">
+			<span class="userPanel" wicket:id="separator"></span>
+			<span class="userPanel"><a wicket:id="changePasswordLink"><wicket:message key="gb.changePassword"></wicket:message></a></span>
+		</span>
 	</wicket:fragment>
 	
 </html>

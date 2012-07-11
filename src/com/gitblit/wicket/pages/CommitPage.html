@@ -25,15 +25,15 @@
 		<tr><th><wicket:message key="gb.author">author</wicket:message></th><td><span class="sha1" wicket:id="commitAuthor">[author</span></td></tr>
 		<tr><th></th><td><span class="sha1" wicket:id="commitAuthorDate">[author date]</span></td></tr>
 		<tr><th><wicket:message key="gb.committer">committer</wicket:message></th><td><span class="sha1" wicket:id="commitCommitter">[committer]</span></td></tr>
-		<tr><th></th><td><span class="sha1" wicket:id="commitCommitterDate">[commit date]</span></td></tr>
-		<tr><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
-		<tr><th><wicket:message key="gb.tree">tree</wicket:message></th>
+		<tr class="hidden-phone"><th></th><td><span class="sha1" wicket:id="commitCommitterDate">[commit date]</span></td></tr>
+		<tr class="hidden-phone"><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
+		<tr class="hidden-phone"><th><wicket:message key="gb.tree">tree</wicket:message></th>
 			<td><span class="sha1" wicket:id="commitTree">[commit tree]</span>
 				<span class="link">
 					<a wicket:id="treeLink"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="zipLink"><wicket:message key="gb.zip"></wicket:message></a>
 				</span>
 			</td></tr>
-		<tr><th valign="top"><wicket:message key="gb.parent">parent</wicket:message></th>
+		<tr class="hidden-phone"><th valign="top"><wicket:message key="gb.parent">parent</wicket:message></th>
 			<td>
 				<span wicket:id="commitParents">
 					<span class="sha1" wicket:id="commitParent">[commit parents]</span>
