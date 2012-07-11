@@ -67,7 +67,7 @@ public class SyndicationUtilsTest {
 		Set<String> links = new HashSet<String>();
 		for (int i = 0; i < 2; i++) {
 			List<FeedEntryModel> feed = SyndicationUtils.readFeed(GitBlitSuite.url, "ticgit.git",
-					"deving", 5, i, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
+					"master", 5, i, GitBlitSuite.account, GitBlitSuite.password.toCharArray());
 			assertTrue(feed != null);
 			assertTrue(feed.size() > 0);
 			assertEquals(5, feed.size());

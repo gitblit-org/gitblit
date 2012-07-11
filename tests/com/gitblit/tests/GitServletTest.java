@@ -42,7 +42,6 @@ public class GitServletTest {
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
-		deleteWorkingFolders();
 		started.set(GitBlitSuite.startGitblit());
 	}
 
@@ -50,11 +49,11 @@ public class GitServletTest {
 	public static void stopGitblit() throws Exception {
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
+			deleteWorkingFolders();
 		}
-		deleteWorkingFolders();
 	}
 	
-	private static void deleteWorkingFolders() throws Exception {
+	public static void deleteWorkingFolders() throws Exception {
 		if (ticgitFolder.exists()) {
 			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE);
 		}

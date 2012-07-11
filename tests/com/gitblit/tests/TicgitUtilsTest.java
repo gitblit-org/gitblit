@@ -82,8 +82,6 @@ public class TicgitUtilsTest {
 				.getTicket(repository, tickets.get(tickets.size() - 1).name);
 		repository.close();
 		assertNotNull(ticket);
-		assertEquals(
-				"1254123752_comments-on-ticgits-longer-than-5-lines-can-t-be-viewed-entirely_266",
-				ticket.name);
+		assertEquals("1206206148_add-attachment-to-ticket_138", ticket.name);
 	}
 }

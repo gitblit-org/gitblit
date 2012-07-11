@@ -101,6 +101,9 @@ public class GitBlitSuite {
 			// already started
 			return false;
 		}
+		
+		GitServletTest.deleteWorkingFolders();
+		
 		// Start a Gitblit instance
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			public void run() {
@@ -123,7 +126,7 @@ public class GitBlitSuite {
 		GitBlitServer.main("--stop", "--shutdownPort", "" + shutdownPort);
 
 		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+		Thread.sleep(5000);
 	}
 
 	@BeforeClass
@@ -132,7 +135,7 @@ public class GitBlitSuite {
 
 		if (REPOSITORIES.exists() || REPOSITORIES.mkdirs()) {
 			cloneOrFetch("helloworld.git", "https://github.com/git/hello-world.git");
-			cloneOrFetch("ticgit.git", "https://github.com/jeffWelling/ticgit.git");
+			cloneOrFetch("ticgit.git", "https://github.com/schacon/ticgit.git");
 			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
