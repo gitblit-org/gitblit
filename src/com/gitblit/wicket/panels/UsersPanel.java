@@ -71,7 +71,16 @@ public class UsersPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 					item.add(editLink);
 				}
-				
+
+				if (StringUtils.isEmpty(entry.emailAddress)) {
+					item.add(new Label("emailAddress").setVisible(false));
+				} else {
+					editLink = new LinkPanel("emailAddress", "list", entry.emailAddress,
+						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
+					WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
+					item.add(editLink);
+				}
+
 				item.add(new Label("accesslevel", entry.canAdmin ? "administrator" : ""));
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
