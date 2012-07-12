@@ -105,7 +105,7 @@ import com.gitblit.utils.StringUtils;
 public class LuceneExecutor implements Runnable {
 	
 		
-	private static final int INDEX_VERSION = 3;
+	private static final int INDEX_VERSION = 4;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_ISSUE = "issue";
@@ -301,7 +301,6 @@ public class LuceneExecutor implements Runnable {
 			throw new RuntimeException(e);
 		}
 	}
-
 	
 	/**
 	 * Returns the author for the commit, if this information is available.
@@ -728,8 +727,9 @@ public class LuceneExecutor implements Runnable {
 	 * @param repositoryName
 	 * @param issueId
 	 * @throws Exception
+	 * @return true, if deleted, false if no record was deleted
 	 */
-	private void deleteIssue(String repositoryName, String issueId) throws Exception {
+	private boolean deleteIssue(String repositoryName, String issueId) throws Exception {
 		BooleanQuery query = new BooleanQuery();
 		Term objectTerm = new Term(FIELD_OBJECT_TYPE, SearchObjectType.issue.name());
 		query.add(new TermQuery(objectTerm), Occur.MUST);
@@ -737,8 +737,17 @@ public class LuceneExecutor implements Runnable {
 		query.add(new TermQuery(issueidTerm), Occur.MUST);
 		
 		IndexWriter writer = getIndexWriter(repositoryName);
+		int numDocsBefore = writer.numDocs();
 		writer.deleteDocuments(query);
 		writer.commit();
+		int numDocsAfter = writer.numDocs();
+		if (numDocsBefore == numDocsAfter) {
+			logger.debug(MessageFormat.format("no records found to delete {0}", query.toString()));
+			return false;
+		} else {
+			logger.debug(MessageFormat.format("deleted {0} records with {1}", numDocsBefore - numDocsAfter, query.toString()));
+			return true;
+		}
 	}
 	
 	/**
@@ -748,19 +757,29 @@ public class LuceneExecutor implements Runnable {
 	 * @param branch
 	 * @param path
 	 * @throws Exception
+	 * @return true, if deleted, false if no record was deleted
 	 */
-	private void deleteBlob(String repositoryName, String branch, String path) throws Exception {
-		BooleanQuery query = new BooleanQuery();
-		Term objectTerm = new Term(FIELD_OBJECT_TYPE, SearchObjectType.blob.name());
-		query.add(new TermQuery(objectTerm), Occur.MUST);
-		Term branchTerm = new Term(FIELD_BRANCH, branch);
-		query.add(new TermQuery(branchTerm), Occur.MUST);
-		Term pathTerm = new Term(FIELD_PATH, path);
-		query.add(new TermQuery(pathTerm), Occur.MUST);
+	public boolean deleteBlob(String repositoryName, String branch, String path) throws Exception {
+		String pattern = MessageFormat.format("{0}:'{'0} AND {1}:\"'{'1'}'\" AND {2}:\"'{'2'}'\"", FIELD_OBJECT_TYPE, FIELD_BRANCH, FIELD_PATH);
+		String q = MessageFormat.format(pattern, SearchObjectType.blob.name(), branch, path);
 		
+		BooleanQuery query = new BooleanQuery();
+		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
+		QueryParser qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
+		query.add(qp.parse(q), Occur.MUST);
+
 		IndexWriter writer = getIndexWriter(repositoryName);
-		writer.deleteDocuments(query);
+		int numDocsBefore = writer.numDocs();
+		writer.deleteDocuments(query);		
 		writer.commit();
+		int numDocsAfter = writer.numDocs();
+		if (numDocsBefore == numDocsAfter) {
+			logger.debug(MessageFormat.format("no records found to delete {0}", query.toString()));
+			return false;
+		} else {
+			logger.debug(MessageFormat.format("deleted {0} records with {1}", numDocsBefore - numDocsAfter, query.toString()));
+			return true;
+		}
 	}
 
 	/**
@@ -881,7 +900,9 @@ public class LuceneExecutor implements Runnable {
 						IssueModel issue = IssueUtils.getIssue(repository, issueId);
 						if (issue == null) {
 							// issue was deleted, remove from index
-							deleteIssue(model.name, issueId);
+							if (!deleteIssue(model.name, issueId)) {
+								logger.error(MessageFormat.format("Failed to delete issue {0} from Lucene index!", issueId));
+							}
 						} else {
 							// issue was updated
 							index(model.name, issue);
@@ -1119,7 +1140,7 @@ public class LuceneExecutor implements Runnable {
 			qp = new QueryParser(LUCENE_VERSION, FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
-
+			
 			IndexSearcher searcher;
 			if (repositories.length == 1) {
 				// single repository search
@@ -1135,7 +1156,10 @@ public class LuceneExecutor implements Runnable {
 				MultiSourceReader reader = new MultiSourceReader(rdrs);
 				searcher = new IndexSearcher(reader);
 			}
+			
 			Query rewrittenQuery = searcher.rewrite(query);
+			logger.debug(rewrittenQuery.toString());
+
 			TopScoreDocCollector collector = TopScoreDocCollector.create(5000, true);
 			searcher.search(rewrittenQuery, collector);
 			int offset = Math.max(0, (page - 1) * pageSize);

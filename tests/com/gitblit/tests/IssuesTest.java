@@ -134,7 +134,7 @@ public class IssuesTest {
 			lucene.index(name, anIssue);
 		}
 		List<SearchResult> hits = lucene.search("working", 1, 10, name);
-		assertTrue(hits.size() > 0);
+		assertTrue(hits.size() == 1);
 		
 		// reindex an issue
 		issue = allIssues.get(0);
@@ -144,6 +144,10 @@ public class IssuesTest {
 		issue = IssueUtils.getIssue(repository, issue.id);
 		lucene.index(name, issue);
 
+		hits = lucene.search("working", 1, 10, name);
+		assertTrue(hits.size() == 1);
+
+		
 		// delete all issues
 		for (IssueModel anIssue : allIssues) {
 			assertTrue(IssueUtils.deleteIssue(repository, anIssue.id, "D"));

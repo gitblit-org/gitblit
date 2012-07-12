@@ -16,6 +16,8 @@
 package com.gitblit.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +25,12 @@ import java.util.List;
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 
-import com.gitblit.GitBlit;
 import com.gitblit.LuceneExecutor;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.StringUtils;
 
 /**
  * Tests Lucene indexing and querying.
@@ -159,5 +159,18 @@ public class LuceneExecutorTest {
 		List<SearchResult> results = lucene.search("test", 1, 10, list);
 		lucene.close();
 		assertEquals(10, results.size());
+	}
+	
+	@Test
+	public void testDeleteBlobFromIndex() throws Exception {
+		// start with a fresh reindex of entire repository
+		LuceneExecutor lucene = new LuceneExecutor(null, GitBlitSuite.REPOSITORIES);
+		Repository repository = GitBlitSuite.getHelloworldRepository();
+		RepositoryModel model = newRepositoryModel(repository);
+		lucene.reindex(model, repository);
+		
+		// now delete a blob
+		assertTrue(lucene.deleteBlob(model.name, "refs/heads/master", "java.java"));
+		assertFalse(lucene.deleteBlob(model.name, "refs/heads/master", "java.java"));
 	}
 }
