@@ -700,6 +700,9 @@
 					<include name="rome*.jar" />
 					<exclude name="rome*-sources.jar" />
 					<exclude name="rome*-javadoc.jar" />
+					<include name="jdom*.jar" />
+					<exclude name="jdom*-sources.jar" />
+					<exclude name="jdom*-javadoc.jar" />
 				</fileset>
 			</zip>
 		</target>
