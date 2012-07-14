@@ -1,0 +1,47 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="es"> 
+
+<body>
+<wicket:extend>
+
+	<!-- markdown message -->
+	<div class="markdown">
+		<h2>Puste repozytorium</h2>
+		<p></p>
+		<span wicket:id="repository" style="font-weight: bold;">[repository]</span> jest pustym repozytorium i nie mo&#380;e by&#263; zaprezentowane przez Gitblit.
+		<p></p>
+		Wgraj, poprzez push, dowolne zmiany do lokalizacji <span wicket:id="pushurl"></span>
+		<p></p>
+		<h3>Sk&#322;adnia linii polece&#324; GITa</h3>
+		<span style="padding-bottom:5px;">Je&#347;li nie posiadasz lokalnego repozytorium GITa to sklonuj to repozytorium, wgraj dowolne pliki, a nast&#281;pnie wy&#347;lij poprzez push zmiany na Gitblit.</span>
+		<p></p>
+		<pre style="padding-top:5px;" wicket:id="cloneSyntax"></pre>
+		<p></p>
+		<span style="padding-bottom:5px;">Gdy posiadasz lokalne repozytorium GITa z dowolnymi zmianami, to mo&#380;esz doda&#263; to repozytorium jako remote i wys&#322;a&#263; do niego zmiany poprzez push.</span>
+		<p></p>
+		<pre wicket:id="remoteSyntax"></pre>
+		<p></p>
+		<h3>Nauka GITa</h3>
+		Je&#380;eli powy&#380;sze informacje s&#261; dla Ciebie niezrozumia&#322;e, zapoznaj si&#281; z ksi&#261;&#380;k&#261; <a href="http://git-scm.com/book/pl" target="_blank">Pro Git - Wersja PL</a> dla lepszego zrozumienia, jak poprawnie u&#380;ywa&#263; GITa.
+		<p></p>
+		<h4>Darmowi klienci GITa</h4>
+		<ul>
+			<li><a href="http://git-scm.com">Git</a> - Oficjalny klient, dost&#281;pny przez lini&#281; polece&#324;</li>
+			<li><a href="http://tortoisegit.googlecode.com">TortoiseGit</a> - Rozszerzenie eksploratora Windows (wymaga oficjalnego, dost&#281;pnego przez lini&#281; polece&#324; klienta)</li>
+			<li><a href="http://eclipse.org/egit">Eclipse/EGit</a> - GIT dla edytora Eclipse (oparty o JGit, podobnie jak Gitblit)</li>
+		</ul>
+		<p></p>
+		<h4>Komercyjni klienci GITa</h4>
+		<ul>
+			<li><a href="http://www.syntevo.com/smartgit">SmartGit</a> - aplikacja napisana w Javie (wymaga oficjalnego, dost&#281;pnego przez lini&#281; polece&#324; klienta)</li>
+		</ul>
+	</div>	
+</wicket:extend>	
+</body>
+</html>
+
