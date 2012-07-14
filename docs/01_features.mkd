@@ -38,6 +38,11 @@
 - Optional utility pages
     - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
     - ![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
+- Translations
+    - English
+    - Japanese
+    - Spanish
+    - Polish
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration

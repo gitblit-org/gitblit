@@ -4,12 +4,17 @@
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+<div class="alert alert-info">
+<h4>Update Note</h4>
+If you are updating from an 0.9.x release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.  See details below. 
+</div>
+
 #### fixes
 
-- Fixed bug in Lucene search where old/stale blobs were never properly deleted prior to reindexing.  This resulted in duplicate blob entries in the index.
+- Fixed bug in Lucene search where old/stale blobs were never properly deleted during incremental updates.  This resulted in duplicate blob entries in the index.
 - Fixed intermittent bug in identifying line numbers in Lucene search (issue 105)
-- Adjust repository identification to handle foo.git and foo/bar.git (issue 104)
-- Fixed bug where a repository set as authenticated push did not have anonymous clone access (issue 96)
+- Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (issue 104)
+- Fixed bug where a repository set as *authenticated push* did not have anonymous clone access (issue 96)
 - Fixed bug in Basic authentication if passwords had a colon (Github/peterloron)
 - Fixed bug where the Gitblit Manager could not update a setting that was not referenced in reference.properties (issue 85)
 
@@ -17,7 +22,7 @@
 
 - **Updated Lucene index version which will force a rebuild of ALL your Lucene indexes**  
 Make sure to properly set *web.blobEncodings* before starting Gitblit if you are updating!  (issue 97)
-- Changed default layout for web ui from fixed-width layout to responsive (issue 101)  
+- Changed default layout for web ui from Fixed-Width layout to Responsive layout (issue 101)  
 - IUserService interface has changed to better accomodate custom authentication and/or custom authorization  
     The default `users.conf` now supports persisting display names and email addresses. 
 - Updated Japanese translation (Github/zakki)
@@ -26,12 +31,13 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 
 - Added setting to allow specification of a robots.txt file (issue 99)  
     **New:** *web.robots.txt =*  
-- Added setting to control Responsive or Fixed-Width layout (issue 101)  
-    Responsive layout is now the default.  This layout gracefully scales the web ui from desktop browser form-factors to phone browser form-factors by hiding page components.  
+- Added setting to control Responsive layout or Fixed-Width layout (issue 101)  
+    Responsive layout is now the default.  This layout gracefully scales the web ui from a desktop layout to a mobile layout by hiding page components.  It is easy to try, just resize your browser or point your Android/iOS device to the url of your Gitblit install.  
     **New:** *web.useResponsiveLayout = true*  
 - Added setting to control charsets for blob string decoding.  Default encodings are UTF-8, ISO-8859-1, and server's default charset. (issue 97)  
     **New:** *web.blobEncodings = UTF-8 ISO-8859-1*  
 - Exposed JGit's internal configuration settings in gitblit.properties/web.xml (issue 93)  
+    Review your `gitblit.properties` or `web.xml` for detailed explanations of these settings.  
     **New:** *git.packedGitWindowSize = 8k*  
     **New:** *git.packedGitLimit = 10m*  
     **New:** *git.deltaBaseCacheLimit = 10m*  
@@ -40,11 +46,13 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
     **New:** *git.packedGitMmap = false*  
 - Added default access restriction.  Applies to new repositories and repositories that have not been configured with Gitblit. (issue 88)  
     **New:** *git.defaultAccessRestriction = NONE*  
-- Added setting to control Groovy Grape root folder.  
+- Added Ivy 2.2.0 dependency which enables Groovy Grapes, a mechanism to resolve and retrieve library dependencies from a Maven 2 repository within a Groovy push hook script 
+- Added setting to control Groovy Grape root folder (location where resolved dependencies are stored)   
     [Grape](http://groovy.codehaus.org/Grape) allows you to add Maven dependencies to your pre-/post-receive hook script classpath.  
     **New:** *groovy.grapeFolder = groovy/grape*  
 - Added LDAP User Service with many new *realm.ldap* keys (Github/jcrygier)
-- Added support for custom repository properties for Groovy hooks (Github/jcrygier)
+- Added support for custom repository properties for Groovy hooks (Github/jcrygier)  
+    Custom repository properties complement hook scripts by providing text field prompts in the web ui and the Gitblit Manager for the defined properties.  This allows your push hooks to be parameterized.
 - Added script to facilitate proxy environment setup on Linux (Github/mragab)
 - Added Polish translation (Lukasz Jader)
 - Added Spanish translation (Eduardo Guervos Narvaez)
