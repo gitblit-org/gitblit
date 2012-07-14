@@ -25,7 +25,7 @@
 		<tr><th><wicket:message key="gb.author">author</wicket:message></th><td><span class="sha1" wicket:id="commitAuthor">[author</span></td></tr>
 		<tr><th></th><td><span class="sha1" wicket:id="commitAuthorDate">[author date]</span></td></tr>
 		<tr><th><wicket:message key="gb.committer">committer</wicket:message></th><td><span class="sha1" wicket:id="commitCommitter">[committer]</span></td></tr>
-		<tr class="hidden-phone"><th></th><td><span class="sha1" wicket:id="commitCommitterDate">[commit date]</span></td></tr>
+		<tr><th></th><td><span class="sha1" wicket:id="commitCommitterDate">[commit date]</span></td></tr>
 		<tr class="hidden-phone"><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
 		<tr class="hidden-phone"><th><wicket:message key="gb.tree">tree</wicket:message></th>
 			<td><span class="sha1" wicket:id="commitTree">[commit tree]</span>
@@ -49,7 +49,7 @@
 	</div>
 	
 	<!-- full message -->
-	<pre class="commit_message" wicket:id="fullMessage">[commit message]</pre>
+	<div class="commit_message" wicket:id="fullMessage">[commit message]</div>
 
 	<!--  git notes -->
 	<table class="gitnotes">
@@ -68,7 +68,7 @@
 	</table>
 	
 	<!--  commit legend -->
-	<div style="text-align:right;" wicket:id="commitLegend"></div>
+	<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
 	
 	<!-- header -->
 	<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>

@@ -443,10 +443,11 @@ span.login input:focus {
 	color: white;
 }
 
-pre.commit_message {	
+.commit_message {
 	padding: 8px;
 	border: solid #ddd;
 	border-width: 1px 0px 0px;
+	border-radius: 0px;
 }
 
 div.bug_open, span.bug_open {
@@ -720,6 +721,8 @@ table.repositories td.icon img {
 
 table.repositories tr.group {
 	background-color: #ccc;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 }
 
 table.repositories tr.group td {
@@ -834,8 +837,8 @@ td.date {
 	white-space: nowrap;
 }
 
-span.sha1, span.sha1 a, span.sha1 a span, pre.commit_message {
-	font-family: monospace;
+span.sha1, span.sha1 a, span.sha1 a span, .commit_message {
+	font-family: consolas, monospace;
 	font-size: 13px;
 }
 

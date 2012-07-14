@@ -216,11 +216,11 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
-		String html;
+		String html = StringUtils.escapeForHtml(text, true);
 		if (substituteRegex) {
 			html = GitBlit.self().processCommitMessage(repositoryName, text);
 		} else {
-			html = StringUtils.breakLinesForHtml(text);
+			html = StringUtils.breakLinesForHtml(html);
 		}
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
 	}
@@ -254,7 +254,7 @@ public abstract class RepositoryPage extends BasePage {
 			setPersonSearchTooltip(nameLink, name, searchType);
 			fullPerson.add(nameLink);
 
-			LinkPanel addressLink = new LinkPanel("personAddress", "list", "<" + address + ">",
+			LinkPanel addressLink = new LinkPanel("personAddress", "hidden-phone list", "<" + address + ">",
 					GitSearchPage.class, WicketUtils.newSearchParameter(repositoryName, objectId,
 							address, searchType));
 			setPersonSearchTooltip(addressLink, address, searchType);
