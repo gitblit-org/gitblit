@@ -450,6 +450,7 @@
 				<exclude name="org.slf4j." />
 				<exclude name="com.beust." />
 				<exclude name="com.google." />
+				<exclude name="com.unboundid." />
 			</classfilter>
 			<classpath refid="master-classpath" />
 			<manifest>
@@ -612,6 +613,7 @@
 				<exclude name="org.slf4j." />
 				<exclude name="com.beust." />
 				<exclude name="com.google." />
+				<exclude name="com.unboundid." />
 			</classfilter>
 			<classpath refid="master-classpath" />
 			<manifest>
