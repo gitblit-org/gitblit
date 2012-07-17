@@ -11,6 +11,16 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 
 #### fixes
 
+- Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
+
+#### changes
+
+- Updated Polish translation
+
+**1.0.0** *released 2012-07-14*
+
+#### fixes
+
 - Fixed bug in Lucene search where old/stale blobs were never properly deleted during incremental updates.  This resulted in duplicate blob entries in the index.
 - Fixed intermittent bug in identifying line numbers in Lucene search (issue 105)
 - Adjust repository identification algorithm to handle the scenario where a repository name collides with a group/folder name (e.g. foo.git and foo/bar.git) (issue 104)

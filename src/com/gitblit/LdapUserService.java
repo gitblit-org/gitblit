@@ -220,7 +220,10 @@ public class LdapUserService extends GitblitUserService {
 
 				user.displayName = displayName;
 			} else {
-				user.displayName = userEntry.getAttribute(displayName).getValue();
+				Attribute attribute = userEntry.getAttribute(displayName);
+				if (attribute != null && attribute.hasValue()) {
+					user.displayName = attribute.getValue();
+				}
 			}
 		}
 		
@@ -233,7 +236,10 @@ public class LdapUserService extends GitblitUserService {
 
 				user.emailAddress = email;
 			} else {
-				user.emailAddress = userEntry.getAttribute(email).getValue();
+				Attribute attribute = userEntry.getAttribute(email);
+				if (attribute != null && attribute.hasValue()) {
+					user.emailAddress = attribute.getValue();
+				}
 			}
 		}
 	}
