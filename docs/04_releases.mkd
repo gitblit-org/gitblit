@@ -11,6 +11,7 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 
 #### fixes
 
+- Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
 
 #### changes

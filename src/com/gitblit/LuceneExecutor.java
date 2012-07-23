@@ -412,7 +412,8 @@ public class LuceneExecutor implements Runnable {
 		if (!deleteIndex(model.name)) {
 			return result;
 		}
-		try {			
+		try {
+			String [] encodings = storedSettings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 			FileBasedConfig config = getConfig(repository);
 			Set<String> indexedCommits = new TreeSet<String>();
 			IndexWriter writer = getIndexWriter(model.name);
@@ -562,7 +563,7 @@ public class LuceneExecutor implements Runnable {
 							}
 							in.close();
 							byte[] content = os.toByteArray();
-							String str = new String(content, Constants.CHARACTER_ENCODING);
+							String str = StringUtils.decodeString(content, encodings);							
 							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
 							os.reset();
 						}							
