@@ -11,11 +11,14 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 
 #### fixes
 
+- Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
 
 #### changes
 
+- Blob page now supports displaying images (issue 6)
+- Non-image binary files can now be downloaded using the RAW link
 - Updated Polish translation
 
 **1.0.0** *released 2012-07-14*

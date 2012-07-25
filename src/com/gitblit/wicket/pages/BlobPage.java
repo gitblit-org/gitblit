@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
@@ -30,6 +31,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
@@ -108,34 +110,41 @@ public class BlobPage extends RepositoryPage {
 					type = map.get(extension);
 				}
 				Component c = null;
+				Component i = null;
 				switch (type) {
 				case 1:
 					// PrettyPrint blob text
 					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
 							blobPath, encodings));
 					WicketUtils.setCssClass(c, "prettyprint linenums");
+					i = new Image("blobImage").setVisible(false);
 					break;
 				case 2:
-					// TODO image blobs
-					c = new Label("blobText", "Image File");
+					// image blobs
+					c = new Label("blobText").setVisible(false);
+					i = new ExternalImage("blobImage", urlFor(RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)).toString());
 					break;
 				case 3:
-					// TODO binary blobs
+					// binary blobs
 					c = new Label("blobText", "Binary File");
+					i = new Image("blobImage").setVisible(false);
 					break;
 				default:
 					// plain text
 					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
 							blobPath, encodings));
 					WicketUtils.setCssClass(c, "plainprint");
+					i = new Image("blobImage").setVisible(false);
 				}
 				add(c);
+				add(i);
 			} else {
 				// plain text
 				Label blobLabel = new Label("blobText", JGitUtils.getStringContent(r,
 						commit.getTree(), blobPath, encodings));
 				WicketUtils.setCssClass(blobLabel, "plainprint");
 				add(blobLabel);
+				add(new Image("blobImage").setVisible(false));
 			}
 		}
 	}
