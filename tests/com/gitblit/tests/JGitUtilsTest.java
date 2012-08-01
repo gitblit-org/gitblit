@@ -67,11 +67,11 @@ public class JGitUtilsTest {
 
 	@Test
 	public void testFindRepositories() {
-		List<String> list = JGitUtils.getRepositoryList(null, false, true);
+		List<String> list = JGitUtils.getRepositoryList(null, false, true, -1);
 		assertEquals(0, list.size());
-		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true));
+		list.addAll(JGitUtils.getRepositoryList(new File("DoesNotExist"), true, true, -1));
 		assertEquals(0, list.size());
-		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true));
+		list.addAll(JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true, -1));
 		assertTrue("No repositories found in " + GitBlitSuite.REPOSITORIES, list.size() > 0);
 	}
 

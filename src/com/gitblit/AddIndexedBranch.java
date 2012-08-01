@@ -63,7 +63,7 @@ public class AddIndexedBranch {
 		
 		// determine available repositories
 		File folder = new File(params.folder);
-		List<String> repoList = JGitUtils.getRepositoryList(folder, false, true);
+		List<String> repoList = JGitUtils.getRepositoryList(folder, false, true, -1);
 		
 		int modCount = 0;
 		int skipCount = 0;

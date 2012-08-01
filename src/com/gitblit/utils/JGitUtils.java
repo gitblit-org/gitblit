@@ -275,16 +275,18 @@ public class JGitUtils {
 	 *            false all repositories are included.
 	 * @param searchSubfolders
 	 *            recurse into subfolders to find grouped repositories
+	 * @param depth
+	 *            optional recursion depth, -1 = infinite recursion
 	 * @return list of repository names
 	 */
 	public static List<String> getRepositoryList(File repositoriesFolder, boolean onlyBare,
-			boolean searchSubfolders) {
+			boolean searchSubfolders, int depth) {
 		List<String> list = new ArrayList<String>();
 		if (repositoriesFolder == null || !repositoriesFolder.exists()) {
 			return list;
 		}
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
-				onlyBare, searchSubfolders));
+				onlyBare, searchSubfolders, depth));
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
@@ -301,12 +303,18 @@ public class JGitUtils {
 	 *            repositories are included.
 	 * @param searchSubfolders
 	 *            recurse into subfolders to find grouped repositories
+	 * @param depth
+	 *            recursion depth, -1 = infinite recursion
 	 * @return
 	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
-			boolean onlyBare, boolean searchSubfolders) {
+			boolean onlyBare, boolean searchSubfolders, int depth) {
 		File baseFile = new File(basePath);
 		List<String> list = new ArrayList<String>();
+		if (depth == 0) {
+			return list;
+		}
+		int nextDepth = (depth == -1) ? -1 : depth - 1;
 		for (File file : searchFolder.listFiles()) {
 			if (file.isDirectory()) {
 				File gitDir = FileKey.resolve(new File(searchFolder, file.getName()), FS.DETECTED);
@@ -320,11 +328,11 @@ public class JGitUtils {
 						list.add(repository);
 					} else if (searchSubfolders && file.canRead()) {
 						// look for repositories in subfolders
-						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders));
+						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders, nextDepth));
 					}
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
-					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders));
+					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders, nextDepth));
 				}
 			}
 		}
