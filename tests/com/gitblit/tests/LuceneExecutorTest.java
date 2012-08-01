@@ -20,7 +20,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
@@ -29,6 +31,7 @@ import com.gitblit.LuceneExecutor;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
+import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
 
@@ -41,7 +44,9 @@ import com.gitblit.utils.JGitUtils;
 public class LuceneExecutorTest {
 
 	private LuceneExecutor newLuceneExecutor() {
-		return new LuceneExecutor(null, GitBlitSuite.REPOSITORIES);
+		Map<String, Object> map = new HashMap<String, Object>();
+		MemorySettings settings = new MemorySettings(map);		
+		return new LuceneExecutor(settings, GitBlitSuite.REPOSITORIES);
 	}
 	
 	private RepositoryModel newRepositoryModel(Repository repository) {		
@@ -164,7 +169,7 @@ public class LuceneExecutorTest {
 	@Test
 	public void testDeleteBlobFromIndex() throws Exception {
 		// start with a fresh reindex of entire repository
-		LuceneExecutor lucene = new LuceneExecutor(null, GitBlitSuite.REPOSITORIES);
+		LuceneExecutor lucene = newLuceneExecutor();
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RepositoryModel model = newRepositoryModel(repository);
 		lucene.reindex(model, repository);

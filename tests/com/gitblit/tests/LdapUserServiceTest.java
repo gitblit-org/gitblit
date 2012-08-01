@@ -68,7 +68,7 @@ public class LdapUserServiceTest {
 	}
 	
 	private MemorySettings getSettings() {
-		Map<Object, Object> backingMap = new HashMap<Object, Object>();
+		Map<String, Object> backingMap = new HashMap<String, Object>();
 		backingMap.put("realm.ldap.server", "ldap://localhost:" + ldapPort);
 		backingMap.put("realm.ldap.domain", "");
 		backingMap.put("realm.ldap.username", "cn=Directory Manager");

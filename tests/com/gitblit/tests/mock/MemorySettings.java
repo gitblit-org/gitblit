@@ -23,9 +23,9 @@ import com.gitblit.IStoredSettings;
 
 public class MemorySettings extends IStoredSettings {
 	
-	private Map<Object, Object> backingMap;
+	private Map<String, Object> backingMap;
 	
-	public MemorySettings(Map<Object, Object> backingMap) {
+	public MemorySettings(Map<String, Object> backingMap) {
 		super(MemorySettings.class);
 		this.backingMap = backingMap;
 	}
@@ -39,7 +39,7 @@ public class MemorySettings extends IStoredSettings {
 	}
 	
 	public void put(Object key, Object value) {
-		backingMap.put(key, value);
+		backingMap.put(key.toString(), value);
 	}
 
 	@Override
