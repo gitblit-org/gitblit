@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -46,6 +47,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -55,6 +57,7 @@ import javax.swing.ListCellRenderer;
 import javax.swing.ScrollPaneConstants;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ArrayUtils;
@@ -98,6 +101,10 @@ public class EditRepositoryDialog extends JDialog {
 	private JTextField mailingListsField;
 
 	private JComboBox accessRestriction;
+	
+	private JRadioButton allowAuthenticated;
+	
+	private JRadioButton allowNamed;
 
 	private JComboBox federationStrategy;
 
@@ -206,6 +213,21 @@ public class EditRepositoryDialog extends JDialog {
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
+		
+		boolean authenticated = anRepository.authorizationControl != null 
+				&& AuthorizationControl.AUTHENTICATED.equals(anRepository.authorizationControl);
+		allowAuthenticated = new JRadioButton(Translation.get("gb.allowAuthenticatedDescription"));
+		allowAuthenticated.setSelected(authenticated);
+		allowNamed = new JRadioButton(Translation.get("gb.allowNamedDescription"));
+		allowNamed.setSelected(!authenticated);
+		
+		ButtonGroup group = new ButtonGroup();
+		group.add(allowAuthenticated);
+		group.add(allowNamed);
+		
+		JPanel authorizationPanel = new JPanel(new GridLayout(0, 1));
+		authorizationPanel.add(allowAuthenticated);
+		authorizationPanel.add(allowNamed);
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
@@ -246,12 +268,15 @@ public class EditRepositoryDialog extends JDialog {
 				mailingListsField));
 
 		usersPalette = new JPalette<String>();
+		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
+		northAccessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
+				accessRestriction), BorderLayout.NORTH);
+		northAccessPanel.add(newFieldPanel(Translation.get("gb.authorizationControl"),
+				authorizationPanel), BorderLayout.CENTER);
+
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
-		accessPanel.add(
-				newFieldPanel(Translation.get("gb.accessRestriction"),
-						accessRestriction), BorderLayout.NORTH);
-		accessPanel.add(
-				newFieldPanel(Translation.get("gb.permittedUsers"),
+		accessPanel.add(northAccessPanel, BorderLayout.NORTH);
+		accessPanel.add(newFieldPanel(Translation.get("gb.permittedUsers"),
 						usersPalette), BorderLayout.CENTER);
 
 		teamsPalette = new JPalette<String>();
@@ -463,6 +488,8 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.accessRestriction = (AccessRestrictionType) accessRestriction
 				.getSelectedItem();
+		repository.authorizationControl = allowAuthenticated.isSelected() ? 
+				AuthorizationControl.AUTHENTICATED : AuthorizationControl.NAMED;
 		repository.federationStrategy = (FederationStrategy) federationStrategy
 				.getSelectedItem();
 
@@ -493,6 +520,12 @@ public class EditRepositoryDialog extends JDialog {
 	
 	public void setAccessRestriction(AccessRestrictionType restriction) {
 		this.accessRestriction.setSelectedItem(restriction);
+	}
+
+	public void setAuthorizationControl(AuthorizationControl authorization) {
+		boolean authenticated = authorization != null && AuthorizationControl.AUTHENTICATED.equals(authorization);
+		this.allowAuthenticated.setSelected(authenticated);
+		this.allowNamed.setSelected(!authenticated);
 	}
 
 	public void setUsers(String owner, List<String> all, List<String> selected) {

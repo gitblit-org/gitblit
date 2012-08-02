@@ -21,8 +21,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 
 public class GitServletTest {
 
@@ -107,6 +109,64 @@ public class GitServletTest {
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
 		assertFalse("Bogus login cloned a repository?!", cloned);
+	}
+	
+	@Test
+	public void testUnauthorizedLoginClone() throws Exception {
+		// restrict repository access
+		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		model.accessRestriction = AccessRestrictionType.CLONE;
+		model.authorizationControl = AuthorizationControl.NAMED;
+		UserModel user = new UserModel("james");
+		user.password = "james";
+		GitBlit.self().updateUserModel(user.username, user, true);
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
+		
+		// delete any existing working folder		
+		boolean cloned = false;
+		try {
+			CloneCommand clone = Git.cloneRepository();
+			clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+			clone.setDirectory(ticgit2Folder);
+			clone.setBare(false);
+			clone.setCloneAllBranches(true);
+			clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.username, user.password));
+			close(clone.call());
+			cloned = true;
+		} catch (Exception e) {
+			// swallow the exception which we expect
+		}
+
+		assertFalse("Unauthorized login cloned a repository?!", cloned);
+
+		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
+		
+		// switch to authenticated
+		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		
+		// try clone again
+		cloned = false;
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setDirectory(ticgit2Folder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.username, user.password));
+		close(clone.call());
+		cloned = true;
+
+		assertTrue("Authenticated login could not clone!", cloned);
+		
+		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
+		
+		// restore anonymous repository access
+		model.accessRestriction = AccessRestrictionType.NONE;
+		model.authorizationControl = AuthorizationControl.NAMED;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		GitBlit.self().deleteUser(user.username);
 	}
 
 	@Test

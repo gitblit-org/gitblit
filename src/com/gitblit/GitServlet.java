@@ -231,6 +231,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			if (user == null) {
 				// anonymous push, create a temporary usermodel
 				user = new UserModel(person.getName());
+				user.isAuthenticated = false;
 			}
 			return user;
 		}

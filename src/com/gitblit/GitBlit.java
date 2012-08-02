@@ -69,6 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
@@ -876,6 +877,8 @@ public class GitBlit implements ServletContextListener {
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
 					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
+			model.authorizationControl = AuthorizationControl.fromName(getConfig(config,
+					"authorizationControl", settings.getString(Keys.git.defaultAuthorizationControl, null)));
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);
@@ -1135,6 +1138,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
 		config.setString(Constants.CONFIG_GITBLIT, null, "accessRestriction", repository.accessRestriction.name());
+		config.setString(Constants.CONFIG_GITBLIT, null, "authorizationControl", repository.authorizationControl.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showRemoteBranches", repository.showRemoteBranches);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFrozen", repository.isFrozen);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showReadme", repository.showReadme);

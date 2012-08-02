@@ -33,6 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
 import com.gitblit.RpcServlet;
@@ -164,6 +165,7 @@ public class RpcTests {
 		model.description = "created by RpcUtils";
 		model.owner = "garbage";
 		model.accessRestriction = AccessRestrictionType.VIEW;
+		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
 
 		// create
 		assertTrue("Failed to create repository!",
@@ -172,6 +174,7 @@ public class RpcTests {
 		RepositoryModel retrievedRepository = findRepository(model.name);
 		assertNotNull("Failed to find " + model.name, retrievedRepository);
 		assertEquals(AccessRestrictionType.VIEW, retrievedRepository.accessRestriction);
+		assertEquals(AuthorizationControl.AUTHENTICATED, retrievedRepository.authorizationControl);
 
 		// rename and change access restriciton
 		String originalName = model.name;

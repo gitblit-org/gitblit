@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -47,6 +48,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean useTickets;
 	public boolean useDocs;
 	public AccessRestrictionType accessRestriction;
+	public AuthorizationControl authorizationControl;
+	public boolean allowAuthenticated;
 	public boolean isFrozen;
 	public boolean showReadme;
 	public FederationStrategy federationStrategy;
@@ -77,6 +80,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.owner = owner;
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
+		this.authorizationControl = AuthorizationControl.NAMED;
 		this.federationSets = new ArrayList<String>();
 		this.federationStrategy = FederationStrategy.FEDERATE_THIS;		
 	}

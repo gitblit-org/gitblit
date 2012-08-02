@@ -170,6 +170,7 @@ public abstract class AuthenticationFilter implements Filter {
 		public AuthenticatedRequest(HttpServletRequest req) {
 			super(req);
 			user = new UserModel("anonymous");
+			user.isAuthenticated = false;
 		}
 
 		UserModel getUser() {

@@ -16,14 +16,22 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
 
-#### changes
+#### additions
 
+- Added a repository setting to control authorization as AUTHENTICATED or NAMED.  
+NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.
+AUTHENTICATED allows restricted access for any authenticated user.
+- Added default authorization control setting (AUTHENTICATED or NAMED)
+    **New:** *git.defaultAuthorizationControl=NAMED*  
 - Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)
     **New:** *git.searchRecursionDepth=-1*  
 - Added setting to specify regex exclusions for repositories (issue 103)
     **New:** *git.searchExclusions=*  
 - Blob page now supports displaying images (issue 6)
 - Non-image binary files can now be downloaded using the RAW link
+
+#### changes
+
 - Updated Polish translation
 
 **1.0.0** *released 2012-07-14*

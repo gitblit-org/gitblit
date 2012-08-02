@@ -109,6 +109,28 @@ public class Constants {
 			return name();
 		}
 	}
+	
+	/**
+	 * Enumeration representing the types of authorization control for an
+	 * access restricted resource.
+	 */
+	public static enum AuthorizationControl {
+		AUTHENTICATED, NAMED;
+		
+		public static AuthorizationControl fromName(String name) {
+			for (AuthorizationControl type : values()) {
+				if (type.name().equalsIgnoreCase(name)) {
+					return type;
+				}
+			}
+			return NAMED;
+		}
+		
+		public String toString() {
+			return name();
+		}
+	}
+
 
 	/**
 	 * Enumeration representing the types of federation tokens.

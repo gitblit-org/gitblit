@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -45,8 +46,12 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public final Set<String> repositories = new HashSet<String>();
 	public final Set<TeamModel> teams = new HashSet<TeamModel>();
 
+	// non-persisted fields
+	public boolean isAuthenticated;
+	
 	public UserModel(String username) {
 		this.username = username;
+		this.isAuthenticated = true;
 	}
 
 	/**
@@ -65,8 +70,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canAccessRepository(RepositoryModel repository) {
 		boolean isOwner = !StringUtils.isEmpty(repository.owner)
 				&& repository.owner.equals(username);
+		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
 		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase())
-				|| hasTeamAccess(repository.name);
+				|| hasTeamAccess(repository.name) || allowAuthenticated;
 	}
 
 	public boolean hasTeamAccess(String repositoryName) {

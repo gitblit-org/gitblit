@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
@@ -193,6 +194,14 @@ public class GitblitClient implements Serializable {
 			restriction = settings.get(Keys.git.defaultAccessRestriction).currentValue;
 		}
 		return AccessRestrictionType.fromName(restriction);
+	}
+
+	public AuthorizationControl getDefaultAuthorizationControl() {
+		String authorization = null;
+		if (settings.hasKey(Keys.git.defaultAuthorizationControl)) {
+			authorization = settings.get(Keys.git.defaultAuthorizationControl).currentValue;
+		}
+		return AuthorizationControl.fromName(authorization);
 	}
 
 	/**

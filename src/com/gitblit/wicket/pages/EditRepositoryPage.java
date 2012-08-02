@@ -36,6 +36,8 @@ import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -47,6 +49,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
@@ -75,6 +78,8 @@ public class EditRepositoryPage extends RootSubPage {
 		RepositoryModel model = new RepositoryModel();
 		String restriction = GitBlit.getString(Keys.git.defaultAccessRestriction, null);
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
+		String authorization = GitBlit.getString(Keys.git.defaultAuthorizationControl, null);
+		model.authorizationControl = AuthorizationControl.fromName(authorization);
 		setupPage(model);
 	}
 
@@ -370,6 +375,14 @@ public class EditRepositoryPage extends RootSubPage {
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 		form.add(indexedBranchesPalette);
+		
+		RadioGroup<AuthorizationControl> group = new RadioGroup<AuthorizationControl>("authorizationControl");
+		Radio<AuthorizationControl> allowAuthenticated = new Radio<AuthorizationControl>("allowAuthenticated", new Model<AuthorizationControl>(AuthorizationControl.AUTHENTICATED));		
+		Radio<AuthorizationControl> allowNamed = new Radio<AuthorizationControl>("allowNamed", new Model<AuthorizationControl>(AuthorizationControl.NAMED));
+		group.add(allowAuthenticated);
+		group.add(allowNamed);
+		form.add(group);
+				
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
