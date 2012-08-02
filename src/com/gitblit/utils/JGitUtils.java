@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -277,16 +278,18 @@ public class JGitUtils {
 	 *            recurse into subfolders to find grouped repositories
 	 * @param depth
 	 *            optional recursion depth, -1 = infinite recursion
+	 * @param exclusions
+	 *            list of regex exclusions for matching to folder names
 	 * @return list of repository names
 	 */
 	public static List<String> getRepositoryList(File repositoriesFolder, boolean onlyBare,
-			boolean searchSubfolders, int depth) {
+			boolean searchSubfolders, int depth, List<String> exclusions) {
 		List<String> list = new ArrayList<String>();
 		if (repositoriesFolder == null || !repositoriesFolder.exists()) {
 			return list;
 		}
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
-				onlyBare, searchSubfolders, depth));
+				onlyBare, searchSubfolders, depth, exclusions));
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
@@ -305,18 +308,41 @@ public class JGitUtils {
 	 *            recurse into subfolders to find grouped repositories
 	 * @param depth
 	 *            recursion depth, -1 = infinite recursion
+	 * @param exclusions
+	 *            list of regex exclusions for matching to folder names
 	 * @return
 	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
-			boolean onlyBare, boolean searchSubfolders, int depth) {
+			boolean onlyBare, boolean searchSubfolders, int depth, List<String> exclusions) {
 		File baseFile = new File(basePath);
 		List<String> list = new ArrayList<String>();
 		if (depth == 0) {
 			return list;
 		}
+		List<Pattern> patterns = new ArrayList<Pattern>();
+		if (!ArrayUtils.isEmpty(exclusions)) {
+			for (String regex : exclusions) {
+				patterns.add(Pattern.compile(regex));
+			}
+		}
+		
 		int nextDepth = (depth == -1) ? -1 : depth - 1;
 		for (File file : searchFolder.listFiles()) {
 			if (file.isDirectory()) {
+				boolean exclude = false;
+				for (Pattern pattern : patterns) {
+					String path = FileUtils.getRelativePath(baseFile, file).replace('\\',  '/');
+					if (pattern.matcher(path).find()) {
+						LOGGER.debug(MessageFormat.format("excluding {0} because of rule {1}", path, pattern.pattern()));
+						exclude = true;
+						break;
+					}
+				}
+				if (exclude) {
+					// skip to next file
+					continue;
+				}
+
 				File gitDir = FileKey.resolve(new File(searchFolder, file.getName()), FS.DETECTED);
 				if (gitDir != null) {
 					if (onlyBare && gitDir.getName().equals(".git")) {
@@ -328,11 +354,13 @@ public class JGitUtils {
 						list.add(repository);
 					} else if (searchSubfolders && file.canRead()) {
 						// look for repositories in subfolders
-						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders, nextDepth));
+						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders,
+								nextDepth, exclusions));
 					}
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
-					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders, nextDepth));
+					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders,
+							nextDepth, exclusions));
 				}
 			}
 		}

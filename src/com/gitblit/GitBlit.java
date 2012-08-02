@@ -743,7 +743,8 @@ public class GitBlit implements ServletContextListener {
 		return JGitUtils.getRepositoryList(repositoriesFolder, 
 				settings.getBoolean(Keys.git.onlyAccessBareRepositories, false),
 				settings.getBoolean(Keys.git.searchRepositoriesSubfolders, true),
-				settings.getInteger(Keys.git.searchRecursionDepth, -1));
+				settings.getInteger(Keys.git.searchRecursionDepth, -1),
+				settings.getStrings(Keys.git.searchExclusions));
 	}
 
 	/**

@@ -18,7 +18,10 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 
 #### changes
 
-- Added *git.searchRecursionDepth=-1* to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)
+- Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)
+    **New:** *git.searchRecursionDepth=-1*  
+- Added setting to specify regex exclusions for repositories (issue 103)
+    **New:** *git.searchExclusions=*  
 - Blob page now supports displaying images (issue 6)
 - Non-image binary files can now be downloaded using the RAW link
 - Updated Polish translation
