@@ -288,8 +288,14 @@ public class JGitUtils {
 		if (repositoriesFolder == null || !repositoriesFolder.exists()) {
 			return list;
 		}
+		List<Pattern> patterns = new ArrayList<Pattern>();
+		if (!ArrayUtils.isEmpty(exclusions)) {
+			for (String regex : exclusions) {
+				patterns.add(Pattern.compile(regex));
+			}
+		}
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
-				onlyBare, searchSubfolders, depth, exclusions));
+				onlyBare, searchSubfolders, depth, patterns));
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
@@ -308,22 +314,16 @@ public class JGitUtils {
 	 *            recurse into subfolders to find grouped repositories
 	 * @param depth
 	 *            recursion depth, -1 = infinite recursion
-	 * @param exclusions
-	 *            list of regex exclusions for matching to folder names
+	 * @param patterns
+	 *            list of regex patterns for matching to folder names
 	 * @return
 	 */
 	private static List<String> getRepositoryList(String basePath, File searchFolder,
-			boolean onlyBare, boolean searchSubfolders, int depth, List<String> exclusions) {
+			boolean onlyBare, boolean searchSubfolders, int depth, List<Pattern> patterns) {
 		File baseFile = new File(basePath);
 		List<String> list = new ArrayList<String>();
 		if (depth == 0) {
 			return list;
-		}
-		List<Pattern> patterns = new ArrayList<Pattern>();
-		if (!ArrayUtils.isEmpty(exclusions)) {
-			for (String regex : exclusions) {
-				patterns.add(Pattern.compile(regex));
-			}
 		}
 		
 		int nextDepth = (depth == -1) ? -1 : depth - 1;
@@ -332,7 +332,7 @@ public class JGitUtils {
 				boolean exclude = false;
 				for (Pattern pattern : patterns) {
 					String path = FileUtils.getRelativePath(baseFile, file).replace('\\',  '/');
-					if (pattern.matcher(path).find()) {
+					if (pattern.matcher(path).matches()) {
 						LOGGER.debug(MessageFormat.format("excluding {0} because of rule {1}", path, pattern.pattern()));
 						exclude = true;
 						break;
@@ -355,12 +355,12 @@ public class JGitUtils {
 					} else if (searchSubfolders && file.canRead()) {
 						// look for repositories in subfolders
 						list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders,
-								nextDepth, exclusions));
+								nextDepth, patterns));
 					}
 				} else if (searchSubfolders && file.canRead()) {
 					// look for repositories in subfolders
 					list.addAll(getRepositoryList(basePath, file, onlyBare, searchSubfolders,
-							nextDepth, exclusions));
+							nextDepth, patterns));
 				}
 			}
 		}

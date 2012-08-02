@@ -86,7 +86,7 @@ public class JGitUtilsTest {
 		list = JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true, -1, Arrays.asList("test/*"));
 		assertFalse("Repository exclusion failed!", list.contains("test/jgit.git"));
 
-		list = JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true, -1, Arrays.asList("(jgit)+"));
+		list = JGitUtils.getRepositoryList(GitBlitSuite.REPOSITORIES, false, true, -1, Arrays.asList(".*jgit.*"));
 		assertFalse("Repository exclusion failed!", list.contains("test/jgit.git"));
 		assertFalse("Repository exclusion failed!", list.contains("working/jgit"));
 		assertFalse("Repository exclusion failed!", list.contains("working/jgit2"));
