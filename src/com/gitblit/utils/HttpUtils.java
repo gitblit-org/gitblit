@@ -32,13 +32,48 @@ public class HttpUtils {
 	 * @return the host url
 	 */
 	public static String getGitblitURL(HttpServletRequest request) {
+		// default to the request scheme and port
+		String scheme = request.getScheme();
+		int port = request.getServerPort();
+
+		// try to use reverse-proxy server's port
+        String forwardedPort = request.getHeader("X-Forwarded-Port");
+        if (StringUtils.isEmpty(forwardedPort)) {
+        	forwardedPort = request.getHeader("X_Forwarded_Port");
+        }
+        if (!StringUtils.isEmpty(forwardedPort)) {
+        	// reverse-proxy server has supplied the original port
+        	try {
+        		port = Integer.parseInt(forwardedPort);
+        	} catch (Throwable t) {
+        	}
+        }
+        
+		// try to use reverse-proxy server's scheme
+        String forwardedScheme = request.getHeader("X-Forwarded-Proto");
+        if (StringUtils.isEmpty(forwardedScheme)) {
+        	forwardedScheme = request.getHeader("X_Forwarded_Proto");
+        }
+        if (!StringUtils.isEmpty(forwardedScheme)) {
+        	// reverse-proxy server has supplied the original scheme
+        	scheme = forwardedScheme;
+        	
+        	if ("https".equals(scheme) && port == 80) {
+        		// proxy server is https, inside server is 80
+        		// this is likely because the proxy server has not supplied
+        		// x-forwarded-port. since 80 is almost definitely wrong,
+        		// make an educated guess that 443 is correct.
+        		port = 443;
+        	}
+        }
+        
 		StringBuilder sb = new StringBuilder();
-		sb.append(request.getScheme());
+		sb.append(scheme);
 		sb.append("://");
 		sb.append(request.getServerName());
-		if ((request.getScheme().equals("http") && request.getServerPort() != 80)
-				|| (request.getScheme().equals("https") && request.getServerPort() != 443)) {
-			sb.append(":" + request.getServerPort());
+		if (("http".equals(scheme) && port != 80)
+				|| ("https".equals(scheme) && port != 443)) {
+			sb.append(":" + port);
 		}
 		sb.append(request.getContextPath());
 		return sb.toString();

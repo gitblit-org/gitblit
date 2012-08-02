@@ -11,6 +11,7 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 
 #### fixes
 
+- Repository URL uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
 - Fixes to relative path determination in repository searh algorithm for symlinks (issue 116)
 - Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
