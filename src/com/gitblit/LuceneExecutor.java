@@ -105,7 +105,7 @@ import com.gitblit.utils.StringUtils;
 public class LuceneExecutor implements Runnable {
 	
 		
-	private static final int INDEX_VERSION = 4;
+	private static final int INDEX_VERSION = 5;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
 	private static final String FIELD_ISSUE = "issue";
