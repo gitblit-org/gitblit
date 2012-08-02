@@ -1,13 +1,13 @@
 ## Release History
 
+<div class="alert alert-error">
+<h4>Update Note</h4>
+If you are updating from an earlier release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.
+</div>
+
 ### Current Release
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
-
-<div class="alert alert-info">
-<h4>Update Note</h4>
-If you are updating from an 0.9.x release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.  See details below. 
-</div>
 
 #### fixes
 
@@ -22,11 +22,11 @@ If you are updating from an 0.9.x release AND you have indexed branches with the
 - Added a repository setting to control authorization as AUTHENTICATED or NAMED.  
 NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.
 AUTHENTICATED allows restricted access for any authenticated user.
-- Added default authorization control setting (AUTHENTICATED or NAMED)
+- Added default authorization control setting (AUTHENTICATED or NAMED)  
     **New:** *git.defaultAuthorizationControl=NAMED*  
-- Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)
+- Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)  
     **New:** *git.searchRecursionDepth=-1*  
-- Added setting to specify regex exclusions for repositories (issue 103)
+- Added setting to specify regex exclusions for repositories (issue 103)  
     **New:** *git.searchExclusions=*  
 - Blob page now supports displaying images (issue 6)
 - Non-image binary files can now be downloaded using the RAW link
