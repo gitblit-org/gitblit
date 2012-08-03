@@ -157,8 +157,8 @@ ProxyPreserveHost On
 #Header edit Location &#94;http://([&#94;&#8260;]+)/gitblit/ https://&#36;1/gitblit/
 
 # Additionally you will want to tell Gitblit the original scheme and port
-#Header set X-Forwarded-Proto https
-#Header set X-Forwarded-Port 443
+#RequestHeader set X-Forwarded-Proto https
+#RequestHeader set X-Forwarded-Port 443
 
 #ProxyPass /gitblit ajp://localhost:8009/gitblit
 %ENDCODE%  
