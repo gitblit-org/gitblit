@@ -16,6 +16,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
+- Really fixed failure to update a GO setting from the manager (issue 85)
 
 #### additions
 

@@ -87,8 +87,14 @@ public class FileSettings extends IStoredSettings {
 		String content = FileUtils.readContent(propertiesFile, "\n");
 		for (Map.Entry<String, String> setting:settings.entrySet()) {
 			String regex = "(?m)^(" + regExEscape(setting.getKey()) + "\\s*+=\\s*+)"
-				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";			
+				    + "(?:[^\r\n\\\\]++|\\\\(?:\r?\n|\r|.))*+$";
+			String oldContent = content;
 			content = content.replaceAll(regex, setting.getKey() + " = " + setting.getValue());
+			if (content.equals(oldContent)) {
+				// did not replace value because it does not exist in the file
+				// append new setting to content (issue-85)
+				content += "\n" + setting.getKey() + " = " + setting.getValue();
+			}
 		}
 		FileUtils.writeContent(propertiesFile, content);
 		// manually set the forceReload flag because not all JVMs support real
