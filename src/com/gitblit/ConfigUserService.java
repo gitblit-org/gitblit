@@ -279,9 +279,10 @@ public class ConfigUserService implements IUserService {
 	 */
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
+		UserModel originalUser = null;
 		try {
 			read();
-			UserModel oldUser = users.remove(username.toLowerCase());
+			originalUser = users.remove(username.toLowerCase());
 			users.put(model.username.toLowerCase(), model);
 			// null check on "final" teams because JSON-sourced UserModel
 			// can have a null teams object
@@ -301,8 +302,8 @@ public class ConfigUserService implements IUserService {
 				}
 
 				// check for implicit team removal
-				if (oldUser != null) {
-					for (TeamModel team : oldUser.teams) {
+				if (originalUser != null) {
+					for (TeamModel team : originalUser.teams) {
 						if (!model.isTeamMember(team.name)) {
 							team.removeUser(username);
 						}
@@ -312,6 +313,10 @@ public class ConfigUserService implements IUserService {
 			write();
 			return true;
 		} catch (Throwable t) {
+			if (originalUser != null) {
+				// restore original user
+				users.put(originalUser.username, originalUser);
+			}
 			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
 					t);
 		}
@@ -499,13 +504,18 @@ public class ConfigUserService implements IUserService {
 	 */
 	@Override
 	public boolean updateTeamModel(String teamname, TeamModel model) {
+		TeamModel original = null;
 		try {
 			read();
-			teams.remove(teamname.toLowerCase());
+			original = teams.remove(teamname.toLowerCase());
 			teams.put(model.name.toLowerCase(), model);
 			write();
 			return true;
 		} catch (Throwable t) {
+			if (original != null) {
+				// restore original team
+				teams.put(original.name, original);
+			}
 			logger.error(MessageFormat.format("Failed to update team model {0}!", model.name), t);
 		}
 		return false;
