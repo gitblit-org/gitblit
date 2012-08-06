@@ -315,7 +315,10 @@ public class ConfigUserService implements IUserService {
 		} catch (Throwable t) {
 			if (originalUser != null) {
 				// restore original user
-				users.put(originalUser.username, originalUser);
+				users.put(originalUser.username.toLowerCase(), originalUser);
+			} else {
+				// drop attempted add
+				users.remove(model.username.toLowerCase());
 			}
 			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
 					t);
@@ -514,7 +517,10 @@ public class ConfigUserService implements IUserService {
 		} catch (Throwable t) {
 			if (original != null) {
 				// restore original team
-				teams.put(original.name, original);
+				teams.put(original.name.toLowerCase(), original);
+			} else {
+				// drop attempted add
+				teams.remove(model.name.toLowerCase());
 			}
 			logger.error(MessageFormat.format("Failed to update team model {0}!", model.name), t);
 		}
