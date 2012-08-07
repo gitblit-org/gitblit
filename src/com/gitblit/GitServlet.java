@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ClientLogger;
-import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -94,9 +93,16 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			@Override
 			public ReceivePack create(HttpServletRequest req, Repository db)
 					throws ServiceNotEnabledException, ServiceNotAuthorizedException {
-				ReceivePack rp = super.create(req, db);
+				
+				// determine repository name from request
+				String repositoryName = req.getPathInfo().substring(1);
+				repositoryName = GitFilter.getRepositoryName(repositoryName);
+				
 				GitblitReceiveHook hook = new GitblitReceiveHook();
+				hook.repositoryName = repositoryName;
 				hook.gitblitUrl = HttpUtils.getGitblitURL(req);
+
+				ReceivePack rp = super.create(req, db);
 				rp.setPreReceiveHook(hook);
 				rp.setPostReceiveHook(hook);
 				return rp;
@@ -158,6 +164,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 		protected final Logger logger = LoggerFactory.getLogger(GitblitReceiveHook.class);
 
+		protected String repositoryName;
+		
 		protected String gitblitUrl;
 
 		/**
@@ -167,7 +175,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		 */
 		@Override
 		public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
-			RepositoryModel repository = getRepositoryModel(rp);
+			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
 			Set<String> scripts = new LinkedHashSet<String>();
 			scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
 			scripts.addAll(repository.preReceiveScripts);
@@ -195,7 +203,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				logger.info("skipping post-receive hooks, no refs created, updated, or removed");
 				return;
 			}
-			RepositoryModel repository = getRepositoryModel(rp);
+			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
 			Set<String> scripts = new LinkedHashSet<String>();
 			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
 			scripts.addAll(repository.postReceiveScripts);
@@ -204,19 +212,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 			// Experimental
 			// runNativeScript(rp, "hooks/post-receive", commands);
-		}
-
-		/**
-		 * Returns the RepositoryModel for the repository we are pushing into.
-		 * 
-		 * @param rp
-		 * @return a RepositoryModel
-		 */
-		protected RepositoryModel getRepositoryModel(ReceivePack rp) {
-			Repository repository = rp.getRepository();
-			String repositoryName = FileUtils.getRelativePath(GitBlit.getRepositoriesFolder(), repository.getDirectory());
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			return model;
 		}
 
 		/**

@@ -13,8 +13,9 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 - Do not index blobs in submodules (issue 119)
 - Restore original user or team object on failure to update (issue 118)
+- Fixes to relative path determination in repository search algorithm for symlinks (issue 116)
+- Fix to GitServlet to allow pushing to symlinked repositories (issue 116)
 - Repository URL uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
-- Fixes to relative path determination in repository searh algorithm for symlinks (issue 116)
 - Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)

@@ -32,12 +32,29 @@ import com.gitblit.utils.StringUtils;
  */
 public class GitFilter extends AccessRestrictionFilter {
 
-	protected final String gitReceivePack = "/git-receive-pack";
+	protected static final String gitReceivePack = "/git-receive-pack";
 
-	protected final String gitUploadPack = "/git-upload-pack";
+	protected static final String gitUploadPack = "/git-upload-pack";
 
-	protected final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
+	protected static final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
 			"/objects" };
+
+	/**
+	 * Extract the repository name from the url.
+	 * 
+	 * @param url
+	 * @return repository name
+	 */
+	public static String getRepositoryName(String value) {
+		String repository = value;
+		// get the repository name from the url by finding a known url suffix
+		for (String urlSuffix : suffixes) {
+			if (repository.indexOf(urlSuffix) > -1) {
+				repository = repository.substring(0, repository.indexOf(urlSuffix));
+			}
+		}
+		return repository;
+	}
 
 	/**
 	 * Extract the repository name from the url.
@@ -47,14 +64,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected String extractRepositoryName(String url) {
-		String repository = url;
-		// get the repository name from the url by finding a known url suffix
-		for (String urlSuffix : suffixes) {
-			if (repository.indexOf(urlSuffix) > -1) {
-				repository = repository.substring(0, repository.indexOf(urlSuffix));
-			}
-		}
-		return repository;
+		return GitFilter.getRepositoryName(url);
 	}
 
 	/**
