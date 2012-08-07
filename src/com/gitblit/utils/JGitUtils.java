@@ -559,18 +559,20 @@ public class JGitUtils {
 				}
 				ObjectId entid = tw.getObjectId(0);
 				FileMode entmode = tw.getFileMode(0);
-				RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
-				rw.parseBody(ro);
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
-				byte[] tmp = new byte[4096];
-				InputStream in = ldr.openStream();
-				int n;
-				while ((n = in.read(tmp)) > 0) {
-					os.write(tmp, 0, n);
+				if (entmode != FileMode.GITLINK) {
+					RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
+					rw.parseBody(ro);
+					ByteArrayOutputStream os = new ByteArrayOutputStream();
+					ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
+					byte[] tmp = new byte[4096];
+					InputStream in = ldr.openStream();
+					int n;
+					while ((n = in.read(tmp)) > 0) {
+						os.write(tmp, 0, n);
+					}
+					in.close();
+					content = os.toByteArray();
 				}
-				in.close();
-				content = os.toByteArray();
 			}
 		} catch (Throwable t) {
 			error(t, repository, "{0} can't find {1} in tree {2}", path, tree.name());

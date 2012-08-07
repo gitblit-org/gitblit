@@ -494,6 +494,7 @@ public class LuceneExecutor implements Runnable {
 				
 				Map<String, ObjectId> paths = new TreeMap<String, ObjectId>();
 				while (treeWalk.next()) {
+					// ensure path is not in a submodule
 					if (treeWalk.getFileMode(0) != FileMode.GITLINK) {
 						paths.put(treeWalk.getPathString(), treeWalk.getObjectId(0));
 					}
@@ -679,8 +680,10 @@ public class LuceneExecutor implements Runnable {
 						// read the blob content
 						String str = JGitUtils.getStringContent(repository, commit.getTree(),
 								path.path, encodings);
-						doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
-						writer.addDocument(doc);
+						if (str != null) {
+							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
+							writer.addDocument(doc);
+						}
 					}
 				}
 			}
