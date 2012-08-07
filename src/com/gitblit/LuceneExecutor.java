@@ -69,6 +69,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -493,7 +494,9 @@ public class LuceneExecutor implements Runnable {
 				
 				Map<String, ObjectId> paths = new TreeMap<String, ObjectId>();
 				while (treeWalk.next()) {
-					paths.put(treeWalk.getPathString(), treeWalk.getObjectId(0));
+					if (treeWalk.getFileMode(0) != FileMode.GITLINK) {
+						paths.put(treeWalk.getPathString(), treeWalk.getObjectId(0));
+					}
 				}				
 
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
