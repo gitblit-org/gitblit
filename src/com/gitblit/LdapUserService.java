@@ -30,12 +30,15 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
 
@@ -81,10 +84,22 @@ public class LdapUserService extends GitblitUserService {
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 389;
 				
-				return new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+				LDAPConnection conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+
+				if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
+					SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+
+					ExtendedResult extendedResult = conn.processExtendedOperation(
+						new StartTLSExtendedRequest(sslUtil.createSSLContext()));
+
+					if (extendedResult.getResultCode() != ResultCode.SUCCESS) {
+						throw new LDAPException(extendedResult.getResultCode());
+					}
+				}
+				return conn;
 			}
 		} catch (URISyntaxException e) {
-			logger.error("Bad LDAP URL, should be in the form: ldap(s)://<server>:<port>", e);
+			logger.error("Bad LDAP URL, should be in the form: ldap(s|+tls)://<server>:<port>", e);
 		} catch (GeneralSecurityException e) {
 			logger.error("Unable to create SSL Connection", e);
 		} catch (LDAPException e) {
