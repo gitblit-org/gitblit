@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Support StartTLS in LdapUserService (Steffen Gebert, issue 122)
 - Do not index blobs in submodules (issue 119)
 - Restore original user or team object on failure to update (issue 118)
 - Fixes to relative path determination in repository search algorithm for symlinks (issue 116)
