@@ -1,3 +1,3 @@
-## Witaj w aplikacji Gitblit
+﻿## Witaj w aplikacji Gitblit
 
-Szybko i wygodnie hostuj lub przegl\u0105daj w\u0142asne repozytoria [GIT](http://www.git-scm.com)a.
+Szybko i wygodnie hostuj lub przeglądaj własne repozytoria [GIT](http://www.git-scm.com)a.
