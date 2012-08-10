@@ -46,6 +46,10 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		this.commitId = commitId;
 	}
 
+	public boolean isSubmodule() {
+		return FileMode.GITLINK.equals(mode);
+	}
+	
 	public boolean isTree() {
 		return FileMode.TREE.equals(mode);
 	}
@@ -71,6 +75,13 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		if (isTree && otherTree) {
 			return path.compareTo(o.path);
 		} else if (!isTree && !otherTree) {
+			if (isSubmodule() && o.isSubmodule()) {
+				return path.compareTo(o.path);
+			} else if (isSubmodule()) {
+				return -1;
+			} else if (o.isSubmodule()) {
+				return 1;
+			}
 			return path.compareTo(o.path);
 		} else if (isTree && !otherTree) {
 			return -1;

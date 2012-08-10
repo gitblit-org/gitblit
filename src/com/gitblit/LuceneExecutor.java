@@ -652,6 +652,9 @@ public class LuceneExecutor implements Runnable {
 					Resolution.MINUTE);
 			IndexWriter writer = getIndexWriter(repositoryName);
 			for (PathChangeModel path : changedPaths) {
+				if (path.isSubmodule()) {
+					continue;
+				}
 				// delete the indexed blob
 				deleteBlob(repositoryName, branch, path.name);
 
