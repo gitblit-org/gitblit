@@ -575,13 +575,15 @@ public class StringUtils {
 		if (!ArrayUtils.isEmpty(charsets)) {
 			sets.addAll(Arrays.asList(charsets));
 		}
+		String value = null;
 		sets.addAll(Arrays.asList("UTF-8", "ISO-8859-1", Charset.defaultCharset().name()));
 		for (String charset : sets) {
 			try {
 				Charset cs = Charset.forName(charset);
 				CharsetDecoder decoder = cs.newDecoder();
 				CharBuffer buffer = decoder.decode(ByteBuffer.wrap(content));
-				return buffer.toString();
+				value = buffer.toString();
+				break;
 			} catch (CharacterCodingException e) {
 				// ignore and advance to the next charset
 			} catch (IllegalCharsetNameException e) {
@@ -590,6 +592,11 @@ public class StringUtils {
 				// ignore unsupported charsets
 			}
 		}
-		return new String(content, Charset.forName("UTF-8"));
+		value = new String(content, Charset.forName("UTF-8"));
+		if (value.startsWith("\uFEFF")) {
+			// strip UTF-8 BOM
+            return value.substring(1);
+        }
+		return value;
 	}
 }
