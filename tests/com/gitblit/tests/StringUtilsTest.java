@@ -150,4 +150,11 @@ public class StringUtilsTest {
 		assertFalse(StringUtils.fuzzyMatch("123", "12345"));
 		assertFalse(StringUtils.fuzzyMatch("AbCdEfHIJ", "abc*hhh"));
 	}
+	
+	@Test
+	public void testGetRepositoryPath() throws Exception {
+		assertEquals("gitblit/gitblit.git", StringUtils.extractRepositoryPath("git://github.com/gitblit/gitblit.git", new String [] { ".*?://github.com/(.*)" }));
+		assertEquals("gitblit.git", StringUtils.extractRepositoryPath("git://github.com/gitblit/gitblit.git", new String [] { ".*?://github.com/[^/].*?/(.*)" }));
+		assertEquals("gitblit.git", StringUtils.extractRepositoryPath("git://github.com/gitblit/gitblit.git"));
+	}
 }

@@ -11,12 +11,11 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
-- Support StartTLS in LdapUserService (Steffen Gebert, issue 122)
-- Do not index blobs in submodules (issue 119)
+- Do not index submodule links (issue 119)
 - Restore original user or team object on failure to update (issue 118)
 - Fixes to relative path determination in repository search algorithm for symlinks (issue 116)
 - Fix to GitServlet to allow pushing to symlinked repositories (issue 116)
-- Repository URL uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
+- Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
 - Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
 - Fixed search box linking to Lucene page for nested repository on Tomcat (issue 111)
@@ -25,9 +24,17 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### additions
 
-- Added a repository setting to control authorization as AUTHENTICATED or NAMED.  
-NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.
-AUTHENTICATED allows restricted access for any authenticated user.
+- Preliminary bare repository submodule support  
+    **New:** *git.submoduleUrlPatterns=*
+    - *git.submoduleUrlPatterns* is a space-delimited list of regular expressions for extracting a repository name from a submodule url.  
+    For example, `git.submoduleUrlPatterns = .*?://github.com/(.*)` would extract *gitblit/gitblit.git* from *git://github.git/gitblit/gitblit.git*  
+    **Note:** You may not need this control to work with submodules, but it is there if you do.
+    - If there are no matches from *git.submoduleUrlPatterns* then the repository name is assumed to be whatever comes after the last `/` character *(e.g. gitblit.git)*
+    - Gitblit will try to locate this repository relative to the current repository *(e.g. myfolder/myrepo.git, myfolder/mysubmodule.git)* and then at the root level *(mysubmodule.git)* if that fails.
+    - Submodule references in a working copy will be properly identified as gitlinks, but Gitblit will not traverse into the working copy submodule repository.
+- Added a repository setting to control authorization as AUTHENTICATED or NAMED. (issue 117)  
+NAMED is the original behavior for authorizing against a list of permitted users or permitted teams.  
+AUTHENTICATED allows restricted access for any authenticated user.  This is a looser authorization control.
 - Added default authorization control setting (AUTHENTICATED or NAMED)  
     **New:** *git.defaultAuthorizationControl=NAMED*  
 - Added setting to control how deep Gitblit will recurse into *git.repositoriesFolder* looking for repositories (issue 103)  
@@ -36,10 +43,17 @@ AUTHENTICATED allows restricted access for any authenticated user.
     **New:** *git.searchExclusions=*  
 - Blob page now supports displaying images (issue 6)
 - Non-image binary files can now be downloaded using the RAW link
+- Support StartTLS in LdapUserService (Steffen Gebert, issue 122)
 
 #### changes
 
+- Line breaks inserted for readability in raw Markdown content display in the event of a parsing/transformation error.  An error message is now displayed prepended to the raw content.
+- Improve UTF-8 reading for Markdown files
 - Updated Polish translation
+
+<hr/>
+
+### Older Releases
 
 **1.0.0** *released 2012-07-14*
 
@@ -103,8 +117,6 @@ Make sure to properly set *web.blobEncodings* before starting Gitblit if you are
 - added Ivy 2.2.0
 
 <hr/>
-
-### Older Releases
 
 **0.9.3** *released 2012-04-11*
 

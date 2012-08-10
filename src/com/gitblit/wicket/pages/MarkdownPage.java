@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.text.ParseException;
 
 import org.apache.wicket.PageParameters;
@@ -27,6 +28,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
 public class MarkdownPage extends RepositoryPage {
@@ -56,8 +58,8 @@ public class MarkdownPage extends RepositoryPage {
 		try {
 			htmlText = MarkdownUtils.transformMarkdown(markdownText);
 		} catch (ParseException p) {
-			error(p.getMessage());
-			htmlText = markdownText;
+			markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
+			htmlText = StringUtils.breakLinesForHtml(markdownText);
 		}
 
 		// Add the html to the page

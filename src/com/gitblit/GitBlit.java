@@ -910,6 +910,21 @@ public class GitBlit implements ServletContextListener {
 		r.close();
 		return model;
 	}
+	
+	/**
+	 * Determines if this server has the requested repository.
+	 * 
+	 * @param name
+	 * @return true if the repository exists
+	 */
+	public boolean hasRepository(String repositoryName) {
+		Repository r = getRepository(repositoryName, false);
+		if (r == null) {
+			return false;
+		}
+		r.close();
+		return true;
+	}
 
 	/**
 	 * Returns the size in bytes of the repository. Gitblit caches the

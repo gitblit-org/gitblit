@@ -34,6 +34,7 @@ import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
+import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -71,7 +72,7 @@ public class TreePage extends RepositoryPage {
 			if (path.lastIndexOf('/') > -1) {
 				parentPath = path.substring(0, path.lastIndexOf('/'));
 			}
-			PathModel model = new PathModel("..", parentPath, 0, FileMode.TREE.getBits(), objectId);
+			PathModel model = new PathModel("..", parentPath, 0, FileMode.TREE.getBits(), null, objectId);
 			model.isParentPath = true;
 			paths.add(0, model);
 		}
@@ -118,6 +119,34 @@ public class TreePage extends RepositoryPage {
 								repositoryName, objectId, entry.path)).setVisible(GitBlit
 								.getBoolean(Keys.web.allowZipDownloads, true)));
 						item.add(links);
+					} else if (entry.isSubmodule()) {
+						// submodule
+						String submoduleId = entry.objectId;						
+						String submodulePath;
+						boolean hasSubmodule = false;
+						SubmoduleModel submodule = getSubmodule(entry.path);
+						submodulePath = submodule.gitblitPath;
+						hasSubmodule = submodule.hasSubmodule;
+						
+						item.add(WicketUtils.newImage("pathIcon", "git-orange-16x16.png"));
+						item.add(new Label("pathSize", ""));
+						item.add(new LinkPanel("pathName", "list", entry.name + " @ " + 
+								getShortObjectId(submoduleId), TreePage.class,
+								WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
+						
+						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
+						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
+								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
+						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
+								WicketUtils.newPathParameter(submodulePath, submoduleId,
+										"")).setEnabled(hasSubmodule));
+						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
+								WicketUtils.newPathParameter(submodulePath, submoduleId,
+										"")).setEnabled(hasSubmodule));
+						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(baseUrl,
+								submodulePath, submoduleId, "")).setVisible(GitBlit
+								.getBoolean(Keys.web.allowZipDownloads, true)).setEnabled(hasSubmodule));
+						item.add(links);						
 					} else {
 						// blob link
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));

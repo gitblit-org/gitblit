@@ -36,6 +36,7 @@ import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
+import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -52,7 +53,7 @@ public class CommitPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit c = getCommit();
-
+		
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
 			for (RevCommit parent : c.getParents()) {
@@ -150,28 +151,60 @@ public class CommitPage extends RepositoryPage {
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
+				
+				boolean hasSubmodule = false;
+				String submodulePath = null;
 				if (entry.isTree()) {
+					// tree
 					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
 							WicketUtils
 									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				} else if (entry.isSubmodule()) {
+					// submodule
+					String submoduleId = entry.objectId;
+					SubmoduleModel submodule = getSubmodule(entry.path);
+					submodulePath = submodule.gitblitPath;
+					hasSubmodule = submodule.hasSubmodule;
+					
+					item.add(new LinkPanel("pathName", "list", entry.path + " @ " +
+							getShortObjectId(submoduleId), TreePage.class,
+							WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
 				} else {
+					// blob
 					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
 							WicketUtils
 									.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				}
-
-				item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path))
-						.setEnabled(!entry.changeType.equals(ChangeType.ADD)
-								&& !entry.changeType.equals(ChangeType.DELETE)));
-				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
-				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path))
-						.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
-				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path))
-						.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+				
+				// quick links
+				if (entry.isSubmodule()) {
+					// submodule					
+					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
+							.newPathParameter(submodulePath, entry.objectId, entry.path))
+							.setEnabled(false));
+					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
+							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
+					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
+							.newPathParameter(submodulePath, entry.objectId, entry.path))
+							.setEnabled(false));
+					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
+							.newPathParameter(submodulePath, entry.objectId, entry.path))
+							.setEnabled(hasSubmodule));
+				} else {
+					// tree or blob
+					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+									&& !entry.changeType.equals(ChangeType.DELETE)));
+					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+				}
 
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;

@@ -45,7 +45,9 @@ import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
+import org.eclipse.jgit.lib.BlobBasedConfig;
 import org.eclipse.jgit.lib.CommitBuilder;
+import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -87,6 +89,7 @@ import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.SubmoduleModel;
 
 /**
  * Collection of static methods for retrieving information from a repository.
@@ -732,7 +735,8 @@ public class JGitUtils {
 				tw.addTree(commit.getTree());
 				while (tw.next()) {
 					list.add(new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
-							.getRawMode(0), commit.getId().getName(), ChangeType.ADD));
+							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+							ChangeType.ADD));
 				}
 				tw.release();
 			} else {
@@ -745,15 +749,15 @@ public class JGitUtils {
 				for (DiffEntry diff : diffs) {
 					if (diff.getChangeType().equals(ChangeType.DELETE)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
-								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getNewMode().getBits(), null, commit.getId().getName(), diff
 								.getChangeType()));
 					} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getNewMode().getBits(), null, commit.getId().getName(), diff
 								.getChangeType()));
 					} else {
 						list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), commit.getId().getName(), diff
+								.getNewMode().getBits(), null, commit.getId().getName(), diff
 								.getChangeType()));
 					}
 				}
@@ -846,15 +850,16 @@ public class JGitUtils {
 		} else {
 			name = tw.getPathString().substring(basePath.length() + 1);
 		}
+		ObjectId objectId = tw.getObjectId(0);
 		try {
-			if (!tw.isSubtree()) {
-				size = tw.getObjectReader().getObjectSize(tw.getObjectId(0), Constants.OBJ_BLOB);
+			if (!tw.isSubtree() && (tw.getFileMode(0) != FileMode.GITLINK)) {
+				size = tw.getObjectReader().getObjectSize(objectId, Constants.OBJ_BLOB);
 			}
 		} catch (Throwable t) {
 			error(t, null, "failed to retrieve blob size for " + tw.getPathString());
 		}
 		return new PathModel(name, tw.getPathString(), size, tw.getFileMode(0).getBits(),
-				commit.getName());
+				objectId.getName(), commit.getName());
 	}
 
 	/**
@@ -871,13 +876,10 @@ public class JGitUtils {
 		} else if (FileMode.EXECUTABLE_FILE.equals(mode)) {
 			return "-rwxr-xr-x";
 		} else if (FileMode.SYMLINK.equals(mode)) {
-			// FIXME symlink permissions
 			return "symlink";
 		} else if (FileMode.GITLINK.equals(mode)) {
-			// FIXME gitlink permissions
-			return "gitlink";
+			return "submodule";
 		}
-		// FIXME missing permissions
 		return "missing";
 	}
 
@@ -1532,6 +1534,62 @@ public class JGitUtils {
 			LOGGER.error(MessageFormat.format("Failed to find {0} branch!", name), t);
 		}
 		return branch;
+	}
+		
+	/**
+	 * Returns the list of submodules for this repository.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @return list of submodules
+	 */
+	public static List<SubmoduleModel> getSubmodules(Repository repository, String commitId) {
+		RevCommit commit = getCommit(repository, commitId);
+		return getSubmodules(repository, commit.getTree());
+	}
+	
+	/**
+	 * Returns the list of submodules for this repository.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @return list of submodules
+	 */
+	public static List<SubmoduleModel> getSubmodules(Repository repository, RevTree tree) {
+		List<SubmoduleModel> list = new ArrayList<SubmoduleModel>();
+		byte [] blob = getByteContent(repository, tree, ".gitmodules");
+		if (blob == null) {
+			return list;
+		}
+		try {
+			BlobBasedConfig config = new BlobBasedConfig(repository.getConfig(), blob);
+			for (String module : config.getSubsections("submodule")) {
+				String path = config.getString("submodule", module, "path");
+				String url = config.getString("submodule", module, "url");
+				list.add(new SubmoduleModel(module, path, url));
+			}
+		} catch (ConfigInvalidException e) {
+			LOGGER.error("Failed to load .gitmodules file for " + repository.getDirectory(), e);
+		}
+		return list;
+	}
+	
+	/**
+	 * Returns the submodule definition for the specified path at the specified
+	 * commit.  If no module is defined for the path, null is returned.
+	 * 
+	 * @param repository
+	 * @param commit
+	 * @param path
+	 * @return a submodule definition or null if there is no submodule
+	 */
+	public static SubmoduleModel getSubmoduleModel(Repository repository, String commitId, String path) {
+		for (SubmoduleModel model : getSubmodules(repository, commitId)) {
+			if (model.path.equals(path)) {
+				return model;
+			}
+		}
+		return null;
 	}
 
 	/**

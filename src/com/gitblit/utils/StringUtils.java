@@ -33,6 +33,8 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -598,5 +600,29 @@ public class StringUtils {
             return value.substring(1);
         }
 		return value;
+	}
+	
+	/**
+	 * Attempt to extract a repository name from a given url using regular
+	 * expressions.  If no match is made, then return whatever trails after
+	 * the final / character.
+	 * 
+	 * @param regexUrls
+	 * @return a repository path
+	 */
+	public static String extractRepositoryPath(String url, String... urlpatterns) {
+		for (String urlPattern : urlpatterns) {
+			Pattern p = Pattern.compile(urlPattern);
+			Matcher m = p.matcher(url);
+			while (m.find()) {
+				String repositoryPath = m.group(1);
+				return repositoryPath;
+			}
+		}
+		// last resort
+		if (url.lastIndexOf('/') > -1) {
+			return url.substring(url.lastIndexOf('/') + 1);
+		}
+		return url;
 	}
 }

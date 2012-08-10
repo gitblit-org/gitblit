@@ -23,6 +23,7 @@
 - LDAP authentication and optional LDAP-controlled Team memberships
 - Gravatar integration
 - Git-notes display support
+- Submodule support
 - gh-pages display support (Jekyll is not supported)
 - Branch metrics (uses Google Charts)
 - HEAD and Branch RSS feeds

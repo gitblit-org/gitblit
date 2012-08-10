@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import org.slf4j.LoggerFactory;
 import org.tautua.markdownpapers.Markdown;
 import org.tautua.markdownpapers.parser.ParseException;
 
@@ -44,6 +45,8 @@ public class MarkdownUtils {
 			String html = transformMarkdown(reader);
 			reader.close();
 			return html;
+		} catch (IllegalArgumentException e) {
+			throw new java.text.ParseException(e.getMessage(), 0);
 		} catch (NullPointerException p) {
 			throw new java.text.ParseException("Markdown string is null!", 0);
 		}
@@ -65,6 +68,7 @@ public class MarkdownUtils {
 			md.transform(markdownReader, writer);
 			return writer.toString().trim();
 		} catch (ParseException p) {
+			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", p);
 			throw new java.text.ParseException(p.getMessage(), 0);
 		} finally {
 			try {

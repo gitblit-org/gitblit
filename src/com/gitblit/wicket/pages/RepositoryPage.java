@@ -19,9 +19,12 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -45,6 +48,7 @@ import com.gitblit.Keys;
 import com.gitblit.PagesServlet;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -62,18 +66,20 @@ public abstract class RepositoryPage extends BasePage {
 
 	protected final String repositoryName;
 	protected final String objectId;
-
+	
 	private transient Repository r;
 
 	private RepositoryModel m;
 
+	private Map<String, SubmoduleModel> submodules;
+	
 	private final Map<String, PageRegistration> registeredPages;
 
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		repositoryName = WicketUtils.getRepositoryName(params);
 		objectId = WicketUtils.getObject(params);
-
+		
 		if (StringUtils.isEmpty(repositoryName)) {
 			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
 		}
@@ -206,7 +212,84 @@ public abstract class RepositoryPage extends BasePage {
 			error(MessageFormat.format(getString("gb.failedToFindCommit"),
 					objectId, repositoryName, getPageName()), true);
 		}
+		getSubmodules(commit);
 		return commit;
+	}
+	
+	private Map<String, SubmoduleModel> getSubmodules(RevCommit commit) {	
+		if (submodules == null) {
+			submodules = new HashMap<String, SubmoduleModel>();
+			for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
+				submodules.put(model.path, model);
+			}
+		}
+		return submodules;
+	}
+	
+	protected Map<String, SubmoduleModel> getSubmodules() {
+		return submodules;
+	}
+	
+	protected SubmoduleModel getSubmodule(String path) {
+		SubmoduleModel model = submodules.get(path);
+		if (model == null) {
+			// undefined submodule?!
+			model = new SubmoduleModel(path.substring(path.lastIndexOf('/') + 1), path, path);
+			model.hasSubmodule = false;
+			model.gitblitPath = model.name;
+			return model;
+		} else {
+			// extract the repository name from the clone url
+			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
+			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
+			
+			// determine the current path for constructing paths relative
+			// to the current repository
+			String currentPath = "";
+			if (repositoryName.indexOf('/') > -1) {
+				currentPath = repositoryName.substring(0, repositoryName.lastIndexOf('/') + 1);
+			}
+
+			// try to locate the submodule repository
+			// prefer bare to non-bare names
+			List<String> candidates = new ArrayList<String>();
+
+			// relative
+			candidates.add(currentPath + StringUtils.stripDotGit(submoduleName));
+			candidates.add(candidates.get(candidates.size() - 1) + ".git");
+
+			// relative, no subfolder
+			if (submoduleName.lastIndexOf('/') > -1) {
+				String name = submoduleName.substring(submoduleName.lastIndexOf('/') + 1);
+				candidates.add(currentPath + StringUtils.stripDotGit(name));
+				candidates.add(currentPath + candidates.get(candidates.size() - 1) + ".git");
+			}
+
+			// absolute
+			candidates.add(StringUtils.stripDotGit(submoduleName));
+			candidates.add(candidates.get(candidates.size() - 1) + ".git");
+
+			// absolute, no subfolder
+			if (submoduleName.lastIndexOf('/') > -1) {
+				String name = submoduleName.substring(submoduleName.lastIndexOf('/') + 1);
+				candidates.add(StringUtils.stripDotGit(name));
+				candidates.add(candidates.get(candidates.size() - 1) + ".git");
+			}
+
+			// create a unique, ordered set of candidate paths
+			Set<String> paths = new LinkedHashSet<String>(candidates);
+			for (String candidate : paths) {
+				if (GitBlit.self().hasRepository(candidate)) {
+					model.hasSubmodule = true;
+					model.gitblitPath = candidate;
+					return model;
+				}
+			}
+			
+			// we do not have a copy of the submodule, but we need a path
+			model.gitblitPath = candidates.get(0);
+			return model;
+		}		
 	}
 
 	protected String getShortObjectId(String objectId) {

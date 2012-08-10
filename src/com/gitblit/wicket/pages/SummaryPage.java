@@ -136,6 +136,7 @@ public class SummaryPage extends RepositoryPage {
 
 		if (getRepositoryModel().showReadme) {
 			String htmlText = null;
+			String markdownText = null;
 			String readme = null;
 			try {
 				RevCommit head = JGitUtils.getCommit(r, null);
@@ -158,11 +159,12 @@ public class SummaryPage extends RepositoryPage {
 				}
 				if (!StringUtils.isEmpty(readme)) {
 					String [] encodings = GitBlit.getEncodings();
-					String markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
+					markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
 					htmlText = MarkdownUtils.transformMarkdown(markdownText);
 				}
 			} catch (ParseException p) {
-				error(p.getMessage());
+				markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
+				htmlText = StringUtils.breakLinesForHtml(markdownText);
 			}
 			Fragment fragment = new Fragment("readme", "markdownPanel");
 			fragment.add(new Label("readmeFile", readme));
