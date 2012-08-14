@@ -27,3 +27,4 @@
 *.directory
 /.gradle
 /projects.conf
+/pom.xml
