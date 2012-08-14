@@ -76,14 +76,14 @@ public abstract class BasePage extends WebPage {
 		super();
 		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
-		loginByCookie();
+		login();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
 		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
-		loginByCookie();
+		login();
 	}
 	
 	private void customizeHeader() {
@@ -127,16 +127,14 @@ public abstract class BasePage extends WebPage {
 		super.onAfterRender();
 	}	
 
-	private void loginByCookie() {
-		if (!GitBlit.getBoolean(Keys.web.allowCookieAuthentication, false)) {
-			return;
-		}
-		UserModel user = null;
-
-		// Grab cookie from Browser Session
+	private void login() {
 		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
-		if (cookies != null && cookies.length > 0) {
+		UserModel user = null;
+		if (GitBlit.self().allowCookieAuthentication() && cookies != null && cookies.length > 0) {
+			// Grab cookie from Browser Session
 			user = GitBlit.self().authenticate(cookies);
+		} else {
+			user = GitBlit.self().authenticate(((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest());
 		}
 
 		// Login the user

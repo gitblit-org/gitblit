@@ -48,6 +48,7 @@ import com.gitblit.Keys;
 import com.gitblit.PagesServlet;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.UserModel;
@@ -91,6 +92,19 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		objectId = WicketUtils.getObject(params);
 		
+		if (objectId != null) {
+			RefModel branch = null;
+			if ((branch = JGitUtils.getBranch(getRepository(), objectId)) != null) {
+				boolean canAccess = GitBlitWebSession
+						.get()
+						.getUser()
+						.hasBranchPermission(getRepositoryModel().name,
+								branch.reference.getName());
+				if (!canAccess) {
+					error("Access denied", true);
+				}
+			}
+		}
 		if (StringUtils.isEmpty(repositoryName)) {
 			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
 		}
