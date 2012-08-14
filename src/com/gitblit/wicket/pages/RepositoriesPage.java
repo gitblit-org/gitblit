@@ -17,7 +17,6 @@ package com.gitblit.wicket.pages;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
@@ -154,8 +153,7 @@ public class RepositoriesPage extends RootPage {
 		}
 		String message;
 		try {			
-			ContextRelativeResource res = WicketUtils.getResource(file);
-			InputStream is = res.getResourceStream().getInputStream();
+		    InputStream is = GitBlit.self().getResourceAsStream(file);
 			InputStreamReader reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
 			message = MarkdownUtils.transformMarkdown(reader);
 			reader.close();

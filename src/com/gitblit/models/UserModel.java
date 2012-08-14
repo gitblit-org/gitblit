@@ -138,4 +138,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public int compareTo(UserModel o) {
 		return username.compareTo(o.username);
 	}
+
+	public boolean canAccessBranch(RepositoryModel repositoryModel, String name) {
+		return true;
+	}
 }
