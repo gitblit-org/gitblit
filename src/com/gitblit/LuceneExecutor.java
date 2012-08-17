@@ -286,7 +286,7 @@ public class LuceneExecutor implements Runnable {
 			close(repositoryName);
 
 			// delete the index folder
-			File repositoryFolder = new File(repositoriesFolder, repositoryName);
+			File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
 			File luceneIndex = new File(repositoryFolder, LUCENE_DIR);
 			if (luceneIndex.exists()) {
 				org.eclipse.jgit.util.FileUtils.delete(luceneIndex,

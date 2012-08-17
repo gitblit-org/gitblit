@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Gitblit could not delete a Lucene index in a working copy on index upgrade 
 - Do not index submodule links (issue 119)
 - Restore original user or team object on failure to update (issue 118)
 - Fixes to relative path determination in repository search algorithm for symlinks (issue 116)
