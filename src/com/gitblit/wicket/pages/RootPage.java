@@ -64,6 +64,7 @@ public abstract class RootPage extends BasePage {
 
 	IModel<String> username = new Model<String>("");
 	IModel<String> password = new Model<String>("");
+	List<RepositoryModel> repositoryModels = new ArrayList<RepositoryModel>();
 
 	public RootPage() {
 		super();
@@ -223,6 +224,15 @@ public abstract class RootPage extends BasePage {
 			}
 		}
 	}
+	
+	protected List<RepositoryModel> getRepositoryModels() {
+		if (repositoryModels.isEmpty()) {
+			final UserModel user = GitBlitWebSession.get().getUser();
+			List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
+			repositoryModels.addAll(repositories);
+		}
+		return repositoryModels;
+	}
 
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 
@@ -231,7 +241,7 @@ public abstract class RootPage extends BasePage {
 	protected List<DropDownMenuItem> getRepositoryFilterItems(PageParameters params) {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		Set<DropDownMenuItem> filters = new LinkedHashSet<DropDownMenuItem>();
-		List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
+		List<RepositoryModel> repositories = getRepositoryModels();
 
 		// accessible repositories by federation set
 		Map<String, AtomicInteger> setMap = new HashMap<String, AtomicInteger>();
@@ -307,9 +317,8 @@ public abstract class RootPage extends BasePage {
 	}
 
 	protected List<RepositoryModel> getRepositories(PageParameters params) {
-		final UserModel user = GitBlitWebSession.get().getUser();
 		if (params == null) {
-			return GitBlit.self().getRepositoryModels(user);
+			return getRepositoryModels();
 		}
 
 		boolean hasParameter = false;
@@ -319,7 +328,7 @@ public abstract class RootPage extends BasePage {
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
 
-		List<RepositoryModel> availableModels = GitBlit.self().getRepositoryModels(user);
+		List<RepositoryModel> availableModels = getRepositoryModels();
 		Set<RepositoryModel> models = new HashSet<RepositoryModel>();
 
 		if (!StringUtils.isEmpty(repositoryName)) {

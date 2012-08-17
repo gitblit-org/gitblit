@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Eliminated an unnecessary reopsitory enumeration call on the root page which should result in faster page loads (issue 103) 
 - Gitblit could not delete a Lucene index in a working copy on index upgrade 
 - Do not index submodule links (issue 119)
 - Restore original user or team object on failure to update (issue 118)
