@@ -931,7 +931,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		long duration = System.currentTimeMillis() - methodStart;
 		logger.info(MessageFormat.format("{0} repository models loaded for {1} in {2} msecs",
-				repositories.size(), user.username, duration));
+				repositories.size(), user == null ? "anonymous" : user.username, duration));
 		return repositories;
 	}
 
