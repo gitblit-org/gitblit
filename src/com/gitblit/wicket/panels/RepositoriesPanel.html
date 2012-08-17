@@ -21,8 +21,12 @@
 	<wicket:fragment wicket:id="adminLinks">
 		<!-- page nav links -->	
 		<div class="admin_nav">
-			<img style="vertical-align: middle;" src="add_16x16.png"/>
-			<a wicket:id="newRepository">
+			<a class="btn-small" wicket:id="clearCache">
+				<i class="icon icon-remove"></i>
+				<wicket:message key="gb.clearCache"></wicket:message>
+			</a>			
+			<a class="btn-small" wicket:id="newRepository" style="padding-right:0px;">
+				<i class="icon icon-plus-sign"></i>
 				<wicket:message key="gb.newRepository"></wicket:message>
 			</a>
 		</div>	

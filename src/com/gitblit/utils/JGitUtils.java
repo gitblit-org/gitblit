@@ -47,7 +47,6 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.StopWalkException;
 import org.eclipse.jgit.lib.BlobBasedConfig;
 import org.eclipse.jgit.lib.CommitBuilder;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
@@ -59,7 +58,6 @@ import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.RefUpdate.Result;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.lib.TreeFormatter;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -1706,24 +1704,6 @@ public class JGitUtils {
 			error(t, repository, "Failed to create orphan branch {1} in repository {0}", branchName);
 		}
 		return success;
-	}
-
-	/**
-	 * Returns a StoredConfig object for the repository.
-	 * 
-	 * @param repository
-	 * @return the StoredConfig of the repository
-	 */
-	public static StoredConfig readConfig(Repository repository) {
-		StoredConfig c = repository.getConfig();
-		try {
-			c.load();
-		} catch (ConfigInvalidException cex) {
-			error(cex, repository, "{0} configuration is invalid!");
-		} catch (IOException cex) {
-			error(cex, repository, "Could not open configuration for {0}!");
-		}
-		return c;
 	}
 
 	/**

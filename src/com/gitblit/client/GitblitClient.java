@@ -578,6 +578,10 @@ public class GitblitClient implements Serializable {
 	public boolean deleteRepository(RepositoryModel repository) throws IOException {
 		return RpcUtils.deleteRepository(repository, url, account, password);
 	}
+	
+	public boolean clearRepositoryCache() throws IOException {
+		return RpcUtils.clearRepositoryCache(url, account, password);
+	}
 
 	public boolean createUser(UserModel user) throws IOException {
 		return RpcUtils.createUser(user, url, account, password);

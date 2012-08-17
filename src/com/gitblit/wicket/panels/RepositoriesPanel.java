@@ -54,6 +54,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EmptyRepositoryPage;
+import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
 
 public class RepositoriesPanel extends BasePanel {
@@ -73,6 +74,16 @@ public class RepositoriesPanel extends BasePanel {
 		final IDataProvider<RepositoryModel> dp;
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
+		adminLinks.add(new Link<Void>("clearCache") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				GitBlit.self().resetRepositoryListCache();
+				setResponsePage(RepositoriesPage.class);
+			}
+		}.setVisible(GitBlit.getBoolean(Keys.git.cacheRepositoryList, true)));
 		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 		add(adminLinks.setVisible(showAdmin));
 

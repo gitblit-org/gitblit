@@ -91,4 +91,8 @@ public class ObjectCache<X> implements Serializable {
 		}
 		return null;
 	}
+	
+	public int size() {
+		return cache.size();
+	}
 }

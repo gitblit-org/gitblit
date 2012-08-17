@@ -82,6 +82,8 @@ public abstract class RepositoriesPanel extends JPanel {
 
 	private JTextField filterTextfield;
 
+	private JButton clearCache;
+
 	public RepositoriesPanel(GitblitClient gitblit) {
 		super();
 		this.gitblit = gitblit;
@@ -103,6 +105,13 @@ public abstract class RepositoriesPanel extends JPanel {
 		refreshRepositories.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				refreshRepositories();
+			}
+		});
+		
+		clearCache = new JButton(Translation.get("gb.clearCache"));
+		clearCache.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearCache();
 			}
 		});
 
@@ -242,6 +251,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		repositoryTablePanel.add(new JScrollPane(table), BorderLayout.CENTER);
 
 		JPanel repositoryControls = new JPanel(new FlowLayout(FlowLayout.CENTER, Utils.MARGIN, 0));
+		repositoryControls.add(clearCache);
 		repositoryControls.add(refreshRepositories);
 		repositoryControls.add(browseRepository);
 		repositoryControls.add(createRepository);
@@ -285,6 +295,7 @@ public abstract class RepositoriesPanel extends JPanel {
 	protected abstract void updateTeamsTable();
 
 	protected void disableManagement() {
+		clearCache.setVisible(false);
 		createRepository.setVisible(false);
 		editRepository.setVisible(false);
 		delRepository.setVisible(false);
@@ -339,6 +350,26 @@ public abstract class RepositoriesPanel extends JPanel {
 			protected Boolean doRequest() throws IOException {
 				gitblit.refreshRepositories();
 				return true;
+			}
+
+			@Override
+			protected void onSuccess() {
+				updateTable(false);
+			}
+		};
+		worker.execute();
+	}
+	
+	protected void clearCache() {
+		GitblitWorker worker = new GitblitWorker(RepositoriesPanel.this,
+				RpcRequest.CLEAR_REPOSITORY_CACHE) {
+			@Override
+			protected Boolean doRequest() throws IOException {
+				if (gitblit.clearRepositoryCache()) {
+					gitblit.refreshRepositories();
+					return true;
+				}
+				return false;
 			}
 
 			@Override

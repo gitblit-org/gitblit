@@ -29,7 +29,6 @@ import org.junit.Test;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.utils.JGitUtils;
 
 public class RepositoryModelTest {
 	
@@ -49,7 +48,7 @@ public class RepositoryModelTest {
 	@Before
 	public void initializeConfiguration() throws Exception{
 		Repository r = GitBlitSuite.getHelloworldRepository();
-		StoredConfig config = JGitUtils.readConfig(r);
+		StoredConfig config = r.getConfig();
 		
 		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
 		config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, "commitMessageRegEx", "\\d");
@@ -61,7 +60,7 @@ public class RepositoryModelTest {
 	@After
 	public void teardownConfiguration() throws Exception {
 		Repository r = GitBlitSuite.getHelloworldRepository();
-		StoredConfig config = JGitUtils.readConfig(r);
+		StoredConfig config = r.getConfig();
 		
 		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
 		config.save();

@@ -25,6 +25,8 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### additions
 
+- Identified repository list is now cached by default to reduce disk io and to improve performance (issue 103)  
+    **New:** *git.cacheRepositoryList=true*
 - Preliminary bare repository submodule support  
     **New:** *git.submoduleUrlPatterns=*
     - *git.submoduleUrlPatterns* is a space-delimited list of regular expressions for extracting a repository name from a submodule url.  

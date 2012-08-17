@@ -49,7 +49,7 @@ public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 3;
+	public static final int PROTOCOL_VERSION = 4;
 
 	public RpcServlet() {
 		super();
@@ -316,6 +316,13 @@ public class RpcServlet extends JsonServlet {
 			// return the server's status information
 			if (allowAdmin) {
 				result = GitBlit.self().getStatus();
+			} else {
+				response.sendError(notAllowedCode);
+			}
+		} else if (RpcRequest.CLEAR_REPOSITORY_CACHE.equals(reqType)) {
+			// clear the repository list cache
+			if (allowAdmin) {
+				GitBlit.self().resetRepositoryListCache();
 			} else {
 				response.sendError(notAllowedCode);
 			}
