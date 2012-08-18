@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +57,7 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.storage.file.WindowCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.transport.ServiceMayNotContinueException;
@@ -88,6 +88,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
@@ -128,7 +129,7 @@ public class GitBlit implements ServletContextListener {
 
 	private final ObjectCache<List<Metric>> repositoryMetricsCache = new ObjectCache<List<Metric>>();
 	
-	private final List<String> repositoryListCache = new CopyOnWriteArrayList<String>();
+	private final Map<String, RepositoryModel> repositoryListCache = new ConcurrentHashMap<String, RepositoryModel>();
 	
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
 
@@ -736,25 +737,32 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param name
 	 */
-	private void addToCachedRepositoryList(String name) {
+	private void addToCachedRepositoryList(String name, RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			repositoryListCache.add(name);
+			repositoryListCache.put(name, model);
 		}
+	}
+	
+	/**
+	 * Removes the repository from the list of cached repositories.
+	 * 
+	 * @param name
+	 */
+	private void removeFromCachedRepositoryList(String name) {
+		if (StringUtils.isEmpty(name)) {
+			return;
+		}
+		repositoryListCache.remove(name);
 	}
 
 	/**
-	 * Clears all the cached data for the specified repository.
+	 * Clears all the cached metadata for the specified repository.
 	 * 
 	 * @param repositoryName
-	 * @param isDeleted
 	 */
-	private void clearRepositoryCache(String repositoryName, boolean isDeleted) {
+	private void clearRepositoryMetadataCache(String repositoryName) {
 		repositorySizeCache.remove(repositoryName);
 		repositoryMetricsCache.remove(repositoryName);
-		
-		if (isDeleted) {
-			repositoryListCache.remove(repositoryName);
-		}
 	}
 	
 	/**
@@ -831,10 +839,12 @@ public class GitBlit implements ServletContextListener {
 							calculateSize(model);
 						}
 					}
+				} else {
+					// update cache
+					for (String repository : repositories) {
+						getRepositoryModel(repository);
+					}
 				}
-				
-				// update cache
-				repositoryListCache.addAll(repositories);
 				
 				long duration = System.currentTimeMillis() - startTime;
 				logger.info(MessageFormat.format(msg, repositoryListCache.size(), duration));
@@ -842,7 +852,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// return sorted copy of cached list
-		List<String> list = new ArrayList<String>(repositoryListCache);		
+		List<String> list = new ArrayList<String>(repositoryListCache.keySet());		
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
@@ -966,6 +976,79 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository model or null
 	 */
 	public RepositoryModel getRepositoryModel(String repositoryName) {
+		if (!repositoryListCache.containsKey(repositoryName)) {
+			RepositoryModel model = loadRepositoryModel(repositoryName);
+			if (model == null) {
+				return null;
+			}
+			addToCachedRepositoryList(repositoryName, model);			
+			return model;
+		}
+		
+		// cached model
+		RepositoryModel model = repositoryListCache.get(repositoryName);
+		
+		// check for updates
+		Repository r = getRepository(repositoryName);
+		if (r == null) {
+			// repository is missing
+			removeFromCachedRepositoryList(repositoryName);
+			logger.error(MessageFormat.format("Repository \"{0}\" is missing! Removing from cache.", repositoryName));
+			return null;
+		}
+		
+		FileBasedConfig config = (FileBasedConfig) getRepositoryConfig(r);
+		if (config.isOutdated()) {
+			// reload model
+			logger.info(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
+			model = loadRepositoryModel(repositoryName);
+			removeFromCachedRepositoryList(repositoryName);
+			addToCachedRepositoryList(repositoryName, model);
+		} else {
+			// update a few repository parameters 
+			if (!model.hasCommits) {
+				// update hasCommits, assume a repository only gains commits :)
+				model.hasCommits = JGitUtils.hasCommits(r);
+			}
+
+			model.lastChange = JGitUtils.getLastChange(r);
+		}
+		r.close();
+		
+		// return a copy of the cached model
+		return DeepCopier.copy(model);
+	}
+	
+	/**
+	 * Workaround JGit.  I need to access the raw config object directly in order
+	 * to see if the config is dirty so that I can reload a repository model.
+	 * If I use the stock JGit method to get the config it already reloads the
+	 * config.  If the config changes are made within Gitblit this is fine as
+	 * the returned config will still be flagged as dirty.  BUT... if the config
+	 * is manipulated outside Gitblit then it fails to recognize this as dirty.
+	 *  
+	 * @param r
+	 * @return a config
+	 */
+	private StoredConfig getRepositoryConfig(Repository r) {
+		try {
+			Field f = r.getClass().getDeclaredField("repoConfig");
+			f.setAccessible(true);
+			StoredConfig config = (StoredConfig) f.get(r);
+			return config;
+		} catch (Exception e) {
+			logger.error("Failed to retrieve \"repoConfig\" via reflection", e);
+		}
+		return r.getConfig();
+	}
+	
+	/**
+	 * Create a repository model from the configuration and repository data.
+	 * 
+	 * @param repositoryName
+	 * @return a repositoryModel or null if the repository does not exist
+	 */
+	private RepositoryModel loadRepositoryModel(String repositoryName) {
 		Repository r = getRepository(repositoryName);
 		if (r == null) {
 			return null;
@@ -1025,6 +1108,11 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the repository exists
 	 */
 	public boolean hasRepository(String repositoryName) {
+		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+			// if we are caching use the cache to determine availability
+			// otherwise we end up adding a phantom repository to the cache
+			return repositoryListCache.containsKey(repositoryName);
+		}		
 		Repository r = getRepository(repositoryName, false);
 		if (r == null) {
 			return false;
@@ -1169,9 +1257,6 @@ public class GitBlit implements ServletContextListener {
 			// create repository
 			logger.info("create repository " + repository.name);
 			r = JGitUtils.createRepository(repositoriesFolder, repository.name);
-			
-			// add name to cache
-			addToCachedRepositoryList(repository.name);
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
@@ -1211,10 +1296,7 @@ public class GitBlit implements ServletContextListener {
 				}
 
 				// clear the cache
-				clearRepositoryCache(repositoryName, true);
-				
-				// add new name to repository list cache
-				addToCachedRepositoryList(repository.name);
+				clearRepositoryMetadataCache(repositoryName);
 			}
 
 			// load repository
@@ -1242,13 +1324,18 @@ public class GitBlit implements ServletContextListener {
 						repository.name, currentRef, repository.HEAD));
 				if (JGitUtils.setHEADtoRef(r, repository.HEAD)) {
 					// clear the cache
-					clearRepositoryCache(repository.name, false);
+					clearRepositoryMetadataCache(repository.name);
 				}
 			}
 
 			// close the repository object
 			r.close();
 		}
+		
+		// update repository cache
+		removeFromCachedRepositoryList(repositoryName);
+		// model will actually be replaced on next load because config is stale
+		addToCachedRepositoryList(repository.name, repository);
 	}
 	
 	/**
@@ -1339,12 +1426,14 @@ public class GitBlit implements ServletContextListener {
 		try {
 			closeRepository(repositoryName);
 			// clear the repository cache
-			clearRepositoryCache(repositoryName, true);			
+			clearRepositoryMetadataCache(repositoryName);
+			removeFromCachedRepositoryList(repositoryName);
 
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
 				FileUtils.delete(folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 				if (userService.deleteRepositoryRole(repositoryName)) {
+					logger.info(MessageFormat.format("Repository \"{0}\" deleted", repositoryName));
 					return true;
 				}
 			}
