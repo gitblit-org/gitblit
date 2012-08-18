@@ -594,7 +594,6 @@ public class StringUtils {
 				// ignore unsupported charsets
 			}
 		}
-		value = new String(content, Charset.forName("UTF-8"));
 		if (value.startsWith("\uFEFF")) {
 			// strip UTF-8 BOM
             return value.substring(1);
