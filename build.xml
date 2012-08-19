@@ -122,7 +122,16 @@
 			<include name="com/gitblit/Constants.java" />
 			<include name="com/gitblit/utils/StringUtils.java" />			
 		</javac>
-		<java classpath="${project.build.dir}" classname="com.gitblit.build.Build" />
+
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.Build">
+			<syspropertyset id="proxy.properties">
+				<propertyref prefix="java.net.useSystemProxies"/>
+				<propertyref prefix="http."/>
+				<propertyref prefix="https."/>
+				<propertyref prefix="ftp."/>
+				<propertyref prefix="socksProxy"/>
+			</syspropertyset>
+		</java>
 
 		<!-- Compile Project -->
 		<path id="master-classpath">
