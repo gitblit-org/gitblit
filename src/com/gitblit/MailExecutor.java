@@ -17,7 +17,6 @@ package com.gitblit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.regex.Pattern;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
-import javax.mail.Message.RecipientType;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -52,8 +50,6 @@ public class MailExecutor implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(MailExecutor.class);
 
 	private final Queue<Message> queue = new ConcurrentLinkedQueue<Message>();
-
-	private final Set<Message> failures = Collections.synchronizedSet(new HashSet<Message>());
 
 	private final Session session;
 
@@ -216,49 +212,22 @@ public class MailExecutor implements Runnable {
 		if (!queue.isEmpty()) {
 			if (session != null) {
 				// send message via mail server
+				List<Message> failures = new ArrayList<Message>();
 				Message message = null;
-				while ((message = queue.peek()) != null) {
+				while ((message = queue.poll()) != null) {
 					try {
 						if (settings.getBoolean(Keys.mail.debug, false)) {
-							logger.info("send: "
-									+ StringUtils.trimString(
-											message.getSubject()
-													+ " => "
-													+ message.getRecipients(RecipientType.TO)[0]
-															.toString(), 60));
+							logger.info("send: " + StringUtils.trimString(message.getSubject(), 60));
 						}
 						Transport.send(message);
-						queue.remove();
-						failures.remove(message);
 					} catch (Throwable e) {
-						if (!failures.contains(message)) {
-							logger.error("Failed to send message", e);
-							failures.add(message);
-						}
+						logger.error("Failed to send message", e);
+						failures.add(message);
 					}
 				}
-			}
-		} else {
-			// log message to console and drop
-			if (!queue.isEmpty()) {
-				Message message = null;
-				while ((message = queue.peek()) != null) {
-					try {
-						logger.info("drop: "
-								+ StringUtils.trimString(
-										(message.getSubject())
-												+ " => "
-												+ message.getRecipients(RecipientType.TO)[0]
-														.toString(), 60));
-						queue.remove();
-						failures.remove(message);
-					} catch (Throwable e) {
-						if (!failures.contains(message)) {
-							logger.error("Failed to remove message from queue");
-							failures.add(message);
-						}
-					}
-				}
+				
+				// push the failures back onto the queue for the next cycle
+				queue.addAll(failures);
 			}
 		}
 	}
