@@ -321,7 +321,7 @@ public class RpcServlet extends JsonServlet {
 			}
 		} else if (RpcRequest.CLEAR_REPOSITORY_CACHE.equals(reqType)) {
 			// clear the repository list cache
-			if (allowAdmin) {
+			if (allowManagement) {
 				GitBlit.self().resetRepositoryListCache();
 			} else {
 				response.sendError(notAllowedCode);
