@@ -14,6 +14,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Fixed MailExecutor's failure to cope with mail server connection troubles resulting in 100% CPU usage
 - Fixed generated urls in Groovy *sendmail* hook script for grouped repositories
 - Fixed generated urls in RSS feeds for grouped repositories
+- Fixed nullpointer exception in git servlet security filter (issue 123)
 - Eliminated an unnecessary reopsitory enumeration call on the root page which should result in faster page loads (issue 103) 
 - Gitblit could not delete a Lucene index in a working copy on index upgrade 
 - Do not index submodule links (issue 119)
@@ -51,12 +52,15 @@ AUTHENTICATED allows restricted access for any authenticated user.  This is a lo
 - Blob page now supports displaying images (issue 6)
 - Non-image binary files can now be downloaded using the RAW link
 - Support StartTLS in LdapUserService (Steffen Gebert, issue 122)
+- Added Korean translation
 
 #### changes
 
 - Line breaks inserted for readability in raw Markdown content display in the event of a parsing/transformation error.  An error message is now displayed prepended to the raw content.
 - Improve UTF-8 reading for Markdown files
 - Updated Polish translation
+- Updated Japanese translation
+- Updated Spanish translation
 
 <hr/>
 
