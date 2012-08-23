@@ -181,13 +181,14 @@ public class SyndicationServlet extends HttpServlet {
 			urlPattern = "{0}/commit/?r={1}&h={2}";
 		}
 		String gitblitUrl = HttpUtils.getGitblitURL(request);
+		char fsc = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
 		// convert RevCommit to SyndicatedEntryModel
 		for (RevCommit commit : commits) {
 			FeedEntryModel entry = new FeedEntryModel();
 			entry.title = commit.getShortMessage();
 			entry.author = commit.getAuthorIdent().getName();
 			entry.link = MessageFormat.format(urlPattern, gitblitUrl,
-					StringUtils.encodeURL(model.name), commit.getName());
+					StringUtils.encodeURL(model.name.replace('/', fsc)), commit.getName());
 			entry.published = commit.getCommitterIdent().getWhen();
 			entry.contentType = "text/html";
 			String message = GitBlit.self().processCommitMessage(model.name,
