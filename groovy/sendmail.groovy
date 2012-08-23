@@ -106,10 +106,11 @@ for (team in teams) {
 toAddresses.addAll(repository.mailingLists)
 
 // define the summary and commit urls
-def repo = repository.name.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/'))
+def repo = repository.name
 def summaryUrl
 def commitUrl
-if (gitblit.getBoolean(Keys.web.mountParameters, true)) {	
+if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
+	repo = repo.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/')).replace('/', '%2F')
 	summaryUrl = url + "/summary/$repo"
 	commitUrl = url + "/commit/$repo/"
 } else {
