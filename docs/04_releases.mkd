@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Bypass Wicket's inability to handle direct url addressing of a view-restricted, grouped repository for new, unauthenticated sessions (e.g. click link from email or rss feed without having an active Wicket session)
 - Fixed MailExecutor's failure to cope with mail server connection troubles resulting in 100% CPU usage
 - Fixed generated urls in Groovy *sendmail* hook script for grouped repositories
 - Fixed generated urls in RSS feeds for grouped repositories

@@ -210,7 +210,7 @@ public abstract class RootPage extends BasePage {
 				GitBlit.self().setCookie(response, user);
 			}
 
-			if (!continueToOriginalDestination()) {
+			if (!session.continueRequest()) {
 				PageParameters params = getPageParameters();
 				if (params == null) {
 					// redirect to this page
