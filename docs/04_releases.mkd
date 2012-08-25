@@ -16,7 +16,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Fixed generated urls in Groovy *sendmail* hook script for grouped repositories
 - Fixed generated urls in RSS feeds for grouped repositories
 - Fixed nullpointer exception in git servlet security filter (issue 123)
-- Eliminated an unnecessary reopsitory enumeration call on the root page which should result in faster page loads (issue 103) 
+- Eliminated an unnecessary repository enumeration call on the root page which should result in faster page loads (issue 103) 
 - Gitblit could not delete a Lucene index in a working copy on index upgrade 
 - Do not index submodule links (issue 119)
 - Restore original user or team object on failure to update (issue 118)
@@ -25,7 +25,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Repository URL now uses `X-Forwarded-Proto` and `X-Forwarded-Port`, if available, for reverse proxy configurations (issue 115)
 - Output real RAW content, not simulated RAW content (issue 114)
 - Fixed Lucene charset encoding bug when reindexing a repository (issue 112)
-- Fixed search box linking to Lucene page for nested repository on Tomcat (issue 111)
+- Fixed search box linking to Lucene page for grouped repository on Tomcat (issue 111)
 - Fixed null pointer in LdapUserSerivce if account has a null email address (issue 110)
 - Really fixed failure to update a GO setting from the manager (issue 85)
 
