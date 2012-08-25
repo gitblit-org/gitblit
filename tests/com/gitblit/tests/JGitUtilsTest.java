@@ -362,7 +362,7 @@ public class JGitUtilsTest {
 		assertEquals("-rwxr-xr-x",
 				JGitUtils.getPermissionsFromMode(FileMode.EXECUTABLE_FILE.getBits()));
 		assertEquals("symlink", JGitUtils.getPermissionsFromMode(FileMode.SYMLINK.getBits()));
-		assertEquals("gitlink", JGitUtils.getPermissionsFromMode(FileMode.GITLINK.getBits()));
+		assertEquals("submodule", JGitUtils.getPermissionsFromMode(FileMode.GITLINK.getBits()));
 		assertEquals("missing", JGitUtils.getPermissionsFromMode(FileMode.MISSING.getBits()));
 	}
 
