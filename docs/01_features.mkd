@@ -44,6 +44,7 @@
     - Japanese
     - Spanish
     - Polish
+    - Korean
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration

@@ -3,7 +3,7 @@
 <b>Current Release %VERSION% (%BUILDDATE%)</b> <a href="releases.html">changelog</a>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-success" href="http://code.google.com/p/gitblit/downloads/detail?name=%GO%">Download Gitblit GO</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-danger" href="http://code.google.com/p/gitblit/downloads/detail?name=%WAR%">Download Gitblit WAR</a></div>
-<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a> <span class="label label-warning">BETA</span></div>
+<div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-info" href="http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%">Download Gitblit Express</a></div>
 <div style="padding:5px;"><a style="width:175px;text-decoration:none;" class="btn btn-primary" href="http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%">Download Gitblit Manager</a></div>
 	<div style="text-align:center">
 		<a href="http://code.google.com/p/gitblit/downloads/detail?name=%API%">Gitblit API</a> | <a href="http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%">Gitblit Federation Client</a>
@@ -47,7 +47,7 @@ All dependencies are bundled.
 
 All dependencies are bundled.
 
-### Express: For the Cloud <span class="label label-warning" style="vertical-align: middle;">BETA</span>
+### Express: For the Cloud
 *Gitblit Express* is a prepared distribution for [RedHat's OpenShift][rhcloud] cloud service.
 
 All dependencies are bundled.

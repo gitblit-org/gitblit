@@ -151,7 +151,7 @@ public abstract class RepositoryPage extends BasePage {
 		if (showAdmin
 				|| GitBlitWebSession.get().isLoggedIn()
 				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
-						.getUser().username))) {
+						.getUsername()))) {
 			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
 		}
 		return pages;
@@ -198,7 +198,13 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
+				if (GitBlit.self().hasRepository(repositoryName)) {
+					// has repository, but unauthorized
+					authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
+				} else {
+					// does not have repository
+					error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
+				}
 				return null;
 			}
 			m = model;

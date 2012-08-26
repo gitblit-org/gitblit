@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Application;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.RestartResponseAtInterceptPageException;
+import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.WebPage;
@@ -35,9 +35,11 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.request.RequestParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,7 +139,8 @@ public abstract class BasePage extends WebPage {
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
 			GitBlit.self().setCookie(response, user);
-			continueToOriginalDestination();
+			
+			session.continueRequest();
 		}
 	}
 
@@ -229,7 +232,7 @@ public abstract class BasePage extends WebPage {
 		// inject username into repository url if authentication is required
 		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
 				&& GitBlitWebSession.get().isLoggedIn()) {
-			String username = GitBlitWebSession.get().getUser().username;
+			String username = GitBlitWebSession.get().getUsername();
 			sb.insert(sb.indexOf("://") + 3, username + "@");
 		}
 		return sb.toString();
@@ -240,10 +243,13 @@ public abstract class BasePage extends WebPage {
 	}
 
 	public void error(String message, boolean redirect) {
-		logger.error(message);
+		logger.error(message  + " for " + GitBlitWebSession.get().getUsername());
 		if (redirect) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			throw new RestartResponseException(getApplication().getHomePage());
+			RequestParameters params = getRequest().getRequestParameters();
+			String relativeUrl = urlFor(RepositoriesPage.class, null).toString();
+			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+			throw new RedirectToUrlException(absoluteUrl);
 		} else {
 			super.error(message);
 		}
@@ -260,12 +266,13 @@ public abstract class BasePage extends WebPage {
 	}
 
 	public void authenticationError(String message) {
-		logger.error(message);
-		if (GitBlitWebSession.get().isLoggedIn()) {
-			error(message, true);
-		} else {
-			throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
+		logger.error(getRequest().getURL() + " for " + GitBlitWebSession.get().getUsername());
+		if (!GitBlitWebSession.get().isLoggedIn()) {
+			// cache the request if we have not authenticated.
+			// the request will continue after authentication.
+			GitBlitWebSession.get().cacheRequest(getClass());
 		}
+		error(message, true);
 	}
 
 	/**

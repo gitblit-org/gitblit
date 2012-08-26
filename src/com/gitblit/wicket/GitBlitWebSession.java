@@ -15,10 +15,16 @@
  */
 package com.gitblit.wicket;
 
+import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.wicket.Page;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.Request;
 import org.apache.wicket.Session;
+import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
@@ -33,7 +39,9 @@ public final class GitBlitWebSession extends WebSession {
 	private UserModel user;
 
 	private String errorMessage;
-
+	
+	private String requestUrl;
+	
 	public GitBlitWebSession(Request request) {
 		super(request);
 	}
@@ -41,6 +49,46 @@ public final class GitBlitWebSession extends WebSession {
 	public void invalidate() {
 		super.invalidate();
 		user = null;
+	}
+	
+	/**
+	 * Cache the requested protected resource pending successful authentication.
+	 * 
+	 * @param pageClass
+	 */
+	public void cacheRequest(Class<? extends Page> pageClass) {
+		// build absolute url with correctly encoded parameters?!
+		Request req = WebRequestCycle.get().getRequest();
+		Map<String, ?> params = req.getRequestParameters().getParameters();
+		PageParameters pageParams = new PageParameters(params);
+		String relativeUrl = WebRequestCycle.get().urlFor(pageClass, pageParams).toString();
+		requestUrl = RequestUtils.toAbsolutePath(relativeUrl);
+		if (isTemporary())
+		{
+			// we must bind the temporary session into the session store
+			// so that we can re-use this session for reporting an error message
+			// on the redirected page and continuing the request after
+			// authentication.
+			bind();
+		}
+	}
+	
+	/**
+	 * Continue any cached request.  This is used when a request for a protected
+	 * resource is aborted/redirected pending proper authentication.  Gitblit
+	 * no longer uses Wicket's built-in mechanism for this because of Wicket's
+	 * failure to properly handle parameters with forward-slashes.  This is a
+	 * constant source of headaches with Wicket.
+	 *  
+	 * @return false if there is no cached request to process
+	 */
+	public boolean continueRequest() {
+		if (requestUrl != null) {
+			String url = requestUrl;
+			requestUrl = null;
+			throw new RedirectToUrlException(url);
+		}
+		return false;
 	}
 
 	public boolean isLoggedIn() {
@@ -52,6 +100,10 @@ public final class GitBlitWebSession extends WebSession {
 			return false;
 		}
 		return user.canAdmin;
+	}
+	
+	public String getUsername() {
+		return user == null ? "anonymous" : user.username;
 	}
 
 	public UserModel getUser() {

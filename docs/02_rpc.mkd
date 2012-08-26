@@ -94,6 +94,7 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>LIST_REPOSITORY_TEAMS</td><td>repository name</td><td><em>admin</em></td><td>2</td><td>-</td><td>List&lt;String&gt;</td></tr>
 <tr><td>SET_REPOSITORY_TEAMS</td><td>repository name</td><td><em>admin</em></td><td>2</td><td>List&lt;String&gt;</td><td>-</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerSettings (management keys)</td></tr>
+<tr><td>CLEAR_REPOSITORY_CACHE</td><td>-</td><td><em>-</em></td><td>4</td><td>-</td><td>-</td></tr>
 <tr><td colspan='6'><em>web.enableRpcAdministration=true</em></td></tr>
 <tr><td>LIST_FEDERATION_REGISTRATIONS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
 <tr><td>LIST_FEDERATION_RESULTS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;FederationModel&gt;</td></tr>
@@ -102,7 +103,6 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerSettings (all keys)</td></tr>
 <tr><td>EDIT_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>Map&lt;String, String&gt;</td><td>-</td></tr>
 <tr><td>LIST_STATUS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerStatus (see example below)</td></tr>
-<tr><td>CLEAR_REPOSITORY_CACHE</td><td>-</td><td><em>admin</em></td><td>4</td><td>-</td><td>-</td></tr>
 </table>
 
 ### RPC/HTTP Response Codes

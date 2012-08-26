@@ -30,7 +30,7 @@ public class Constants {
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
-	public static final String VERSION = "1.1.0-SNAPSHOT";
+	public static final String VERSION = "1.2.0-SNAPSHOT";
 
 	// The build script extracts this exact line so be careful editing it
 	// and only use A-Z a-z 0-9 .-_ in the string.
@@ -242,13 +242,13 @@ public class Constants {
 	public static enum RpcRequest {
 		// Order is important here.  anything above LIST_SETTINGS requires
 		// administrator privileges and web.allowRpcManagement.
-		GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, LIST_SETTINGS,
+		CLEAR_REPOSITORY_CACHE, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, LIST_SETTINGS,
 		CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY, 
 		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER, 
 		LIST_TEAMS, CREATE_TEAM, EDIT_TEAM, DELETE_TEAM,
 		LIST_REPOSITORY_MEMBERS, SET_REPOSITORY_MEMBERS, LIST_REPOSITORY_TEAMS, SET_REPOSITORY_TEAMS, 
 		LIST_FEDERATION_REGISTRATIONS, LIST_FEDERATION_RESULTS, LIST_FEDERATION_PROPOSALS, LIST_FEDERATION_SETS,
-		EDIT_SETTINGS, LIST_STATUS, CLEAR_REPOSITORY_CACHE;
+		EDIT_SETTINGS, LIST_STATUS;
 
 		public static RpcRequest fromName(String name) {
 			for (RpcRequest type : values()) {

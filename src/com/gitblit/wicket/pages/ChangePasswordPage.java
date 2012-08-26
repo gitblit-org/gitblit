@@ -56,7 +56,7 @@ public class ChangePasswordPage extends RootSubPage {
 					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
 		}
 		
-		setupPage(getString("gb.changePassword"), GitBlitWebSession.get().getUser().username);
+		setupPage(getString("gb.changePassword"), GitBlitWebSession.get().getUsername());
 
 		StatelessForm<Void> form = new StatelessForm<Void>("passwordForm") {
 

@@ -16,7 +16,7 @@
 package com.gitblit.wicket;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.RestartResponseAtInterceptPageException;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
 
@@ -49,6 +49,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 			GitBlitWebSession session = GitBlitWebSession.get();
 			if (authenticateView && !session.isLoggedIn()) {
 				// authentication required
+				session.cacheRequest(pageClass);
 				return false;
 			}
 
@@ -78,7 +79,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	@Override
 	public void onUnauthorizedInstantiation(Component component) {
 		if (component instanceof BasePage) {
-			throw new RestartResponseAtInterceptPageException(RepositoriesPage.class);
+			throw new RestartResponseException(RepositoriesPage.class);
 		}
 	}
 }
