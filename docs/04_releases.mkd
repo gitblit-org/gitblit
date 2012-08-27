@@ -9,6 +9,17 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
+#### changes
+
+- LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.  
+If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.
+
+<hr/>
+
+### Older Releases
+
+**1.1.0** *released 2012-08-25*
+
 #### fixes
 
 - Bypass Wicket's inability to handle direct url addressing of a view-restricted, grouped repository for new, unauthenticated sessions (e.g. click link from email or rss feed without having an active Wicket session)
@@ -64,8 +75,6 @@ AUTHENTICATED allows restricted access for any authenticated user.  This is a lo
 - Updated Spanish translation
 
 <hr/>
-
-### Older Releases
 
 **1.0.0** *released 2012-07-14*
 

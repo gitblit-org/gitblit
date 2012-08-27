@@ -205,17 +205,30 @@ public class LdapUserService extends GitblitUserService {
 		return null;		
 	}
 
+	/**
+	 * Set the admin attribute from team memberships retrieved from LDAP.
+	 * If we are not storing teams in LDAP and/or we have not defined any
+	 * administrator teams, then do not change the admin flag.
+	 * 
+	 * @param user
+	 */
 	private void setAdminAttribute(UserModel user) {
-	    user.canAdmin = false;
-	    List<String>  admins = settings.getStrings(Keys.realm.ldap.admins);
-	    for (String admin : admins) {
-	        if (admin.startsWith("@")) { // Team
-	            if (user.getTeam(admin.substring(1)) != null)
-	                user.canAdmin = true;
-	        } else
-	            if (user.getName().equalsIgnoreCase(admin))
-	                user.canAdmin = true;
-	    }
+		if (!supportsTeamMembershipChanges()) {
+			List<String> admins = settings.getStrings(Keys.realm.ldap.admins);
+			// if we have defined administrative teams, then set admin flag
+			// otherwise leave admin flag unchanged
+			if (!ArrayUtils.isEmpty(admins)) {
+				user.canAdmin = false;
+				for (String admin : admins) {
+					if (admin.startsWith("@")) { // Team
+						if (user.getTeam(admin.substring(1)) != null)
+							user.canAdmin = true;
+					} else
+						if (user.getName().equalsIgnoreCase(admin))
+							user.canAdmin = true;
+				}
+			}
+		}
 	}
 	
 	private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
