@@ -78,7 +78,7 @@ public class StringUtils {
 	 * @return plain text escaped for html
 	 */
 	public static String escapeForHtml(String inStr, boolean changeSpace) {
-		StringBuffer retStr = new StringBuffer();
+		StringBuilder retStr = new StringBuilder();
 		int i = 0;
 		while (i < inStr.length()) {
 			if (inStr.charAt(i) == '&') {
@@ -119,7 +119,7 @@ public class StringUtils {
 	 * @return properly escaped url
 	 */
 	public static String encodeURL(String inStr) {
-		StringBuffer retStr = new StringBuffer();
+		StringBuilder retStr = new StringBuilder();
 		int i = 0;
 		while (i < inStr.length()) {
 			if (inStr.charAt(i) == '/') {

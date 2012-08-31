@@ -250,7 +250,7 @@ public class WicketUtils {
 			public void renderHead(IHeaderResponse response) {
 				String contentType = "application/rss+xml";
 
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer.append("<link rel=\"alternate\" ");
 				buffer.append("type=\"").append(contentType).append("\" ");
 				buffer.append("title=\"").append(feedTitle).append("\" ");
