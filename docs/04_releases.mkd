@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### changes
 
+- Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (Github/jpyeron, issue 126)
 - LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.  
 If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.
 

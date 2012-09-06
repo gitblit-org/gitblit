@@ -88,6 +88,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JGitUtils;
@@ -2214,6 +2215,8 @@ public class GitBlit implements ServletContextListener {
 		} catch (IllegalArgumentException e) {
 			logger.error("Failed to configure JGit parameters!", e);
 		}
+
+		ContainerUtils.CVE_2007_0450.test();
 	}
 	
 	private void logTimezone(String type, TimeZone zone) {
