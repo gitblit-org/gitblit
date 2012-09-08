@@ -15,6 +15,10 @@ If you are updating from an earlier release AND you have indexed branches with t
 - LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.  
 If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.
 
+#### dependency changes
+
+- updated to Jetty 7.6.5
+
 <hr/>
 
 ### Older Releases

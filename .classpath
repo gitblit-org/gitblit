@@ -14,7 +14,7 @@
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/rome-0.9-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/jdom-1.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
-	<classpathentry kind="lib" path="ext/jetty-webapp-7.4.3.v20110701.jar" sourcepath="ext/jetty-webapp-7.4.3.v20110701-sources.jar"/>
+	<classpathentry kind="lib" path="ext/jetty-webapp-7.6.5.v20120716.jar" sourcepath="ext/jetty-webapp-7.6.5.v20120716-sources.jar"/>
 	<classpathentry kind="lib" path="ext/gson-1.7.2.jar" sourcepath="ext/gson-1.7.2-sources.jar"/>
 	<classpathentry kind="lib" path="ext/mail-1.4.3.jar" sourcepath="ext/mail-1.4.3-sources.jar"/>
 	<classpathentry kind="lib" path="ext/googlecharts-1.4.20.jar" sourcepath="ext/googlecharts-1.4.20-sources.jar"/>
@@ -23,7 +23,7 @@
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.20.jar" sourcepath="ext/wicket-auth-roles-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.20.jar" sourcepath="ext/wicket-extensions-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/groovy-all-1.8.6.jar" sourcepath="ext/groovy-all-1.8.6-sources.jar"/>
-	<classpathentry kind="lib" path="ext/jetty-ajp-7.4.3.v20110701.jar" sourcepath="ext/jetty-ajp-7.4.3.v20110701-sources.jar"/>
+	<classpathentry kind="lib" path="ext/jetty-ajp-7.6.5.v20120716.jar" sourcepath="ext/jetty-ajp-7.6.5.v20120716-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lucene-core-3.6.0.jar" sourcepath="ext/lucene-core-3.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.7.jar" sourcepath="ext/markdownpapers-core-1.2.7-sources.jar"/>
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-2.0.0.201206130900-r.jar" sourcepath="ext/org.eclipse.jgit-2.0.0.201206130900-r-sources.jar"/>
