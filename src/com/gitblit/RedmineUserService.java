@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
 
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ConnectionUtils;
 import com.google.gson.Gson;
 
 /**
@@ -109,8 +109,8 @@ public class RedmineUserService extends GitblitUserService {
             return testingJson;
         }
 
-        URL apiUrl = new URL(url + "users/current.json?key=" + apiKey);
-        HttpURLConnection http = (HttpURLConnection) apiUrl.openConnection();
+        String apiUrl = url + "users/current.json?key=" + apiKey;
+        HttpURLConnection http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, null, null);
         http.setRequestMethod("GET");
         http.connect();
         InputStreamReader reader = new InputStreamReader(http.getInputStream());
