@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ConnectionUtils;
+import com.gitblit.utils.StringUtils;
 import com.google.gson.Gson;
 
 /**
@@ -72,11 +73,6 @@ public class RedmineUserService extends GitblitUserService {
     }
 
     @Override
-    public boolean supportsCookies() {
-        return false;
-    }
-
-    @Override
     public UserModel authenticate(String username, char[] password) {
         String urlText = this.settings.getString(Keys.realm.redmine.url, "");
         if (!urlText.endsWith("/")) {
@@ -95,6 +91,7 @@ public class RedmineUserService extends GitblitUserService {
                 userModel.displayName = current.user.firstname + " " + current.user.lastname;
                 userModel.emailAddress = current.user.mail;
                 userModel.canAdmin = true;
+                userModel.cookie = StringUtils.getSHA1(userModel.username + new String(password));
                 return userModel;
             }
 

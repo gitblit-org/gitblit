@@ -1,6 +1,7 @@
 package com.gitblit.tests;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -27,6 +28,7 @@ public class RedmineUserServiceTest {
         assertThat(userModel.getName(), is("RedmineUserId"));
         assertThat(userModel.getDisplayName(), is("baz foo"));
         assertThat(userModel.emailAddress, is("baz@example.com"));
+        assertNotNull(userModel.cookie);
     }
 
     @Test
