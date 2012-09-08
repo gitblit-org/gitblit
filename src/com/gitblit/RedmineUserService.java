@@ -86,15 +86,20 @@ public class RedmineUserService extends GitblitUserService {
             RedmineCurrent current = new Gson().fromJson(jsonString, RedmineCurrent.class);
             String login = current.user.login;
 
-            if (username.equalsIgnoreCase(login)) {
-                UserModel userModel = new UserModel(login);
-                userModel.displayName = current.user.firstname + " " + current.user.lastname;
-                userModel.emailAddress = current.user.mail;
-                userModel.canAdmin = true;
-                userModel.cookie = StringUtils.getSHA1(userModel.username + new String(password));
-                return userModel;
+            boolean canAdmin = true;
+            // non admin user can not get login name
+            if (StringUtils.isEmpty(login)) {
+                canAdmin = false;
+                login = current.user.mail;
             }
 
+            UserModel userModel = new UserModel(login);
+            userModel.canAdmin = canAdmin;
+            userModel.displayName = current.user.firstname + " " + current.user.lastname;
+            userModel.emailAddress = current.user.mail;
+            userModel.cookie = StringUtils.getSHA1(userModel.username + new String(password));
+
+            return userModel;
         } catch (IOException e) {
             logger.error("authenticate", e);
         }

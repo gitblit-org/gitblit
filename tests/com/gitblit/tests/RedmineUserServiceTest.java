@@ -19,6 +19,10 @@ public class RedmineUserServiceTest {
         + "\"last_login_on\":\"2012-09-06T23:59:26Z\",\"firstname\":\"baz\","
         + "\"id\":4,\"login\":\"RedmineUserId\",\"mail\":\"baz@example.com\"}}";
 
+    private static final String NOT_ADMIN_JSON = "{\"user\":{\"lastname\":\"foo\","
+        + "\"last_login_on\":\"2012-09-08T13:59:01Z\",\"created_on\":\"2009-03-17T14:25:50Z\","
+        + "\"mail\":\"baz@example.com\",\"id\":5,\"firstname\":\"baz\"}}";
+
     @Test
     public void testAuthenticate() throws Exception {
         RedmineUserService redmineUserService = new RedmineUserService();
@@ -29,15 +33,20 @@ public class RedmineUserServiceTest {
         assertThat(userModel.getDisplayName(), is("baz foo"));
         assertThat(userModel.emailAddress, is("baz@example.com"));
         assertNotNull(userModel.cookie);
+        assertThat(userModel.canAdmin, is(true));
     }
 
     @Test
-    public void testAuthenticateWithWronId() throws Exception {
+    public void testAuthenticateNotAdminUser() throws Exception {
         RedmineUserService redmineUserService = new RedmineUserService();
         redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
-        redmineUserService.setTestingCurrentUserAsJson(JSON);
-        UserModel userModel = redmineUserService.authenticate("WrongRedmineUserId", "RedmineAPIKey".toCharArray());
-        assertNull(userModel);
+        redmineUserService.setTestingCurrentUserAsJson(NOT_ADMIN_JSON);
+        UserModel userModel = redmineUserService.authenticate("RedmineUserId", "RedmineAPIKey".toCharArray());
+        assertThat(userModel.getName(), is("baz@example.com"));
+        assertThat(userModel.getDisplayName(), is("baz foo"));
+        assertThat(userModel.emailAddress, is("baz@example.com"));
+        assertNotNull(userModel.cookie);
+        assertThat(userModel.canAdmin, is(false));
     }
 
 }
