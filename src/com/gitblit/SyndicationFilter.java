@@ -15,19 +15,30 @@
  */
 package com.gitblit;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
 /**
- * The SyndicationFilter is an AccessRestrictionFilter which ensures that feed
- * requests for view-restricted repositories have proper authentication
+ * The SyndicationFilter is an AuthenticationFilter which ensures that feed
+ * requests for projects or view-restricted repositories have proper authentication
  * credentials and are authorized for the requested feed.
  * 
  * @author James Moger
  * 
  */
-public class SyndicationFilter extends AccessRestrictionFilter {
+public class SyndicationFilter extends AuthenticationFilter {
 
 	/**
 	 * Extract the repository name from the url.
@@ -35,8 +46,7 @@ public class SyndicationFilter extends AccessRestrictionFilter {
 	 * @param url
 	 * @return repository name
 	 */
-	@Override
-	protected String extractRepositoryName(String url) {
+	protected String extractRequestedName(String url) {
 		if (url.indexOf('?') > -1) {
 			return url.substring(0, url.indexOf('?'));
 		}
@@ -44,52 +54,91 @@ public class SyndicationFilter extends AccessRestrictionFilter {
 	}
 
 	/**
-	 * Analyze the url and returns the action of the request.
+	 * doFilter does the actual work of preprocessing the request to ensure that
+	 * the user may proceed.
 	 * 
-	 * @param url
-	 * @return action of the request
+	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
+	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	@Override
-	protected String getUrlRequestAction(String url) {
-		return "VIEW";
-	}
+	public void doFilter(final ServletRequest request, final ServletResponse response,
+			final FilterChain chain) throws IOException, ServletException {
 
-	/**
-	 * Determine if the action may be executed on the repository.
-	 * 
-	 * @param repository
-	 * @param action
-	 * @return true if the action may be performed
-	 */
-	@Override
-	protected boolean isActionAllowed(RepositoryModel repository, String action) {
-		return true;
-	}
-	
-	/**
-	 * Determine if the repository requires authentication.
-	 * 
-	 * @param repository
-	 * @param action
-	 * @return true if authentication required
-	 */
-	@Override
-	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
-		return repository.accessRestriction.atLeast(AccessRestrictionType.VIEW);
-	}
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-	/**
-	 * Determine if the user can access the repository and perform the specified
-	 * action.
-	 * 
-	 * @param repository
-	 * @param user
-	 * @param action
-	 * @return true if user may execute the action on the repository
-	 */
-	@Override
-	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
-		return user.canAccessRepository(repository);
-	}
+		String fullUrl = getFullUrl(httpRequest);
+		String name = extractRequestedName(fullUrl);
 
+		ProjectModel project = GitBlit.self().getProjectModel(name);
+		RepositoryModel model = null;
+		
+		if (project == null) {
+			// try loading a repository model
+			model = GitBlit.self().getRepositoryModel(name);
+			if (model == null) {
+				// repository not found. send 404.
+				logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
+						HttpServletResponse.SC_NOT_FOUND));
+				httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
+		}
+		
+		// Wrap the HttpServletRequest with the AccessRestrictionRequest which
+		// overrides the servlet container user principal methods.
+		// JGit requires either:
+		//
+		// 1. servlet container authenticated user
+		// 2. http.receivepack = true in each repository's config
+		//
+		// Gitblit must conditionally authenticate users per-repository so just
+		// enabling http.receivepack is insufficient.
+		AuthenticatedRequest authenticatedRequest = new AuthenticatedRequest(httpRequest);
+		UserModel user = getUser(httpRequest);
+		if (user != null) {
+			authenticatedRequest.setUser(user);
+		}
+
+		// BASIC authentication challenge and response processing
+		if (model != null) {
+			if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
+				if (user == null) {
+					// challenge client to provide credentials. send 401.
+					if (GitBlit.isDebugMode()) {
+						logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
+					}
+					httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
+					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				} else {
+					// check user access for request
+					if (user.canAdmin || user.canAccessRepository(model)) {
+						// authenticated request permitted.
+						// pass processing to the restricted servlet.
+						newSession(authenticatedRequest, httpResponse);
+						logger.info(MessageFormat.format("ARF: {0} ({1}) authenticated", fullUrl,
+								HttpServletResponse.SC_CONTINUE));
+						chain.doFilter(authenticatedRequest, httpResponse);
+						return;
+					}
+					// valid user, but not for requested access. send 403.
+					if (GitBlit.isDebugMode()) {
+						logger.info(MessageFormat.format("ARF: {0} forbidden to access {1}",
+								user.username, fullUrl));
+					}
+					httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+					return;
+				}
+			}
+		}
+
+		if (GitBlit.isDebugMode()) {
+			logger.info(MessageFormat.format("ARF: {0} ({1}) unauthenticated", fullUrl,
+					HttpServletResponse.SC_CONTINUE));
+		}
+		// unauthenticated request permitted.
+		// pass processing to the restricted servlet.
+		chain.doFilter(authenticatedRequest, httpResponse);
+	}
 }

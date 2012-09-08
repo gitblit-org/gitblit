@@ -42,6 +42,8 @@ import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.PatchPage;
+import com.gitblit.wicket.pages.ProjectPage;
+import com.gitblit.wicket.pages.ProjectsPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
@@ -112,6 +114,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/activity", ActivityPage.class, "r", "h");
 		mount("/gravatar", GravatarProfilePage.class, "h");
 		mount("/lucene", LuceneSearchPage.class);
+		mount("/project", ProjectPage.class, "p");
+		mount("/projects", ProjectsPage.class);
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {

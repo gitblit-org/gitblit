@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<wicket:fragment wicket:id="repositoryAdminLinks">
+		<span class="link">
+			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+			| <a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a>
+			| <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a>
+		</span>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="repositoryOwnerLinks">
+		<span class="link">
+			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+			| <a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a>
+		</span>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="repositoryUserLinks">
+		<span class="link">
+			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
+			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
+		</span>
+	</wicket:fragment>
+
+	<div class="row">
+		<div class="span12">
+			<h2><span wicket:id="projectTitle"></span> <small><span wicket:id="projectDescription"></span></small>
+				<a class="hidden-phone hidden-tablet brand" style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
+					<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
+				</a>
+			</h2>
+			<div class="markdown" wicket:id="projectMessage">[project message]</div>
+		</div>
+	</div>
+
+	<div class="tabbable">
+		<!-- tab titles -->
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#repositories" data-toggle="tab"><wicket:message key="gb.repositories"></wicket:message></a></li>
+			<li ><a href="#activity" data-toggle="tab"><wicket:message key="gb.activity"></wicket:message></a></li>
+		</ul>
+	
+		<!-- tab content -->
+		<div class="tab-content">
+
+			<!-- repositories tab -->
+			<div class="tab-pane active" id="repositories">
+				<!-- markdown -->
+				<div class="row">
+					<div class="span12">
+						<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
+					</div>
+				</div>
+				
+				<!-- repositories -->
+				<div class="row">
+					<div class="span6" style="border-top:1px solid #eee;" wicket:id="repository">
+						<div style="padding-top:15px;padding-bottom:15px;margin-right:15px;">
+							<div class="pull-right" style="text-align:right;padding-right:15px;">
+								<span wicket:id="repositoryLinks"></span>
+
+								<div>
+        							<img class="inlineIcon" wicket:id="frozenIcon" />
+        							<img class="inlineIcon" wicket:id="federatedIcon" />
+        							
+        							<a style="text-decoration: none;" wicket:id="tickets" wicket:message="title:gb.tickets">
+										<img style="border:0px;vertical-align:middle;" src="bug_16x16.png"></img>
+									</a>
+									<a style="text-decoration: none;" wicket:id="docs" wicket:message="title:gb.docs">
+										<img style="border:0px;vertical-align:middle;" src="book_16x16.png"></img>
+									</a>
+									<a style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
+										<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
+									</a>
+								</div>
+								<span style="color: #999;font-style:italic;font-size:0.8em;" wicket:id="repositoryOwner">[owner]</span>
+							</div>	
+			
+							<h3><span class="repositorySwatch" wicket:id="repositorySwatch"></span>
+								<span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span>
+								<img class="inlineIcon" wicket:id="accessRestrictionIcon" />
+							</h3>
+			
+							<div style="padding-left:20px;">
+
+        						<div style="padding-bottom:10px" wicket:id="repositoryDescription">[repository description]</div>
+
+			        			<div style="color: #999;">
+        							<wicket:message key="gb.lastChange">[last change]</wicket:message> <span wicket:id="repositoryLastChange">[last change]</span>,
+        							<span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span>
+        						</div>
+        
+								<div class="hidden-phone hidden-tablet" wicket:id="repositoryCloneUrl">[repository clone url]</div>
+							</div>
+						</div>
+					</div>		
+				</div>
+			</div>
+			
+			<!-- activity tab -->
+			<div class="tab-pane" id="activity">
+				<div class="pageTitle">
+					<h2><wicket:message key="gb.recentActivity"></wicket:message><small> <span class="hidden-phone">/ <span wicket:id="subheader">[days back]</span></span></small></h2>
+				</div>
+			
+				<div class="hidden-phone" style="height: 155px;text-align: center;">
+					<table>
+					<tr>
+						<td><span class="hidden-tablet" id="chartDaily"></span></td>
+						<td><span id="chartRepositories"></span></td>
+						<td><span id="chartAuthors"></span></td>
+					</tr>
+					</table>
+				</div>
+			
+				<div wicket:id="activityPanel">[activity panel]</div>
+			</div>
+		
+		</div>
+	</div>
+</wicket:extend>
+</body>
+</html>

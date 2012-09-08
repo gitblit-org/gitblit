@@ -734,6 +734,10 @@ table.repositories tr.group td {
  	border-bottom: 1px solid #aaa; 
 }
 
+table.repositories tr.group td a {
+	color: black;
+}
+
 table.palette { border:0; width: 0 !important; }
 table.palette td.header { 
 	font-weight: bold; 

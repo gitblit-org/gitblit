@@ -54,7 +54,7 @@ public class SyndicationUtilsTest {
 			entries.add(entry);
 		}
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
-		SyndicationUtils.toRSS("http://localhost", "", "Title", "Description", "Repository",
+		SyndicationUtils.toRSS("http://localhost", "", "Title", "Description", 
 				entries, os);
 		String feed = os.toString();
 		os.close();

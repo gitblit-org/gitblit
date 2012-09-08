@@ -26,3 +26,4 @@
 /users.conf
 *.directory
 /.gradle
+/projects.conf

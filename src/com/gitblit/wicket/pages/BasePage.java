@@ -15,10 +15,19 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +48,6 @@ import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
-import org.apache.wicket.request.RequestParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +56,14 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -237,16 +249,98 @@ public abstract class BasePage extends WebPage {
 		}
 		return sb.toString();
 	}
+	
+	protected List<ProjectModel> getProjectModels() {
+		final UserModel user = GitBlitWebSession.get().getUser();
+		List<ProjectModel> projects = GitBlit.self().getProjectModels(user);
+		return projects;
+	}
+	
+	protected List<ProjectModel> getProjects(PageParameters params) {
+		if (params == null) {
+			return getProjectModels();
+		}
+
+		boolean hasParameter = false;
+		String regex = WicketUtils.getRegEx(params);
+		String team = WicketUtils.getTeam(params);
+		int daysBack = params.getInt("db", 0);
+
+		List<ProjectModel> availableModels = getProjectModels();
+		Set<ProjectModel> models = new HashSet<ProjectModel>();
+
+		if (!StringUtils.isEmpty(regex)) {
+			// filter the projects by the regex
+			hasParameter = true;
+			Pattern pattern = Pattern.compile(regex);
+			for (ProjectModel model : availableModels) {
+				if (pattern.matcher(model.name).find()) {
+					models.add(model);
+				}
+			}
+		}
+
+		if (!StringUtils.isEmpty(team)) {
+			// filter the projects by the specified teams
+			hasParameter = true;
+			List<String> teams = StringUtils.getStringsFromValue(team, ",");
+
+			// need TeamModels first
+			List<TeamModel> teamModels = new ArrayList<TeamModel>();
+			for (String name : teams) {
+				TeamModel teamModel = GitBlit.self().getTeamModel(name);
+				if (teamModel != null) {
+					teamModels.add(teamModel);
+				}
+			}
+
+			// brute-force our way through finding the matching models
+			for (ProjectModel projectModel : availableModels) {
+				for (String repositoryName : projectModel.repositories) {
+					for (TeamModel teamModel : teamModels) {
+						if (teamModel.hasRepository(repositoryName)) {
+							models.add(projectModel);
+						}
+					}
+				}
+			}
+		}
+
+		if (!hasParameter) {
+			models.addAll(availableModels);
+		}
+
+		// time-filter the list
+		if (daysBack > 0) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			cal.add(Calendar.DATE, -1 * daysBack);
+			Date threshold = cal.getTime();
+			Set<ProjectModel> timeFiltered = new HashSet<ProjectModel>();
+			for (ProjectModel model : models) {
+				if (model.lastChange.after(threshold)) {
+					timeFiltered.add(model);
+				}
+			}
+			models = timeFiltered;
+		}
+
+		List<ProjectModel> list = new ArrayList<ProjectModel>(models);
+		Collections.sort(list);
+		return list;
+	}
 
 	public void warn(String message, Throwable t) {
 		logger.warn(message, t);
 	}
-
+	
 	public void error(String message, boolean redirect) {
 		logger.error(message  + " for " + GitBlitWebSession.get().getUsername());
 		if (redirect) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			RequestParameters params = getRequest().getRequestParameters();
 			String relativeUrl = urlFor(RepositoriesPage.class, null).toString();
 			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 			throw new RedirectToUrlException(absoluteUrl);

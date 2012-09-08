@@ -46,6 +46,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -54,6 +55,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.EmptyRepositoryPage;
+import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
 
@@ -112,10 +114,20 @@ public class RepositoriesPanel extends BasePanel {
 				roots.add(0, rootPath);
 				groups.put(rootPath, rootRepositories);
 			}
+						
+			Map<String, ProjectModel> projects = new HashMap<String, ProjectModel>();
+			for (ProjectModel project : GitBlit.self().getProjectModels(user)) {
+				projects.put(project.name, project);
+			}
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
-				groupedModels.add(new GroupRepositoryModel(root, subModels.size()));
+				GroupRepositoryModel group = new GroupRepositoryModel(root, subModels.size());
+				if (projects.containsKey(root)) {
+					group.title = projects.get(root).title;
+					group.description = projects.get(root).description;
+				}
+				groupedModels.add(group);
 				Collections.sort(subModels);
 				groupedModels.addAll(subModels);
 			}
@@ -144,7 +156,8 @@ public class RepositoriesPanel extends BasePanel {
 					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
-					row.add(new Label("groupName", entry.toString()));
+					row.add(new LinkPanel("groupName", null, entry.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
+					row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
 					WicketUtils.setCssClass(item, "group");
 					// reset counter so that first row is light background
 					counter = 0;
@@ -326,6 +339,7 @@ public class RepositoriesPanel extends BasePanel {
 		private static final long serialVersionUID = 1L;
 
 		int count;
+		String title;
 
 		GroupRepositoryModel(String name, int count) {
 			super(name, "", "", new Date(0));
@@ -334,7 +348,7 @@ public class RepositoriesPanel extends BasePanel {
 
 		@Override
 		public String toString() {
-			return name + " (" + count + ")";
+			return StringUtils.isEmpty(title) ? name  : title + " (" + count + ")";
 		}
 	}
 

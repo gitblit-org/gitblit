@@ -178,6 +178,9 @@ public abstract class RootPage extends BasePage {
 			PageParameters pp = getPageParameters();
 			if (pp != null) {
 				PageParameters params = new PageParameters(pp);
+				// remove named project parameter
+				params.remove("p");
+
 				// remove named repository parameter
 				params.remove("r");
 
@@ -230,6 +233,7 @@ public abstract class RootPage extends BasePage {
 			final UserModel user = GitBlitWebSession.get().getUser();
 			List<RepositoryModel> repositories = GitBlit.self().getRepositoryModels(user);
 			repositoryModels.addAll(repositories);
+			Collections.sort(repositoryModels);
 		}
 		return repositoryModels;
 	}
@@ -322,6 +326,7 @@ public abstract class RootPage extends BasePage {
 		}
 
 		boolean hasParameter = false;
+		String projectName = WicketUtils.getProjectName(params);
 		String repositoryName = WicketUtils.getRepositoryName(params);
 		String set = WicketUtils.getSet(params);
 		String regex = WicketUtils.getRegEx(params);
@@ -338,6 +343,27 @@ public abstract class RootPage extends BasePage {
 				if (model.name.equalsIgnoreCase(repositoryName)) {
 					models.add(model);
 					break;
+				}
+			}
+		}
+
+		if (!StringUtils.isEmpty(projectName)) {
+			// try named project
+			hasParameter = true;			
+			if (projectName.equalsIgnoreCase(GitBlit.getString(Keys.web.repositoryRootGroupName, "main"))) {
+				// root project/group
+				for (RepositoryModel model : availableModels) {
+					if (model.name.indexOf('/') == -1) {
+						models.add(model);
+					}
+				}
+			} else {
+				// named project/group
+				String group = projectName.toLowerCase() + "/";
+				for (RepositoryModel model : availableModels) {
+					if (model.name.toLowerCase().startsWith(group)) {
+						models.add(model);
+					}
 				}
 			}
 		}
@@ -411,6 +437,9 @@ public abstract class RootPage extends BasePage {
 			}
 			models = timeFiltered;
 		}
-		return new ArrayList<RepositoryModel>(models);
+		
+		List<RepositoryModel> list = new ArrayList<RepositoryModel>(models);
+		Collections.sort(list);
+		return list;
 	}
 }

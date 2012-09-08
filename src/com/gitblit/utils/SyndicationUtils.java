@@ -56,14 +56,13 @@ public class SyndicationUtils {
 	 * @param feedLink
 	 * @param title
 	 * @param description
-	 * @param repository
 	 * @param entryModels
 	 * @param os
 	 * @throws IOException
 	 * @throws FeedException
 	 */
 	public static void toRSS(String hostUrl, String feedLink, String title, String description,
-			String repository, List<FeedEntryModel> entryModels, OutputStream os)
+			List<FeedEntryModel> entryModels, OutputStream os)
 			throws IOException, FeedException {
 
 		SyndFeed feed = new SyndFeedImpl();

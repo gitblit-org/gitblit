@@ -9,6 +9,7 @@ Open `web.xml` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
     - &lt;context-parameter&gt; *groovy.scriptsFolder* (set the full path to your Groovy hook scripts folder)
     - &lt;context-parameter&gt; *groovy.grapeFolder* (set the full path to your Groovy Grape artifact cache)
+    - &lt;context-parameter&gt; *web.projectsFile* (set the full path to your projects metadata file)
     - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.conf`)
     - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
     - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)

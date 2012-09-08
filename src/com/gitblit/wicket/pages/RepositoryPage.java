@@ -64,6 +64,7 @@ import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends BasePage {
 
+	protected final String projectName;
 	protected final String repositoryName;
 	protected final String objectId;
 	
@@ -78,6 +79,11 @@ public abstract class RepositoryPage extends BasePage {
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		repositoryName = WicketUtils.getRepositoryName(params);
+		if (repositoryName.indexOf('/') > -1) {
+			projectName = repositoryName.substring(0, repositoryName.indexOf('/'));
+		} else {
+			projectName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+		}
 		objectId = WicketUtils.getObject(params);
 		
 		if (StringUtils.isEmpty(repositoryName)) {
@@ -117,6 +123,7 @@ public abstract class RepositoryPage extends BasePage {
 
 		// standard links
 		pages.put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class));
+		pages.put("project", new PageRegistration("gb.project", ProjectPage.class, WicketUtils.newProjectParameter(projectName)));
 		pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
 		pages.put("log", new PageRegistration("gb.log", LogPage.class, params));
 		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));

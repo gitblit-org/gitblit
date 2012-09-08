@@ -30,7 +30,5 @@ This list is volatile.
 * Gitblit: diff should highlight inserted/removed fragment compared to original line
 * Gitblit: implement branch permission controls as Groovy pre-receive script.  
 *Maintain permissions text file similar to a gitolite configuration file or svn authz file.*
-* Gitblit: aggregate RSS feeds by tag or subfolder
 * Gitblit: Consider creating more Git model objects and exposing them via the JSON RPC interface to allow inspection/retrieval of Git commits, Git trees, etc from Gitblit.
 * Gitblit: Blame coloring by author (issue 2)
-* Gitblit: View binary files in blob page (issue 6)

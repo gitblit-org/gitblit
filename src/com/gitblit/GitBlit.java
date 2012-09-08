@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -79,6 +80,7 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.Metric;
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
@@ -132,6 +134,8 @@ public class GitBlit implements ServletContextListener {
 	
 	private final Map<String, RepositoryModel> repositoryListCache = new ConcurrentHashMap<String, RepositoryModel>();
 	
+	private final Map<String, ProjectModel> projectCache = new ConcurrentHashMap<String, ProjectModel>();
+	
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
 
 	private RepositoryResolver<Void> repositoryResolver;
@@ -153,6 +157,8 @@ public class GitBlit implements ServletContextListener {
 	private LuceneExecutor luceneExecutor;
 	
 	private TimeZone timezone;
+	
+	private FileBasedConfig projectConfigs;
 
 	public GitBlit() {
 		if (gitblit == null) {
@@ -1018,6 +1024,130 @@ public class GitBlit implements ServletContextListener {
 		
 		// return a copy of the cached model
 		return DeepCopier.copy(model);
+	}
+	
+	
+	/**
+	 * Returns the map of project config.  This map is cached and reloaded if
+	 * the underlying projects.conf file changes.
+	 * 
+	 * @return project config map
+	 */
+	private Map<String, ProjectModel> getProjectConfigs() {
+		if (projectConfigs.isOutdated()) {
+			
+			try {
+				projectConfigs.load();
+			} catch (Exception e) {
+			}
+
+			// project configs
+			String rootName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+			ProjectModel rootProject = new ProjectModel(rootName, true);
+
+			Map<String, ProjectModel> configs = new HashMap<String, ProjectModel>();
+			// cache the root project under its alias and an empty path
+			configs.put("", rootProject);
+			configs.put(rootProject.name.toLowerCase(), rootProject);
+
+			for (String name : projectConfigs.getSubsections("project")) {
+				ProjectModel project;
+				if (name.equalsIgnoreCase(rootName)) {
+					project = rootProject;
+				} else {
+					project = new ProjectModel(name);
+				}
+				project.title = projectConfigs.getString("project", name, "title");
+				project.description = projectConfigs.getString("project", name, "description");
+				// TODO add more interesting metadata
+				// project manager?
+				// commit message regex?
+				// RW+
+				// RW
+				// R
+				configs.put(name.toLowerCase(), project);				
+			}
+			projectCache.clear();
+			projectCache.putAll(configs);
+		}
+		return projectCache;
+	}
+	
+	/**
+	 * Returns a list of project models for the user.
+	 * 
+	 * @param user
+	 * @return list of projects that are accessible to the user
+	 */
+	public List<ProjectModel> getProjectModels(UserModel user) {
+		Map<String, ProjectModel> configs = getProjectConfigs();
+
+		// per-user project lists, this accounts for security and visibility
+		Map<String, ProjectModel> map = new TreeMap<String, ProjectModel>();
+		// root project
+		map.put("", configs.get(""));
+		
+		for (RepositoryModel model : getRepositoryModels(user)) {
+			String rootPath = StringUtils.getRootPath(model.name).toLowerCase();			
+			if (!map.containsKey(rootPath)) {
+				ProjectModel project;
+				if (configs.containsKey(rootPath)) {
+					// clone the project model because it's repository list will
+					// be tailored for the requesting user
+					project = DeepCopier.copy(configs.get(rootPath));
+				} else {
+					project = new ProjectModel(rootPath);
+				}
+				map.put(rootPath, project);
+			}
+			map.get(rootPath).addRepository(model);
+		}
+		
+		// sort projects, root project first
+		List<ProjectModel> projects = new ArrayList<ProjectModel>(map.values());
+		Collections.sort(projects);
+		projects.remove(map.get(""));
+		projects.add(0, map.get(""));
+		return projects;
+	}
+	
+	/**
+	 * Returns the project model for the specified user.
+	 * 
+	 * @param name
+	 * @param user
+	 * @return a project model, or null if it does not exist
+	 */
+	public ProjectModel getProjectModel(String name, UserModel user) {
+		for (ProjectModel project : getProjectModels(user)) {
+			if (project.name.equalsIgnoreCase(name)) {
+				return project;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns a project model for the Gitblit/system user.
+	 * 
+	 * @param name a project name
+	 * @return a project model or null if the project does not exist
+	 */
+	public ProjectModel getProjectModel(String name) {
+		Map<String, ProjectModel> configs = getProjectConfigs();
+		ProjectModel project = configs.get(name.toLowerCase());
+		if (project == null) {
+			return null;
+		}
+		// clone the object
+		project = DeepCopier.copy(project);
+		String folder = name.toLowerCase() + "/";
+		for (String repository : getRepositoryList()) {
+			if (repository.toLowerCase().startsWith(folder)) {
+				project.addRepository(repository);
+			}
+		}
+		return project;
 	}
 	
 	/**
@@ -2180,6 +2310,11 @@ public class GitBlit implements ServletContextListener {
 			loginService = new GitblitUserService();
 		}
 		setUserService(loginService);
+		
+		// load and cache the project metadata
+		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "projects.conf"), FS.detect());
+		getProjectConfigs();
+		
 		mailExecutor = new MailExecutor(settings);
 		if (mailExecutor.isReady()) {
 			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");

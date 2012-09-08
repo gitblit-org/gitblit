@@ -276,6 +276,10 @@ public class WicketUtils {
 		return new PageParameters("team=" + teamname);
 	}
 
+	public static PageParameters newProjectParameter(String projectName) {
+		return new PageParameters("p=" + projectName);
+	}
+
 	public static PageParameters newRepositoryParameter(String repositoryName) {
 		return new PageParameters("r=" + repositoryName);
 	}
@@ -351,6 +355,10 @@ public class WicketUtils {
 		}
 		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search
 				+ ",st=" + type.name() + ",pg=" + pageNumber);
+	}
+
+	public static String getProjectName(PageParameters params) {
+		return params.getString("p", "");
 	}
 
 	public static String getRepositoryName(PageParameters params) {
