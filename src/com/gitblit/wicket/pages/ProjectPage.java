@@ -117,22 +117,22 @@ public class ProjectPage extends RootPage {
 		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(project.getDisplayName(),
 				null), feedLink));
 		
-		String groupName = projectName;
+		final String projectPath;
 		if (project.isRoot) {
-			groupName = "";
+			projectPath = "";
 		} else {
-			groupName += "/";
+			projectPath = projectName + "/";
 		}
 		
 		// project markdown message
-		File pmkd = new File(GitBlit.getRepositoriesFolder(),  groupName + "project.mkd");
+		File pmkd = new File(GitBlit.getRepositoriesFolder(),  projectPath + "project.mkd");
 		String pmessage = readMarkdown(projectName, pmkd);
 		Component projectMessage = new Label("projectMessage", pmessage)
 				.setEscapeModelStrings(false).setVisible(pmessage.length() > 0);
 		add(projectMessage);
 
 		// markdown message above repositories list
-		File rmkd = new File(GitBlit.getRepositoriesFolder(),  groupName + "repositories.mkd");
+		File rmkd = new File(GitBlit.getRepositoriesFolder(),  projectPath + "repositories.mkd");
 		String rmessage = readMarkdown(projectName, rmkd);
 		Component repositoriesMessage = new Label("repositoriesMessage", rmessage)
 				.setEscapeModelStrings(false).setVisible(rmessage.length() > 0);
@@ -172,7 +172,7 @@ public class ProjectPage extends RootPage {
 				swatch.setVisible(showSwatch);
 				
 				PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-				item.add(new LinkPanel("repositoryName", "list", entry.name, SummaryPage.class, pp));
+				item.add(new LinkPanel("repositoryName", "list", StringUtils.getRelativePath(projectPath, StringUtils.stripDotGit(entry.name)), SummaryPage.class, pp));
 				item.add(new Label("repositoryDescription", entry.description).setVisible(!StringUtils.isEmpty(entry.description)));
 				
 				item.add(new BookmarkablePageLink<Void>("tickets", TicketsPage.class, pp).setVisible(entry.useTickets));
