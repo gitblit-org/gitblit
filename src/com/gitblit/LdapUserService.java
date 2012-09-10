@@ -187,7 +187,7 @@ public class LdapUserService extends GitblitUserService {
 					if (!supportsTeamMembershipChanges())
 						getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
 					
-					// Get User Attributes
+					// Set User Attributes
 					setUserAttributes(user, loggingInUser);
 
 					// Push the ldap looked up values to backing file
@@ -232,8 +232,12 @@ public class LdapUserService extends GitblitUserService {
 	}
 	
 	private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
-		// Is this user an admin?
-		setAdminAttribute(user);
+
+		// Give priority to backed file(user.conf) for admin role
+		// Don't change role if user is setted "can admin" by backed file
+		if ( user.canAdmin == false )
+			// Is this user an admin on ldap confi?
+			setAdminAttribute(user);
 		
 		// Don't want visibility into the real password, make up a dummy
 		user.password = "StoredInLDAP";
