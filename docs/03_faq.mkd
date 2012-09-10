@@ -71,6 +71,13 @@ Add *-Dorg.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH=true* to *CATALIN
 2. *web.mountParameters = false* and use non-pretty, parameterized urls
 3. *web.forwardSlashCharacter = !* which tells Gitblit to use **!** instead of **/**
 
+#### UTF-8 Filenames
+
+Tomcat also dislikes urls with non-ASCII characters. If your repositories have non-ASCII filenames you will have to modify your connector properties to allow UTF-8 encoded urls.  
+
+[Tomcat Character Encoding](http://wiki.apache.org/tomcat/FAQ/CharacterEncoding)  
+[Tomcat Connector Properties](http://tomcat.apache.org/tomcat-6.0-doc/config/http.html)
+
 ## General Interest Questions
 
 ### Gitblit?  What kind of name is that?

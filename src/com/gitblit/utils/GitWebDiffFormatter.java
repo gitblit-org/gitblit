@@ -106,10 +106,10 @@ public class GitWebDiffFormatter extends DiffFormatter {
 			throws IOException {
 		switch (prefix) {
 		case '+':
-			os.write("<span class=\"diff add\">".getBytes());
+			os.write("<span style=\"color:#008000;\">".getBytes());
 			break;
 		case '-':
-			os.write("<span class=\"diff remove\">".getBytes());
+			os.write("<span style=\"color:#800000;\">".getBytes());
 			break;
 		}
 		os.write(prefix);
@@ -140,11 +140,11 @@ public class GitWebDiffFormatter extends DiffFormatter {
 		sb.append("<div class=\"diff\">");
 		for (String line : lines) {
 			if (line.startsWith("diff")) {
-				sb.append("<div class=\"diff header\">").append(line).append("</div>");
+				sb.append("<div class=\"diff header\">").append(StringUtils.convertOctal(line)).append("</div>");
 			} else if (line.startsWith("---")) {
-				sb.append("<span class=\"diff remove\">").append(line).append("</span><br/>");
+				sb.append("<span style=\"color:#800000;\">").append(StringUtils.convertOctal(line)).append("</span><br/>");
 			} else if (line.startsWith("+++")) {
-				sb.append("<span class=\"diff add\">").append(line).append("</span><br/>");
+				sb.append("<span style=\"color:#008000;\">").append(StringUtils.convertOctal(line)).append("</span><br/>");
 			} else {
 				sb.append(line).append('\n');
 			}

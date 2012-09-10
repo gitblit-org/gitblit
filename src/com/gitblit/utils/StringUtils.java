@@ -15,6 +15,7 @@
  */
 package com.gitblit.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -623,5 +624,40 @@ public class StringUtils {
 			return url.substring(url.lastIndexOf('/') + 1);
 		}
 		return url;
+	}
+	
+	/**
+	 * Converts a string with \nnn sequences into a UTF-8 encoded string.
+	 * @param input
+	 * @return
+	 */
+	public static String convertOctal(String input) {
+		try {
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			Pattern p = Pattern.compile("(\\\\\\d{3})");
+			Matcher m = p.matcher(input);
+			int i = 0;
+			while (m.find()) {
+				bytes.write(input.substring(i, m.start()).getBytes("UTF-8"));
+				// replace octal encoded value
+				// strip leading \ character
+				String oct = m.group().substring(1);
+				bytes.write(Integer.parseInt(oct, 8));
+				i = m.end();			
+			}
+			if (bytes.size() == 0) {
+				// no octal matches
+				return input;
+			} else {
+				if (i < input.length()) {
+					// add remainder of string
+					bytes.write(input.substring(i).getBytes("UTF-8"));
+				}
+			}
+			return bytes.toString("UTF-8");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return input;
 	}
 }

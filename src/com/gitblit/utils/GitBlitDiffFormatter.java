@@ -127,15 +127,24 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 			} else if (line.startsWith("---") || line.startsWith("+++")) {
 				// skip --- +++ lines
 			} else if (line.startsWith("diff")) {
+				line = StringUtils.convertOctal(line);
 				if (line.indexOf(oldnull) > -1) {
 					// a is null, use b
 					line = line.substring(("diff --git " + oldnull).length()).trim();
 					// trim b/
-					line = line.substring(2);
+					line = line.substring(2).trim();
 				} else {
 					// use a
-					line = line.substring("diff --git a/".length()).trim();
-					line = line.substring(0, line.indexOf(" b/")).trim();
+					line = line.substring("diff --git ".length()).trim();
+					line = line.substring(line.startsWith("\"a/") ? 3 : 2);					
+					line = line.substring(0, line.indexOf(" b/") > -1 ? line.indexOf(" b/") : line.indexOf("\"b/")).trim();
+				}
+				
+				if (line.charAt(0) == '"') {
+					line = line.substring(1);
+				}
+				if (line.charAt(line.length() - 1) == '"') {
+					line = line.substring(0, line.length() - 1);
 				}
 				if (inFile) {
 					sb.append("</tbody></table></div>\n");
