@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.GitBlit;
@@ -36,6 +37,12 @@ public class EmptyRepositoryPage extends RootPage {
 
 		String repositoryName = WicketUtils.getRepositoryName(params);
 		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		
+		if (repository.hasCommits) {
+			// redirect to the summary page if this repository is not empty
+			throw new RedirectException(SummaryPage.class, params);
+		}
+		
 		setupPage(repositoryName, getString("gb.emptyRepository"));
 
 		List<String> repositoryUrls = new ArrayList<String>();
