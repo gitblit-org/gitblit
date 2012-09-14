@@ -143,6 +143,9 @@ public class Build {
 		downloadFromApache(MavenObject.LOG4J, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.GSON, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
