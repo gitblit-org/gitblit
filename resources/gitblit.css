@@ -145,6 +145,7 @@ pre, code, pre.prettyprint, pre.plainprint {
 	border:0px;
 	padding: 0;
 	line-height: 1.35em;
+	vertical-align:top;
 }
 
 table {
@@ -161,8 +162,30 @@ th {
 	text-align: left;	
 }
 
+div.sourceview {
+	overflow: auto;
+}
 pre.prettyprint ol {
 	padding-left:25px;
+}
+
+#nums {
+    text-align: right;
+    padding-right:10px;
+    border-right:1px solid #ddd;
+    font-family: monospace;
+    line-height: 1.35em;
+    vertical-align:top;
+}
+
+#nums pre {
+    white-space: pre;
+}
+
+#lines pre {
+	padding: 0px 5px !important;
+	border: 0px !important;
+	white-space: nowrap;
 }
 
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {

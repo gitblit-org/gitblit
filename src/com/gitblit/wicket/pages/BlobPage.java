@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -109,44 +110,117 @@ public class BlobPage extends RepositoryPage {
 				if (map.containsKey(extension)) {
 					type = map.get(extension);
 				}
-				Component c = null;
-				Component i = null;
 				switch (type) {
-				case 1:
-					// PrettyPrint blob text
-					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
-							blobPath, encodings));
-					WicketUtils.setCssClass(c, "prettyprint linenums");
-					i = new Image("blobImage").setVisible(false);
-					break;
 				case 2:
 					// image blobs
-					c = new Label("blobText").setVisible(false);
-					i = new ExternalImage("blobImage", urlFor(RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)).toString());
+					add(new Label("blobText").setVisible(false));
+					add(new ExternalImage("blobImage", urlFor(RawPage.class, WicketUtils.newPathParameter(repositoryName, objectId, blobPath)).toString()));
 					break;
 				case 3:
 					// binary blobs
-					c = new Label("blobText", "Binary File");
-					i = new Image("blobImage").setVisible(false);
+					add(new Label("blobText", "Binary File"));
+					add(new Image("blobImage").setVisible(false));
 					break;
 				default:
 					// plain text
-					c = new Label("blobText", JGitUtils.getStringContent(r, commit.getTree(),
-							blobPath, encodings));
-					WicketUtils.setCssClass(c, "plainprint");
-					i = new Image("blobImage").setVisible(false);
+					String source = JGitUtils.getStringContent(r, commit.getTree(), blobPath, encodings);
+					String table = generateSourceView(source, type == 1);
+					add(new Label("blobText", table).setEscapeModelStrings(false));
+					add(new Image("blobImage").setVisible(false));
 				}
-				add(c);
-				add(i);
 			} else {
 				// plain text
-				Label blobLabel = new Label("blobText", JGitUtils.getStringContent(r,
-						commit.getTree(), blobPath, encodings));
-				WicketUtils.setCssClass(blobLabel, "plainprint");
-				add(blobLabel);
+				String source = JGitUtils.getStringContent(r, commit.getTree(), blobPath, encodings);
+				String table = generateSourceTable(source, false);
+				add(new Label("blobText", table).setEscapeModelStrings(false));
 				add(new Image("blobImage").setVisible(false));
 			}
 		}
+	}
+	
+	protected String generateSourceView(String source, boolean prettyPrint) {
+		String [] lines = source.split("\n");
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!-- start blob table -->");
+		sb.append("<table width=\"100%\"><tbody><tr>");
+		
+		// nums column
+		sb.append("<!-- start nums column -->");
+		sb.append("<td id=\"nums\">");
+		sb.append("<pre>");
+		String numPattern = "<a id=\"L{0}\" href=\"#L{0}\">{0}</a>\n";
+		for (int i = 0; i < lines.length; i++) {
+			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
+		}
+		sb.append("</pre>");
+		sb.append("<!-- end nums column -->");
+		sb.append("</td>");
+		
+		sb.append("<!-- start lines column -->");
+		sb.append("<td id=\"lines\">");
+		sb.append("<div class=\"sourceview\">");
+		if (prettyPrint) {
+			sb.append("<pre class=\"prettyprint\">");
+		} else {
+			sb.append("<pre class=\"plainprint\">");
+		}
+		sb.append(StringUtils.escapeForHtml(source, true));
+		sb.append("</pre>");
+		sb.append("</div>");
+		sb.append("</td>");
+		sb.append("<!-- end lines column -->");
+		
+		sb.append("</tr></tbody></table>");
+		sb.append("<!-- end blob table -->");
+		
+		return sb.toString();
+	}
+	
+	protected String generateSourceTable(String source, boolean prettyPrint) {
+		String [] lines = source.split("\n");
+		
+		// be careful adding line breaks to this method
+		// GoogleCode Prettify is sensitive
+		StringBuilder sb = new StringBuilder();
+		sb.append("<!-- start blob table -->");
+		sb.append("<table width=\"100%\"><tbody><tr>");
+		
+		// nums column
+		sb.append("<!-- start nums column -->");
+		sb.append("<td id=\"nums\">");
+		sb.append("<pre><table width=\"100%\"><tbody>");
+		String numPattern = "<tr><td id=\"L{0}\"><a href=\"#L{0}\">{0}</a></td></tr>";
+		for (int i = 0; i < lines.length; i++) {
+			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
+		}
+		sb.append("<!-- end nums column -->");
+		sb.append("</tbody></table></pre>");
+		sb.append("</td>");
+		
+		sb.append("<!-- start lines column -->");
+		sb.append("<td id=\"lines\">");
+		if (prettyPrint) {
+			sb.append("<pre style=\"border: 0px;\" class=\"prettyprint\">");
+		} else {
+			sb.append("<pre class=\"plainprint\">");
+		}
+		sb.append("<table width=\"100%\"><tbody>");
+		
+		String linePattern = "<tr class=\"{0}\"><td>{1}</tr>";
+		for (int i = 0; i < lines.length; i++) {
+			String l = StringUtils.escapeForHtml(lines[i], true);
+			String cssClass = (i % 2 == 0) ? "even" : "odd";
+			sb.append(MessageFormat.format(linePattern, cssClass, l));
+		}
+		sb.append("</tbody></table></pre>");
+		sb.append("</td>");
+		sb.append("<!-- end lines column -->");
+		
+		sb.append("</tr></tbody></table>");
+		sb.append("<!-- end blob table -->");
+		
+		return sb.toString();
 	}
 
 	@Override
