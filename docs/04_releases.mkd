@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 132)
 - Fixed bug in the diff view for filenames that have non-ASCII characters (issue 128)
 
 #### additions

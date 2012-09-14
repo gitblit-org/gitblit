@@ -745,17 +745,22 @@ public class JGitUtils {
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 				for (DiffEntry diff : diffs) {
+					String objectId = null;
+					if (FileMode.GITLINK.equals(diff.getNewMode())) {
+						objectId = diff.getNewId().name();
+					}
+
 					if (diff.getChangeType().equals(ChangeType.DELETE)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
-								.getNewMode().getBits(), null, commit.getId().getName(), diff
+								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
 								.getChangeType()));
 					} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), null, commit.getId().getName(), diff
+								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
 								.getChangeType()));
 					} else {
 						list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), null, commit.getId().getName(), diff
+								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
 								.getChangeType()));
 					}
 				}
