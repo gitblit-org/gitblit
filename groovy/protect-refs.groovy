@@ -59,6 +59,7 @@ import org.slf4j.Logger
  * Bound Variables:
  *  gitblit			Gitblit Server	 			com.gitblit.GitBlit
  *  repository		Gitblit Repository			com.gitblit.models.RepositoryModel
+ *  receivePack		JGit Receive Pack			org.eclipse.jgit.transport.ReceivePack
  *  user			Gitblit User				com.gitblit.models.UserModel
  *  commands		JGit commands 				Collection<org.eclipse.jgit.transport.ReceiveCommand>
  *	url				Base url for Gitblit		String

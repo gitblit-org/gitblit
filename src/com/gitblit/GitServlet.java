@@ -249,6 +249,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			Binding binding = new Binding();
 			binding.setVariable("gitblit", GitBlit.self());
 			binding.setVariable("repository", repository);
+			binding.setVariable("receivePack", rp);
 			binding.setVariable("user", user);
 			binding.setVariable("commands", commands);
 			binding.setVariable("url", gitblitUrl);
