@@ -149,7 +149,7 @@ public class BlobPage extends RepositoryPage {
 		sb.append("<!-- start nums column -->");
 		sb.append("<td id=\"nums\">");
 		sb.append("<pre>");
-		String numPattern = "<a id=\"L{0}\" href=\"#L{0}\">{0}</a>\n";
+		String numPattern = "<a href=\"#L{0}\">{0}</a>\n";
 		for (int i = 0; i < lines.length; i++) {
 			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
 		}
@@ -165,7 +165,12 @@ public class BlobPage extends RepositoryPage {
 		} else {
 			sb.append("<pre class=\"plainprint\">");
 		}
-		sb.append(StringUtils.escapeForHtml(source, true));
+		lines = StringUtils.escapeForHtml(source, true).split("\n");
+		for (int i = 0; i < lines.length; i++) {
+			sb.append(MessageFormat.format("<span id=\"L{0}\" class=\"line\">", "" + (i + 1)));
+			sb.append(lines[i]);
+			sb.append("</span>");
+		}
 		sb.append("</pre>");
 		sb.append("</div>");
 		sb.append("</td>");

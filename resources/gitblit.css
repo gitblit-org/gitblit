@@ -178,6 +178,19 @@ pre.prettyprint ol {
     vertical-align:top;
 }
 
+/* CSS trick to workaround #link topOfWindow offset problem */
+#lines .line {
+    border-top: 160px solid transparent;
+    margin-top: -160px;
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding;
+    background-clip: padding-box;
+}
+
+#lines span:target {
+	background-color: #ffffbf;
+}
+
 #nums pre {
     white-space: pre;
 }
