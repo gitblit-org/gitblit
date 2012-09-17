@@ -21,6 +21,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### changes
 
+- Use https Gravatar urls to avoid browser complaints
 - Expose ReceivePack to Groovy push hooks (issue 125)
 - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 129)
 - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (Github/jpyeron, issue 126)

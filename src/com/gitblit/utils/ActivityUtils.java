@@ -160,7 +160,7 @@ public class ActivityUtils {
 		}
 		String emailHash = StringUtils.getMD5(email);
 		String url = MessageFormat.format(
-				"http://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", emailHash, width);
+				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", emailHash, width);
 		return url;
 	}
 
@@ -174,7 +174,7 @@ public class ActivityUtils {
 	 * @throws IOException
 	 */
 	public static GravatarProfile getGravatarProfile(String hash) throws IOException {
-		String url = MessageFormat.format("http://www.gravatar.com/{0}.json", hash);
+		String url = MessageFormat.format("https://www.gravatar.com/{0}.json", hash);
 		// Gravatar has a complex json structure
 		Type profileType = new TypeToken<Map<String, List<GravatarProfile>>>() {
 		}.getType();
