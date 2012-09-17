@@ -169,10 +169,11 @@ public class BlobPage extends RepositoryPage {
 		
 		sb.append("<table width=\"100%\"><tbody>");
 		
-		String linePattern = "<tr class=\"{0}\"><td><a href=\"#L{2}\">{1}</a></tr>";
+		String linePattern = "<tr class=\"{0}\"><td><a href=\"#L{2}\">{1}</a>\r</tr>";
 		for (int i = 0; i < lines.length; i++) {
+			String line = lines[i].replace('\r', ' ');
 			String cssClass = (i % 2 == 0) ? "even" : "odd";
-			sb.append(MessageFormat.format(linePattern, cssClass, lines[i], "" + (i + 1)));
+			sb.append(MessageFormat.format(linePattern, cssClass, line, "" + (i + 1)));
 		}
 		sb.append("</tbody></table></pre>");
 		sb.append("</pre>");
