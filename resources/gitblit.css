@@ -163,8 +163,9 @@ th {
 }
 
 div.sourceview {
-	overflow: auto;
+	overflow: hidden;
 }
+
 pre.prettyprint ol {
 	padding-left:25px;
 }
@@ -178,28 +179,67 @@ pre.prettyprint ol {
     vertical-align:top;
 }
 
+#nums pre {
+    white-space: pre;
+}
+
+#nums pre, #lines pre {
+	margin: 0;	
+}
+
+#lines pre {
+	padding: 0px !important;	
+	border: 0px !important;
+	white-space: nowrap;
+}
+
 /* CSS trick to workaround #link topOfWindow offset problem */
-#lines .line {
+#nums .num {
     border-top: 160px solid transparent;
     margin-top: -160px;
     -webkit-background-clip: padding-box;
     -moz-background-clip: padding;
     background-clip: padding-box;
+
+    color: #888;
 }
 
-#lines span:target {
+#nums span:target {
+	background-color: #ffffbf;
+	color: black;
+	font-weight: bold;
+	border-bottom: 1px solid red;
+}
+
+#lines table {
+	margin: 0;
+}
+
+#lines td {
+	padding: 0;
+}
+
+#lines a {
+	padding-left: 5px;
+}
+
+#lines a:hover {
+	background-color: #ffffbf;
+	text-decoration: none;
+}
+
+#lines tr:hover {
 	background-color: #ffffbf;
 }
-
-#nums pre {
-    white-space: pre;
+#lines .odd {
+	background-color: white;
 }
 
-#lines pre {
-	padding: 0px 5px !important;
-	border: 0px !important;
-	white-space: nowrap;
+#lines .even {
+	background-color: #fafafa;
 }
+
+
 
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #888;

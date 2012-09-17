@@ -131,7 +131,7 @@ public class BlobPage extends RepositoryPage {
 			} else {
 				// plain text
 				String source = JGitUtils.getStringContent(r, commit.getTree(), blobPath, encodings);
-				String table = generateSourceTable(source, false);
+				String table = generateSourceView(source, false);
 				add(new Label("blobText", table).setEscapeModelStrings(false));
 				add(new Image("blobImage").setVisible(false));
 			}
@@ -149,7 +149,7 @@ public class BlobPage extends RepositoryPage {
 		sb.append("<!-- start nums column -->");
 		sb.append("<td id=\"nums\">");
 		sb.append("<pre>");
-		String numPattern = "<a href=\"#L{0}\">{0}</a>\n";
+		String numPattern = "<span id=\"L{0}\" class=\"num\">{0}</span>\n";
 		for (int i = 0; i < lines.length; i++) {
 			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
 		}
@@ -166,59 +166,17 @@ public class BlobPage extends RepositoryPage {
 			sb.append("<pre class=\"plainprint\">");
 		}
 		lines = StringUtils.escapeForHtml(source, true).split("\n");
-		for (int i = 0; i < lines.length; i++) {
-			sb.append(MessageFormat.format("<span id=\"L{0}\" class=\"line\">", "" + (i + 1)));
-			sb.append(lines[i]);
-			sb.append("</span>");
-		}
-		sb.append("</pre>");
-		sb.append("</div>");
-		sb.append("</td>");
-		sb.append("<!-- end lines column -->");
 		
-		sb.append("</tr></tbody></table>");
-		sb.append("<!-- end blob table -->");
-		
-		return sb.toString();
-	}
-	
-	protected String generateSourceTable(String source, boolean prettyPrint) {
-		String [] lines = source.split("\n");
-		
-		// be careful adding line breaks to this method
-		// GoogleCode Prettify is sensitive
-		StringBuilder sb = new StringBuilder();
-		sb.append("<!-- start blob table -->");
-		sb.append("<table width=\"100%\"><tbody><tr>");
-		
-		// nums column
-		sb.append("<!-- start nums column -->");
-		sb.append("<td id=\"nums\">");
-		sb.append("<pre><table width=\"100%\"><tbody>");
-		String numPattern = "<tr><td id=\"L{0}\"><a href=\"#L{0}\">{0}</a></td></tr>";
-		for (int i = 0; i < lines.length; i++) {
-			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
-		}
-		sb.append("<!-- end nums column -->");
-		sb.append("</tbody></table></pre>");
-		sb.append("</td>");
-		
-		sb.append("<!-- start lines column -->");
-		sb.append("<td id=\"lines\">");
-		if (prettyPrint) {
-			sb.append("<pre style=\"border: 0px;\" class=\"prettyprint\">");
-		} else {
-			sb.append("<pre class=\"plainprint\">");
-		}
 		sb.append("<table width=\"100%\"><tbody>");
 		
-		String linePattern = "<tr class=\"{0}\"><td>{1}</tr>";
+		String linePattern = "<tr class=\"{0}\"><td><a href=\"#L{2}\">{1}</a></tr>";
 		for (int i = 0; i < lines.length; i++) {
-			String l = StringUtils.escapeForHtml(lines[i], true);
 			String cssClass = (i % 2 == 0) ? "even" : "odd";
-			sb.append(MessageFormat.format(linePattern, cssClass, l));
+			sb.append(MessageFormat.format(linePattern, cssClass, lines[i], "" + (i + 1)));
 		}
 		sb.append("</tbody></table></pre>");
+		sb.append("</pre>");
+		sb.append("</div>");
 		sb.append("</td>");
 		sb.append("<!-- end lines column -->");
 		
