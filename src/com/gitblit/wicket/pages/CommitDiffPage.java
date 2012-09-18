@@ -18,6 +18,8 @@ package com.gitblit.wicket.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.text.MessageFormat;
+
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -46,10 +48,33 @@ public class CommitDiffPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
-		RevCommit commit = getCommit();
+
 		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
 				DiffOutputType.GITBLIT.name()));
-		String diff = DiffUtils.getCommitDiff(r, commit, diffType);
+
+		RevCommit commit = null, otherCommit = null;
+
+		if( objectId.contains("..") )
+		{
+			String[] parts = objectId.split("\\.\\.");
+			commit = getCommit(r, parts[0]);
+			otherCommit = getCommit(r, parts[1]);
+		}
+		else
+		{
+			commit = getCommit();
+		}
+
+		String diff;
+
+		if(otherCommit == null)
+		{
+			diff = DiffUtils.getCommitDiff(r, commit, diffType);
+		}
+		else
+		{
+			diff = DiffUtils.getDiff(r, commit, otherCommit, diffType);
+		}
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
@@ -73,7 +98,17 @@ public class CommitDiffPage extends RepositoryPage {
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		// changed paths list
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
+		List<PathChangeModel> paths;
+
+		if( otherCommit == null )
+		{
+			paths = JGitUtils.getFilesInCommit(r, commit);
+		}
+		else
+		{
+			paths = JGitUtils.getFilesInCommit(r, otherCommit);
+		}
+
 		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
@@ -96,11 +131,11 @@ public class CommitDiffPage extends RepositoryPage {
 									.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				} else if (entry.isSubmodule()) {
 					// submodule
-					String submoduleId = entry.objectId;						
+					String submoduleId = entry.objectId;
 					SubmoduleModel submodule = getSubmodule(entry.path);
 					submodulePath = submodule.gitblitPath;
 					hasSubmodule = submodule.hasSubmodule;
-					
+
 					item.add(new LinkPanel("pathName", "list", entry.path + " @ " +
 							getShortObjectId(submoduleId), TreePage.class,
 							WicketUtils
@@ -114,7 +149,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 				// quick links
 				if (entry.isSubmodule()) {
-					// submodule					
+					// submodule
 					item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, WicketUtils
 							.newPathParameter(submodulePath, entry.objectId, entry.path)).setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
@@ -147,5 +182,14 @@ public class CommitDiffPage extends RepositoryPage {
 	@Override
 	protected String getPageName() {
 		return getString("gb.commitdiff");
+	}
+
+	private RevCommit getCommit(Repository r, String rev)
+	{
+		RevCommit otherCommit = JGitUtils.getCommit(r, rev);
+		if (otherCommit == null) {
+			error(MessageFormat.format(getString("gb.failedToFindCommit"), rev, repositoryName, getPageName()), true);
+		}
+		return otherCommit;
 	}
 }
