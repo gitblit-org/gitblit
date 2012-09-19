@@ -75,6 +75,7 @@ public abstract class RepositoryPage extends BasePage {
 	private Map<String, SubmoduleModel> submodules;
 	
 	private final Map<String, PageRegistration> registeredPages;
+	private boolean showAdmin;
 
 	public RepositoryPage(PageParameters params) {
 		super(params);
@@ -148,7 +149,7 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		// Conditionally add edit link
-		final boolean showAdmin;
+		this.showAdmin = false;
 		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
@@ -412,6 +413,11 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
+	public boolean isShowAdmin()
+	{
+		return this.showAdmin;
+	}
+	
 	private class SearchForm extends SessionlessForm<Void> implements Serializable {
 		private static final long serialVersionUID = 1L;
 
