@@ -61,6 +61,9 @@ public class RefModel implements Serializable, Comparable<RefModel> {
 	}
 
 	public String getName() {
+		if (reference == null) {
+			return displayName;
+		}
 		return reference.getName();
 	}
 

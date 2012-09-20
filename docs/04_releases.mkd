@@ -16,6 +16,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### additions
 
+- delete branch feature (issue 121, Github/ajermakovics)
 - added line links to blob view at the expense of zebra striping (issue 130)
 - added RedmineUserService (github/mallowlabs)
 

@@ -24,7 +24,7 @@ public class BranchesPage extends RepositoryPage {
 	public BranchesPage(PageParameters params) {
 		super(params);
 
-		add(new BranchesPanel("branchesPanel", getRepositoryModel(), getRepository(), -1, isShowAdmin()));
+		add(new BranchesPanel("branchesPanel", getRepositoryModel(), getRepository(), -1, isShowAdmin() || isOwner()));
 	}
 
 	@Override

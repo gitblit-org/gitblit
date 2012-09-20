@@ -32,6 +32,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
+import com.gitblit.GitBlit;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -51,7 +52,7 @@ public class BranchesPanel extends BasePanel {
 
 	private final boolean hasBranches;
 
-	public BranchesPanel(String wicketId, final RepositoryModel model, final Repository r,
+	public BranchesPanel(String wicketId, final RepositoryModel model, Repository r,
 			final int maxCount, final boolean showAdmin) {
 		super(wicketId);
 
@@ -76,7 +77,10 @@ public class BranchesPanel extends BasePanel {
 			// branches page
 			add(new Label("branches", new StringResourceModel("gb.branches", this, null)));
 		}
-
+		
+		// only allow delete if we have multiple branches
+		final boolean showDelete = showAdmin && branches.size() > 1;
+		
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
@@ -110,7 +114,7 @@ public class BranchesPanel extends BasePanel {
 				item.add(shortlog);
 				
 				if (maxCount <= 0) {
-					Fragment fragment = new Fragment("branchLinks", "branchPageLinks", this);
+					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
 							.newObjectParameter(model.name, entry.getName())));
 					fragment.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
@@ -120,9 +124,9 @@ public class BranchesPanel extends BasePanel {
 					fragment.add(new ExternalLink("syndication", SyndicationServlet.asLink(
 							getRequest().getRelativePathPrefixToContextRoot(), model.name,
 							entry.getName(), 0)));
-					
-					fragment.add(createDeleteBranchLink(r, entry, showAdmin));
-					
+					if (showDelete) {
+						fragment.add(createDeleteBranchLink(model, entry));
+					}
 					item.add(fragment);
 				} else {
 					Fragment fragment = new Fragment("branchLinks", "branchPanelLinks", this);
@@ -154,15 +158,20 @@ public class BranchesPanel extends BasePanel {
 		return this;
 	}
 
-	private Link<Void> createDeleteBranchLink(final Repository r, final RefModel entry, final boolean showAdmin)
+	private Link<Void> createDeleteBranchLink(final RepositoryModel repositoryModel, final RefModel entry)
 	{
 		Link<Void> deleteLink = new Link<Void>("deleteBranch") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick() {
-				if( showAdmin && JGitUtils.deleteBranchRef(r, entry.getName()) ) {
+				Repository r = GitBlit.self().getRepository(repositoryModel.name);
+				boolean success = JGitUtils.deleteBranchRef(r, entry.getName());
+				r.close();
+				if (success) {
 					info(MessageFormat.format("Branch \"{0}\" deleted", entry.displayName));
+					// redirect to the owning page
+					setResponsePage(getPage().getClass(), WicketUtils.newRepositoryParameter(repositoryModel.name));
 				}
 				else {
 					error(MessageFormat.format("Failed to delete branch \"{0}\"", entry.displayName));
@@ -172,9 +181,6 @@ public class BranchesPanel extends BasePanel {
 		
 		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 				"Delete branch \"{0}\"?", entry.displayName )));
-		
-		deleteLink.setVisible(showAdmin);
-		
 		return deleteLink;
 	}
 }

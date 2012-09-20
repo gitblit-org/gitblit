@@ -76,7 +76,8 @@ public abstract class RepositoryPage extends BasePage {
 	
 	private final Map<String, PageRegistration> registeredPages;
 	private boolean showAdmin;
-
+	private boolean isOwner;
+	
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		repositoryName = WicketUtils.getRepositoryName(params);
@@ -149,17 +150,17 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		// Conditionally add edit link
-		this.showAdmin = false;
+		showAdmin = false;
 		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
 			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
 			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 		}
-		if (showAdmin
-				|| GitBlitWebSession.get().isLoggedIn()
+		isOwner = GitBlitWebSession.get().isLoggedIn()
 				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
-						.getUsername()))) {
+						.getUsername()));
+		if (showAdmin || isOwner) {
 			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
 		}
 		return pages;
@@ -413,9 +414,12 @@ public abstract class RepositoryPage extends BasePage {
 		return WicketUtils.newObjectParameter(repositoryName, commitId);
 	}
 
-	public boolean isShowAdmin()
-	{
-		return this.showAdmin;
+	public boolean isShowAdmin() {
+		return showAdmin;
+	}
+	
+	public boolean isOwner() {
+		return isOwner;
 	}
 	
 	private class SearchForm extends SessionlessForm<Void> implements Serializable {
