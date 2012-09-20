@@ -161,6 +161,11 @@ ProxyPreserveHost On
 #RequestHeader set X-Forwarded-Proto https
 #RequestHeader set X-Forwarded-Port 443
 
+# If you are using subdomain proxying then you will want to tell Gitblit the appropriate
+# context path for your repository url.
+# If you are not using subdomain proxying, then ignore this setting.
+#RequestHeader set X-Forwarded-Context /
+
 #ProxyPass /gitblit ajp://localhost:8009/gitblit
 %ENDCODE%  
 **Please** make sure to:  

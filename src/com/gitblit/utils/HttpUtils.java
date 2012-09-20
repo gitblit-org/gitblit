@@ -67,6 +67,20 @@ public class HttpUtils {
         	}
         }
         
+        String context = request.getContextPath();
+        String forwardedContext = request.getHeader("X-Forwarded-Context");
+        if (forwardedContext != null) {
+        	forwardedContext = request.getHeader("X_Forwarded_Context");
+        }
+        if (!StringUtils.isEmpty(forwardedContext)) {
+        	context = forwardedContext;
+        }
+        
+        // trim any trailing slash
+        if (context.length() > 0 && context.charAt(context.length() - 1) == '/') {
+        	context = context.substring(1);
+        }
+        
 		StringBuilder sb = new StringBuilder();
 		sb.append(scheme);
 		sb.append("://");
@@ -75,7 +89,7 @@ public class HttpUtils {
 				|| ("https".equals(scheme) && port != 443)) {
 			sb.append(":" + port);
 		}
-		sb.append(request.getContextPath());
+		sb.append(context);
 		return sb.toString();
 	}
 }
