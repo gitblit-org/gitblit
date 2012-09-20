@@ -132,7 +132,7 @@ public class SummaryPage extends RepositoryPage {
 
 		add(new LogPanel("commitsPanel", repositoryName, getRepositoryModel().HEAD, r, numberCommits, 0));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
-		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs).hideIfEmpty());
+		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, isShowAdmin()).hideIfEmpty());
 
 		if (getRepositoryModel().showReadme) {
 			String htmlText = null;
