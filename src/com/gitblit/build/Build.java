@@ -360,6 +360,16 @@ public class Build {
 		}
 		for (String jar : jars) {
 			File targetFile = mo.getLocalFile("ext", jar);
+			if ("-sources".equals(jar)) {
+				File relocated = new File("ext/src", targetFile.getName());
+				if (targetFile.exists()) {
+					// move -sources jar to ext/src folder
+					targetFile.renameTo(relocated);
+				}
+				// -sources jars are located in ext/src
+				targetFile = relocated;
+			}
+			
 			if (targetFile.exists()) {
 				downloads.add(targetFile);
 				continue;
