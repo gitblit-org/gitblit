@@ -160,48 +160,51 @@ public class LdapUserService extends GitblitUserService {
 	public UserModel authenticate(String username, char[] password) {
 		String simpleUsername = getSimpleUsername(username);
 		
-		LDAPConnection ldapConnection = getLdapConnection();		
+		LDAPConnection ldapConnection = getLdapConnection();
 		if (ldapConnection != null) {
-			// Find the logging in user's DN
-			String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
-			String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-			accountPattern = StringUtils.replace(accountPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
+			try {
+				// Find the logging in user's DN
+				String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+				String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+				accountPattern = StringUtils.replace(accountPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
 
-			SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
-			if (result != null && result.getEntryCount() == 1) {
-				SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
-				String loggingInUserDN = loggingInUser.getDN();
-				
-				if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
-					logger.debug("LDAP authenticated: " + username);
-					
-					UserModel user = getUserModel(simpleUsername);
-					if (user == null)	// create user object for new authenticated user
-						user = new UserModel(simpleUsername);
+				SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+				if (result != null && result.getEntryCount() == 1) {
+					SearchResultEntry loggingInUser = result.getSearchEntries().get(0);
+					String loggingInUserDN = loggingInUser.getDN();
 
-					// create a user cookie
-					if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-						user.cookie = StringUtils.getSHA1(user.username + new String(password));
+					if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
+						logger.debug("LDAP authenticated: " + username);
+
+						UserModel user = getUserModel(simpleUsername);
+						if (user == null)	// create user object for new authenticated user
+							user = new UserModel(simpleUsername);
+
+						// create a user cookie
+						if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+							user.cookie = StringUtils.getSHA1(user.username + new String(password));
+						}
+
+						if (!supportsTeamMembershipChanges())
+							getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
+
+						// Get User Attributes
+						setUserAttributes(user, loggingInUser);
+
+						// Push the ldap looked up values to backing file
+						super.updateUserModel(user);
+						if (!supportsTeamMembershipChanges()) {
+							for (TeamModel userTeam : user.teams)
+								updateTeamModel(userTeam);
+						}
+
+						return user;
 					}
-					
-					if (!supportsTeamMembershipChanges())
-						getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
-					
-					// Get User Attributes
-					setUserAttributes(user, loggingInUser);
-
-					// Push the ldap looked up values to backing file
-					super.updateUserModel(user);
-					if (!supportsTeamMembershipChanges()) {
-						for (TeamModel userTeam : user.teams)
-							updateTeamModel(userTeam);
-					}
-							
-					return user;
 				}
+			} finally {
+				ldapConnection.close();
 			}
 		}
-		
 		return null;		
 	}
 
