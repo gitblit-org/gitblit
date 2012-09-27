@@ -37,6 +37,7 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 - updated to JGit 2.1.0.201209190230-r
 - updated to Groovy 1.8.8
 - updated to Wicket 1.4.21
+- updated to Lucene 3.6.1
 
 <hr/>
 

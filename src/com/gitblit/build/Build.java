@@ -609,16 +609,16 @@ public class Build {
 				"5f847ed18009f8a034bad3906e39f771c01728c1", "");
 
 		public static final MavenObject LUCENE = new MavenObject("lucene", "org/apache/lucene", "lucene-core",
-				"3.6.0", 1470000, 1347000, 3608000, "8a0429de6b7c9918841fa2c441a6ef4cc07f2a18",
-				"7b0dd31b657868c23220e037d9dc7ba38da1896e", "126f6b68e707ad54bf1ac126199ef0cd289d8f59");
+				"3.6.1", 1540000, 1431000, 3608000, "6ae2c83c77a1ffa5840b9151a271ab3f451f6e0c",
+				"6925deb6b78e63bbcac382004f00b98133327057", "");
 
 		public static final MavenObject LUCENE_HIGHLIGHTER = new MavenObject("lucene highlighter", "org/apache/lucene", "lucene-highlighter",
-				"3.6.0", 88000, 82334, 0, "9ee691f1dcc60f093df433c165d6a686c6d24553",
-				"6e6d7cbb5079519e5925dcd1759ffd538e66df7d", "");
+				"3.6.1", 89200, 85000, 0, "2bd49695e9891697c5f290aa94c3412dfb95b096",
+				"20ae81816ce9c27186ef0f2e92a57812c9ee3b6c", "");
 
 		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
-				"3.6.0", 30000, 23000, 0, "d257d393aa09ed472e7864e20288019a705e637e",
-				"f24912b8aa835ddf45e439b2d7ab099e63269c1e", "");
+				"3.6.1", 30000, 23000, 0, "8c7ca5572edea50973dc0d26cf75c27047eebe7e",
+				"2e291e96d25132e002b1c8240e361d1272d113e1", "");
 
 		public static final MavenObject JAKARTA_REGEXP = new MavenObject("jakarta regexp", "jakarta-regexp", "jakarta-regexp",
 				"1.4", 28500, 0, 0, "0ea514a179ac1dd7e81c7e6594468b9b9910d298",
