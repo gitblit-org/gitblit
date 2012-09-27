@@ -92,6 +92,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.IVY, BuildType.RUNTIME);
 
@@ -101,6 +102,7 @@ public class Build {
 
 	public static void compiletime() {
 		downloadFromApache(MavenObject.JUNIT, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.HAMCREST, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JCOMMANDER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JETTY, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JETTY_AJP, BuildType.COMPILETIME);
@@ -124,6 +126,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.IVY, BuildType.COMPILETIME);
 		
@@ -146,6 +149,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}
@@ -538,6 +542,9 @@ public class Build {
 		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "4.8.2",
 				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
 
+		public static final MavenObject HAMCREST = new MavenObject("Hamcrest Core", "org/hamcrest", "hamcrest-core", "1.1",
+				77000, 0, 0, "860340562250678d1a344907ac75754e259cdb14", null, "");
+
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject("MarkdownPapers",
 				"org/tautua/markdownpapers", "markdownpapers-core", "1.2.7", 87000, 58000, 268000,
 				"84ac5636ac7ddfad9d2ee8456a0f4f69709b6ee0",
@@ -612,6 +619,10 @@ public class Build {
 		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
 				"3.6.0", 30000, 23000, 0, "d257d393aa09ed472e7864e20288019a705e637e",
 				"f24912b8aa835ddf45e439b2d7ab099e63269c1e", "");
+
+		public static final MavenObject JAKARTA_REGEXP = new MavenObject("jakarta regexp", "jakarta-regexp", "jakarta-regexp",
+				"1.4", 28500, 0, 0, "0ea514a179ac1dd7e81c7e6594468b9b9910d298",
+				null, "");
 		
 		public static final MavenObject UNBOUND_ID = new MavenObject("unbound id", "com/unboundid", "unboundid-ldapsdk",
 				"2.3.0", 1383417, 1439721, 0, "6fde8d9fb4ee3e7e3d7e764e3ea57195971e2eb2",
