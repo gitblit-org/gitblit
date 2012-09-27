@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="ext/jsch-0.1.44-1.jar" sourcepath="ext/src/jsch-0.1.44-1-sources.jar"/>
 	<classpathentry kind="lib" path="ext/rome-0.9.jar" sourcepath="ext/src/rome-0.9-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jdom-1.0.jar" sourcepath="ext/src/jdom-1.0-sources.jar"/>
-	<classpathentry kind="lib" path="ext/junit-4.8.2.jar"/>
+	<classpathentry kind="lib" path="ext/junit-4.10.jar" sourcepath="ext/src/junit-4.10-sources.jar"/>
 	<classpathentry kind="lib" path="ext/hamcrest-core-1.1.jar"/>
 	<classpathentry kind="lib" path="ext/jetty-webapp-7.6.5.v20120716.jar" sourcepath="ext/src/jetty-webapp-7.6.5.v20120716-sources.jar"/>
 	<classpathentry kind="lib" path="ext/gson-1.7.2.jar" sourcepath="ext/src/gson-1.7.2-sources.jar"/>

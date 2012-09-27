@@ -539,8 +539,8 @@ public class Build {
 				"627b125cc6029d4d5c59c3a910c1bef347384d97",
 				"");
 
-		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "4.8.2",
-				237000, 0, 0, "c94f54227b08100974c36170dcb53329435fe5ad", "", "");
+		public static final MavenObject JUNIT = new MavenObject("JUnit", "junit", "junit", "4.10",
+				253000, 141000, 0, "e4f1766ce7404a08f45d859fb9c226fc9e41a861", "6c98d6766e72d5575f96c9479d1c1d3b865c6e25", "");
 
 		public static final MavenObject HAMCREST = new MavenObject("Hamcrest Core", "org/hamcrest", "hamcrest-core", "1.1",
 				77000, 0, 0, "860340562250678d1a344907ac75754e259cdb14", null, "");
