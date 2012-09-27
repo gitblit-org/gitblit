@@ -22,7 +22,7 @@
 	<classpathentry kind="lib" path="ext/wicket-1.4.20.jar" sourcepath="ext/src/wicket-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.20.jar" sourcepath="ext/src/wicket-auth-roles-1.4.20-sources.jar"/>
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.20.jar" sourcepath="ext/src/wicket-extensions-1.4.20-sources.jar"/>
-	<classpathentry kind="lib" path="ext/groovy-all-1.8.6.jar" sourcepath="ext/src/groovy-all-1.8.6-sources.jar"/>
+	<classpathentry kind="lib" path="ext/groovy-all-1.8.8.jar" sourcepath="ext/src/groovy-all-1.8.8-sources.jar"/>
 	<classpathentry kind="lib" path="ext/jetty-ajp-7.6.5.v20120716.jar" sourcepath="ext/src/jetty-ajp-7.6.5.v20120716-sources.jar"/>
 	<classpathentry kind="lib" path="ext/lucene-core-3.6.0.jar" sourcepath="ext/src/lucene-core-3.6.0-sources.jar"/>
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.2.7.jar" sourcepath="ext/src/markdownpapers-core-1.2.7-sources.jar"/>

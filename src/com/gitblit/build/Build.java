@@ -598,8 +598,8 @@ public class Build {
 				"5875e2729de83a4e46391f8f979ec8bd03810c10", null);
 
 		public static final MavenObject GROOVY = new MavenObject("groovy", "org/codehaus/groovy", "groovy-all",
-				"1.8.6", 6143000, 2290000, 4608000, "96a26bfa6e5aea2e3c46df44a19de93a2acd2366",
-				"2ac423ad404db3e3d9053c626d4c15a84cd18b73", "3c55878578272093f6b545072d46e3e8ee9a6639");
+				"1.8.8", 6143000, 2290000, 4608000, "98a489343d3c30da817d36cbea5de11ed07bef31",
+				"5f847ed18009f8a034bad3906e39f771c01728c1", "");
 
 		public static final MavenObject LUCENE = new MavenObject("lucene", "org/apache/lucene", "lucene-core",
 				"3.6.0", 1470000, 1347000, 3608000, "8a0429de6b7c9918841fa2c441a6ef4cc07f2a18",

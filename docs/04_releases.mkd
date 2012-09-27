@@ -35,6 +35,7 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 
 - updated to Jetty 7.6.5
 - updated to JGit 2.1.0.201209190230-r
+- updated to Groovy 1.8.8
 
 <hr/>
 
