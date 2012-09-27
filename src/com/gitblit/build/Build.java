@@ -92,6 +92,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE_QUERIES, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.IVY, BuildType.RUNTIME);
@@ -126,6 +127,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.LUCENE_QUERIES, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.IVY, BuildType.COMPILETIME);
@@ -149,6 +151,7 @@ public class Build {
 		downloadFromApache(MavenObject.LUCENE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_HIGHLIGHTER, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.LUCENE_MEMORY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LUCENE_QUERIES, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
@@ -619,6 +622,10 @@ public class Build {
 		public static final MavenObject LUCENE_MEMORY = new MavenObject("lucene memory", "org/apache/lucene", "lucene-memory",
 				"3.6.1", 30000, 23000, 0, "8c7ca5572edea50973dc0d26cf75c27047eebe7e",
 				"2e291e96d25132e002b1c8240e361d1272d113e1", "");
+
+		public static final MavenObject LUCENE_QUERIES = new MavenObject("lucene queries", "org/apache/lucene", "lucene-queries",
+				"3.6.1", 47400, 48600, 0, "4ed6022dd4aa80b932a1546e7e39e3b8bbe7acb7",
+				"dc425c75d988e4975d314772035a46b6a17dcc8d", "");
 
 		public static final MavenObject JAKARTA_REGEXP = new MavenObject("jakarta regexp", "jakarta-regexp", "jakarta-regexp",
 				"1.4", 28500, 0, 0, "0ea514a179ac1dd7e81c7e6594468b9b9910d298",
