@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -379,6 +380,7 @@ public class Build {
 			
 			if (targetFile.exists()) {
 				downloads.add(targetFile);
+				removeObsoleteArtifacts(mo, type, targetFile.getParentFile());
 				continue;
 			}
 			String expectedSHA1 = mo.getSHA1(jar);
@@ -454,8 +456,40 @@ public class Build {
 				throw new RuntimeException("Error writing to file " + targetFile, e);
 			}
 			downloads.add(targetFile);
+			
+			removeObsoleteArtifacts(mo, type, targetFile.getParentFile());
 		}
 		return downloads;
+	}
+	
+	private static void removeObsoleteArtifacts(final MavenObject mo, final BuildType type, File folder) {
+		File [] removals = folder.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				String n = name.toLowerCase();
+				String dep = mo.artifact.toLowerCase();
+				if (n.startsWith(dep)) {
+					String suffix = "-" + mo.version;
+					if (type.equals(BuildType.COMPILETIME)) {
+						suffix += "-sources.jar";
+					} else {
+						suffix += ".jar";
+					}
+					if (!n.endsWith(suffix)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		});
+		
+		// delete any matches
+		if (removals != null) {
+			for (File file : removals) {
+				System.out.println("deleting " + file);
+				file.delete();
+			}
+		}
 	}
 
 	private static void updateDownload(float progress, File file) {
