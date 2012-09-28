@@ -2,7 +2,7 @@
 <classpath>
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="src" path="resources"/>
-    <classpathentry kind="src" path="tests"/>
+    <classpathentry kind="src" path="tests" output="bin/test-classes"/>
     <classpathentry kind="lib" path="ext/jcommander-1.17.jar" sourcepath="ext/src/jcommander-1.17-sources.jar" />
     <classpathentry kind="lib" path="ext/log4j-1.2.17.jar" sourcepath="ext/src/log4j-1.2.17-sources.jar" />
     <classpathentry kind="lib" path="ext/slf4j-api-1.6.6.jar" sourcepath="ext/src/slf4j-api-1.6.6-sources.jar" />
@@ -34,6 +34,6 @@
     <classpathentry kind="lib" path="ext/ivy-2.2.0.jar" sourcepath="ext/src/ivy-2.2.0-sources.jar" />
     <classpathentry kind="lib" path="ext/junit-4.10.jar" sourcepath="ext/src/junit-4.10-sources.jar" />
     <classpathentry kind="lib" path="ext/hamcrest-core-1.1.jar" />
-    <classpathentry kind="output" path="bin"/>
+    <classpathentry kind="output" path="bin/classes"/>
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 </classpath>

@@ -195,6 +195,7 @@
 		<copy todir="${project.deploy.dir}/ext">
 			<fileset dir="${basedir}/ext">
 				<exclude name="junit*.jar" />
+				<exclude name="hamcrest*.jar" />
 				<exclude name="commons-net*.jar" />
 				<exclude name="*-sources.jar" />
 				<exclude name="*-javadoc.jar" />
@@ -416,6 +417,7 @@
 				<exclude name="jcommander*.jar" />
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
+				<exclude name="hamcrest*.jar" />
 				<exclude name="servlet*.jar" />
 				<exclude name="javax.servlet*.jar" />
 			</fileset>
@@ -555,6 +557,7 @@
 				<exclude name="jcommander*.jar" />
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
+				<exclude name="hamcrest*.jar" />
 				<exclude name="servlet*.jar" />
 				<exclude name="javax.servlet*.jar" />
 			</fileset>
