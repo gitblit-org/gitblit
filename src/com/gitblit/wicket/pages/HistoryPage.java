@@ -32,7 +32,7 @@ public class HistoryPage extends RepositoryPage {
 		int nextPage = pageNumber + 1;
 
 		HistoryPanel history = new HistoryPanel("historyPanel", repositoryName, objectId, path,
-				getRepository(), -1, pageNumber - 1);
+				getRepository(), -1, pageNumber - 1, getRepositoryModel().showRemoteBranches);
 		boolean hasMore = history.hasMore();
 		add(history);
 

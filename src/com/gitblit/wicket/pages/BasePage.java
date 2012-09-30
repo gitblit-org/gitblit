@@ -18,7 +18,6 @@ package com.gitblit.wicket.pages;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -36,6 +35,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.WebPage;
@@ -63,7 +63,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
-import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -235,9 +234,9 @@ public abstract class BasePage extends WebPage {
 		return req.getServerName();
 	}
 	
-	protected String getRepositoryUrl(RepositoryModel repository) {
+	public static String getRepositoryUrl(RepositoryModel repository) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(WicketUtils.getGitblitURL(getRequestCycle().getRequest()));
+		sb.append(WicketUtils.getGitblitURL(RequestCycle.get().getRequest()));
 		sb.append(Constants.GIT_PATH);
 		sb.append(repository.name);
 		
@@ -252,7 +251,7 @@ public abstract class BasePage extends WebPage {
 	
 	protected List<ProjectModel> getProjectModels() {
 		final UserModel user = GitBlitWebSession.get().getUser();
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(user);
+		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, true);
 		return projects;
 	}
 	

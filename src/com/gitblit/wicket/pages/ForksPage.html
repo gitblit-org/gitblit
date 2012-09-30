@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<div class="forkSource">
+		<b><span class="repositorySwatch" wicket:id="forkSourceSwatch"></span></b>
+		<span wicket:id="forkSourceAvatar" style="vertical-align: baseline;"></span>
+		<span wicket:id="forkSourceProject">[a project]</span> / <span wicket:id="forkSource">[a fork]</span> 
+	</div>
+	
+	<div wicket:id="fork">
+		<div class="forkEntry">
+			<span wicket:id="anAvatar" style="vertical-align: baseline;"></span>
+			<span wicket:id="aProject">[a project]</span> / <span wicket:id="aFork">[a fork]</span>
+		</div>
+	</div>
+</wicket:extend>	
+</body>
+</html>

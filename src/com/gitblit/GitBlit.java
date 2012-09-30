@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -747,6 +749,14 @@ public class GitBlit implements ServletContextListener {
 	private void addToCachedRepositoryList(String name, RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			repositoryListCache.put(name, model);
+			
+			// update the fork origin repository with this repository clone
+			if (!StringUtils.isEmpty(model.originRepository)) {
+				if (repositoryListCache.containsKey(model.originRepository)) {
+					RepositoryModel origin = repositoryListCache.get(model.originRepository);
+					origin.addFork(name);
+				}
+			}
 		}
 	}
 	
@@ -754,12 +764,13 @@ public class GitBlit implements ServletContextListener {
 	 * Removes the repository from the list of cached repositories.
 	 * 
 	 * @param name
+	 * @return the model being removed
 	 */
-	private void removeFromCachedRepositoryList(String name) {
+	private RepositoryModel removeFromCachedRepositoryList(String name) {
 		if (StringUtils.isEmpty(name)) {
-			return;
+			return null;
 		}
-		repositoryListCache.remove(name);
+		return repositoryListCache.remove(name);
 	}
 
 	/**
@@ -988,7 +999,7 @@ public class GitBlit implements ServletContextListener {
 			if (model == null) {
 				return null;
 			}
-			addToCachedRepositoryList(repositoryName, model);			
+			addToCachedRepositoryList(repositoryName, model);
 			return model;
 		}
 		
@@ -1034,7 +1045,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return project config map
 	 */
 	private Map<String, ProjectModel> getProjectConfigs() {
-		if (projectConfigs.isOutdated()) {
+		if (projectCache.isEmpty() || projectConfigs.isOutdated()) {
 			
 			try {
 				projectConfigs.load();
@@ -1077,9 +1088,10 @@ public class GitBlit implements ServletContextListener {
 	 * Returns a list of project models for the user.
 	 * 
 	 * @param user
+	 * @param includeUsers
 	 * @return list of projects that are accessible to the user
 	 */
-	public List<ProjectModel> getProjectModels(UserModel user) {
+	public List<ProjectModel> getProjectModels(UserModel user, boolean includeUsers) {
 		Map<String, ProjectModel> configs = getProjectConfigs();
 
 		// per-user project lists, this accounts for security and visibility
@@ -1104,10 +1116,25 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// sort projects, root project first
-		List<ProjectModel> projects = new ArrayList<ProjectModel>(map.values());
-		Collections.sort(projects);
-		projects.remove(map.get(""));
-		projects.add(0, map.get(""));
+		List<ProjectModel> projects;
+		if (includeUsers) {
+			// all projects
+			projects = new ArrayList<ProjectModel>(map.values());
+			Collections.sort(projects);
+			projects.remove(map.get(""));
+			projects.add(0, map.get(""));
+		} else {
+			// all non-user projects
+			projects = new ArrayList<ProjectModel>();
+			ProjectModel root = map.remove("");
+			for (ProjectModel model : map.values()) {
+				if (!model.isUserProject()) {
+					projects.add(model);
+				}
+			}
+			Collections.sort(projects);
+			projects.add(0, root);
+		}
 		return projects;
 	}
 	
@@ -1119,7 +1146,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return a project model, or null if it does not exist
 	 */
 	public ProjectModel getProjectModel(String name, UserModel user) {
-		for (ProjectModel project : getProjectModels(user)) {
+		for (ProjectModel project : getProjectModels(user, true)) {
 			if (project.name.equalsIgnoreCase(name)) {
 				return project;
 			}
@@ -1137,15 +1164,37 @@ public class GitBlit implements ServletContextListener {
 		Map<String, ProjectModel> configs = getProjectConfigs();
 		ProjectModel project = configs.get(name.toLowerCase());
 		if (project == null) {
-			return null;
-		}
-		// clone the object
-		project = DeepCopier.copy(project);
-		String folder = name.toLowerCase() + "/";
-		for (String repository : getRepositoryList()) {
-			if (repository.toLowerCase().startsWith(folder)) {
-				project.addRepository(repository);
+			project = new ProjectModel(name);
+			if (name.length() > 0 && name.charAt(0) == '~') {
+				UserModel user = getUserModel(name.substring(1));
+				if (user != null) {
+					project.title = user.getDisplayName();
+					project.description = "personal repositories";
+				}
 			}
+		} else {
+			// clone the object
+			project = DeepCopier.copy(project);
+		}
+		if (StringUtils.isEmpty(name)) {
+			// get root repositories
+			for (String repository : getRepositoryList()) {
+				if (repository.indexOf('/') == -1) {
+					project.addRepository(repository);
+				}
+			}
+		} else {
+			// get repositories in subfolder
+			String folder = name.toLowerCase() + "/";
+			for (String repository : getRepositoryList()) {
+				if (repository.toLowerCase().startsWith(folder)) {
+					project.addRepository(repository);
+				}
+			}
+		}
+		if (project.repositories.size() == 0) {
+			// no repositories == no project
+			return null;
 		}
 		return project;
 	}
@@ -1189,18 +1238,26 @@ public class GitBlit implements ServletContextListener {
 		model.hasCommits = JGitUtils.hasCommits(r);
 		model.lastChange = JGitUtils.getLastChange(r);
 		model.isBare = r.isBare();
+		if (repositoryName.indexOf('/') == -1) {
+			model.projectPath = "";
+		} else {
+			model.projectPath = repositoryName.substring(0, repositoryName.indexOf('/'));
+		}
 		
 		StoredConfig config = r.getConfig();
+		boolean hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
+		
 		if (config != null) {
 			model.description = getConfig(config, "description", "");
 			model.owner = getConfig(config, "owner", "");
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
+			model.allowForks = getConfig(config, "allowForks", true);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
 					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
 			model.authorizationControl = AuthorizationControl.fromName(getConfig(config,
 					"authorizationControl", settings.getString(Keys.git.defaultAuthorizationControl, null)));
-			model.showRemoteBranches = getConfig(config, "showRemoteBranches", false);
+			model.showRemoteBranches = getConfig(config, "showRemoteBranches", hasOrigin);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);
 			model.skipSizeCalculation = getConfig(config, "skipSizeCalculation", false);
@@ -1229,6 +1286,23 @@ public class GitBlit implements ServletContextListener {
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
 		r.close();
+		
+		if (model.origin != null && model.origin.startsWith("file://")) {
+			// repository was cloned locally... perhaps as a fork
+			try {
+				File folder = new File(new URI(model.origin));
+				String originRepo = com.gitblit.utils.FileUtils.getRelativePath(getRepositoriesFolder(), folder);
+				if (!StringUtils.isEmpty(originRepo)) {
+					// ensure origin still exists
+					File repoFolder = new File(getRepositoriesFolder(), originRepo);
+					if (repoFolder.exists()) {
+						model.originRepository = originRepo;
+					}
+				}
+			} catch (URISyntaxException e) {
+				logger.error("Failed to determine fork for " + model, e);
+			}
+		}
 		return model;
 	}
 	
@@ -1425,9 +1499,27 @@ public class GitBlit implements ServletContextListener {
 							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
 							repositoryName, repository.name));
 				}
+				
+				// rename fork origins in their configs
+				if (!ArrayUtils.isEmpty(repository.forks)) {
+					for (String fork : repository.forks) {
+						Repository rf = getRepository(fork);
+						try {
+							StoredConfig config = rf.getConfig();
+							String origin = config.getString("remote", "origin", "url");
+							origin = origin.replace(repositoryName, repository.name);
+							config.setString("remote", "origin", "url", origin);
+							config.save();
+						} catch (Exception e) {
+							logger.error("Failed to update repository fork config for " + fork, e);
+						}
+						rf.close();
+					}
+				}
 
 				// clear the cache
 				clearRepositoryMetadataCache(repositoryName);
+				repository.resetDisplayName();
 			}
 
 			// load repository
@@ -1483,6 +1575,7 @@ public class GitBlit implements ServletContextListener {
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", repository.owner);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
 		config.setString(Constants.CONFIG_GITBLIT, null, "accessRestriction", repository.accessRestriction.name());
 		config.setString(Constants.CONFIG_GITBLIT, null, "authorizationControl", repository.authorizationControl.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showRemoteBranches", repository.showRemoteBranches);
@@ -1558,7 +1651,11 @@ public class GitBlit implements ServletContextListener {
 			closeRepository(repositoryName);
 			// clear the repository cache
 			clearRepositoryMetadataCache(repositoryName);
-			removeFromCachedRepositoryList(repositoryName);
+			
+			RepositoryModel model = removeFromCachedRepositoryList(repositoryName);
+			if (!ArrayUtils.isEmpty(model.forks)) {
+				resetRepositoryListCache();
+			}
 
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
@@ -2422,5 +2519,53 @@ public class GitBlit implements ServletContextListener {
 		logger.info("Gitblit context destroyed by servlet container.");
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
+	}
+	
+	/**
+	 * Creates a personal fork of the specified repository. The clone is view
+	 * restricted by default and the owner of the source repository is given
+	 * access to the clone. 
+	 * 
+	 * @param repository
+	 * @param user
+	 * @return true, if successful
+	 */
+	public boolean fork(RepositoryModel repository, UserModel user) {
+		String cloneName = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
+		String fromUrl = MessageFormat.format("file://{0}/{1}", repositoriesFolder.getAbsolutePath(), repository.name);
+		try {
+			// clone the repository
+			JGitUtils.cloneRepository(repositoriesFolder, cloneName, fromUrl, true, null);
+			
+			// create a Gitblit repository model for the clone
+			RepositoryModel cloneModel = repository.cloneAs(cloneName);
+			cloneModel.owner = user.username;
+			updateRepositoryModel(cloneName, cloneModel, false);
+			
+			if (AuthorizationControl.NAMED.equals(cloneModel.authorizationControl)) {
+				// add the owner of the source repository to the clone's access list
+				if (!StringUtils.isEmpty(repository.owner)) {
+					UserModel owner = getUserModel(repository.owner);
+					if (owner != null) {
+						owner.repositories.add(cloneName);
+						updateUserModel(owner.username, owner, false);
+					}
+				}
+				
+				// inherit origin's access lists
+				List<String> users = getRepositoryUsers(repository);
+				setRepositoryUsers(cloneModel, users);
+				
+				List<String> teams = getRepositoryTeams(repository);
+				setRepositoryTeams(cloneModel, teams);
+			}
+			
+			// add this clone to the cached model
+			addToCachedRepositoryList(cloneModel.name, cloneModel);
+			return true;
+		} catch (Exception e) {
+			logger.error("failed to fork", e);
+		}
+		return false;
 	}
 }

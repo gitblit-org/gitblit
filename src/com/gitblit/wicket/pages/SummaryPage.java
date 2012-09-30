@@ -130,7 +130,7 @@ public class SummaryPage extends RepositoryPage {
 		add(new Label("otherUrls", StringUtils.flattenStrings(repositoryUrls, "<br/>"))
 		.setEscapeModelStrings(false));
 
-		add(new LogPanel("commitsPanel", repositoryName, getRepositoryModel().HEAD, r, numberCommits, 0));
+		add(new LogPanel("commitsPanel", repositoryName, getRepositoryModel().HEAD, r, numberCommits, 0, getRepositoryModel().showRemoteBranches));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 

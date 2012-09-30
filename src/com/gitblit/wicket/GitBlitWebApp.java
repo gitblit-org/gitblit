@@ -34,6 +34,7 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
+import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
@@ -53,6 +54,7 @@ import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TicketPage;
 import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
+import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
@@ -116,6 +118,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/lucene", LuceneSearchPage.class);
 		mount("/project", ProjectPage.class, "p");
 		mount("/projects", ProjectsPage.class);
+		mount("/user", UserPage.class, "user");
+		mount("/forks", ForksPage.class, "r");
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {

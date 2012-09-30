@@ -750,6 +750,9 @@ public class ConfigUserService implements IUserService {
 			if (model.canAdmin) {
 				roles.add(Constants.ADMIN_ROLE);
 			}
+			if (model.canFork) {
+				roles.add(Constants.FORK_ROLE);
+			}
 			if (model.excludeFromFederation) {
 				roles.add(Constants.NOT_FEDERATED_ROLE);
 			}
@@ -858,6 +861,7 @@ public class ConfigUserService implements IUserService {
 					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
 							USER, username, ROLE)));
 					user.canAdmin = roles.contains(Constants.ADMIN_ROLE);
+					user.canFork = roles.contains(Constants.FORK_ROLE);
 					user.excludeFromFederation = roles.contains(Constants.NOT_FEDERATED_ROLE);
 
 					// repository memberships

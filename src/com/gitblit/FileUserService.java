@@ -234,6 +234,8 @@ public class FileUserService extends FileSettings implements IUserService {
 				// Permissions
 				if (role.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
 					model.canAdmin = true;
+				} else if (role.equalsIgnoreCase(Constants.FORK_ROLE)) {
+					model.canFork = true;
 				} else if (role.equalsIgnoreCase(Constants.NOT_FEDERATED_ROLE)) {
 					model.excludeFromFederation = true;
 				}
@@ -282,6 +284,9 @@ public class FileUserService extends FileSettings implements IUserService {
 			// Permissions
 			if (model.canAdmin) {
 				roles.add(Constants.ADMIN_ROLE);
+			}
+			if (model.canFork) {
+				roles.add(Constants.FORK_ROLE);
 			}
 			if (model.excludeFromFederation) {
 				roles.add(Constants.NOT_FEDERATED_ROLE);

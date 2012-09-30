@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.utils.StringUtils;
 
@@ -42,6 +43,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public String displayName;
 	public String emailAddress;
 	public boolean canAdmin;
+	public boolean canFork;
 	public boolean excludeFromFederation;
 	public final Set<String> repositories = new HashSet<String>();
 	public final Set<TeamModel> teams = new HashSet<TeamModel>();
@@ -82,6 +84,33 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return false;
+	}
+	
+	public boolean canForkRepository(RepositoryModel repository) {
+		if (canAdmin) {
+			return true;
+		}
+		if (!canFork) {
+			// user has been prohibited from forking
+			return false;
+		}
+		if (!isAuthenticated) {
+			// unauthenticated user model
+			return false;
+		}
+		if (("~" + username).equalsIgnoreCase(repository.projectPath)) {
+			// this repository is already a personal repository
+			return false;
+		}
+		if (!repository.allowForks) {
+			// repository prohibits forks
+			return false;
+		}
+		if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
+			return canAccessRepository(repository);
+		}
+		// repository is not clone-restricted
+		return true;
 	}
 
 	public boolean hasRepository(String name) {

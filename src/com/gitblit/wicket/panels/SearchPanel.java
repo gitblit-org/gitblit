@@ -47,7 +47,8 @@ public class SearchPanel extends BasePanel {
 	private boolean hasMore;
 
 	public SearchPanel(String wicketId, final String repositoryName, final String objectId,
-			final String value, Constants.SearchType searchType, Repository r, int limit, int pageOffset) {
+			final String value, Constants.SearchType searchType, Repository r, int limit, int pageOffset,
+			boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
@@ -57,7 +58,7 @@ public class SearchPanel extends BasePanel {
 
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 
-		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r);
+		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set

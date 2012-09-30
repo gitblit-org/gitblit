@@ -1369,9 +1369,23 @@ public class JGitUtils {
 	 * @return all refs grouped by their referenced object id
 	 */
 	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository repository) {
+		return getAllRefs(repository, true);
+	}
+	
+	/**
+	 * Returns all refs grouped by their associated object id.
+	 * 
+	 * @param repository
+	 * @param includeRemoteRefs
+	 * @return all refs grouped by their referenced object id
+	 */
+	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository repository, boolean includeRemoteRefs) {
 		List<RefModel> list = getRefs(repository, org.eclipse.jgit.lib.RefDatabase.ALL, true, -1);
 		Map<ObjectId, List<RefModel>> refs = new HashMap<ObjectId, List<RefModel>>();
 		for (RefModel ref : list) {
+			if (!includeRemoteRefs && ref.getName().startsWith(Constants.R_REMOTES)) {
+				continue;
+			}
 			ObjectId objectid = ref.getReferencedObjectId();
 			if (!refs.containsKey(objectid)) {
 				refs.put(objectid, new ArrayList<RefModel>());

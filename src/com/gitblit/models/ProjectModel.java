@@ -53,6 +53,10 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 		this.title = "";
 		this.description = "";
 	}
+	
+	public boolean isUserProject() {
+		return name.charAt(0) == '~';
+	}
 
 	public boolean hasRepository(String name) {
 		return repositories.contains(name.toLowerCase());

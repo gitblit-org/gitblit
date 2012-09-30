@@ -48,7 +48,7 @@ public class GravatarImage extends Panel {
 	public GravatarImage(String id, PersonIdent person, int width) {
 		super(id);
 
-		String email = person.getEmailAddress().toLowerCase();
+		String email = person.getEmailAddress() == null ? person.getName().toLowerCase() : person.getEmailAddress().toLowerCase();
 		String hash = StringUtils.getMD5(email);
 		Link<Void> link = new BookmarkablePageLink<Void>("link", GravatarProfilePage.class,
 				WicketUtils.newObjectParameter(hash));

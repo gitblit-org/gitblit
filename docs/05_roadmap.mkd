@@ -26,7 +26,6 @@ This list is volatile.
 ### IDEAS
 
 * Gitblit: Re-use the EGit branch visualization table cell renderer as some sort of servlet
-* Gitblit: Support personal repositories (~username/repo)
 * Gitblit: diff should highlight inserted/removed fragment compared to original line
 * Gitblit: implement branch permission controls as Groovy pre-receive script.  
 *Maintain permissions text file similar to a gitolite configuration file or svn authz file.*

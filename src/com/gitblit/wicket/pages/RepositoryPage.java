@@ -28,10 +28,12 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -47,8 +49,10 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.PagesServlet;
 import com.gitblit.SyndicationServlet;
+import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -58,6 +62,7 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -81,10 +86,11 @@ public abstract class RepositoryPage extends BasePage {
 	public RepositoryPage(PageParameters params) {
 		super(params);
 		repositoryName = WicketUtils.getRepositoryName(params);
-		if (repositoryName.indexOf('/') > -1) {
-			projectName = repositoryName.substring(0, repositoryName.indexOf('/'));
-		} else {
+		String root =StringUtils.getFirstPathElement(repositoryName);
+		if (StringUtils.isEmpty(root)) {
 			projectName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+		} else {
+			projectName = root;
 		}
 		objectId = WicketUtils.getObject(params);
 		
@@ -125,7 +131,6 @@ public abstract class RepositoryPage extends BasePage {
 
 		// standard links
 		pages.put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class));
-		pages.put("project", new PageRegistration("gb.project", ProjectPage.class, WicketUtils.newProjectParameter(projectName)));
 		pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
 		pages.put("log", new PageRegistration("gb.log", LogPage.class, params));
 		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
@@ -136,6 +141,17 @@ public abstract class RepositoryPage extends BasePage {
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
 
+		// forks list button
+		if (StringUtils.isEmpty(model.originRepository)) {
+			if (!ArrayUtils.isEmpty(model.forks)) {
+				// this origin repository has forks
+				pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+			}
+		} else {
+			// this is a fork of another repository
+			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+		}
+		
 		// per-repository extra page links
 		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
 			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params));
@@ -168,19 +184,100 @@ public abstract class RepositoryPage extends BasePage {
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
-		add(new LinkPanel("repositoryName", null, StringUtils.stripDotGit(repositoryName),
-				SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new Label("pageName", pageName).setRenderBodyOnly(true));
-		if (getRepositoryModel().isBare) {
-			add(new Label("workingCopy").setVisible(false));
+		String projectName = StringUtils.getFirstPathElement(repositoryName);
+		ProjectModel project = GitBlit.self().getProjectModel(projectName);
+		if (project.isUserProject()) {
+			// user-as-project
+			add(new LinkPanel("projectTitle", null, project.getDisplayName(),
+					UserPage.class, WicketUtils.newUsernameParameter(project.name.substring(1))));
 		} else {
-			Fragment fragment = new Fragment("workingCopy", "workingCopyFragment", this);
+			// project
+			add(new LinkPanel("projectTitle", null, project.name,
+					ProjectPage.class, WicketUtils.newProjectParameter(project.name)));
+		}
+		
+		String name = StringUtils.stripDotGit(repositoryName);
+		if (!StringUtils.isEmpty(projectName) && name.startsWith(projectName)) {
+			name = name.substring(projectName.length() + 1);
+		}
+		add(new LinkPanel("repositoryName", null, name, SummaryPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName)));
+		add(new Label("pageName", pageName).setRenderBodyOnly(true));
+		
+		// indicate origin repository
+		RepositoryModel model = getRepositoryModel();
+		if (StringUtils.isEmpty(model.originRepository)) {
+			add(new Label("originRepository").setVisible(false));
+		} else {
+			Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(model.originRepository), 
+					SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
+			add(forkFrag);
+		}
+		
+		if (getRepositoryModel().isBare) {
+			add(new Label("workingCopyIndicator").setVisible(false));
+		} else {
+			Fragment wc = new Fragment("workingCopyIndicator", "workingCopyFragment", this);
 			Label lbl = new Label("workingCopy", getString("gb.workingCopy"));
 			WicketUtils.setHtmlTooltip(lbl,  getString("gb.workingCopyWarning"));
-			fragment.add(lbl);
-			add(fragment);
+			wc.add(lbl);
+			add(wc);
 		}
+		
+		if (getRepositoryModel().allowForks) {
+			add(new Label("forksProhibitedIndicator").setVisible(false));
+		} else {
+			Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
+			Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));
+			WicketUtils.setHtmlTooltip(lbl,  getString("gb.forksProhibitedWarning"));
+			wc.add(lbl);
+			add(wc);
+		}
+		
+		UserModel user = GitBlitWebSession.get().getUser();
+		
+		// fork button
+		if (user != null) {			
+			final String clonedRepo = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(model.name)));
+			boolean hasClone = GitBlit.self().hasRepository(clonedRepo) && !getRepositoryModel().name.equals(clonedRepo);
+			if (user.canForkRepository(model) && !hasClone) {
+				Link<Void> forkLink = new Link<Void>("forkLink") {
 
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						RepositoryModel model = getRepositoryModel();
+						if (GitBlit.self().fork(model, GitBlitWebSession.get().getUser())) {
+							throw new RedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(clonedRepo));
+						} else {
+							error(MessageFormat.format(getString("gb.repositoryForkFailed"), model));
+						}
+					}
+				};
+				forkLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+						getString("gb.forkRepository"), getRepositoryModel())));
+				add(forkLink);
+			} else {
+				// user not allowed to fork or fork already exists or repo forbids forking
+				add(new ExternalLink("forkLink", "").setVisible(false));
+			}
+			
+			if (hasClone) {
+				// user has clone
+				String url = getRequestCycle().urlFor(SummaryPage.class, WicketUtils.newRepositoryParameter(clonedRepo)).toString();
+				add(new ExternalLink("myForkLink", url));
+			} else {
+				// user does not have clone
+				add(new ExternalLink("myForkLink", "").setVisible(false));
+			}
+		} else {
+			// server prohibits forking
+			add(new ExternalLink("forkLink", "").setVisible(false));
+			add(new ExternalLink("myForkLink", "").setVisible(false));
+		}
+		
 		super.setupPage(repositoryName, pageName);
 	}
 
@@ -312,7 +409,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
-		add(new RefsPanel("refsPanel", repositoryName, c, JGitUtils.getAllRefs(r)));
+		add(new RefsPanel("refsPanel", repositoryName, c, JGitUtils.getAllRefs(r, getRepositoryModel().showRemoteBranches)));
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {

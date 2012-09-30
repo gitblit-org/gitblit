@@ -37,7 +37,7 @@ public class LogPage extends RepositoryPage {
 			refid = getRepositoryModel().HEAD;
 		}
 		LogPanel logPanel = new LogPanel("logPanel", repositoryName, refid, getRepository(), -1,
-				pageNumber - 1);
+				pageNumber - 1, getRepositoryModel().showRemoteBranches);
 		boolean hasMore = logPanel.hasMore();
 		add(logPanel);
 

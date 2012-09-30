@@ -7,29 +7,6 @@
 <body>
 <wicket:extend>
 
-	<wicket:fragment wicket:id="repositoryAdminLinks">
-		<span class="link">
-			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
-			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
-			| <a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a>
-			| <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a>
-		</span>
-	</wicket:fragment>
-
-	<wicket:fragment wicket:id="repositoryOwnerLinks">
-		<span class="link">
-			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
-			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
-			| <a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a>
-		</span>
-	</wicket:fragment>
-
-	<wicket:fragment wicket:id="repositoryUserLinks">
-		<span class="link">
-			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a>
-			| <a wicket:id="log"><wicket:message key="gb.log"></wicket:message></a>
-		</span>
-	</wicket:fragment>
 
 	<div class="row">
 		<div class="span12">
@@ -60,50 +37,11 @@
 						<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
 					</div>
 				</div>
-				
-				<!-- repositories -->
 				<div class="row">
-					<div class="span6" style="border-top:1px solid #eee;" wicket:id="repository">
-						<div style="padding-top:15px;padding-bottom:15px;margin-right:15px;">
-							<div class="pull-right" style="text-align:right;padding-right:15px;">
-								<span wicket:id="repositoryLinks"></span>
-
-								<div>
-        							<img class="inlineIcon" wicket:id="frozenIcon" />
-        							<img class="inlineIcon" wicket:id="federatedIcon" />
-        							
-        							<a style="text-decoration: none;" wicket:id="tickets" wicket:message="title:gb.tickets">
-										<img style="border:0px;vertical-align:middle;" src="bug_16x16.png"></img>
-									</a>
-									<a style="text-decoration: none;" wicket:id="docs" wicket:message="title:gb.docs">
-										<img style="border:0px;vertical-align:middle;" src="book_16x16.png"></img>
-									</a>
-									<a style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
-										<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
-									</a>
-								</div>
-								<span style="color: #999;font-style:italic;font-size:0.8em;" wicket:id="repositoryOwner">[owner]</span>
-							</div>	
-			
-							<h3><span class="repositorySwatch" wicket:id="repositorySwatch"></span>
-								<span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span>
-								<img class="inlineIcon" wicket:id="accessRestrictionIcon" />
-							</h3>
-			
-							<div style="padding-left:20px;">
-
-        						<div style="padding-bottom:10px" wicket:id="repositoryDescription">[repository description]</div>
-
-			        			<div style="color: #999;">
-        							<wicket:message key="gb.lastChange">[last change]</wicket:message> <span wicket:id="repositoryLastChange">[last change]</span>,
-        							<span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span>
-        						</div>
-        
-								<div class="hidden-phone hidden-tablet" wicket:id="repositoryCloneUrl">[repository clone url]</div>
-							</div>
-						</div>
-					</div>		
-				</div>
+					<div class="span6" style="border-bottom:1px solid #eee;" wicket:id="repositoryList">
+						<span wicket:id="repository"></span>
+					</div>
+				</div>				
 			</div>
 			
 			<!-- activity tab -->

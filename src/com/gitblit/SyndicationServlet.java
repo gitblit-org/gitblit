@@ -227,7 +227,7 @@ public class SyndicationServlet extends HttpServlet {
 				commits = JGitUtils.searchRevlogs(repository, objectId, searchString, searchType,
 						offset, length);
 			}
-			Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
+			Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository, model.showRemoteBranches);
 
 			// convert RevCommit to SyndicatedEntryModel
 			for (RevCommit commit : commits) {

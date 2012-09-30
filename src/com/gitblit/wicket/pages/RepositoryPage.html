@@ -42,9 +42,18 @@
 			<!-- page header -->
 			<div class="pageTitle">
 				<div class="row">
-					<div wicket:id="workingCopy"></div>
-					<div class="span9">
-						<h2><span wicket:id="repositoryName">[repository name]</span> <small><span wicket:id="pageName">[page name]</span></small></h2>
+					<div class="controls">
+						<span wicket:id="workingCopyIndicator"></span>
+						<span wicket:id="forksProhibitedIndicator"></span>
+						<div class="hidden-phone btn-group pull-right">
+							<!-- future spot for other repo buttons -->
+							<a class="btn" wicket:id="myForkLink"><i class="icon-random"></i> <wicket:message key="gb.myFork"></wicket:message></a>
+							<a class="btn" wicket:id="forkLink"><i class="icon-random"></i> <wicket:message key="gb.fork"></wicket:message></a>
+						</div>
+					</div>
+					<div class="span7">
+						<div><span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span></div>
+						<span wicket:id="originRepository">[origin repository]</span>
 					</div>
 				</div>
 			</div>
@@ -52,11 +61,22 @@
 			<wicket:child />
 		</div>
 		
-		<wicket:fragment wicket:id="workingCopyFragment">
-			<p class="pull-right" style="padding-top:5px;">
-				<span class="alert alert-info" style="padding: 8px 14px 8px 14px;vertical-align: middle;"><i class="icon-exclamation-sign" style="vertical-align: middle;"></i>&nbsp;<span class="hidden-phone" wicket:id="workingCopy" style="font-weight:bold;">[working copy]</span></span>
-			</p>
+		<wicket:fragment wicket:id="originFragment">
+			<p class="originRepository"><wicket:message key="gb.forkedFrom">[forked from]</wicket:message> <span wicket:id="originRepository">[origin repository]</span></p>
 		</wicket:fragment>
+		
+		<wicket:fragment wicket:id="workingCopyFragment">
+			<div class="pull-right" style="padding-top:0px;margin-bottom:0px;padding-left:5px">
+				<span class="alert alert-info" style="padding: 6px 14px 6px 14px;vertical-align: middle;"><i class="icon-exclamation-sign"></i>&nbsp;<span class="hidden-phone" wicket:id="workingCopy" style="font-weight:bold;">[working copy]</span></span>
+			</div>
+		</wicket:fragment>
+
+		<wicket:fragment wicket:id="forksProhibitedFragment">
+			<div class="pull-right" style="padding-top:0px;margin-bottom:0px;padding-left:5px">
+				<span class="alert alert-error" style="padding: 6px 14px 6px 14px;vertical-align: middle;"><i class="icon-ban-circle"></i>&nbsp;<span class="hidden-phone" wicket:id="forksProhibited" style="font-weight:bold;">[forks prohibited]</span></span>
+			</div>
+		</wicket:fragment>
+		
 	</wicket:extend>
 </body>
 </html>

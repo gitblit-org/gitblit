@@ -94,7 +94,7 @@ public class ActivityUtils {
 					branches.add(objectId);
 				}
 				Map<ObjectId, List<RefModel>> allRefs = JGitUtils
-						.getAllRefs(repository);
+						.getAllRefs(repository, model.showRemoteBranches);
 
 				for (String branch : branches) {
 					String shortName = branch;

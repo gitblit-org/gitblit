@@ -58,6 +58,7 @@ import com.gitblit.wicket.pages.EmptyRepositoryPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.SummaryPage;
+import com.gitblit.wicket.pages.UserPage;
 
 public class RepositoriesPanel extends BasePanel {
 
@@ -116,7 +117,7 @@ public class RepositoriesPanel extends BasePanel {
 			}
 						
 			Map<String, ProjectModel> projects = new HashMap<String, ProjectModel>();
-			for (ProjectModel project : GitBlit.self().getProjectModels(user)) {
+			for (ProjectModel project : GitBlit.self().getProjectModels(user, true)) {
 				projects.put(project.name, project);
 			}
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
@@ -138,7 +139,7 @@ public class RepositoriesPanel extends BasePanel {
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-
+		
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -156,8 +157,19 @@ public class RepositoriesPanel extends BasePanel {
 					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
-					row.add(new LinkPanel("groupName", null, entry.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
-					row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
+					
+					String name = entry.toString();
+					if (name.charAt(0) == '~') {
+						// user page
+						String username = name.substring(1);
+						UserModel user = GitBlit.self().getUserModel(username);
+						row.add(new LinkPanel("groupName", null, user == null ? username : user.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(username)));
+						row.add(new Label("groupDescription", getString("gb.personalRepositories")));
+					} else {
+						// project page
+						row.add(new LinkPanel("groupName", null, name, ProjectPage.class, WicketUtils.newProjectParameter(name)));
+						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
+					}
 					WicketUtils.setCssClass(item, "group");
 					// reset counter so that first row is light background
 					counter = 0;
@@ -272,7 +284,8 @@ public class RepositoriesPanel extends BasePanel {
 				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
 
 				boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
-				if (showAdmin) {
+				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);
+				if (showAdmin || myPersonalRepository) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
 							"repositoryAdminLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",

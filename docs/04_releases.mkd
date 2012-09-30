@@ -17,10 +17,15 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### additions
 
-- added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
-- delete branch feature (issue 121, Github/ajermakovics)
-- added line links to blob view at the expense of zebra striping (issue 130)
-- added RedmineUserService (github/mallowlabs)
+- Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
+- Added support for personal repositories.  This builds on the simple project pages.  
+Personal repositories are stored in *git.repositoriesFolder*/*~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories.
+- Added support for server-side forking of a repository to a personal repository (issue 137)  
+In order to fork a repository to a personal clone, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access restrictions of its origin.  i.e. if Team A has access to the origin repository, then by default Team A also has access to the fork.  This is to facilitate collaboration.  However, the fork owner may change access to the fork and add/remove users/teams, etc as required.
+- Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
+- Delete branch feature (issue 121, Github/ajermakovics)
+- Added line links to blob view at the expense of zebra striping (issue 130)
+- Added RedmineUserService (github/mallowlabs)
 
 #### changes
 

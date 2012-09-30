@@ -41,6 +41,8 @@ public class Constants {
 	public static final String JGIT_VERSION = "JGit 2.1.0 (201209190230-r)";
 
 	public static final String ADMIN_ROLE = "#admin";
+	
+	public static final String FORK_ROLE = "#fork";
 
 	public static final String NOT_FEDERATED_ROLE = "#notfederated";
 	

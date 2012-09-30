@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
@@ -68,7 +70,11 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public List<String> postReceiveScripts;
 	public List<String> mailingLists;
 	public Map<String, String> customFields;
+	public String projectPath;
 	private String displayName;
+	public boolean allowForks;
+	public Set<String> forks;
+	public String originRepository;
 	
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
@@ -97,6 +103,24 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		}
 		return localBranches;
 	}
+	
+	public void addFork(String repository) {
+		if (forks == null) {
+			forks = new TreeSet<String>();
+		}
+		forks.add(repository);
+	}
+	
+	public void removeFork(String repository) {
+		if (forks == null) {
+			return;
+		}
+		forks.remove(repository);
+	}
+	
+	public void resetDisplayName() {
+		displayName = null;
+	}
 
 	@Override
 	public String toString() {
@@ -109,5 +133,30 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	@Override
 	public int compareTo(RepositoryModel o) {
 		return StringUtils.compareRepositoryNames(name, o.name);
+	}
+	
+	public boolean isPersonalRepository() {
+		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
+	}
+	
+	public boolean isUsersPersonalRepository(String username) {
+		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+	}
+	
+	public RepositoryModel cloneAs(String cloneName) {
+		RepositoryModel clone = new RepositoryModel();
+		clone.name = cloneName;
+		clone.description = description;
+		clone.accessRestriction = accessRestriction;
+		clone.authorizationControl = authorizationControl;
+		clone.federationStrategy = federationStrategy;
+		clone.showReadme = showReadme;
+		clone.showRemoteBranches = false;
+		clone.allowForks = false;
+		clone.useDocs = useDocs;
+		clone.useTickets = useTickets;
+		clone.skipSizeCalculation = skipSizeCalculation;
+		clone.skipSummaryMetrics = skipSummaryMetrics;
+		return clone;
 	}
 }

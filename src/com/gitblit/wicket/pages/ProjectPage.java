@@ -34,10 +34,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectException;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -52,7 +49,6 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ActivityUtils;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
@@ -66,9 +62,7 @@ import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GoogleLineChart;
 import com.gitblit.wicket.charting.GooglePieChart;
 import com.gitblit.wicket.panels.ActivityPanel;
-import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
-import com.gitblit.wicket.panels.LinkPanel;
-import com.gitblit.wicket.panels.RepositoryUrlPanel;
+import com.gitblit.wicket.panels.ProjectRepositoryPanel;
 
 public class ProjectPage extends RootPage {
 	
@@ -148,143 +142,16 @@ public class ProjectPage extends RootPage {
 			}
 		});
 
-		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		final boolean gitServlet = GitBlit.getBoolean(Keys.git.enableGitServlet, true);
-		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
-		
 		final ListDataProvider<RepositoryModel> dp = new ListDataProvider<RepositoryModel>(repositories);
-		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repository", dp) {
+		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repositoryList", dp) {
 			private static final long serialVersionUID = 1L;
 
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
-
-				// repository swatch
-				Component swatch;
-				if (entry.isBare){
-					swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
-				} else {
-					swatch = new Label("repositorySwatch", "!");
-					WicketUtils.setHtmlTooltip(swatch, getString("gb.workingCopyWarning"));
-				}
-				WicketUtils.setCssBackground(swatch, entry.toString());
-				item.add(swatch);
-				swatch.setVisible(showSwatch);
 				
-				PageParameters pp = WicketUtils.newRepositoryParameter(entry.name);
-				item.add(new LinkPanel("repositoryName", "list", StringUtils.getRelativePath(projectPath, StringUtils.stripDotGit(entry.name)), SummaryPage.class, pp));
-				item.add(new Label("repositoryDescription", entry.description).setVisible(!StringUtils.isEmpty(entry.description)));
-				
-				item.add(new BookmarkablePageLink<Void>("tickets", TicketsPage.class, pp).setVisible(entry.useTickets));
-				item.add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
-
-				if (entry.isFrozen) {
-					item.add(WicketUtils.newImage("frozenIcon", "cold_16x16.png",
-							getString("gb.isFrozen")));
-				} else {
-					item.add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
-				}
-
-				if (entry.isFederated) {
-					item.add(WicketUtils.newImage("federatedIcon", "federated_16x16.png",
-							getString("gb.isFederated")));
-				} else {
-					item.add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
-				}
-				switch (entry.accessRestriction) {
-				case NONE:
-					item.add(WicketUtils.newBlankImage("accessRestrictionIcon").setVisible(false));
-					break;
-				case PUSH:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
-							getAccessRestrictions().get(entry.accessRestriction)));
-					break;
-				case CLONE:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
-							getAccessRestrictions().get(entry.accessRestriction)));
-					break;
-				case VIEW:
-					item.add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
-							getAccessRestrictions().get(entry.accessRestriction)));
-					break;
-				default:
-					item.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-				}
-
-				item.add(new Label("repositoryOwner", StringUtils.isEmpty(entry.owner) ? "" : (entry.owner + " (" + getString("gb.owner") + ")")));
-				
-				
-				UserModel user = GitBlitWebSession.get().getUser();
-				Fragment repositoryLinks;				
-				boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
-				if (showAdmin || showOwner) {
-					repositoryLinks = new Fragment("repositoryLinks",
-							showAdmin ? "repositoryAdminLinks" : "repositoryOwnerLinks", this);
-					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
-							EditRepositoryPage.class, WicketUtils
-									.newRepositoryParameter(entry.name)));
-					if (showAdmin) {
-						Link<Void> deleteLink = new Link<Void>("deleteRepository") {
-
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public void onClick() {
-								if (GitBlit.self().deleteRepositoryModel(entry)) {
-									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
-									// TODO dp.remove(entry);
-								} else {
-									error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
-								}
-							}
-						};
-						deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-								getString("gb.deleteRepository"), entry)));
-						repositoryLinks.add(deleteLink);
-					}
-				} else {
-					repositoryLinks = new Fragment("repositoryLinks", "repositoryUserLinks", this);
-				}
-				
-				repositoryLinks.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-						WicketUtils.newRepositoryParameter(entry.name)).setEnabled(entry.hasCommits));
-
-				repositoryLinks.add(new BookmarkablePageLink<Void>("log", LogPage.class,
-						WicketUtils.newRepositoryParameter(entry.name)).setEnabled(entry.hasCommits));
-
-				item.add(repositoryLinks);
-				
-				String lastChange;
-				if (entry.lastChange.getTime() == 0) {
-					lastChange = "--";
-				} else {
-					lastChange = getTimeUtils().timeAgo(entry.lastChange);
-				}
-				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
-				item.add(lastChangeLabel);
-				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
-				
-				if (entry.hasCommits) {
-					// Existing repository
-					item.add(new Label("repositorySize", entry.size).setVisible(showSize));
-				} else {
-					// New repository
-					item.add(new Label("repositorySize", getString("gb.empty"))
-							.setEscapeModelStrings(false));
-				}
-				
-				item.add(new ExternalLink("syndication", SyndicationServlet.asLink("",
-						entry.name, null, 0)));
-				
-				List<String> repositoryUrls = new ArrayList<String>();
-				if (gitServlet) {
-					// add the Gitblit repository url
-					repositoryUrls.add(getRepositoryUrl(entry));
-				}
-				repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name));
-				
-				String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
-				item.add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));
+				ProjectRepositoryPanel row = new ProjectRepositoryPanel("repository", 
+						getLocalizer(), this, showAdmin, entry, getAccessRestrictions());
+				item.add(row);
 			}
 		};
 		add(dataView);
@@ -434,7 +301,7 @@ public class ProjectPage extends RootPage {
 	protected List<ProjectModel> getProjectModels() {
 		if (projectModels.isEmpty()) {
 			final UserModel user = GitBlitWebSession.get().getUser();
-			List<ProjectModel> projects = GitBlit.self().getProjectModels(user);
+			List<ProjectModel> projects = GitBlit.self().getProjectModels(user, false);
 			projectModels.addAll(projects);
 		}
 		return projectModels;
@@ -451,7 +318,12 @@ public class ProjectPage extends RootPage {
 	
 	protected List<DropDownMenuItem> getProjectsMenu() {
 		List<DropDownMenuItem> menu = new ArrayList<DropDownMenuItem>();
-		List<ProjectModel> projects = getProjectModels();
+		List<ProjectModel> projects = new ArrayList<ProjectModel>();
+		for (ProjectModel model : getProjectModels()) {
+			if (!model.isUserProject()) {
+				projects.add(model);
+			}
+		}
 		int maxProjects = 15;
 		boolean showAllProjects = projects.size() > maxProjects;
 		if (showAllProjects) {

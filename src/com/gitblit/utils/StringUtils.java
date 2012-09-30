@@ -367,7 +367,7 @@ public class StringUtils {
 	 * @return the first invalid character found or null if string is acceptable
 	 */
 	public static Character findInvalidCharacter(String name) {
-		char[] validChars = { '/', '.', '_', '-' };
+		char[] validChars = { '/', '.', '_', '-', '~' };
 		for (char c : name.toCharArray()) {
 			if (!Character.isLetterOrDigit(c)) {
 				boolean ok = false;
@@ -659,5 +659,32 @@ public class StringUtils {
 			e.printStackTrace();
 		}
 		return input;
+	}
+	
+	/**
+	 * Returns the first path element of a path string.  If no path separator is
+	 * found in the path, an empty string is returned. 
+	 * 
+	 * @param path
+	 * @return the first element in the path
+	 */
+	public static String getFirstPathElement(String path) {
+		if (path.indexOf('/') > -1) {
+			return path.substring(0, path.indexOf('/')).trim();
+		}
+		return "";
+	}
+	
+	/**
+	 * Returns the last path element of a path string
+	 * 
+	 * @param path
+	 * @return the last element in the path
+	 */
+	public static String getLastPathElement(String path) {
+		if (path.indexOf('/') > -1) {
+			return path.substring(path.lastIndexOf('/') + 1);
+		}
+		return path;
 	}
 }

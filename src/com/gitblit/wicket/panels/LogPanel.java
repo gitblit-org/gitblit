@@ -49,7 +49,7 @@ public class LogPanel extends BasePanel {
 	private boolean hasMore;
 
 	public LogPanel(String wicketId, final String repositoryName, final String objectId,
-			Repository r, int limit, int pageOffset) {
+			Repository r, int limit, int pageOffset, boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
@@ -57,7 +57,7 @@ public class LogPanel extends BasePanel {
 			itemsPerPage = 50;
 		}
 
-		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r);
+		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
 		List<RevCommit> commits;
 		if (pageResults) {
 			// Paging result set

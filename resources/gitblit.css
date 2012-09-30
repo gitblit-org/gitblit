@@ -20,6 +20,11 @@ a:focus {
 	outline: none;
 }
 
+[class^="icon-"], [class*=" icon-"] a i {
+	/* override for a links that look like bootstrap buttons */
+	vertical-align: text-bottom;
+}
+
 hr {
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -125,6 +130,47 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 .pageTitle h2 small {
 	font-size: 80%;
 	font-weight: bold;
+}
+
+.pageTitle {
+	color: #888;
+	font-size: 18px;
+	line-height: 27px;
+}
+.pageTitle .project, .pageTitle .repository {
+	font-family: Helvetica, arial, freesans, clean, sans-serif;
+	font-size: 22px;
+}
+
+.pageTitle .controls {
+	font-size: 12px;
+}
+
+.pageTitle .repository {
+	font-weight: bold;
+}
+
+.originRepository {
+	font-family: Helvetica, arial, freesans, clean, sans-serif;
+	color: #888;
+	font-size: 12px;
+	line-height: 14px;
+	margin: 0px;
+}
+
+.forkSource, .forkEntry {
+	color: #888;
+}
+
+.forkSource {
+	font-size: 18px;
+	line-height: 20px;
+	padding: 5px 0px;
+}
+
+.forkEntry {
+	font-size: 14px;
+	padding: 2px 0px;
 }
 
 div.page_footer {

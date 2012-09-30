@@ -184,6 +184,9 @@ public abstract class RootPage extends BasePage {
 				// remove named repository parameter
 				params.remove("r");
 
+				// remove named user parameter
+				params.remove("user");
+
 				// remove days back parameter if it is the default value
 				if (params.containsKey("db")
 						&& params.getInt("db") == GitBlit.getInteger(Keys.web.activityDuration, 14)) {
@@ -327,6 +330,12 @@ public abstract class RootPage extends BasePage {
 
 		boolean hasParameter = false;
 		String projectName = WicketUtils.getProjectName(params);
+		String userName = WicketUtils.getUsername(params);
+		if (StringUtils.isEmpty(projectName)) {
+			if (!StringUtils.isEmpty(userName)) {
+				projectName = "~" + userName;
+			}
+		}
 		String repositoryName = WicketUtils.getRepositoryName(params);
 		String set = WicketUtils.getSet(params);
 		String regex = WicketUtils.getRegEx(params);

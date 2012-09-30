@@ -36,7 +36,7 @@ public class GitSearchPage extends RepositoryPage {
 		int nextPage = pageNumber + 1;
 
 		SearchPanel search = new SearchPanel("searchPanel", repositoryName, objectId, value,
-				searchType, getRepository(), -1, pageNumber - 1);
+				searchType, getRepository(), -1, pageNumber - 1, getRepositoryModel().showRemoteBranches);
 		boolean hasMore = search.hasMore();
 		add(search);
 

@@ -36,6 +36,7 @@ import org.eclipse.jgit.lib.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -62,6 +63,13 @@ public class ProjectsPage extends RootPage {
 	@Override
 	protected boolean reusePageParameters() {
 		return true;
+	}
+	
+	@Override
+	protected List<ProjectModel> getProjectModels() {
+		final UserModel user = GitBlitWebSession.get().getUser();
+		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, false);
+		return projects;
 	}
 
 	private void setup(PageParameters params) {
