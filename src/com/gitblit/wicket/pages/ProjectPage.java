@@ -31,7 +31,6 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.RedirectException;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -53,6 +52,7 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
@@ -70,7 +70,7 @@ public class ProjectPage extends RootPage {
 
 	public ProjectPage() {
 		super();
-		throw new RedirectException(GitBlitWebApp.get().getHomePage());
+		throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 	}
 
 	public ProjectPage(PageParameters params) {
@@ -94,12 +94,12 @@ public class ProjectPage extends RootPage {
 
 		String projectName = WicketUtils.getProjectName(params);
 		if (StringUtils.isEmpty(projectName)) {
-			throw new RedirectException(GitBlitWebApp.get().getHomePage());
+			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
 		
 		ProjectModel project = getProjectModel(projectName);
 		if (project == null) {
-			throw new RedirectException(GitBlitWebApp.get().getHomePage());
+			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
 		
 		add(new Label("projectTitle", project.getDisplayName()));

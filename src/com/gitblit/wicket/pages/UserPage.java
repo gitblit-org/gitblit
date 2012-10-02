@@ -21,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -36,6 +35,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
@@ -50,7 +50,7 @@ public class UserPage extends RootPage {
 
 	public UserPage() {
 		super();
-		throw new RedirectException(GitBlitWebApp.get().getHomePage());
+		throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 	}
 
 	public UserPage(PageParameters params) {
@@ -74,7 +74,7 @@ public class UserPage extends RootPage {
 
 		String userName = WicketUtils.getUsername(params);
 		if (StringUtils.isEmpty(userName)) {
-			throw new RedirectException(GitBlitWebApp.get().getHomePage());
+			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
 
 		UserModel user = GitBlit.self().getUserModel(userName);
