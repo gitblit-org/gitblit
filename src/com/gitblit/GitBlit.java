@@ -82,6 +82,7 @@ import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
+import com.gitblit.models.ForkModel;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
@@ -1400,6 +1401,38 @@ public class GitBlit implements ServletContextListener {
 		}
 		// user does not have a fork
 		return null;
+	}
+	
+	/**
+	 * Returns the fork network for a repository by traversing up the fork graph
+	 * to discover the root and then down through all children of the root node.
+	 * 
+	 * @param repository
+	 * @return a ForkModel
+	 */
+	public ForkModel getForkNetwork(String repository) {
+		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+			// find the root
+			RepositoryModel model = repositoryListCache.get(repository);
+			while (model.originRepository != null) {
+				model = repositoryListCache.get(model.originRepository);
+			}
+			ForkModel root = getForkModel(model.name);
+			return root;
+		}
+		return null;
+	}
+	
+	private ForkModel getForkModel(String repository) {
+		RepositoryModel model = repositoryListCache.get(repository);
+		ForkModel fork = new ForkModel(model.originRepository, model.name);
+		if (!ArrayUtils.isEmpty(model.forks)) {
+			for (String aFork : model.forks) {
+				ForkModel fm = getForkModel(aFork);
+				fork.forks.add(fm);
+			}
+		}
+		return fork;
 	}
 
 	/**
