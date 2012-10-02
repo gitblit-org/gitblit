@@ -51,7 +51,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public ProjectRepositoryPanel(String wicketId, Localizer localizer, Component owner,
+	public ProjectRepositoryPanel(String wicketId, Localizer localizer, Component parent,
 			final boolean isAdmin, final RepositoryModel entry,
 			final Map<AccessRestrictionType, String> accessRestrictions) {
 		super(wicketId);
@@ -66,7 +66,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
 		} else {
 			swatch = new Label("repositorySwatch", "!");
-			WicketUtils.setHtmlTooltip(swatch, localizer.getString("gb.workingCopyWarning", owner));
+			WicketUtils.setHtmlTooltip(swatch, localizer.getString("gb.workingCopyWarning", parent));
 		}
 		WicketUtils.setCssBackground(swatch, entry.toString());
 		add(swatch);
@@ -91,13 +91,13 @@ public class ProjectRepositoryPanel extends BasePanel {
 		add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
 
 		if (entry.isFrozen) {
-			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", owner)));
+			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", parent)));
 		} else {
 			add(WicketUtils.newClearPixel("frozenIcon").setVisible(false));
 		}
 
 		if (entry.isFederated) {
-			add(WicketUtils.newImage("federatedIcon", "federated_16x16.png", localizer.getString("gb.isFederated", owner)));
+			add(WicketUtils.newImage("federatedIcon", "federated_16x16.png", localizer.getString("gb.isFederated", parent)));
 		} else {
 			add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
 		}
@@ -121,8 +121,17 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 		}
 
-		add(new Label("repositoryOwner", StringUtils.isEmpty(entry.owner) ? "" : (entry.owner + " ("
-				+ localizer.getString("gb.owner", owner) + ")")));
+		if (StringUtils.isEmpty(entry.owner)) {
+			add(new Label("repositoryOwner").setVisible(false));
+		} else {
+			UserModel ownerModel = GitBlit.self().getUserModel(entry.owner);
+			String owner = entry.owner;
+			if (ownerModel != null) {
+				owner = ownerModel.getDisplayName();
+			}
+			add(new Label("repositoryOwner", owner + " (" +
+					localizer.getString("gb.owner", parent) + ")"));
+		}
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		Fragment repositoryLinks;
@@ -151,7 +160,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 					}
 				};
 				deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						localizer.getString("gb.deleteRepository", owner), entry)));
+						localizer.getString("gb.deleteRepository", parent), entry)));
 				repositoryLinks.add(deleteLink);
 			}
 		} else {
@@ -181,7 +190,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(new Label("repositorySize", entry.size).setVisible(showSize));
 		} else {
 			// New repository
-			add(new Label("repositorySize", localizer.getString("gb.empty", owner)).setEscapeModelStrings(false));
+			add(new Label("repositorySize", localizer.getString("gb.empty", parent)).setEscapeModelStrings(false));
 		}
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink("", entry.name, null, 0)));

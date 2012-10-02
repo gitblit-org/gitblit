@@ -87,7 +87,7 @@ public class UserPage extends RootPage {
 		
 		ProjectModel project = GitBlit.self().getProjectModel(projectName);
 		if (project == null) {
-			throw new RedirectException(GitBlitWebApp.get().getHomePage());
+			project = new ProjectModel(projectName);
 		}
 		
 		add(new Label("userDisplayName", user.getDisplayName()));

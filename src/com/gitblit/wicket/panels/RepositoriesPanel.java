@@ -271,7 +271,14 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
-				row.add(new Label("repositoryOwner", entry.owner));
+				String owner = entry.owner;
+				if (!StringUtils.isEmpty(owner)) {
+					UserModel ownerModel = GitBlit.self().getUserModel(owner);
+					if (ownerModel != null) {
+						owner = ownerModel.getDisplayName();
+					}
+				}
+				row.add(new Label("repositoryOwner", owner));
 
 				String lastChange;
 				if (entry.lastChange.getTime() == 0) {

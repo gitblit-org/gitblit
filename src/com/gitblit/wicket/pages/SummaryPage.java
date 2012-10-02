@@ -45,12 +45,14 @@ import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
+import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
 import com.gitblit.wicket.panels.TagsPanel;
@@ -80,7 +82,17 @@ public class SummaryPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		add(new Label("repositoryOwner", getRepositoryModel().owner));
+		String owner = getRepositoryModel().owner;
+		if (StringUtils.isEmpty(owner)) {
+			add(new Label("repositoryOwner").setVisible(false));
+		} else {
+			UserModel ownerModel = GitBlit.self().getUserModel(owner);
+			if (ownerModel != null) {
+				add(new LinkPanel("repositoryOwner", null, ownerModel.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(owner)));
+			} else {
+				add(new Label("repositoryOwner", owner));
+			}
+		}
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
 				JGitUtils.getLastChange(r), getTimeZone(), getTimeUtils()));
