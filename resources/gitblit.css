@@ -173,6 +173,13 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	padding: 2px 0px;
 }
 
+.forkSource .forks, .forkEntry .forks {
+	font-size: 10px;
+	padding-left: 5px;
+	text-decoration: underline;
+	vertical-align: middle;
+}
+
 div.page_footer {
 	clear: both;
 	height: 17px;

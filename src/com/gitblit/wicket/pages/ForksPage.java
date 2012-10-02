@@ -15,12 +15,14 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -98,6 +100,27 @@ public class ForksPage extends RepositoryPage {
 			// user can not view the origin
 			add(new Label("forkSource", StringUtils.stripDotGit(source)));
 		}
+		
+		// superOrigin?
+		if (StringUtils.isEmpty(origin.originRepository)) {
+			// origin is root
+			add(new Label("forkSourceOrigin").setVisible(false));
+		} else {
+			// origin has an origin
+			RepositoryModel superOrigin = GitBlit.self().getRepositoryModel(origin.originRepository);
+			if (!user.canViewRepository(superOrigin)) {
+				// show superOrigin repository without link
+				Fragment forkFrag = new Fragment("forkSourceOrigin", "originFragment", this);
+				forkFrag.add(new Label("originRepository", StringUtils.stripDotGit(superOrigin.name)));
+				add(forkFrag);
+			} else {
+				// link to superOrigin repository
+				Fragment forkFrag = new Fragment("forkSourceOrigin", "originFragment", this);
+				forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(superOrigin.name), 
+					SummaryPage.class, WicketUtils.newRepositoryParameter(superOrigin.name)));
+				add(forkFrag);
+			}
+		}
 
 		// only display user-accessible forks
 		List<RepositoryModel> forks = new ArrayList<RepositoryModel>();
@@ -129,7 +152,15 @@ public class ForksPage extends RepositoryPage {
 				String repo = StringUtils.getLastPathElement(fork.name);
 				item.add(new LinkPanel("aFork", null, StringUtils.stripDotGit(repo), SummaryPage.class, WicketUtils.newRepositoryParameter(fork.name)));
 				
-				WicketUtils.setCssStyle(item, "margin-left:25px;");
+				if (ArrayUtils.isEmpty(fork.forks)) {
+					// repository is a leaf
+					Component icon = new Label("anIcon", "<i class=\"icon-leaf\" ></i>").setEscapeModelStrings(false);
+					WicketUtils.setHtmlTooltip(icon, MessageFormat.format(getString("gb.noForks"), fork.name));
+					item.add(icon);
+				} else {
+					// show forks link
+					item.add(new LinkPanel("anIcon", null, "(" + getString("gb.forks") + ")", ForksPage.class, WicketUtils.newRepositoryParameter(fork.name)));
+				}
 			}
 		};
 		
