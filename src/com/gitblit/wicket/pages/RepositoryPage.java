@@ -136,22 +136,12 @@ public abstract class RepositoryPage extends BasePage {
 		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
 		pages.put("tags", new PageRegistration("gb.tags", TagsPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
+		pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
 
 		// conditional links
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
 
-		// forks list button
-		if (StringUtils.isEmpty(model.originRepository)) {
-			if (!ArrayUtils.isEmpty(model.forks)) {
-				// this origin repository has forks
-				pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
-			}
-		} else {
-			// this is a fork of another repository
-			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
-		}
-		
 		// per-repository extra page links
 		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
 			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params));
@@ -204,15 +194,29 @@ public abstract class RepositoryPage extends BasePage {
 				WicketUtils.newRepositoryParameter(repositoryName)));
 		add(new Label("pageName", pageName).setRenderBodyOnly(true));
 		
+		UserModel user = GitBlitWebSession.get().getUser();
+
 		// indicate origin repository
 		RepositoryModel model = getRepositoryModel();
 		if (StringUtils.isEmpty(model.originRepository)) {
 			add(new Label("originRepository").setVisible(false));
 		} else {
-			Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
-			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(model.originRepository), 
-					SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
-			add(forkFrag);
+			RepositoryModel origin = GitBlit.self().getRepositoryModel(model.originRepository);
+			if (origin == null) {
+				// no origin repository
+				add(new Label("originRepository").setVisible(false));
+			} else if (!user.canViewRepository(origin)) {
+				// show origin repository without link
+				Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+				forkFrag.add(new Label("originRepository", StringUtils.stripDotGit(model.originRepository)));
+				add(forkFrag);
+			} else {
+				// link to origin repository
+				Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
+				forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(model.originRepository), 
+						SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
+				add(forkFrag);
+			}
 		}
 		
 		if (getRepositoryModel().isBare) {
@@ -224,33 +228,57 @@ public abstract class RepositoryPage extends BasePage {
 			wc.add(lbl);
 			add(wc);
 		}
-		
-		if (getRepositoryModel().allowForks) {
+
+		// fork controls
+		if (user == null) {
+			// must be logged-in to fork, hide all fork controls
+			add(new ExternalLink("forkLink", "").setVisible(false));
+			add(new ExternalLink("myForkLink", "").setVisible(false));
 			add(new Label("forksProhibitedIndicator").setVisible(false));
 		} else {
-			Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
-			Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));
-			WicketUtils.setHtmlTooltip(lbl,  getString("gb.forksProhibitedWarning"));
-			wc.add(lbl);
-			add(wc);
-		}
-		
-		UserModel user = GitBlitWebSession.get().getUser();
-		
-		// fork button
-		if (user != null) {			
-			final String clonedRepo = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(model.name)));
-			boolean hasClone = GitBlit.self().hasRepository(clonedRepo) && !getRepositoryModel().name.equals(clonedRepo);
-			if (user.canForkRepository(model) && !hasClone) {
+			String fork = GitBlit.self().getFork(user.username, model.name);
+			boolean hasFork = fork != null;
+			boolean canFork = user.canForkRepository(model);
+
+			if (hasFork || !canFork) {
+				// user not allowed to fork or fork already exists or repo forbids forking
+				add(new ExternalLink("forkLink", "").setVisible(false));
+				
+				if (user.canFork && !model.allowForks) {
+					// show forks prohibited indicator
+					Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
+					Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));
+					WicketUtils.setHtmlTooltip(lbl,  getString("gb.forksProhibitedWarning"));
+					wc.add(lbl);
+					add(wc);
+				} else {
+					// can not fork, no need for forks prohibited indicator
+					add(new Label("forksProhibitedIndicator").setVisible(false));
+				}
+				
+				if (hasFork && !fork.equals(model.name)) {
+					// user has fork, view my fork link
+					String url = getRequestCycle().urlFor(SummaryPage.class, WicketUtils.newRepositoryParameter(fork)).toString();
+					add(new ExternalLink("myForkLink", url));
+				} else {
+					// no fork, hide view my fork link
+					add(new ExternalLink("myForkLink", "").setVisible(false));
+				}
+			} else if (canFork) {
+				// can fork and we do not have one
+				add(new Label("forksProhibitedIndicator").setVisible(false));
+				add(new ExternalLink("myForkLink", "").setVisible(false));
 				Link<Void> forkLink = new Link<Void>("forkLink") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void onClick() {
+						UserModel user = GitBlitWebSession.get().getUser();
 						RepositoryModel model = getRepositoryModel();
+						String asFork = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(model.name)));
 						if (GitBlit.self().fork(model, GitBlitWebSession.get().getUser())) {
-							throw new RedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(clonedRepo));
+							throw new RedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(asFork));
 						} else {
 							error(MessageFormat.format(getString("gb.repositoryForkFailed"), model));
 						}
@@ -259,23 +287,7 @@ public abstract class RepositoryPage extends BasePage {
 				forkLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 						getString("gb.forkRepository"), getRepositoryModel())));
 				add(forkLink);
-			} else {
-				// user not allowed to fork or fork already exists or repo forbids forking
-				add(new ExternalLink("forkLink", "").setVisible(false));
 			}
-			
-			if (hasClone) {
-				// user has clone
-				String url = getRequestCycle().urlFor(SummaryPage.class, WicketUtils.newRepositoryParameter(clonedRepo)).toString();
-				add(new ExternalLink("myForkLink", url));
-			} else {
-				// user does not have clone
-				add(new ExternalLink("myForkLink", "").setVisible(false));
-			}
-		} else {
-			// server prohibits forking
-			add(new ExternalLink("forkLink", "").setVisible(false));
-			add(new ExternalLink("myForkLink", "").setVisible(false));
 		}
 		
 		super.setupPage(repositoryName, pageName);

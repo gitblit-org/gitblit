@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1324,6 +1325,81 @@ public class GitBlit implements ServletContextListener {
 		}
 		r.close();
 		return true;
+	}
+	
+	/**
+	 * Determines if the specified user has a fork of the specified origin
+	 * repository.
+	 * 
+	 * @param username
+	 * @param origin
+	 * @return true the if the user has a fork
+	 */
+	public boolean hasFork(String username, String origin) {
+		return getFork(username, origin) != null;
+	}
+	
+	/**
+	 * Gets the name of a user's fork of the specified origin
+	 * repository.
+	 * 
+	 * @param username
+	 * @param origin
+	 * @return the name of the user's fork, null otherwise
+	 */
+	public String getFork(String username, String origin) {
+		String userProject = "~" + username.toLowerCase();
+		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+			String userPath = userProject + "/";
+
+			// collect all origin nodes in fork network
+			Set<String> roots = new HashSet<String>();
+			roots.add(origin);
+			RepositoryModel originModel = repositoryListCache.get(origin);
+			while (originModel != null) {
+				if (!ArrayUtils.isEmpty(originModel.forks)) {
+					for (String fork : originModel.forks) {
+						if (!fork.startsWith(userPath)) {
+							roots.add(fork);
+						}
+					}
+				}
+				
+				if (originModel.originRepository != null) {
+					roots.add(originModel.originRepository);
+					originModel = repositoryListCache.get(originModel.originRepository);
+				} else {
+					// break
+					originModel = null;
+				}
+			}
+			
+			for (String repository : repositoryListCache.keySet()) {
+				if (repository.toLowerCase().startsWith(userPath)) {
+					RepositoryModel model = repositoryListCache.get(repository);
+					if (!StringUtils.isEmpty(model.originRepository)) {
+						if (roots.contains(model.originRepository)) {
+							// user has a fork in this graph
+							return model.name;
+						}
+					}
+				}
+			}
+		} else {
+			// not caching
+			ProjectModel project = getProjectModel(userProject);
+			for (String repository : project.repositories) {
+				if (repository.toLowerCase().startsWith(userProject)) {
+					RepositoryModel model = repositoryListCache.get(repository);
+					if (model.originRepository.equalsIgnoreCase(origin)) {
+						// user has a fork
+						return model.name;
+					}
+				}
+			}
+		}
+		// user does not have a fork
+		return null;
 	}
 
 	/**

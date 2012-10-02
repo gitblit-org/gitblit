@@ -86,6 +86,16 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return false;
 	}
 	
+	public boolean canViewRepository(RepositoryModel repository) {
+		if (canAdmin) {
+			return true;
+		}
+		if (repository.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
+			return canAccessRepository(repository);
+		}
+		return true;
+	}
+	
 	public boolean canForkRepository(RepositoryModel repository) {
 		if (canAdmin) {
 			return true;

@@ -42,26 +42,32 @@ public class ForksPage extends RepositoryPage {
 	public ForksPage(PageParameters params) {
 		super(params);
 		
+		UserModel user = GitBlitWebSession.get().getUser();
 		RepositoryModel model = getRepositoryModel();
-		RepositoryModel origin;
+		RepositoryModel origin = model;
 		List<String> list;
 		if (ArrayUtils.isEmpty(model.forks)) {
-			// origin repository has forks
-			origin = GitBlit.self().getRepositoryModel(model.originRepository);
-			list = new ArrayList<String>(origin.forks);
+			if (!StringUtils.isEmpty(model.originRepository)) {
+				// try origin repository
+				origin = GitBlit.self().getRepositoryModel(model.originRepository);
+			}
+			if (origin == null || origin.forks == null) {
+				list = new ArrayList<String>();
+			} else {
+				list = new ArrayList<String>(origin.forks);
+			}
 		} else {
 			// this repository has forks
-			origin = model;
 			list = new ArrayList<String>(model.forks);
 		}
 		
 		if (origin.isPersonalRepository()) {
 			// personal repository
-			UserModel user = GitBlit.self().getUserModel(origin.projectPath.substring(1));
-			PersonIdent ident = new PersonIdent(user.getDisplayName(), user.emailAddress);
+			UserModel originUser = GitBlit.self().getUserModel(origin.projectPath.substring(1));
+			PersonIdent ident = new PersonIdent(originUser.getDisplayName(), originUser.emailAddress);
 			add(new GravatarImage("forkSourceAvatar", ident, 20));
 			add(new Label("forkSourceSwatch").setVisible(false));
-			add(new LinkPanel("forkSourceProject", null, user.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(user.username)));
+			add(new LinkPanel("forkSourceProject", null, originUser.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(originUser.username)));
 		} else {
 			// standard repository
 			add(new GravatarImage("forkSourceAvatar", new PersonIdent("", ""), 20).setVisible(false));
@@ -85,10 +91,15 @@ public class ForksPage extends RepositoryPage {
 		}
 		
 		String source = StringUtils.getLastPathElement(origin.name);
-		add(new LinkPanel("forkSource", null, StringUtils.stripDotGit(source), SummaryPage.class, WicketUtils.newRepositoryParameter(origin.name)));
+		if (user != null && user.canViewRepository(origin)) {
+			// user can view the origin
+			add(new LinkPanel("forkSource", null, StringUtils.stripDotGit(source), SummaryPage.class, WicketUtils.newRepositoryParameter(origin.name)));
+		} else {
+			// user can not view the origin
+			add(new Label("forkSource", StringUtils.stripDotGit(source)));
+		}
 
 		// only display user-accessible forks
-		UserModel user = GitBlitWebSession.get().getUser();
 		List<RepositoryModel> forks = new ArrayList<RepositoryModel>();
 		for (String aFork : list) {
 			RepositoryModel fork = GitBlit.self().getRepositoryModel(user, aFork);
