@@ -2637,44 +2637,45 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param repository
 	 * @param user
-	 * @return true, if successful
+	 * @return the repository model of the fork, if successful
+	 * @throws GitBlitException
 	 */
-	public boolean fork(RepositoryModel repository, UserModel user) {
+	public RepositoryModel fork(RepositoryModel repository, UserModel user) throws GitBlitException {
 		String cloneName = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
 		String fromUrl = MessageFormat.format("file://{0}/{1}", repositoriesFolder.getAbsolutePath(), repository.name);
+
+		// clone the repository
 		try {
-			// clone the repository
 			JGitUtils.cloneRepository(repositoriesFolder, cloneName, fromUrl, true, null);
-			
-			// create a Gitblit repository model for the clone
-			RepositoryModel cloneModel = repository.cloneAs(cloneName);
-			cloneModel.owner = user.username;
-			updateRepositoryModel(cloneName, cloneModel, false);
-			
-			if (AuthorizationControl.NAMED.equals(cloneModel.authorizationControl)) {
-				// add the owner of the source repository to the clone's access list
-				if (!StringUtils.isEmpty(repository.owner)) {
-					UserModel owner = getUserModel(repository.owner);
-					if (owner != null) {
-						owner.repositories.add(cloneName);
-						updateUserModel(owner.username, owner, false);
-					}
-				}
-				
-				// inherit origin's access lists
-				List<String> users = getRepositoryUsers(repository);
-				setRepositoryUsers(cloneModel, users);
-				
-				List<String> teams = getRepositoryTeams(repository);
-				setRepositoryTeams(cloneModel, teams);
-			}
-			
-			// add this clone to the cached model
-			addToCachedRepositoryList(cloneModel.name, cloneModel);
-			return true;
 		} catch (Exception e) {
-			logger.error("failed to fork", e);
+			throw new GitBlitException(e);
 		}
-		return false;
+
+		// create a Gitblit repository model for the clone
+		RepositoryModel cloneModel = repository.cloneAs(cloneName);
+		cloneModel.owner = user.username;
+		updateRepositoryModel(cloneName, cloneModel, false);
+
+		if (AuthorizationControl.NAMED.equals(cloneModel.authorizationControl)) {
+			// add the owner of the source repository to the clone's access list
+			if (!StringUtils.isEmpty(repository.owner)) {
+				UserModel owner = getUserModel(repository.owner);
+				if (owner != null) {
+					owner.repositories.add(cloneName);
+					updateUserModel(owner.username, owner, false);
+				}
+			}
+
+			// inherit origin's access lists
+			List<String> users = getRepositoryUsers(repository);
+			setRepositoryUsers(cloneModel, users);
+
+			List<String> teams = getRepositoryTeams(repository);
+			setRepositoryTeams(cloneModel, teams);
+		}
+
+		// add this clone to the cached model
+		addToCachedRepositoryList(cloneModel.name, cloneModel);
+		return cloneModel;
 	}
 }

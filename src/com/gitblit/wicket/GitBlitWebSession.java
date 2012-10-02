@@ -17,6 +17,7 @@ package com.gitblit.wicket;
 
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
@@ -42,8 +43,11 @@ public final class GitBlitWebSession extends WebSession {
 	
 	private String requestUrl;
 	
+	private AtomicBoolean isForking;
+	
 	public GitBlitWebSession(Request request) {
 		super(request);
+		isForking = new AtomicBoolean();
 	}
 
 	public void invalidate() {
@@ -133,6 +137,14 @@ public final class GitBlitWebSession extends WebSession {
 		String msg = errorMessage;
 		errorMessage = null;
 		return msg;
+	}
+	
+	public boolean isForking() {
+		return isForking.get();
+	}
+	
+	public void isForking(boolean val) {
+		isForking.set(val);
 	}
 
 	public static GitBlitWebSession get() {

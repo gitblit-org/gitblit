@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:head>
+	<noscript>
+		<meta http-equiv="refresh" content="5"></meta>
+	</noscript>
+	<script type="text/javascript"">
+		function doLoad() { setTimeout( "refresh()", 5*1000 ); }
+		function refresh() { window.location.reload(); }
+	</script>
+</wicket:head>
+<wicket:extend>
+<!-- need to specify body.onload -->
+<body onload="doLoad()">
+
+	<div class="row">
+		<div class="span6 offset3">
+			<div wicket:id="forkText" class="pageTitle project" style="border:0;font-weight:bold; text-align:center;">[fork text]</div>
+		</div>
+		<div class="span4 offset4">
+			<div class="progress progress-striped active">
+  				<div class="bar" style="width: 100%;"></div>
+			</div>
+		</div>
+		<div class="span6 offset3">
+			<div style="opacity:0.2;">
+				<center><img style="padding:10px" src="git-black.png"></img></center>
+			</div>
+		</div>
+	</div>
+</body>
+
+</wicket:extend>	
+</body>
+</html>

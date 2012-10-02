@@ -305,11 +305,11 @@ public class RepositoriesPanel extends BasePanel {
 						@Override
 						public void onClick() {
 							if (GitBlit.self().deleteRepositoryModel(entry)) {
-								info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
 								if (dp instanceof SortableRepositoriesProvider) {
+									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
 									((SortableRepositoriesProvider) dp).remove(entry);
 								} else {
-									((RepositoriesProvider) dp).remove(entry);
+									setResponsePage(getPage().getClass(), getPage().getPageParameters());
 								}
 							} else {
 								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));

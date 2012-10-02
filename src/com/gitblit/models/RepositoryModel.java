@@ -145,7 +145,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	
 	public RepositoryModel cloneAs(String cloneName) {
 		RepositoryModel clone = new RepositoryModel();
+		clone.originRepository = name;
 		clone.name = cloneName;
+		clone.projectPath = StringUtils.getFirstPathElement(cloneName);
+		clone.isBare = true;
 		clone.description = description;
 		clone.accessRestriction = accessRestriction;
 		clone.authorizationControl = authorizationControl;

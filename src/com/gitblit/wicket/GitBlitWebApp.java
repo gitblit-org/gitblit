@@ -34,6 +34,7 @@ import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
+import com.gitblit.wicket.pages.ForkPage;
 import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
@@ -120,6 +121,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/projects", ProjectsPage.class);
 		mount("/user", UserPage.class, "user");
 		mount("/forks", ForksPage.class, "r");
+		mount("/fork", ForkPage.class, "r");
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {

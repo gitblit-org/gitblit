@@ -28,12 +28,10 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.RedirectException;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -62,7 +60,6 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.BasePanel.JavascriptEventConfirmation;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -171,6 +168,10 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		return pages;
 	}
+	
+	protected boolean allowForkControls() {
+		return true;
+	}
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
@@ -230,7 +231,7 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		// fork controls
-		if (user == null) {
+		if (!allowForkControls() || user == null) {
 			// must be logged-in to fork, hide all fork controls
 			add(new ExternalLink("forkLink", "").setVisible(false));
 			add(new ExternalLink("myForkLink", "").setVisible(false));
@@ -268,25 +269,8 @@ public abstract class RepositoryPage extends BasePage {
 				// can fork and we do not have one
 				add(new Label("forksProhibitedIndicator").setVisible(false));
 				add(new ExternalLink("myForkLink", "").setVisible(false));
-				Link<Void> forkLink = new Link<Void>("forkLink") {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						UserModel user = GitBlitWebSession.get().getUser();
-						RepositoryModel model = getRepositoryModel();
-						String asFork = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(model.name)));
-						if (GitBlit.self().fork(model, GitBlitWebSession.get().getUser())) {
-							throw new RedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(asFork));
-						} else {
-							error(MessageFormat.format(getString("gb.repositoryForkFailed"), model));
-						}
-					}
-				};
-				forkLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-						getString("gb.forkRepository"), getRepositoryModel())));
-				add(forkLink);
+				String url = getRequestCycle().urlFor(ForkPage.class, WicketUtils.newRepositoryParameter(model.name)).toString();
+				add(new ExternalLink("forkLink", url));
 			}
 		}
 		
