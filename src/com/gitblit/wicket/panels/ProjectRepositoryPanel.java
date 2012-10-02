@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.Localizer;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -153,7 +154,12 @@ public class ProjectRepositoryPanel extends BasePanel {
 					public void onClick() {
 						if (GitBlit.self().deleteRepositoryModel(entry)) {
 							info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
-							// TODO dp.remove(entry);
+							// redirect to the owning page
+							if (entry.isPersonalRepository()) {
+								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(entry.projectPath.substring(1)));
+							} else {
+								setResponsePage(getPage().getClass(), WicketUtils.newProjectParameter(entry.projectPath));
+							}
 						} else {
 							error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
 						}
