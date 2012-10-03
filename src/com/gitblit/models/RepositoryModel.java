@@ -148,6 +148,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		return StringUtils.compareRepositoryNames(name, o.name);
 	}
 	
+	public boolean isFork() {
+		return !StringUtils.isEmpty(originRepository);
+	}
+	
 	public boolean isPersonalRepository() {
 		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
 	}

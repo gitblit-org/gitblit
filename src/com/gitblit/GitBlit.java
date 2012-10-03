@@ -1270,6 +1270,9 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
 			model.origin = config.getString("remote", "origin", "url");
+			if (model.origin != null) {
+				model.origin = model.origin.replace('\\', '/');
+			}
 			model.preReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "preReceiveScript")));
 			model.postReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
