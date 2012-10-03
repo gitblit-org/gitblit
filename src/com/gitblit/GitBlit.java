@@ -1425,7 +1425,7 @@ public class GitBlit implements ServletContextListener {
 	
 	private ForkModel getForkModel(String repository) {
 		RepositoryModel model = repositoryListCache.get(repository);
-		ForkModel fork = new ForkModel(model.originRepository, model.name);
+		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
 				ForkModel fm = getForkModel(aFork);

@@ -7,26 +7,13 @@
 <body>
 <wicket:extend>
 
-	<div class="forkSource">
-		<div>
-			<b><span class="repositorySwatch" wicket:id="forkSourceSwatch"></span></b>
-			<span wicket:id="forkSourceAvatar" style="vertical-align: baseline;"></span>
-			<span wicket:id="forkSourceProject">[a project]</span> / <span wicket:id="forkSource">[a fork]</span>
-		</div> 
-		<div style="padding-left:32px;" wicket:id="forkSourceOrigin">[origin repository]</div>
-	</div>
-	
 	<div wicket:id="fork">
-		<div class="forkEntry" style="margin-left:32px;">
-			<span wicket:id="anAvatar" style="vertical-align: baseline;"></span>
+		<div>
+			<span wicket:id="anAvatar" style="vertical-align: baseline;font-weight:bold;"></span>
 			<span wicket:id="aProject">[a project]</span> / <span wicket:id="aFork">[a fork]</span>
-			<span wicket:id="anIcon" class="forks"></span>
+			<span style="padding-left:10px;" wicket:id="lastChange"></span>
 		</div>
 	</div>
-	
-	<wicket:fragment wicket:id="originFragment">
-		<p class="originRepository"><wicket:message key="gb.forkedFrom">[forked from]</wicket:message> <span wicket:id="originRepository">[origin repository]</span></p>
-	</wicket:fragment>
 	
 </wicket:extend>	
 </body>

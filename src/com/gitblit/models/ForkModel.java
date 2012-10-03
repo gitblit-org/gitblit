@@ -32,20 +32,17 @@ public class ForkModel implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	public final String originRepository;
-	
-	public final String repository;
+	public final RepositoryModel repository;
 	
 	public final List<ForkModel> forks;
 	
-	public ForkModel(String origin, String repository) {
-		this.originRepository = origin;
+	public ForkModel(RepositoryModel repository) {
 		this.repository = repository;
 		this.forks = new ArrayList<ForkModel>();
 	}
 	
 	public boolean isRoot() {
-		return StringUtils.isEmpty(originRepository);
+		return StringUtils.isEmpty(repository.originRepository);
 	}
 	
 	public boolean isNode() {
@@ -57,7 +54,7 @@ public class ForkModel implements Serializable {
 	}
 	
 	public boolean isPersonalRepository() {
-		return repository.charAt(0) == '~';
+		return repository.isPersonalRepository();
 	}
 	
 	@Override
@@ -75,6 +72,6 @@ public class ForkModel implements Serializable {
 	
 	@Override
 	public String toString() {
-		return repository;
+		return repository.toString();
 	}
 }

@@ -121,6 +121,19 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public void resetDisplayName() {
 		displayName = null;
 	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof RepositoryModel) {
+			return name.equals(((RepositoryModel) o).name);
+		}
+		return false;
+	}
 
 	@Override
 	public String toString() {
@@ -141,6 +154,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	
 	public boolean isUsersPersonalRepository(String username) {
 		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+	}
+	
+	public boolean allowAnonymousView() {
+		return !accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 	
 	public RepositoryModel cloneAs(String cloneName) {
