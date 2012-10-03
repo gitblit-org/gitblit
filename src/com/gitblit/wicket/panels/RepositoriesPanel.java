@@ -167,7 +167,7 @@ public class RepositoriesPanel extends BasePanel {
 						row.add(new Label("groupDescription", getString("gb.personalRepositories")));
 					} else {
 						// project page
-						row.add(new LinkPanel("groupName", null, name, ProjectPage.class, WicketUtils.newProjectParameter(name)));
+						row.add(new LinkPanel("groupName", null, name, ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
 						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
 					}
 					WicketUtils.setCssClass(item, "group");
