@@ -224,6 +224,13 @@ public class RepositoriesPanel extends BasePanel {
 							.setEscapeModelStrings(false));
 				}
 
+				if (entry.isFork()) {
+					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
+							getString("gb.isFork")));
+				} else {
+					row.add(WicketUtils.newClearPixel("forkIcon").setVisible(false));
+				}
+
 				if (entry.useTickets) {
 					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png",
 							getString("gb.tickets")));
