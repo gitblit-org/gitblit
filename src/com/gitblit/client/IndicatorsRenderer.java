@@ -53,6 +53,8 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 	private final ImageIcon frozenIcon;
 
 	private final ImageIcon federatedIcon;
+	
+	private final ImageIcon forkIcon;
 
 	public IndicatorsRenderer() {
 		super(new FlowLayout(FlowLayout.RIGHT, 1, 0));
@@ -64,6 +66,7 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 		doxIcon = new ImageIcon(getClass().getResource("/book_16x16.png"));
 		frozenIcon = new ImageIcon(getClass().getResource("/cold_16x16.png"));
 		federatedIcon = new ImageIcon(getClass().getResource("/federated_16x16.png"));
+		forkIcon = new ImageIcon(getClass().getResource("/commit_divide_16x16.png"));
 	}
 
 	@Override
@@ -77,6 +80,11 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 		if (value instanceof RepositoryModel) {
 			StringBuilder tooltip = new StringBuilder();
 			RepositoryModel model = (RepositoryModel) value;
+			if (model.isFork()) {
+				JLabel icon = new JLabel(forkIcon);
+				tooltip.append(Translation.get("gb.isFork")).append("<br/>");
+				add(icon);
+			}
 			if (model.useTickets) {
 				JLabel icon = new JLabel(tixIcon);
 				tooltip.append(Translation.get("gb.tickets")).append("<br/>");
