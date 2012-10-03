@@ -36,7 +36,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 	private static final long serialVersionUID = 1L;
 
-	public static final UserModel ANONYMOUS = new UserModel("anonymous", false);
+	public static final UserModel ANONYMOUS = new UserModel();
 	
 	// field names are reflectively mapped in EditUser page
 	public String username;
@@ -58,9 +58,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		this.isAuthenticated = true;
 	}
 
-	private UserModel(String username, boolean authenticated) {
-		this.username = username;
-		this.isAuthenticated = authenticated;
+	private UserModel() {
+		this.username = "anonymous";
+		this.isAuthenticated = false;
 	}
 
 	/**

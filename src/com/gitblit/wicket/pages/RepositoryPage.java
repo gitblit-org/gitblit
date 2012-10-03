@@ -196,6 +196,9 @@ public abstract class RepositoryPage extends BasePage {
 		add(new Label("pageName", pageName).setRenderBodyOnly(true));
 		
 		UserModel user = GitBlitWebSession.get().getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
 
 		// indicate origin repository
 		RepositoryModel model = getRepositoryModel();
@@ -231,7 +234,7 @@ public abstract class RepositoryPage extends BasePage {
 		}
 
 		// fork controls
-		if (!allowForkControls() || user == null) {
+		if (!allowForkControls() || user == null || !user.isAuthenticated) {
 			// must be logged-in to fork, hide all fork controls
 			add(new ExternalLink("forkLink", "").setVisible(false));
 			add(new ExternalLink("myForkLink", "").setVisible(false));
