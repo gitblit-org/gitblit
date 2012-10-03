@@ -44,7 +44,7 @@
 				<div class="row">
 					<div class="controls">
 						<span wicket:id="workingCopyIndicator"></span>
-						<span wicket:id="forksProhibitedIndicator"></span>
+						<span class="hidden-phone hidden-tablet" wicket:id="forksProhibitedIndicator"></span>
 						<div class="hidden-phone btn-group pull-right">
 							<!-- future spot for other repo buttons -->
 							<a class="btn" wicket:id="myForkLink"><i class="icon-random"></i> <wicket:message key="gb.myFork"></wicket:message></a>
@@ -52,7 +52,7 @@
 						</div>
 					</div>
 					<div class="span7">
-						<div><span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span> <span wicket:id="pageName">[page name]</span></div>
+						<div><span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span> <span class="hidden-phone"><span wicket:id="pageName">[page name]</span></span></div>
 						<span wicket:id="originRepository">[origin repository]</span>
 					</div>
 				</div>
