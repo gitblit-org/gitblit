@@ -105,6 +105,8 @@ public class EditRepositoryDialog extends JDialog {
 	private JRadioButton allowAuthenticated;
 	
 	private JRadioButton allowNamed;
+	
+	private JCheckBox allowForks;
 
 	private JComboBox federationStrategy;
 
@@ -228,6 +230,8 @@ public class EditRepositoryDialog extends JDialog {
 		JPanel authorizationPanel = new JPanel(new GridLayout(0, 1));
 		authorizationPanel.add(allowAuthenticated);
 		authorizationPanel.add(allowNamed);
+		
+		allowForks = new JCheckBox(Translation.get("gb.allowForks"), anRepository.allowForks);
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
@@ -262,10 +266,14 @@ public class EditRepositoryDialog extends JDialog {
 						skipSizeCalculation));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"),
 				skipSummaryMetrics));
-		fieldsPanel
-				.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"),
 				mailingListsField));
+
+		JPanel clonePushPanel = new JPanel(new GridLayout(0, 1));
+		clonePushPanel
+		.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
+		clonePushPanel
+		.add(newFieldPanel(Translation.get("gb.allowForks"), allowForks));
 
 		usersPalette = new JPalette<String>();
 		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
@@ -273,6 +281,7 @@ public class EditRepositoryDialog extends JDialog {
 				accessRestriction), BorderLayout.NORTH);
 		northAccessPanel.add(newFieldPanel(Translation.get("gb.authorizationControl"),
 				authorizationPanel), BorderLayout.CENTER);
+		northAccessPanel.add(clonePushPanel, BorderLayout.SOUTH);
 
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
 		accessPanel.add(northAccessPanel, BorderLayout.NORTH);
@@ -472,7 +481,9 @@ public class EditRepositoryDialog extends JDialog {
 		repository.showReadme = showReadme.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
+		
 		repository.isFrozen = isFrozen.isSelected();
+		repository.allowForks = allowForks.isSelected();
 
 		String ml = mailingListsField.getText();
 		if (!StringUtils.isEmpty(ml)) {
