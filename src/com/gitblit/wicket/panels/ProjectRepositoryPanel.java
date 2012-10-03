@@ -134,8 +134,11 @@ public class ProjectRepositoryPanel extends BasePanel {
 		}
 
 		UserModel user = GitBlitWebSession.get().getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
 		Fragment repositoryLinks;
-		boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
+		boolean showOwner = entry.isOwner(user.username);
 		// owner of personal repository gets admin powers
 		boolean showAdmin = isAdmin || entry.isUsersPersonalRepository(user.username);
 

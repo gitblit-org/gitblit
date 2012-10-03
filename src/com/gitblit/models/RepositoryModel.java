@@ -152,6 +152,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		return !StringUtils.isEmpty(originRepository);
 	}
 	
+	public boolean isOwner(String username) {
+		return owner != null && username != null && owner.equalsIgnoreCase(username);
+	}
+	
 	public boolean isPersonalRepository() {
 		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
 	}

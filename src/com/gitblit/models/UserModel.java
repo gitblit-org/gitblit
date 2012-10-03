@@ -59,7 +59,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	private UserModel() {
-		this.username = "anonymous";
+		this.username = "$anonymous";
 		this.isAuthenticated = false;
 	}
 
