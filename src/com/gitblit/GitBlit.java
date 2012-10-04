@@ -746,17 +746,17 @@ public class GitBlit implements ServletContextListener {
 	 * Adds the repository to the list of cached repositories if Gitblit is
 	 * configured to cache the repository list.
 	 * 
-	 * @param name
+	 * @param model
 	 */
-	private void addToCachedRepositoryList(String name, RepositoryModel model) {
+	private void addToCachedRepositoryList(RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			repositoryListCache.put(name, model);
+			repositoryListCache.put(model.name, model);
 			
 			// update the fork origin repository with this repository clone
 			if (!StringUtils.isEmpty(model.originRepository)) {
 				if (repositoryListCache.containsKey(model.originRepository)) {
 					RepositoryModel origin = repositoryListCache.get(model.originRepository);
-					origin.addFork(name);
+					origin.addFork(model.name);
 				}
 			}
 		}
@@ -1001,7 +1001,7 @@ public class GitBlit implements ServletContextListener {
 			if (model == null) {
 				return null;
 			}
-			addToCachedRepositoryList(repositoryName, model);
+			addToCachedRepositoryList(model);
 			return model;
 		}
 		
@@ -1023,7 +1023,7 @@ public class GitBlit implements ServletContextListener {
 			logger.info(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
 			model = loadRepositoryModel(repositoryName);
 			removeFromCachedRepositoryList(repositoryName);
-			addToCachedRepositoryList(repositoryName, model);
+			addToCachedRepositoryList(model);
 		} else {
 			// update a few repository parameters 
 			if (!model.hasCommits) {
@@ -1236,10 +1236,15 @@ public class GitBlit implements ServletContextListener {
 			return null;
 		}
 		RepositoryModel model = new RepositoryModel();
-		model.name = repositoryName;
+		model.isBare = r.isBare();
+		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "git");
+		if (model.isBare) {
+			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
+		} else {
+			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory().getParentFile());
+		}
 		model.hasCommits = JGitUtils.hasCommits(r);
 		model.lastChange = JGitUtils.getLastChange(r);
-		model.isBare = r.isBare();
 		if (repositoryName.indexOf('/') == -1) {
 			model.projectPath = "";
 		} else {
@@ -1670,7 +1675,7 @@ public class GitBlit implements ServletContextListener {
 		// update repository cache
 		removeFromCachedRepositoryList(repositoryName);
 		// model will actually be replaced on next load because config is stale
-		addToCachedRepositoryList(repository.name, repository);
+		addToCachedRepositoryList(repository);
 	}
 	
 	/**
@@ -2678,7 +2683,7 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		// add this clone to the cached model
-		addToCachedRepositoryList(cloneModel.name, cloneModel);
+		addToCachedRepositoryList(cloneModel);
 		return cloneModel;
 	}
 }
