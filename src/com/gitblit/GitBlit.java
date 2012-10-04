@@ -57,18 +57,13 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
 
 import org.apache.wicket.protocol.http.WebResponse;
-import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
 import org.eclipse.jgit.storage.file.WindowCache;
 import org.eclipse.jgit.storage.file.WindowCacheConfig;
-import org.eclipse.jgit.transport.ServiceMayNotContinueException;
-import org.eclipse.jgit.transport.resolver.FileResolver;
-import org.eclipse.jgit.transport.resolver.RepositoryResolver;
-import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
-import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
@@ -141,8 +136,6 @@ public class GitBlit implements ServletContextListener {
 	private final Map<String, ProjectModel> projectCache = new ConcurrentHashMap<String, ProjectModel>();
 	
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
-
-	private RepositoryResolver<Void> repositoryResolver;
 
 	private ServletContext servletContext;
 
@@ -895,32 +888,18 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository or null
 	 */
 	public Repository getRepository(String repositoryName, boolean logError) {
+		File dir = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
+		if (dir == null)
+			return null;
+
 		Repository r = null;
 		try {
-			r = repositoryResolver.open(null, repositoryName);
-		} catch (RepositoryNotFoundException e) {
-			r = null;
+			FileKey key = FileKey.exact(dir, FS.DETECTED);
+			r = RepositoryCache.open(key, true);
+		} catch (IOException e) {
 			if (logError) {
 				logger.error("GitBlit.getRepository(String) failed to find "
 						+ new File(repositoriesFolder, repositoryName).getAbsolutePath());
-			}
-		} catch (ServiceNotAuthorizedException e) {
-			r = null;
-			if (logError) {
-				logger.error("GitBlit.getRepository(String) failed to find "
-						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
-			}
-		} catch (ServiceNotEnabledException e) {
-			r = null;
-			if (logError) {
-				logger.error("GitBlit.getRepository(String) failed to find "
-						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
-			}
-		} catch (ServiceMayNotContinueException e) {
-			r = null;
-			if (logError) {
-				logger.error("GitBlit.getRepository(String) failed to find "
-						+ new File(repositoriesFolder, repositoryName).getAbsolutePath(), e);
 			}
 		}
 		return r;
@@ -1470,6 +1449,8 @@ public class GitBlit implements ServletContextListener {
 	 */
 	private void closeRepository(String repositoryName) {
 		Repository repository = getRepository(repositoryName);
+		RepositoryCache.close(repository);
+
 		// assume 2 uses in case reflection fails
 		int uses = 2;
 		try {
@@ -1641,17 +1622,7 @@ public class GitBlit implements ServletContextListener {
 
 			// load repository
 			logger.info("edit repository " + repository.name);
-			try {
-				r = repositoryResolver.open(null, repository.name);
-			} catch (RepositoryNotFoundException e) {
-				logger.error("Repository not found", e);
-			} catch (ServiceNotAuthorizedException e) {
-				logger.error("Service not authorized", e);
-			} catch (ServiceNotEnabledException e) {
-				logger.error("Service not enabled", e);
-			} catch (ServiceMayNotContinueException e) {
-				logger.error("Service may not continue", e);
-			}
+			r = getRepository(repository.name);
 		}
 
 		// update settings
@@ -2499,7 +2470,6 @@ public class GitBlit implements ServletContextListener {
 		this.settings = settings;
 		repositoriesFolder = getRepositoriesFolder();
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
-		repositoryResolver = new FileResolver<Void>(repositoriesFolder, true);
 
 		// calculate repository list settings checksum for future config changes
 		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());

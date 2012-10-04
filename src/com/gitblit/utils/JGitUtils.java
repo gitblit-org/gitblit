@@ -210,11 +210,10 @@ public class JGitUtils {
 			if (credentialsProvider != null) {
 				clone.setCredentialsProvider(credentialsProvider);
 			}
-			clone.call();
+			Repository repository = clone.call().getRepository();
+			
 			// Now we have to fetch because CloneCommand doesn't fetch
 			// refs/notes nor does it allow manual RefSpec.
-			File gitDir = FileKey.resolve(new File(repositoriesFolder, name), FS.DETECTED);
-			FileRepository repository = new FileRepository(gitDir);
 			result.createdRepository = true;
 			result.fetchResult = fetchRepository(credentialsProvider, repository);
 			repository.close();
