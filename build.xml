@@ -194,11 +194,10 @@
 		<mkdir dir="${project.deploy.dir}/ext"/>
 		<copy todir="${project.deploy.dir}/ext">
 			<fileset dir="${basedir}/ext">
+				<exclude name="src/**" />
 				<exclude name="junit*.jar" />
 				<exclude name="hamcrest*.jar" />
 				<exclude name="commons-net*.jar" />
-				<exclude name="*-sources.jar" />
-				<exclude name="*-javadoc.jar" />
 			</fileset>
 		</copy>
 		
@@ -412,8 +411,7 @@
 		<mkdir dir="${project.war.dir}/WEB-INF/lib"/>
 		<copy todir="${project.war.dir}/WEB-INF/lib">
 			<fileset dir="${basedir}/ext">
-				<exclude name="*-sources.jar" />
-				<exclude name="*-javadoc.jar" />
+				<exclude name="src/**" />
 				<exclude name="jcommander*.jar" />
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
@@ -552,8 +550,7 @@
 		<mkdir dir="${deployments.root}/WEB-INF/lib"/>
 		<copy todir="${deployments.root}/WEB-INF/lib">
 			<fileset dir="${basedir}/ext">
-				<exclude name="*-sources.jar" />
-				<exclude name="*-javadoc.jar" />
+				<exclude name="src/**" />
 				<exclude name="jcommander*.jar" />
 				<exclude name="jetty*.jar" />
 				<exclude name="junit*.jar" />
@@ -707,15 +704,10 @@
 					<include name="NOTICE" />
 				</fileset>
 				<fileset dir="${basedir}/ext">
+					<exclude name="src/**" />
 					<include name="gson*.jar" />
-					<exclude name="gson*-sources.jar" />
-					<exclude name="gson*-javadoc.jar" />
 					<include name="rome*.jar" />
-					<exclude name="rome*-sources.jar" />
-					<exclude name="rome*-javadoc.jar" />
 					<include name="jdom*.jar" />
-					<exclude name="jdom*-sources.jar" />
-					<exclude name="jdom*-javadoc.jar" />
 				</fileset>
 			</zip>
 		</target>
