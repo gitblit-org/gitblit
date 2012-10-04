@@ -113,7 +113,7 @@ public class ContainerUtils
                 {
                     if (e.getTargetException() != null && e.getTargetException() instanceof CharConversionException)
                     {
-                        LOGGER.warn("You are using a Tomcat based system and the current settings regarding CVE-2007-0450 will prevent certain fetures from working. Please see http://gitblit.com/faq.html and http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450");
+                        LOGGER.warn("You are using a Tomcat-based server and your current settings will prevent grouped repositories, forks, personal repositories, and tree navigation from working properly. Please review the FAQ for details about running Gitblit on Tomcat. http://gitblit.com/faq.html and http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450");
                         return true;
                     }
                     throw e;
