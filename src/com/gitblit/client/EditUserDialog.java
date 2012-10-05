@@ -80,6 +80,8 @@ public class EditUserDialog extends JDialog {
 	private JCheckBox canAdminCheckbox;
 	
 	private JCheckBox canForkCheckbox;
+	
+	private JCheckBox canCreateCheckbox;
 
 	private JCheckBox notFederatedCheckbox;
 
@@ -128,7 +130,8 @@ public class EditUserDialog extends JDialog {
 		displayNameField = new JTextField(anUser.displayName == null ? "" : anUser.displayName, 25);
 		emailAddressField = new JTextField(anUser.emailAddress == null ? "" : anUser.emailAddress, 25);
 		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), anUser.canAdmin);		
-		canForkCheckbox = new JCheckBox(Translation.get("gb.canForkDescription"), anUser.canFork);		
+		canForkCheckbox = new JCheckBox(Translation.get("gb.canForkDescription"), anUser.canFork);
+		canCreateCheckbox = new JCheckBox(Translation.get("gb.canCreateDescription"), anUser.canCreate);
 		notFederatedCheckbox = new JCheckBox(
 				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
@@ -149,6 +152,7 @@ public class EditUserDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.emailAddress"), emailAddressField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.canAdmin"), canAdminCheckbox));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.canFork"), canForkCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.canCreate"), canCreateCheckbox));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
 				notFederatedCheckbox));
 
@@ -311,6 +315,7 @@ public class EditUserDialog extends JDialog {
 
 		user.canAdmin = canAdminCheckbox.isSelected();
 		user.canFork = canForkCheckbox.isSelected();
+		user.canCreate = canCreateCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
 
 		user.repositories.clear();

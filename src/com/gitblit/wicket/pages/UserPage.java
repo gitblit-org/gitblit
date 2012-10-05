@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -98,6 +99,14 @@ public class UserPage extends RootPage {
 		
 		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress);
 		add(new GravatarImage("gravatar", person, 210));
+		
+		UserModel sessionUser = GitBlitWebSession.get().getUser();
+		if (sessionUser != null && user.canCreate && sessionUser.equals(user)) {
+			// user can create personal repositories
+			add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+		} else {
+			add(new Label("newRepository").setVisible(false));
+		}
 		
 		List<RepositoryModel> repositories = getRepositories(params);
 		

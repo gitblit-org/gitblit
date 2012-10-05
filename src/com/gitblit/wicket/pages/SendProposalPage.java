@@ -146,7 +146,7 @@ public class SendProposalPage extends RootSubPage {
 		List<RepositoryModel> repositories = new ArrayList<RepositoryModel>(
 				proposal.repositories.values());
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", false,
-				repositories, false, getAccessRestrictions());
+				false, repositories, false, getAccessRestrictions());
 		add(repositoriesPanel);
 	}
 }

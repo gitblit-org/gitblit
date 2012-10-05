@@ -80,6 +80,19 @@ public class EditRepositoryPage extends RootSubPage {
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
 		String authorization = GitBlit.getString(Keys.git.defaultAuthorizationControl, null);
 		model.authorizationControl = AuthorizationControl.fromName(authorization);
+		
+		GitBlitWebSession session = GitBlitWebSession.get();
+		UserModel user = session.getUser();
+		if (user != null && user.canCreate && !user.canAdmin) {
+			// personal create permissions, inject personal repository path
+			model.name = user.getPersonalPath() + "/";
+			model.projectPath = user.getPersonalPath();
+			model.owner = user.username;
+			// personal repositories are private by default
+			model.accessRestriction = AccessRestrictionType.VIEW;
+			model.authorizationControl = AuthorizationControl.NAMED;
+		}
+		
 		setupPage(model);
 	}
 
@@ -103,8 +116,15 @@ public class EditRepositoryPage extends RootSubPage {
 		List<String> preReceiveScripts = new ArrayList<String>();
 		List<String> postReceiveScripts = new ArrayList<String>();
 
+		GitBlitWebSession session = GitBlitWebSession.get();
+		final UserModel user = session.getUser() == null ? UserModel.ANONYMOUS : session.getUser();
+
 		if (isCreate) {
-			super.setupPage(getString("gb.newRepository"), "");
+			if (user.canAdmin) {
+				super.setupPage(getString("gb.newRepository"), "");
+			} else {
+				super.setupPage(getString("gb.newRepository"), user.getDisplayName());
+			}
 		} else {
 			super.setupPage(getString("gb.edit"), repositoryModel.name);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
@@ -195,11 +215,14 @@ public class EditRepositoryPage extends RootSubPage {
 			protected void onSubmit() {
 				try {
 					// confirm a repository name was entered
-					if (StringUtils.isEmpty(repositoryModel.name)) {
+					if (repositoryModel.name == null && StringUtils.isEmpty(repositoryModel.name)) {
 						error(getString("gb.pleaseSetRepositoryName"));
 						return;
 					}
-
+					
+					// ensure name is trimmed
+					repositoryModel.name = repositoryModel.name.trim();
+					
 					// automatically convert backslashes to forward slashes
 					repositoryModel.name = repositoryModel.name.replace('\\', '/');
 					// Automatically replace // with /
@@ -228,6 +251,22 @@ public class EditRepositoryPage extends RootSubPage {
 						error(MessageFormat.format(getString("gb.illegalCharacterRepositoryName"),
 								c));
 						return;
+					}
+					
+					if (user.canCreate && !user.canAdmin) {
+						// ensure repository name begins with the user's path
+						if (!repositoryModel.name.startsWith(user.getPersonalPath())) {
+							error(MessageFormat.format(getString("gb.illegalPersonalRepositoryLocation"),
+									user.getPersonalPath()));
+							return;
+						}
+						
+						if (repositoryModel.name.equals(user.getPersonalPath())) {
+							// reset path prefix and show error
+							repositoryModel.name = user.getPersonalPath() + "/";
+							error(getString("gb.pleaseSetRepositoryName"));
+							return;
+						}
 					}
 
 					// confirm access restriction selection
@@ -339,7 +378,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// field names reflective match RepositoryModel fields
-		form.add(new TextField<String>("name").setEnabled(isCreate || isAdmin));
+		form.add(new TextField<String>("name").setEnabled(isCreate || isAdmin || repositoryModel.isUsersPersonalRepository(user.username)));
 		form.add(new TextField<String>("description"));
 		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
 				.setEnabled(GitBlitWebSession.get().canAdmin()));
@@ -435,8 +474,8 @@ public class EditRepositoryPage extends RootSubPage {
 				}
 				if (isCreate) {
 					// Create Repository
-					if (!user.canAdmin) {
-						// Only Administrators May Create
+					if (!user.canCreate && !user.canAdmin) {
+						// Only administrators or permitted users may create
 						error(getString("gb.errorOnlyAdminMayCreateRepository"), true);
 					}
 				} else {

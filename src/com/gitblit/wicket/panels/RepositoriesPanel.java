@@ -64,7 +64,7 @@ public class RepositoriesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public RepositoriesPanel(String wicketId, final boolean showAdmin,
+	public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement,
 			List<RepositoryModel> models, boolean enableLinks,
 			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
 		super(wicketId);
@@ -76,19 +76,31 @@ public class RepositoriesPanel extends BasePanel {
 
 		final IDataProvider<RepositoryModel> dp;
 
-		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new Link<Void>("clearCache") {
+		Fragment managementLinks;
+		if (showAdmin) {
+			// user is admin
+			managementLinks = new Fragment("managementPanel", "adminLinks", this);
+			managementLinks.add(new Link<Void>("clearCache") {
 
-			private static final long serialVersionUID = 1L;
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			public void onClick() {
-				GitBlit.self().resetRepositoryListCache();
-				setResponsePage(RepositoriesPage.class);
-			}
-		}.setVisible(GitBlit.getBoolean(Keys.git.cacheRepositoryList, true)));
-		adminLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
-		add(adminLinks.setVisible(showAdmin));
+				@Override
+				public void onClick() {
+					GitBlit.self().resetRepositoryListCache();
+					setResponsePage(RepositoriesPage.class);
+				}
+			}.setVisible(GitBlit.getBoolean(Keys.git.cacheRepositoryList, true)));
+			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+			add(managementLinks);
+		} else if (showManagement && user != null && user.canCreate) {
+			// user can create personal repositories
+			managementLinks = new Fragment("managementPanel", "personalLinks", this);
+			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
+			add(managementLinks);
+		} else {
+			// user has no management permissions
+			add (new Label("managementPanel").setVisible(false));
+		}
 
 		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped")) {
 			List<RepositoryModel> rootRepositories = new ArrayList<RepositoryModel>();
@@ -297,7 +309,7 @@ public class RepositoriesPanel extends BasePanel {
 				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
 
-				boolean showOwner = user != null && user.username.equalsIgnoreCase(entry.owner);
+				boolean showOwner = user != null && entry.isOwner(user.username);
 				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);
 				if (showAdmin || myPersonalRepository) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",

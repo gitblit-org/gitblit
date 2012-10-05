@@ -82,7 +82,7 @@ public class RepositoriesPage extends RootPage {
 		List<RepositoryModel> repositories = getRepositories(params);
 
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
-				repositories, true, getAccessRestrictions());
+				true, repositories, true, getAccessRestrictions());
 		// push the panel down if we are hiding the admin controls and the
 		// welcome message
 		if (!showAdmin && !repositoriesMessage.isVisible()) {

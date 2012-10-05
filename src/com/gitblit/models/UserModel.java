@@ -46,6 +46,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public String emailAddress;
 	public boolean canAdmin;
 	public boolean canFork;
+	public boolean canCreate;
 	public boolean excludeFromFederation;
 	public final Set<String> repositories = new HashSet<String>();
 	public final Set<TeamModel> teams = new HashSet<TeamModel>();
@@ -173,6 +174,23 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			return username;
 		}
 		return displayName;
+	}
+	
+	public String getPersonalPath() {
+		return "~" + username;
+	}
+	
+	@Override
+	public int hashCode() {
+		return username.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof UserModel) {
+			return username.equals(((UserModel) o).username);
+		}
+		return false;
 	}
 
 	@Override

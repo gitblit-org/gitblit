@@ -232,6 +232,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
 		form.add(new CheckBox("canFork"));
+		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(repositories);
 		form.add(teams.setEnabled(editTeams));

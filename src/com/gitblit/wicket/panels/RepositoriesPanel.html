@@ -7,7 +7,7 @@
 <body>
 <wicket:panel>
 
-	<div wicket:id="adminPanel">[admin links]</div>
+	<div wicket:id="managementPanel">[management links]</div>
 
 	<table class="repositories">
 		<span wicket:id="headerContent"></span>
@@ -32,6 +32,16 @@
 		</div>	
 	</wicket:fragment>
 	
+	<wicket:fragment wicket:id="personalLinks">
+		<!-- page nav links -->	
+		<div class="admin_nav">
+			<a class="btn-small" wicket:id="newRepository" style="padding-right:0px;">
+				<i class="icon icon-plus-sign"></i>
+				<wicket:message key="gb.newRepository"></wicket:message>
+			</a>
+		</div>	
+	</wicket:fragment>
+
 	<wicket:fragment wicket:id="repositoryAdminLinks">
 		<span class="link"><a wicket:id="editRepository"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="deleteRepository"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
 	</wicket:fragment>
