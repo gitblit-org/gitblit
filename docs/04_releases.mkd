@@ -11,6 +11,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 
 #### fixes
 
+- Wrapped Markdown parser with improved exception handler (issue 142)
 - Fixed duplicate entries in repository cache (issue 140)
 - Fixed connection leak in LDAPUserService (issue 139)
 - Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 132)

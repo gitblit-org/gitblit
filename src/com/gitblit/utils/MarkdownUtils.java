@@ -67,9 +67,15 @@ public class MarkdownUtils {
 			Markdown md = new Markdown();
 			md.transform(markdownReader, writer);
 			return writer.toString().trim();
+		} catch (StringIndexOutOfBoundsException e) {
+			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", e);
+			throw new java.text.ParseException(e.getMessage(), 0);
 		} catch (ParseException p) {
 			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", p);
 			throw new java.text.ParseException(p.getMessage(), 0);
+		} catch (Exception e) {
+			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", e);
+			throw new java.text.ParseException(e.getMessage(), 0);
 		} finally {
 			try {
 				writer.close();
