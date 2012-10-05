@@ -1614,6 +1614,14 @@ public class GitBlit implements ServletContextListener {
 						rf.close();
 					}
 				}
+				
+				// remove this repository from any origin model's fork list
+				if (!StringUtils.isEmpty(repository.originRepository)) {
+					RepositoryModel origin = repositoryListCache.get(repository.originRepository);
+					if (origin != null && !ArrayUtils.isEmpty(origin.forks)) {
+						origin.forks.remove(repositoryName);
+					}
+				}
 
 				// clear the cache
 				clearRepositoryMetadataCache(repositoryName);
