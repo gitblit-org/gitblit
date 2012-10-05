@@ -1547,6 +1547,13 @@ public class GitBlit implements ServletContextListener {
 	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
 			boolean isCreate) throws GitBlitException {
 		Repository r = null;
+		String projectPath = StringUtils.getFirstPathElement(repository.name);
+		if (!StringUtils.isEmpty(projectPath)) {
+			if (projectPath.equalsIgnoreCase(getString(Keys.web.repositoryRootGroupName, "main"))) {
+				// strip leading group name
+				repository.name = repository.name.substring(projectPath.length() + 1);
+			}
+		}
 		if (isCreate) {
 			// ensure created repository name ends with .git
 			if (!repository.name.toLowerCase().endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
