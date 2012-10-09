@@ -613,7 +613,10 @@
 			<resource file="${basedir}/resources/commit_divide_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_es.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ja.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ko.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_pl.properties" />
 
 			<class name="com.gitblit.client.GitblitManagerLauncher" />
 			<classfilter>

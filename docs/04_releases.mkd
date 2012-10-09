@@ -17,6 +17,7 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Fixed connection leak in LDAPUserService (issue 139)
 - Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 132)
 - Fixed bug in the diff view for filenames that have non-ASCII characters (issue 128)
+- Fix missing translations in Gitblit Manager (issue 145)
 
 #### additions
 
