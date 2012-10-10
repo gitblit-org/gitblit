@@ -2329,6 +2329,7 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("test");
 		repository.owner = user.username;
 
+		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("owner CAN NOT view!", user.canView(repository));
 		assertTrue("owner CAN NOT clone!", user.canClone(repository));
 		assertTrue("owner CAN NOT push!", user.canPush(repository));
@@ -2352,6 +2353,7 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("test");
 		repository.owner = user.username;
 
+		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));
 		assertTrue("user CAN NOT clone!", user.canClone(repository));
 		assertTrue("user CAN NOT push!", user.canPush(repository));
@@ -2375,6 +2377,7 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("visitor");
 		repository.owner = "test";
 
+		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertFalse("user CAN view!", user.canView(repository));
 		assertFalse("user CAN clone!", user.canClone(repository));
 		assertFalse("user CAN push!", user.canPush(repository));
@@ -2398,6 +2401,7 @@ public class PermissionsTest extends Assert {
 		UserModel user = new UserModel("test");
 		user.setRepositoryPermission("ubercool/[A-Za-z0-9-~_\\./]+", AccessPermission.CLONE);
 
+		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));
 		assertTrue("user CAN NOT clone!", user.canClone(repository));
 		assertFalse("user CAN push!", user.canPush(repository));

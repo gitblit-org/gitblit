@@ -132,7 +132,21 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 */
 	public boolean hasRepositoryPermission(String name) {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
-		return permissions.containsKey(repository) || repositories.contains(repository);
+		if (permissions.containsKey(repository)) {
+			// exact repository permission specified
+			return true;
+		} else {
+			// search for regex permission match
+			for (String key : permissions.keySet()) {
+				if (name.matches(key)) {
+					AccessPermission p = permissions.get(key);
+					if (p != null) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	/**
