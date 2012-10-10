@@ -315,11 +315,16 @@ public class StringUtils {
 	 * @return the relative path
 	 */
 	public static String getRelativePath(String basePath, String fullPath) {
-		String relativePath = fullPath.substring(basePath.length()).replace('\\', '/');
-		if (relativePath.charAt(0) == '/') {
-			relativePath = relativePath.substring(1);
+		String bp = basePath.replace('\\', '/').toLowerCase();
+		String fp = fullPath.replace('\\', '/').toLowerCase();
+		if (fp.startsWith(bp)) {
+			String relativePath = fullPath.substring(basePath.length()).replace('\\', '/');
+			if (relativePath.charAt(0) == '/') {
+				relativePath = relativePath.substring(1);
+			}
+			return relativePath;
 		}
-		return relativePath;
+		return fullPath;
 	}
 
 	/**
