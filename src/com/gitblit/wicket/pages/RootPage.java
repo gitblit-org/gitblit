@@ -418,7 +418,7 @@ public abstract class RootPage extends BasePage {
 			// brute-force our way through finding the matching models
 			for (RepositoryModel repositoryModel : availableModels) {
 				for (TeamModel teamModel : teamModels) {
-					if (teamModel.hasRepository(repositoryModel.name)) {
+					if (teamModel.hasRepositoryPermission(repositoryModel.name)) {
 						models.add(repositoryModel);
 					}
 				}

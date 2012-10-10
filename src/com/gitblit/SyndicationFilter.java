@@ -113,7 +113,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 					return;
 				} else {
 					// check user access for request
-					if (user.canAdmin || user.canAccessRepository(model)) {
+					if (user.canView(model)) {
 						// authenticated request permitted.
 						// pass processing to the restricted servlet.
 						newSession(authenticatedRequest, httpResponse);

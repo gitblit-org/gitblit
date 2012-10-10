@@ -33,6 +33,7 @@ import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -268,6 +269,55 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
+	 * Updates/writes all specified user objects.
+	 * 
+	 * @param models a list of user models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */
+	@Override
+	public boolean updateUserModels(List<UserModel> models) {
+		try {
+			read();
+			for (UserModel model : models) {
+				UserModel originalUser = users.remove(model.username.toLowerCase());
+				users.put(model.username.toLowerCase(), model);
+				// null check on "final" teams because JSON-sourced UserModel
+				// can have a null teams object
+				if (model.teams != null) {
+					for (TeamModel team : model.teams) {
+						TeamModel t = teams.get(team.name.toLowerCase());
+						if (t == null) {
+							// new team
+							team.addUser(model.username);
+							teams.put(team.name.toLowerCase(), team);
+						} else {
+							// do not clobber existing team definition
+							// maybe because this is a federated user
+							t.addUser(model.username);							
+						}
+					}
+
+					// check for implicit team removal
+					if (originalUser != null) {
+						for (TeamModel team : originalUser.teams) {
+							if (!model.isTeamMember(team.name)) {
+								team.removeUser(model.username);
+							}
+						}
+					}
+				}
+			}
+			write();
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update user {0} models!", models.size()),
+					t);
+		}
+		return false;
+	}
+
+	/**
 	 * Updates/writes and replaces a complete user object keyed by username.
 	 * This method allows for renaming a user.
 	 * 
@@ -413,7 +463,7 @@ public class ConfigUserService implements IUserService {
 			read();
 			for (Map.Entry<String, TeamModel> entry : teams.entrySet()) {
 				TeamModel model = entry.getValue();
-				if (model.hasRepository(role)) {
+				if (model.hasRepositoryPermission(role)) {
 					list.add(model.name);
 				}
 			}
@@ -447,10 +497,10 @@ public class ConfigUserService implements IUserService {
 			for (TeamModel team : teams.values()) {
 				// team has role, check against revised team list
 				if (specifiedTeams.contains(team.name.toLowerCase())) {
-					team.addRepository(role);
+					team.addRepositoryPermission(role);
 				} else {
 					// remove role from team
-					team.removeRepository(role);
+					team.removeRepositoryPermission(role);
 				}
 			}
 
@@ -492,6 +542,28 @@ public class ConfigUserService implements IUserService {
 	@Override
 	public boolean updateTeamModel(TeamModel model) {
 		return updateTeamModel(model.name, model);
+	}
+
+	/**
+	 * Updates/writes all specified team objects.
+	 * 
+	 * @param models a list of team models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */
+	@Override
+	public boolean updateTeamModels(List<TeamModel> models) {
+		try {
+			read();
+			for (TeamModel team : models) {
+				teams.put(team.name.toLowerCase(), team);
+			}
+			write();
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update team {0} models!", models.size()), t);
+		}
+		return false;
 	}
 
 	/**
@@ -602,7 +674,7 @@ public class ConfigUserService implements IUserService {
 			read();
 			for (Map.Entry<String, UserModel> entry : users.entrySet()) {
 				UserModel model = entry.getValue();
-				if (model.hasRepository(role)) {
+				if (model.hasRepositoryPermission(role)) {
 					list.add(model.username);
 				}
 			}
@@ -623,6 +695,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
+	@Deprecated
 	public boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
 		try {
 			Set<String> specifiedUsers = new HashSet<String>();
@@ -636,10 +709,10 @@ public class ConfigUserService implements IUserService {
 			for (UserModel user : users.values()) {
 				// user has role, check against revised user list
 				if (specifiedUsers.contains(user.username.toLowerCase())) {
-					user.addRepository(role);
+					user.addRepositoryPermission(role);
 				} else {
 					// remove role from user
-					user.removeRepository(role);
+					user.removeRepositoryPermission(role);
 				}
 			}
 
@@ -665,17 +738,17 @@ public class ConfigUserService implements IUserService {
 			read();
 			// identify users which require role rename
 			for (UserModel model : users.values()) {
-				if (model.hasRepository(oldRole)) {
-					model.removeRepository(oldRole);
-					model.addRepository(newRole);
+				if (model.hasRepositoryPermission(oldRole)) {
+					AccessPermission permission = model.removeRepositoryPermission(oldRole);
+					model.setRepositoryPermission(newRole, permission);
 				}
 			}
 
 			// identify teams which require role rename
 			for (TeamModel model : teams.values()) {
-				if (model.hasRepository(oldRole)) {
-					model.removeRepository(oldRole);
-					model.addRepository(newRole);
+				if (model.hasRepositoryPermission(oldRole)) {
+					AccessPermission permission = model.removeRepositoryPermission(oldRole);
+					model.setRepositoryPermission(newRole, permission);
 				}
 			}
 			// persist changes
@@ -701,12 +774,12 @@ public class ConfigUserService implements IUserService {
 
 			// identify users which require role rename
 			for (UserModel user : users.values()) {
-				user.removeRepository(role);
+				user.removeRepositoryPermission(role);
 			}
 
 			// identify teams which require role rename
 			for (TeamModel team : teams.values()) {
-				team.removeRepository(role);
+				team.removeRepositoryPermission(role);
 			}
 
 			// persist changes
@@ -768,21 +841,44 @@ public class ConfigUserService implements IUserService {
 			config.setStringList(USER, model.username, ROLE, roles);
 
 			// repository memberships
-			// null check on "final" repositories because JSON-sourced UserModel
-			// can have a null repositories object
-			if (!ArrayUtils.isEmpty(model.repositories)) {
-				config.setStringList(USER, model.username, REPOSITORY, new ArrayList<String>(
-						model.repositories));
+			if (model.permissions == null) {
+				// null check on "final" repositories because JSON-sourced UserModel
+				// can have a null repositories object
+				if (!ArrayUtils.isEmpty(model.repositories)) {
+					config.setStringList(USER, model.username, REPOSITORY, new ArrayList<String>(
+							model.repositories));
+				}
+			} else {
+				// discrete repository permissions
+				List<String> permissions = new ArrayList<String>();
+				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
+					if (entry.getValue().exceeds(AccessPermission.NONE)) {
+						permissions.add(entry.getValue().asRole(entry.getKey()));
+					}
+				}
+				config.setStringList(USER, model.username, REPOSITORY, permissions);
 			}
 		}
 
 		// write teams
 		for (TeamModel model : teams.values()) {
-			// null check on "final" repositories because JSON-sourced TeamModel
-			// can have a null repositories object
-			if (!ArrayUtils.isEmpty(model.repositories)) {
-				config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
-						model.repositories));
+			if (model.permissions == null) {
+				// null check on "final" repositories because JSON-sourced TeamModel
+				// can have a null repositories object
+				if (!ArrayUtils.isEmpty(model.repositories)) {
+					config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
+							model.repositories));
+				}
+			} else {
+				// discrete repository permissions
+				List<String> permissions = new ArrayList<String>();
+				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
+					if (entry.getValue().exceeds(AccessPermission.NONE)) {
+						// code:repository (e.g. RW+:~james/myrepo.git
+						permissions.add(entry.getValue().asRole(entry.getKey()));
+					}
+				}
+				config.setStringList(TEAM, model.name, REPOSITORY, permissions);
 			}
 
 			// null check on "final" users because JSON-sourced TeamModel
@@ -872,7 +968,7 @@ public class ConfigUserService implements IUserService {
 					Set<String> repositories = new HashSet<String>(Arrays.asList(config
 							.getStringList(USER, username, REPOSITORY)));
 					for (String repository : repositories) {
-						user.addRepository(repository);
+						user.addRepositoryPermission(repository);
 					}
 
 					// update cache
@@ -886,7 +982,7 @@ public class ConfigUserService implements IUserService {
 				Set<String> teamnames = config.getSubsections(TEAM);
 				for (String teamname : teamnames) {
 					TeamModel team = new TeamModel(teamname);
-					team.addRepositories(Arrays.asList(config.getStringList(TEAM, teamname,
+					team.addRepositoryPermissions(Arrays.asList(config.getStringList(TEAM, teamname,
 							REPOSITORY)));
 					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));
 					team.addMailingLists(Arrays.asList(config.getStringList(TEAM, teamname,

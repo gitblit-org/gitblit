@@ -297,7 +297,7 @@ public abstract class BasePage extends WebPage {
 			for (ProjectModel projectModel : availableModels) {
 				for (String repositoryName : projectModel.repositories) {
 					for (TeamModel teamModel : teamModels) {
-						if (teamModel.hasRepository(repositoryName)) {
+						if (teamModel.hasRepositoryPermission(repositoryName)) {
 							models.add(projectModel);
 						}
 					}

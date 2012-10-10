@@ -111,6 +111,6 @@ public class PagesFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {		
-		return user.canAccessRepository(repository);
+		return user.canView(repository);
 	}
 }

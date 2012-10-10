@@ -244,6 +244,25 @@ All repositories created with Gitblit are *bare* and will automatically have *.g
 #### Repository Owner
 The *Repository Owner* has the special permission of being able to edit a repository through the web UI.  The Repository Owner is not permitted to rename the repository, delete the repository, or reassign ownership to another user.
 
+### Access Restrictions and Access Permissions
+![permissions matrix](permissions_matrix.png "Permissions and Restrictions")
+
+#### Discrete Permissions (Gitblit v1.2.0+)
+
+Since v1.2.0, Gitblit supports more discrete permissions.  While Gitblit does not offer a built-in solution for branch-based permissions like Gitolite, it does allow for the following repository access permissions:
+
+- **V** (view in web ui, RSS feeds, download zip)
+- **R** (clone)
+- **RW** (clone and push)
+- **RWC** (clone and push with ref creation)
+- **RWD** (clone and push with ref creation, deletion)
+- **RW+** (clone and push with ref creation, deletion, rewind)
+
+#### No-So-Discrete Permissions (Gitblit <= v1.1.0)
+
+Prior to v1.2.0, Gitblit had two main access permission groupings:  
+What you were permitted to do as an anonymous user and then **RW+** for any permitted user.
+
 ### Teams
 
 Since v0.8.0, Gitblit supports *teams* for the original `users.properties` user service and the current default user service `users.conf`.  Teams have assigned users and assigned repositories.  A user can be a member of multiple teams and a repository may belong to multiple teams.  This allows the administrator to quickly add a user to a team without having to keep track of all the appropriate repositories. 
@@ -257,11 +276,12 @@ The `users.conf` file uses a Git-style configuration format:
 	    password = admin
 	    role = "#admin"
 	    role = "#notfederated"
-	    repository = repo1.git
-	    repository = repo2.git
+	    repository = RW+:repo1.git
+	    repository = RW+:repo2.git
 	    
 	[user "hannibal"]
 		password = bossman
+		repository = RWD:topsecret.git
 
 	[user "faceman"]
 		password = vanity
@@ -277,7 +297,7 @@ The `users.conf` file uses a Git-style configuration format:
 		user = faceman
 		user = murdock
 		user = babaracus
-		repository = topsecret.git
+		repository = RW:topsecret.git
 		mailingList = list@ateam.org
 		postReceiveScript = sendmail
 
@@ -291,15 +311,49 @@ The format of `users.properties` loosely follows Jetty's convention for HashReal
     username=password,role1,role2,role3...
     @teamname=&mailinglist,!username1,!username2,!username3,repository1,repository2,repository3...
 
-#### Usernames
+### Usernames
 Usernames must be unique and are case-insensitive.  
 Whitespace is illegal.
 
-#### Passwords
+### Passwords
 User passwords are CASE-SENSITIVE and may be *plain*, *md5*, or *combined-md5* formatted (see `gitblit.properties` -> *realm.passwordStorage*).
 
-#### User Roles
-There are two actual *roles* in Gitblit: *#admin*, which grants administrative powers to that user, and *#notfederated*, which prevents an account from being pulled by another Gitblit instance.  Administrators automatically have access to all repositories.  All other *roles* are repository names.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
+### User Roles
+There are four actual *roles* in Gitblit:
+
+- *#admin*, which grants administrative powers to that user
+- *#notfederated*, which prevents an account from being pulled by another Gitblit instance
+- *#create*, which allows the user the power to create personal repositories
+- *#fork*, which allows the user to create a personal fork of an existing Gitblit-hosted repository
+
+Administrators automatically have access to all repositories.  All other *roles* are repository permissions.  If a repository is access-restricted, the user must have the repository's name within his/her roles to bypass the access restriction.  This is how users are granted access to a restricted repository.
+
+**NOTE:**  
+The following roles are equivalent:
+
+- myrepo.git
+- RW+:myrepo.git
+
+This is to preserve backwards-compatibility with Gitblit <= 1.1.0 which granted rewind power to all access-permitted users.
+
+### Personal Repositories & Forks
+
+Personal Repositories and Forks are related but are controlled individually.
+
+#### Creating a Personal Repository
+A user may be granted the power to create personal repositories by specifying the *#create* role through the web ui or through the RPC mechanism via the Gitblit Manager.  Personal repositories are exactly like common/shared repositories except that the owner has a few additional administrative powers for that repository, like rename and delete.
+
+#### Creating a Fork
+A user may also be granted the power to fork an existing repository hosted on your Gitblit server to their own personal clone by specifying the *#fork* role through the web ui or via the Gitblit Manager.
+
+Forks are mostly likely personal repositories or common/shared repositories except for two important differences:
+
+1. Forks inherit a view/clone access list from the origin repository.  
+i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.
+2. Forks are always listed in the fork network, regardless of any access restriction set on the fork.  
+In other words, if you fork *RepoA.git* to *~me/RepoA.git* and then set the access restriction of *~me/RepoA.git* to *Authenticated View, Clone, & Push* your fork will still be listed in the fork network for *RepoA.git*.
+
+If you really must have an invisible fork, the clone it locally, create a new personal repository for your invisible fork, and push it back to that personal repository.
 
 ## Alternative Authentication and Authorization
 

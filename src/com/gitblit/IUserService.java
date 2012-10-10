@@ -127,6 +127,15 @@ public interface IUserService {
 	boolean updateUserModel(UserModel model);
 
 	/**
+	 * Updates/writes all specified user objects.
+	 * 
+	 * @param models a list of user models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */
+	boolean updateUserModels(List<UserModel> models);
+	
+	/**
 	 * Adds/updates a user object keyed by username. This method allows for
 	 * renaming a user.
 	 * 
@@ -205,7 +214,8 @@ public interface IUserService {
 	 * @param teamnames
 	 * @return true if successful
 	 * @since 0.8.0
-	 */	
+	 */
+	@Deprecated
 	boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames);
 	
 	/**
@@ -226,6 +236,15 @@ public interface IUserService {
 	 */	
 	boolean updateTeamModel(TeamModel model);
 
+	/**
+	 * Updates/writes all specified team objects.
+	 * 
+	 * @param models a list of team models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */	
+	boolean updateTeamModels(List<TeamModel> models);
+	
 	/**
 	 * Updates/writes and replaces a complete team object keyed by teamname.
 	 * This method allows for renaming a team.
@@ -277,6 +296,7 @@ public interface IUserService {
 	 * @param usernames
 	 * @return true if successful
 	 */
+	@Deprecated
 	boolean setUsernamesForRepositoryRole(String role, List<String> usernames);
 
 	/**

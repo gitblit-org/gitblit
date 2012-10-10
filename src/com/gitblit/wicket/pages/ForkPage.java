@@ -40,7 +40,7 @@ public class ForkPage extends RepositoryPage {
 
 		RepositoryModel repository = getRepositoryModel();
 		UserModel user = session.getUser();
-		boolean canFork = user.canForkRepository(repository);
+		boolean canFork = user.canFork(repository);
 
 		if (!canFork) {
 			// redirect to the summary page if this repository is not empty

@@ -94,7 +94,7 @@ public class ForksPage extends RepositoryPage {
 				if (user == null) {
 					user = UserModel.ANONYMOUS;
 				}
-				if (user.canViewRepository(repository)) {
+				if (user.canView(repository)) {
 					if (pageRepository.equals(repository)) {
 						// do not link to self
 						item.add(new Label("aFork", StringUtils.stripDotGit(repo)));

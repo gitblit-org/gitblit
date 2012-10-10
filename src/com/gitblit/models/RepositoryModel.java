@@ -88,7 +88,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.accessRestriction = AccessRestrictionType.NONE;
 		this.authorizationControl = AuthorizationControl.NAMED;
 		this.federationSets = new ArrayList<String>();
-		this.federationStrategy = FederationStrategy.FEDERATE_THIS;		
+		this.federationStrategy = FederationStrategy.FEDERATE_THIS;	
+		this.projectPath = StringUtils.getFirstPathElement(name);
 	}
 	
 	public List<String> getLocalBranches() {
@@ -175,8 +176,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.projectPath = StringUtils.getFirstPathElement(cloneName);
 		clone.isBare = true;
 		clone.description = description;
-		clone.accessRestriction = accessRestriction;
-		clone.authorizationControl = authorizationControl;
+		clone.accessRestriction = AccessRestrictionType.PUSH;
+		clone.authorizationControl = AuthorizationControl.NAMED;
 		clone.federationStrategy = federationStrategy;
 		clone.showReadme = showReadme;
 		clone.showRemoteBranches = false;

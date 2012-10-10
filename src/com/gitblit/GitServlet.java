@@ -105,6 +105,21 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				ReceivePack rp = super.create(req, db);
 				rp.setPreReceiveHook(hook);
 				rp.setPostReceiveHook(hook);
+
+				// determine pushing user
+				PersonIdent person = rp.getRefLogIdent();
+				UserModel user = GitBlit.self().getUserModel(person.getName());
+				if (user == null) {
+					// anonymous push, create a temporary usermodel
+					user = new UserModel(person.getName());
+				}
+				
+				// enforce advanced ref permissions
+				RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+				rp.setAllowCreates(user.canCreateRef(repository));
+				rp.setAllowDeletes(user.canDeleteRef(repository));
+				rp.setAllowNonFastForwards(user.canRewindRef(repository));
+				
 				return rp;
 			}
 		});
@@ -209,7 +224,25 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			scripts.addAll(repository.postReceiveScripts);
 			UserModel user = getUserModel(rp);
 			runGroovy(repository, user, commands, rp, scripts);
-
+			for (ReceiveCommand cmd : commands) {
+				if (Result.OK.equals(cmd.getResult())) {
+					// add some logging for important ref changes
+					switch (cmd.getType()) {
+					case DELETE:
+						logger.info(MessageFormat.format("{0} DELETED {1} in {2} ({3})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name()));
+						break;
+					case CREATE:
+						logger.info(MessageFormat.format("{0} CREATED {1} in {2}", user.username, cmd.getRefName(), repository.name));
+						break;
+					case UPDATE_NONFASTFORWARD:
+						logger.info(MessageFormat.format("{0} UPDATED NON-FAST-FORWARD {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			
 			// Experimental
 			// runNativeScript(rp, "hooks/post-receive", commands);
 		}

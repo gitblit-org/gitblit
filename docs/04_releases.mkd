@@ -17,18 +17,26 @@ If you are updating from an earlier release AND you have indexed branches with t
 - Fixed connection leak in LDAPUserService (issue 139)
 - Fixed bug in commit page where changes to a submodule threw a null pointer exception (issue 132)
 - Fixed bug in the diff view for filenames that have non-ASCII characters (issue 128)
-- Fix missing translations in Gitblit Manager (issue 145)
 
 #### additions
 
-- Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
+- Implemented discrete repository permissions (issue 36)  
+    - V (view in web ui, RSS feeds, download zip)
+    - R (clone)
+    - RW (clone and push)
+    - RWC (clone and push with ref creation)
+    - RWD (clone and push with ref creation, deletion)
+    - RW+ (clone and push with ref creation, deletion, rewind)  
+While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit <= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.
+- Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging
 - Added support for personal repositories.  
 Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.
 - Added support for server-side forking of a repository to a personal repository (issue 137)  
-In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access restrictions of its origin.  i.e. if Team A has access to the origin repository, then by default Team A also has access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required __however__ it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back.
+In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required <u>however</u> it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.
+- Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
 - Delete branch feature (issue 121, Github/ajermakovics)
-- Added line links to blob view at the expense of zebra striping (issue 130)
+- Added line links to blob view (issue 130)
 - Added RedmineUserService (github/mallowlabs)
 
 #### changes

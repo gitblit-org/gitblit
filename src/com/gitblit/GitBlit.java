@@ -69,6 +69,7 @@ import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
@@ -618,6 +619,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param usernames
 	 * @return true if successful
 	 */
+	@Deprecated
 	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
 		return userService.setUsernamesForRepositoryRole(repository.name, repositoryUsers);
 	}
@@ -699,6 +701,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param teamnames
 	 * @return true if successful
 	 */
+	@Deprecated
 	public boolean setRepositoryTeams(RepositoryModel repository, List<String> repositoryTeams) {
 		return userService.setTeamnamesForRepositoryRole(repository.name, repositoryTeams);
 	}
@@ -957,14 +960,13 @@ public class GitBlit implements ServletContextListener {
 		if (model == null) {
 			return null;
 		}
-		if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
-			if (user != null && user.canAccessRepository(model)) {
-				return model;
-			}
-			return null;
-		} else {
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
+		if (user.canView(model)) {
 			return model;
 		}
+		return null;
 	}
 
 	/**
@@ -1224,11 +1226,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		model.hasCommits = JGitUtils.hasCommits(r);
 		model.lastChange = JGitUtils.getLastChange(r);
-		if (repositoryName.indexOf('/') == -1) {
-			model.projectPath = "";
-		} else {
-			model.projectPath = repositoryName.substring(0, repositoryName.indexOf('/'));
-		}
+		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
 		
 		StoredConfig config = r.getConfig();
 		boolean hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
@@ -1449,6 +1447,9 @@ public class GitBlit implements ServletContextListener {
 	 */
 	private void closeRepository(String repositoryName) {
 		Repository repository = getRepository(repositoryName);
+		if (repository == null) {
+			return;
+		}
 		RepositoryCache.close(repository);
 
 		// assume 2 uses in case reflection fails
@@ -1756,7 +1757,7 @@ public class GitBlit implements ServletContextListener {
 			clearRepositoryMetadataCache(repositoryName);
 			
 			RepositoryModel model = removeFromCachedRepositoryList(repositoryName);
-			if (!ArrayUtils.isEmpty(model.forks)) {
+			if (model != null && !ArrayUtils.isEmpty(model.forks)) {
 				resetRepositoryListCache();
 			}
 
@@ -2646,26 +2647,46 @@ public class GitBlit implements ServletContextListener {
 
 		// create a Gitblit repository model for the clone
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
+		// owner has REWIND/RW+ permissions
 		cloneModel.owner = user.username;
 		updateRepositoryModel(cloneName, cloneModel, false);
 
-		if (AuthorizationControl.NAMED.equals(cloneModel.authorizationControl)) {
-			// add the owner of the source repository to the clone's access list
-			if (!StringUtils.isEmpty(repository.owner)) {
-				UserModel owner = getUserModel(repository.owner);
-				if (owner != null) {
-					owner.repositories.add(cloneName);
-					updateUserModel(owner.username, owner, false);
-				}
+		// add the owner of the source repository to the clone's access list
+		if (!StringUtils.isEmpty(repository.owner)) {
+			UserModel originOwner = getUserModel(repository.owner);
+			if (originOwner != null) {
+				originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+				updateUserModel(originOwner.username, originOwner, false);
 			}
-
-			// inherit origin's access lists
-			List<String> users = getRepositoryUsers(repository);
-			setRepositoryUsers(cloneModel, users);
-
-			List<String> teams = getRepositoryTeams(repository);
-			setRepositoryTeams(cloneModel, teams);
 		}
+
+		// grant origin's user list clone permission to fork
+		List<String> users = getRepositoryUsers(repository);
+		List<UserModel> cloneUsers = new ArrayList<UserModel>();
+		for (String name : users) {
+			if (!name.equalsIgnoreCase(user.username)) {
+				UserModel cloneUser = getUserModel(name);
+				if (cloneUser.canClone(repository)) {
+					// origin user can clone origin, grant clone access to fork
+					cloneUser.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+				}
+				cloneUsers.add(cloneUser);
+			}
+		}
+		userService.updateUserModels(cloneUsers);
+
+		// grant origin's team list clone permission to fork
+		List<String> teams = getRepositoryTeams(repository);
+		List<TeamModel> cloneTeams = new ArrayList<TeamModel>();
+		for (String name : teams) {
+			TeamModel cloneTeam = getTeamModel(name);
+			if (cloneTeam.canClone(repository)) {
+				// origin team can clone origin, grant clone access to fork
+				cloneTeam.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+			}
+			cloneTeams.add(cloneTeam);
+		}
+		userService.updateTeamModels(cloneTeams);			
 
 		// add this clone to the cached model
 		addToCachedRepositoryList(cloneModel);

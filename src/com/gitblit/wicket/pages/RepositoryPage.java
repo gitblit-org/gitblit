@@ -209,7 +209,7 @@ public abstract class RepositoryPage extends BasePage {
 			if (origin == null) {
 				// no origin repository
 				add(new Label("originRepository").setVisible(false));
-			} else if (!user.canViewRepository(origin)) {
+			} else if (!user.canView(origin)) {
 				// show origin repository without link
 				Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
 				forkFrag.add(new Label("originRepository", StringUtils.stripDotGit(model.originRepository)));
@@ -242,7 +242,7 @@ public abstract class RepositoryPage extends BasePage {
 		} else {
 			String fork = GitBlit.self().getFork(user.username, model.name);
 			boolean hasFork = fork != null;
-			boolean canFork = user.canForkRepository(model);
+			boolean canFork = user.canFork(model);
 
 			if (hasFork || !canFork) {
 				// user not allowed to fork or fork already exists or repo forbids forking

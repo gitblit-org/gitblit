@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
@@ -333,10 +335,20 @@ public class FederationPullExecutor implements Runnable {
 						// reparent all repository permissions if the local
 						// repositories are stored within subfolders
 						if (!StringUtils.isEmpty(registrationFolder)) {
-							List<String> permissions = new ArrayList<String>(user.repositories);
-							user.repositories.clear();
-							for (String permission : permissions) {
-								user.addRepository(registrationFolder + "/" + permission);
+							if (user.permissions != null && user.permissions.size() > 0) {
+								// pulling from >= 1.2 version
+								Map<String, AccessPermission> copy = new HashMap<String, AccessPermission>(user.permissions);
+								user.permissions.clear();
+								for (Map.Entry<String, AccessPermission> entry : copy.entrySet()) {
+									user.setRepositoryPermission(registrationFolder + "/" + entry.getKey(), entry.getValue());
+								}
+							} else {
+								// pulling from <= 1.1 version
+								List<String> permissions = new ArrayList<String>(user.repositories);
+								user.repositories.clear();
+								for (String permission : permissions) {
+									user.addRepositoryPermission(registrationFolder + "/" + permission);
+								}
 							}
 						}
 
@@ -347,8 +359,17 @@ public class FederationPullExecutor implements Runnable {
 							GitBlit.self().updateUserModel(user.username, user, true);
 						} else {
 							// update repository permissions of local user
-							for (String repository : user.repositories) {
-								localUser.addRepository(repository);
+							if (user.permissions != null && user.permissions.size() > 0) {
+								// pulling from >= 1.2 version
+								Map<String, AccessPermission> copy = new HashMap<String, AccessPermission>(user.permissions);
+								for (Map.Entry<String, AccessPermission> entry : copy.entrySet()) {
+									localUser.setRepositoryPermission(entry.getKey(), entry.getValue());
+								}
+							} else {
+								// pulling from <= 1.1 version
+								for (String repository : user.repositories) {
+									localUser.addRepositoryPermission(repository);
+								}
 							}
 							localUser.password = user.password;
 							localUser.canAdmin = user.canAdmin;
@@ -369,12 +390,16 @@ public class FederationPullExecutor implements Runnable {
 
 							// update team repositories
 							TeamModel remoteTeam = user.getTeam(teamname);
-							if (remoteTeam != null && !ArrayUtils.isEmpty(remoteTeam.repositories)) {
-								int before = team.repositories.size();
-								team.addRepositories(remoteTeam.repositories);
-								int after = team.repositories.size();
-								if (after > before) {
-									// repository count changed, update
+							if (remoteTeam != null) {
+								if (remoteTeam.permissions != null) {
+									// pulling from >= 1.2
+									for (Map.Entry<String, AccessPermission> entry : remoteTeam.permissions.entrySet()){
+										team.setRepositoryPermission(entry.getKey(), entry.getValue());
+									}
+									GitBlit.self().updateTeamModel(teamname, team, false);
+								} else if(!ArrayUtils.isEmpty(remoteTeam.repositories)) {
+									// pulling from <= 1.1
+									team.addRepositoryPermissions(remoteTeam.repositories);
 									GitBlit.self().updateTeamModel(teamname, team, false);
 								}
 							}

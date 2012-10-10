@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -243,7 +244,7 @@ public class FileUserService extends FileSettings implements IUserService {
 				}
 				break;
 			default:
-				model.addRepository(role);
+				model.addRepositoryPermission(role);
 			}
 		}
 		// set the teams for the user
@@ -267,6 +268,29 @@ public class FileUserService extends FileSettings implements IUserService {
 	}
 
 	/**
+	 * Updates/writes all specified user objects.
+	 * 
+	 * @param model a list of user models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */
+	@Override
+	public boolean updateUserModels(List<UserModel> models) {
+		try {			
+			Properties allUsers = read();
+			for (UserModel model : models) {
+				updateUserCache(allUsers, model.username, model);
+			}
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update {0} user models!", models.size()),
+					t);
+		}
+		return false;
+	}
+
+	/**
 	 * Updates/writes and replaces a complete user object keyed by username.
 	 * This method allows for renaming a user.
 	 * 
@@ -280,8 +304,43 @@ public class FileUserService extends FileSettings implements IUserService {
 	public boolean updateUserModel(String username, UserModel model) {
 		try {			
 			Properties allUsers = read();
+			updateUserCache(allUsers, username, model);
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
+					t);
+		}
+		return false;
+	}
+	
+	/**
+	 * Updates/writes and replaces a complete user object keyed by username.
+	 * This method allows for renaming a user.
+	 * 
+	 * @param username
+	 *            the old username
+	 * @param model
+	 *            the user object to use for username
+	 * @return true if update is successful
+	 */
+	private boolean updateUserCache(Properties allUsers, String username, UserModel model) {
+		try {			
 			UserModel oldUser = getUserModel(username);
-			ArrayList<String> roles = new ArrayList<String>(model.repositories);
+			List<String> roles;
+			if (model.permissions == null) {
+				// legacy, use repository list
+				roles = new ArrayList<String>(model.repositories);
+			} else {
+				// discrete repository permissions
+				roles = new ArrayList<String>();
+				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
+					if (entry.getValue().exceeds(AccessPermission.NONE)) {
+						// code:repository (e.g. RW+:~james/myrepo.git
+						roles.add(entry.getValue().asRole(entry.getKey()));
+					}
+				}
+			}
 
 			// Permissions
 			if (model.canAdmin) {
@@ -336,8 +395,6 @@ public class FileUserService extends FileSettings implements IUserService {
 					}
 				}
 			}
-
-			write(allUsers);
 			return true;
 		} catch (Throwable t) {
 			logger.error(MessageFormat.format("Failed to update user model {0}!", model.username),
@@ -552,8 +609,8 @@ public class FileUserService extends FileSettings implements IUserService {
 				String[] roles = value.split(",");
 				// skip first value (password)
 				for (int i = 1; i < roles.length; i++) {
-					String r = roles[i];
-					if (r.equalsIgnoreCase(oldRole)) {
+					String repository = AccessPermission.repositoryFromRole(roles[i]);
+					if (repository.equalsIgnoreCase(oldRole)) {
 						needsRenameRole.add(username);
 						break;
 					}
@@ -573,9 +630,13 @@ public class FileUserService extends FileSettings implements IUserService {
 
 				// skip first value (password)
 				for (int i = 1; i < values.length; i++) {
-					String value = values[i];
-					if (!value.equalsIgnoreCase(oldRole)) {
-						sb.append(value);
+					String repository = AccessPermission.repositoryFromRole(values[i]);
+					if (repository.equalsIgnoreCase(oldRole)) {
+						AccessPermission permission = AccessPermission.permissionFromRole(values[i]);
+						sb.append(permission.asRole(newRole));
+						sb.append(',');
+					} else {
+						sb.append(values[i]);
 						sb.append(',');
 					}
 				}
@@ -612,9 +673,9 @@ public class FileUserService extends FileSettings implements IUserService {
 				String value = allUsers.getProperty(username);
 				String[] roles = value.split(",");
 				// skip first value (password)
-				for (int i = 1; i < roles.length; i++) {
-					String r = roles[i];
-					if (r.equalsIgnoreCase(role)) {
+				for (int i = 1; i < roles.length; i++) {					
+					String repository = AccessPermission.repositoryFromRole(roles[i]);
+					if (repository.equalsIgnoreCase(role)) {
 						needsDeleteRole.add(username);
 						break;
 					}
@@ -630,10 +691,10 @@ public class FileUserService extends FileSettings implements IUserService {
 				sb.append(password);
 				sb.append(',');
 				// skip first value (password)
-				for (int i = 1; i < values.length; i++) {
-					String value = values[i];
-					if (!value.equalsIgnoreCase(role)) {
-						sb.append(value);
+				for (int i = 1; i < values.length; i++) {					
+					String repository = AccessPermission.repositoryFromRole(values[i]);
+					if (!repository.equalsIgnoreCase(role)) {
+						sb.append(values[i]);
 						sb.append(',');
 					}
 				}
@@ -722,7 +783,7 @@ public class FileUserService extends FileSettings implements IUserService {
 							repositories.add(role);
 						}
 					}
-					team.addRepositories(repositories);
+					team.addRepositoryPermissions(repositories);
 					team.addUsers(users);
 					team.addMailingLists(mailingLists);
 					team.preReceiveScripts.addAll(preReceive);
@@ -912,6 +973,27 @@ public class FileUserService extends FileSettings implements IUserService {
 	public boolean updateTeamModel(TeamModel model) {
 		return updateTeamModel(model.name, model);
 	}
+	
+	/**
+	 * Updates/writes all specified team objects.
+	 * 
+	 * @param models a list of team models
+	 * @return true if update is successful
+	 * @since 1.2.0
+	 */
+	public boolean updateTeamModels(List<TeamModel> models) {
+		try {
+			Properties allUsers = read();
+			for (TeamModel model : models) {
+				updateTeamCache(allUsers, model.name, model);
+			}
+			write(allUsers);
+			return true;
+		} catch (Throwable t) {
+			logger.error(MessageFormat.format("Failed to update {0} team models!", models.size()), t);
+		}
+		return false;
+	}
 
 	/**
 	 * Updates/writes and replaces a complete team object keyed by teamname.
@@ -939,12 +1021,30 @@ public class FileUserService extends FileSettings implements IUserService {
 
 	private void updateTeamCache(Properties allUsers, String teamname, TeamModel model) {
 		StringBuilder sb = new StringBuilder();
-		if (!ArrayUtils.isEmpty(model.repositories)) {
-			for (String repository : model.repositories) {
-				sb.append(repository);
-				sb.append(',');
+		List<String> roles;
+		if (model.permissions == null) {
+			// legacy, use repository list
+			if (model.repositories != null) {
+				roles = new ArrayList<String>(model.repositories);
+			} else {
+				roles = new ArrayList<String>();
+			}
+		} else {
+			// discrete repository permissions
+			roles = new ArrayList<String>();
+			for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
+				if (entry.getValue().exceeds(AccessPermission.NONE)) {
+					// code:repository (e.g. RW+:~james/myrepo.git
+					roles.add(entry.getValue().asRole(entry.getKey()));
+				}
 			}
 		}
+		
+		for (String role : roles) {
+				sb.append(role);
+				sb.append(',');
+		}
+		
 		if (!ArrayUtils.isEmpty(model.users)) {
 			for (String user : model.users) {
 				sb.append('!');

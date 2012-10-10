@@ -147,33 +147,25 @@ public class GitFilter extends AccessRestrictionFilter {
 			// Git Servlet disabled
 			return false;
 		}		
-		boolean readOnly = repository.isFrozen;	
-		if (readOnly || repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
-			boolean authorizedUser = user.canAccessRepository(repository);
-			if (action.equals(gitReceivePack)) {
-				// Push request
-				if (!readOnly && authorizedUser) {
-					// clone-restricted or push-authorized
-					return true;
-				} else {
-					// user is unauthorized to push to this repository
-					logger.warn(MessageFormat.format("user {0} is not authorized to push to {1}",
-							user.username, repository));
-					return false;
-				}
-			} else if (action.equals(gitUploadPack)) {
-				// Clone request
-				boolean cloneRestricted = repository.accessRestriction
-						.atLeast(AccessRestrictionType.CLONE);
-				if (!cloneRestricted || (cloneRestricted && authorizedUser)) {
-					// push-restricted or clone-authorized
-					return true;
-				} else {
-					// user is unauthorized to clone this repository
-					logger.warn(MessageFormat.format("user {0} is not authorized to clone {1}",
-							user.username, repository));
-					return false;
-				}
+		if (action.equals(gitReceivePack)) {
+			// Push request
+			if (user.canPush(repository)) {
+				return true;
+			} else {
+				// user is unauthorized to push to this repository
+				logger.warn(MessageFormat.format("user {0} is not authorized to push to {1}",
+						user.username, repository));
+				return false;
+			}
+		} else if (action.equals(gitUploadPack)) {
+			// Clone request
+			if (user.canClone(repository)) {
+				return true;
+			} else {
+				// user is unauthorized to clone this repository
+				logger.warn(MessageFormat.format("user {0} is not authorized to clone {1}",
+						user.username, repository));
+				return false;
 			}
 		}
 		return true;

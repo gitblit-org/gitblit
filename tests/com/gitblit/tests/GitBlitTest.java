@@ -52,20 +52,21 @@ public class GitBlitTest {
 		List<String> users = GitBlit.self().getAllUsernames();
 		assertTrue("No users found!", users.size() > 0);
 		assertTrue("Admin not found", users.contains("admin"));
-		UserModel model = GitBlit.self().getUserModel("admin");
-		assertEquals("admin", model.toString());
-		assertTrue("Admin missing #admin role!", model.canAdmin);
-		model.canAdmin = false;
-		assertFalse("Admin should not have #admin!", model.canAdmin);
+		UserModel user = GitBlit.self().getUserModel("admin");
+		assertEquals("admin", user.toString());
+		assertTrue("Admin missing #admin role!", user.canAdmin);
+		user.canAdmin = false;
+		assertFalse("Admin should not have #admin!", user.canAdmin);
 		String repository = GitBlitSuite.getHelloworldRepository().getDirectory().getName();
 		RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repository);
+		repositoryModel.accessRestriction = AccessRestrictionType.VIEW;
 		assertFalse("Admin can still access repository!",
-				model.canAccessRepository(repositoryModel));
-		model.addRepository(repository);
-		assertTrue("Admin can't access repository!", model.canAccessRepository(repositoryModel));
-		assertEquals(GitBlit.self().getRepositoryModel(model, "pretend"), null);
-		assertNotNull(GitBlit.self().getRepositoryModel(model, repository));
-		assertTrue(GitBlit.self().getRepositoryModels(model).size() > 0);
+				user.canView(repositoryModel));
+		user.addRepositoryPermission(repository);
+		assertTrue("Admin can't access repository!", user.canView(repositoryModel));
+		assertEquals(GitBlit.self().getRepositoryModel(user, "pretend"), null);
+		assertNotNull(GitBlit.self().getRepositoryModel(user, repository));
+		assertTrue(GitBlit.self().getRepositoryModels(user).size() > 0);
 	}
 
 	@Test

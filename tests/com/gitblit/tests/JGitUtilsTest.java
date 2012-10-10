@@ -35,6 +35,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
@@ -141,7 +142,8 @@ public class JGitUtilsTest {
 			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository).getTime());
 			assertNull(JGitUtils.getCommit(repository, null));
 			repository.close();
-			assertTrue(GitBlit.self().deleteRepository(repositoryName));
+			RepositoryCache.close(repository);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
 		}
 	}
 

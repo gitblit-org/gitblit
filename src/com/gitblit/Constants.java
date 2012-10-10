@@ -15,6 +15,10 @@
  */
 package com.gitblit;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 
 /**
  * Constant values used by Gitblit.
@@ -308,5 +312,73 @@ public class Constants {
 			}
 			return null;
 		}
+	}
+	
+	/**
+	 * The access permissions available for a repository. 
+	 */
+	public static enum AccessPermission {
+		NONE("N"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+");
+		
+		public static AccessPermission LEGACY = REWIND;
+		
+		public final String code;
+		
+		private AccessPermission(String code) {
+			this.code = code;
+		}
+		
+		public boolean atLeast(AccessPermission perm) {
+			return ordinal() >= perm.ordinal();
+		}
+
+		public boolean exceeds(AccessPermission perm) {
+			return ordinal() > perm.ordinal();
+		}
+		
+		public String asRole(String repository) {
+			return code + ":" + repository;
+		}
+		
+		@Override
+		public String toString() {
+			return code;
+		}
+		
+		public static AccessPermission permissionFromRole(String role) {
+			String [] fields = role.split(":", 2);
+			if (fields.length == 1) {
+				// legacy/undefined assume full permissions
+				return AccessPermission.LEGACY;
+			} else {
+				// code:repository
+				return AccessPermission.fromCode(fields[0]);
+			}
+		}
+		
+		public static String repositoryFromRole(String role) {
+			String [] fields = role.split(":", 2);
+			if (fields.length == 1) {
+				// legacy/undefined assume full permissions
+				return role;
+			} else {
+				// code:repository
+				return fields[1];
+			}
+		}
+		
+		public static AccessPermission fromCode(String code) {
+			for (AccessPermission perm : values()) {
+				if (perm.code.equalsIgnoreCase(code)) {
+					return perm;
+				}
+			}
+			return AccessPermission.NONE;
+		}
+	}
+	
+	@Documented
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Unused {
 	}
 }

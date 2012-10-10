@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
@@ -266,6 +267,7 @@ public class JsonUtils {
 	public static Gson gson(ExclusionStrategy... strategies) {
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Date.class, new GmtDateTypeAdapter());
+		builder.registerTypeAdapter(AccessPermission.class, new AccessPermissionTypeAdapter());
 		builder.setPrettyPrinting();
 		if (!ArrayUtils.isEmpty(strategies)) {
 			builder.setExclusionStrategies(strategies);
@@ -301,6 +303,24 @@ public class JsonUtils {
 			} catch (ParseException e) {
 				throw new JsonSyntaxException(jsonElement.getAsString(), e);
 			}
+		}
+	}
+	
+	private static class AccessPermissionTypeAdapter implements JsonSerializer<AccessPermission>, JsonDeserializer<AccessPermission> {
+
+		private AccessPermissionTypeAdapter() {
+		}
+
+		@Override
+		public synchronized JsonElement serialize(AccessPermission permission, Type type,
+				JsonSerializationContext jsonSerializationContext) {
+			return new JsonPrimitive(permission.code);
+		}
+
+		@Override
+		public synchronized AccessPermission deserialize(JsonElement jsonElement, Type type,
+				JsonDeserializationContext jsonDeserializationContext) {
+			return AccessPermission.fromCode(jsonElement.getAsString());					
 		}
 	}
 

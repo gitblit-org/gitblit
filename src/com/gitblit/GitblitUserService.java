@@ -168,6 +168,11 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	public boolean updateUserModels(List<UserModel> models) {
+		return serviceImpl.updateUserModels(models);
+	}
+
+	@Override
 	public boolean updateUserModel(String username, UserModel model) {
 		if (supportsCredentialChanges()) {
 			if (!supportsTeamMembershipChanges()) {
@@ -232,6 +237,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	@Deprecated
 	public boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
 		return serviceImpl.setTeamnamesForRepositoryRole(role, teamnames);
 	}
@@ -244,6 +250,11 @@ public class GitblitUserService implements IUserService {
 	@Override
 	public boolean updateTeamModel(TeamModel model) {
 		return serviceImpl.updateTeamModel(model);
+	}
+
+	@Override
+	public boolean updateTeamModels(List<TeamModel> models) {
+		return serviceImpl.updateTeamModels(models);
 	}
 
 	@Override
@@ -275,6 +286,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
+	@Deprecated
 	public boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
 		return serviceImpl.setUsernamesForRepositoryRole(role, usernames);
 	}

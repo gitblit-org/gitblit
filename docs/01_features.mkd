@@ -1,12 +1,21 @@
 ## Standard Features (GO/WAR)
 - JGit SmartHTTP servlet
 - Browser and git client authentication
-- Four *per-repository* access control configurations with a Read-Only control flag
+- Four *per-repository* access restriction configurations with a Read-Only control flag
     - ![anonymous](blank.png) *Anonymous View, Clone & Push*
     - ![push](lock_go_16x16.png) *Authenticated Push*
     - ![clone](lock_pull_16x16.png) *Authenticated Clone & Push*
     - ![view](shield_16x16.png) *Authenticated View, Clone & Push*
     - ![freeze](cold_16x16.png) Freeze repository (i.e. deny push, make read-only)
+- Six *per-user/team* repository access permissions
+    - **V** (view in web ui, RSS feeds, download zip)
+    - **R** (clone)
+    - **RW** (clone and push)
+    - **RWC** (clone and push with ref creation)
+    - **RWD** (clone and push with ref creation, deletion)
+    - **RW+** (clone and push with ref creation, deletion, rewind)
+- Optional feature to allow users to create personal repositories
+- Optional feature to fork a repository to a personal repository
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool 
@@ -38,7 +47,7 @@
 - Single text file for users configuration
 - Optional utility pages
     - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
-    - ![tickets](bug_16x16.png) Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
+    - ![tickets](bug_16x16.png) **readonly** Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
 - Translations
     - English
     - Japanese

@@ -17,11 +17,15 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.Unused;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -48,7 +52,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canFork;
 	public boolean canCreate;
 	public boolean excludeFromFederation;
+	// retained for backwards-compatibility with RPC clients
+	@Deprecated
 	public final Set<String> repositories = new HashSet<String>();
+	public final Map<String, AccessPermission> permissions = new HashMap<String, AccessPermission>();
 	public final Set<TeamModel> teams = new HashSet<TeamModel>();
 
 	// non-persisted fields
@@ -77,6 +84,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				|| hasTeamAccess(repositoryName);
 	}
 
+	@Deprecated
+	@Unused
 	public boolean canAccessRepository(RepositoryModel repository) {
 		boolean isOwner = !StringUtils.isEmpty(repository.owner)
 				&& repository.owner.equals(username);
@@ -85,62 +94,170 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				|| hasTeamAccess(repository.name) || allowAuthenticated;
 	}
 
+	@Deprecated
+	@Unused
 	public boolean hasTeamAccess(String repositoryName) {
 		for (TeamModel team : teams) {
-			if (team.hasRepository(repositoryName)) {
+			if (team.hasRepositoryPermission(repositoryName)) {
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public boolean canViewRepository(RepositoryModel repository) {
-		if (canAdmin) {
-			return true;
+	@Deprecated
+	@Unused
+	public boolean hasRepository(String name) {
+		return hasRepositoryPermission(name);
+	}
+
+	@Deprecated
+	@Unused
+	public void addRepository(String name) {
+		addRepositoryPermission(name);
+	}
+
+	@Deprecated
+	@Unused
+	public void removeRepository(String name) {
+		removeRepositoryPermission(name);
+	}
+	
+	/**
+	 * Returns true if the user has any type of specified access permission for
+	 * this repository.
+	 * 
+	 * @param name
+	 * @return true if user has a specified access permission for the repository
+	 */
+	public boolean hasRepositoryPermission(String name) {
+		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
+		return permissions.containsKey(repository) || repositories.contains(repository);
+	}
+	
+	/**
+	 * Adds a repository permission to the team.
+	 * <p>
+	 * Role may be formatted as:
+	 * <ul>
+	 * <li> myrepo.git <i>(this is implicitly RW+)</i>
+	 * <li> RW+:myrepo.git
+	 * </ul>
+	 * @param role
+	 */
+	public void addRepositoryPermission(String role) {
+		AccessPermission permission = AccessPermission.permissionFromRole(role);
+		String repository = AccessPermission.repositoryFromRole(role).toLowerCase();
+		repositories.add(repository);
+		permissions.put(repository, permission);
+	}
+	
+	public AccessPermission removeRepositoryPermission(String name) {
+		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
+		repositories.remove(repository);
+		return permissions.remove(repository);
+	}
+		
+	public void setRepositoryPermission(String repository, AccessPermission permission) {
+		permissions.put(repository.toLowerCase(), permission);
+	}
+
+	public AccessPermission getRepositoryPermission(RepositoryModel repository) {
+		if (canAdmin || repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
+			return AccessPermission.REWIND;
 		}
-		if (repository.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
-			return canAccessRepository(repository);
+		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl) && isAuthenticated) {
+			// AUTHENTICATED is a shortcut for authorizing all logged-in users RW access
+			return AccessPermission.REWIND;
+		}
+		
+		// determine best permission available based on user's personal permissions
+		// and the permissions of teams of which the user belongs
+		AccessPermission permission = AccessPermission.NONE;
+		if (permissions.containsKey(repository.name.toLowerCase())) {
+			AccessPermission p = permissions.get(repository.name.toLowerCase());
+			if (p != null) {
+				permission = p;
+			}
+		}
+		
+		for (TeamModel team : teams) {
+			AccessPermission p = team.getRepositoryPermission(repository);
+			if (permission == null || p.exceeds(permission)) {
+				// use team permission
+				permission = p;
+			}
+		}
+		return permission;
+	}
+	
+	private boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
+		if (repository.accessRestriction.atLeast(ifRestriction)) {
+			AccessPermission permission = getRepositoryPermission(repository);
+			return permission.atLeast(requirePermission);
 		}
 		return true;
 	}
 	
-	public boolean canForkRepository(RepositoryModel repository) {
-		if (canAdmin) {
+	public boolean canView(RepositoryModel repository) {
+		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
+	}
+
+	public boolean canClone(RepositoryModel repository) {
+		return canAccess(repository, AccessRestrictionType.CLONE, AccessPermission.CLONE);
+	}
+
+	public boolean canPush(RepositoryModel repository) {
+		if (repository.isFrozen) {
+			return false;
+		}
+		return canAccess(repository, AccessRestrictionType.PUSH, AccessPermission.PUSH);
+	}
+
+	public boolean canCreateRef(RepositoryModel repository) {
+		if (repository.isFrozen) {
+			return false;
+		}
+		return canAccess(repository, AccessRestrictionType.PUSH, AccessPermission.CREATE);
+	}
+
+	public boolean canDeleteRef(RepositoryModel repository) {
+		if (repository.isFrozen) {
+			return false;
+		}
+		return canAccess(repository, AccessRestrictionType.PUSH, AccessPermission.DELETE);
+	}
+
+	public boolean canRewindRef(RepositoryModel repository) {
+		if (repository.isFrozen) {
+			return false;
+		}
+		return canAccess(repository, AccessRestrictionType.PUSH, AccessPermission.REWIND);
+	}
+
+	public boolean canFork(RepositoryModel repository) {
+		if (repository.isUsersPersonalRepository(username)) {
+			// can not fork your own repository
+			return false;
+		}
+		if (canAdmin || repository.isOwner(username)) {
 			return true;
 		}
-		if (!canFork) {
-			// user has been prohibited from forking
-			return false;
-		}
-		if (!isAuthenticated) {
-			// unauthenticated user model
-			return false;
-		}
-		if (("~" + username).equalsIgnoreCase(repository.projectPath)) {
-			// this repository is already a personal repository
-			return false;
-		}
 		if (!repository.allowForks) {
-			// repository prohibits forks
 			return false;
 		}
-		if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
-			return canAccessRepository(repository);
+		if (!isAuthenticated || !canFork) {
+			return false;
 		}
-		// repository is not clone-restricted
-		return true;
+		return canClone(repository);
 	}
-
-	public boolean hasRepository(String name) {
-		return repositories.contains(name.toLowerCase());
+	
+	public boolean canDelete(RepositoryModel model) {
+		return canAdmin || model.isUsersPersonalRepository(username);
 	}
-
-	public void addRepository(String name) {
-		repositories.add(name.toLowerCase());
-	}
-
-	public void removeRepository(String name) {
-		repositories.remove(name.toLowerCase());
+	
+	public boolean canEdit(RepositoryModel model) {
+		return canAdmin || model.isUsersPersonalRepository(username) || model.isOwner(username);
 	}
 
 	public boolean isTeamMember(String teamname) {

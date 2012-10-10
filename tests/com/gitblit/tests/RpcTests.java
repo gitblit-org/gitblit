@@ -247,7 +247,7 @@ public class RpcTests {
 		// Create the A-Team
 		TeamModel aTeam = new TeamModel("A-Team");
 		aTeam.users.add("admin");
-		aTeam.repositories.add("helloworld.git");
+		aTeam.addRepositoryPermission("helloworld.git");
 		assertTrue(RpcUtils.createTeam(aTeam, url, account, password.toCharArray()));
 
 		aTeam = null;
@@ -261,7 +261,7 @@ public class RpcTests {
 		}
 		assertNotNull(aTeam);
 		assertTrue(aTeam.hasUser("admin"));
-		assertTrue(aTeam.hasRepository("helloworld.git"));
+		assertTrue(aTeam.hasRepositoryPermission("helloworld.git"));
 
 		RepositoryModel helloworld = null;
 		Map<String, RepositoryModel> repositories = RpcUtils.getRepositories(url, account,

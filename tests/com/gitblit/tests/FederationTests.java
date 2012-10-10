@@ -136,7 +136,7 @@ public class FederationTests {
 		
 		TeamModel team = new TeamModel("testteam");
 		team.addUser("test");
-		team.addRepository("helloworld.git");
+		team.addRepositoryPermission("helloworld.git");
 		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
 		
 		users = FederationUtils.getUsers(getRegistration());
