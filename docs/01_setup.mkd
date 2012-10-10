@@ -234,7 +234,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    federationSets = 
 
 #### Repository Names
-Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - .`<br/>
+Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - . ~`<br/>
 Whitespace is illegal.
 
 Repositories can be grouped within subfolders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
@@ -257,6 +257,16 @@ Since v1.2.0, Gitblit supports more discrete permissions.  While Gitblit does no
 - **RWC** (clone and push with ref creation)
 - **RWD** (clone and push with ref creation, deletion)
 - **RW+** (clone and push with ref creation, deletion, rewind)
+
+These permission codes are combined with the repository path to create a user permission:
+
+    RW:mygroup/myrepo.git
+
+#### Discrete Permissions with Regex Matching (Gitblit v1.2.0+)
+
+Gitblit also supports regex matching for repository permissions.  The following permission grants push privileges to all repositories in the *mygroup* folder.
+
+    RW:mygroup/[A-Za-z0-9-~_\\./]+
 
 #### No-So-Discrete Permissions (Gitblit <= v1.1.0)
 
@@ -282,6 +292,7 @@ The `users.conf` file uses a Git-style configuration format:
 	[user "hannibal"]
 		password = bossman
 		repository = RWD:topsecret.git
+		repository = RW+:ateam/[A-Za-z0-9-~_\\./]+
 
 	[user "faceman"]
 		password = vanity

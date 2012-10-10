@@ -132,9 +132,20 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public AccessPermission getRepositoryPermission(RepositoryModel repository) {
 		AccessPermission permission = AccessPermission.NONE;
 		if (permissions.containsKey(repository.name.toLowerCase())) {
+			// exact repository permission specified
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
 			if (p != null) {
 				permission = p;
+			}
+		} else {
+			// search for regex permission match
+			for (String key : permissions.keySet()) {
+				if (repository.name.matches(key)) {
+					AccessPermission p = permissions.get(key);
+					if (p != null) {
+						permission = p;
+					}
+				}
 			}
 		}
 		return permission;

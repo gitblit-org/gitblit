@@ -2388,4 +2388,28 @@ public class PermissionsTest extends Assert {
 		assertFalse("user CAN delete!", user.canDelete(repository));
 		assertFalse("user CAN edit!", user.canEdit(repository));
 	}
+	
+	@Test
+	public void testWildcardMatching() throws Exception {
+		RepositoryModel repository = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
+		repository.authorizationControl = AuthorizationControl.NAMED;
+		repository.accessRestriction = AccessRestrictionType.VIEW;
+
+		UserModel user = new UserModel("test");
+		user.setRepositoryPermission("ubercool/[A-Za-z0-9-~_\\./]+", AccessPermission.CLONE);
+
+		assertTrue("user CAN NOT view!", user.canView(repository));
+		assertTrue("user CAN NOT clone!", user.canClone(repository));
+		assertFalse("user CAN push!", user.canPush(repository));
+		
+		assertFalse("user CAN create ref!", user.canCreateRef(repository));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(repository));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(repository));
+
+		assertFalse("user CAN fork!", user.canFork(repository));
+		
+		assertFalse("user CAN delete!", user.canDelete(repository));
+		assertFalse("user CAN edit!", user.canEdit(repository));
+
+	}
 }

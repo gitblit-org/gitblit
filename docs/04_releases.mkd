@@ -28,6 +28,8 @@ If you are updating from an earlier release AND you have indexed branches with t
     - RWD (clone and push with ref creation, deletion)
     - RW+ (clone and push with ref creation, deletion, rewind)  
 While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit <= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.
+- Implemented regex repository permission matching (issue 36)  
+This allows you to specify a permission like `RW:mygroup/[A-Za-z0-9-~_\\./]+` to grant push privileges to all repositories within the *mygroup* project/folder.
 - Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging
 - Added support for personal repositories.  
 Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.
