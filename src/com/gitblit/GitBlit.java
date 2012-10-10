@@ -642,6 +642,22 @@ public class GitBlit implements ServletContextListener {
 						"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
 						user.username));
 			}
+			
+			// rename repositories and owner fields for all repositories
+			for (RepositoryModel model : getRepositoryModels(user)) {
+				if (model.isUsersPersonalRepository(username)) {
+					// personal repository
+					model.owner = user.username;
+					String oldRepositoryName = model.name;
+					model.name = "~" + user.username + model.name.substring(model.projectPath.length());
+					model.projectPath = "~" + user.username;
+					updateRepositoryModel(oldRepositoryName, model, false);
+				} else if (model.isOwner(username)) {
+					// common/shared repo
+					model.owner = user.username;
+					updateRepositoryModel(model.name, model, false);
+				}
+			}
 		}
 		if (!userService.updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
