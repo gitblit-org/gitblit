@@ -521,14 +521,14 @@ public class Build {
 				"c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
 
 		public static final MavenObject JETTY = new MavenObject("Jetty",
-				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.6.5.v20120716", 1000000, 680000,
-				2720000, "e6a34a2d79cbb010d56741e53f8ebf6d9eeef135",
-				"c2dc95a9c0d0f85c2610cb71aa169c90b25dff83",
+				"org/eclipse/jetty/aggregate", "jetty-webapp", "7.6.7.v20120910", 1000000, 680000,
+				2720000, "d621fa6419aaa37edbcab8e16a5e6b05c9527e62",
+				"b505f7b493c5aa262d371d90754bded8b392ffb0",
 				"");
 
 		public static final MavenObject JETTY_AJP = new MavenObject("Jetty-AJP",
-				"org/eclipse/jetty", "jetty-ajp", "7.6.5.v20120716", 32000, 22000,
-				97000, "74fb9aae97e2d189d1c4071da51101b293034e80", "ebb9a2f2f8960e5565e8a6bda950e0934772507f", "");
+				"org/eclipse/jetty", "jetty-ajp", "7.6.7.v20120910", 32000, 22000,
+				97000, "578d502bc78ed7aa1c0b6afef4cd59477041ec37", "6cfed9a1354f720fcde12ec15d5e1ae9cf97000c", "");
 		
 		public static final MavenObject SERVLET = new MavenObject("Servlet 3.0", "javax/servlet",
 				"javax.servlet-api", "3.0.1", 84000, 211000, 0,
