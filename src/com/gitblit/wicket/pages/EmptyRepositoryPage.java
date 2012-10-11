@@ -56,9 +56,15 @@ public class EmptyRepositoryPage extends RootPage {
 		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
 		
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.get(0);
+
+		String pushSyntax   = GitBlit.getString(Keys.git.pushSyntax, "git clone {0}");
+		String cloneSyntax  = GitBlit.getString(Keys.git.cloneSyntax, "git remote add gitblit {0}");
+		String remoteSyntax = GitBlit.getString(Keys.git.remoteSyntax, "git push gitblit master");
+
 		add(new Label("repository", repositoryName));
 		add(new RepositoryUrlPanel("pushurl", primaryUrl));
-		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", repositoryUrls.get(0))));
-		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
+		add(new Label("cloneSyntax",  MessageFormat.format(cloneSyntax, repositoryUrls.get(0), repositoryName)));
+		add(new Label("remoteSyntax", MessageFormat.format(remoteSyntax, primaryUrl, repositoryName)));
+		add(new Label("pushSyntax",   MessageFormat.format(pushSyntax,  repositoryUrls.get(0), repositoryName)));
 	}
 }
