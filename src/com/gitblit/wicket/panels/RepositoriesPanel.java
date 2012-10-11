@@ -92,7 +92,7 @@ public class RepositoriesPanel extends BasePanel {
 			}.setVisible(GitBlit.getBoolean(Keys.git.cacheRepositoryList, true)));
 			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 			add(managementLinks);
-		} else if (showManagement && user != null && user.canCreate) {
+		} else if (showManagement && user != null && user.canCreate()) {
 			// user can create personal repositories
 			managementLinks = new Fragment("managementPanel", "personalLinks", this);
 			managementLinks.add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));

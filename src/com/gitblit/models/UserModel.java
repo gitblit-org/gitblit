@@ -26,6 +26,7 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.Unused;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -80,7 +81,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 */
 	@Deprecated
 	public boolean canAccessRepository(String repositoryName) {
-		return canAdmin || repositories.contains(repositoryName.toLowerCase())
+		return canAdmin() || repositories.contains(repositoryName.toLowerCase())
 				|| hasTeamAccess(repositoryName);
 	}
 
@@ -90,7 +91,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		boolean isOwner = !StringUtils.isEmpty(repository.owner)
 				&& repository.owner.equals(username);
 		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
-		return canAdmin || isOwner || repositories.contains(repository.name.toLowerCase())
+		return canAdmin() || isOwner || repositories.contains(repository.name.toLowerCase())
 				|| hasTeamAccess(repository.name) || allowAuthenticated;
 	}
 
@@ -177,7 +178,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public AccessPermission getRepositoryPermission(RepositoryModel repository) {
-		if (canAdmin || repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
+		if (canAdmin() || repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
 			return AccessPermission.REWIND;
 		}
 		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl) && isAuthenticated) {
@@ -265,24 +266,84 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			// can not fork your own repository
 			return false;
 		}
-		if (canAdmin || repository.isOwner(username)) {
+		if (canAdmin() || repository.isOwner(username)) {
 			return true;
 		}
 		if (!repository.allowForks) {
 			return false;
 		}
-		if (!isAuthenticated || !canFork) {
+		if (!isAuthenticated || !canFork()) {
 			return false;
 		}
 		return canClone(repository);
 	}
 	
 	public boolean canDelete(RepositoryModel model) {
-		return canAdmin || model.isUsersPersonalRepository(username);
+		return canAdmin() || model.isUsersPersonalRepository(username);
 	}
 	
 	public boolean canEdit(RepositoryModel model) {
-		return canAdmin || model.isUsersPersonalRepository(username) || model.isOwner(username);
+		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
+	}
+	
+	/**
+	 * This returns true if the user has fork privileges or the user has fork
+	 * privileges because of a team membership.
+	 * 
+	 * @return true if the user can fork
+	 */
+	public boolean canFork() {
+		if (canFork) {
+			return true;
+		}
+		if (!ArrayUtils.isEmpty(teams)) {
+			for (TeamModel team : teams) {
+				if (team.canFork) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This returns true if the user has admin privileges or the user has admin
+	 * privileges because of a team membership.
+	 * 
+	 * @return true if the user can admin
+	 */
+	public boolean canAdmin() {
+		if (canAdmin) {
+			return true;
+		}
+		if (!ArrayUtils.isEmpty(teams)) {
+			for (TeamModel team : teams) {
+				if (team.canAdmin) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This returns true if the user has create privileges or the user has create
+	 * privileges because of a team membership.
+	 * 
+	 * @return true if the user can admin
+	 */
+	public boolean canCreate() {
+		if (canCreate) {
+			return true;
+		}
+		if (!ArrayUtils.isEmpty(teams)) {
+			for (TeamModel team : teams) {
+				if (team.canCreate) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean isTeamMember(String teamname) {

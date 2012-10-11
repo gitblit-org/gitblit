@@ -83,7 +83,7 @@ public class EditRepositoryPage extends RootSubPage {
 		
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
-		if (user != null && user.canCreate && !user.canAdmin) {
+		if (user != null && user.canCreate() && !user.canAdmin()) {
 			// personal create permissions, inject personal repository path
 			model.name = user.getPersonalPath() + "/";
 			model.projectPath = user.getPersonalPath();
@@ -120,7 +120,7 @@ public class EditRepositoryPage extends RootSubPage {
 		final UserModel user = session.getUser() == null ? UserModel.ANONYMOUS : session.getUser();
 
 		if (isCreate) {
-			if (user.canAdmin) {
+			if (user.canAdmin()) {
 				super.setupPage(getString("gb.newRepository"), "");
 			} else {
 				super.setupPage(getString("gb.newRepository"), user.getDisplayName());
@@ -253,7 +253,7 @@ public class EditRepositoryPage extends RootSubPage {
 						return;
 					}
 					
-					if (user.canCreate && !user.canAdmin) {
+					if (user.canCreate() && !user.canAdmin()) {
 						// ensure repository name begins with the user's path
 						if (!repositoryModel.name.startsWith(user.getPersonalPath())) {
 							error(MessageFormat.format(getString("gb.illegalPersonalRepositoryLocation"),
@@ -474,13 +474,13 @@ public class EditRepositoryPage extends RootSubPage {
 				}
 				if (isCreate) {
 					// Create Repository
-					if (!user.canCreate && !user.canAdmin) {
+					if (!user.canCreate() && !user.canAdmin()) {
 						// Only administrators or permitted users may create
 						error(getString("gb.errorOnlyAdminMayCreateRepository"), true);
 					}
 				} else {
 					// Edit Repository
-					if (user.canAdmin) {
+					if (user.canAdmin()) {
 						// Admins can edit everything
 						isAdmin = true;
 						return;

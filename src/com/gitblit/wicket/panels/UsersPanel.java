@@ -81,7 +81,7 @@ public class UsersPanel extends BasePanel {
 					item.add(editLink);
 				}
 
-				item.add(new Label("accesslevel", entry.canAdmin ? "administrator" : ""));
+				item.add(new Label("accesslevel", entry.canAdmin() ? "administrator" : ""));
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
 						entry.repositories.size() > 0 ? ("" + entry.repositories.size()) : ""));

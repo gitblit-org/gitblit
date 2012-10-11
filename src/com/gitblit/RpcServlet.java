@@ -73,10 +73,10 @@ public class RpcServlet extends JsonServlet {
 
 		UserModel user = (UserModel) request.getUserPrincipal();
 
-		boolean allowManagement = user != null && user.canAdmin
+		boolean allowManagement = user != null && user.canAdmin()
 				&& GitBlit.getBoolean(Keys.web.enableRpcManagement, false);
 
-		boolean allowAdmin = user != null && user.canAdmin
+		boolean allowAdmin = user != null && user.canAdmin()
 				&& GitBlit.getBoolean(Keys.web.enableRpcAdministration, false);
 
 		Object result = null;

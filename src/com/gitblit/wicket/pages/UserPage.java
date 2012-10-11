@@ -101,7 +101,7 @@ public class UserPage extends RootPage {
 		add(new GravatarImage("gravatar", person, 210));
 		
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
-		if (sessionUser != null && user.canCreate && sessionUser.equals(user)) {
+		if (sessionUser != null && user.canCreate() && sessionUser.equals(user)) {
 			// user can create personal repositories
 			add(new BookmarkablePageLink<Void>("newRepository", EditRepositoryPage.class));
 		} else {

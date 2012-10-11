@@ -248,7 +248,7 @@ public abstract class RepositoryPage extends BasePage {
 				// user not allowed to fork or fork already exists or repo forbids forking
 				add(new ExternalLink("forkLink", "").setVisible(false));
 				
-				if (user.canFork && !model.allowForks) {
+				if (user.canFork() && !model.allowForks) {
 					// show forks prohibited indicator
 					Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
 					Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));

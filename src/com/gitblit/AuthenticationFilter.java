@@ -189,7 +189,7 @@ public abstract class AuthenticationFilter implements Filter {
 		@Override
 		public boolean isUserInRole(String role) {
 			if (role.equals(Constants.ADMIN_ROLE)) {
-				return user.canAdmin;
+				return user.canAdmin();
 			}
 			// Gitblit does not currently use actual roles in the traditional
 			// servlet container sense.  That is the reason this is marked

@@ -103,7 +103,7 @@ public final class GitBlitWebSession extends WebSession {
 		if (user == null) {
 			return false;
 		}
-		return user.canAdmin;
+		return user.canAdmin();
 	}
 	
 	public String getUsername() {

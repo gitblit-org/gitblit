@@ -780,6 +780,20 @@ public class FileUserService extends FileSettings implements IUserService {
 						} else if (role.charAt(0) == '%') {
 							postReceive.add(role.substring(1));
 						} else {
+							switch (role.charAt(0)) {
+							case '#':
+								// Permissions
+								if (role.equalsIgnoreCase(Constants.ADMIN_ROLE)) {
+									team.canAdmin = true;
+								} else if (role.equalsIgnoreCase(Constants.FORK_ROLE)) {
+									team.canFork = true;
+								} else if (role.equalsIgnoreCase(Constants.CREATE_ROLE)) {
+									team.canCreate = true;
+								}
+								break;
+							default:
+								repositories.add(role);
+							}
 							repositories.add(role);
 						}
 					}
@@ -1040,6 +1054,17 @@ public class FileUserService extends FileSettings implements IUserService {
 			}
 		}
 		
+		// Permissions
+		if (model.canAdmin) {
+			roles.add(Constants.ADMIN_ROLE);
+		}
+		if (model.canFork) {
+			roles.add(Constants.FORK_ROLE);
+		}
+		if (model.canCreate) {
+			roles.add(Constants.CREATE_ROLE);
+		}
+
 		for (String role : roles) {
 				sb.append(role);
 				sb.append(',');

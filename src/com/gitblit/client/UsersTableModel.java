@@ -102,7 +102,7 @@ public class UsersTableModel extends AbstractTableModel {
 		case Display_Name:
 			return model.displayName;
 		case AccessLevel:
-			if (model.canAdmin) {
+			if (model.canAdmin()) {
 				return "administrator";
 			}
 			return "";

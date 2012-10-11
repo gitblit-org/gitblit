@@ -41,6 +41,9 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 	// field names are reflectively mapped in EditTeam page
 	public String name;
+	public boolean canAdmin;
+	public boolean canFork;
+	public boolean canCreate;
 	public final Set<String> users = new HashSet<String>();
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated

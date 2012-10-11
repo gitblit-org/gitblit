@@ -27,6 +27,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -222,6 +223,9 @@ public class EditTeamPage extends RootSubPage {
 		
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
+		form.add(new CheckBox("canAdmin"));
+		form.add(new CheckBox("canFork"));
+		form.add(new CheckBox("canCreate"));
 		form.add(users.setEnabled(editMemberships));
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));

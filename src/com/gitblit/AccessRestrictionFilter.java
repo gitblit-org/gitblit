@@ -156,7 +156,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 				return;
 			} else {
 				// check user access for request
-				if (user.canAdmin || canAccess(model, user, urlRequestType)) {
+				if (user.canAdmin() || canAccess(model, user, urlRequestType)) {
 					// authenticated request permitted.
 					// pass processing to the restricted servlet.
 					newSession(authenticatedRequest, httpResponse);

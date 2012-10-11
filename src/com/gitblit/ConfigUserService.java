@@ -862,6 +862,24 @@ public class ConfigUserService implements IUserService {
 
 		// write teams
 		for (TeamModel model : teams.values()) {
+			// team roles
+			List<String> roles = new ArrayList<String>();
+			if (model.canAdmin) {
+				roles.add(Constants.ADMIN_ROLE);
+			}
+			if (model.canFork) {
+				roles.add(Constants.FORK_ROLE);
+			}
+			if (model.canCreate) {
+				roles.add(Constants.CREATE_ROLE);
+			}
+			if (roles.size() == 0) {
+				// we do this to ensure that team record is written.
+				// Otherwise, StoredConfig might optimizes that record away.
+				roles.add(Constants.NO_ROLE);
+			}
+			config.setStringList(TEAM, model.name, ROLE, roles);
+			
 			if (model.permissions == null) {
 				// null check on "final" repositories because JSON-sourced TeamModel
 				// can have a null repositories object
@@ -982,6 +1000,12 @@ public class ConfigUserService implements IUserService {
 				Set<String> teamnames = config.getSubsections(TEAM);
 				for (String teamname : teamnames) {
 					TeamModel team = new TeamModel(teamname);
+					Set<String> roles = new HashSet<String>(Arrays.asList(config.getStringList(
+							TEAM, teamname, ROLE)));
+					team.canAdmin = roles.contains(Constants.ADMIN_ROLE);
+					team.canFork = roles.contains(Constants.FORK_ROLE);
+					team.canCreate = roles.contains(Constants.CREATE_ROLE);
+					
 					team.addRepositoryPermissions(Arrays.asList(config.getStringList(TEAM, teamname,
 							REPOSITORY)));
 					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));

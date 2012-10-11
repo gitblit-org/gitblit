@@ -2414,6 +2414,33 @@ public class PermissionsTest extends Assert {
 		
 		assertFalse("user CAN delete!", user.canDelete(repository));
 		assertFalse("user CAN edit!", user.canEdit(repository));
-
 	}
+	
+	@Test
+	public void testAdminTeamInheritance() throws Exception {
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+		team.canAdmin = true;
+		user.teams.add(team);
+		assertTrue("User did not inherit admin privileges", user.canAdmin());
+	}
+	
+	@Test
+	public void testForkTeamInheritance() throws Exception {
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+		team.canFork = true;
+		user.teams.add(team);
+		assertTrue("User did not inherit fork privileges", user.canFork());
+	}
+
+	@Test
+	public void testCreateTeamInheritance() throws Exception {
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+		team.canCreate= true;
+		user.teams.add(team);
+		assertTrue("User did not inherit create privileges", user.canCreate());
+	}
+
 }

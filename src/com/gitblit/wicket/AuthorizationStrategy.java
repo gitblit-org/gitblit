@@ -60,7 +60,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 					if (authenticateAdmin) {
 						// authenticate admin
 						if (user != null) {
-							return user.canAdmin;
+							return user.canAdmin();
 						}
 						return false;
 					} else {
