@@ -68,6 +68,38 @@ public class GitBlitTest {
 		assertNotNull(GitBlit.self().getRepositoryModel(user, repository));
 		assertTrue(GitBlit.self().getRepositoryModels(user).size() > 0);
 	}
+	
+	@Test
+	public void testUserModelVerification() throws Exception {
+		UserModel user = new UserModel("james");
+		user.displayName = "James Moger";
+		
+		assertTrue(user.is("James", null));
+		assertTrue(user.is("James", ""));
+		assertTrue(user.is("JaMeS", "anything"));
+		
+		assertTrue(user.is("james moger", null));
+		assertTrue(user.is("james moger", ""));
+		assertTrue(user.is("james moger", "anything"));
+		
+		assertFalse(user.is("joe", null));
+		assertFalse(user.is("joe", ""));
+		assertFalse(user.is("joe", "anything"));
+
+		// specify email address which results in address verification
+		user.emailAddress = "something";
+
+		assertFalse(user.is("James", null));
+		assertFalse(user.is("James", ""));
+		assertFalse(user.is("JaMeS", "anything"));
+		
+		assertFalse(user.is("james moger", null));
+		assertFalse(user.is("james moger", ""));
+		assertFalse(user.is("james moger", "anything"));
+
+		assertTrue(user.is("JaMeS", user.emailAddress));
+		assertTrue(user.is("JaMeS mOgEr", user.emailAddress));
+	}
 
 	@Test
 	public void testAccessRestrictionTypes() throws Exception {

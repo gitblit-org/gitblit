@@ -249,6 +249,112 @@ public class GitServletTest {
 	}
 
 	@Test
+	public void testCommitterVerification() throws Exception {
+		UserModel user = new UserModel("james");
+		user.password = "james";
+
+		// account only uses account name to verify
+		testCommitterVerification(user, user.username, null, true);
+		// committer email address is ignored because account does not specify email
+		testCommitterVerification(user, user.username, "something", true);
+		// completely different committer
+		testCommitterVerification(user, "joe", null, false);
+
+		// test display name verification
+		user.displayName = "James Moger";
+		testCommitterVerification(user, user.displayName, null, true);
+		testCommitterVerification(user, user.displayName, "something", true);
+		testCommitterVerification(user, "joe", null, false);
+		
+		// test email address verification
+		user.emailAddress = "something";
+		testCommitterVerification(user, user.displayName, null, false);
+		testCommitterVerification(user, user.displayName, "somethingelse", false);
+		testCommitterVerification(user, user.displayName, user.emailAddress, true);
+		
+		// use same email address but with different committer
+		testCommitterVerification(user, "joe", "somethingelse", false);
+	}
+	
+	private void testCommitterVerification(UserModel user, String displayName, String emailAddress, boolean expectedSuccess) throws Exception {
+		
+		if (GitBlit.self().getUserModel(user.username) != null) {
+			GitBlit.self().deleteUser(user.username);
+		}
+		
+		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
+		
+		// fork from original to a temporary bare repo
+		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
+		if (verification.exists()) {
+			FileUtils.delete(verification, FileUtils.RECURSIVE);
+		}
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setDirectory(verification);
+		clone.setBare(true);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(cp);
+		GitBlitSuite.close(clone.call());
+		
+		// require push permissions and committer verification
+		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
+		model.authorizationControl = AuthorizationControl.NAMED;
+		model.accessRestriction = AccessRestrictionType.PUSH;
+		model.verifyCommitter = true;
+		
+		// grant user push permission
+		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
+		
+		GitBlit.self().updateUserModel(user.username, user, true);
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		// clone temp bare repo to working copy
+		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-wc");
+		if (local.exists()) {
+			FileUtils.delete(local, FileUtils.RECURSIVE);
+		}
+		clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/{1}", url, model.name));
+		clone.setDirectory(local);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(cp);
+		GitBlitSuite.close(clone.call());
+		
+		Git git = Git.open(local);
+		
+		// force an identity which may or may not match the account's identity
+		git.getRepository().getConfig().setString("user", null, "name", displayName);
+		git.getRepository().getConfig().setString("user", null, "email", emailAddress);
+		git.getRepository().getConfig().save();
+		
+		// commit a file and push it
+		File file = new File(local, "PUSHCHK");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("push test").call();
+		Iterable<PushResult> results = git.push().setCredentialsProvider(cp).setRemote("origin").call();
+		
+		for (PushResult result : results) {
+			RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
+			Status status = ref.getStatus();
+			if (expectedSuccess) {
+				assertTrue("Verification failed! User was NOT able to push commit! " + status.name(), Status.OK.equals(status));
+			} else {
+				assertTrue("Verification failed! User was able to push commit! " + status.name(), Status.REJECTED_OTHER_REASON.equals(status));
+			}
+		}
+		
+		GitBlitSuite.close(git);
+		// close serving repository
+		GitBlitSuite.close(verification);
+	}
+
+	@Test
 	public void testBlockClone() throws Exception {
 		testRefChange(AccessPermission.VIEW, null, null, null);
 	}

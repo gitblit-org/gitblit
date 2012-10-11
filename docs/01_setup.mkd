@@ -270,8 +270,41 @@ Gitblit also supports regex matching for repository permissions.  The following 
 
 #### No-So-Discrete Permissions (Gitblit <= v1.1.0)
 
-Prior to v1.2.0, Gitblit had two main access permission groupings:  
-What you were permitted to do as an anonymous user and then **RW+** for any permitted user.
+Prior to v1.2.0, Gitblit has two main access permission groupings:  
+
+1. what you are permitted to do as an anonymous user
+2. **RW+** for any permitted user
+
+#### Committer Verification
+
+<span class='label label-warning'>Experimental</span>
+
+You may optionally enable committer verification which requires that each commit be committed by the authenticated user pushing the commits.  i.e. If Bob is pushing the commits, Bob **must** be the committer of those commits.
+
+**How is this enforced?**
+
+Bob must set his *user.name* and *user.email* values for the repository to match his Gitblit user account **BEFORE** committing to his repository.
+<pre>
+[user "bob"]
+    displayName = Bob Jones
+    emailAddress = bob@somewhere.com
+</pre>
+<pre>
+    git config user.name "Bob Jones"
+    git config user.email bob@somewhere.com	
+</pre>
+or
+
+    git config user.name bob
+    git config user.email bob@somewhere.com	
+
+If the Gitblit account does not specify an email address, then the committer email address is ignored.  However, if the account does specify an address it must match the committer's email address.  Display name or username can be used as the committer name.
+
+All checks are case-insensitive.
+
+**What about merges?**
+
+You can not use fast-forward merges on your client when using committer verification.  You must specify *--no-ff* to ensure that a merge commit is created with your identity as the committer.  Only the first parent chain is traversed when verifying commits.
 
 ### Teams
 

@@ -406,7 +406,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
 				new FederationTypeRenderer()));
 		form.add(new CheckBox("useTickets"));
-		form.add(new CheckBox("useDocs"));		
+		form.add(new CheckBox("useDocs"));
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
@@ -423,6 +423,8 @@ public class EditRepositoryPage extends RootSubPage {
 		group.add(allowNamed);
 		form.add(group);
 				
+		form.add(new CheckBox("verifyCommitter"));
+
 		form.add(usersPalette);
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);

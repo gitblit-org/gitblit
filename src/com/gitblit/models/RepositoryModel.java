@@ -75,6 +75,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean allowForks;
 	public Set<String> forks;
 	public String originRepository;
+	public boolean verifyCommitter;
 	
 	public RepositoryModel() {
 		this("", "", "", new Date(0));

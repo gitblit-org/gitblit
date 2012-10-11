@@ -405,4 +405,32 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public int compareTo(UserModel o) {
 		return username.compareTo(o.username);
 	}
+	
+	/**
+	 * Returns true if the name/email pair match this user account.
+	 * 
+	 * @param name
+	 * @param email
+	 * @return true, if the name and email address match this account
+	 */
+	public boolean is(String name, String email) {
+		// at a minimum a usename or display name must be supplied
+		if (StringUtils.isEmpty(name)) {
+			return false;
+		}
+		boolean nameVerified = name.equalsIgnoreCase(username) || name.equalsIgnoreCase(getDisplayName());
+		boolean emailVerified = false;
+		if (StringUtils.isEmpty(emailAddress)) {
+			// user account has not specified an email address
+			// rely on username/displayname verification
+			emailVerified = true;
+		} else {
+			// user account has specified an email address
+			// require email address verification
+			if (!StringUtils.isEmpty(email)) {
+				emailVerified = email.equalsIgnoreCase(emailAddress);
+			}
+		}
+		return nameVerified && emailVerified;
+	}
 }

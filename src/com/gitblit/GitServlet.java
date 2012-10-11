@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -38,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.eclipse.jgit.http.server.resolver.DefaultReceivePackFactory;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PostReceiveHook;
 import org.eclipse.jgit.transport.PreReceiveHook;
 import org.eclipse.jgit.transport.ReceiveCommand;
@@ -48,10 +50,12 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -191,10 +195,48 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		@Override
 		public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
 			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+			UserModel user = getUserModel(rp);
+			
+			if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH) && repository.verifyCommitter) {
+				if (StringUtils.isEmpty(user.emailAddress)) {
+					// emit warning if user does not have an email address 
+					logger.warn(MessageFormat.format("Consider setting an email address for {0} ({1}) to improve committer verification.", user.getDisplayName(), user.username));
+				}
+				
+				// Optionally enforce that the committer of the left parent chain
+				// match the account being used to push the commits.
+				// 
+				// This requires all merge commits are executed with the "--no-ff"
+				// option to force a merge commit even if fast-forward is possible.
+				// This ensures that the chain of left parents has the commit
+				// identity of the merging user.
+				for (ReceiveCommand cmd : commands) {
+					try {
+						List<RevCommit> commits = JGitUtils.getRevLog(rp.getRepository(), cmd.getOldId().name(), cmd.getNewId().name());
+						for (RevCommit commit : commits) {
+							PersonIdent committer = commit.getCommitterIdent();
+							if (!user.is(committer.getName(), committer.getEmailAddress())) {
+								String reason;
+								if (StringUtils.isEmpty(user.emailAddress)) {
+									// account does not have en email address
+									reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})", commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username);
+								} else {
+									// account has an email address
+									reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>", commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
+								}
+								cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
+								break;
+							}
+						}
+					} catch (Exception e) {
+						logger.error("Failed to verify commits were made by pushing user", e);
+					}
+				}
+			}
+			
 			Set<String> scripts = new LinkedHashSet<String>();
 			scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
 			scripts.addAll(repository.preReceiveScripts);
-			UserModel user = getUserModel(rp);
 			runGroovy(repository, user, commands, rp, scripts);
 			for (ReceiveCommand cmd : commands) {
 				if (!Result.NOT_ATTEMPTED.equals(cmd.getResult())) {

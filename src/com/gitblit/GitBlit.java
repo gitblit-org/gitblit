@@ -1257,6 +1257,7 @@ public class GitBlit implements ServletContextListener {
 					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
 			model.authorizationControl = AuthorizationControl.fromName(getConfig(config,
 					"authorizationControl", settings.getString(Keys.git.defaultAuthorizationControl, null)));
+			model.verifyCommitter = getConfig(config, "verifyCommitter", false);
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", hasOrigin);
 			model.isFrozen = getConfig(config, "isFrozen", false);
 			model.showReadme = getConfig(config, "showReadme", false);
@@ -1698,6 +1699,7 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
 		config.setString(Constants.CONFIG_GITBLIT, null, "accessRestriction", repository.accessRestriction.name());
 		config.setString(Constants.CONFIG_GITBLIT, null, "authorizationControl", repository.authorizationControl.name());
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "verifyCommitter", repository.verifyCommitter);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showRemoteBranches", repository.showRemoteBranches);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFrozen", repository.isFrozen);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showReadme", repository.showReadme);
