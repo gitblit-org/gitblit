@@ -16,11 +16,17 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.util.FS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -187,6 +193,38 @@ public class GitBlitSuite {
 			GitBlit.self().updateRepositoryModel(model.name, model, false);
 		} catch (GitBlitException g) {
 			g.printStackTrace();
+		}
+	}
+	
+	public static void close(File repository) {
+		try {
+			File gitDir = FileKey.resolve(repository, FS.detect());
+			if (gitDir != null && gitDir.exists()) {
+				close(RepositoryCache.open(FileKey.exact(gitDir, FS.detect())));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void close(Git git) {
+		close(git.getRepository());
+	}
+	
+	public static void close(Repository r) {
+		RepositoryCache.close(r);
+
+		// assume 2 uses in case reflection fails
+		int uses = 2;
+		try {
+			Field useCnt = Repository.class.getDeclaredField("useCnt");
+			useCnt.setAccessible(true);
+			uses = ((AtomicInteger) useCnt.get(r)).get();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < uses; i++) {
+			r.close();
 		}
 	}
 }

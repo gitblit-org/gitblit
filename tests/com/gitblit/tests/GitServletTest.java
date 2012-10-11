@@ -67,15 +67,19 @@ public class GitServletTest {
 	
 	public static void deleteWorkingFolders() throws Exception {
 		if (ticgitFolder.exists()) {
+			GitBlitSuite.close(ticgitFolder);
 			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE);
 		}
 		if (ticgit2Folder.exists()) {
+			GitBlitSuite.close(ticgit2Folder);
 			FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
 		}
 		if (jgitFolder.exists()) {
+			GitBlitSuite.close(jgitFolder);
 			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE);
 		}
 		if (jgit2Folder.exists()) {
+			GitBlitSuite.close(jgit2Folder);
 			FileUtils.delete(jgit2Folder, FileUtils.RECURSIVE);
 		}
 	}
@@ -88,7 +92,7 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		close(clone.call());		
+		GitBlitSuite.close(clone.call());		
 		assertTrue(true);
 	}
 
@@ -108,7 +112,7 @@ public class GitServletTest {
 			clone.setBare(false);
 			clone.setCloneAllBranches(true);
 			clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider("bogus", "bogus"));
-			close(clone.call());
+			GitBlitSuite.close(clone.call());
 			cloned = true;
 		} catch (Exception e) {
 			// swallow the exception which we expect
@@ -143,7 +147,7 @@ public class GitServletTest {
 			clone.setBare(false);
 			clone.setCloneAllBranches(true);
 			clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.username, user.password));
-			close(clone.call());
+			GitBlitSuite.close(clone.call());
 			cloned = true;
 		} catch (Exception e) {
 			// swallow the exception which we expect
@@ -165,7 +169,7 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(user.username, user.password));
-		close(clone.call());
+		GitBlitSuite.close(clone.call());
 		cloned = true;
 
 		assertTrue("Authenticated login could not clone!", cloned);
@@ -190,7 +194,7 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
-		close(git);
+		GitBlitSuite.close(git);
 	}
 
 	@Test
@@ -201,7 +205,7 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		close(clone.call());
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
 
 		Git git = Git.open(jgitFolder);
@@ -213,7 +217,7 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
 		git.push().setPushAll().call();
-		close(git);
+		GitBlitSuite.close(git);
 	}
 	
 	@Test
@@ -224,7 +228,7 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		close(clone.call());
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
 
 		Git git = Git.open(jgit2Folder);
@@ -241,7 +245,7 @@ public class GitServletTest {
 		} catch (Exception e) {
 			assertTrue(e.getCause().getMessage().contains("git-receive-pack not permitted"));
 		}
-		close(git);
+		GitBlitSuite.close(git);
 	}
 
 	@Test
@@ -296,7 +300,7 @@ public class GitServletTest {
 		clone.setBare(true);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
-		close(clone.call());
+		GitBlitSuite.close(clone.call());
 
 		// elevate repository to clone permission
 		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/ticgit.git");
@@ -331,13 +335,16 @@ public class GitServletTest {
 		clone.setCredentialsProvider(cp);
 		
 		try {
-			close(clone.call());
+			GitBlitSuite.close(clone.call());
 		} catch (GitAPIException e) {
 			if (permission.atLeast(AccessPermission.CLONE)) {
 				throw e;
 			} else {
+				// close serving repository
+				GitBlitSuite.close(refChecks);
+				
 				// user does not have clone permission
-				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));				
+				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));	
 				return;
 			}
 		}
@@ -359,9 +366,12 @@ public class GitServletTest {
 			if (permission.atLeast(AccessPermission.PUSH)) {
 				throw e;
 			} else {
+				// close serving repository
+				GitBlitSuite.close(refChecks);
+				
 				// user does not have push permission
 				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));
-				close(git);
+				GitBlitSuite.close(git);
 				return;
 			}
 		}
@@ -372,8 +382,11 @@ public class GitServletTest {
 			if (permission.atLeast(AccessPermission.PUSH)) {
 				assertTrue("User failed to push commit?! " + status.name(), Status.OK.equals(status));
 			} else {
+				// close serving repository
+				GitBlitSuite.close(refChecks);
+
 				assertTrue("User was able to push commit! " + status.name(), Status.REJECTED_OTHER_REASON.equals(status));
-				close(git);
+				GitBlitSuite.close(git);
 				// skip delete test
 				return;
 			}
@@ -389,8 +402,11 @@ public class GitServletTest {
 			if (Status.OK.equals(expectedCreate)) {
 				assertTrue("User failed to push creation?! " + status.name(), status.equals(expectedCreate));
 			} else {
+				// close serving repository
+				GitBlitSuite.close(refChecks);
+
 				assertTrue("User was able to push ref creation! " + status.name(), status.equals(expectedCreate));
-				close(git);
+				GitBlitSuite.close(git);
 				// skip delete test
 				return;
 			}
@@ -408,8 +424,11 @@ public class GitServletTest {
 			if (Status.OK.equals(expectedDelete)) {
 				assertTrue("User failed to push ref deletion?! " + status.name(), status.equals(Status.OK));
 			} else {
+				// close serving repository
+				GitBlitSuite.close(refChecks);
+
 				assertTrue("User was able to push ref deletion?! " + status.name(), status.equals(expectedDelete));
-				close(git);
+				GitBlitSuite.close(git);
 				// skip rewind test
 				return;
 			}
@@ -445,17 +464,11 @@ public class GitServletTest {
 				assertTrue("User was able to rewind master?! " + status.name(), status.equals(expectedRewind));
 			}
 		}
-		close(git);
+		GitBlitSuite.close(git);
 		
-		GitBlit.self().deleteUser(user.username);
-	}
+		// close serving repository
+		GitBlitSuite.close(refChecks);
 
-	
-	private void close(Git git) {
-		// really close the repository
-		// decrement the use counter to 0
-		for (int i = 0; i < 2; i++) {
-			git.getRepository().close();
-		}
+		GitBlit.self().deleteUser(user.username);
 	}
 }
