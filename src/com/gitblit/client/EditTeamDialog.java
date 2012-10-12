@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -64,6 +65,12 @@ public class EditTeamDialog extends JDialog {
 	private boolean canceled = true;
 
 	private JTextField teamnameField;
+	
+	private JCheckBox canAdminCheckbox;
+	
+	private JCheckBox canForkCheckbox;
+	
+	private JCheckBox canCreateCheckbox;
 
 	private JTextField mailingListsField;
 
@@ -115,11 +122,19 @@ public class EditTeamDialog extends JDialog {
 	private void initialize(int protocolVersion, TeamModel aTeam) {
 		teamnameField = new JTextField(aTeam.name == null ? "" : aTeam.name, 25);
 
+		canAdminCheckbox = new JCheckBox(Translation.get("gb.canAdminDescription"), aTeam.canAdmin);		
+		canForkCheckbox = new JCheckBox(Translation.get("gb.canForkDescription"), aTeam.canFork);
+		canCreateCheckbox = new JCheckBox(Translation.get("gb.canCreateDescription"), aTeam.canCreate);
+
 		mailingListsField = new JTextField(aTeam.mailingLists == null ? ""
 				: StringUtils.flattenStrings(aTeam.mailingLists, " "), 50);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.teamName"), teamnameField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.canAdmin"), canAdminCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.canFork"), canForkCheckbox));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.canCreate"), canCreateCheckbox));
+
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
@@ -245,6 +260,10 @@ public class EditTeamDialog extends JDialog {
 			}
 		}
 		team.name = tname;
+
+		team.canAdmin = canAdminCheckbox.isSelected();
+		team.canFork = canForkCheckbox.isSelected();
+		team.canCreate = canCreateCheckbox.isSelected();
 
 		String ml = mailingListsField.getText();
 		if (!StringUtils.isEmpty(ml)) {

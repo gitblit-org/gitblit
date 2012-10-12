@@ -108,6 +108,8 @@ public class EditRepositoryDialog extends JDialog {
 	
 	private JCheckBox allowForks;
 
+	private JCheckBox verifyCommitter;
+
 	private JComboBox federationStrategy;
 
 	private JComboBox ownerField;
@@ -231,7 +233,8 @@ public class EditRepositoryDialog extends JDialog {
 		authorizationPanel.add(allowAuthenticated);
 		authorizationPanel.add(allowNamed);
 		
-		allowForks = new JCheckBox(Translation.get("gb.allowForks"), anRepository.allowForks);
+		allowForks = new JCheckBox(Translation.get("gb.allowForksDescription"), anRepository.allowForks);
+		verifyCommitter = new JCheckBox(Translation.get("gb.verifyCommitterDescription"), anRepository.verifyCommitter);
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
@@ -274,6 +277,8 @@ public class EditRepositoryDialog extends JDialog {
 		.add(newFieldPanel(Translation.get("gb.isFrozen"), isFrozen));
 		clonePushPanel
 		.add(newFieldPanel(Translation.get("gb.allowForks"), allowForks));
+		clonePushPanel
+		.add(newFieldPanel(Translation.get("gb.verifyCommitter"), verifyCommitter));
 
 		usersPalette = new JPalette<String>();
 		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
@@ -484,6 +489,7 @@ public class EditRepositoryDialog extends JDialog {
 		
 		repository.isFrozen = isFrozen.isSelected();
 		repository.allowForks = allowForks.isSelected();
+		repository.verifyCommitter = verifyCommitter.isSelected();
 
 		String ml = mailingListsField.getText();
 		if (!StringUtils.isEmpty(ml)) {
