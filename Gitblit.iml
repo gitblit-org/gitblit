@@ -1,350 +1,353 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-	<component name="NewModuleRootManager" inherit-compiler-output="false" >
-		<output url="file://$MODULE_DIR$/bin/classes" />
-		<output-test url="file://$MODULE_DIR$/bin/test-classes" />
-		<exclude-output />
-		<content url="file://$MODULE_DIR$">
-			<sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-			<sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
-			<sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
-		</content>
-		<orderEntry type="sourceFolder" forTests="false" />
-		<orderEntry type="module-library" >
-			<library name="jcommander-1.17.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jcommander-1.17.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/jcommander-1.17-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="log4j-1.2.17.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/log4j-1.2.17-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="slf4j-api-1.6.6.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/slf4j-api-1.6.6.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.6.6-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="slf4j-log4j12-1.6.6.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.6.6.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.6.6-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="mail-1.4.3.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/mail-1.4.3.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/mail-1.4.3-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="javax.servlet-api-3.0.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/javax.servlet-api-3.0.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/javax.servlet-api-3.0.1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="jetty-webapp-7.6.7.v20120910.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jetty-webapp-7.6.7.v20120910.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-7.6.7.v20120910-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="jetty-ajp-7.6.7.v20120910.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jetty-ajp-7.6.7.v20120910.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/jetty-ajp-7.6.7.v20120910-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="wicket-1.4.21.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/wicket-1.4.21.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/wicket-1.4.21-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="wicket-auth-roles-1.4.21.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-1.4.21.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-1.4.21-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="wicket-extensions-1.4.21.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/wicket-extensions-1.4.21.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-1.4.21-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="googlecharts-1.4.21.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/googlecharts-1.4.21.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/googlecharts-1.4.21-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="lucene-core-3.6.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/lucene-core-3.6.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/lucene-core-3.6.1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="lucene-highlighter-3.6.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/lucene-highlighter-3.6.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-3.6.1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="lucene-memory-3.6.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/lucene-memory-3.6.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/lucene-memory-3.6.1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="lucene-queries-3.6.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/lucene-queries-3.6.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/lucene-queries-3.6.1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="jakarta-regexp-1.4.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jakarta-regexp-1.4.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="markdownpapers-core-1.2.7.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/markdownpapers-core-1.2.7.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/markdownpapers-core-1.2.7-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="org.eclipse.jgit-2.1.0.201209190230-r.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-2.1.0.201209190230-r.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-2.1.0.201209190230-r-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="jsch-0.1.44-1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jsch-0.1.44-1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.44-1-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-2.1.0.201209190230-r-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="bcprov-jdk16-1.46.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/bcprov-jdk16-1.46.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk16-1.46-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="bcmail-jdk16-1.46.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/bcmail-jdk16-1.46.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk16-1.46-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="rome-0.9.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/rome-0.9.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/rome-0.9-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="jdom-1.0.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/jdom-1.0.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/jdom-1.0-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="gson-1.7.2.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/gson-1.7.2.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/gson-1.7.2-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="groovy-all-1.8.8.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/groovy-all-1.8.8.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/groovy-all-1.8.8-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="unboundid-ldapsdk-2.3.0.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-2.3.0.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-2.3.0-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" >
-			<library name="ivy-2.2.0.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/ivy-2.2.0.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/ivy-2.2.0-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" scope="TEST" >
-			<library name="junit-4.10.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/junit-4.10.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-				<SOURCES>
-					<root url="jar://$MODULE_DIR$/ext/src/junit-4.10-sources.jar!/" />
-				</SOURCES>
-			</library>
-		</orderEntry>
-		<orderEntry type="module-library" scope="TEST" >
-			<library name="hamcrest-core-1.1.jar">
-				<CLASSES>
-					<root url="jar://$MODULE_DIR$/ext/hamcrest-core-1.1.jar!/" />
-				</CLASSES>
-				<JAVADOC />
-			</library>
-		</orderEntry>
-		<orderEntry type="inheritedJdk" />
-	</component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/bin/classes" />
+    <output-test url="file://$MODULE_DIR$/bin/test-classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+    </content>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="jcommander-1.17.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jcommander-1.17.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.17-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="log4j-1.2.17.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/log4j-1.2.17.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/log4j-1.2.17-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="slf4j-api-1.6.6.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/slf4j-api-1.6.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-api-1.6.6-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="slf4j-log4j12-1.6.6.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/slf4j-log4j12-1.6.6.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/slf4j-log4j12-1.6.6-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="mail-1.4.3.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/mail-1.4.3.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/mail-1.4.3-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="javax.servlet-api-3.0.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/javax.servlet-api-3.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/javax.servlet-api-3.0.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jetty-webapp-7.6.7.v20120910.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-7.6.7.v20120910.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-7.6.7.v20120910-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jetty-ajp-7.6.7.v20120910.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jetty-ajp-7.6.7.v20120910.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-ajp-7.6.7.v20120910-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="wicket-1.4.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/wicket-1.4.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-1.4.21-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="wicket-auth-roles-1.4.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/wicket-auth-roles-1.4.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-auth-roles-1.4.21-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="wicket-extensions-1.4.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/wicket-extensions-1.4.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/wicket-extensions-1.4.21-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="googlecharts-1.4.21.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/googlecharts-1.4.21.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/googlecharts-1.4.21-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lucene-core-3.6.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/lucene-core-3.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-core-3.6.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lucene-highlighter-3.6.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/lucene-highlighter-3.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-highlighter-3.6.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lucene-memory-3.6.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/lucene-memory-3.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-memory-3.6.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="lucene-queries-3.6.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/lucene-queries-3.6.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/lucene-queries-3.6.1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jakarta-regexp-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jakarta-regexp-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="markdownpapers-core-1.2.7.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/markdownpapers-core-1.2.7.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/markdownpapers-core-1.2.7-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="org.eclipse.jgit-2.1.0.201209190230-r.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-2.1.0.201209190230-r.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-2.1.0.201209190230-r-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jsch-0.1.44-1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jsch-0.1.44-1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jsch-0.1.44-1-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-2.1.0.201209190230-r-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="bcprov-jdk16-1.46.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/bcprov-jdk16-1.46.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/bcprov-jdk16-1.46-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="bcmail-jdk16-1.46.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/bcmail-jdk16-1.46.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/bcmail-jdk16-1.46-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="rome-0.9.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/rome-0.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/rome-0.9-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jdom-1.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jdom-1.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jdom-1.0-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gson-1.7.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/gson-1.7.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/gson-1.7.2-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="groovy-all-1.8.8.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/groovy-all-1.8.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/groovy-all-1.8.8-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="unboundid-ldapsdk-2.3.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/unboundid-ldapsdk-2.3.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/unboundid-ldapsdk-2.3.0-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="ivy-2.2.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/ivy-2.2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/ivy-2.2.0-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="junit-4.10.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/junit-4.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/junit-4.10-sources.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library name="hamcrest-core-1.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/hamcrest-core-1.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="inheritedJdk" />
+  </component>
 </module>
+
