@@ -17,8 +17,11 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -122,6 +125,21 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	@Unused
 	public void removeRepository(String name) {
 		removeRepositoryPermission(name);
+	}
+	
+	/**
+	 * Returns a list of repository permissions for this user exclusive of
+	 * permissions inherited from team memberships.
+	 * 
+	 * @return the user's list of permissions
+	 */
+	public List<RepositoryAccessPermission> getRepositoryPermissions() {
+		List<RepositoryAccessPermission> list = new ArrayList<RepositoryAccessPermission>();
+		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
+			list.add(new RepositoryAccessPermission(entry.getKey(), entry.getValue()));
+		}
+		Collections.sort(list);
+		return list;
 	}
 	
 	/**

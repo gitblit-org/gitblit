@@ -180,6 +180,15 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	vertical-align: middle;
 }
 
+div.odd {
+	
+}
+
+div.even {
+	background-color: whiteSmoke;
+	vertical-align: middle;
+}
+
 div.page_footer {
 	clear: both;
 	height: 17px;

@@ -40,12 +40,14 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.RepositoryAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
+import com.gitblit.wicket.panels.RepositoryPermissionsPanel;
 
 @RequiresAdminRole
 public class EditTeamPage extends RootSubPage {
@@ -59,6 +61,7 @@ public class EditTeamPage extends RootSubPage {
 		super();
 		isCreate = true;
 		setupPage(new TeamModel(""));
+		setStatelessHint(false);
 	}
 
 	public EditTeamPage(PageParameters params) {
@@ -68,6 +71,7 @@ public class EditTeamPage extends RootSubPage {
 		String name = WicketUtils.getTeamname(params);
 		TeamModel model = GitBlit.self().getTeamModel(name);
 		setupPage(model);
+		setStatelessHint(false);
 	}
 
 	protected void setupPage(final TeamModel teamModel) {
@@ -94,11 +98,7 @@ public class EditTeamPage extends RootSubPage {
 		List<String> postReceiveScripts = new ArrayList<String>();
 
 		final String oldName = teamModel.name;
-
-		// repositories palette
-		final Palette<String> repositories = new Palette<String>("repositories",
-				new ListModel<String>(new ArrayList<String>(teamModel.repositories)),
-				new CollectionModel<String>(repos), new StringChoiceRenderer(), 10, false);
+		final List<RepositoryAccessPermission> permissions = teamModel.getRepositoryPermissions();
 
 		// users palette
 		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
@@ -146,17 +146,10 @@ public class EditTeamPage extends RootSubPage {
 						return;
 					}
 				}
-				Iterator<String> selectedRepositories = repositories.getSelectedChoices();
-				List<String> repos = new ArrayList<String>();
-				while (selectedRepositories.hasNext()) {
-					repos.add(selectedRepositories.next().toLowerCase());
+				// update team permissions
+				for (RepositoryAccessPermission repositoryPermission : permissions) {
+					teamModel.setRepositoryPermission(repositoryPermission.repository, repositoryPermission.permission);
 				}
-				if (repos.size() == 0) {
-					error(getString("gb.teamMustSpecifyRepository"));
-					return;
-				}
-				teamModel.repositories.clear();
-				teamModel.repositories.addAll(repos);
 
 				Iterator<String> selectedUsers = users.getSelectedChoices();
 				List<String> members = new ArrayList<String>();
@@ -231,7 +224,7 @@ public class EditTeamPage extends RootSubPage {
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 
-		form.add(repositories);
+		form.add(new RepositoryPermissionsPanel("repositories", permissions, getAccessPermissions()));
 		form.add(preReceivePalette);
 		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
 				.getPreReceiveScriptsInherited(null)));

@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -52,6 +53,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
@@ -197,6 +199,36 @@ public abstract class BasePage extends WebPage {
 				break;
 			case VIEW:
 				map.put(type, getString("gb.viewRestricted"));
+				break;
+			}
+		}
+		return map;
+	}
+	
+	protected Map<AccessPermission, String> getAccessPermissions() {
+		Map<AccessPermission, String> map = new LinkedHashMap<AccessPermission, String>();
+		for (AccessPermission type : AccessPermission.values()) {
+			switch (type) {
+			case NONE:
+				map.put(type, MessageFormat.format(getString("gb.noPermission"), type.code));
+				break;
+			case VIEW:
+				map.put(type, MessageFormat.format(getString("gb.viewPermission"), type.code));
+				break;
+			case CLONE:
+				map.put(type, MessageFormat.format(getString("gb.clonePermission"), type.code));
+				break;
+			case PUSH:
+				map.put(type, MessageFormat.format(getString("gb.pushPermission"), type.code));
+				break;
+			case CREATE:
+				map.put(type, MessageFormat.format(getString("gb.createPermission"), type.code));
+				break;
+			case DELETE:
+				map.put(type, MessageFormat.format(getString("gb.deletePermission"), type.code));
+				break;
+			case REWIND:
+				map.put(type, MessageFormat.format(getString("gb.rewindPermission"), type.code));
 				break;
 			}
 		}

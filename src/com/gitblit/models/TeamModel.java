@@ -18,6 +18,7 @@ package com.gitblit.models;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,6 +85,21 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	@Unused
 	public void removeRepository(String name) {
 		removeRepositoryPermission(name);
+	}
+
+	
+	/**
+	 * Returns a list of repository permissions for this team.
+	 * 
+	 * @return the team's list of permissions
+	 */
+	public List<RepositoryAccessPermission> getRepositoryPermissions() {
+		List<RepositoryAccessPermission> list = new ArrayList<RepositoryAccessPermission>();
+		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
+			list.add(new RepositoryAccessPermission(entry.getKey(), entry.getValue()));
+		}
+		Collections.sort(list);
+		return list;
 	}
 	
 	/**

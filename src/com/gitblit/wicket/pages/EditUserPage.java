@@ -39,18 +39,20 @@ import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.RepositoryAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.RepositoryPermissionsPanel;
 
 @RequiresAdminRole
 public class EditUserPage extends RootSubPage {
 
 	private final boolean isCreate;
-
+	
 	public EditUserPage() {
 		// create constructor
 		super();
@@ -60,6 +62,7 @@ public class EditUserPage extends RootSubPage {
 		}
 		isCreate = true;
 		setupPage(new UserModel(""));
+		setStatelessHint(false);
 	}
 
 	public EditUserPage(PageParameters params) {
@@ -69,6 +72,7 @@ public class EditUserPage extends RootSubPage {
 		String name = WicketUtils.getUsername(params);
 		UserModel model = GitBlit.self().getUserModel(name);
 		setupPage(model);
+		setStatelessHint(false);
 	}
 
 	protected void setupPage(final UserModel userModel) {
@@ -96,16 +100,15 @@ public class EditUserPage extends RootSubPage {
 		Collections.sort(userTeams);
 		
 		final String oldName = userModel.username;
-		final Palette<String> repositories = new Palette<String>("repositories",
-				new ListModel<String>(new ArrayList<String>(userModel.repositories)),
-				new CollectionModel<String>(repos), new StringChoiceRenderer(), 10, false);
+		final List<RepositoryAccessPermission> permissions = userModel.getRepositoryPermissions();
+
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
 				.getAllTeamnames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
-
+			
 			/*
 			 * (non-Javadoc)
 			 * 
@@ -167,13 +170,10 @@ public class EditUserPage extends RootSubPage {
 					}
 				}
 
-				Iterator<String> selectedRepositories = repositories.getSelectedChoices();
-				List<String> repos = new ArrayList<String>();
-				while (selectedRepositories.hasNext()) {
-					repos.add(selectedRepositories.next().toLowerCase());
+				// update user permissions
+				for (RepositoryAccessPermission repositoryPermission : permissions) {
+					userModel.setRepositoryPermission(repositoryPermission.repository, repositoryPermission.permission);
 				}
-				userModel.repositories.clear();
-				userModel.repositories.addAll(repos);
 
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
 				userModel.teams.clear();
@@ -234,7 +234,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new CheckBox("canFork"));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
-		form.add(repositories);
+		form.add(new RepositoryPermissionsPanel("repositories", permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 
 		form.add(new Button("save"));

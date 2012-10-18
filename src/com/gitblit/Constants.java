@@ -320,6 +320,8 @@ public class Constants {
 	public static enum AccessPermission {
 		NONE("N"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+");
 		
+		public static final AccessPermission [] NEWPERMISSIONS = { VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
+		
 		public static AccessPermission LEGACY = REWIND;
 		
 		public final String code;
