@@ -1756,6 +1756,9 @@ public class JGitUtils {
 			}
 			tw.setRecursive(true);
 			while (tw.next()) {
+				if (tw.getFileMode(0) == FileMode.GITLINK) {
+					continue;
+				}
 				ZipEntry entry = new ZipEntry(tw.getPathString());
 				entry.setSize(tw.getObjectReader().getObjectSize(tw.getObjectId(0),
 						Constants.OBJ_BLOB));
