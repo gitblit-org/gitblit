@@ -321,6 +321,13 @@ You may use the `federation.properties` file to configure one or more Gitblit in
 
 By default this tool does not daemonize itself; it executes and then quits.  This allows you to use the native scheduling feature of your OS.  Of course, if you'd rather use Gitblit's scheduler you may use that by specifying the `--daemon` parameter.
 
+### http.sslVerify
+
+If you are pulling from a Gitblit with a self-signed SSL certificate you will need to configure Git/JGit to bypass certificate verification.  
+([Git-Config Manual Page](http://www.kernel.org/pub/software/scm/git/docs/git-config.html))  
+
+<pre>git config --global --bool --add http.sslVerify false</pre>
+
 ### Command-Line Parameters
 Instead of using `federation.properties` you may directly specify a Gitblit instance to pull from with command-line parameters.
 
