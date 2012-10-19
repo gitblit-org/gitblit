@@ -89,7 +89,9 @@ import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
+import com.gitblit.models.TeamAccessPermission;
 import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserAccessPermission;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
@@ -630,12 +632,44 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the list of all users who are allowed to bypass the access
-	 * restriction placed on the specified repository.
+	 * Returns the list of users and their access permissions for the specified repository.
+	 * 
+	 * @param repository
+	 * @return a list of User-AccessPermission tuples
+	 */
+	public List<UserAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
+		List<UserAccessPermission> permissions = new ArrayList<UserAccessPermission>();
+		for (String user : userService.getUsernamesForRepositoryRole(repository.name)) {
+			AccessPermission ap = userService.getUserModel(user).getRepositoryPermission(repository);
+			permissions.add(new UserAccessPermission(user, ap));
+		}
+		return permissions;
+	}
+	
+	/**
+	 * Sets the access permissions to the specified repository for the specified users.
+	 * 
+	 * @param repository
+	 * @param permissions
+	 * @return true if the user models have been updated
+	 */
+	public boolean setUserAccessPermissions(RepositoryModel repository, List<UserAccessPermission> permissions) {
+		List<UserModel> users = new ArrayList<UserModel>();
+		for (UserAccessPermission up : permissions) {
+			UserModel user = userService.getUserModel(up.user);
+			user.setRepositoryPermission(repository.name, up.permission);
+			users.add(user);
+		}
+		return userService.updateUserModels(users);
+	}
+	
+	/**
+	 * Returns the list of all users who have an explicit access permission
+	 * for the specified repository.
 	 * 
 	 * @see IUserService.getUsernamesForRepositoryRole(String)
 	 * @param repository
-	 * @return list of all usernames that can bypass the access restriction
+	 * @return list of all usernames that have an access permission for the repository
 	 */
 	public List<String> getRepositoryUsers(RepositoryModel repository) {
 		return userService.getUsernamesForRepositoryRole(repository.name);
@@ -726,7 +760,39 @@ public class GitBlit implements ServletContextListener {
 	public TeamModel getTeamModel(String teamname) {
 		return userService.getTeamModel(teamname);
 	}
-
+	
+	/**
+	 * Returns the list of teams and their access permissions for the specified repository.
+	 * 
+	 * @param repository
+	 * @return a list of Team-AccessPermission tuples
+	 */
+	public List<TeamAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
+		List<TeamAccessPermission> permissions = new ArrayList<TeamAccessPermission>();
+		for (String team : userService.getTeamnamesForRepositoryRole(repository.name)) {
+			AccessPermission ap = userService.getTeamModel(team).getRepositoryPermission(repository);
+			permissions.add(new TeamAccessPermission(team, ap));
+		}
+		return permissions;
+	}
+	
+	/**
+	 * Sets the access permissions to the specified repository for the specified teams.
+	 * 
+	 * @param repository
+	 * @param permissions
+	 * @return true if the team models have been updated
+	 */
+	public boolean setTeamAccessPermissions(RepositoryModel repository, List<TeamAccessPermission> permissions) {
+		List<TeamModel> teams = new ArrayList<TeamModel>();
+		for (TeamAccessPermission tp : permissions) {
+			TeamModel team = userService.getTeamModel(tp.team);
+			team.setRepositoryPermission(repository.name, tp.permission);
+			teams.add(team);
+		}
+		return userService.updateTeamModels(teams);
+	}
+	
 	/**
 	 * Returns the list of all teams who are allowed to bypass the access
 	 * restriction placed on the specified repository.
@@ -735,6 +801,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param repository
 	 * @return list of all teamnames that can bypass the access restriction
 	 */
+	@Deprecated
 	public List<String> getRepositoryTeams(RepositoryModel repository) {
 		return userService.getTeamnamesForRepositoryRole(repository.name);
 	}

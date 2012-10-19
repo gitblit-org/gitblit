@@ -55,6 +55,8 @@ import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.TeamAccessPermission;
+import com.gitblit.models.UserAccessPermission;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -62,6 +64,8 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
+import com.gitblit.wicket.panels.TeamPermissionsPanel;
+import com.gitblit.wicket.panels.UserPermissionsPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
@@ -94,6 +98,7 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		
 		setupPage(model);
+		setStatelessHint(false);
 	}
 
 	public EditRepositoryPage(PageParameters params) {
@@ -103,6 +108,7 @@ public class EditRepositoryPage extends RootSubPage {
 		String name = WicketUtils.getRepositoryName(params);
 		RepositoryModel model = GitBlit.self().getRepositoryModel(name);
 		setupPage(model);
+		setStatelessHint(false);
 	}
 
 	protected void setupPage(final RepositoryModel repositoryModel) {
@@ -111,8 +117,8 @@ public class EditRepositoryPage extends RootSubPage {
 
 		List<String> indexedBranches = new ArrayList<String>();
 		List<String> federationSets = new ArrayList<String>();
-		List<String> repositoryUsers = new ArrayList<String>();
-		List<String> repositoryTeams = new ArrayList<String>();
+		final List<UserAccessPermission> repositoryUsers = new ArrayList<UserAccessPermission>();
+		final List<TeamAccessPermission> repositoryTeams = new ArrayList<TeamAccessPermission>();
 		List<String> preReceiveScripts = new ArrayList<String>();
 		List<String> postReceiveScripts = new ArrayList<String>();
 
@@ -128,8 +134,8 @@ public class EditRepositoryPage extends RootSubPage {
 		} else {
 			super.setupPage(getString("gb.edit"), repositoryModel.name);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				repositoryUsers.addAll(GitBlit.self().getRepositoryUsers(repositoryModel));
-				repositoryTeams.addAll(GitBlit.self().getRepositoryTeams(repositoryModel));
+				repositoryUsers.addAll(GitBlit.self().getUserAccessPermissions(repositoryModel));
+				repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
 				Collections.sort(repositoryUsers);
 			}
 			federationSets.addAll(repositoryModel.federationSets);
@@ -139,15 +145,9 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 
 		final String oldName = repositoryModel.name;
-		// users palette
-		final Palette<String> usersPalette = new Palette<String>("users", new ListModel<String>(
-				repositoryUsers), new CollectionModel<String>(GitBlit.self().getAllUsernames()),
-				new StringChoiceRenderer(), 10, false);
 
-		// teams palette
-		final Palette<String> teamsPalette = new Palette<String>("teams", new ListModel<String>(
-				repositoryTeams), new CollectionModel<String>(GitBlit.self().getAllTeamnames()),
-				new StringChoiceRenderer(), 8, false);
+		UserPermissionsPanel usersPalette = new UserPermissionsPanel("users", repositoryUsers, getAccessPermissions());
+		TeamPermissionsPanel teamsPalette = new TeamPermissionsPanel("teams", repositoryTeams, getAccessPermissions());
 
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
@@ -342,28 +342,10 @@ public class EditRepositoryPage extends RootSubPage {
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
-					// repository access
+					// repository access permissions
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-						// save the user access list
-						Iterator<String> users = usersPalette.getSelectedChoices();
-						List<String> repositoryUsers = new ArrayList<String>();
-						while (users.hasNext()) {
-							repositoryUsers.add(users.next());
-						}
-						// ensure the owner is added to the user list
-						if (repositoryModel.owner != null
-								&& !repositoryUsers.contains(repositoryModel.owner)) {
-							repositoryUsers.add(repositoryModel.owner);
-						}
-						GitBlit.self().setRepositoryUsers(repositoryModel, repositoryUsers);
-
-						// save the team access list
-						Iterator<String> teams = teamsPalette.getSelectedChoices();
-						List<String> repositoryTeams = new ArrayList<String>();
-						while (teams.hasNext()) {
-							repositoryTeams.add(teams.next());
-						}
-						GitBlit.self().setRepositoryTeams(repositoryModel, repositoryTeams);
+						GitBlit.self().setUserAccessPermissions(repositoryModel, repositoryUsers);
+						GitBlit.self().setTeamAccessPermissions(repositoryModel, repositoryTeams);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
