@@ -6,27 +6,61 @@
 
 <wicket:extend>
 <body onload="document.getElementById('name').focus();">
-	<!-- User Table -->
-	<form style="padding-top:5px;" wicket:id="editForm">
+<!-- Team Table -->
+<form style="padding-top:5px;" wicket:id="editForm">
+
+<div class="tabbable">
+	<!-- tab titles -->
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#general" data-toggle="tab"><wicket:message key="gb.general"></wicket:message></a></li>
+		<li><a href="#permissions" data-toggle="tab"><wicket:message key="gb.accessPermissions"></wicket:message></a></li>
+	</ul>
+
+	<!-- tab content -->
+	<div class="tab-content">
+
+		<!-- general tab -->
+		<div class="tab-pane active" id="general">
 		<table class="plain">
 			<tbody class="settings">
-				<tr><td colspan="2"><h3><wicket:message key="gb.general"></wicket:message> &nbsp;<small><wicket:message key="gb.generalDescription"></wicket:message></small></h3></td></tr>
 				<tr><th><wicket:message key="gb.teamName"></wicket:message></th><td class="edit"><input type="text" wicket:id="name" id="name" size="30" tabindex="1" /></td></tr>
 				<tr><th><wicket:message key="gb.canAdmin"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canAdmin" tabindex="2" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canAdminDescription"></wicket:message></span></label></td></tr>				
 				<tr><th><wicket:message key="gb.canCreate"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canCreate" tabindex="3" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canCreateDescription"></wicket:message></span></label></td></tr>				
 				<tr><th><wicket:message key="gb.canFork"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canFork" tabindex="4" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canForkDescription"></wicket:message></span></label></td></tr>				
 				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="mailingLists" size="40" tabindex="5" /></td></tr>
-				<tr><td colspan="2" style="padding-top:15px;"><h3><wicket:message key="gb.accessPermissions"></wicket:message> &nbsp;<small><wicket:message key="gb.accessPermissionsForTeamDescription"></wicket:message></small></h3></td></tr>	
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.teamMembers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
-				<tr><td colspan="2"><hr></hr></td></tr>
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.repositoryPermissions"></wicket:message></th><td style="padding:2px;"><span wicket:id="repositories"></span></td></tr>
-				<tr><td colspan="2" style="padding-top:10px;"><h3><wicket:message key="gb.hookScripts"></wicket:message> &nbsp;<small><wicket:message key="gb.hookScriptsDescription"></wicket:message></small></h3></td></tr>	
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.preReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPreReceive"></span></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
-				<tr><th style="vertical-align: top;"><wicket:message key="gb.postReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPostReceive"></span></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
-				<tr><td colspan='2'><div class="form-actions"><input class="btn btn-primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="6" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="7" /></div></td></tr>
 			</tbody>
 		</table>
-	</form>	
+		</div>
+		
+		<!-- access permissions tab -->
+		<div class="tab-pane" id="permissions">
+		<table class="plain">
+			<tbody class="settings">
+				<tr><th><wicket:message key="gb.teamMembers"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
+				<tr><td colspan="2"><hr></hr></td></tr>
+				<tr><th><wicket:message key="gb.repositoryPermissions"></wicket:message></th><td style="padding:2px;"><span wicket:id="repositories"></span></td></tr>
+			</tbody>
+		</table>
+		</div>
+				
+		<!-- hooks -->
+		<div class="tab-pane" id="hooks">
+			<table class="plain">
+				<tbody class="settings">
+				<tr><td colspan="2" style="padding-top:10px;"><h3><wicket:message key="gb.hookScripts"></wicket:message> &nbsp;<small><wicket:message key="gb.hookScriptsDescription"></wicket:message></small></h3></td></tr>	
+				<tr><th><wicket:message key="gb.preReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPreReceive"></span></th><td style="padding:2px;"><span wicket:id="preReceiveScripts"></span></td></tr>
+					<tr><th><wicket:message key="gb.postReceiveScripts"></wicket:message><p></p><span wicket:id="inheritedPostReceive"></span></th><td style="padding:2px;"><span wicket:id="postReceiveScripts"></span></td></tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>	
+
+<div class="row">
+	<div class="form-actions"><input class="btn btn-primary" type="submit" value="Save" wicket:message="value:gb.save" wicket:id="save" tabindex="6" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" tabindex="7" /></div>
+</div>
+
+</form>	
 </body>
 </wicket:extend>
 </html>
