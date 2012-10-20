@@ -453,14 +453,10 @@ public abstract class RepositoriesPanel extends JPanel {
 				repository);
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
-		try {
-			List<RegistrantAccessPermission> members = gitblit.getUserAccessPermissions(repository);
-			dialog.setUsers(repository.owner, usernames, members);
-			dialog.setTeams(gitblit.getTeamnames(), gitblit.getTeamAccessPermissions(repository));
-			dialog.setRepositories(gitblit.getRepositories());
-		} catch (IOException e) {
-			//  TODO
-		}
+		List<RegistrantAccessPermission> members = gitblit.getUserAccessPermissions(repository);
+		dialog.setUsers(repository.owner, usernames, members);
+		dialog.setTeams(gitblit.getTeamnames(), gitblit.getTeamAccessPermissions(repository));
+		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);

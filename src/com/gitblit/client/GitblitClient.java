@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
@@ -493,8 +494,14 @@ public class GitblitClient implements Serializable {
 		return usernames;
 	}
 	
-	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) throws IOException {
-		return RpcUtils.getRepositoryMemberPermissions(repository, url, account, password);
+	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		for (UserModel user : allUsers) {
+			if (user.hasRepositoryPermission(repository.name)) {
+				list.add(new RegistrantAccessPermission(user.username, user.permissions.get(repository.name), RegistrantType.USER));
+			}
+		}
+		return list;
 	}
 
 	public boolean setUserAccessPermissions(RepositoryModel repository, List<RegistrantAccessPermission> permissions) throws IOException {
@@ -524,8 +531,14 @@ public class GitblitClient implements Serializable {
 		return teamnames;
 	}
 	
-	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) throws IOException {
-		return RpcUtils.getRepositoryTeamPermissions(repository, url, account, password);
+	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		for (TeamModel team : allTeams) {
+			if (team.hasRepositoryPermission(repository.name)) {
+				list.add(new RegistrantAccessPermission(team.name, team.permissions.get(repository.name), RegistrantType.TEAM));
+			}
+		}
+		return list;
 	}
 
 	public boolean setTeamAccessPermissions(RepositoryModel repository, List<RegistrantAccessPermission> permissions) throws IOException {
