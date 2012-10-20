@@ -305,7 +305,7 @@ public abstract class TeamsPanel extends JPanel {
 				gitblit.getSettings());
 		dialog.setLocationRelativeTo(TeamsPanel.this);
 		dialog.setTeams(gitblit.getTeams());
-		dialog.setRepositories(gitblit.getRepositories(), new ArrayList<String>(team.repositories));
+		dialog.setRepositories(gitblit.getRepositories(), team.getRepositoryPermissions());
 		dialog.setUsers(gitblit.getUsernames(), team.users == null ? null : new ArrayList<String>(
 				team.users));
 		dialog.setPreReceiveScripts(gitblit.getPreReceiveScriptsUnused(null),

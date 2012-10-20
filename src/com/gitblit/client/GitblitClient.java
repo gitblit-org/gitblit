@@ -35,6 +35,7 @@ import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.Keys;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.FeedModel;
@@ -485,11 +486,19 @@ public class GitblitClient implements Serializable {
 	public List<String> getPermittedUsernames(RepositoryModel repository) {
 		List<String> usernames = new ArrayList<String>();
 		for (UserModel user : this.allUsers) {
-			if (user.repositories.contains(repository.name)) {
+			if (user.hasRepositoryPermission(repository.name)) {
 				usernames.add(user.username);
 			}
 		}
 		return usernames;
+	}
+	
+	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) throws IOException {
+		return RpcUtils.getRepositoryMemberPermissions(repository, url, account, password);
+	}
+
+	public boolean setUserAccessPermissions(RepositoryModel repository, List<RegistrantAccessPermission> permissions) throws IOException {
+		return RpcUtils.setRepositoryMemberPermissions(repository, permissions, url, account, password);
 	}
 
 	public List<TeamModel> getTeams() {
@@ -508,11 +517,19 @@ public class GitblitClient implements Serializable {
 	public List<String> getPermittedTeamnames(RepositoryModel repository) {
 		List<String> teamnames = new ArrayList<String>();
 		for (TeamModel team : this.allTeams) {
-			if (team.repositories.contains(repository.name)) {
+			if (team.hasRepositoryPermission(repository.name)) {
 				teamnames.add(team.name);
 			}
 		}
 		return teamnames;
+	}
+	
+	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) throws IOException {
+		return RpcUtils.getRepositoryTeamPermissions(repository, url, account, password);
+	}
+
+	public boolean setTeamAccessPermissions(RepositoryModel repository, List<RegistrantAccessPermission> permissions) throws IOException {
+		return RpcUtils.setRepositoryTeamPermissions(repository, permissions, url, account, password);
 	}
 
 	public TeamModel getTeamModel(String name) {
@@ -532,44 +549,44 @@ public class GitblitClient implements Serializable {
 		return allRepositories;
 	}
 
-	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers)
+	public boolean createRepository(RepositoryModel repository, List<RegistrantAccessPermission> userPermissions)
 			throws IOException {
-		return createRepository(repository, permittedUsers, null);
+		return createRepository(repository, userPermissions, null);
 	}
 
-	public boolean createRepository(RepositoryModel repository, List<String> permittedUsers,
-			List<String> permittedTeams) throws IOException {
+	public boolean createRepository(RepositoryModel repository, List<RegistrantAccessPermission> userPermissions,
+			List<RegistrantAccessPermission> teamPermissions) throws IOException {
 		boolean success = true;
 		success &= RpcUtils.createRepository(repository, url, account, password);
-		if (permittedUsers != null && permittedUsers.size() > 0) {
+		if (userPermissions != null && userPermissions.size() > 0) {
 			// if new repository has named members, set them
-			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
+			success &= RpcUtils.setRepositoryMemberPermissions(repository, userPermissions, url, account,
 					password);
 		}
-		if (permittedTeams != null && permittedTeams.size() > 0) {
+		if (teamPermissions != null && teamPermissions.size() > 0) {
 			// if new repository has named teams, set them
-			success &= RpcUtils.setRepositoryTeams(repository, permittedTeams, url, account,
+			success &= RpcUtils.setRepositoryTeamPermissions(repository, teamPermissions, url, account,
 					password);
 		}
 		return success;
 	}
 
 	public boolean updateRepository(String name, RepositoryModel repository,
-			List<String> permittedUsers) throws IOException {
-		return updateRepository(name, repository, permittedUsers, null);
+			List<RegistrantAccessPermission> userPermissions) throws IOException {
+		return updateRepository(name, repository, userPermissions, null);
 	}
 
 	public boolean updateRepository(String name, RepositoryModel repository,
-			List<String> permittedUsers, List<String> permittedTeams) throws IOException {
+			List<RegistrantAccessPermission> userPermissions,	List<RegistrantAccessPermission> teamPermissions) throws IOException {
 		boolean success = true;
 		success &= RpcUtils.updateRepository(name, repository, url, account, password);
 		// set the repository members
-		if (permittedUsers != null) {
-			success &= RpcUtils.setRepositoryMembers(repository, permittedUsers, url, account,
+		if (userPermissions != null) {
+			success &= RpcUtils.setRepositoryMemberPermissions(repository, userPermissions, url, account,
 					password);
 		}
-		if (permittedTeams != null) {
-			success &= RpcUtils.setRepositoryTeams(repository, permittedTeams, url, account,
+		if (teamPermissions != null) {
+			success &= RpcUtils.setRepositoryTeamPermissions(repository, teamPermissions, url, account,
 					password);
 		}
 		return success;

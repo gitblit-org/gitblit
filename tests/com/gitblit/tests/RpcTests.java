@@ -32,11 +32,14 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
 import com.gitblit.RpcServlet;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -180,6 +183,7 @@ public class RpcTests {
 		String originalName = model.name;
 		model.name = "garbagerepo2.git";
 		model.accessRestriction = AccessRestrictionType.PUSH;
+		model.authorizationControl = AuthorizationControl.NAMED;
 		assertTrue("Failed to update repository!", RpcUtils.updateRepository(originalName, model,
 				url, account, password.toCharArray()));
 
@@ -192,20 +196,21 @@ public class RpcTests {
 		UserModel testMember = new UserModel("justadded");
 		assertTrue(RpcUtils.createUser(testMember, url, account, password.toCharArray()));
 
-		List<String> members = RpcUtils.getRepositoryMembers(retrievedRepository, url, account,
+		List<RegistrantAccessPermission> permissions = RpcUtils.getRepositoryMemberPermissions(retrievedRepository, url, account,
 				password.toCharArray());
-		assertEquals("Membership roster is not empty!", 0, members.size());
-		members.add(testMember.username);
+		assertEquals("Membership permissions is not empty!", 0, permissions.size());
+		permissions.add(new RegistrantAccessPermission(testMember.username, AccessPermission.PUSH, RegistrantType.USER));
 		assertTrue(
-				"Failed to set memberships!",
-				RpcUtils.setRepositoryMembers(retrievedRepository, members, url, account,
+				"Failed to set member permissions!",
+				RpcUtils.setRepositoryMemberPermissions(retrievedRepository, permissions, url, account,
 						password.toCharArray()));
-		members = RpcUtils.getRepositoryMembers(retrievedRepository, url, account,
+		permissions = RpcUtils.getRepositoryMemberPermissions(retrievedRepository, url, account,
 				password.toCharArray());
 		boolean foundMember = false;
-		for (String member : members) {
-			if (member.equalsIgnoreCase(testMember.username)) {
+		for (RegistrantAccessPermission permission : permissions) {
+			if (permission.registrant.equalsIgnoreCase(testMember.username)) {
 				foundMember = true;
+				assertEquals(AccessPermission.PUSH, permission.permission);
 				break;
 			}
 		}
@@ -281,7 +286,11 @@ public class RpcTests {
 		assertTrue(helloworldTeams.contains(aTeam.name));
 
 		// set no teams
-		assertTrue(RpcUtils.setRepositoryTeams(helloworld, new ArrayList<String>(), url, account,
+		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
+		for (String team : helloworldTeams) {
+			permissions.add(new RegistrantAccessPermission(team, AccessPermission.NONE, RegistrantType.TEAM));
+		}
+		assertTrue(RpcUtils.setRepositoryTeamPermissions(helloworld, permissions, url, account,
 				password.toCharArray()));
 		helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
 				password.toCharArray());

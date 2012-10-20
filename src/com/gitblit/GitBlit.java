@@ -78,20 +78,20 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
-import com.gitblit.models.TeamAccessPermission;
 import com.gitblit.models.TeamModel;
-import com.gitblit.models.UserAccessPermission;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
@@ -637,11 +637,11 @@ public class GitBlit implements ServletContextListener {
 	 * @param repository
 	 * @return a list of User-AccessPermission tuples
 	 */
-	public List<UserAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
-		List<UserAccessPermission> permissions = new ArrayList<UserAccessPermission>();
+	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
+		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
 		for (String user : userService.getUsernamesForRepositoryRole(repository.name)) {
 			AccessPermission ap = userService.getUserModel(user).getRepositoryPermission(repository);
-			permissions.add(new UserAccessPermission(user, ap));
+			permissions.add(new RegistrantAccessPermission(user, ap, RegistrantType.USER));
 		}
 		return permissions;
 	}
@@ -653,10 +653,10 @@ public class GitBlit implements ServletContextListener {
 	 * @param permissions
 	 * @return true if the user models have been updated
 	 */
-	public boolean setUserAccessPermissions(RepositoryModel repository, List<UserAccessPermission> permissions) {
+	public boolean setUserAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<UserModel> users = new ArrayList<UserModel>();
-		for (UserAccessPermission up : permissions) {
-			UserModel user = userService.getUserModel(up.user);
+		for (RegistrantAccessPermission up : permissions) {
+			UserModel user = userService.getUserModel(up.registrant);
 			user.setRepositoryPermission(repository.name, up.permission);
 			users.add(user);
 		}
@@ -686,7 +686,9 @@ public class GitBlit implements ServletContextListener {
 	 */
 	@Deprecated
 	public boolean setRepositoryUsers(RepositoryModel repository, List<String> repositoryUsers) {
-		return userService.setUsernamesForRepositoryRole(repository.name, repositoryUsers);
+		// rejects all changes since 1.2.0 because this would elevate
+		// all discrete access permissions to RW+
+		return false;
 	}
 
 	/**
@@ -767,11 +769,11 @@ public class GitBlit implements ServletContextListener {
 	 * @param repository
 	 * @return a list of Team-AccessPermission tuples
 	 */
-	public List<TeamAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
-		List<TeamAccessPermission> permissions = new ArrayList<TeamAccessPermission>();
+	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
+		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
 		for (String team : userService.getTeamnamesForRepositoryRole(repository.name)) {
 			AccessPermission ap = userService.getTeamModel(team).getRepositoryPermission(repository);
-			permissions.add(new TeamAccessPermission(team, ap));
+			permissions.add(new RegistrantAccessPermission(team, ap, RegistrantType.TEAM));
 		}
 		return permissions;
 	}
@@ -783,10 +785,10 @@ public class GitBlit implements ServletContextListener {
 	 * @param permissions
 	 * @return true if the team models have been updated
 	 */
-	public boolean setTeamAccessPermissions(RepositoryModel repository, List<TeamAccessPermission> permissions) {
+	public boolean setTeamAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<TeamModel> teams = new ArrayList<TeamModel>();
-		for (TeamAccessPermission tp : permissions) {
-			TeamModel team = userService.getTeamModel(tp.team);
+		for (RegistrantAccessPermission tp : permissions) {
+			TeamModel team = userService.getTeamModel(tp.registrant);
 			team.setRepositoryPermission(repository.name, tp.permission);
 			teams.add(team);
 		}
@@ -794,14 +796,13 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
-	 * Returns the list of all teams who are allowed to bypass the access
-	 * restriction placed on the specified repository.
+	 * Returns the list of all teams who have an explicit access permission for
+	 * the specified repository.
 	 * 
 	 * @see IUserService.getTeamnamesForRepositoryRole(String)
 	 * @param repository
-	 * @return list of all teamnames that can bypass the access restriction
+	 * @return list of all teamnames with explicit access permissions to the repository
 	 */
-	@Deprecated
 	public List<String> getRepositoryTeams(RepositoryModel repository) {
 		return userService.getTeamnamesForRepositoryRole(repository.name);
 	}
@@ -817,7 +818,9 @@ public class GitBlit implements ServletContextListener {
 	 */
 	@Deprecated
 	public boolean setRepositoryTeams(RepositoryModel repository, List<String> repositoryTeams) {
-		return userService.setTeamnamesForRepositoryRole(repository.name, repositoryTeams);
+		// rejects all changes since 1.2.0 because this would elevate
+		// all discrete access permissions to RW+
+		return false;
 	}
 
 	/**

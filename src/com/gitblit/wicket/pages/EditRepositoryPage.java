@@ -54,9 +54,8 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.TeamAccessPermission;
-import com.gitblit.models.UserAccessPermission;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -64,8 +63,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
-import com.gitblit.wicket.panels.TeamPermissionsPanel;
-import com.gitblit.wicket.panels.UserPermissionsPanel;
+import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
@@ -117,8 +115,8 @@ public class EditRepositoryPage extends RootSubPage {
 
 		List<String> indexedBranches = new ArrayList<String>();
 		List<String> federationSets = new ArrayList<String>();
-		final List<UserAccessPermission> repositoryUsers = new ArrayList<UserAccessPermission>();
-		final List<TeamAccessPermission> repositoryTeams = new ArrayList<TeamAccessPermission>();
+		final List<RegistrantAccessPermission> repositoryUsers = new ArrayList<RegistrantAccessPermission>();
+		final List<RegistrantAccessPermission> repositoryTeams = new ArrayList<RegistrantAccessPermission>();
 		List<String> preReceiveScripts = new ArrayList<String>();
 		List<String> postReceiveScripts = new ArrayList<String>();
 
@@ -146,8 +144,10 @@ public class EditRepositoryPage extends RootSubPage {
 
 		final String oldName = repositoryModel.name;
 
-		UserPermissionsPanel usersPalette = new UserPermissionsPanel("users", repositoryUsers, getAccessPermissions());
-		TeamPermissionsPanel teamsPalette = new TeamPermissionsPanel("teams", repositoryTeams, getAccessPermissions());
+		RegistrantPermissionsPanel usersPalette = new RegistrantPermissionsPanel("users", 
+				GitBlit.self().getAllUsernames(), repositoryUsers, getAccessPermissions());
+		RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams", 
+				GitBlit.self().getAllTeamnames(), repositoryTeams, getAccessPermissions());
 
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();

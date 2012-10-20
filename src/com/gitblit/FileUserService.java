@@ -329,8 +329,7 @@ public class FileUserService extends FileSettings implements IUserService {
 			UserModel oldUser = getUserModel(username);
 			List<String> roles;
 			if (model.permissions == null) {
-				// legacy, use repository list
-				roles = new ArrayList<String>(model.repositories);
+				roles = new ArrayList<String>();
 			} else {
 				// discrete repository permissions
 				roles = new ArrayList<String>();

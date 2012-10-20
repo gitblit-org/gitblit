@@ -39,15 +39,15 @@ import org.apache.wicket.model.util.ListModel;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.RepositoryAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BulletListPanel;
-import com.gitblit.wicket.panels.RepositoryPermissionsPanel;
+import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 @RequiresAdminRole
 public class EditTeamPage extends RootSubPage {
@@ -98,7 +98,7 @@ public class EditTeamPage extends RootSubPage {
 		List<String> postReceiveScripts = new ArrayList<String>();
 
 		final String oldName = teamModel.name;
-		final List<RepositoryAccessPermission> permissions = teamModel.getRepositoryPermissions();
+		final List<RegistrantAccessPermission> permissions = teamModel.getRepositoryPermissions();
 
 		// users palette
 		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
@@ -147,8 +147,8 @@ public class EditTeamPage extends RootSubPage {
 					}
 				}
 				// update team permissions
-				for (RepositoryAccessPermission repositoryPermission : permissions) {
-					teamModel.setRepositoryPermission(repositoryPermission.repository, repositoryPermission.permission);
+				for (RegistrantAccessPermission repositoryPermission : permissions) {
+					teamModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
 				}
 
 				Iterator<String> selectedUsers = users.getSelectedChoices();
@@ -224,7 +224,7 @@ public class EditTeamPage extends RootSubPage {
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 
-		form.add(new RepositoryPermissionsPanel("repositories", permissions, getAccessPermissions()));
+		form.add(new RegistrantPermissionsPanel("repositories", repos, permissions, getAccessPermissions()));
 		form.add(preReceivePalette);
 		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
 				.getPreReceiveScriptsInherited(null)));

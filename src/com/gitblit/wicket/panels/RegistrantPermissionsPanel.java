@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -35,49 +36,48 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import com.gitblit.Constants.AccessPermission;
-import com.gitblit.GitBlit;
-import com.gitblit.models.RepositoryAccessPermission;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.utils.DeepCopier;
 
 /**
- * Allows user to manipulate repository access permissions.
+ * Allows user to manipulate registrant access permissions.
  * 
  * @author James Moger
  *
  */
-public class RepositoryPermissionsPanel extends BasePanel {
+public class RegistrantPermissionsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public RepositoryPermissionsPanel(String wicketId, final List<RepositoryAccessPermission> permissions, final Map<AccessPermission, String> translations) {
+	public RegistrantPermissionsPanel(String wicketId, List<String> allRegistrants, final List<RegistrantAccessPermission> permissions, final Map<AccessPermission, String> translations) {
 		super(wicketId);
 		
 		// update existing permissions repeater
-		RefreshingView<RepositoryAccessPermission> dataView = new RefreshingView<RepositoryAccessPermission>("permissionRow") {
+		RefreshingView<RegistrantAccessPermission> dataView = new RefreshingView<RegistrantAccessPermission>("permissionRow") {
 			private static final long serialVersionUID = 1L;
 		
 			@Override
-            protected Iterator<IModel<RepositoryAccessPermission>> getItemModels() {
+            protected Iterator<IModel<RegistrantAccessPermission>> getItemModels() {
                 // the iterator returns RepositoryPermission objects, but we need it to
                 // return models
-                return new ModelIteratorAdapter<RepositoryAccessPermission>(permissions.iterator()) {
+                return new ModelIteratorAdapter<RegistrantAccessPermission>(permissions.iterator()) {
                     @Override
-                    protected IModel<RepositoryAccessPermission> model(RepositoryAccessPermission permission) {
-                        return new CompoundPropertyModel<RepositoryAccessPermission>(permission);
+                    protected IModel<RegistrantAccessPermission> model(RegistrantAccessPermission permission) {
+                        return new CompoundPropertyModel<RegistrantAccessPermission>(permission);
                     }
                 };
             }
 
             @Override
-            protected Item<RepositoryAccessPermission> newItem(String id, int index, IModel<RepositoryAccessPermission> model) {
+            protected Item<RegistrantAccessPermission> newItem(String id, int index, IModel<RegistrantAccessPermission> model) {
                 // this item sets markup class attribute to either 'odd' or
                 // 'even' for decoration
-                return new OddEvenItem<RepositoryAccessPermission>(id, index, model);
+                return new OddEvenItem<RegistrantAccessPermission>(id, index, model);
             }
             
-			public void populateItem(final Item<RepositoryAccessPermission> item) {
-				final RepositoryAccessPermission entry = item.getModelObject();
-				item.add(new Label("repository", entry.repository));
+			public void populateItem(final Item<RegistrantAccessPermission> item) {
+				final RegistrantAccessPermission entry = item.getModelObject();
+				item.add(new Label("registrant", entry.registrant));
 
 				// use ajax to get immediate update of permission level change
 				// otherwise we can lose it if they change levels and then add
@@ -99,16 +99,16 @@ public class RepositoryPermissionsPanel extends BasePanel {
 		add(dataView);
 		setOutputMarkupId(true);
 
-		// filter out repositories we already have permissions for
-		final List<String> repositories = GitBlit.self().getRepositoryList();
-		for (RepositoryAccessPermission rp : permissions) {
-			repositories.remove(rp.repository);
+		// filter out registrants we already have permissions for
+		final List<String> registrants = new ArrayList<String>(allRegistrants);
+		for (RegistrantAccessPermission rp : permissions) {
+			registrants.remove(rp.registrant);
 		}
 
 		// add new permission form
-		IModel<RepositoryAccessPermission> addPermissionModel = new CompoundPropertyModel<RepositoryAccessPermission>(new RepositoryAccessPermission());
-		Form<RepositoryAccessPermission> addPermissionForm = new Form<RepositoryAccessPermission>("addPermissionForm", addPermissionModel);
-		addPermissionForm.add(new DropDownChoice<String>("repository", repositories));
+		IModel<RegistrantAccessPermission> addPermissionModel = new CompoundPropertyModel<RegistrantAccessPermission>(new RegistrantAccessPermission());
+		Form<RegistrantAccessPermission> addPermissionForm = new Form<RegistrantAccessPermission>("addPermissionForm", addPermissionModel);
+		addPermissionForm.add(new DropDownChoice<String>("registrant", registrants));
 		addPermissionForm.add(new DropDownChoice<AccessPermission>("permission", Arrays
 				.asList(AccessPermission.NEWPERMISSIONS), new AccessPermissionRenderer(translations)));
 		AjaxButton button = new AjaxButton("addPermissionButton", addPermissionForm) {
@@ -118,20 +118,20 @@ public class RepositoryPermissionsPanel extends BasePanel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				// add permission to our list
-				RepositoryAccessPermission rp = (RepositoryAccessPermission) form.getModel().getObject();
+				RegistrantAccessPermission rp = (RegistrantAccessPermission) form.getModel().getObject();
 				permissions.add(DeepCopier.copy(rp));
 				
-				// remove repository from available choices
-				repositories.remove(rp.repository);
+				// remove registrant from available choices
+				registrants.remove(rp.registrant);
 				
 				// force the panel to refresh
-				target.addComponent(RepositoryPermissionsPanel.this);
+				target.addComponent(RegistrantPermissionsPanel.this);
 			}
 		};
 		addPermissionForm.add(button);
 		
-		// only show add permission form if we have a repository choice
-		add(addPermissionForm.setVisible(repositories.size() > 0));
+		// only show add permission form if we have a registrant choice
+		add(addPermissionForm.setVisible(registrants.size() > 0));
 	}
 	
 	private class AccessPermissionRenderer implements IChoiceRenderer<AccessPermission> {

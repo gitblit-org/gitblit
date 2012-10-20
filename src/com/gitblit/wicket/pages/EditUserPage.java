@@ -38,15 +38,15 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.RepositoryAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.RepositoryPermissionsPanel;
+import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 @RequiresAdminRole
 public class EditUserPage extends RootSubPage {
@@ -93,6 +93,8 @@ public class EditUserPage extends RootSubPage {
 				repos.add(repo);
 			}
 		}
+		StringUtils.sortRepositorynames(repos);
+		
 		List<String> userTeams = new ArrayList<String>();
 		for (TeamModel team : userModel.teams) {
 			userTeams.add(team.name);
@@ -100,7 +102,7 @@ public class EditUserPage extends RootSubPage {
 		Collections.sort(userTeams);
 		
 		final String oldName = userModel.username;
-		final List<RepositoryAccessPermission> permissions = userModel.getRepositoryPermissions();
+		final List<RegistrantAccessPermission> permissions = userModel.getRepositoryPermissions();
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
@@ -171,8 +173,8 @@ public class EditUserPage extends RootSubPage {
 				}
 
 				// update user permissions
-				for (RepositoryAccessPermission repositoryPermission : permissions) {
-					userModel.setRepositoryPermission(repositoryPermission.repository, repositoryPermission.permission);
+				for (RegistrantAccessPermission repositoryPermission : permissions) {
+					userModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
 				}
 
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
@@ -234,7 +236,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new CheckBox("canFork"));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
-		form.add(new RepositoryPermissionsPanel("repositories", permissions, getAccessPermissions()));
+		form.add(new RegistrantPermissionsPanel("repositories",	repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 
 		form.add(new Button("save"));

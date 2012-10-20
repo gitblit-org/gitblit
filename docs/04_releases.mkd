@@ -1,8 +1,10 @@
 ## Release History
 
-<div class="alert alert-error">
+<div class="alert alert-info">
 <h4>Update Note</h4>
-If you are updating from an earlier release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.
+The permissions model has changed in this release.
+<p>
+If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.
 </div>
 
 ### Current Release
@@ -64,6 +66,11 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 <hr/>
 
 ### Older Releases
+
+<div class="alert alert-error">
+<h4>Update Note</h4>
+If you are updating from an earlier release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.
+</div>
 
 **1.1.0** *released 2012-08-25*
 

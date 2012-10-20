@@ -335,7 +335,7 @@ public class FederationPullExecutor implements Runnable {
 						// reparent all repository permissions if the local
 						// repositories are stored within subfolders
 						if (!StringUtils.isEmpty(registrationFolder)) {
-							if (user.permissions != null && user.permissions.size() > 0) {
+							if (user.permissions != null) {
 								// pulling from >= 1.2 version
 								Map<String, AccessPermission> copy = new HashMap<String, AccessPermission>(user.permissions);
 								user.permissions.clear();
@@ -359,7 +359,7 @@ public class FederationPullExecutor implements Runnable {
 							GitBlit.self().updateUserModel(user.username, user, true);
 						} else {
 							// update repository permissions of local user
-							if (user.permissions != null && user.permissions.size() > 0) {
+							if (user.permissions != null) {
 								// pulling from >= 1.2 version
 								Map<String, AccessPermission> copy = new HashMap<String, AccessPermission>(user.permissions);
 								for (Map.Entry<String, AccessPermission> entry : copy.entrySet()) {

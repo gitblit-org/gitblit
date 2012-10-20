@@ -840,16 +840,8 @@ public class ConfigUserService implements IUserService {
 			}
 			config.setStringList(USER, model.username, ROLE, roles);
 
-			// repository memberships
-			if (model.permissions == null) {
-				// null check on "final" repositories because JSON-sourced UserModel
-				// can have a null repositories object
-				if (!ArrayUtils.isEmpty(model.repositories)) {
-					config.setStringList(USER, model.username, REPOSITORY, new ArrayList<String>(
-							model.repositories));
-				}
-			} else {
-				// discrete repository permissions
+			// discrete repository permissions
+			if (model.permissions != null) {
 				List<String> permissions = new ArrayList<String>();
 				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
 					if (entry.getValue().exceeds(AccessPermission.NONE)) {

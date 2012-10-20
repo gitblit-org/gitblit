@@ -59,6 +59,7 @@ import javax.swing.ScrollPaneConstants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -116,11 +117,11 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox headRefField;
 
-	private JPalette<String> usersPalette;
+	private RegistrantPermissionsPanel usersPalette;
 
 	private JPalette<String> setsPalette;
 
-	private JPalette<String> teamsPalette;
+	private RegistrantPermissionsPanel teamsPalette;
 	
 	private JPalette<String> indexedBranchesPalette;
 
@@ -280,7 +281,7 @@ public class EditRepositoryDialog extends JDialog {
 		clonePushPanel
 		.add(newFieldPanel(Translation.get("gb.verifyCommitter"), verifyCommitter));
 
-		usersPalette = new JPalette<String>();
+		usersPalette = new RegistrantPermissionsPanel();
 		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
 		northAccessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
 				accessRestriction), BorderLayout.NORTH);
@@ -290,13 +291,13 @@ public class EditRepositoryDialog extends JDialog {
 
 		JPanel accessPanel = new JPanel(new BorderLayout(5, 5));
 		accessPanel.add(northAccessPanel, BorderLayout.NORTH);
-		accessPanel.add(newFieldPanel(Translation.get("gb.permittedUsers"),
+		accessPanel.add(newFieldPanel(Translation.get("gb.userPermissions"),
 						usersPalette), BorderLayout.CENTER);
 
-		teamsPalette = new JPalette<String>();
+		teamsPalette = new RegistrantPermissionsPanel();
 		JPanel teamsPanel = new JPanel(new BorderLayout(5, 5));
 		teamsPanel.add(
-				newFieldPanel(Translation.get("gb.permittedTeams"),
+				newFieldPanel(Translation.get("gb.teamPermissions"),
 						teamsPalette), BorderLayout.CENTER);
 
 		setsPalette = new JPalette<String>();
@@ -545,16 +546,16 @@ public class EditRepositoryDialog extends JDialog {
 		this.allowNamed.setSelected(!authenticated);
 	}
 
-	public void setUsers(String owner, List<String> all, List<String> selected) {
+	public void setUsers(String owner, List<String> all, List<RegistrantAccessPermission> permissions) {
 		ownerField.setModel(new DefaultComboBoxModel(all.toArray()));
 		if (!StringUtils.isEmpty(owner)) {
 			ownerField.setSelectedItem(owner);
 		}
-		usersPalette.setObjects(all, selected);
+		usersPalette.setObjects(all, permissions);
 	}
 
-	public void setTeams(List<String> all, List<String> selected) {
-		teamsPalette.setObjects(all, selected);
+	public void setTeams(List<String> all, List<RegistrantAccessPermission> permissions) {
+		teamsPalette.setObjects(all, permissions);
 	}
 
 	public void setRepositories(List<RepositoryModel> repositories) {
@@ -607,12 +608,12 @@ public class EditRepositoryDialog extends JDialog {
 		return repository;
 	}
 
-	public List<String> getPermittedUsers() {
-		return usersPalette.getSelections();
+	public List<RegistrantAccessPermission> getUserAccessPermissions() {
+		return usersPalette.getPermissions();
 	}
 
-	public List<String> getPermittedTeams() {
-		return teamsPalette.getSelections();
+	public List<RegistrantAccessPermission> getTeamAccessPermissions() {
+		return teamsPalette.getPermissions();
 	}
 	
 	public void setCustomFields(RepositoryModel repository, Map<String, String> customFields) {

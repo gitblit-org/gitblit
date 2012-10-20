@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 gitblit.com.
+ * Copyright 2012 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,27 @@
 package com.gitblit.client;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.gitblit.models.UserModel;
+import com.gitblit.Constants.AccessPermission;
+import com.gitblit.models.RegistrantAccessPermission;
 
 /**
- * Table model of a list of users.
+ * Table model of a registrant permissions.
  * 
  * @author James Moger
  * 
  */
-public class UsersTableModel extends AbstractTableModel {
+public class RegistrantPermissionsTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
 
-	List<UserModel> list;
+	List<RegistrantAccessPermission> permissions;
 
 	enum Columns {
-		Name, Display_Name, AccessLevel, Teams, Repositories;
+		Registrant, Permission;
 
 		@Override
 		public String toString() {
@@ -44,18 +44,21 @@ public class UsersTableModel extends AbstractTableModel {
 		}
 	}
 
-	public UsersTableModel() {
-		this(new ArrayList<UserModel>());
+	public RegistrantPermissionsTableModel() {
+		this(new ArrayList<RegistrantAccessPermission>());
 	}
 
-	public UsersTableModel(List<UserModel> users) {
-		this.list = users;
-		Collections.sort(this.list);
+	public RegistrantPermissionsTableModel(List<RegistrantAccessPermission> list) {
+		setPermissions(list);
+	}
+
+	public void setPermissions(List<RegistrantAccessPermission> list) {
+		this.permissions = list;
 	}
 
 	@Override
 	public int getRowCount() {
-		return list.size();
+		return permissions.size();
 	}
 
 	@Override
@@ -67,16 +70,10 @@ public class UsersTableModel extends AbstractTableModel {
 	public String getColumnName(int column) {
 		Columns col = Columns.values()[column];
 		switch (col) {
-		case Name:
+		case Registrant:
 			return Translation.get("gb.name");
-		case Display_Name:
-			return Translation.get("gb.displayName");
-		case AccessLevel:
-			return Translation.get("gb.accessLevel");
-		case Teams:
-			return Translation.get("gb.teamMemberships");
-		case Repositories:
-			return Translation.get("gb.repositories");
+		case Permission:
+			return Translation.get("gb.permission");
 		}
 		return "";
 	}
@@ -89,30 +86,35 @@ public class UsersTableModel extends AbstractTableModel {
 	 * @return the Object.class
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
+		if (columnIndex == Columns.Permission.ordinal()) {
+			return AccessPermission.class;
+		}
 		return String.class;
+	}
+	
+	@Override
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
+		return columnIndex == Columns.Permission.ordinal();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		UserModel model = list.get(rowIndex);
+		RegistrantAccessPermission rp = permissions.get(rowIndex);
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {
-		case Name:
-			return model.username;
-		case Display_Name:
-			return model.displayName;
-		case AccessLevel:
-			if (model.canAdmin()) {
-				return "administrator";
-			}
-			return "";
-		case Teams:
-			return (model.teams == null || model.teams.size() == 0) ? "" : String
-					.valueOf(model.teams.size());
-		case Repositories:
-			return (model.permissions == null || model.permissions.size() == 0) ? "" : String
-					.valueOf(model.permissions.size());
+		case Registrant:
+			return rp.registrant;
+		case Permission:
+			return rp.permission;
 		}
 		return null;
+	}
+	
+	@Override
+	public void setValueAt(Object o, int rowIndex, int columnIndex) {
+		RegistrantAccessPermission rp = permissions.get(rowIndex);
+		if (columnIndex == Columns.Permission.ordinal()) {
+			rp.permission = (AccessPermission) o;
+		}
 	}
 }

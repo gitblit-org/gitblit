@@ -18,35 +18,43 @@ package com.gitblit.models;
 import java.io.Serializable;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.utils.StringUtils;
 
 /**
- * Represents a Repository-AccessPermission tuple.
+ * Represents a Registrant-AccessPermission tuple.
  * 
  * @author James Moger
  */
-public class RepositoryAccessPermission implements Serializable, Comparable<RepositoryAccessPermission> {
+public class RegistrantAccessPermission implements Serializable, Comparable<RegistrantAccessPermission> {
 
 	private static final long serialVersionUID = 1L;
 
-	public String repository;
+	public String registrant;
 	public AccessPermission permission;
+	public RegistrantType type;
 
-	public RepositoryAccessPermission() {
+	public RegistrantAccessPermission() {
 	}
 	
-	public RepositoryAccessPermission(String repository, AccessPermission permission) {
-		this.repository = repository;
+	public RegistrantAccessPermission(String registrant, AccessPermission permission, RegistrantType type) {
+		this.registrant = registrant;
 		this.permission = permission;
+		this.type = type;
 	}
 	
 	@Override
-	public int compareTo(RepositoryAccessPermission p) {
-		return StringUtils.compareRepositoryNames(repository, p.repository);
+	public int compareTo(RegistrantAccessPermission p) {
+		switch (type) {
+		case REPOSITORY:
+			return StringUtils.compareRepositoryNames(registrant, p.registrant);
+		default:
+			return registrant.toLowerCase().compareTo(p.registrant.toLowerCase());		
+		}
 	}
 	
 	@Override
 	public String toString() {
-		return permission.asRole(repository);
+		return permission.asRole(registrant);
 	}
 }

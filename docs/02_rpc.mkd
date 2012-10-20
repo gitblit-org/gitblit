@@ -64,9 +64,17 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>Gitblit v0.7.0</td><td>1 (inferred version)</td></tr>
 <tr><td>Gitblit v0.8.0</td><td>2</td></tr>
 <tr><td>Gitblit v0.9.0 - v1.0.0</td><td>3</td></tr>
-<tr><td>Gitblit v1.1.0+</td><td>4</td></tr>
+<tr><td>Gitblit v1.1.0</td><td>4</td></tr>
+<tr><td>Gitblit v1.2.0+</td><td>5</td></tr>
 </tbody>
 </table>
+
+#### Protocol Version 5
+
+- *SET_REPOSITORY_MEMBERS* will reject all calls because this would elevate all discrete permissions to RW+  
+Use *SET_REPOSITORY_MEMBER_PERMISSIONS* instead.
+- *SET_REPOSITORY_TEAMS* will reject all calls because this would elevate all discrete permissions to RW+  
+Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 
 ### RPC Request and Response Types
 <table class="table">
@@ -90,9 +98,13 @@ The Gitblit API includes methods for retrieving and interpreting RSS feeds.  The
 <tr><td>EDIT_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>TeamModel</td><td>-</td></tr>
 <tr><td>DELETE_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>-</td><td>-</td></tr>
 <tr><td>LIST_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;String&gt;</td></tr>
-<tr><td>SET_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>List&lt;String&gt;</td><td>-</td></tr>
+<tr><td><s>SET_REPOSITORY_MEMBERS</s></td><td><s>repository name</s></td><td><em><s>admin</s></em></td><td><s>1</s></td><td><s>List&lt;String&gt;</s></td><td>-</td></tr>
+<tr><td>LIST_REPOSITORY_MEMBER_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>-</td><td>List&lt;String&gt;</td></tr>
+<tr><td>SET_REPOSITORY_MEMBER_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>List&lt;String&gt;</td><td>-</td></tr>
 <tr><td>LIST_REPOSITORY_TEAMS</td><td>repository name</td><td><em>admin</em></td><td>2</td><td>-</td><td>List&lt;String&gt;</td></tr>
-<tr><td>SET_REPOSITORY_TEAMS</td><td>repository name</td><td><em>admin</em></td><td>2</td><td>List&lt;String&gt;</td><td>-</td></tr>
+<tr><td><s>SET_REPOSITORY_TEAMS</s></td><td><s>repository name</s></td><td><em><s>admin</s></em></td><td><s>2</s></td><td><s>List&lt;String&gt;</s></td><td>-</td></tr>
+<tr><td>LIST_REPOSITORY_TEAM_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>-</td><td>List&lt;String&gt;</td></tr>
+<tr><td>SET_REPOSITORY_TEAM_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>List&lt;String&gt;</td><td>-</td></tr>
 <tr><td>LIST_SETTINGS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>ServerSettings (management keys)</td></tr>
 <tr><td>CLEAR_REPOSITORY_CACHE</td><td>-</td><td><em>-</em></td><td>4</td><td>-</td><td>-</td></tr>
 <tr><td colspan='6'><em>web.enableRpcAdministration=true</em></td></tr>

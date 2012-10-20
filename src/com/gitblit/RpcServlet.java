@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
@@ -49,7 +50,7 @@ public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 4;
+	public static final int PROTOCOL_VERSION = 5;
 
 	public RpcServlet() {
 		super();
@@ -226,25 +227,33 @@ public class RpcServlet extends JsonServlet {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
 			result = GitBlit.self().getRepositoryUsers(model);
 		} else if (RpcRequest.SET_REPOSITORY_MEMBERS.equals(reqType)) {
-			// update repository access list
+			// rejected since 1.2.0
+			response.setStatus(failureCode);
+		} else if (RpcRequest.LIST_REPOSITORY_MEMBER_PERMISSIONS.equals(reqType)) {
+			// get repository member permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
-			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
-			List<String> users = new ArrayList<String>(names);
-			if (!GitBlit.self().setRepositoryUsers(model, users)) {
-				response.setStatus(failureCode);
-			}
+			result = GitBlit.self().getUserAccessPermissions(model);
+		} else if (RpcRequest.SET_REPOSITORY_MEMBER_PERMISSIONS.equals(reqType)) {
+			// set the repository permissions for the specified users
+			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
+			Collection<RegistrantAccessPermission> permissions = deserialize(request, response, RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
+			result = GitBlit.self().setUserAccessPermissions(model, permissions);
 		} else if (RpcRequest.LIST_REPOSITORY_TEAMS.equals(reqType)) {
 			// get repository teams
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
 			result = GitBlit.self().getRepositoryTeams(model);
 		} else if (RpcRequest.SET_REPOSITORY_TEAMS.equals(reqType)) {
-			// update repository team access list
+			// rejected since 1.2.0
+			response.setStatus(failureCode);
+		} else if (RpcRequest.LIST_REPOSITORY_TEAM_PERMISSIONS.equals(reqType)) {
+			// get repository team permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
-			Collection<String> names = deserialize(request, response, RpcUtils.NAMES_TYPE);
-			List<String> teams = new ArrayList<String>(names);
-			if (!GitBlit.self().setRepositoryTeams(model, teams)) {
-				response.setStatus(failureCode);
-			}
+			result = GitBlit.self().getTeamAccessPermissions(model);
+		} else if (RpcRequest.SET_REPOSITORY_TEAM_PERMISSIONS.equals(reqType)) {
+			// set the repository permissions for the specified teams
+			RepositoryModel model = GitBlit.self().getRepositoryModel(objectName);
+			Collection<RegistrantAccessPermission> permissions = deserialize(request, response, RpcUtils.REGISTRANT_PERMISSIONS_TYPE);
+			result = GitBlit.self().setTeamAccessPermissions(model, permissions);
 		} else if (RpcRequest.LIST_FEDERATION_REGISTRATIONS.equals(reqType)) {
 			// return the list of federation registrations
 			if (allowAdmin) {

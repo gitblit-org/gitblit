@@ -47,6 +47,7 @@ import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
@@ -85,7 +86,7 @@ public class EditUserDialog extends JDialog {
 
 	private JCheckBox notFederatedCheckbox;
 
-	private JPalette<String> repositoryPalette;
+	private RegistrantPermissionsPanel repositoryPalette;
 
 	private JPalette<TeamModel> teamsPalette;
 
@@ -157,7 +158,7 @@ public class EditUserDialog extends JDialog {
 				notFederatedCheckbox));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
-		repositoryPalette = new JPalette<String>();
+		repositoryPalette = new RegistrantPermissionsPanel();
 		teamsPalette = new JPalette<TeamModel>();
 		teamsPalette.setEnabled(settings.supportsTeamMembershipChanges);
 
@@ -318,8 +319,9 @@ public class EditUserDialog extends JDialog {
 		user.canCreate = canCreateCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
 
-		user.repositories.clear();
-		user.repositories.addAll(repositoryPalette.getSelections());
+		for (RegistrantAccessPermission rp : repositoryPalette.getPermissions()) {
+			user.setRepositoryPermission(rp.registrant, rp.permission);
+		}
 
 		user.teams.clear();
 		user.teams.addAll(teamsPalette.getSelections());
@@ -338,18 +340,20 @@ public class EditUserDialog extends JDialog {
 		}
 	}
 
-	public void setRepositories(List<RepositoryModel> repositories, List<String> selected) {
+	public void setRepositories(List<RepositoryModel> repositories, List<RegistrantAccessPermission> permissions) {
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
 			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
 				restricted.add(repo.name);
 			}
 		}
-		StringUtils.sortRepositorynames(restricted);
-		if (selected != null) {
-			StringUtils.sortRepositorynames(selected);
+		// remove repositories for which user already has a permission
+		for (RegistrantAccessPermission rp : permissions) {
+			restricted.remove(rp.registrant);
 		}
-		repositoryPalette.setObjects(restricted, selected);
+		
+		StringUtils.sortRepositorynames(restricted);
+		repositoryPalette.setObjects(restricted, permissions);
 	}
 
 	public void setTeams(List<TeamModel> teams, List<TeamModel> selected) {

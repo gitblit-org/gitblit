@@ -28,6 +28,7 @@ import java.util.Set;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -133,10 +134,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 * 
 	 * @return the user's list of permissions
 	 */
-	public List<RepositoryAccessPermission> getRepositoryPermissions() {
-		List<RepositoryAccessPermission> list = new ArrayList<RepositoryAccessPermission>();
+	public List<RegistrantAccessPermission> getRepositoryPermissions() {
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RepositoryAccessPermission(entry.getKey(), entry.getValue()));
+			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), RegistrantType.REPOSITORY));
 		}
 		Collections.sort(list);
 		return list;
@@ -208,10 +209,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		// and the permissions of teams of which the user belongs
 		AccessPermission permission = AccessPermission.NONE;
 		if (permissions.containsKey(repository.name.toLowerCase())) {
-			// exact repository permission specified
+			// exact repository permission specified, use it
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
 			if (p != null) {
-				permission = p;
+				return p;
 			}
 		} else {
 			// search for regex permission match

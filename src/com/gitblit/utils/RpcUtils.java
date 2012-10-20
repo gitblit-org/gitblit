@@ -25,6 +25,7 @@ import java.util.Map;
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.GitBlitException.UnknownRequestException;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -69,6 +70,9 @@ public class RpcUtils {
 	}.getType();
 
 	private static final Type BRANCHES_TYPE = new TypeToken<Map<String, Collection<String>>>() {
+	}.getType();
+
+	public static final Type REGISTRANT_PERMISSIONS_TYPE = new TypeToken<Collection<RegistrantAccessPermission>>() {
 	}.getType();
 
 	/**
@@ -357,25 +361,42 @@ public class RpcUtils {
 		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
 		return new ArrayList<String>(list);
 	}
-
+	
 	/**
-	 * Sets the repository user membership list.
+	 * Retrieves the list of user access permissions for the specified repository.
 	 * 
 	 * @param repository
-	 * @param memberships
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return list of User-AccessPermission tuples
+	 * @throws IOException
+	 */
+	public static List<RegistrantAccessPermission> getRepositoryMemberPermissions(RepositoryModel repository, 
+			String serverUrl, String account, char [] password) throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_MEMBER_PERMISSIONS, repository.name);
+		Collection<RegistrantAccessPermission> list = JsonUtils.retrieveJson(url, REGISTRANT_PERMISSIONS_TYPE, account, password);
+		return new ArrayList<RegistrantAccessPermission>(list);
+	}
+
+	/**
+	 * Sets the repository user access permissions
+	 * 
+	 * @param repository
+	 * @param permissions
 	 * @param serverUrl
 	 * @param account
 	 * @param password
 	 * @return true if the action succeeded
 	 * @throws IOException
 	 */
-	public static boolean setRepositoryMembers(RepositoryModel repository,
-			List<String> memberships, String serverUrl, String account, char[] password)
+	public static boolean setRepositoryMemberPermissions(RepositoryModel repository,
+			List<RegistrantAccessPermission> permissions, String serverUrl, String account, char[] password)
 			throws IOException {
-		return doAction(RpcRequest.SET_REPOSITORY_MEMBERS, repository.name, memberships, serverUrl,
+		return doAction(RpcRequest.SET_REPOSITORY_MEMBER_PERMISSIONS, repository.name, permissions, serverUrl,
 				account, password);
 	}
-
+	
 	/**
 	 * Retrieves the list of teams that can access the specified repository.
 	 * 
@@ -392,25 +413,42 @@ public class RpcUtils {
 		Collection<String> list = JsonUtils.retrieveJson(url, NAMES_TYPE, account, password);
 		return new ArrayList<String>(list);
 	}
-
+	
 	/**
-	 * Sets the repository team membership list.
+	 * Retrieves the list of team access permissions for the specified repository.
 	 * 
 	 * @param repository
-	 * @param teams
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return list of Team-AccessPermission tuples
+	 * @throws IOException
+	 */
+	public static List<RegistrantAccessPermission> getRepositoryTeamPermissions(RepositoryModel repository, 
+			String serverUrl, String account, char [] password) throws IOException {
+		String url = asLink(serverUrl, RpcRequest.LIST_REPOSITORY_TEAM_PERMISSIONS, repository.name);
+		Collection<RegistrantAccessPermission> list = JsonUtils.retrieveJson(url, REGISTRANT_PERMISSIONS_TYPE, account, password);
+		return new ArrayList<RegistrantAccessPermission>(list);
+	}
+
+	/**
+	 * Sets the repository team access permissions
+	 * 
+	 * @param repository
+	 * @param permissions
 	 * @param serverUrl
 	 * @param account
 	 * @param password
 	 * @return true if the action succeeded
 	 * @throws IOException
 	 */
-	public static boolean setRepositoryTeams(RepositoryModel repository,
-			List<String> teams, String serverUrl, String account, char[] password)
+	public static boolean setRepositoryTeamPermissions(RepositoryModel repository,
+			List<RegistrantAccessPermission> permissions, String serverUrl, String account, char[] password)
 			throws IOException {
-		return doAction(RpcRequest.SET_REPOSITORY_TEAMS, repository.name, teams, serverUrl,
+		return doAction(RpcRequest.SET_REPOSITORY_TEAM_PERMISSIONS, repository.name, permissions, serverUrl,
 				account, password);
 	}
-
+	
 	/**
 	 * Retrieves the list of federation registrations. These are the list of
 	 * registrations that this Gitblit instance is pulling from.

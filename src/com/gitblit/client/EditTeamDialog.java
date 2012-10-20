@@ -45,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
@@ -74,7 +75,7 @@ public class EditTeamDialog extends JDialog {
 
 	private JTextField mailingListsField;
 
-	private JPalette<String> repositoryPalette;
+	private RegistrantPermissionsPanel repositoryPalette;
 
 	private JPalette<String> userPalette;
 
@@ -138,7 +139,7 @@ public class EditTeamDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
-		repositoryPalette = new JPalette<String>();
+		repositoryPalette = new RegistrantPermissionsPanel();
 		userPalette = new JPalette<String>();
 		userPalette.setEnabled(settings.supportsTeamMembershipChanges);
 		
@@ -278,8 +279,9 @@ public class EditTeamDialog extends JDialog {
 			team.mailingLists.addAll(list);
 		}
 
-		team.repositories.clear();
-		team.repositories.addAll(repositoryPalette.getSelections());
+		for (RegistrantAccessPermission rp : repositoryPalette.getPermissions()) {
+			team.setRepositoryPermission(rp.registrant, rp.permission);
+		}
 
 		team.users.clear();
 		team.users.addAll(userPalette.getSelections());
@@ -305,18 +307,21 @@ public class EditTeamDialog extends JDialog {
 		}
 	}
 
-	public void setRepositories(List<RepositoryModel> repositories, List<String> selected) {
+	public void setRepositories(List<RepositoryModel> repositories, List<RegistrantAccessPermission> permissions) {
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
 			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
 				restricted.add(repo.name);
 			}
 		}
-		StringUtils.sortRepositorynames(restricted);
-		if (selected != null) {
-			StringUtils.sortRepositorynames(selected);
+		
+		// remove repositories for which team already has a permission
+		for (RegistrantAccessPermission rp : permissions) {
+			restricted.remove(rp.registrant);
 		}
-		repositoryPalette.setObjects(restricted, selected);
+
+		StringUtils.sortRepositorynames(restricted);
+		repositoryPalette.setObjects(restricted, permissions);
 	}
 
 	public void setUsers(List<String> users, List<String> selected) {

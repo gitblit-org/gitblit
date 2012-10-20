@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
 
 /**
@@ -93,10 +94,10 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	 * 
 	 * @return the team's list of permissions
 	 */
-	public List<RepositoryAccessPermission> getRepositoryPermissions() {
-		List<RepositoryAccessPermission> list = new ArrayList<RepositoryAccessPermission>();
+	public List<RegistrantAccessPermission> getRepositoryPermissions() {
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RepositoryAccessPermission(entry.getKey(), entry.getValue()));
+			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), RegistrantType.REPOSITORY));
 		}
 		Collections.sort(list);
 		return list;

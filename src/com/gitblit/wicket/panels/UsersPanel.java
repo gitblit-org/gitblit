@@ -84,7 +84,7 @@ public class UsersPanel extends BasePanel {
 				item.add(new Label("accesslevel", entry.canAdmin() ? "administrator" : ""));
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
-						entry.repositories.size() > 0 ? ("" + entry.repositories.size()) : ""));
+						entry.permissions.size() > 0 ? ("" + entry.permissions.size()) : ""));
 				Fragment userLinks = new Fragment("userLinks", "userAdminLinks", this);
 				userLinks.add(new BookmarkablePageLink<Void>("editUser", EditUserPage.class,
 						WicketUtils.newUsernameParameter(entry.username)));

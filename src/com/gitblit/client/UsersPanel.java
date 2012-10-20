@@ -309,7 +309,7 @@ public abstract class UsersPanel extends JPanel {
 				gitblit.getSettings());
 		dialog.setLocationRelativeTo(UsersPanel.this);
 		dialog.setUsers(gitblit.getUsers());
-		dialog.setRepositories(gitblit.getRepositories(), new ArrayList<String>(user.repositories));
+		dialog.setRepositories(gitblit.getRepositories(), user.getRepositoryPermissions());
 		dialog.setTeams(gitblit.getTeams(), user.teams == null ? null : new ArrayList<TeamModel>(
 				user.teams));
 		dialog.setVisible(true);

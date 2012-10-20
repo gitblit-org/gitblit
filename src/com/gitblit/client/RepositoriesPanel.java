@@ -49,6 +49,7 @@ import javax.swing.table.TableRowSorter;
 import com.gitblit.Constants;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.Keys;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
@@ -401,8 +402,8 @@ public abstract class RepositoriesPanel extends JPanel {
 				gitblit.getPostReceiveScriptsInherited(null), null);
 		dialog.setVisible(true);
 		final RepositoryModel newRepository = dialog.getRepository();
-		final List<String> permittedUsers = dialog.getPermittedUsers();
-		final List<String> permittedTeams = dialog.getPermittedTeams();
+		final List<RegistrantAccessPermission> permittedUsers = dialog.getUserAccessPermissions();
+		final List<RegistrantAccessPermission> permittedTeams = dialog.getTeamAccessPermissions();
 		if (newRepository == null) {
 			return;
 		}
@@ -452,10 +453,14 @@ public abstract class RepositoriesPanel extends JPanel {
 				repository);
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
-		List<String> members = gitblit.getPermittedUsernames(repository);
-		dialog.setUsers(repository.owner, usernames, members);
-		dialog.setTeams(gitblit.getTeamnames(), gitblit.getPermittedTeamnames(repository));
-		dialog.setRepositories(gitblit.getRepositories());
+		try {
+			List<RegistrantAccessPermission> members = gitblit.getUserAccessPermissions(repository);
+			dialog.setUsers(repository.owner, usernames, members);
+			dialog.setTeams(gitblit.getTeamnames(), gitblit.getTeamAccessPermissions(repository));
+			dialog.setRepositories(gitblit.getRepositories());
+		} catch (IOException e) {
+			//  TODO
+		}
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);
@@ -471,8 +476,8 @@ public abstract class RepositoriesPanel extends JPanel {
 		}
 		dialog.setVisible(true);
 		final RepositoryModel revisedRepository = dialog.getRepository();
-		final List<String> permittedUsers = dialog.getPermittedUsers();
-		final List<String> permittedTeams = dialog.getPermittedTeams();
+		final List<RegistrantAccessPermission> permittedUsers = dialog.getUserAccessPermissions();
+		final List<RegistrantAccessPermission> permittedTeams = dialog.getTeamAccessPermissions();
 		if (revisedRepository == null) {
 			return;
 		}
