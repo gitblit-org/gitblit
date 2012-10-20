@@ -44,7 +44,7 @@ In order to fork a repository, the user account must have the *fork* permission 
 - Delete branch feature (issue 121, Github/ajermakovics)
 - Added line links to blob view (issue 130)
 - Added RedmineUserService (github/mallowlabs)
-- Experimental support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.
+- Support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.
 
 #### changes
 

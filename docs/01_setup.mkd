@@ -277,8 +277,6 @@ Prior to v1.2.0, Gitblit has two main access permission groupings:
 
 #### Committer Verification
 
-<span class='label label-warning'>Experimental</span>
-
 You may optionally enable committer verification which requires that each commit be committed by the authenticated user pushing the commits.  i.e. If Bob is pushing the commits, Bob **must** be the committer of those commits.
 
 **How is this enforced?**
