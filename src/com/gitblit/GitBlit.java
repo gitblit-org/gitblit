@@ -55,8 +55,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.resource.ContextRelativeResource;
+import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
@@ -98,6 +101,7 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.WicketUtils;
 
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
@@ -163,6 +167,11 @@ public class GitBlit implements ServletContextListener {
 			// set the static singleton reference
 			gitblit = this;
 		}
+	}
+
+	public GitBlit(final IUserService userService) {
+		this.userService = userService;
+		gitblit = this;
 	}
 
 	/**
@@ -507,6 +516,28 @@ public class GitBlit implements ServletContextListener {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Authenticate a user based on HTTP request paramters.
+	 * This method is inteded to be used as fallback when other
+	 * means of authentication are failing (username / password or cookies).
+	 * @param httpRequest
+	 * @return a user object or null
+	 */
+	public UserModel authenticate(HttpServletRequest httpRequest) {
+		return null;
+	}
+
+	/**
+	 * Open a file resource using the Servlet container.
+	 * @param file to open
+	 * @return InputStream of the opened file
+	 * @throws ResourceStreamNotFoundException
+	 */
+	public InputStream getResourceAsStream(String file) throws ResourceStreamNotFoundException {
+		ContextRelativeResource res = WicketUtils.getResource(file);
+		return res.getResourceStream().getInputStream();
 	}
 
 	/**
@@ -2427,10 +2458,11 @@ public class GitBlit implements ServletContextListener {
 	 * Parse the properties file and aggregate all the comments by the setting
 	 * key. A setting model tracks the current value, the default value, the
 	 * description of the setting and and directives about the setting.
+	 * @param referencePropertiesInputStream
 	 * 
 	 * @return Map<String, SettingModel>
 	 */
-	private ServerSettings loadSettingModels() {
+	private ServerSettings loadSettingModels(InputStream referencePropertiesInputStream) {
 		ServerSettings settingsModel = new ServerSettings();
 		settingsModel.supportsCredentialChanges = userService.supportsCredentialChanges();
 		settingsModel.supportsDisplayNameChanges = userService.supportsDisplayNameChanges();
@@ -2440,7 +2472,7 @@ public class GitBlit implements ServletContextListener {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
 			// models map.
-			InputStream is = servletContext.getResourceAsStream("/WEB-INF/reference.properties");
+			InputStream is = referencePropertiesInputStream;
 			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
 			StringBuilder description = new StringBuilder();
 			SettingModel setting = new SettingModel();
@@ -2518,21 +2550,23 @@ public class GitBlit implements ServletContextListener {
 		logTimezone(Constants.NAME, getTimezone());
 
 		serverStatus = new ServerStatus(isGO());
-		String realm = settings.getString(Keys.realm.userService, "users.properties");
-		IUserService loginService = null;
-		try {
-			// check to see if this "file" is a login service class
-			Class<?> realmClass = Class.forName(realm);
-			loginService = (IUserService) realmClass.newInstance();
-		} catch (Throwable t) {
-			loginService = new GitblitUserService();
+
+		if (this.userService == null) {
+			String realm = settings.getString(Keys.realm.userService, "users.properties");
+			IUserService loginService = null;
+			try {
+				// check to see if this "file" is a login service class
+				Class<?> realmClass = Class.forName(realm);
+				loginService = (IUserService) realmClass.newInstance();
+			} catch (Throwable t) {
+				loginService = new GitblitUserService();
+			}
+			setUserService(loginService);
 		}
-		setUserService(loginService);
 		
 		// load and cache the project metadata
 		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "projects.conf"), FS.detect());
 		getProjectConfigs();
-		
 		mailExecutor = new MailExecutor(settings);
 		if (mailExecutor.isReady()) {
 			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
@@ -2587,6 +2621,10 @@ public class GitBlit implements ServletContextListener {
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
+		contextInitialized(contextEvent, contextEvent.getServletContext().getResourceAsStream("/WEB-INF/reference.properties"));
+	}
+
+	public void contextInitialized(ServletContextEvent contextEvent, InputStream referencePropertiesInputStream) {
 		servletContext = contextEvent.getServletContext();
 		if (settings == null) {
 			// Gitblit WAR is running in a servlet container
@@ -2627,7 +2665,7 @@ public class GitBlit implements ServletContextListener {
 			}
 		}
 		
-		settingsModel = loadSettingModels();
+		settingsModel = loadSettingModels(referencePropertiesInputStream);
 		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
 
@@ -2709,5 +2747,15 @@ public class GitBlit implements ServletContextListener {
 		// add this clone to the cached model
 		addToCachedRepositoryList(cloneModel);
 		return cloneModel;
+	}
+
+	/**
+	 * Allow to understand if GitBlit supports and is configured to allow
+	 * cookie-based authentication.
+	 * 
+	 * @return status of Cookie authentication enablement.
+	 */
+	public boolean allowCookieAuthentication() {
+		return GitBlit.getBoolean(Keys.web.allowCookieAuthentication, true) && userService.supportsCookies();
 	}
 }

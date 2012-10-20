@@ -217,7 +217,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return permission;
 	}
 	
-	private boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
+	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
 			AccessPermission permission = getRepositoryPermission(repository);
 			return permission.atLeast(requirePermission);
@@ -432,5 +432,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return nameVerified && emailVerified;
+	}
+	
+	public boolean hasBranchPermission(String repositoryName, String branch) {
+		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
+		return hasRepositoryPermission(repositoryName);
 	}
 }

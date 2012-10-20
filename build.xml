@@ -14,9 +14,12 @@
 	<property name="project.build.dir" value="${basedir}/build" />
 	<property name="project.deploy.dir" value="${basedir}/deploy" />
 	<property name="project.war.dir" value="${basedir}/war" />
+	<property name="project.jar.dir" value="${basedir}/jar" />
 	<property name="project.site.dir" value="${basedir}/site" />
 	<property name="project.resources.dir" value="${basedir}/resources" />	
 	<property name="project.express.dir" value="${basedir}/express" />
+	<property name="project.maven.repo.url" value="enter here your Maven repo URL" />
+	<property name="project.maven.repo.id" value="gitblit.maven.repo" />
 	<available property="hasBuildProps" file="${basedir}/build.properties"/>
 
 	<!--
@@ -85,6 +88,8 @@
 		</loadfile>	
 		<property name="distribution.zipfile" value="gitblit-${gb.version}.zip" />
 		<property name="distribution.warfile" value="gitblit-${gb.version}.war" />
+		<property name="distribution.jarfile" value="gitblit-${gb.version}.jar" />
+		<property name="distribution.pomfile" value="${basedir}/pom.xml" />
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
 		<property name="manager.zipfile" value="manager-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
@@ -441,6 +446,76 @@
 	</target>
 
 	
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build Gitblit JAR for usage in other projects plug-ins (i.e. Gerrit)
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildJAR" depends="compile" description="Build Gitblit JAR">
+
+		<echo>Building Gitblit JAR ${gb.version}</echo>
+
+		<delete dir="${project.jar.dir}" />
+
+		<!-- Gitblit classes -->
+		<mkdir dir="${project.jar.dir}"/>
+		<copy todir="${project.jar.dir}">
+			<fileset dir="${project.build.dir}">
+				<exclude name="WEB-INF/" />
+				<exclude name="com/gitblit/tests/" />
+				<exclude name="com/gitblit/build/**" />
+				<exclude name="com/gitblit/client/**" />
+				<exclude name="com/gitblit/AddIndexedBranch*.class" />
+				<exclude name="com/gitblit/GitBlitServer*.class" />
+				<exclude name="com/gitblit/Launcher*.class" />
+				<exclude name="com/gitblit/MakeCertificate*.class" />
+			</fileset>
+		</copy>
+
+		<!-- Build the JAR file -->
+		<jar basedir="${project.jar.dir}" destfile="${distribution.jarfile}" compress="true" />
+	</target>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build pom.xml for GitBlit JAR Maven module
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildMaven" depends="buildJAR" description="Build pom.xml for Gitblit JAR Maven module">
+		<copy tofile="${distribution.pomfile}" file="${distribution.pomfileTmplt}"/>
+		<replace file="${distribution.pomfile}" token="@gb.version@" value="${gb.version}" />
+	</target>
+
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Install Gitblit JAR for usage as Maven module
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="installMaven" depends="buildMaven" description="Install Gitblit JAR as Maven module">
+		<exec executable="mvn">
+			<arg value="install:install-file" />
+			<arg value="-Dfile=${distribution.jarfile}" />
+			<arg value="-DpomFile=${distribution.pomfile}" />
+			<arg value="-DcreateChecksum=true" />
+		</exec>
+	</target>
+
+	<!--
+    	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    	Upload Gitblit JAR to remote Maven repository
+    	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    -->
+	<target name="uploadMaven" depends="buildJAR" description="Upload Gitblit JAR to remote Maven repository">
+		<exec executable="mvn">
+			<arg value="deploy:deploy-file" />
+			<arg value="-Dfile=${distribution.jarfile}" />
+			<arg value="-DpomFile=${distribution.pomfile}" />
+			<arg value="-Durl=${project.maven.repo.url}" />
+			<arg value="-DrepositoryId=${project.maven.repo.id}" />
+			<arg value="-DcreateChecksum=true" />
+		</exec>
+	</target>
+
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Build the stand-alone, command-line Gitblit Federation Client
