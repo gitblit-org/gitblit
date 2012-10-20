@@ -95,10 +95,12 @@ public abstract class RepositoryPage extends BasePage {
 		if (objectId != null) {
 			RefModel branch = null;
 			if ((branch = JGitUtils.getBranch(getRepository(), objectId)) != null) {
-				boolean canAccess = GitBlitWebSession
-						.get()
-						.getUser()
-						.hasBranchPermission(getRepositoryModel().name,
+				UserModel user = GitBlitWebSession.get().getUser();
+				if (user == null) {
+					// workaround until get().getUser() is reviewed throughout the app
+					user = UserModel.ANONYMOUS;
+				}
+				boolean canAccess = user.hasBranchPermission(repositoryName,
 								branch.reference.getName());
 				if (!canAccess) {
 					error("Access denied", true);
