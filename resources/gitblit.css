@@ -30,9 +30,8 @@ hr {
 	margin-bottom: 10px;
 }
 
-.settings h3 {
-	margin-bottom: 0.5em;    
-	border-bottom: 1px solid #000080 !important;
+.settings th {
+	vertical-align: top;
 }
 
 .pageTitle {
