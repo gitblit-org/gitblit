@@ -692,4 +692,17 @@ public class StringUtils {
 		}
 		return path;
 	}
+	
+	/**
+	 * Variation of String.matches() which disregards case issues.
+	 * 
+	 * @param regex
+	 * @param input
+	 * @return true if the pattern matches
+	 */
+	public static boolean matchesIgnoreCase(String input, String regex) {
+		Pattern p = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+		Matcher m = p.matcher(input);
+		return m.matches();
+	}
 }

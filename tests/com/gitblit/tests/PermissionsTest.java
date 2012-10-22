@@ -2399,7 +2399,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		user.setRepositoryPermission("ubercool/[A-Za-z0-9-~_\\./]+", AccessPermission.CLONE);
+		user.setRepositoryPermission("ubercool/[A-Z0-9-~_\\./]+", AccessPermission.CLONE);
 
 		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));

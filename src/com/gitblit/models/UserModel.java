@@ -227,9 +227,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				return p;
 			}
 		} else {
-			// search for regex permission match
+			// search for case-insensitive regex permission match
 			for (String key : permissions.keySet()) {
-				if (repository.name.matches(key)) {
+				if (StringUtils.matchesIgnoreCase(repository.name, key)) {
 					AccessPermission p = permissions.get(key);
 					if (p != null) {
 						permission = p;

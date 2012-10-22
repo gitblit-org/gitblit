@@ -264,9 +264,9 @@ These permission codes are combined with the repository path to create a user pe
 
 #### Discrete Permissions with Regex Matching (Gitblit v1.2.0+)
 
-Gitblit also supports regex matching for repository permissions.  The following permission grants push privileges to all repositories in the *mygroup* folder.
+Gitblit also supports *case-insensitive* regex matching for repository permissions.  The following permission grants push privileges to all repositories in the *mygroup* folder.
 
-    RW:mygroup/[A-Za-z0-9-~_\\./]+
+    RW:mygroup/[a-z0-9-~_\\./]+
 
 #### No-So-Discrete Permissions (Gitblit <= v1.1.0)
 
