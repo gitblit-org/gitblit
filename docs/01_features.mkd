@@ -16,6 +16,7 @@
     - **RW+** (clone and push with ref creation, deletion, rewind)
 - Optional feature to allow users to create personal repositories
 - Optional feature to fork a repository to a personal repository
+- Optional feature to create a repository on push
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool 

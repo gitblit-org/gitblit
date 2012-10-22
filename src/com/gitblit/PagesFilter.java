@@ -77,6 +77,16 @@ public class PagesFilter extends AccessRestrictionFilter {
 	}
 
 	/**
+	 * Determine if a non-existing repository can be created using this filter.
+	 *  
+	 * @return true if the filter allows repository creation
+	 */
+	@Override
+	protected boolean isCreationAllowed() {
+		return false;
+	}
+
+	/**
 	 * Determine if the action may be executed on the repository.
 	 * 
 	 * @param repository

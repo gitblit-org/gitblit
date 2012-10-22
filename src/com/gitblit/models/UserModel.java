@@ -364,6 +364,28 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns true if the user is allowed to create the specified repository
+	 * on-push if the repository does not already exist.
+	 * 
+	 * @param repository
+	 * @return true if the user can create the repository
+	 */
+	public boolean canCreateOnPush(String repository) {
+		if (canAdmin()) {
+			// admins can create any repository
+			return true;
+		}
+		if (canCreate) {
+			String projectPath = StringUtils.getFirstPathElement(repository);
+			if (!StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username)) {
+				// personal repository
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public boolean isTeamMember(String teamname) {
 		for (TeamModel team : teams) {

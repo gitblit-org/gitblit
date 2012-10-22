@@ -1,5 +1,6 @@
 package com.gitblit.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -32,6 +33,7 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
@@ -575,6 +577,110 @@ public class GitServletTest {
 		// close serving repository
 		GitBlitSuite.close(refChecks);
 
+		GitBlit.self().deleteUser(user.username);
+	}
+	
+	@Test
+	public void testCreateOnPush() throws Exception {
+		testCreateOnPush(false, false);
+		testCreateOnPush(true, false);
+		testCreateOnPush(false, true);
+	}
+	
+	private void testCreateOnPush(boolean canCreate, boolean canAdmin) throws Exception {
+
+		UserModel user = new UserModel("sampleuser");
+		user.password = user.username;
+		
+		if (GitBlit.self().getUserModel(user.username) != null) {
+			GitBlit.self().deleteUser(user.username);
+		}
+		
+		user.canCreate = canCreate;
+		user.canAdmin = canAdmin;
+		
+		GitBlit.self().updateUserModel(user.username, user, true);
+
+		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
+		
+		// fork from original to a temporary bare repo
+		File tmpFolder = File.createTempFile("gitblit", "").getParentFile();
+		File createCheck = new File(tmpFolder, "ticgit.git");
+		if (createCheck.exists()) {
+			FileUtils.delete(createCheck, FileUtils.RECURSIVE);
+		}
+		
+		File personalRepo = new File(GitBlitSuite.REPOSITORIES, MessageFormat.format("~{0}/ticgit.git", user.username));
+		if (personalRepo.exists()) {
+			FileUtils.delete(personalRepo, FileUtils.RECURSIVE);
+		}
+
+		File projectRepo = new File(GitBlitSuite.REPOSITORIES, "project/ticgit.git");
+		if (projectRepo.exists()) {
+			FileUtils.delete(projectRepo, FileUtils.RECURSIVE);
+		}
+
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setDirectory(createCheck);
+		clone.setBare(true);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(cp);
+		Git git = clone.call();
+		
+		// add a personal repository remote and a project remote
+		git.getRepository().getConfig().setString("remote", "user", "url", MessageFormat.format("{0}/git/~{1}/ticgit.git", url, user.username));
+		git.getRepository().getConfig().setString("remote", "project", "url", MessageFormat.format("{0}/git/project/ticgit.git", url));
+		git.getRepository().getConfig().save();
+
+		// push to non-existent user repository
+		try {
+			Iterable<PushResult> results = git.push().setRemote("user").setPushAll().setCredentialsProvider(cp).call();
+
+			for (PushResult result : results) {
+				RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
+				Status status = ref.getStatus();
+				assertTrue("User failed to create repository?! " + status.name(), Status.OK.equals(status));
+			}
+
+			assertTrue("User canAdmin:" + user.canAdmin + " canCreate:" + user.canCreate, user.canAdmin || user.canCreate);
+			
+			// confirm default personal repository permissions
+			RepositoryModel model = GitBlit.self().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
+			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
+			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
+			
+		} catch (GitAPIException e) {
+			assertTrue(e.getMessage(), e.getMessage().contains("git-receive-pack not found"));
+			assertFalse("User canAdmin:" + user.canAdmin + " canCreate:" + user.canCreate, user.canAdmin || user.canCreate);
+		}
+		
+		// push to non-existent project repository
+		try {
+			Iterable<PushResult> results = git.push().setRemote("project").setPushAll().setCredentialsProvider(cp).call();
+			GitBlitSuite.close(git);
+
+			for (PushResult result : results) {
+				RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
+				Status status = ref.getStatus();
+				assertTrue("User failed to create repository?! " + status.name(), Status.OK.equals(status));
+			}
+			
+			assertTrue("User canAdmin:" + user.canAdmin, user.canAdmin);
+			
+			// confirm default project repository permissions
+			RepositoryModel model = GitBlit.self().getRepositoryModel("project/ticgit.git");
+			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
+			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
+
+		} catch (GitAPIException e) {
+			assertTrue(e.getMessage(), e.getMessage().contains("git-receive-pack not found"));
+			assertFalse("User canAdmin:" + user.canAdmin, user.canAdmin);
+		}
+
+		GitBlitSuite.close(git);
 		GitBlit.self().deleteUser(user.username);
 	}
 }

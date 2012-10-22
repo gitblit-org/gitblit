@@ -18,6 +18,7 @@ package com.gitblit;
 import java.text.MessageFormat;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -90,6 +91,16 @@ public class GitFilter extends AccessRestrictionFilter {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * Determine if a non-existing repository can be created using this filter.
+	 *  
+	 * @return true if the server allows repository creation on-push
+	 */
+	@Override
+	protected boolean isCreationAllowed() {
+		return GitBlit.getBoolean(Keys.git.allowCreateOnPush, true);
 	}
 	
 	/**
@@ -169,5 +180,51 @@ public class GitFilter extends AccessRestrictionFilter {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * An authenticated user with the CREATE role can create a repository on
+	 * push.
+	 * 
+	 * @param user
+	 * @param repository
+	 * @param action
+	 * @return the repository model, if it is created, null otherwise
+	 */
+	@Override
+	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
+		boolean isPush = !StringUtils.isEmpty(action) && gitReceivePack.equals(action);
+		if (isPush) {
+			if (user.canCreateOnPush(repository)) {
+				// user is pushing to a new repository
+				RepositoryModel model = new RepositoryModel();
+				model.name = repository;
+				model.owner = user.username;
+				model.projectPath = StringUtils.getFirstPathElement(repository);
+				if (model.isUsersPersonalRepository(user.username)) {
+					// personal repository, default to private for user
+					model.authorizationControl = AuthorizationControl.NAMED;
+					model.accessRestriction = AccessRestrictionType.VIEW;
+				} else {
+					// common repository, user default server settings
+					model.authorizationControl = AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, ""));
+					model.accessRestriction = AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, ""));
+				}
+
+				// create the repository
+				try {
+					GitBlit.self().updateRepositoryModel(repository, model, true);
+					logger.info(MessageFormat.format("{0} created {1} ON-PUSH", user.username, repository));
+					return GitBlit.self().getRepositoryModel(repository);
+				} catch (GitBlitException e) {
+					logger.error(MessageFormat.format("{0} failed to create repository {1} ON-PUSH!", user.username, repository), e);
+				}
+			} else {
+				logger.warn(MessageFormat.format("{0} is not permitted to create repository {1} ON-PUSH!", user.username, repository));
+			}
+		}
+		
+		// repository could not be created or action was not a push
+		return null;
 	}
 }

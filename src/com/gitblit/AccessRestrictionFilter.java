@@ -62,6 +62,13 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	protected abstract String getUrlRequestAction(String url);
 
 	/**
+	 * Determine if a non-existing repository can be created using this filter.
+	 *  
+	 * @return true if the filter allows repository creation
+	 */
+	protected abstract boolean isCreationAllowed();
+	
+	/**
 	 * Determine if the action may be executed on the repository.
 	 * 
 	 * @param repository
@@ -91,6 +98,18 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	protected abstract boolean canAccess(RepositoryModel repository, UserModel user, String action);
 
 	/**
+	 * Allows a filter to create a repository, if one does not exist.
+	 * 
+	 * @param user
+	 * @param repository
+	 * @param action
+	 * @return the repository model, if it is created, null otherwise
+	 */
+	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
+		return null;
+	}
+	
+	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
 	 * 
@@ -111,14 +130,33 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		String fullSuffix = fullUrl.substring(repository.length());
 		String urlRequestType = getUrlRequestAction(fullSuffix);
 
+		UserModel user = getUser(httpRequest);
+
 		// Load the repository model
 		RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
 		if (model == null) {
-			// repository not found. send 404.
-			logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
-					HttpServletResponse.SC_NOT_FOUND));
-			httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return;
+			if (isCreationAllowed()) {
+				if (user == null) {
+					// challenge client to provide credentials for creation. send 401.
+					if (GitBlit.isDebugMode()) {
+						logger.info(MessageFormat.format("ARF: CREATE CHALLENGE {0}", fullUrl));
+					}
+					httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
+					httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+					return;
+				} else {
+					// see if we can create a repository for this request
+					model = createRepository(user, repository, urlRequestType);
+				}
+			}
+			
+			if (model == null) {
+				// repository not found. send 404.
+				logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
+						HttpServletResponse.SC_NOT_FOUND));
+				httpResponse.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			}
 		}
 		
 		// Confirm that the action may be executed on the repository
@@ -139,7 +177,6 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		// Gitblit must conditionally authenticate users per-repository so just
 		// enabling http.receivepack is insufficient.
 		AuthenticatedRequest authenticatedRequest = new AuthenticatedRequest(httpRequest);
-		UserModel user = getUser(httpRequest);
 		if (user != null) {
 			authenticatedRequest.setUser(user);
 		}

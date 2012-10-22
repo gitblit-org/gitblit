@@ -13,10 +13,6 @@ This list is volatile.
 ### TODO (medium priority)
 
 * Gitblit: editable settings page in GO/WAR
-* Gitblit: investigate create-repository-on-push.
-    * Maybe a new user role to allow this?
-    * Maybe a server setting to disable this completely?
-    * Pusher/Creator becomes repository owner and can then manipulate access lists, etc?
 * Gitblit: Clone Repository feature (issue 5)
     * optional scheduled pulls
     * optional automatic push to origin/remotes?
