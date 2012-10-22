@@ -195,7 +195,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
 		boolean isPush = !StringUtils.isEmpty(action) && gitReceivePack.equals(action);
 		if (isPush) {
-			if (user.canCreateOnPush(repository)) {
+			if (user.canCreate(repository)) {
 				// user is pushing to a new repository
 				// validate name
 				if (repository.startsWith("../")) {

@@ -366,13 +366,12 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 	
 	/**
-	 * Returns true if the user is allowed to create the specified repository
-	 * on-push if the repository does not already exist.
+	 * Returns true if the user is allowed to create the specified repository.
 	 * 
 	 * @param repository
 	 * @return true if the user can create the repository
 	 */
-	public boolean canCreateOnPush(String repository) {
+	public boolean canCreate(String repository) {
 		if (canAdmin()) {
 			// admins can create any repository
 			return true;
