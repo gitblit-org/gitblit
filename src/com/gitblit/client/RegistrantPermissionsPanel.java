@@ -29,6 +29,8 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -59,8 +61,10 @@ public class RegistrantPermissionsPanel extends JPanel {
 		JScrollPane jsp = new JScrollPane(permissionsTable);
 		add(jsp, BorderLayout.CENTER);
 		
+		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Type.ordinal())
+				.setCellRenderer(new RegexRenderer());
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Permission.ordinal())
-				.setCellEditor(new AccessPermissionEditor());
+		.setCellEditor(new AccessPermissionEditor());
 		
 		registrantModel = new DefaultComboBoxModel();
 		registrantSelector = new JComboBox(registrantModel);
@@ -136,5 +140,29 @@ public class RegistrantPermissionsPanel extends JPanel {
 		public AccessPermissionEditor() {
 	        super(new JComboBox(AccessPermission.values()));
 	    }
+	}
+	
+	private class RegexRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		public RegexRenderer() {
+			super();
+			setHorizontalAlignment(SwingConstants.CENTER);
+		}
+
+		@Override
+		protected void setValue(Object value) {
+			boolean isExplicit = (Boolean) value;
+			if (isExplicit) {
+				// explicit permission
+				setText("");
+				setToolTipText(null);
+			} else {
+				// regex matched permission
+				setText("regex");
+				setToolTipText(Translation.get("gb.regexPermission"));
+			}
+		}
 	}
 }

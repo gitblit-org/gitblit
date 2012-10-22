@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.RegistrantType;
@@ -36,10 +37,10 @@ import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.GitBlitException.UnknownRequestException;
 import com.gitblit.Keys;
-import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.FeedModel;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -498,7 +499,9 @@ public class GitblitClient implements Serializable {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (UserModel user : allUsers) {
 			if (user.hasRepositoryPermission(repository.name)) {
-				list.add(new RegistrantAccessPermission(user.username, user.permissions.get(repository.name), RegistrantType.USER));
+				AccessPermission ap = user.getRepositoryPermission(repository);
+				boolean isExplicit = user.hasExplicitRepositoryPermission(repository.name);
+				list.add(new RegistrantAccessPermission(user.username, ap, isExplicit, RegistrantType.USER));
 			}
 		}
 		return list;
@@ -535,7 +538,9 @@ public class GitblitClient implements Serializable {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (TeamModel team : allTeams) {
 			if (team.hasRepositoryPermission(repository.name)) {
-				list.add(new RegistrantAccessPermission(team.name, team.permissions.get(repository.name), RegistrantType.TEAM));
+				AccessPermission ap = team.getRepositoryPermission(repository);
+				boolean isExplicit = team.hasExplicitRepositoryPermission(repository.name);
+				list.add(new RegistrantAccessPermission(team.name, ap, isExplicit, RegistrantType.TEAM));
 			}
 		}
 		return list;

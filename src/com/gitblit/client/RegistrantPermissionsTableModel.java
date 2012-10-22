@@ -36,7 +36,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 	List<RegistrantAccessPermission> permissions;
 
 	enum Columns {
-		Registrant, Permission;
+		Registrant, Type, Permission;
 
 		@Override
 		public String toString() {
@@ -72,6 +72,8 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		switch (col) {
 		case Registrant:
 			return Translation.get("gb.name");
+		case Type:
+			return Translation.get("gb.type");
 		case Permission:
 			return Translation.get("gb.permission");
 		}
@@ -88,13 +90,23 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		if (columnIndex == Columns.Permission.ordinal()) {
 			return AccessPermission.class;
+		} else if (columnIndex == Columns.Type.ordinal()) {
+			return Boolean.class;
 		}
 		return String.class;
 	}
 	
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex == Columns.Permission.ordinal();
+		if (columnIndex == Columns.Permission.ordinal()) {
+			// in order for the permission to be editable it must be
+			// explicitly defined on the object.  regex permissions are inherited
+			// and therefore can not be directly manipulated unless the current
+			// object is the source of the regex (i.e. a user or team with explicit
+			// regex definition)
+			return permissions.get(rowIndex).isExplicit;
+		}
+		return false;
 	}
 
 	@Override
@@ -104,6 +116,8 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		switch (col) {
 		case Registrant:
 			return rp.registrant;
+		case Type:
+			return rp.isExplicit;
 		case Permission:
 			return rp.permission;
 		}

@@ -38,6 +38,7 @@ import org.apache.wicket.model.IModel;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.utils.DeepCopier;
+import com.gitblit.wicket.WicketUtils;
 
 /**
  * Allows user to manipulate registrant access permissions.
@@ -78,20 +79,33 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			public void populateItem(final Item<RegistrantAccessPermission> item) {
 				final RegistrantAccessPermission entry = item.getModelObject();
 				item.add(new Label("registrant", entry.registrant));
+				if (entry.isExplicit) {
+					item.add(new Label("regex", "").setVisible(false));
+				} else {
+					Label regex = new Label("regex", "regex");
+					WicketUtils.setHtmlTooltip(regex, getString("gb.regexPermission"));
+					item.add(regex);
+				}
 
 				// use ajax to get immediate update of permission level change
 				// otherwise we can lose it if they change levels and then add
 				// a new repository permission
 				final DropDownChoice<AccessPermission> permissionChoice = new DropDownChoice<AccessPermission>(
 						"permission", Arrays.asList(AccessPermission.values()), new AccessPermissionRenderer(translations));
-				permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+				// only allow changing an explicitly defined permission
+				// this is designed to prevent changing a regex permission in
+				// a repository
+				permissionChoice.setEnabled(entry.isExplicit);
+				if (entry.isExplicit) {
+					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 		           
-					private static final long serialVersionUID = 1L;
+						private static final long serialVersionUID = 1L;
 
-					protected void onUpdate(AjaxRequestTarget target) {
-		                target.addComponent(permissionChoice);
-		            }
-		        });
+						protected void onUpdate(AjaxRequestTarget target) {
+							target.addComponent(permissionChoice);
+						}
+					});
+				}
 
 				item.add(permissionChoice);
 			}

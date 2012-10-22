@@ -137,7 +137,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), RegistrantType.REPOSITORY));
+			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), true, RegistrantType.REPOSITORY));
 		}
 		Collections.sort(list);
 		return list;
@@ -167,6 +167,18 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns true if the user has an explicitly specified access permission for
+	 * this repository.
+	 * 
+	 * @param name
+	 * @return if the user has an explicitly specified access permission
+	 */
+	public boolean hasExplicitRepositoryPermission(String name) {
+		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
+		return permissions.containsKey(repository);
 	}
 	
 	/**

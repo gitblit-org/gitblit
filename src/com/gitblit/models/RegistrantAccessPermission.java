@@ -33,13 +33,16 @@ public class RegistrantAccessPermission implements Serializable, Comparable<Regi
 	public String registrant;
 	public AccessPermission permission;
 	public RegistrantType type;
+	public boolean isExplicit;
 
 	public RegistrantAccessPermission() {
+		isExplicit = true;
 	}
 	
-	public RegistrantAccessPermission(String registrant, AccessPermission permission, RegistrantType type) {
+	public RegistrantAccessPermission(String registrant, AccessPermission permission, boolean isExplicit, RegistrantType type) {
 		this.registrant = registrant;
 		this.permission = permission;
+		this.isExplicit = isExplicit;
 		this.type = type;
 	}
 	

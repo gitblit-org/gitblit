@@ -640,8 +640,10 @@ public class GitBlit implements ServletContextListener {
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
 		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
 		for (String user : userService.getUsernamesForRepositoryRole(repository.name)) {
-			AccessPermission ap = userService.getUserModel(user).getRepositoryPermission(repository);
-			permissions.add(new RegistrantAccessPermission(user, ap, RegistrantType.USER));
+			UserModel model = userService.getUserModel(user);
+			AccessPermission ap = model.getRepositoryPermission(repository);
+			boolean isExplicit = model.hasExplicitRepositoryPermission(repository.name);
+			permissions.add(new RegistrantAccessPermission(user, ap, isExplicit, RegistrantType.USER));
 		}
 		return permissions;
 	}
@@ -656,9 +658,12 @@ public class GitBlit implements ServletContextListener {
 	public boolean setUserAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<UserModel> users = new ArrayList<UserModel>();
 		for (RegistrantAccessPermission up : permissions) {
-			UserModel user = userService.getUserModel(up.registrant);
-			user.setRepositoryPermission(repository.name, up.permission);
-			users.add(user);
+			if (up.isExplicit) {
+				// only set explicitly defined permissions
+				UserModel user = userService.getUserModel(up.registrant);
+				user.setRepositoryPermission(repository.name, up.permission);
+				users.add(user);
+			}
 		}
 		return userService.updateUserModels(users);
 	}
@@ -772,8 +777,10 @@ public class GitBlit implements ServletContextListener {
 	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
 		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
 		for (String team : userService.getTeamnamesForRepositoryRole(repository.name)) {
-			AccessPermission ap = userService.getTeamModel(team).getRepositoryPermission(repository);
-			permissions.add(new RegistrantAccessPermission(team, ap, RegistrantType.TEAM));
+			TeamModel model = userService.getTeamModel(team);
+			AccessPermission ap = model.getRepositoryPermission(repository);
+			boolean isExplicit = model.hasExplicitRepositoryPermission(repository.name);
+			permissions.add(new RegistrantAccessPermission(team, ap, isExplicit, RegistrantType.TEAM));
 		}
 		return permissions;
 	}
@@ -788,9 +795,12 @@ public class GitBlit implements ServletContextListener {
 	public boolean setTeamAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<TeamModel> teams = new ArrayList<TeamModel>();
 		for (RegistrantAccessPermission tp : permissions) {
-			TeamModel team = userService.getTeamModel(tp.registrant);
-			team.setRepositoryPermission(repository.name, tp.permission);
-			teams.add(team);
+			if (tp.isExplicit) {
+				// only set explicitly defined access permissions
+				TeamModel team = userService.getTeamModel(tp.registrant);
+				team.setRepositoryPermission(repository.name, tp.permission);
+				teams.add(team);
+			}
 		}
 		return userService.updateTeamModels(teams);
 	}

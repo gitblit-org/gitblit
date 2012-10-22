@@ -97,7 +97,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), RegistrantType.REPOSITORY));
+			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), true, RegistrantType.REPOSITORY));
 		}
 		Collections.sort(list);
 		return list;
@@ -127,6 +127,18 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns true if the team has an explicitly specified access permission for
+	 * this repository.
+	 * 
+	 * @param name
+	 * @return if the team has an explicitly specified access permission
+	 */
+	public boolean hasExplicitRepositoryPermission(String name) {
+		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
+		return permissions.containsKey(repository);
 	}
 	
 	/**

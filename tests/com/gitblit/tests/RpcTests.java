@@ -199,7 +199,7 @@ public class RpcTests {
 		List<RegistrantAccessPermission> permissions = RpcUtils.getRepositoryMemberPermissions(retrievedRepository, url, account,
 				password.toCharArray());
 		assertEquals("Membership permissions is not empty!", 0, permissions.size());
-		permissions.add(new RegistrantAccessPermission(testMember.username, AccessPermission.PUSH, RegistrantType.USER));
+		permissions.add(new RegistrantAccessPermission(testMember.username, AccessPermission.PUSH, true, RegistrantType.USER));
 		assertTrue(
 				"Failed to set member permissions!",
 				RpcUtils.setRepositoryMemberPermissions(retrievedRepository, permissions, url, account,
@@ -288,7 +288,7 @@ public class RpcTests {
 		// set no teams
 		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
 		for (String team : helloworldTeams) {
-			permissions.add(new RegistrantAccessPermission(team, AccessPermission.NONE, RegistrantType.TEAM));
+			permissions.add(new RegistrantAccessPermission(team, AccessPermission.NONE, true, RegistrantType.TEAM));
 		}
 		assertTrue(RpcUtils.setRepositoryTeamPermissions(helloworld, permissions, url, account,
 				password.toCharArray()));
