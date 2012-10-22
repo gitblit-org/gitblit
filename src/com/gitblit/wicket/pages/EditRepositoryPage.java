@@ -122,7 +122,8 @@ public class EditRepositoryPage extends RootSubPage {
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		final UserModel user = session.getUser() == null ? UserModel.ANONYMOUS : session.getUser();
-
+		final boolean allowEditName = isCreate || isAdmin || repositoryModel.isUsersPersonalRepository(user.username);
+		
 		if (isCreate) {
 			if (user.canAdmin()) {
 				super.setupPage(getString("gb.newRepository"), "");
@@ -253,7 +254,7 @@ public class EditRepositoryPage extends RootSubPage {
 						return;
 					}
 					
-					if (user.canCreate() && !user.canAdmin()) {
+					if (user.canCreate() && !user.canAdmin() && allowEditName) {
 						// ensure repository name begins with the user's path
 						if (!repositoryModel.name.startsWith(user.getPersonalPath())) {
 							error(MessageFormat.format(getString("gb.illegalPersonalRepositoryLocation"),
@@ -360,7 +361,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// field names reflective match RepositoryModel fields
-		form.add(new TextField<String>("name").setEnabled(isCreate || isAdmin || repositoryModel.isUsersPersonalRepository(user.username)));
+		form.add(new TextField<String>("name").setEnabled(allowEditName));
 		form.add(new TextField<String>("description"));
 		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
 				.setEnabled(GitBlitWebSession.get().canAdmin()));
