@@ -347,9 +347,14 @@ public class EditUserDialog extends JDialog {
 				restricted.add(repo.name);
 			}
 		}
+
 		// remove repositories for which user already has a permission
-		for (RegistrantAccessPermission rp : permissions) {
-			restricted.remove(rp.registrant);
+		if (permissions == null) {
+			permissions = new ArrayList<RegistrantAccessPermission>();
+		} else {
+			for (RegistrantAccessPermission rp : permissions) {
+				restricted.remove(rp.registrant);
+			}
 		}
 		
 		StringUtils.sortRepositorynames(restricted);

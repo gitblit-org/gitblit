@@ -49,6 +49,7 @@ import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 public class EditTeamDialog extends JDialog {
@@ -316,8 +317,12 @@ public class EditTeamDialog extends JDialog {
 		}
 		
 		// remove repositories for which team already has a permission
-		for (RegistrantAccessPermission rp : permissions) {
-			restricted.remove(rp.registrant);
+		if (permissions == null) {
+			permissions = new ArrayList<RegistrantAccessPermission>();
+		} else {
+			for (RegistrantAccessPermission rp : permissions) {
+				restricted.remove(rp.registrant);
+			}
 		}
 
 		StringUtils.sortRepositorynames(restricted);
