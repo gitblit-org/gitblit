@@ -197,6 +197,24 @@ public class GitFilter extends AccessRestrictionFilter {
 		if (isPush) {
 			if (user.canCreateOnPush(repository)) {
 				// user is pushing to a new repository
+				// validate name
+				if (repository.startsWith("../")) {
+					logger.error(MessageFormat.format("Illegal relative path in repository name! {0}", repository));
+					return null;
+				}
+				if (repository.contains("/../")) {
+					logger.error(MessageFormat.format("Illegal relative path in repository name! {0}", repository));
+					return null;
+				}					
+
+				// confirm valid characters in repository name
+				Character c = StringUtils.findInvalidCharacter(repository);
+				if (c != null) {
+					logger.error(MessageFormat.format("Invalid character '{0}' in repository name {1}!", c, repository));
+					return null;
+				}
+
+				// create repository
 				RepositoryModel model = new RepositoryModel();
 				model.name = repository;
 				model.owner = user.username;
@@ -213,11 +231,11 @@ public class GitFilter extends AccessRestrictionFilter {
 
 				// create the repository
 				try {
-					GitBlit.self().updateRepositoryModel(repository, model, true);
-					logger.info(MessageFormat.format("{0} created {1} ON-PUSH", user.username, repository));
-					return GitBlit.self().getRepositoryModel(repository);
+					GitBlit.self().updateRepositoryModel(model.name, model, true);
+					logger.info(MessageFormat.format("{0} created {1} ON-PUSH", user.username, model.name));
+					return GitBlit.self().getRepositoryModel(model.name);
 				} catch (GitBlitException e) {
-					logger.error(MessageFormat.format("{0} failed to create repository {1} ON-PUSH!", user.username, repository), e);
+					logger.error(MessageFormat.format("{0} failed to create repository {1} ON-PUSH!", user.username, model.name), e);
 				}
 			} else {
 				logger.warn(MessageFormat.format("{0} is not permitted to create repository {1} ON-PUSH!", user.username, repository));
