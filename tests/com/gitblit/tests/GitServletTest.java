@@ -611,11 +611,13 @@ public class GitServletTest {
 		}
 		
 		File personalRepo = new File(GitBlitSuite.REPOSITORIES, MessageFormat.format("~{0}/ticgit.git", user.username));
+		GitBlitSuite.close(personalRepo);
 		if (personalRepo.exists()) {
 			FileUtils.delete(personalRepo, FileUtils.RECURSIVE);
 		}
 
 		File projectRepo = new File(GitBlitSuite.REPOSITORIES, "project/ticgit.git");
+		GitBlitSuite.close(projectRepo);
 		if (projectRepo.exists()) {
 			FileUtils.delete(projectRepo, FileUtils.RECURSIVE);
 		}
@@ -627,6 +629,8 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		Git git = clone.call();
+		
+		GitBlitSuite.close(personalRepo);
 		
 		// add a personal repository remote and a project remote
 		git.getRepository().getConfig().setString("remote", "user", "url", MessageFormat.format("{0}/git/~{1}/ticgit.git", url, user.username));
