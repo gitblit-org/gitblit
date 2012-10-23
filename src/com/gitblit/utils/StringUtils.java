@@ -427,6 +427,8 @@ public class StringUtils {
 	public static int compareRepositoryNames(String r1, String r2) {
 		// sort root repositories first, alphabetically
 		// then sort grouped repositories, alphabetically
+		r1 = r1.toLowerCase();
+		r2 = r2.toLowerCase();
 		int s1 = r1.indexOf('/');
 		int s2 = r2.indexOf('/');
 		if (s1 == -1 && s2 == -1) {
