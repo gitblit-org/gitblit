@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +51,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated
 	public final Set<String> repositories = new HashSet<String>();
-	public final Map<String, AccessPermission> permissions = new HashMap<String, AccessPermission>();
+	public final Map<String, AccessPermission> permissions = new LinkedHashMap<String, AccessPermission>();
 	public final Set<String> mailingLists = new HashSet<String>();
 	public final List<String> preReceiveScripts = new ArrayList<String>();
 	public final List<String> postReceiveScripts = new ArrayList<String>();
@@ -191,6 +191,8 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 					AccessPermission p = permissions.get(key);
 					if (p != null) {
 						permission = p;
+						// take first match
+						break;
 					}
 				}
 			}
@@ -198,7 +200,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		return permission;
 	}
 	
-	private boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
+	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
 			AccessPermission permission = getRepositoryPermission(repository);
 			return permission.atLeast(requirePermission);

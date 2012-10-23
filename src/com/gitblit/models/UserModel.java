@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated
 	public final Set<String> repositories = new HashSet<String>();
-	public final Map<String, AccessPermission> permissions = new HashMap<String, AccessPermission>();
+	public final Map<String, AccessPermission> permissions = new LinkedHashMap<String, AccessPermission>();
 	public final Set<TeamModel> teams = new HashSet<TeamModel>();
 
 	// non-persisted fields
@@ -217,8 +217,8 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			return AccessPermission.REWIND;
 		}
 		
-		// determine best permission available based on user's personal permissions
-		// and the permissions of teams of which the user belongs
+		// explicit user permission OR user regex match is used
+		// if that fails, then the best team permission is used
 		AccessPermission permission = AccessPermission.NONE;
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified, use it
@@ -232,17 +232,21 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				if (StringUtils.matchesIgnoreCase(repository.name, key)) {
 					AccessPermission p = permissions.get(key);
 					if (p != null) {
+						// take first match
 						permission = p;
+						break;
 					}
 				}
 			}
 		}
 		
-		for (TeamModel team : teams) {
-			AccessPermission p = team.getRepositoryPermission(repository);
-			if (permission == null || p.exceeds(permission)) {
-				// use team permission
-				permission = p;
+		if (AccessPermission.NONE.equals(permission)) {
+			for (TeamModel team : teams) {
+				AccessPermission p = team.getRepositoryPermission(repository);
+				if (p.exceeds(permission)) {
+					// use highest team permission
+					permission = p;
+				}
 			}
 		}
 		return permission;

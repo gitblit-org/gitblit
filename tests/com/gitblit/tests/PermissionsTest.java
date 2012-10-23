@@ -2393,7 +2393,7 @@ public class PermissionsTest extends Assert {
 	}
 	
 	@Test
-	public void testWildcardMatching() throws Exception {
+	public void testRegexMatching() throws Exception {
 		RepositoryModel repository = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
@@ -2415,7 +2415,125 @@ public class PermissionsTest extends Assert {
 		assertFalse("user CAN delete!", user.canDelete(repository));
 		assertFalse("user CAN edit!", user.canEdit(repository));
 	}
+
+	@Test
+	public void testRegexIncludeCommonExcludePersonal() throws Exception {
+		
+		UserModel user = new UserModel("test");
+		user.setRepositoryPermission("[^~].*", AccessPermission.CLONE);
+
+		// common
+		RepositoryModel common = new RepositoryModel("ubercool/_my-r/e~po.git", null, null, new Date());
+		common.authorizationControl = AuthorizationControl.NAMED;
+		common.accessRestriction = AccessRestrictionType.VIEW;
+		
+		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(common.name));
+		assertTrue("user CAN NOT view!", user.canView(common));
+		assertTrue("user CAN NOT clone!", user.canClone(common));
+		assertFalse("user CAN push!", user.canPush(common));
+		
+		assertFalse("user CAN create ref!", user.canCreateRef(common));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(common));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(common));
+
+		assertFalse("user CAN fork!", user.canFork(common));
+		
+		assertFalse("user CAN delete!", user.canDelete(common));
+		assertFalse("user CAN edit!", user.canEdit(common));
+
+		// personal
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		personal.authorizationControl = AuthorizationControl.NAMED;
+		personal.accessRestriction = AccessRestrictionType.VIEW;
+		
+		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
+		assertFalse("user CAN NOT view!", user.canView(personal));
+		assertFalse("user CAN NOT clone!", user.canClone(personal));
+		assertFalse("user CAN push!", user.canPush(personal));
+		
+		assertFalse("user CAN create ref!", user.canCreateRef(personal));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
+
+		assertFalse("user CAN fork!", user.canFork(personal));
+		
+		assertFalse("user CAN delete!", user.canDelete(personal));
+		assertFalse("user CAN edit!", user.canEdit(personal));
+	}
 	
+	@Test
+	public void testRegexMatching2() throws Exception {
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		personal.authorizationControl = AuthorizationControl.NAMED;
+		personal.accessRestriction = AccessRestrictionType.VIEW;
+
+		UserModel user = new UserModel("test");
+		// permit all repositories excluding all personal rpeositories
+		user.setRepositoryPermission("[^~].*", AccessPermission.CLONE);
+		// permitall  ~ubercool repositories
+		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
+		
+		// personal
+		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(personal.name));
+		assertTrue("user CAN NOT view!", user.canView(personal));
+		assertTrue("user CAN NOT clone!", user.canClone(personal));
+		assertFalse("user CAN push!", user.canPush(personal));
+		
+		assertFalse("user CAN create ref!", user.canCreateRef(personal));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
+
+		assertFalse("user CAN fork!", user.canFork(personal));
+		
+		assertFalse("user CAN delete!", user.canDelete(personal));
+		assertFalse("user CAN edit!", user.canEdit(personal));
+	}
+	
+	@Test
+	public void testRegexOrder() throws Exception {
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		personal.authorizationControl = AuthorizationControl.NAMED;
+		personal.accessRestriction = AccessRestrictionType.VIEW;
+
+		UserModel user = new UserModel("test");
+		user.setRepositoryPermission(".*", AccessPermission.PUSH);
+		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
+		
+		// has PUSH access because first match is PUSH permission 
+		assertTrue("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
+		assertTrue("user CAN NOT view!", user.canView(personal));
+		assertTrue("user CAN NOT clone!", user.canClone(personal));
+		assertTrue("user CAN NOT push!", user.canPush(personal));
+		
+		assertFalse("user CAN create ref!", user.canCreateRef(personal));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
+
+		assertFalse("user CAN fork!", user.canFork(personal));
+		
+		assertFalse("user CAN delete!", user.canDelete(personal));
+		assertFalse("user CAN edit!", user.canEdit(personal));
+				
+		user.permissions.clear();
+		user.setRepositoryPermission("~ubercool/.*", AccessPermission.CLONE);
+		user.setRepositoryPermission(".*", AccessPermission.PUSH);
+		
+		// has CLONE access because first match is CLONE permission
+		assertTrue("user HAS a repository permission!", user.hasRepositoryPermission(personal.name));
+		assertTrue("user CAN NOT view!", user.canView(personal));
+		assertTrue("user CAN NOT clone!", user.canClone(personal));
+		assertFalse("user CAN push!", user.canPush(personal));
+				
+		assertFalse("user CAN create ref!", user.canCreateRef(personal));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
+
+		assertFalse("user CAN fork!", user.canFork(personal));
+				
+		assertFalse("user CAN delete!", user.canDelete(personal));
+		assertFalse("user CAN edit!", user.canEdit(personal));
+	}
+
 	@Test
 	public void testAdminTeamInheritance() throws Exception {
 		UserModel user = new UserModel("test");
