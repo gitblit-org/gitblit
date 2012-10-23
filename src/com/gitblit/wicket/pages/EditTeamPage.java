@@ -36,11 +36,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.RegistrantAccessPermission;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
@@ -83,14 +81,7 @@ public class EditTeamPage extends RootSubPage {
 
 		CompoundPropertyModel<TeamModel> model = new CompoundPropertyModel<TeamModel>(teamModel);
 
-		List<String> repos = new ArrayList<String>();
-		for (String repo : GitBlit.self().getRepositoryList()) {
-			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
-			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				repos.add(repo);
-			}
-		}
-		StringUtils.sortRepositorynames(repos);
+		List<String> repos = getAccessRestrictedRepositoryList(true);
 
 		List<String> teamUsers = new ArrayList<String>(teamModel.users);
 		Collections.sort(teamUsers);

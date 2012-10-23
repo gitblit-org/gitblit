@@ -34,12 +34,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -86,14 +84,8 @@ public class EditUserPage extends RootSubPage {
 				StringUtils.isEmpty(userModel.password) ? "" : userModel.password);
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
 
-		List<String> repos = new ArrayList<String>();
-		for (String repo : GitBlit.self().getRepositoryList()) {
-			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
-			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				repos.add(repo);
-			}
-		}
-		StringUtils.sortRepositorynames(repos);
+		// build list of projects including all repositories wildcards
+		List<String> repos = getAccessRestrictedRepositoryList(true);
 		
 		List<String> userTeams = new ArrayList<String>();
 		for (TeamModel team : userModel.teams) {

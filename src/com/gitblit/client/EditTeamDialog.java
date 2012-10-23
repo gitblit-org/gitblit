@@ -315,18 +315,35 @@ public class EditTeamDialog extends JDialog {
 				restricted.add(repo.name);
 			}
 		}
+		StringUtils.sortRepositorynames(restricted);
 		
-		// remove repositories for which team already has a permission
+		List<String> list = new ArrayList<String>();
+		// repositories
+		list.add(".*");
+		// all repositories excluding personal repositories
+		list.add("[^~].*");
+		String lastProject = null;
+		for (String repo : restricted) {
+			String projectPath = StringUtils.getFirstPathElement(repo);
+			if (lastProject == null || !lastProject.equalsIgnoreCase(projectPath)) {
+				lastProject = projectPath;
+				if (!StringUtils.isEmpty(projectPath)) {
+					// regex for all repositories within a project
+					list.add(projectPath + "/.*");
+				}
+				list.add(repo);
+			}
+		}
+
+		// remove repositories for which user already has a permission
 		if (permissions == null) {
 			permissions = new ArrayList<RegistrantAccessPermission>();
 		} else {
 			for (RegistrantAccessPermission rp : permissions) {
-				restricted.remove(rp.registrant);
+				list.remove(rp.registrant);
 			}
 		}
-
-		StringUtils.sortRepositorynames(restricted);
-		repositoryPalette.setObjects(restricted, permissions);
+		repositoryPalette.setObjects(list, permissions);
 	}
 
 	public void setUsers(List<String> users, List<String> selected) {
