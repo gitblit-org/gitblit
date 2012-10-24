@@ -212,6 +212,9 @@ public abstract class BasePage extends WebPage {
 			case NONE:
 				map.put(type, MessageFormat.format(getString("gb.noPermission"), type.code));
 				break;
+			case EXCLUDE:
+				map.put(type, MessageFormat.format(getString("gb.excludePermission"), type.code));
+				break;
 			case VIEW:
 				map.put(type, MessageFormat.format(getString("gb.viewPermission"), type.code));
 				break;

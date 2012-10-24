@@ -266,7 +266,26 @@ These permission codes are combined with the repository path to create a user pe
 
 Gitblit also supports *case-insensitive* regex matching for repository permissions.  The following permission grants push privileges to all repositories in the *mygroup* folder.
 
-    RW:mygroup/[a-z0-9-~_\\./]+
+    RW:mygroup/.*
+
+##### Exclusions
+
+When using regex matching it may also be useful to exclude specific repositories or to exclude regex repository matches.  You may specify the **X** permission for exclusion.  The following example grants clone permission to all repositories except the repositories in mygroup.  The user/team will have no access whatsoever to these repositories.
+
+    X:mygroup/.*
+    R:.*
+
+##### Order is Important
+
+The preceding example should suggest that order of permissions is important with regex matching.  Here are the rules for determining the permission that is applied to a repository request:
+
+1. If the user is an admin or repository owner, then RW+
+2. Else if user has an explicit permission, use that
+3. Else check for the first regex match in user permissions
+4. Else check for the HIGHEST permission from team memberships
+    1. If the team is an admin team, then RW+
+    2. Else if a team has an explicit permission, use that
+    3. Else check for the first regex match in team permissions
 
 #### No-So-Discrete Permissions (Gitblit <= v1.1.0)
 

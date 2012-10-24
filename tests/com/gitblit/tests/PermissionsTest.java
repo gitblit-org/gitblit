@@ -2533,6 +2533,32 @@ public class PermissionsTest extends Assert {
 		assertFalse("user CAN delete!", user.canDelete(personal));
 		assertFalse("user CAN edit!", user.canEdit(personal));
 	}
+	
+	@Test
+	public void testExclusion() throws Exception {
+		RepositoryModel personal = new RepositoryModel("~ubercool/_my-r/e~po.git", null, null, new Date());
+		personal.authorizationControl = AuthorizationControl.NAMED;
+		personal.accessRestriction = AccessRestrictionType.VIEW;
+
+		UserModel user = new UserModel("test");
+		user.setRepositoryPermission("~ubercool/.*", AccessPermission.EXCLUDE);
+		user.setRepositoryPermission(".*", AccessPermission.PUSH);
+		
+		// has EXCLUDE access because first match is EXCLUDE permission
+		assertTrue("user DOES NOT HAVE a repository permission!", user.hasRepositoryPermission(personal.name));
+		assertFalse("user CAN NOT view!", user.canView(personal));
+		assertFalse("user CAN NOT clone!", user.canClone(personal));
+		assertFalse("user CAN push!", user.canPush(personal));
+				
+		assertFalse("user CAN create ref!", user.canCreateRef(personal));
+		assertFalse("user CAN delete ref!", user.canDeleteRef(personal));
+		assertFalse("user CAN rewind ref!", user.canRewindRef(personal));
+
+		assertFalse("user CAN fork!", user.canFork(personal));
+				
+		assertFalse("user CAN delete!", user.canDelete(personal));
+		assertFalse("user CAN edit!", user.canEdit(personal));
+	}
 
 	@Test
 	public void testAdminTeamInheritance() throws Exception {

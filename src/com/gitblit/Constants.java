@@ -319,9 +319,9 @@ public class Constants {
 	 * The access permissions available for a repository. 
 	 */
 	public static enum AccessPermission {
-		NONE("N"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+");
+		NONE("N"), EXCLUDE("X"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+");
 		
-		public static final AccessPermission [] NEWPERMISSIONS = { VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
+		public static final AccessPermission [] NEWPERMISSIONS = { EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
 		
 		public static AccessPermission LEGACY = REWIND;
 		
