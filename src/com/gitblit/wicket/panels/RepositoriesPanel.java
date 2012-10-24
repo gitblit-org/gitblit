@@ -387,7 +387,7 @@ public class RepositoriesPanel extends BasePanel {
 
 		@Override
 		public String toString() {
-			return StringUtils.isEmpty(title) ? name  : title + " (" + count + ")";
+			return (StringUtils.isEmpty(title) ? name  : title) + " (" + count + ")";
 		}
 	}
 
