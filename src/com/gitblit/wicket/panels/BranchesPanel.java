@@ -166,6 +166,14 @@ public class BranchesPanel extends BasePanel {
 			@Override
 			public void onClick() {
 				Repository r = GitBlit.self().getRepository(repositoryModel.name);
+				if (r == null) {
+					if (GitBlit.self().isCollectingGarbage(repositoryModel.name)) {
+						error(MessageFormat.format(getString("gb.busyCollectingGarbage"), repositoryModel.name));
+					} else {
+						error(MessageFormat.format("Failed to find repository {0}", repositoryModel.name));
+					}
+					return;
+				}
 				boolean success = JGitUtils.deleteBranchRef(r, entry.getName());
 				r.close();
 				if (success) {

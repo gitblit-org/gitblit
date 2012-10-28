@@ -86,6 +86,8 @@ public class Constants {
 	
 	public static final String CONFIG_CUSTOM_FIELDS = "customFields";
 	
+	public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
+	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
 	}
@@ -382,6 +384,14 @@ public class Constants {
 	
 	public static enum RegistrantType {
 		REPOSITORY, USER, TEAM;
+	}
+	
+	public static enum GCStatus {
+		READY, COLLECTING;
+		
+		public boolean exceeds(GCStatus s) {
+			return ordinal() > s.ordinal();
+		}
 	}
 	
 	@Documented

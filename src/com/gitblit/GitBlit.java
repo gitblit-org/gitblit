@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -103,6 +104,7 @@ import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 
 /**
@@ -159,6 +161,8 @@ public class GitBlit implements ServletContextListener {
 	private MailExecutor mailExecutor;
 	
 	private LuceneExecutor luceneExecutor;
+	
+	private GCExecutor gcExecutor;
 	
 	private TimeZone timezone;
 	
@@ -250,6 +254,34 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public static int getInteger(String key, int defaultValue) {
 		return self().settings.getInteger(key, defaultValue);
+	}
+	
+	/**
+	 * Returns the value in bytes for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as an integer, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getFilesize(String key, int defaultValue)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
+	public static int getFilesize(String key, int defaultValue) {
+		return self().settings.getFilesize(key, defaultValue);
+	}
+
+	/**
+	 * Returns the value in bytes for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as a long, the
+	 * defaultValue is returned.
+	 * 
+	 * @see IStoredSettings.getFilesize(String key, long defaultValue)
+	 * @param key
+	 * @param defaultValue
+	 * @return key value or defaultValue
+	 */
+	public static long getFilesize(String key, long defaultValue) {
+		return self().settings.getFilesize(key, defaultValue);
 	}
 
 	/**
@@ -1018,10 +1050,15 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository or null
 	 */
 	public Repository getRepository(String repositoryName, boolean logError) {
+		if (isCollectingGarbage(repositoryName)) {
+			logger.warn(MessageFormat.format("Rejecting request for {0}, busy collecting garbage!", repositoryName));
+			return null;
+		}
+
 		File dir = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
 		if (dir == null)
 			return null;
-
+		
 		Repository r = null;
 		try {
 			FileKey key = FileKey.exact(dir, FS.DETECTED);
@@ -1115,7 +1152,14 @@ public class GitBlit implements ServletContextListener {
 		
 		// cached model
 		RepositoryModel model = repositoryListCache.get(repositoryName);
-		
+
+		if (gcExecutor.isCollectingGarbage(model.name)) {
+			// Gitblit is busy collecting garbage, use our cached model
+			RepositoryModel rm = DeepCopier.copy(model);
+			rm.isCollectingGarbage = true;
+			return rm;
+		}
+
 		// check for updates
 		Repository r = getRepository(repositoryName);
 		if (r == null) {
@@ -1180,12 +1224,6 @@ public class GitBlit implements ServletContextListener {
 				}
 				project.title = projectConfigs.getString("project", name, "title");
 				project.description = projectConfigs.getString("project", name, "description");
-				// TODO add more interesting metadata
-				// project manager?
-				// commit message regex?
-				// RW+
-				// RW
-				// R
 				configs.put(name.toLowerCase(), project);				
 			}
 			projectCache.clear();
@@ -1379,6 +1417,13 @@ public class GitBlit implements ServletContextListener {
 			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
+			model.gcThreshold = getConfig(config, "gcThreshold", settings.getString(Keys.git.defaultGarbageCollectionThreshold, "500KB"));
+			model.gcPeriod = getConfig(config, "gcPeriod", settings.getString(Keys.git.defaultGarbageCollectionPeriod, "7 days"));
+			try {
+				model.lastGC = new SimpleDateFormat(Constants.ISO8601).parse(getConfig(config, "lastGC", "1970-01-01'T'00:00:00Z"));
+			} catch (Exception e) {
+				model.lastGC = new Date(0);
+			}
 			model.origin = config.getString("remote", "origin", "url");
 			if (model.origin != null) {
 				model.origin = model.origin.replace('\\', '/');
@@ -1675,6 +1720,10 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
 			boolean isCreate) throws GitBlitException {
+		if (gcExecutor.isCollectingGarbage(repositoryName)) {
+			throw new GitBlitException(MessageFormat.format("sorry, Gitblit is busy collecting garbage in {0}",
+					repositoryName));
+		}
 		Repository r = null;
 		String projectPath = StringUtils.getFirstPathElement(repository.name);
 		if (!StringUtils.isEmpty(projectPath)) {
@@ -1819,6 +1868,9 @@ public class GitBlit implements ServletContextListener {
 		config.setString(Constants.CONFIG_GITBLIT, null, "federationStrategy",
 				repository.federationStrategy.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
+		config.setString(Constants.CONFIG_GITBLIT, null, "gcThreshold", repository.gcThreshold);
+		config.setString(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
 
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
@@ -2614,6 +2666,12 @@ public class GitBlit implements ServletContextListener {
 	public void configureContext(IStoredSettings settings, boolean startFederation) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.settings = settings;
+		
+		// prepare service executors
+		mailExecutor = new MailExecutor(settings);
+		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
+		gcExecutor = new GCExecutor(settings);
+		
 		repositoriesFolder = getRepositoriesFolder();
 		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
 
@@ -2647,16 +2705,43 @@ public class GitBlit implements ServletContextListener {
 		// load and cache the project metadata
 		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "projects.conf"), FS.detect());
 		getProjectConfigs();
-		mailExecutor = new MailExecutor(settings);
+		
+		// schedule mail engine
 		if (mailExecutor.isReady()) {
 			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
 			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
 		}
-		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
+		
+		// schedule lucene engine
 		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
 		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
+		
+		// schedule gc engine
+		if (gcExecutor.isReady()) {
+			logger.info("GC executor is scheduled to scan repositories every 24 hours.");
+			Calendar c = Calendar.getInstance();
+			c.set(Calendar.HOUR_OF_DAY, settings.getInteger(Keys.git.garbageCollectionHour, 0));
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			Date cd = c.getTime();
+			Date now = new Date();
+			int delay = 0;
+			if (cd.before(now)) {
+				c.add(Calendar.DATE, 1);
+				cd = c.getTime();
+			}
+			delay = (int) ((cd.getTime() - now.getTime())/TimeUtils.MIN);
+			String when = delay + " mins";
+			if (delay > 60) {
+				when = MessageFormat.format("{0,number,0.0} hours", ((float)delay)/60f);
+			}
+			logger.info(MessageFormat.format("Next scheculed GC scan is in {0}", when));
+			scheduledExecutor.scheduleAtFixedRate(gcExecutor, delay, 60*24, TimeUnit.MINUTES);
+		}
+		
 		if (startFederation) {
 			configureFederation();
 		}
@@ -2758,8 +2843,19 @@ public class GitBlit implements ServletContextListener {
 		logger.info("Gitblit context destroyed by servlet container.");
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
+		gcExecutor.close();
 	}
 	
+	/**
+	 * Returns true if Gitblit is actively collecting garbage in this repository.
+	 * 
+	 * @param repositoryName
+	 * @return true if actively collecting garbage
+	 */
+	public boolean isCollectingGarbage(String repositoryName) {
+		return gcExecutor.isCollectingGarbage(repositoryName);
+	}
+
 	/**
 	 * Creates a personal fork of the specified repository. The clone is view
 	 * restricted by default and the owner of the source repository is given

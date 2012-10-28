@@ -189,11 +189,17 @@ public class FederationPullExecutor implements Runnable {
 							repositoryName.indexOf(DOT_GIT_EXT));
 				}
 			}
-
+			
 			// confirm that the origin of any pre-existing repository matches
 			// the clone url
 			String fetchHead = null;
 			Repository existingRepository = GitBlit.self().getRepository(repositoryName);
+			
+			if (existingRepository == null && GitBlit.self().isCollectingGarbage(repositoryName)) {
+				logger.warn(MessageFormat.format("Skipping local repository {0}, busy collecting garbage", repositoryName));
+				continue;
+			}
+
 			if (existingRepository != null) {
 				StoredConfig config = existingRepository.getConfig();
 				config.load();

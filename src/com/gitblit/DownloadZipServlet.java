@@ -101,11 +101,16 @@ public class DownloadZipServlet extends HttpServlet {
 			if (!StringUtils.isEmpty(objectId)) {
 				name += "-" + objectId;
 			}
-
+						
 			Repository r = GitBlit.self().getRepository(repository);
 			if (r == null) {
-				error(response, MessageFormat.format("# Error\nFailed to find repository {0}", repository));
-				return;
+				if (GitBlit.self().isCollectingGarbage(repository)) {
+					error(response, MessageFormat.format("# Error\nGitblit is busy collecting garbage in {0}", repository));
+					return;
+				} else {
+					error(response, MessageFormat.format("# Error\nFailed to find repository {0}", repository));
+					return;
+				}
 			}
 			RevCommit commit = JGitUtils.getCommit(r, objectId);
 			if (commit == null) {

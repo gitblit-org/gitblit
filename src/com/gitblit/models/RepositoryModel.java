@@ -76,6 +76,11 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public Set<String> forks;
 	public String originRepository;
 	public boolean verifyCommitter;
+	public String gcThreshold;
+	public String gcPeriod;
+	
+	public transient boolean isCollectingGarbage;
+	public Date lastGC;
 	
 	public RepositoryModel() {
 		this("", "", "", new Date(0));

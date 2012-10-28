@@ -82,6 +82,9 @@ public class ActivityUtils {
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
 			if (model.hasCommits && model.lastChange.after(thresholdDate)) {
+				if (model.isCollectingGarbage) {
+					continue;
+				}
 				Repository repository = GitBlit.self()
 						.getRepository(model.name);
 				List<String> branches = new ArrayList<String>();

@@ -125,6 +125,12 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
+		
+		if (GitBlit.self().isCollectingGarbage(repository)) {
+			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, busy collecting garbage!", repository));
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
 
 		// Determine if the request URL is restricted
 		String fullSuffix = fullUrl.substring(repository.length());

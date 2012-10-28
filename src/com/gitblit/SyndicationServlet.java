@@ -210,7 +210,13 @@ public class SyndicationServlet extends HttpServlet {
 		for (String name : repositories) {
 			Repository repository = GitBlit.self().getRepository(name);
 			RepositoryModel model = GitBlit.self().getRepositoryModel(name);
-			
+
+			if (repository == null) {
+				if (model.isCollectingGarbage) {
+					logger.warn(MessageFormat.format("Temporarily excluding {0} from feed, busy collecting garbage", name));
+				} 
+				continue;
+			}
 			if (!isProjectFeed) {
 				// single-repository feed
 				feedName = model.name;

@@ -110,6 +110,11 @@ public class RpcServlet extends JsonServlet {
 					// skip empty repository
 					continue;
 				}
+				if (model.isCollectingGarbage) {
+					// skip garbage collecting repository
+					logger.warn(MessageFormat.format("Temporarily excluding {0} from RPC, busy collecting garbage", model.name));
+					continue;
+				}
 				// get local branches
 				Repository repository = GitBlit.self().getRepository(model.name);
 				List<RefModel> refs = JGitUtils.getLocalBranches(repository, false, -1);

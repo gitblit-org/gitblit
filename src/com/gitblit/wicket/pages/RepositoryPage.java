@@ -92,6 +92,18 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		objectId = WicketUtils.getObject(params);
 		
+		if (StringUtils.isEmpty(repositoryName)) {
+			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
+		}
+
+		if (!getRepositoryModel().hasCommits) {
+			setResponsePage(EmptyRepositoryPage.class, params);
+		}
+		
+		if (getRepositoryModel().isCollectingGarbage) {
+			error(MessageFormat.format(getString("gb.busyCollectingGarbage"), getRepositoryModel().name), true);
+		}
+
 		if (objectId != null) {
 			RefModel branch = null;
 			if ((branch = JGitUtils.getBranch(getRepository(), objectId)) != null) {
@@ -103,16 +115,9 @@ public abstract class RepositoryPage extends BasePage {
 				boolean canAccess = user.hasBranchPermission(repositoryName,
 								branch.reference.getName());
 				if (!canAccess) {
-					error("Access denied", true);
+					error(getString("gb.accessDeined"), true);
 				}
 			}
-		}
-		if (StringUtils.isEmpty(repositoryName)) {
-			error(MessageFormat.format(getString("gb.repositoryNotSpecifiedFor"), getPageName()), true);
-		}
-
-		if (!getRepositoryModel().hasCommits) {
-			setResponsePage(EmptyRepositoryPage.class, params);
 		}
 
 		// register the available page links for this page and user

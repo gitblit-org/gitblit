@@ -379,6 +379,10 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
+		List<String> gcPeriods = Arrays.asList("1 day", "2 days", "3 days", "4 days", "5 days", "7 days", "10 days", "14 days");
+		form.add(new DropDownChoice<String>("gcPeriod", gcPeriods));
+		form.add(new TextField<String>("gcThreshold"));
+
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
 		List<FederationStrategy> federationStrategies = new ArrayList<FederationStrategy>(

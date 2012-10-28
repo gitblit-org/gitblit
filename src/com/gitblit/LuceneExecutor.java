@@ -171,6 +171,12 @@ public class LuceneExecutor implements Runnable {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
 				Repository repository = GitBlit.self().getRepository(model.name);
+				if (repository == null) {
+					if (GitBlit.self().isCollectingGarbage(model.name)) {
+						logger.info(MessageFormat.format("Skipping Lucene index of {0}, busy garbage collecting", repositoryName));
+					}
+					continue;
+				}
 				index(model, repository);				
 				repository.close();
 				System.gc();

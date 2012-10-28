@@ -3,8 +3,7 @@
 <div class="alert alert-info">
 <h4>Update Note</h4>
 The permissions model has changed in this release.
-<p>
-If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.
+<p>If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.</p>
 </div>
 
 ### Current Release
@@ -33,14 +32,19 @@ If you are updating your server, you must also update any Gitblit Manager and Fe
     - RW+ (clone and push with ref creation, deletion, rewind)  
 While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit <= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.
 - Implemented *case-insensitive* regex repository permission matching (issue 36)  
-This allows you to specify a permission like `RW:mygroup/[a-z0-9-~_\\./]+` to grant push privileges to all repositories within the *mygroup* project/folder.
+This allows you to specify a permission like `RW:mygroup/.*` to grant push privileges to all repositories within the *mygroup* project/folder.
 - Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging
 - Added support for personal repositories.  
 Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.
 - Added support for server-side forking of a repository to a personal repository (issue 137)  
 In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required <u>however</u> it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.
 - Added optional *create-on-push* support  
-    **New:** *git.allowCreateOnPush=true*
+    **New:** *git.allowCreateOnPush=true*  
+- Added **experimental** JGit-based garbage collection service.  This service is disabled by default.  
+    **New:** *git.allowGarbageCollection=false*  
+    **New:** *git.garbageCollectionHour = 0*  
+    **New:** *git.defaultGarbageCollectionThreshold = 500k*  
+    **New:** *git.defaultGarbageCollectionPeriod = 7 days*
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
 - Delete branch feature (issue 121, Github/ajermakovics)
@@ -50,6 +54,7 @@ In order to fork a repository, the user account must have the *fork* permission 
 
 #### changes
 
+- Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
 - Use https Gravatar urls to avoid browser complaints
 - Expose ReceivePack to Groovy push hooks (issue 125)
 - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 129)
