@@ -36,8 +36,10 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.utils.DeepCopier;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
 /**
@@ -78,7 +80,16 @@ public class RegistrantPermissionsPanel extends BasePanel {
             
 			public void populateItem(final Item<RegistrantAccessPermission> item) {
 				final RegistrantAccessPermission entry = item.getModelObject();
-				item.add(new Label("registrant", entry.registrant));
+				if (RegistrantType.REPOSITORY.equals(entry.type)) {
+					// repository, strip .git and show swatch
+					String repoName = StringUtils.stripDotGit(entry.registrant);
+					Label registrant = new Label("registrant", repoName);
+					WicketUtils.setCssClass(registrant, "repositorySwatch");
+					WicketUtils.setCssBackground(registrant, repoName);
+					item.add(registrant);
+				} else {
+					item.add(new Label("registrant", entry.registrant));
+				}
 				if (entry.isExplicit) {
 					item.add(new Label("regex", "").setVisible(false));
 				} else {
