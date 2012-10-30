@@ -33,13 +33,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
+import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.PermissionType;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
-import com.gitblit.Constants.PermissionType;
-import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -109,7 +111,12 @@ public class EditUserPage extends RootSubPage {
 				// Ensure this is NOT an owner permission - which is non-editable
 				// We don't know this from within the usermodel, ownership is a
 				// property of a repository.
-				boolean isOwner = GitBlit.self().getRepositoryModel(permission.registrant).isOwner(oldName);
+				RepositoryModel rm = GitBlit.self().getRepositoryModel(permission.registrant);
+				if (rm == null) {
+					LoggerFactory.getLogger(getClass()).error("Missing repository " + permission.registrant, new NullPointerException());
+					continue;
+				}
+				boolean isOwner = rm.isOwner(oldName);
 				if (isOwner) {
 					permission.permissionType = PermissionType.OWNER;
 					permission.isEditable = false;
