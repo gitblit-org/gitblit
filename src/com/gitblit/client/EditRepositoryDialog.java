@@ -120,6 +120,10 @@ public class EditRepositoryDialog extends JDialog {
 	private JComboBox ownerField;
 
 	private JComboBox headRefField;
+	
+	private JComboBox gcPeriod;
+	
+	private JTextField gcThreshold;
 
 	private RegistrantPermissionsPanel usersPalette;
 
@@ -193,6 +197,13 @@ public class EditRepositoryDialog extends JDialog {
 					anRepository.availableRefs.toArray());
 			headRefField.setSelectedItem(anRepository.HEAD);
 		}
+		
+		Integer []  gcPeriods =  { 1, 2, 3, 4, 5, 7, 10, 14 };
+		gcPeriod = new JComboBox(gcPeriods);
+		gcPeriod.setSelectedItem(anRepository.gcPeriod);
+		
+		gcThreshold = new JTextField(8);
+		gcThreshold.setText(anRepository.gcThreshold);
 
 		ownerField = new JComboBox();
 
@@ -288,6 +299,8 @@ public class EditRepositoryDialog extends JDialog {
 				.add(newFieldPanel(Translation.get("gb.origin"), originField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.headRef"), headRefField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
 				useTickets));
@@ -534,6 +547,8 @@ public class EditRepositoryDialog extends JDialog {
 				: ownerField.getSelectedItem().toString();
 		repository.HEAD = headRefField.getSelectedItem() == null ? null
 				: headRefField.getSelectedItem().toString();
+		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
+		repository.gcThreshold = gcThreshold.getText();
 		repository.useTickets = useTickets.isSelected();
 		repository.useDocs = useDocs.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();

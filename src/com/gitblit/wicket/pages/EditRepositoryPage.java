@@ -389,9 +389,10 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
-		List<String> gcPeriods = Arrays.asList("1 day", "2 days", "3 days", "4 days", "5 days", "7 days", "10 days", "14 days");
-		form.add(new DropDownChoice<String>("gcPeriod", gcPeriods));
-		form.add(new TextField<String>("gcThreshold"));
+		boolean gcEnabled = GitBlit.getBoolean(Keys.git.enableGarbageCollection, false); 
+		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
+		form.add(new DropDownChoice<Integer>("gcPeriod", gcPeriods, new GCPeriodRenderer()).setEnabled(gcEnabled));
+		form.add(new TextField<String>("gcThreshold").setEnabled(gcEnabled));
 
 		// federation strategies - remove ORIGIN choice if this repository has
 		// no origin.
@@ -619,4 +620,27 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
+	
+	private class GCPeriodRenderer implements IChoiceRenderer<Integer> {
+
+		private static final long serialVersionUID = 1L;
+
+		public GCPeriodRenderer() {
+		}
+
+		@Override
+		public String getDisplayValue(Integer value) {
+			if (value == 1) {
+				return getString("gb.duration.oneDay");
+			} else {
+				return MessageFormat.format(getString("gb.duration.days"), value);
+			}
+		}
+
+		@Override
+		public String getIdValue(Integer value, int index) {
+			return Integer.toString(index);
+		}
+	}
+	
 }

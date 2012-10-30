@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FileUtils;
-import com.gitblit.utils.TimeUtils;
 
 /**
  * The GC executor handles periodic garbage collection in repositories.
@@ -162,14 +161,13 @@ public class GCExecutor implements Runnable {
 				RepoStatistics stats = gc.getStatistics();
 				
 				// determine if this is a scheduled GC
-				int gcPeriodInDays = TimeUtils.convertFrequencyToMinutes(model.gcPeriod)/(60*24);
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(model.lastGC);
 				cal.set(Calendar.HOUR_OF_DAY, 0);
 				cal.set(Calendar.MINUTE, 0);
 				cal.set(Calendar.SECOND, 0);
 				cal.set(Calendar.MILLISECOND, 0);
-				cal.add(Calendar.DATE, gcPeriodInDays);
+				cal.add(Calendar.DATE, model.gcPeriod);
 				Date gcDate = cal.getTime();
 				boolean shouldCollectGarbage = now.after(gcDate);
 

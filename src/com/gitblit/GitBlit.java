@@ -1445,7 +1445,7 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "federationSets")));
 			model.isFederated = getConfig(config, "isFederated", false);
 			model.gcThreshold = getConfig(config, "gcThreshold", settings.getString(Keys.git.defaultGarbageCollectionThreshold, "500KB"));
-			model.gcPeriod = getConfig(config, "gcPeriod", settings.getString(Keys.git.defaultGarbageCollectionPeriod, "7 days"));
+			model.gcPeriod = getConfig(config, "gcPeriod", settings.getInteger(Keys.git.defaultGarbageCollectionPeriod, 7));
 			try {
 				model.lastGC = new SimpleDateFormat(Constants.ISO8601).parse(getConfig(config, "lastGC", "1970-01-01'T'00:00:00Z"));
 			} catch (Exception e) {
@@ -1730,6 +1730,27 @@ public class GitBlit implements ServletContextListener {
 	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
 		return config.getBoolean(Constants.CONFIG_GITBLIT, field, defaultValue);
 	}
+	
+	/**
+	 * Returns the gitblit string value for the specified key. If key is not
+	 * set, returns defaultValue.
+	 * 
+	 * @param config
+	 * @param field
+	 * @param defaultValue
+	 * @return field value or defaultValue
+	 */
+	private int getConfig(StoredConfig config, String field, int defaultValue) {
+		String value = config.getString(Constants.CONFIG_GITBLIT, null, field);
+		if (StringUtils.isEmpty(value)) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch (Exception e) {
+		}
+		return defaultValue;
+	}
 
 	/**
 	 * Creates/updates the repository model keyed by reopsitoryName. Saves all
@@ -1896,7 +1917,7 @@ public class GitBlit implements ServletContextListener {
 				repository.federationStrategy.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
 		config.setString(Constants.CONFIG_GITBLIT, null, "gcThreshold", repository.gcThreshold);
-		config.setString(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		config.setInt(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
 		if (repository.lastGC != null) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
 		}
