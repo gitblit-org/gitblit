@@ -1048,6 +1048,16 @@ public class GitBlit implements ServletContextListener {
 					}
 				}
 				
+				// rebuild fork networks
+				for (RepositoryModel model : repositoryListCache.values()) {
+					if (!StringUtils.isEmpty(model.originRepository)) {
+						if (repositoryListCache.containsKey(model.originRepository)) {
+							RepositoryModel origin = repositoryListCache.get(model.originRepository);
+							origin.addFork(model.name);
+						}
+					}
+				}
+				
 				long duration = System.currentTimeMillis() - startTime;
 				logger.info(MessageFormat.format(msg, repositoryListCache.size(), duration));
 			}
