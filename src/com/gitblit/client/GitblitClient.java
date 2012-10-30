@@ -31,6 +31,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.NotAllowedException;
@@ -340,6 +341,7 @@ public class GitblitClient implements Serializable {
 		List<UserModel> users = RpcUtils.getUsers(url, account, password);
 		allUsers.clear();
 		allUsers.addAll(users);
+		Collections.sort(users);
 		return allUsers;
 	}
 
@@ -347,6 +349,7 @@ public class GitblitClient implements Serializable {
 		List<TeamModel> teams = RpcUtils.getTeams(url, account, password);
 		allTeams.clear();
 		allTeams.addAll(teams);
+		Collections.sort(teams);
 		return allTeams;
 	}
 
@@ -475,6 +478,15 @@ public class GitblitClient implements Serializable {
 	public List<UserModel> getUsers() {
 		return allUsers;
 	}
+	
+	public UserModel getUser(String username) {
+		for (UserModel user : getUsers()) {
+			if (user.username.equalsIgnoreCase(username)) {
+				return user;
+			}
+		}
+		return null;
+	}
 
 	public List<String> getUsernames() {
 		List<String> usernames = new ArrayList<String>();
@@ -496,15 +508,38 @@ public class GitblitClient implements Serializable {
 	}
 	
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
-		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
-		for (UserModel user : allUsers) {
-			if (user.hasRepositoryPermission(repository.name)) {
-				AccessPermission ap = user.getRepositoryPermission(repository);
-				boolean isExplicit = user.hasExplicitRepositoryPermission(repository.name);
-				list.add(new RegistrantAccessPermission(user.username, ap, isExplicit, RegistrantType.USER));
+		Set<RegistrantAccessPermission> list = new LinkedHashSet<RegistrantAccessPermission>();
+		if (!StringUtils.isEmpty(repository.owner)) {
+			UserModel owner = getUser(repository.owner);
+			if (owner != null) {
+				list.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
 			}
 		}
-		return list;
+		if (repository.isPersonalRepository()) {
+			UserModel owner = getUser(repository.projectPath.substring(1));
+			if (owner != null) {
+				list.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
+			}
+		}
+		for (UserModel user : getUsers()) {
+			if (user.hasRepositoryPermission(repository.name)) {
+				AccessPermission ap = user.getRepositoryPermission(repository);
+				PermissionType pType = PermissionType.REGEX;
+				boolean editable = false;
+				if (repository.isOwner(user.username)) {
+					pType = PermissionType.OWNER;
+				} else if (repository.isUsersPersonalRepository(user.username)) {
+					pType = PermissionType.OWNER;
+				} else if (user.hasExplicitRepositoryPermission(repository.name)) {
+					pType = PermissionType.EXPLICIT;
+					editable = true;
+				}			
+				list.add(new RegistrantAccessPermission(user.username, ap, pType, RegistrantType.USER, editable));
+			}
+		}
+		List<RegistrantAccessPermission> raps = new ArrayList<RegistrantAccessPermission>(list);
+		Collections.sort(raps);
+		return raps;
 	}
 
 	public boolean setUserAccessPermissions(RepositoryModel repository, List<RegistrantAccessPermission> permissions) throws IOException {
@@ -539,10 +574,16 @@ public class GitblitClient implements Serializable {
 		for (TeamModel team : allTeams) {
 			if (team.hasRepositoryPermission(repository.name)) {
 				AccessPermission ap = team.getRepositoryPermission(repository);
-				boolean isExplicit = team.hasExplicitRepositoryPermission(repository.name);
-				list.add(new RegistrantAccessPermission(team.name, ap, isExplicit, RegistrantType.TEAM));
+				PermissionType pType = PermissionType.REGEX;
+				boolean editable = false;
+				if (team.hasExplicitRepositoryPermission(repository.name)) {
+					pType = PermissionType.EXPLICIT;
+					editable = true;
+				}
+				list.add(new RegistrantAccessPermission(team.name, ap, pType, RegistrantType.TEAM, editable));
 			}
 		}
+		Collections.sort(list);
 		return list;
 	}
 
@@ -565,6 +606,15 @@ public class GitblitClient implements Serializable {
 
 	public List<RepositoryModel> getRepositories() {
 		return allRepositories;
+	}
+	
+	public RepositoryModel getRepository(String name) {
+		for (RepositoryModel repository : allRepositories) {
+			if (repository.name.equalsIgnoreCase(name)) {
+				return repository;
+			}
+		}
+		return null;
 	}
 
 	public boolean createRepository(RepositoryModel repository, List<RegistrantAccessPermission> userPermissions)

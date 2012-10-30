@@ -21,9 +21,11 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -52,7 +54,7 @@ public abstract class RootSubPage extends RootPage {
 		super.setupPage("", pageName);
 	}
 	
-	protected List<String> getAccessRestrictedRepositoryList(boolean includeWildcards) {
+	protected List<String> getAccessRestrictedRepositoryList(boolean includeWildcards, UserModel user) {
 		// build list of access-restricted projects
 		String lastProject = null;
 		List<String> repos = new ArrayList<String>();
@@ -62,19 +64,26 @@ public abstract class RootSubPage extends RootPage {
 			// all repositories excluding personal repositories
 			repos.add("[^~].*");
 		}
+		
 		for (String repo : GitBlit.self().getRepositoryList()) {
 			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
-			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
+			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)
+					&& repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED)) {
+				if (user != null &&
+						(repositoryModel.isOwner(user.username) || repositoryModel.isUsersPersonalRepository(user.username))) {
+					// exclude Owner or personal repositories
+					continue;
+				}
 				if (includeWildcards) {
 					if (lastProject == null || !lastProject.equalsIgnoreCase(repositoryModel.projectPath)) {
-						lastProject = repositoryModel.projectPath;
+						lastProject = repositoryModel.projectPath.toLowerCase();
 						if (!StringUtils.isEmpty(repositoryModel.projectPath)) {
 							// regex for all repositories within a project
 							repos.add(repositoryModel.projectPath + "/.*");
 						}
 					}
 				}
-				repos.add(repo);
+				repos.add(repo.toLowerCase());
 			}
 		}
 		return repos;

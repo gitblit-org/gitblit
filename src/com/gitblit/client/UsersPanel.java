@@ -40,7 +40,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -309,6 +311,21 @@ public abstract class UsersPanel extends JPanel {
 				gitblit.getSettings());
 		dialog.setLocationRelativeTo(UsersPanel.this);
 		dialog.setUsers(gitblit.getUsers());
+		
+		List<RegistrantAccessPermission> permissions = user.getRepositoryPermissions();
+		for (RegistrantAccessPermission permission : permissions) {
+			if (permission.isEditable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+				// Ensure this is NOT an owner permission - which is non-editable
+				// We don't know this from within the usermodel, ownership is a
+				// property of a repository.
+				boolean isOwner = gitblit.getRepository(permission.registrant).isOwner(user.username);
+				if (isOwner) {
+					permission.permissionType = PermissionType.OWNER;
+					permission.isEditable = false;
+				}
+			}
+		}
+		
 		dialog.setRepositories(gitblit.getRepositories(), user.getRepositoryPermissions());
 		dialog.setTeams(gitblit.getTeams(), user.teams == null ? null : new ArrayList<TeamModel>(
 				user.teams));

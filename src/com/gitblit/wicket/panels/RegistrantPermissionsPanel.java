@@ -36,6 +36,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.utils.DeepCopier;
@@ -52,8 +53,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	public RegistrantPermissionsPanel(String wicketId, List<String> allRegistrants, final List<RegistrantAccessPermission> permissions, final Map<AccessPermission, String> translations) {
+	public RegistrantPermissionsPanel(String wicketId, RegistrantType registrantType, List<String> allRegistrants, final List<RegistrantAccessPermission> permissions, final Map<AccessPermission, String> translations) {
 		super(wicketId);
+		setOutputMarkupId(true);
 		
 		// update existing permissions repeater
 		RefreshingView<RegistrantAccessPermission> dataView = new RefreshingView<RegistrantAccessPermission>("permissionRow") {
@@ -80,22 +82,40 @@ public class RegistrantPermissionsPanel extends BasePanel {
             
 			public void populateItem(final Item<RegistrantAccessPermission> item) {
 				final RegistrantAccessPermission entry = item.getModelObject();
-				if (RegistrantType.REPOSITORY.equals(entry.type)) {
-					// repository, strip .git and show swatch
+				if (RegistrantType.REPOSITORY.equals(entry.registrantType)) {
 					String repoName = StringUtils.stripDotGit(entry.registrant);
-					Label registrant = new Label("registrant", repoName);
-					WicketUtils.setCssClass(registrant, "repositorySwatch");
-					WicketUtils.setCssBackground(registrant, repoName);
-					item.add(registrant);
+					if (StringUtils.findInvalidCharacter(repoName) == null) {
+						// repository, strip .git and show swatch
+						Label registrant = new Label("registrant", repoName);
+						WicketUtils.setCssClass(registrant, "repositorySwatch");
+						WicketUtils.setCssBackground(registrant, repoName);
+						item.add(registrant);
+					} else {
+						// likely a regex
+						Label label = new Label("registrant", entry.registrant);
+						WicketUtils.setCssStyle(label, "font-weight: bold;");
+						item.add(label);
+					}
 				} else {
-					item.add(new Label("registrant", entry.registrant));
+					// user or team
+					Label label = new Label("registrant", entry.registrant);
+					WicketUtils.setCssStyle(label, "font-weight: bold;");
+					item.add(label);
 				}
-				if (entry.isExplicit) {
-					item.add(new Label("regex", "").setVisible(false));
-				} else {
-					Label regex = new Label("regex", "regex");
+				switch (entry.permissionType) {
+				case OWNER:
+					Label owner = new Label("pType", "owner");
+					WicketUtils.setHtmlTooltip(owner, getString("gb.ownerPermission"));
+					item.add(owner);
+					break;
+				case REGEX:
+					Label regex = new Label("pType", "regex");
 					WicketUtils.setHtmlTooltip(regex, getString("gb.regexPermission"));
 					item.add(regex);
+					break;
+				default:
+					item.add(new Label("pType", "").setVisible(false));
+					break;
 				}
 
 				// use ajax to get immediate update of permission level change
@@ -106,8 +126,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				// only allow changing an explicitly defined permission
 				// this is designed to prevent changing a regex permission in
 				// a repository
-				permissionChoice.setEnabled(entry.isExplicit);
-				if (entry.isExplicit) {
+				permissionChoice.setEnabled(entry.isEditable);
+				permissionChoice.setOutputMarkupId(true);
+				if (entry.isEditable) {
 					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 		           
 						private static final long serialVersionUID = 1L;
@@ -127,11 +148,15 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		// filter out registrants we already have permissions for
 		final List<String> registrants = new ArrayList<String>(allRegistrants);
 		for (RegistrantAccessPermission rp : permissions) {
-			registrants.remove(rp.registrant);
+			if (rp.isEditable) {
+				// only remove editable duplicates
+				// this allows for specifying an explicit permission
+				registrants.remove(rp.registrant);
+			}
 		}
 
 		// add new permission form
-		IModel<RegistrantAccessPermission> addPermissionModel = new CompoundPropertyModel<RegistrantAccessPermission>(new RegistrantAccessPermission());
+		IModel<RegistrantAccessPermission> addPermissionModel = new CompoundPropertyModel<RegistrantAccessPermission>(new RegistrantAccessPermission(registrantType));
 		Form<RegistrantAccessPermission> addPermissionForm = new Form<RegistrantAccessPermission>("addPermissionForm", addPermissionModel);
 		addPermissionForm.add(new DropDownChoice<String>("registrant", registrants));
 		addPermissionForm.add(new DropDownChoice<AccessPermission>("permission", Arrays
@@ -144,7 +169,11 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				// add permission to our list
 				RegistrantAccessPermission rp = (RegistrantAccessPermission) form.getModel().getObject();
-				permissions.add(DeepCopier.copy(rp));
+				RegistrantAccessPermission copy = DeepCopier.copy(rp);
+				if (StringUtils.findInvalidCharacter(copy.registrant) != null) {
+					copy.permissionType = PermissionType.REGEX;
+				}
+				permissions.add(copy);
 				
 				// remove registrant from available choices
 				registrants.remove(rp.registrant);
@@ -158,6 +187,12 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		// only show add permission form if we have a registrant choice
 		add(addPermissionForm.setVisible(registrants.size() > 0));
 	}
+	
+	protected boolean getStatelessHint()
+	{
+		return false;
+	}
+
 	
 	private class AccessPermissionRenderer implements IChoiceRenderer<AccessPermission> {
 

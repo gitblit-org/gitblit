@@ -37,6 +37,8 @@ import org.apache.wicket.model.util.ListModel;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
+import com.gitblit.Constants.PermissionType;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -61,6 +63,7 @@ public class EditUserPage extends RootSubPage {
 		isCreate = true;
 		setupPage(new UserModel(""));
 		setStatelessHint(false);
+		setOutputMarkupId(true);
 	}
 
 	public EditUserPage(PageParameters params) {
@@ -71,6 +74,7 @@ public class EditUserPage extends RootSubPage {
 		UserModel model = GitBlit.self().getUserModel(name);
 		setupPage(model);
 		setStatelessHint(false);
+		setOutputMarkupId(true);
 	}
 
 	protected void setupPage(final UserModel userModel) {
@@ -85,7 +89,7 @@ public class EditUserPage extends RootSubPage {
 		CompoundPropertyModel<UserModel> model = new CompoundPropertyModel<UserModel>(userModel);
 
 		// build list of projects including all repositories wildcards
-		List<String> repos = getAccessRestrictedRepositoryList(true);
+		List<String> repos = getAccessRestrictedRepositoryList(true, userModel);
 		
 		List<String> userTeams = new ArrayList<String>();
 		for (TeamModel team : userModel.teams) {
@@ -95,6 +99,18 @@ public class EditUserPage extends RootSubPage {
 		
 		final String oldName = userModel.username;
 		final List<RegistrantAccessPermission> permissions = userModel.getRepositoryPermissions();
+		for (RegistrantAccessPermission permission : permissions) {
+			if (permission.isEditable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+				// Ensure this is NOT an owner permission - which is non-editable
+				// We don't know this from within the usermodel, ownership is a
+				// property of a repository.
+				boolean isOwner = GitBlit.self().getRepositoryModel(permission.registrant).isOwner(oldName);
+				if (isOwner) {
+					permission.permissionType = PermissionType.OWNER;
+					permission.isEditable = false;
+				}
+			}
+		}
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
@@ -228,7 +244,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new CheckBox("canFork"));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
-		form.add(new RegistrantPermissionsPanel("repositories",	repos, permissions, getAccessPermissions()));
+		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 
 		form.add(new Button("save"));

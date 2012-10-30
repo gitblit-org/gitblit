@@ -104,7 +104,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 			// and therefore can not be directly manipulated unless the current
 			// object is the source of the regex (i.e. a user or team with explicit
 			// regex definition)
-			return permissions.get(rowIndex).isExplicit;
+			return permissions.get(rowIndex).isEditable;
 		}
 		return false;
 	}
@@ -117,7 +117,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		case Registrant:
 			return rp.registrant;
 		case Type:
-			return rp.isExplicit;
+			return rp.permissionType;
 		case Permission:
 			return rp.permission;
 		}

@@ -38,6 +38,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;
@@ -60,6 +61,7 @@ public class EditTeamPage extends RootSubPage {
 		isCreate = true;
 		setupPage(new TeamModel(""));
 		setStatelessHint(false);
+		setOutputMarkupId(true);
 	}
 
 	public EditTeamPage(PageParameters params) {
@@ -70,6 +72,7 @@ public class EditTeamPage extends RootSubPage {
 		TeamModel model = GitBlit.self().getTeamModel(name);
 		setupPage(model);
 		setStatelessHint(false);
+		setOutputMarkupId(true);
 	}
 
 	protected void setupPage(final TeamModel teamModel) {
@@ -81,7 +84,7 @@ public class EditTeamPage extends RootSubPage {
 
 		CompoundPropertyModel<TeamModel> model = new CompoundPropertyModel<TeamModel>(teamModel);
 
-		List<String> repos = getAccessRestrictedRepositoryList(true);
+		List<String> repos = getAccessRestrictedRepositoryList(true, null);
 
 		List<String> teamUsers = new ArrayList<String>(teamModel.users);
 		Collections.sort(teamUsers);
@@ -215,7 +218,8 @@ public class EditTeamPage extends RootSubPage {
 				: StringUtils.flattenStrings(teamModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 
-		form.add(new RegistrantPermissionsPanel("repositories", repos, permissions, getAccessPermissions()));
+		form.add(new RegistrantPermissionsPanel("repositories", RegistrantType.REPOSITORY,
+				repos, permissions, getAccessPermissions()));
 		form.add(preReceivePalette);
 		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
 				.getPreReceiveScriptsInherited(null)));

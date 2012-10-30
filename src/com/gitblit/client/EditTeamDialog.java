@@ -45,11 +45,12 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 public class EditTeamDialog extends JDialog {
@@ -140,7 +141,7 @@ public class EditTeamDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"), mailingListsField));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
-		repositoryPalette = new RegistrantPermissionsPanel();
+		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		userPalette = new JPalette<String>();
 		userPalette.setEnabled(settings.supportsTeamMembershipChanges);
 		
@@ -311,9 +312,10 @@ public class EditTeamDialog extends JDialog {
 	public void setRepositories(List<RepositoryModel> repositories, List<RegistrantAccessPermission> permissions) {
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
-			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
+			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)
+					&& repo.authorizationControl.equals(AuthorizationControl.NAMED)) {
 				restricted.add(repo.name);
-			}
+			}				
 		}
 		StringUtils.sortRepositorynames(restricted);
 		

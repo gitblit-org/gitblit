@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -250,6 +251,21 @@ public abstract class BasePage extends WebPage {
 				break;
 			case FEDERATE_ORIGIN:
 				map.put(type, getString("gb.federateOrigin"));
+				break;
+			}
+		}
+		return map;
+	}
+	
+	protected Map<AuthorizationControl, String> getAuthorizationControls() {
+		Map<AuthorizationControl, String> map = new LinkedHashMap<AuthorizationControl, String>();
+		for (AuthorizationControl type : AuthorizationControl.values()) {
+			switch (type) {
+			case AUTHENTICATED:
+				map.put(type, getString("gb.allowAuthenticatedDescription"));
+				break;
+			case NAMED:
+				map.put(type, getString("gb.allowNamedDescription"));
 				break;
 			}
 		}

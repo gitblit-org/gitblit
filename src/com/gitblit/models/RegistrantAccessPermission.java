@@ -18,6 +18,7 @@ package com.gitblit.models;
 import java.io.Serializable;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.utils.StringUtils;
 
@@ -32,28 +33,47 @@ public class RegistrantAccessPermission implements Serializable, Comparable<Regi
 
 	public String registrant;
 	public AccessPermission permission;
-	public RegistrantType type;
-	public boolean isExplicit;
+	public RegistrantType registrantType;
+	public PermissionType permissionType;
+	public boolean isEditable;
 
-	public RegistrantAccessPermission() {
-		isExplicit = true;
+	public RegistrantAccessPermission(RegistrantType registrantType) {
+		this.registrantType = registrantType;
+		this.permissionType = PermissionType.EXPLICIT;
+		this.isEditable = true;
 	}
 	
-	public RegistrantAccessPermission(String registrant, AccessPermission permission, boolean isExplicit, RegistrantType type) {
+	public RegistrantAccessPermission(String registrant, AccessPermission permission, PermissionType permissionType, RegistrantType registrantType, boolean isEditable) {
 		this.registrant = registrant;
 		this.permission = permission;
-		this.isExplicit = isExplicit;
-		this.type = type;
+		this.permissionType = permissionType;
+		this.registrantType = registrantType;
+		this.isEditable = isEditable;
 	}
 	
 	@Override
 	public int compareTo(RegistrantAccessPermission p) {
-		switch (type) {
+		switch (registrantType) {
 		case REPOSITORY:
 			return StringUtils.compareRepositoryNames(registrant, p.registrant);
 		default:
 			return registrant.toLowerCase().compareTo(p.registrant.toLowerCase());		
 		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return registrant.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof RegistrantAccessPermission) {
+			RegistrantAccessPermission p = (RegistrantAccessPermission) o;
+			return registrant.equals(p.registrant);
+		}
+		
+		return false;
 	}
 	
 	@Override

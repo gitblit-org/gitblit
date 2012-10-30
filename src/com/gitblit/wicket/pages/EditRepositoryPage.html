@@ -49,12 +49,7 @@
 				<tbody class="settings">
 					<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span4" wicket:id="accessRestriction" tabindex="15" /></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.authorizationControl"></wicket:message></th><td style="padding:2px;">
-						<wicket:container wicket:id="authorizationControl">
-							<label class="radio"><input type="radio" wicket:id="allowAuthenticated" tabindex="16" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowAuthenticatedDescription"></wicket:message></span></label>
-							<label class="radio"><input type="radio" wicket:id="allowNamed" tabindex="17" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowNamedDescription"></wicket:message></span></label>
-						</wicket:container>
-					</td></tr>
+					<tr><th><wicket:message key="gb.authorizationControl"></wicket:message></th><td style="padding:2px;"><span class="authorizationControl" wicket:id="authorizationControl"></span></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
 					<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="isFrozen" tabindex="18" /> &nbsp;<span class="help-inline"><wicket:message key="gb.isFrozenDescription"></wicket:message></span></label></td></tr>
 					<tr><th><wicket:message key="gb.allowForks"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="allowForks" tabindex="19" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowForksDescription"></wicket:message></span></label></td></tr>

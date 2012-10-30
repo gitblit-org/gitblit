@@ -188,6 +188,12 @@ div.even {
 	vertical-align: middle;
 }
 
+span.authorizationControl label {
+	display: inline;
+	color: #777;
+	padding:5px 0px 5px 10px;	
+}
+
 div.page_footer {
 	clear: both;
 	height: 17px;

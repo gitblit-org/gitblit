@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
 import com.gitblit.utils.StringUtils;
@@ -98,7 +99,14 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), true, RegistrantType.REPOSITORY));
+			String registrant = entry.getKey();
+			boolean editable = true;
+			PermissionType pType = PermissionType.EXPLICIT;
+			if (StringUtils.findInvalidCharacter(registrant) != null) {
+				// a regex will have at least 1 invalid character
+				pType = PermissionType.REGEX;
+			}
+			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, editable));
 		}
 		Collections.sort(list);
 		return list;

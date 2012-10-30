@@ -24,6 +24,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import java.util.Set;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -59,6 +62,7 @@ import javax.swing.ScrollPaneConstants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ArrayUtils;
@@ -218,13 +222,41 @@ public class EditRepositoryDialog extends JDialog {
 		accessRestriction = new JComboBox(AccessRestrictionType.values());
 		accessRestriction.setRenderer(new AccessRestrictionRenderer());
 		accessRestriction.setSelectedItem(anRepository.accessRestriction);
+		accessRestriction.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					AccessRestrictionType art = (AccessRestrictionType) accessRestriction.getSelectedItem();
+					EditRepositoryDialog.this.setupAccessPermissions(art);
+				}
+			}
+		});
 		
 		boolean authenticated = anRepository.authorizationControl != null 
 				&& AuthorizationControl.AUTHENTICATED.equals(anRepository.authorizationControl);
 		allowAuthenticated = new JRadioButton(Translation.get("gb.allowAuthenticatedDescription"));
 		allowAuthenticated.setSelected(authenticated);
+		allowAuthenticated.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					usersPalette.setEnabled(false);
+					teamsPalette.setEnabled(false);
+				}
+			}
+		});
+		
 		allowNamed = new JRadioButton(Translation.get("gb.allowNamedDescription"));
 		allowNamed.setSelected(!authenticated);
+		allowNamed.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					usersPalette.setEnabled(true);
+					teamsPalette.setEnabled(true);
+				}
+			}
+		});
 		
 		ButtonGroup group = new ButtonGroup();
 		group.add(allowAuthenticated);
@@ -281,7 +313,7 @@ public class EditRepositoryDialog extends JDialog {
 		clonePushPanel
 		.add(newFieldPanel(Translation.get("gb.verifyCommitter"), verifyCommitter));
 
-		usersPalette = new RegistrantPermissionsPanel();
+		usersPalette = new RegistrantPermissionsPanel(RegistrantType.USER);
 		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
 		northAccessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
 				accessRestriction), BorderLayout.NORTH);
@@ -294,7 +326,7 @@ public class EditRepositoryDialog extends JDialog {
 		accessPanel.add(newFieldPanel(Translation.get("gb.userPermissions"),
 						usersPalette), BorderLayout.CENTER);
 
-		teamsPalette = new RegistrantPermissionsPanel();
+		teamsPalette = new RegistrantPermissionsPanel(RegistrantType.TEAM);
 		JPanel teamsPanel = new JPanel(new BorderLayout(5, 5));
 		teamsPanel.add(
 				newFieldPanel(Translation.get("gb.teamPermissions"),
@@ -349,6 +381,8 @@ public class EditRepositoryDialog extends JDialog {
 		panel.addTab(Translation.get("gb.customFields"), customFieldsScrollPane);
 		
 
+		setupAccessPermissions(anRepository.accessRestriction);
+
 		JButton createButton = new JButton(Translation.get("gb.save"));
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent event) {
@@ -402,6 +436,25 @@ public class EditRepositoryDialog extends JDialog {
 		panel.add(fieldLabel);
 		panel.add(comp);
 		return panel;
+	}
+	
+	private void setupAccessPermissions(AccessRestrictionType art) {
+		if (AccessRestrictionType.NONE.equals(art)) {
+			usersPalette.setEnabled(false);
+			teamsPalette.setEnabled(false);
+			
+			allowAuthenticated.setEnabled(false);
+			allowNamed.setEnabled(false);
+		} else {
+			allowAuthenticated.setEnabled(true);
+			allowNamed.setEnabled(true);
+			
+			if (allowNamed.isSelected()) {
+				usersPalette.setEnabled(true);
+				teamsPalette.setEnabled(true);
+			}
+		}
+
 	}
 
 	private boolean validateFields() {
@@ -538,6 +591,7 @@ public class EditRepositoryDialog extends JDialog {
 	
 	public void setAccessRestriction(AccessRestrictionType restriction) {
 		this.accessRestriction.setSelectedItem(restriction);
+		setupAccessPermissions(restriction);
 	}
 
 	public void setAuthorizationControl(AuthorizationControl authorization) {
@@ -659,14 +713,15 @@ public class EditRepositoryDialog extends JDialog {
 	 * restriction.
 	 * 
 	 */
-	private class AccessRestrictionRenderer extends JLabel implements
-			ListCellRenderer {
+	private class AccessRestrictionRenderer extends DefaultListCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
+			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			
 			if (value instanceof AccessRestrictionType) {
 				AccessRestrictionType restriction = (AccessRestrictionType) value;
 				switch (restriction) {

@@ -46,6 +46,8 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -158,7 +160,7 @@ public class EditUserDialog extends JDialog {
 				notFederatedCheckbox));
 
 		final Insets _insets = new Insets(5, 5, 5, 5);
-		repositoryPalette = new RegistrantPermissionsPanel();
+		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		teamsPalette = new JPalette<TeamModel>();
 		teamsPalette.setEnabled(settings.supportsTeamMembershipChanges);
 
@@ -343,8 +345,12 @@ public class EditUserDialog extends JDialog {
 	public void setRepositories(List<RepositoryModel> repositories, List<RegistrantAccessPermission> permissions) {
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
-			if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				restricted.add(repo.name);
+			// exclude Owner or personal repositories
+			if (!repo.isOwner(username) && !repo.isUsersPersonalRepository(username)) {
+				if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)
+						&& repo.authorizationControl.equals(AuthorizationControl.NAMED)) {
+					restricted.add(repo.name);
+				}				
 			}
 		}
 		StringUtils.sortRepositorynames(restricted);
@@ -356,15 +362,15 @@ public class EditUserDialog extends JDialog {
 		list.add("[^~].*");
 		String lastProject = null;
 		for (String repo : restricted) {
-			String projectPath = StringUtils.getFirstPathElement(repo);
+			String projectPath = StringUtils.getFirstPathElement(repo).toLowerCase();
 			if (lastProject == null || !lastProject.equalsIgnoreCase(projectPath)) {
 				lastProject = projectPath;
 				if (!StringUtils.isEmpty(projectPath)) {
 					// regex for all repositories within a project
 					list.add(projectPath + "/.*");
 				}
-				list.add(repo);
 			}
+			list.add(repo);
 		}
 
 		// remove repositories for which user already has a permission
@@ -372,7 +378,7 @@ public class EditUserDialog extends JDialog {
 			permissions = new ArrayList<RegistrantAccessPermission>();
 		} else {
 			for (RegistrantAccessPermission rp : permissions) {
-				list.remove(rp.registrant);
+				list.remove(rp.registrant.toLowerCase());
 			}
 		}
 		repositoryPalette.setObjects(list, permissions);

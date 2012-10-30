@@ -33,7 +33,10 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.PermissionType;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.utils.StringUtils;
 
 public class RegistrantPermissionsPanel extends JPanel {
 
@@ -53,16 +56,19 @@ public class RegistrantPermissionsPanel extends JPanel {
 
 	private JPanel addPanel;
 
-	public RegistrantPermissionsPanel() {
+	public RegistrantPermissionsPanel(final RegistrantType registrantType) {
 		super(new BorderLayout(5, 5));
 		tableModel = new RegistrantPermissionsTableModel();
-		permissionsTable = new JTable(tableModel);
+		permissionsTable = Utils.newTable(tableModel, Utils.DATE_FORMAT);
+		permissionsTable.setModel(tableModel);
 		permissionsTable.setPreferredScrollableViewportSize(new Dimension(400, 150));
 		JScrollPane jsp = new JScrollPane(permissionsTable);
 		add(jsp, BorderLayout.CENTER);
 		
+		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Registrant.ordinal())
+		.setCellRenderer(new NameRenderer());
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Type.ordinal())
-				.setCellRenderer(new RegexRenderer());
+				.setCellRenderer(new PermissionTypeRenderer());
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Permission.ordinal())
 		.setCellEditor(new AccessPermissionEditor());
 		
@@ -79,9 +85,15 @@ public class RegistrantPermissionsPanel extends JPanel {
 					return;
 				}
 				
-				RegistrantAccessPermission rp = new RegistrantAccessPermission();
+				RegistrantAccessPermission rp = new RegistrantAccessPermission(registrantType);
 				rp.registrant = registrantSelector.getSelectedItem().toString();
 				rp.permission = (AccessPermission) permissionSelector.getSelectedItem();
+				if (StringUtils.findInvalidCharacter(rp.registrant) != null) {
+					rp.permissionType = PermissionType.REGEX;
+				} else {
+					rp.permissionType = PermissionType.EXPLICIT;
+				}
+
 				tableModel.permissions.add(rp);
 				
 				registrantModel.removeElement(rp.registrant);
@@ -103,7 +115,10 @@ public class RegistrantPermissionsPanel extends JPanel {
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		permissionsTable.setEnabled(false);
+		permissionsTable.setEnabled(enabled);
+		registrantSelector.setEnabled(enabled);
+		permissionSelector.setEnabled(enabled);
+		addButton.setEnabled(enabled);
 	}
 
 	public void setObjects(List<String> registrants, List<RegistrantAccessPermission> permissions) {
@@ -117,7 +132,11 @@ public class RegistrantPermissionsPanel extends JPanel {
 			permissions = new ArrayList<RegistrantAccessPermission>();
 		}
 		for (RegistrantAccessPermission rp : permissions) {
-			filtered.remove(rp.registrant);
+			if (rp.isEditable) {
+				// only remove editable duplicates
+				// this allows for specifying an explicit permission
+				filtered.remove(rp.registrant);
+			}
 		}
 		for (String registrant : filtered) {
 			registrantModel.addElement(registrant);
@@ -138,30 +157,35 @@ public class RegistrantPermissionsPanel extends JPanel {
 		private static final long serialVersionUID = 1L;
 
 		public AccessPermissionEditor() {
-	        super(new JComboBox(AccessPermission.values()));
+	        super(new JComboBox(AccessPermission.values()));	        
 	    }
 	}
 	
-	private class RegexRenderer extends DefaultTableCellRenderer {
+	private class PermissionTypeRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
-		public RegexRenderer() {
+		public PermissionTypeRenderer() {
 			super();
 			setHorizontalAlignment(SwingConstants.CENTER);
 		}
 
 		@Override
 		protected void setValue(Object value) {
-			boolean isExplicit = (Boolean) value;
-			if (isExplicit) {
-				// explicit permission
-				setText("");
-				setToolTipText(null);
-			} else {
-				// regex matched permission
+			PermissionType pType = (PermissionType) value;
+			switch (pType) {
+			case OWNER:
+				setText("owner");
+				setToolTipText(Translation.get("gb.ownerPermission"));
+				break;
+			case REGEX:
 				setText("regex");
 				setToolTipText(Translation.get("gb.regexPermission"));
+				break;
+			default:
+				setText("");
+				setToolTipText(null);
+				break;
 			}
 		}
 	}

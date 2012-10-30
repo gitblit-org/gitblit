@@ -28,6 +28,7 @@ import java.util.Set;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
 import com.gitblit.utils.ArrayUtils;
@@ -137,7 +138,17 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
-			list.add(new RegistrantAccessPermission(entry.getKey(), entry.getValue(), true, RegistrantType.REPOSITORY));
+			String registrant = entry.getKey();
+			boolean editable = true;
+			PermissionType pType = PermissionType.EXPLICIT;
+			if (isMyPersonalRepository(registrant)) {
+				pType = PermissionType.OWNER;
+				editable = false;
+			} else if (StringUtils.findInvalidCharacter(registrant) != null) {
+				// a regex will have at least 1 invalid character
+				pType = PermissionType.REGEX;
+			}
+			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, editable));
 		}
 		Collections.sort(list);
 		return list;
@@ -493,5 +504,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean hasBranchPermission(String repositoryName, String branch) {
 		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
 		return hasRepositoryPermission(repositoryName);
+	}
+	
+	public boolean isMyPersonalRepository(String repository) {
+		String projectPath = StringUtils.getFirstPathElement(repository);
+		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
 	}
 }

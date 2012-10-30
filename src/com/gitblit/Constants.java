@@ -386,6 +386,10 @@ public class Constants {
 		REPOSITORY, USER, TEAM;
 	}
 	
+	public static enum PermissionType {
+		EXPLICIT, OWNER, REGEX;
+	}
+	
 	public static enum GCStatus {
 		READY, COLLECTING;
 		

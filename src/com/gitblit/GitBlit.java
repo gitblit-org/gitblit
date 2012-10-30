@@ -79,6 +79,7 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
@@ -670,14 +671,35 @@ public class GitBlit implements ServletContextListener {
 	 * @return a list of User-AccessPermission tuples
 	 */
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
-		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
+		Set<RegistrantAccessPermission> permissions = new LinkedHashSet<RegistrantAccessPermission>();
+		if (!StringUtils.isEmpty(repository.owner)) {
+			UserModel owner = userService.getUserModel(repository.owner);
+			if (owner != null) {
+				permissions.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
+			}
+		}
+		if (repository.isPersonalRepository()) {
+			UserModel owner = userService.getUserModel(repository.projectPath.substring(1));
+			if (owner != null) {
+				permissions.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
+			}
+		}
 		for (String user : userService.getUsernamesForRepositoryRole(repository.name)) {
 			UserModel model = userService.getUserModel(user);
 			AccessPermission ap = model.getRepositoryPermission(repository);
-			boolean isExplicit = model.hasExplicitRepositoryPermission(repository.name);
-			permissions.add(new RegistrantAccessPermission(user, ap, isExplicit, RegistrantType.USER));
+			PermissionType pType = PermissionType.REGEX;
+			boolean editable = false;
+			if (repository.isOwner(model.username)) {
+				pType = PermissionType.OWNER;
+			} else if (repository.isUsersPersonalRepository(model.username)) {
+				pType = PermissionType.OWNER;
+			} else if (model.hasExplicitRepositoryPermission(repository.name)) {
+				pType = PermissionType.EXPLICIT;
+				editable = true;
+			}			
+			permissions.add(new RegistrantAccessPermission(user, ap, pType, RegistrantType.USER, editable));
 		}
-		return permissions;
+		return new ArrayList<RegistrantAccessPermission>(permissions);
 	}
 	
 	/**
@@ -690,8 +712,8 @@ public class GitBlit implements ServletContextListener {
 	public boolean setUserAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<UserModel> users = new ArrayList<UserModel>();
 		for (RegistrantAccessPermission up : permissions) {
-			if (up.isExplicit) {
-				// only set explicitly defined permissions
+			if (up.isEditable) {
+				// only set editable defined permissions
 				UserModel user = userService.getUserModel(up.registrant);
 				user.setRepositoryPermission(repository.name, up.permission);
 				users.add(user);
@@ -811,8 +833,13 @@ public class GitBlit implements ServletContextListener {
 		for (String team : userService.getTeamnamesForRepositoryRole(repository.name)) {
 			TeamModel model = userService.getTeamModel(team);
 			AccessPermission ap = model.getRepositoryPermission(repository);
-			boolean isExplicit = model.hasExplicitRepositoryPermission(repository.name);
-			permissions.add(new RegistrantAccessPermission(team, ap, isExplicit, RegistrantType.TEAM));
+			PermissionType pType = PermissionType.REGEX;
+			boolean editable = false;
+			if (model.hasExplicitRepositoryPermission(repository.name)) {
+				pType = PermissionType.EXPLICIT;
+				editable = true;
+			}
+			permissions.add(new RegistrantAccessPermission(team, ap, pType, RegistrantType.TEAM, editable));
 		}
 		return permissions;
 	}
@@ -827,7 +854,7 @@ public class GitBlit implements ServletContextListener {
 	public boolean setTeamAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<TeamModel> teams = new ArrayList<TeamModel>();
 		for (RegistrantAccessPermission tp : permissions) {
-			if (tp.isExplicit) {
+			if (tp.isEditable) {
 				// only set explicitly defined access permissions
 				TeamModel team = userService.getTeamModel(tp.registrant);
 				team.setRepositoryPermission(repository.name, tp.permission);
@@ -1870,7 +1897,9 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
 		config.setString(Constants.CONFIG_GITBLIT, null, "gcThreshold", repository.gcThreshold);
 		config.setString(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
-		config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
+		if (repository.lastGC != null) {
+			config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
+		}
 
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
