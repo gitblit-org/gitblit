@@ -166,20 +166,21 @@ public class RepositoriesPanel extends BasePanel {
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
 				if (entry instanceof GroupRepositoryModel) {
+					GroupRepositoryModel groupRow = (GroupRepositoryModel) entry;
 					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
 					
-					String name = entry.toString();
+					String name = groupRow.name;
 					if (name.charAt(0) == '~') {
 						// user page
 						String username = name.substring(1);
 						UserModel user = GitBlit.self().getUserModel(username);
-						row.add(new LinkPanel("groupName", null, user == null ? username : user.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(username)));
+						row.add(new LinkPanel("groupName", null, (user == null ? username : user.getDisplayName()) + " (" + groupRow.count + ")", UserPage.class, WicketUtils.newUsernameParameter(username)));
 						row.add(new Label("groupDescription", getString("gb.personalRepositories")));
 					} else {
 						// project page
-						row.add(new LinkPanel("groupName", null, name, ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
+						row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
 						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
 					}
 					WicketUtils.setCssClass(item, "group");
