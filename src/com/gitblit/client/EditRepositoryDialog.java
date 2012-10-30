@@ -298,7 +298,6 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.origin"), originField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.headRef"), headRefField));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
@@ -327,9 +326,14 @@ public class EditRepositoryDialog extends JDialog {
 		.add(newFieldPanel(Translation.get("gb.verifyCommitter"), verifyCommitter));
 
 		usersPalette = new RegistrantPermissionsPanel(RegistrantType.USER);
-		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
-		northAccessPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
+
+		JPanel northFieldsPanel = new JPanel(new GridLayout(0, 1, 0, 5));
+		northFieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
+		northFieldsPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
 				accessRestriction), BorderLayout.NORTH);
+
+		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
+		northAccessPanel.add(northFieldsPanel, BorderLayout.NORTH);
 		northAccessPanel.add(newFieldPanel(Translation.get("gb.authorizationControl"),
 				authorizationPanel), BorderLayout.CENTER);
 		northAccessPanel.add(clonePushPanel, BorderLayout.SOUTH);
