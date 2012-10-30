@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -38,10 +39,27 @@ public abstract class RootSubPage extends RootPage {
 
 	public RootSubPage() {
 		super();
+		createPageMapIfNeeded();
 	}
 
 	public RootSubPage(PageParameters params) {
 		super(params);
+		createPageMapIfNeeded();
+	}
+	
+	protected boolean requiresPageMap() {
+		return false;
+	}
+	
+	protected void createPageMapIfNeeded() {
+		if (requiresPageMap()) {
+			// because Gitblit strives for page-statelessness
+			// Wicket seems to get confused as to when it really should
+			// generate a page map for complex pages.  Conditionally ensure we
+			// have a page map for complex AJAX pages like the EditNNN pages.
+			Session.get().pageMapForName(null, true);
+			setVersioned(true);
+		}
 	}
 
 	@Override

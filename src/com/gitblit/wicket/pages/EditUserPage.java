@@ -76,6 +76,11 @@ public class EditUserPage extends RootSubPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 	}
+	
+	@Override
+	protected boolean requiresPageMap() {
+		return true;
+	}
 
 	protected void setupPage(final UserModel userModel) {
 		if (isCreate) {

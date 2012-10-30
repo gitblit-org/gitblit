@@ -115,6 +115,11 @@ public class EditRepositoryPage extends RootSubPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 	}
+	
+	@Override
+	protected boolean requiresPageMap() {
+		return true;
+	}
 
 	protected void setupPage(RepositoryModel model) {
 		this.repositoryModel = model;

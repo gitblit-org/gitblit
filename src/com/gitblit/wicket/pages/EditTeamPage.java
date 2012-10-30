@@ -75,6 +75,11 @@ public class EditTeamPage extends RootSubPage {
 		setOutputMarkupId(true);
 	}
 
+	@Override
+	protected boolean requiresPageMap() {
+		return true;
+	}
+
 	protected void setupPage(final TeamModel teamModel) {
 		if (isCreate) {
 			super.setupPage(getString("gb.newTeam"), "");
