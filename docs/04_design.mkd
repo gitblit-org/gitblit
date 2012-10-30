@@ -18,6 +18,7 @@ The following dependencies are bundled with Gitblit.
 - magnifying glass search icon courtesy of [Gnome](http://gnome.org) (Creative Commons CC-BY)
 - Git logo originally designed by [Jason Long](http://git-scm.com/downloads/logos)
 - modified Git logo originally designed by [Henrik Nyh](http://henrik.nyh.se/2007/06/alternative-git-logo-and-favicon)
+- fork icon courtesy of [Ember.js](http://emberjs.com)
 - other icons courtesy of [FatCow Hosting](http://www.fatcow.com/free-icons) (Creative Commons CC-BY)
 
 ### Downloaded Dependencies
