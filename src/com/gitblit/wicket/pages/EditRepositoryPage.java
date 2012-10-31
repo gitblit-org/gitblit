@@ -146,11 +146,10 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		} else {
 			super.setupPage(getString("gb.edit"), repositoryModel.name);
-			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				repositoryUsers.addAll(GitBlit.self().getUserAccessPermissions(repositoryModel));
-				repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
-				Collections.sort(repositoryUsers);
-			}
+			repositoryUsers.addAll(GitBlit.self().getUserAccessPermissions(repositoryModel));
+			repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
+			Collections.sort(repositoryUsers);
+			
 			federationSets.addAll(repositoryModel.federationSets);
 			if (!ArrayUtils.isEmpty(repositoryModel.indexedBranches)) {
 				indexedBranches.addAll(repositoryModel.indexedBranches);
@@ -423,8 +422,10 @@ public class EditRepositoryPage extends RootSubPage {
 		final RadioChoice<AuthorizationControl> authorizationControl = new RadioChoice<Constants.AuthorizationControl>(
 				"authorizationControl", acList, new AuthorizationControlRenderer());
 		form.add(authorizationControl);
-				
-		form.add(new CheckBox("verifyCommitter"));
+		
+		final CheckBox verifyCommitter = new CheckBox("verifyCommitter");
+		verifyCommitter.setOutputMarkupId(true);
+		form.add(verifyCommitter);
 
 		form.add(usersPalette);
 		form.add(teamsPalette);
@@ -446,14 +447,16 @@ public class EditRepositoryPage extends RootSubPage {
 			usersPalette.setEnabled(false);
 			teamsPalette.setEnabled(false);
 			authorizationControl.setEnabled(false);
+			verifyCommitter.setEnabled(false);
 		} else {
 			// authenticated something
 			// enable authorization controls
 			authorizationControl.setEnabled(true);
+			verifyCommitter.setEnabled(true);
 			
 			boolean allowFineGrainedControls = repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
 			usersPalette.setEnabled(allowFineGrainedControls);
-			teamsPalette.setEnabled(allowFineGrainedControls);			
+			teamsPalette.setEnabled(allowFineGrainedControls);
 		}
 		
 		accessRestriction.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -464,6 +467,7 @@ public class EditRepositoryPage extends RootSubPage {
 				// enable/disable permissions panel based on access restriction
 				boolean allowAuthorizationControl = repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE);
 				authorizationControl.setEnabled(allowAuthorizationControl);
+				verifyCommitter.setEnabled(allowAuthorizationControl);
 				
 				boolean allowFineGrainedControls = allowAuthorizationControl && repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
 				usersPalette.setEnabled(allowFineGrainedControls);
@@ -474,6 +478,7 @@ public class EditRepositoryPage extends RootSubPage {
 				}
 				
 				target.addComponent(authorizationControl);
+				target.addComponent(verifyCommitter);
 				target.addComponent(usersPalette);
 				target.addComponent(teamsPalette);
 			}

@@ -250,7 +250,7 @@ public class EditRepositoryDialog extends JDialog {
 		allowAuthenticated.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {					
 					usersPalette.setEnabled(false);
 					teamsPalette.setEnabled(false);
 				}
@@ -462,9 +462,11 @@ public class EditRepositoryDialog extends JDialog {
 			
 			allowAuthenticated.setEnabled(false);
 			allowNamed.setEnabled(false);
+			verifyCommitter.setEnabled(false);
 		} else {
 			allowAuthenticated.setEnabled(true);
 			allowNamed.setEnabled(true);
+			verifyCommitter.setEnabled(true);
 			
 			if (allowNamed.isSelected()) {
 				usersPalette.setEnabled(true);
