@@ -17,7 +17,15 @@
 		<form style="padding: 20px 40px;" class="well form-inline" wicket:id="addPermissionForm">
 			<select class="input-large" wicket:id="registrant"></select> <select class="input-medium" wicket:id="permission"></select> <input class="btn btn-success" type="submit" value="Add" wicket:message="value:gb.add" wicket:id="addPermissionButton"/>
 		</form>
-	</div>	
+	</div>
+	
+	<wicket:fragment wicket:id="userRegistrant">
+		<span wicket:id="userAvatar"></span> <span style="font-weight: bold;" wicket:id="userName"></span>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="teamRegistrant">
+		<span style="font-weight: bold;" wicket:id="teamName"></span>
+	</wicket:fragment>
 	
 </wicket:panel>
 </body>

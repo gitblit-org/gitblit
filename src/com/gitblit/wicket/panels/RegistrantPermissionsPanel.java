@@ -28,17 +28,21 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.markup.repeater.RefreshingView;
 import org.apache.wicket.markup.repeater.util.ModelIteratorAdapter;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.GitBlit;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
@@ -96,11 +100,23 @@ public class RegistrantPermissionsPanel extends BasePanel {
 						WicketUtils.setCssStyle(label, "font-weight: bold;");
 						item.add(label);
 					}
+				} else if (RegistrantType.USER.equals(entry.registrantType)) {
+					// user
+					PersonIdent ident = new PersonIdent(entry.registrant, null);
+					UserModel user = GitBlit.self().getUserModel(entry.registrant);
+					if (user != null) {
+						ident = new PersonIdent(user.getDisplayName(), user.emailAddress);
+					}
+
+					Fragment userFragment = new Fragment("registrant", "userRegistrant", RegistrantPermissionsPanel.this);
+					userFragment.add(new GravatarImage("userAvatar", ident, 16, false));
+					userFragment.add(new Label("userName", entry.registrant));					
+					item.add(userFragment);					
 				} else {
-					// user or team
-					Label label = new Label("registrant", entry.registrant);
-					WicketUtils.setCssStyle(label, "font-weight: bold;");
-					item.add(label);
+					// team
+					Fragment teamFragment = new Fragment("registrant", "teamRegistrant", RegistrantPermissionsPanel.this);
+					teamFragment.add(new Label("teamName", entry.registrant));
+					item.add(teamFragment);
 				}
 				switch (entry.permissionType) {
 				case OWNER:

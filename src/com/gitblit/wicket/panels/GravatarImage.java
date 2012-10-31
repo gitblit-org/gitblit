@@ -44,8 +44,12 @@ public class GravatarImage extends Panel {
 	public GravatarImage(String id, PersonIdent person) {
 		this(id, person, 0);
 	}
-
+	
 	public GravatarImage(String id, PersonIdent person, int width) {
+		this(id, person, width, true);
+	}
+
+	public GravatarImage(String id, PersonIdent person, int width, boolean linked) {
 		super(id);
 
 		String email = person.getEmailAddress() == null ? person.getName().toLowerCase() : person.getEmailAddress().toLowerCase();
@@ -57,9 +61,13 @@ public class GravatarImage extends Panel {
 		ExternalImage image = new ExternalImage("image", url);
 		WicketUtils.setCssClass(image, "gravatar");
 		link.add(image);
-		WicketUtils.setHtmlTooltip(link,
+		if (linked) {
+			WicketUtils.setHtmlTooltip(link,
 				MessageFormat.format("View Gravatar profile for {0}", person.getName()));
-		add(link);
+		} else {
+			WicketUtils.setHtmlTooltip(link, person.getName());
+		}
+		add(link.setEnabled(linked));
 		setVisible(GitBlit.getBoolean(Keys.web.allowGravatar, true));
 	}
 }
