@@ -149,6 +149,7 @@ public class EditRepositoryPage extends RootSubPage {
 			repositoryUsers.addAll(GitBlit.self().getUserAccessPermissions(repositoryModel));
 			repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
 			Collections.sort(repositoryUsers);
+			Collections.sort(repositoryTeams);
 			
 			federationSets.addAll(repositoryModel.federationSets);
 			if (!ArrayUtils.isEmpty(repositoryModel.indexedBranches)) {

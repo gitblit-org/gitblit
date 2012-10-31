@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
@@ -62,7 +63,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	@Deprecated
 	public final Set<String> repositories = new HashSet<String>();
 	public final Map<String, AccessPermission> permissions = new LinkedHashMap<String, AccessPermission>();
-	public final Set<TeamModel> teams = new HashSet<TeamModel>();
+	public final Set<TeamModel> teams = new TreeSet<TeamModel>();
 
 	// non-persisted fields
 	public boolean isAuthenticated;
