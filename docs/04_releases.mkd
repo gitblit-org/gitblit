@@ -12,6 +12,7 @@ The permissions model has changed in this release.
 
 #### fixes
 
+- Fixed broken ticgit urls (issue 157)
 - Exclude submodules from zip downloads (issue 151)
 - Fixed bug where repository ownership was not updated on rename user
 - Fixed bug in create/rename repository if you explicitly specified the alias for the root group (e.g. main/myrepo) (issue 143)

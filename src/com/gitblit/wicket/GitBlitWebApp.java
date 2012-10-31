@@ -104,7 +104,7 @@ public class GitBlitWebApp extends WebApplication {
 
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");
-		mount("/ticket", TicketPage.class, "r", "h", "f");
+		mount("/ticket", TicketPage.class, "r", "f");
 
 		// setup the markdown urls
 		mount("/docs", DocsPage.class, "r");
