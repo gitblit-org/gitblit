@@ -167,6 +167,11 @@ public class LuceneExecutor implements Runnable {
 		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
 
+		if (GitBlit.self().isCollectingGarbage()) {
+			// busy collecting garbage, try again later
+			return;
+		}
+		
 		for (String repositoryName: GitBlit.self().getRepositoryList()) {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {

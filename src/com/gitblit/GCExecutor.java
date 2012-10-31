@@ -53,6 +53,8 @@ public class GCExecutor implements Runnable {
 
 	private final IStoredSettings settings;
 	
+	private AtomicBoolean running = new AtomicBoolean(false);
+	
 	private AtomicBoolean forceClose = new AtomicBoolean(false);
 	
 	private final Map<String, GCStatus> gcCache = new ConcurrentHashMap<String, GCStatus>();
@@ -68,6 +70,10 @@ public class GCExecutor implements Runnable {
 	 */
 	public boolean isReady() {
 		return settings.getBoolean(Keys.git.enableGarbageCollection, false);
+	}
+	
+	public boolean isRunning() {
+		return running.get();
 	}
 	
 	public boolean lock(String repositoryName) {
@@ -121,6 +127,8 @@ public class GCExecutor implements Runnable {
 		if (!isReady()) {
 			return;
 		}
+		
+		running.set(true);		
 		Date now = new Date();
 
 		for (String repositoryName : GitBlit.self().getRepositoryList()) {
@@ -205,6 +213,8 @@ public class GCExecutor implements Runnable {
 				logger.debug(MessageFormat.format("GCExecutor released GC lock for {0}", repositoryName));
 			}
 		}
+		
+		running.set(false);
 	}
 	
 	private boolean isRepositoryIdle(FileRepository repository) {

@@ -2907,6 +2907,14 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
+	 * 
+	 * @return true if we are running the gc executor
+	 */
+	public boolean isCollectingGarbage() {
+		return gcExecutor.isRunning();
+	}
+	
+	/**
 	 * Returns true if Gitblit is actively collecting garbage in this repository.
 	 * 
 	 * @param repositoryName
