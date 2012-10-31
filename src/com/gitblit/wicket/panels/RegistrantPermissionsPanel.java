@@ -169,6 +169,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				// add permission to our list
 				RegistrantAccessPermission rp = (RegistrantAccessPermission) form.getModel().getObject();
+				if (rp.permission == null) {
+					return;
+				}
 				RegistrantAccessPermission copy = DeepCopier.copy(rp);
 				if (StringUtils.findInvalidCharacter(copy.registrant) != null) {
 					copy.permissionType = PermissionType.REGEX;
