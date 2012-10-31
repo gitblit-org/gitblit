@@ -128,7 +128,7 @@
 			<include name="com/gitblit/utils/StringUtils.java" />			
 		</javac>
 
-		<java classpath="${project.build.dir}" classname="com.gitblit.build.Build">
+		<java classpath="${project.build.dir}" classname="com.gitblit.build.Build" failonerror="true">
 			<syspropertyset id="proxy.properties">
 				<propertyref prefix="java.net.useSystemProxies"/>
 				<propertyref prefix="http."/>
