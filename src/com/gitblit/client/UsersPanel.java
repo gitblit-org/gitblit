@@ -25,6 +25,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import javax.swing.table.TableRowSorter;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.models.RegistrantAccessPermission;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -318,7 +320,13 @@ public abstract class UsersPanel extends JPanel {
 				// Ensure this is NOT an owner permission - which is non-editable
 				// We don't know this from within the usermodel, ownership is a
 				// property of a repository.
-				boolean isOwner = gitblit.getRepository(permission.registrant).isOwner(user.username);
+				RepositoryModel rm = gitblit.getRepository(permission.registrant);
+				if (rm == null) {
+					System.out.println(MessageFormat.format("{0}: failed to find registrant repository {1}",
+							getClass().getSimpleName(), permission.registrant));
+					continue;
+				}
+				boolean isOwner = rm.isOwner(user.username);
 				if (isOwner) {
 					permission.permissionType = PermissionType.OWNER;
 					permission.isEditable = false;
