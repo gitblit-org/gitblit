@@ -56,6 +56,7 @@ In order to fork a repository, the user account must have the *fork* permission 
 
 - Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
 - Use https Gravatar urls to avoid browser complaints
+- Added frm to default pretty print extensions (issue 156)
 - Expose ReceivePack to Groovy push hooks (issue 125)
 - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 129)
 - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (Github/jpyeron, issue 126)
