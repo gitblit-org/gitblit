@@ -932,7 +932,7 @@ public class GitBlit implements ServletContextListener {
 	 */
 	private void addToCachedRepositoryList(RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			repositoryListCache.put(model.name, model);
+			repositoryListCache.put(model.name.toLowerCase(), model);
 			
 			// update the fork origin repository with this repository clone
 			if (!StringUtils.isEmpty(model.originRepository)) {
@@ -954,7 +954,7 @@ public class GitBlit implements ServletContextListener {
 		if (StringUtils.isEmpty(name)) {
 			return null;
 		}
-		return repositoryListCache.remove(name);
+		return repositoryListCache.remove(name.toLowerCase());
 	}
 
 	/**
@@ -1188,7 +1188,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// cached model
-		RepositoryModel model = repositoryListCache.get(repositoryName);
+		RepositoryModel model = repositoryListCache.get(repositoryName.toLowerCase());
 
 		if (gcExecutor.isCollectingGarbage(model.name)) {
 			// Gitblit is busy collecting garbage, use our cached model
@@ -1493,7 +1493,7 @@ public class GitBlit implements ServletContextListener {
 					// ensure origin still exists
 					File repoFolder = new File(getRepositoriesFolder(), originRepo);
 					if (repoFolder.exists()) {
-						model.originRepository = originRepo;
+						model.originRepository = originRepo.toLowerCase();
 					}
 				}
 			} catch (URISyntaxException e) {
@@ -1513,7 +1513,7 @@ public class GitBlit implements ServletContextListener {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// if we are caching use the cache to determine availability
 			// otherwise we end up adding a phantom repository to the cache
-			return repositoryListCache.containsKey(repositoryName);
+			return repositoryListCache.containsKey(repositoryName.toLowerCase());
 		}		
 		Repository r = getRepository(repositoryName, false);
 		if (r == null) {
@@ -1571,7 +1571,7 @@ public class GitBlit implements ServletContextListener {
 			}
 			
 			for (String repository : repositoryListCache.keySet()) {
-				if (repository.toLowerCase().startsWith(userPath)) {
+				if (repository.startsWith(userPath)) {
 					RepositoryModel model = repositoryListCache.get(repository);
 					if (!StringUtils.isEmpty(model.originRepository)) {
 						if (roots.contains(model.originRepository)) {
@@ -1585,7 +1585,7 @@ public class GitBlit implements ServletContextListener {
 			// not caching
 			ProjectModel project = getProjectModel(userProject);
 			for (String repository : project.repositories) {
-				if (repository.toLowerCase().startsWith(userProject)) {
+				if (repository.startsWith(userProject)) {
 					RepositoryModel model = repositoryListCache.get(repository);
 					if (model.originRepository.equalsIgnoreCase(origin)) {
 						// user has a fork
@@ -1608,7 +1608,7 @@ public class GitBlit implements ServletContextListener {
 	public ForkModel getForkNetwork(String repository) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// find the root
-			RepositoryModel model = repositoryListCache.get(repository);
+			RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 			while (model.originRepository != null) {
 				model = repositoryListCache.get(model.originRepository);
 			}
@@ -1619,7 +1619,7 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	private ForkModel getForkModel(String repository) {
-		RepositoryModel model = repositoryListCache.get(repository);
+		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
