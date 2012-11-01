@@ -50,6 +50,7 @@ public class Utils {
 
 	public static JTable newTable(TableModel model, String datePattern) {
 		JTable table = new JTable(model);
+		table.setRowHeight(table.getFont().getSize() + 8);
 		table.setCellSelectionEnabled(false);
 		table.setRowSelectionAllowed(true);
 		table.getTableHeader().setReorderingAllowed(false);

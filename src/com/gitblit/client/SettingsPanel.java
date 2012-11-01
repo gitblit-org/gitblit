@@ -102,7 +102,6 @@ public class SettingsPanel extends JPanel {
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		table.setDefaultRenderer(SettingModel.class, new SettingCellRenderer());
 		String name = table.getColumnName(UsersTableModel.Columns.Name.ordinal());
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
 		table.setRowSorter(defaultSorter);
 		table.getRowSorter().toggleSortOrder(SettingsTableModel.Columns.Name.ordinal());

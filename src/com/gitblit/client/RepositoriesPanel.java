@@ -180,7 +180,6 @@ public abstract class RepositoriesPanel extends JPanel {
 		tableModel = new RepositoriesTableModel();
 		defaultSorter = new TableRowSorter<RepositoriesTableModel>(tableModel);
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.setRowSorter(defaultSorter);
 		table.getRowSorter().toggleSortOrder(RepositoriesTableModel.Columns.Name.ordinal());
 

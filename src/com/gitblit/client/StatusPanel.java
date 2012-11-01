@@ -102,7 +102,6 @@ public class StatusPanel extends JPanel {
 		JTable propertiesTable = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		String name = propertiesTable.getColumnName(PropertiesTableModel.Columns.Name.ordinal());
 		NameRenderer nameRenderer = new NameRenderer();
-		propertiesTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		propertiesTable.getColumn(name).setCellRenderer(nameRenderer);
 
 		JPanel centerPanel = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN));

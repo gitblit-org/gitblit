@@ -79,7 +79,6 @@ public abstract class SubscriptionsDialog extends JDialog {
 		NameRenderer nameRenderer = new NameRenderer();
 		model = new FeedsTableModel(feeds);
 		feedsTable = Utils.newTable(model, Utils.DATE_FORMAT);
-		feedsTable.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		feedsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {

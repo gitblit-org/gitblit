@@ -40,11 +40,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import com.gitblit.Constants.AccessPermission;
-import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RpcRequest;
-import com.gitblit.models.RegistrantAccessPermission;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -114,7 +110,6 @@ public abstract class UsersPanel extends JPanel {
 		defaultSorter = new TableRowSorter<UsersTableModel>(tableModel);
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		String name = table.getColumnName(UsersTableModel.Columns.Name.ordinal());
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
 		
 		int w = 125;

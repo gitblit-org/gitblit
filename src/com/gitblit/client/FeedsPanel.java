@@ -160,7 +160,6 @@ public abstract class FeedsPanel extends JPanel {
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		defaultSorter = new TableRowSorter<FeedEntryTableModel>(tableModel);
 		String name = table.getColumnName(FeedEntryTableModel.Columns.Author.ordinal());
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
 		name = table.getColumnName(FeedEntryTableModel.Columns.Repository.ordinal());
 		table.getColumn(name).setCellRenderer(nameRenderer);

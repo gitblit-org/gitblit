@@ -138,7 +138,6 @@ public class JPalette<T> extends JPanel {
 		NameRenderer nameRenderer = new NameRenderer();
 		table.setCellSelectionEnabled(false);
 		table.setRowSelectionAllowed(true);
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getTableHeader().setReorderingAllowed(false);
 		table.setGridColor(new Color(0xd9d9d9));
 		table.setBackground(Color.white);

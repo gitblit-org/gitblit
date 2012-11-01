@@ -109,7 +109,6 @@ public abstract class TeamsPanel extends JPanel {
 		defaultSorter = new TableRowSorter<TeamsTableModel>(tableModel);
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		String name = table.getColumnName(TeamsTableModel.Columns.Name.ordinal());
-		table.setRowHeight(nameRenderer.getFont().getSize() + 8);
 		table.getColumn(name).setCellRenderer(nameRenderer);
 
 		int w = 125;
