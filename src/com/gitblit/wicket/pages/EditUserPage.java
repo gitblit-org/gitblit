@@ -33,7 +33,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
-import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
@@ -113,7 +112,8 @@ public class EditUserPage extends RootSubPage {
 				// property of a repository.
 				RepositoryModel rm = GitBlit.self().getRepositoryModel(permission.registrant);
 				if (rm == null) {
-					LoggerFactory.getLogger(getClass()).error("Missing repository " + permission.registrant);
+					permission.permissionType = PermissionType.MISSING;
+					permission.mutable = false;
 					continue;
 				}
 				boolean isOwner = rm.isOwner(oldName);

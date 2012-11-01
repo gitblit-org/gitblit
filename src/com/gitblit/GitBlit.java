@@ -79,7 +79,6 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.Constants.PermissionType;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -2204,6 +2203,8 @@ public class GitBlit implements ServletContextListener {
 		case PULL_SETTINGS:
 		case PULL_SCRIPTS:
 			return token.equals(all);
+		default:
+			break;
 		}
 		return false;
 	}
@@ -2346,6 +2347,8 @@ public class GitBlit implements ServletContextListener {
 				if (!StringUtils.isEmpty(model.origin)) {
 					url = model.origin;
 				}
+				break;
+			default:
 				break;
 			}
 

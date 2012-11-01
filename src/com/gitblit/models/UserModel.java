@@ -154,10 +154,6 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				pType = PermissionType.REGEX;
 				source = registrant;
 			}
-			if (AccessPermission.MISSING.equals(entry.getValue())) {
-				// repository can not be found, permission is not editable
-				editable = false;
-			}
 			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, source, editable));
 		}
 		Collections.sort(list);

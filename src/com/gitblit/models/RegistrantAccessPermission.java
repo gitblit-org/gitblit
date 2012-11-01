@@ -64,6 +64,10 @@ public class RegistrantAccessPermission implements Serializable, Comparable<Regi
 		return PermissionType.OWNER.equals(permissionType);
 	}
 
+	public boolean isMissing() {
+		return PermissionType.MISSING.equals(permissionType);
+	}
+	
 	@Override
 	public int compareTo(RegistrantAccessPermission p) {
 		switch (registrantType) {

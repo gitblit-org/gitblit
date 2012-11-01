@@ -27,8 +27,10 @@ import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.ImageIcon;
@@ -47,6 +49,7 @@ import javax.swing.KeyStroke;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -343,6 +346,7 @@ public class EditUserDialog extends JDialog {
 	}
 
 	public void setRepositories(List<RepositoryModel> repositories, List<RegistrantAccessPermission> permissions) {
+		Map<String, RepositoryModel> repoMap = new HashMap<String, RepositoryModel>();
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
 			// exclude Owner or personal repositories
@@ -352,6 +356,7 @@ public class EditUserDialog extends JDialog {
 					restricted.add(repo.name);
 				}				
 			}
+			repoMap.put(repo.name.toLowerCase(), repo);
 		}
 		StringUtils.sortRepositorynames(restricted);
 		
@@ -381,6 +386,27 @@ public class EditUserDialog extends JDialog {
 				list.remove(rp.registrant.toLowerCase());
 			}
 		}
+		
+		// update owner and missing permissions for editing
+		for (RegistrantAccessPermission permission : permissions) {
+			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+				// Ensure this is NOT an owner permission - which is non-editable
+				// We don't know this from within the usermodel, ownership is a
+				// property of a repository.
+				RepositoryModel rm = repoMap.get(permission.registrant.toLowerCase());
+				if (rm == null) {
+					permission.permissionType = PermissionType.MISSING;
+					permission.mutable = false;
+					continue;
+				}
+				boolean isOwner = rm.isOwner(username);
+				if (isOwner) {
+					permission.permissionType = PermissionType.OWNER;
+					permission.mutable = false;
+				}
+			}
+		}
+
 		repositoryPalette.setObjects(list, permissions);
 	}
 

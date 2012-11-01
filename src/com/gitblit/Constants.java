@@ -321,7 +321,7 @@ public class Constants {
 	 * The access permissions available for a repository. 
 	 */
 	public static enum AccessPermission {
-		NONE("N"), EXCLUDE("X"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+");
+		NONE("N"), EXCLUDE("X"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+"), OWNER("RW+");
 		
 		public static final AccessPermission [] NEWPERMISSIONS = { EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
 		
@@ -387,7 +387,7 @@ public class Constants {
 	}
 	
 	public static enum PermissionType {
-		EXPLICIT, OWNER, ADMINISTRATOR, TEAM, REGEX;
+		MISSING, EXPLICIT, TEAM, REGEX, OWNER, ADMINISTRATOR;
 	}
 	
 	public static enum GCStatus {

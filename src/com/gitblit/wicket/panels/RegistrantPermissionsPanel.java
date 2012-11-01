@@ -89,14 +89,14 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				final RegistrantAccessPermission entry = item.getModelObject();
 				if (RegistrantType.REPOSITORY.equals(entry.registrantType)) {
 					String repoName = StringUtils.stripDotGit(entry.registrant);
-					if (StringUtils.findInvalidCharacter(repoName) == null) {
+					if (!entry.isMissing() && StringUtils.findInvalidCharacter(repoName) == null) {
 						// repository, strip .git and show swatch
 						Label registrant = new Label("registrant", repoName);
 						WicketUtils.setCssClass(registrant, "repositorySwatch");
 						WicketUtils.setCssBackground(registrant, repoName);
 						item.add(registrant);
 					} else {
-						// likely a regex
+						// regex or missing
 						Label label = new Label("registrant", entry.registrant);
 						WicketUtils.setCssStyle(label, "font-weight: bold;");
 						item.add(label);
@@ -147,7 +147,16 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					item.add(regex);
 					break;
 				default:
-					item.add(new Label("pType", "").setVisible(false));
+					if (entry.isMissing()) {
+						// repository is missing, this permission will be removed on save
+						Label missing = new Label("pType", getString("gb.missing"));
+						WicketUtils.setCssClass(missing, "label label-important");
+						WicketUtils.setHtmlTooltip(missing, getString("gb.missingPermission"));
+						item.add(missing);
+					} else {
+						// standard permission
+						item.add(new Label("pType", "").setVisible(false));
+					}
 					break;
 				}
 

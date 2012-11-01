@@ -198,8 +198,13 @@ public class RegistrantPermissionsPanel extends JPanel {
 				setToolTipText(MessageFormat.format(Translation.get("gb.regexPermission"), ap.source));
 				break;
 			default:
-				setText("");
-				setToolTipText(null);
+				if (ap.isMissing()) {
+					setText(Translation.get("gb.missing"));
+					setToolTipText(Translation.get("gb.missingPermission"));
+				} else {
+					setText("");
+					setToolTipText(null);
+				}
 				break;
 			}
 		}
