@@ -659,6 +659,16 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public UserModel getUserModel(String username) {
 		UserModel user = userService.getUserModel(username);
+		if (user != null) {
+			// TODO reconsider ownership as a user property
+			// manually specify personal repository ownerships
+			String folder = "~" + username;
+			for (String repository : getRepositoryList()) {
+				if (repository.toLowerCase().startsWith(folder)) {
+					user.setRepositoryPermission(repository, AccessPermission.REWIND);
+				}
+			}
+		}
 		return user;
 	}
 
