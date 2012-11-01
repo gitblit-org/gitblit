@@ -91,7 +91,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		if (columnIndex == Columns.Permission.ordinal()) {
 			return AccessPermission.class;
 		} else if (columnIndex == Columns.Type.ordinal()) {
-			return Boolean.class;
+			return RegistrantAccessPermission.class;
 		}
 		return String.class;
 	}
@@ -117,7 +117,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		case Registrant:
 			return rp.registrant;
 		case Type:
-			return rp.permissionType;
+			return rp;
 		case Permission:
 			return rp.permission;
 		}

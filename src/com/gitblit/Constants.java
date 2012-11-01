@@ -387,7 +387,7 @@ public class Constants {
 	}
 	
 	public static enum PermissionType {
-		EXPLICIT, OWNER, REGEX;
+		EXPLICIT, OWNER, ADMINISTRATOR, TEAM, REGEX;
 	}
 	
 	public static enum GCStatus {

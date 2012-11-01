@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -109,7 +110,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					}
 
 					Fragment userFragment = new Fragment("registrant", "userRegistrant", RegistrantPermissionsPanel.this);
-					userFragment.add(new GravatarImage("userAvatar", ident, 16, false));
+					userFragment.add(new GravatarImage("userAvatar", ident, 20, false));
 					userFragment.add(new Label("userName", entry.registrant));					
 					item.add(userFragment);					
 				} else {
@@ -119,14 +120,30 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					item.add(teamFragment);
 				}
 				switch (entry.permissionType) {
+				case ADMINISTRATOR:
+					Label administrator = new Label("pType", entry.source == null ? getString("gb.administrator") : entry.source);
+					WicketUtils.setHtmlTooltip(administrator, getString("gb.administratorPermission"));
+					WicketUtils.setCssClass(administrator, "label label-inverse");
+					item.add(administrator);
+					break;
 				case OWNER:
-					Label owner = new Label("pType", "owner");
+					Label owner = new Label("pType", getString("gb.owner"));
 					WicketUtils.setHtmlTooltip(owner, getString("gb.ownerPermission"));
+					WicketUtils.setCssClass(owner, "label label-info");
 					item.add(owner);
+					break;
+				case TEAM:
+					Label team = new Label("pType", entry.source == null ? getString("gb.team") : entry.source);
+					WicketUtils.setHtmlTooltip(team, MessageFormat.format(getString("gb.teamPermission"), entry.source));
+					WicketUtils.setCssClass(team, "label label-success");
+					item.add(team);
 					break;
 				case REGEX:
 					Label regex = new Label("pType", "regex");
-					WicketUtils.setHtmlTooltip(regex, getString("gb.regexPermission"));
+					if (!StringUtils.isEmpty(entry.source)) {
+						WicketUtils.setHtmlTooltip(regex, MessageFormat.format(getString("gb.regexPermission"), entry.source));
+					}
+					WicketUtils.setCssClass(regex, "label");
 					item.add(regex);
 					break;
 				default:
@@ -165,8 +182,14 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		final List<String> registrants = new ArrayList<String>(allRegistrants);
 		for (RegistrantAccessPermission rp : permissions) {
 			if (rp.isEditable) {
-				// only remove editable duplicates
+				// remove editable duplicates
 				// this allows for specifying an explicit permission
+				registrants.remove(rp.registrant);
+			} else if (rp.isAdmin()) {
+				// administrators can not have their permission changed
+				registrants.remove(rp.registrant);
+			} else if (rp.isOwner()) {
+				// owners can not have their permission changed
 				registrants.remove(rp.registrant);
 			}
 		}

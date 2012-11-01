@@ -19,6 +19,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,6 +137,12 @@ public class RegistrantPermissionsPanel extends JPanel {
 				// only remove editable duplicates
 				// this allows for specifying an explicit permission
 				filtered.remove(rp.registrant);
+			} else if (rp.isAdmin()) {
+				// administrators can not have their permission changed
+				filtered.remove(rp.registrant);
+			} else if (rp.isOwner()) {
+				// owners can not have their permission changed
+				filtered.remove(rp.registrant);
 			}
 		}
 		for (String registrant : filtered) {
@@ -172,15 +179,23 @@ public class RegistrantPermissionsPanel extends JPanel {
 
 		@Override
 		protected void setValue(Object value) {
-			PermissionType pType = (PermissionType) value;
-			switch (pType) {
+			RegistrantAccessPermission ap = (RegistrantAccessPermission) value;
+			switch (ap.permissionType) {
+			case ADMINISTRATOR:
+				setText(ap.source == null ? Translation.get("gb.administrator") : ap.source);
+				setToolTipText(Translation.get("gb.administratorPermission"));
+				break;
 			case OWNER:
-				setText("owner");
+				setText(Translation.get("gb.owner"));
 				setToolTipText(Translation.get("gb.ownerPermission"));
+				break;
+			case TEAM:
+				setText(ap.source == null ? Translation.get("gb.team") : ap.source);
+				setToolTipText(MessageFormat.format(Translation.get("gb.teamPermission"), ap.source));
 				break;
 			case REGEX:
 				setText("regex");
-				setToolTipText(Translation.get("gb.regexPermission"));
+				setToolTipText(MessageFormat.format(Translation.get("gb.regexPermission"), ap.source));
 				break;
 			default:
 				setText("");

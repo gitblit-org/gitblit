@@ -140,16 +140,25 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
 			String registrant = entry.getKey();
+			String source = null;
 			boolean editable = true;
 			PermissionType pType = PermissionType.EXPLICIT;
-			if (isMyPersonalRepository(registrant)) {
+			if (canAdmin()) {
+				pType = PermissionType.ADMINISTRATOR;
+				editable = false;
+			} else if (isMyPersonalRepository(registrant)) {
 				pType = PermissionType.OWNER;
 				editable = false;
 			} else if (StringUtils.findInvalidCharacter(registrant) != null) {
 				// a regex will have at least 1 invalid character
 				pType = PermissionType.REGEX;
+				source = registrant;
 			}
-			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, editable));
+			if (AccessPermission.MISSING.equals(entry.getValue())) {
+				// repository can not be found, permission is not editable
+				editable = false;
+			}
+			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, source, editable));
 		}
 		Collections.sort(list);
 		return list;
@@ -194,6 +203,24 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 	
 	/**
+	 * Returns true if the user's team memberships specify an access permission for
+	 * this repository.
+	 * 
+	 * @param name
+	 * @return if the user's team memberships specifi an access permission
+	 */
+	public boolean hasTeamRepositoryPermission(String name) {
+		if (teams != null) {
+			for (TeamModel team : teams) {
+				if (team.hasRepositoryPermission(name)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Adds a repository permission to the team.
 	 * <p>
 	 * Role may be formatted as:
@@ -220,23 +247,52 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		permissions.put(repository.toLowerCase(), permission);
 	}
 
-	public AccessPermission getRepositoryPermission(RepositoryModel repository) {
-		if (canAdmin() || repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
-			return AccessPermission.REWIND;
+	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {
+		RegistrantAccessPermission ap = new RegistrantAccessPermission();
+		ap.registrant = username;
+		ap.registrantType = RegistrantType.USER;
+		ap.permission = AccessPermission.NONE;
+		ap.isEditable = false;
+
+		// administrator
+		if (canAdmin()) {
+			ap.permissionType = PermissionType.ADMINISTRATOR;
+			ap.permission = AccessPermission.REWIND;
+			if (!canAdmin) {
+				// administator permission from team membership
+				for (TeamModel team : teams) {
+					if (team.canAdmin) {
+						ap.source = team.name;
+						break;
+					}
+				}
+			}
+			return ap;
 		}
+		
+		// repository owner - either specified owner or personal repository
+		if (repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
+			ap.permissionType = PermissionType.OWNER;
+			ap.permission = AccessPermission.REWIND;
+			return ap;
+		}
+		
 		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl) && isAuthenticated) {
 			// AUTHENTICATED is a shortcut for authorizing all logged-in users RW access
-			return AccessPermission.REWIND;
+			ap.permission = AccessPermission.REWIND;
+			return ap;
 		}
 		
 		// explicit user permission OR user regex match is used
 		// if that fails, then the best team permission is used
-		AccessPermission permission = AccessPermission.NONE;
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified, use it
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
 			if (p != null) {
-				return p;
+				ap.permissionType = PermissionType.EXPLICIT;
+				ap.permission = p;
+				ap.isEditable = true;
+				return ap;
 			}
 		} else {
 			// search for case-insensitive regex permission match
@@ -245,29 +301,33 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 					AccessPermission p = permissions.get(key);
 					if (p != null) {
 						// take first match
-						permission = p;
-						break;
+						ap.permissionType = PermissionType.REGEX;
+						ap.permission = p;
+						ap.source = key;
+						return ap;
 					}
 				}
 			}
 		}
 		
-		if (AccessPermission.NONE.equals(permission)) {
-			for (TeamModel team : teams) {
-				AccessPermission p = team.getRepositoryPermission(repository);
-				if (p.exceeds(permission)) {
-					// use highest team permission
-					permission = p;
-				}
+		// try to find a team match
+		for (TeamModel team : teams) {
+			RegistrantAccessPermission p = team.getRepositoryPermission(repository);
+			if (p.permission.exceeds(ap.permission)) {
+				// use highest team permission
+				ap.permission = p.permission;
+				ap.source = team.name;
+				ap.permissionType = PermissionType.TEAM;
 			}
-		}
-		return permission;
+		}		
+		
+		return ap;
 	}
 	
 	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
-			AccessPermission permission = getRepositoryPermission(repository);
-			return permission.atLeast(requirePermission);
+			RegistrantAccessPermission ap = getRepositoryPermission(repository);
+			return ap.permission.atLeast(requirePermission);
 		}
 		return true;
 	}

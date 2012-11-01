@@ -80,7 +80,6 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.Constants.PermissionType;
-import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -665,41 +664,22 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the list of users and their access permissions for the specified repository.
+	 * Returns the list of users and their access permissions for the specified
+	 * repository including permission source information such as the team or
+	 * regular expression which sets the permission.
 	 * 
 	 * @param repository
-	 * @return a list of User-AccessPermission tuples
+	 * @return a list of RegistrantAccessPermissions
 	 */
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
-		Set<RegistrantAccessPermission> permissions = new LinkedHashSet<RegistrantAccessPermission>();
-		if (!StringUtils.isEmpty(repository.owner)) {
-			UserModel owner = userService.getUserModel(repository.owner);
-			if (owner != null) {
-				permissions.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();		
+		for (UserModel user : userService.getAllUsers()) {
+			RegistrantAccessPermission ap = user.getRepositoryPermission(repository);
+			if (ap.permission.exceeds(AccessPermission.NONE)) {
+				list.add(ap);
 			}
 		}
-		if (repository.isPersonalRepository()) {
-			UserModel owner = userService.getUserModel(repository.projectPath.substring(1));
-			if (owner != null) {
-				permissions.add(new RegistrantAccessPermission(owner.username, AccessPermission.REWIND, PermissionType.OWNER, RegistrantType.USER, false));
-			}
-		}
-		for (String user : userService.getUsernamesForRepositoryRole(repository.name)) {
-			UserModel model = userService.getUserModel(user);
-			AccessPermission ap = model.getRepositoryPermission(repository);
-			PermissionType pType = PermissionType.REGEX;
-			boolean editable = false;
-			if (repository.isOwner(model.username)) {
-				pType = PermissionType.OWNER;
-			} else if (repository.isUsersPersonalRepository(model.username)) {
-				pType = PermissionType.OWNER;
-			} else if (model.hasExplicitRepositoryPermission(repository.name)) {
-				pType = PermissionType.EXPLICIT;
-				editable = true;
-			}			
-			permissions.add(new RegistrantAccessPermission(user, ap, pType, RegistrantType.USER, editable));
-		}
-		return new ArrayList<RegistrantAccessPermission>(permissions);
+		return list;
 	}
 	
 	/**
@@ -823,25 +803,23 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
-	 * Returns the list of teams and their access permissions for the specified repository.
+	 * Returns the list of teams and their access permissions for the specified
+	 * repository including the source of the permission such as the admin flag
+	 * or a regular expression.
 	 * 
 	 * @param repository
-	 * @return a list of Team-AccessPermission tuples
+	 * @return a list of RegistrantAccessPermissions
 	 */
 	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
-		List<RegistrantAccessPermission> permissions = new ArrayList<RegistrantAccessPermission>();
-		for (String team : userService.getTeamnamesForRepositoryRole(repository.name)) {
-			TeamModel model = userService.getTeamModel(team);
-			AccessPermission ap = model.getRepositoryPermission(repository);
-			PermissionType pType = PermissionType.REGEX;
-			boolean editable = false;
-			if (model.hasExplicitRepositoryPermission(repository.name)) {
-				pType = PermissionType.EXPLICIT;
-				editable = true;
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		for (TeamModel team : userService.getAllTeams()) {
+			RegistrantAccessPermission ap = team.getRepositoryPermission(repository);
+			if (ap.permission.exceeds(AccessPermission.NONE)) {
+				list.add(ap);
 			}
-			permissions.add(new RegistrantAccessPermission(team, ap, pType, RegistrantType.TEAM, editable));
 		}
-		return permissions;
+		Collections.sort(list);
+		return list;
 	}
 	
 	/**

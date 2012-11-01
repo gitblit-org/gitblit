@@ -36,6 +36,10 @@ public class RegistrantAccessPermission implements Serializable, Comparable<Regi
 	public RegistrantType registrantType;
 	public PermissionType permissionType;
 	public boolean isEditable;
+	public String source;
+	
+	public RegistrantAccessPermission() {
+	}
 
 	public RegistrantAccessPermission(RegistrantType registrantType) {
 		this.registrantType = registrantType;
@@ -43,14 +47,23 @@ public class RegistrantAccessPermission implements Serializable, Comparable<Regi
 		this.isEditable = true;
 	}
 	
-	public RegistrantAccessPermission(String registrant, AccessPermission permission, PermissionType permissionType, RegistrantType registrantType, boolean isEditable) {
+	public RegistrantAccessPermission(String registrant, AccessPermission permission, PermissionType permissionType, RegistrantType registrantType, String source, boolean isEditable) {
 		this.registrant = registrant;
 		this.permission = permission;
 		this.permissionType = permissionType;
 		this.registrantType = registrantType;
+		this.source = source;
 		this.isEditable = isEditable;
 	}
 	
+	public boolean isAdmin() {
+		return PermissionType.ADMINISTRATOR.equals(permissionType);
+	}
+
+	public boolean isOwner() {
+		return PermissionType.OWNER.equals(permissionType);
+	}
+
 	@Override
 	public int compareTo(RegistrantAccessPermission p) {
 		switch (registrantType) {

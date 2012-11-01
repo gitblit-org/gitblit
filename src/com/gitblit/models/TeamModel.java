@@ -100,13 +100,15 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
 			String registrant = entry.getKey();
+			String source = null;
 			boolean editable = true;
 			PermissionType pType = PermissionType.EXPLICIT;
 			if (StringUtils.findInvalidCharacter(registrant) != null) {
 				// a regex will have at least 1 invalid character
 				pType = PermissionType.REGEX;
+				source = registrant;
 			}
-			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, editable));
+			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, source, editable));
 		}
 		Collections.sort(list);
 		return list;
@@ -184,13 +186,27 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		repositories.add(repository.toLowerCase());
 	}
 	
-	public AccessPermission getRepositoryPermission(RepositoryModel repository) {
-		AccessPermission permission = AccessPermission.NONE;
+	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {
+		RegistrantAccessPermission ap = new RegistrantAccessPermission();
+		ap.registrant = name;
+		ap.registrantType = RegistrantType.TEAM;
+		ap.permission = AccessPermission.NONE;
+		ap.isEditable = false;
+		
+		if (canAdmin) {
+			ap.permissionType = PermissionType.ADMINISTRATOR;
+			ap.permission = AccessPermission.REWIND;
+			return ap;
+		}
+		
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
 			if (p != null) {
-				permission = p;
+				ap.permissionType = PermissionType.EXPLICIT;
+				ap.permission = p;
+				ap.isEditable = true;
+				return ap;
 			}
 		} else {
 			// search for case-insensitive regex permission match
@@ -198,20 +214,22 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 				if (StringUtils.matchesIgnoreCase(repository.name, key)) {
 					AccessPermission p = permissions.get(key);
 					if (p != null) {
-						permission = p;
 						// take first match
-						break;
+						ap.permissionType = PermissionType.REGEX;
+						ap.permission = p;
+						ap.source = key;
+						return ap;
 					}
 				}
 			}
 		}
-		return permission;
+		return ap;
 	}
 	
 	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
-			AccessPermission permission = getRepositoryPermission(repository);
-			return permission.atLeast(requirePermission);
+			RegistrantAccessPermission ap = getRepositoryPermission(repository);
+			return ap.permission.atLeast(requirePermission);
 		}
 		return true;
 	}
