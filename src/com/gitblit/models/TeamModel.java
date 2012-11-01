@@ -98,6 +98,10 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		if (canAdmin) {
+			// team has REWIND access to all repositories
+			return list;
+		}
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
 			String registrant = entry.getKey();
 			String source = null;

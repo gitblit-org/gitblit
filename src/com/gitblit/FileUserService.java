@@ -796,7 +796,10 @@ public class FileUserService extends FileSettings implements IUserService {
 							repositories.add(role);
 						}
 					}
-					team.addRepositoryPermissions(repositories);
+					if (!team.canAdmin) {
+						// only read permissions for non-admin teams
+						team.addRepositoryPermissions(repositories);
+					}
 					team.addUsers(users);
 					team.addMailingLists(mailingLists);
 					team.preReceiveScripts.addAll(preReceive);

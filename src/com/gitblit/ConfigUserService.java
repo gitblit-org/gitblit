@@ -841,7 +841,7 @@ public class ConfigUserService implements IUserService {
 			config.setStringList(USER, model.username, ROLE, roles);
 
 			// discrete repository permissions
-			if (model.permissions != null) {
+			if (model.permissions != null && !model.canAdmin) {
 				List<String> permissions = new ArrayList<String>();
 				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
 					if (entry.getValue().exceeds(AccessPermission.NONE)) {
@@ -872,23 +872,26 @@ public class ConfigUserService implements IUserService {
 			}
 			config.setStringList(TEAM, model.name, ROLE, roles);
 			
-			if (model.permissions == null) {
-				// null check on "final" repositories because JSON-sourced TeamModel
-				// can have a null repositories object
-				if (!ArrayUtils.isEmpty(model.repositories)) {
-					config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
-							model.repositories));
-				}
-			} else {
-				// discrete repository permissions
-				List<String> permissions = new ArrayList<String>();
-				for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
-					if (entry.getValue().exceeds(AccessPermission.NONE)) {
-						// code:repository (e.g. RW+:~james/myrepo.git
-						permissions.add(entry.getValue().asRole(entry.getKey()));
+			if (!model.canAdmin) {
+				// write team permission for non-admin teams
+				if (model.permissions == null) {
+					// null check on "final" repositories because JSON-sourced TeamModel
+					// can have a null repositories object
+					if (!ArrayUtils.isEmpty(model.repositories)) {
+						config.setStringList(TEAM, model.name, REPOSITORY, new ArrayList<String>(
+								model.repositories));
 					}
+				} else {
+					// discrete repository permissions
+					List<String> permissions = new ArrayList<String>();
+					for (Map.Entry<String, AccessPermission> entry : model.permissions.entrySet()) {
+						if (entry.getValue().exceeds(AccessPermission.NONE)) {
+							// code:repository (e.g. RW+:~james/myrepo.git
+							permissions.add(entry.getValue().asRole(entry.getKey()));
+						}
+					}
+					config.setStringList(TEAM, model.name, REPOSITORY, permissions);
 				}
-				config.setStringList(TEAM, model.name, REPOSITORY, permissions);
 			}
 
 			// null check on "final" users because JSON-sourced TeamModel
@@ -975,10 +978,13 @@ public class ConfigUserService implements IUserService {
 					user.excludeFromFederation = roles.contains(Constants.NOT_FEDERATED_ROLE);
 
 					// repository memberships
-					Set<String> repositories = new HashSet<String>(Arrays.asList(config
-							.getStringList(USER, username, REPOSITORY)));
-					for (String repository : repositories) {
-						user.addRepositoryPermission(repository);
+					if (!user.canAdmin) {
+						// non-admin, read permissions
+						Set<String> repositories = new HashSet<String>(Arrays.asList(config
+								.getStringList(USER, username, REPOSITORY)));
+						for (String repository : repositories) {
+							user.addRepositoryPermission(repository);
+						}
 					}
 
 					// update cache
@@ -998,8 +1004,11 @@ public class ConfigUserService implements IUserService {
 					team.canFork = roles.contains(Constants.FORK_ROLE);
 					team.canCreate = roles.contains(Constants.CREATE_ROLE);
 					
-					team.addRepositoryPermissions(Arrays.asList(config.getStringList(TEAM, teamname,
-							REPOSITORY)));
+					if (!team.canAdmin) {
+						// non-admin team, read permissions
+						team.addRepositoryPermissions(Arrays.asList(config.getStringList(TEAM, teamname,
+								REPOSITORY)));
+					}
 					team.addUsers(Arrays.asList(config.getStringList(TEAM, teamname, USER)));
 					team.addMailingLists(Arrays.asList(config.getStringList(TEAM, teamname,
 							MAILINGLIST)));

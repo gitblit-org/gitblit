@@ -138,23 +138,26 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		if (canAdmin()) {
+			// user has REWIND access to all repositories
+			return list;
+		}
 		for (Map.Entry<String, AccessPermission> entry : permissions.entrySet()) {
 			String registrant = entry.getKey();
+			AccessPermission ap = entry.getValue();
 			String source = null;
-			boolean editable = true;
+			boolean mutable = true;
 			PermissionType pType = PermissionType.EXPLICIT;
-			if (canAdmin()) {
-				pType = PermissionType.ADMINISTRATOR;
-				editable = false;
-			} else if (isMyPersonalRepository(registrant)) {
+			if (isMyPersonalRepository(registrant)) {
 				pType = PermissionType.OWNER;
-				editable = false;
+				ap = AccessPermission.REWIND;
+				mutable = false;
 			} else if (StringUtils.findInvalidCharacter(registrant) != null) {
 				// a regex will have at least 1 invalid character
 				pType = PermissionType.REGEX;
 				source = registrant;
 			}
-			list.add(new RegistrantAccessPermission(registrant, entry.getValue(), pType, RegistrantType.REPOSITORY, source, editable));
+			list.add(new RegistrantAccessPermission(registrant, ap, pType, RegistrantType.REPOSITORY, source, mutable));
 		}
 		Collections.sort(list);
 		return list;
