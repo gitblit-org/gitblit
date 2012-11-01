@@ -252,7 +252,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		ap.registrant = username;
 		ap.registrantType = RegistrantType.USER;
 		ap.permission = AccessPermission.NONE;
-		ap.isEditable = false;
+		ap.mutable = false;
 
 		// administrator
 		if (canAdmin()) {
@@ -291,7 +291,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			if (p != null) {
 				ap.permissionType = PermissionType.EXPLICIT;
 				ap.permission = p;
-				ap.isEditable = true;
+				ap.mutable = true;
 				return ap;
 			}
 		} else {

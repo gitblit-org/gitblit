@@ -316,7 +316,7 @@ public abstract class UsersPanel extends JPanel {
 		
 		List<RegistrantAccessPermission> permissions = user.getRepositoryPermissions();
 		for (RegistrantAccessPermission permission : permissions) {
-			if (permission.isEditable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
 				// Ensure this is NOT an owner permission - which is non-editable
 				// We don't know this from within the usermodel, ownership is a
 				// property of a repository.
@@ -329,7 +329,7 @@ public abstract class UsersPanel extends JPanel {
 				boolean isOwner = rm.isOwner(user.username);
 				if (isOwner) {
 					permission.permissionType = PermissionType.OWNER;
-					permission.isEditable = false;
+					permission.mutable = false;
 				}
 			}
 		}

@@ -159,9 +159,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				// only allow changing an explicitly defined permission
 				// this is designed to prevent changing a regex permission in
 				// a repository
-				permissionChoice.setEnabled(entry.isEditable);
+				permissionChoice.setEnabled(entry.mutable);
 				permissionChoice.setOutputMarkupId(true);
-				if (entry.isEditable) {
+				if (entry.mutable) {
 					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 		           
 						private static final long serialVersionUID = 1L;
@@ -181,7 +181,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		// filter out registrants we already have permissions for
 		final List<String> registrants = new ArrayList<String>(allRegistrants);
 		for (RegistrantAccessPermission rp : permissions) {
-			if (rp.isEditable) {
+			if (rp.mutable) {
 				// remove editable duplicates
 				// this allows for specifying an explicit permission
 				registrants.remove(rp.registrant);

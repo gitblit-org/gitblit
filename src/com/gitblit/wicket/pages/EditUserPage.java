@@ -107,19 +107,19 @@ public class EditUserPage extends RootSubPage {
 		final String oldName = userModel.username;
 		final List<RegistrantAccessPermission> permissions = userModel.getRepositoryPermissions();
 		for (RegistrantAccessPermission permission : permissions) {
-			if (permission.isEditable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
 				// Ensure this is NOT an owner permission - which is non-editable
 				// We don't know this from within the usermodel, ownership is a
 				// property of a repository.
 				RepositoryModel rm = GitBlit.self().getRepositoryModel(permission.registrant);
 				if (rm == null) {
-					LoggerFactory.getLogger(getClass()).error("Missing repository " + permission.registrant, new NullPointerException());
+					LoggerFactory.getLogger(getClass()).error("Missing repository " + permission.registrant);
 					continue;
 				}
 				boolean isOwner = rm.isOwner(oldName);
 				if (isOwner) {
 					permission.permissionType = PermissionType.OWNER;
-					permission.isEditable = false;
+					permission.mutable = false;
 				}
 			}
 		}

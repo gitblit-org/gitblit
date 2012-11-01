@@ -133,7 +133,7 @@ public class RegistrantPermissionsPanel extends JPanel {
 			permissions = new ArrayList<RegistrantAccessPermission>();
 		}
 		for (RegistrantAccessPermission rp : permissions) {
-			if (rp.isEditable) {
+			if (rp.mutable) {
 				// only remove editable duplicates
 				// this allows for specifying an explicit permission
 				filtered.remove(rp.registrant);

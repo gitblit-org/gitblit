@@ -191,7 +191,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		ap.registrant = name;
 		ap.registrantType = RegistrantType.TEAM;
 		ap.permission = AccessPermission.NONE;
-		ap.isEditable = false;
+		ap.mutable = false;
 		
 		if (canAdmin) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
@@ -205,7 +205,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			if (p != null) {
 				ap.permissionType = PermissionType.EXPLICIT;
 				ap.permission = p;
-				ap.isEditable = true;
+				ap.mutable = true;
 				return ap;
 			}
 		} else {

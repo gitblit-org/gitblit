@@ -692,7 +692,7 @@ public class GitBlit implements ServletContextListener {
 	public boolean setUserAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<UserModel> users = new ArrayList<UserModel>();
 		for (RegistrantAccessPermission up : permissions) {
-			if (up.isEditable) {
+			if (up.mutable) {
 				// only set editable defined permissions
 				UserModel user = userService.getUserModel(up.registrant);
 				user.setRepositoryPermission(repository.name, up.permission);
@@ -832,7 +832,7 @@ public class GitBlit implements ServletContextListener {
 	public boolean setTeamAccessPermissions(RepositoryModel repository, Collection<RegistrantAccessPermission> permissions) {
 		List<TeamModel> teams = new ArrayList<TeamModel>();
 		for (RegistrantAccessPermission tp : permissions) {
-			if (tp.isEditable) {
+			if (tp.mutable) {
 				// only set explicitly defined access permissions
 				TeamModel team = userService.getTeamModel(tp.registrant);
 				team.setRepositoryPermission(repository.name, tp.permission);
