@@ -16,11 +16,14 @@
 package com.gitblit.client;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
@@ -36,6 +39,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.client.Utils.RowRenderer;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.utils.StringUtils;
 
@@ -60,7 +64,23 @@ public class RegistrantPermissionsPanel extends JPanel {
 	public RegistrantPermissionsPanel(final RegistrantType registrantType) {
 		super(new BorderLayout(5, 5));
 		tableModel = new RegistrantPermissionsTableModel();
-		permissionsTable = Utils.newTable(tableModel, Utils.DATE_FORMAT);
+		permissionsTable = Utils.newTable(tableModel, Utils.DATE_FORMAT, new RowRenderer() {
+			Color clear = new Color(0, 0, 0, 0);
+			Color iceGray = new Color(0xf0, 0xf0, 0xf0);
+			
+			@Override
+			public void prepareRow(Component c, boolean isSelected, int row, int column) {
+				if (isSelected) {
+					c.setBackground(permissionsTable.getSelectionBackground());
+				} else {
+					if (tableModel.permissions.get(row).mutable) {
+						c.setBackground(clear);
+					} else {
+						c.setBackground(iceGray);
+					}
+				}
+			}
+		});
 		permissionsTable.setModel(tableModel);
 		permissionsTable.setPreferredScrollableViewportSize(new Dimension(400, 150));
 		JScrollPane jsp = new JScrollPane(permissionsTable);
@@ -91,11 +111,14 @@ public class RegistrantPermissionsPanel extends JPanel {
 				rp.permission = (AccessPermission) permissionSelector.getSelectedItem();
 				if (StringUtils.findInvalidCharacter(rp.registrant) != null) {
 					rp.permissionType = PermissionType.REGEX;
+					rp.source = rp.registrant;
 				} else {
 					rp.permissionType = PermissionType.EXPLICIT;
 				}
 
 				tableModel.permissions.add(rp);
+				// resort permissions after insert to convey idea of eval order
+				Collections.sort(tableModel.permissions);
 				
 				registrantModel.removeElement(rp.registrant);
 				registrantSelector.setSelectedIndex(-1);

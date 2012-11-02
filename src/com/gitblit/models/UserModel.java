@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -160,7 +161,20 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			list.add(new RegistrantAccessPermission(registrant, ap, pType, RegistrantType.REPOSITORY, source, mutable));
 		}
 		Collections.sort(list);
-		return list;
+		
+		// include immutable team permissions, being careful to preserve order
+		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>(list);
+		for (TeamModel team : teams) {
+			for (RegistrantAccessPermission teamPermission : team.getRepositoryPermissions()) {
+				// we can not change an inherited team permission, though we can override
+				teamPermission.registrantType = RegistrantType.REPOSITORY;
+				teamPermission.permissionType = PermissionType.TEAM;
+				teamPermission.source = team.name;
+				teamPermission.mutable = false;
+				set.add(teamPermission);
+			}
+		}
+		return new ArrayList<RegistrantAccessPermission>(set);
 	}
 	
 	/**
@@ -253,6 +267,13 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
 
+		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
+			// anonymous rewind
+			ap.permissionType = PermissionType.ADMINISTRATOR;
+			ap.permission = AccessPermission.REWIND;
+			return ap;
+		}
+
 		// administrator
 		if (canAdmin()) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
@@ -277,7 +298,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		
 		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl) && isAuthenticated) {
-			// AUTHENTICATED is a shortcut for authorizing all logged-in users RW access
+			// AUTHENTICATED is a shortcut for authorizing all logged-in users RW+ access
 			ap.permission = AccessPermission.REWIND;
 			return ap;
 		}

@@ -28,3 +28,4 @@
 /.gradle
 /projects.conf
 /pom.xml
+/deploy

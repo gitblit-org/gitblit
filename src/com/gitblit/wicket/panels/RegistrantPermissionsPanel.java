@@ -18,10 +18,12 @@ package com.gitblit.wicket.panels;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -57,12 +59,42 @@ import com.gitblit.wicket.WicketUtils;
 public class RegistrantPermissionsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	public enum Show {
+		specified, mutable, effective;
+		
+		public boolean show(RegistrantAccessPermission ap) {
+			switch (this) {
+			case specified:
+				return ap.mutable || ap.isOwner();
+			case mutable:
+				return ap.mutable;
+			case effective:
+				return true;
+			default:
+				return true;
+			}
+		}
+	}
+	
+	private Show activeState = Show.mutable;
+	
 	public RegistrantPermissionsPanel(String wicketId, RegistrantType registrantType, List<String> allRegistrants, final List<RegistrantAccessPermission> permissions, final Map<AccessPermission, String> translations) {
 		super(wicketId);
 		setOutputMarkupId(true);
-		
-		// update existing permissions repeater
+
+		/*
+		 * Permission view toggle buttons
+		 */
+		Form<Void> permissionToggleForm = new Form<Void>("permissionToggleForm");
+		permissionToggleForm.add(new ShowStateButton("showSpecified", Show.specified));
+		permissionToggleForm.add(new ShowStateButton("showMutable", Show.mutable));
+		permissionToggleForm.add(new ShowStateButton("showEffective", Show.effective));
+		add(permissionToggleForm);
+
+		/*
+		 * Permission repeating display
+		 */
 		RefreshingView<RegistrantAccessPermission> dataView = new RefreshingView<RegistrantAccessPermission>("permissionRow") {
 			private static final long serialVersionUID = 1L;
 		
@@ -91,16 +123,19 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					String repoName = StringUtils.stripDotGit(entry.registrant);
 					if (!entry.isMissing() && StringUtils.findInvalidCharacter(repoName) == null) {
 						// repository, strip .git and show swatch
-						Label registrant = new Label("registrant", repoName);
-						WicketUtils.setCssClass(registrant, "repositorySwatch");
-						WicketUtils.setCssBackground(registrant, repoName);
-						item.add(registrant);
+						Fragment repositoryFragment = new Fragment("registrant", "repositoryRegistrant", RegistrantPermissionsPanel.this);
+						Component swatch = new Label("repositorySwatch", "&nbsp;").setEscapeModelStrings(false);
+						WicketUtils.setCssBackground(swatch, entry.toString());
+						repositoryFragment.add(swatch);
+						Label registrant = new Label("repositoryName", repoName);
+						repositoryFragment.add(registrant);
+						item.add(repositoryFragment);
 					} else {
 						// regex or missing
 						Label label = new Label("registrant", entry.registrant);
 						WicketUtils.setCssStyle(label, "font-weight: bold;");
 						item.add(label);
-					}
+					}					
 				} else if (RegistrantType.USER.equals(entry.registrantType)) {
 					// user
 					PersonIdent ident = new PersonIdent(entry.registrant, null);
@@ -160,6 +195,8 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					break;
 				}
 
+				item.setVisible(activeState.show(entry));
+
 				// use ajax to get immediate update of permission level change
 				// otherwise we can lose it if they change levels and then add
 				// a new repository permission
@@ -203,7 +240,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			}
 		}
 
-		// add new permission form
+		/*
+		 * Add permission form
+		 */
 		IModel<RegistrantAccessPermission> addPermissionModel = new CompoundPropertyModel<RegistrantAccessPermission>(new RegistrantAccessPermission(registrantType));
 		Form<RegistrantAccessPermission> addPermissionForm = new Form<RegistrantAccessPermission>("addPermissionForm", addPermissionModel);
 		addPermissionForm.add(new DropDownChoice<String>("registrant", registrants));
@@ -223,8 +262,12 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				RegistrantAccessPermission copy = DeepCopier.copy(rp);
 				if (StringUtils.findInvalidCharacter(copy.registrant) != null) {
 					copy.permissionType = PermissionType.REGEX;
+					copy.source = copy.registrant;
 				}
 				permissions.add(copy);
+				
+				// resort permissions after insert to convey idea of eval order
+				Collections.sort(permissions);
 				
 				// remove registrant from available choices
 				registrants.remove(rp.registrant);
@@ -265,4 +308,33 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			return Integer.toString(index);
 		}
 	}
+	
+	private class ShowStateButton extends AjaxButton {
+		private static final long serialVersionUID = 1L;
+
+		Show buttonState;
+		
+		public ShowStateButton(String wicketId, Show state) {
+			super(wicketId);
+			this.buttonState = state;
+			setOutputMarkupId(true);
+		}
+		
+		@Override
+		protected void onBeforeRender()
+		{
+			String cssClass = "btn";
+			if (buttonState.equals(RegistrantPermissionsPanel.this.activeState)) {
+				cssClass = "btn btn-info active";
+			}
+			WicketUtils.setCssClass(this, cssClass);
+			super.onBeforeRender();
+		}
+		
+		@Override
+		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+			RegistrantPermissionsPanel.this.activeState = buttonState;
+			target.addComponent(RegistrantPermissionsPanel.this);
+		}
+	};
 }

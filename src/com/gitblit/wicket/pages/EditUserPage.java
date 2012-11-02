@@ -34,13 +34,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
-import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -104,25 +102,7 @@ public class EditUserPage extends RootSubPage {
 		Collections.sort(userTeams);
 		
 		final String oldName = userModel.username;
-		final List<RegistrantAccessPermission> permissions = userModel.getRepositoryPermissions();
-		for (RegistrantAccessPermission permission : permissions) {
-			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
-				// Ensure this is NOT an owner permission - which is non-editable
-				// We don't know this from within the usermodel, ownership is a
-				// property of a repository.
-				RepositoryModel rm = GitBlit.self().getRepositoryModel(permission.registrant);
-				if (rm == null) {
-					permission.permissionType = PermissionType.MISSING;
-					permission.mutable = false;
-					continue;
-				}
-				boolean isOwner = rm.isOwner(oldName);
-				if (isOwner) {
-					permission.permissionType = PermissionType.OWNER;
-					permission.mutable = false;
-				}
-			}
-		}
+		final List<RegistrantAccessPermission> permissions = GitBlit.self().getUserAccessPermissions(userModel);
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()

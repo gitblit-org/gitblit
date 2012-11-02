@@ -7,20 +7,32 @@
 <body>
 <wicket:panel>
 
-	<div wicket:id="permissionRow">
+	<form class="form-inline" wicket:id="permissionToggleForm">
+		<div style="padding-bottom:10px" class="btn-group pull-right" data-toggle="buttons-radio">
+			<a class="btn btn-info" wicket:id="showMutable"><wicket:message key="gb.mutable"></wicket:message></a>
+			<a class="btn btn-info" wicket:id="showSpecified"><wicket:message key="gb.specified"></wicket:message></a>
+			<a class="btn btn-info" wicket:id="showEffective"><wicket:message key="gb.effective"></wicket:message></a>
+		</div>
+	</form>
+	
+	<div style="clear:both;" wicket:id="permissionRow">
 		<div style="padding-top:10px;border-left:1px solid #ccc;border-right:1px solid #ccc;" class="row-fluid">
 			<div style="padding-top:5px;padding-left:5px" class="span6"><span wicket:id="registrant"></span></div><div style="padding-top:5px;padding-right:5px;text-align:right;" class="span3"><span class="label" wicket:id="pType">[permission type]</span></div> <select class="input-medium" wicket:id="permission"></select>
 		</div>
 	</div>
 
-	<div style="padding-top:15px;" class="row-fluid">
+	<div style="clear:both; padding-top:15px;" class="row-fluid">
 		<form style="padding: 20px 40px;" class="well form-inline" wicket:id="addPermissionForm">
 			<select class="input-xlarge" wicket:id="registrant"></select> <select class="input-large" wicket:id="permission"></select> <input class="btn btn-success" type="submit" value="Add" wicket:message="value:gb.add" wicket:id="addPermissionButton"/>
 		</form>
 	</div>
-	
+
+	<wicket:fragment wicket:id="repositoryRegistrant">
+		<b><span class="repositorySwatch" wicket:id="repositorySwatch"></span></b> <span wicket:id="repositoryName"></span>
+	</wicket:fragment>
+
 	<wicket:fragment wicket:id="userRegistrant">
-		<span wicket:id="userAvatar"></span> <span style="font-weight: bold;" wicket:id="userName"></span>
+		<span wicket:id="userAvatar"></span> <span wicket:id="userName"></span>
 	</wicket:fragment>
 
 	<wicket:fragment wicket:id="teamRegistrant">

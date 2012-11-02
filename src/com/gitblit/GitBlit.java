@@ -79,6 +79,8 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.Constants.PermissionType;
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -658,18 +660,48 @@ public class GitBlit implements ServletContextListener {
 	 * @return a user object or null
 	 */
 	public UserModel getUserModel(String username) {
-		UserModel user = userService.getUserModel(username);
-		if (user != null) {
-			// TODO reconsider ownership as a user property
-			// manually specify personal repository ownerships
-			String folder = "~" + username;
-			for (String repository : getRepositoryList()) {
-				if (repository.toLowerCase().startsWith(folder)) {
-					user.setRepositoryPermission(repository, AccessPermission.REWIND);
+		UserModel user = userService.getUserModel(username);		
+		return user;
+	}
+	
+	/**
+	 * Returns the effective list of permissions for this user, taking into account
+	 * team memberships, ownerships.
+	 * 
+	 * @param user
+	 * @return the effective list of permissions for the user
+	 */
+	public List<RegistrantAccessPermission> getUserAccessPermissions(UserModel user) {
+		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>();
+		set.addAll(user.getRepositoryPermissions());
+		// Flag missing repositories
+		for (RegistrantAccessPermission permission : set) {
+			if (permission.mutable && PermissionType.EXPLICIT.equals(permission.permissionType)) {
+				RepositoryModel rm = GitBlit.self().getRepositoryModel(permission.registrant);
+				if (rm == null) {
+					permission.permissionType = PermissionType.MISSING;
+					permission.mutable = false;
+					continue;
 				}
 			}
 		}
-		return user;
+
+		// TODO reconsider ownership as a user property
+		// manually specify personal repository ownerships
+		for (RepositoryModel rm : repositoryListCache.values()) {
+			if (rm.isUsersPersonalRepository(user.username) || rm.isOwner(user.username)) {
+				RegistrantAccessPermission rp = new RegistrantAccessPermission(rm.name, AccessPermission.REWIND,
+						PermissionType.OWNER, RegistrantType.REPOSITORY, null, false);
+				// user may be owner of a repository to which they've inherited
+				// a team permission, replace any existing perm with owner perm
+				set.remove(rp);
+				set.add(rp);
+			}
+		}
+		
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>(set);
+		Collections.sort(list);
+		return list;
 	}
 
 	/**
@@ -681,7 +713,16 @@ public class GitBlit implements ServletContextListener {
 	 * @return a list of RegistrantAccessPermissions
 	 */
 	public List<RegistrantAccessPermission> getUserAccessPermissions(RepositoryModel repository) {
-		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();		
+		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
+		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
+			// no permissions needed, REWIND for everyone!
+			return list;
+		}
+		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl)) {
+			// no permissions needed, REWIND for authenticated!
+			return list;
+		}
+		// NAMED users and teams
 		for (UserModel user : userService.getAllUsers()) {
 			RegistrantAccessPermission ap = user.getRepositoryPermission(repository);
 			if (ap.permission.exceeds(AccessPermission.NONE)) {
