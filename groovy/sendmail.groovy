@@ -26,6 +26,9 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.ReceiveCommand
 import org.eclipse.jgit.transport.ReceiveCommand.Result
 import org.slf4j.Logger
+import groovy.xml.MarkupBuilder
+import java.security.MessageDigest
+
 
 /**
  * Sample Gitblit Post-Receive Hook: sendmail
@@ -83,8 +86,9 @@ def emailprefix = config.getString('hooks', null, 'emailprefix')
 
 // set default values
 def toAddresses = []
-if (emailprefix == null)
-emailprefix = '[Gitblit]'
+if (emailprefix == null) {
+    emailprefix = '[Gitblit]'
+}
 
 if (mailinglist != null) {
 	def addrs = mailinglist.split(/(,|\s)/)
@@ -108,69 +112,199 @@ toAddresses.addAll(repository.mailingLists)
 
 // define the summary and commit urls
 def repo = repository.name
-def summaryUrl
-def commitUrl
+def summaryUrl = url + "/summary?r=$repo"
+def baseCommitUrl = url + "/commit?r=$repo&h="
+
 if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
 	repo = repo.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/')).replace('/', '%2F')
 	summaryUrl = url + "/summary/$repo"
-	commitUrl = url + "/commit/$repo/"
-} else {
-	summaryUrl = url + "/summary?r=$repo"
-	commitUrl = url + "/commit?r=$repo&h="
+	baseCommitUrl = url + "/commit/$repo/"
 }
 
-// construct a simple text summary of the changes contained in the push
-def branchBreak = '>---------------------------------------------------------------\n'
-def commitBreak = '\n\n ----\n'
-def commitCount = 0
-def changes = ''
-SimpleDateFormat df = new SimpleDateFormat(gitblit.getString(Keys.web.datetimestampLongFormat, 'EEEE, MMMM d, yyyy h:mm a z'))
-def table = { "\n ${JGitUtils.getDisplayName(it.authorIdent)}\n ${df.format(JGitUtils.getCommitDate(it))}\n\n $it.shortMessage\n\n $commitUrl$it.id.name" }
-for (command in commands) {
-	def ref = command.refName
-	def refType = 'branch'
-	if (ref.startsWith('refs/heads/')) {
-		ref  = command.refName.substring('refs/heads/'.length())
-	} else if (ref.startsWith('refs/tags/')) {
-		ref  = command.refName.substring('refs/tags/'.length())
-		refType = 'tag'
+class HtmlMailWriter {
+	Repository repository
+	def baseCommitUrl
+	def commitCount = 0
+	def commands
+	def writer = new StringWriter();
+	def builder = new MarkupBuilder(writer)
+	
+	def writeStyle() {
+		builder.style(type:"text/css", '''
+    th, td {  
+        padding: 2px;  
+    }
+    thead {
+        text-align: left;
+        font-weight: bold; 
+    }
+	thead tr {
+        border-bottom: 1px dotted #000; 
+    }
+	a {
+        text-decoration: none;
+    }
+    .commits-table {
+        border-collapse: collapse;
+        font-family: sans-serif; 
+    }
+    .label-commit {
+        border-radius:4px;
+        background-color: #3A87AD;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    ''')
 	}
+	
+	def writeBranchTitle(type, name, action, number) {
+		builder.h2 {
+			mkp.yield "$type "
+			span(style:"font-family: monospace;", name )
+			mkp.yield " $action ($number commits)"
+		}
+	}
+	
+	def writeBranchDeletedTitle(type, name) {
+		builder.h2 {
+			mkp.yield "$type "
+			span(style:"font-family: monospace;", name )
+			mkp.yield " deleted"
+		}
+	}
+	
+	def commitUrl(RevCommit commit) {
+		"${baseCommitUrl}$commit.id.name"
+	}
+	
+	def writeCommitTable(commits) {
+		// Write commits table
+		builder.table('class':"commits-table") {
+			thead {
+				tr {
+					th(colspan:2, "Author")
+					th( "Commit" )
+					th( "Message" )
+				}
+			}
+			tbody() {
+				
+				// Write all the commits
+				for (commit in commits) {
+					writeCommit(commit)
+				}
+			}
+		}
+	}
+	
+	def writeCommit(commit) {
+		def abbreviated = repository.newObjectReader().abbreviate(commit.id, 6).name()
+		def author = commit.authorIdent.name
+		def email = commit.authorIdent.emailAddress
+		def message = commit.shortMessage
+		builder.tr {
+			td {
+				img(src:gravatarUrl(email))
+			}
+			td ( author )
+			td {
+				a(href:commitUrl(commit)) {
+					span('class':"label-commit",  abbreviated )
+				}
+			}
+			td ( message )
+		}
+	}
+	
+	def md5(text) {
 		
-	switch (command.type) {
-		case ReceiveCommand.Type.CREATE:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
-			commitCount += commits.size()
-			// new branch
-			changes += "\n$branchBreak new $refType $ref created ($commits.size commits)\n$branchBreak"
-			changes += commits.collect(table).join(commitBreak)
-			changes += '\n'
-			break
-		case ReceiveCommand.Type.UPDATE:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
-			commitCount += commits.size()
-			// fast-forward branch commits table
-			changes += "\n$branchBreak $ref $refType updated ($commits.size commits)\n$branchBreak"
-			changes += commits.collect(table).join(commitBreak)
-			changes += '\n'
-			break
-		case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
-			def commits = JGitUtils.getRevLog(r, command.oldId.name, command.newId.name).reverse()
-			commitCount += commits.size()
-			// non-fast-forward branch commits table
-			changes += "\n$branchBreak $ref $refType updated [NON fast-forward] ($commits.size commits)\n$branchBreak"
-			changes += commits.collect(table).join(commitBreak)
-			changes += '\n'
-			break
-		case ReceiveCommand.Type.DELETE:
-			// deleted branch/tag
-			changes += "\n$branchBreak $ref $refType deleted\n$branchBreak"
-			break
-		default:
-			break
+	   def digest = MessageDigest.getInstance("MD5")
+		
+	   //Quick MD5 of text
+	   def hash = new BigInteger(1, digest.digest(text.getBytes()))
+						 .toString(16)
+						 .padLeft(32, "0")
+	   hash.toString()
 	}
+	
+	def gravatarUrl(email) {
+		def cleaned = email.trim().toLowerCase()
+		"http://www.gravatar.com/avatar/${md5(cleaned)}?s=30"
+	}
+	
+	def write() {
+		builder.html {
+			head {
+				writeStyle()
+			}
+			body {
+		
+				for (command in commands) {
+					def ref = command.refName
+					def refType = 'Branch'
+					if (ref.startsWith('refs/heads/')) {
+						ref  = command.refName.substring('refs/heads/'.length())
+					} else if (ref.startsWith('refs/tags/')) {
+						ref  = command.refName.substring('refs/tags/'.length())
+						refType = 'Tag'
+					}
+		
+					switch (command.type) {
+						case ReceiveCommand.Type.CREATE:
+							def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
+							commitCount += commits.size()
+						// new branch
+							// Write header
+							writeBranchTitle(refType, ref, "created", commits.size())
+							writeCommitTable(commits)
+							break
+						case ReceiveCommand.Type.UPDATE:
+							def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
+							commitCount += commits.size()
+						// fast-forward branch commits table
+							// Write header
+							writeBranchTitle(refType, ref, "updated", commits.size())
+							writeCommitTable(commits)
+							break
+						case ReceiveCommand.Type.UPDATE_NONFASTFORWARD:
+							def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
+							commitCount += commits.size()
+						// non-fast-forward branch commits table
+							// Write header
+							writeBranchTitle(refType, ref, "updated [NON fast-forward]", commits.size())
+							writeCommitTable(commits)
+							break
+						case ReceiveCommand.Type.DELETE:
+						// deleted branch/tag
+							writeBranchDeletedTitle(refType, ref)
+							break
+						default:
+							break
+					}
+				}
+			}
+		}
+		writer.toString()
+	}
+	
 }
+
+def df = new SimpleDateFormat(gitblit.getString(Keys.web.datetimestampLongFormat, 'EEEE, MMMM d, yyyy h:mm a z'))
+
+def mailWriter = new HtmlMailWriter()
+mailWriter.repository = r
+mailWriter.baseCommitUrl = baseCommitUrl
+mailWriter.commands = commands
+
+def content = mailWriter.write()
+
 // close the repository reference
 r.close()
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.sendMail("$emailprefix $user.username pushed $commitCount commits => $repository.name", "$summaryUrl\n$changes", toAddresses)
+gitblit.sendHtmlMail("$emailprefix $user.username pushed ${mailWriter.commitCount} commits => $repository.name",
+	             content,
+				 toAddresses)
