@@ -48,6 +48,8 @@ import com.gitblit.utils.StringUtils;
  */
 public class Build {
 
+    private static final String osName = System.getProperty("os.name");
+
 	public interface DownloadListener {
 		public void downloading(String name);
 	}
@@ -497,14 +499,17 @@ public class Build {
 	}
 
 	private static void updateProgress(float progress, String url) {
-		String anim = "==========";
+        boolean isWindows = osName.contains("Windows");
+        String anim = "==========";
 		int width = Math.round(anim.length() * progress);
-		System.out.print("\r[");
+        if (isWindows) System.out.print("\r");
+		System.out.print("[");
 		System.out.print(anim.substring(0, Math.min(width, anim.length())));
 		for (int i = 0; i < anim.length() - width; i++) {
 			System.out.print(' ');
 		}
 		System.out.print("] " + url);
+        if (!isWindows) System.out.println();
 	}
 
 	/**
