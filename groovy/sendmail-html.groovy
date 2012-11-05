@@ -158,92 +158,32 @@ class HtmlMailWriter {
 
     def writeStyle() {
         builder.style(type:"text/css", '''
-    th, td {  
-        padding: 2px;  
-    }
-    thead {
-        text-align: left;
-        font-weight: bold; 
-    }
-    thead tr {
-        border-bottom: 1px dotted #000; 
-    }
     a {
         text-decoration: none;
     }
-    .commits-table {
-        border-collapse: collapse;
-        font-family: sans-serif; 
-        width: 100%; 
-    }
-    .label-commit {
-        border-radius:4px;
-        background-color: #3A87AD;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
-    }
-    .label-add {
-        border-radius:4px;
-        background-color: green;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
-    }
-    .label-delete {
-        border-radius:4px;
-        background-color: grey;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
-    }
-    .label-rename {
-        border-radius:4px;
-        background-color: blue;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
-    }
-    .label-modify {
-        border-radius:4px;
-        background-color: orange;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
-    }
-    .label-copy {
-        border-radius:4px;
-        background-color: teal;
-        padding: 2px 4px;
-        color: white;
-        vertical-align: baseline; 
-        font-weight: bold; 
-        font-family: monospace; 
+    .table td {
+        vertical-align: middle;
     }
     .gravatar-column {
         width: 5%; 
     }
     .author-column {
-        width: 10%; 
+        width: 20%; 
     }
     .commit-column {
         width: 5%; 
     }
     .status-column {
         width: 10%;
-        padding-bottom: 5px; 
-        padding-top: 5px; 
     }
+.table-disable-hover.table tbody tr:hover td,
+.table-disable-hover.table tbody tr:hover th {
+    background-color: inherit;
+}
+.table-disable-hover.table-striped tbody tr:nth-child(odd):hover td,
+.table-disable-hover.table-striped tbody tr:nth-child(odd):hover th {
+  background-color: #f9f9f9;
+}
     ''')
     }
 
@@ -287,7 +227,7 @@ class HtmlMailWriter {
 
     def writeCommitTable(commits) {
         // Write commits table
-        builder.table('class':"commits-table") {
+        builder.table('class':"table table-disable-hover") {
             thead {
                 tr {
                     th(colspan:2, "Author")
@@ -303,8 +243,8 @@ class HtmlMailWriter {
 
                     // Write detail on that particular commit
                     tr {
-                        td (colspan:3)
-                        td { writeStatusTable(commit) }
+                        td (colspan:2)
+                        td (colspan:2) { writeStatusTable(commit) }
                     }
                 }
             }
@@ -318,12 +258,12 @@ class HtmlMailWriter {
         def message = commit.shortMessage
         builder.tr {
             td('class':"gravatar-column") {
-                img(src:gravatarUrl(email))
+                img(src:gravatarUrl(email), 'class':"img-rounded")
             }
-            td('class':"author-column") { p(author) }
+            td('class':"author-column", author)
             td('class':"commit-column") {
                 a(href:commitUrl(commit)) {
-                    span('class':"label-commit",  abbreviated )
+                    span('class':"label label-info",  abbreviated )
                 }
             }
             td {
@@ -334,12 +274,12 @@ class HtmlMailWriter {
     }
 
     def writeStatusLabel(style, label) {
-        builder.span('class' : style,  label )
+        builder.span('class' : "label " + style,  label )
     }
 
     def writeAddStatusLine(ObjectId id, FileHeader header) {
         builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-add", "add") }
+            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-success", "add") }
         }
         builder.td {
             span(style:'font-family: monospace;', header.newPath)
@@ -348,7 +288,7 @@ class HtmlMailWriter {
 
     def writeCopyStatusLine(ObjectId id, FileHeader header) {
         builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-copy", "copy") }
+            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-warning", "copy") }
         }
         builder.td() {
             span(style : "font-family: monospace; ", header.oldPath + " copied to " + header.newPath)
@@ -357,7 +297,7 @@ class HtmlMailWriter {
 
     def writeDeleteStatusLine(ObjectId id, FileHeader header) {
         builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("label-delete", "delete") }
+            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("label-important", "delete") }
         }
         builder.td() {
             span(style : "font-family: monospace; ", header.oldPath)
@@ -366,7 +306,7 @@ class HtmlMailWriter {
 
     def writeModifyStatusLine(ObjectId id, FileHeader header) {
         builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("label-modify", "modify") }
+            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("", "modify") }
         }
         builder.td() {
             span(style : "font-family: monospace; ", header.oldPath)
@@ -375,7 +315,7 @@ class HtmlMailWriter {
 
     def writeRenameStatusLine(ObjectId id, FileHeader header) {
         builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-rename", "rename") }
+            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-info", "rename") }
         }
         builder.td() {
             span(style : "font-family: monospace; ", header.olPath + " -> " + header.newPath)
@@ -420,7 +360,7 @@ class HtmlMailWriter {
                                    new CanonicalTreeParser(null, rw.objectReader, commit.tree))
         }
         // Write status table
-        builder.table('class':"commits-table") {
+        builder.table('class':"table table-condensed table-bordered table-disable-hover") {
             tbody() {
                 for (DiffEntry entry in diffs) {
                     FileHeader header = formatter.toFileHeader(entry)
@@ -473,6 +413,8 @@ class HtmlMailWriter {
 
                 writeNavbar()
 
+				div('class':"container") {
+
                 for (command in commands) {
                     def ref = command.refName
                     def refType = 'Branch'
@@ -515,6 +457,7 @@ class HtmlMailWriter {
                         default:
                             break
                     }
+                }
                 }
             }
         }
