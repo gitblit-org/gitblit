@@ -70,6 +70,31 @@ public class GroovyScriptTest {
 	}
 
 	@Test
+	public void testSendHtmlMail() throws Exception {
+		MockGitblit gitblit = new MockGitblit();
+		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
+		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
+
+		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		repository.mailingLists.add("list@helloworld.git");
+
+		test("sendmail-html.groovy", gitblit, logger, clientLogger, commands, repository);
+		assertEquals(1, logger.messages.size());
+		assertEquals(1, gitblit.messages.size());
+		MockMail m = gitblit.messages.get(0);
+		assertEquals(5, m.toAddresses.size());
+		assertTrue(m.message.contains("BIT"));
+		assertTrue(m.message.contains("<html>"));
+	}
+
+	@Test
 	public void testSendMail() throws Exception {
 		MockGitblit gitblit = new MockGitblit();
 		MockLogger logger = new MockLogger();
