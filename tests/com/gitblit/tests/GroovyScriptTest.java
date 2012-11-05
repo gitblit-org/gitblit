@@ -296,6 +296,9 @@ public class GroovyScriptTest {
 		public void sendMail(String subject, String message, Collection<String> toAddresses) {
 			messages.add(new MockMail(subject, message, toAddresses));
 		}
+		public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
+			messages.add(new MockMail(subject, message, toAddresses));
+		}
 	}
 
 	class MockLogger {

@@ -20,13 +20,30 @@ import com.gitblit.models.TeamModel
 import com.gitblit.models.UserModel
 import com.gitblit.utils.JGitUtils
 import java.text.SimpleDateFormat
+
+import org.eclipse.jgit.api.Status;
+import org.eclipse.jgit.api.errors.JGitInternalException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.DiffFormatter;
+import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.IndexDiff;
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.Config
+import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.ReceiveCommand
 import org.eclipse.jgit.transport.ReceiveCommand.Result
+import org.eclipse.jgit.treewalk.FileTreeIterator;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger
 import groovy.xml.MarkupBuilder
+
+import java.io.IOException;
 import java.security.MessageDigest
 
 
@@ -68,6 +85,8 @@ import java.security.MessageDigest
  *   def myCustomField = repository.customFields.myCustomField
  *  
  */
+
+com.gitblit.models.UserModel userModel = user
 
 // Indicate we have started the script
 logger.info("sendmail hook triggered by ${user.username} for ${repository.name}")
@@ -123,6 +142,7 @@ if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
 
 class HtmlMailWriter {
 	Repository repository
+	def url
 	def baseCommitUrl
 	def commitCount = 0
 	def commands
@@ -147,6 +167,7 @@ class HtmlMailWriter {
     .commits-table {
         border-collapse: collapse;
         font-family: sans-serif; 
+        width: 100%; 
     }
     .label-commit {
         border-radius:4px;
@@ -156,6 +177,65 @@ class HtmlMailWriter {
         vertical-align: baseline; 
         font-weight: bold; 
         font-family: monospace; 
+    }
+    .label-add {
+        border-radius:4px;
+        background-color: green;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    .label-delete {
+        border-radius:4px;
+        background-color: grey;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    .label-rename {
+        border-radius:4px;
+        background-color: blue;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    .label-modify {
+        border-radius:4px;
+        background-color: orange;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    .label-copy {
+        border-radius:4px;
+        background-color: teal;
+        padding: 2px 4px;
+        color: white;
+        vertical-align: baseline; 
+        font-weight: bold; 
+        font-family: monospace; 
+    }
+    .gravatar-column {
+        width: 5%; 
+    }
+    .author-column {
+        width: 10%; 
+    }
+    .commit-column {
+        width: 5%; 
+    }
+    .status-column {
+        width: 10%;
+        padding-bottom: 5px; 
+        padding-top: 5px; 
     }
     ''')
 	}
@@ -195,6 +275,14 @@ class HtmlMailWriter {
 				// Write all the commits
 				for (commit in commits) {
 					writeCommit(commit)
+					
+					// Write detail on that particular commit
+					tr {
+						td (colspan:3)
+						td {
+							writeStatusTable(commit)
+						}
+					}
 				}
 			}
 		}
@@ -206,11 +294,11 @@ class HtmlMailWriter {
 		def email = commit.authorIdent.emailAddress
 		def message = commit.shortMessage
 		builder.tr {
-			td {
+			td('class':"gravatar-column") {
 				img(src:gravatarUrl(email))
 			}
-			td ( author )
-			td {
+			td('class':"author-column") { p(author) }
+			td('class':"commit-column") {
 				a(href:commitUrl(commit)) {
 					span('class':"label-commit",  abbreviated )
 				}
@@ -218,6 +306,110 @@ class HtmlMailWriter {
 			td ( message )
 		}
 	}
+	
+	def writeStatusLabel(style, label) {
+		builder.span('class' : style,  label )
+	}
+	
+	def writeAddStatusLine(FileHeader header) {
+		builder.td('class':"status-column") {
+			writeStatusLabel("label-add", "add")
+		}
+		builder.td {
+			span(style:'font-family: monospace;', header.newPath)
+		}
+	}
+	
+	def writeCopyStatusLine(FileHeader header) {
+		builder.td(style:"width:10%") {
+			writeStatusLabel("label-copy", "copy")
+		}
+		builder.td() {
+			span(style : "font-family: monospace; ", header.oldPath + " copied to " + header.newPath)
+		}
+	}
+	
+	def writeDeleteStatusLine(FileHeader header) {
+		builder.td(style:"width:10%") {
+			writeStatusLabel("label-delete", "delete")
+		}
+		builder.td() {
+			span(style : "font-family: monospace; ", header.oldPath)
+		}
+	}
+	
+	def writeModifyStatusLine(FileHeader header) {
+		builder.td(style:"width:10%") {
+			writeStatusLabel("label-modify", "modify")
+		}
+		builder.td() {
+			span(style : "font-family: monospace; ", header.oldPath)
+		}
+	}
+
+	def writeRenameStatusLine(FileHeader header) {
+		builder.td(style:"width:10%") {
+			writeStatusLabel("label-rename", "rename")
+		}
+		builder.td() {
+			span(style : "font-family: monospace; ", header.olPath + " -> " + header.newPath)
+		}
+	}
+	
+	def writeStatusLine(FileHeader header) {
+		builder.tr {
+			switch (header.changeType) {
+				case ChangeType.ADD:
+					writeAddStatusLine(header)
+					break;
+				case ChangeType.COPY:
+					writeCopyStatusLine(header)
+					break;
+				case ChangeType.DELETE:
+					writeDeleteStatusLine(header)
+					break;
+				case ChangeType.MODIFY:
+					writeModifyStatusLine(header)
+					break;
+				case ChangeType.RENAME:
+					writeRenameStatusLine(header)
+					break;
+			}
+		}
+	}
+	
+	def writeStatusTable(RevCommit commit) {
+		// Write status table
+		builder.table('class':"commits-table") {
+			thead {
+				tr {
+					th( "Status" )
+					th( "Path" )
+				}
+			}
+			tbody() {
+				DiffFormatter formatter = new DiffFormatter(DisabledOutputStream.INSTANCE)
+				formatter.setRepository(repository)
+				formatter.setDetectRenames(true)
+				formatter.setDiffComparator(RawTextComparator.DEFAULT);
+				
+				RevWalk rw = new RevWalk(repository);
+				def diffs
+				if (commit.parentCount > 0) {
+					RevCommit parent = commit.parents[0]
+					diffs = formatter.scan(parent.tree, commit.tree)
+				} else {
+					diffs = formatter.scan(new EmptyTreeIterator(),
+						                   new CanonicalTreeParser(null, rw.objectReader, commit.tree))
+				}
+				for (DiffEntry entry in diffs) {
+					FileHeader header = formatter.toFileHeader(entry)
+					writeStatusLine(header)
+				}
+			}
+		}
+	}
+
 	
 	def md5(text) {
 		
@@ -235,12 +427,28 @@ class HtmlMailWriter {
 		"http://www.gravatar.com/avatar/${md5(cleaned)}?s=30"
 	}
 	
+	def writeNavbar() {
+		builder.div('class':"navbar navbar-fixed-top") {
+			div('class':"navbar-inner") {
+				div('class':"container") {
+					a('class':"brand", href:"${url}", title:"GitBlit") {
+						img(src:"${url}/gitblt_25_white.png", width:"79", height:"25", 'class':"logo")
+					}
+				}
+			}
+		}
+	}
+	
 	def write() {
 		builder.html {
 			head {
+				link(rel:"stylesheet", href:"${url}/bootstrap/css/bootstrap.css")
+				link(rel:"stylesheet", href:"${url}/gitblit.css")
 				writeStyle()
 			}
 			body {
+
+				writeNavbar()
 		
 				for (command in commands) {
 					def ref = command.refName
@@ -298,6 +506,7 @@ def mailWriter = new HtmlMailWriter()
 mailWriter.repository = r
 mailWriter.baseCommitUrl = baseCommitUrl
 mailWriter.commands = commands
+mailWriter.url = url
 
 def content = mailWriter.write()
 
@@ -305,6 +514,7 @@ def content = mailWriter.write()
 r.close()
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
-gitblit.sendHtmlMail("$emailprefix $user.username pushed ${mailWriter.commitCount} commits => $repository.name",
+def repositoryName = repository.name.substring(0, repository.name.length() - 4)
+gitblit.sendHtmlMail("${emailprefix}[$repositoryName] ${userModel.displayName} pushed ${mailWriter.commitCount} commits",
 	             content,
 				 toAddresses)
