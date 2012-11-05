@@ -135,9 +135,10 @@ def summaryUrl = url + "/summary?r=$repo"
 def baseCommitUrl = url + "/commit?r=$repo&h="
 def baseBlobDiffUrl = url + "/blobdiff/?r=$repo&h="
 def baseCommitDiffUrl = url + "/commitdiff/?r=$repo&h="
+def forwardSlashChar = gitblit.getString(Keys.web.forwardSlashCharacter, '/')
 
 if (gitblit.getBoolean(Keys.web.mountParameters, true)) {
-    repo = repo.replace('/', gitblit.getString(Keys.web.forwardSlashCharacter, '/')).replace('/', '%2F')
+    repo = repo.replace('/', forwardSlashChar).replace('/', '%2F')
     summaryUrl = url + "/summary/$repo"
     baseCommitUrl = url + "/commit/$repo/"
     baseBlobDiffUrl = url + "/blobdiff/$repo/"
@@ -151,6 +152,8 @@ class HtmlMailWriter {
     def baseCommitDiffUrl
     def baseBlobDiffUrl
     def mountParameters
+	def forwardSlashChar
+	def includeGravatar
     def commitCount = 0
     def commands
     def writer = new StringWriter();
@@ -158,9 +161,6 @@ class HtmlMailWriter {
 
     def writeStyle() {
         builder.style(type:"text/css", '''
-    a {
-        text-decoration: none;
-    }
     .table td {
         vertical-align: middle;
     }
@@ -188,19 +188,23 @@ class HtmlMailWriter {
     }
 
     def writeBranchTitle(type, name, action, number) {
-        builder.h2 {
-            mkp.yield "$type "
-            span(style:"font-family: monospace;", name )
-            mkp.yield " $action ($number commits)"
+        builder.div('class' : 'pageTitle') {
+			builder.span('class':'project') {
+				mkp.yield "$type "
+				span('class': 'repository', name )
+				mkp.yield " $action ($number commits)"
+			}
         }
     }
 
     def writeBranchDeletedTitle(type, name) {
-        builder.h2 {
-            mkp.yield "$type "
-            span(style:"font-family: monospace;", name )
-            mkp.yield " deleted"
-        }
+		builder.div('class' : 'pageTitle', 'style':'color:red') {
+			builder.span('class':'project') {
+				mkp.yield "$type "
+				span('class': 'repository', name )
+				mkp.yield " deleted"
+			}
+		}
     }
 
     def commitUrl(RevCommit commit) {
@@ -212,7 +216,7 @@ class HtmlMailWriter {
     }
 
     def encoded(String path) {
-        path.replace('/', '!')
+        path.replace('/', forwardSlashChar).replace('/', '%2F')
     }
 
     def blobDiffUrl(objectId, path) {
@@ -230,7 +234,7 @@ class HtmlMailWriter {
         builder.table('class':"table table-disable-hover") {
             thead {
                 tr {
-                    th(colspan:2, "Author")
+					th(colspan: includeGravatar ? 2 : 1, "Author")
                     th( "Commit" )
                     th( "Message" )
                 }
@@ -243,7 +247,7 @@ class HtmlMailWriter {
 
                     // Write detail on that particular commit
                     tr {
-                        td (colspan:2)
+                        td (colspan: includeGravatar ? 3 : 2)
                         td (colspan:2) { writeStatusTable(commit) }
                     }
                 }
@@ -252,14 +256,16 @@ class HtmlMailWriter {
     }
 
     def writeCommit(commit) {
-        def abbreviated = repository.newObjectReader().abbreviate(commit.id, 6).name()
+        def abbreviated = repository.newObjectReader().abbreviate(commit.id, 8).name()
         def author = commit.authorIdent.name
         def email = commit.authorIdent.emailAddress
         def message = commit.shortMessage
         builder.tr {
-            td('class':"gravatar-column") {
-                img(src:gravatarUrl(email), 'class':"img-rounded")
-            }
+			if (includeGravatar) {
+				td('class':"gravatar-column") {
+					img(src:gravatarUrl(email), 'class':"gravatar")
+				}
+			}
             td('class':"author-column", author)
             td('class':"commit-column") {
                 a(href:commitUrl(commit)) {
@@ -268,57 +274,57 @@ class HtmlMailWriter {
             }
             td {
                 mkp.yield message
-                a(href:commitDiffUrl(commit), " [commitdiff]" )
+                a('class':'link', href:commitDiffUrl(commit), " [commitdiff]" )
             }
         }
     }
 
-    def writeStatusLabel(style, label) {
-        builder.span('class' : "label " + style,  label )
+    def writeStatusLabel(style, tooltip) {
+        builder.span('class' : style,  'title' : tooltip )
     }
 
-    def writeAddStatusLine(ObjectId id, FileHeader header) {
-        builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-success", "add") }
+    def writeAddStatusLine(ObjectId id, FileHeader header) {		
+        builder.td('class':'changeType') {
+            writeStatusLabel("addition", "addition")
         }
         builder.td {
-            span(style:'font-family: monospace;', header.newPath)
+            a(href:blobDiffUrl(id, header.newPath)) { span(style:'font-family: monospace;', header.newPath) }
         }
     }
 
     def writeCopyStatusLine(ObjectId id, FileHeader header) {
-        builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-warning", "copy") }
+        builder.td('class':'changeType') {
+            writeStatusLabel("rename", "rename")
         }
         builder.td() {
-            span(style : "font-family: monospace; ", header.oldPath + " copied to " + header.newPath)
+            a(href:blobDiffUrl(id, header.newPath)) { span(style : "font-family: monospace; ", header.oldPath + " copied to " + header.newPath) }
         }
     }
 
     def writeDeleteStatusLine(ObjectId id, FileHeader header) {
-        builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("label-important", "delete") }
+        builder.td('class':'changeType') {
+            writeStatusLabel("deletion", "deletion")
         }
         builder.td() {
-            span(style : "font-family: monospace; ", header.oldPath)
+            a(href:blobDiffUrl(id, header.oldPath)) { span(style : "font-family: monospace; ", header.oldPath) }
         }
     }
 
     def writeModifyStatusLine(ObjectId id, FileHeader header) {
-        builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.oldPath)) { writeStatusLabel("", "modify") }
+        builder.td('class':'changeType') {
+			writeStatusLabel("modification", "modification")
         }
         builder.td() {
-            span(style : "font-family: monospace; ", header.oldPath)
+            a(href:blobDiffUrl(id, header.oldPath)) { span(style : "font-family: monospace; ", header.oldPath) }
         }
     }
 
     def writeRenameStatusLine(ObjectId id, FileHeader header) {
-        builder.td('class':"status-column") {
-            a(href:blobDiffUrl(id, header.newPath)) { writeStatusLabel("label-info", "rename") }
+        builder.td('class':'changeType') {
+             writeStatusLabel("rename", "rename")
         }
         builder.td() {
-            span(style : "font-family: monospace; ", header.olPath + " -> " + header.newPath)
+            a(href:blobDiffUrl(id, header.newPath)) { span(style : "font-family: monospace; ", header.olPath + " -> " + header.newPath) }
         }
     }
 
@@ -360,7 +366,7 @@ class HtmlMailWriter {
                                    new CanonicalTreeParser(null, rw.objectReader, commit.tree))
         }
         // Write status table
-        builder.table('class':"table table-condensed table-bordered table-disable-hover") {
+        builder.table('class':"plain") {
             tbody() {
                 for (DiffEntry entry in diffs) {
                     FileHeader header = formatter.toFileHeader(entry)
@@ -471,9 +477,11 @@ mailWriter.repository = r
 mailWriter.baseCommitUrl = baseCommitUrl
 mailWriter.baseBlobDiffUrl = baseBlobDiffUrl
 mailWriter.baseCommitDiffUrl = baseCommitDiffUrl
+mailWriter.forwardSlashChar = forwardSlashChar
 mailWriter.commands = commands
 mailWriter.url = url
 mailWriter.mountParameters = gitblit.getBoolean(Keys.web.mountParameters, true)
+mailWriter.includeGravatar = gitblit.getBoolean(Keys.web.allowGravatar, true)
 
 def content = mailWriter.write()
 
@@ -482,6 +490,6 @@ r.close()
 
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
 def repositoryName = repository.name.substring(0, repository.name.length() - 4)
-gitblit.sendHtmlMail("${emailprefix}[$repositoryName] ${userModel.displayName} pushed ${mailWriter.commitCount} commits",
+gitblit.sendHtmlMail("${emailprefix} ${userModel.displayName} pushed ${mailWriter.commitCount} commits => $repositoryName",
                      content,
                      toAddresses)
