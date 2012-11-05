@@ -50,6 +50,7 @@ In order to fork a repository, the user account must have the *fork* permission 
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
 - Delete branch feature (issue 121, Github/ajermakovics)
 - Added line links to blob view (issue 130)
+- Added HTML sendmail hook script and Gitblit.sendHtmlMail method (github/sauthieg)
 - Added RedmineUserService (github/mallowlabs)
 - Support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.
 

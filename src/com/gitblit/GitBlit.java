@@ -2658,6 +2658,37 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Notify users by email of something.
+	 * 
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
+		this.sendHtmlMail(subject, message, toAddresses.toArray(new String[0]));
+	}
+
+	/**
+	 * Notify users by email of something.
+	 * 
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	public void sendHtmlMail(String subject, String message, String... toAddresses) {
+		try {
+			Message mail = mailExecutor.createMessage(toAddresses);
+			if (mail != null) {
+				mail.setSubject(subject);
+				mail.setContent(message, "text/html");
+				mailExecutor.queue(mail);
+			}
+		} catch (MessagingException e) {
+			logger.error("Messaging error", e);
+		}
+	}
+
+	/**
 	 * Returns the descriptions/comments of the Gitblit config settings.
 	 * 
 	 * @return SettingsModel
