@@ -244,7 +244,7 @@ class HtmlMailWriter {
                     // Write detail on that particular commit
                     tr {
                         td (colspan:2)
-                        td { writeStatusTable(commit) }
+                        td (colspan:2) { writeStatusTable(commit) }
                     }
                 }
             }
