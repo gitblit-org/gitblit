@@ -480,6 +480,8 @@ def content = mailWriter.write()
 // close the repository reference
 r.close()
 
+new File("/Users/guillaume/Documents/workspace/gitblit/groovy/result.html").write(content)
+
 // tell Gitblit to send the message (Gitblit filters duplicate addresses)
 def repositoryName = repository.name.substring(0, repository.name.length() - 4)
 gitblit.sendHtmlMail("${emailprefix}[$repositoryName] ${userModel.displayName} pushed ${mailWriter.commitCount} commits",
