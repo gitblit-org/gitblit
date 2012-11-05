@@ -340,9 +340,9 @@ class HtmlMailWriter {
 		builder.span('class' : style,  label )
 	}
 	
-	def writeAddStatusLine(FileHeader header) {
+	def writeAddStatusLine(ObjectId id, FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.oldId, header.newPath)) {
+			a(href:blobDiffUrl(id, header.newPath)) {
 				writeStatusLabel("label-add", "add")
 			}
 		}
@@ -351,9 +351,9 @@ class HtmlMailWriter {
 		}
 	}
 	
-	def writeCopyStatusLine(FileHeader header) {
+	def writeCopyStatusLine(ObjectId id, FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.oldId, header.newPath)) {
+			a(href:blobDiffUrl(id, header.newPath)) {
 			    writeStatusLabel("label-copy", "copy")
 			}
 		}
@@ -362,9 +362,9 @@ class HtmlMailWriter {
 		}
 	}
 	
-	def writeDeleteStatusLine(FileHeader header) {
+	def writeDeleteStatusLine(ObjectId id, FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.oldId, header.oldPath)) {
+			a(href:blobDiffUrl(id, header.oldPath)) {
 				writeStatusLabel("label-delete", "delete")
 			}
 		}
@@ -373,9 +373,9 @@ class HtmlMailWriter {
 		}
 	}
 	
-	def writeModifyStatusLine(FileHeader header) {
+	def writeModifyStatusLine(ObjectId id, FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.oldId, header.oldPath)) {
+			a(href:blobDiffUrl(id, header.oldPath)) {
 				writeStatusLabel("label-modify", "modify")
 			}
 		}
@@ -384,9 +384,9 @@ class HtmlMailWriter {
 		}
 	}
 
-	def writeRenameStatusLine(FileHeader header) {
+	def writeRenameStatusLine(ObjectId id, FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.oldId, header.newPath)) {
+			a(href:blobDiffUrl(id, header.newPath)) {
 				writeStatusLabel("label-rename", "rename")
 			}
 		}
@@ -395,23 +395,23 @@ class HtmlMailWriter {
 		}
 	}
 	
-	def writeStatusLine(FileHeader header) {
+	def writeStatusLine(ObjectId id, FileHeader header) {
 		builder.tr {
 			switch (header.changeType) {
 				case ChangeType.ADD:
-					writeAddStatusLine(header)
+					writeAddStatusLine(id, header)
 					break;
 				case ChangeType.COPY:
-					writeCopyStatusLine(header)
+					writeCopyStatusLine(id, header)
 					break;
 				case ChangeType.DELETE:
-					writeDeleteStatusLine(header)
+					writeDeleteStatusLine(id, header)
 					break;
 				case ChangeType.MODIFY:
-					writeModifyStatusLine(header)
+					writeModifyStatusLine(id, header)
 					break;
 				case ChangeType.RENAME:
-					writeRenameStatusLine(header)
+					writeRenameStatusLine(id, header)
 					break;
 			}
 		}
@@ -437,7 +437,7 @@ class HtmlMailWriter {
 				}
 				for (DiffEntry entry in diffs) {
 					FileHeader header = formatter.toFileHeader(entry)
-					writeStatusLine(header)
+					writeStatusLine(commit.id, header)
 				}
 			}
 		}
