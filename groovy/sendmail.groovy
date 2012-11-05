@@ -342,7 +342,7 @@ class HtmlMailWriter {
 	
 	def writeAddStatusLine(FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.newId, header.newPath)) {
+			a(href:blobDiffUrl(header.oldId, header.newPath)) {
 				writeStatusLabel("label-add", "add")
 			}
 		}
@@ -353,7 +353,7 @@ class HtmlMailWriter {
 	
 	def writeCopyStatusLine(FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.newId, header.newPath)) {
+			a(href:blobDiffUrl(header.oldId, header.newPath)) {
 			    writeStatusLabel("label-copy", "copy")
 			}
 		}
@@ -364,7 +364,7 @@ class HtmlMailWriter {
 	
 	def writeDeleteStatusLine(FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.newId, header.oldPath)) {
+			a(href:blobDiffUrl(header.oldId, header.oldPath)) {
 				writeStatusLabel("label-delete", "delete")
 			}
 		}
@@ -375,7 +375,7 @@ class HtmlMailWriter {
 	
 	def writeModifyStatusLine(FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.newId, header.oldPath)) {
+			a(href:blobDiffUrl(header.oldId, header.oldPath)) {
 				writeStatusLabel("label-modify", "modify")
 			}
 		}
@@ -386,7 +386,7 @@ class HtmlMailWriter {
 
 	def writeRenameStatusLine(FileHeader header) {
 		builder.td('class':"status-column") {
-			a(href:blobDiffUrl(header.newId, header.newPath)) {
+			a(href:blobDiffUrl(header.oldId, header.newPath)) {
 				writeStatusLabel("label-rename", "rename")
 			}
 		}
