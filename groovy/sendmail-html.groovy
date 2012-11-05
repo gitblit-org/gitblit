@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 gitblit.com.
+ * Copyright 2012 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ import java.security.MessageDigest
 
 
 /**
- * Sample Gitblit Post-Receive Hook: sendmail
+ * Sample Gitblit Post-Receive Hook: sendmail-html
  *
  * The Post-Receive hook is executed AFTER the pushed commits have been applied
  * to the Git repository.  This is the appropriate point to trigger an
