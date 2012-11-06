@@ -154,6 +154,7 @@ class HtmlMailWriter {
     def mountParameters
 	def forwardSlashChar
 	def includeGravatar
+	def shortCommitIdLength
     def commitCount = 0
     def commands
     def writer = new StringWriter();
@@ -256,7 +257,7 @@ class HtmlMailWriter {
     }
 
     def writeCommit(commit) {
-        def abbreviated = repository.newObjectReader().abbreviate(commit.id, 8).name()
+        def abbreviated = repository.newObjectReader().abbreviate(commit.id, shortCommitIdLength).name()
         def author = commit.authorIdent.name
         def email = commit.authorIdent.emailAddress
         def message = commit.shortMessage
@@ -482,6 +483,7 @@ mailWriter.commands = commands
 mailWriter.url = url
 mailWriter.mountParameters = gitblit.getBoolean(Keys.web.mountParameters, true)
 mailWriter.includeGravatar = gitblit.getBoolean(Keys.web.allowGravatar, true)
+mailWriter.shortCommitIdLength = GitBlit.getInteger(Keys.web.shortCommitIdLength, 8)
 
 def content = mailWriter.write()
 

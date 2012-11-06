@@ -46,6 +46,8 @@ In order to fork a repository, the user account must have the *fork* permission 
     **New:** *git.garbageCollectionHour = 0*  
     **New:** *git.defaultGarbageCollectionThreshold = 500k*  
     **New:** *git.defaultGarbageCollectionPeriod = 7 days*
+- Added setting to control length of shortened commit ids  
+    **New:** *web.shortCommitIdLength=8*  
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
 - Delete branch feature (issue 121, Github/ajermakovics)
