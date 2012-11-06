@@ -2789,15 +2789,15 @@ public class GitBlit implements ServletContextListener {
 	public void configureContext(IStoredSettings settings, boolean startFederation) {
 		logger.info("Reading configuration from " + settings.toString());
 		this.settings = settings;
-		
+
+		repositoriesFolder = getRepositoriesFolder();
+		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
+
 		// prepare service executors
 		mailExecutor = new MailExecutor(settings);
 		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
 		gcExecutor = new GCExecutor(settings);
 		
-		repositoriesFolder = getRepositoriesFolder();
-		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
-
 		// calculate repository list settings checksum for future config changes
 		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());
 
