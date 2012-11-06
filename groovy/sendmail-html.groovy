@@ -115,7 +115,7 @@ if (mailinglist != null) {
 }
 
 // add all mailing lists defined in gitblit.properties or web.xml
-toAddresses.addAll(gitblit.getStrings(Keys.mail.mailingLists))
+toAddresses.addAll(GitBlit.getStrings(Keys.mail.mailingLists))
 
 // add all team mailing lists
 def teams = gitblit.getRepositoryTeams(repository)
@@ -165,6 +165,10 @@ class HtmlMailWriter {
     .table td {
         vertical-align: middle;
     }
+    tr.noborder td {
+        border: none;
+        padding-top: 0px;
+    }
     .gravatar-column {
         width: 5%; 
     }
@@ -177,14 +181,14 @@ class HtmlMailWriter {
     .status-column {
         width: 10%;
     }
-.table-disable-hover.table tbody tr:hover td,
-.table-disable-hover.table tbody tr:hover th {
-    background-color: inherit;
-}
-.table-disable-hover.table-striped tbody tr:nth-child(odd):hover td,
-.table-disable-hover.table-striped tbody tr:nth-child(odd):hover th {
-  background-color: #f9f9f9;
-}
+    .table-disable-hover.table tbody tr:hover td,
+    .table-disable-hover.table tbody tr:hover th {
+        background-color: inherit;
+    }
+    .table-disable-hover.table-striped tbody tr:nth-child(odd):hover td,
+    .table-disable-hover.table-striped tbody tr:nth-child(odd):hover th {
+      background-color: #f9f9f9;
+    }
     ''')
     }
 
@@ -247,7 +251,7 @@ class HtmlMailWriter {
                     writeCommit(commit)
 
                     // Write detail on that particular commit
-                    tr {
+                    tr('class' : 'noborder') {
                         td (colspan: includeGravatar ? 3 : 2)
                         td (colspan:2) { writeStatusTable(commit) }
                     }
@@ -289,7 +293,7 @@ class HtmlMailWriter {
             writeStatusLabel("addition", "addition")
         }
         builder.td {
-            a(href:blobDiffUrl(id, header.newPath)) { span(style:'font-family: monospace;', header.newPath) }
+            a(href:blobDiffUrl(id, header.newPath), header.newPath)
         }
     }
 
@@ -298,7 +302,7 @@ class HtmlMailWriter {
             writeStatusLabel("rename", "rename")
         }
         builder.td() {
-            a(href:blobDiffUrl(id, header.newPath)) { span(style : "font-family: monospace; ", header.oldPath + " copied to " + header.newPath) }
+            a(href:blobDiffUrl(id, header.newPath), header.oldPath + " copied to " + header.newPath)
         }
     }
 
@@ -307,7 +311,7 @@ class HtmlMailWriter {
             writeStatusLabel("deletion", "deletion")
         }
         builder.td() {
-            a(href:blobDiffUrl(id, header.oldPath)) { span(style : "font-family: monospace; ", header.oldPath) }
+            a(href:blobDiffUrl(id, header.oldPath), header.oldPath)
         }
     }
 
@@ -316,7 +320,7 @@ class HtmlMailWriter {
 			writeStatusLabel("modification", "modification")
         }
         builder.td() {
-            a(href:blobDiffUrl(id, header.oldPath)) { span(style : "font-family: monospace; ", header.oldPath) }
+            a(href:blobDiffUrl(id, header.oldPath), header.oldPath)
         }
     }
 
@@ -325,7 +329,7 @@ class HtmlMailWriter {
              writeStatusLabel("rename", "rename")
         }
         builder.td() {
-            a(href:blobDiffUrl(id, header.newPath)) { span(style : "font-family: monospace; ", header.olPath + " -> " + header.newPath) }
+            a(href:blobDiffUrl(id, header.newPath), header.olPath + " -> " + header.newPath)
         }
     }
 
@@ -414,6 +418,7 @@ class HtmlMailWriter {
             head {
                 link(rel:"stylesheet", href:"${url}/bootstrap/css/bootstrap.css")
                 link(rel:"stylesheet", href:"${url}/gitblit.css")
+				link(rel:"stylesheet", href:"${url}/bootstrap/css/bootstrap-responsive.css")
                 writeStyle()
             }
             body {
@@ -481,8 +486,8 @@ mailWriter.baseCommitDiffUrl = baseCommitDiffUrl
 mailWriter.forwardSlashChar = forwardSlashChar
 mailWriter.commands = commands
 mailWriter.url = url
-mailWriter.mountParameters = gitblit.getBoolean(Keys.web.mountParameters, true)
-mailWriter.includeGravatar = gitblit.getBoolean(Keys.web.allowGravatar, true)
+mailWriter.mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true)
+mailWriter.includeGravatar = GitBlit.getBoolean(Keys.web.allowGravatar, true)
 mailWriter.shortCommitIdLength = GitBlit.getInteger(Keys.web.shortCommitIdLength, 8)
 
 def content = mailWriter.write()
