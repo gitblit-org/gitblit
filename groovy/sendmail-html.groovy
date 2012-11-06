@@ -89,7 +89,7 @@ import java.security.MessageDigest
 com.gitblit.models.UserModel userModel = user
 
 // Indicate we have started the script
-logger.info("sendmail hook triggered by ${user.username} for ${repository.name}")
+logger.info("sendmail-html hook triggered by ${user.username} for ${repository.name}")
 
 /*
  * Primitive email notification.
