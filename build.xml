@@ -216,6 +216,7 @@
 		<copy todir="${project.deploy.dir}/groovy">
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
+				<include name="sendmail-html.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
 				<include name="localclone.groovy" />
@@ -385,6 +386,7 @@
 		<copy todir="${project.war.dir}/WEB-INF/groovy">
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
+				<include name="sendmail-html.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
 				<include name="localclone.groovy" />
@@ -594,6 +596,7 @@
 		<copy todir="${deployments.root}/WEB-INF/groovy">
 			<fileset dir="${basedir}/groovy">
 				<include name="sendmail.groovy" />
+				<include name="sendmail-html.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
 			</fileset>
