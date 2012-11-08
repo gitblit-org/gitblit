@@ -143,7 +143,8 @@ public class LuceneSearchPage extends RootPage {
 				PageParameters params = new PageParameters();
 				params.put("repositories", StringUtils.flattenStrings(repositoriesModel.getObject()));
 				params.put("query", queryModel.getObject());
-				setResponsePage(LuceneSearchPage.class, params);
+				LuceneSearchPage page = new LuceneSearchPage(params);
+				setResponsePage(page);
 			}
 		};
 				
