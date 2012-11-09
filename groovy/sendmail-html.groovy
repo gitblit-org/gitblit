@@ -329,7 +329,9 @@ class HtmlMailWriter {
              writeStatusLabel("rename", "rename")
         }
         builder.td() {
-            a(href:blobDiffUrl(id, header.newPath), header.olPath + " -> " + header.newPath)
+            mkp.yield header.oldPath
+			mkp.yieldUnescaped "<b> -&rt; </b>"
+			a(href:blobDiffUrl(id, header.newPath),  header.newPath)
         }
     }
 
