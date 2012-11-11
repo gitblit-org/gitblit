@@ -39,6 +39,9 @@ public class EmptyRepositoryPage extends RootPage {
 
 		String repositoryName = WicketUtils.getRepositoryName(params);
 		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		if (repository == null) {
+			error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
+		}
 		
 		if (repository.hasCommits) {
 			// redirect to the summary page if this repository is not empty

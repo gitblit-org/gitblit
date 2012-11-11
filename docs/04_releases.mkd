@@ -12,6 +12,7 @@ The permissions model has changed in this release.
 
 #### fixes
 
+- Empty repository page failed to handle missing repository (issue 160)
 - Fixed broken ticgit urls (issue 157)
 - Exclude submodules from zip downloads (issue 151)
 - Fixed bug where repository ownership was not updated on rename user
