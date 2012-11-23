@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -36,6 +37,7 @@ import java.security.cert.CertPathBuilder;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.CertStore;
 import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.PKIXCertPathBuilderResult;
@@ -81,8 +83,6 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import sun.security.x509.X509CRLImpl;
 
 import com.gitblit.Constants;
 
@@ -1034,13 +1034,22 @@ public class X509Utils {
 		if (!caRevocationList.exists()) {
 			return false;
 		}
+		InputStream inStream = null;
 		try {
-			byte [] data = FileUtils.readContent(caRevocationList);
-			X509CRL crl = new X509CRLImpl(data);
+			inStream = new FileInputStream(caRevocationList);
+			CertificateFactory cf = CertificateFactory.getInstance("X.509");
+			X509CRL crl = (X509CRL)cf.generateCRL(inStream);
 			return crl.isRevoked(cert);
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("Failed to check revocation status for certificate {0,number,0} [{1}] in {2}",
 					cert.getSerialNumber(), cert.getSubjectDN().getName(), caRevocationList));
+		} finally {
+			if (inStream != null) {
+				try {
+					inStream.close();
+				} catch (Exception e) {
+				}
+			}
 		}
 		return false;
 	}

@@ -57,7 +57,7 @@ import com.gitblit.utils.JGitUtils;
 		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
 		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapUserServiceTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
-		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class,
+		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class,
 		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class })
 public class GitBlitSuite {
