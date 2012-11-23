@@ -268,6 +268,22 @@ public class TimeUtils {
 		}
 	}
 	
+	public String inFuture(Date date) {
+		long diff = date.getTime() - System.currentTimeMillis();
+		if (diff > ONEDAY) {
+			double days = ((double) diff)/ONEDAY;
+			return translate((int) Math.round(days), "gb.time.inDays", "in {0} days");
+		} else {
+			double hours = ((double) diff)/ONEHOUR;
+			if (hours > 2) {
+				return translate((int) Math.round(hours), "gb.time.inHours", "in {0} hours");
+			} else {
+				int mins = (int) (diff/MIN);
+				return translate(mins, "gb.time.inMinutes", "in {0} minutes");
+			}
+		}
+	}
+	
 	private String translate(String key, String defaultValue) {
 		String value = defaultValue;
 		if (translation != null && translation.containsKey(key)) {

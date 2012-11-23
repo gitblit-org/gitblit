@@ -136,7 +136,7 @@ public class GitblitAuthority extends JFrame {
 	
 	public void initialize() {
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
-		setTitle("Gitblit PKI Authority v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
+		setTitle("Gitblit Certificate Authority v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
 		setContentPane(getUI());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {

@@ -92,6 +92,7 @@
 		<property name="distribution.pomfile" value="${basedir}/pom.xml" />
 		<property name="fedclient.zipfile" value="fedclient-${gb.version}.zip" />
 		<property name="manager.zipfile" value="manager-${gb.version}.zip" />
+		<property name="authority.zipfile" value="authority-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
 		<property name="express.zipfile" value="express-${gb.version}.zip" />
 	</target>
@@ -117,6 +118,7 @@
 		<copy todir="${basedir}/certs" overwrite="false">
 			<fileset dir="${basedir}/distrib">
 				<include name="authority.conf" />
+				<include name="*.tmpl" />
 			</fileset>
 		</copy>
 
@@ -200,12 +202,12 @@
 				<include name="authority.conf" />
 			</fileset>
 		</copy>
-
+						
 		<!-- Build jar -->
 		<jar jarfile="${project.deploy.dir}/${project.jar}">
 			<fileset dir="${project.build.dir}">
 				<include name="**/*" />
-				<exclude name="com/gitblit/client/**" />
+				<exclude name="com/gitblit/client/**" />				
 			</fileset>
 			<fileset dir="${project.resources.dir}">
 				<exclude name="thumbs.db" />
@@ -460,6 +462,7 @@
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />
+				<exclude name="com/gitblit/authority/**" />
 			</fileset>
 		</copy>
 
@@ -487,6 +490,7 @@
 				<exclude name="com/gitblit/tests/" />
 				<exclude name="com/gitblit/build/**" />
 				<exclude name="com/gitblit/client/**" />
+				<exclude name="com/gitblit/authority/**" />
 				<exclude name="com/gitblit/AddIndexedBranch*.class" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
@@ -668,6 +672,7 @@
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
 				<exclude name="com/gitblit/MakeCertificate*.class" />
+				<exclude name="com/gitblit/authority/**" />
 			</fileset>
 		</jar>
 
@@ -745,73 +750,138 @@
 		</zip>
 	</target>
 	
+	
 	<!-- 
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			Build the Gitblit API client library
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		-->
-		<target name="buildApiLibrary" depends="compile" description="Builds the Gitblit RPC client library">
-			<echo>Building Gitblit API Library ${gb.version}</echo>
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build the stand-alone, Gitblit Authority
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildAuthority" depends="compile" description="Builds the stand-alone Gitblit Authority">
+		<echo>Building Gitblit Authority ${gb.version}</echo>
+
+		<genjar jarfile="authority-${gb.version}.jar">
+			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
+			<resource file="${basedir}/resources/gitblt-favicon.png" />
+			<resource file="${basedir}/resources/user_16x16.png" />
+			<resource file="${basedir}/resources/users_16x16.png" />
+			<resource file="${basedir}/resources/rosette_16x16.png" />
+			<resource file="${basedir}/resources/vcard_16x16.png" />
+			<resource file="${basedir}/resources/settings_16x16.png" />
+			<resource file="${basedir}/resources/search-icon.png" />
+			<resource file="${basedir}/resources/blank.png" />
+			<resource file="${basedir}/resources/bullet_green.png" />
+			<resource file="${basedir}/resources/bullet_orange.png" />
+			<resource file="${basedir}/resources/bullet_red.png" />
+			<resource file="${basedir}/resources/bullet_white.png" />
+			<resource file="${basedir}/resources/bullet_delete.png" />
+			<resource file="${basedir}/resources/bullet_key.png" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_es.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ja.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ko.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_pl.properties" />
+
+			<class name="com.gitblit.authority.GitblitAuthorityLauncher" />
+			<classfilter>
+				<exclude name="org.apache." />
+				<exclude name="org.bouncycastle." />
+				<exclude name="org.eclipse." />
+				<exclude name="org.slf4j." />
+				<exclude name="com.beust." />
+				<exclude name="com.google." />
+				<exclude name="com.unboundid." />
+			</classfilter>
+			<classpath refid="master-classpath" />
+			<manifest>
+				<attribute name="Main-Class" value="com.gitblit.authority.GitblitAuthorityLauncher" />
+				<attribute name="SplashScreen-Image" value="splash.png" />
+				<attribute name="Specification-Version" value="${gb.version}" />
+				<attribute name="Release-Date" value="${gb.versionDate}" />
+			</manifest>
+		</genjar>
+
+		<!-- Build Authority Zip file -->
+		<zip destfile="${authority.zipfile}">
+			<fileset dir="${basedir}">
+				<include name="authority-${gb.version}.jar" />
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
+			<zipfileset dir="${basedir}/distrib" prefix="certs">
+				<include name="authority.conf" />
+				<include name="mail.tmpl" />
+				<include name="instructions.tmpl" />
+			</zipfileset>
+		</zip>
+	</target>
+					
+	<!-- 
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Build the Gitblit API client library
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildApiLibrary" depends="compile" description="Builds the Gitblit RPC client library">
+		<echo>Building Gitblit API Library ${gb.version}</echo>
+	
+		<!-- Build API Library jar -->
+		<genjar jarfile="gbapi-${gb.version}.jar">
+			<class name="com.gitblit.Keys" />
+			<class name="com.gitblit.client.GitblitClient" />
+			<classpath refid="master-classpath" />
+			<classfilter>
+				<exclude name="com.google.gson." />
+				<exclude name="com.sun.syndication." />
+			</classfilter>
+			<manifest>
+				<attribute name="Specification-Version" value="${gb.version}" />
+				<attribute name="Release-Date" value="${gb.versionDate}" />
+			</manifest>
+		</genjar>
 		
-			<!-- Build API Library jar -->
-			<genjar jarfile="gbapi-${gb.version}.jar">
-				<class name="com.gitblit.Keys" />
-				<class name="com.gitblit.client.GitblitClient" />
-				<classpath refid="master-classpath" />
-				<classfilter>
-					<exclude name="com.google.gson." />
-					<exclude name="com.sun.syndication." />
-				</classfilter>
-				<manifest>
-					<attribute name="Specification-Version" value="${gb.version}" />
-					<attribute name="Release-Date" value="${gb.versionDate}" />
-				</manifest>
-			</genjar>
-			
-			<!-- Build API sources jar -->
-			<zip destfile="gbapi-${gb.version}-sources.jar">
-				<fileset dir="${basedir}/src" defaultexcludes="yes">
-					<include name="com/gitblit/Constants.java"/>
-					<include name="com/gitblit/GitBlitException.java"/>
-					<include name="com/gitblit/Keys.java"/>
-			  		<include name="com/gitblit/client/**/*.java"/>
-			  		<include name="com/gitblit/models/**/*.java"/>
-			  		<include name="com/gitblit/utils/**/*.java"/>			  		
-				</fileset>
-			</zip>
-			
-			<!-- Build API JavaDoc jar -->
-			<javadoc destdir="${basedir}/javadoc">
-				<fileset dir="${basedir}/src" defaultexcludes="yes">
-					<include name="com/gitblit/Constants.java"/>
-					<include name="com/gitblit/GitBlitException.java"/>
-					<include name="com/gitblit/Keys.java"/>
-			  		<include name="com/gitblit/client/**/*.java"/>
-			  		<include name="com/gitblit/models/**/*.java"/>
-			  		<include name="com/gitblit/utils/**/*.java"/>			  		
-				</fileset>
-			</javadoc>
-			<zip destfile="gbapi-${gb.version}-javadoc.jar">
-				<fileset dir="${basedir}/javadoc" />
-			</zip>
-			
-			<!-- Build the API library zip file -->
-			<zip destfile="${gbapi.zipfile}">
-				<fileset dir="${basedir}">
-					<include name="gbapi-${gb.version}.jar" />
-					<include name="gbapi-${gb.version}-sources.jar" />
-					<include name="gbapi-${gb.version}-javadoc.jar" />
-					<include name="LICENSE" />
-					<include name="NOTICE" />
-				</fileset>
-				<fileset dir="${basedir}/ext">
-					<exclude name="src/**" />
-					<include name="gson*.jar" />
-					<include name="rome*.jar" />
-					<include name="jdom*.jar" />
-				</fileset>
-			</zip>
-		</target>
+		<!-- Build API sources jar -->
+		<zip destfile="gbapi-${gb.version}-sources.jar">
+			<fileset dir="${basedir}/src" defaultexcludes="yes">
+				<include name="com/gitblit/Constants.java"/>
+				<include name="com/gitblit/GitBlitException.java"/>
+				<include name="com/gitblit/Keys.java"/>
+		  		<include name="com/gitblit/client/**/*.java"/>
+		  		<include name="com/gitblit/models/**/*.java"/>
+		  		<include name="com/gitblit/utils/**/*.java"/>			  		
+			</fileset>
+		</zip>
+		
+		<!-- Build API JavaDoc jar -->
+		<javadoc destdir="${basedir}/javadoc">
+			<fileset dir="${basedir}/src" defaultexcludes="yes">
+				<include name="com/gitblit/Constants.java"/>
+				<include name="com/gitblit/GitBlitException.java"/>
+				<include name="com/gitblit/Keys.java"/>
+		  		<include name="com/gitblit/client/**/*.java"/>
+		  		<include name="com/gitblit/models/**/*.java"/>
+		  		<include name="com/gitblit/utils/**/*.java"/>			  		
+			</fileset>
+		</javadoc>
+		<zip destfile="gbapi-${gb.version}-javadoc.jar">
+			<fileset dir="${basedir}/javadoc" />
+		</zip>
+		
+		<!-- Build the API library zip file -->
+		<zip destfile="${gbapi.zipfile}">
+			<fileset dir="${basedir}">
+				<include name="gbapi-${gb.version}.jar" />
+				<include name="gbapi-${gb.version}-sources.jar" />
+				<include name="gbapi-${gb.version}-javadoc.jar" />
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
+			<fileset dir="${basedir}/ext">
+				<exclude name="src/**" />
+				<include name="gson*.jar" />
+				<include name="rome*.jar" />
+				<include name="jdom*.jar" />
+			</fileset>
+		</zip>
+	</target>
 		
 		
 	<!-- 
@@ -968,7 +1038,7 @@
 		Compile from source, publish binaries, and build & deploy site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite">		
+	<target name="buildAll" depends="buildAuthority,buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite">		
 		<!-- Cleanup -->
 		<delete dir="${project.build.dir}" />
 		<delete dir="${project.war.dir}" />
@@ -1044,6 +1114,16 @@
 			filename="${manager.zipfile}" 
 			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
+			labels="Featured, Type-Package, OpSys-All" />
+
+		<!-- Upload Gitblit Authority -->
+		<gcupload 
+			username="${googlecode.user}" 
+			password="${googlecode.password}" 
+			projectname="gitblit" 
+			filename="${authority.zipfile}" 
+			targetfilename="authority-${gb.version}.zip"
+			summary="Gitblit Authority v${gb.version} (Swing tool to manage client SSL certificates)"
 			labels="Featured, Type-Package, OpSys-All" />
 
 		<!-- Upload Gitblit API Library -->

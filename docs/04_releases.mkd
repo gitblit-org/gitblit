@@ -47,7 +47,7 @@ In order to fork a repository, the user account must have the *fork* permission 
     **New:** *git.garbageCollectionHour = 0*  
     **New:** *git.defaultGarbageCollectionThreshold = 500k*  
     **New:** *git.defaultGarbageCollectionPeriod = 7 days*
-- Added support for X509 client certificate authentication (github/kevinanderson1).  
+- Added support for X509 client certificate authentication (github/kevinanderson1).  (issue 106)  
 You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.  
     **New:** *git.requireClientCertificates = false*  
     **New:** *git.enforceCertificateValidity = true*  
@@ -56,6 +56,7 @@ You can require all git servlet access be authenticated by a client certificate.
 - Added support for Gitblit GO to require usage of client certificates to access the entire server.  
 This is extreme and should be considered carefully since it affects every https access.  The default is to **want** client certificates.  Setting this value to *true* changes that to **need** client certificates.  
     **New:** *server.requireClientCertificates = false*
+- Added Gitblit Certificate Authority, an X509 certificate generation tool for Gitblit GO to encourage use of client certificate authentication.
 - Added setting to control length of shortened commit ids  
     **New:** *web.shortCommitIdLength=8*  
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.

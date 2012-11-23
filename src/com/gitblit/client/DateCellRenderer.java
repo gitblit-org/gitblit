@@ -24,8 +24,6 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import com.gitblit.utils.TimeUtils;
-
 /**
  * Time ago cell renderer with real date tooltip.
  * 
@@ -55,7 +53,13 @@ public class DateCellRenderer extends DefaultTableCellRenderer {
 				title = "--";
 				dateString = "never";
 			} else {
-				title = Translation.getTimeUtils().timeAgo(date);
+				if (date.getTime() - System.currentTimeMillis() > 0) {
+					// future
+					title = Translation.getTimeUtils().inFuture(date);
+				} else {
+					// past
+					title = Translation.getTimeUtils().timeAgo(date);
+				}
 				dateString = new SimpleDateFormat(pattern).format((Date) value);
 			}
 
