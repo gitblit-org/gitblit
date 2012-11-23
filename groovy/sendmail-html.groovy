@@ -197,7 +197,11 @@ class HtmlMailWriter {
 			builder.span('class':'project') {
 				mkp.yield "$type "
 				span('class': 'repository', name )
-				mkp.yield " $action ($number commits)"
+				if (number > 0) {
+					mkp.yield " $action ($number commits)"
+				} else {
+					mkp.yield " $action"
+				}
 			}
         }
     }
@@ -234,7 +238,7 @@ class HtmlMailWriter {
 
     }
 
-    def writeCommitTable(commits) {
+    def writeCommitTable(commits, includeChangedPaths=true) {
         // Write commits table
         builder.table('class':"table table-disable-hover") {
             thead {
@@ -250,11 +254,13 @@ class HtmlMailWriter {
                 for (commit in commits) {
                     writeCommit(commit)
 
-                    // Write detail on that particular commit
-                    tr('class' : 'noborder') {
-                        td (colspan: includeGravatar ? 3 : 2)
-                        td (colspan:2) { writeStatusTable(commit) }
-                    }
+					if (includeChangedPaths) {
+						// Write detail on that particular commit
+						tr('class' : 'noborder') {
+							td (colspan: includeGravatar ? 3 : 2)
+							td (colspan:2) { writeStatusTable(commit) }
+						}
+					}
                 }
             }
         }
@@ -441,12 +447,17 @@ class HtmlMailWriter {
 
                     switch (command.type) {
                         case ReceiveCommand.Type.CREATE:
-                            def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
-                            commitCount += commits.size()
-                            // new branch
-                            // Write header
-                            writeBranchTitle(refType, ref, "created", commits.size())
-                            writeCommitTable(commits)
+							def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
+							commitCount += commits.size()
+							if (refType == 'Branch') {
+								// new branch
+								writeBranchTitle(refType, ref, "created", commits.size())
+								writeCommitTable(commits, true)
+							} else {
+								// new tag
+								writeBranchTitle(refType, ref, "created", 0)
+								writeCommitTable(commits, false)
+							}
                             break
                         case ReceiveCommand.Type.UPDATE:
                             def commits = JGitUtils.getRevLog(repository, command.oldId.name, command.newId.name).reverse()
