@@ -15,7 +15,19 @@
  */
 package com.gitblit.utils;
 
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.LoggerFactory;
+
+import com.gitblit.models.UserModel;
 
 /**
  * Collection of utility methods for http requests.
@@ -91,5 +103,91 @@ public class HttpUtils {
 		}
 		sb.append(context);
 		return sb.toString();
+	}
+	
+	/**
+	 * Returns a user model object built from attributes in the SSL certificate.
+	 * This model is not retrieved from the user service.
+	 *  
+	 * @param httpRequest
+	 * @param checkValidity ensure certificate can be used now
+	 * @param usernameOIDs if unspecified, CN is used as the username
+	 * @return a UserModel, if a valid certificate is in the request, null otherwise
+	 */
+	public static UserModel getUserModelFromCertificate(HttpServletRequest httpRequest, boolean checkValidity, String... usernameOIDs) {
+		if (httpRequest.getAttribute("javax.servlet.request.X509Certificate") != null) {
+			X509Certificate[] certChain = (X509Certificate[]) httpRequest
+					.getAttribute("javax.servlet.request.X509Certificate");
+			if (certChain != null) {
+				X509Certificate cert = certChain[0];
+				// ensure certificate is valid
+				if (checkValidity) {
+					try {
+						cert.checkValidity(new Date());
+					} catch (CertificateNotYetValidException e) {
+						LoggerFactory.getLogger(HttpUtils.class).info(MessageFormat.format("X509 certificate {0} is not yet valid", cert.getSubjectDN().getName()));
+						return null;
+					} catch (CertificateExpiredException e) {
+						LoggerFactory.getLogger(HttpUtils.class).info(MessageFormat.format("X509 certificate {0} has expired", cert.getSubjectDN().getName()));
+						return null;
+					}
+				}
+				return getUserModelFromCertificate(cert, usernameOIDs);
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Creates a UserModel from a certificate
+	 * @param cert
+	 * @param usernameOids if unspecified CN is used as the username
+	 * @return
+	 */
+	public static UserModel getUserModelFromCertificate(X509Certificate cert, String... usernameOIDs) {
+		UserModel user = new UserModel(null);
+		user.isAuthenticated = false;
+		
+		// manually split DN into OID components
+		// this is instead of parsing with LdapName which:
+		// (1) I don't trust the order of values
+		// (2) it filters out values like EMAILADDRESS
+		String dn = cert.getSubjectDN().getName();
+		Map<String, String> oids = new HashMap<String, String>();
+		for (String kvp : dn.split(",")) {
+			String [] val = kvp.trim().split("=");
+			String oid = val[0].toUpperCase().trim();
+			String data = val[1].trim();
+			oids.put(oid, data);
+		}
+		
+		if (usernameOIDs == null || usernameOIDs.length == 0) {
+			// use default usename<->CN mapping
+			usernameOIDs = new String [] { "CN" };
+		}
+		
+		// determine username from OID fingerprint
+		StringBuilder an = new StringBuilder();
+		for (String oid : usernameOIDs) {
+			String val = getOIDValue(oid.toUpperCase(), oids);
+			if (val != null) {
+				an.append(val).append(' ');
+			}
+		}
+		user.username = an.toString().trim();
+		
+		// extract email address, if available
+		user.emailAddress = getOIDValue("E", oids);
+		if (user.emailAddress == null) {
+			user.emailAddress = getOIDValue("EMAILADDRESS", oids);
+		}		
+		return user;
+	}
+	
+	private static String getOIDValue(String oid, Map<String, String> oids) {
+		if (oids.containsKey(oid)) {
+			return oids.get(oid);
+		}
+		return null;
 	}
 }

@@ -131,13 +131,16 @@ public abstract class BasePage extends WebPage {
 	}	
 
 	private void login() {
-		Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
-		UserModel user = null;
-		if (GitBlit.self().allowCookieAuthentication() && cookies != null && cookies.length > 0) {
-			// Grab cookie from Browser Session
-			user = GitBlit.self().authenticate(cookies);
-		} else {
-			user = GitBlit.self().authenticate(((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest());
+		// try to authenticate by servlet request
+		UserModel user = GitBlit.self().authenticate(((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest());
+
+		if (user == null) {
+			// try to authenticate by cookie
+			Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
+			if (GitBlit.self().allowCookieAuthentication() && cookies != null && cookies.length > 0) {
+				// Grab cookie from Browser Session
+				user = GitBlit.self().authenticate(cookies);
+			}
 		}
 
 		// Login the user

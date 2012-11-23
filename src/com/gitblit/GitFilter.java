@@ -124,6 +124,11 @@ public class GitFilter extends AccessRestrictionFilter {
 		return true;
 	}
 
+	@Override
+	protected boolean requiresClientCertificate() {
+		return GitBlit.getBoolean(Keys.git.requiresClientCertificate, false);
+	}
+
 	/**
 	 * Determine if the repository requires authentication.
 	 * 

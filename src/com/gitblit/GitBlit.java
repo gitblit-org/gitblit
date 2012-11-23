@@ -100,6 +100,7 @@ import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
+import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
@@ -561,6 +562,14 @@ public class GitBlit implements ServletContextListener {
 	 * @return a user object or null
 	 */
 	public UserModel authenticate(HttpServletRequest httpRequest) {
+		boolean checkValidity = settings.getBoolean(Keys.git.enforceCertificateValidity, true);
+		String [] oids = getStrings(Keys.git.certificateUsernameOIDs).toArray(new String[0]);
+		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
+		if (model != null) {
+			UserModel user = GitBlit.self().getUserModel(model.username);
+			logger.info("{0} authenticated by client certificate from {1}", user.username, httpRequest.getRemoteAddr());
+			return user;
+		}
 		return null;
 	}
 

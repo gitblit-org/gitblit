@@ -69,6 +69,15 @@ public abstract class AuthenticationFilter implements Filter {
 	@Override
 	public abstract void doFilter(final ServletRequest request, final ServletResponse response,
 			final FilterChain chain) throws IOException, ServletException;
+	
+	/**
+	 * Allow the filter to require a client certificate to continue processing.
+	 * 
+	 * @return true, if a client certificate is required
+	 */
+	protected boolean requiresClientCertificate() {
+		return false;
+	}
 
 	/**
 	 * Returns the full relative url of the request.
@@ -95,6 +104,16 @@ public abstract class AuthenticationFilter implements Filter {
 	 */
 	protected UserModel getUser(HttpServletRequest httpRequest) {
 		UserModel user = null;
+		// try request authentication
+		user = GitBlit.self().authenticate(httpRequest);
+		if (user != null) {
+			return user;
+		} else if (requiresClientCertificate()) {
+			// http request does not have a valid certificate
+			// and the filter requires one
+			return null;
+		}
+		
 		// look for client authorization credentials in header
 		final String authorization = httpRequest.getHeader("Authorization");
 		if (authorization != null && authorization.startsWith(BASIC)) {
