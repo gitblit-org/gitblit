@@ -56,6 +56,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public String cookie;
 	public String displayName;
 	public String emailAddress;
+	public String organizationalUnit;
+	public String organization;
+	public String locality;
+	public String stateProvince;
+	public String countryCode;
 	public boolean canAdmin;
 	public boolean canFork;
 	public boolean canCreate;

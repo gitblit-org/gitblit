@@ -231,4 +231,8 @@ public class MailExecutor implements Runnable {
 			}
 		}
 	}
+	
+	public void sendNow(Message message) throws Exception {
+		Transport.send(message);
+	}
 }

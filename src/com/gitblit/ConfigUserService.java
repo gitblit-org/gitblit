@@ -66,6 +66,16 @@ public class ConfigUserService implements IUserService {
 	
 	private static final String EMAILADDRESS = "emailAddress";
 	
+	private static final String ORGANIZATIONALUNIT = "organizationalUnit";
+	
+	private static final String ORGANIZATION = "organization";
+	
+	private static final String LOCALITY = "locality";
+	
+	private static final String STATEPROVINCE = "stateProvince";
+	
+	private static final String COUNTRYCODE = "countryCode";
+	
 	private static final String COOKIE = "cookie";
 
 	private static final String REPOSITORY = "repository";
@@ -817,6 +827,21 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.emailAddress)) {
 				config.setString(USER, model.username, EMAILADDRESS, model.emailAddress);
 			}
+			if (!StringUtils.isEmpty(model.organizationalUnit)) {
+				config.setString(USER, model.username, ORGANIZATIONALUNIT, model.organizationalUnit);
+			}
+			if (!StringUtils.isEmpty(model.organization)) {
+				config.setString(USER, model.username, ORGANIZATION, model.organization);
+			}
+			if (!StringUtils.isEmpty(model.locality)) {
+				config.setString(USER, model.username, LOCALITY, model.locality);
+			}
+			if (!StringUtils.isEmpty(model.stateProvince)) {
+				config.setString(USER, model.username, STATEPROVINCE, model.stateProvince);
+			}
+			if (!StringUtils.isEmpty(model.countryCode)) {
+				config.setString(USER, model.username, COUNTRYCODE, model.countryCode);
+			}
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -964,6 +989,11 @@ public class ConfigUserService implements IUserService {
 					user.password = config.getString(USER, username, PASSWORD);					
 					user.displayName = config.getString(USER, username, DISPLAYNAME);
 					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
+					user.organizationalUnit = config.getString(USER, username, ORGANIZATIONALUNIT);
+					user.organization = config.getString(USER, username, ORGANIZATION);
+					user.locality = config.getString(USER, username, LOCALITY);
+					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
+					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);

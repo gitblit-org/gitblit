@@ -183,6 +183,7 @@
 				<exclude name="federation.properties" />
 				<exclude name="openshift.mkd" />
 				<exclude name="authority.conf" />
+				<exclude name="*.tmpl" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
@@ -195,6 +196,7 @@
 		<mkdir dir="${project.deploy.dir}/certs"/>
 		<copy todir="${project.deploy.dir}/certs">
 			<fileset dir="${basedir}/distrib">
+				<include name="*.tmpl" />
 				<include name="authority.conf" />
 			</fileset>
 		</copy>
