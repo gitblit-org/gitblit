@@ -100,6 +100,7 @@ public class Build {
 		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.IVY, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JCALENDAR, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -136,6 +137,7 @@ public class Build {
 		downloadFromApache(MavenObject.JAKARTA_REGEXP, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.IVY, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.JCALENDAR, BuildType.COMPILETIME);
 		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
@@ -742,6 +744,11 @@ public class Build {
                 "f9d1e83e82fc085093510f7d2e77d81d52bc2081",
 				"0312527950ad0e8fbab37228fbed3bf41a6fe0a1", "");
 
+		public static final MavenObject JCALENDAR = new MavenObject(
+                "jcalendar", "com/toedter", "jcalendar", "1.3.2",
+                127000, 0, 0,
+                "323a672aeacb5f5f4461be3b7f7d9d3e4bda80d4",
+				null, "");
 		
 		public final String name;
 		public final String group;
