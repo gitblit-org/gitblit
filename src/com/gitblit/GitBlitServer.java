@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.security.ProtectionDomain;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -41,8 +42,11 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +55,11 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.gitblit.authority.NewCertificateConfig;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
+import com.gitblit.utils.X509Utils;
+import com.gitblit.utils.X509Utils.X509Metadata;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -186,15 +194,32 @@ public class GitBlitServer {
 
 		// conditionally configure the https connector
 		if (params.securePort > 0) {
-			File keystore = new File("keystore");
-			if (!keystore.exists()) {
-				logger.info("Generating self-signed SSL certificate for localhost");
-				MakeCertificate.generateSelfSignedCertificate("localhost", keystore,
-						params.storePassword);
+			File folder = new File(System.getProperty("user.dir"));
+			File certificatesConf = new File(folder, X509Utils.CA_CONFIG);
+			File serverKeyStore = new File(folder, X509Utils.SERVER_KEY_STORE);
+			File serverTrustStore = new File(folder, X509Utils.SERVER_TRUST_STORE);
+			File caRevocationList = new File(folder, X509Utils.CA_REVOCATION_LIST);
+
+			// generate CA & web certificates, create certificate stores
+			X509Metadata metadata = new X509Metadata("localhost", params.storePassword);
+			// set default certificate values from config file
+			if (certificatesConf.exists()) {
+				FileBasedConfig config = new FileBasedConfig(certificatesConf, FS.detect());
+				try {
+					config.load();
+				} catch (Exception e) {
+					logger.error("Error parsing " + certificatesConf, e);
+				}
+				NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
+				certificateConfig.update(metadata);
 			}
-			if (keystore.exists()) {
-				Connector secureConnector = createSSLConnector(keystore, params.storePassword,
-						params.useNIO, params.securePort);
+			
+			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
+			X509Utils.prepareX509Infrastructure(metadata, folder);
+
+			if (serverKeyStore.exists()) {		        
+				Connector secureConnector = createSSLConnector(serverKeyStore, serverTrustStore, params.storePassword,
+						caRevocationList, params.useNIO, params.securePort, params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
 					logger.warn(MessageFormat.format(
@@ -364,24 +389,34 @@ public class GitBlitServer {
 	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
 	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
 	 * 
-	 * @param keystore
-	 * @param password
+	 * @param keyStore
+	 * @param clientTrustStore
+	 * @param storePassword
+	 * @param caRevocationList
 	 * @param useNIO
 	 * @param port
+	 * @param requireClientCertificates
 	 * @return an https connector
 	 */
-	private static Connector createSSLConnector(File keystore, String password, boolean useNIO,
-			int port) {
+	private static Connector createSSLConnector(File keyStore, File clientTrustStore,
+			String storePassword, File caRevocationList, boolean useNIO, int port, 
+			boolean requireClientCertificates) {
+		SslContextFactory sslContext = new SslContextFactory(SslContextFactory.DEFAULT_KEYSTORE_PATH);
 		SslConnector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SslSelectChannelConnector on port " + port);
-			SslSelectChannelConnector ssl = new SslSelectChannelConnector();
+			SslSelectChannelConnector ssl = new SslSelectChannelConnector(sslContext);
 			ssl.setSoLingerTime(-1);
+			if (requireClientCertificates) {
+				sslContext.setNeedClientAuth(true);
+			} else {
+				sslContext.setWantClientAuth(true);
+			}
 			ssl.setThreadPool(new QueuedThreadPool(20));
 			connector = ssl;
 		} else {
 			logger.info("Setting up NIO SslSocketConnector on port " + port);
-			SslSocketConnector ssl = new SslSocketConnector();
+			SslSocketConnector ssl = new SslSocketConnector(sslContext);
 			connector = ssl;
 		}
 		// disable renegotiation unless this is a patched JVM
@@ -400,10 +435,13 @@ public class GitBlitServer {
 		}
 		if (allowRenegotiation) {
 			logger.info("   allowing SSL renegotiation on Java " + v);
-			connector.setAllowRenegotiate(allowRenegotiation);
+			sslContext.setAllowRenegotiate(allowRenegotiation);
 		}
-		connector.setKeystore(keystore.getAbsolutePath());
-		connector.setPassword(password);
+		sslContext.setKeyStorePath(keyStore.getAbsolutePath());
+		sslContext.setKeyStorePassword(storePassword);
+		sslContext.setTrustStore(clientTrustStore.getAbsolutePath());
+		sslContext.setTrustStorePassword(storePassword);
+		sslContext.setCrlPath(caRevocationList.getAbsolutePath());
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
 		return connector;
@@ -539,6 +577,9 @@ public class GitBlitServer {
 
 		@Parameter(names = "--shutdownPort", description = "Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)")
 		public Integer shutdownPort = FILESETTINGS.getInteger(Keys.server.shutdownPort, 8081);
+
+		@Parameter(names = "--requireClientCertificates", description = "Require client X509 certificates for https connections.")
+		public Boolean requireClientCertificates = FILESETTINGS.getBoolean(Keys.server.requireClientCertificates, false);
 
 		/*
 		 * Setting overrides

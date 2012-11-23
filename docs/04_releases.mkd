@@ -52,6 +52,10 @@ You can require all git servlet access be authenticated by a client certificate.
     **New:** *git.requireClientCertificates = false*  
     **New:** *git.enforceCertificateValidity = true*  
     **New:** *git.certificateUsernameOIDs = CN*
+- Revised clean install certificate generation to create a Gitblit GO Certificate Authority certificate; an SSL certificate signed by the CA certificate; and to create distinct server key and server trust stores.  <u>The store files have been renamed!</u>
+- Added support for Gitblit GO to require usage of client certificates to access the entire server.  
+This is extreme and should be considered carefully since it affects every https access.  The default is to **want** client certificates.  Setting this value to *true* changes that to **need** client certificates.  
+    **New:** *server.requireClientCertificates = false*
 - Added setting to control length of shortened commit ids  
     **New:** *web.shortCommitIdLength=8*  
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.

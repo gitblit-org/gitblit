@@ -111,6 +111,14 @@
 				<include name="users.conf" />
 			</fileset>
 		</copy>
+		
+		<!-- copy required distribution files to project folder -->
+		<mkdir dir="${basedir}/certs" />
+		<copy todir="${basedir}/certs" overwrite="false">
+			<fileset dir="${basedir}/distrib">
+				<include name="authority.conf" />
+			</fileset>
+		</copy>
 
 		<!-- copy gitblit.properties to the WEB-INF folder.
 		     this file is only used for parsing setting descriptions. -->
@@ -174,10 +182,20 @@
 				<include name="**/*" />
 				<exclude name="federation.properties" />
 				<exclude name="openshift.mkd" />
+				<exclude name="authority.conf" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
+				<include name="authority*.jar" />
+			</fileset>
+		</copy>
+		
+		<!-- Certificate templates -->
+		<mkdir dir="${project.deploy.dir}/certs"/>
+		<copy todir="${project.deploy.dir}/certs">
+			<fileset dir="${basedir}/distrib">
+				<include name="authority.conf" />
 			</fileset>
 		</copy>
 

@@ -29,3 +29,6 @@
 /projects.conf
 /pom.xml
 /deploy
+/*.jks
+/x509test
+/certs
