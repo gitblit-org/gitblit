@@ -69,6 +69,11 @@ public class Build {
 		runtime();
 		compiletime();
 		buildSettingKeys();
+		delete(
+				"bcmail-jdk16-1.46.jar",
+				"bcprov-jdk16-1.46.jar",
+				"src/bcmail-jdk16-1.46-sources.jar",
+				"src/bcprov-jdk16-1.46-sources.jar");
 	}
 
 	public static void runtime() {
@@ -145,6 +150,15 @@ public class Build {
 		// needed for site publishing
 		downloadFromApache(MavenObject.COMMONSNET, BuildType.RUNTIME);
 	}
+	
+	private static void delete(String... files) {
+		for (String name : files) {
+			File file = new File("ext", name);
+			if (file.exists()) {
+				file.delete();
+			}
+		}
+	}
 
 	public static void federationClient() {
 		downloadFromApache(MavenObject.JCOMMANDER, BuildType.RUNTIME);
@@ -170,6 +184,22 @@ public class Build {
 		downloadFromApache(MavenObject.ROME, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+
+		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
+	}
+	
+	public static void authority(DownloadListener listener) {
+		downloadListener = listener;
+		downloadFromApache(MavenObject.JCOMMANDER, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4JAPI, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.SLF4LOG4J, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.LOG4J, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_PKIX, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.JCALENDAR, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.MAIL, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 	}

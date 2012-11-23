@@ -232,6 +232,13 @@ public class X509Utils {
 			saveCertificate(caCert, new File(caKeyStore.getParentFile(), "ca.cer"));
 		}
 
+		// Gitblit CRL
+		File caRevocationList = new File(folder, CA_REVOCATION_LIST);			
+		if (!caRevocationList.exists()) {
+			logger.info(MessageFormat.format("Generating {0} CRL ({1})", CA_CN, caRevocationList.getAbsolutePath()));
+			newCertificateRevocationList(caRevocationList, caKeyStore, metadata.password);			
+		}
+
 		// rename the old keystore to the new name
 		File oldKeyStore = new File(folder, "keystore");
 		if (oldKeyStore.exists()) {
@@ -598,6 +605,55 @@ public class X509Utils {
 			return cert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate Gitblit CA certificate!", t);
+		}
+	}
+	
+	/**
+	 * Creates a new certificate revocation list (CRL).  This function will
+	 * destroy any existing CRL file.
+	 * 
+	 * @param caRevocationList
+	 * @param storeFile
+	 * @param keystorePassword
+	 * @return
+	 */
+	public static void newCertificateRevocationList(File caRevocationList, File caKeystoreFile, String caKeystorePassword) {
+		try {
+			// read the Gitblit CA key and certificate
+			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
+			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_FN, caKeystorePassword.toCharArray());
+			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_FN);
+
+			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(caCert).getName());
+			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
+			
+			// build and sign CRL with CA private key
+			ContentSigner signer = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(BC).build(caPrivateKey);
+			X509CRLHolder crl = crlBuilder.build(signer);
+
+			File tmpFile = new File(caRevocationList.getParentFile(), Long.toHexString(System.currentTimeMillis()) + ".tmp");
+			FileOutputStream fos = null;
+			try {
+				fos = new FileOutputStream(tmpFile);
+				fos.write(crl.getEncoded());
+				fos.flush();
+				fos.close();
+				if (caRevocationList.exists()) {
+					caRevocationList.delete();
+				}
+				tmpFile.renameTo(caRevocationList);
+
+				log(caRevocationList.getParentFile(), "new certificate revocation list created");
+			} finally {
+				if (fos != null) {
+					fos.close();
+				}
+				if (tmpFile.exists()) {
+					tmpFile.delete();
+				}
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to create new certificate revocation list " + caRevocationList, e);
 		}
 	}
 	
