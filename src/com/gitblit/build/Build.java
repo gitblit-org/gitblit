@@ -86,6 +86,7 @@ public class Build {
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_PKIX, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.ROME, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.RUNTIME);
@@ -121,6 +122,7 @@ public class Build {
 		downloadFromApache(MavenObject.MARKDOWNPAPERS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.BOUNCYCASTLE_MAIL, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.BOUNCYCASTLE_PKIX, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JSCH, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.ROME, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JDOM, BuildType.COMPILETIME);
@@ -616,18 +618,25 @@ public class Build {
 				"");
 
 		public static final MavenObject BOUNCYCASTLE = new MavenObject(
-                "BouncyCastle", "org/bouncycastle", "bcprov-jdk16", "1.46",
+                "BouncyCastle", "org/bouncycastle", "bcprov-jdk15on", "1.47",
                 1900000, 1400000, 4670000,
-				"ce091790943599535cbb4de8ede84535b0c1260c",
-				"d2b70567594225923450d7e3f80cd022c852725e",
-				"873a6fe765f33fc27df498a5d1f5bf077e503b2f");
+				"b6f5d9926b0afbde9f4dbe3db88c5247be7794bb",
+				"85e6e1ad449d5a3f09624bf4038fc8d2b02de81c",
+				"");
 
 		public static final MavenObject BOUNCYCASTLE_MAIL = new MavenObject(
-                "BouncyCastle Mail", "org/bouncycastle", "bcmail-jdk16", "1.46",
+                "BouncyCastle Mail", "org/bouncycastle", "bcmail-jdk15on", "1.47",
                 502000, 420000, 482000,
-				"08a9233bfd6ad38ea32df5e6ff91035b650584b9",
-				"3ebd62bc56854767512dc5deec0a17795f2e671d",
-				"3b7c5f3938f202311bdca0bf7ed46bc0118af081");
+				"a35ccec640177d0de5815568529021af5546d6a7",
+				"f742330cfe1e7365dbdf773c24b92382172164a7",
+				"");
+
+		public static final MavenObject BOUNCYCASTLE_PKIX = new MavenObject(
+                "BouncyCastle PKIX", "org/bouncycastle", "bcpkix-jdk15on", "1.47",
+                502000, 420000, 482000,
+				"cd204e6f26d2bbf65ff3a30de8831d3a1344e851",
+				"80e774a73d0e6a6b40ddf35fff613f9f30fe2a98",
+				"");
 
 		public static final MavenObject JGIT = new MavenObject(
                 "JGit", "org/eclipse/jgit", "org.eclipse.jgit", "2.1.0.201209190230-r",
