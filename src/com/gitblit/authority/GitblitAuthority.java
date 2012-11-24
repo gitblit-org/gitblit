@@ -272,6 +272,7 @@ public class GitblitAuthority extends JFrame {
 			tableModel.list = new ArrayList<UserCertificateModel>(map.values());
 			Collections.sort(tableModel.list);
 			tableModel.fireTableDataChanged();
+			Utils.packColumns(table, Utils.MARGIN);
 		}
 	}
 	

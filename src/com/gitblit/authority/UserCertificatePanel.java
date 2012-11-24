@@ -275,7 +275,7 @@ public abstract class UserCertificatePanel extends JPanel {
 	
 	private JPanel newFieldPanel(String label, Component c) {
 		JLabel jlabel = new JLabel(label);
-		jlabel.setPreferredSize(new Dimension(150, 20));
+		jlabel.setPreferredSize(new Dimension(175, 20));
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		panel.add(jlabel);
 		panel.add(c);
@@ -296,6 +296,7 @@ public abstract class UserCertificatePanel extends JPanel {
 		
 		tableModel.setUserCertificateModel(ucm);
 		tableModel.fireTableDataChanged();
+		Utils.packColumns(table, Utils.MARGIN);
 	}
 	
 	public void setEditable(boolean editable) {
