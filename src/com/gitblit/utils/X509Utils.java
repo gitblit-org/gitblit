@@ -15,7 +15,6 @@
  */
 package com.gitblit.utils;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -108,7 +107,7 @@ public class X509Utils {
 
 	public static final String CA_CN = "Gitblit Certificate Authority";
 	
-	public static final String CA_FN = CA_CN;
+	public static final String CA_ALIAS = CA_CN;
 
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 	
@@ -149,6 +148,10 @@ public class X509Utils {
 		 public String toString() {
 			 return name() +  " (" + ordinal() + ")";
 		 }
+	}
+	
+	public interface X509Log {
+		void log(String message);
 	}
 	
 	public static class X509Metadata {
@@ -211,6 +214,21 @@ public class X509Utils {
 			clone.userDisplayname = userDisplayname;
 			return clone;
 		}
+		
+		public String getOID(String oid, String defaultValue) {
+			if (oids.containsKey(oid)) {
+				return oids.get(oid);
+			}
+			return defaultValue;
+		}
+		
+		public void setOID(String oid, String value) {
+			if (StringUtils.isEmpty(value)) {
+				oids.remove(oid);
+			} else {
+				oids.put(oid, value);
+			}
+		}
 	}
 	
 	/**
@@ -218,9 +236,9 @@ public class X509Utils {
 	 * 
 	 * @param metadata
 	 * @param folder
-	 * @param logger
+	 * @param x509log
 	 */
-	public static void prepareX509Infrastructure(X509Metadata metadata, File folder) {
+	public static void prepareX509Infrastructure(X509Metadata metadata, File folder, X509Log x509log) {
 		// make the specified folder, if necessary
 		folder.mkdirs();
 		
@@ -228,7 +246,7 @@ public class X509Utils {
 		File caKeyStore = new File(folder, CA_KEY_STORE);			
 		if (!caKeyStore.exists()) {
 			logger.info(MessageFormat.format("Generating {0} ({1})", CA_CN, caKeyStore.getAbsolutePath()));
-			X509Certificate caCert = newCertificateAuthority(metadata, caKeyStore);
+			X509Certificate caCert = newCertificateAuthority(metadata, caKeyStore, x509log);
 			saveCertificate(caCert, new File(caKeyStore.getParentFile(), "ca.cer"));
 		}
 
@@ -236,7 +254,8 @@ public class X509Utils {
 		File caRevocationList = new File(folder, CA_REVOCATION_LIST);			
 		if (!caRevocationList.exists()) {
 			logger.info(MessageFormat.format("Generating {0} CRL ({1})", CA_CN, caRevocationList.getAbsolutePath()));
-			newCertificateRevocationList(caRevocationList, caKeyStore, metadata.password);			
+			newCertificateRevocationList(caRevocationList, caKeyStore, metadata.password);
+			x509log.log("new certificate revocation list created");
 		}
 
 		// rename the old keystore to the new name
@@ -250,17 +269,17 @@ public class X509Utils {
 		File serverKeyStore = new File(folder, SERVER_KEY_STORE);
 		if (!serverKeyStore.exists()) {
 			logger.info(MessageFormat.format("Generating SSL certificate for {0} signed by {1} ({2})", metadata.commonName, CA_CN, serverKeyStore.getAbsolutePath()));
-			PrivateKey caPrivateKey = getPrivateKey(CA_FN, caKeyStore, metadata.password);
-			X509Certificate caCert = getCertificate(CA_FN, caKeyStore, metadata.password);
-			newSSLCertificate(metadata, caPrivateKey, caCert, serverKeyStore);
+			PrivateKey caPrivateKey = getPrivateKey(CA_ALIAS, caKeyStore, metadata.password);
+			X509Certificate caCert = getCertificate(CA_ALIAS, caKeyStore, metadata.password);
+			newSSLCertificate(metadata, caPrivateKey, caCert, serverKeyStore, x509log);			
 		}
 
 		// server certificate trust store holds trusted public certificates
 		File serverTrustStore = new File(folder, X509Utils.SERVER_TRUST_STORE);
 		if (!serverTrustStore.exists()) {
-			logger.info(MessageFormat.format("Importing {0} into trust store ({1})", CA_FN, serverTrustStore.getAbsolutePath()));
-			X509Certificate caCert = getCertificate(CA_FN, caKeyStore, metadata.password);
-			addTrustedCertificate(CA_FN, caCert, serverTrustStore, metadata.password);
+			logger.info(MessageFormat.format("Importing {0} into trust store ({1})", CA_ALIAS, serverTrustStore.getAbsolutePath()));
+			X509Certificate caCert = getCertificate(CA_ALIAS, caKeyStore, metadata.password);
+			addTrustedCertificate(CA_ALIAS, caCert, serverTrustStore, metadata.password);
 		}
 	}
 	
@@ -506,8 +525,9 @@ public class X509Utils {
 	 * @param caPrivateKey
 	 * @param caCert
 	 * @param targetStoreFile
+	 * @param x509log
 	 */
-	public static X509Certificate newSSLCertificate(X509Metadata sslMetadata, PrivateKey caPrivateKey, X509Certificate caCert, File targetStoreFile) {
+	public static X509Certificate newSSLCertificate(X509Metadata sslMetadata, PrivateKey caPrivateKey, X509Certificate caCert, File targetStoreFile, X509Log x509log) {
 		try {
 			KeyPair pair = newKeyPair();
 
@@ -541,8 +561,7 @@ public class X509Utils {
 					new Certificate[] { cert, caCert });
 			saveKeyStore(targetStoreFile, serverStore, sslMetadata.password);
 			
-	        log(targetStoreFile.getParentFile(), MessageFormat.format("New web certificate {0,number,0} [{1}]", cert.getSerialNumber(), webDN.toString()));
-			
+	        x509log.log(MessageFormat.format("New web certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
 			return cert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate SSL certificate!", t);
@@ -556,9 +575,10 @@ public class X509Utils {
 	 * @param metadata
 	 * @param storeFile
 	 * @param keystorePassword
+	 * @param x509log
 	 * @return
 	 */
-	public static X509Certificate newCertificateAuthority(X509Metadata metadata, File storeFile) {
+	public static X509Certificate newCertificateAuthority(X509Metadata metadata, File storeFile, X509Log x509log) {
 		try {
 			KeyPair caPair = newKeyPair();
 			
@@ -597,11 +617,12 @@ public class X509Utils {
 			
 			// Save private key and certificate to new keystore
 			KeyStore store = openKeyStore(storeFile, caMetadata.password);
-			store.setKeyEntry(CA_FN, caPair.getPrivate(), caMetadata.password.toCharArray(),
+			store.setKeyEntry(CA_ALIAS, caPair.getPrivate(), caMetadata.password.toCharArray(),
 					new Certificate[] { cert });
 			saveKeyStore(storeFile, store, caMetadata.password);
 			
-	        log(storeFile.getParentFile(), MessageFormat.format("New CA certificate {0,number,0} [{1}]", cert.getSerialNumber(), issuerDN.toString()));
+			x509log.log(MessageFormat.format("New CA certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getIssuerDN().getName()));
+
 			return cert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate Gitblit CA certificate!", t);
@@ -621,8 +642,8 @@ public class X509Utils {
 		try {
 			// read the Gitblit CA key and certificate
 			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
-			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_FN, caKeystorePassword.toCharArray());
-			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_FN);
+			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_ALIAS, caKeystorePassword.toCharArray());
+			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_ALIAS);
 
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(caCert).getName());
 			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
@@ -642,8 +663,6 @@ public class X509Utils {
 					caRevocationList.delete();
 				}
 				tmpFile.renameTo(caRevocationList);
-
-				log(caRevocationList.getParentFile(), "new certificate revocation list created");
 			} finally {
 				if (fos != null) {
 					fos.close();
@@ -685,19 +704,22 @@ public class X509Utils {
 	 * @param clientMetadata a container for dynamic parameters needed for generation
 	 * @param caKeystoreFile
 	 * @param caKeystorePassword
+	 * @param x509log
 	 * @return a zip file containing the P12, PEM, and personalized README
 	 */
-	public static File newClientBundle(X509Metadata clientMetadata, File caKeystoreFile, String caKeystorePassword) {
+	public static File newClientBundle(X509Metadata clientMetadata, File caKeystoreFile, 
+			String caKeystorePassword, X509Log x509log) {
 		try {
 			// read the Gitblit CA key and certificate
 			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
-			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_FN, caKeystorePassword.toCharArray());
-			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_FN);
+			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_ALIAS, caKeystorePassword.toCharArray());
+			X509Certificate caCert = (X509Certificate) store.getCertificate(CA_ALIAS);
 			
 			// generate the P12 and PEM files
 			File targetFolder = new File(caKeystoreFile.getParentFile(), clientMetadata.commonName);
-			newClientCertificate(clientMetadata, caPrivateKey, caCert, targetFolder);
-			
+			X509Certificate cert = newClientCertificate(clientMetadata, caPrivateKey, caCert, targetFolder);
+	        x509log.log(MessageFormat.format("New client certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
+
 	        // process template message
 	        String readme = processTemplate(new File(caKeystoreFile.getParentFile(), "instructions.tmpl"), clientMetadata);
 	        
@@ -830,8 +852,6 @@ public class X509Utils {
 	        // save certificate after successfully creating the key stores
 	        saveCertificate(userCert, certFile);
 	        
-	        log(targetFolder.getParentFile(), MessageFormat.format("New client certificate {0,number,0} [{1}]", userCert.getSerialNumber(), userDN.toString()));
-	        
 	        return userCert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate client certificate!", t);
@@ -924,25 +944,6 @@ public class X509Utils {
 		return content;
 	}
 	
-	private static void log(File folder, String message) {
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(new File(folder, "log.txt"), true));
-			writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
-			writer.newLine();
-			writer.flush();
-		} catch (Exception e) {
-			logger.error("Failed to append log entry!", e);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-	}
-	
 	/**
 	 * Revoke a certificate.
 	 * 
@@ -951,15 +952,17 @@ public class X509Utils {
 	 * @param caRevocationList
 	 * @param caKeystoreFile
 	 * @param caKeystorePassword
+	 * @param x509log
 	 * @return true if the certificate has been revoked
 	 */
 	public static boolean revoke(X509Certificate cert, RevocationReason reason,
-			File caRevocationList, File caKeystoreFile, String caKeystorePassword) {
+			File caRevocationList, File caKeystoreFile, String caKeystorePassword,
+			X509Log x509log) {
 		try {
 			// read the Gitblit CA key and certificate
 			KeyStore store = openKeyStore(caKeystoreFile, caKeystorePassword);
-			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_FN, caKeystorePassword.toCharArray());
-			return revoke(cert, reason, caRevocationList, caPrivateKey);
+			PrivateKey caPrivateKey = (PrivateKey) store.getKey(CA_ALIAS, caKeystorePassword.toCharArray());
+			return revoke(cert, reason, caRevocationList, caPrivateKey, x509log);
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("Failed to revoke certificate {0,number,0} [{1}] in {2}",
 					cert.getSerialNumber(), cert.getSubjectDN().getName(), caRevocationList));
@@ -974,12 +977,12 @@ public class X509Utils {
 	 * @param reason
 	 * @param caRevocationList
 	 * @param caPrivateKey
+	 * @param x509log
 	 * @return true if the certificate has been revoked
 	 */
 	public static boolean revoke(X509Certificate cert, RevocationReason reason,
-			 File caRevocationList, PrivateKey caPrivateKey) {
+			 File caRevocationList, PrivateKey caPrivateKey, X509Log x509log) {
 		try {
-			X500Name subjectDN = new X500Name(PrincipalUtil.getSubjectX509Principal(cert).getName());
 			X500Name issuerDN = new X500Name(PrincipalUtil.getIssuerX509Principal(cert).getName());
 			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
 			if (caRevocationList.exists()) {
@@ -1005,8 +1008,6 @@ public class X509Utils {
 				}
 				tmpFile.renameTo(caRevocationList);
 				
-				log(caRevocationList.getParentFile(), MessageFormat.format("Revoked certificate {0,number,0} reason: {1} [{2}]",
-						cert.getSerialNumber(), reason.toString(), subjectDN.toString()));
 			} finally {
 				if (fos != null) {
 					fos.close();
@@ -1015,6 +1016,9 @@ public class X509Utils {
 					tmpFile.delete();
 				}
 			}
+			
+			x509log.log(MessageFormat.format("Revoked certificate {0,number,0} reason: {1} [{2}]",
+					cert.getSerialNumber(), reason.toString(), cert.getSubjectDN().getName()));
 			return true;
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("Failed to revoke certificate {0,number,0} [{1}] in {2}",

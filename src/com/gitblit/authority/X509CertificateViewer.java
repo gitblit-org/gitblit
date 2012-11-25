@@ -47,7 +47,7 @@ public class X509CertificateViewer extends JDialog {
 		
 		setTitle(Translation.get("gb.viewCertificate"));
 		
-		JPanel content = new JPanel(new BorderLayout(5, 5)) {			
+		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -63,7 +63,7 @@ public class X509CertificateViewer extends JDialog {
 		int l1 = 15;
 		int l2 = 25;
 		int l3 = 45;
-		JPanel panel = new JPanel(new GridLayout(0, 1, 0, 10));
+		JPanel panel = new JPanel(new GridLayout(0, 1, 0, 2*Utils.MARGIN));
 		panel.add(newField(Translation.get("gb.version"), "" + cert.getVersion(), 3));
 		panel.add(newField(Translation.get("gb.subject"), cert.getSubjectDN().getName(), l3));
 		panel.add(newField(Translation.get("gb.issuer"), cert.getIssuerDN().getName(), l3));
@@ -103,7 +103,7 @@ public class X509CertificateViewer extends JDialog {
 	}
 	
 	private JPanel newField(String label, String value, int cols) {
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2*Utils.MARGIN, 0));
 		JLabel lbl = new JLabel(label);
 		lbl.setHorizontalAlignment(SwingConstants.RIGHT);
 		lbl.setPreferredSize(new Dimension(125, 20));

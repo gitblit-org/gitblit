@@ -36,13 +36,13 @@ public class NewCertificateConfig {
 			}
 		};
 
-		public final String OU;
-		public final String O;
-		public final String L;
-		public final String ST;
-		public final String C;
+		public String OU;
+		public String O;
+		public String L;
+		public String ST;
+		public String C;
 		
-		public final int duration;
+		public int duration;
 		
 		private NewCertificateConfig(final Config c) {
 			duration = c.getInt("new",  null, "duration", 0);
@@ -67,6 +67,27 @@ public class NewCertificateConfig {
 		private void update(X509Metadata metadata, String oid, String value) {
 			if (!StringUtils.isEmpty(value)) {
 				metadata.oids.put(oid, value);
+			}
+		}
+		
+		public void store(Config c, X509Metadata metadata) {
+			store(c, "new", "organizationalUnit", metadata.getOID("OU", null));
+			store(c, "new", "organization", metadata.getOID("O", null));
+			store(c, "new", "locality", metadata.getOID("L", null));
+			store(c, "new", "stateProvince", metadata.getOID("ST", null));
+			store(c, "new", "countryCode", metadata.getOID("C", null));
+			if (duration <= 0) {
+				c.unset("new", null, "duration");
+			} else {
+				c.setInt("new", null, "duration", duration);
+			}
+		}
+		
+		private void store(Config c, String section, String name, String value) {
+			if (StringUtils.isEmpty(value)) {
+				c.unset(section, null, name);
+			} else {
+				c.setString(section, null, name, value);
 			}
 		}
 	}

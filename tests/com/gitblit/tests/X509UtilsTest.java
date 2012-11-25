@@ -34,6 +34,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.X509Utils;
 import com.gitblit.utils.X509Utils.RevocationReason;
+import com.gitblit.utils.X509Utils.X509Log;
 import com.gitblit.utils.X509Utils.X509Metadata;
 
 /**
@@ -48,12 +49,18 @@ public class X509UtilsTest extends Assert {
 	// based on the JCE policy files
 	String caPassword = "aBcDeFg";
 	File folder = new File(System.getProperty("user.dir"), "x509test");
+	
+	X509Log log = new X509Log() {
+		public void log(String message) {
+			System.out.println(message);
+		}
+	};
 
 	@Before
 	public void prepare() throws Exception {
 		cleanUp();
 		X509Metadata goMetadata = new X509Metadata("localhost", caPassword);
-		X509Utils.prepareX509Infrastructure(goMetadata, folder);
+		X509Utils.prepareX509Infrastructure(goMetadata, folder, log);
 	}
 	
 	@After
@@ -66,16 +73,16 @@ public class X509UtilsTest extends Assert {
 	@Test
 	public void testNewCA() throws Exception {		
 		File storeFile = new File(folder, X509Utils.CA_KEY_STORE);
-		X509Utils.getPrivateKey(X509Utils.CA_FN, storeFile, caPassword);
-		X509Certificate cert = X509Utils.getCertificate(X509Utils.CA_FN, storeFile, caPassword);
+		X509Utils.getPrivateKey(X509Utils.CA_ALIAS, storeFile, caPassword);
+		X509Certificate cert = X509Utils.getCertificate(X509Utils.CA_ALIAS, storeFile, caPassword);
 		assertEquals("O=Gitblit,OU=Gitblit,CN=Gitblit Certificate Authority", cert.getIssuerDN().getName());
 	}	
 
 	@Test
 	public void testCertificateUserMapping() throws Exception {		
 		File storeFile = new File(folder, X509Utils.CA_KEY_STORE);
-		PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_FN, storeFile, caPassword);
-		X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_FN, storeFile, caPassword);
+		PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_ALIAS, storeFile, caPassword);
+		X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_ALIAS, storeFile, caPassword);
 		
 		X509Metadata userMetadata = new X509Metadata("james", "james");
 		userMetadata.serverHostname = "www.myserver.com";
@@ -108,7 +115,7 @@ public class X509UtilsTest extends Assert {
 		userMetadata.userDisplayname = "James Moger";
 		userMetadata.passwordHint = "your name";
 
-		File zip = X509Utils.newClientBundle(userMetadata, storeFile, caPassword);
+		File zip = X509Utils.newClientBundle(userMetadata, storeFile, caPassword, log);
 		assertTrue(zip.exists());
 		
 		List<String> expected = Arrays.asList(userMetadata.commonName + ".pem", userMetadata.commonName + ".p12", "README.TXT");
@@ -124,8 +131,8 @@ public class X509UtilsTest extends Assert {
 	@Test
 	public void testCertificateRevocation() throws Exception {		
 		File storeFile = new File(folder, X509Utils.CA_KEY_STORE);
-		PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_FN, storeFile, caPassword);
-		X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_FN, storeFile, caPassword);
+		PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_ALIAS, storeFile, caPassword);
+		X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_ALIAS, storeFile, caPassword);
 		
 		X509Metadata userMetadata = new X509Metadata("james", "james");
 		userMetadata.serverHostname = "www.myserver.com";
@@ -140,7 +147,7 @@ public class X509UtilsTest extends Assert {
 		assertFalse(X509Utils.isRevoked(cert1, caRevocationList));
 		
 		// revoke certificate and then confirm it IS revoked
-		X509Utils.revoke(cert1, RevocationReason.ACompromise, caRevocationList, storeFile, caPassword);
+		X509Utils.revoke(cert1, RevocationReason.ACompromise, caRevocationList, storeFile, caPassword, log);
 		assertTrue(X509Utils.isRevoked(cert1, caRevocationList));
 		
 		// generate a second certificate
@@ -151,7 +158,7 @@ public class X509UtilsTest extends Assert {
 		assertFalse(X509Utils.isRevoked(cert2, caRevocationList));
 		
 		// revoke second certificate and then confirm it IS revoked
-		X509Utils.revoke(cert2, RevocationReason.ACompromise, caRevocationList, caPrivateKey);
+		X509Utils.revoke(cert2, RevocationReason.ACompromise, caRevocationList, caPrivateKey, log);
 		assertTrue(X509Utils.isRevoked(cert1, caRevocationList));
 		assertTrue(X509Utils.isRevoked(cert2, caRevocationList));
 		
@@ -164,7 +171,7 @@ public class X509UtilsTest extends Assert {
 		assertFalse(X509Utils.isRevoked(cert3, caRevocationList));
 		
 		// revoke third certificate and then confirm it IS revoked
-		X509Utils.revoke(cert3, RevocationReason.ACompromise, caRevocationList, caPrivateKey);
+		X509Utils.revoke(cert3, RevocationReason.ACompromise, caRevocationList, caPrivateKey, log);
 		assertTrue(X509Utils.isRevoked(cert1, caRevocationList));
 		assertTrue(X509Utils.isRevoked(cert2, caRevocationList));
 		assertTrue(X509Utils.isRevoked(cert3, caRevocationList));

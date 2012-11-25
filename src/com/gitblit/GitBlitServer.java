@@ -16,7 +16,9 @@
 package com.gitblit;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -55,10 +57,12 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.gitblit.authority.GitblitAuthority;
 import com.gitblit.authority.NewCertificateConfig;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils;
+import com.gitblit.utils.X509Utils.X509Log;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -194,7 +198,7 @@ public class GitBlitServer {
 
 		// conditionally configure the https connector
 		if (params.securePort > 0) {
-			File folder = new File(System.getProperty("user.dir"));
+			final File folder = new File(System.getProperty("user.dir"));
 			File certificatesConf = new File(folder, X509Utils.CA_CONFIG);
 			File serverKeyStore = new File(folder, X509Utils.SERVER_KEY_STORE);
 			File serverTrustStore = new File(folder, X509Utils.SERVER_TRUST_STORE);
@@ -215,7 +219,27 @@ public class GitBlitServer {
 			}
 			
 			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
-			X509Utils.prepareX509Infrastructure(metadata, folder);
+			X509Utils.prepareX509Infrastructure(metadata, folder, new X509Log() {
+				@Override
+				public void log(String message) {
+					BufferedWriter writer = null;
+					try {
+						writer = new BufferedWriter(new FileWriter(new File(folder, X509Utils.CERTS + File.separator + "log.txt"), true));
+						writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
+						writer.newLine();
+						writer.flush();
+					} catch (Exception e) {
+						LoggerFactory.getLogger(GitblitAuthority.class).error("Failed to append log entry!", e);
+					} finally {
+						if (writer != null) {
+							try {
+								writer.close();
+							} catch (IOException e) {
+							}
+						}
+					}
+				}
+			});
 
 			if (serverKeyStore.exists()) {		        
 				Connector secureConnector = createSSLConnector(serverKeyStore, serverTrustStore, params.storePassword,

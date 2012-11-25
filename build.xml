@@ -190,9 +190,9 @@
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
-				<include name="authority*.jar" />
-			</fileset>
+			</fileset>			
 		</copy>
+		<copy tofile="${project.deploy.dir}/authority.jar" file="${basedir}/authority-${gb.version}.jar" />
 		
 		<!-- Certificate templates -->
 		<mkdir dir="${project.deploy.dir}/certs"/>
@@ -461,7 +461,6 @@
 				<exclude name="com/gitblit/AddIndexedBranch*.class" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/MakeCertificate*.class" />
 				<exclude name="com/gitblit/authority/**" />
 			</fileset>
 		</copy>
@@ -494,7 +493,6 @@
 				<exclude name="com/gitblit/AddIndexedBranch*.class" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/MakeCertificate*.class" />
 			</fileset>
 		</copy>
 
@@ -671,7 +669,6 @@
 				<exclude name="com/gitblit/client/**" />
 				<exclude name="com/gitblit/GitBlitServer*.class" />
 				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/MakeCertificate*.class" />
 				<exclude name="com/gitblit/authority/**" />
 			</fileset>
 		</jar>
@@ -767,6 +764,7 @@
 			<resource file="${basedir}/resources/rosette_16x16.png" />
 			<resource file="${basedir}/resources/vcard_16x16.png" />
 			<resource file="${basedir}/resources/settings_16x16.png" />
+			<resource file="${basedir}/resources/settings_32x32.png" />
 			<resource file="${basedir}/resources/search-icon.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/resources/bullet_green.png" />
@@ -775,6 +773,7 @@
 			<resource file="${basedir}/resources/bullet_white.png" />
 			<resource file="${basedir}/resources/bullet_delete.png" />
 			<resource file="${basedir}/resources/bullet_key.png" />
+			<resource file="${basedir}/src/log4j.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_es.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ja.properties" />
@@ -1114,16 +1113,6 @@
 			filename="${manager.zipfile}" 
 			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
-			labels="Featured, Type-Package, OpSys-All" />
-
-		<!-- Upload Gitblit Authority -->
-		<gcupload 
-			username="${googlecode.user}" 
-			password="${googlecode.password}" 
-			projectname="gitblit" 
-			filename="${authority.zipfile}" 
-			targetfilename="authority-${gb.version}.zip"
-			summary="Gitblit Authority v${gb.version} (Swing tool to manage client SSL certificates)"
 			labels="Featured, Type-Package, OpSys-All" />
 
 		<!-- Upload Gitblit API Library -->

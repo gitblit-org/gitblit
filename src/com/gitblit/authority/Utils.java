@@ -3,13 +3,16 @@ package com.gitblit.authority;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Date;
 
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -20,8 +23,11 @@ import javax.swing.table.TableModel;
 
 import com.gitblit.client.DateCellRenderer;
 import com.gitblit.client.Translation;
+import com.gitblit.utils.StringUtils;
 
 public class Utils {
+	
+	public final static int LABEL_WIDTH = 175;
 
 	public final static int MARGIN = 5;
 
@@ -42,6 +48,22 @@ public class Utils {
 		table.setDefaultRenderer(Date.class,
 				new DateCellRenderer(datePattern, Color.orange.darker()));
 		return table;
+	}
+	
+	public static JPanel newFieldPanel(String label, Component c) {
+		return newFieldPanel(label, c, null);
+	}
+	
+	public static JPanel newFieldPanel(String label, Component c, String trailingLabel) {
+		JLabel jlabel = new JLabel(label);
+		jlabel.setPreferredSize(new Dimension(Utils.LABEL_WIDTH, 20));
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		panel.add(jlabel);
+		panel.add(c);
+		if (!StringUtils.isEmpty(trailingLabel)) {
+			panel.add(new JLabel(trailingLabel));	
+		}
+		return panel;
 	}
 	
 	public static void showException(Component c, Throwable t) {

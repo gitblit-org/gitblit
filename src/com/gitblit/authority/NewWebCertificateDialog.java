@@ -24,36 +24,29 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-
-import org.bouncycastle.util.Arrays;
 
 import com.gitblit.client.HeaderPanel;
 import com.gitblit.client.Translation;
 import com.gitblit.utils.StringUtils;
 import com.toedter.calendar.JDateChooser;
 
-public class NewClientCertificateDialog extends JDialog {
+public class NewWebCertificateDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	
 	JDateChooser expirationDate;
-	JPasswordField pw1;
-	JPasswordField pw2;
-	JTextField hint;
-	JCheckBox sendEmail;
+	JTextField hostname;
 	boolean isCanceled = true;
 
-	public NewClientCertificateDialog(Frame owner, String displayname, Date defaultExpiration, boolean allowEmail) {
+	public NewWebCertificateDialog(Frame owner, Date defaultExpiration) {
 		super(owner);
 		
-		setTitle(Translation.get("gb.newCertificate"));
+		setTitle(Translation.get("gb.newWebCertificate"));
 		
 		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
 			private static final long serialVersionUID = 1L;
@@ -64,32 +57,18 @@ public class NewClientCertificateDialog extends JDialog {
 				return Utils.INSETS;
 			}
 		};
-		content.add(new HeaderPanel(Translation.get("gb.newCertificate") + " (" + displayname + ")", "rosette_16x16.png"), BorderLayout.NORTH);
+		content.add(new HeaderPanel(Translation.get("gb.newWebCertificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		
 		expirationDate = new JDateChooser(defaultExpiration);
-		pw1 = new JPasswordField(20);
-		pw2 = new JPasswordField(20);
-		hint = new JTextField(20);
-		sendEmail = new JCheckBox(Translation.get("gb.sendEmail"));
+		hostname = new JTextField(20);
 		
 		JPanel panel = new JPanel(new GridLayout(0, 2, Utils.MARGIN, Utils.MARGIN));
 		
+		panel.add(new JLabel(Translation.get("gb.hostname")));
+		panel.add(hostname);
+
 		panel.add(new JLabel(Translation.get("gb.expires")));
 		panel.add(expirationDate);
-		
-		panel.add(new JLabel(Translation.get("gb.password")));
-		panel.add(pw1);
-
-		panel.add(new JLabel(Translation.get("gb.confirmPassword")));
-		panel.add(pw2);
-		
-		panel.add(new JLabel(Translation.get("gb.passwordHint")));
-		panel.add(hint);
-		
-		if (allowEmail) {
-			panel.add(new JLabel(""));
-			panel.add(sendEmail);
-		}
 
 		content.add(panel, BorderLayout.CENTER);
 		
@@ -129,35 +108,21 @@ public class NewClientCertificateDialog extends JDialog {
 					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-		if (pw1.getPassword().length == 0 || !Arrays.areEqual(pw1.getPassword(), pw2.getPassword())) {
-			// password mismatch
-			JOptionPane.showMessageDialog(this, Translation.get("gb.passwordsDoNotMatch"),
-					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-			return false;
-		}
-		if (StringUtils.isEmpty(getPasswordHint())) {
-			// must have hint
-			JOptionPane.showMessageDialog(this, Translation.get("gb.passwordHintRequired"),
+		if (StringUtils.isEmpty(getHostname())) {
+			// must have hostname
+			JOptionPane.showMessageDialog(this, Translation.get("gb.hostnameRequired"),
 					Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 		return true;
 	}
 	
-	public String getPassword() {
-		return new String(pw1.getPassword());
-	}
-	
-	public String getPasswordHint() {
-		return hint.getText();
+	public String getHostname() {
+		return hostname.getText();
 	}
 	
 	public Date getExpiration() {
 		return expirationDate.getDate();
-	}
-	
-	public boolean sendEmail() {
-		return sendEmail.isSelected();
 	}
 	
 	public boolean isCanceled() {

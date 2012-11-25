@@ -16,12 +16,9 @@
 package com.gitblit.authority;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -31,12 +28,10 @@ import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
@@ -55,15 +50,8 @@ public abstract class UserCertificatePanel extends JPanel {
 	
 	private UserCertificateModel ucm;
 	
-	private JTextField displayname;
-	private JTextField username;
-	private JTextField emailAddress;
-	private JTextField organizationalUnit;
-	private JTextField organization;
-	private JTextField locality;
-	private JTextField stateProvince;
-	private JTextField countryCode;
-
+	private UserOidsPanel oidsPanel;
+	
 	private CertificatesTableModel tableModel;
 
 	private JButton saveUserButton;
@@ -80,29 +68,10 @@ public abstract class UserCertificatePanel extends JPanel {
 		super(new BorderLayout());
 		
 		this.owner = owner;
+		oidsPanel = new UserOidsPanel();
 		
-		displayname = new JTextField(20);
-		username = new JTextField(20);
-		username.setEditable(false);
-		emailAddress = new JTextField(20);
-		organizationalUnit = new JTextField(20);
-		organization = new JTextField(20);
-		locality = new JTextField(20);
-		stateProvince = new JTextField(20);
-		countryCode = new JTextField(20);
-				
-		JPanel fields = new JPanel(new GridLayout(0, 1, 5, 5));
-		fields.add(newFieldPanel(Translation.get("gb.displayName"), displayname));
-		fields.add(newFieldPanel(Translation.get("gb.username") + " (CN)", username));
-		fields.add(newFieldPanel(Translation.get("gb.emailAddress") + " (E)", emailAddress));
-		fields.add(newFieldPanel(Translation.get("gb.organizationalUnit") + " (OU)", organizationalUnit));
-		fields.add(newFieldPanel(Translation.get("gb.organization") + " (O)", organization));
-		fields.add(newFieldPanel(Translation.get("gb.locality") + " (L)", locality));
-		fields.add(newFieldPanel(Translation.get("gb.stateProvince") + " (ST)", stateProvince));
-		fields.add(newFieldPanel(Translation.get("gb.countryCode") + " (C)", countryCode));
-		
-		JPanel fp = new JPanel(new BorderLayout(5, 5));
-		fp.add(fields, BorderLayout.NORTH);
+		JPanel fp = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN));
+		fp.add(oidsPanel, BorderLayout.NORTH);
 		
 		JPanel fieldsPanel = new JPanel(new BorderLayout());
 		fieldsPanel.add(new HeaderPanel(Translation.get("gb.properties"), "vcard_16x16.png"), BorderLayout.NORTH);
@@ -114,7 +83,7 @@ public abstract class UserCertificatePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				setEditable(false);
 				String username = ucm.user.username;
-				updateUser();
+				oidsPanel.updateUser(ucm);
 				saveUser(username, ucm);
 			}
 		});
@@ -176,12 +145,12 @@ public abstract class UserCertificatePanel extends JPanel {
 						// save changes
 						String username = ucm.user.username;
 						setEditable(false);
-						updateUser();
+						oidsPanel.updateUser(ucm);
 						saveUser(username, ucm);
 					}
 					
 					NewClientCertificateDialog dialog = new NewClientCertificateDialog(UserCertificatePanel.this.owner,
-							ucm.user.getDisplayName(), getDefaultExpiration());
+							ucm.user.getDisplayName(), getDefaultExpiration(), isAllowEmail());
 					dialog.setModal(true);
 					dialog.setVisible(true);
 					if (dialog.isCanceled()) {
@@ -224,7 +193,7 @@ public abstract class UserCertificatePanel extends JPanel {
 					
 					Object choice = JOptionPane.showInputDialog(UserCertificatePanel.this.owner,
 							Translation.get("gb.revokeCertificateReason"), Translation.get("gb.revokeCertificate"),
-							JOptionPane.PLAIN_MESSAGE, new ImageIcon(getClass().getResource("/rosette_16x16.png")), choices, Translation.get("gb.unspecified"));
+							JOptionPane.PLAIN_MESSAGE, new ImageIcon(getClass().getResource("/rosette_32x32.png")), choices, Translation.get("gb.unspecified"));
 					if (choice == null) {
 						return;
 					}
@@ -273,26 +242,10 @@ public abstract class UserCertificatePanel extends JPanel {
 		setEditable(false);
 	}
 	
-	private JPanel newFieldPanel(String label, Component c) {
-		JLabel jlabel = new JLabel(label);
-		jlabel.setPreferredSize(new Dimension(175, 20));
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		panel.add(jlabel);
-		panel.add(c);
-		return panel;
-	}
-	
 	public void setUserCertificateModel(UserCertificateModel ucm) {
 		this.ucm = ucm;
 		setEditable(false);
-		displayname.setText(ucm.user.getDisplayName());
-		username.setText(ucm.user.username);
-		emailAddress.setText(ucm.user.emailAddress);
-		organizationalUnit.setText(ucm.user.organizationalUnit);
-		organization.setText(ucm.user.organization);
-		locality.setText(ucm.user.locality);
-		stateProvince.setText(ucm.user.stateProvince);
-		countryCode.setText(ucm.user.countryCode);
+		oidsPanel.setUserCertificateModel(ucm);
 		
 		tableModel.setUserCertificateModel(ucm);
 		tableModel.fireTableDataChanged();
@@ -300,14 +253,7 @@ public abstract class UserCertificatePanel extends JPanel {
 	}
 	
 	public void setEditable(boolean editable) {
-		displayname.setEditable(editable);
-//		username.setEditable(editable);
-		emailAddress.setEditable(editable);
-		organizationalUnit.setEditable(editable);
-		organization.setEditable(editable);
-		locality.setEditable(editable);
-		stateProvince.setEditable(editable);
-		countryCode.setEditable(editable);
+		oidsPanel.setEditable(editable);
 		
 		editUserButton.setEnabled(!editable && ucm != null);
 		saveUserButton.setEnabled(editable && ucm != null);
@@ -316,18 +262,8 @@ public abstract class UserCertificatePanel extends JPanel {
 		revokeCertificateButton.setEnabled(false);
 	}
 	
-	private void updateUser() {
-		ucm.user.displayName = displayname.getText();
-		ucm.user.username = username.getText();
-		ucm.user.emailAddress = emailAddress.getText();
-		ucm.user.organizationalUnit = organizationalUnit.getText();
-		ucm.user.organization = organization.getText();
-		ucm.user.locality = locality.getText();
-		ucm.user.stateProvince = stateProvince.getText();
-		ucm.user.countryCode = countryCode.getText();
-	}
-	
 	public abstract Date getDefaultExpiration();
+	public abstract boolean isAllowEmail();
 	
 	public abstract void saveUser(String username, UserCertificateModel ucm);
 	public abstract void newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail);
