@@ -135,8 +135,6 @@ public class LogPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
-						.newObjectParameter(repositoryName, entry.getName())));
 				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry
 						.getParentCount() > 0));
