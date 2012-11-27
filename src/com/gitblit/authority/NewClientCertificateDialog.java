@@ -119,6 +119,7 @@ public class NewClientCertificateDialog extends JDialog {
 		message.setLineWrap(true);
 		message.setWrapStyleWord(true);
 		message.setEditable(false);
+		message.setRows(6);
 		message.setPreferredSize(new Dimension(300, 100));
 		
 		content.add(new JScrollPane(message), BorderLayout.CENTER);

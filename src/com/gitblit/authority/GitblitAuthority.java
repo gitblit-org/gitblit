@@ -129,6 +129,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 
 	private JButton certificateDefaultsButton;
 
+	private JButton newSSLCertificate;
+
 	public static void main(String... args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -296,13 +298,15 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			if (!caKeystore.exists()) {
 				// show certificate defaults dialog 
 				certificateDefaultsButton.doClick();
+				
+				// create "localhost" ssl certificate
+				prepareX509Infrastructure();
 			}
 		}
 	}
 	
 	private boolean prepareX509Infrastructure() {
 		if (caKeystorePassword == null) {
-			caKeystorePassword = gitblitSettings.getString(Keys.server.storePassword, null);
 			JPasswordField pass = new JPasswordField(10){
 				private static final long serialVersionUID = 1L;
 
@@ -320,7 +324,6 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			if (result == JOptionPane.OK_OPTION) {
 				caKeystorePassword = new String(pass.getPassword());
 			} else {
-				caKeystorePassword = null;
 				return false;
 			}
 		}
@@ -594,7 +597,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 		});
 		
-		JButton newSSLCertificate = new JButton(new ImageIcon(getClass().getResource("/rosette_16x16.png")));
+		newSSLCertificate = new JButton(new ImageIcon(getClass().getResource("/rosette_16x16.png")));
 		newSSLCertificate.setFocusable(false);
 		newSSLCertificate.setToolTipText(Translation.get("gb.newSSLCertificate"));		
 		newSSLCertificate.addActionListener(new ActionListener() {
@@ -672,8 +675,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 							metadata.serverHostname = Constants.NAME;
 						}
 						metadata.userDisplayname = ucm.user.getDisplayName();
-						sendEmail(ucm.user, metadata, zip);
-						return true;
+						return sendEmail(ucm.user, metadata, zip);
 					}
 
 					@Override
@@ -780,7 +782,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		}
 	}
 	
-	private void sendEmail(UserModel user, X509Metadata metadata, File zip) {
+	private boolean sendEmail(UserModel user, X509Metadata metadata, File zip) {
 		// send email
 		try {
 			if (mail.isReady()) {
@@ -807,11 +809,13 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				message.setContent(mp);
 
 				mail.sendNow(message);
+				return true;
 			} else {
 				JOptionPane.showMessageDialog(GitblitAuthority.this, "Sorry, the mail server settings are not configured properly.\nCan not send email.", Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e) {
 			Utils.showException(GitblitAuthority.this, e);
 		}
+		return false;
 	}
 }
