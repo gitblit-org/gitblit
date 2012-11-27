@@ -70,6 +70,7 @@ This is extreme and should be considered carefully since it affects every https 
 
 #### changes
 
+- Added short commit id column to log and history tables (issue 168)
 - Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
 - Use https Gravatar urls to avoid browser complaints
 - Added frm to default pretty print extensions (issue 156)

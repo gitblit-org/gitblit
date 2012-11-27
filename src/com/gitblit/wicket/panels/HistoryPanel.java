@@ -118,6 +118,7 @@ public class HistoryPanel extends BasePanel {
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 
+		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
@@ -138,6 +139,14 @@ public class HistoryPanel extends BasePanel {
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 
+				// commit hash link
+				LinkPanel commitHash = new LinkPanel("commitHash", null, entry.getName().substring(0, hashLen),
+						CommitPage.class, WicketUtils.newObjectParameter(
+								repositoryName, entry.getName()));
+				WicketUtils.setCssClass(commitHash, "sha1");
+				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
+				item.add(commitHash);
+				
 				// merge icon
 				if (entry.getParentCount() > 1) {
 					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
