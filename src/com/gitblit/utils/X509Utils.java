@@ -561,7 +561,7 @@ public class X509Utils {
 					new Certificate[] { cert, caCert });
 			saveKeyStore(targetStoreFile, serverStore, sslMetadata.password);
 			
-	        x509log.log(MessageFormat.format("New web certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
+	        x509log.log(MessageFormat.format("New SSL certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
 			return cert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate SSL certificate!", t);
@@ -935,10 +935,18 @@ public class X509Utils {
 			String message = FileUtils.readContent(template, "\n");
 			if (!StringUtils.isEmpty(message)) {
 				content = message;
-				content = content.replace("$serverHostname", metadata.serverHostname);
-				content = content.replace("$username", metadata.commonName);
-				content = content.replace("$userDisplayname", metadata.userDisplayname);
-				content = content.replace("$storePasswordHint", metadata.passwordHint);
+				if (!StringUtils.isEmpty(metadata.serverHostname)) {
+					content = content.replace("$serverHostname", metadata.serverHostname);
+				}
+				if (!StringUtils.isEmpty(metadata.commonName)) {
+					content = content.replace("$username", metadata.commonName);
+				}
+				if (!StringUtils.isEmpty(metadata.userDisplayname)) {
+					content = content.replace("$userDisplayname", metadata.userDisplayname);
+				}
+				if (!StringUtils.isEmpty(metadata.passwordHint)) {
+					content = content.replace("$storePasswordHint", metadata.passwordHint);
+				}
 			}
 		}
 		return content;

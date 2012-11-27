@@ -51,6 +51,7 @@ public class UserCertificateConfig {
 				uc.expires = df.parse(c.getString("user", username, "expires"));
 			} catch (ParseException e) {
 				LoggerFactory.getLogger(UserCertificateConfig.class).error("Failed to parse date!", e);
+			} catch (NullPointerException e) { 
 			}
 			uc.notes = c.getString("user", username, "notes");
 			uc.revoked = new ArrayList<String>(Arrays.asList(c.getStringList("user", username, "revoked")));			

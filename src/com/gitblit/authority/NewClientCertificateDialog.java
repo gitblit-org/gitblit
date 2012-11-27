@@ -16,6 +16,7 @@
 package com.gitblit.authority;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -30,6 +31,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.bouncycastle.util.Arrays;
@@ -64,7 +67,6 @@ public class NewClientCertificateDialog extends JDialog {
 				return Utils.INSETS;
 			}
 		};
-		content.add(new HeaderPanel(Translation.get("gb.newCertificate") + " (" + displayname + ")", "rosette_16x16.png"), BorderLayout.NORTH);
 		
 		expirationDate = new JDateChooser(defaultExpiration);
 		pw1 = new JPasswordField(20);
@@ -91,7 +93,6 @@ public class NewClientCertificateDialog extends JDialog {
 			panel.add(sendEmail);
 		}
 
-		content.add(panel, BorderLayout.CENTER);
 		
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
@@ -114,8 +115,17 @@ public class NewClientCertificateDialog extends JDialog {
 		controls.add(ok);
 		controls.add(cancel);
 		
+		JTextArea message = new JTextArea(Translation.get("gb.newClientCertificateMessage"));
+		message.setLineWrap(true);
+		message.setWrapStyleWord(true);
+		message.setEditable(false);
+		message.setPreferredSize(new Dimension(300, 100));
+		
+		content.add(new JScrollPane(message), BorderLayout.CENTER);
+		content.add(panel, BorderLayout.NORTH);
 		content.add(controls, BorderLayout.SOUTH);
 		
+		getContentPane().add(new HeaderPanel(Translation.get("gb.newCertificate") + " (" + displayname + ")", "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
 		

@@ -16,14 +16,15 @@
 package com.gitblit.authority;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
 import java.util.Date;
 
 import javax.swing.ImageIcon;
@@ -156,20 +157,32 @@ public abstract class UserCertificatePanel extends JPanel {
 					if (dialog.isCanceled()) {
 						return;
 					}
-					
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					UserModel user = ucm.user;
-					X509Metadata metadata = new X509Metadata(user.username, dialog.getPassword());
+
+					final boolean sendEmail = dialog.sendEmail();
+					final UserModel user = ucm.user;
+					final X509Metadata metadata = new X509Metadata(user.username, dialog.getPassword());
 					metadata.userDisplayname = user.getDisplayName();
 					metadata.emailAddress = user.emailAddress;				
 					metadata.passwordHint = dialog.getPasswordHint();
 					metadata.notAfter = dialog.getExpiration();
 
-					newCertificate(ucm, metadata, dialog.sendEmail());
+					AuthorityWorker worker = new AuthorityWorker(UserCertificatePanel.this.owner) {
+						@Override
+						protected Boolean doRequest() throws IOException {
+							newCertificate(ucm, metadata, sendEmail);
+							return true;
+						}
+
+						@Override
+						protected void onSuccess() {
+							JOptionPane.showMessageDialog(UserCertificatePanel.this.owner, 
+									MessageFormat.format(Translation.get("gb.clientCertificateGenerated"), user.getDisplayName()),
+									Translation.get("gb.newCertificate"), JOptionPane.INFORMATION_MESSAGE);
+						}
+					};
+					worker.execute();					
 				} catch (Exception x) {
 					Utils.showException(UserCertificatePanel.this, x);
-				} finally {
-					setCursor(Cursor.getDefaultCursor());
 				}
 			}
 		});
@@ -184,7 +197,7 @@ public abstract class UserCertificatePanel extends JPanel {
 						return;
 					}
 					int modelIndex = table.convertRowIndexToModel(row);
-					X509Certificate cert = tableModel.get(modelIndex);
+					final X509Certificate cert = tableModel.get(modelIndex);
 					
 					String [] choices = new String[RevocationReason.reasons.length];
 					for (int i = 0; i < choices.length; i++) {
@@ -197,13 +210,14 @@ public abstract class UserCertificatePanel extends JPanel {
 					if (choice == null) {
 						return;
 					}
-					RevocationReason reason = RevocationReason.unspecified;
+					RevocationReason selection = RevocationReason.unspecified;
 					for (int i = 0 ; i < choices.length; i++) {
 						if (choices[i].equals(choice)) {
-							reason = RevocationReason.reasons[i];
+							selection = RevocationReason.reasons[i];
 							break;
 						}
 					}
+					final RevocationReason reason = selection;
 					if (!ucm.isRevoked(cert.getSerialNumber())) {
 						if (ucm.certs.size() == 1) {
 							// no other certificates
@@ -222,12 +236,27 @@ public abstract class UserCertificatePanel extends JPanel {
 							}
 							ucm.expires = newExpires;
 						}
-						revoke(ucm, cert, reason);
+						
+						AuthorityWorker worker = new AuthorityWorker(UserCertificatePanel.this.owner) {
+
+							@Override
+							protected Boolean doRequest() throws IOException {
+								revoke(ucm, cert, reason);
+								return true;
+							}
+
+							@Override
+							protected void onSuccess() {
+								JOptionPane.showMessageDialog(UserCertificatePanel.this.owner, 
+										MessageFormat.format(Translation.get("gb.certificateRevoked"), cert.getSerialNumber(), cert.getIssuerDN().getName()),
+										Translation.get("gb.revokeCertificate"), JOptionPane.INFORMATION_MESSAGE);
+							}
+							
+						};
+						worker.execute();
 					}
 				} catch (Exception x) {
 					Utils.showException(UserCertificatePanel.this, x);
-				} finally {
-					setCursor(Cursor.getDefaultCursor());
 				}
 			}
 		});

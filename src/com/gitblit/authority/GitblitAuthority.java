@@ -88,6 +88,7 @@ import com.gitblit.MailExecutor;
 import com.gitblit.client.HeaderPanel;
 import com.gitblit.client.Translation;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils;
@@ -364,7 +365,10 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			public void newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail) {
 				prepareX509Infrastructure();
 				Date notAfter = metadata.notAfter;
-				metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, "localhost");
+				metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, Constants.NAME);
+				if (StringUtils.isEmpty(metadata.serverHostname)) {
+					metadata.serverHostname = Constants.NAME;
+				}
 				UserModel user = ucm.user;				
 				
 				// set default values from config file
@@ -421,38 +425,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				table.getSelectionModel().setSelectionInterval(modelIndex, modelIndex);
 				
 				if (sendEmail) {
-					// send email
-					try {
-						if (mail.isReady()) {
-							Message message = mail.createMessage(user.emailAddress);
-							message.setSubject("Your Gitblit client certificate for " + metadata.serverHostname);
-
-							// body of email
-							String body = X509Utils.processTemplate(new File(caKeystoreFile.getParentFile(), "mail.tmpl"), metadata);
-							if (StringUtils.isEmpty(body)) {
-								body = MessageFormat.format("Hi {0}\n\nHere is your client certificate bundle.\nInside the zip file are installation instructions.", user.getDisplayName());
-							}
-							Multipart mp = new MimeMultipart();
-							MimeBodyPart messagePart = new MimeBodyPart();
-							messagePart.setText(body);
-							mp.addBodyPart(messagePart);
-
-							// attach zip
-							MimeBodyPart filePart = new MimeBodyPart();
-							FileDataSource fds = new FileDataSource(zip);
-							filePart.setDataHandler(new DataHandler(fds));
-							filePart.setFileName(fds.getName());
-							mp.addBodyPart(filePart);
-
-							message.setContent(mp);
-
-							mail.sendNow(message);
-						} else {
-							JOptionPane.showMessageDialog(GitblitAuthority.this, "Sorry, the mail server settings are not configured properly.\nCan not send email.", Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
-						}
-					} catch (Exception e) {
-						Utils.showException(GitblitAuthority.this, e);
-					}
+					sendEmail(user, metadata, zip);
 				}
 			}
 			
@@ -527,7 +500,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		
 		certificateDefaultsButton = new JButton(new ImageIcon(getClass().getResource("/settings_16x16.png")));
 		certificateDefaultsButton.setFocusable(false);
-		certificateDefaultsButton.setToolTipText(Translation.get("gb.certificateDefaults"));		
+		certificateDefaultsButton.setToolTipText(Translation.get("gb.newCertificateDefaults"));		
 		certificateDefaultsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -570,7 +543,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				panel.add(oids, BorderLayout.CENTER);
 
 				int result = JOptionPane.showConfirmDialog(GitblitAuthority.this, 
-						panel, Translation.get("gb.certificateDefaults"), JOptionPane.OK_CANCEL_OPTION,
+						panel, Translation.get("gb.newCertificateDefaults"), JOptionPane.OK_CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE, new ImageIcon(getClass().getResource("/settings_32x32.png")));
 				if (result == JOptionPane.OK_OPTION) {
 					try {
@@ -587,33 +560,94 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 		});
 		
-		JButton newWebCertificate = new JButton(new ImageIcon(getClass().getResource("/rosette_16x16.png")));
-		newWebCertificate.setFocusable(false);
-		newWebCertificate.setToolTipText(Translation.get("gb.newWebCertificate"));		
-		newWebCertificate.addActionListener(new ActionListener() {
+		JButton newSSLCertificate = new JButton(new ImageIcon(getClass().getResource("/rosette_16x16.png")));
+		newSSLCertificate.setFocusable(false);
+		newSSLCertificate.setToolTipText(Translation.get("gb.newSSLCertificate"));		
+		newSSLCertificate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Date defaultExpiration = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
-				NewWebCertificateDialog dialog = new NewWebCertificateDialog(GitblitAuthority.this, defaultExpiration);
+				NewSSLCertificateDialog dialog = new NewSSLCertificateDialog(GitblitAuthority.this, defaultExpiration);
 				dialog.setModal(true);
 				dialog.setVisible(true);
 				if (dialog.isCanceled()) {
 					return;
 				}
-				prepareX509Infrastructure();
-				Date expires = dialog.getExpiration();
-				String hostname = dialog.getHostname();
+				final Date expires = dialog.getExpiration();
+				final String hostname = dialog.getHostname();
+
+				AuthorityWorker worker = new AuthorityWorker(GitblitAuthority.this) {
+
+					@Override
+					protected Boolean doRequest() throws IOException {
+						prepareX509Infrastructure();
+						
+						// read CA private key and certificate
+						File caKeystoreFile = new File(folder, X509Utils.CA_KEY_STORE);
+						PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_ALIAS, caKeystoreFile, caKeystorePassword);
+						X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_ALIAS, caKeystoreFile, caKeystorePassword);
+						
+						// generate new SSL certificate
+						X509Metadata metadata = new X509Metadata(hostname, caKeystorePassword);
+						metadata.notAfter = expires;
+						File serverKeystoreFile = new File(folder, X509Utils.SERVER_KEY_STORE);
+						X509Certificate cert = X509Utils.newSSLCertificate(metadata, caPrivateKey, caCert, serverKeystoreFile, GitblitAuthority.this);
+						return cert != null;
+					}
+
+					@Override
+					protected void onSuccess() {
+						JOptionPane.showMessageDialog(GitblitAuthority.this, 
+								MessageFormat.format(Translation.get("gb.sslCertificateGenerated"), hostname),
+								Translation.get("gb.newSSLCertificate"), JOptionPane.INFORMATION_MESSAGE);
+					}
+				};
 				
-				// read CA private key and certificate
-				File caKeystoreFile = new File(folder, X509Utils.CA_KEY_STORE);
-				PrivateKey caPrivateKey = X509Utils.getPrivateKey(X509Utils.CA_ALIAS, caKeystoreFile, caKeystorePassword);
-				X509Certificate caCert = X509Utils.getCertificate(X509Utils.CA_ALIAS, caKeystoreFile, caKeystorePassword);
+				worker.execute();
+			}
+		});
+		
+		JButton emailBundle = new JButton(new ImageIcon(getClass().getResource("/mail_16x16.png")));
+		emailBundle.setFocusable(false);
+		emailBundle.setToolTipText(Translation.get("gb.emailCertificateBundle"));		
+		emailBundle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int row = table.getSelectedRow();
+				if (row < 0) {
+					return;
+				}
+				int modelIndex = table.convertRowIndexToModel(row);
+				final UserCertificateModel ucm = tableModel.get(modelIndex);
+				if (ArrayUtils.isEmpty(ucm.certs)) {
+					JOptionPane.showMessageDialog(GitblitAuthority.this, MessageFormat.format(Translation.get("gb.pleaseGenerateClientCertificate"), ucm.user.getDisplayName()));
+				}
+				final File zip = new File(folder, X509Utils.CERTS + File.separator + ucm.user.username + File.separator + ucm.user.username + ".zip");
+				if (!zip.exists()) {
+					return;
+				}
 				
-				// generate new SSL certificate
-				X509Metadata metadata = new X509Metadata(hostname, caKeystorePassword);
-				metadata.notAfter = expires;
-				File serverKeystoreFile = new File(folder, X509Utils.SERVER_KEY_STORE);
-				X509Utils.newSSLCertificate(metadata, caPrivateKey, caCert, serverKeystoreFile, GitblitAuthority.this);
+				AuthorityWorker worker = new AuthorityWorker(GitblitAuthority.this) {
+					@Override
+					protected Boolean doRequest() throws IOException {
+						X509Metadata metadata = new X509Metadata(ucm.user.username, "whocares");
+						metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, Constants.NAME);
+						if (StringUtils.isEmpty(metadata.serverHostname)) {
+							metadata.serverHostname = Constants.NAME;
+						}
+						metadata.userDisplayname = ucm.user.getDisplayName();
+						sendEmail(ucm.user, metadata, zip);
+						return true;
+					}
+
+					@Override
+					protected void onSuccess() {
+						JOptionPane.showMessageDialog(GitblitAuthority.this, MessageFormat.format(Translation.get("gb.clientCertificateBundleSent"),
+								ucm.user.getDisplayName()));
+					}
+					
+				};
+				worker.execute();				
 			}
 		});
 		
@@ -631,7 +665,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		
 		JPanel buttonControls = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, Utils.MARGIN));
 		buttonControls.add(certificateDefaultsButton);
-		buttonControls.add(newWebCertificate);
+		buttonControls.add(newSSLCertificate);
+		buttonControls.add(emailBundle);
 
 		JPanel userControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, Utils.MARGIN, Utils.MARGIN));
 		userControls.add(new JLabel(Translation.get("gb.filter")));
@@ -706,6 +741,41 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				} catch (IOException e) {
 				}
 			}
+		}
+	}
+	
+	private void sendEmail(UserModel user, X509Metadata metadata, File zip) {
+		// send email
+		try {
+			if (mail.isReady()) {
+				Message message = mail.createMessage(user.emailAddress);
+				message.setSubject("Your Gitblit client certificate for " + metadata.serverHostname);
+
+				// body of email
+				String body = X509Utils.processTemplate(new File(folder, X509Utils.CERTS + File.separator + "mail.tmpl"), metadata);
+				if (StringUtils.isEmpty(body)) {
+					body = MessageFormat.format("Hi {0}\n\nHere is your client certificate bundle.\nInside the zip file are installation instructions.", user.getDisplayName());
+				}
+				Multipart mp = new MimeMultipart();
+				MimeBodyPart messagePart = new MimeBodyPart();
+				messagePart.setText(body);
+				mp.addBodyPart(messagePart);
+
+				// attach zip
+				MimeBodyPart filePart = new MimeBodyPart();
+				FileDataSource fds = new FileDataSource(zip);
+				filePart.setDataHandler(new DataHandler(fds));
+				filePart.setFileName(fds.getName());
+				mp.addBodyPart(filePart);
+
+				message.setContent(mp);
+
+				mail.sendNow(message);
+			} else {
+				JOptionPane.showMessageDialog(GitblitAuthority.this, "Sorry, the mail server settings are not configured properly.\nCan not send email.", Translation.get("gb.error"), JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception e) {
+			Utils.showException(GitblitAuthority.this, e);
 		}
 	}
 }

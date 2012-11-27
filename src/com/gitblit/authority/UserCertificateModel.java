@@ -27,6 +27,7 @@ import org.eclipse.jgit.lib.Config;
 import com.gitblit.Constants;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils.RevocationReason;
 
@@ -42,14 +43,20 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 		}
 		
 		public void update(Config config) {
-			if (expires != null) {
+			if (expires == null) {
+				config.unset("user",  user.username, "expires");
+			} else {
 				SimpleDateFormat df = new SimpleDateFormat(Constants.ISO8601);
 				config.setString("user", user.username, "expires", df.format(expires));
 			}
-			if (notes != null) {
+			if (StringUtils.isEmpty(notes)) {
+				config.unset("user",  user.username, "notes");
+			} else {
 				config.setString("user", user.username, "notes", notes);
 			}
-			if (!ArrayUtils.isEmpty(revoked)) {
+			if (ArrayUtils.isEmpty(revoked)) {
+				config.unset("user",  user.username, "revoked");
+			} else {
 				config.setStringList("user", user.username, "revoked", revoked);
 			}
 		}
@@ -64,6 +71,16 @@ public class UserCertificateModel implements Comparable<UserCertificateModel> {
 				revoked = new ArrayList<String>();
 			}
 			revoked.add(serial.toString() + ":" + reason.ordinal());
+			expires = null;
+			for (X509Certificate cert : certs) {
+				if (!isRevoked(cert.getSerialNumber())) {
+					if (!isExpired(cert.getNotAfter())) {
+						if (expires == null || cert.getNotAfter().after(expires)) {
+							expires = cert.getNotAfter();
+						}
+					}
+				}
+			}
 		}
 		
 		public boolean isRevoked(BigInteger serial) {

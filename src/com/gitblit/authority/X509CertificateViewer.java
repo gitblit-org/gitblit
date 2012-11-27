@@ -56,7 +56,6 @@ public class X509CertificateViewer extends JDialog {
 				return Utils.INSETS;
 			}
 		};
-		content.add(new HeaderPanel("certificiate", "rosette_16x16.png"), BorderLayout.NORTH);
 		
 		DateFormat df = DateFormat.getDateTimeInstance();
 		
@@ -96,6 +95,7 @@ public class X509CertificateViewer extends JDialog {
 		
 		content.add(controls, BorderLayout.SOUTH);
 		
+		getContentPane().add(new HeaderPanel(Translation.get("gb.certificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
 		

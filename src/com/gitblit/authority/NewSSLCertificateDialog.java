@@ -35,7 +35,7 @@ import com.gitblit.client.Translation;
 import com.gitblit.utils.StringUtils;
 import com.toedter.calendar.JDateChooser;
 
-public class NewWebCertificateDialog extends JDialog {
+public class NewSSLCertificateDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -43,10 +43,10 @@ public class NewWebCertificateDialog extends JDialog {
 	JTextField hostname;
 	boolean isCanceled = true;
 
-	public NewWebCertificateDialog(Frame owner, Date defaultExpiration) {
+	public NewSSLCertificateDialog(Frame owner, Date defaultExpiration) {
 		super(owner);
 		
-		setTitle(Translation.get("gb.newWebCertificate"));
+		setTitle(Translation.get("gb.newSSLCertificate"));
 		
 		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
 			private static final long serialVersionUID = 1L;
@@ -57,7 +57,6 @@ public class NewWebCertificateDialog extends JDialog {
 				return Utils.INSETS;
 			}
 		};
-		content.add(new HeaderPanel(Translation.get("gb.newWebCertificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		
 		expirationDate = new JDateChooser(defaultExpiration);
 		hostname = new JTextField(20);
@@ -69,8 +68,6 @@ public class NewWebCertificateDialog extends JDialog {
 
 		panel.add(new JLabel(Translation.get("gb.expires")));
 		panel.add(expirationDate);
-
-		content.add(panel, BorderLayout.CENTER);
 		
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
@@ -92,9 +89,11 @@ public class NewWebCertificateDialog extends JDialog {
 		JPanel controls = new JPanel();
 		controls.add(ok);
 		controls.add(cancel);
-		
+
+		content.add(panel, BorderLayout.CENTER);
 		content.add(controls, BorderLayout.SOUTH);
 		
+		getContentPane().add(new HeaderPanel(Translation.get("gb.newSSLCertificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
 		
