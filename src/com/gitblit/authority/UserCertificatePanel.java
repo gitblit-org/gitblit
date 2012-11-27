@@ -169,8 +169,7 @@ public abstract class UserCertificatePanel extends JPanel {
 					AuthorityWorker worker = new AuthorityWorker(UserCertificatePanel.this.owner) {
 						@Override
 						protected Boolean doRequest() throws IOException {
-							newCertificate(ucm, metadata, sendEmail);
-							return true;
+							return newCertificate(ucm, metadata, sendEmail);
 						}
 
 						@Override
@@ -241,8 +240,7 @@ public abstract class UserCertificatePanel extends JPanel {
 
 							@Override
 							protected Boolean doRequest() throws IOException {
-								revoke(ucm, cert, reason);
-								return true;
+								return revoke(ucm, cert, reason);
 							}
 
 							@Override
@@ -294,7 +292,7 @@ public abstract class UserCertificatePanel extends JPanel {
 	public abstract Date getDefaultExpiration();
 	public abstract boolean isAllowEmail();
 	
-	public abstract void saveUser(String username, UserCertificateModel ucm);
-	public abstract void newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail);
-	public abstract void revoke(UserCertificateModel ucm, X509Certificate cert, RevocationReason reason);
+	public abstract boolean saveUser(String username, UserCertificateModel ucm);
+	public abstract boolean newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail);
+	public abstract boolean revoke(UserCertificateModel ucm, X509Certificate cert, RevocationReason reason);
 }

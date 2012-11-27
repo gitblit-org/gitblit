@@ -61,6 +61,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -116,7 +117,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 	
 	private IUserService userService;
 	
-	private String caKeystorePassword = null;
+	private String caKeystorePassword;
 
 	private JTable table;
 	
@@ -234,7 +235,6 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		}
 		gitblitSettings = new FileSettings(file.getAbsolutePath());
 		mail = new MailExecutor(gitblitSettings);
-		caKeystorePassword = gitblitSettings.getString(Keys.server.storePassword, null);
 		String us = gitblitSettings.getString(Keys.realm.userService, "users.conf");
 		String ext = us.substring(us.lastIndexOf(".") + 1).toLowerCase();
 		IUserService service = null;
@@ -300,9 +300,34 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		}
 	}
 	
-	private void prepareX509Infrastructure() {
+	private boolean prepareX509Infrastructure() {
+		if (caKeystorePassword == null) {
+			caKeystorePassword = gitblitSettings.getString(Keys.server.storePassword, null);
+			JPasswordField pass = new JPasswordField(10){
+				private static final long serialVersionUID = 1L;
+
+				public void addNotify()             
+			    {                 
+			        super.addNotify();
+			        requestFocusInWindow();             
+			    }         
+			}; 
+			pass.setText(caKeystorePassword);
+			JPanel panel = new JPanel(new BorderLayout());
+			panel.add(new JLabel(Translation.get("gb.enterKeystorePassword")), BorderLayout.NORTH);
+			panel.add(pass, BorderLayout.CENTER);
+			int result = JOptionPane.showConfirmDialog(GitblitAuthority.this, panel, Translation.get("gb.password"), JOptionPane.OK_CANCEL_OPTION);
+			if (result == JOptionPane.OK_OPTION) {
+				caKeystorePassword = new String(pass.getPassword());
+			} else {
+				caKeystorePassword = null;
+				return false;
+			}
+		}
+
 		X509Metadata metadata = new X509Metadata("localhost", caKeystorePassword);
 		X509Utils.prepareX509Infrastructure(metadata, folder, this);
+		return true;
 	}
 	
 	private List<X509Certificate> findCerts(File folder, String username) {
@@ -357,13 +382,16 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 			
 			@Override
-			public void saveUser(String username, UserCertificateModel ucm) {
-				userService.updateUserModel(username, ucm.user);
+			public boolean saveUser(String username, UserCertificateModel ucm) {
+				return userService.updateUserModel(username, ucm.user);
 			}
 			
 			@Override
-			public void newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail) {
-				prepareX509Infrastructure();
+			public boolean newCertificate(UserCertificateModel ucm, X509Metadata metadata, boolean sendEmail) {
+				if (!prepareX509Infrastructure()) {
+					return false;
+				}
+
 				Date notAfter = metadata.notAfter;
 				metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, Constants.NAME);
 				if (StringUtils.isEmpty(metadata.serverHostname)) {
@@ -408,7 +436,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				File zip = X509Utils.newClientBundle(metadata, caKeystoreFile, caKeystorePassword, GitblitAuthority.this);
 
 				// save latest expiration date
-				if (ucm.expires == null || metadata.notAfter.after(ucm.expires)) {
+				if (ucm.expires == null || metadata.notAfter.before(ucm.expires)) {
 					ucm.expires = metadata.notAfter;
 				}
 				ucm.update(config);
@@ -427,10 +455,15 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				if (sendEmail) {
 					sendEmail(user, metadata, zip);
 				}
+				return true;
 			}
 			
 			@Override
-			public void revoke(UserCertificateModel ucm, X509Certificate cert, RevocationReason reason) {
+			public boolean revoke(UserCertificateModel ucm, X509Certificate cert, RevocationReason reason) {
+				if (!prepareX509Infrastructure()) {
+					return false;
+				}
+
 				File caRevocationList = new File(folder, X509Utils.CA_REVOCATION_LIST);
 				File caKeystoreFile = new File(folder, X509Utils.CA_KEY_STORE);
 				if (X509Utils.revoke(cert, reason, caRevocationList, caKeystoreFile, caKeystorePassword, GitblitAuthority.this)) {
@@ -458,7 +491,10 @@ public class GitblitAuthority extends JFrame implements X509Log {
 					tableModel.fireTableDataChanged();
 					table.getSelectionModel().setSelectionInterval(modelIndex, modelIndex);
 					
+					return true;
 				}
+				
+				return false;
 			}
 		};
 		
@@ -551,8 +587,6 @@ public class GitblitAuthority extends JFrame implements X509Log {
 						certificateConfig.duration = Integer.parseInt(durationTF.getText());
 						certificateConfig.store(config, metadata);
 						config.save();
-						
-						prepareX509Infrastructure();
 					} catch (Exception e1) {
 						Utils.showException(GitblitAuthority.this, e1);
 					}
@@ -580,7 +614,9 @@ public class GitblitAuthority extends JFrame implements X509Log {
 
 					@Override
 					protected Boolean doRequest() throws IOException {
-						prepareX509Infrastructure();
+						if (!prepareX509Infrastructure()) {
+							return false;
+						}
 						
 						// read CA private key and certificate
 						File caKeystoreFile = new File(folder, X509Utils.CA_KEY_STORE);
