@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,12 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.TreeWalk;
+import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -72,6 +76,26 @@ public class HistoryPanel extends BasePanel {
 				break;
 			}
 		}
+		if (matchingPath == null) {
+			// path not in commit
+			// manually locate path in tree
+			TreeWalk tw = new TreeWalk(r);
+			tw.reset();
+			tw.setRecursive(true);
+			try {
+				tw.addTree(commit.getTree());
+				tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
+				while (tw.next()) {
+					matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
+							ChangeType.MODIFY);
+				}
+			} catch (Exception e) {
+			} finally {
+				tw.release();
+			}
+		}
+		
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
 
 		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
