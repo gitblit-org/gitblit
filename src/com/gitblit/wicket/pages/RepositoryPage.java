@@ -425,7 +425,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 
 	protected String getShortObjectId(String objectId) {
-		return objectId.substring(0, GitBlit.getInteger(Keys.web.shortCommitIdLength, 8));
+		return objectId.substring(0, GitBlit.getInteger(Keys.web.shortCommitIdLength, 6));
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
