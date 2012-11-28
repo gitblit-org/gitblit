@@ -180,6 +180,8 @@ public class HistoryPanel extends BasePanel {
 					item.add(links);
 				} else {
 					Fragment links = new Fragment("historyLinks", "blobLinks", this);
+					links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.getName(), path)));
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class,
