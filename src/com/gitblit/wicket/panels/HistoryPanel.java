@@ -86,9 +86,11 @@ public class HistoryPanel extends BasePanel {
 				tw.addTree(commit.getTree());
 				tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
 				while (tw.next()) {
-					matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
+					if (tw.getPathString().equals(path)) {
+						matchingPath = new PathChangeModel(tw.getPathString(), tw.getPathString(), 0, tw
 							.getRawMode(0), tw.getObjectId(0).getName(), commit.getId().getName(),
 							ChangeType.MODIFY);
+					}
 				}
 			} catch (Exception e) {
 			} finally {
