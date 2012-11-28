@@ -17,6 +17,7 @@ package com.gitblit.authority;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
@@ -35,6 +36,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -296,6 +298,24 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			
 			File caKeystore = new File(folder, X509Utils.CA_KEY_STORE);
 			if (!caKeystore.exists()) {
+				
+				if (!X509Utils.unlimitedStrength) {
+					// prompt to confirm user understands JCE Standard Strength encryption
+					int res = JOptionPane.showConfirmDialog(GitblitAuthority.this, Translation.get("gb.jceWarning"),
+							Translation.get("gb.warning"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if (res != JOptionPane.YES_OPTION) {
+						if (Desktop.isDesktopSupported()) {
+							if (Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+								try {
+									Desktop.getDesktop().browse(URI.create("http://www.oracle.com/technetwork/java/javase/downloads/index.html"));
+								} catch (IOException e) {
+								}
+							}
+						}
+						System.exit(1);
+					}
+				}
+				
 				// show certificate defaults dialog 
 				certificateDefaultsButton.doClick();
 				
