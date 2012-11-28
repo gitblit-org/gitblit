@@ -47,8 +47,8 @@ import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.GitSearchPage;
+import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class HistoryPanel extends BasePanel {
@@ -141,14 +141,6 @@ public class HistoryPanel extends BasePanel {
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 
-				// commit hash link
-				LinkPanel commitHash = new LinkPanel("commitHash", null, entry.getName().substring(0, hashLen),
-						CommitPage.class, WicketUtils.newObjectParameter(
-								repositoryName, entry.getName()));
-				WicketUtils.setCssClass(commitHash, "sha1");
-				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
-				item.add(commitHash);
-				
 				// merge icon
 				if (entry.getParentCount() > 1) {
 					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
@@ -174,16 +166,30 @@ public class HistoryPanel extends BasePanel {
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
 				if (isTree) {
+					// tree
+					item.add(new Label("hashLabel", getString("gb.tree") + "@"));
+					LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
+							TreePage.class, WicketUtils.newObjectParameter(
+									repositoryName, entry.getName()));
+					WicketUtils.setCssClass(commitHash, "sha1");
+					WicketUtils.setHtmlTooltip(commitHash, entry.getName());					
+					item.add(commitHash);
+					
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
-					links.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
-							.newObjectParameter(repositoryName, entry.getName())));
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
-				} else {
+				} else {					
+					// commit
+					item.add(new Label("hashLabel", getString("gb.blob") + "@"));
+					LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
+							BlobPage.class, WicketUtils.newPathParameter(
+									repositoryName, entry.getName(), path));
+					WicketUtils.setCssClass(commitHash, "sha1");
+					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
+					item.add(commitHash);
+					
 					Fragment links = new Fragment("historyLinks", "blobLinks", this);
-					links.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.getName(), path)));
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					links.add(new BookmarkablePageLink<Void>("difftocurrent", BlobDiffPage.class,

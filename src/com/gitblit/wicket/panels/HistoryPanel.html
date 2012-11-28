@@ -19,8 +19,8 @@
          		<td class="date"><span wicket:id="commitDate">[commit date]</span></td>
          		<td class="icon"><img wicket:id="commitIcon" /></td>
          		<td class="hidden-phone author"><span wicket:id="commitAuthor">[commit author]</span></td>
-         		<td class="hidden-phone hidden-tablet"><span wicket:id="commitHash">[commit hash]</span></td>
          		<td class="message"><table class="nestedTable"><tr><td><span style="vertical-align:middle;" wicket:id="commitShortMessage">[commit short message]</span></td><td><div style="text-align:right;" wicket:id="commitRefs">[commit refs]</div></td></tr></table></td>
+         		<td class="hidden-phone hidden-tablet"><span class="link" wicket:id="hashLabel">[hash label]</span><span wicket:id="hashLink">[hash link]</span></td>
          		<td class="hidden-phone rightAlign">
          			<span wicket:id="historyLinks">[history links]</span>
 				</td>
@@ -32,14 +32,14 @@
 	<!--  tree links -->
 	<wicket:fragment wicket:id="treeLinks">
 		<span class="link">
-			<a wicket:id="tree"><wicket:message key="gb.tree"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a>
+			<a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a>
 		</span>
 	</wicket:fragment>
 	
 	<!-- blob links -->
 	<wicket:fragment wicket:id="blobLinks">
 		<span class="link">
-			<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a> | <a wicket:id="difftocurrent"><wicket:message key="gb.difftocurrent"></wicket:message></a>
+			<a wicket:id="commitdiff"><wicket:message key="gb.commitdiff"></wicket:message></a> | <a wicket:id="difftocurrent"><wicket:message key="gb.difftocurrent"></wicket:message></a>
 		</span>	
 	</wicket:fragment>
 	

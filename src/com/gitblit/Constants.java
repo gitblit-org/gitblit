@@ -76,7 +76,7 @@ public class Constants {
 	
 	public static final String ENCODING = "UTF-8";
 	
-	public static final int LEN_SHORTLOG = 80;
+	public static final int LEN_SHORTLOG = 78;
 	
 	public static final int LEN_SHORTLOG_REFS = 60;
 	

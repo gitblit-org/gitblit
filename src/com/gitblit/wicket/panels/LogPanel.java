@@ -102,14 +102,6 @@ public class LogPanel extends BasePanel {
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
 				
-				// commit hash link
-				LinkPanel commitHash = new LinkPanel("commitHash", null, entry.getName().substring(0, hashLen),
-						CommitPage.class, WicketUtils.newObjectParameter(
-								repositoryName, entry.getName()));
-				WicketUtils.setCssClass(commitHash, "sha1");
-				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
-				item.add(commitHash);
-
 				// merge icon
 				if (entry.getParentCount() > 1) {
 					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
@@ -135,8 +127,14 @@ public class LogPanel extends BasePanel {
 
 				item.add(new RefsPanel("commitRefs", repositoryName, entry, allRefs));
 
-				item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
-						.newObjectParameter(repositoryName, entry.getName())));
+				// commit hash link
+				LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
+						CommitPage.class, WicketUtils.newObjectParameter(
+								repositoryName, entry.getName()));
+				WicketUtils.setCssClass(commitHash, "sha1");
+				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
+				item.add(commitHash);
+				
 				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry
 						.getParentCount() > 0));
