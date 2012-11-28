@@ -567,7 +567,8 @@ public class GitBlit implements ServletContextListener {
 		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
 		if (model != null) {
 			UserModel user = GitBlit.self().getUserModel(model.username);
-			logger.info("{0} authenticated by client certificate from {1}", user.username, httpRequest.getRemoteAddr());
+			logger.info(MessageFormat.format("{0} authenticated by client certificate from {1}",
+					user.username, httpRequest.getRemoteAddr()));
 			return user;
 		}
 		return null;
