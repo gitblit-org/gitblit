@@ -329,6 +329,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		}
 
 		X509Metadata metadata = new X509Metadata("localhost", caKeystorePassword);
+		setMetadataDefaults(metadata);
 		X509Utils.prepareX509Infrastructure(metadata, folder, this);
 		return true;
 	}
@@ -396,29 +397,11 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				}
 
 				Date notAfter = metadata.notAfter;
-				metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, Constants.NAME);
-				if (StringUtils.isEmpty(metadata.serverHostname)) {
-					metadata.serverHostname = Constants.NAME;
-				}
-				UserModel user = ucm.user;				
-				
-				// set default values from config file
-				File certificatesConfigFile = new File(folder, X509Utils.CA_CONFIG);
-				FileBasedConfig config = new FileBasedConfig(certificatesConfigFile, FS.detect());
-				if (certificatesConfigFile.exists()) {
-					try {
-						config.load();
-					} catch (Exception e) {
-						Utils.showException(GitblitAuthority.this, e);
-					}
-					NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
-					certificateConfig.update(metadata);
-				}
-				
-				// restore expiration date
+				setMetadataDefaults(metadata);
 				metadata.notAfter = notAfter;
 				
 				// set user's specified OID values
+				UserModel user = ucm.user;				
 				if (!StringUtils.isEmpty(user.organizationalUnit)) {
 					metadata.oids.put("OU", user.organizationalUnit);
 				}
@@ -442,12 +425,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				if (ucm.expires == null || metadata.notAfter.before(ucm.expires)) {
 					ucm.expires = metadata.notAfter;
 				}
-				ucm.update(config);
-				try {
-					config.save();
-				} catch (Exception e) {
-					Utils.showException(GitblitAuthority.this, e);
-				}
+				
+				updateAuthorityConfig(ucm);
 				
 				// refresh user
 				ucm.certs = null;
@@ -817,5 +796,43 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			Utils.showException(GitblitAuthority.this, e);
 		}
 		return false;
+	}
+	
+	private void setMetadataDefaults(X509Metadata metadata) {
+		metadata.serverHostname = gitblitSettings.getString(Keys.web.siteName, Constants.NAME);
+		if (StringUtils.isEmpty(metadata.serverHostname)) {
+			metadata.serverHostname = Constants.NAME;
+		}
+		
+		// set default values from config file
+		File certificatesConfigFile = new File(folder, X509Utils.CA_CONFIG);
+		FileBasedConfig config = new FileBasedConfig(certificatesConfigFile, FS.detect());
+		if (certificatesConfigFile.exists()) {
+			try {
+				config.load();
+			} catch (Exception e) {
+				Utils.showException(GitblitAuthority.this, e);
+			}
+			NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
+			certificateConfig.update(metadata);
+		}
+	}
+	
+	private void updateAuthorityConfig(UserCertificateModel ucm) {
+		File certificatesConfigFile = new File(folder, X509Utils.CA_CONFIG);
+		FileBasedConfig config = new FileBasedConfig(certificatesConfigFile, FS.detect());
+		if (certificatesConfigFile.exists()) {
+			try {
+				config.load();
+			} catch (Exception e) {
+				Utils.showException(GitblitAuthority.this, e);
+			}
+		}
+		ucm.update(config);
+		try {
+			config.save();
+		} catch (Exception e) {
+			Utils.showException(GitblitAuthority.this, e);
+		}
 	}
 }
