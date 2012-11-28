@@ -307,16 +307,9 @@ public class GitblitAuthority extends JFrame implements X509Log {
 	
 	private boolean prepareX509Infrastructure() {
 		if (caKeystorePassword == null) {
-			JPasswordField pass = new JPasswordField(10){
-				private static final long serialVersionUID = 1L;
-
-				public void addNotify()             
-			    {                 
-			        super.addNotify();
-			        requestFocusInWindow();             
-			    }         
-			}; 
+			JPasswordField pass = new JPasswordField(10);
 			pass.setText(caKeystorePassword);
+			pass.addAncestorListener(new RequestFocusListener());
 			JPanel panel = new JPanel(new BorderLayout());
 			panel.add(new JLabel(Translation.get("gb.enterKeystorePassword")), BorderLayout.NORTH);
 			panel.add(pass, BorderLayout.CENTER);
