@@ -422,14 +422,19 @@ public abstract class BasePage extends WebPage {
 		public UserFragment(String id, String markupId, MarkupContainer markupProvider) {
 			super(id, markupId, markupProvider);
 
-			if (GitBlitWebSession.get().isLoggedIn()) {
-				// username, logout, and change password
-				add(new Label("username", GitBlitWebSession.get().getUser().getDisplayName() + ":"));
-				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
-						LogoutPage.class));
+			GitBlitWebSession session = GitBlitWebSession.get();
+			if (session.isLoggedIn()) {				
+				UserModel user = session.getUser();
 				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+				boolean standardLogin = session.authenticationType.isStandard();
+
+				// username, logout, and change password
+				add(new Label("username", user.getDisplayName() + ":"));
+				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
+						LogoutPage.class).setVisible(standardLogin));
+				
 				// quick and dirty hack for showing a separator
-				add(new Label("separator", "|").setVisible(editCredentials));
+				add(new Label("separator", "|").setVisible(standardLogin && editCredentials));
 				add(new BookmarkablePageLink<Void>("changePasswordLink", 
 						ChangePasswordPage.class).setVisible(editCredentials));
 			} else {
