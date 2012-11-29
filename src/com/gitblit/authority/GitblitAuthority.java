@@ -67,6 +67,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
@@ -92,6 +93,7 @@ import com.gitblit.client.HeaderPanel;
 import com.gitblit.client.Translation;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils;
@@ -681,6 +683,23 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 		});
 		
+		JButton logButton = new JButton(new ImageIcon(getClass().getResource("/script_16x16.png")));
+		logButton.setFocusable(false);
+		logButton.setToolTipText(Translation.get("gb.log"));		
+		logButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File log = new File(folder, X509Utils.CERTS + File.separator + "log.txt");
+				if (log.exists()) {
+					String content = FileUtils.readContent(log,  "\n");
+					JTextArea textarea = new JTextArea(content);
+					JScrollPane scrollPane = new JScrollPane(textarea);
+					scrollPane.setPreferredSize(new Dimension(700, 400));
+					JOptionPane.showMessageDialog(GitblitAuthority.this, scrollPane, log.getAbsolutePath(), JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		});
+		
 		final JTextField filterTextfield = new JTextField(15);
 		filterTextfield.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -697,6 +716,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		buttonControls.add(certificateDefaultsButton);
 		buttonControls.add(newSSLCertificate);
 		buttonControls.add(emailBundle);
+		buttonControls.add(logButton);
 
 		JPanel userControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, Utils.MARGIN, Utils.MARGIN));
 		userControls.add(new JLabel(Translation.get("gb.filter")));
