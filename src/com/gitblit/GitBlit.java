@@ -75,6 +75,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
@@ -107,6 +108,7 @@ import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
 /**
@@ -569,6 +571,8 @@ public class GitBlit implements ServletContextListener {
 		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
 		if (model != null) {
 			// grab real user model and preserve certificate serial number
+			GitBlitWebSession session = GitBlitWebSession.get();
+			session.authenticationType = AuthenticationType.CERTIFICATE;
 			UserModel user = getUserModel(model.username);
 			logger.info(MessageFormat.format("{0} authenticated by client certificate from {1}",
 					user.username, httpRequest.getRemoteAddr()));
@@ -580,7 +584,11 @@ public class GitBlit implements ServletContextListener {
 		if (allowCookieAuthentication() && cookies != null && cookies.length > 0) {
 			// Grab cookie from Browser Session
 			UserModel user = authenticate(cookies);
-			return user;
+			if (user != null) {
+				GitBlitWebSession session = GitBlitWebSession.get();
+				session.authenticationType = AuthenticationType.COOKIE;
+				return user;
+			}
 		}
 		return null;
 	}

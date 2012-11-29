@@ -397,7 +397,15 @@ public class Constants {
 			return ordinal() > s.ordinal();
 		}
 	}
-	
+
+	public static enum AuthenticationType {
+		CREDENTIALS, COOKIE, CERTIFICATE;
+		
+		public boolean isStandard() {
+			return ordinal() <= COOKIE.ordinal();
+		}
+	}
+
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Unused {

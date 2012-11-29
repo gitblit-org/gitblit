@@ -29,6 +29,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
+import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.models.UserModel;
 
 public final class GitBlitWebSession extends WebSession {
@@ -45,9 +46,12 @@ public final class GitBlitWebSession extends WebSession {
 	
 	private AtomicBoolean isForking;
 	
+	public AuthenticationType authenticationType;
+	
 	public GitBlitWebSession(Request request) {
 		super(request);
 		isForking = new AtomicBoolean();
+		authenticationType = AuthenticationType.CREDENTIALS;
 	}
 
 	public void invalidate() {
