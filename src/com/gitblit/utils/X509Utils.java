@@ -183,6 +183,9 @@ public class X509Utils {
 		// displayname of user for README in bundle
 		public String userDisplayname;
 
+		// serialnumber of generated or read certificate
+		public String serialNumber;
+
 		public X509Metadata(String cn, String pwd) {
 			if (StringUtils.isEmpty(cn)) {
 				throw new RuntimeException("Common name required!");
@@ -562,6 +565,10 @@ public class X509Utils {
 			saveKeyStore(targetStoreFile, serverStore, sslMetadata.password);
 			
 	        x509log.log(MessageFormat.format("New SSL certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getSubjectDN().getName()));
+	        
+	        // update serial number in metadata object
+	        sslMetadata.serialNumber = cert.getSerialNumber().toString();
+
 			return cert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate SSL certificate!", t);
@@ -622,6 +629,9 @@ public class X509Utils {
 			saveKeyStore(storeFile, store, caMetadata.password);
 			
 			x509log.log(MessageFormat.format("New CA certificate {0,number,0} [{1}]", cert.getSerialNumber(), cert.getIssuerDN().getName()));
+
+	        // update serial number in metadata object
+	        caMetadata.serialNumber = cert.getSerialNumber().toString();
 
 			return cert;
 		} catch (Throwable t) {
@@ -852,6 +862,9 @@ public class X509Utils {
 	        // save certificate after successfully creating the key stores
 	        saveCertificate(userCert, certFile);
 	        
+	        // update serial number in metadata object
+	        clientMetadata.serialNumber = userCert.getSerialNumber().toString();
+	        
 	        return userCert;
 		} catch (Throwable t) {
 			throw new RuntimeException("Failed to generate client certificate!", t);
@@ -1064,5 +1077,31 @@ public class X509Utils {
 			}
 		}
 		return false;
+	}
+	
+	public static X509Metadata getMetadata(X509Certificate cert) {
+		// manually split DN into OID components
+		// this is instead of parsing with LdapName which:
+		// (1) I don't trust the order of values
+		// (2) it filters out values like EMAILADDRESS
+		String dn = cert.getSubjectDN().getName();
+		Map<String, String> oids = new HashMap<String, String>();
+		for (String kvp : dn.split(",")) {
+			String [] val = kvp.trim().split("=");
+			String oid = val[0].toUpperCase().trim();
+			String data = val[1].trim();
+			oids.put(oid, data);
+		}
+		
+		X509Metadata metadata = new X509Metadata(oids.get("CN"), "whocares");
+		metadata.oids.putAll(oids);
+		metadata.serialNumber = cert.getSerialNumber().toString();
+		metadata.notAfter = cert.getNotAfter();
+		metadata.notBefore = cert.getNotBefore();
+		metadata.emailAddress = metadata.getOID("E", null);
+		if (metadata.emailAddress == null) {
+			metadata.emailAddress = metadata.getOID("EMAILADDRESS", null);
+		}
+		return metadata;
 	}
 }

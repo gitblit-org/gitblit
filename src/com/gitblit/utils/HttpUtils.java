@@ -20,14 +20,13 @@ import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.X509Utils.X509Metadata;
 
 /**
  * Collection of utility methods for http requests.
@@ -145,21 +144,11 @@ public class HttpUtils {
 	 * @return
 	 */
 	public static UserModel getUserModelFromCertificate(X509Certificate cert, String... usernameOIDs) {
-		UserModel user = new UserModel(null);
-		user.isAuthenticated = false;
+		X509Metadata metadata = X509Utils.getMetadata(cert);
 		
-		// manually split DN into OID components
-		// this is instead of parsing with LdapName which:
-		// (1) I don't trust the order of values
-		// (2) it filters out values like EMAILADDRESS
-		String dn = cert.getSubjectDN().getName();
-		Map<String, String> oids = new HashMap<String, String>();
-		for (String kvp : dn.split(",")) {
-			String [] val = kvp.trim().split("=");
-			String oid = val[0].toUpperCase().trim();
-			String data = val[1].trim();
-			oids.put(oid, data);
-		}
+		UserModel user = new UserModel(metadata.commonName);
+		user.emailAddress = metadata.emailAddress;
+		user.isAuthenticated = false;
 		
 		if (usernameOIDs == null || usernameOIDs.length == 0) {
 			// use default usename<->CN mapping
@@ -169,24 +158,23 @@ public class HttpUtils {
 		// determine username from OID fingerprint
 		StringBuilder an = new StringBuilder();
 		for (String oid : usernameOIDs) {
-			String val = getOIDValue(oid.toUpperCase(), oids);
+			String val = metadata.getOID(oid.toUpperCase(), null);
 			if (val != null) {
 				an.append(val).append(' ');
 			}
 		}
-		user.username = an.toString().trim();
-		
-		// extract email address, if available
-		user.emailAddress = getOIDValue("E", oids);
-		if (user.emailAddress == null) {
-			user.emailAddress = getOIDValue("EMAILADDRESS", oids);
-		}		
+		user.username = an.toString().trim();		
 		return user;
 	}
 	
-	private static String getOIDValue(String oid, Map<String, String> oids) {
-		if (oids.containsKey(oid)) {
-			return oids.get(oid);
+	public static X509Metadata getCertificateMetadata(HttpServletRequest httpRequest) {
+		if (httpRequest.getAttribute("javax.servlet.request.X509Certificate") != null) {
+			X509Certificate[] certChain = (X509Certificate[]) httpRequest
+					.getAttribute("javax.servlet.request.X509Certificate");
+			if (certChain != null) {
+				X509Certificate cert = certChain[0];
+				return X509Utils.getMetadata(cert);
+			}
 		}
 		return null;
 	}

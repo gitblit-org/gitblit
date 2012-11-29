@@ -108,6 +108,7 @@ import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.utils.X509Utils.X509Metadata;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -571,12 +572,15 @@ public class GitBlit implements ServletContextListener {
 		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
 		if (model != null) {
 			// grab real user model and preserve certificate serial number
-			GitBlitWebSession session = GitBlitWebSession.get();
-			session.authenticationType = AuthenticationType.CERTIFICATE;
 			UserModel user = getUserModel(model.username);
-			logger.info(MessageFormat.format("{0} authenticated by client certificate from {1}",
-					user.username, httpRequest.getRemoteAddr()));
-			return user;
+			if (user != null) {
+				GitBlitWebSession session = GitBlitWebSession.get();
+				session.authenticationType = AuthenticationType.CERTIFICATE;
+				X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
+				logger.info(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
+						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
+				return user;
+			}
 		}
 		
 		// try to authenticate by cookie
