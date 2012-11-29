@@ -537,7 +537,7 @@ public class GitBlit implements ServletContextListener {
 	 * @param cookies
 	 * @return a user object or null
 	 */
-	public UserModel authenticate(Cookie[] cookies) {
+	protected UserModel authenticate(Cookie[] cookies) {
 		if (userService == null) {
 			return null;
 		}
@@ -555,20 +555,31 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Authenticate a user based on HTTP request paramters.
-	 * This method is inteded to be used as fallback when other
-	 * means of authentication are failing (username / password or cookies).
+	 * Authenticate a user based on HTTP request parameters.
+	 * 
+	 * Authentication by X509Certificate is tried first and then by cookie.
+	 * 
 	 * @param httpRequest
 	 * @return a user object or null
 	 */
 	public UserModel authenticate(HttpServletRequest httpRequest) {
+		// try to authenticate by certificate
 		boolean checkValidity = settings.getBoolean(Keys.git.enforceCertificateValidity, true);
 		String [] oids = getStrings(Keys.git.certificateUsernameOIDs).toArray(new String[0]);
 		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
 		if (model != null) {
-			UserModel user = GitBlit.self().getUserModel(model.username);
+			// grab real user model and preserve certificate serial number
+			UserModel user = getUserModel(model.username);
 			logger.info(MessageFormat.format("{0} authenticated by client certificate from {1}",
 					user.username, httpRequest.getRemoteAddr()));
+			return user;
+		}
+		
+		// try to authenticate by cookie
+		Cookie[] cookies = httpRequest.getCookies();
+		if (allowCookieAuthentication() && cookies != null && cookies.length > 0) {
+			// Grab cookie from Browser Session
+			UserModel user = authenticate(cookies);
 			return user;
 		}
 		return null;

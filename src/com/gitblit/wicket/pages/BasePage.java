@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
@@ -132,16 +131,8 @@ public abstract class BasePage extends WebPage {
 
 	private void login() {
 		// try to authenticate by servlet request
-		UserModel user = GitBlit.self().authenticate(((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest());
-
-		if (user == null) {
-			// try to authenticate by cookie
-			Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
-			if (GitBlit.self().allowCookieAuthentication() && cookies != null && cookies.length > 0) {
-				// Grab cookie from Browser Session
-				user = GitBlit.self().authenticate(cookies);
-			}
-		}
+		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
+		UserModel user = GitBlit.self().authenticate(httpRequest);
 
 		// Login the user
 		if (user != null) {
