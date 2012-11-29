@@ -131,7 +131,7 @@ public class LogPanel extends BasePanel {
 				LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
 						CommitPage.class, WicketUtils.newObjectParameter(
 								repositoryName, entry.getName()));
-				WicketUtils.setCssClass(commitHash, "sha1");
+				WicketUtils.setCssClass(commitHash, "shortsha1");
 				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 				item.add(commitHash);
 				

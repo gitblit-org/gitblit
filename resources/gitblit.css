@@ -984,9 +984,13 @@ td.date {
 	white-space: nowrap;
 }
 
-span.sha1, span.sha1 a, span.sha1 a span, .commit_message {
+span.sha1, span.sha1 a, span.sha1 a span, .commit_message, span.shortsha1 {
 	font-family: consolas, monospace;
 	font-size: 13px;
+}
+
+span.shortsha1 {
+	font-size: 12px;
 }
 
 td.mode {
