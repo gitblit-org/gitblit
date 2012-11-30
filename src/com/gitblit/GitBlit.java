@@ -58,6 +58,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
@@ -574,8 +575,12 @@ public class GitBlit implements ServletContextListener {
 			// grab real user model and preserve certificate serial number
 			UserModel user = getUserModel(model.username);
 			if (user != null) {
-				GitBlitWebSession session = GitBlitWebSession.get();
-				session.authenticationType = AuthenticationType.CERTIFICATE;
+				RequestCycle requestCycle = RequestCycle.get();
+				if (requestCycle != null) {
+					// flag the Wicket session, if this is a Wicket request
+					GitBlitWebSession session = GitBlitWebSession.get();
+					session.authenticationType = AuthenticationType.CERTIFICATE;
+				}
 				X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 				logger.info(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
@@ -589,8 +594,12 @@ public class GitBlit implements ServletContextListener {
 			// Grab cookie from Browser Session
 			UserModel user = authenticate(cookies);
 			if (user != null) {
-				GitBlitWebSession session = GitBlitWebSession.get();
-				session.authenticationType = AuthenticationType.COOKIE;
+				RequestCycle requestCycle = RequestCycle.get();
+				if (requestCycle != null) {
+					// flag the Wicket session, if this is a Wicket request
+					GitBlitWebSession session = GitBlitWebSession.get();
+					session.authenticationType = AuthenticationType.COOKIE;
+				}
 				logger.info(MessageFormat.format("{0} authenticated by cookie from {1}",
 						user.username, httpRequest.getRemoteAddr()));
 				return user;
