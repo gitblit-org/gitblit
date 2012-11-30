@@ -345,6 +345,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 
 		X509Metadata metadata = new X509Metadata("localhost", caKeystorePassword);
 		setMetadataDefaults(metadata);
+		metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
 		X509Utils.prepareX509Infrastructure(metadata, folder, this);
 		return true;
 	}
