@@ -106,6 +106,8 @@ public class Build {
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.IVY, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.JCALENDAR, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.COMMONS_COMPRESS, BuildType.RUNTIME);
+		downloadFromApache(MavenObject.XZ, BuildType.RUNTIME);
 
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
@@ -143,7 +145,9 @@ public class Build {
 		downloadFromApache(MavenObject.UNBOUND_ID, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.IVY, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.JCALENDAR, BuildType.COMPILETIME);
-		
+		downloadFromApache(MavenObject.COMMONS_COMPRESS, BuildType.COMPILETIME);
+		downloadFromApache(MavenObject.XZ, BuildType.COMPILETIME);
+
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
 
@@ -779,7 +783,19 @@ public class Build {
                 127000, 0, 0,
                 "323a672aeacb5f5f4461be3b7f7d9d3e4bda80d4",
 				null, "");
-		
+
+		public static final MavenObject COMMONS_COMPRESS = new MavenObject(
+                "commons-compress", "org/apache/commons", "commons-compress", "1.4.1",
+                242000, 265000, 0,
+                "b02e84a993d88568417536240e970c4b809126fd",
+				"277d39267403965a7a192474794a29bac6760a25", "");
+
+		public static final MavenObject XZ = new MavenObject(
+                "xz", "org/tukaani", "xz", "1.0",
+                95000, 120000, 0,
+                "ecff5cb8b1189514c9d1d8d68eb77ac372e000c9",
+				"f95e32a5d2dd8da643c4419814415b9704312993", "");
+
 		public final String name;
 		public final String group;
 		public final String artifact;

@@ -90,7 +90,8 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 - updated to Lucene 3.6.1
 - updated to BouncyCastle 1.47
 - added JCalendar 1.3.2
-
+- added Commons-Compress 1.4.1
+- added XZ for Java 1.0
 <hr/>
 
 ### Older Releases
