@@ -759,6 +759,17 @@ public class X509Utils {
 	        		zos.write(FileUtils.readContent(pemFile));
 	        		zos.closeEntry();
 	        	}
+	        	
+	        	// include user's public certificate
+	        	zos.putNextEntry(new ZipEntry(clientMetadata.commonName + ".cer"));
+        		zos.write(cert.getEncoded());
+        		zos.closeEntry();
+        		
+	        	// include CA public certificate
+	        	zos.putNextEntry(new ZipEntry("ca.cer"));
+        		zos.write(caCert.getEncoded());
+        		zos.closeEntry();
+        		
 	        	if (readme != null) {
 	        		zos.putNextEntry(new ZipEntry("README.TXT"));
 	        		zos.write(readme.getBytes("UTF-8"));
