@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -286,7 +287,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 1.2.0
 	 */
 	@Override
-	public boolean updateUserModels(List<UserModel> models) {
+	public boolean updateUserModels(Collection<UserModel> models) {
 		try {
 			read();
 			for (UserModel model : models) {
@@ -562,7 +563,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 1.2.0
 	 */
 	@Override
-	public boolean updateTeamModels(List<TeamModel> models) {
+	public boolean updateTeamModels(Collection<TeamModel> models) {
 		try {
 			read();
 			for (TeamModel team : models) {
@@ -804,7 +805,6 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Writes the properties file.
 	 * 
-	 * @param properties
 	 * @throws IOException
 	 */
 	private synchronized void write() throws IOException {

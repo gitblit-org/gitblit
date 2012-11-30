@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -40,8 +43,6 @@ import com.unboundid.ldap.sdk.SearchScope;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of an LDAP user service.
@@ -122,15 +123,17 @@ public class LdapUserService extends GitblitUserService {
                         }
                     }
 
-                    for (UserModel user : ldapUsers.values()) {
-                        // Push the ldap looked up values to backing file
-                        super.updateUserModel(user);
-                        if (!supportsTeamMembershipChanges()) {
-                            for (TeamModel userTeam : user.teams)
-                                updateTeamModel(userTeam);
-                        }
-                    }
+                    super.updateUserModels(ldapUsers.values());
 
+                    if (!supportsTeamMembershipChanges()) {
+                        final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
+                        for (UserModel user : ldapUsers.values()) {
+                            for (TeamModel userTeam : user.teams) {
+                                userTeams.put(userTeam.name, userTeam);
+                            }
+                        }
+                        updateTeamModels(userTeams.values());
+                    }
                 }
             } finally {
                 ldapConnection.close();

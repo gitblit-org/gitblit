@@ -15,6 +15,7 @@
  */
 package com.gitblit;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.gitblit.models.TeamModel;
@@ -133,7 +134,7 @@ public interface IUserService {
 	 * @return true if update is successful
 	 * @since 1.2.0
 	 */
-	boolean updateUserModels(List<UserModel> models);
+	boolean updateUserModels(Collection<UserModel> models);
 	
 	/**
 	 * Adds/updates a user object keyed by username. This method allows for
@@ -243,7 +244,7 @@ public interface IUserService {
 	 * @return true if update is successful
 	 * @since 1.2.0
 	 */	
-	boolean updateTeamModels(List<TeamModel> models);
+	boolean updateTeamModels(Collection<TeamModel> models);
 	
 	/**
 	 * Updates/writes and replaces a complete team object keyed by teamname.
