@@ -29,6 +29,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -45,6 +46,25 @@ public class DownloadZipServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
+	
+	public static enum Format {
+		zip(".zip"), tar(".tar"), gz(".tar.gz"), xz(".tar.xz"), bzip2(".tar.bzip2");
+		
+		public final String extension;
+		
+		Format(String ext) {
+			this.extension = ext;
+		}
+		
+		public static Format fromName(String name) {
+			for (Format format : values()) {
+				if (format.name().equalsIgnoreCase(name)) {
+					return format;
+				}
+			}
+			return zip;
+		}
+	}
 
 	public DownloadZipServlet() {
 		super();
@@ -57,15 +77,17 @@ public class DownloadZipServlet extends HttpServlet {
 	 * @param repository
 	 * @param objectId
 	 * @param path
+	 * @param format
 	 * @return an url
 	 */
-	public static String asLink(String baseURL, String repository, String objectId, String path) {
+	public static String asLink(String baseURL, String repository, String objectId, String path, Format format) {
 		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
 			baseURL = baseURL.substring(0, baseURL.length() - 1);
 		}
 		return baseURL + Constants.ZIP_PATH + "?r=" + repository
 				+ (path == null ? "" : ("&p=" + path))
-				+ (objectId == null ? "" : ("&h=" + objectId));
+				+ (objectId == null ? "" : ("&h=" + objectId))
+				+ (format == null ? "" : ("&format=" + format.name()));
 	}
 
 	/**
@@ -84,16 +106,22 @@ public class DownloadZipServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
-
+		
+		Format format = Format.zip;
 		String repository = request.getParameter("r");
 		String basePath = request.getParameter("p");
 		String objectId = request.getParameter("h");
-
+		String f = request.getParameter("format");
+		if (!StringUtils.isEmpty(f)) {
+			format = Format.fromName(f);
+		}
+		
 		try {
 			String name = repository;
 			if (name.indexOf('/') > -1) {
 				name = name.substring(name.lastIndexOf('/') + 1);
 			}
+			name = StringUtils.stripDotGit(name);
 
 			if (!StringUtils.isEmpty(basePath)) {
 				name += "-" + basePath.replace('/', '_');
@@ -122,15 +150,31 @@ public class DownloadZipServlet extends HttpServlet {
 
 			String contentType = "application/octet-stream";
 			response.setContentType(contentType + "; charset=" + response.getCharacterEncoding());
-			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + ".zip"
-					+ "\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + name + format.extension + "\"");
 			response.setDateHeader("Last-Modified", date.getTime());
 			response.setHeader("Cache-Control", "no-cache");
 			response.setHeader("Pragma", "no-cache");
 			response.setDateHeader("Expires", 0);
 
 			try {
-				JGitUtils.zip(r, basePath, objectId, response.getOutputStream());
+				switch (format) {
+				case zip:
+					CompressionUtils.zip(r, basePath, objectId, response.getOutputStream());
+					break;
+				case tar:
+					CompressionUtils.tar(r, basePath, objectId, response.getOutputStream());
+					break;
+				case gz:
+					CompressionUtils.gz(r, basePath, objectId, response.getOutputStream());
+					break;
+				case xz:
+					CompressionUtils.xz(r, basePath, objectId, response.getOutputStream());
+					break;
+				case bzip2:
+					CompressionUtils.bzip2(r, basePath, objectId, response.getOutputStream());
+					break;
+				}
+				
 				response.flushBuffer();
 			} catch (Throwable t) {
 				logger.error("Failed to write attachment to client", t);

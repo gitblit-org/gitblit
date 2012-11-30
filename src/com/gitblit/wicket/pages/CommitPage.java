@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -32,16 +31,15 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
-import com.gitblit.DownloadZipServlet;
 import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
-import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.CompressedDownloadsPanel;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -95,8 +93,8 @@ public class CommitPage extends RepositoryPage {
 				newCommitParameter()));
 		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(baseUrl, repositoryName,
-				objectId, null)).setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
+		
+		add(new CompressedDownloadsPanel("compressedLinks", baseUrl, repositoryName, objectId, null));
 
 		// Parent Commits
 		ListDataProvider<String> parentsDp = new ListDataProvider<String>(parents);

@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -30,15 +29,13 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.DownloadZipServlet;
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
+import com.gitblit.wicket.panels.CompressedDownloadsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
@@ -58,9 +55,8 @@ public class TreePage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, objectId, path)));
 		add(new BookmarkablePageLink<Void>("headLink", TreePage.class,
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, path)));
-		add(new ExternalLink("zipLink", DownloadZipServlet.asLink(getRequest()
-				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path))
-				.setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true)));
+		add(new CompressedDownloadsPanel("compressedLinks", getRequest()
+				.getRelativePathPrefixToContextRoot(), repositoryName, objectId, path));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -114,10 +110,10 @@ public class TreePage extends RepositoryPage {
 										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));
-						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(baseUrl,
-								repositoryName, objectId, entry.path)).setVisible(GitBlit
-								.getBoolean(Keys.web.allowZipDownloads, true)));
+										entry.path)));						
+						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
+								repositoryName, objectId, entry.path));
+
 						item.add(links);
 					} else if (entry.isSubmodule()) {
 						// submodule
@@ -143,9 +139,8 @@ public class TreePage extends RepositoryPage {
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(submodulePath, submoduleId,
 										"")).setEnabled(hasSubmodule));
-						links.add(new ExternalLink("zip", DownloadZipServlet.asLink(baseUrl,
-								submodulePath, submoduleId, "")).setVisible(GitBlit
-								.getBoolean(Keys.web.allowZipDownloads, true)).setEnabled(hasSubmodule));
+						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
+								submodulePath, submoduleId, "").setEnabled(hasSubmodule));
 						item.add(links);						
 					} else {
 						// blob link

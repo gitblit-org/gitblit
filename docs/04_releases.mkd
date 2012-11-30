@@ -60,6 +60,8 @@ This is extreme and should be considered carefully since it affects every https 
 - Added Gitblit Certificate Authority, an X509 certificate generation tool for Gitblit GO to encourage use of client certificate authentication.
 - Added setting to control length of shortened commit ids  
     **New:** *web.shortCommitIdLength=8*  
+- Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (issue 174)  
+    **New:** *web.compressedDownloads = zip gz*
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
 - Delete branch feature (issue 121, Github/ajermakovics)
@@ -70,6 +72,7 @@ This is extreme and should be considered carefully since it affects every https 
 
 #### changes
 
+- Access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate any Gitblit cookie found in the request before resorting to BASIC authentication.
 - Added *groovy* and *scala* to *web.prettyPrintExtensions*
 - Added short commit id column to log and history tables (issue 168)
 - Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
