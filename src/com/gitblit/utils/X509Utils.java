@@ -111,6 +111,12 @@ public class X509Utils {
 
 	private static final String BC = org.bouncycastle.jce.provider.BouncyCastleProvider.PROVIDER_NAME;
 	
+	private static final int KEY_LENGTH = 2048;
+	
+	private static final String KEY_ALGORITHM = "RSA";
+	
+	private static final String SIGNING_ALGORITHM = "SHA512withRSA";
+	
 	public static final boolean unlimitedStrength;
 	
 	private static final Logger logger = LoggerFactory.getLogger(X509Utils.class);
@@ -475,8 +481,8 @@ public class X509Utils {
 	 * @throws Exception
 	 */
 	private static KeyPair newKeyPair() throws Exception {
-		KeyPairGenerator kpGen = KeyPairGenerator.getInstance("RSA", BC);
-		kpGen.initialize(2048, new SecureRandom());
+		KeyPairGenerator kpGen = KeyPairGenerator.getInstance(KEY_ALGORITHM, BC);
+		kpGen.initialize(KEY_LENGTH, new SecureRandom());
 		return kpGen.generateKeyPair();
 	}
 	
@@ -550,7 +556,7 @@ public class X509Utils {
 			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
 			certBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
 
-			ContentSigner caSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption")
+			ContentSigner caSigner = new JcaContentSignerBuilder(SIGNING_ALGORITHM)
 					.setProvider(BC).build(caPrivateKey);
 			X509Certificate cert = new JcaX509CertificateConverter().setProvider(BC)
 					.getCertificate(certBuilder.build(caSigner));
@@ -589,7 +595,7 @@ public class X509Utils {
 		try {
 			KeyPair caPair = newKeyPair();
 			
-			ContentSigner caSigner = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(BC).build(caPair.getPrivate());
+			ContentSigner caSigner = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPair.getPrivate());
 			
 			// clone metadata
 			X509Metadata caMetadata = metadata.clone(CA_CN, metadata.password);
@@ -659,7 +665,7 @@ public class X509Utils {
 			X509v2CRLBuilder crlBuilder = new X509v2CRLBuilder(issuerDN, new Date());
 			
 			// build and sign CRL with CA private key
-			ContentSigner signer = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(BC).build(caPrivateKey);
+			ContentSigner signer = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPrivateKey);
 			X509CRLHolder crl = crlBuilder.build(signer);
 
 			File tmpFile = new File(caRevocationList.getParentFile(), Long.toHexString(System.currentTimeMillis()) + ".tmp");
@@ -809,7 +815,7 @@ public class X509Utils {
 				certBuilder.addExtension(X509Extension.subjectAlternativeName, false, subjectAltName);
 			}
 
-			ContentSigner signer = new JcaContentSignerBuilder("SHA1WithRSA").setProvider(BC).build(caPrivateKey);
+			ContentSigner signer = new JcaContentSignerBuilder(SIGNING_ALGORITHM).setProvider(BC).build(caPrivateKey);
 
 			X509Certificate userCert = new JcaX509CertificateConverter().setProvider(BC).getCertificate(certBuilder.build(signer));
 			PKCS12BagAttributeCarrier bagAttr = (PKCS12BagAttributeCarrier)pair.getPrivate();
