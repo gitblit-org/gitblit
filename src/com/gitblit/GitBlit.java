@@ -591,6 +591,8 @@ public class GitBlit implements ServletContextListener {
 			if (user != null) {
 				GitBlitWebSession session = GitBlitWebSession.get();
 				session.authenticationType = AuthenticationType.COOKIE;
+				logger.info(MessageFormat.format("{0} authenticated by cookie from {1}",
+						user.username, httpRequest.getRemoteAddr()));
 				return user;
 			}
 		}

@@ -130,14 +130,18 @@ public abstract class BasePage extends WebPage {
 	}	
 
 	private void login() {
+		GitBlitWebSession session = GitBlitWebSession.get();
+		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
+			// already have a session
+			return;
+		}
+		
 		// try to authenticate by servlet request
 		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
 		UserModel user = GitBlit.self().authenticate(httpRequest);
 
 		// Login the user
 		if (user != null) {
-			// Set the user into the session
-			GitBlitWebSession session = GitBlitWebSession.get();
 			// issue 62: fix session fixation vulnerability
 			session.replaceSession();
 			session.setUser(user);
