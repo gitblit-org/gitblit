@@ -496,6 +496,11 @@
 				<exclude name="com/gitblit/Launcher*.class" />
 			</fileset>
 		</copy>
+		<copy todir="${project.jar.dir}/static">
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
 
 		<!-- Build the JAR file -->
 		<jar basedir="${project.jar.dir}" destfile="${distribution.jarfile}" compress="true" />
