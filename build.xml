@@ -95,6 +95,7 @@
 		<property name="authority.zipfile" value="authority-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
 		<property name="express.zipfile" value="express-${gb.version}.zip" />
+		<property name="distribution.pomfileTmplt" value="tmplt.pom.xml" />
 	</target>
 	
 	
