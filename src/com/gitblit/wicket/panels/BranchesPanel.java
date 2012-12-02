@@ -36,8 +36,10 @@ import com.gitblit.GitBlit;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitPage;
@@ -58,9 +60,21 @@ public class BranchesPanel extends BasePanel {
 
 		// branches
 		List<RefModel> branches = new ArrayList<RefModel>();
-		branches.addAll(JGitUtils.getLocalBranches(r, false, maxCount));
+		UserModel user = GitBlitWebSession.get().getUser();
+
+		List<RefModel> localBranches = JGitUtils.getLocalBranches(r, false, maxCount);
+		for (RefModel refModel : localBranches) {
+			if (user.hasBranchPermission(model.name, refModel.reference.getName())) {
+				branches.add(refModel);
+			}
+		}
 		if (model.showRemoteBranches) {
-			branches.addAll(JGitUtils.getRemoteBranches(r, false, maxCount));
+			List<RefModel> remoteBranches = JGitUtils.getRemoteBranches(r, false, maxCount);
+			for (RefModel refModel : remoteBranches) {
+				if (user.hasBranchPermission(model.name, refModel.reference.getName())) {
+					branches.add(refModel);
+				}
+			}
 		}
 		Collections.sort(branches);
 		Collections.reverse(branches);
