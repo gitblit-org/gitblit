@@ -61,6 +61,9 @@ public class BranchesPanel extends BasePanel {
 		// branches
 		List<RefModel> branches = new ArrayList<RefModel>();
 		UserModel user = GitBlitWebSession.get().getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
 
 		List<RefModel> localBranches = JGitUtils.getLocalBranches(r, false, maxCount);
 		for (RefModel refModel : localBranches) {
