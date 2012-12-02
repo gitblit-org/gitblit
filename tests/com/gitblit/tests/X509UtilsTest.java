@@ -118,7 +118,12 @@ public class X509UtilsTest extends Assert {
 		File zip = X509Utils.newClientBundle(userMetadata, storeFile, caPassword, log);
 		assertTrue(zip.exists());
 		
-		List<String> expected = Arrays.asList(userMetadata.commonName + ".pem", userMetadata.commonName + ".p12", "README.TXT");
+		List<String> expected = Arrays.asList(
+				userMetadata.commonName + ".pem",
+				userMetadata.commonName + ".p12",
+				userMetadata.commonName + ".cer",
+				"ca.cer",
+				"README.TXT");
 		
 		ZipInputStream zis = new ZipInputStream(new FileInputStream(zip));
 		ZipEntry entry = null;
