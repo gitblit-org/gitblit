@@ -115,7 +115,7 @@ public abstract class RepositoryPage extends BasePage {
 				boolean canAccess = user.hasBranchPermission(repositoryName,
 								branch.reference.getName());
 				if (!canAccess) {
-					error(getString("gb.accessDeined"), true);
+					error(getString("gb.accessDenied"), true);
 				}
 			}
 		}
