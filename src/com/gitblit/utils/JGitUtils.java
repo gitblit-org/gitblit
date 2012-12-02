@@ -1528,7 +1528,7 @@ public class JGitUtils {
 		try {
 			// search for the branch in local heads
 			for (RefModel ref : JGitUtils.getLocalBranches(repository, false, -1)) {
-				if (ref.displayName.endsWith(name)) {
+				if (ref.reference.getName().endsWith(name)) {
 					branch = ref;
 					break;
 				}
@@ -1537,7 +1537,7 @@ public class JGitUtils {
 			// search for the branch in remote heads
 			if (branch == null) {
 				for (RefModel ref : JGitUtils.getRemoteBranches(repository, false, -1)) {
-					if (ref.displayName.endsWith(name)) {
+					if (ref.reference.getName().endsWith(name)) {
 						branch = ref;
 						break;
 					}
