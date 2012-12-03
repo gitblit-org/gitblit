@@ -46,11 +46,13 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -555,6 +557,16 @@ public class X509Utils {
 			certBuilder.addExtension(X509Extension.subjectKeyIdentifier, false, extUtils.createSubjectKeyIdentifier(pair.getPublic()));
 			certBuilder.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
 			certBuilder.addExtension(X509Extension.authorityKeyIdentifier, false, extUtils.createAuthorityKeyIdentifier(caCert.getPublicKey()));
+
+			// support alternateSubjectNames for SSL certificates
+			List<GeneralName> altNames = new ArrayList<GeneralName>();
+			if (HttpUtils.isIpAddress(sslMetadata.commonName)) {
+				altNames.add(new GeneralName(GeneralName.iPAddress, sslMetadata.commonName));				
+			}
+			if (altNames.size() > 0) {
+				GeneralNames subjectAltName = new GeneralNames(altNames.toArray(new GeneralName [altNames.size()]));
+				certBuilder.addExtension(X509Extension.subjectAlternativeName, false, subjectAltName);
+			}
 
 			ContentSigner caSigner = new JcaContentSignerBuilder(SIGNING_ALGORITHM)
 					.setProvider(BC).build(caPrivateKey);
