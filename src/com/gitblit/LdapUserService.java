@@ -23,6 +23,7 @@ import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +56,26 @@ public class LdapUserService extends GitblitUserService {
     public static final String LDAP_PASSWORD_KEY = "StoredInLDAP";
 
     private IStoredSettings settings;
+    private long lastLdapUserSyncTs = 0L;
+    private long ldapSyncCachePeriod;
 
 	public LdapUserService() {
 		super();
 	}
+
+    private void initializeLdapCaches() {
+        final String cacheDuration = settings.getString(Keys.realm.ldap.ldapCachePeriod, "2 MINUTES");
+        final long duration;
+        final TimeUnit timeUnit;
+        try {
+            final String[] s = cacheDuration.split(" ", 2);
+            duration = Long.parseLong(s[0]);
+            timeUnit = TimeUnit.valueOf(s[1]);
+            ldapSyncCachePeriod = timeUnit.toMillis(duration);
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException(Keys.realm.ldap.ldapCachePeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
+        }
+    }
 
 	@Override
 	public void setup(IStoredSettings settings) {
@@ -66,77 +83,81 @@ public class LdapUserService extends GitblitUserService {
 		String file = settings.getString(Keys.realm.ldap.backingUserService, "users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
 
+        initializeLdapCaches();
+        
 		serviceImpl = createUserService(realmFile);
 		logger.info("LDAP User Service backed by " + serviceImpl.toString());
 
         synchronizeLdapUsers();
     }
 
-    protected void synchronizeLdapUsers() {
+    protected synchronized void synchronizeLdapUsers() {
         final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
-        if (!enabled) {
-            return;
-        }
-        final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
-        LDAPConnection ldapConnection = getLdapConnection();
-        if (ldapConnection != null) {
-            try {
-                String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
-                String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
-                String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-                accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
+        if (enabled) {
+            if (lastLdapUserSyncTs + ldapSyncCachePeriod < System.currentTimeMillis()) {
+                final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
+                LDAPConnection ldapConnection = getLdapConnection();
+                if (ldapConnection != null) {
+                    try {
+                        String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+                        String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
+                        String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+                        accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
 
-                SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
-                if (result != null && result.getEntryCount() > 0) {
-                    final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
+                        SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+                        if (result != null && result.getEntryCount() > 0) {
+                            final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
 
-                    for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
+                            for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
 
-                        final String username = loggingInUser.getAttribute(uidAttribute).getValue();
-                        logger.debug("LDAP synchronizing: " + username);
+                                final String username = loggingInUser.getAttribute(uidAttribute).getValue();
+                                logger.debug("LDAP synchronizing: " + username);
 
-                        UserModel user = getUserModel(username);
-                        if (user == null) {
-                            user = new UserModel(username);
-                        }
+                                UserModel user = getUserModel(username);
+                                if (user == null) {
+                                    user = new UserModel(username);
+                                }
 
-                        if (!supportsTeamMembershipChanges())
-                            getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
+                                if (!supportsTeamMembershipChanges())
+                                    getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
 
-                        // Get User Attributes
-                        setUserAttributes(user, loggingInUser);
+                                // Get User Attributes
+                                setUserAttributes(user, loggingInUser);
 
-                        // store in map
-                        ldapUsers.put(username, user);
-                    }
+                                // store in map
+                                ldapUsers.put(username, user);
+                            }
 
-                    if (deleteRemovedLdapUsers) {
-                        logger.debug("detecting removed LDAP users...");
+                            if (deleteRemovedLdapUsers) {
+                                logger.debug("detecting removed LDAP users...");
 
-                        for (UserModel userModel : super.getAllUsers()) {
-                            if (LDAP_PASSWORD_KEY.equals(userModel.password)) {
-                                if (! ldapUsers.containsKey(userModel.username)) {
-                                    logger.info("deleting removed LDAP user " + userModel.username + " from backing user service");
-                                    super.deleteUser(userModel.username);
+                                for (UserModel userModel : super.getAllUsers()) {
+                                    if (LDAP_PASSWORD_KEY.equals(userModel.password)) {
+                                        if (! ldapUsers.containsKey(userModel.username)) {
+                                            logger.info("deleting removed LDAP user " + userModel.username + " from backing user service");
+                                            super.deleteUser(userModel.username);
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
 
-                    super.updateUserModels(ldapUsers.values());
+                            super.updateUserModels(ldapUsers.values());
 
-                    if (!supportsTeamMembershipChanges()) {
-                        final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
-                        for (UserModel user : ldapUsers.values()) {
-                            for (TeamModel userTeam : user.teams) {
-                                userTeams.put(userTeam.name, userTeam);
+                            if (!supportsTeamMembershipChanges()) {
+                                final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
+                                for (UserModel user : ldapUsers.values()) {
+                                    for (TeamModel userTeam : user.teams) {
+                                        userTeams.put(userTeam.name, userTeam);
+                                    }
+                                }
+                                updateTeamModels(userTeams.values());
                             }
                         }
-                        updateTeamModels(userTeams.values());
+                        lastLdapUserSyncTs = System.currentTimeMillis(); 
+                    } finally {
+                        ldapConnection.close();
                     }
                 }
-            } finally {
-                ldapConnection.close();
             }
         }
     }
