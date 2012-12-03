@@ -16,9 +16,7 @@
 package com.gitblit;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.security.Principal;
-import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.Base64;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -51,9 +48,7 @@ import com.gitblit.utils.StringUtils;
  */
 public abstract class AuthenticationFilter implements Filter {
 
-	protected static final String BASIC = "Basic";
-
-	protected static final String CHALLENGE = BASIC + " realm=\"" + Constants.NAME + "\"";
+	protected static final String CHALLENGE = "Basic realm=\"" + Constants.NAME + "\"";
 
 	protected static final String SESSION_SECURED = "com.gitblit.secured";
 
@@ -103,40 +98,8 @@ public abstract class AuthenticationFilter implements Filter {
 	 * @return user
 	 */
 	protected UserModel getUser(HttpServletRequest httpRequest) {
-		UserModel user = null;
-		// try request authentication
-		user = GitBlit.self().authenticate(httpRequest);
-		if (user != null) {
-			return user;
-		} else if (requiresClientCertificate()) {
-			// http request does not have a valid certificate
-			// and the filter requires one
-			return null;
-		}
-		
-		// look for client authorization credentials in header
-		final String authorization = httpRequest.getHeader("Authorization");
-		if (authorization != null && authorization.startsWith(BASIC)) {
-			// Authorization: Basic base64credentials
-			String base64Credentials = authorization.substring(BASIC.length()).trim();
-			String credentials = new String(Base64.decode(base64Credentials),
-					Charset.forName("UTF-8"));
-			// credentials = username:password
-			final String[] values = credentials.split(":",2);
-
-			if (values.length == 2) {
-				String username = values[0];
-				char[] password = values[1].toCharArray();
-				user = GitBlit.self().authenticate(username, password);
-				if (user != null) {
-					return user;
-				}
-			}
-			if (GitBlit.isDebugMode()) {
-				logger.info(MessageFormat.format("AUTH: invalid credentials ({0})", credentials));
-			}
-		}
-		return null;
+		UserModel user = GitBlit.self().authenticate(httpRequest, requiresClientCertificate());
+		return user;
 	}
 
 	/**

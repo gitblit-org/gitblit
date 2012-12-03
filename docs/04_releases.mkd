@@ -72,7 +72,7 @@ This is extreme and should be considered carefully since it affects every https 
 
 #### changes
 
-- Access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate any Gitblit cookie found in the request before resorting to BASIC authentication.
+- All access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate using X509 certificates, container principals, cookies, and BASIC headers, in that order.
 - Added *groovy* and *scala* to *web.prettyPrintExtensions*
 - Added short commit id column to log and history tables (issue 168)
 - Teams can now specify the *admin*, *create*, and *fork* roles to simplify user administration
@@ -83,15 +83,17 @@ This is extreme and should be considered carefully since it affects every https 
 - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (Github/jpyeron, issue 126)
 - LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.  
 If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.
+- Support servlet container authentication for existing UserModels (issue 68)
 
 #### dependency changes
 
-- updated to Jetty 7.6.7
+- updated to Jetty 7.6.8
 - updated to JGit 2.1.0.201209190230-r
 - updated to Groovy 1.8.8
 - updated to Wicket 1.4.21
 - updated to Lucene 3.6.1
 - updated to BouncyCastle 1.47
+- updated to MarkdownPapers 1.3.2
 - added JCalendar 1.3.2
 - added Commons-Compress 1.4.1
 - added XZ for Java 1.0

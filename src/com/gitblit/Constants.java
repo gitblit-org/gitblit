@@ -399,7 +399,7 @@ public class Constants {
 	}
 
 	public static enum AuthenticationType {
-		CREDENTIALS, COOKIE, CERTIFICATE;
+		CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
 		
 		public boolean isStandard() {
 			return ordinal() <= COOKIE.ordinal();
