@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
@@ -131,22 +130,18 @@ public abstract class BasePage extends WebPage {
 	}	
 
 	private void login() {
-		// try to authenticate by servlet request
-		UserModel user = GitBlit.self().authenticate(((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest());
-
-		if (user == null) {
-			// try to authenticate by cookie
-			Cookie[] cookies = ((WebRequest) getRequestCycle().getRequest()).getCookies();
-			if (GitBlit.self().allowCookieAuthentication() && cookies != null && cookies.length > 0) {
-				// Grab cookie from Browser Session
-				user = GitBlit.self().authenticate(cookies);
-			}
+		GitBlitWebSession session = GitBlitWebSession.get();
+		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
+			// already have a session
+			return;
 		}
+		
+		// try to authenticate by servlet request
+		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
+		UserModel user = GitBlit.self().authenticate(httpRequest);
 
 		// Login the user
 		if (user != null) {
-			// Set the user into the session
-			GitBlitWebSession session = GitBlitWebSession.get();
 			// issue 62: fix session fixation vulnerability
 			session.replaceSession();
 			session.setUser(user);
@@ -431,14 +426,19 @@ public abstract class BasePage extends WebPage {
 		public UserFragment(String id, String markupId, MarkupContainer markupProvider) {
 			super(id, markupId, markupProvider);
 
-			if (GitBlitWebSession.get().isLoggedIn()) {
-				// username, logout, and change password
-				add(new Label("username", GitBlitWebSession.get().getUser().getDisplayName() + ":"));
-				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
-						LogoutPage.class));
+			GitBlitWebSession session = GitBlitWebSession.get();
+			if (session.isLoggedIn()) {				
+				UserModel user = session.getUser();
 				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+				boolean standardLogin = session.authenticationType.isStandard();
+
+				// username, logout, and change password
+				add(new Label("username", user.getDisplayName() + ":"));
+				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
+						LogoutPage.class).setVisible(standardLogin));
+				
 				// quick and dirty hack for showing a separator
-				add(new Label("separator", "|").setVisible(editCredentials));
+				add(new Label("separator", "|").setVisible(standardLogin && editCredentials));
 				add(new BookmarkablePageLink<Void>("changePasswordLink", 
 						ChangePasswordPage.class).setVisible(editCredentials));
 			} else {

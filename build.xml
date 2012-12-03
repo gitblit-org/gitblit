@@ -95,6 +95,7 @@
 		<property name="authority.zipfile" value="authority-${gb.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${gb.version}.zip" />
 		<property name="express.zipfile" value="express-${gb.version}.zip" />
+		<property name="distribution.pomfileTmplt" value="tmplt.pom.xml" />
 	</target>
 	
 	
@@ -495,6 +496,11 @@
 				<exclude name="com/gitblit/Launcher*.class" />
 			</fileset>
 		</copy>
+		<copy todir="${project.jar.dir}/static">
+			<fileset dir="${project.resources.dir}">
+				<exclude name="thumbs.db" />
+			</fileset>
+		</copy>
 
 		<!-- Build the JAR file -->
 		<jar basedir="${project.jar.dir}" destfile="${distribution.jarfile}" compress="true" />
@@ -767,6 +773,7 @@
 			<resource file="${basedir}/resources/settings_32x32.png" />
 			<resource file="${basedir}/resources/search-icon.png" />
 			<resource file="${basedir}/resources/mail_16x16.png" />
+			<resource file="${basedir}/resources/script_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/resources/bullet_green.png" />
 			<resource file="${basedir}/resources/bullet_orange.png" />
