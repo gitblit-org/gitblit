@@ -144,25 +144,31 @@ public class TreePage extends RepositoryPage {
 						item.add(links);						
 					} else {
 						// blob link
+						String displayPath = entry.path;
+						String path = entry.path;
+						if (entry.isSymlink()) {
+							path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
+							displayPath = entry.path + " -> " + path;
+						}
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
-						item.add(new LinkPanel("pathName", "list", entry.name, BlobPage.class,
+						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));
+										path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));
+										path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-								.newPathParameter(repositoryName, entry.commitId, entry.path)));
+								.newPathParameter(repositoryName, entry.commitId, path)));
 						links.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));
+										path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));
+										path)));
 						item.add(links);
 					}
 				}
