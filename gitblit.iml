@@ -77,24 +77,24 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-webapp-7.6.7.v20120910.jar">
+      <library name="jetty-webapp-7.6.8.v20121106.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-7.6.7.v20120910.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-webapp-7.6.8.v20121106.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-7.6.7.v20120910-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-webapp-7.6.8.v20121106-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="jetty-ajp-7.6.7.v20120910.jar">
+      <library name="jetty-ajp-7.6.8.v20121106.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jetty-ajp-7.6.7.v20120910.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/jetty-ajp-7.6.8.v20121106.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jetty-ajp-7.6.7.v20120910-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/jetty-ajp-7.6.8.v20121106-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
