@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -270,12 +271,12 @@ public class FileUserService extends FileSettings implements IUserService {
 	/**
 	 * Updates/writes all specified user objects.
 	 * 
-	 * @param model a list of user models
+	 * @param models a list of user models
 	 * @return true if update is successful
 	 * @since 1.2.0
 	 */
 	@Override
-	public boolean updateUserModels(List<UserModel> models) {
+	public boolean updateUserModels(Collection<UserModel> models) {
 		try {			
 			Properties allUsers = read();
 			for (UserModel model : models) {
@@ -997,7 +998,7 @@ public class FileUserService extends FileSettings implements IUserService {
 	 * @return true if update is successful
 	 * @since 1.2.0
 	 */
-	public boolean updateTeamModels(List<TeamModel> models) {
+	public boolean updateTeamModels(Collection<TeamModel> models) {
 		try {
 			Properties allUsers = read();
 			for (TeamModel model : models) {

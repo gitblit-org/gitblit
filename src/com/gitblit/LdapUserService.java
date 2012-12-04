@@ -20,7 +20,10 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +47,35 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
 
 /**
  * Implementation of an LDAP user service.
- * 
+ *
  * @author John Crygier
  */
 public class LdapUserService extends GitblitUserService {
 
 	public static final Logger logger = LoggerFactory.getLogger(LdapUserService.class);
-	
-	private IStoredSettings settings;
+    public static final String LDAP_PASSWORD_KEY = "StoredInLDAP";
+
+    private IStoredSettings settings;
+    private long lastLdapUserSyncTs = 0L;
+    private long ldapSyncCachePeriod;
 
 	public LdapUserService() {
 		super();
 	}
+
+    private void initializeLdapCaches() {
+        final String cacheDuration = settings.getString(Keys.realm.ldap.ldapCachePeriod, "2 MINUTES");
+        final long duration;
+        final TimeUnit timeUnit;
+        try {
+            final String[] s = cacheDuration.split(" ", 2);
+            duration = Long.parseLong(s[0]);
+            timeUnit = TimeUnit.valueOf(s[1]);
+            ldapSyncCachePeriod = timeUnit.toMillis(duration);
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException(Keys.realm.ldap.ldapCachePeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
+        }
+    }
 
 	@Override
 	public void setup(IStoredSettings settings) {
@@ -63,28 +83,103 @@ public class LdapUserService extends GitblitUserService {
 		String file = settings.getString(Keys.realm.ldap.backingUserService, "users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
 
+        initializeLdapCaches();
+        
 		serviceImpl = createUserService(realmFile);
 		logger.info("LDAP User Service backed by " + serviceImpl.toString());
-	}
-	
-	private LDAPConnection getLdapConnection() {
-		try {
+
+        synchronizeLdapUsers();
+    }
+
+    protected synchronized void synchronizeLdapUsers() {
+        final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
+        if (enabled) {
+            if (lastLdapUserSyncTs + ldapSyncCachePeriod < System.currentTimeMillis()) {
+                final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
+                LDAPConnection ldapConnection = getLdapConnection();
+                if (ldapConnection != null) {
+                    try {
+                        String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+                        String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
+                        String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+                        accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
+
+                        SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+                        if (result != null && result.getEntryCount() > 0) {
+                            final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
+
+                            for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
+
+                                final String username = loggingInUser.getAttribute(uidAttribute).getValue();
+                                logger.debug("LDAP synchronizing: " + username);
+
+                                UserModel user = getUserModel(username);
+                                if (user == null) {
+                                    user = new UserModel(username);
+                                }
+
+                                if (!supportsTeamMembershipChanges())
+                                    getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
+
+                                // Get User Attributes
+                                setUserAttributes(user, loggingInUser);
+
+                                // store in map
+                                ldapUsers.put(username, user);
+                            }
+
+                            if (deleteRemovedLdapUsers) {
+                                logger.debug("detecting removed LDAP users...");
+
+                                for (UserModel userModel : super.getAllUsers()) {
+                                    if (LDAP_PASSWORD_KEY.equals(userModel.password)) {
+                                        if (! ldapUsers.containsKey(userModel.username)) {
+                                            logger.info("deleting removed LDAP user " + userModel.username + " from backing user service");
+                                            super.deleteUser(userModel.username);
+                                        }
+                                    }
+                                }
+                            }
+
+                            super.updateUserModels(ldapUsers.values());
+
+                            if (!supportsTeamMembershipChanges()) {
+                                final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
+                                for (UserModel user : ldapUsers.values()) {
+                                    for (TeamModel userTeam : user.teams) {
+                                        userTeams.put(userTeam.name, userTeam);
+                                    }
+                                }
+                                updateTeamModels(userTeams.values());
+                            }
+                        }
+                        lastLdapUserSyncTs = System.currentTimeMillis(); 
+                    } finally {
+                        ldapConnection.close();
+                    }
+                }
+            }
+        }
+    }
+
+    private LDAPConnection getLdapConnection() {
+        try {
 			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
 			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
 			int ldapPort = ldapUrl.getPort();
-			
-			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
+
+            if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 636;
-				
-				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager()); 
-				return new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+
+                SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+                return new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
 			} else {
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 389;
-				
-				LDAPConnection conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+
+                LDAPConnection conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
 
 				if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
 					SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
@@ -105,11 +200,11 @@ public class LdapUserService extends GitblitUserService {
 		} catch (LDAPException e) {
 			logger.error("Error Connecting to LDAP", e);
 		}
-		
-		return null;
+
+        return null;
 	}
-	
-	/**
+
+    /**
 	 * Credentials are defined in the LDAP server and can not be manipulated
 	 * from Gitblit.
 	 *
@@ -120,8 +215,8 @@ public class LdapUserService extends GitblitUserService {
 	public boolean supportsCredentialChanges() {
 		return false;
 	}
-	
-	/**
+
+    /**
 	 * If no displayName pattern is defined then Gitblit can manage the display name.
 	 *
 	 * @return true if Gitblit can manage the user display name
@@ -131,8 +226,8 @@ public class LdapUserService extends GitblitUserService {
 	public boolean supportsDisplayNameChanges() {
 		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.displayName, ""));
 	}
-	
-	/**
+
+    /**
 	 * If no email pattern is defined then Gitblit can manage the email address.
 	 *
 	 * @return true if Gitblit can manage the user email address
@@ -143,24 +238,24 @@ public class LdapUserService extends GitblitUserService {
 		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.email, ""));
 	}
 
-	
-	/**
+
+    /**
 	 * If the LDAP server will maintain team memberships then LdapUserService
 	 * will not allow team membership changes.  In this scenario all team
 	 * changes must be made on the LDAP server by the LDAP administrator.
-	 * 
-	 * @return true or false
+     *
+     * @return true or false
 	 * @since 1.0.0
-	 */	
-	public boolean supportsTeamMembershipChanges() {
+     */
+    public boolean supportsTeamMembershipChanges() {
 		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
 	}
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
 		String simpleUsername = getSimpleUsername(username);
-		
-		LDAPConnection ldapConnection = getLdapConnection();
+
+        LDAPConnection ldapConnection = getLdapConnection();
 		if (ldapConnection != null) {
 			try {
 				// Find the logging in user's DN
@@ -205,14 +300,14 @@ public class LdapUserService extends GitblitUserService {
 				ldapConnection.close();
 			}
 		}
-		return null;		
+		return null;
 	}
 
 	/**
 	 * Set the admin attribute from team memberships retrieved from LDAP.
 	 * If we are not storing teams in LDAP and/or we have not defined any
 	 * administrator teams, then do not change the admin flag.
-	 * 
+	 *
 	 * @param user
 	 */
 	private void setAdminAttribute(UserModel user) {
@@ -226,6 +321,7 @@ public class LdapUserService extends GitblitUserService {
 					if (admin.startsWith("@")) { // Team
 						if (user.getTeam(admin.substring(1)) != null)
 							user.canAdmin = true;
+                            logger.debug("user "+ user.username+" has administrative rights");
 					} else
 						if (user.getName().equalsIgnoreCase(admin))
 							user.canAdmin = true;
@@ -233,17 +329,17 @@ public class LdapUserService extends GitblitUserService {
 			}
 		}
 	}
-	
-	private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
+
+    private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
 		// Is this user an admin?
 		setAdminAttribute(user);
-		
-		// Don't want visibility into the real password, make up a dummy
-		user.password = "StoredInLDAP";
-		
-		// Get full name Attribute
-		String displayName = settings.getString(Keys.realm.ldap.displayName, "");		
-		if (!StringUtils.isEmpty(displayName)) {
+
+        // Don't want visibility into the real password, make up a dummy
+		user.password = LDAP_PASSWORD_KEY;
+
+        // Get full name Attribute
+        String displayName = settings.getString(Keys.realm.ldap.displayName, "");
+        if (!StringUtils.isEmpty(displayName)) {
 			// Replace embedded ${} with attributes
 			if (displayName.contains("${")) {
 				for (Attribute userAttribute : userEntry.getAttributes())
@@ -257,8 +353,8 @@ public class LdapUserService extends GitblitUserService {
 				}
 			}
 		}
-		
-		// Get email address Attribute
+
+        // Get email address Attribute
 		String email = settings.getString(Keys.realm.ldap.email, "");
 		if (!StringUtils.isEmpty(email)) {
 			if (email.contains("${")) {
@@ -277,52 +373,52 @@ public class LdapUserService extends GitblitUserService {
 
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
-		
-		user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
+
+        user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
-		
-		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
+
+        groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
-		
-		// Fill in attributes into groupMemberPattern
+
+        // Fill in attributes into groupMemberPattern
 		for (Attribute userAttribute : loggingInUser.getAttributes())
 			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
-		
-		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
+
+        SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
 			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
 				String teamName = teamEntry.getAttribute("cn").getValue();
-				
-				TeamModel teamModel = getTeamModel(teamName);
+
+                TeamModel teamModel = getTeamModel(teamName);
 				if (teamModel == null)
 					teamModel = createTeamFromLdap(teamEntry);
-					
-				user.teams.add(teamModel);
+
+                user.teams.add(teamModel);
 				teamModel.addUser(user.getName());
 			}
 		}
 	}
-	
-	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
+
+    private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
 		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
 		// potentially retrieve other attributes here in the future
-		
-		return answer;		
-	}
+
+        return answer;
+    }
 
 	private SearchResult doSearch(LDAPConnection ldapConnection, String base, String filter) {
 		try {
 			return ldapConnection.search(base, SearchScope.SUB, filter);
 		} catch (LDAPSearchException e) {
 			logger.error("Problem Searching LDAP", e);
-			
-			return null;
+
+            return null;
 		}
 	}
-	
-	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
+
+    private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
 		try {
 			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
 			ldapConnection.bind(userDn, password);
@@ -333,11 +429,23 @@ public class LdapUserService extends GitblitUserService {
 		}
 	}
 
-	
-	/**
+
+    @Override
+    public List<String> getAllUsernames() {
+        synchronizeLdapUsers();
+        return super.getAllUsernames();
+    }
+
+    @Override
+    public List<UserModel> getAllUsers() {
+        synchronizeLdapUsers();
+        return super.getAllUsers();
+    }
+
+    /**
 	 * Returns a simple username without any domain prefixes.
-	 * 
-	 * @param username
+     *
+     * @param username
 	 * @return a simple username
 	 */
 	protected String getSimpleUsername(String username) {
@@ -345,11 +453,11 @@ public class LdapUserService extends GitblitUserService {
 		if (lastSlash > -1) {
 			username = username.substring(lastSlash + 1);
 		}
-		
-		return username;
+
+        return username;
 	}
-	
-	// From: https://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
+
+    // From: https://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
 	public static final String escapeLDAPSearchFilter(String filter) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < filter.length(); i++) {
@@ -367,9 +475,9 @@ public class LdapUserService extends GitblitUserService {
 			case ')':
 				sb.append("\\29");
 				break;
-			case '\u0000': 
-				sb.append("\\00"); 
-				break;
+                case '\u0000':
+                    sb.append("\\00");
+                    break;
 			default:
 				sb.append(curChar);
 			}
