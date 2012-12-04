@@ -191,7 +191,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 	
 	protected boolean allowForkControls() {
-		return true;
+		return GitBlit.getBoolean(Keys.web.allowForking, true);
 	}
 
 	@Override
