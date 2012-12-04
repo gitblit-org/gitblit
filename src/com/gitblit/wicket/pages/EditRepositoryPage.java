@@ -379,7 +379,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("description"));
 		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
 				.setEnabled(GitBlitWebSession.get().canAdmin() && !repositoryModel.isPersonalRepository()));
-		form.add(new CheckBox("allowForks"));
+		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
 				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer());
 		form.add(accessRestriction);
