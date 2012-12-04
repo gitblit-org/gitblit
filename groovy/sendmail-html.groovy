@@ -370,16 +370,15 @@ class HtmlMailWriter {
         formatter.setDiffComparator(RawTextComparator.DEFAULT);
 
         def diffs
-        RevWalk rw = new RevWalk(repository);
+		RevWalk rw = new RevWalk(repository)
         if (commit.parentCount > 0) {
-			RevWalk rw = new RevWalk(repository);
-			RevCommit parent = rw.parseCommit(commit.parents[0].id);
-			rw.dispose();
+			RevCommit parent = rw.parseCommit(commit.parents[0].id)
             diffs = formatter.scan(parent.tree, commit.tree)
         } else {
             diffs = formatter.scan(new EmptyTreeIterator(),
                                    new CanonicalTreeParser(null, rw.objectReader, commit.tree))
         }
+		rw.dispose()
         // Write status table
         builder.table('class':"plain") {
             tbody() {
