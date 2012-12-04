@@ -27,6 +27,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.wicket.util.io.ByteArrayOutputStream;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.MutableObjectId;
@@ -256,7 +257,6 @@ public class CompressionUtils {
 			}
 			tw.setRecursive(true);
 			MutableObjectId id = new MutableObjectId();
-			ObjectReader reader = tw.getObjectReader();
 			long modified = commit.getAuthorIdent().getWhen().getTime();
 			while (tw.next()) {
 				FileMode mode = tw.getFileMode(0);
@@ -265,16 +265,24 @@ public class CompressionUtils {
 				}
 				tw.getObjectId(id, 0);
 				
-				TarArchiveEntry entry = new TarArchiveEntry(tw.getPathString());
-				entry.setSize(reader.getObjectSize(id, Constants.OBJ_BLOB));
-				
-				entry.setMode(mode.getBits());
-				entry.setModTime(modified);
-				tos.putArchiveEntry(entry);
-				
-				ObjectLoader ldr = repository.open(id);
-				ldr.copyTo(tos);					
-				tos.closeArchiveEntry();
+				ObjectLoader loader = repository.open(id);
+				if (FileMode.SYMLINK == mode) {
+					TarArchiveEntry entry = new TarArchiveEntry(tw.getPathString(),TarArchiveEntry.LF_SYMLINK);
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					loader.copyTo(bos);
+					entry.setLinkName(bos.toString());
+					entry.setModTime(modified);
+					tos.putArchiveEntry(entry);
+					tos.closeArchiveEntry();
+				} else {
+					TarArchiveEntry entry = new TarArchiveEntry(tw.getPathString());
+					entry.setMode(mode.getBits());
+					entry.setModTime(modified);
+					entry.setSize(loader.getSize());
+					tos.putArchiveEntry(entry);					
+					loader.copyTo(tos);
+					tos.closeArchiveEntry();
+				}
 			}
 			tos.finish();
 			tos.close();
