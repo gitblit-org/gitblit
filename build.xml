@@ -768,6 +768,7 @@
 			<resource file="${basedir}/resources/user_16x16.png" />
 			<resource file="${basedir}/resources/users_16x16.png" />
 			<resource file="${basedir}/resources/rosette_16x16.png" />
+			<resource file="${basedir}/resources/rosette_32x32.png" />
 			<resource file="${basedir}/resources/vcard_16x16.png" />
 			<resource file="${basedir}/resources/settings_16x16.png" />
 			<resource file="${basedir}/resources/settings_32x32.png" />
