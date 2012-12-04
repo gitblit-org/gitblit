@@ -171,7 +171,7 @@
 		Build Gitblit GO
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildGO" depends="compile" description="Build Gitblit GO distribution">
+	<target name="buildGO" depends="compile,buildAuthority" description="Build Gitblit GO distribution">
 		
 		<echo>Building Gitblit GO ${gb.version}</echo>
 
