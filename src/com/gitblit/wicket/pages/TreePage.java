@@ -144,11 +144,11 @@ public class TreePage extends RepositoryPage {
 						item.add(links);						
 					} else {
 						// blob link
-						String displayPath = entry.path;
+						String displayPath = entry.name;
 						String path = entry.path;
 						if (entry.isSymlink()) {
 							path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
-							displayPath = entry.path + " -> " + path;
+							displayPath = entry.name + " -> " + path;
 						}
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
