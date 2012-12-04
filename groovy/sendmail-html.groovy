@@ -372,7 +372,9 @@ class HtmlMailWriter {
         def diffs
         RevWalk rw = new RevWalk(repository);
         if (commit.parentCount > 0) {
-            RevCommit parent = commit.parents[0]
+			RevWalk rw = new RevWalk(repository);
+			RevCommit parent = rw.parseCommit(commit.parents[0].id);
+			rw.dispose();
             diffs = formatter.scan(parent.tree, commit.tree)
         } else {
             diffs = formatter.scan(new EmptyTreeIterator(),
