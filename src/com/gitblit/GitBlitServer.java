@@ -242,7 +242,7 @@ public class GitBlitServer {
 			});
 
 			if (serverKeyStore.exists()) {		        
-				Connector secureConnector = createSSLConnector(serverKeyStore, serverTrustStore, params.storePassword,
+				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
 						caRevocationList, params.useNIO, params.securePort, params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
@@ -413,6 +413,7 @@ public class GitBlitServer {
 	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
 	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
 	 * 
+	 * @param certAlias
 	 * @param keyStore
 	 * @param clientTrustStore
 	 * @param storePassword
@@ -422,7 +423,7 @@ public class GitBlitServer {
 	 * @param requireClientCertificates
 	 * @return an https connector
 	 */
-	private static Connector createSSLConnector(File keyStore, File clientTrustStore,
+	private static Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
 			String storePassword, File caRevocationList, boolean useNIO, int port, 
 			boolean requireClientCertificates) {
 		SslContextFactory sslContext = new SslContextFactory(SslContextFactory.DEFAULT_KEYSTORE_PATH);
@@ -466,6 +467,10 @@ public class GitBlitServer {
 		sslContext.setTrustStore(clientTrustStore.getAbsolutePath());
 		sslContext.setTrustStorePassword(storePassword);
 		sslContext.setCrlPath(caRevocationList.getAbsolutePath());
+		if (!StringUtils.isEmpty(certAlias)) {
+			logger.info("   certificate alias = " + certAlias);
+			sslContext.setCertAlias(certAlias);
+		}
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
 		return connector;
@@ -595,6 +600,9 @@ public class GitBlitServer {
 
 		@Parameter(names = "--ajpPort", description = "AJP port to serve.  (port <= 0 will disable this connector)")
 		public Integer ajpPort = FILESETTINGS.getInteger(Keys.server.ajpPort, 0);
+
+		@Parameter(names = "--alias", description = "Alias of SSL certificate in keystore for serving https.")
+		public String alias = FILESETTINGS.getString(Keys.server.certificateAlias, "");
 
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
 		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");

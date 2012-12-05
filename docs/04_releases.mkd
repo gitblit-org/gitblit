@@ -73,6 +73,7 @@ This is extreme and should be considered carefully since it affects every https 
 
 #### changes
 
+- Added server setting to specify keystore alias for ssl certificate (issue 98)
 - Added optional global and per-repository activity page commit contribution throttle to help tame *really* active repositories (issue 173)
 - Added support for symlinks in tree page and commit page (issue 171)
 - All access restricted servlets (e.g. DownloadZip, RSS, etc) will try to authenticate using X509 certificates, container principals, cookies, and BASIC headers, in that order.
