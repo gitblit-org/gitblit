@@ -124,6 +124,8 @@ public class EditRepositoryDialog extends JDialog {
 	private JComboBox gcPeriod;
 	
 	private JTextField gcThreshold;
+	
+	private JComboBox maxActivityCommits;
 
 	private RegistrantPermissionsPanel usersPalette;
 
@@ -225,6 +227,10 @@ public class EditRepositoryDialog extends JDialog {
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"),
 				anRepository.isFrozen);
 
+		maxActivityCommits = new JComboBox(new Integer [] { 0, 25, 50, 75, 100, 150, 250, 500 });
+		maxActivityCommits.setSelectedItem(anRepository.maxActivityCommits);
+
+
 		mailingListsField = new JTextField(
 				ArrayUtils.isEmpty(anRepository.mailingLists) ? ""
 						: StringUtils.flattenStrings(anRepository.mailingLists,
@@ -314,6 +320,8 @@ public class EditRepositoryDialog extends JDialog {
 						skipSizeCalculation));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.skipSummaryMetrics"),
 				skipSummaryMetrics));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.maxActivityCommits"),
+				maxActivityCommits));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.mailingLists"),
 				mailingListsField));
 
@@ -561,6 +569,7 @@ public class EditRepositoryDialog extends JDialog {
 		repository.showReadme = showReadme.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
+		repository.maxActivityCommits = (Integer) maxActivityCommits.getSelectedItem();
 		
 		repository.isFrozen = isFrozen.isSelected();
 		repository.allowForks = allowForks.isSelected();

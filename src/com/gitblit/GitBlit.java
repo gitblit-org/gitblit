@@ -1602,6 +1602,7 @@ public class GitBlit implements ServletContextListener {
 			} catch (Exception e) {
 				model.lastGC = new Date(0);
 			}
+			model.maxActivityCommits = getConfig(config, "maxActivityCommits", settings.getInteger(Keys.web.maxActivityCommits, 0));
 			model.origin = config.getString("remote", "origin", "url");
 			if (model.origin != null) {
 				model.origin = model.origin.replace('\\', '/');
@@ -2068,9 +2069,20 @@ public class GitBlit implements ServletContextListener {
 				repository.federationStrategy.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
 		config.setString(Constants.CONFIG_GITBLIT, null, "gcThreshold", repository.gcThreshold);
-		config.setInt(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		if (repository.gcPeriod == settings.getInteger(Keys.git.defaultGarbageCollectionPeriod, 7)) {
+			// use default from config
+			config.unset(Constants.CONFIG_GITBLIT, null, "gcPeriod");
+		} else {
+			config.setInt(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		}
 		if (repository.lastGC != null) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
+		}
+		if (repository.maxActivityCommits == settings.getInteger(Keys.web.maxActivityCommits, 0)) {
+			// use default from config
+			config.unset(Constants.CONFIG_GITBLIT, null, "maxActivityCommits");
+		} else {
+			config.setInt(Constants.CONFIG_GITBLIT, null, "maxActivityCommits", repository.maxActivityCommits);
 		}
 
 		updateList(config, "federationSets", repository.federationSets);

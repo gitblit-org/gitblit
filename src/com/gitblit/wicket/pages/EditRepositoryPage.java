@@ -414,6 +414,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
+		List<Integer> maxActivityCommits  = Arrays.asList(0, 25, 50, 75, 100, 150, 200, 250, 500 );
+		form.add(new DropDownChoice<Integer>("maxActivityCommits", maxActivityCommits, new MaxActivityCommitsRenderer()));
+
 		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
@@ -645,6 +648,28 @@ public class EditRepositoryPage extends RootSubPage {
 				return getString("gb.duration.oneDay");
 			} else {
 				return MessageFormat.format(getString("gb.duration.days"), value);
+			}
+		}
+
+		@Override
+		public String getIdValue(Integer value, int index) {
+			return Integer.toString(index);
+		}
+	}
+	
+	private class MaxActivityCommitsRenderer implements IChoiceRenderer<Integer> {
+
+		private static final long serialVersionUID = 1L;
+
+		public MaxActivityCommitsRenderer() {
+		}
+
+		@Override
+		public String getDisplayValue(Integer value) {
+			if (value == 0) {
+				return getString("gb.noMaximum");
+			} else {
+				return value + " " + getString("gb.commits");
 			}
 		}
 
