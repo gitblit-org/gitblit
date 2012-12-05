@@ -196,6 +196,7 @@ public class HttpUtils {
 					return false;
 				}
 			}
+			return true;
 		}
 		// TODO IPV6?
 		return false;
