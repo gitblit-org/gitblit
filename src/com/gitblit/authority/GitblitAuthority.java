@@ -607,7 +607,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				}
 				final Date expires = dialog.getExpiration();
 				final String hostname = dialog.getHostname();
-
+				final boolean serveCertificate = dialog.isServeCertificate();
+				
 				AuthorityWorker worker = new AuthorityWorker(GitblitAuthority.this) {
 
 					@Override
@@ -623,17 +624,31 @@ public class GitblitAuthority extends JFrame implements X509Log {
 						
 						// generate new SSL certificate
 						X509Metadata metadata = new X509Metadata(hostname, caKeystorePassword);
+						setMetadataDefaults(metadata);
 						metadata.notAfter = expires;
 						File serverKeystoreFile = new File(folder, X509Utils.SERVER_KEY_STORE);
 						X509Certificate cert = X509Utils.newSSLCertificate(metadata, caPrivateKey, caCert, serverKeystoreFile, GitblitAuthority.this);
-						return cert != null;
+						boolean hasCert = cert != null;
+						if (hasCert && serveCertificate) {
+							// update Gitblit https connector alias
+							Map<String, String> updates = new HashMap<String, String>();
+							updates.put(Keys.server.certificateAlias, metadata.commonName);
+							gitblitSettings.saveSettings(updates);
+						}
+						return hasCert;
 					}
 
 					@Override
 					protected void onSuccess() {
-						JOptionPane.showMessageDialog(GitblitAuthority.this, 
+						if (serveCertificate) {
+							JOptionPane.showMessageDialog(GitblitAuthority.this, 
+									MessageFormat.format(Translation.get("gb.sslCertificateGeneratedRestart"), hostname),
+									Translation.get("gb.newSSLCertificate"), JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(GitblitAuthority.this, 
 								MessageFormat.format(Translation.get("gb.sslCertificateGenerated"), hostname),
 								Translation.get("gb.newSSLCertificate"), JOptionPane.INFORMATION_MESSAGE);
+						}
 					}
 				};
 				
