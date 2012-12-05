@@ -90,7 +90,17 @@ public class EditUserDialog extends JDialog {
 	private JCheckBox canCreateCheckbox;
 
 	private JCheckBox notFederatedCheckbox;
+	
+	private JTextField organizationalUnitField;
+	
+	private JTextField organizationField;
 
+	private JTextField localityField;
+	
+	private JTextField stateProvinceField;
+	
+	private JTextField countryCodeField;
+	
 	private RegistrantPermissionsPanel repositoryPalette;
 
 	private JPalette<TeamModel> teamsPalette;
@@ -142,6 +152,12 @@ public class EditUserDialog extends JDialog {
 				Translation.get("gb.excludeFromFederationDescription"),
 				anUser.excludeFromFederation);
 		
+		organizationalUnitField = new JTextField(anUser.organizationalUnit == null ? "" : anUser.organizationalUnit, 25);
+		organizationField = new JTextField(anUser.organization == null ? "" : anUser.organization, 25);
+		localityField = new JTextField(anUser.locality == null ? "" : anUser.locality, 25);
+		stateProvinceField = new JTextField(anUser.stateProvince == null ? "" : anUser.stateProvince, 25);
+		countryCodeField = new JTextField(anUser.countryCode == null ? "" : anUser.countryCode, 15);
+		
 		// credentials are optionally controlled by 3rd-party authentication
 		usernameField.setEnabled(settings.supportsCredentialChanges);
 		passwordField.setEnabled(settings.supportsCredentialChanges);
@@ -149,6 +165,12 @@ public class EditUserDialog extends JDialog {
 
 		displayNameField.setEnabled(settings.supportsDisplayNameChanges);
 		emailAddressField.setEnabled(settings.supportsEmailAddressChanges);
+		
+		organizationalUnitField.setEnabled(settings.supportsDisplayNameChanges);
+		organizationField.setEnabled(settings.supportsDisplayNameChanges);
+		localityField.setEnabled(settings.supportsDisplayNameChanges);
+		stateProvinceField.setEnabled(settings.supportsDisplayNameChanges);
+		countryCodeField.setEnabled(settings.supportsDisplayNameChanges);
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
@@ -162,6 +184,13 @@ public class EditUserDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.excludeFromFederation"),
 				notFederatedCheckbox));
 
+		JPanel attributesPanel = new JPanel(new GridLayout(0, 1, 5, 2));
+		attributesPanel.add(newFieldPanel(Translation.get("gb.organizationalUnit") + " (OU)", organizationalUnitField));
+		attributesPanel.add(newFieldPanel(Translation.get("gb.organization") + " (O)", organizationField));
+		attributesPanel.add(newFieldPanel(Translation.get("gb.locality") + " (L)", localityField));
+		attributesPanel.add(newFieldPanel(Translation.get("gb.stateProvince") + " (ST)", stateProvinceField));
+		attributesPanel.add(newFieldPanel(Translation.get("gb.countryCode") + " (C)", countryCodeField));
+		
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		teamsPalette = new JPalette<TeamModel>();
@@ -169,6 +198,9 @@ public class EditUserDialog extends JDialog {
 
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
+
+		JPanel attributesPanelTop = new JPanel(new BorderLayout());
+		attributesPanelTop.add(attributesPanel, BorderLayout.NORTH);
 
 		JPanel repositoriesPanel = new JPanel(new BorderLayout()) {
 
@@ -192,6 +224,7 @@ public class EditUserDialog extends JDialog {
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
 		panel.addTab(Translation.get("gb.general"), fieldsPanelTop);
+		panel.addTab(Translation.get("gb.attributes"), attributesPanelTop);
 		if (protocolVersion > 1) {
 			panel.addTab(Translation.get("gb.teamMemberships"), teamsPanel);
 		}
@@ -324,6 +357,12 @@ public class EditUserDialog extends JDialog {
 		user.canCreate = canCreateCheckbox.isSelected();
 		user.excludeFromFederation = notFederatedCheckbox.isSelected();
 
+		user.organizationalUnit = organizationalUnitField.getText().trim();
+		user.organization = organizationField.getText().trim();
+		user.locality = localityField.getText().trim();
+		user.stateProvince = stateProvinceField.getText().trim();
+		user.countryCode = countryCodeField.getText().trim();
+		
 		for (RegistrantAccessPermission rp : repositoryPalette.getPermissions()) {
 			user.setRepositoryPermission(rp.registrant, rp.permission);
 		}
