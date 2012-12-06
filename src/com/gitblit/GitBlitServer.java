@@ -44,7 +44,6 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -426,53 +425,28 @@ public class GitBlitServer {
 	private static Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
 			String storePassword, File caRevocationList, boolean useNIO, int port, 
 			boolean requireClientCertificates) {
-		SslContextFactory sslContext = new SslContextFactory(SslContextFactory.DEFAULT_KEYSTORE_PATH);
+		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
+				keyStore, clientTrustStore, storePassword, caRevocationList);
 		SslConnector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SslSelectChannelConnector on port " + port);
-			SslSelectChannelConnector ssl = new SslSelectChannelConnector(sslContext);
+			SslSelectChannelConnector ssl = new SslSelectChannelConnector(factory);
 			ssl.setSoLingerTime(-1);
 			if (requireClientCertificates) {
-				sslContext.setNeedClientAuth(true);
+				factory.setNeedClientAuth(true);
 			} else {
-				sslContext.setWantClientAuth(true);
+				factory.setWantClientAuth(true);
 			}
 			ssl.setThreadPool(new QueuedThreadPool(20));
 			connector = ssl;
 		} else {
 			logger.info("Setting up NIO SslSocketConnector on port " + port);
-			SslSocketConnector ssl = new SslSocketConnector(sslContext);
+			SslSocketConnector ssl = new SslSocketConnector(factory);
 			connector = ssl;
-		}
-		// disable renegotiation unless this is a patched JVM
-		boolean allowRenegotiation = false;
-		String v = System.getProperty("java.version");
-		if (v.startsWith("1.7")) {
-			allowRenegotiation = true;
-		} else if (v.startsWith("1.6")) {
-			// 1.6.0_22 was first release with RFC-5746 implemented fix.
-			if (v.indexOf('_') > -1) {
-				String b = v.substring(v.indexOf('_') + 1);
-				if (Integer.parseInt(b) >= 22) {
-					allowRenegotiation = true;
-				}
-			}
-		}
-		if (allowRenegotiation) {
-			logger.info("   allowing SSL renegotiation on Java " + v);
-			sslContext.setAllowRenegotiate(allowRenegotiation);
-		}
-		sslContext.setKeyStorePath(keyStore.getAbsolutePath());
-		sslContext.setKeyStorePassword(storePassword);
-		sslContext.setTrustStore(clientTrustStore.getAbsolutePath());
-		sslContext.setTrustStorePassword(storePassword);
-		sslContext.setCrlPath(caRevocationList.getAbsolutePath());
-		if (!StringUtils.isEmpty(certAlias)) {
-			logger.info("   certificate alias = " + certAlias);
-			sslContext.setCertAlias(certAlias);
 		}
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
+
 		return connector;
 	}
 	
