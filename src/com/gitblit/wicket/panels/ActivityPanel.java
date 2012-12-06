@@ -132,9 +132,7 @@ public class ActivityPanel extends BasePanel {
 						commitItem.add(new RefsPanel("commitRefs", commit.repository, commit
 								.getRefs()));
 
-						// view, diff, tree links
-						commitItem.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
-								WicketUtils.newObjectParameter(commit.repository, commit.getName())));
+						// diff, tree links
 						commitItem.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
 								WicketUtils.newObjectParameter(commit.repository, commit.getName()))
 								.setEnabled(commit.getParentCount() > 0));
