@@ -27,7 +27,7 @@ The permissions model has changed in this release.
 
 #### additions
 
-- Implemented discrete repository permissions (issue 36)
+- Implemented discrete repository permissions (issue 36)  
     - V (view in web ui, RSS feeds, download zip)
     - R (clone)
     - RW (clone and push)
@@ -35,33 +35,34 @@ The permissions model has changed in this release.
     - RWD (clone and push with ref creation, deletion)
     - RW+ (clone and push with ref creation, deletion, rewind)
 While not as sophisticated as Gitolite, this does give finer access controls.  These permissions fit in cleanly with the existing users.conf and users.properties files.  In Gitblit <= 1.1.0, all your existing user accounts have RW+ access.   If you are upgrading to 1.2.0, the RW+ access is *preserved* and you will have to lower/adjust accordingly.
-- Implemented *case-insensitive* regex repository permission matching (issue 36)
+- Implemented *case-insensitive* regex repository permission matching (issue 36)  
 This allows you to specify a permission like `RW:mygroup/.*` to grant push privileges to all repositories within the *mygroup* project/folder.
 - Added DELETE, CREATE, and NON-FAST-FORWARD ref change logging
 - Added support for personal repositories.
 Personal repositories can be created by accounts with the *create* permission and are stored in *git.repositoriesFolder/~username*.  Each user with personal repositories will have a user page, something like the GitHub profile page.  Personal repositories have all the same features as common repositories, except personal repositories can be renamed by their owner.
-- Added support for server-side forking of a repository to a personal repository (issue 137)
-In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required <u>however</u> it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.
-- Added optional *create-on-push* support
+- Added support for server-side forking of a repository to a personal repository (issue 137)  
+In order to fork a repository, the user account must have the *fork* permission **and** the repository must *allow forks*.  The clone inherits the access list of its origin.  i.e. if Team A has clone access to the origin repository, then by default Team A also has clone access to the fork.  This is to facilitate collaboration.  The fork owner may change access to the fork and add/remove users/teams, etc as required <u>however</u> it should be noted that all personal forks will be enumerated in the fork network regardless of access view restrictions.  If you really must have an invisible fork, the clone it locally, create a new repository for your invisible fork, and push it back to Gitblit.  
+    **New:** *web.allowForking=true*
+- Added optional *create-on-push* support  
     **New:** *git.allowCreateOnPush=true*
-- Added **experimental** JGit-based garbage collection service.  This service is disabled by default.
-    **New:** *git.allowGarbageCollection=false*
-    **New:** *git.garbageCollectionHour = 0*
-    **New:** *git.defaultGarbageCollectionThreshold = 500k*
+- Added **experimental** JGit-based garbage collection service.  This service is disabled by default.  
+    **New:** *git.allowGarbageCollection=false*  
+    **New:** *git.garbageCollectionHour = 0*  
+    **New:** *git.defaultGarbageCollectionThreshold = 500k*  
     **New:** *git.defaultGarbageCollectionPeriod = 7 days*
-- Added support for X509 client certificate authentication (github/kevinanderson1).  (issue 106)
-You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.
-    **New:** *git.requireClientCertificates = false*
-    **New:** *git.enforceCertificateValidity = true*
+- Added support for X509 client certificate authentication (github/kevinanderson1).  (issue 106)  
+You can require all git servlet access be authenticated by a client certificate.  You may also specify the OID fingerprint to use for mapping a certificate to a username.  It should be noted that the user account MUST already exist in Gitblit for this authentication mechanism to work; this mechanism can not be used to automatically create user accounts from a certificate.  
+    **New:** *git.requireClientCertificates = false*  
+    **New:** *git.enforceCertificateValidity = true*  
     **New:** *git.certificateUsernameOIDs = CN*
 - Revised clean install certificate generation to create a Gitblit GO Certificate Authority certificate; an SSL certificate signed by the CA certificate; and to create distinct server key and server trust stores.  <u>The store files have been renamed!</u>
 - Added support for Gitblit GO to require usage of client certificates to access the entire server.
-This is extreme and should be considered carefully since it affects every https access.  The default is to **want** client certificates.  Setting this value to *true* changes that to **need** client certificates.
+This is extreme and should be considered carefully since it affects every https access.  The default is to **want** client certificates.  Setting this value to *true* changes that to **need** client certificates.  
     **New:** *server.requireClientCertificates = false*
-- Added Gitblit Certificate Authority, an X509 certificate generation tool for Gitblit GO to encourage use of client certificate authentication.
-- Added setting to control length of shortened commit ids
+- Added **Gitblit Certificate Authority**, an x509 PKI management tool for Gitblit GO to encourage use of x509 client certificate authentication.
+- Added setting to control length of shortened commit ids  
     **New:** *web.shortCommitIdLength=8*
-- Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (issue 174)
+- Added alternate compressed download formats: tar.gz, tar.xz, tar.bzip2 (issue 174)  
     **New:** *web.compressedDownloads = zip gz*
 - Added simple project pages.  A project is a subfolder off the *git.repositoriesFolder*.
 - Added support for X-Forwarded-Context for Apache subdomain proxy configurations (issue 135)
@@ -85,7 +86,7 @@ This is extreme and should be considered carefully since it affects every https 
 - Expose ReceivePack to Groovy push hooks (issue 125)
 - Redirect to summary page when refreshing the empty repository page on a repository that is not empty (issue 129)
 - Emit a warning in the log file if running on a Tomcat-based servlet container which is unfriendly to %2F forward-slash url encoding AND Gitblit is configured to mount parameters with %2F forward-slash url encoding (Github/jpyeron, issue 126)
-- LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.
+- LDAP admin attribute setting is now consistent with LDAP teams setting and admin teams list.  
 If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, then User.canAdmin() is controlled by LDAP administrative team membership.  Otherwise, User.canAdmin() is controlled by Gitblit.
 - Support servlet container authentication for existing UserModels (issue 68)
 

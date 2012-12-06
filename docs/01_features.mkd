@@ -17,7 +17,7 @@
 - Optional feature to allow users to create personal repositories
 - Optional feature to fork a repository to a personal repository
 - Optional feature to create a repository on push
-- Experimental built-in Garbage Collection
+- *Experimental* built-in Garbage Collection
 - Ability to federate with one or more other Gitblit instances
 - RSS/JSON RPC interface
 - Java/Swing Gitblit Manager tool 
@@ -59,8 +59,8 @@
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration
-- Automatically generates a self-signed certificate for *localhost* https communications  
-    (includes script to generate a self-signed certificate for *your hostname*, see [setup](/setup.html) for details)
+- Automatic generation of ssl certificate for https communications
+- Integrated GUI tool to facilitate x509 PKI including ssl and client certificate generation, client certificate revocation, and client certificate distribution
 - Single text file for configuring server and gitblit
 - A Windows service installation script and configuration tool
 - Built-in AJP connector for Apache httpd 
