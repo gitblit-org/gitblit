@@ -78,6 +78,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean verifyCommitter;
 	public String gcThreshold;
 	public int gcPeriod;
+	public int maxActivityCommits;
 	
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;

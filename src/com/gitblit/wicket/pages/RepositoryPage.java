@@ -154,7 +154,9 @@ public abstract class RepositoryPage extends BasePage {
 		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
 		pages.put("tags", new PageRegistration("gb.tags", TagsPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
-		pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+		if (GitBlit.getBoolean(Keys.web.allowForking, true)) {
+			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+		}
 
 		// conditional links
 		Repository r = getRepository();
@@ -191,7 +193,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 	
 	protected boolean allowForkControls() {
-		return true;
+		return GitBlit.getBoolean(Keys.web.allowForking, true);
 	}
 
 	@Override

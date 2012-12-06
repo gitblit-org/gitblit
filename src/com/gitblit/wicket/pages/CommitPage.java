@@ -169,9 +169,15 @@ public class CommitPage extends RepositoryPage {
 							WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
 				} else {
 					// blob
-					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
+					String displayPath = entry.path;
+					String path = entry.path;
+					if (entry.isSymlink()) {
+						path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
+						displayPath = entry.path + " -> " + path;
+					}
+					item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
 							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+									.newPathParameter(repositoryName, entry.commitId, path)));
 				}
 				
 				// quick links

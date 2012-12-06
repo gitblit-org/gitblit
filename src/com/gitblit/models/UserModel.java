@@ -589,7 +589,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	
 	public boolean hasBranchPermission(String repositoryName, String branch) {
 		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
-		return hasRepositoryPermission(repositoryName);
+		return hasRepositoryPermission(repositoryName) || hasTeamRepositoryPermission(repositoryName);
 	}
 	
 	public boolean isMyPersonalRepository(String repository) {

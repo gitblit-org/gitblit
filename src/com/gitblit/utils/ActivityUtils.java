@@ -106,7 +106,11 @@ public class ActivityUtils {
 					}
 					List<RevCommit> commits = JGitUtils.getRevLog(repository,
 							branch, thresholdDate);
-					for (RevCommit commit : commits) {
+					if (model.maxActivityCommits > 0 && commits.size() > model.maxActivityCommits) {
+						// trim commits to maximum count
+						commits = commits.subList(0,  model.maxActivityCommits);
+					}
+					for (RevCommit commit : commits) {						
 						Date date = JGitUtils.getCommitDate(commit);
 						String dateStr = df.format(date);
 						if (!activity.containsKey(dateStr)) {

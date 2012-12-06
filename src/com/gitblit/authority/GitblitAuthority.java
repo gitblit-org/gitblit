@@ -21,6 +21,7 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -69,6 +70,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -565,15 +567,26 @@ public class GitblitAuthority extends JFrame implements X509Log {
 					}
 				};
 
-				JTextField durationTF = new JTextField(4);
-				durationTF.setInputVerifier(verifier);
-				durationTF.setVerifyInputWhenFocusTarget(true);
-				durationTF.setText("" + certificateConfig.duration);
-				JPanel durationPanel = Utils.newFieldPanel(Translation.get("gb.duration"), durationTF, Translation.get("gb.duration.days").replace("{0}",  "").trim());
+				JTextField siteNameTF = new JTextField(20);
+				siteNameTF.setText(gitblitSettings.getString(Keys.web.siteName, "Gitblit"));
+				JPanel siteNamePanel = Utils.newFieldPanel(Translation.get("gb.siteName"),
+						siteNameTF, Translation.get("gb.siteNameDescription"));
+
+				JTextField validityTF = new JTextField(4);
+				validityTF.setInputVerifier(verifier);
+				validityTF.setVerifyInputWhenFocusTarget(true);
+				validityTF.setText("" + certificateConfig.duration);
+				JPanel validityPanel = Utils.newFieldPanel(Translation.get("gb.validity"),
+						validityTF, Translation.get("gb.duration.days").replace("{0}",  "").trim());
+				
+				JPanel p1 = new JPanel(new GridLayout(0, 1, 5, 2));
+				p1.add(siteNamePanel);
+				p1.add(validityPanel);
+				
 				DefaultOidsPanel oids = new DefaultOidsPanel(metadata);
 
 				JPanel panel = new JPanel(new BorderLayout());
-				panel.add(durationPanel, BorderLayout.NORTH);
+				panel.add(p1, BorderLayout.NORTH);
 				panel.add(oids, BorderLayout.CENTER);
 
 				int result = JOptionPane.showConfirmDialog(GitblitAuthority.this, 
@@ -582,9 +595,13 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				if (result == JOptionPane.OK_OPTION) {
 					try {
 						oids.update(metadata);
-						certificateConfig.duration = Integer.parseInt(durationTF.getText());
+						certificateConfig.duration = Integer.parseInt(validityTF.getText());
 						certificateConfig.store(config, metadata);
 						config.save();
+						
+						Map<String, String> updates = new HashMap<String, String>();
+						updates.put(Keys.web.siteName, siteNameTF.getText());
+						gitblitSettings.saveSettings(updates);
 					} catch (Exception e1) {
 						Utils.showException(GitblitAuthority.this, e1);
 					}
@@ -607,7 +624,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				}
 				final Date expires = dialog.getExpiration();
 				final String hostname = dialog.getHostname();
-
+				final boolean serveCertificate = dialog.isServeCertificate();
+				
 				AuthorityWorker worker = new AuthorityWorker(GitblitAuthority.this) {
 
 					@Override
@@ -623,17 +641,31 @@ public class GitblitAuthority extends JFrame implements X509Log {
 						
 						// generate new SSL certificate
 						X509Metadata metadata = new X509Metadata(hostname, caKeystorePassword);
+						setMetadataDefaults(metadata);
 						metadata.notAfter = expires;
 						File serverKeystoreFile = new File(folder, X509Utils.SERVER_KEY_STORE);
 						X509Certificate cert = X509Utils.newSSLCertificate(metadata, caPrivateKey, caCert, serverKeystoreFile, GitblitAuthority.this);
-						return cert != null;
+						boolean hasCert = cert != null;
+						if (hasCert && serveCertificate) {
+							// update Gitblit https connector alias
+							Map<String, String> updates = new HashMap<String, String>();
+							updates.put(Keys.server.certificateAlias, metadata.commonName);
+							gitblitSettings.saveSettings(updates);
+						}
+						return hasCert;
 					}
 
 					@Override
 					protected void onSuccess() {
-						JOptionPane.showMessageDialog(GitblitAuthority.this, 
+						if (serveCertificate) {
+							JOptionPane.showMessageDialog(GitblitAuthority.this, 
+									MessageFormat.format(Translation.get("gb.sslCertificateGeneratedRestart"), hostname),
+									Translation.get("gb.newSSLCertificate"), JOptionPane.INFORMATION_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(GitblitAuthority.this, 
 								MessageFormat.format(Translation.get("gb.sslCertificateGenerated"), hostname),
 								Translation.get("gb.newSSLCertificate"), JOptionPane.INFORMATION_MESSAGE);
+						}
 					}
 				};
 				
@@ -713,7 +745,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 		});
 		
-		JPanel buttonControls = new JPanel(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, Utils.MARGIN));
+		JToolBar buttonControls = new JToolBar(JToolBar.HORIZONTAL);
+		buttonControls.setFloatable(false);
 		buttonControls.add(certificateDefaultsButton);
 		buttonControls.add(newSSLCertificate);
 		buttonControls.add(emailBundle);

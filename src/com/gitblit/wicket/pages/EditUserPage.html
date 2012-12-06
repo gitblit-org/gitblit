@@ -13,6 +13,7 @@
 	<!-- tab titles -->
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#general" data-toggle="tab"><wicket:message key="gb.general"></wicket:message></a></li>
+		<li><a href="#attributes" data-toggle="tab"><wicket:message key="gb.attributes"></wicket:message></a></li>
 		<li><a href="#permissions" data-toggle="tab"><wicket:message key="gb.accessPermissions"></wicket:message></a></li>
 	</ul>
 
@@ -32,6 +33,19 @@
 				<tr><th><wicket:message key="gb.canCreate"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canCreate" tabindex="7" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canCreateDescription"></wicket:message></span></label></td></tr>				
 				<tr><th><wicket:message key="gb.canFork"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="canFork" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.canForkDescription"></wicket:message></span></label></td></tr>				
 				<tr><th><wicket:message key="gb.excludeFromFederation"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="excludeFromFederation" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.excludeFromFederationDescription"></wicket:message></span></label></td></tr>				
+			</tbody>
+		</table>
+		</div>
+		
+		<!-- attributes tab -->
+		<div class="tab-pane" id="attributes">
+		<table class="plain">
+			<tbody class="settings">
+				<tr><th><wicket:message key="gb.organizationalUnit"></wicket:message> (OU)</th><td class="edit"><input type="text" wicket:id="organizationalUnit" size="30" tabindex="1" /></td></tr>
+				<tr><th><wicket:message key="gb.organization"></wicket:message> (O)</th><td class="edit"><input type="text" wicket:id="organization" size="30" tabindex="2" /></td></tr>
+				<tr><th><wicket:message key="gb.locality"></wicket:message> (L)</th><td class="edit"><input type="text" wicket:id="locality" size="30" tabindex="3" /></td></tr>
+				<tr><th><wicket:message key="gb.stateProvince"></wicket:message> (ST)</th><td class="edit"><input type="text" wicket:id="stateProvince" size="30" tabindex="4" /></td></tr>
+				<tr><th><wicket:message key="gb.countryCode"></wicket:message> (C)</th><td class="edit"><input type="text" wicket:id="countryCode" size="15	" tabindex="5" /></td></tr>
 			</tbody>
 		</table>
 		</div>

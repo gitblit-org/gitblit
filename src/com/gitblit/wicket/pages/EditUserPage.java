@@ -233,12 +233,17 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork"));
+		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 
+		form.add(new TextField<String>("organizationalUnit").setEnabled(editDisplayName));
+		form.add(new TextField<String>("organization").setEnabled(editDisplayName));
+		form.add(new TextField<String>("locality").setEnabled(editDisplayName));
+		form.add(new TextField<String>("stateProvince").setEnabled(editDisplayName));
+		form.add(new TextField<String>("countryCode").setEnabled(editDisplayName));
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;

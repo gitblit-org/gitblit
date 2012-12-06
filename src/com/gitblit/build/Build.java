@@ -565,17 +565,17 @@ public class Build {
 				"c7adc475ca40c288c93054e0f4fe58f3a98c0cb5");
 
 		public static final MavenObject JETTY = new MavenObject(
-                "Jetty", "org/eclipse/jetty/aggregate", "jetty-webapp", "7.6.7.v20120910",
+                "Jetty", "org/eclipse/jetty/aggregate", "jetty-webapp", "7.6.8.v20121106",
                 1000000, 680000, 2720000,
-                "d621fa6419aaa37edbcab8e16a5e6b05c9527e62",
-				"b505f7b493c5aa262d371d90754bded8b392ffb0",
+                "6333969b4d509c4b681e05302ca7ebccb9c3efb5",
+				"354f2752ed6544296bc0fc92e533d68a5b03045b",
 				"");
 
 		public static final MavenObject JETTY_AJP = new MavenObject(
-                "Jetty-AJP", "org/eclipse/jetty", "jetty-ajp", "7.6.7.v20120910",
+                "Jetty-AJP", "org/eclipse/jetty", "jetty-ajp", "7.6.8.v20121106",
                 32000, 22000, 97000,
-                "578d502bc78ed7aa1c0b6afef4cd59477041ec37",
-                "6cfed9a1354f720fcde12ec15d5e1ae9cf97000c",
+                "95bd1c89bb2afd4eeaabc6f4b0183a9f26a522d7",
+                "e1fc2539202ebb240a87a080bc44a24c93d7318b",
                 "");
 		
 		public static final MavenObject SERVLET = new MavenObject(
@@ -647,10 +647,10 @@ public class Build {
                 "");
 
 		public static final MavenObject MARKDOWNPAPERS = new MavenObject(
-                "MarkdownPapers", "org/tautua/markdownpapers", "markdownpapers-core", "1.2.7",
-                87000, 58000, 268000,
-				"84ac5636ac7ddfad9d2ee8456a0f4f69709b6ee0",
-				"453cf00a289c46a0e4f6f019a28d2a2605f652c8",
+                "MarkdownPapers", "org/tautua/markdownpapers", "markdownpapers-core", "1.3.2",
+                92000, 60000, 268000,
+				"da22db6660e90b9a677bbdfc2c511c619ea5c249",
+				"6a7228280a229144afe6c01351a8f44675d8524d",
 				"");
 
 		public static final MavenObject BOUNCYCASTLE = new MavenObject(

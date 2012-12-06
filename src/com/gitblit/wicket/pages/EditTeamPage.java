@@ -38,6 +38,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
+import com.gitblit.Keys;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
@@ -216,7 +217,7 @@ public class EditTeamPage extends RootSubPage {
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork"));
+		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(users.setEnabled(editMemberships));
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""

@@ -24,6 +24,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.security.Principal;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -98,6 +100,7 @@ import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.Base64;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.DeepCopier;
@@ -567,6 +570,20 @@ public class GitBlit implements ServletContextListener {
 	 * @return a user object or null
 	 */
 	public UserModel authenticate(HttpServletRequest httpRequest) {
+		return authenticate(httpRequest, false);
+	}
+	
+	/**
+	 * Authenticate a user based on HTTP request parameters.
+	 * 
+	 * Authentication by X509Certificate, servlet container principal, cookie,
+	 * and BASIC header.
+	 * 
+	 * @param httpRequest
+	 * @param requiresCertificate
+	 * @return a user object or null
+	 */
+	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
 		// try to authenticate by certificate
 		boolean checkValidity = settings.getBoolean(Keys.git.enforceCertificateValidity, true);
 		String [] oids = getStrings(Keys.git.certificateUsernameOIDs).toArray(new String[0]);
@@ -574,38 +591,84 @@ public class GitBlit implements ServletContextListener {
 		if (model != null) {
 			// grab real user model and preserve certificate serial number
 			UserModel user = getUserModel(model.username);
+			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
-				RequestCycle requestCycle = RequestCycle.get();
-				if (requestCycle != null) {
-					// flag the Wicket session, if this is a Wicket request
-					GitBlitWebSession session = GitBlitWebSession.get();
-					session.authenticationType = AuthenticationType.CERTIFICATE;
-				}
-				X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
+				flagWicketSession(AuthenticationType.CERTIFICATE);
 				logger.info(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 				return user;
+			} else {
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted client certificate ({1}) authentication from {2}",
+						model.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
+			}
+		}
+		
+		if (requiresCertificate) {
+			// caller requires client certificate authentication (e.g. git servlet)
+			return null;
+		}
+		
+		// try to authenticate by servlet container principal
+		Principal principal = httpRequest.getUserPrincipal();
+		if (principal != null) {
+			UserModel user = getUserModel(principal.getName());
+			if (user != null) {
+				flagWicketSession(AuthenticationType.CONTAINER);
+				logger.info(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+						user.username, httpRequest.getRemoteAddr()));
+				return user;
+			} else {
+				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
+						principal.getName(), httpRequest.getRemoteAddr()));
 			}
 		}
 		
 		// try to authenticate by cookie
-		Cookie[] cookies = httpRequest.getCookies();
-		if (allowCookieAuthentication() && cookies != null && cookies.length > 0) {
-			// Grab cookie from Browser Session
-			UserModel user = authenticate(cookies);
+		if (allowCookieAuthentication()) {
+			UserModel user = authenticate(httpRequest.getCookies());
 			if (user != null) {
-				RequestCycle requestCycle = RequestCycle.get();
-				if (requestCycle != null) {
-					// flag the Wicket session, if this is a Wicket request
-					GitBlitWebSession session = GitBlitWebSession.get();
-					session.authenticationType = AuthenticationType.COOKIE;
-				}
+				flagWicketSession(AuthenticationType.COOKIE);
 				logger.info(MessageFormat.format("{0} authenticated by cookie from {1}",
 						user.username, httpRequest.getRemoteAddr()));
 				return user;
 			}
 		}
+		
+		// try to authenticate by BASIC
+		final String authorization = httpRequest.getHeader("Authorization");
+		if (authorization != null && authorization.startsWith("Basic")) {
+			// Authorization: Basic base64credentials
+			String base64Credentials = authorization.substring("Basic".length()).trim();
+			String credentials = new String(Base64.decode(base64Credentials),
+					Charset.forName("UTF-8"));
+			// credentials = username:password
+			final String[] values = credentials.split(":",2);
+
+			if (values.length == 2) {
+				String username = values[0];
+				char[] password = values[1].toCharArray();
+				UserModel user = authenticate(username, password);
+				if (user != null) {
+					flagWicketSession(AuthenticationType.CREDENTIALS);
+					logger.info(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
+							user.username, httpRequest.getRemoteAddr()));
+					return user;
+				} else {
+					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials ({1}) from {2}", 
+							username, credentials, httpRequest.getRemoteAddr()));
+				}
+			}
+		}
 		return null;
+	}
+	
+	protected void flagWicketSession(AuthenticationType authenticationType) {
+		RequestCycle requestCycle = RequestCycle.get();
+		if (requestCycle != null) {
+			// flag the Wicket session, if this is a Wicket request
+			GitBlitWebSession session = GitBlitWebSession.get();
+			session.authenticationType = authenticationType;
+		}
 	}
 
 	/**
@@ -693,6 +756,9 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if successful
 	 */
 	public boolean deleteUser(String username) {
+		if (StringUtils.isEmpty(username)) {
+			return false;
+		}
 		return userService.deleteUser(username);
 	}
 
@@ -704,6 +770,9 @@ public class GitBlit implements ServletContextListener {
 	 * @return a user object or null
 	 */
 	public UserModel getUserModel(String username) {
+		if (StringUtils.isEmpty(username)) {
+			return null;
+		}
 		UserModel user = userService.getUserModel(username);		
 		return user;
 	}
@@ -1533,6 +1602,7 @@ public class GitBlit implements ServletContextListener {
 			} catch (Exception e) {
 				model.lastGC = new Date(0);
 			}
+			model.maxActivityCommits = getConfig(config, "maxActivityCommits", settings.getInteger(Keys.web.maxActivityCommits, 0));
 			model.origin = config.getString("remote", "origin", "url");
 			if (model.origin != null) {
 				model.origin = model.origin.replace('\\', '/');
@@ -1999,9 +2069,20 @@ public class GitBlit implements ServletContextListener {
 				repository.federationStrategy.name());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFederated", repository.isFederated);
 		config.setString(Constants.CONFIG_GITBLIT, null, "gcThreshold", repository.gcThreshold);
-		config.setInt(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		if (repository.gcPeriod == settings.getInteger(Keys.git.defaultGarbageCollectionPeriod, 7)) {
+			// use default from config
+			config.unset(Constants.CONFIG_GITBLIT, null, "gcPeriod");
+		} else {
+			config.setInt(Constants.CONFIG_GITBLIT, null, "gcPeriod", repository.gcPeriod);
+		}
 		if (repository.lastGC != null) {
 			config.setString(Constants.CONFIG_GITBLIT, null, "lastGC", new SimpleDateFormat(Constants.ISO8601).format(repository.lastGC));
+		}
+		if (repository.maxActivityCommits == settings.getInteger(Keys.web.maxActivityCommits, 0)) {
+			// use default from config
+			config.unset(Constants.CONFIG_GITBLIT, null, "maxActivityCommits");
+		} else {
+			config.setInt(Constants.CONFIG_GITBLIT, null, "maxActivityCommits", repository.maxActivityCommits);
 		}
 
 		updateList(config, "federationSets", repository.federationSets);
