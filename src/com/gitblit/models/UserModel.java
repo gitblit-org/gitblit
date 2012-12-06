@@ -360,6 +360,12 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canView(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
 	}
+	
+	public boolean canView(RepositoryModel repository, String ref) {
+		// Default UserModel doesn't implement ref-level security.
+		// Other Realms (i.e. Gerrit) may override this method.
+		return canView(repository);
+	}
 
 	public boolean canClone(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.CLONE, AccessPermission.CLONE);
@@ -587,6 +593,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return nameVerified && emailVerified;
 	}
 	
+	@Deprecated
 	public boolean hasBranchPermission(String repositoryName, String branch) {
 		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
 		return hasRepositoryPermission(repositoryName) || hasTeamRepositoryPermission(repositoryName);
