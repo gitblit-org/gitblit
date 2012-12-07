@@ -227,9 +227,8 @@ public class EditRepositoryDialog extends JDialog {
 		isFrozen = new JCheckBox(Translation.get("gb.isFrozenDescription"),
 				anRepository.isFrozen);
 
-		maxActivityCommits = new JComboBox(new Integer [] { 0, 25, 50, 75, 100, 150, 250, 500 });
+		maxActivityCommits = new JComboBox(new Integer [] { -1, 0, 25, 50, 75, 100, 150, 250, 500 });
 		maxActivityCommits.setSelectedItem(anRepository.maxActivityCommits);
-
 
 		mailingListsField = new JTextField(
 				ArrayUtils.isEmpty(anRepository.mailingLists) ? ""

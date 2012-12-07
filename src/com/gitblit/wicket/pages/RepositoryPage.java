@@ -112,7 +112,7 @@ public abstract class RepositoryPage extends BasePage {
 					// workaround until get().getUser() is reviewed throughout the app
 					user = UserModel.ANONYMOUS;
 				}
-				boolean canAccess = user.hasBranchPermission(repositoryName,
+				boolean canAccess = user.canView(getRepositoryModel(),
 								branch.reference.getName());
 				if (!canAccess) {
 					error(getString("gb.accessDenied"), true);

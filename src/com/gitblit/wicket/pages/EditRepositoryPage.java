@@ -414,7 +414,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
-		List<Integer> maxActivityCommits  = Arrays.asList(0, 25, 50, 75, 100, 150, 200, 250, 500 );
+		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500 );
 		form.add(new DropDownChoice<Integer>("maxActivityCommits", maxActivityCommits, new MaxActivityCommitsRenderer()));
 
 		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
@@ -666,7 +666,9 @@ public class EditRepositoryPage extends RootSubPage {
 
 		@Override
 		public String getDisplayValue(Integer value) {
-			if (value == 0) {
+			if (value == -1) {
+				return getString("gb.excludeFromActivity");
+			} else if (value == 0) {
 				return getString("gb.noMaximum");
 			} else {
 				return value + " " + getString("gb.commits");
