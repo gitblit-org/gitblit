@@ -28,6 +28,7 @@ import java.util.Set;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
 /**
@@ -93,8 +94,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 			}
 			repositoryMetrics.get(repository).count++;
 
-			String author = commit.getAuthorIdent().getEmailAddress()
-					.toLowerCase();
+			String author = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();			
 			if (!authorMetrics.containsKey(author)) {
 				authorMetrics.put(author, new Metric(author));
 			}

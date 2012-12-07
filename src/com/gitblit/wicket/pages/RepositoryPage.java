@@ -450,6 +450,8 @@ public abstract class RepositoryPage extends BasePage {
 			Constants.SearchType searchType) {
 		String name = identity == null ? "" : identity.getName();
 		String address = identity == null ? "" : identity.getEmailAddress();
+		name = StringUtils.removeNewlines(name);
+		address = StringUtils.removeNewlines(address);
 		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
 		if (!showEmail || StringUtils.isEmpty(name) || StringUtils.isEmpty(address)) {
 			String value = name;

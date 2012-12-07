@@ -719,4 +719,18 @@ public class StringUtils {
 		Matcher m = p.matcher(input);
 		return m.matches();
 	}
+	
+	/**
+	 * Removes new line and carriage return chars from a string.
+	 * If input value is null an empty string is returned.
+	 *  
+	 * @param input
+	 * @return a sanitized or empty string
+	 */
+	public static String removeNewlines(String input) {
+		if (input == null) {
+			return "";
+		}
+		return input.replace('\n',' ').replace('\r',  ' ').trim();
+	}
 }

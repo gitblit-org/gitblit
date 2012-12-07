@@ -12,6 +12,7 @@ The permissions model has changed in this release.
 
 #### fixes
 
+- Author metrics can be broken by newlines in email addresses from converted repositories (issue 176)
 - Set subjectAlternativeName on generated SSL cert if CN is an ip address (issue 170)
 - Fixed incorrect links on history page for files not in the current/active commit (issue 166)
 - Empty repository page failed to handle missing repository (issue 160)
