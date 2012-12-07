@@ -98,6 +98,10 @@ public abstract class BasePage extends WebPage {
 		return GitBlitWebSession.get().getLocale().getLanguage();
 	}
 	
+	protected String getCountryCode() {
+		return GitBlitWebSession.get().getLocale().getCountry().toLowerCase();
+	}
+	
 	protected TimeUtils getTimeUtils() {
 		if (timeUtils == null) {
 			ResourceBundle bundle;		
