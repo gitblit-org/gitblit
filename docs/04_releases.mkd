@@ -72,6 +72,7 @@ This is extreme and should be considered carefully since it affects every https 
 - Added HTML sendmail hook script and Gitblit.sendHtmlMail method (github/sauthieg)
 - Added RedmineUserService (github/mallowlabs)
 - Support for committer verification.  Requires use of *--no-ff* when merging branches or pull requests.  See setup page for details.
+- Added Brazilian Portuguese translation (github/rafaelcavazin)
 
 #### changes
 
