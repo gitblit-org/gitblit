@@ -124,6 +124,10 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				rp.setAllowDeletes(user.canDeleteRef(repository));
 				rp.setAllowNonFastForwards(user.canRewindRef(repository));
 				
+				if (repository.isFrozen) {
+					throw new ServiceNotEnabledException();
+				}
+				
 				return rp;
 			}
 		});

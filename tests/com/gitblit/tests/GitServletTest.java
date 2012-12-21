@@ -223,6 +223,46 @@ public class GitServletTest {
 	}
 	
 	@Test
+	public void testPushToFrozenRepo() throws Exception {
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
+		clone.setDirectory(jgitFolder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
+		GitBlitSuite.close(clone.call());
+		assertTrue(true);
+		
+		// freeze repo
+		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
+		model.isFrozen = true;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		Git git = Git.open(jgitFolder);
+		File file = new File(jgitFolder, "TODO");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("test commit").call();
+		
+		try {
+			git.push().setPushAll().call();
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e.getCause().getMessage().contains("access forbidden"));
+		}
+		
+		// unfreeze repo
+		model.isFrozen = false;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		git.push().setPushAll().call();
+		GitBlitSuite.close(git);
+	}
+	
+	@Test
 	public void testPushToNonBareRepository() throws Exception {
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/working/jgit", url));
