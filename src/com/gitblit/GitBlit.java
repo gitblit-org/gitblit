@@ -1652,7 +1652,18 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the repository exists
 	 */
 	public boolean hasRepository(String repositoryName) {
-		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+		return hasRepository(repositoryName, false);
+	}
+	
+	/**
+	 * Determines if this server has the requested repository.
+	 * 
+	 * @param name
+	 * @param caseInsensitive
+	 * @return true if the repository exists
+	 */
+	public boolean hasRepository(String repositoryName, boolean caseSensitiveCheck) {
+		if (!caseSensitiveCheck && settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// if we are caching use the cache to determine availability
 			// otherwise we end up adding a phantom repository to the cache
 			return repositoryListCache.containsKey(repositoryName.toLowerCase());

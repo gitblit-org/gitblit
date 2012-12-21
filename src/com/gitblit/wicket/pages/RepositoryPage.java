@@ -326,7 +326,7 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				if (GitBlit.self().hasRepository(repositoryName)) {
+				if (GitBlit.self().hasRepository(repositoryName, true)) {
 					// has repository, but unauthorized
 					authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
 				} else {
