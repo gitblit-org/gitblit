@@ -1339,7 +1339,7 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		// check for updates
-		Repository r = getRepository(repositoryName);
+		Repository r = getRepository(model.name);
 		if (r == null) {
 			// repository is missing
 			removeFromCachedRepositoryList(repositoryName);
