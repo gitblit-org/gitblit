@@ -1937,7 +1937,7 @@ public class GitBlit implements ServletContextListener {
 			if (!repository.name.toLowerCase().endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
 				repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 			}
-			if (new File(repositoriesFolder, repository.name).exists()) {
+			if (hasRepository(repository.name)) {
 				throw new GitBlitException(MessageFormat.format(
 						"Can not create repository ''{0}'' because it already exists.",
 						repository.name));
