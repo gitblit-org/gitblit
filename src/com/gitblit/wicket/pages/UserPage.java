@@ -97,7 +97,7 @@ public class UserPage extends RootPage {
 		email.setRenderBodyOnly(true);
 		add(email.setVisible(GitBlit.getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
 		
-		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress);
+		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
 		add(new GravatarImage("gravatar", person, 210));
 		
 		UserModel sessionUser = GitBlitWebSession.get().getUser();
