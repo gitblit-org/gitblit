@@ -88,6 +88,11 @@ public class GitServletTest {
 
 	@Test
 	public void testClone() throws Exception {
+		GitBlitSuite.close(ticgitFolder);
+		if (ticgitFolder.exists()) {
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
@@ -187,6 +192,20 @@ public class GitServletTest {
 
 	@Test
 	public void testAnonymousPush() throws Exception {
+		GitBlitSuite.close(ticgitFolder);
+		if (ticgitFolder.exists()) {
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setDirectory(ticgitFolder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
+		GitBlitSuite.close(clone.call());		
+		assertTrue(true);
+		
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -201,6 +220,11 @@ public class GitServletTest {
 
 	@Test
 	public void testSubfolderPush() throws Exception {
+		GitBlitSuite.close(jgitFolder);
+		if (jgitFolder.exists()) {
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
@@ -224,6 +248,11 @@ public class GitServletTest {
 	
 	@Test
 	public void testPushToFrozenRepo() throws Exception {
+		GitBlitSuite.close(jgitFolder);
+		if (jgitFolder.exists()) {
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
