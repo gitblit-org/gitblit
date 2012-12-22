@@ -21,9 +21,9 @@
 	<classpathentry kind="lib" path="ext/lucene-queries-3.6.1.jar" sourcepath="ext/src/lucene-queries-3.6.1-sources.jar" />
 	<classpathentry kind="lib" path="ext/jakarta-regexp-1.4.jar" />
 	<classpathentry kind="lib" path="ext/markdownpapers-core-1.3.2.jar" sourcepath="ext/src/markdownpapers-core-1.3.2-sources.jar" />
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit-2.1.0.201209190230-r.jar" sourcepath="ext/src/org.eclipse.jgit-2.1.0.201209190230-r-sources.jar" />
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit-2.2.0.201212191850-r.jar" sourcepath="ext/src/org.eclipse.jgit-2.2.0.201212191850-r-sources.jar" />
 	<classpathentry kind="lib" path="ext/jsch-0.1.44-1.jar" sourcepath="ext/src/jsch-0.1.44-1-sources.jar" />
-	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar" sourcepath="ext/src/org.eclipse.jgit.http.server-2.1.0.201209190230-r-sources.jar" />
+	<classpathentry kind="lib" path="ext/org.eclipse.jgit.http.server-2.2.0.201212191850-r.jar" sourcepath="ext/src/org.eclipse.jgit.http.server-2.2.0.201212191850-r-sources.jar" />
 	<classpathentry kind="lib" path="ext/bcprov-jdk15on-1.47.jar" sourcepath="ext/src/bcprov-jdk15on-1.47-sources.jar" />
 	<classpathentry kind="lib" path="ext/bcmail-jdk15on-1.47.jar" sourcepath="ext/src/bcmail-jdk15on-1.47-sources.jar" />
 	<classpathentry kind="lib" path="ext/bcpkix-jdk15on-1.47.jar" sourcepath="ext/src/bcpkix-jdk15on-1.47-sources.jar" />
