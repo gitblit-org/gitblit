@@ -1760,19 +1760,38 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public ForkModel getForkNetwork(String repository) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			// find the root
+			// find the root, cached
 			RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 			while (model.originRepository != null) {
 				model = repositoryListCache.get(model.originRepository);
 			}
+			ForkModel root = getForkModelFromCache(model.name);
+			return root;
+		} else {
+			// find the root, non-cached
+			RepositoryModel model = getRepositoryModel(repository.toLowerCase());
+			while (model.originRepository != null) {
+				model = getRepositoryModel(model.originRepository);
+			}
 			ForkModel root = getForkModel(model.name);
 			return root;
 		}
-		return null;
+	}
+	
+	private ForkModel getForkModelFromCache(String repository) {
+		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		ForkModel fork = new ForkModel(model);
+		if (!ArrayUtils.isEmpty(model.forks)) {
+			for (String aFork : model.forks) {
+				ForkModel fm = getForkModelFromCache(aFork);
+				fork.forks.add(fm);
+			}
+		}
+		return fork;
 	}
 	
 	private ForkModel getForkModel(String repository) {
-		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		RepositoryModel model = getRepositoryModel(repository.toLowerCase());
 		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
