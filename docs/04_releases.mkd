@@ -1,14 +1,22 @@
 ## Release History
 
-<div class="alert alert-info">
-<h4>Update Note</h4>
-The permissions model has changed in this release.
-<p>If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.</p>
-</div>
-
 ### Current Release
 
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+
+#### fixes
+
+- Fixed nullpointer when using web.allowForking = true && git.cacheRepositoryList = false (issue 182)
+
+### Older Releases
+
+<div class="alert alert-info">
+<h4>Update Note</h4>
+The permissions model has changed in the 1.2.0 release.
+<p>If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.</p>
+</div>
+
+**1.2.0** *released 2012-12-31*
 
 #### fixes
 
@@ -106,8 +114,6 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 - added Commons-Compress 1.4.1
 - added XZ for Java 1.0
 <hr/>
-
-### Older Releases
 
 <div class="alert alert-error">
 <h4>Update Note</h4>
