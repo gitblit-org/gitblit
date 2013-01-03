@@ -123,22 +123,18 @@ public class RepositoriesPanel extends BasePanel {
 
 			if (rootRepositories.size() > 0) {
 				// inject the root repositories at the top of the page
-				String rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, " ");
-				roots.add(0, rootPath);
-				groups.put(rootPath, rootRepositories);
+				roots.add(0, "");
+				groups.put("", rootRepositories);
 			}
 						
-			Map<String, ProjectModel> projects = new HashMap<String, ProjectModel>();
-			for (ProjectModel project : GitBlit.self().getProjectModels(user, true)) {
-				projects.put(project.name, project);
-			}
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
-				GroupRepositoryModel group = new GroupRepositoryModel(root, subModels.size());
-				if (projects.containsKey(root)) {
-					group.title = projects.get(root).title;
-					group.description = projects.get(root).description;
+				ProjectModel project = GitBlit.self().getProjectModel(root);
+				GroupRepositoryModel group = new GroupRepositoryModel(project.name, subModels.size());
+				if (project != null) {
+					group.title = project.title;
+					group.description = project.description;
 				}
 				groupedModels.add(group);
 				Collections.sort(subModels);

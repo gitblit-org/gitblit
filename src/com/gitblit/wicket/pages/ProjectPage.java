@@ -300,8 +300,8 @@ public class ProjectPage extends RootPage {
 	@Override
 	protected List<ProjectModel> getProjectModels() {
 		if (projectModels.isEmpty()) {
-			final UserModel user = GitBlitWebSession.get().getUser();
-			List<ProjectModel> projects = GitBlit.self().getProjectModels(user, false);
+			List<RepositoryModel> repositories = getRepositoryModels();
+			List<ProjectModel> projects = GitBlit.self().getProjectModels(repositories, false);
 			projectModels.addAll(projects);
 		}
 		return projectModels;

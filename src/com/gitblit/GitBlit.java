@@ -1526,6 +1526,49 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
+	 * Returns the list of project models that are referenced by the supplied
+	 * repository model	list.  This is an alternative method exists to ensure
+	 * Gitblit does not call getRepositoryModels(UserModel) twice in a request.
+	 * 
+	 * @param repositoryModels
+	 * @param includeUsers
+	 * @return a list of project models
+	 */
+	public List<ProjectModel> getProjectModels(List<RepositoryModel> repositoryModels, boolean includeUsers) {
+		Map<String, ProjectModel> projects = new LinkedHashMap<String, ProjectModel>();
+		for (RepositoryModel repository : repositoryModels) {
+			if (!includeUsers && repository.isPersonalRepository()) {
+				// exclude personal repositories
+				continue;
+			}
+			if (!projects.containsKey(repository.projectPath)) {
+				ProjectModel project = getProjectModel(repository.projectPath);
+				if (project == null) {
+					logger.warn(MessageFormat.format("excluding project \"{0}\" from project list because it is empty!",
+							repository.projectPath));
+					continue;
+				}
+				projects.put(repository.projectPath, project);
+				// clear the repo list in the project because that is the system
+				// list, not the user-accessible list and start building the
+				// user-accessible list
+				project.repositories.clear();
+				project.repositories.add(repository.name);
+				project.lastChange = repository.lastChange;
+			} else {
+				// update the user-accessible list
+				// this is used for repository count
+				ProjectModel project = projects.get(repository.projectPath);
+				project.repositories.add(repository.name);
+				if (project.lastChange.before(repository.lastChange)) {
+					project.lastChange = repository.lastChange;
+				}
+			}
+		}
+		return new ArrayList<ProjectModel>(projects.values());
+	}
+	
+	/**
 	 * Workaround JGit.  I need to access the raw config object directly in order
 	 * to see if the config is dirty so that I can reload a repository model.
 	 * If I use the stock JGit method to get the config it already reloads the
