@@ -15,9 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +34,6 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -46,7 +42,6 @@ import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -111,23 +106,14 @@ public class ProjectPage extends RootPage {
 		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(project.getDisplayName(),
 				null), feedLink));
 		
-		final String projectPath;
-		if (project.isRoot) {
-			projectPath = "";
-		} else {
-			projectPath = projectName + "/";
-		}
-		
 		// project markdown message
-		File pmkd = new File(GitBlit.getRepositoriesFolder(),  projectPath + "project.mkd");
-		String pmessage = readMarkdown(projectName, pmkd);
+		String pmessage = transformMarkdown(project.projectMarkdown);
 		Component projectMessage = new Label("projectMessage", pmessage)
 				.setEscapeModelStrings(false).setVisible(pmessage.length() > 0);
 		add(projectMessage);
 
 		// markdown message above repositories list
-		File rmkd = new File(GitBlit.getRepositoriesFolder(),  projectPath + "repositories.mkd");
-		String rmessage = readMarkdown(projectName, rmkd);
+		String rmessage = transformMarkdown(project.repositoriesMarkdown);
 		Component repositoriesMessage = new Label("repositoriesMessage", rmessage)
 				.setEscapeModelStrings(false).setVisible(rmessage.length() > 0);
 		add(repositoriesMessage);
@@ -352,20 +338,15 @@ public class ProjectPage extends RootPage {
 		}
 		return menu;
 	}
-
-
-	private String readMarkdown(String projectName, File projectMessage) {
+	
+	private String transformMarkdown(String markdown) {
 		String message = "";
-		if (projectMessage.exists()) {
+		if (!StringUtils.isEmpty(markdown)) {
 			// Read user-supplied message
 			try {
-				FileInputStream fis = new FileInputStream(projectMessage);
-				InputStreamReader reader = new InputStreamReader(fis,
-						Constants.CHARACTER_ENCODING);
-				message = MarkdownUtils.transformMarkdown(reader);
-				reader.close();
+				message = MarkdownUtils.transformMarkdown(markdown);
 			} catch (Throwable t) {
-				message = getString("gb.failedToRead") + " " + projectMessage;
+				message = getString("gb.failedToRead") + " " + markdown;
 				warn(message, t);
 			}
 		}

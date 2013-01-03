@@ -154,6 +154,10 @@ public class GitBlit implements ServletContextListener {
 	private final Map<String, ProjectModel> projectCache = new ConcurrentHashMap<String, ProjectModel>();
 	
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
+	
+	private final ObjectCache<String> projectMarkdownCache = new ObjectCache<String>();
+	
+	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
 
 	private ServletContext servletContext;
 
@@ -1402,7 +1406,30 @@ public class GitBlit implements ServletContextListener {
 				}
 				project.title = projectConfigs.getString("project", name, "title");
 				project.description = projectConfigs.getString("project", name, "description");
-				configs.put(name.toLowerCase(), project);				
+				
+				// project markdown
+				File pmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/project.mkd");
+				if (pmkd.exists()) {
+					Date lm = new Date(pmkd.lastModified());
+					if (!projectMarkdownCache.hasCurrent(name, lm)) {
+						String mkd = com.gitblit.utils.FileUtils.readContent(pmkd,  "\n");
+						projectMarkdownCache.updateObject(name, lm, mkd);
+					}
+					project.projectMarkdown = projectMarkdownCache.getObject(name);
+				}
+				
+				// project repositories markdown
+				File rmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/repositories.mkd");
+				if (rmkd.exists()) {
+					Date lm = new Date(rmkd.lastModified());
+					if (!projectRepositoriesMarkdownCache.hasCurrent(name, lm)) {
+						String mkd = com.gitblit.utils.FileUtils.readContent(rmkd,  "\n");
+						projectRepositoriesMarkdownCache.updateObject(name, lm, mkd);
+					}
+					project.repositoriesMarkdown = projectRepositoriesMarkdownCache.getObject(name);
+				}
+				
+				configs.put(name.toLowerCase(), project);
 			}
 			projectCache.clear();
 			projectCache.putAll(configs);
