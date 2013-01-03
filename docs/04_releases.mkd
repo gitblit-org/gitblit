@@ -7,6 +7,7 @@
 #### fixes
 
 - Fixed nullpointer when using web.allowForking = true && git.cacheRepositoryList = false (issue 182)
+- Fixed loading of Brazilian Portuguese translation from *nix server (github/inaiat)
 
 ### Older Releases
 
