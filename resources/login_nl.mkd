@@ -1,3 +1,3 @@
 ## Please Login
 
-Please enter your credentials to access this Gitblit site.
+Vul aub uw aanmeldgegevens in voor toegang tot deze Gitblit site.
