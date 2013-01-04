@@ -207,13 +207,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-2.1.0.201209190230-r.jar">
+      <library name="org.eclipse.jgit-2.2.0.201212191850-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-2.1.0.201209190230-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-2.2.0.201212191850-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-2.1.0.201209190230-r-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-2.2.0.201212191850-r-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -229,13 +229,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar">
+      <library name="org.eclipse.jgit.http.server-2.2.0.201212191850-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-2.1.0.201209190230-r.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-2.2.0.201212191850-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-2.1.0.201209190230-r-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-2.2.0.201212191850-r-sources.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
