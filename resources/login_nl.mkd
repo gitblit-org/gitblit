@@ -1,0 +1,3 @@
+## Please Login
+
+Please enter your credentials to access this Gitblit site.
