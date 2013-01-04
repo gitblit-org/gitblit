@@ -10,6 +10,15 @@
 - Build project models from the repository model cache, when possible, to reduce page load time (issue 172)
 - Fixed loading of Brazilian Portuguese translation from *nix server (github/inaiat)
 
+#### additions
+
+- Added Dutch translation (github/kwoot)
+
+#### changes
+
+- Updated Korean translation (github/ds5apn)
+- Updated checkstyle definition (github/mystygage)
+
 ### Older Releases
 
 <div class="alert alert-info">
