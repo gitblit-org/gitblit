@@ -409,6 +409,10 @@ public class ConfigUserService implements IUserService {
 			// Read realm file
 			read();
 			UserModel model = users.remove(username.toLowerCase());
+			if (model == null) {
+				// user does not exist
+				return false;
+			}
 			// remove user from team
 			for (TeamModel team : model.teams) {
 				TeamModel t = teams.get(team.name);

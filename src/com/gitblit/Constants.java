@@ -405,6 +405,14 @@ public class Constants {
 			return ordinal() <= COOKIE.ordinal();
 		}
 	}
+	
+	public static enum AccountType {
+		LOCAL, LDAP, REDMINE;
+		
+		public boolean isLocal() {
+			return this == LOCAL;
+		}
+	}
 
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)

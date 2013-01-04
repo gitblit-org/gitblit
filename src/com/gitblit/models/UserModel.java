@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
@@ -73,15 +74,22 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 	// non-persisted fields
 	public boolean isAuthenticated;
+	public AccountType accountType;
 	
 	public UserModel(String username) {
 		this.username = username;
 		this.isAuthenticated = true;
+		this.accountType = AccountType.LOCAL;
 	}
 
 	private UserModel() {
 		this.username = "$anonymous";
 		this.isAuthenticated = false;
+		this.accountType = AccountType.LOCAL;
+	}
+	
+	public boolean isLocalAccount() {
+		return accountType.isLocal();
 	}
 
 	/**

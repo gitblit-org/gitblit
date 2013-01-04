@@ -471,36 +471,48 @@ public class GitBlit implements ServletContextListener {
 		this.userService.setup(settings);
 	}
 	
+	public boolean supportsAddUser() {
+		return supportsCredentialChanges(new UserModel(""));
+	}
+	
 	/**
+	 * Returns true if the user's credentials can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports credential changes
 	 */
-	public boolean supportsCredentialChanges() {
-		return userService.supportsCredentialChanges();
+	public boolean supportsCredentialChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsCredentialChanges();
 	}
 
 	/**
+	 * Returns true if the user's display name can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports display name changes
 	 */
-	public boolean supportsDisplayNameChanges() {
-		return userService.supportsDisplayNameChanges();
+	public boolean supportsDisplayNameChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsDisplayNameChanges();
 	}
 
 	/**
+	 * Returns true if the user's email address can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports email address changes
 	 */
-	public boolean supportsEmailAddressChanges() {
-		return userService.supportsEmailAddressChanges();
+	public boolean supportsEmailAddressChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsEmailAddressChanges();
 	}
 
 	/**
+	 * Returns true if the user's team memberships can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports team membership changes
 	 */
-	public boolean supportsTeamMembershipChanges() {
-		return userService.supportsTeamMembershipChanges();
+	public boolean supportsTeamMembershipChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsTeamMembershipChanges();
 	}
 
 	/**
@@ -789,6 +801,10 @@ public class GitBlit implements ServletContextListener {
 	 * @return the effective list of permissions for the user
 	 */
 	public List<RegistrantAccessPermission> getUserAccessPermissions(UserModel user) {
+		if (StringUtils.isEmpty(user.username)) {
+			// new user
+			return new ArrayList<RegistrantAccessPermission>();
+		}
 		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>();
 		set.addAll(user.getRepositoryPermissions());
 		// Flag missing repositories

@@ -9,7 +9,9 @@ import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccountType;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ConnectionUtils;
 import com.gitblit.utils.StringUtils;
 import com.google.gson.Gson;
@@ -71,9 +73,19 @@ public class RedmineUserService extends GitblitUserService {
     public boolean supportsTeamMembershipChanges() {
         return false;
     }
+    
+	 @Override
+	protected AccountType getAccountType() {
+		return AccountType.REDMINE;
+	}
 
     @Override
     public UserModel authenticate(String username, char[] password) {
+		if (isLocalAccount(username)) {
+			// local account, bypass Redmine authentication
+			return super.authenticate(username, password);
+		}
+
         String urlText = this.settings.getString(Keys.realm.redmine.url, "");
         if (!urlText.endsWith("/")) {
             urlText.concat("/");
@@ -87,19 +99,37 @@ public class RedmineUserService extends GitblitUserService {
             String login = current.user.login;
 
             boolean canAdmin = true;
-            // non admin user can not get login name
             if (StringUtils.isEmpty(login)) {
-                canAdmin = false;
                 login = current.user.mail;
+                
+            	// non admin user can not get login name
+            	// TODO review this assumption, if it is true, it is undocumented
+                canAdmin = false;
             }
-
-            UserModel userModel = new UserModel(login);
-            userModel.canAdmin = canAdmin;
-            userModel.displayName = current.user.firstname + " " + current.user.lastname;
-            userModel.emailAddress = current.user.mail;
-            userModel.cookie = StringUtils.getSHA1(userModel.username + new String(password));
-
-            return userModel;
+            
+            UserModel user = getUserModel(login);
+            if (user == null)	// create user object for new authenticated user
+            	user = new UserModel(login);
+            
+            // create a user cookie
+			if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+				user.cookie = StringUtils.getSHA1(user.username + new String(password));
+			}
+            
+            // update user attributes from Redmine
+			user.accountType = getAccountType();
+			user.canAdmin = canAdmin;
+        	user.displayName = current.user.firstname + " " + current.user.lastname;
+        	user.emailAddress = current.user.mail;
+        	user.password = ExternalAccount;
+        	
+        	// TODO Redmine group mapping for administration & teams
+        	// http://www.redmine.org/projects/redmine/wiki/Rest_Users
+        	
+        	// push the changes to the backing user service
+        	super.updateUserModel(user);
+        	
+            return user;
         } catch (IOException e) {
             logger.error("authenticate", e);
         }
@@ -126,5 +156,4 @@ public class RedmineUserService extends GitblitUserService {
     public void setTestingCurrentUserAsJson(String json) {
         this.testingJson = json;
     }
-
 }

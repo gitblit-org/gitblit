@@ -31,6 +31,7 @@ import org.junit.Test;
 import com.gitblit.LdapUserService;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -153,6 +154,21 @@ public class LdapUserServiceTest {
 		
 		UserModel userOneModel = ldapUserService.authenticate("*)(userPassword=userOnePassword", "userOnePassword".toCharArray());
 		assertNull(userOneModel);
+	}
+	
+	@Test
+	public void testLocalAccount() {
+		UserModel localAccount = new UserModel("bruce");
+		localAccount.displayName = "Bruce Campbell";
+		localAccount.password = StringUtils.MD5_TYPE + StringUtils.getMD5("gimmesomesugar");
+		ldapUserService.deleteUser(localAccount.username);
+		assertTrue("Failed to add local account",
+				ldapUserService.updateUserModel(localAccount));
+		assertEquals("Accounts are not equal!", 
+				localAccount, 
+				ldapUserService.authenticate(localAccount.username, "gimmesomesugar".toCharArray()));
+		assertTrue("Failed to delete local account!",
+				ldapUserService.deleteUser(localAccount.username));
 	}
 
 }

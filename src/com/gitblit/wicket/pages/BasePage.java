@@ -433,7 +433,7 @@ public abstract class BasePage extends WebPage {
 			GitBlitWebSession session = GitBlitWebSession.get();
 			if (session.isLoggedIn()) {				
 				UserModel user = session.getUser();
-				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+				boolean editCredentials = GitBlit.self().supportsCredentialChanges(user);
 				boolean standardLogin = session.authenticationType.isStandard();
 
 				// username, logout, and change password

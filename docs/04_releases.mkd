@@ -12,6 +12,7 @@
 
 #### additions
 
+- Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 183)
 - Added Dutch translation (github/kwoot)
 
 #### changes
