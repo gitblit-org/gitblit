@@ -1,0 +1,3 @@
+## Welcome to Gitblit
+
+A quick and easy way to host or view your own [Git](http://www.git-scm.com) repositories.
