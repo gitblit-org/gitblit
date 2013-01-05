@@ -13,6 +13,7 @@
 
 #### additions
 
+- Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 177)
 - Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 183)
 - Added Dutch translation (github/kwoot)
 
