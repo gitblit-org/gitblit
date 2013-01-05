@@ -1457,6 +1457,20 @@ public class JGitUtils {
 			int maxCount) {
 		return getRefs(repository, Constants.R_NOTES, fullName, maxCount);
 	}
+	
+	/**
+	 * Returns the list of refs in the specified base ref. If repository does 
+	 * not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param fullName
+	 *            if true, /refs/yadayadayada is returned. If false,
+	 *            yadayadayada is returned.
+	 * @return list of refs
+	 */
+	public static List<RefModel> getRefs(Repository repository, String baseRef) {
+		return getRefs(repository, baseRef, true, -1);
+	}
 
 	/**
 	 * Returns a list of references in the repository matching "refs". If the

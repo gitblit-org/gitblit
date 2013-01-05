@@ -7,9 +7,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jgit.api.CloneCommand;
@@ -18,6 +20,7 @@ import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
@@ -34,9 +37,11 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.PushLogUtils;
 
 public class GitServletTest {
 
@@ -755,5 +760,15 @@ public class GitServletTest {
 
 		GitBlitSuite.close(git);
 		GitBlit.self().deleteUser(user.username);
+	}
+	
+	@Test
+	public void testPushLog() throws IOException {
+		String name = "refchecks/ticgit.git";
+		File refChecks = new File(GitBlitSuite.REPOSITORIES, name);
+		FileRepository repository = new FileRepository(refChecks);
+		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
+		GitBlitSuite.close(repository);
+		assertTrue("Repository has an empty push log!", pushes.size() > 0);
 	}
 }

@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -37,7 +38,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jgit.http.server.resolver.DefaultReceivePackFactory;
+import org.eclipse.jgit.http.server.resolver.DefaultUploadPackFactory;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PostReceiveHook;
@@ -45,6 +48,8 @@ import org.eclipse.jgit.transport.PreReceiveHook;
 import org.eclipse.jgit.transport.ReceiveCommand;
 import org.eclipse.jgit.transport.ReceiveCommand.Result;
 import org.eclipse.jgit.transport.ReceivePack;
+import org.eclipse.jgit.transport.RefFilter;
+import org.eclipse.jgit.transport.UploadPack;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
@@ -55,7 +60,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.HttpUtils;
+import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.PushLogUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -129,6 +136,35 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				}
 				
 				return rp;
+			}
+		});
+		
+		// override the default upload pack to exclude gitblit refs
+		setUploadPackFactory(new DefaultUploadPackFactory() {
+			@Override
+			public UploadPack create(final HttpServletRequest req, final Repository db)
+					throws ServiceNotEnabledException, ServiceNotAuthorizedException {
+				UploadPack up = super.create(req, db);
+				RefFilter refFilter = new RefFilter() {
+					@Override
+					public Map<String, Ref> filter(Map<String, Ref> refs) {
+						// admin accounts can access all refs 
+						UserModel user = GitBlit.self().authenticate(req);
+						if (user == null) {
+							user = UserModel.ANONYMOUS;
+						}
+						if (user.canAdmin()) {
+							return refs;
+						}
+
+						// normal users can not clone gitblit refs
+						refs.remove(IssueUtils.GB_ISSUES);
+						refs.remove(PushLogUtils.GB_PUSHES);
+						return refs;
+					}
+				};
+				up.setRefFilter(refFilter);
+				return up;
 			}
 		});
 		super.init(new GitblitServletConfig(config));
@@ -264,12 +300,11 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				logger.info("skipping post-receive hooks, no refs created, updated, or removed");
 				return;
 			}
-			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
-			Set<String> scripts = new LinkedHashSet<String>();
-			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
-			scripts.addAll(repository.postReceiveScripts);
+
 			UserModel user = getUserModel(rp);
-			runGroovy(repository, user, commands, rp, scripts);
+			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+
+			// log ref changes
 			for (ReceiveCommand cmd : commands) {
 				if (Result.OK.equals(cmd.getResult())) {
 					// add some logging for important ref changes
@@ -288,6 +323,16 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 					}
 				}
 			}
+
+			// update push log
+			PushLogUtils.updatePushLog(user, rp.getRepository(), commands);
+			logger.info(MessageFormat.format("{0} push log updated", repository.name));
+			
+			// run Groovy hook scripts 
+			Set<String> scripts = new LinkedHashSet<String>();
+			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
+			scripts.addAll(repository.postReceiveScripts);
+			runGroovy(repository, user, commands, rp, scripts);
 			
 			// Experimental
 			// runNativeScript(rp, "hooks/post-receive", commands);

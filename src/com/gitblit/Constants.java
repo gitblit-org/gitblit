@@ -88,6 +88,8 @@ public class Constants {
 	
 	public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
+	public static final String R_GITBLIT = "refs/gitblit/";
+	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
 	}

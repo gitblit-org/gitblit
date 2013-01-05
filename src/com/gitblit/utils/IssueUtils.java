@@ -76,9 +76,9 @@ public class IssueUtils {
 		public abstract boolean accept(IssueModel issue);
 	}
 
-	public static final String GB_ISSUES = "refs/heads/gb-issues";
+	public static final String GB_ISSUES = "refs/gitblit/issues";
 
-	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
+	static final Logger LOGGER = LoggerFactory.getLogger(IssueUtils.class);
 
 	/**
 	 * Log an error message and exception.
@@ -111,7 +111,13 @@ public class IssueUtils {
 	 * @return a refmodel for the gb-issues branch or null
 	 */
 	public static RefModel getIssuesBranch(Repository repository) {
-		return JGitUtils.getBranch(repository, "gb-issues");
+		List<RefModel> refs = JGitUtils.getRefs(repository, com.gitblit.Constants.R_GITBLIT);
+		for (RefModel ref : refs) {
+			if (ref.reference.getName().equals(GB_ISSUES)) {
+				return ref;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -394,7 +400,7 @@ public class IssueUtils {
 	public static IssueModel createIssue(Repository repository, Change change) {
 		RefModel issuesBranch = getIssuesBranch(repository);
 		if (issuesBranch == null) {
-			JGitUtils.createOrphanBranch(repository, "gb-issues", null);
+			JGitUtils.createOrphanBranch(repository, GB_ISSUES, null);
 		}
 
 		if (StringUtils.isEmpty(change.author)) {
@@ -471,7 +477,7 @@ public class IssueUtils {
 		RefModel issuesBranch = getIssuesBranch(repository);
 
 		if (issuesBranch == null) {
-			throw new RuntimeException("gb-issues branch does not exist!");
+			throw new RuntimeException(GB_ISSUES + " does not exist!");
 		}
 
 		if (StringUtils.isEmpty(issueId)) {
