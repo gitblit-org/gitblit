@@ -1371,8 +1371,8 @@ public class GitBlit implements ServletContextListener {
 		if (config.isOutdated()) {
 			// reload model
 			logger.info(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
-			model = loadRepositoryModel(repositoryName);
-			removeFromCachedRepositoryList(repositoryName);
+			model = loadRepositoryModel(model.name);
+			removeFromCachedRepositoryList(model.name);
 			addToCachedRepositoryList(model);
 		} else {
 			// update a few repository parameters 
