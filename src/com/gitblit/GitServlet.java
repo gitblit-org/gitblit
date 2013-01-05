@@ -18,12 +18,8 @@ package com.gitblit;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -284,9 +280,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 							.getName(), cmd.getResult(), cmd.getMessage()));
 				}
 			}
-
-			// Experimental
-			// runNativeScript(rp, "hooks/pre-receive", commands);
 		}
 
 		/**
@@ -333,9 +326,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
 			scripts.addAll(repository.postReceiveScripts);
 			runGroovy(repository, user, commands, rp, scripts);
-			
-			// Experimental
-			// runNativeScript(rp, "hooks/post-receive", commands);
 		}
 
 		/**
@@ -404,77 +394,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				} catch (Exception e) {
 					logger.error(
 							MessageFormat.format("Failed to execute Groovy script {0}", script), e);
-				}
-			}
-		}
-
-		/**
-		 * Runs the native push hook script.
-		 * 
-		 * http://book.git-scm.com/5_git_hooks.html
-		 * http://longair.net/blog/2011/04/09/missing-git-hooks-documentation/
-		 * 
-		 * @param rp
-		 * @param script
-		 * @param commands
-		 */
-		@SuppressWarnings("unused")
-		protected void runNativeScript(ReceivePack rp, String script,
-				Collection<ReceiveCommand> commands) {
-
-			Repository repository = rp.getRepository();
-			File scriptFile = new File(repository.getDirectory(), script);
-
-			int resultCode = 0;
-			if (scriptFile.exists()) {
-				try {
-					logger.debug("executing " + scriptFile);
-					Process process = Runtime.getRuntime().exec(scriptFile.getAbsolutePath(), null,
-							repository.getDirectory());
-					BufferedReader reader = new BufferedReader(new InputStreamReader(
-							process.getInputStream()));
-					BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-							process.getOutputStream()));
-					for (ReceiveCommand command : commands) {
-						switch (command.getType()) {
-						case UPDATE:
-							// updating a ref
-							writer.append(MessageFormat.format("{0} {1} {2}\n", command.getOldId()
-									.getName(), command.getNewId().getName(), command.getRefName()));
-							break;
-						case CREATE:
-							// new ref
-							// oldrev hard-coded to 40? weird.
-							writer.append(MessageFormat.format("40 {0} {1}\n", command.getNewId()
-									.getName(), command.getRefName()));
-							break;
-						}
-					}
-					resultCode = process.waitFor();
-
-					// read and buffer stdin
-					// this is supposed to be piped back to the git client.
-					// not sure how to do that right now.
-					StringBuilder sb = new StringBuilder();
-					String line = null;
-					while ((line = reader.readLine()) != null) {
-						sb.append(line).append('\n');
-					}
-					logger.debug(sb.toString());
-				} catch (Throwable e) {
-					resultCode = -1;
-					logger.error(
-							MessageFormat.format("Failed to execute {0}",
-									scriptFile.getAbsolutePath()), e);
-				}
-			}
-
-			// reject push
-			if (resultCode != 0) {
-				for (ReceiveCommand command : commands) {
-					command.setResult(Result.REJECTED_OTHER_REASON, MessageFormat.format(
-							"Native script {0} rejected push or failed",
-							scriptFile.getAbsolutePath()));
 				}
 			}
 		}
