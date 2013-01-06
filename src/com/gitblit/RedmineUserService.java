@@ -86,69 +86,92 @@ public class RedmineUserService extends GitblitUserService {
 			return super.authenticate(username, password);
 		}
 
-        String urlText = this.settings.getString(Keys.realm.redmine.url, "");
-        if (!urlText.endsWith("/")) {
-            urlText.concat("/");
-        }
-        String apiKey = String.valueOf(password);
-
+        String jsonString = null;
         try {
-            String jsonString = getCurrentUserAsJson(urlText, apiKey);
-
-            RedmineCurrent current = new Gson().fromJson(jsonString, RedmineCurrent.class);
-            String login = current.user.login;
-
-            boolean canAdmin = true;
-            if (StringUtils.isEmpty(login)) {
-                login = current.user.mail;
-                
-            	// non admin user can not get login name
-            	// TODO review this assumption, if it is true, it is undocumented
-                canAdmin = false;
-            }
-            
-            UserModel user = getUserModel(login);
-            if (user == null)	// create user object for new authenticated user
-            	user = new UserModel(login);
-            
-            // create a user cookie
-			if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-				user.cookie = StringUtils.getSHA1(user.username + new String(password));
-			}
-            
-            // update user attributes from Redmine
-			user.accountType = getAccountType();
-			user.canAdmin = canAdmin;
-        	user.displayName = current.user.firstname + " " + current.user.lastname;
-        	user.emailAddress = current.user.mail;
-        	user.password = ExternalAccount;
-        	
-        	// TODO Redmine group mapping for administration & teams
-        	// http://www.redmine.org/projects/redmine/wiki/Rest_Users
-        	
-        	// push the changes to the backing user service
-        	super.updateUserModel(user);
-        	
-            return user;
-        } catch (IOException e) {
-            logger.error("authenticate", e);
+        	// first attempt by username/password
+        	jsonString = getCurrentUserAsJson(username, password);
+        } catch (Exception e1) {
+        	logger.warn("Failed to authenticate via username/password against Redmine");
+        	try {
+        		// second attempt is by apikey
+        		jsonString = getCurrentUserAsJson(null, password);
+        		username = null;
+        	} catch (Exception e2) {
+        		logger.error("Failed to authenticate via apikey against Redmine", e2);
+        		return null;
+        	}
         }
-        return null;
+        
+        RedmineCurrent current = null;
+        try {
+        	current = new Gson().fromJson(jsonString, RedmineCurrent.class);
+        } catch (Exception e) {
+        	logger.error("Failed to deserialize Redmine json response: " + jsonString, e);
+        	return null;
+        }
+
+        if (StringUtils.isEmpty(username)) {
+        	// if the username has been reset because of apikey authentication
+        	// then use the email address of the user. this is the original
+        	// behavior as contributed by github/mallowlabs
+        	username = current.user.mail;
+        }
+
+        UserModel user = getUserModel(username);
+        if (user == null)	// create user object for new authenticated user
+        	user = new UserModel(username.toLowerCase());
+
+        // create a user cookie
+        if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+        	user.cookie = StringUtils.getSHA1(user.username + new String(password));
+        }
+
+        // update user attributes from Redmine
+        user.accountType = getAccountType();
+        user.displayName = current.user.firstname + " " + current.user.lastname;
+        user.emailAddress = current.user.mail;
+        user.password = ExternalAccount;
+        if (!StringUtils.isEmpty(current.user.login)) {
+        	// only admin users can get login name
+        	// evidently this is an undocumented behavior of Redmine
+        	user.canAdmin = true;
+        }
+
+        // TODO consider Redmine group mapping for team membership
+        // http://www.redmine.org/projects/redmine/wiki/Rest_Users
+
+        // push the changes to the backing user service
+        super.updateUserModel(user);
+
+        return user;
     }
 
-    private String getCurrentUserAsJson(String url, String apiKey) throws IOException {
+    private String getCurrentUserAsJson(String username, char [] password) throws IOException {
         if (testingJson != null) { // for testing
             return testingJson;
         }
 
-        String apiUrl = url + "users/current.json?key=" + apiKey;
-        HttpURLConnection http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, null, null);
+        String url = this.settings.getString(Keys.realm.redmine.url, "");
+        if (!url.endsWith("/")) {
+        	url.concat("/");
+        }
+        HttpURLConnection http;
+        if (username == null) {
+        	// apikey authentication
+        	String apiKey = String.valueOf(password);
+        	String apiUrl = url + "users/current.json?key=" + apiKey;
+        	http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, null, null);
+        } else {
+        	// username/password BASIC authentication
+        	String apiUrl = url + "users/current.json";
+        	http = (HttpURLConnection) ConnectionUtils.openConnection(apiUrl, username, password);
+        }
         http.setRequestMethod("GET");
         http.connect();
         InputStreamReader reader = new InputStreamReader(http.getInputStream());
         return IOUtils.toString(reader);
     }
-
+    
     /**
      * set json response. do NOT invoke from production code.
      * @param json json

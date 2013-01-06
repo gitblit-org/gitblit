@@ -30,8 +30,8 @@ public class RedmineUserServiceTest {
         RedmineUserService redmineUserService = new RedmineUserService();
         redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
         redmineUserService.setTestingCurrentUserAsJson(JSON);
-        UserModel userModel = redmineUserService.authenticate("RedmineUserId", "RedmineAPIKey".toCharArray());
-        assertThat(userModel.getName(), is("redmineuserid"));
+        UserModel userModel = redmineUserService.authenticate("RedmineAdminId", "RedmineAPIKey".toCharArray());
+        assertThat(userModel.getName(), is("redmineadminid"));
         assertThat(userModel.getDisplayName(), is("baz foo"));
         assertThat(userModel.emailAddress, is("baz@example.com"));
         assertNotNull(userModel.cookie);
@@ -44,7 +44,7 @@ public class RedmineUserServiceTest {
         redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
         redmineUserService.setTestingCurrentUserAsJson(NOT_ADMIN_JSON);
         UserModel userModel = redmineUserService.authenticate("RedmineUserId", "RedmineAPIKey".toCharArray());
-        assertThat(userModel.getName(), is("baz@example.com"));
+        assertThat(userModel.getName(), is("redmineuserid"));
         assertThat(userModel.getDisplayName(), is("baz foo"));
         assertThat(userModel.emailAddress, is("baz@example.com"));
         assertNotNull(userModel.cookie);
