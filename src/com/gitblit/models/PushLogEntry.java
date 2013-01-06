@@ -20,13 +20,16 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.ReceiveCommand;
 
 /**
  * Model class to represent a push into a repository.
@@ -44,6 +47,8 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	public final UserModel user;
 
 	private final Set<RepositoryCommit> commits;
+	
+	private final Map<String, ReceiveCommand.Type> refUpdates;
 
 	/**
 	 * Constructor for specified duration of push from start date.
@@ -60,6 +65,19 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		this.date = date;
 		this.user = user;
 		this.commits = new LinkedHashSet<RepositoryCommit>();
+		this.refUpdates = new HashMap<String, ReceiveCommand.Type>();
+	}
+	
+	/**
+	 * Tracks the change type for the specified ref.
+	 * 
+	 * @param ref
+	 * @param type
+	 */
+	public void updateRef(String ref, ReceiveCommand.Type type) {
+		if (!refUpdates.containsKey(ref)) {
+			refUpdates.put(ref, type);
+		}
 	}
 
 	/**
@@ -77,6 +95,20 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 			return commitModel;
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns true if this push contains a non-fastforward ref update.
+	 * 
+	 * @return true if this is a non-fastforward push
+	 */
+	public boolean isNonFastForward() {
+		for (Map.Entry<String, ReceiveCommand.Type> entry : refUpdates.entrySet()) {
+			if (ReceiveCommand.Type.UPDATE_NONFASTFORWARD.equals(entry.getValue())) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -105,9 +137,9 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	 */
 	protected List<String> getChangedRefs(String baseRef) {
 		Set<String> refs = new HashSet<String>();
-		for (RepositoryCommit commit : commits) {
-			if (baseRef == null || commit.branch.startsWith(baseRef)) {
-				refs.add(commit.branch);
+		for (String ref : refUpdates.keySet()) {
+			if (baseRef == null || ref.startsWith(baseRef)) {
+				refs.add(ref);
 			}
 		}
 		List<String> list = new ArrayList<String>(refs);
@@ -160,7 +192,17 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1} pushed {2,number,0} commit{3} to {4} ",
-				date, user.getDisplayName(), commits.size(), commits.size() == 1 ? "":"s", repository);
+		StringBuilder sb = new StringBuilder();
+		sb.append(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1} pushed {2,number,0} commit{3} to {4} ",
+				date, user.getDisplayName(), commits.size(), commits.size() == 1 ? "":"s", repository));
+		for (Map.Entry<String, ReceiveCommand.Type> entry : refUpdates.entrySet()) {
+			String ref = entry.getKey();
+			ReceiveCommand.Type type = entry.getValue();
+			sb.append("\n  ").append(ref).append(' ').append(type.name()).append('\n');
+			for (RepositoryCommit commit : getCommits(ref)) {
+				sb.append("    ").append(commit.toString()).append('\n');
+			}
+		}
+		return sb.toString();
 	}
 }

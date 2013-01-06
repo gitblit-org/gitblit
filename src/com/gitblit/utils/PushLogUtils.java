@@ -321,20 +321,20 @@ public class PushLogUtils {
 			for (PathChangeModel change : changedRefs) {
 				switch (change.changeType) {
 				case DELETE:
+					log.updateRef(change.path, ReceiveCommand.Type.DELETE);
 					break;
 				case ADD:
-				case MODIFY:
+					log.updateRef(change.path, ReceiveCommand.Type.CREATE);
+				default:
 					String content = JGitUtils.getStringContent(repository, push.getTree(), change.path);
 					String [] fields = content.split(" ");
+					log.updateRef(change.path, ReceiveCommand.Type.valueOf(fields[0]));
 					String oldId = fields[1];
 					String newId = fields[2];
 					List<RevCommit> pushedCommits = JGitUtils.getRevLog(repository, oldId, newId);
 					for (RevCommit pushedCommit : pushedCommits) {
 						log.addCommit(change.path, pushedCommit);
 					}
-					break;
-				default:
-					break;
 				}
 			}
 		}

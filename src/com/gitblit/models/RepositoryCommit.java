@@ -16,6 +16,7 @@
 package com.gitblit.models;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.eclipse.jgit.lib.PersonIdent;
@@ -100,5 +101,12 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 			return 1;
 		}
 		return 0;
+	}
+	
+	@Override
+	public String toString() {
+		return MessageFormat.format("{0} {1} {2,date,yyyy-MM-dd HH:mm} {3} {4}", 
+				getShortName(), branch, getCommitterIdent().getWhen(), getAuthorIdent().getName(),
+				getShortMessage());
 	}
 }
