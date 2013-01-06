@@ -32,10 +32,11 @@
 - Repository Owners may edit repositories through the web UI
 - Administrators and Repository Owners may set the default branch through the web UI or RPC interface
 - LDAP authentication and optional LDAP-controlled Team memberships
+- Redmine authentication
 - Gravatar integration
 - Git-notes display support
 - Submodule support
-- Simple, portable push log based on a hidden, orphan branch refs/gitblit/pushes
+- Push log based on a hidden, orphan branch refs/gitblit/pushes
 - gh-pages display support (Jekyll is not supported)
 - Branch metrics (uses Google Charts)
 - HEAD and Branch RSS feeds
