@@ -176,19 +176,17 @@ public class FileUtils {
 	public static long folderSize(File directory) {
 		if (directory == null || !directory.exists()) {
 			return -1;
-		}
-		if (directory.isFile()) {
-			return directory.length();
-		}
-		long length = 0;
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				length += file.length();
-			} else {
+		}		
+		if (directory.isDirectory()) {
+			long length = 0;
+			for (File file : directory.listFiles()) {
 				length += folderSize(file);
 			}
+			return length;
+		} else if (directory.isFile()) {
+			return directory.length();
 		}
-		return length;
+		return 0;
 	}
 
 	/**
