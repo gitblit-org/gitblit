@@ -102,6 +102,11 @@ public class RedmineUserService extends GitblitUserService {
         	}
         }
         
+        if (StringUtils.isEmpty(jsonString)) {
+        	logger.error("Received empty authentication response from Redmine");
+        	return null;
+        }
+        
         RedmineCurrent current = null;
         try {
         	current = new Gson().fromJson(jsonString, RedmineCurrent.class);
