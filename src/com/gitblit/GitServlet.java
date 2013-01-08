@@ -318,8 +318,12 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			}
 
 			// update push log
-			PushLogUtils.updatePushLog(user, rp.getRepository(), commands);
-			logger.info(MessageFormat.format("{0} push log updated", repository.name));
+			try {
+				PushLogUtils.updatePushLog(user, rp.getRepository(), commands);
+				logger.info(MessageFormat.format("{0} push log updated", repository.name));
+			} catch (Exception e) {
+				logger.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
+			}
 			
 			// run Groovy hook scripts 
 			Set<String> scripts = new LinkedHashSet<String>();
