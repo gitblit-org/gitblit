@@ -537,7 +537,7 @@ public class JGitUtils {
 	 * @param path
 	 * @return content as a byte []
 	 */
-	public static byte[] getByteContent(Repository repository, RevTree tree, final String path) {
+	public static byte[] getByteContent(Repository repository, RevTree tree, final String path, boolean throwError) {
 		RevWalk rw = new RevWalk(repository);
 		TreeWalk tw = new TreeWalk(repository);
 		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
@@ -572,7 +572,9 @@ public class JGitUtils {
 				}
 			}
 		} catch (Throwable t) {
-			error(t, repository, "{0} can't find {1} in tree {2}", path, tree.name());
+			if (throwError) {
+				error(t, repository, "{0} can't find {1} in tree {2}", path, tree.name());
+			}
 		} finally {
 			rw.dispose();
 			tw.release();
@@ -591,7 +593,7 @@ public class JGitUtils {
 	 * @return UTF-8 string content
 	 */
 	public static String getStringContent(Repository repository, RevTree tree, String blobPath, String... charsets) {
-		byte[] content = getByteContent(repository, tree, blobPath);
+		byte[] content = getByteContent(repository, tree, blobPath, true);
 		if (content == null) {
 			return null;
 		}
@@ -1584,7 +1586,7 @@ public class JGitUtils {
 	 */
 	public static List<SubmoduleModel> getSubmodules(Repository repository, RevTree tree) {
 		List<SubmoduleModel> list = new ArrayList<SubmoduleModel>();
-		byte [] blob = getByteContent(repository, tree, ".gitmodules");
+		byte [] blob = getByteContent(repository, tree, ".gitmodules", false);
 		if (blob == null) {
 			return list;
 		}
@@ -1733,5 +1735,19 @@ public class JGitUtils {
 			error(t, repository, "Failed to create orphan branch {1} in repository {0}", branchName);
 		}
 		return success;
+	}
+	
+	/**
+	 * Reads the sparkleshare id, if present, from the repository.
+	 * 
+	 * @param repository
+	 * @return an id or null
+	 */
+	public static String getSparkleshareId(Repository repository) {
+		byte[] content = getByteContent(repository, null, ".sparkleshare", false);
+		if (content == null) {
+			return null;
+		}
+		return StringUtils.decodeString(content);
 	}
 }

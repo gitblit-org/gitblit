@@ -380,7 +380,7 @@ public class IssueUtils {
 		String issuePath = getIssuePath(issueId);
 		RevTree tree = JGitUtils.getCommit(repository, GB_ISSUES).getTree();
 		byte[] content = JGitUtils
-				.getByteContent(repository, tree, issuePath + "/" + attachment.id);
+				.getByteContent(repository, tree, issuePath + "/" + attachment.id, false);
 		attachment.content = content;
 		attachment.size = content.length;
 		return attachment;

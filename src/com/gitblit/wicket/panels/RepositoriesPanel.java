@@ -233,6 +233,13 @@ public class RepositoriesPanel extends BasePanel {
 							.setEscapeModelStrings(false));
 				}
 
+				if (entry.isSparkleshared()) {
+					row.add(WicketUtils.newImage("sparkleshareIcon", "star_16x16.png",
+							getString("gb.isSparkleshared")));
+				} else {
+					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
+				}
+				
 				if (entry.isFork()) {
 					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
 							getString("gb.isFork")));

@@ -87,6 +87,12 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(forkFrag);
 		}
 
+		if (entry.isSparkleshared()) {
+			add(WicketUtils.newImage("sparkleshareIcon", "star_16x16.png", localizer.getString("gb.isSparkleshared", parent)));
+		} else {
+			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
+		}
+
 		add(new BookmarkablePageLink<Void>("tickets", TicketsPage.class, pp).setVisible(entry.useTickets));
 		add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
 

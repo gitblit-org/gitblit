@@ -109,7 +109,7 @@ public class RawPage extends WebPage {
 						switch (type) {
 						case 2:
 							// image blobs
-							byte[] image = JGitUtils.getByteContent(r, commit.getTree(), blobPath);
+							byte[] image = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							response.setContentType("image/" + extension.toLowerCase());
 							response.setContentLength(image.length);
 							try {
@@ -120,7 +120,7 @@ public class RawPage extends WebPage {
 							break;
 						case 3:
 							// binary blobs (download)
-							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath);
+							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							response.setContentLength(binary.length);
 							response.setContentType("application/octet-stream");
 							response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");

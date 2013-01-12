@@ -82,6 +82,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
+	public String sparkleshareId;
 	
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
@@ -176,6 +177,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		return !accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 	
+	public boolean isSparkleshared() {
+		return !StringUtils.isEmpty(sparkleshareId);
+	}
+	
 	public RepositoryModel cloneAs(String cloneName) {
 		RepositoryModel clone = new RepositoryModel();
 		clone.originRepository = name;
@@ -193,6 +198,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.useTickets = useTickets;
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;
+		clone.sparkleshareId = sparkleshareId; 
 		return clone;
 	}
 }

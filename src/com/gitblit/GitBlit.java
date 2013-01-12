@@ -1715,6 +1715,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
+		model.sparkleshareId = JGitUtils.getSparkleshareId(r);
 		r.close();
 		
 		if (model.origin != null && model.origin.startsWith("file://")) {
