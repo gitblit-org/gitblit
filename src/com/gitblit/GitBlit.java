@@ -85,6 +85,9 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.fanout.FanoutNioService;
+import com.gitblit.fanout.FanoutService;
+import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -180,6 +183,8 @@ public class GitBlit implements ServletContextListener {
 	private TimeZone timezone;
 	
 	private FileBasedConfig projectConfigs;
+	
+	private FanoutService fanoutService;
 
 	public GitBlit() {
 		if (gitblit == null) {
@@ -3133,6 +3138,32 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		ContainerUtils.CVE_2007_0450.test();
+		
+		// startup Fanout PubSub service
+		if (settings.getInteger(Keys.fanout.port, 0) > 0) {
+			String bindInterface = settings.getString(Keys.fanout.bindInterface, null);
+			int port = settings.getInteger(Keys.fanout.port, FanoutService.DEFAULT_PORT);
+			boolean useNio = settings.getBoolean(Keys.fanout.useNio, true);
+			int limit = settings.getInteger(Keys.fanout.connectionLimit, 0);
+			
+			if (useNio) {
+				if (StringUtils.isEmpty(bindInterface)) {
+					fanoutService = new FanoutNioService(port);
+				} else {
+					fanoutService = new FanoutNioService(bindInterface, port);
+				}
+			} else {
+				if (StringUtils.isEmpty(bindInterface)) {
+					fanoutService = new FanoutSocketService(port);
+				} else {
+					fanoutService = new FanoutSocketService(bindInterface, port);
+				}
+			}
+			
+			fanoutService.setConcurrentConnectionLimit(limit);
+			fanoutService.setAllowAllChannelAnnouncements(false);
+			fanoutService.start();
+		}
 	}
 	
 	private void logTimezone(String type, TimeZone zone) {
@@ -3206,6 +3237,9 @@ public class GitBlit implements ServletContextListener {
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
 		gcExecutor.close();
+		if (fanoutService != null) {
+			fanoutService.stop();
+		}
 	}
 	
 	/**

@@ -14,7 +14,14 @@
 
 #### additions
 
-- Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 177)
+- Fanout PubSub service for self-hosted [Sparkleshare](http://sparkleshare.org) notifications.<br/>
+This service is disabled by default.<br/>
+    **New:** *fanout.bindInterface = localhost*<br/>
+	**New:** *fanout.port = 0*<br/>
+	**New:** *fanout.useNio = true*<br/>
+	**New:** *fanout.connectionLimit = 0*
+- Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 177)<br/>
+The push log is not currently visible in the ui, but the data will be collected and it will be exposed to the ui in the next release.
 - Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 183)
 - Added Dutch translation (github/kwoot)
 

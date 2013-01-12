@@ -37,6 +37,7 @@
 - Git-notes display support
 - Submodule support
 - Push log based on a hidden, orphan branch refs/gitblit/pushes
+- Fanout PubSub notifications service for self-hosted [Sparkleshare](http://sparkleshare.org) use
 - gh-pages display support (Jekyll is not supported)
 - Branch metrics (uses Google Charts)
 - HEAD and Branch RSS feeds
