@@ -7,6 +7,7 @@
 #### fixes
 
 - Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy
+- Added nullchecking when concurrently forking a repository and trying to display it's fork network (issue-187)
 - Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-186)
 - Fixed nullpointer on creating a repository with mixed case (issue 185)
 - Fixed nullpointer when using web.allowForking = true && git.cacheRepositoryList = false (issue 182)

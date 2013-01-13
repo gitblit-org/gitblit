@@ -1872,11 +1872,16 @@ public class GitBlit implements ServletContextListener {
 	
 	private ForkModel getForkModelFromCache(String repository) {
 		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		if (model == null) {
+			return null;
+		}
 		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
 				ForkModel fm = getForkModelFromCache(aFork);
-				fork.forks.add(fm);
+				if (fm != null) {
+					fork.forks.add(fm);
+				}
 			}
 		}
 		return fork;
@@ -1884,11 +1889,16 @@ public class GitBlit implements ServletContextListener {
 	
 	private ForkModel getForkModel(String repository) {
 		RepositoryModel model = getRepositoryModel(repository.toLowerCase());
+		if (model == null) {
+			return null;
+		}
 		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
 				ForkModel fm = getForkModel(aFork);
-				fork.forks.add(fm);
+				if (fm != null) {
+					fork.forks.add(fm);
+				}
 			}
 		}
 		return fork;
