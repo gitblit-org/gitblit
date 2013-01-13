@@ -368,10 +368,6 @@ public abstract class RepositoryPage extends BasePage {
 		return submodules;
 	}
 	
-	protected Map<String, SubmoduleModel> getSubmodules() {
-		return submodules;
-	}
-	
 	protected SubmoduleModel getSubmodule(String path) {
 		SubmoduleModel model = submodules.get(path);
 		if (model == null) {
