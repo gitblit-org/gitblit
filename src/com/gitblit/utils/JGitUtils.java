@@ -743,11 +743,7 @@ public class JGitUtils {
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 				for (DiffEntry diff : diffs) {
-					String objectId = null;
-					if (FileMode.GITLINK.equals(diff.getNewMode())) {
-						objectId = diff.getNewId().name();
-					}
-
+					String objectId = diff.getNewId().name();
 					if (diff.getChangeType().equals(ChangeType.DELETE)) {
 						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
 								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
