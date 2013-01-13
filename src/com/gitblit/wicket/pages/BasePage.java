@@ -136,7 +136,10 @@ public abstract class BasePage extends WebPage {
 	private void login() {
 		GitBlitWebSession session = GitBlitWebSession.get();
 		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
-			// already have a session
+			// already have a session, refresh usermodel to pick up
+			// any changes to permissions or roles (issue-186)
+			UserModel user = GitBlit.self().getUserModel(session.getUser().username);
+			session.setUser(user);
 			return;
 		}
 		

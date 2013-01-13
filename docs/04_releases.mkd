@@ -6,7 +6,8 @@
 
 #### fixes
 
-- Fixed nullpointer on recursively calculating folder sizes when there is a named pipe in the hierarchy
+- Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy
+- Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-186)
 - Fixed nullpointer on creating a repository with mixed case (issue 185)
 - Fixed nullpointer when using web.allowForking = true && git.cacheRepositoryList = false (issue 182)
 - Build project models from the repository model cache, when possible, to reduce page load time (issue 172)
