@@ -30,6 +30,7 @@ The push log is not currently visible in the ui, but the data will be collected 
 
 #### changes
 
+- Improve history display of a submodule link
 - Updated Korean translation (github/ds5apn)
 - Updated checkstyle definition (github/mystygage)
 

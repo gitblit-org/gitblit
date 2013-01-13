@@ -1616,6 +1616,32 @@ public class JGitUtils {
 		}
 		return null;
 	}
+	
+	public static String getSubmoduleCommitId(Repository repository, String path, RevCommit commit) {
+		String commitId = null;
+		RevWalk rw = new RevWalk(repository);
+		TreeWalk tw = new TreeWalk(repository);
+		tw.setFilter(PathFilterGroup.createFromStrings(Collections.singleton(path)));
+		try {
+			tw.reset(commit.getTree());
+			while (tw.next()) {
+				if (tw.isSubtree() && !path.equals(tw.getPathString())) {
+					tw.enterSubtree();
+					continue;
+				}
+				if (FileMode.GITLINK == tw.getFileMode(0)) {
+					commitId = tw.getObjectId(0).getName();
+					break;
+				}
+			}
+		} catch (Throwable t) {
+			error(t, repository, "{0} can't find {1} in commit {2}", path, commit.name());
+		} finally {
+			rw.dispose();
+			tw.release();
+		}
+		return commitId;
+	}
 
 	/**
 	 * Returns the list of notes entered about the commit from the refs/notes

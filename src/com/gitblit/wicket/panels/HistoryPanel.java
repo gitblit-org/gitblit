@@ -15,10 +15,14 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -38,6 +42,7 @@ import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
+import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
@@ -69,6 +74,11 @@ public class HistoryPanel extends BasePanel {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
 
+		Map<String, SubmoduleModel> submodules = new HashMap<String, SubmoduleModel>();
+		for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
+			submodules.put(model.path, model);
+		}
+
 		PathModel matchingPath = null;
 		for (PathModel p : paths) {
 			if (p.path.equals(path)) {
@@ -99,7 +109,20 @@ public class HistoryPanel extends BasePanel {
 		}
 		
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
+		final boolean isSubmodule = matchingPath == null ? true : matchingPath.isSubmodule();
 
+		// submodule
+		SubmoduleModel submodule = getSubmodule(submodules, repositoryName, matchingPath.path);
+		final String submodulePath;
+		final boolean hasSubmodule; 
+		if (submodule != null) {
+			submodulePath = submodule.gitblitPath;
+			hasSubmodule = submodule.hasSubmodule;
+		} else {
+			submodulePath = "";
+			hasSubmodule = false;
+		}
+		
 		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
 		List<RevCommit> commits;
 		if (pageResults) {
@@ -179,6 +202,23 @@ public class HistoryPanel extends BasePanel {
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
+				} else if (isSubmodule) {
+					// submodule
+					item.add(new Label("hashLabel", submodulePath + "@"));
+					Repository repository = GitBlit.self().getRepository(repositoryName);
+					String submoduleId = JGitUtils.getSubmoduleCommitId(repository, path, entry);
+					repository.close();
+					LinkPanel commitHash = new LinkPanel("hashLink", null, submoduleId.substring(0, hashLen),
+							TreePage.class, WicketUtils.newObjectParameter(
+									submodulePath, submoduleId));
+					WicketUtils.setCssClass(commitHash, "shortsha1");
+					WicketUtils.setHtmlTooltip(commitHash, submoduleId);					
+					item.add(commitHash.setEnabled(hasSubmodule));
+					
+					Fragment links = new Fragment("historyLinks", "treeLinks", this);
+					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
+							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
+					item.add(links);
 				} else {					
 					// commit
 					item.add(new Label("hashLabel", getString("gb.blob") + "@"));
@@ -229,5 +269,67 @@ public class HistoryPanel extends BasePanel {
 
 	public boolean hasMore() {
 		return hasMore;
+	}
+	
+	protected SubmoduleModel getSubmodule(Map<String, SubmoduleModel> submodules, String repositoryName, String path) {
+		SubmoduleModel model = submodules.get(path);
+		if (model == null) {
+			// undefined submodule?!
+			model = new SubmoduleModel(path.substring(path.lastIndexOf('/') + 1), path, path);
+			model.hasSubmodule = false;
+			model.gitblitPath = model.name;
+			return model;
+		} else {
+			// extract the repository name from the clone url
+			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
+			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
+			
+			// determine the current path for constructing paths relative
+			// to the current repository
+			String currentPath = "";
+			if (repositoryName.indexOf('/') > -1) {
+				currentPath = repositoryName.substring(0, repositoryName.lastIndexOf('/') + 1);
+			}
+
+			// try to locate the submodule repository
+			// prefer bare to non-bare names
+			List<String> candidates = new ArrayList<String>();
+
+			// relative
+			candidates.add(currentPath + StringUtils.stripDotGit(submoduleName));
+			candidates.add(candidates.get(candidates.size() - 1) + ".git");
+
+			// relative, no subfolder
+			if (submoduleName.lastIndexOf('/') > -1) {
+				String name = submoduleName.substring(submoduleName.lastIndexOf('/') + 1);
+				candidates.add(currentPath + StringUtils.stripDotGit(name));
+				candidates.add(currentPath + candidates.get(candidates.size() - 1) + ".git");
+			}
+
+			// absolute
+			candidates.add(StringUtils.stripDotGit(submoduleName));
+			candidates.add(candidates.get(candidates.size() - 1) + ".git");
+
+			// absolute, no subfolder
+			if (submoduleName.lastIndexOf('/') > -1) {
+				String name = submoduleName.substring(submoduleName.lastIndexOf('/') + 1);
+				candidates.add(StringUtils.stripDotGit(name));
+				candidates.add(candidates.get(candidates.size() - 1) + ".git");
+			}
+
+			// create a unique, ordered set of candidate paths
+			Set<String> paths = new LinkedHashSet<String>(candidates);
+			for (String candidate : paths) {
+				if (GitBlit.self().hasRepository(candidate)) {
+					model.hasSubmodule = true;
+					model.gitblitPath = candidate;
+					return model;
+				}
+			}
+			
+			// we do not have a copy of the submodule, but we need a path
+			model.gitblitPath = candidates.get(0);
+			return model;
+		}		
 	}
 }
