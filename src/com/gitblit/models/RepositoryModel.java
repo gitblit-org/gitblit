@@ -168,10 +168,6 @@ public class RepositoryModel implements Serializable,
 		return !StringUtils.isEmpty(originRepository);
 	}
 
-	public boolean isOwner(String username) {
-		return repoAdministrators.contains(username.toLowerCase());
-	}
-
 	public boolean isPersonalRepository() {
 		return !StringUtils.isEmpty(projectPath)
 				&& projectPath.charAt(0) == '~';
@@ -206,16 +202,6 @@ public class RepositoryModel implements Serializable,
 		return clone;
 	}
 
-	public String getOwner() {
-		return multiConfigUtil
-				.convertCollectionToSingleLineString(this.repoAdministrators);
-	}
-
-	public void setOwner(String owner) {
-		removeAllRepoAdministrators();
-		addRepoAdministrator(owner);
-	}
-
 	public void addRepoAdministrator(String repoAdministrator) {
 		if (repoAdministrator != null && repoAdministrator.trim().length() > 0) {
 			this.repoAdministrators.add(repoAdministrator.toLowerCase());
@@ -246,5 +232,16 @@ public class RepositoryModel implements Serializable,
 
 	public void removeAllRepoAdministrators() {
 		this.repoAdministrators.clear();
+	}
+	
+	public Set<String> getRepoAdministrators() {
+		return this.repoAdministrators;
+	}
+	
+	public boolean isRepoAdministrator(String username) {
+		if (username == null || username.trim().length() == 0) {
+			return false;
+		}
+		return this.repoAdministrators.contains(username.toLowerCase());
 	}
 }

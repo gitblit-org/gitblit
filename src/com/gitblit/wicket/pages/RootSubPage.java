@@ -88,7 +88,7 @@ public abstract class RootSubPage extends RootPage {
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)
 					&& repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED)) {
 				if (user != null &&
-						(repositoryModel.isOwner(user.username) || repositoryModel.isUsersPersonalRepository(user.username))) {
+						(repositoryModel.isRepoAdministrator(user.username) || repositoryModel.isUsersPersonalRepository(user.username))) {
 					// exclude Owner or personal repositories
 					continue;
 				}

@@ -335,7 +335,7 @@ public class EditRepositoryDialog extends JDialog {
 		usersPalette = new RegistrantPermissionsPanel(RegistrantType.USER);
 
 		JPanel northFieldsPanel = new JPanel(new GridLayout(0, 1, 0, 5));
-		northFieldsPanel.add(newFieldPanel(Translation.get("gb.owner"), ownerField));
+		northFieldsPanel.add(newFieldPanel(Translation.get("gb.repoAdministrators"), ownerField));
 		northFieldsPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
 				accessRestriction), BorderLayout.NORTH);
 
@@ -556,7 +556,7 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.name = rname;
 		repository.description = descriptionField.getText();
-		repository.setOwner(ownerField.getSelectedItem() == null ? null
+		repository.addRepoAdministrator(ownerField.getSelectedItem() == null ? null
 				: ownerField.getSelectedItem().toString());
 		repository.HEAD = headRefField.getSelectedItem() == null ? null
 				: headRefField.getSelectedItem().toString();
