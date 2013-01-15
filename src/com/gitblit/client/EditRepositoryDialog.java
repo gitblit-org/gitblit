@@ -556,8 +556,8 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.name = rname;
 		repository.description = descriptionField.getText();
-		repository.owner = ownerField.getSelectedItem() == null ? null
-				: ownerField.getSelectedItem().toString();
+		repository.setOwner(ownerField.getSelectedItem() == null ? null
+				: ownerField.getSelectedItem().toString());
 		repository.HEAD = headRefField.getSelectedItem() == null ? null
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();

@@ -94,7 +94,7 @@ public class EditRepositoryPage extends RootSubPage {
 			// personal create permissions, inject personal repository path
 			model.name = user.getPersonalPath() + "/";
 			model.projectPath = user.getPersonalPath();
-			model.owner = user.username;
+			model.setOwner(user.username);
 			// personal repositories are private by default
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.authorizationControl = AuthorizationControl.NAMED;
@@ -559,7 +559,7 @@ public class EditRepositoryPage extends RootSubPage {
 						isAdmin = true;
 						return;
 					} else {
-						if (!model.owner.equalsIgnoreCase(user.username)) {
+						if (!model.getOwner().equalsIgnoreCase(user.username)) {
 							// User is not an Admin nor Owner
 							error(getString("gb.errorOnlyAdminOrOwnerMayEditRepository"), true);
 						}

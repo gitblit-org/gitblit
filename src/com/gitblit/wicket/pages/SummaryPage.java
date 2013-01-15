@@ -82,7 +82,7 @@ public class SummaryPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		String owner = getRepositoryModel().owner;
+		String owner = getRepositoryModel().getOwner();
 		if (StringUtils.isEmpty(owner)) {
 			add(new Label("repositoryOwner").setVisible(false));
 		} else {

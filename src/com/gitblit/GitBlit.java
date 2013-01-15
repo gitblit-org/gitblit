@@ -936,14 +936,14 @@ public class GitBlit implements ServletContextListener {
 			for (RepositoryModel model : getRepositoryModels(user)) {
 				if (model.isUsersPersonalRepository(username)) {
 					// personal repository
-					model.owner = user.username;
+					model.setOwner(user.username);
 					String oldRepositoryName = model.name;
 					model.name = "~" + user.username + model.name.substring(model.projectPath.length());
 					model.projectPath = "~" + user.username;
 					updateRepositoryModel(oldRepositoryName, model, false);
 				} else if (model.isOwner(username)) {
 					// common/shared repo
-					model.owner = user.username;
+					model.setOwner(user.username);
 					updateRepositoryModel(model.name, model, false);
 				}
 			}
@@ -1662,7 +1662,7 @@ public class GitBlit implements ServletContextListener {
 		
 		if (config != null) {
 			model.description = getConfig(config, "description", "");
-			model.owner = getConfig(config, "owner", "");
+			model.setOwner(getConfig(config, "owner", ""));
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -2169,7 +2169,7 @@ public class GitBlit implements ServletContextListener {
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		StoredConfig config = r.getConfig();
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
-		config.setString(Constants.CONFIG_GITBLIT, null, "owner", repository.owner);
+		config.setString(Constants.CONFIG_GITBLIT, null, "owner", repository.getOwner());
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
@@ -3250,12 +3250,12 @@ public class GitBlit implements ServletContextListener {
 		// create a Gitblit repository model for the clone
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
 		// owner has REWIND/RW+ permissions
-		cloneModel.owner = user.username;
+		cloneModel.setOwner(user.username);
 		updateRepositoryModel(cloneName, cloneModel, false);
 
 		// add the owner of the source repository to the clone's access list
-		if (!StringUtils.isEmpty(repository.owner)) {
-			UserModel originOwner = getUserModel(repository.owner);
+		if (!StringUtils.isEmpty(repository.getOwner())) {
+			UserModel originOwner = getUserModel(repository.getOwner());
 			if (originOwner != null) {
 				originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 				updateUserModel(originOwner.username, originOwner, false);

@@ -287,7 +287,7 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
-				String owner = entry.owner;
+				String owner = entry.getOwner();
 				if (!StringUtils.isEmpty(owner)) {
 					UserModel ownerModel = GitBlit.self().getUserModel(owner);
 					if (ownerModel != null) {
@@ -516,9 +516,9 @@ public class RepositoriesPanel extends BasePanel {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
 						if (asc) {
-							return o1.owner.compareTo(o2.owner);
+							return o1.getOwner().compareTo(o2.getOwner());
 						}
-						return o2.owner.compareTo(o1.owner);
+						return o2.getOwner().compareTo(o1.getOwner());
 					}
 				});
 			} else if (prop.equals(SortBy.description.name())) {

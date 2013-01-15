@@ -111,7 +111,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Description:
 			return model.description;
 		case Owner:
-			return model.owner;
+			return model.getOwner();
 		case Indicators:
 			return model;
 		case Last_Change:
