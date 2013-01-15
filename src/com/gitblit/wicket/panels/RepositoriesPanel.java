@@ -310,34 +310,21 @@ public class RepositoriesPanel extends BasePanel {
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
 							EditRepositoryPage.class, WicketUtils
 									.newRepositoryParameter(entry.name)));
-					Link<Void> deleteLink = new Link<Void>("deleteRepository") {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick() {
-							if (GitBlit.self().deleteRepositoryModel(entry)) {
-								if (dp instanceof SortableRepositoriesProvider) {
-									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
-									((SortableRepositoriesProvider) dp).remove(entry);
-								} else {
-									setResponsePage(getPage().getClass(), getPage().getPageParameters());
-								}
-							} else {
-								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
-							}
-						}
-					};
+					Link<Void> deleteLink = new DeleteLink(entry, dp);
 					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 							getString("gb.deleteRepository"), entry)));
 					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
 				} else if (isRepoAdministrator) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
-							"repositoryOwnerLinks", this);
+							"repositoryAdminLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
 							EditRepositoryPage.class, WicketUtils
 									.newRepositoryParameter(entry.name)));
+					Link<Void> deleteLink = new DeleteLink(entry, dp);
+					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
+							getString("gb.deleteRepository"), entry)));
+					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
 				} else {
 					row.add(new Label("repositoryLinks"));
@@ -366,6 +353,35 @@ public class RepositoriesPanel extends BasePanel {
 		}
 	}
 
+	private class DeleteLink extends Link<Void> {
+			private RepositoryModel entry;
+
+			private IDataProvider<RepositoryModel> dp;
+			
+			private static final long serialVersionUID = 1L;
+
+			public DeleteLink(RepositoryModel entry, IDataProvider<RepositoryModel> dp) {
+				super("deleteRepository");
+				this.entry=entry;
+				this.dp=dp;
+			}
+			
+			@Override
+			public void onClick() {
+				if (GitBlit.self().deleteRepositoryModel(entry)) {
+					if (dp instanceof SortableRepositoriesProvider) {
+						info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
+						((SortableRepositoriesProvider) dp).remove(entry);
+					} else {
+						setResponsePage(getPage().getClass(), getPage().getPageParameters());
+					}
+				} else {
+					error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
+				}
+			}
+		
+	}
+	
 	private static class GroupRepositoryModel extends RepositoryModel {
 
 		private static final long serialVersionUID = 1L;
