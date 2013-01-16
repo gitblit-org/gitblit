@@ -1171,7 +1171,7 @@
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildGhPages">
 			<classpath refid="master-classpath" />
 			<arg value="--sourceFolder" />
-			<arg value="${basedir}/site" />
+			<arg value="${basedir}/target/site" />
 
 			<arg value="--repository" />
 			<arg value="${basedir}" />
@@ -1195,7 +1195,7 @@
 			 username="${googlecode.user}" 
 			 password="${googlecode.password}" 
 			 projectname="gitblit" 
-			 filename="${distribution.zipfile}" 
+			 filename="${project.target.dir}/${distribution.zipfile}" 
 			 targetfilename="gitblit-${gb.version}.zip"
 			 summary="Gitblit GO v${gb.version} (standalone, integrated Gitblit server)"
 			 labels="Featured, Type-Package, OpSys-All" />
@@ -1205,7 +1205,7 @@
 		     username="${googlecode.user}" 
 		     password="${googlecode.password}" 
 		     projectname="gitblit" 
-		     filename="${distribution.warfile}" 
+		     filename="${project.target.dir}/${distribution.warfile}" 
 		     targetfilename="gitblit-${gb.version}.war"
 		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
@@ -1215,7 +1215,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${fedclient.zipfile}" 
+			filename="${project.target.dir}/${fedclient.zipfile}" 
 			targetfilename="fedclient-${gb.version}.zip"
 			summary="Gitblit Federation Client v${gb.version} (command-line tool to clone data from federated Gitblit instances)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1225,7 +1225,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${manager.zipfile}" 
+			filename="${project.target.dir}/${manager.zipfile}" 
 			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1235,7 +1235,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${gbapi.zipfile}" 
+			filename="${project.target.dir}/${gbapi.zipfile}" 
 			targetfilename="gbapi-${gb.version}.zip"
 			summary="Gitblit API Library v${gb.version} (JSON RPC library to integrate with your software)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1245,7 +1245,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${express.zipfile}" 
+			filename="${project.target.dir}/${express.zipfile}" 
 			targetfilename="express-${gb.version}.zip"
 			summary="Gitblit Express v${gb.version} (run Gitblit on RedHat's OpenShift cloud)"
 			labels="Featured, Type-Package, OpSys-All" />
