@@ -23,10 +23,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.wicket.markup.html.basic.MultiLineLabel;
+
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.MultiConfigUtil;
+import com.gitblit.utils.StringComparator;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -36,14 +40,15 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  * 
  */
-public class RepositoryModel implements Serializable, Comparable<RepositoryModel> {
+public class RepositoryModel implements Serializable,
+		Comparable<RepositoryModel> {
 
 	private static final long serialVersionUID = 1L;
 
 	// field names are reflectively mapped in EditRepository page
 	public String name;
 	public String description;
-	public String owner;
+	private Set<String> repoAdministrators = new TreeSet<String>(new StringComparator());
 	public Date lastChange;
 	public boolean hasCommits;
 	public boolean showRemoteBranches;
@@ -79,26 +84,29 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String gcThreshold;
 	public int gcPeriod;
 	public int maxActivityCommits;
-	
+
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
-	
+
+	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
+
 	public RepositoryModel() {
 		this("", "", "", new Date(0));
 	}
 
-	public RepositoryModel(String name, String description, String owner, Date lastchange) {
+	public RepositoryModel(String name, String description, String owner,
+			Date lastchange) {
 		this.name = name;
-		this.description = description;
-		this.owner = owner;
+		this.description = description;		
+		this.addRepoAdministrator(owner);
 		this.lastChange = lastchange;
 		this.accessRestriction = AccessRestrictionType.NONE;
 		this.authorizationControl = AuthorizationControl.NAMED;
 		this.federationSets = new ArrayList<String>();
-		this.federationStrategy = FederationStrategy.FEDERATE_THIS;	
+		this.federationStrategy = FederationStrategy.FEDERATE_THIS;
 		this.projectPath = StringUtils.getFirstPathElement(name);
 	}
-	
+
 	public List<String> getLocalBranches() {
 		if (ArrayUtils.isEmpty(availableRefs)) {
 			return new ArrayList<String>();
@@ -111,30 +119,30 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		}
 		return localBranches;
 	}
-	
+
 	public void addFork(String repository) {
 		if (forks == null) {
 			forks = new TreeSet<String>();
 		}
 		forks.add(repository);
 	}
-	
+
 	public void removeFork(String repository) {
 		if (forks == null) {
 			return;
 		}
 		forks.remove(repository);
 	}
-	
+
 	public void resetDisplayName() {
 		displayName = null;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof RepositoryModel) {
@@ -155,27 +163,25 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int compareTo(RepositoryModel o) {
 		return StringUtils.compareRepositoryNames(name, o.name);
 	}
-	
+
 	public boolean isFork() {
 		return !StringUtils.isEmpty(originRepository);
 	}
-	
-	public boolean isOwner(String username) {
-		return owner != null && username != null && owner.equalsIgnoreCase(username);
-	}
-	
+
 	public boolean isPersonalRepository() {
-		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
+		return !StringUtils.isEmpty(projectPath)
+				&& projectPath.charAt(0) == '~';
 	}
-	
+
 	public boolean isUsersPersonalRepository(String username) {
-		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+		return !StringUtils.isEmpty(projectPath)
+				&& projectPath.equalsIgnoreCase("~" + username);
 	}
-	
+
 	public boolean allowAnonymousView() {
 		return !accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
-	
+
 	public RepositoryModel cloneAs(String cloneName) {
 		RepositoryModel clone = new RepositoryModel();
 		clone.originRepository = name;
@@ -194,5 +200,48 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;
 		return clone;
+	}
+
+	public void addRepoAdministrator(String repoAdministrator) {
+		if (repoAdministrator != null && repoAdministrator.trim().length() > 0) {
+			this.repoAdministrators.add(repoAdministrator.toLowerCase());
+		}
+	}
+
+	public void removeRepoAdministrator(String repoAdministrator) {
+		if (repoAdministrator != null && repoAdministrator.trim().length() > 0) {
+			this.repoAdministrators.remove(repoAdministrator.toLowerCase());
+		}
+	}
+
+	public void addRepoAdministrators(Set<String> repoAdministrators) {
+		if (repoAdministrators != null) {
+			for (String admin : repoAdministrators) {
+				this.addRepoAdministrator(admin);
+			}
+		}
+	}
+
+	public void removeRepoAdministrators(Set<String> repoAdministrators) {
+		if (repoAdministrators != null) {
+			for (String admin : repoAdministrators) {
+				this.removeRepoAdministrator(admin);
+			}
+		}
+	}
+
+	public void removeAllRepoAdministrators() {
+		this.repoAdministrators.clear();
+	}
+	
+	public Set<String> getRepoAdministrators() {
+		return this.repoAdministrators;
+	}
+	
+	public boolean isRepoAdministrator(String username) {
+		if (username == null || username.trim().length() == 0) {
+			return false;
+		}
+		return this.repoAdministrators.contains(username.toLowerCase());
 	}
 }

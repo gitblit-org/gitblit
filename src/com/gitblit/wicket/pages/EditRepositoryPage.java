@@ -61,6 +61,7 @@ import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.StringChoiceRenderer;
@@ -70,6 +71,8 @@ import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
+	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
+	
 	private final boolean isCreate;
 
 	private boolean isAdmin;
@@ -94,7 +97,7 @@ public class EditRepositoryPage extends RootSubPage {
 			// personal create permissions, inject personal repository path
 			model.name = user.getPersonalPath() + "/";
 			model.projectPath = user.getPersonalPath();
-			model.owner = user.username;
+			model.addRepoAdministrator(user.username);
 			// personal repositories are private by default
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.authorizationControl = AuthorizationControl.NAMED;
@@ -164,6 +167,12 @@ public class EditRepositoryPage extends RootSubPage {
 		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams", 
 				RegistrantType.TEAM, GitBlit.self().getAllTeamnames(), repositoryTeams, getAccessPermissions());
 
+		// repo administrators palette
+		List admins = multiConfigUtil.convertCollectionToList(repositoryModel.getRepoAdministrators());
+		List persons = GitBlit.self().getAllUsernames();
+		final Palette repoAdministratorsPalette = new Palette("repoAdministrators", new ListModel<String>(admins), new CollectionModel<String>(
+		      persons), new StringChoiceRenderer(), 10, true);
+		
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);
@@ -326,6 +335,12 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 					repositoryModel.indexedBranches = indexedBranches;
 
+					repositoryModel.removeAllRepoAdministrators();
+					Iterator<String> repoAdmins = repoAdministratorsPalette.getSelectedChoices();
+					while (repoAdmins.hasNext()) {
+						repositoryModel.addRepoAdministrator(repoAdmins.next());
+					}
+					
 					// pre-receive scripts
 					List<String> preReceiveScripts = new ArrayList<String>();
 					Iterator<String> pres = preReceivePalette.getSelectedChoices();
@@ -377,8 +392,7 @@ public class EditRepositoryPage extends RootSubPage {
 		// field names reflective match RepositoryModel fields
 		form.add(new TextField<String>("name").setEnabled(allowEditName));
 		form.add(new TextField<String>("description"));
-		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
-				.setEnabled(GitBlitWebSession.get().canAdmin() && !repositoryModel.isPersonalRepository()));
+		form.add(repoAdministratorsPalette);
 		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
 				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer());
@@ -559,9 +573,9 @@ public class EditRepositoryPage extends RootSubPage {
 						isAdmin = true;
 						return;
 					} else {
-						if (!model.owner.equalsIgnoreCase(user.username)) {
-							// User is not an Admin nor Owner
-							error(getString("gb.errorOnlyAdminOrOwnerMayEditRepository"), true);
+						if (!model.isRepoAdministrator(user.username)) {
+							// User is not an Admin nor RepoAdministrator
+							error(getString("gb.errorOnlyAdminOrRepoAdminMayEditRepository"), true);
 						}
 					}
 				}

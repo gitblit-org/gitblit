@@ -49,6 +49,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
+import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
@@ -59,6 +60,8 @@ import com.gitblit.wicket.panels.TagsPanel;
 
 public class SummaryPage extends RepositoryPage {
 
+	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
+	
 	public SummaryPage(PageParameters params) {
 		super(params);
 
@@ -82,16 +85,12 @@ public class SummaryPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		String owner = getRepositoryModel().owner;
-		if (StringUtils.isEmpty(owner)) {
-			add(new Label("repositoryOwner").setVisible(false));
-		} else {
-			UserModel ownerModel = GitBlit.self().getUserModel(owner);
-			if (ownerModel != null) {
-				add(new LinkPanel("repositoryOwner", null, ownerModel.getDisplayName(), UserPage.class, WicketUtils.newUsernameParameter(owner)));
-			} else {
-				add(new Label("repositoryOwner", owner));
-			}
+		String repoAdministrators = multiConfigUtil.convertCollectionToSingleLineString(getRepositoryModel().getRepoAdministrators());
+		if (StringUtils.isEmpty(repoAdministrators)) {
+			add(new Label("repositoryAdministrators").setVisible(false));
+		} else {			
+			//TODO reimplement link panel for each username
+			add(new Label("repositoryAdministrators", repoAdministrators));			
 		}
 
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",

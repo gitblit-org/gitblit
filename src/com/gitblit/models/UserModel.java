@@ -108,8 +108,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	@Deprecated
 	@Unused
 	public boolean canAccessRepository(RepositoryModel repository) {
-		boolean isOwner = !StringUtils.isEmpty(repository.owner)
-				&& repository.owner.equals(username);
+		boolean isOwner = repository.isRepoAdministrator(username);
 		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
 		return canAdmin() || isOwner || repositories.contains(repository.name.toLowerCase())
 				|| hasTeamAccess(repository.name) || allowAuthenticated;
@@ -304,7 +303,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		
 		// repository owner - either specified owner or personal repository
-		if (repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
+		if (repository.isRepoAdministrator(username) || repository.isUsersPersonalRepository(username)) {
 			ap.permissionType = PermissionType.OWNER;
 			ap.permission = AccessPermission.REWIND;
 			return ap;
@@ -412,7 +411,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			// can not fork your own repository
 			return false;
 		}
-		if (canAdmin() || repository.isOwner(username)) {
+		if (canAdmin() || repository.isRepoAdministrator(username)) {
 			return true;
 		}
 		if (!repository.allowForks) {
@@ -429,7 +428,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 	
 	public boolean canEdit(RepositoryModel model) {
-		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
+		return canAdmin() || model.isUsersPersonalRepository(username) || model.isRepoAdministrator(username);
 	}
 	
 	/**

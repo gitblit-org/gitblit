@@ -52,6 +52,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.FeedModel;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -84,6 +85,8 @@ public abstract class RepositoriesPanel extends JPanel {
 	private JTextField filterTextfield;
 
 	private JButton clearCache;
+	
+	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
 
 	public RepositoriesPanel(GitblitClient gitblit) {
 		super();
@@ -453,7 +456,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		dialog.setLocationRelativeTo(RepositoriesPanel.this);
 		List<String> usernames = gitblit.getUsernames();
 		List<RegistrantAccessPermission> members = gitblit.getUserAccessPermissions(repository);
-		dialog.setUsers(repository.owner, usernames, members);
+		dialog.setUsers(multiConfigUtil.convertCollectionToSingleLineString(repository.getRepoAdministrators()), usernames, members);
 		dialog.setTeams(gitblit.getTeamnames(), gitblit.getTeamAccessPermissions(repository));
 		dialog.setRepositories(gitblit.getRepositories());
 		dialog.setFederationSets(gitblit.getFederationSets(), repository.federationSets);

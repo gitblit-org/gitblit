@@ -73,7 +73,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Description:
 			return Translation.get("gb.description");
 		case Owner:
-			return Translation.get("gb.owner");
+			return Translation.get("gb.repoAdministrators");
 		case Last_Change:
 			return Translation.get("gb.lastChange");
 		case Size:
@@ -111,7 +111,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Description:
 			return model.description;
 		case Owner:
-			return model.owner;
+			return model.getRepoAdministrators();
 		case Indicators:
 			return model;
 		case Last_Change:
