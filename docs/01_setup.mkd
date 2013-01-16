@@ -259,15 +259,28 @@ All platforms support the *--baseFolder* command-line argument.
 
 ### Upgrading Gitblit GO (pre-1.2.1)
 1. Create a `data` folder and copy the following files and folders to it:
-    - users.conf
-	- projects.conf *(if you have one)*
-	- gitblit.properties
-	- serverKeystore.jks
-	- serverTrustStore.jks
-	- certs folder
-	- groovy folder
-	- proposals folder
+    - **users.conf*
+	- **projects.conf** *(if you have one)*
+	- **gitblit.properties**
+	- **serverKeystore.jks**
+	- **serverTrustStore.jks**
+	- *certs** folder
+	- **git** folder
+	- **groovy** folder
+	- **proposals** folder
     - and any other custom files (robots.txt, welcome/login markdown files, etc)
+	- then edit your `gitblit.properties` file and adjust the following settings:
+        - *git.repositoriesFolder* = ${baseFolder}/git
+        - *groovy.scriptsFolder* = ${baseFolder}/groovy
+        - *groovy.grapeFolder* = ${baseFolder}/groovy/grape
+        - *web.projectsFile* = ${baseFolder}/projects.conf
+        - *realm.userService* = ${baseFolder}/users.conf
+        - *web.robots.txt* = ${baseFolder}/robots.txt
+        - *federation.proposalsFolder* = ${baseFolder}/proposals
+        - *realm.ldap.backingUserService* = ${baseFolder}/users.conf
+        - *realm.redmine.backingUserService* = ${baseFolder}/users.conf
+        - *server.tempFolder* = ${baseFolder}/temp
+
 2. Unzip Gitblit GO to a new folder
 3. Copy your `data` folder and overwrite the folder of the same name in the just-unzipped version
 4. Review and optionally apply any new settings as indicated in the [release log](releases.html) to `data/gitblit.properties`.
