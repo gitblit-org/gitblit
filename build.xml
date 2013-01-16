@@ -926,6 +926,9 @@
 		<genjar jarfile="${project.target.dir}/gbapi-${gb.version}.jar">
 			<class name="com.gitblit.Keys" />
 			<class name="com.gitblit.client.GitblitClient" />
+			<class name="com.gitblit.models.FederationModel" />
+			<class name="com.gitblit.models.FederationProposal" />
+			<class name="com.gitblit.models.FederationSet" />			
 			<classpath refid="master-classpath" />
 			<classfilter>
 				<exclude name="com.google.gson." />
