@@ -3,6 +3,7 @@
 set -e
 
 GITBLIT_PATH=/opt/gitblit
+GITBLIT_BASE_FOLDER=/opt/gitblit/data
 GITBLIT_HTTP_PORT=0
 GITBLIT_HTTPS_PORT=8443
 source ${GITBLIT_PATH}/java-proxy-config.sh
@@ -14,13 +15,13 @@ case "$1" in
   start)
         log_action_begin_msg "Starting gitblit server"
         cd $GITBLIT_PATH
-        $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT > /dev/null &
+        $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER > /dev/null &
         log_action_end_msg $?
         ;;
   stop)
         log_action_begin_msg "Stopping gitblit server"
         cd $GITBLIT_PATH
-        $JAVA $GITBLIT_PATH/gitblit.jar --stop > /dev/null &
+        $JAVA $GITBLIT_PATH/gitblit.jar --baseFolder $GITBLIT_BASE_FOLDER --stop > /dev/null &
         log_action_end_msg $?
         ;;
   force-reload|restart)

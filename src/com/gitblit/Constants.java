@@ -90,10 +90,16 @@ public class Constants {
 	
 	public static final String R_GITBLIT = "refs/gitblit/";
 	
+	public static final String baseFolder = "baseFolder";
+	
+	public static final String baseFolder$ = "${" + baseFolder + "}";
+	
+	public static final String contextFolder$ = "${contextFolder}";
+	
 	public static String getGitBlitVersion() {
 		return NAME + " v" + VERSION;
 	}
-
+	
 	/**
 	 * Enumeration representing the four access restriction levels.
 	 */

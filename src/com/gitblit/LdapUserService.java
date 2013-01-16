@@ -61,7 +61,7 @@ public class LdapUserService extends GitblitUserService {
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
-		String file = settings.getString(Keys.realm.ldap.backingUserService, "users.conf");
+		String file = settings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
 
 		serviceImpl = createUserService(realmFile);

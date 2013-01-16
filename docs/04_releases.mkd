@@ -2,6 +2,14 @@
 
 ### Current Release
 
+<div class="alert alert-info">
+<h4>Update Note 1.2.1</h4>
+Because there are now several types of files and folders that must be considered Gitblit data, the default location for data has changed.
+<p>You will need to move a few files around when upgrading.  Please see the Upgrading section of the <a href="setup.html">setup</a> page for details.</p>
+
+<b>Express Users</b> make sure to update your web.xml file with the ${baseFolder} values!
+</div>
+
 **%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
 #### fixes
@@ -10,7 +18,7 @@
 - Added nullchecking when concurrently forking a repository and trying to display it's fork network (issue-187)
 - Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-186)
 - Fixed nullpointer on creating a repository with mixed case (issue 185)
-- Fixed nullpointer when using web.allowForking = true && git.cacheRepositoryList = false (issue 182)
+- Fixed nullpointer when using *web.allowForking = true* && *git.cacheRepositoryList = false* (issue 182)
 - Likely fix for commit and commitdiff page failures when a submodule reference changes (issue 178)
 - Build project models from the repository model cache, when possible, to reduce page load time (issue 172)
 - Fixed loading of Brazilian Portuguese translation from *nix server (github/inaiat)
@@ -30,6 +38,10 @@ The push log is not currently visible in the ui, but the data will be collected 
 
 #### changes
 
+- Gitblit GO and Gitblit WAR are now both configured by `gitblit.properties`. WAR is no longer configured by `web.xml`.<br/>
+However, Express for OpenShift continues to be configured by `web.xml`.
+- Support for a *--baseFolder* command-line argument for Gitblit GO and Gitblit Certificate Authority
+- Support for specifying a *${baseFolder}* parameter in `gitblit.properties` and `web.xml` for several settings
 - Improve history display of a submodule link
 - Updated Korean translation (github/ds5apn)
 - Updated checkstyle definition (github/mystygage)
@@ -37,7 +49,7 @@ The push log is not currently visible in the ui, but the data will be collected 
 ### Older Releases
 
 <div class="alert alert-info">
-<h4>Update Note</h4>
+<h4>Update Note 1.2.0</h4>
 The permissions model has changed in the 1.2.0 release.
 <p>If you are updating your server, you must also update any Gitblit Manager and Federation Client installs to 1.2.0 as well.  The data model used by the RPC mechanism has changed slightly for the new permissions infrastructure.</p>
 </div>
@@ -142,7 +154,7 @@ If *realm.ldap.maintainTeams==true* **AND** *realm.ldap.admins* is not empty, th
 <hr/>
 
 <div class="alert alert-error">
-<h4>Update Note</h4>
+<h4>Update Note 1.1.0</h4>
 If you are updating from an earlier release AND you have indexed branches with the Lucene indexing feature, you need to be aware that this release will completely re-index your repositories.  Please be sure to provide ample heap resources as appropriate for your installation.
 </div>
 

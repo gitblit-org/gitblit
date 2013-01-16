@@ -274,4 +274,19 @@ public class FileUtils {
 			return path.getAbsoluteFile();
 		}
 	}
+
+	public static File resolveParameter(String parameter, File aFolder, String path) {
+		if (aFolder == null) {
+			// strip any parameter reference		
+			path = path.replace(parameter, "").trim();
+			if (path.length() > 0 && path.charAt(0) == '/') {
+				// strip leading /
+				path = path.substring(1);
+			}
+		} else if (path.contains(parameter)) {
+			// replace parameter with path
+			path = path.replace(parameter, aFolder.getAbsolutePath());
+		}
+		return new File(path);
+	}
 }

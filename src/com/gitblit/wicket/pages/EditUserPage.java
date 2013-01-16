@@ -57,7 +57,7 @@ public class EditUserPage extends RootSubPage {
 		super();
 		if (!GitBlit.self().supportsAddUser()) {
 			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
-					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
+					GitBlit.getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
 		}
 		isCreate = true;
 		setupPage(new UserModel(""));

@@ -84,10 +84,29 @@ public class GitBlitServer {
 	private static Logger logger;
 
 	public static void main(String... args) {
+		// filter out the baseFolder parameter
+		List<String> filtered = new ArrayList<String>();
+		String folder = "data";
+		for (int i = 0; i< args.length; i++) {
+			String arg = args[i];
+			if (arg.equals("--baseFolder")) {
+				if (i + 1 == args.length) {
+					System.out.println("Invalid --baseFolder parameter!");
+					System.exit(-1);
+				} else if (args[i + 1] != ".") {
+					folder = args[i + 1];
+				}
+				i = i + 1;
+			} else {
+				filtered.add(arg);
+			}
+		}
+		
+		Params.baseFolder = folder;
 		Params params = new Params();
 		JCommander jc = new JCommander(params);
 		try {
-			jc.parse(args);
+			jc.parse(filtered.toArray(new String[filtered.size()]));
 			if (params.help) {
 				usage(jc, null);
 			}
@@ -147,13 +166,13 @@ public class GitBlitServer {
 	 * Start Gitblit GO.
 	 */
 	private static void start(Params params) {
-		FileSettings settings = Params.FILESETTINGS;
+		final File baseFolder = new File(Params.baseFolder).getAbsoluteFile();
+		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
 			if (new File(params.settingsfile).exists()) {
 				settings = new FileSettings(params.settingsfile);				
 			}
 		}
-
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
 		logger.info("            _____  _  _    _      _  _  _");
@@ -197,11 +216,10 @@ public class GitBlitServer {
 
 		// conditionally configure the https connector
 		if (params.securePort > 0) {
-			final File folder = new File(System.getProperty("user.dir"));
-			File certificatesConf = new File(folder, X509Utils.CA_CONFIG);
-			File serverKeyStore = new File(folder, X509Utils.SERVER_KEY_STORE);
-			File serverTrustStore = new File(folder, X509Utils.SERVER_TRUST_STORE);
-			File caRevocationList = new File(folder, X509Utils.CA_REVOCATION_LIST);
+			File certificatesConf = new File(baseFolder, X509Utils.CA_CONFIG);
+			File serverKeyStore = new File(baseFolder, X509Utils.SERVER_KEY_STORE);
+			File serverTrustStore = new File(baseFolder, X509Utils.SERVER_TRUST_STORE);
+			File caRevocationList = new File(baseFolder, X509Utils.CA_REVOCATION_LIST);
 
 			// generate CA & web certificates, create certificate stores
 			X509Metadata metadata = new X509Metadata("localhost", params.storePassword);
@@ -218,12 +236,12 @@ public class GitBlitServer {
 			}
 			
 			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
-			X509Utils.prepareX509Infrastructure(metadata, folder, new X509Log() {
+			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
 				@Override
 				public void log(String message) {
 					BufferedWriter writer = null;
 					try {
-						writer = new BufferedWriter(new FileWriter(new File(folder, X509Utils.CERTS + File.separator + "log.txt"), true));
+						writer = new BufferedWriter(new FileWriter(new File(baseFolder, X509Utils.CERTS + File.separator + "log.txt"), true));
 						writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
 						writer.newLine();
 						writer.flush();
@@ -277,7 +295,7 @@ public class GitBlitServer {
 
 		// tempDir is where the embedded Gitblit web application is expanded and
 		// where Jetty creates any necessary temporary files
-		File tempDir = new File(params.temp);
+		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);		
 		if (tempDir.exists()) {
 			try {
 				FileUtils.delete(tempDir, FileUtils.RECURSIVE | FileUtils.RETRY);
@@ -361,7 +379,7 @@ public class GitBlitServer {
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();
-		gitblit.configureContext(settings, true);
+		gitblit.configureContext(settings, baseFolder, true);
 		rootContext.addEventListener(gitblit);
 
 		try {
@@ -532,7 +550,9 @@ public class GitBlitServer {
 	@Parameters(separators = " ")
 	private static class Params {
 
-		private static final FileSettings FILESETTINGS = new FileSettings(Constants.PROPERTIES_FILE);
+		public static String baseFolder;
+
+		private final FileSettings FILESETTINGS = new FileSettings(new File(baseFolder, Constants.PROPERTIES_FILE).getAbsolutePath());
 
 		/*
 		 * Server parameters
@@ -551,14 +571,14 @@ public class GitBlitServer {
 		 */
 		@Parameter(names = { "--repositoriesFolder" }, description = "Git Repositories Folder")
 		public String repositoriesFolder = FILESETTINGS.getString(Keys.git.repositoriesFolder,
-				"repos");
+				"git");
 
 		/*
 		 * Authentication Parameters
 		 */
 		@Parameter(names = { "--userService" }, description = "Authentication and Authorization Service (filename or fully qualified classname)")
 		public String userService = FILESETTINGS.getString(Keys.realm.userService,
-				"users.properties");
+				"users.conf");
 
 		/*
 		 * JETTY Parameters
@@ -567,10 +587,10 @@ public class GitBlitServer {
 		public Boolean useNIO = FILESETTINGS.getBoolean(Keys.server.useNio, true);
 
 		@Parameter(names = "--httpPort", description = "HTTP port for to serve. (port <= 0 will disable this connector)")
-		public Integer port = FILESETTINGS.getInteger(Keys.server.httpPort, 80);
+		public Integer port = FILESETTINGS.getInteger(Keys.server.httpPort, 0);
 
 		@Parameter(names = "--httpsPort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
-		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 443);
+		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 8443);
 
 		@Parameter(names = "--ajpPort", description = "AJP port to serve.  (port <= 0 will disable this connector)")
 		public Integer ajpPort = FILESETTINGS.getInteger(Keys.server.ajpPort, 0);

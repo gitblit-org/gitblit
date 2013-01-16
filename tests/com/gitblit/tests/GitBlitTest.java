@@ -138,7 +138,7 @@ public class GitBlitTest {
 		assertEquals(5, settings.getInteger("realm.realmFile", 5));
 
 		assertTrue(settings.getBoolean("git.enableGitServlet", false));
-		assertEquals("users.conf", settings.getString("realm.userService", null));
+		assertEquals("${baseFolder}/users.conf", settings.getString("realm.userService", null));
 		assertEquals(5, settings.getInteger("realm.minPasswordLength", 0));
 		List<String> mdExtensions = settings.getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);

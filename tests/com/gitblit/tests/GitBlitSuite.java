@@ -63,7 +63,7 @@ import com.gitblit.utils.JGitUtils;
 		FanoutServiceTest.class })
 public class GitBlitSuite {
 
-	public static final File REPOSITORIES = new File("git");
+	public static final File REPOSITORIES = new File("data/git");
 
 	static int port = 8280;
 	static int shutdownPort = 8281;
@@ -117,7 +117,8 @@ public class GitBlitSuite {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"test-users.conf", "--settings", "test-gitblit.properties");
+						"test-users.conf", "--settings", "test-gitblit.properties",
+						"--baseFolder", "data");
 			}
 		});
 

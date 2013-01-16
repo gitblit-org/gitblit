@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.utils.FileUtils;
-import com.gitblit.utils.StringUtils;
 
 /**
  * Handles requests for robots.txt
@@ -55,13 +54,10 @@ public class RobotsTxtServlet extends HttpServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-		String robotstxt = GitBlit.getString(Keys.web.robots.txt, null);		
+		File file = GitBlit.getFileOrFolder(Keys.web.robots.txt, null);
 		String content = "";
-		if (!StringUtils.isEmpty(robotstxt)) {
-			File robotsfile = new File(robotstxt);
-			if (robotsfile.exists()) {
-				content = FileUtils.readContent(robotsfile, "\n");
-			}
+		if (file.exists()) {
+			content = FileUtils.readContent(file, "\n");
 		}
 		response.getWriter().append(content);
 	}

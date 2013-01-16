@@ -138,6 +138,21 @@ public class GitblitAuthority extends JFrame implements X509Log {
 	private JButton newSSLCertificate;
 
 	public static void main(String... args) {
+		// filter out the baseFolder parameter
+		String folder = "data";
+		for (int i = 0; i< args.length; i++) {
+			String arg = args[i];
+			if (arg.equals("--baseFolder")) {
+				if (i + 1 == args.length) {
+					System.out.println("Invalid --baseFolder parameter!");
+					System.exit(-1);
+				} else if (args[i + 1] != ".") {
+					folder = args[i+1];
+				}
+				break;
+			}
+		}
+		final String baseFolder = folder;
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -145,7 +160,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				} catch (Exception e) {
 				}
 				GitblitAuthority authority = new GitblitAuthority();
-				authority.initialize();
+				authority.initialize(baseFolder);
 				authority.setLocationRelativeTo(null);
 				authority.setVisible(true);
 			}
@@ -158,7 +173,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		defaultSorter = new TableRowSorter<UserCertificateTableModel>(tableModel);
 	}
 	
-	public void initialize() {
+	public void initialize(String baseFolder) {
 		setIconImage(new ImageIcon(getClass().getResource("/gitblt-favicon.png")).getImage());
 		setTitle("Gitblit Certificate Authority v" + Constants.VERSION + " (" + Constants.VERSION_DATE + ")");
 		setContentPane(getUI());
@@ -174,10 +189,10 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			}
 		});		
 
-		setSizeAndPosition();
-		
-		File folder = new File(System.getProperty("user.dir"));
+		File folder = new File(baseFolder).getAbsoluteFile();
 		load(folder);
+		
+		setSizeAndPosition();
 	}
 	
 	private void setSizeAndPosition() {
@@ -230,7 +245,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 	}
 	
 	private StoredConfig getConfig() throws IOException, ConfigInvalidException {
-		File configFile  = new File(System.getProperty("user.dir"), X509Utils.CA_CONFIG);
+		File configFile  = new File(folder, X509Utils.CA_CONFIG);
 		FileBasedConfig config = new FileBasedConfig(configFile, FS.detect());
 		config.load();
 		return config;
@@ -243,30 +258,31 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		}
 		gitblitSettings = new FileSettings(file.getAbsolutePath());
 		mail = new MailExecutor(gitblitSettings);
-		String us = gitblitSettings.getString(Keys.realm.userService, "users.conf");
+		String us = gitblitSettings.getString(Keys.realm.userService, "${baseFolder}/users.conf");
 		String ext = us.substring(us.lastIndexOf(".") + 1).toLowerCase();
 		IUserService service = null;
 		if (!ext.equals("conf") && !ext.equals("properties")) {
 			if (us.equals("com.gitblit.LdapUserService")) {
-				us = gitblitSettings.getString(Keys.realm.ldap.backingUserService, "users.conf");		
+				us = gitblitSettings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");		
 			} else if (us.equals("com.gitblit.LdapUserService")) {
-				us = gitblitSettings.getString(Keys.realm.redmine.backingUserService, "users.conf");
+				us = gitblitSettings.getString(Keys.realm.redmine.backingUserService, "${baseFolder}/users.conf");
 			}
 		}
 
 		if (us.endsWith(".conf")) {
-			service = new ConfigUserService(new File(us));
+			service = new ConfigUserService(FileUtils.resolveParameter(Constants.baseFolder$, folder, us));
 		} else {
 			throw new RuntimeException("Unsupported user service: " + us);
 		}
 		
-		service = new ConfigUserService(new File(us));
+		service = new ConfigUserService(FileUtils.resolveParameter(Constants.baseFolder$, folder, us));
 		return service;
 	}
 	
 	private void load(File folder) {
 		this.folder = folder;
 		this.userService = loadUsers(folder);
+		System.out.println(Constants.baseFolder$ + " set to " + folder);
 		if (userService == null) {
 			JOptionPane.showMessageDialog(this, MessageFormat.format("Sorry, {0} doesn't look like a Gitblit GO installation.", folder));
 		} else {

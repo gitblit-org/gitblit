@@ -60,7 +60,7 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public void setup(IStoredSettings settings) {
-		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "users.conf");
+		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 		serviceImpl = createUserService(realmFile);
 		logger.info("GUS delegating to " + serviceImpl.toString());
 	}

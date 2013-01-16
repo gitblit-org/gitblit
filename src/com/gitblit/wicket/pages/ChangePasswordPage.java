@@ -54,7 +54,7 @@ public class ChangePasswordPage extends RootSubPage {
 		UserModel user = GitBlitWebSession.get().getUser();		
 		if (!GitBlit.self().supportsCredentialChanges(user)) {
 			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitPasswordChanges"),
-					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
+					GitBlit.getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
 		}
 		
 		setupPage(getString("gb.changePassword"), user.username);

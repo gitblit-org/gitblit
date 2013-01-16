@@ -86,7 +86,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 		groovyDir = GitBlit.getGroovyScriptsFolder();
 		try {
 			// set Grape root
-			File grapeRoot = new File(GitBlit.getString(Keys.groovy.grapeFolder, "groovy/grape")).getAbsoluteFile();
+			File grapeRoot = GitBlit.getFileOrFolder(Keys.groovy.grapeFolder, "${baseFolder}/groovy/grape").getAbsoluteFile();
 			grapeRoot.mkdirs();
 			System.setProperty("grape.root", grapeRoot.getAbsolutePath());
 			

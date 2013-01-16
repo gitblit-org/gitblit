@@ -47,7 +47,7 @@ public class RedmineUserService extends GitblitUserService {
     public void setup(IStoredSettings settings) {
         this.settings = settings;
 
-        String file = settings.getString(Keys.realm.redmine.backingUserService, "users.conf");
+        String file = settings.getString(Keys.realm.redmine.backingUserService, "${baseFolder}/users.conf");
         File realmFile = GitBlit.getFileOrFolder(file);
 
         serviceImpl = createUserService(realmFile);

@@ -163,6 +163,8 @@ public class GitBlit implements ServletContextListener {
 	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
 
 	private ServletContext servletContext;
+	
+	private File baseFolder;
 
 	private File repositoriesFolder;
 
@@ -394,12 +396,8 @@ public class GitBlit implements ServletContextListener {
 	 * @return the file
 	 */
 	public static File getFileOrFolder(String fileOrFolder) {
-		String openShift = System.getenv("OPENSHIFT_DATA_DIR");
-		if (!StringUtils.isEmpty(openShift)) {
-			// running on RedHat OpenShift
-			return new File(openShift, fileOrFolder);
-		}
-		return new File(fileOrFolder);
+		return com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$,
+				self().baseFolder, fileOrFolder);
 	}
 
 	/**
@@ -409,7 +407,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return the repositories folder path
 	 */
 	public static File getRepositoriesFolder() {
-		return getFileOrFolder(Keys.git.repositoriesFolder, "git");
+		return getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
 
 	/**
@@ -419,7 +417,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return the proposals folder path
 	 */
 	public static File getProposalsFolder() {
-		return getFileOrFolder(Keys.federation.proposalsFolder, "proposals");
+		return getFileOrFolder(Keys.federation.proposalsFolder, "${baseFolder}/proposals");
 	}
 
 	/**
@@ -429,9 +427,9 @@ public class GitBlit implements ServletContextListener {
 	 * @return the Groovy scripts folder path
 	 */
 	public static File getGroovyScriptsFolder() {
-		return getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
+		return getFileOrFolder(Keys.groovy.scriptsFolder, "${baseFolder}/groovy");
 	}
-
+	
 	/**
 	 * Updates the list of server settings.
 	 * 
@@ -1652,7 +1650,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		RepositoryModel model = new RepositoryModel();
 		model.isBare = r.isBare();
-		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "git");
+		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 		if (model.isBare) {
 			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
 		} else {
@@ -3043,12 +3041,15 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param settings
 	 */
-	public void configureContext(IStoredSettings settings, boolean startFederation) {
-		logger.info("Reading configuration from " + settings.toString());
+	public void configureContext(IStoredSettings settings, File folder, boolean startFederation) {
 		this.settings = settings;
+		this.baseFolder = folder;
 
 		repositoriesFolder = getRepositoriesFolder();
-		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
+
+		logger.info("Gitblit base folder     = " + folder.getAbsolutePath());
+		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
+		logger.info("Gitblit settings        = " + settings.toString());
 
 		// prepare service executors
 		mailExecutor = new MailExecutor(settings);
@@ -3070,7 +3071,7 @@ public class GitBlit implements ServletContextListener {
 		serverStatus = new ServerStatus(isGO());
 
 		if (this.userService == null) {
-			String realm = settings.getString(Keys.realm.userService, "users.properties");
+			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
 			IUserService loginService = null;
 			try {
 				// check to see if this "file" is a login service class
@@ -3083,7 +3084,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// load and cache the project metadata
-		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "projects.conf"), FS.detect());
+		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
 		
 		// schedule mail engine
@@ -3198,39 +3199,63 @@ public class GitBlit implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent contextEvent, InputStream referencePropertiesInputStream) {
 		servletContext = contextEvent.getServletContext();
 		if (settings == null) {
-			// Gitblit WAR is running in a servlet container
+			// Gitblit is running in a servlet container
 			ServletContext context = contextEvent.getServletContext();
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
-
-			// gitblit.properties file located within the webapp
-			String webProps = context.getRealPath("/WEB-INF/gitblit.properties");
-			if (!StringUtils.isEmpty(webProps)) {
-				File overrideFile = new File(webProps);
-				webxmlSettings.applyOverrides(overrideFile);
-			}
+			File contextFolder = new File(context.getRealPath("/"));
+			String openShift = System.getenv("OPENSHIFT_DATA_DIR");
 			
-			// gitblit.properties file located outside the deployed war
-			// folder lie, for example, on RedHat OpenShift.
-			File overrideFile = getFileOrFolder("gitblit.properties");
-			if (!overrideFile.getPath().equals("gitblit.properties")) {
-				webxmlSettings.applyOverrides(overrideFile);
-			}
-			
-			configureContext(webxmlSettings, true);
+			if (!StringUtils.isEmpty(openShift)) {
+				// Gitblit is running in OpenShift/JBoss
+				File base = new File(openShift);
 
-			// Copy the included scripts to the configured groovy folder
-			File localScripts = getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
-			if (!localScripts.exists()) {
-				File includedScripts = new File(context.getRealPath("/WEB-INF/groovy"));
-				if (!includedScripts.equals(localScripts)) {
-					try {
-						com.gitblit.utils.FileUtils.copy(localScripts, includedScripts.listFiles());
-					} catch (IOException e) {
-						logger.error(MessageFormat.format(
-								"Failed to copy included Groovy scripts from {0} to {1}",
-								includedScripts, localScripts));
+				// gitblit.properties setting overrides
+				File overrideFile = new File(base, "gitblit.properties");
+				webxmlSettings.applyOverrides(overrideFile);
+				
+				// Copy the included scripts to the configured groovy folder
+				File localScripts = new File(base, webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy"));
+				if (!localScripts.exists()) {
+					File warScripts = new File(contextFolder, "/WEB-INF/data/groovy");
+					if (!warScripts.equals(localScripts)) {
+						try {
+							com.gitblit.utils.FileUtils.copy(localScripts, warScripts.listFiles());
+						} catch (IOException e) {
+							logger.error(MessageFormat.format(
+									"Failed to copy included Groovy scripts from {0} to {1}",
+									warScripts, localScripts));
+						}
 					}
 				}
+				
+				// configure context using the web.xml
+				configureContext(webxmlSettings, base, true);
+			} else {
+				// Gitblit is running in a standard servlet container
+				logger.info("WAR contextFolder is " + contextFolder.getAbsolutePath());
+				
+				String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
+				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
+				base.mkdirs();
+				
+				// try to copy the data folder contents to the baseFolder
+				File localSettings = new File(base, "gitblit.properties");
+				if (!localSettings.exists()) {
+					File contextData = new File(contextFolder, "/WEB-INF/data");
+					if (!base.equals(contextData)) {
+						try {
+							com.gitblit.utils.FileUtils.copy(base, contextData.listFiles());
+						} catch (IOException e) {
+							logger.error(MessageFormat.format(
+									"Failed to copy included data from {0} to {1}",
+								contextData, base));
+						}
+					}
+				}
+				
+				// delegate all config to baseFolder/gitblit.properties file
+				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());				
+				configureContext(settings, base, true);
 			}
 		}
 		

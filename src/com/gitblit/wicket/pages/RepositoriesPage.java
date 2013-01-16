@@ -119,7 +119,7 @@ public class RepositoriesPage extends RootPage {
 		} else {
 			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
-				File file = new File(messageSource);
+				File file = GitBlit.getFileOrFolder(messageSource);
 				if (file.exists()) {
 					try {
 						FileInputStream fis = new FileInputStream(file);
