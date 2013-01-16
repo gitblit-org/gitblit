@@ -109,6 +109,20 @@ public class Build {
 		downloadFromApache(MavenObject.COMMONS_COMPRESS, BuildType.RUNTIME);
 		downloadFromApache(MavenObject.XZ, BuildType.RUNTIME);
 
+		//needed for selenium ui tests
+		downloadFromApacheToExtSelenium(MavenObject.SEL_API, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_FF, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_JAVA, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_REMOTE, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_SUPPORT, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.GUAVA, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.JSON, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.COMMONS_EXEC, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPCLIENT, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPCORE, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPMIME, BuildType.RUNTIME);
+		downloadFromApacheToExtSelenium(MavenObject.COMMONS_LOGGING, BuildType.RUNTIME);
+		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.RUNTIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.RUNTIME);
 	}
@@ -148,6 +162,20 @@ public class Build {
 		downloadFromApache(MavenObject.COMMONS_COMPRESS, BuildType.COMPILETIME);
 		downloadFromApache(MavenObject.XZ, BuildType.COMPILETIME);
 
+		//needed for selenium ui tests
+		downloadFromApacheToExtSelenium(MavenObject.SEL_API, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_FF, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_JAVA, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_REMOTE, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.SEL_SUPPORT, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.GUAVA, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.JSON, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.COMMONS_EXEC, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPCLIENT, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPCORE, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.HTTPMIME, BuildType.COMPILETIME);
+		downloadFromApacheToExtSelenium(MavenObject.COMMONS_LOGGING, BuildType.COMPILETIME);
+		
 		downloadFromEclipse(MavenObject.JGIT, BuildType.COMPILETIME);
 		downloadFromEclipse(MavenObject.JGIT_HTTP, BuildType.COMPILETIME);
 
@@ -398,7 +426,7 @@ public class Build {
 	 *            the maven object to download.
 	 * @return
 	 */
-	private static List<File> downloadFromMaven(String mavenRoot, MavenObject mo, BuildType type) {
+	private static List<File> downloadFromMaven(String mavenRoot, MavenObject mo, BuildType type, String targetFolder) {
 		List<File> downloads = new ArrayList<File>();
 		String[] jars = { "" };
 		if (BuildType.RUNTIME.equals(type)) {
@@ -407,9 +435,9 @@ public class Build {
 			jars = new String[] { "-sources" };
 		}
 		for (String jar : jars) {
-			File targetFile = mo.getLocalFile("ext", jar);
+			File targetFile = mo.getLocalFile(targetFolder, jar);
 			if ("-sources".equals(jar)) {
-				File relocated = new File("ext/src", targetFile.getName());
+				File relocated = new File(targetFolder+"/src", targetFile.getName());
 				if (targetFile.exists()) {
 					// move -sources jar to ext/src folder
 					targetFile.renameTo(relocated);
@@ -500,6 +528,31 @@ public class Build {
 			removeObsoleteArtifacts(mo, type, targetFile.getParentFile());
 		}
 		return downloads;
+	}
+	
+	/**
+	 * Download a file from the official Apache Maven repository.
+	 * 
+	 * @param mo
+	 *            the maven object to download.
+	 * @return
+	 */
+	private static List<File> downloadFromApacheToExtSelenium(MavenObject mo,
+			BuildType type) {
+		return downloadFromMaven("http://repo1.maven.org/maven2/", mo, type,
+				"ext/seleniumhq");
+	}
+	
+	/**
+	 * Download a file from the official Apache Maven repository.
+	 * 
+	 * @param mo
+	 *            the maven object to download.
+	 * @return
+	 */
+	private static List<File> downloadFromMaven(String mavenRoot,
+			MavenObject mo, BuildType type) {
+		return downloadFromMaven(mavenRoot, mo, type, "ext");
 	}
 	
 	private static void removeObsoleteArtifacts(final MavenObject mo, final BuildType type, File folder) {
@@ -796,6 +849,59 @@ public class Build {
                 "ecff5cb8b1189514c9d1d8d68eb77ac372e000c9",
 				"f95e32a5d2dd8da643c4419814415b9704312993", "");
 
+		public static final MavenObject SEL_JAVA = new MavenObject(
+				"selenium-java", "org/seleniumhq/selenium", "selenium-java",
+				"2.28.0", 984098, 0, 0,
+				"7606286989ac9cb942cc206d975ffe187c18d605", "4ede08d293dc153989a337cd0d31d26421433af5", "");
+
+		public static final MavenObject SEL_API = new MavenObject(
+				"selenium-api", "org/seleniumhq/selenium", "selenium-api",
+				"2.28.0", 984098, 0, 0,
+				"c4044c40fff65cd25135a5f443638a2b1ccaeac5", "35fc6ec0804ae32b16a56627e69bdcb69995c515", "");
+
+		public static final MavenObject SEL_REMOTE = new MavenObject(
+				"selenium-remote-driver", "org/seleniumhq/selenium",
+				"selenium-remote-driver", "2.28.0", 984098, 0, 0,
+				"c67f97cd94e02afec92b0ac881844febb4fc90be", "51a9c30de3c8c203cb7a474a10842443005a5fb4", "");
+		public static final MavenObject SEL_SUPPORT = new MavenObject(
+				"selenium-support", "org/seleniumhq/selenium",
+				"selenium-support", "2.28.0", 984098, 0, 0,
+				"caf68d6310425f583bc592c08e43066b35eb94f6", "ce3831a601f5f50fda2f4604decde409b6c735a7", "");
+		public static final MavenObject SEL_FF = new MavenObject(
+				"selenium-firefox-driver", "org/seleniumhq/selenium",
+				"selenium-firefox-driver", "2.28.0", 984098, 0, 0,
+				"a7c34e45dba39e65467b900aa67611aaa039692d", "aa8cd5fb49ca75a53d5b143406ea3d81ab3eddfd", "");
+
+		public static final MavenObject GUAVA = new MavenObject("guava",
+				"com/google/guava", "guava", "12.0", 984098, 0, 0,
+				"5bc66dd95b79db1e437eb08adba124a3e4088dc0", "f8b98e61865bed3c39b978ee3bf5c7fb990c4032", "");
+
+		public static final MavenObject JSON = new MavenObject("json",
+				"org/json", "json", "20080701", 984098, 0, 0,
+				"d652f102185530c93b66158b1859f35d45687258", "71bd54221e701df9d112bf9ba2918e13b0671f3a", "");
+
+		public static final MavenObject COMMONS_EXEC = new MavenObject(
+				"commons-exec", "org/apache/commons", "commons-exec", "1.1",
+				984098, 0, 0, "07dfdf16fade726000564386825ed6d911a44ba1", "f60bea898e18b308099862e8634d589b06a8b0be",
+				"");
+
+		public static final MavenObject HTTPCORE = new MavenObject("httpcore",
+				"org/apache/httpcomponents", "httpcore", "4.2.1", 984098, 0, 0,
+				"2d503272bf0a8b5f92d64db78b4ba9abbaccc6fd", "3f6caf5334fa83607b82e2f32dd128a9d8a0ea5e", "");
+		
+		public static final MavenObject HTTPMIME = new MavenObject("httpmime",
+				"org/apache/httpcomponents", "httpmime", "4.2.1", 984098, 0, 0,
+				"7c772bace9aa31a728c39a88c6ff66a7cd177e89", "", "4e453843ae47f1c2d70e2eb2c13c037de4b614c4");
+		
+		public static final MavenObject HTTPCLIENT = new MavenObject(
+				"httpclient", "org/apache/httpcomponents", "httpclient",
+				"4.2.1", 984098, 0, 0,
+				"b69bd03af60bf487b3ae1209a644ecac587bf6fc", "6b27312b9c28b59aaeb6c21f3490045690c703d3", "");
+		public static final MavenObject COMMONS_LOGGING = new MavenObject(
+				"commons-logging", "commons-logging", "commons-logging",
+				"1.1.1", 984098, 0, 0,
+				"5043bfebc3db072ed80fbd362e7caf00e885d8ae", "f3f156cbff0e0fb0d64bfce31a352cce4a33bc19", "");
+		
 		public final String name;
 		public final String group;
 		public final String artifact;
