@@ -104,7 +104,7 @@ public class FileSettings extends IStoredSettings {
 	}
 	
 	private String regExEscape(String input) {
-		return input.replace(".", "\\.");
+		return input.replace(".", "\\.").replace("$", "\\$").replace("{", "\\{");
 	}
 
 	/**
