@@ -2,6 +2,18 @@
 
 ### Current Release
 
+**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
+
+#### fixes
+
+- Can't set reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
+
+#### additions
+
+ - Chinese translation (github/dapengme)
+
+### Older Releases
+
 <div class="alert alert-info">
 <h4>Update Note 1.2.1</h4>
 Because there are now several types of files and folders that must be considered Gitblit data, the default location for data has changed.
@@ -9,8 +21,6 @@ Because there are now several types of files and folders that must be considered
 
 <b>Express Users</b> make sure to update your web.xml file with the ${baseFolder} values!
 </div>
-
-**%VERSION%** ([go](http://code.google.com/p/gitblit/downloads/detail?name=%GO%) | [war](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) | [express](http://code.google.com/p/gitblit/downloads/detail?name=%EXPRESS%) | [fedclient](http://code.google.com/p/gitblit/downloads/detail?name=%FEDCLIENT%) | [manager](http://code.google.com/p/gitblit/downloads/detail?name=%MANAGER%) | [api](http://code.google.com/p/gitblit/downloads/detail?name=%API%)) based on [%JGIT%][jgit] &nbsp; *released %BUILDDATE%*
 
 #### fixes
 
@@ -46,8 +56,6 @@ However, Express for OpenShift continues to be configured by `web.xml`.
 - Improve history display of a submodule link
 - Updated Korean translation (github/ds5apn)
 - Updated checkstyle definition (github/mystygage)
-
-### Older Releases
 
 <div class="alert alert-info">
 <h4>Update Note 1.2.0</h4>
