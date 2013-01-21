@@ -209,8 +209,8 @@ public class RegistrantPermissionsPanel extends JPanel {
 				setToolTipText(Translation.get("gb.administratorPermission"));
 				break;
 			case OWNER:
-				setText(Translation.get("gb.owner"));
-				setToolTipText(Translation.get("gb.ownerPermission"));
+				setText(Translation.get("gb.repoAdministrators"));
+				setToolTipText(Translation.get("gb.repoAdministratorPermission"));
 				break;
 			case TEAM:
 				setText(ap.source == null ? Translation.get("gb.team") : ap.source);

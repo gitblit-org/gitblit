@@ -222,7 +222,7 @@ public class GitFilter extends AccessRestrictionFilter {
 				// create repository
 				RepositoryModel model = new RepositoryModel();
 				model.name = repository;
-				model.owner = user.username;
+				model.addRepoAdministrator(user.username);
 				model.projectPath = StringUtils.getFirstPathElement(repository);
 				if (model.isUsersPersonalRepository(user.username)) {
 					// personal repository, default to private for user

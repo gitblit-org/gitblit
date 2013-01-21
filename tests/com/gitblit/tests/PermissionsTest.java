@@ -2327,7 +2327,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.owner = user.username;
+		repository.addRepoAdministrator(user.username);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("owner CAN NOT view!", user.canView(repository));
@@ -2351,7 +2351,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.owner = user.username;
+		repository.addRepoAdministrator(user.username);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));
@@ -2375,7 +2375,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("visitor");
-		repository.owner = "test";
+		repository.addRepoAdministrator("test");
 
 		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertFalse("user CAN view!", user.canView(repository));

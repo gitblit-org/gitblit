@@ -41,6 +41,7 @@ import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.PushLogUtils;
 
 public class GitServletTest {
@@ -58,6 +59,8 @@ public class GitServletTest {
 	String password = GitBlitSuite.password;
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
+	
+	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
@@ -725,7 +728,7 @@ public class GitServletTest {
 			
 			// confirm default personal repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
-			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected owner", user.username, multiConfigUtil.convertCollectionToSingleLineString(model.getRepoAdministrators()));
 			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
 			
@@ -749,7 +752,7 @@ public class GitServletTest {
 			
 			// confirm default project repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel("project/ticgit.git");
-			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected owner", user.username, multiConfigUtil.convertCollectionToSingleLineString(model.getRepoAdministrators()));
 			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
 
