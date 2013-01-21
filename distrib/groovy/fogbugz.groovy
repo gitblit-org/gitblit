@@ -55,7 +55,7 @@ import java.util.HashSet;
  * The purpose of this script is to invoke the Fogbugz API and update a case when
  * push is received based.
  * 
- * Example URL - http://bugs.salsalabs.com/fogbugz/cvsSubmit.asp?ixBug=bugID&sFile=file&sPrev=x&sNew=y&ixRepository=206
+ * Example URL - http://bugs.yourdomain.com/fogbugz/cvsSubmit.asp?ixBug=bugID&sFile=file&sPrev=x&sNew=y&ixRepository=206
  * 
  * The Post-Receive hook is executed AFTER the pushed commits have been applied
  * to the Git repository.  This is the appropriate point to trigger an
@@ -92,7 +92,7 @@ import java.util.HashSet;
  *   def myCustomField = repository.customFields.myCustomField
  * 
  * Cusom Fileds Used by This script
- *   fogbugzUrl - base URL to Fogbugz (ie. https://bugs.salsalabs.com/fogbugz/)
+ *   fogbugzUrl - base URL to Fogbugz (ie. https://bugs.yourdomain.com/fogbugz/)
  *   fogbugzRepositoryId - (ixRepository value from Fogbugz Source Control configuration screen)
  *   fogbugzCommitMessageRegex - regex pattern used to match on bug id
  */
