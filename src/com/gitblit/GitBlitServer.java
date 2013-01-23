@@ -84,6 +84,8 @@ public class GitBlitServer {
 	private static Logger logger;
 
 	public static void main(String... args) {
+		GitBlitServer server = new GitBlitServer();
+		
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
@@ -108,16 +110,16 @@ public class GitBlitServer {
 		try {
 			jc.parse(filtered.toArray(new String[filtered.size()]));
 			if (params.help) {
-				usage(jc, null);
+				server.usage(jc, null);
 			}
 		} catch (ParameterException t) {
-			usage(jc, t);
+			server.usage(jc, t);
 		}
 
 		if (params.stop) {
-			stop(params);
+			server.stop(params);
 		} else {
-			start(params);
+			server.start(params);
 		}
 	}
 
@@ -127,7 +129,7 @@ public class GitBlitServer {
 	 * @param jc
 	 * @param t
 	 */
-	private static void usage(JCommander jc, ParameterException t) {
+	protected final void usage(JCommander jc, ParameterException t) {
 		System.out.println(Constants.BORDER);
 		System.out.println(Constants.getGitBlitVersion());
 		System.out.println(Constants.BORDER);
@@ -147,7 +149,7 @@ public class GitBlitServer {
 	/**
 	 * Stop Gitblt GO.
 	 */
-	public static void stop(Params params) {
+	public void stop(Params params) {
 		try {
 			Socket s = new Socket(InetAddress.getByName("127.0.0.1"), params.shutdownPort);
 			OutputStream out = s.getOutputStream();
@@ -165,7 +167,7 @@ public class GitBlitServer {
 	/**
 	 * Start Gitblit GO.
 	 */
-	private static void start(Params params) {
+	protected final void start(Params params) {
 		final File baseFolder = new File(Params.baseFolder).getAbsoluteFile();
 		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
@@ -378,7 +380,7 @@ public class GitBlitServer {
 		server.setHandler(rootContext);
 
 		// Setup the GitBlit context
-		GitBlit gitblit = GitBlit.self();
+		GitBlit gitblit = getGitBlitInstance();
 		gitblit.configureContext(settings, baseFolder, true);
 		rootContext.addEventListener(gitblit);
 
@@ -397,6 +399,10 @@ public class GitBlitServer {
 			System.exit(100);
 		}
 	}
+	
+	protected GitBlit getGitBlitInstance() {
+		return GitBlit.self();
+	}
 
 	/**
 	 * Creates an http connector.
@@ -405,7 +411,7 @@ public class GitBlitServer {
 	 * @param port
 	 * @return an http connector
 	 */
-	private static Connector createConnector(boolean useNIO, int port) {
+	private Connector createConnector(boolean useNIO, int port) {
 		Connector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SelectChannelConnector on port " + port);
@@ -440,7 +446,7 @@ public class GitBlitServer {
 	 * @param requireClientCertificates
 	 * @return an https connector
 	 */
-	private static Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
+	private Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
 			String storePassword, File caRevocationList, boolean useNIO, int port, 
 			boolean requireClientCertificates) {
 		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
@@ -474,7 +480,7 @@ public class GitBlitServer {
 	 * @param port
 	 * @return an ajp connector
 	 */
-	private static Connector createAJPConnector(int port) {
+	private Connector createAJPConnector(int port) {
 		logger.info("Setting up AJP Connector on port " + port);
 		Ajp13SocketConnector ajp = new Ajp13SocketConnector();
 		ajp.setPort(port);
@@ -489,7 +495,7 @@ public class GitBlitServer {
 	 * 
 	 * @return true if this is a windows machine
 	 */
-	private static boolean isWindows() {
+	private boolean isWindows() {
 		return System.getProperty("os.name").toLowerCase().indexOf("windows") > -1;
 	}
 
@@ -548,7 +554,7 @@ public class GitBlitServer {
 	 * JCommander Parameters class for GitBlitServer.
 	 */
 	@Parameters(separators = " ")
-	private static class Params {
+	public static class Params {
 
 		public static String baseFolder;
 

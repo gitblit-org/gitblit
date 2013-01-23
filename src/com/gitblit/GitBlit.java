@@ -3096,13 +3096,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// schedule lucene engine
-		boolean luceneIndexing = settings.getBoolean(Keys.web.allowLuceneIndexing, true);
-		logger.info("Lucene indexing is " + (luceneIndexing ? "" : "not") + " activated");
-		
-		if (luceneIndexing) {
-			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
-			logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");      
-		}
+		enableLuceneIndexing();
 
 		
 		// schedule gc engine
@@ -3182,6 +3176,23 @@ public class GitBlit implements ServletContextListener {
 			fanoutService.setAllowAllChannelAnnouncements(false);
 			fanoutService.start();
 		}
+	}
+	
+	protected void enableLuceneIndexing() {
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
+		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+	}
+	
+	protected final Logger getLogger() {
+		return logger;
+	}
+	
+	protected final ScheduledExecutorService getScheduledExecutor() {
+		return scheduledExecutor;
+	}
+
+	protected final LuceneExecutor getLuceneExecutor() {
+		return luceneExecutor;
 	}
 	
 	private void logTimezone(String type, TimeZone zone) {
