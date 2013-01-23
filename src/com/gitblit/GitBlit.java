@@ -3096,9 +3096,13 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// schedule lucene engine
-		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
-		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
-		
+		boolean branchIndexingActivated = settings.getBoolean(Keys.git.branchIndexingActivated, true);
+		logger.info("Branch indexing is " + (branchIndexingActivated ? "" : "not") + " activated");
+		if (branchIndexingActivated) {
+			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,	TimeUnit.MINUTES);
+			logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");			
+		}
+				
 		// schedule gc engine
 		if (gcExecutor.isReady()) {
 			logger.info("GC executor is scheduled to scan repositories every 24 hours.");
