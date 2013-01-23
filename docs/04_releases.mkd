@@ -10,6 +10,7 @@
 
 #### additions
  
+ - FogBugz post-receive hook script (github/djschny)
  - Implemented multiple repository owners (github/akquinet)
  - Chinese translation (github/dapengme, github/yin8086)
 
