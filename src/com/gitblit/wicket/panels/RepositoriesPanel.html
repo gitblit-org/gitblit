@@ -57,7 +57,7 @@
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th class="hidden-phone" wicket:id="orderByDescription"><wicket:message key="gb.description">Description</wicket:message></th>
-			<th class="hidden-tablet hidden-phone" wicket:id="orderByOwner"><wicket:message key="gb.repoAdministrators">Owner</wicket:message></th>
+			<th class="hidden-tablet hidden-phone" wicket:id="orderByOwner"><wicket:message key="gb.owner">Owner</wicket:message></th>
 			<th class="hidden-phone"></th>
 			<th wicket:id="orderByDate"><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 			<th class="hidden-phone"></th>
@@ -72,7 +72,7 @@
 				<wicket:message key="gb.repository">Repository</wicket:message>
 			</th>
 			<th class="hidden-phone" ><span><wicket:message key="gb.description">Description</wicket:message></span></th>
-			<th class="hidden-tablet hidden-phone"><span><wicket:message key="gb.repoAdministrators">Owner</wicket:message></span></th>
+			<th class="hidden-tablet hidden-phone"><span><wicket:message key="gb.owner">Owner</wicket:message></span></th>
 			<th class="hidden-phone"></th>
 			<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
 			<th class="hidden-phone"></th>
@@ -88,7 +88,7 @@
 	<wicket:fragment wicket:id="repositoryRow">
         <td class="left" style="padding-left:3px;" ><b><span class="repositorySwatch" wicket:id="repositorySwatch"></span></b> <span style="padding-left:3px;" wicket:id="repositoryName">[repository name]</span></td>
         <td class="hidden-phone"><span class="list" wicket:id="repositoryDescription">[repository description]</span></td>
-        <td class="hidden-tablet hidden-phone author"><span wicket:id="repositoryAdministrators">[repository owner]</span></td>
+        <td class="hidden-tablet hidden-phone author"><span wicket:id="repositoryOwner">[repository owner]</span></td>
         <td class="hidden-phone" style="text-align: right;padding-right:10px;"><img class="inlineIcon" wicket:id="forkIcon" /><img class="inlineIcon" wicket:id="ticketsIcon" /><img class="inlineIcon" wicket:id="docsIcon" /><img class="inlineIcon" wicket:id="frozenIcon" /><img class="inlineIcon" wicket:id="federatedIcon" /><img class="inlineIcon" wicket:id="accessRestrictionIcon" /></td>
         <td><span wicket:id="repositoryLastChange">[last change]</span></td>
         <td class="hidden-phone" style="text-align: right;padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositorySize">[repository size]</span></td>

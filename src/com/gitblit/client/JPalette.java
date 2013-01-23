@@ -144,7 +144,7 @@ public class JPalette<T> extends JPanel {
 		table.getColumn(table.getColumnName(0)).setCellRenderer(nameRenderer);
 
 		JScrollPane jsp = new JScrollPane(table);
-		jsp.setPreferredSize(new Dimension(225, 175));
+		jsp.setPreferredSize(new Dimension(225, 160));
 		JPanel panel = new JPanel(new BorderLayout());
 		JLabel jlabel = new JLabel(label);
 		jlabel.setFont(jlabel.getFont().deriveFont(Font.BOLD));

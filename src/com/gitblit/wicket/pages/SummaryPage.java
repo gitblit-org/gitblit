@@ -27,6 +27,9 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.wicketstuff.googlecharts.Chart;
@@ -49,7 +52,6 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
-import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
@@ -60,8 +62,6 @@ import com.gitblit.wicket.panels.TagsPanel;
 
 public class SummaryPage extends RepositoryPage {
 
-	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
-	
 	public SummaryPage(PageParameters params) {
 		super(params);
 
@@ -85,14 +85,29 @@ public class SummaryPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		String repoAdministrators = multiConfigUtil.convertCollectionToSingleLineString(getRepositoryModel().getRepoAdministrators());
-		if (StringUtils.isEmpty(repoAdministrators)) {
-			add(new Label("repositoryAdministrators").setVisible(false));
-		} else {			
-			//TODO reimplement link panel for each username
-			add(new Label("repositoryAdministrators", repoAdministrators));			
-		}
-
+		
+		// owner links
+		final List<String> owners = new ArrayList<String>(getRepositoryModel().owners);
+		ListDataProvider<String> ownersDp = new ListDataProvider<String>(owners);
+		DataView<String> ownersView = new DataView<String>("repositoryOwners", ownersDp) {
+			private static final long serialVersionUID = 1L;
+			int counter = 0;
+			public void populateItem(final Item<String> item) {
+				UserModel ownerModel = GitBlit.self().getUserModel(item.getModelObject());
+				if (ownerModel != null) {
+					item.add(new LinkPanel("owner", null, ownerModel.getDisplayName(), UserPage.class,
+							WicketUtils.newUsernameParameter(ownerModel.username)).setRenderBodyOnly(true));
+				} else {
+					item.add(new Label("owner").setVisible(false));
+				}
+				counter++;
+				item.add(new Label("comma", ",").setVisible(counter < owners.size()));
+				item.setRenderBodyOnly(true);
+			}
+		};
+		ownersView.setRenderBodyOnly(true);
+		add(ownersView);
+		
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
 				JGitUtils.getLastChange(r), getTimeZone(), getTimeUtils()));
 		if (metricsTotal == null) {

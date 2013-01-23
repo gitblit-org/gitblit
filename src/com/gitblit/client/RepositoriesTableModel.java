@@ -23,6 +23,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.utils.ArrayUtils;
 
 /**
  * Table model of a list of repositories.
@@ -73,7 +74,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Description:
 			return Translation.get("gb.description");
 		case Owner:
-			return Translation.get("gb.repoAdministrators");
+			return Translation.get("gb.owner");
 		case Last_Change:
 			return Translation.get("gb.lastChange");
 		case Size:
@@ -111,7 +112,7 @@ public class RepositoriesTableModel extends AbstractTableModel {
 		case Description:
 			return model.description;
 		case Owner:
-			return model.getRepoAdministrators();
+			return ArrayUtils.toString(model.owners);
 		case Indicators:
 			return model;
 		case Last_Change:

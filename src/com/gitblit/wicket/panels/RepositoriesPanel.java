@@ -49,7 +49,7 @@ import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.MultiConfigUtil;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -65,8 +65,6 @@ public class RepositoriesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
-	
 	public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement,
 			List<RepositoryModel> models, boolean enableLinks,
 			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
@@ -290,7 +288,23 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
-				row.add(new Label("repositoryAdministrators", multiConfigUtil.convertCollectionToSingleLineString(entry.getRepoAdministrators())));
+				String owner = "";
+				if (!ArrayUtils.isEmpty(entry.owners)) {
+					// display first owner
+					for (String username : entry.owners) {
+						UserModel ownerModel = GitBlit.self().getUserModel(username);
+						if (ownerModel != null) {
+							owner = ownerModel.getDisplayName();
+							break;
+						}
+					}
+					if (entry.owners.size() > 1) {
+						owner += ", ...";
+					}
+				}
+				Label ownerLabel = new Label("repositoryOwner", owner);
+				WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+				row.add(ownerLabel);
 
 				String lastChange;
 				if (entry.lastChange.getTime() == 0) {
@@ -302,29 +316,42 @@ public class RepositoriesPanel extends BasePanel {
 				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
 
-				boolean isRepoAdministrator = user != null && entry.isRepoAdministrator(user.username);
-				boolean myPersonalRepository = isRepoAdministrator && entry.isUsersPersonalRepository(user.username);
+				boolean showOwner = user != null && entry.isOwner(user.username);
+				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);
 				if (showAdmin || myPersonalRepository) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
 							"repositoryAdminLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
 							EditRepositoryPage.class, WicketUtils
 									.newRepositoryParameter(entry.name)));
-					Link<Void> deleteLink = new DeleteLink(entry, dp);
+					Link<Void> deleteLink = new Link<Void>("deleteRepository") {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick() {
+							if (GitBlit.self().deleteRepositoryModel(entry)) {
+								if (dp instanceof SortableRepositoriesProvider) {
+									info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
+									((SortableRepositoriesProvider) dp).remove(entry);
+								} else {
+									setResponsePage(getPage().getClass(), getPage().getPageParameters());
+								}
+							} else {
+								error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
+							}
+						}
+					};
 					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 							getString("gb.deleteRepository"), entry)));
 					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
-				} else if (isRepoAdministrator) {
+				} else if (showOwner) {
 					Fragment repositoryLinks = new Fragment("repositoryLinks",
-							"repositoryAdminLinks", this);
+							"repositoryOwnerLinks", this);
 					repositoryLinks.add(new BookmarkablePageLink<Void>("editRepository",
 							EditRepositoryPage.class, WicketUtils
 									.newRepositoryParameter(entry.name)));
-					Link<Void> deleteLink = new DeleteLink(entry, dp);
-					deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
-							getString("gb.deleteRepository"), entry)));
-					repositoryLinks.add(deleteLink);
 					row.add(repositoryLinks);
 				} else {
 					row.add(new Label("repositoryLinks"));
@@ -353,35 +380,6 @@ public class RepositoriesPanel extends BasePanel {
 		}
 	}
 
-	private class DeleteLink extends Link<Void> {
-			private RepositoryModel entry;
-
-			private IDataProvider<RepositoryModel> dp;
-			
-			private static final long serialVersionUID = 1L;
-
-			public DeleteLink(RepositoryModel entry, IDataProvider<RepositoryModel> dp) {
-				super("deleteRepository");
-				this.entry=entry;
-				this.dp=dp;
-			}
-			
-			@Override
-			public void onClick() {
-				if (GitBlit.self().deleteRepositoryModel(entry)) {
-					if (dp instanceof SortableRepositoriesProvider) {
-						info(MessageFormat.format(getString("gb.repositoryDeleted"), entry));
-						((SortableRepositoriesProvider) dp).remove(entry);
-					} else {
-						setResponsePage(getPage().getClass(), getPage().getPageParameters());
-					}
-				} else {
-					error(MessageFormat.format(getString("gb.repositoryDeleteFailed"), entry));
-				}
-			}
-		
-	}
-	
 	private static class GroupRepositoryModel extends RepositoryModel {
 
 		private static final long serialVersionUID = 1L;
@@ -475,8 +473,6 @@ public class RepositoriesPanel extends BasePanel {
 
 		private List<RepositoryModel> list;
 
-		private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
-		
 		protected SortableRepositoriesProvider(List<RepositoryModel> list) {
 			this.list = list;
 			setSort(SortBy.date.name(), false);
@@ -529,10 +525,12 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
+						String own1 = ArrayUtils.toString(o1.owners);
+						String own2 = ArrayUtils.toString(o2.owners);
 						if (asc) {
-							return multiConfigUtil.convertCollectionToSingleLineString(o1.getRepoAdministrators()).compareTo(multiConfigUtil.convertCollectionToSingleLineString(o2.getRepoAdministrators()));
+							return own1.compareTo(own2);
 						}
-						return multiConfigUtil.convertCollectionToSingleLineString(o2.getRepoAdministrators()).compareTo(multiConfigUtil.convertCollectionToSingleLineString(o1.getRepoAdministrators()));
+						return own2.compareTo(own1);
 					}
 				});
 			} else if (prop.equals(SortBy.description.name())) {

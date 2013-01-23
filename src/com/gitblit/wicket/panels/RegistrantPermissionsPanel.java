@@ -162,8 +162,8 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					item.add(administrator);
 					break;
 				case OWNER:
-					Label owner = new Label("pType", getString("gb.repoAdministrators"));
-					WicketUtils.setHtmlTooltip(owner, getString("gb.repoAdministratorPermission"));
+					Label owner = new Label("pType", getString("gb.owner"));
+					WicketUtils.setHtmlTooltip(owner, getString("gb.ownerPermission"));
 					WicketUtils.setCssClass(owner, "label label-info");
 					item.add(owner);
 					break;

@@ -167,7 +167,7 @@ public class RpcTests {
 		RepositoryModel model = new RepositoryModel();
 		model.name = "garbagerepo.git";
 		model.description = "created by RpcUtils";
-		model.addRepoAdministrator("garbage");
+		model.addOwner("garbage");
 		model.accessRestriction = AccessRestrictionType.VIEW;
 		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
 

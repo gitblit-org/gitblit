@@ -72,7 +72,7 @@ public class FederationTests {
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.description = "cloneable repository " + i;
 			model.lastChange = new Date();
-			model.addRepoAdministrator("adminuser");
+			model.addOwner("adminuser");
 			model.name = "repo" + i + ".git";
 			model.size = "5 MB";
 			model.hasCommits = true;

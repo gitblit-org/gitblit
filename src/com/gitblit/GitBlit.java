@@ -109,7 +109,6 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
-import com.gitblit.utils.MultiConfigUtil;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -181,8 +180,6 @@ public class GitBlit implements ServletContextListener {
 	private TimeZone timezone;
 	
 	private FileBasedConfig projectConfigs;
-	
-	private MultiConfigUtil multiConfigUtil = new MultiConfigUtil();
 
 	public GitBlit() {
 		if (gitblit == null) {
@@ -825,7 +822,7 @@ public class GitBlit implements ServletContextListener {
 		// TODO reconsider ownership as a user property
 		// manually specify personal repository ownerships
 		for (RepositoryModel rm : repositoryListCache.values()) {
-			if (rm.isUsersPersonalRepository(user.username) || rm.isRepoAdministrator(user.username)) {
+			if (rm.isUsersPersonalRepository(user.username) || rm.isOwner(user.username)) {
 				RegistrantAccessPermission rp = new RegistrantAccessPermission(rm.name, AccessPermission.REWIND,
 						PermissionType.OWNER, RegistrantType.REPOSITORY, null, false);
 				// user may be owner of a repository to which they've inherited
@@ -939,14 +936,14 @@ public class GitBlit implements ServletContextListener {
 			for (RepositoryModel model : getRepositoryModels(user)) {
 				if (model.isUsersPersonalRepository(username)) {
 					// personal repository
-					model.addRepoAdministrator(user.username);
+					model.addOwner(user.username);
 					String oldRepositoryName = model.name;
 					model.name = "~" + user.username + model.name.substring(model.projectPath.length());
 					model.projectPath = "~" + user.username;
 					updateRepositoryModel(oldRepositoryName, model, false);
-				} else if (model.isRepoAdministrator(username)) {
+				} else if (model.isOwner(username)) {
 					// common/shared repo
-					model.addRepoAdministrator(user.username);
+					model.addOwner(user.username);
 					updateRepositoryModel(model.name, model, false);
 				}
 			}
@@ -1665,7 +1662,7 @@ public class GitBlit implements ServletContextListener {
 		
 		if (config != null) {
 			model.description = getConfig(config, "description", "");
-			model.addRepoAdministrators(multiConfigUtil.convertStringToSet(getConfig(config, "owner", "")));
+			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -2172,7 +2169,7 @@ public class GitBlit implements ServletContextListener {
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		StoredConfig config = r.getConfig();
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
-		config.setString(Constants.CONFIG_GITBLIT, null, "owner", multiConfigUtil.convertCollectionToSingleLineString(repository.getRepoAdministrators()));
+		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
@@ -3082,15 +3079,9 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// schedule lucene engine
-		boolean branchIndexingActivated = settings.getBoolean(
-				Keys.git.branchIndexingActivated, true);
-		logger.info("Branch indexing is "
-				+ (branchIndexingActivated ? "" : "not") + " activated");
-		if (branchIndexingActivated) {
-			logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
-			scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,
-					TimeUnit.MINUTES);
-		}
+		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2, TimeUnit.MINUTES);
+		
 		// schedule gc engine
 		if (gcExecutor.isReady()) {
 			logger.info("GC executor is scheduled to scan repositories every 24 hours.");
@@ -3258,23 +3249,20 @@ public class GitBlit implements ServletContextListener {
 
 		// create a Gitblit repository model for the clone
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
-		// owner has REWIND/RW+ permissions		
-		cloneModel.addRepoAdministrator(user.username);
+		// owner has REWIND/RW+ permissions
+		cloneModel.addOwner(user.username);
 		updateRepositoryModel(cloneName, cloneModel, false);
 
 		// add the owner of the source repository to the clone's access list
-		Set<String> repoAdministrators = repository.getRepoAdministrators();
-		if (repoAdministrators != null) {
-			for (String repoAdministrator : repoAdministrators) {
-				if (!StringUtils.isEmpty(repoAdministrator)) {
-					UserModel originOwner = getUserModel(repoAdministrator);
-					if (originOwner != null) {
-						originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
-						updateUserModel(originOwner.username, originOwner, false);
-					}
+		if (!ArrayUtils.isEmpty(repository.owners)) {
+			for (String owner : repository.owners) {
+				UserModel originOwner = getUserModel(owner);
+				if (originOwner != null) {
+					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+					updateUserModel(originOwner.username, originOwner, false);
 				}
 			}
-		}		
+		}
 
 		// grant origin's user list clone permission to fork
 		List<String> users = getRepositoryUsers(repository);

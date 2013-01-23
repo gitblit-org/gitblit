@@ -162,7 +162,7 @@ public class GitblitClient implements Serializable {
 	}
 
 	public boolean isOwner(RepositoryModel model) {
-		return model.isRepoAdministrator(account);
+		return model.isOwner(account);
 	}
 
 	public String getURL(String action, String repository, String objectId) {
@@ -532,7 +532,7 @@ public class GitblitClient implements Serializable {
 		// TODO reconsider ownership as a user property
 		// manually specify personal repository ownerships
 		for (RepositoryModel rm : allRepositories) {
-			if (rm.isUsersPersonalRepository(user.username) || rm.isRepoAdministrator(user.username)) {
+			if (rm.isUsersPersonalRepository(user.username) || rm.isOwner(user.username)) {
 				RegistrantAccessPermission rp = new RegistrantAccessPermission(rm.name, AccessPermission.REWIND,
 						PermissionType.OWNER, RegistrantType.REPOSITORY, null, false);
 				// user may be owner of a repository to which they've inherited

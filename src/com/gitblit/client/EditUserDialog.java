@@ -389,7 +389,7 @@ public class EditUserDialog extends JDialog {
 		List<String> restricted = new ArrayList<String>();
 		for (RepositoryModel repo : repositories) {
 			// exclude Owner or personal repositories
-			if (!repo.isRepoAdministrator(username) && !repo.isUsersPersonalRepository(username)) {
+			if (!repo.isOwner(username) && !repo.isUsersPersonalRepository(username)) {
 				if (repo.accessRestriction.exceeds(AccessRestrictionType.NONE)
 						&& repo.authorizationControl.equals(AuthorizationControl.NAMED)) {
 					restricted.add(repo.name);
@@ -438,7 +438,7 @@ public class EditUserDialog extends JDialog {
 					permission.mutable = false;
 					continue;
 				}
-				boolean isOwner = rm.isRepoAdministrator(username);
+				boolean isOwner = rm.isOwner(username);
 				if (isOwner) {
 					permission.permissionType = PermissionType.OWNER;
 					permission.mutable = false;

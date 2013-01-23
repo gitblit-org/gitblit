@@ -79,7 +79,7 @@ public abstract class RepositoryPage extends BasePage {
 	
 	private final Map<String, PageRegistration> registeredPages;
 	private boolean showAdmin;
-	private boolean isRepoAdministrator;
+	private boolean isOwner;
 	
 	public RepositoryPage(PageParameters params) {
 		super(params);
@@ -183,10 +183,10 @@ public abstract class RepositoryPage extends BasePage {
 		} else {
 			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 		}
-		isRepoAdministrator = GitBlitWebSession.get().isLoggedIn()
-				&& (model.isRepoAdministrator(GitBlitWebSession.get()
+		isOwner = GitBlitWebSession.get().isLoggedIn()
+				&& (model.isOwner(GitBlitWebSession.get()
 						.getUsername()));
-		if (showAdmin || isRepoAdministrator) {
+		if (showAdmin || isOwner) {
 			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
 		}
 		return pages;
@@ -540,7 +540,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 	
 	public boolean isOwner() {
-		return isRepoAdministrator;
+		return isOwner;
 	}
 	
 	private class SearchForm extends SessionlessForm<Void> implements Serializable {

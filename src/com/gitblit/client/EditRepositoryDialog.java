@@ -38,7 +38,6 @@ import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -117,7 +116,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JComboBox federationStrategy;
 
-	private JComboBox ownerField;
+	private JPalette<String> ownersPalette;
 
 	private JComboBox headRefField;
 	
@@ -126,7 +125,7 @@ public class EditRepositoryDialog extends JDialog {
 	private JTextField gcThreshold;
 	
 	private JComboBox maxActivityCommits;
-
+	
 	private RegistrantPermissionsPanel usersPalette;
 
 	private JPalette<String> setsPalette;
@@ -207,7 +206,7 @@ public class EditRepositoryDialog extends JDialog {
 		gcThreshold = new JTextField(8);
 		gcThreshold.setText(anRepository.gcThreshold);
 
-		ownerField = new JComboBox();
+		ownersPalette = new JPalette<String>(true);
 
 		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
 				anRepository.useTickets);
@@ -334,10 +333,10 @@ public class EditRepositoryDialog extends JDialog {
 
 		usersPalette = new RegistrantPermissionsPanel(RegistrantType.USER);
 
-		JPanel northFieldsPanel = new JPanel(new GridLayout(0, 1, 0, 5));
-		northFieldsPanel.add(newFieldPanel(Translation.get("gb.repoAdministrators"), ownerField));
+		JPanel northFieldsPanel = new JPanel(new BorderLayout(0, 5));
+		northFieldsPanel.add(newFieldPanel(Translation.get("gb.owners"), ownersPalette), BorderLayout.NORTH);
 		northFieldsPanel.add(newFieldPanel(Translation.get("gb.accessRestriction"),
-				accessRestriction), BorderLayout.NORTH);
+				accessRestriction), BorderLayout.CENTER);
 
 		JPanel northAccessPanel = new JPanel(new BorderLayout(5, 5));
 		northAccessPanel.add(northFieldsPanel, BorderLayout.NORTH);
@@ -556,8 +555,8 @@ public class EditRepositoryDialog extends JDialog {
 
 		repository.name = rname;
 		repository.description = descriptionField.getText();
-		repository.addRepoAdministrator(ownerField.getSelectedItem() == null ? null
-				: ownerField.getSelectedItem().toString());
+		repository.owners.clear();
+		repository.owners.addAll(ownersPalette.getSelections());
 		repository.HEAD = headRefField.getSelectedItem() == null ? null
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
@@ -629,11 +628,8 @@ public class EditRepositoryDialog extends JDialog {
 		this.allowNamed.setSelected(!authenticated);
 	}
 
-	public void setUsers(String owner, List<String> all, List<RegistrantAccessPermission> permissions) {
-		ownerField.setModel(new DefaultComboBoxModel(all.toArray()));
-		if (!StringUtils.isEmpty(owner)) {
-			ownerField.setSelectedItem(owner);
-		}
+	public void setUsers(List<String> owners, List<String> all, List<RegistrantAccessPermission> permissions) {
+		ownersPalette.setObjects(all, owners);
 		usersPalette.setObjects(all, permissions);
 	}
 
