@@ -38,6 +38,18 @@
 	<classpathentry kind="lib" path="ext/xz-1.0.jar" sourcepath="ext/src/xz-1.0-sources.jar" />
 	<classpathentry kind="lib" path="ext/junit-4.10.jar" sourcepath="ext/src/junit-4.10-sources.jar" />
 	<classpathentry kind="lib" path="ext/hamcrest-core-1.1.jar" />
+	<classpathentry kind="lib" path="ext/seleniumhq/selenium-java-2.28.0.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/selenium-api-2.28.0.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/selenium-remote-driver-2.28.0.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/selenium-support-2.28.0.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/guava-12.0.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/json-20080701.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/commons-exec-1.1.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/httpcore-4.2.1.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/httpmime-4.2.1.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/httpclient-4.2.1.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="ext/seleniumhq/selenium-firefox-driver-2.28.0.jar"/>
 	<classpathentry kind="output" path="bin/classes" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
 </classpath>
