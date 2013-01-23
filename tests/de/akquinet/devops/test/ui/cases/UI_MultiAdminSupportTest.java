@@ -64,7 +64,7 @@ public class UI_MultiAdminSupportTest extends AbstractUITest {
 				.changeAuthorizationControl(RepoEditView.AUTHCONTROL_RWALL));
 
 		// with a second admin
-		editView.addRepoAdministrator("admin");
+		editView.addOwner("admin");
 		Assert.assertTrue(editView.save());
 		// user is automatically forwarded to repo list view
 		Assert.assertTrue(view.isEmptyRepo(TEST_MULTI_ADMIN_SUPPORT_REPO_PATH));
