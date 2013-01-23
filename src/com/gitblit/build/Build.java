@@ -245,7 +245,7 @@ public class Build {
 		Properties properties = new Properties();
 		FileInputStream is = null;
 		try {
-			is = new FileInputStream(Constants.PROPERTIES_FILE);
+			is = new FileInputStream(new File("distrib", Constants.PROPERTIES_FILE));
 			properties.load(is);
 		} catch (Throwable t) {
 			t.printStackTrace();
