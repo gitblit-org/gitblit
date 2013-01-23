@@ -49,6 +49,7 @@ import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -294,14 +295,23 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 				}
 
-				String owner = entry.owner;
-				if (!StringUtils.isEmpty(owner)) {
-					UserModel ownerModel = GitBlit.self().getUserModel(owner);
-					if (ownerModel != null) {
-						owner = ownerModel.getDisplayName();
+				String owner = "";
+				if (!ArrayUtils.isEmpty(entry.owners)) {
+					// display first owner
+					for (String username : entry.owners) {
+						UserModel ownerModel = GitBlit.self().getUserModel(username);
+						if (ownerModel != null) {
+							owner = ownerModel.getDisplayName();
+							break;
+						}
+					}
+					if (entry.owners.size() > 1) {
+						owner += ", ...";
 					}
 				}
-				row.add(new Label("repositoryOwner", owner));
+				Label ownerLabel = new Label("repositoryOwner", owner);
+				WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+				row.add(ownerLabel);
 
 				String lastChange;
 				if (entry.lastChange.getTime() == 0) {
@@ -522,10 +532,12 @@ public class RepositoriesPanel extends BasePanel {
 				Collections.sort(list, new Comparator<RepositoryModel>() {
 					@Override
 					public int compare(RepositoryModel o1, RepositoryModel o2) {
+						String own1 = ArrayUtils.toString(o1.owners);
+						String own2 = ArrayUtils.toString(o2.owners);
 						if (asc) {
-							return o1.owner.compareTo(o2.owner);
+							return own1.compareTo(own2);
 						}
-						return o2.owner.compareTo(o1.owner);
+						return own2.compareTo(own1);
 					}
 				});
 			} else if (prop.equals(SortBy.description.name())) {

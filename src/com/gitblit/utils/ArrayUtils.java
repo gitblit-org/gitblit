@@ -15,7 +15,9 @@
  */
 package com.gitblit.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -40,5 +42,33 @@ public class ArrayUtils {
 	
 	public static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.size() == 0;
+	}
+	
+	public static String toString(Collection<?> collection) {
+		if (isEmpty(collection)) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (Object o : collection) {
+			sb.append(o.toString()).append(", ");
+		}
+		// trim trailing comma-space
+		sb.setLength(sb.length() - 2);
+		return sb.toString();
+	}
+	
+	public static Collection<String> fromString(String value) {
+		if (StringUtils.isEmpty(value)) {
+			value = "";
+		}
+		List<String> list = new ArrayList<String>();
+		String [] values = value.split(",|;");
+		for (String v : values) {
+			String string = v.trim();
+			if (!StringUtils.isEmpty(string)) {
+				list.add(string);
+			}
+		}
+		return list;
 	}
 }

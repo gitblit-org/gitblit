@@ -9,8 +9,9 @@
 - Can't set reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 
 #### additions
-
- - Chinese translation (github/dapengme)
+ 
+ - Implemented multiple repository owners (github/akquinet)
+ - Chinese translation (github/dapengme, github/yin8086)
 
 ### Older Releases
 

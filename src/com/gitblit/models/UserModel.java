@@ -108,8 +108,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	@Deprecated
 	@Unused
 	public boolean canAccessRepository(RepositoryModel repository) {
-		boolean isOwner = !StringUtils.isEmpty(repository.owner)
-				&& repository.owner.equals(username);
+		boolean isOwner = repository.isOwner(username);
 		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
 		return canAdmin() || isOwner || repositories.contains(repository.name.toLowerCase())
 				|| hasTeamAccess(repository.name) || allowAuthenticated;

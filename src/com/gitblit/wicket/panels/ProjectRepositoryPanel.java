@@ -127,16 +127,24 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newBlankImage("accessRestrictionIcon"));
 		}
 
-		if (StringUtils.isEmpty(entry.owner)) {
+		if (ArrayUtils.isEmpty(entry.owners)) {
 			add(new Label("repositoryOwner").setVisible(false));
 		} else {
-			UserModel ownerModel = GitBlit.self().getUserModel(entry.owner);
-			String owner = entry.owner;
-			if (ownerModel != null) {
-				owner = ownerModel.getDisplayName();
+			String owner = "";
+			for (String username : entry.owners) {
+				UserModel ownerModel = GitBlit.self().getUserModel(username);
+			
+				if (ownerModel != null) {
+					owner = ownerModel.getDisplayName();
+				}				
 			}
-			add(new Label("repositoryOwner", owner + " (" +
+			if (entry.owners.size() > 1) {
+				owner += ", ...";
+			}
+			Label ownerLabel = (new Label("repositoryOwner", owner + " (" +
 					localizer.getString("gb.owner", parent) + ")"));
+			WicketUtils.setHtmlTooltip(ownerLabel, ArrayUtils.toString(entry.owners));
+			add(ownerLabel);
 		}
 
 		UserModel user = GitBlitWebSession.get().getUser();

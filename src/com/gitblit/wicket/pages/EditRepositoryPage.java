@@ -94,7 +94,7 @@ public class EditRepositoryPage extends RootSubPage {
 			// personal create permissions, inject personal repository path
 			model.name = user.getPersonalPath() + "/";
 			model.projectPath = user.getPersonalPath();
-			model.owner = user.username;
+			model.addOwner(user.username);
 			// personal repositories are private by default
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.authorizationControl = AuthorizationControl.NAMED;
@@ -164,6 +164,12 @@ public class EditRepositoryPage extends RootSubPage {
 		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams", 
 				RegistrantType.TEAM, GitBlit.self().getAllTeamnames(), repositoryTeams, getAccessPermissions());
 
+		// owners palette
+		List<String> owners = new ArrayList<String>(repositoryModel.owners);
+		List<String> persons = GitBlit.self().getAllUsernames();
+		final Palette<String> ownersPalette = new Palette<String>("owners", new ListModel<String>(owners), new CollectionModel<String>(
+		      persons), new StringChoiceRenderer(), 12, true);
+		
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);
@@ -326,6 +332,13 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 					repositoryModel.indexedBranches = indexedBranches;
 
+					// owners
+					repositoryModel.owners.clear();
+					Iterator<String> owners = ownersPalette.getSelectedChoices();
+					while (owners.hasNext()) {
+						repositoryModel.addOwner(owners.next());
+					}
+					
 					// pre-receive scripts
 					List<String> preReceiveScripts = new ArrayList<String>();
 					Iterator<String> pres = preReceivePalette.getSelectedChoices();
@@ -377,8 +390,7 @@ public class EditRepositoryPage extends RootSubPage {
 		// field names reflective match RepositoryModel fields
 		form.add(new TextField<String>("name").setEnabled(allowEditName));
 		form.add(new TextField<String>("description"));
-		form.add(new DropDownChoice<String>("owner", GitBlit.self().getAllUsernames())
-				.setEnabled(GitBlitWebSession.get().canAdmin() && !repositoryModel.isPersonalRepository()));
+		form.add(ownersPalette);
 		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
 				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer());
@@ -559,7 +571,7 @@ public class EditRepositoryPage extends RootSubPage {
 						isAdmin = true;
 						return;
 					} else {
-						if (!model.owner.equalsIgnoreCase(user.username)) {
+						if (!model.isOwner(user.username)) {
 							// User is not an Admin nor Owner
 							error(getString("gb.errorOnlyAdminOrOwnerMayEditRepository"), true);
 						}

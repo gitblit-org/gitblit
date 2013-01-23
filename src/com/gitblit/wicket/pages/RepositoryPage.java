@@ -184,7 +184,7 @@ public abstract class RepositoryPage extends BasePage {
 			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 		}
 		isOwner = GitBlitWebSession.get().isLoggedIn()
-				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
+				&& (model.isOwner(GitBlitWebSession.get()
 						.getUsername()));
 		if (showAdmin || isOwner) {
 			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
