@@ -1,0 +1,3 @@
+## 欢迎访问 Gitblit
+
+快速便捷的 [Git](http://www.git-scm.com) 版本库管理方案。
