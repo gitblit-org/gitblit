@@ -55,9 +55,9 @@ public class EditUserPage extends RootSubPage {
 	public EditUserPage() {
 		// create constructor
 		super();
-		if (!GitBlit.self().supportsCredentialChanges()) {
+		if (!GitBlit.self().supportsAddUser()) {
 			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
-					GitBlit.getString(Keys.realm.userService, "users.conf")), true);
+					GitBlit.getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
 		}
 		isCreate = true;
 		setupPage(new UserModel(""));
@@ -134,7 +134,7 @@ public class EditUserPage extends RootSubPage {
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
-				if (GitBlit.self().supportsCredentialChanges()) {
+				if (GitBlit.self().supportsCredentialChanges(userModel)) {
 					if (!userModel.password.equals(confirmPassword.getObject())) {
 						error(getString("gb.passwordsDoNotMatch"));
 						return;
@@ -210,16 +210,16 @@ public class EditUserPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 		
 		// not all user services support manipulating username and password
-		boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+		boolean editCredentials = GitBlit.self().supportsCredentialChanges(userModel);
 		
 		// not all user services support manipulating display name
-		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges();
+		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges(userModel);
 
 		// not all user services support manipulating email address
-		boolean editEmailAddress = GitBlit.self().supportsEmailAddressChanges();
+		boolean editEmailAddress = GitBlit.self().supportsEmailAddressChanges(userModel);
 
 		// not all user services support manipulating team memberships
-		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges();
+		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges(userModel);
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
@@ -233,12 +233,17 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork"));
+		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));
 		form.add(teams.setEnabled(editTeams));
 
+		form.add(new TextField<String>("organizationalUnit").setEnabled(editDisplayName));
+		form.add(new TextField<String>("organization").setEnabled(editDisplayName));
+		form.add(new TextField<String>("locality").setEnabled(editDisplayName));
+		form.add(new TextField<String>("stateProvince").setEnabled(editDisplayName));
+		form.add(new TextField<String>("countryCode").setEnabled(editDisplayName));
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;

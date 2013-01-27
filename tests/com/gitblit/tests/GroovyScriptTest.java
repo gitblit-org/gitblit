@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -67,6 +68,28 @@ public class GroovyScriptTest {
 		if (started.get()) {
 			GitBlitSuite.stopGitblit();
 		}
+	}
+
+	@Test
+	public void testFogbugz() throws Exception {
+		MockGitblit gitblit = new MockGitblit();
+		MockLogger logger = new MockLogger();
+		MockClientLogger clientLogger = new MockClientLogger();
+		List<ReceiveCommand> commands = new ArrayList<ReceiveCommand>();
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master"));
+		commands.add(new ReceiveCommand(ObjectId
+				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
+				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
+
+		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		repository.customFields = new HashMap<String,String>();
+		repository.customFields.put( "fogbugzUrl", "http://bugs.test.com" );
+		repository.customFields.put( "fogbugzRepositoryId", "1" );
+		repository.customFields.put( "fogbugzCommitMessageRegex", "\\s*[Bb][Uu][Gg][(Zz)(Ss)]*\\s*[(IDs)]*\\s*[#:; ]+((\\d+[ ,:;#]*)+)" );
+
+		test("fogbugz.groovy", gitblit, logger, clientLogger, commands, repository);
 	}
 
 	@Test

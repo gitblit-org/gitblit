@@ -112,7 +112,7 @@ public abstract class RepositoryPage extends BasePage {
 					// workaround until get().getUser() is reviewed throughout the app
 					user = UserModel.ANONYMOUS;
 				}
-				boolean canAccess = user.hasBranchPermission(repositoryName,
+				boolean canAccess = user.canView(getRepositoryModel(),
 								branch.reference.getName());
 				if (!canAccess) {
 					error(getString("gb.accessDenied"), true);
@@ -154,7 +154,9 @@ public abstract class RepositoryPage extends BasePage {
 		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
 		pages.put("tags", new PageRegistration("gb.tags", TagsPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
-		pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+		if (GitBlit.getBoolean(Keys.web.allowForking, true)) {
+			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+		}
 
 		// conditional links
 		Repository r = getRepository();
@@ -182,7 +184,7 @@ public abstract class RepositoryPage extends BasePage {
 			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
 		}
 		isOwner = GitBlitWebSession.get().isLoggedIn()
-				&& (model.owner != null && model.owner.equalsIgnoreCase(GitBlitWebSession.get()
+				&& (model.isOwner(GitBlitWebSession.get()
 						.getUsername()));
 		if (showAdmin || isOwner) {
 			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
@@ -191,7 +193,7 @@ public abstract class RepositoryPage extends BasePage {
 	}
 	
 	protected boolean allowForkControls() {
-		return true;
+		return GitBlit.getBoolean(Keys.web.allowForking, true);
 	}
 
 	@Override
@@ -242,6 +244,14 @@ public abstract class RepositoryPage extends BasePage {
 						SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
 				add(forkFrag);
 			}
+		}
+		
+		// show sparkleshare folder icon
+		if (model.isSparkleshared()) {
+			add(WicketUtils.newImage("repositoryIcon", "folder_star_32x32.png",
+					getString("gb.isSparkleshared")));
+		} else {
+			add(WicketUtils.newClearPixel("repositoryIcon").setVisible(false));
 		}
 		
 		if (getRepositoryModel().isBare) {
@@ -324,7 +334,7 @@ public abstract class RepositoryPage extends BasePage {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				if (GitBlit.self().hasRepository(repositoryName)) {
+				if (GitBlit.self().hasRepository(repositoryName, true)) {
 					// has repository, but unauthorized
 					authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
 				} else {
@@ -355,10 +365,6 @@ public abstract class RepositoryPage extends BasePage {
 				submodules.put(model.path, model);
 			}
 		}
-		return submodules;
-	}
-	
-	protected Map<String, SubmoduleModel> getSubmodules() {
 		return submodules;
 	}
 	
@@ -448,6 +454,8 @@ public abstract class RepositoryPage extends BasePage {
 			Constants.SearchType searchType) {
 		String name = identity == null ? "" : identity.getName();
 		String address = identity == null ? "" : identity.getEmailAddress();
+		name = StringUtils.removeNewlines(name);
+		address = StringUtils.removeNewlines(address);
 		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
 		if (!showEmail || StringUtils.isEmpty(name) || StringUtils.isEmpty(address)) {
 			String value = name;

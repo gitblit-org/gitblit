@@ -7,9 +7,11 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jgit.api.CloneCommand;
@@ -18,6 +20,7 @@ import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepository;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
@@ -34,9 +37,12 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.PushLogUtils;
 
 public class GitServletTest {
 
@@ -88,6 +94,11 @@ public class GitServletTest {
 
 	@Test
 	public void testClone() throws Exception {
+		GitBlitSuite.close(ticgitFolder);
+		if (ticgitFolder.exists()) {
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
@@ -187,6 +198,20 @@ public class GitServletTest {
 
 	@Test
 	public void testAnonymousPush() throws Exception {
+		GitBlitSuite.close(ticgitFolder);
+		if (ticgitFolder.exists()) {
+			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setDirectory(ticgitFolder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
+		GitBlitSuite.close(clone.call());		
+		assertTrue(true);
+		
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -201,6 +226,11 @@ public class GitServletTest {
 
 	@Test
 	public void testSubfolderPush() throws Exception {
+		GitBlitSuite.close(jgitFolder);
+		if (jgitFolder.exists()) {
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
@@ -218,6 +248,51 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
+		git.push().setPushAll().call();
+		GitBlitSuite.close(git);
+	}
+	
+	@Test
+	public void testPushToFrozenRepo() throws Exception {
+		GitBlitSuite.close(jgitFolder);
+		if (jgitFolder.exists()) {
+			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
+		}
+		
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
+		clone.setDirectory(jgitFolder);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
+		GitBlitSuite.close(clone.call());
+		assertTrue(true);
+		
+		// freeze repo
+		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
+		model.isFrozen = true;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		Git git = Git.open(jgitFolder);
+		File file = new File(jgitFolder, "TODO");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage("test commit").call();
+		
+		try {
+			git.push().setPushAll().call();
+			assertTrue(false);
+		} catch (Exception e) {
+			assertTrue(e.getCause().getMessage().contains("access forbidden"));
+		}
+		
+		// unfreeze repo
+		model.isFrozen = false;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
 		git.push().setPushAll().call();
 		GitBlitSuite.close(git);
 	}
@@ -651,7 +726,7 @@ public class GitServletTest {
 			
 			// confirm default personal repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
-			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
 			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
 			
@@ -675,7 +750,7 @@ public class GitServletTest {
 			
 			// confirm default project repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel("project/ticgit.git");
-			assertEquals("Unexpected owner", user.username, model.owner);
+			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
 			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
 
@@ -686,5 +761,15 @@ public class GitServletTest {
 
 		GitBlitSuite.close(git);
 		GitBlit.self().deleteUser(user.username);
+	}
+	
+	@Test
+	public void testPushLog() throws IOException {
+		String name = "refchecks/ticgit.git";
+		File refChecks = new File(GitBlitSuite.REPOSITORIES, name);
+		FileRepository repository = new FileRepository(refChecks);
+		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
+		GitBlitSuite.close(repository);
+		assertTrue("Repository has an empty push log!", pushes.size() > 0);
 	}
 }

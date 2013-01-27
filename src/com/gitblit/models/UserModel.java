@@ -29,6 +29,7 @@ import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
@@ -73,15 +74,22 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 	// non-persisted fields
 	public boolean isAuthenticated;
+	public AccountType accountType;
 	
 	public UserModel(String username) {
 		this.username = username;
 		this.isAuthenticated = true;
+		this.accountType = AccountType.LOCAL;
 	}
 
 	private UserModel() {
 		this.username = "$anonymous";
 		this.isAuthenticated = false;
+		this.accountType = AccountType.LOCAL;
+	}
+	
+	public boolean isLocalAccount() {
+		return accountType.isLocal();
 	}
 
 	/**
@@ -100,8 +108,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	@Deprecated
 	@Unused
 	public boolean canAccessRepository(RepositoryModel repository) {
-		boolean isOwner = !StringUtils.isEmpty(repository.owner)
-				&& repository.owner.equals(username);
+		boolean isOwner = repository.isOwner(username);
 		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
 		return canAdmin() || isOwner || repositories.contains(repository.name.toLowerCase())
 				|| hasTeamAccess(repository.name) || allowAuthenticated;
@@ -360,6 +367,12 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public boolean canView(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
 	}
+	
+	public boolean canView(RepositoryModel repository, String ref) {
+		// Default UserModel doesn't implement ref-level security.
+		// Other Realms (i.e. Gerrit) may override this method.
+		return canView(repository);
+	}
 
 	public boolean canClone(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.CLONE, AccessPermission.CLONE);
@@ -587,9 +600,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return nameVerified && emailVerified;
 	}
 	
+	@Deprecated
 	public boolean hasBranchPermission(String repositoryName, String branch) {
 		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
-		return hasRepositoryPermission(repositoryName);
+		return hasRepositoryPermission(repositoryName) || hasTeamRepositoryPermission(repositoryName);
 	}
 	
 	public boolean isMyPersonalRepository(String repository) {

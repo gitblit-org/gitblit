@@ -3,6 +3,30 @@
 	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
+	<!-- The base folder is used to specify the root location of your Gitblit data.
+	
+			${baseFolder}/gitblit.properties
+			${baseFolder}/users.conf
+			${baseFolder}/projects.conf
+			${baseFolder}/robots.txt
+			${baseFolder}/git
+			${baseFolder}/groovy
+			${baseFolder}/groovy/grape
+			${baseFolder}/proposals
+
+		By default, this location is WEB-INF/data.  It is recommended to set this
+		path to a location outside your webapps folder that is writable by your
+		servlet container.  Gitblit will copy the WEB-INF/data files to that
+		location for you when it restarts.  This approach makes upgrading simpler.
+		All you have to do is set this parameter for the new release and then
+		review the defaults for any new settings.  Settings are always versioned
+		with a SINCE x.y.z attribute and also noted in the release changelog.
+		-->
+	<context-param>
+		<param-name>baseFolder</param-name>
+		<param-value>${contextFolder}/WEB-INF/data</param-value>
+	</context-param>
+
 	<!-- PARAMS --> 
 	 
 	<!-- Gitblit Context Listener --><!-- STRIP	 

@@ -36,9 +36,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.models.Activity;
-import com.gitblit.models.Activity.RepositoryCommit;
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
 import com.google.gson.reflect.TypeToken;
 
@@ -81,6 +81,10 @@ public class ActivityUtils {
 
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
+			if (model.maxActivityCommits == -1) {
+				// skip this repository
+				continue;
+			}
 			if (model.hasCommits && model.lastChange.after(thresholdDate)) {
 				if (model.isCollectingGarbage) {
 					continue;
@@ -106,7 +110,11 @@ public class ActivityUtils {
 					}
 					List<RevCommit> commits = JGitUtils.getRevLog(repository,
 							branch, thresholdDate);
-					for (RevCommit commit : commits) {
+					if (model.maxActivityCommits > 0 && commits.size() > model.maxActivityCommits) {
+						// trim commits to maximum count
+						commits = commits.subList(0,  model.maxActivityCommits);
+					}
+					for (RevCommit commit : commits) {						
 						Date date = JGitUtils.getCommitDate(commit);
 						String dateStr = df.format(date);
 						if (!activity.containsKey(dateStr)) {

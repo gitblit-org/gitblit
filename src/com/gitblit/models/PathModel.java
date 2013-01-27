@@ -48,6 +48,10 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 		this.commitId = commitId;
 	}
 
+	public boolean isSymlink() {
+		return FileMode.SYMLINK.equals(mode);
+	}
+
 	public boolean isSubmodule() {
 		return FileMode.GITLINK.equals(mode);
 	}

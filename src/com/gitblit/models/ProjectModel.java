@@ -39,6 +39,8 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 	public String description;
 	public final Set<String> repositories = new HashSet<String>();
 	
+	public String projectMarkdown;
+	public String repositoriesMarkdown;
 	public Date lastChange;
 	public final boolean isRoot;
 

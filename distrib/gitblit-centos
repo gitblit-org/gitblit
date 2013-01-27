@@ -6,6 +6,7 @@
 
 # change theses values (default values)
 GITBLIT_PATH=/opt/gitblit
+GITBLIT_BASE_FOLDER=/opt/gitblit/data
 GITBLIT_HTTP_PORT=0
 GITBLIT_HTTPS_PORT=8443
 source ${GITBLIT_PATH}/java-proxy-config.sh
@@ -19,7 +20,7 @@ case "$1" in
       then
       echo $"Starting gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT > /dev/null &
+      $JAVA $GITBLIT_PATH/gitblit.jar --httpsPort $GITBLIT_HTTPS_PORT --httpPort $GITBLIT_HTTP_PORT --baseFolder $GITBLIT_BASE_FOLDER > /dev/null &
       echo "."
       exit $RETVAL
     fi
@@ -30,7 +31,7 @@ case "$1" in
       then
       echo $"Stopping gitblit server"
       cd $GITBLIT_PATH
-      $JAVA $GITBLIT_PATH/gitblit.jar --stop > /dev/null &
+      $JAVA $GITBLIT_PATH/gitblit.jar --baseFolder $GITBLIT_BASE_FOLDER --stop > /dev/null &
       echo "."
       exit $RETVAL
     fi

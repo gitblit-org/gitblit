@@ -1,1 +1,1 @@
-@java -jar gitblit.jar
+@java -jar gitblit.jar --baseFolder data

@@ -1,72 +1,76 @@
-## Gitblit WAR Setup
+## Gitblit WAR Installation & Setup
 
 1. Download [Gitblit WAR %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%WAR%) to the webapps folder of your servlet container.  
 2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
-3. Copy the `WEB-INF/users.conf` file to a location outside the webapps folder that is accessible by your servlet container.  
-Optionally copy the example hook scripts in `WEB-INF/groovy` to a location outside the webapps folder that is accesible by your servlet container.
-4. The Gitblit webapp is configured through its `web.xml` file.  
-Open `web.xml` in your favorite text editor and make sure to review and set:
-    - &lt;context-parameter&gt; *git.repositoryFolder* (set the full path to your repositories folder)
-    - &lt;context-parameter&gt; *groovy.scriptsFolder* (set the full path to your Groovy hook scripts folder)
-    - &lt;context-parameter&gt; *groovy.grapeFolder* (set the full path to your Groovy Grape artifact cache)
-    - &lt;context-parameter&gt; *web.projectsFile* (set the full path to your projects metadata file)
-    - &lt;context-parameter&gt; *realm.userService* (set the full path to `users.conf`)
+3. By default, the Gitblit webapp is configured through `WEB-INF/data/gitblit.properties`.<br/>
+Open `WEB-INF/data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
     - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)
-5. You may have to restart your servlet container. 
-6. Open your browser to <http://localhost/gitblit> or whatever the url should be.
-7. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
+4. You may have to restart your servlet container. 
+5. Open your browser to <http://localhost/gitblit> or whatever the url should be.
+6. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
     **NOTE:** Make sure to change the administrator username and/or password!! 
 
-## Gitblit GO Setup
+### WAR Data Location
+By default, Gitblit WAR stores all data (users, settings, repositories, etc) in `${contextFolder}/WEB-INF/data`.  This is fine for a quick setup, but there are many reasons why you don't want to keep your data within the webapps folder of your servlet container.  You may specify an external location for your data by editing `WEB-INF/web.xml` and manipulating the *baseFolder* context parameter.  Choose a location that is writeable by your servlet container.  Your servlet container may be smart enough to recognize the change and to restart Gitblit.
+
+On the next restart of Gitblit, Gitblit will copy the contents of the `WEB-INF/data` folder to your specified *baseFolder* **IF** the file `${baseFolder}/gitblit.properties` does not already exist.  This allows you to get going with minimal fuss.
+
+Specifying an alternate *baseFolder* also allows for simpler upgrades in the future.
+
+## Gitblit GO Installation & Setup
 
 1. Download and unzip [Gitblit GO %VERSION%](http://code.google.com/p/gitblit/downloads/detail?name=%GO%).  
 *Its best to eliminate spaces in the path name.* 
-2. The server itself is configured through a simple text file.  
-Open `gitblit.properties` in your favorite text editor and make sure to review and set:
-    - *git.repositoryFolder* (path may be relative or absolute)
-    - *groovy.scriptsFolder* (path may be relative or absolute)
-    - *groovy.grapeFolder* (path may be relative or absolute)
-    - *web.siteName* (used in certificate generation, etc)
-    - *server.tempFolder* (path may be relative or absolute)
+2. The server itself is configured through a simple text file.<br/>
+Open `data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - *server.httpPort* and *server.httpsPort*
     - *server.httpBindInterface* and *server.httpsBindInterface*  
 	- *server.storePassword*
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
     - *git.packedGitLimit* (set larger than the size of your largest repository)
     - *git.streamFileThreshold* (set larger than the size of your largest committed file)
-3. Execute `authority.cmd` or `java -jar authority.jar` from a command-line
-    a. enter default values for your generated certificates in the *new certificate defaults* dialog
-	b. enter the store password used in *server.storePassword* when prompted *(this generates an SSL certificate for **localhost**)*
-	c. you will also want to generate SSL certificates for the hostnames or ip addresses you serve from
-	d. exit the authority app
-4. Execute `gitblit.cmd` or `java -jar gitblit.jar` from a command-line
+3. Execute `authority.cmd` or `java -jar authority.jar --baseFolder data` from a command-line
+    1. fill out the fields in the *new certificate defaults* dialog
+	2. enter the store password used in *server.storePassword* when prompted.  This generates an SSL certificate for **localhost**.
+	3. you may want to generate an SSL certificate for the hostname or ip address hostnames you are serving from<br/>**NOTE:** You can only have **one** SSL certificate specified for a port.
+	5. exit the authority app
+4. Execute `gitblit.cmd` or `java -jar gitblit.jar --baseFolder data` from a command-line
 5. Open your browser to <http://localhost:8080> or <https://localhost:8443> depending on your chosen configuration.
 6. Enter the default administrator credentials: **admin / admin** and click the *Login* button    
     **NOTE:** Make sure to change the administrator username and/or password!! 
 
+### GO Data Location
+
+By default, Gitblit GO stores all data (users, settings, repositories, etc) in the `data` subfolder of your GO installation.  You may specify an external location for your data on the command-line by setting the *--baseFolder* argument.  If you relocate the data folder then you must supply the *--baseFolder* argument to both GO and the Certificate Authority.
+
+If you are deploying Gitblit to a *nix platform, you might consider moving the data folder out of the GO installation folder and then creating a symlink named "data" that points to your moved folder.
+
 ### Creating your own Self-Signed SSL Certificate
 Gitblit GO (and Gitblit Certificate Authority) automatically generates a Certificate Authority (CA) certificate and an ssl certificate signed by this CA certificate that is bound to *localhost*.
 
-Remote Eclipse/EGit/JGit clients (<= 2.1.0) will fail to communicate using this certificate because JGit always verifies the hostname of the certificate, regardless of the *http.sslVerify=false* client-side setting.
+Remote Eclipse/EGit/JGit clients (<= 2.2.0) will fail to communicate using this certificate because JGit always verifies the hostname of the certificate, regardless of the *http.sslVerify=false* client-side setting.
 
 The EGit failure message is something like:
 
 	Cannot get remote repository refs.
 	Reason: https:/myserver.com/git/myrepo.git: cannot open git-upload-pack
 
-If you want to serve your repositories to another machine over https then you will want to generate your own certificate.
+If you want to serve your repositories to another machine over https then you will want to generate a new certificate for the hostname or ip address you are serving from.
 
-1. `authority.cmd` or `java -jar authority.jar`
+1. `authority.cmd` or `java -jar authority.jar --baseFolder data`
 2. Click the *new ssl certificate* button (red rosette in the toolbar in upper left of window)
 3. Enter the hostname or ip address
-4. Enter the *server.storePassword* password
+4. Make sure the checkbox *serve https with this certificate* is checked
+5. In the keystore password prompt, enter the *server.storePassword* password
  
-Additionally, if you want to change the value of *server.storePassword* (recommended) you will have to delete the following files and then start the Gitblit Certificate Authority app:
-1. serverKeyStore.jks
-2. serverTrustStore.jks
-3. certs/caKeyStore.jks
-4. certs/ca.crt
+If you decide to change the value of *server.storePassword* (recommended) <u>after</u> you have already started Gitblit or Gitblit Certificate Authority, then you will have to delete the following files and then restart the Gitblit Certificate Authority app:
+
+1. data/serverKeyStore.jks
+2. data/serverTrustStore.jks
+3. data/certs/caKeyStore.jks
+4. data/certs/ca.crt
+5. data/certs/caRevocationList.crl (optional)
 
 ### Client SSL Certificates
 SINCE 1.2.0
@@ -82,6 +86,7 @@ Gitblit must be able to map the DN of the certificate to an *existing* account u
 How do you make your servlet container trust a client certificate?
 
 In the WAR variant, you will have to manually setup your servlet container to:
+
 1. want/need client certificates
 2. trust a CA certificate used to sign your client certificates
 3. generate client certificates signed by your CA certificate
@@ -90,12 +95,16 @@ Alternatively, Gitblit GO is designed to facilitate use of client certificate au
 
 #### Creating SSL Certificates with Gitblit Certificate Authority
 
-When you generate a new client certificate, a zip file bundle is created which includes a P12 keystore for browsers and a PEM keystore for Git.  Both of these are password-protected.  Additionally, a personalized README file is generated with setup instructions for popular browsers and Git.  The README is generated from `certs\instructions.tmpl` and can be modified to suit your needs.
+When you generate a new client certificate, a zip file bundle is created which includes a P12 keystore for browsers and a PEM keystore for Git.  Both of these are password-protected.  Additionally, a personalized README file is generated with setup instructions for popular browsers and Git.  The README is generated from `data\certs\instructions.tmpl` and can be modified to suit your needs.
 
-1. `authority.cmd` or `java -jar authority.jar`
+1. `authority.cmd` or `java -jar authority.jar --baseFolder data`
 2. Select the user for which to generate the certificate
-3. Click the *new certificate* button and enter the expiration date of the certificate.  You must also enter a password for the generated keystore.  This password is not the same as the user's login password.  This password is used to protect the privatekey and public certificate you will generate for the selected user.  You must also enter a password hint for the user.
+3. Click the *new certificate* button and enter the expiration date of the certificate.  You must also enter a password for the generated keystore.  This password is *not* the same as the user's login password.  This password is used to protect the privatekey and public certificate you will generate for the selected user.  You must also enter a password hint for the user.
 4. If your mail server settings are properly configured you will have a *send email* checkbox which you can use to immediately send the generated certificate bundle to the user.
+
+#### Certificate Inspection and Advanced Troubleshooting
+
+X509 certificates can be confusing and tricky even with the simplified Gitblit Certificate Authority tool.  If you find you need more tooling to understand your keystores, certificates, and certificate revocation lists (CRLs), I highly recommend [Portecle](http://portecle.sourceforge.net) which can be conveniently launched as a [Java Web Start app](http://portecle.sourceforge.net/webstart/portecle.jnlp).
 
 ### Running as a Windows Service
 Gitblit uses [Apache Commons Daemon](http://commons.apache.org/daemon) to install and configure its Windows service.
@@ -124,19 +133,21 @@ C:\Program Files\Java\jre6\bin\server\jvm.dll</pre>
 #### Command-Line Parameters
 Command-Line parameters override the values in `gitblit.properties` at runtime.
 
+    --baseFolder           The default base folder for all relative file reference settings
 	--repositoriesFolder   Git Repositories Folder
     --userService          Authentication and Authorization Service (filename or fully qualified classname)
     --useNio               Use NIO Connector else use Socket Connector.
     --httpPort             HTTP port for to serve. (port <= 0 will disable this connector)
     --httpsPort            HTTPS port to serve.  (port <= 0 will disable this connector)
     --ajpPort              AJP port to serve.  (port <= 0 will disable this connector)
+	--alias                Alias in keystore of SSL cert to use for https serving
     --storePassword        Password for SSL (https) keystore.
     --shutdownPort         Port for Shutdown Monitor to listen on. (port <= 0 will disable this monitor)
     --tempFolder           Folder for server to extract built-in webapp
     
 **Example**
 
-    java -jar gitblit.jar --userService c:\myrealm.config --storePassword something
+    java -jar gitblit.jar --userService c:/myrealm.config --storePassword something --baseFolder c:/data
 
 #### Overriding Gitblit GO's Log4j Configuration
 
@@ -214,9 +225,6 @@ ProxyPreserveHost On
     Alternatively, you can respecify *web.forwardSlashCharacter*.
 
 ## Upgrading Gitblit
-Generally, upgrading is easy.
-
-Since Gitblit does not use a database the only files you have to worry about are your configuration file (`gitblit.properties` or `web.xml`) and possibly your `users.conf` or `users.properties` file.
 
 Any important changes to the setting keys or default values will always be mentioned in the [release log](releases.html).
 
@@ -224,26 +232,60 @@ Gitblit v0.8.0 introduced a new default user service implementation which serial
 
 `users.properties` and its user service implementation are deprecated as of v0.8.0.
 
-### Upgrading Gitblit WAR
-1. Backup your `web.xml` file  
-Backup your `web.properties` file (if you have one, these are the setting overrides from using the RPC administration service)
-2. Delete currently deployed gitblit WAR
-3. Deploy new WAR and overwrite the `web.xml` file with your backup
-4. Review and optionally apply any new settings as indicated in the [release log](releases.html). 
+### Upgrading Gitblit WAR (1.2.1+)
+1. Make sure your `WEB-INF/web.xml` *baseFolder* context parameter is not `${contextFolder}/WEB-INF/data`!<br/>
+If it is, move your `WEB-INF/data` folder to a location writeable by your servlet container.
+2. Deploy new WAR
+3. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
+4. Review and optionally apply any new settings as indicated in the [release log](releases.html) to `${baseFolder}/gitblit.properties`. 
  
-### Upgrading Gitblit GO
+### Upgrading Gitblit GO (1.2.1+)
  
-1. Backup your `gitblit.properties` file
-2. Backup your `users.properties` file *(if it is located in the Gitblit GO folder)*  
-OR  
-Backup your `users.conf` file *(if it is located in the Gitblit GO folder)*
-3. Backup your Groovy hook scripts
-4. Unzip Gitblit GO to a new folder
-5. Overwrite the `gitblit.properties` file with your backup
-6. Overwrite the `users.properties` file with your backup *(if it was located in the Gitblit GO folder)*  
-OR  
-Overwrite the `users.conf` file with your backup *(if it was located in the Gitblit GO folder)*
-7. Review and optionally apply any new settings as indicated in the [release log](releases.html).
+1. Unzip Gitblit GO to a new folder
+2. Copy your `data` folder from your current Gitblit installation to the new folder and overwrite any conflicts
+3. Review and optionally apply any new settings as indicated in the [release log](releases.html) to `data/gitblit.properties`.
+
+In *nix systems, there are other tricks you can play like symlinking the `data` folder or symlinking the GO folder.
+All platforms support the *--baseFolder* command-line argument.
+
+### Upgrading Gitblit WAR (pre-1.2.1)
+
+1. Create a `data` as outlined in step 1 of *Upgrading Gitblit GO (pre-1.2.1)*
+2. Copy your existing web.xml to your data folder
+3. Deploy new WAR
+4. Copy the new WAR's `WEB-INF/data/gitblit.properties` file to your data folder
+5. Manually apply any changes you made to your original web.xml file to the gitblit.properties file you copied to your data folder
+6. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
+
+### Upgrading Gitblit GO (pre-1.2.1)
+1. Create a `data` folder and copy the following files and folders to it:
+    - **users.conf*
+	- **projects.conf** *(if you have one)*
+	- **gitblit.properties**
+	- **serverKeystore.jks**
+	- **serverTrustStore.jks**
+	- *certs** folder
+	- **git** folder
+	- **groovy** folder
+	- **proposals** folder
+    - and any other custom files (robots.txt, welcome/login markdown files, etc)
+	- then edit your `gitblit.properties` file and adjust the following settings:
+        - *git.repositoriesFolder* = ${baseFolder}/git
+        - *groovy.scriptsFolder* = ${baseFolder}/groovy
+        - *groovy.grapeFolder* = ${baseFolder}/groovy/grape
+        - *web.projectsFile* = ${baseFolder}/projects.conf
+        - *realm.userService* = ${baseFolder}/users.conf
+        - *web.robots.txt* = ${baseFolder}/robots.txt
+        - *federation.proposalsFolder* = ${baseFolder}/proposals
+        - *realm.ldap.backingUserService* = ${baseFolder}/users.conf
+        - *realm.redmine.backingUserService* = ${baseFolder}/users.conf
+        - *server.tempFolder* = ${baseFolder}/temp
+
+2. Unzip Gitblit GO to a new folder
+3. Copy your `data` folder and overwrite the folder of the same name in the just-unzipped version
+4. Review and optionally apply any new settings as indicated in the [release log](releases.html) to `data/gitblit.properties`.
+
+**NOTE:** You may need to adjust your service definitions to include the `--baseFolder data` argument.
 
 #### Upgrading Windows Service
 You may need to delete your old service definition and install a new one depending on what has changed in the release.
@@ -270,7 +312,7 @@ All repository settings are stored within the repository `.git/config` file unde
 	    federationSets = 
 
 #### Repository Names
-Repository names must be unique and are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - . ~`<br/>
+Repository names must be case-insensitive-unique but are CASE-SENSITIVE ON CASE-SENSITIVE FILESYSTEMS.  The name must be composed of letters, digits, or `/ _ - . ~`<br/>
 Whitespace is illegal.
 
 Repositories can be grouped within subfolders.  e.g. *libraries/mycoollib.git* and *libraries/myotherlib.git*
@@ -358,6 +400,10 @@ All checks are case-insensitive.
 **What about merges?**
 
 You can not use fast-forward merges on your client when using committer verification.  You must specify *--no-ff* to ensure that a merge commit is created with your identity as the committer.  Only the first parent chain is traversed when verifying commits.
+
+#### Push Log
+
+Gitblit v1.2.1 introduces an incomplete push mechanism.  All pushes are logged since 1.2.1, but the log has not yet been exposed through the web ui.  This will be a feature of an upcoming release.
 
 ### Teams
 

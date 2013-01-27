@@ -67,14 +67,14 @@ public class BranchesPanel extends BasePanel {
 
 		List<RefModel> localBranches = JGitUtils.getLocalBranches(r, false, -1);
 		for (RefModel refModel : localBranches) {
-			if (user.hasBranchPermission(model.name, refModel.reference.getName())) {
+			if (user.canView(model, refModel.reference.getName())) {
 				branches.add(refModel);
 			}
 		}
 		if (model.showRemoteBranches) {
 			List<RefModel> remoteBranches = JGitUtils.getRemoteBranches(r, false, -1);
 			for (RefModel refModel : remoteBranches) {
-				if (user.hasBranchPermission(model.name, refModel.reference.getName())) {
+				if (user.canView(model, refModel.reference.getName())) {
 					branches.add(refModel);
 				}
 			}

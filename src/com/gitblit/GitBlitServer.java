@@ -44,7 +44,6 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -85,10 +84,29 @@ public class GitBlitServer {
 	private static Logger logger;
 
 	public static void main(String... args) {
+		// filter out the baseFolder parameter
+		List<String> filtered = new ArrayList<String>();
+		String folder = "data";
+		for (int i = 0; i< args.length; i++) {
+			String arg = args[i];
+			if (arg.equals("--baseFolder")) {
+				if (i + 1 == args.length) {
+					System.out.println("Invalid --baseFolder parameter!");
+					System.exit(-1);
+				} else if (args[i + 1] != ".") {
+					folder = args[i + 1];
+				}
+				i = i + 1;
+			} else {
+				filtered.add(arg);
+			}
+		}
+		
+		Params.baseFolder = folder;
 		Params params = new Params();
 		JCommander jc = new JCommander(params);
 		try {
-			jc.parse(args);
+			jc.parse(filtered.toArray(new String[filtered.size()]));
 			if (params.help) {
 				usage(jc, null);
 			}
@@ -148,13 +166,13 @@ public class GitBlitServer {
 	 * Start Gitblit GO.
 	 */
 	private static void start(Params params) {
-		FileSettings settings = Params.FILESETTINGS;
+		final File baseFolder = new File(Params.baseFolder).getAbsoluteFile();
+		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
 			if (new File(params.settingsfile).exists()) {
 				settings = new FileSettings(params.settingsfile);				
 			}
 		}
-
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
 		logger.info(Constants.BORDER);
 		logger.info("            _____  _  _    _      _  _  _");
@@ -198,11 +216,10 @@ public class GitBlitServer {
 
 		// conditionally configure the https connector
 		if (params.securePort > 0) {
-			final File folder = new File(System.getProperty("user.dir"));
-			File certificatesConf = new File(folder, X509Utils.CA_CONFIG);
-			File serverKeyStore = new File(folder, X509Utils.SERVER_KEY_STORE);
-			File serverTrustStore = new File(folder, X509Utils.SERVER_TRUST_STORE);
-			File caRevocationList = new File(folder, X509Utils.CA_REVOCATION_LIST);
+			File certificatesConf = new File(baseFolder, X509Utils.CA_CONFIG);
+			File serverKeyStore = new File(baseFolder, X509Utils.SERVER_KEY_STORE);
+			File serverTrustStore = new File(baseFolder, X509Utils.SERVER_TRUST_STORE);
+			File caRevocationList = new File(baseFolder, X509Utils.CA_REVOCATION_LIST);
 
 			// generate CA & web certificates, create certificate stores
 			X509Metadata metadata = new X509Metadata("localhost", params.storePassword);
@@ -219,12 +236,12 @@ public class GitBlitServer {
 			}
 			
 			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
-			X509Utils.prepareX509Infrastructure(metadata, folder, new X509Log() {
+			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
 				@Override
 				public void log(String message) {
 					BufferedWriter writer = null;
 					try {
-						writer = new BufferedWriter(new FileWriter(new File(folder, X509Utils.CERTS + File.separator + "log.txt"), true));
+						writer = new BufferedWriter(new FileWriter(new File(baseFolder, X509Utils.CERTS + File.separator + "log.txt"), true));
 						writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
 						writer.newLine();
 						writer.flush();
@@ -242,7 +259,7 @@ public class GitBlitServer {
 			});
 
 			if (serverKeyStore.exists()) {		        
-				Connector secureConnector = createSSLConnector(serverKeyStore, serverTrustStore, params.storePassword,
+				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
 						caRevocationList, params.useNIO, params.securePort, params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
@@ -278,7 +295,7 @@ public class GitBlitServer {
 
 		// tempDir is where the embedded Gitblit web application is expanded and
 		// where Jetty creates any necessary temporary files
-		File tempDir = new File(params.temp);
+		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);		
 		if (tempDir.exists()) {
 			try {
 				FileUtils.delete(tempDir, FileUtils.RECURSIVE | FileUtils.RETRY);
@@ -362,7 +379,7 @@ public class GitBlitServer {
 
 		// Setup the GitBlit context
 		GitBlit gitblit = GitBlit.self();
-		gitblit.configureContext(settings, true);
+		gitblit.configureContext(settings, baseFolder, true);
 		rootContext.addEventListener(gitblit);
 
 		try {
@@ -413,6 +430,7 @@ public class GitBlitServer {
 	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
 	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
 	 * 
+	 * @param certAlias
 	 * @param keyStore
 	 * @param clientTrustStore
 	 * @param storePassword
@@ -422,52 +440,31 @@ public class GitBlitServer {
 	 * @param requireClientCertificates
 	 * @return an https connector
 	 */
-	private static Connector createSSLConnector(File keyStore, File clientTrustStore,
+	private static Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
 			String storePassword, File caRevocationList, boolean useNIO, int port, 
 			boolean requireClientCertificates) {
-		SslContextFactory sslContext = new SslContextFactory(SslContextFactory.DEFAULT_KEYSTORE_PATH);
+		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
+				keyStore, clientTrustStore, storePassword, caRevocationList);
 		SslConnector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SslSelectChannelConnector on port " + port);
-			SslSelectChannelConnector ssl = new SslSelectChannelConnector(sslContext);
+			SslSelectChannelConnector ssl = new SslSelectChannelConnector(factory);
 			ssl.setSoLingerTime(-1);
 			if (requireClientCertificates) {
-				sslContext.setNeedClientAuth(true);
+				factory.setNeedClientAuth(true);
 			} else {
-				sslContext.setWantClientAuth(true);
+				factory.setWantClientAuth(true);
 			}
 			ssl.setThreadPool(new QueuedThreadPool(20));
 			connector = ssl;
 		} else {
 			logger.info("Setting up NIO SslSocketConnector on port " + port);
-			SslSocketConnector ssl = new SslSocketConnector(sslContext);
+			SslSocketConnector ssl = new SslSocketConnector(factory);
 			connector = ssl;
 		}
-		// disable renegotiation unless this is a patched JVM
-		boolean allowRenegotiation = false;
-		String v = System.getProperty("java.version");
-		if (v.startsWith("1.7")) {
-			allowRenegotiation = true;
-		} else if (v.startsWith("1.6")) {
-			// 1.6.0_22 was first release with RFC-5746 implemented fix.
-			if (v.indexOf('_') > -1) {
-				String b = v.substring(v.indexOf('_') + 1);
-				if (Integer.parseInt(b) >= 22) {
-					allowRenegotiation = true;
-				}
-			}
-		}
-		if (allowRenegotiation) {
-			logger.info("   allowing SSL renegotiation on Java " + v);
-			sslContext.setAllowRenegotiate(allowRenegotiation);
-		}
-		sslContext.setKeyStorePath(keyStore.getAbsolutePath());
-		sslContext.setKeyStorePassword(storePassword);
-		sslContext.setTrustStore(clientTrustStore.getAbsolutePath());
-		sslContext.setTrustStorePassword(storePassword);
-		sslContext.setCrlPath(caRevocationList.getAbsolutePath());
 		connector.setPort(port);
 		connector.setMaxIdleTime(30000);
+
 		return connector;
 	}
 	
@@ -553,7 +550,9 @@ public class GitBlitServer {
 	@Parameters(separators = " ")
 	private static class Params {
 
-		private static final FileSettings FILESETTINGS = new FileSettings(Constants.PROPERTIES_FILE);
+		public static String baseFolder;
+
+		private final FileSettings FILESETTINGS = new FileSettings(new File(baseFolder, Constants.PROPERTIES_FILE).getAbsolutePath());
 
 		/*
 		 * Server parameters
@@ -572,14 +571,14 @@ public class GitBlitServer {
 		 */
 		@Parameter(names = { "--repositoriesFolder" }, description = "Git Repositories Folder")
 		public String repositoriesFolder = FILESETTINGS.getString(Keys.git.repositoriesFolder,
-				"repos");
+				"git");
 
 		/*
 		 * Authentication Parameters
 		 */
 		@Parameter(names = { "--userService" }, description = "Authentication and Authorization Service (filename or fully qualified classname)")
 		public String userService = FILESETTINGS.getString(Keys.realm.userService,
-				"users.properties");
+				"users.conf");
 
 		/*
 		 * JETTY Parameters
@@ -588,13 +587,16 @@ public class GitBlitServer {
 		public Boolean useNIO = FILESETTINGS.getBoolean(Keys.server.useNio, true);
 
 		@Parameter(names = "--httpPort", description = "HTTP port for to serve. (port <= 0 will disable this connector)")
-		public Integer port = FILESETTINGS.getInteger(Keys.server.httpPort, 80);
+		public Integer port = FILESETTINGS.getInteger(Keys.server.httpPort, 0);
 
 		@Parameter(names = "--httpsPort", description = "HTTPS port to serve.  (port <= 0 will disable this connector)")
-		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 443);
+		public Integer securePort = FILESETTINGS.getInteger(Keys.server.httpsPort, 8443);
 
 		@Parameter(names = "--ajpPort", description = "AJP port to serve.  (port <= 0 will disable this connector)")
 		public Integer ajpPort = FILESETTINGS.getInteger(Keys.server.ajpPort, 0);
+
+		@Parameter(names = "--alias", description = "Alias of SSL certificate in keystore for serving https.")
+		public String alias = FILESETTINGS.getString(Keys.server.certificateAlias, "");
 
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
 		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");

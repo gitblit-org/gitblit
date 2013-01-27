@@ -36,7 +36,6 @@ import org.eclipse.jgit.lib.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -47,8 +46,6 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
 public class ProjectsPage extends RootPage {
-
-	List<ProjectModel> projectModels = new ArrayList<ProjectModel>();
 
 	public ProjectsPage() {
 		super();
@@ -67,9 +64,7 @@ public class ProjectsPage extends RootPage {
 	
 	@Override
 	protected List<ProjectModel> getProjectModels() {
-		final UserModel user = GitBlitWebSession.get().getUser();
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, false);
-		return projects;
+		return GitBlit.self().getProjectModels(getRepositoryModels(), false);
 	}
 
 	private void setup(PageParameters params) {
@@ -194,39 +189,47 @@ public class ProjectsPage extends RootPage {
 	}
 
 	private String readDefaultMarkdown(String file) {
-		String content = readDefaultMarkdown(file, getLanguageCode());
-		if (StringUtils.isEmpty(content)) {
-			content = readDefaultMarkdown(file, null);
-		}
-		return content;
-	}
+		String base = file.substring(0, file.lastIndexOf('.'));
+		String ext = file.substring(file.lastIndexOf('.'));
+		String lc = getLanguageCode();
+		String cc = getCountryCode();
 
-	private String readDefaultMarkdown(String file, String lc) {
+		// try to read file_en-us.ext, file_en.ext, file.ext
+		List<String> files = new ArrayList<String>();
 		if (!StringUtils.isEmpty(lc)) {
-			// convert to file_lc.mkd
-			file = file.substring(0, file.lastIndexOf('.')) + "_" + lc
-					+ file.substring(file.lastIndexOf('.'));
+			if (!StringUtils.isEmpty(cc)) {
+				files.add(base + "_" + lc + "-" + cc + ext);
+				files.add(base + "_" + lc + "_" + cc + ext);
+			}
+			files.add(base + "_" + lc + ext);
 		}
-		String message;
-		try {
-			ContextRelativeResource res = WicketUtils.getResource(file);
-			InputStream is = res.getResourceStream().getInputStream();
-			InputStreamReader reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
-			message = MarkdownUtils.transformMarkdown(reader);
-			reader.close();
-		} catch (ResourceStreamNotFoundException t) {
-			if (lc == null) {
-				// could not find default language resource
+		files.add(file);
+		
+		for (String name : files) {
+			String message;
+			InputStreamReader reader = null;
+			try {
+				ContextRelativeResource res = WicketUtils.getResource(name);
+				InputStream is = res.getResourceStream().getInputStream();
+				reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
+				message = MarkdownUtils.transformMarkdown(reader);
+				reader.close();
+				return message;
+			} catch (ResourceStreamNotFoundException t) {
+				continue;
+			} catch (Throwable t) {
 				message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
 				error(message, t, false);
-			} else {
-				// ignore so we can try default language resource
-				message = null;
-			}
-		} catch (Throwable t) {
-			message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
-			error(message, t, false);
+				return message;
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (Exception e) {
+					}
+				}
+			}			
 		}
-		return message;
+		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
 	}
 }

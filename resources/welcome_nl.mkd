@@ -1,0 +1,3 @@
+## Welkom bij Gitblit
+
+Een snelle en makkelijke manier voor het hosten en bekijken van uw eigen [Git](http://www.git-scm.com) repositories.

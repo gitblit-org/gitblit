@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -169,25 +170,29 @@ public class CommitPage extends RepositoryPage {
 							WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
 				} else {
 					// blob
-					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
+					String displayPath = entry.path;
+					String path = entry.path;
+					if (entry.isSymlink()) {
+						path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
+						displayPath = entry.path + " -> " + path;
+					}
+					item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
 							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+									.newPathParameter(repositoryName, entry.commitId, path)));
 				}
 				
 				// quick links
 				if (entry.isSubmodule()) {
 					// submodule					
 					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path))
-							.setEnabled(false));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
-					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path))
-							.setEnabled(false));
+					item.add(new ExternalLink("blame", "").setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path))
-							.setEnabled(hasSubmodule));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				} else {
 					// tree or blob
 					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils

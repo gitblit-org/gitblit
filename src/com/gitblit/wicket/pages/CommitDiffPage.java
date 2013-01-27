@@ -15,14 +15,14 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.text.MessageFormat;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -150,15 +150,12 @@ public class CommitDiffPage extends RepositoryPage {
 				// quick links
 				if (entry.isSubmodule()) {
 					// submodule
-					item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path)).setEnabled(false));
+					item.add(new ExternalLink("patch", "").setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
-					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path)).setEnabled(false));
+					item.add(new ExternalLink("blame", "").setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-							.newPathParameter(submodulePath, entry.objectId, entry.path))
-							.setEnabled(hasSubmodule));
+							.newPathParameter(repositoryName, entry.commitId, entry.path)));
 				} else {
 					// tree or blob
 					item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, WicketUtils

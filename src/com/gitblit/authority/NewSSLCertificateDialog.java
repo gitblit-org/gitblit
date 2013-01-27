@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -41,6 +42,7 @@ public class NewSSLCertificateDialog extends JDialog {
 	
 	JDateChooser expirationDate;
 	JTextField hostname;
+	JCheckBox serveCertificate;
 	boolean isCanceled = true;
 
 	public NewSSLCertificateDialog(Frame owner, Date defaultExpiration) {
@@ -60,6 +62,7 @@ public class NewSSLCertificateDialog extends JDialog {
 		
 		expirationDate = new JDateChooser(defaultExpiration);
 		hostname = new JTextField(20);
+		serveCertificate = new JCheckBox(Translation.get("gb.serveCertificate"), true);
 		
 		JPanel panel = new JPanel(new GridLayout(0, 2, Utils.MARGIN, Utils.MARGIN));
 		
@@ -68,6 +71,9 @@ public class NewSSLCertificateDialog extends JDialog {
 
 		panel.add(new JLabel(Translation.get("gb.expires")));
 		panel.add(expirationDate);
+		
+		panel.add(new JLabel(""));
+		panel.add(serveCertificate);
 		
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
@@ -123,7 +129,11 @@ public class NewSSLCertificateDialog extends JDialog {
 	public Date getExpiration() {
 		return expirationDate.getDate();
 	}
-	
+
+	public boolean isServeCertificate() {
+		return serveCertificate.isSelected();
+	}
+
 	public boolean isCanceled() {
 		return isCanceled;
 	}

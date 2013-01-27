@@ -59,10 +59,11 @@ import com.gitblit.utils.JGitUtils;
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class,
-		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class })
+		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class,
+		FanoutServiceTest.class })
 public class GitBlitSuite {
 
-	public static final File REPOSITORIES = new File("git");
+	public static final File REPOSITORIES = new File("data/git");
 
 	static int port = 8280;
 	static int shutdownPort = 8281;
@@ -116,7 +117,8 @@ public class GitBlitSuite {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"test-users.conf", "--settings", "test-gitblit.properties");
+						"test-users.conf", "--settings", "test-gitblit.properties",
+						"--baseFolder", "data");
 			}
 		});
 

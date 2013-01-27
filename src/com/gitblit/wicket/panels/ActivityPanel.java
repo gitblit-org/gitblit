@@ -27,7 +27,7 @@ import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
-import com.gitblit.models.Activity.RepositoryCommit;
+import com.gitblit.models.RepositoryCommit;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
@@ -132,9 +132,7 @@ public class ActivityPanel extends BasePanel {
 						commitItem.add(new RefsPanel("commitRefs", commit.repository, commit
 								.getRefs()));
 
-						// view, diff, tree links
-						commitItem.add(new BookmarkablePageLink<Void>("view", CommitPage.class,
-								WicketUtils.newObjectParameter(commit.repository, commit.getName())));
+						// diff, tree links
 						commitItem.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class,
 								WicketUtils.newObjectParameter(commit.repository, commit.getName()))
 								.setEnabled(commit.getParentCount() > 0));
