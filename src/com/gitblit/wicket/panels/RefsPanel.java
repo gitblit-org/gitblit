@@ -129,8 +129,14 @@ public class RefsPanel extends Panel {
 					name = name.substring(Constants.R_TAGS.length());
 					cssClass = "tagRef";
 				} else if (name.startsWith(Constants.R_NOTES)) {
+					// codereview refs
 					linkClass = CommitPage.class;
 					cssClass = "otherRef";
+				} else if (name.startsWith(com.gitblit.Constants.R_GITBLIT)) {
+					// gitblit refs
+					linkClass = LogPage.class;
+					cssClass = "otherRef";
+					name = name.substring(com.gitblit.Constants.R_GITBLIT.length());
 				}
 
 				Component c = new LinkPanel("refName", null, name, linkClass,

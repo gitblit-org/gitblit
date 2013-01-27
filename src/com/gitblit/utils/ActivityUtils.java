@@ -36,9 +36,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.models.Activity;
-import com.gitblit.models.Activity.RepositoryCommit;
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
 import com.google.gson.reflect.TypeToken;
 

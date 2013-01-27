@@ -112,8 +112,8 @@ public abstract class UsersPanel extends JPanel {
 		String name = table.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		table.getColumn(name).setCellRenderer(nameRenderer);
 		
-		int w = 125;
-		name = table.getColumnName(UsersTableModel.Columns.AccessLevel.ordinal());
+		int w = 130;
+		name = table.getColumnName(UsersTableModel.Columns.Type.ordinal());
 		table.getColumn(name).setMinWidth(w);
 		table.getColumn(name).setMaxWidth(w);
 		name = table.getColumnName(UsersTableModel.Columns.Teams.ordinal());

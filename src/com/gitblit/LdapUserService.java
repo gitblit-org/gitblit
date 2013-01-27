@@ -25,6 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccountType;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -50,9 +51,9 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
 public class LdapUserService extends GitblitUserService {
 
 	public static final Logger logger = LoggerFactory.getLogger(LdapUserService.class);
-	
-	private IStoredSettings settings;
 
+	private IStoredSettings settings;
+	
 	public LdapUserService() {
 		super();
 	}
@@ -60,7 +61,7 @@ public class LdapUserService extends GitblitUserService {
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
-		String file = settings.getString(Keys.realm.ldap.backingUserService, "users.conf");
+		String file = settings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
 
 		serviceImpl = createUserService(realmFile);
@@ -155,9 +156,19 @@ public class LdapUserService extends GitblitUserService {
 	public boolean supportsTeamMembershipChanges() {
 		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
 	}
+	
+	@Override
+	protected AccountType getAccountType() {
+		 return AccountType.LDAP;
+	}
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
+		if (isLocalAccount(username)) {
+			// local account, bypass LDAP authentication
+			return super.authenticate(username, password);
+		}
+		
 		String simpleUsername = getSimpleUsername(username);
 		
 		LDAPConnection ldapConnection = getLdapConnection();
@@ -239,7 +250,8 @@ public class LdapUserService extends GitblitUserService {
 		setAdminAttribute(user);
 		
 		// Don't want visibility into the real password, make up a dummy
-		user.password = "StoredInLDAP";
+		user.password = ExternalAccount;
+		user.accountType = getAccountType();
 		
 		// Get full name Attribute
 		String displayName = settings.getString(Keys.realm.ldap.displayName, "");		

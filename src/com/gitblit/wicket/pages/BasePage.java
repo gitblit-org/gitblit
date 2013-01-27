@@ -98,6 +98,10 @@ public abstract class BasePage extends WebPage {
 		return GitBlitWebSession.get().getLocale().getLanguage();
 	}
 	
+	protected String getCountryCode() {
+		return GitBlitWebSession.get().getLocale().getCountry().toLowerCase();
+	}
+	
 	protected TimeUtils getTimeUtils() {
 		if (timeUtils == null) {
 			ResourceBundle bundle;		
@@ -132,7 +136,10 @@ public abstract class BasePage extends WebPage {
 	private void login() {
 		GitBlitWebSession session = GitBlitWebSession.get();
 		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
-			// already have a session
+			// already have a session, refresh usermodel to pick up
+			// any changes to permissions or roles (issue-186)
+			UserModel user = GitBlit.self().getUserModel(session.getUser().username);
+			session.setUser(user);
 			return;
 		}
 		
@@ -429,7 +436,7 @@ public abstract class BasePage extends WebPage {
 			GitBlitWebSession session = GitBlitWebSession.get();
 			if (session.isLoggedIn()) {				
 				UserModel user = session.getUser();
-				boolean editCredentials = GitBlit.self().supportsCredentialChanges();
+				boolean editCredentials = GitBlit.self().supportsCredentialChanges(user);
 				boolean standardLogin = session.authenticationType.isStandard();
 
 				// username, logout, and change password

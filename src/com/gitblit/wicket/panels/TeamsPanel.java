@@ -40,7 +40,7 @@ public class TeamsPanel extends BasePanel {
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newTeam", EditTeamPage.class));
-		add(adminLinks.setVisible(showAdmin && GitBlit.self().supportsTeamMembershipChanges()));
+		add(adminLinks.setVisible(showAdmin && GitBlit.self().supportsTeamMembershipChanges(null)));
 
 		final List<TeamModel> teams = GitBlit.self().getAllTeams();
 		DataView<TeamModel> teamsView = new DataView<TeamModel>("teamRow",

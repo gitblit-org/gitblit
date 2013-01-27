@@ -2327,7 +2327,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.owner = user.username;
+		repository.addOwner(user.username);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("owner CAN NOT view!", user.canView(repository));
@@ -2345,13 +2345,58 @@ public class PermissionsTest extends Assert {
 	}
 	
 	@Test
+	public void testMultipleOwners() throws Exception {
+		RepositoryModel repository = new RepositoryModel("myrepo.git", null, null, new Date());
+		repository.authorizationControl = AuthorizationControl.NAMED;
+		repository.accessRestriction = AccessRestrictionType.VIEW;
+
+		UserModel user = new UserModel("test");
+		repository.addOwner(user.username);
+		UserModel user2 = new UserModel("test2");
+		repository.addOwner(user2.username);
+
+		// first owner
+		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
+		assertTrue("owner CAN NOT view!", user.canView(repository));
+		assertTrue("owner CAN NOT clone!", user.canClone(repository));
+		assertTrue("owner CAN NOT push!", user.canPush(repository));
+		
+		assertTrue("owner CAN NOT create ref!", user.canCreateRef(repository));
+		assertTrue("owner CAN NOT delete ref!", user.canDeleteRef(repository));
+		assertTrue("owner CAN NOT rewind ref!", user.canRewindRef(repository));
+
+		assertTrue("owner CAN NOT fork!", user.canFork(repository));
+		
+		assertFalse("owner CAN NOT delete!", user.canDelete(repository));
+		assertTrue("owner CAN NOT edit!", user.canEdit(repository));
+		
+		// second owner
+		assertFalse("user SHOULD NOT HAVE a repository permission!", user2.hasRepositoryPermission(repository.name));
+		assertTrue("owner CAN NOT view!", user2.canView(repository));
+		assertTrue("owner CAN NOT clone!", user2.canClone(repository));
+		assertTrue("owner CAN NOT push!", user2.canPush(repository));
+		
+		assertTrue("owner CAN NOT create ref!", user2.canCreateRef(repository));
+		assertTrue("owner CAN NOT delete ref!", user2.canDeleteRef(repository));
+		assertTrue("owner CAN NOT rewind ref!", user2.canRewindRef(repository));
+
+		assertTrue("owner CAN NOT fork!", user2.canFork(repository));
+		
+		assertFalse("owner CAN NOT delete!", user2.canDelete(repository));
+		assertTrue("owner CAN NOT edit!", user2.canEdit(repository));
+		
+		assertTrue(repository.isOwner(user.username));
+		assertTrue(repository.isOwner(user2.username));	
+	}
+	
+	@Test
 	public void testOwnerPersonalRepository() throws Exception {
 		RepositoryModel repository = new RepositoryModel("~test/myrepo.git", null, null, new Date());
 		repository.authorizationControl = AuthorizationControl.NAMED;
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("test");
-		repository.owner = user.username;
+		repository.addOwner(user.username);
 
 		assertFalse("user SHOULD NOT HAVE a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertTrue("user CAN NOT view!", user.canView(repository));
@@ -2375,7 +2420,7 @@ public class PermissionsTest extends Assert {
 		repository.accessRestriction = AccessRestrictionType.VIEW;
 
 		UserModel user = new UserModel("visitor");
-		repository.owner = "test";
+		repository.addOwner("test");
 
 		assertFalse("user HAS a repository permission!", user.hasRepositoryPermission(repository.name));
 		assertFalse("user CAN view!", user.canView(repository));

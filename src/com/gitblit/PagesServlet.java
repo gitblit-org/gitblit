@@ -170,7 +170,7 @@ public class PagesServlet extends HttpServlet {
 						content = JGitUtils.getStringContent(r, tree, resource, encodings).getBytes(
 								Constants.ENCODING);
 					} else {
-						content = JGitUtils.getByteContent(r, tree, resource);
+						content = JGitUtils.getByteContent(r, tree, resource, false);
 					}
 					response.setContentType(contentType);
 				} catch (Exception e) {

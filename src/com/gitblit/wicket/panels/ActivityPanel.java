@@ -27,7 +27,7 @@ import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
-import com.gitblit.models.Activity.RepositoryCommit;
+import com.gitblit.models.RepositoryCommit;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;

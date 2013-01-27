@@ -162,7 +162,7 @@ public class GitblitClient implements Serializable {
 	}
 
 	public boolean isOwner(RepositoryModel model) {
-		return account != null && account.equalsIgnoreCase(model.owner);
+		return model.isOwner(account);
 	}
 
 	public String getURL(String action, String repository, String objectId) {

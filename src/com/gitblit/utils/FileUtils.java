@@ -176,19 +176,17 @@ public class FileUtils {
 	public static long folderSize(File directory) {
 		if (directory == null || !directory.exists()) {
 			return -1;
-		}
-		if (directory.isFile()) {
-			return directory.length();
-		}
-		long length = 0;
-		for (File file : directory.listFiles()) {
-			if (file.isFile()) {
-				length += file.length();
-			} else {
+		}		
+		if (directory.isDirectory()) {
+			long length = 0;
+			for (File file : directory.listFiles()) {
 				length += folderSize(file);
 			}
+			return length;
+		} else if (directory.isFile()) {
+			return directory.length();
 		}
-		return length;
+		return 0;
 	}
 
 	/**
@@ -275,5 +273,20 @@ public class FileUtils {
 		} catch (IOException e) {
 			return path.getAbsoluteFile();
 		}
+	}
+
+	public static File resolveParameter(String parameter, File aFolder, String path) {
+		if (aFolder == null) {
+			// strip any parameter reference		
+			path = path.replace(parameter, "").trim();
+			if (path.length() > 0 && path.charAt(0) == '/') {
+				// strip leading /
+				path = path.substring(1);
+			}
+		} else if (path.contains(parameter)) {
+			// replace parameter with path
+			path = path.replace(parameter, aFolder.getAbsolutePath());
+		}
+		return new File(path);
 	}
 }

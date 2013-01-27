@@ -60,44 +60,44 @@ public class BuildWebXml {
 	}
 
 	private static void generateWebXml(Params params) throws Exception {
+		StringBuilder parameters = new StringBuilder();
 		// Read the current Gitblit properties
-		BufferedReader propertiesReader = new BufferedReader(new FileReader(new File(
-				params.propertiesFile)));
+		if (params.propertiesFile != null) {
+			BufferedReader propertiesReader = new BufferedReader(new FileReader(new File(
+					params.propertiesFile)));
 
-		Vector<Setting> settings = new Vector<Setting>();
-		List<String> comments = new ArrayList<String>();
-		String line = null;
-		while ((line = propertiesReader.readLine()) != null) {
-			if (line.length() == 0) {
-				comments.clear();
-			} else {
-				if (line.charAt(0) == '#') {
-					if (line.length() > 1) {
-						comments.add(line.substring(1).trim());
-					}
-				} else {
-					String[] kvp = line.split("=", 2);
-					String key = kvp[0].trim();
-					if (!skipKey(key)) {
-						Setting s = new Setting(key, kvp[1].trim(), comments);
-						settings.add(s);
-					}
+			Vector<Setting> settings = new Vector<Setting>();
+			List<String> comments = new ArrayList<String>();
+			String line = null;
+			while ((line = propertiesReader.readLine()) != null) {
+				if (line.length() == 0) {
 					comments.clear();
+				} else {
+					if (line.charAt(0) == '#') {
+						if (line.length() > 1) {
+							comments.add(line.substring(1).trim());
+						}
+					} else {
+						String[] kvp = line.split("=", 2);
+						String key = kvp[0].trim();
+						if (!skipKey(key)) {
+							Setting s = new Setting(key, kvp[1].trim(), comments);
+							settings.add(s);
+						}
+						comments.clear();
+					}
 				}
 			}
-		}
-		propertiesReader.close();
+			propertiesReader.close();
 
-		StringBuilder parameters = new StringBuilder();
-
-		for (Setting setting : settings) {
-			for (String comment : setting.comments) {
-				parameters.append(MessageFormat.format(COMMENT_PATTERN, comment));
+			for (Setting setting : settings) {
+				for (String comment : setting.comments) {
+					parameters.append(MessageFormat.format(COMMENT_PATTERN, comment));
+				}
+				parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name,
+						StringUtils.escapeForHtml(setting.value, false)));
 			}
-			parameters.append(MessageFormat.format(PARAM_PATTERN, setting.name,
-					StringUtils.escapeForHtml(setting.value, false)));
 		}
-
 		// Read the prototype web.xml file
 		File webxml = new File(params.sourceFile);
 		char[] buffer = new char[(int) webxml.length()];
@@ -150,11 +150,11 @@ public class BuildWebXml {
 		@Parameter(names = { "--sourceFile" }, description = "Source web.xml file", required = true)
 		public String sourceFile;
 
-		@Parameter(names = { "--propertiesFile" }, description = "Properties settings file", required = true)
+		@Parameter(names = { "--propertiesFile" }, description = "Properties settings file")
 		public String propertiesFile;
 
 		@Parameter(names = { "--destinationFile" }, description = "Destination web.xml file", required = true)
 		public String destinationFile;
-
+		
 	}
 }

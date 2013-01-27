@@ -12,10 +12,11 @@
 	<property name="project.jar" value="gitblit.jar" />
 	<property name="project.mainclass" value="com.gitblit.Launcher" />
 	<property name="project.build.dir" value="${basedir}/build" />
-	<property name="project.deploy.dir" value="${basedir}/deploy" />
+	<property name="project.deploy.dir" value="${basedir}/deploy" />	
 	<property name="project.war.dir" value="${basedir}/war" />
 	<property name="project.jar.dir" value="${basedir}/jar" />
-	<property name="project.site.dir" value="${basedir}/site" />
+	<property name="project.site.dir" value="${basedir}/target/site" />
+	<property name="project.target.dir" value="${basedir}/target" />
 	<property name="project.resources.dir" value="${basedir}/resources" />	
 	<property name="project.express.dir" value="${basedir}/express" />
 	<property name="project.maven.repo.url" value="enter here your Maven repo URL" />
@@ -106,22 +107,66 @@
 	-->
 	<target name="compile" depends="buildinfo" description="Retrieves dependencies and compiles Gitblit from source">
 
-		<!-- copy required distribution files to project folder -->
-		<copy todir="${basedir}" overwrite="false">
+		<!-- cleanup old builds -->
+		<delete dir="${project.target.dir}" />
+		<mkdir dir="${project.target.dir}" />
+		
+		<!-- cleanup old builds -->
+		<delete>
+			<fileset dir="${basedir}">
+				<include name="*.zip" />
+				<include name="*.war" />
+				<include name="*.jar" />
+			</fileset>
+		</delete>
+		
+		<!-- copy required distribution files to data folder -->
+		<mkdir dir="${basedir}/data" />
+		<copy todir="${basedir}/data" overwrite="false">
 			<fileset dir="${basedir}/distrib">
 				<include name="gitblit.properties" />
 				<include name="users.conf" />
+				<include name="projects.conf" />
 			</fileset>
 		</copy>
 		
 		<!-- copy required distribution files to project folder -->
-		<mkdir dir="${basedir}/certs" />
-		<copy todir="${basedir}/certs" overwrite="false">
+		<mkdir dir="${basedir}/data/certs" />
+		<copy todir="${basedir}/data/certs" overwrite="false">
 			<fileset dir="${basedir}/distrib">
 				<include name="authority.conf" />
 				<include name="*.tmpl" />
 			</fileset>
 		</copy>
+		
+		<!-- copy required distribution files to project folder -->
+		<mkdir dir="${basedir}/data/groovy" />
+		<copy todir="${basedir}/data/groovy" overwrite="false">
+			<fileset dir="${basedir}/distrib/groovy" />
+		</copy>
+		
+		<!-- upgrade existing workspace to data folder -->
+		<move todir="${basedir}/data" overwrite="true" failonerror="false">
+			<fileset dir="${basedir}">
+				<include name="users.conf" />
+				<include name="projects.conf" />
+				<include name="gitblit.properties" />
+				<include name="serverKeyStore.jks" />
+				<include name="serverTrustStore.jks" />
+			</fileset>
+		</move>
+		<move todir="${basedir}/data/certs" overwrite="true" failonerror="false">
+			<fileset dir="${basedir}/certs" />
+		</move>
+		<move todir="${basedir}/data/git" overwrite="true" failonerror="false">
+			<fileset dir="${basedir}/git" />
+		</move>
+		<move todir="${basedir}/data/proposals" overwrite="true" failonerror="false">
+			<fileset dir="${basedir}/proposals" />
+		</move>
+		<delete dir="${basedir}/javadoc" failonerror="false" />
+		<delete dir="${basedir}/site" failonerror="false" />
+		<delete dir="${basedir}/temp" failonerror="false" />
 
 		<!-- copy gitblit.properties to the WEB-INF folder.
 		     this file is only used for parsing setting descriptions. -->
@@ -186,18 +231,47 @@
 				<exclude name="federation.properties" />
 				<exclude name="openshift.mkd" />
 				<exclude name="authority.conf" />
+				<exclude name="users.conf" />
+				<exclude name="projects.conf" />
+				<exclude name="gitblit.properties" />
 				<exclude name="*.tmpl" />
+				<exclude name="groovy/**" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</fileset>			
 		</copy>
-		<copy tofile="${project.deploy.dir}/authority.jar" file="${basedir}/authority-${gb.version}.jar" />
 		
+		<!-- Copy the supported Groovy hook scripts -->
+		<mkdir dir="${project.deploy.dir}/data/groovy" />
+		<copy todir="${project.deploy.dir}/data/groovy">
+			<fileset dir="${basedir}/distrib/groovy">
+				<include name="sendmail.groovy" />
+				<include name="sendmail-html.groovy" />
+				<include name="jenkins.groovy" />
+				<include name="protect-refs.groovy" />
+				<include name="fogbugz.groovy" />
+				<include name="thebuggenie.groovy" />
+			</fileset>
+		</copy>
+		
+		<copy tofile="${project.deploy.dir}/authority.jar" file="${project.target.dir}/authority-${gb.version}.jar" />
+		
+		<!-- Prepare the data folder -->
+		<mkdir dir="${project.deploy.dir}/data"/>
+		<copy todir="${project.deploy.dir}/data">
+			<fileset dir="${basedir}/distrib">
+				<include name="users.conf" />
+				<include name="projects.conf" />
+				<include name="gitblit.properties" />
+			</fileset>
+		</copy>
+						
 		<!-- Certificate templates -->
-		<mkdir dir="${project.deploy.dir}/certs"/>
-		<copy todir="${project.deploy.dir}/certs">
+		<mkdir dir="${project.deploy.dir}/data/certs"/>
+		<mkdir dir="${project.deploy.dir}/data/certs"/>
+		<copy todir="${project.deploy.dir}/data/certs">
 			<fileset dir="${basedir}/distrib">
 				<include name="*.tmpl" />
 				<include name="authority.conf" />
@@ -234,20 +308,8 @@
 			<param name="docs.output.dir" value="${project.deploy.dir}/docs" />
 		</antcall>
 		
-		<!-- Copy the supported Groovy hook scripts -->
-		<mkdir dir="${project.deploy.dir}/groovy" />
-		<copy todir="${project.deploy.dir}/groovy">
-			<fileset dir="${basedir}/groovy">
-				<include name="sendmail.groovy" />
-				<include name="sendmail-html.groovy" />
-				<include name="jenkins.groovy" />
-				<include name="protect-refs.groovy" />
-				<include name="localclone.groovy" />
-			</fileset>
-		</copy>
-	
 		<!-- Create Zip deployment -->		
-		<zip destfile="${distribution.zipfile}">
+		<zip destfile="${project.target.dir}/${distribution.zipfile}">
 			<fileset dir="${project.deploy.dir}">
 				<include name="**/*" />
 			</fileset>
@@ -383,9 +445,6 @@
 
 		<!-- Copy web.xml and users.conf to WEB-INF -->
 		<copy todir="${project.war.dir}/WEB-INF">
-			<fileset dir="${basedir}/distrib">
-			 	<include name="users.conf" />
-			</fileset>
 			<fileset dir="${basedir}/src/WEB-INF">
 			 	<include name="web.xml" />
 			</fileset>
@@ -404,19 +463,30 @@
 			<param name="docs.output.dir" value="${project.war.dir}/WEB-INF/docs" />
 		</antcall>
 
+		<!-- Copy users.conf to WEB-INF/data -->
+		<mkdir dir="${project.war.dir}/WEB-INF/data" />
+		<copy todir="${project.war.dir}/WEB-INF/data">
+			<fileset dir="${basedir}/distrib">
+			 	<include name="users.conf" />
+				<include name="projects.conf" />
+			 	<include name="gitblit.properties" />
+			</fileset>
+		</copy>
+
 		<!-- Copy the supported Groovy hook scripts -->
-		<mkdir dir="${project.war.dir}/WEB-INF/groovy" />
-		<copy todir="${project.war.dir}/WEB-INF/groovy">
-			<fileset dir="${basedir}/groovy">
+		<mkdir dir="${project.war.dir}/WEB-INF/data/groovy" />
+		<copy todir="${project.war.dir}/WEB-INF/data/groovy">
+			<fileset dir="${basedir}/distrib/groovy">
 				<include name="sendmail.groovy" />
 				<include name="sendmail-html.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
-				<include name="localclone.groovy" />
+				<include name="fogbugz.groovy" />
+				<include name="thebuggenie.groovy" />
 			</fileset>
 		</copy>
 
-		<!-- Build the WAR web.xml from the prototype web.xml and gitblit.properties --> 
+		<!-- Build the WAR web.xml from the prototype web.xml --> 
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildWebXml">
 			<classpath refid="master-classpath" />
 			
@@ -426,8 +496,6 @@
 			<arg value="--destinationFile" />
 			<arg value="${project.war.dir}/WEB-INF/web.xml" />
 			
-			<arg value="--propertiesFile" />
-			<arg value="${basedir}/distrib/gitblit.properties" />
 		</java>
 
 		<!-- Gitblit resources -->
@@ -467,7 +535,7 @@
 		</copy>
 
 		<!-- Build the WAR file -->
-		<jar basedir="${project.war.dir}" destfile="${distribution.warfile}" compress="true" />
+		<jar basedir="${project.war.dir}" destfile="${project.target.dir}/${distribution.warfile}" compress="true" />
 	</target>
 
 	
@@ -554,7 +622,7 @@
 	<target name="buildFederationClient" depends="compile" description="Builds the stand-alone Gitblit federation client">
 		<echo>Building Gitblit Federation Client ${gb.version}</echo>
 	
-		<genjar jarfile="fedclient.jar">
+		<genjar jarfile="${project.target.dir}/fedclient.jar">
 			<class name="com.gitblit.FederationClientLauncher" />
 			<resource file="${project.build.dir}/log4j.properties" />
 			<classfilter>
@@ -575,16 +643,21 @@
 		</genjar>
 		
 		<!-- Build the federation client zip file -->
-		<zip destfile="${fedclient.zipfile}">
+		<zip destfile="${project.target.dir}/${fedclient.zipfile}">
 			<fileset dir="${basedir}">
-				<include name="fedclient.jar" />
 				<include name="LICENSE" />
 				<include name="NOTICE" />
+			</fileset>
+			<fileset dir="${project.target.dir}">
+				<include name="fedclient.jar" />
 			</fileset>
 			<fileset dir="${basedir}/distrib">
 				<include name="federation.properties" />
 			</fileset>
 		</zip>
+		
+		<!-- Cleanup -->
+		<delete file="${project.target.dir}/fedclient.jar" />
 	</target>
 
 
@@ -619,14 +692,26 @@
 		<copy tofile="${deployments.root}/WEB-INF/reference.properties" 
 			file="${basedir}/distrib/gitblit.properties"/>
 
+		<!-- Copy users.conf and gitblit.properties -->
+		<mkdir dir="${deployments.root}/WEB-INF/data" />
+		<copy todir="${deployments.root}/WEB-INF/data">
+			<fileset dir="${basedir}/distrib">
+				<include name="users.conf" />
+				<include name="projects.conf" />
+				<include name="gitblit.properties" />
+			</fileset>
+		</copy>
+					
 		<!-- Copy the supported Groovy hook scripts -->
-		<mkdir dir="${deployments.root}/WEB-INF/groovy" />
-		<copy todir="${deployments.root}/WEB-INF/groovy">
-			<fileset dir="${basedir}/groovy">
+		<mkdir dir="${deployments.root}/WEB-INF/data/groovy" />
+		<copy todir="${deployments.root}/WEB-INF/data/groovy">
+			<fileset dir="${basedir}/distrib/groovy">
 				<include name="sendmail.groovy" />
 				<include name="sendmail-html.groovy" />
 				<include name="jenkins.groovy" />
 				<include name="protect-refs.groovy" />
+				<include name="fogbugz.groovy" />
+				<include name="thebuggenie.groovy" />
 			</fileset>
 		</copy>
 					
@@ -663,6 +748,8 @@
 				<exclude name="hamcrest*.jar" />
 				<exclude name="servlet*.jar" />
 				<exclude name="javax.servlet*.jar" />
+				<exclude name="jsslutils*.jar" />
+				<exclude name="jcalendar*.jar" />
 			</fileset>
 		</copy>
 
@@ -680,7 +767,7 @@
 		</jar>
 
 		<!-- Build Express Zip file -->
-		<zip destfile="${express.zipfile}">
+		<zip destfile="${project.target.dir}/${express.zipfile}">
 			<fileset dir="${project.express.dir}" />
 		</zip>
 
@@ -695,7 +782,7 @@
 	<target name="buildManager" depends="compile" description="Builds the stand-alone Gitblit Manager">
 		<echo>Building Gitblit Manager ${gb.version}</echo>
 
-		<genjar jarfile="manager-${gb.version}.jar">
+		<genjar jarfile="${project.target.dir}/manager-${gb.version}.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
 			<resource file="${basedir}/resources/gitweb-favicon.png" />
@@ -717,12 +804,15 @@
 			<resource file="${basedir}/resources/commit_changes_16x16.png" />
 			<resource file="${basedir}/resources/commit_merge_16x16.png" />
 			<resource file="${basedir}/resources/commit_divide_16x16.png" />
+			<resource file="${basedir}/resources/star_16x16.png" />
 			<resource file="${basedir}/resources/blank.png" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_es.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ja.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_ko.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_nl.properties" />
 			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_pl.properties" />
+			<resource file="${basedir}/src/com/gitblit/wicket/GitBlitWebApp_pt_BR.properties" />
 
 			<class name="com.gitblit.client.GitblitManagerLauncher" />
 			<classfilter>
@@ -744,13 +834,18 @@
 		</genjar>
 
 		<!-- Build Manager Zip file -->
-		<zip destfile="${manager.zipfile}">
+		<zip destfile="${project.target.dir}/${manager.zipfile}">
 			<fileset dir="${basedir}">
-				<include name="manager-${gb.version}.jar" />
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</fileset>
+			<fileset dir="${project.target.dir}">
+				<include name="manager-${gb.version}.jar" />
+			</fileset>
 		</zip>
+		
+		<!-- Cleanup -->
+		<delete file="${project.target.dir}/manager-${gb.version}.jar" />
 	</target>
 	
 	
@@ -762,7 +857,7 @@
 	<target name="buildAuthority" depends="compile" description="Builds the stand-alone Gitblit Authority">
 		<echo>Building Gitblit Authority ${gb.version}</echo>
 
-		<genjar jarfile="authority-${gb.version}.jar">
+		<genjar jarfile="${project.target.dir}/authority-${gb.version}.jar">
 			<resource file="${basedir}/src/com/gitblit/client/splash.png" />
 			<resource file="${basedir}/resources/gitblt-favicon.png" />
 			<resource file="${basedir}/resources/user_16x16.png" />
@@ -809,13 +904,15 @@
 		</genjar>
 
 		<!-- Build Authority Zip file -->
-		<zip destfile="${authority.zipfile}">
+		<zip destfile="${project.target.dir}/${authority.zipfile}">
 			<fileset dir="${basedir}">
-				<include name="authority-${gb.version}.jar" />
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</fileset>
-			<zipfileset dir="${basedir}/distrib" prefix="certs">
+			<fileset dir="${project.target.dir}">
+				<include name="authority-${gb.version}.jar" />
+			</fileset>
+			<zipfileset dir="${basedir}/distrib" prefix="data/certs">
 				<include name="authority.conf" />
 				<include name="mail.tmpl" />
 				<include name="instructions.tmpl" />
@@ -832,9 +929,12 @@
 		<echo>Building Gitblit API Library ${gb.version}</echo>
 	
 		<!-- Build API Library jar -->
-		<genjar jarfile="gbapi-${gb.version}.jar">
+		<genjar jarfile="${project.target.dir}/gbapi-${gb.version}.jar">
 			<class name="com.gitblit.Keys" />
 			<class name="com.gitblit.client.GitblitClient" />
+			<class name="com.gitblit.models.FederationModel" />
+			<class name="com.gitblit.models.FederationProposal" />
+			<class name="com.gitblit.models.FederationSet" />			
 			<classpath refid="master-classpath" />
 			<classfilter>
 				<exclude name="com.google.gson." />
@@ -847,7 +947,7 @@
 		</genjar>
 		
 		<!-- Build API sources jar -->
-		<zip destfile="gbapi-${gb.version}-sources.jar">
+		<zip destfile="${project.target.dir}/gbapi-${gb.version}-sources.jar">
 			<fileset dir="${basedir}/src" defaultexcludes="yes">
 				<include name="com/gitblit/Constants.java"/>
 				<include name="com/gitblit/GitBlitException.java"/>
@@ -859,7 +959,7 @@
 		</zip>
 		
 		<!-- Build API JavaDoc jar -->
-		<javadoc destdir="${basedir}/javadoc">
+		<javadoc destdir="${project.target.dir}/javadoc">
 			<fileset dir="${basedir}/src" defaultexcludes="yes">
 				<include name="com/gitblit/Constants.java"/>
 				<include name="com/gitblit/GitBlitException.java"/>
@@ -869,18 +969,20 @@
 		  		<include name="com/gitblit/utils/**/*.java"/>			  		
 			</fileset>
 		</javadoc>
-		<zip destfile="gbapi-${gb.version}-javadoc.jar">
-			<fileset dir="${basedir}/javadoc" />
+		<zip destfile="${project.target.dir}/gbapi-${gb.version}-javadoc.jar">
+			<fileset dir="${project.target.dir}/javadoc" />
 		</zip>
 		
 		<!-- Build the API library zip file -->
-		<zip destfile="${gbapi.zipfile}">
+		<zip destfile="${project.target.dir}/${gbapi.zipfile}">
 			<fileset dir="${basedir}">
+				<include name="LICENSE" />
+				<include name="NOTICE" />
+			</fileset>
+			<fileset dir="${project.target.dir}">
 				<include name="gbapi-${gb.version}.jar" />
 				<include name="gbapi-${gb.version}-sources.jar" />
 				<include name="gbapi-${gb.version}-javadoc.jar" />
-				<include name="LICENSE" />
-				<include name="NOTICE" />
 			</fileset>
 			<fileset dir="${basedir}/ext">
 				<exclude name="src/**" />
@@ -889,6 +991,16 @@
 				<include name="jdom*.jar" />
 			</fileset>
 		</zip>
+		
+		<!-- Cleanup -->
+		<delete>
+			<fileset dir="${project.target.dir}">
+				<include name="javadoc/**" />
+				<include name="gbapi-${gb.version}.jar" />
+				<include name="gbapi-${gb.version}-sources.jar" />
+				<include name="gbapi-${gb.version}-javadoc.jar" />
+		</fileset>
+		</delete>
 	</target>
 		
 		
@@ -1065,7 +1177,7 @@
 		<java classpath="${project.build.dir}" classname="com.gitblit.build.BuildGhPages">
 			<classpath refid="master-classpath" />
 			<arg value="--sourceFolder" />
-			<arg value="${basedir}/site" />
+			<arg value="${basedir}/target/site" />
 
 			<arg value="--repository" />
 			<arg value="${basedir}" />
@@ -1089,7 +1201,7 @@
 			 username="${googlecode.user}" 
 			 password="${googlecode.password}" 
 			 projectname="gitblit" 
-			 filename="${distribution.zipfile}" 
+			 filename="${project.target.dir}/${distribution.zipfile}" 
 			 targetfilename="gitblit-${gb.version}.zip"
 			 summary="Gitblit GO v${gb.version} (standalone, integrated Gitblit server)"
 			 labels="Featured, Type-Package, OpSys-All" />
@@ -1099,7 +1211,7 @@
 		     username="${googlecode.user}" 
 		     password="${googlecode.password}" 
 		     projectname="gitblit" 
-		     filename="${distribution.warfile}" 
+		     filename="${project.target.dir}/${distribution.warfile}" 
 		     targetfilename="gitblit-${gb.version}.war"
 		     summary="Gitblit WAR v${gb.version} (standard WAR webapp for servlet containers)"
 		     labels="Featured, Type-Package, OpSys-All" />
@@ -1109,7 +1221,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${fedclient.zipfile}" 
+			filename="${project.target.dir}/${fedclient.zipfile}" 
 			targetfilename="fedclient-${gb.version}.zip"
 			summary="Gitblit Federation Client v${gb.version} (command-line tool to clone data from federated Gitblit instances)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1119,7 +1231,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${manager.zipfile}" 
+			filename="${project.target.dir}/${manager.zipfile}" 
 			targetfilename="manager-${gb.version}.zip"
 			summary="Gitblit Manager v${gb.version} (Swing tool to remotely administer a Gitblit server)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1129,7 +1241,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${gbapi.zipfile}" 
+			filename="${project.target.dir}/${gbapi.zipfile}" 
 			targetfilename="gbapi-${gb.version}.zip"
 			summary="Gitblit API Library v${gb.version} (JSON RPC library to integrate with your software)"
 			labels="Featured, Type-Package, OpSys-All" />
@@ -1139,7 +1251,7 @@
 			username="${googlecode.user}" 
 			password="${googlecode.password}" 
 			projectname="gitblit" 
-			filename="${express.zipfile}" 
+			filename="${project.target.dir}/${express.zipfile}" 
 			targetfilename="express-${gb.version}.zip"
 			summary="Gitblit Express v${gb.version} (run Gitblit on RedHat's OpenShift cloud)"
 			labels="Featured, Type-Package, OpSys-All" />

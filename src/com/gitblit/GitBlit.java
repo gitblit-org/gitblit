@@ -85,6 +85,9 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.fanout.FanoutNioService;
+import com.gitblit.fanout.FanoutService;
+import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -154,8 +157,14 @@ public class GitBlit implements ServletContextListener {
 	private final Map<String, ProjectModel> projectCache = new ConcurrentHashMap<String, ProjectModel>();
 	
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
+	
+	private final ObjectCache<String> projectMarkdownCache = new ObjectCache<String>();
+	
+	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
 
 	private ServletContext servletContext;
+	
+	private File baseFolder;
 
 	private File repositoriesFolder;
 
@@ -176,6 +185,8 @@ public class GitBlit implements ServletContextListener {
 	private TimeZone timezone;
 	
 	private FileBasedConfig projectConfigs;
+	
+	private FanoutService fanoutService;
 
 	public GitBlit() {
 		if (gitblit == null) {
@@ -385,12 +396,8 @@ public class GitBlit implements ServletContextListener {
 	 * @return the file
 	 */
 	public static File getFileOrFolder(String fileOrFolder) {
-		String openShift = System.getenv("OPENSHIFT_DATA_DIR");
-		if (!StringUtils.isEmpty(openShift)) {
-			// running on RedHat OpenShift
-			return new File(openShift, fileOrFolder);
-		}
-		return new File(fileOrFolder);
+		return com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$,
+				self().baseFolder, fileOrFolder);
 	}
 
 	/**
@@ -400,7 +407,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return the repositories folder path
 	 */
 	public static File getRepositoriesFolder() {
-		return getFileOrFolder(Keys.git.repositoriesFolder, "git");
+		return getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
 
 	/**
@@ -410,7 +417,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return the proposals folder path
 	 */
 	public static File getProposalsFolder() {
-		return getFileOrFolder(Keys.federation.proposalsFolder, "proposals");
+		return getFileOrFolder(Keys.federation.proposalsFolder, "${baseFolder}/proposals");
 	}
 
 	/**
@@ -420,9 +427,9 @@ public class GitBlit implements ServletContextListener {
 	 * @return the Groovy scripts folder path
 	 */
 	public static File getGroovyScriptsFolder() {
-		return getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
+		return getFileOrFolder(Keys.groovy.scriptsFolder, "${baseFolder}/groovy");
 	}
-
+	
 	/**
 	 * Updates the list of server settings.
 	 * 
@@ -467,36 +474,48 @@ public class GitBlit implements ServletContextListener {
 		this.userService.setup(settings);
 	}
 	
+	public boolean supportsAddUser() {
+		return supportsCredentialChanges(new UserModel(""));
+	}
+	
 	/**
+	 * Returns true if the user's credentials can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports credential changes
 	 */
-	public boolean supportsCredentialChanges() {
-		return userService.supportsCredentialChanges();
+	public boolean supportsCredentialChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsCredentialChanges();
 	}
 
 	/**
+	 * Returns true if the user's display name can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports display name changes
 	 */
-	public boolean supportsDisplayNameChanges() {
-		return userService.supportsDisplayNameChanges();
+	public boolean supportsDisplayNameChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsDisplayNameChanges();
 	}
 
 	/**
+	 * Returns true if the user's email address can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports email address changes
 	 */
-	public boolean supportsEmailAddressChanges() {
-		return userService.supportsEmailAddressChanges();
+	public boolean supportsEmailAddressChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsEmailAddressChanges();
 	}
 
 	/**
+	 * Returns true if the user's team memberships can be changed.
 	 * 
+	 * @param user
 	 * @return true if the user service supports team membership changes
 	 */
-	public boolean supportsTeamMembershipChanges() {
-		return userService.supportsTeamMembershipChanges();
+	public boolean supportsTeamMembershipChanges(UserModel user) {
+		return (user != null && user.isLocalAccount()) || userService.supportsTeamMembershipChanges();
 	}
 
 	/**
@@ -785,6 +804,10 @@ public class GitBlit implements ServletContextListener {
 	 * @return the effective list of permissions for the user
 	 */
 	public List<RegistrantAccessPermission> getUserAccessPermissions(UserModel user) {
+		if (StringUtils.isEmpty(user.username)) {
+			// new user
+			return new ArrayList<RegistrantAccessPermission>();
+		}
 		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>();
 		set.addAll(user.getRepositoryPermissions());
 		// Flag missing repositories
@@ -916,14 +939,14 @@ public class GitBlit implements ServletContextListener {
 			for (RepositoryModel model : getRepositoryModels(user)) {
 				if (model.isUsersPersonalRepository(username)) {
 					// personal repository
-					model.owner = user.username;
+					model.addOwner(user.username);
 					String oldRepositoryName = model.name;
 					model.name = "~" + user.username + model.name.substring(model.projectPath.length());
 					model.projectPath = "~" + user.username;
 					updateRepositoryModel(oldRepositoryName, model, false);
 				} else if (model.isOwner(username)) {
 					// common/shared repo
-					model.owner = user.username;
+					model.addOwner(user.username);
 					updateRepositoryModel(model.name, model, false);
 				}
 			}
@@ -1339,7 +1362,7 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		// check for updates
-		Repository r = getRepository(repositoryName);
+		Repository r = getRepository(model.name);
 		if (r == null) {
 			// repository is missing
 			removeFromCachedRepositoryList(repositoryName);
@@ -1351,8 +1374,8 @@ public class GitBlit implements ServletContextListener {
 		if (config.isOutdated()) {
 			// reload model
 			logger.info(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
-			model = loadRepositoryModel(repositoryName);
-			removeFromCachedRepositoryList(repositoryName);
+			model = loadRepositoryModel(model.name);
+			removeFromCachedRepositoryList(model.name);
 			addToCachedRepositoryList(model);
 		} else {
 			// update a few repository parameters 
@@ -1402,7 +1425,30 @@ public class GitBlit implements ServletContextListener {
 				}
 				project.title = projectConfigs.getString("project", name, "title");
 				project.description = projectConfigs.getString("project", name, "description");
-				configs.put(name.toLowerCase(), project);				
+				
+				// project markdown
+				File pmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/project.mkd");
+				if (pmkd.exists()) {
+					Date lm = new Date(pmkd.lastModified());
+					if (!projectMarkdownCache.hasCurrent(name, lm)) {
+						String mkd = com.gitblit.utils.FileUtils.readContent(pmkd,  "\n");
+						projectMarkdownCache.updateObject(name, lm, mkd);
+					}
+					project.projectMarkdown = projectMarkdownCache.getObject(name);
+				}
+				
+				// project repositories markdown
+				File rmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/repositories.mkd");
+				if (rmkd.exists()) {
+					Date lm = new Date(rmkd.lastModified());
+					if (!projectRepositoriesMarkdownCache.hasCurrent(name, lm)) {
+						String mkd = com.gitblit.utils.FileUtils.readContent(rmkd,  "\n");
+						projectRepositoriesMarkdownCache.updateObject(name, lm, mkd);
+					}
+					project.repositoriesMarkdown = projectRepositoriesMarkdownCache.getObject(name);
+				}
+				
+				configs.put(name.toLowerCase(), project);
 			}
 			projectCache.clear();
 			projectCache.putAll(configs);
@@ -1526,6 +1572,49 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
+	 * Returns the list of project models that are referenced by the supplied
+	 * repository model	list.  This is an alternative method exists to ensure
+	 * Gitblit does not call getRepositoryModels(UserModel) twice in a request.
+	 * 
+	 * @param repositoryModels
+	 * @param includeUsers
+	 * @return a list of project models
+	 */
+	public List<ProjectModel> getProjectModels(List<RepositoryModel> repositoryModels, boolean includeUsers) {
+		Map<String, ProjectModel> projects = new LinkedHashMap<String, ProjectModel>();
+		for (RepositoryModel repository : repositoryModels) {
+			if (!includeUsers && repository.isPersonalRepository()) {
+				// exclude personal repositories
+				continue;
+			}
+			if (!projects.containsKey(repository.projectPath)) {
+				ProjectModel project = getProjectModel(repository.projectPath);
+				if (project == null) {
+					logger.warn(MessageFormat.format("excluding project \"{0}\" from project list because it is empty!",
+							repository.projectPath));
+					continue;
+				}
+				projects.put(repository.projectPath, project);
+				// clear the repo list in the project because that is the system
+				// list, not the user-accessible list and start building the
+				// user-accessible list
+				project.repositories.clear();
+				project.repositories.add(repository.name);
+				project.lastChange = repository.lastChange;
+			} else {
+				// update the user-accessible list
+				// this is used for repository count
+				ProjectModel project = projects.get(repository.projectPath);
+				project.repositories.add(repository.name);
+				if (project.lastChange.before(repository.lastChange)) {
+					project.lastChange = repository.lastChange;
+				}
+			}
+		}
+		return new ArrayList<ProjectModel>(projects.values());
+	}
+	
+	/**
 	 * Workaround JGit.  I need to access the raw config object directly in order
 	 * to see if the config is dirty so that I can reload a repository model.
 	 * If I use the stock JGit method to get the config it already reloads the
@@ -1561,7 +1650,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		RepositoryModel model = new RepositoryModel();
 		model.isBare = r.isBare();
-		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "git");
+		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 		if (model.isBare) {
 			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
 		} else {
@@ -1576,7 +1665,7 @@ public class GitBlit implements ServletContextListener {
 		
 		if (config != null) {
 			model.description = getConfig(config, "description", "");
-			model.owner = getConfig(config, "owner", "");
+			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -1624,6 +1713,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
+		model.sparkleshareId = JGitUtils.getSparkleshareId(r);
 		r.close();
 		
 		if (model.origin != null && model.origin.startsWith("file://")) {
@@ -1652,7 +1742,18 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the repository exists
 	 */
 	public boolean hasRepository(String repositoryName) {
-		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
+		return hasRepository(repositoryName, false);
+	}
+	
+	/**
+	 * Determines if this server has the requested repository.
+	 * 
+	 * @param name
+	 * @param caseInsensitive
+	 * @return true if the repository exists
+	 */
+	public boolean hasRepository(String repositoryName, boolean caseSensitiveCheck) {
+		if (!caseSensitiveCheck && settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			// if we are caching use the cache to determine availability
 			// otherwise we end up adding a phantom repository to the cache
 			return repositoryListCache.containsKey(repositoryName.toLowerCase());
@@ -1728,7 +1829,7 @@ public class GitBlit implements ServletContextListener {
 			ProjectModel project = getProjectModel(userProject);
 			for (String repository : project.repositories) {
 				if (repository.startsWith(userProject)) {
-					RepositoryModel model = repositoryListCache.get(repository);
+					RepositoryModel model = getRepositoryModel(repository);
 					if (model.originRepository.equalsIgnoreCase(origin)) {
 						// user has a fork
 						return model.name;
@@ -1749,24 +1850,53 @@ public class GitBlit implements ServletContextListener {
 	 */
 	public ForkModel getForkNetwork(String repository) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
-			// find the root
+			// find the root, cached
 			RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 			while (model.originRepository != null) {
 				model = repositoryListCache.get(model.originRepository);
 			}
+			ForkModel root = getForkModelFromCache(model.name);
+			return root;
+		} else {
+			// find the root, non-cached
+			RepositoryModel model = getRepositoryModel(repository.toLowerCase());
+			while (model.originRepository != null) {
+				model = getRepositoryModel(model.originRepository);
+			}
 			ForkModel root = getForkModel(model.name);
 			return root;
 		}
-		return null;
+	}
+	
+	private ForkModel getForkModelFromCache(String repository) {
+		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		if (model == null) {
+			return null;
+		}
+		ForkModel fork = new ForkModel(model);
+		if (!ArrayUtils.isEmpty(model.forks)) {
+			for (String aFork : model.forks) {
+				ForkModel fm = getForkModelFromCache(aFork);
+				if (fm != null) {
+					fork.forks.add(fm);
+				}
+			}
+		}
+		return fork;
 	}
 	
 	private ForkModel getForkModel(String repository) {
-		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
+		RepositoryModel model = getRepositoryModel(repository.toLowerCase());
+		if (model == null) {
+			return null;
+		}
 		ForkModel fork = new ForkModel(model);
 		if (!ArrayUtils.isEmpty(model.forks)) {
 			for (String aFork : model.forks) {
 				ForkModel fm = getForkModel(aFork);
-				fork.forks.add(fm);
+				if (fm != null) {
+					fork.forks.add(fm);
+				}
 			}
 		}
 		return fork;
@@ -1937,7 +2067,7 @@ public class GitBlit implements ServletContextListener {
 			if (!repository.name.toLowerCase().endsWith(org.eclipse.jgit.lib.Constants.DOT_GIT_EXT)) {
 				repository.name += org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 			}
-			if (new File(repositoriesFolder, repository.name).exists()) {
+			if (hasRepository(repository.name)) {
 				throw new GitBlitException(MessageFormat.format(
 						"Can not create repository ''{0}'' because it already exists.",
 						repository.name));
@@ -2053,7 +2183,7 @@ public class GitBlit implements ServletContextListener {
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		StoredConfig config = r.getConfig();
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
-		config.setString(Constants.CONFIG_GITBLIT, null, "owner", repository.owner);
+		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
@@ -2911,12 +3041,15 @@ public class GitBlit implements ServletContextListener {
 	 * 
 	 * @param settings
 	 */
-	public void configureContext(IStoredSettings settings, boolean startFederation) {
-		logger.info("Reading configuration from " + settings.toString());
+	public void configureContext(IStoredSettings settings, File folder, boolean startFederation) {
 		this.settings = settings;
+		this.baseFolder = folder;
 
 		repositoriesFolder = getRepositoriesFolder();
-		logger.info("Git repositories folder " + repositoriesFolder.getAbsolutePath());
+
+		logger.info("Gitblit base folder     = " + folder.getAbsolutePath());
+		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
+		logger.info("Gitblit settings        = " + settings.toString());
 
 		// prepare service executors
 		mailExecutor = new MailExecutor(settings);
@@ -2938,7 +3071,7 @@ public class GitBlit implements ServletContextListener {
 		serverStatus = new ServerStatus(isGO());
 
 		if (this.userService == null) {
-			String realm = settings.getString(Keys.realm.userService, "users.properties");
+			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
 			IUserService loginService = null;
 			try {
 				// check to see if this "file" is a login service class
@@ -2951,7 +3084,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// load and cache the project metadata
-		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "projects.conf"), FS.detect());
+		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
 		
 		// schedule mail engine
@@ -3017,6 +3150,32 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		ContainerUtils.CVE_2007_0450.test();
+		
+		// startup Fanout PubSub service
+		if (settings.getInteger(Keys.fanout.port, 0) > 0) {
+			String bindInterface = settings.getString(Keys.fanout.bindInterface, null);
+			int port = settings.getInteger(Keys.fanout.port, FanoutService.DEFAULT_PORT);
+			boolean useNio = settings.getBoolean(Keys.fanout.useNio, true);
+			int limit = settings.getInteger(Keys.fanout.connectionLimit, 0);
+			
+			if (useNio) {
+				if (StringUtils.isEmpty(bindInterface)) {
+					fanoutService = new FanoutNioService(port);
+				} else {
+					fanoutService = new FanoutNioService(bindInterface, port);
+				}
+			} else {
+				if (StringUtils.isEmpty(bindInterface)) {
+					fanoutService = new FanoutSocketService(port);
+				} else {
+					fanoutService = new FanoutSocketService(bindInterface, port);
+				}
+			}
+			
+			fanoutService.setConcurrentConnectionLimit(limit);
+			fanoutService.setAllowAllChannelAnnouncements(false);
+			fanoutService.start();
+		}
 	}
 	
 	private void logTimezone(String type, TimeZone zone) {
@@ -3040,39 +3199,63 @@ public class GitBlit implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent contextEvent, InputStream referencePropertiesInputStream) {
 		servletContext = contextEvent.getServletContext();
 		if (settings == null) {
-			// Gitblit WAR is running in a servlet container
+			// Gitblit is running in a servlet container
 			ServletContext context = contextEvent.getServletContext();
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
-
-			// gitblit.properties file located within the webapp
-			String webProps = context.getRealPath("/WEB-INF/gitblit.properties");
-			if (!StringUtils.isEmpty(webProps)) {
-				File overrideFile = new File(webProps);
-				webxmlSettings.applyOverrides(overrideFile);
-			}
+			File contextFolder = new File(context.getRealPath("/"));
+			String openShift = System.getenv("OPENSHIFT_DATA_DIR");
 			
-			// gitblit.properties file located outside the deployed war
-			// folder lie, for example, on RedHat OpenShift.
-			File overrideFile = getFileOrFolder("gitblit.properties");
-			if (!overrideFile.getPath().equals("gitblit.properties")) {
-				webxmlSettings.applyOverrides(overrideFile);
-			}
-			
-			configureContext(webxmlSettings, true);
+			if (!StringUtils.isEmpty(openShift)) {
+				// Gitblit is running in OpenShift/JBoss
+				File base = new File(openShift);
 
-			// Copy the included scripts to the configured groovy folder
-			File localScripts = getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
-			if (!localScripts.exists()) {
-				File includedScripts = new File(context.getRealPath("/WEB-INF/groovy"));
-				if (!includedScripts.equals(localScripts)) {
-					try {
-						com.gitblit.utils.FileUtils.copy(localScripts, includedScripts.listFiles());
-					} catch (IOException e) {
-						logger.error(MessageFormat.format(
-								"Failed to copy included Groovy scripts from {0} to {1}",
-								includedScripts, localScripts));
+				// gitblit.properties setting overrides
+				File overrideFile = new File(base, "gitblit.properties");
+				webxmlSettings.applyOverrides(overrideFile);
+				
+				// Copy the included scripts to the configured groovy folder
+				File localScripts = new File(base, webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy"));
+				if (!localScripts.exists()) {
+					File warScripts = new File(contextFolder, "/WEB-INF/data/groovy");
+					if (!warScripts.equals(localScripts)) {
+						try {
+							com.gitblit.utils.FileUtils.copy(localScripts, warScripts.listFiles());
+						} catch (IOException e) {
+							logger.error(MessageFormat.format(
+									"Failed to copy included Groovy scripts from {0} to {1}",
+									warScripts, localScripts));
+						}
 					}
 				}
+				
+				// configure context using the web.xml
+				configureContext(webxmlSettings, base, true);
+			} else {
+				// Gitblit is running in a standard servlet container
+				logger.info("WAR contextFolder is " + contextFolder.getAbsolutePath());
+				
+				String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
+				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
+				base.mkdirs();
+				
+				// try to copy the data folder contents to the baseFolder
+				File localSettings = new File(base, "gitblit.properties");
+				if (!localSettings.exists()) {
+					File contextData = new File(contextFolder, "/WEB-INF/data");
+					if (!base.equals(contextData)) {
+						try {
+							com.gitblit.utils.FileUtils.copy(base, contextData.listFiles());
+						} catch (IOException e) {
+							logger.error(MessageFormat.format(
+									"Failed to copy included data from {0} to {1}",
+								contextData, base));
+						}
+					}
+				}
+				
+				// delegate all config to baseFolder/gitblit.properties file
+				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());				
+				configureContext(settings, base, true);
 			}
 		}
 		
@@ -3090,6 +3273,9 @@ public class GitBlit implements ServletContextListener {
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
 		gcExecutor.close();
+		if (fanoutService != null) {
+			fanoutService.stop();
+		}
 	}
 	
 	/**
@@ -3134,15 +3320,17 @@ public class GitBlit implements ServletContextListener {
 		// create a Gitblit repository model for the clone
 		RepositoryModel cloneModel = repository.cloneAs(cloneName);
 		// owner has REWIND/RW+ permissions
-		cloneModel.owner = user.username;
+		cloneModel.addOwner(user.username);
 		updateRepositoryModel(cloneName, cloneModel, false);
 
 		// add the owner of the source repository to the clone's access list
-		if (!StringUtils.isEmpty(repository.owner)) {
-			UserModel originOwner = getUserModel(repository.owner);
-			if (originOwner != null) {
-				originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
-				updateUserModel(originOwner.username, originOwner, false);
+		if (!ArrayUtils.isEmpty(repository.owners)) {
+			for (String owner : repository.owners) {
+				UserModel originOwner = getUserModel(owner);
+				if (originOwner != null) {
+					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
+					updateUserModel(originOwner.username, originOwner, false);
+				}
 			}
 		}
 

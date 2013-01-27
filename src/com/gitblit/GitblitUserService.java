@@ -23,9 +23,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccountType;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
+import com.gitblit.utils.StringUtils;
 
 /**
  * This class wraps the default user service and is recommended as the starting
@@ -48,6 +50,8 @@ import com.gitblit.utils.DeepCopier;
 public class GitblitUserService implements IUserService {
 
 	protected IUserService serviceImpl;
+	
+	protected final String ExternalAccount = "#externalAccount";
 
 	private final Logger logger = LoggerFactory.getLogger(GitblitUserService.class);
 
@@ -56,7 +60,7 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public void setup(IStoredSettings settings) {
-		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "users.conf");
+		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 		serviceImpl = createUserService(realmFile);
 		logger.info("GUS delegating to " + serviceImpl.toString());
 	}
@@ -144,12 +148,16 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public UserModel authenticate(char[] cookie) {
-		return serviceImpl.authenticate(cookie);
+		UserModel user = serviceImpl.authenticate(cookie);
+		setAccountType(user);
+		return user;
 	}
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		return serviceImpl.authenticate(username, password);
+		UserModel user = serviceImpl.authenticate(username, password);
+		setAccountType(user);
+		return user;
 	}
 	
 	@Override
@@ -159,7 +167,9 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public UserModel getUserModel(String username) {
-		return serviceImpl.getUserModel(username);
+		UserModel user = serviceImpl.getUserModel(username);
+		setAccountType(user);
+		return user;
 	}
 
 	@Override
@@ -174,8 +184,8 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
-		if (supportsCredentialChanges()) {
-			if (!supportsTeamMembershipChanges()) {
+		if (model.isLocalAccount() || supportsCredentialChanges()) {
+			if (!model.isLocalAccount() && !supportsTeamMembershipChanges()) {
 				//  teams are externally controlled - copy from original model
 				UserModel existingModel = getUserModel(username);
 				
@@ -188,7 +198,7 @@ public class GitblitUserService implements IUserService {
 		if (model.username.equals(username)) {
 			// passwords are not persisted by the backing user service
 			model.password = null;
-			if (!supportsTeamMembershipChanges()) {
+			if (!model.isLocalAccount() && !supportsTeamMembershipChanges()) {
 				//  teams are externally controlled- copy from original model
 				UserModel existingModel = getUserModel(username);
 				
@@ -218,7 +228,11 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public List<UserModel> getAllUsers() {
-		return serviceImpl.getAllUsers();
+		List<UserModel> users = serviceImpl.getAllUsers();
+    	for (UserModel user : users) {
+    		setAccountType(user);
+    	}
+		return users; 
 	}
 
 	@Override
@@ -299,5 +313,26 @@ public class GitblitUserService implements IUserService {
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		return serviceImpl.deleteRepositoryRole(role);
+	}
+	
+	protected boolean isLocalAccount(String username) {
+		UserModel user = getUserModel(username);
+		return user != null && user.isLocalAccount();
+	}
+	
+	protected void setAccountType(UserModel user) {
+		if (user != null) {
+			if (!StringUtils.isEmpty(user.password)
+					&& !ExternalAccount.equalsIgnoreCase(user.password)
+					&& !"StoredInLDAP".equalsIgnoreCase(user.password)) {
+				user.accountType = AccountType.LOCAL;
+			} else {
+				user.accountType = getAccountType();
+			}
+		}
+	}
+	
+	protected AccountType getAccountType() {
+		return AccountType.LOCAL;
 	}
 }

@@ -41,7 +41,7 @@ public class UsersPanel extends BasePanel {
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
 		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class)
-				.setVisible(GitBlit.self().supportsCredentialChanges()));
+				.setVisible(GitBlit.self().supportsAddUser()));
 		add(adminLinks.setVisible(showAdmin));
 
 		final List<UserModel> users = GitBlit.self().getAllUsers();
@@ -81,7 +81,7 @@ public class UsersPanel extends BasePanel {
 					item.add(editLink);
 				}
 
-				item.add(new Label("accesslevel", entry.canAdmin() ? "administrator" : ""));
+				item.add(new Label("accountType", entry.accountType.name() + (entry.canAdmin() ? ", admin":"")));
 				item.add(new Label("teams", entry.teams.size() > 0 ? ("" + entry.teams.size()) : ""));
 				item.add(new Label("repositories",
 						entry.permissions.size() > 0 ? ("" + entry.permissions.size()) : ""));

@@ -137,8 +137,8 @@ public class TreePage extends RepositoryPage {
 								WicketUtils.newPathParameter(submodulePath, submoduleId,
 										"")).setEnabled(hasSubmodule));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(submodulePath, submoduleId,
-										"")).setEnabled(hasSubmodule));
+								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								submodulePath, submoduleId, "").setEnabled(hasSubmodule));
 						item.add(links);						

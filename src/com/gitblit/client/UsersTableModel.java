@@ -36,7 +36,7 @@ public class UsersTableModel extends AbstractTableModel {
 	List<UserModel> list;
 
 	enum Columns {
-		Name, Display_Name, AccessLevel, Teams, Repositories;
+		Name, Display_Name, Type, Teams, Repositories;
 
 		@Override
 		public String toString() {
@@ -71,8 +71,8 @@ public class UsersTableModel extends AbstractTableModel {
 			return Translation.get("gb.name");
 		case Display_Name:
 			return Translation.get("gb.displayName");
-		case AccessLevel:
-			return Translation.get("gb.accessLevel");
+		case Type:
+			return Translation.get("gb.type");
 		case Teams:
 			return Translation.get("gb.teamMemberships");
 		case Repositories:
@@ -101,11 +101,18 @@ public class UsersTableModel extends AbstractTableModel {
 			return model.username;
 		case Display_Name:
 			return model.displayName;
-		case AccessLevel:
-			if (model.canAdmin()) {
-				return "administrator";
+		case Type:
+			StringBuilder sb = new StringBuilder();
+			if (model.accountType != null) {
+				sb.append(model.accountType.name());
 			}
-			return "";
+			if (model.canAdmin()) {
+				if (sb.length() > 0) {
+					sb.append(", ");
+				}
+				sb.append("admin");
+			}
+			return sb.toString();
 		case Teams:
 			return (model.teams == null || model.teams.size() == 0) ? "" : String
 					.valueOf(model.teams.size());

@@ -210,6 +210,7 @@ public class MetricUtils {
 							p = rev.getAuthorIdent().getEmailAddress().toLowerCase();
 						}
 					}
+					p = p.replace('\n',' ').replace('\r',  ' ').trim();
 					if (!metricMap.containsKey(p)) {
 						metricMap.put(p, new Metric(p));
 					}
