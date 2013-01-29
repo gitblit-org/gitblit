@@ -70,7 +70,7 @@ public class GitblitRunnable implements Runnable {
 
 		}
 		try {
-			GitBlitServer.main("--httpPort", "" + httpPort, "--httpsPort", ""
+			GitBlitServer4UITests.main("--httpPort", "" + httpPort, "--httpsPort", ""
 					+ httpsPort, "--shutdownPort", "" + shutdownPort,
 					"--repositoriesFolder",
 					"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"",

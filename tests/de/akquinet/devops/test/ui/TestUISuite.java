@@ -27,7 +27,7 @@ import de.akquinet.devops.test.ui.cases.UI_MultiAdminSupportTest;
  *
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ UI_MultiAdminSupportTest.class })
+@Suite.SuiteClasses({ UI_MultiAdminSupportTest.class, UI_MultiAdminSupportTest.class })
 public class TestUISuite {
 
 }

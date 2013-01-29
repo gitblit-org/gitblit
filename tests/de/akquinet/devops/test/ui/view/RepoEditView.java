@@ -68,7 +68,7 @@ public class RepoEditView extends GitblitDashboardView {
 		return false;
 	}
 
-	private void changeRepoAdministrators(String action,
+	private void changeOwners(String action,
 			String affectedSelection, String username) {
 		String xpath = "//select[@name=\"" + affectedSelection
 				+ "\"]/option[@value = \"" + username + "\" ]";
@@ -79,13 +79,13 @@ public class RepoEditView extends GitblitDashboardView {
 		button.click();
 	}
 
-	public void removeRepoAdministrator(String username) {
-		changeRepoAdministrators("remove", "repoAdministrators:selection",
+	public void removeOwner(String username) {
+		changeOwners("remove", "owners:selection",
 				username);
 	}
 
-	public void addRepoAdministrator(String username) {
-		changeRepoAdministrators("add", "repoAdministrators:choices", username);
+	public void addOwner(String username) {
+		changeOwners("add", "owners:choices", username);
 	}
 
 	public WebElement getAccessRestrictionSelection() {
