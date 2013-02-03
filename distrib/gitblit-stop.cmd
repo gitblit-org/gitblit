@@ -1,1 +1,1 @@
-@java -jar gitblit.jar --stop --baseFolder data
+@java -jar gitblit.jar --stop --baseFolder data %*

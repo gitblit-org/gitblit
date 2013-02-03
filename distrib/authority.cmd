@@ -1,1 +1,1 @@
-@java -jar authority.jar --baseFolder data
+@java -jar authority.jar --baseFolder data %*
