@@ -76,6 +76,8 @@ public class ConfigUserService implements IUserService {
 	
 	private static final String COUNTRYCODE = "countryCode";
 	
+	private static final String SHOWSELECTEDPROJECTSONLY = "showSelectedProjectsOnly";
+	
 	private static final String COOKIE = "cookie";
 
 	private static final String REPOSITORY = "repository";
@@ -846,6 +848,7 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.countryCode)) {
 				config.setString(USER, model.username, COUNTRYCODE, model.countryCode);
 			}
+			config.setBoolean(USER, model.username, SHOWSELECTEDPROJECTSONLY, model.showSelectedProjectsOnly);
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -998,6 +1001,8 @@ public class ConfigUserService implements IUserService {
 					user.locality = config.getString(USER, username, LOCALITY);
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
+					user.showSelectedProjectsOnly = config.getBoolean(USER, username, 
+							SHOWSELECTEDPROJECTSONLY, false);
 					user.cookie = config.getString(USER, username, COOKIE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);

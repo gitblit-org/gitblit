@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<form class="form-inline" wicket:id="repoViewSelectorToggleForm">
+		<div style="padding-bottom:10px" class="btn-group pull-right" data-toggle="buttons-radio">
+			<a class="btn btn-info" wicket:id="showAll"><wicket:message key="gb.allRepositories"></wicket:message></a>
+			<a class="btn btn-info" wicket:id="showSelected"><wicket:message key="gb.selectedProjectsOnly"></wicket:message></a>
+		</div>
+	</form>
+	<div style="clear:both;">&#160;</div>
+	
+</wicket:panel>
+</body>
+</html>
