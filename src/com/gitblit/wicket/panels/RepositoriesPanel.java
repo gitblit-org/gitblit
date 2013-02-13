@@ -180,6 +180,12 @@ public class RepositoriesPanel extends BasePanel {
 						row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
 						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
 					}
+					if (user != null) {
+						String starLabel = user.hasSelectedProject(name) ? "&#9733; Unstar" : "&#9734; Star";
+						row.add(new Label("star", starLabel).setEscapeModelStrings(false));
+					} else {
+						row.add(new Label("star", "").setVisible(false));
+					}
 					WicketUtils.setCssClass(item, "group");
 					// reset counter so that first row is light background
 					counter = 0;

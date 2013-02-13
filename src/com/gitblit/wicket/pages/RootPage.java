@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
@@ -50,6 +51,7 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.NavigationPanel;
+import com.gitblit.wicket.panels.RepositoriesViewSelectorPanel;
 
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
@@ -168,6 +170,15 @@ public abstract class RootPage extends BasePage {
 				info(MessageFormat.format(getString("gb.nFederationProposalsToReview"),
 						pendingProposals));
 			}
+		}
+		
+		// Add the toggle for the preferred repo view (only if we're logged in and the app uses the grouped view)
+		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped") && GitBlitWebSession.get().isLoggedIn()) {
+			RepositoriesViewSelectorPanel selectorPanel = 
+					new RepositoriesViewSelectorPanel("repositoryViewSelectorPanel", getRootPageParameters());
+			add(selectorPanel);
+		} else {
+			add(new Label("repositoryViewSelectorPanel").setVisible(false));
 		}
 
 		super.setupPage(repositoryName, pageName);
@@ -322,10 +333,30 @@ public abstract class RootPage extends BasePage {
 		items.add(new DropDownMenuItem());
 		return items;
 	}
+	
+	protected List<RepositoryModel> getRepositoryModelsByUserSelectionPref() {
+		boolean isLoggedInUser = GitBlitWebSession.get().isLoggedIn();
+		boolean isGroupsView = GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped");
+		boolean showSelectedProjectsOnly = isGroupsView && isLoggedInUser && GitBlitWebSession.get().getUser().showSelectedProjectsOnly;
+		
+		List<RepositoryModel> models = getRepositoryModels();
+		if (showSelectedProjectsOnly) {
+			UserModel user = GitBlitWebSession.get().getUser();
+			Set<RepositoryModel> selectedModels = new HashSet<RepositoryModel>();
+			for (RepositoryModel model : models) {
+				String rootPath = StringUtils.getRootPath(model.name);
+				if (user.hasSelectedProject(rootPath)) {
+					selectedModels.add(model);
+				}
+			}
+			models = new ArrayList<RepositoryModel>(selectedModels);
+		}
+		return models;
+	}
 
 	protected List<RepositoryModel> getRepositories(PageParameters params) {
 		if (params == null) {
-			return getRepositoryModels();
+			return getRepositoryModelsByUserSelectionPref();
 		}
 
 		boolean hasParameter = false;
@@ -342,7 +373,7 @@ public abstract class RootPage extends BasePage {
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
 
-		List<RepositoryModel> availableModels = getRepositoryModels();
+		List<RepositoryModel> availableModels = getRepositoryModelsByUserSelectionPref();
 		Set<RepositoryModel> models = new HashSet<RepositoryModel>();
 
 		if (!StringUtils.isEmpty(repositoryName)) {

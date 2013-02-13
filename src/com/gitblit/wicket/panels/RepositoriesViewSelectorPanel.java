@@ -1,5 +1,6 @@
 package com.gitblit.wicket.panels;
 
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -21,10 +22,14 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 	private Show activeState = Show.all;
 	
 	private final UserModel user = GitBlitWebSession.get().getUser();
+
+	public PageParameters params;
 	
-	public RepositoriesViewSelectorPanel(String wicketId) {
+	public RepositoriesViewSelectorPanel(String wicketId, PageParameters params) {
 		super(wicketId);
 		setOutputMarkupId(true);
+		
+		this.params = params;
 		
 		if (user == null) {
 			return;
@@ -80,6 +85,7 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 				error(e.getMessage());
 				return;
 			}
+			setResponsePage(this.getPage().getClass(), RepositoriesViewSelectorPanel.this.params);
 		}
 	};
 

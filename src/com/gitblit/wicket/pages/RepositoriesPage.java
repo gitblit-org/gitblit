@@ -41,7 +41,6 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
-import com.gitblit.wicket.panels.RepositoriesViewSelectorPanel;
 
 public class RepositoriesPage extends RootPage {
 
@@ -69,7 +68,6 @@ public class RepositoriesPage extends RootPage {
 			String message = readMarkdown(messageSource, "login.mkd");
 			Component repositoriesMessage = new Label("repositoriesMessage", message);
 			add(repositoriesMessage.setEscapeModelStrings(false));
-			add(new Label("repositoryViewSelectorPanel").setVisible(false));
 			add(new Label("repositoriesPanel"));
 			return;
 		}
@@ -81,14 +79,6 @@ public class RepositoriesPage extends RootPage {
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
 		
-		// Add the toggle for the preferred repo view (only if we're logged in)
-		if (GitBlitWebSession.get().getUser() != null) {
-			RepositoriesViewSelectorPanel selectorPanel = new RepositoriesViewSelectorPanel("repositoryViewSelectorPanel");
-			add(selectorPanel);
-		} else {
-			add(new Label("repositoryViewSelectorPanel").setVisible(false));
-		}
-
 		List<RepositoryModel> repositories = getRepositories(params);
 
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
