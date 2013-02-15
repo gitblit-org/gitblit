@@ -26,6 +26,7 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 	
 	public RepositoriesViewSelectorPanel(String wicketId) {
 		super(wicketId);
+		setMarkupId(wicketId);
 		setOutputMarkupId(true);
 		
 		if (user == null) {

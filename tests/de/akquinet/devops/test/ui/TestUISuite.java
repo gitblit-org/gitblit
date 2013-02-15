@@ -19,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import de.akquinet.devops.test.ui.cases.UI_MultiAdminSupportTest;
+import de.akquinet.devops.test.ui.cases.UI_SelectedProjectsSupportTest;
 
 /**
  * the test suite including all selenium-based ui-tests.
@@ -27,7 +28,7 @@ import de.akquinet.devops.test.ui.cases.UI_MultiAdminSupportTest;
  *
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ UI_MultiAdminSupportTest.class, UI_MultiAdminSupportTest.class })
+@Suite.SuiteClasses({ UI_MultiAdminSupportTest.class, UI_SelectedProjectsSupportTest.class })
 public class TestUISuite {
 
 }

@@ -10,16 +10,22 @@ import com.gitblit.GitBlitException;
 import com.gitblit.client.Translation;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.WicketUtils;
 
 public class SelectProjectPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String PROJECT_BUTTON_CLASS = "btn selectionBtn";
+	public static final String SELECTED_PROJECT_BUTTON_CLASS = PROJECT_BUTTON_CLASS + " selectedProject";
+	public static final String UNSELECTED_PROJECT_BUTTON_CLASS = PROJECT_BUTTON_CLASS + " unselectedProject";
 
 	private final UserModel user = GitBlitWebSession.get().getUser();
 	private String projectName;
 	private boolean isCurrentlySelected;
 	private Form<?> selectProjectForm;
 	private String buttonLabel;
+	private String buttonClass;
 	
 	public SelectProjectPanel(String wicketId, String projectName) {
 		super(wicketId);
@@ -31,8 +37,14 @@ public class SelectProjectPanel extends BasePanel {
 		
 		this.projectName = projectName;
 		this.isCurrentlySelected = user.hasSelectedProject(projectName);
-		this.buttonLabel = isCurrentlySelected ? Translation.get("gb.unselectProject") : 
-			Translation.get("gb.selectProject");
+		
+		if (isCurrentlySelected) {
+			this.buttonLabel = Translation.get("gb.unselectProject");
+			this.buttonClass = SELECTED_PROJECT_BUTTON_CLASS;
+		} else {
+			this.buttonLabel = Translation.get("gb.selectProject");
+			this.buttonClass = UNSELECTED_PROJECT_BUTTON_CLASS;
+		}
 		
 		selectProjectForm = new Form<Void>("selectProjectForm");
 		AjaxButton button = new AjaxButton("selectProject", selectProjectForm) {
@@ -54,12 +66,20 @@ public class SelectProjectPanel extends BasePanel {
 					return;
 				}
 				
-				// Change the label on the button
+				// Change the label and CSS classes on the button
 				SelectProjectPanel.this.isCurrentlySelected = 
 						SelectProjectPanel.this.isCurrentlySelected ? false : true;
-				SelectProjectPanel.this.buttonLabel = SelectProjectPanel.this.isCurrentlySelected ? 
-						Translation.get("gb.unselectProject") : Translation.get("gb.selectProject");
+				
+				if (SelectProjectPanel.this.isCurrentlySelected) {
+					SelectProjectPanel.this.buttonLabel = Translation.get("gb.unselectProject");
+					SelectProjectPanel.this.buttonClass = SELECTED_PROJECT_BUTTON_CLASS;
+				} else {
+					SelectProjectPanel.this.buttonLabel = Translation.get("gb.selectProject");
+					SelectProjectPanel.this.buttonClass = UNSELECTED_PROJECT_BUTTON_CLASS;
+				}
+				 
 				this.addOrReplace(new Label("buttonLabel", buttonLabel).setEscapeModelStrings(false));
+				WicketUtils.setCssClass(this, SelectProjectPanel.this.buttonClass);
 				target.addComponent(this);
 			
 				// If we unselected a project:
@@ -79,6 +99,7 @@ public class SelectProjectPanel extends BasePanel {
 		};
 		
 		button.add(new Label("buttonLabel", buttonLabel).setEscapeModelStrings(false));
+		WicketUtils.setCssClass(button, buttonClass);
 		button.setOutputMarkupId(true);
 		selectProjectForm.add(button);
 		add(selectProjectForm);
