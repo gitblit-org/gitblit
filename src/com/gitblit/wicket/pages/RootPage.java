@@ -174,9 +174,7 @@ public abstract class RootPage extends BasePage {
 		
 		// Add the toggle for the preferred repo view (only if we're logged in and the app uses the grouped view)
 		if (GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped") && GitBlitWebSession.get().isLoggedIn()) {
-			RepositoriesViewSelectorPanel selectorPanel = 
-					new RepositoriesViewSelectorPanel("repositoryViewSelectorPanel", getRootPageParameters());
-			add(selectorPanel);
+			add(new RepositoriesViewSelectorPanel("repositoryViewSelectorPanel"));
 		} else {
 			add(new Label("repositoryViewSelectorPanel").setVisible(false));
 		}
@@ -335,16 +333,21 @@ public abstract class RootPage extends BasePage {
 	}
 	
 	protected List<RepositoryModel> getRepositoryModelsByUserSelectionPref() {
+		UserModel user = GitBlitWebSession.get().getUser();
 		boolean isLoggedInUser = GitBlitWebSession.get().isLoggedIn();
 		boolean isGroupsView = GitBlit.getString(Keys.web.repositoryListType, "flat").equalsIgnoreCase("grouped");
-		boolean showSelectedProjectsOnly = isGroupsView && isLoggedInUser && GitBlitWebSession.get().getUser().showSelectedProjectsOnly;
+		boolean showSelectedProjectsOnly = isGroupsView && isLoggedInUser && user.showSelectedProjectsOnly;
 		
 		List<RepositoryModel> models = getRepositoryModels();
-		if (showSelectedProjectsOnly) {
-			UserModel user = GitBlitWebSession.get().getUser();
+		if (showSelectedProjectsOnly && user.selectedProjects.isEmpty()) {
+			models = new ArrayList<RepositoryModel>();
+		} else if (showSelectedProjectsOnly) {
 			Set<RepositoryModel> selectedModels = new HashSet<RepositoryModel>();
 			for (RepositoryModel model : models) {
 				String rootPath = StringUtils.getRootPath(model.name);
+				if (StringUtils.isEmpty(rootPath)) {
+					rootPath = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+				}
 				if (user.hasSelectedProject(rootPath)) {
 					selectedModels.add(model);
 				}

@@ -1146,6 +1146,7 @@ div.markdown a {
 	text-decoration: underline;	
 }
 
+
 div.markdown em {
 	color: #b05000;
 }
@@ -1154,4 +1155,22 @@ div.markdown table.text th, div.markdown table.text td {
 	vertical-align: top;
 	border-top: 1px solid #ccc;
 	padding:5px;
+}
+
+.relative {
+	position: relative;
+}
+
+.repoViewSelectorToggle {
+	position:absolute;
+	top:6px;
+	right:0;
+}
+
+.selectionForm {
+	margin:0;
+}
+
+.selectionBtn {
+	font-weight:normal;
 }

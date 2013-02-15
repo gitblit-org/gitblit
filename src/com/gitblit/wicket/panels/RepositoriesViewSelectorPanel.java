@@ -1,6 +1,5 @@
 package com.gitblit.wicket.panels;
 
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -14,6 +13,8 @@ import com.gitblit.wicket.WicketUtils;
 public class RepositoriesViewSelectorPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final String SELECTEDBUTTONNAME = "showSelected";
 
 	public enum Show {
 		all, selected;
@@ -22,14 +23,10 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 	private Show activeState = Show.all;
 	
 	private final UserModel user = GitBlitWebSession.get().getUser();
-
-	public PageParameters params;
 	
-	public RepositoriesViewSelectorPanel(String wicketId, PageParameters params) {
+	public RepositoriesViewSelectorPanel(String wicketId) {
 		super(wicketId);
 		setOutputMarkupId(true);
-		
-		this.params = params;
 		
 		if (user == null) {
 			return;
@@ -47,7 +44,7 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 		 */
 		Form<?> repoViewToggleForm = new Form<Void>("repoViewSelectorToggleForm");
 		repoViewToggleForm.add(new ShowStateButton("showAll", Show.all));
-		repoViewToggleForm.add(new ShowStateButton("showSelected", Show.selected));
+		repoViewToggleForm.add(new ShowStateButton(SELECTEDBUTTONNAME, Show.selected));
 		add(repoViewToggleForm);
 	}
 	
@@ -76,16 +73,14 @@ public class RepositoriesViewSelectorPanel extends BasePanel {
 		@Override
 		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			RepositoriesViewSelectorPanel.this.activeState = buttonState;
-			target.addComponent(RepositoriesViewSelectorPanel.this);
 			RepositoriesViewSelectorPanel.this.user.showSelectedProjectsOnly = buttonState.equals(Show.selected);
 			try {					
-				GitBlit.self().updateUserModel(RepositoriesViewSelectorPanel.this.user.getName(), 
-						RepositoriesViewSelectorPanel.this.user, false);
+				GitBlit.self().updateUserModel(user.getName(), user, false);
 			} catch (GitBlitException e) {
 				error(e.getMessage());
 				return;
 			}
-			setResponsePage(this.getPage().getClass(), RepositoriesViewSelectorPanel.this.params);
+			setResponsePage(this.getPage().getClass(), this.getPage().getPageParameters());
 		}
 	};
 
