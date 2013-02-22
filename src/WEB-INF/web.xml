@@ -26,6 +26,11 @@
 		<param-name>baseFolder</param-name>
 		<param-value>${contextFolder}/WEB-INF/data</param-value>
 	</context-param>
+	
+	<!-- Gitblit Displayname -->
+	<display-name>
+		Gitblit - @gb.version@
+	</display-name>
 
 	<!-- PARAMS --> 
 	 
