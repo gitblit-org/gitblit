@@ -208,6 +208,9 @@
 		<copy todir="${project.build.dir}">
 			<fileset dir="${basedir}/src" excludes="**/*.java,**/thumbs.db" />
 		</copy>
+		
+		<!-- Set Version into web.xml -->
+		<replace file="${project.build.dir}/WEB-INF/web.xml" token="@gb.version@" value="${gb.version}" summary="yes"/>
 	</target>
 
 	
@@ -277,6 +280,9 @@
 				<include name="authority.conf" />
 			</fileset>
 		</copy>
+		
+		<!-- Set Version into web.xml -->
+		<replace file="${project.build.dir}/WEB-INF/web.xml" token="@gb.version@" value="${gb.version}" summary="yes"/>
 						
 		<!-- Build jar -->
 		<jar jarfile="${project.deploy.dir}/${project.jar}">
@@ -454,6 +460,9 @@
 			</fileset>
 		</copy>
 		
+		<!-- Set Version into web.xml -->
+		<replace file="${project.war.dir}/WEB-INF/web.xml" token="@gb.version@" value="${gb.version}" summary="yes"/>
+		
 		<!-- Copy gitblit.properties as reference.properties -->
 		<copy tofile="${project.war.dir}/WEB-INF/reference.properties" 
 			file="${basedir}/distrib/gitblit.properties"/>
@@ -497,6 +506,9 @@
 			<arg value="${project.war.dir}/WEB-INF/web.xml" />
 			
 		</java>
+		
+		<!-- Set Version into web.xml -->
+		<replace file="${project.war.dir}/WEB-INF/web.xml" token="@gb.version@" value="${gb.version}" summary="yes"/>
 
 		<!-- Gitblit resources -->
 		<copy todir="${project.war.dir}">
@@ -729,6 +741,9 @@
 			<arg value="--propertiesFile" />
 			<arg value="${basedir}/distrib/gitblit.properties" />
 		</java>
+		
+		<!-- Set Version into web.xml -->
+		<replace file="${deployments.root}/WEB-INF/web.xml" token="@gb.version@" value="${gb.version}" summary="yes"/>
 
 		<!-- Gitblit resources -->
 		<copy todir="${deployments.root}">
