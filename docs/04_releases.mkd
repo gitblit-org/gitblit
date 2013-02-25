@@ -9,7 +9,8 @@
 - Can't set reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 
 #### additions
- 
+
+ - Display name and version in Tomcat Manager (github/thefake) 
  - FogBugz post-receive hook script (github/djschny)
  - Implemented multiple repository owners (github/akquinet)
  - Chinese translation (github/dapengme, github/yin8086)
