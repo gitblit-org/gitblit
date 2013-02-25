@@ -18,6 +18,7 @@ package com.gitblit;
 import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -178,7 +179,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
-	public boolean updateUserModels(List<UserModel> models) {
+	public boolean updateUserModels(Collection<UserModel> models) {
 		return serviceImpl.updateUserModels(models);
 	}
 
@@ -267,7 +268,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
-	public boolean updateTeamModels(List<TeamModel> models) {
+	public boolean updateTeamModels(Collection<TeamModel> models) {
 		return serviceImpl.updateTeamModels(models);
 	}
 

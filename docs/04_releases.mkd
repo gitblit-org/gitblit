@@ -10,6 +10,7 @@
 
 #### additions
 
+ - Optional periodic LDAP user and team pre-fetching & synchronization (github/mschaefers)
  - Display name and version in Tomcat Manager (github/thefake) 
  - FogBugz post-receive hook script (github/djschny)
  - Implemented multiple repository owners (github/akquinet)

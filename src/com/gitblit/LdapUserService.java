@@ -20,7 +20,11 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,20 +57,107 @@ public class LdapUserService extends GitblitUserService {
 	public static final Logger logger = LoggerFactory.getLogger(LdapUserService.class);
 
 	private IStoredSettings settings;
+    private AtomicLong lastLdapUserSync = new AtomicLong(0L);
 	
 	public LdapUserService() {
 		super();
 	}
 
+ 	private long getSynchronizationPeriod() {
+        final String cacheDuration = settings.getString(Keys.realm.ldap.ldapCachePeriod, "2 MINUTES");
+        try {
+            final String[] s = cacheDuration.split(" ", 2);
+            long duration = Long.parseLong(s[0]);
+            TimeUnit timeUnit = TimeUnit.valueOf(s[1]);
+            return timeUnit.toMillis(duration);
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException(Keys.realm.ldap.ldapCachePeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
+        }
+    }
+    
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
 		String file = settings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
-
+		
 		serviceImpl = createUserService(realmFile);
 		logger.info("LDAP User Service backed by " + serviceImpl.toString());
+		
+		synchronizeLdapUsers();
 	}
+	
+	protected synchronized void synchronizeLdapUsers() {
+        final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
+        if (enabled) {
+            if (System.currentTimeMillis() > (lastLdapUserSync.get() + getSynchronizationPeriod())) {
+            	logger.info("Synchronizing with LDAP @ " + settings.getRequiredString(Keys.realm.ldap.server));
+                final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
+                LDAPConnection ldapConnection = getLdapConnection();
+                if (ldapConnection != null) {
+                    try {
+                        String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+                        String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
+                        String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+                        accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
+
+                        SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+                        if (result != null && result.getEntryCount() > 0) {
+                            final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
+
+                            for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
+
+                                final String username = loggingInUser.getAttribute(uidAttribute).getValue();
+                                logger.debug("LDAP synchronizing: " + username);
+
+                                UserModel user = getUserModel(username);
+                                if (user == null) {
+                                    user = new UserModel(username);
+                                }
+
+                                if (!supportsTeamMembershipChanges())
+                                    getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
+
+                                // Get User Attributes
+                                setUserAttributes(user, loggingInUser);
+
+                                // store in map
+                                ldapUsers.put(username.toLowerCase(), user);
+                            }
+
+                            if (deleteRemovedLdapUsers) {
+                                logger.debug("detecting removed LDAP users...");
+
+                                for (UserModel userModel : super.getAllUsers()) {
+                                    if (ExternalAccount.equals(userModel.password)) {
+                                        if (! ldapUsers.containsKey(userModel.username)) {
+                                            logger.info("deleting removed LDAP user " + userModel.username + " from backing user service");
+                                            super.deleteUser(userModel.username);
+                                        }
+                                    }
+                                }
+                            }
+
+                            super.updateUserModels(ldapUsers.values());
+
+                            if (!supportsTeamMembershipChanges()) {
+                                final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
+                                for (UserModel user : ldapUsers.values()) {
+                                    for (TeamModel userTeam : user.teams) {
+                                        userTeams.put(userTeam.name, userTeam);
+                                    }
+                                }
+                                updateTeamModels(userTeams.values());
+                            }
+                        }
+                        lastLdapUserSync.set(System.currentTimeMillis()); 
+                    } finally {
+                        ldapConnection.close();
+                    }
+                }
+            }
+        }
+    }
 	
 	private LDAPConnection getLdapConnection() {
 		try {
@@ -187,28 +278,31 @@ public class LdapUserService extends GitblitUserService {
 					if (isAuthenticated(ldapConnection, loggingInUserDN, new String(password))) {
 						logger.debug("LDAP authenticated: " + username);
 
-						UserModel user = getUserModel(simpleUsername);
-						if (user == null)	// create user object for new authenticated user
-							user = new UserModel(simpleUsername);
+						UserModel user = null;
+						synchronized (this) {
+							user = getUserModel(simpleUsername);
+							if (user == null)	// create user object for new authenticated user
+								user = new UserModel(simpleUsername);
 
-						// create a user cookie
-						if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-							user.cookie = StringUtils.getSHA1(user.username + new String(password));
+							// create a user cookie
+							if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+								user.cookie = StringUtils.getSHA1(user.username + new String(password));
+							}
+
+							if (!supportsTeamMembershipChanges())
+								getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
+
+							// Get User Attributes
+							setUserAttributes(user, loggingInUser);
+
+							// Push the ldap looked up values to backing file
+							super.updateUserModel(user);
+							if (!supportsTeamMembershipChanges()) {
+								for (TeamModel userTeam : user.teams)
+									updateTeamModel(userTeam);
+							}
 						}
-
-						if (!supportsTeamMembershipChanges())
-							getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
-
-						// Get User Attributes
-						setUserAttributes(user, loggingInUser);
-
-						// Push the ldap looked up values to backing file
-						super.updateUserModel(user);
-						if (!supportsTeamMembershipChanges()) {
-							for (TeamModel userTeam : user.teams)
-								updateTeamModel(userTeam);
-						}
-
+						
 						return user;
 					}
 				}
@@ -345,6 +439,17 @@ public class LdapUserService extends GitblitUserService {
 		}
 	}
 
+    @Override
+    public List<String> getAllUsernames() {
+        synchronizeLdapUsers();
+        return super.getAllUsernames();
+    }
+
+    @Override
+    public List<UserModel> getAllUsers() {
+        synchronizeLdapUsers();
+        return super.getAllUsers();
+    }
 	
 	/**
 	 * Returns a simple username without any domain prefixes.
