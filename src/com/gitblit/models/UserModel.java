@@ -62,6 +62,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public String locality;
 	public String stateProvince;
 	public String countryCode;
+	public boolean showSelectedProjectsOnly;
 	public boolean canAdmin;
 	public boolean canFork;
 	public boolean canCreate;
@@ -71,6 +72,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public final Set<String> repositories = new HashSet<String>();
 	public final Map<String, AccessPermission> permissions = new LinkedHashMap<String, AccessPermission>();
 	public final Set<TeamModel> teams = new TreeSet<TeamModel>();
+	public Set<String> selectedProjects = new HashSet<String>();
 
 	// non-persisted fields
 	public boolean isAuthenticated;
@@ -531,6 +533,18 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 		}
 		return null;
+	}
+	
+	public boolean addSelectedProject(String name) {
+		return selectedProjects.add(name);
+	}
+	
+	public boolean removeSelectedProject(String name) {
+		return selectedProjects.remove(name);
+	}
+	
+	public boolean hasSelectedProject(String name) {
+		return selectedProjects.contains(name);
 	}
 
 	@Override

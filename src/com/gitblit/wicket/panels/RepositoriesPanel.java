@@ -64,7 +64,9 @@ import com.gitblit.wicket.pages.UserPage;
 public class RepositoriesPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	public static final String GROUPROWCSSCLASS = "group";
+	
 	public RepositoriesPanel(String wicketId, final boolean showAdmin, final boolean showManagement,
 			List<RepositoryModel> models, boolean enableLinks,
 			final Map<AccessRestrictionType, String> accessRestrictionTranslations) {
@@ -180,7 +182,13 @@ public class RepositoriesPanel extends BasePanel {
 						row.add(new LinkPanel("groupName", null, groupRow.toString(), ProjectPage.class, WicketUtils.newProjectParameter(entry.name)));
 						row.add(new Label("groupDescription", entry.description == null ? "":entry.description));
 					}
-					WicketUtils.setCssClass(item, "group");
+					if (user != null) {
+						row.add(new SelectProjectPanel("selectProjectPanel", entry.name));
+					} else {
+						row.add(new Label("selectProjectPanel").setVisible(false));
+					}
+					
+					WicketUtils.setCssClass(item, GROUPROWCSSCLASS);
 					// reset counter so that first row is light background
 					counter = 0;
 					return;

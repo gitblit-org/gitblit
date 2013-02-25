@@ -78,7 +78,7 @@ public class RepositoriesPage extends RootPage {
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
 		add(repositoriesMessage);
-
+		
 		List<RepositoryModel> repositories = getRepositories(params);
 
 		RepositoriesPanel repositoriesPanel = new RepositoriesPanel("repositoriesPanel", showAdmin,
