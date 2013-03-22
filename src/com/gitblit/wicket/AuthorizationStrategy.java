@@ -15,16 +15,10 @@
  */
 package com.gitblit.wicket;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.protocol.http.servlet.AbortWithWebErrorCodeException;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -88,13 +82,5 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 		if (component instanceof BasePage) {
 			throw new RestartResponseException(RepositoriesPage.class);
 		}
-		/*** DISABLED CODE ***
-		if (component instanceof BasePage) {
-			HttpServletResponse response = ((WebResponse)component.getResponse()).getHttpServletResponse();
-			response.setHeader("WWW-Authenticate", "Basic realm=test");
-			throw new AbortWithWebErrorCodeException(HttpServletResponse.SC_UNAUTHORIZED);
-			
-		} 
-		*** END DISABLED ***/
 	}
 }
