@@ -40,6 +40,7 @@ import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
+import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
@@ -101,6 +102,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/metrics", MetricsPage.class, "r");
 		mount("/blame", BlamePage.class, "r", "h", "f");
 		mount("/users", UsersPage.class);
+		mount("/logout", LogoutPage.class);
 
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r");
