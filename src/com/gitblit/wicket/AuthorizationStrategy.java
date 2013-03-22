@@ -78,6 +78,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 
 	@Override
 	public void onUnauthorizedInstantiation(Component component) {
+		
 		if (component instanceof BasePage) {
 			throw new RestartResponseException(RepositoriesPage.class);
 		}
