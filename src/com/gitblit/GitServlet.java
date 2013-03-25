@@ -83,11 +83,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 	private GroovyScriptEngine gse;
 
 	private File groovyDir;
-
-	@Override
-	public void destroy() {
-		super.destroy();
-	}
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
@@ -109,8 +104,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			public ReceivePack create(HttpServletRequest req, Repository db)
 					throws ServiceNotEnabledException, ServiceNotAuthorizedException {
 				// determine repository name from request
-				org.eclipse.jgit.http.server.glue.WrappedRequest wrreq = (org.eclipse.jgit.http.server.glue.WrappedRequest) req;
-				
 				String repositoryName = req.getPathInfo().substring(1);
 				repositoryName = GitFilter.getRepositoryName(repositoryName);
 				
