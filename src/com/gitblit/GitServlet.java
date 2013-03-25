@@ -311,19 +311,14 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 							ReceiveCommand.Type.UPDATE)
 							&& receiveCommand.getResult().equals(
 									ReceiveCommand.Result.OK)) {
+						// if type=update and update was ok, autotag
 						String objectId = receiveCommand.getNewId().toString()
 								.replace("AnyObjectId[", "").replace("]", "");
-						System.err.println("SHB id " + objectId);
-						System.err.println("SHB id "
-								+ objectId.getBytes().length);
-						// if type=update and update was ok, autotag
 						boolean result = JGitUtils
 								.createIncrementalRevisionTag(
-										rp.getRepository(), objectId);
-						System.err.println("SHB res " + result);
+										rp.getRepository(), objectId);						
 					}
-				}
-				System.err.println("SHB cmds: " + cmds);
+				}				
 			}
 			
 			// log ref changes
