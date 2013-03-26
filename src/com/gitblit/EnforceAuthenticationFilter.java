@@ -1,7 +1,19 @@
-/**
- * 
- */
-package com.gitblit;
+/*
+ * Copyright 2013 Laurens Vrijnsen
+ * Copyright 2013 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */package com.gitblit;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -54,8 +66,8 @@ public class EnforceAuthenticationFilter implements Filter {
 		 * Determine whether to enforce the BASIC authentication:
 		 */
 		@SuppressWarnings("static-access")
-		Boolean mustForceAuth = GitBlit.self().getBoolean("web.authenticateViewPages", false)
-								&& GitBlit.self().getBoolean("web.enforceHttpBasicAuthentication", false);
+		Boolean mustForceAuth = GitBlit.self().getBoolean(Keys.web.authenticateViewPages, false)
+								&& GitBlit.self().getBoolean(Keys.web.enforceHttpBasicAuthentication, false);
 		
 		HttpServletRequest  HttpRequest  = (HttpServletRequest)request;
 		HttpServletResponse HttpResponse = (HttpServletResponse)response; 
@@ -63,7 +75,7 @@ public class EnforceAuthenticationFilter implements Filter {
 		
 		if (mustForceAuth && (user == null)) {
 			// not authenticated, enforce now:
-			logger.info(MessageFormat.format("EnforceAuthFilter: user not authenticated for URL {0}!", request.toString()));
+			logger.debug(MessageFormat.format("EnforceAuthFilter: user not authenticated for URL {0}!", request.toString()));
 			@SuppressWarnings("static-access")
 			String CHALLENGE = MessageFormat.format("Basic realm=\"{0}\"", GitBlit.self().getString("web.siteName",""));
 			HttpResponse.setHeader("WWW-Authenticate", CHALLENGE);

@@ -10,6 +10,7 @@
 
 #### additions
 
+ - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (github/furinzen)
  - Optional periodic LDAP user and team pre-fetching & synchronization (github/mschaefers)
  - Display name and version in Tomcat Manager (github/thefake) 
  - FogBugz post-receive hook script (github/djschny)
