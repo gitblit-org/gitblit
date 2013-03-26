@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,9 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.http.server.resolver.DefaultReceivePackFactory;
 import org.eclipse.jgit.http.server.resolver.DefaultUploadPackFactory;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -80,7 +83,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 	private GroovyScriptEngine gse;
 
 	private File groovyDir;
-
+	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		groovyDir = GitBlit.getGroovyScriptsFolder();
@@ -100,7 +103,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 			@Override
 			public ReceivePack create(HttpServletRequest req, Repository db)
 					throws ServiceNotEnabledException, ServiceNotAuthorizedException {
-				
 				// determine repository name from request
 				String repositoryName = req.getPathInfo().substring(1);
 				repositoryName = GitFilter.getRepositoryName(repositoryName);
@@ -163,6 +165,7 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				return up;
 			}
 		});
+		
 		super.init(new GitblitServletConfig(config));
 	}
 
@@ -296,7 +299,28 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 			UserModel user = getUserModel(rp);
 			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
-
+			
+			if (repository.useIncrementalRevisionNumbers) {
+				List<ReceiveCommand> allCommands = rp.getAllCommands();
+				String cmds = "";
+				for (ReceiveCommand receiveCommand : allCommands) {
+					cmds += receiveCommand.getType() + "_"
+							+ receiveCommand.getResult() + "_"
+							+ receiveCommand.getMessage() + ", ";
+					if (receiveCommand.getType().equals(
+							ReceiveCommand.Type.UPDATE)
+							&& receiveCommand.getResult().equals(
+									ReceiveCommand.Result.OK)) {
+						// if type=update and update was ok, autotag
+						String objectId = receiveCommand.getNewId().toString()
+								.replace("AnyObjectId[", "").replace("]", "");
+						boolean result = JGitUtils
+								.createIncrementalRevisionTag(
+										rp.getRepository(), objectId);						
+					}
+				}				
+			}
+			
 			// log ref changes
 			for (ReceiveCommand cmd : commands) {
 				if (Result.OK.equals(cmd.getResult())) {

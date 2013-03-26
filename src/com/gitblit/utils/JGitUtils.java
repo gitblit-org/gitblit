@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,6 +34,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.TagCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
@@ -80,6 +82,8 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -94,6 +98,7 @@ import com.gitblit.models.SubmoduleModel;
  */
 public class JGitUtils {
 
+	private static final String REVISION_TAG_PREFIX = "rev_";
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
 	/**
@@ -1687,7 +1692,72 @@ public class JGitUtils {
 		}
 		return list;
 	}
+	
+	/**
+	 * this method creates an incremental revision number as a tag according to
+	 * the amount of already existing tags, which start with a defined prefix {@link REVISION_TAG_PREFIX}
+	 * 
+	 * @param repository
+	 * @param objectId
+	 * @return true if operation was successful, otherwise false
+	 */
+	public static boolean createIncrementalRevisionTag(Repository repository, String objectId) {
+		boolean result = false;
+		Iterator<Entry<String, Ref>> iterator = repository.getTags().entrySet().iterator();
+		long revisionNumber = 1;
+		while (iterator.hasNext()) {
+			Entry<String, Ref> entry = iterator.next();
+			if (entry.getKey().startsWith(REVISION_TAG_PREFIX)) {
+				revisionNumber++;
+			}
+		}
+		result = createTag(repository,REVISION_TAG_PREFIX+revisionNumber,objectId);
+		return result;
+	}
 
+	/**
+	 * creates a tag in a repository referring to the current head
+	 * 
+	 * @param repository
+	 * @param tag, the string label
+	 * @return boolean, true if operation was successful, otherwise false
+	 */
+	public static boolean createTag(Repository repository, String tag) {
+		return createTag(repository, tag, null);
+	}
+	
+	/**
+	 * creates a tag in a repository
+	 * 
+	 * @param repository
+	 * @param tag, the string label
+	 * @param objectId, the ref the tag points towards
+	 * @return boolean, true if operation was successful, otherwise false
+	 */
+	public static boolean createTag(Repository repository, String tag,
+			String objectId) {
+		try {			
+			PersonIdent author = new PersonIdent("GitblitAutoTagPush",
+					"gitblit@localhost");
+
+			LOGGER.debug("createTag in repo: "+repository.getDirectory().getAbsolutePath());
+			Git gitClient = Git.open(repository.getDirectory());
+			TagCommand tagCommand = gitClient.tag();
+			tagCommand.setTagger(author);
+			tagCommand.setMessage("autotag");
+			if (objectId != null) {
+				RevObject revObj = getCommit(repository, objectId);
+				tagCommand.setObjectId(revObj);
+			}
+			tagCommand.setName(tag);
+			Ref call = tagCommand.call();			
+			return call != null ? true : false;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	/**
 	 * Create an orphaned branch in a repository.
 	 * 
