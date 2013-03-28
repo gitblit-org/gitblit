@@ -1827,6 +1827,9 @@ public class GitBlit implements ServletContextListener {
 		} else {
 			// not caching
 			ProjectModel project = getProjectModel(userProject);
+			if (project == null) {
+				return null;
+			}
 			for (String repository : project.repositories) {
 				if (repository.startsWith(userProject)) {
 					RepositoryModel model = getRepositoryModel(repository);
