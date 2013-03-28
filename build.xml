@@ -279,6 +279,7 @@
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</zipfileset>
+			<zipfileset prefix="WEB-INF" file="${project.compileOutputDirectory}/WEB-INF/weblogic.xml" />
 			<!-- Classes and classpath resources -->
 			<zipfileset prefix="WEB-INF/classes" dir="${project.compileOutputDirectory}">
 				<include name="**/*.class" />

@@ -12,6 +12,7 @@ r17: {
 
     additions: 
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
+	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
      - Optional periodic LDAP user and team pre-fetching & synchronization
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script
@@ -20,6 +21,7 @@ r17: {
 
     contributors:
 	- Christian Aistleitner
+	- Jay Meyer
 	- github/furinzen
     - github/mschaefers
     - github/thefake
