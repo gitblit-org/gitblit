@@ -613,7 +613,7 @@ public class GitBlit implements ServletContextListener {
 			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
 				flagWicketSession(AuthenticationType.CERTIFICATE);
-				logger.info(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
+				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
 						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 				return user;
 			} else {
@@ -633,7 +633,7 @@ public class GitBlit implements ServletContextListener {
 			UserModel user = getUserModel(principal.getName());
 			if (user != null) {
 				flagWicketSession(AuthenticationType.CONTAINER);
-				logger.info(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+				logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 						user.username, httpRequest.getRemoteAddr()));
 				return user;
 			} else {
@@ -647,7 +647,7 @@ public class GitBlit implements ServletContextListener {
 			UserModel user = authenticate(httpRequest.getCookies());
 			if (user != null) {
 				flagWicketSession(AuthenticationType.COOKIE);
-				logger.info(MessageFormat.format("{0} authenticated by cookie from {1}",
+				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 						user.username, httpRequest.getRemoteAddr()));
 				return user;
 			}
@@ -669,7 +669,7 @@ public class GitBlit implements ServletContextListener {
 				UserModel user = authenticate(username, password);
 				if (user != null) {
 					flagWicketSession(AuthenticationType.CREDENTIALS);
-					logger.info(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
+					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
 				} else {
