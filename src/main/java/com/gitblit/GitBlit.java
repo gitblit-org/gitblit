@@ -3236,13 +3236,15 @@ public class GitBlit implements ServletContextListener {
 			if (!StringUtils.isEmpty(openShift)) {
 				// Gitblit is running in OpenShift/JBoss
 				File base = new File(openShift);
+				logger.info("EXPRESS contextFolder is " + contextFolder.getAbsolutePath());
 
 				// gitblit.properties setting overrides
 				File overrideFile = new File(base, "gitblit.properties");
 				webxmlSettings.applyOverrides(overrideFile);
 				
 				// Copy the included scripts to the configured groovy folder
-				File localScripts = new File(base, webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy"));
+				String path = webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy");
+				File localScripts = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, path);
 				if (!localScripts.exists()) {
 					File warScripts = new File(contextFolder, "/WEB-INF/data/groovy");
 					if (!warScripts.equals(localScripts)) {
