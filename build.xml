@@ -214,8 +214,10 @@
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</fileset>
-			<!-- Distrib files -->
+			<!-- Windows distrib files -->
 			<zipfileset dir="${project.distrib.dir}/win" />
+			<!-- Gitblit Authority data -->
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
 			<!-- include all dependencies -->
 			<dependencies prefix="ext" />
 		</mx:zip>
@@ -227,8 +229,10 @@
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</fileset>
-			<!-- Distrib files -->
+			<!-- Linux/OSX distrib files -->
 			<tarfileset dir="${project.distrib.dir}/linux" filemode="755" />
+			<!-- Gitblit Authority data -->
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
 			<!-- include all dependencies -->
 			<dependencies prefix="ext" />
 		</mx:tar>		
@@ -518,11 +522,8 @@
 				<include name="users.conf" />
 				<include name="gitblit.properties" />
 			</zipfileset>
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs">
-				<include name="authority.conf" />
-				<include name="mail.tmpl" />
-				<include name="instructions.tmpl" />
-			</zipfileset>
+			<!-- Gitblit Authority data -->
+			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
 			<!-- include "authority" tagged dependencies -->
 			<dependencies prefix="ext" tag="authority" />
 		</mx:zip>
