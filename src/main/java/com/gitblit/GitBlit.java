@@ -2903,6 +2903,10 @@ public class GitBlit implements ServletContextListener {
 	 * @param toAddresses
 	 */
 	public void sendMail(String subject, String message, String... toAddresses) {
+		if (toAddresses == null || toAddresses.length == 0) {
+			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
+			return;
+		}
 		try {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
@@ -2934,6 +2938,10 @@ public class GitBlit implements ServletContextListener {
 	 * @param toAddresses
 	 */
 	public void sendHtmlMail(String subject, String message, String... toAddresses) {
+		if (toAddresses == null || toAddresses.length == 0) {
+			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
+			return;
+		}
 		try {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
