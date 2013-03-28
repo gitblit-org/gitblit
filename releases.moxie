@@ -8,6 +8,7 @@ r17: {
     fixes:
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
+	 - Fix internal error on folder history links (issue 192)
 
     additions: 
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)

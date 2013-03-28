@@ -109,13 +109,13 @@ public class HistoryPanel extends BasePanel {
 		}
 		
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
-		final boolean isSubmodule = matchingPath == null ? true : matchingPath.isSubmodule();
+		final boolean isSubmodule = matchingPath == null ? false : matchingPath.isSubmodule();
 
 		// submodule
-		SubmoduleModel submodule = getSubmodule(submodules, repositoryName, matchingPath.path);
 		final String submodulePath;
 		final boolean hasSubmodule; 
-		if (submodule != null) {
+		if (isSubmodule) {
+			SubmoduleModel submodule = getSubmodule(submodules, repositoryName, matchingPath == null ? null : matchingPath.path);
 			submodulePath = submodule.gitblitPath;
 			hasSubmodule = submodule.hasSubmodule;
 		} else {
