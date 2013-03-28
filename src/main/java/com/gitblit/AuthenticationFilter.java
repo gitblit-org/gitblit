@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -105,7 +106,6 @@ public abstract class AuthenticationFilter implements Filter {
 	/**
 	 * Taken from Jetty's LoginAuthenticator.renewSessionOnAuthentication()
 	 */
-	@SuppressWarnings("unchecked")
 	protected void newSession(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession oldSession = request.getSession(false);
 		if (oldSession != null && oldSession.getAttribute(SESSION_SECURED) == null) {
@@ -145,7 +145,7 @@ public abstract class AuthenticationFilter implements Filter {
 	/**
 	 * Wraps a standard HttpServletRequest and overrides user principal methods.
 	 */
-	public static class AuthenticatedRequest extends ServletRequestWrapper {
+	public static class AuthenticatedRequest extends HttpServletRequestWrapper {
 
 		private UserModel user;
 
