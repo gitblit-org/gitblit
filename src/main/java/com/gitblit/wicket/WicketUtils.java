@@ -165,7 +165,7 @@ public class WicketUtils {
 				|| filename.endsWith(".xlsx")) {
 			return newImage(wicketId, "file_excel_16x16.png");
 		} else if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
-			return newImage(wicketId, "file_word_16x16.png");
+			return newImage(wicketId, "file_doc_16x16.png");
 		} else if (filename.endsWith(".ppt")) {
 			return newImage(wicketId, "file_ppt_16x16.png");
 		} else if (filename.endsWith(".zip")) {
