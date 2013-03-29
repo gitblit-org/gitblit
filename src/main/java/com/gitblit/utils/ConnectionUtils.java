@@ -61,6 +61,10 @@ public class ConnectionUtils {
 		SSL_CONTEXT = context;
 		HOSTNAME_VERIFIER = new DummyHostnameVerifier();
 		CHARSET = "UTF-8";
+		
+		// Disable Java 7 SNI checks
+		// http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
+		System.setProperty("jsse.enableSNIExtension", "false");
 	}
 
 	public static void setAuthorization(URLConnection conn, String username, char[] password) {
