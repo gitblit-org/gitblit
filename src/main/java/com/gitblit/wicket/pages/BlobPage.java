@@ -124,18 +124,37 @@ public class BlobPage extends RepositoryPage {
 				default:
 					// plain text
 					String source = JGitUtils.getStringContent(r, commit.getTree(), blobPath, encodings);
-					String table = generateSourceView(source, type == 1);
+					String table;
+					if (source == null) {
+						table = missingBlob(blobPath, commit);
+					} else {
+						table = generateSourceView(source, type == 1);
+					}
 					add(new Label("blobText", table).setEscapeModelStrings(false));
 					add(new Image("blobImage").setVisible(false));
 				}
 			} else {
 				// plain text
 				String source = JGitUtils.getStringContent(r, commit.getTree(), blobPath, encodings);
-				String table = generateSourceView(source, false);
+				String table;
+				if (source == null) {
+					table = missingBlob(blobPath, commit);
+				} else {
+					table = generateSourceView(source, false);
+				}
 				add(new Label("blobText", table).setEscapeModelStrings(false));
 				add(new Image("blobImage").setVisible(false));
 			}
 		}
+	}
+	
+	protected String missingBlob(String blobPath, RevCommit commit) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"alert alert-error\">");
+		String pattern = getString("gb.doesNotExistInTree").replace("{0}", "<b>{0}</b>").replace("{1}", "<b>{1}</b>");
+		sb.append(MessageFormat.format(pattern, blobPath, commit.getTree().getId().getName()));
+		sb.append("</div>");
+		return sb.toString();
 	}
 	
 	protected String generateSourceView(String source, boolean prettyPrint) {
