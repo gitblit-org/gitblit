@@ -15,6 +15,7 @@ r17: {
 	 - Fixed incorrect icon file name for .doc files (issue 200)
 	 - Do not queue emails with no recipients (issue 201)
 	 - Disable view and blame links for deleted blobs (issue 216)
+	 - Fixed 1.2.x regression with individually symlinked repositories (issue 217)
 	 - Fixed NPE in 1.2.1 Federation Client (issue 219)
 	 - Fixed extracting Groovy scripts on Express installs (issue 220)
 	 - Ensure Redmine url is properly formatted (issue 223)

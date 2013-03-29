@@ -1656,6 +1656,11 @@ public class GitBlit implements ServletContextListener {
 		} else {
 			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory().getParentFile());
 		}
+		if (StringUtils.isEmpty(model.name)) {
+			// Repository is NOT located relative to the base folder because it
+			// is symlinked.  Use the provided repository name.
+			model.name = repositoryName;
+		}
 		model.hasCommits = JGitUtils.hasCommits(r);
 		model.lastChange = JGitUtils.getLastChange(r);
 		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
