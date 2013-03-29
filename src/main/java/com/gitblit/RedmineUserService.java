@@ -158,7 +158,7 @@ public class RedmineUserService extends GitblitUserService {
 
         String url = this.settings.getString(Keys.realm.redmine.url, "");
         if (!url.endsWith("/")) {
-        	url.concat("/");
+        	url = url.concat("/");
         }
         HttpURLConnection http;
         if (username == null) {

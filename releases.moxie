@@ -13,28 +13,38 @@ r17: {
 	 - Do not queue emails with no recipients (issue 201)
 	 - Disable view and blame links for deleted blobs (issue 216)
 	 - Fixed extracting Groovy scripts on Express installs (issue 220)
+	 - Ensure Redmine url is properly formatted (issue 223)
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
     additions: 
-	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
-	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
      - Optional periodic LDAP user and team pre-fetching & synchronization
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script
      - Implemented multiple repository owners
      - Chinese translation
+	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
+	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
 
     contributors:
+	- Bandarupalli Satyanarayana
 	- Christian Aistleitner
+	- Egbert Teeselink
+	- Hige Maniya
+	- Ikslawek
 	- Jay Meyer
+	- John Crygier
+	- Laurens Vrijnsen
+	- Martijn Laan
+	- Michael Schaefers
+	- Philip Boutros
+	- Rafael Cavazin
+	- Ryan Schneider
+	- Sarah Haselbauer
 	- Slawomir Bochenski
-	- github/furinzen
-    - github/mschaefers
-    - github/thefake
-    - github/djschny
+	- Stardrad Yin
+	- Thomas Pummer
     - github/akquinet
     - github/dapengme
-    - github/yin8086
 }
 
 #
