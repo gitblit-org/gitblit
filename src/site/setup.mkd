@@ -109,7 +109,7 @@ X509 certificates can be confusing and tricky even with the simplified Gitblit C
 ### Running as a Windows Service
 Gitblit uses [Apache Commons Daemon](http://commons.apache.org/daemon) to install and configure its Windows service.
 
-1. Review the contents of the `installService.cmd`
+1. **Review the contents** of the `installService.cmd` where you may have to change the <u>default keystore password</u>.
 2. Set the *ARCH* value as appropriate for your installed Java Virtual Machine.
 3. Add any necessary *--StartParams* as enumerated below in **Command-Line Parameters**.
 4. Execute the script.
