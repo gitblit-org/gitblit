@@ -44,7 +44,16 @@ public class FederationClient {
 			usage(jc, t);
 		}
 
-		IStoredSettings settings = new FileSettings(params.registrationsFile);
+		System.out.println("Gitblit Federation Client v" + Constants.getVersion() + " (" + Constants.getBuildDate() + ")");
+
+		// command-line specified base folder
+		File baseFolder = new File(System.getProperty("user.dir"));
+		if (!StringUtils.isEmpty(params.baseFolder)) {
+			baseFolder = new File(params.baseFolder);
+		}
+
+		File regFile = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.registrationsFile);
+		IStoredSettings settings = new FileSettings(regFile.getAbsolutePath());
 		List<FederationModel> registrations = new ArrayList<FederationModel>();
 		if (StringUtils.isEmpty(params.url)) {
 			registrations.addAll(FederationUtils.getFederationRegistrations(settings));
@@ -67,8 +76,6 @@ public class FederationClient {
 			System.exit(0);
 		}
 		
-		System.out.println("Gitblit Federation Client v" + Constants.getVersion() + " (" + Constants.getBuildDate() + ")");
-
 		// command-line specified repositories folder
 		if (!StringUtils.isEmpty(params.repositoriesFolder)) {
 			settings.overrideSetting(Keys.git.repositoriesFolder, new File(
@@ -76,7 +83,7 @@ public class FederationClient {
 		}
 
 		// configure the Gitblit singleton for minimal, non-server operation
-		GitBlit.self().configureContext(settings, null, false);
+		GitBlit.self().configureContext(settings, baseFolder, false);
 		FederationPullExecutor executor = new FederationPullExecutor(registrations, params.isDaemon);
 		executor.run();
 		if (!params.isDaemon) {
@@ -106,7 +113,7 @@ public class FederationClient {
 	private static class Params {
 
 		@Parameter(names = { "--registrations" }, description = "Gitblit Federation Registrations File", required = false)
-		public String registrationsFile = "federation.properties";
+		public String registrationsFile = "${baseFolder}/federation.properties";
 
 		@Parameter(names = { "--daemon" }, description = "Runs in daemon mode to schedule and pull repositories", required = false)
 		public boolean isDaemon;
@@ -125,6 +132,9 @@ public class FederationClient {
 
 		@Parameter(names = { "--frequency" }, description = "Period to wait between pull attempts (requires --daemon)", required = false)
 		public String frequency = "60 mins";
+
+		@Parameter(names = { "--baseFolder" }, description = "Base folder for received data", required = false)
+		public String baseFolder;
 
 		@Parameter(names = { "--repositoriesFolder" }, description = "Destination folder for cloned repositories", required = false)
 		public String repositoriesFolder;

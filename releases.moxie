@@ -14,11 +14,13 @@ r17: {
 	 - Fixed incorrect icon file name for .doc files (issue 200)
 	 - Do not queue emails with no recipients (issue 201)
 	 - Disable view and blame links for deleted blobs (issue 216)
+	 - Fixed NPE in 1.2.1 Federation Client (issue 219)
 	 - Fixed extracting Groovy scripts on Express installs (issue 220)
 	 - Ensure Redmine url is properly formatted (issue 223)
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
     additions: 
+	 - Support --baseFolder parameter in Federation Client
      - Optional periodic LDAP user and team pre-fetching & synchronization
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script

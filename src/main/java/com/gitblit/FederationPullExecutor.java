@@ -153,7 +153,7 @@ public class FederationPullExecutor implements Runnable {
 							c, registrationFolder, registration.name));
 			return;
 		}
-		File repositoriesFolder = new File(GitBlit.getString(Keys.git.repositoriesFolder, "git"));
+		File repositoriesFolder = GitBlit.getRepositoriesFolder();
 		File registrationFolderFile = new File(repositoriesFolder, registrationFolder);
 		registrationFolderFile.mkdirs();
 
