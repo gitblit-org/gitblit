@@ -363,17 +363,24 @@
 		skip="server.*" />
 
 		<!-- Gitblit classes -->
-		<jar destfile="${webinf}/lib/gitblit.jar">
-			<fileset dir="${project.compileOutputDirectory}">
-				<exclude name="WEB-INF/" />
-				<exclude name="com/gitblit/tests/" />
-				<exclude name="com/gitblit/build/**" />
-				<exclude name="com/gitblit/client/**" />
-				<exclude name="com/gitblit/GitBlitServer*.class" />
-				<exclude name="com/gitblit/Launcher*.class" />
-				<exclude name="com/gitblit/authority/**" />
-			</fileset>
-		</jar>
+		<mx:genjar destfile="${webinf}/lib/gitblit.jar" excludeclasspathjars="true">
+			<!-- Specify all web.xml servlets and filters -->
+			<class name="com.gitblit.GitBlit" />
+			<class name="com.gitblit.DownloadZipFilter" />
+			<class name="com.gitblit.DownloadZipServlet" />
+			<class name="com.gitblit.EnforceAuthenticationFilter" />
+			<class name="com.gitblit.FederationServlet" />
+			<class name="com.gitblit.GitFilter" />
+			<class name="com.gitblit.GitServlet" />
+			<class name="com.gitblit.PagesFilter" />
+			<class name="com.gitblit.PagesServlet" />
+			<class name="com.gitblit.RobotsTxtServlet" />
+			<class name="com.gitblit.RpcFilter" />
+			<class name="com.gitblit.RpcServlet" />
+			<class name="com.gitblit.SyndicationFilter" />
+			<class name="com.gitblit.SyndicationServlet" />
+			<class name="com.gitblit.wicket.GitBlitWebApp" />
+		</mx:genjar>
 
 		<!-- Build Express Zip file -->
 		<mx:zip basedir="${express.dir}" destfile="${project.targetDirectory}/${express.zipfile}">
