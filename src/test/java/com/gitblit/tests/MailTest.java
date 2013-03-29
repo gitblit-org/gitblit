@@ -22,6 +22,7 @@ import javax.mail.Message;
 import org.junit.Test;
 
 import com.gitblit.FileSettings;
+import com.gitblit.Keys;
 import com.gitblit.MailExecutor;
 
 public class MailTest {
@@ -30,9 +31,9 @@ public class MailTest {
 	public void testSendMail() throws Exception {
 		FileSettings settings = new FileSettings("mailtest.properties");
 		MailExecutor mail = new MailExecutor(settings);
-		Message message = mail.createMessageForAdministrators();
+		Message message = mail.createMessage(settings.getStrings(Keys.mail.adminAddresses));
 		message.setSubject("Test");
-		message.setText("this is a test");
+		message.setText("﻿Lägger till andra stycket i ny fil. UTF-8 encoded");
 		mail.queue(message);
 		mail.run();
 

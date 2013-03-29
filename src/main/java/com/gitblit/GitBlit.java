@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -2580,17 +2582,8 @@ public class GitBlit implements ServletContextListener {
 		}
 
 		// send an email, if possible
-		try {
-			Message message = mailExecutor.createMessageForAdministrators();
-			if (message != null) {
-				message.setSubject("Federation proposal from " + proposal.url);
-				message.setText("Please review the proposal @ " + gitblitUrl + "/proposal/"
-						+ proposal.token);
-				mailExecutor.queue(message);
-			}
-		} catch (Throwable t) {
-			logger.error("Failed to notify administrators of proposal", t);
-		}
+		sendMailToAdministrators("Federation proposal from " + proposal.url,
+				"Please review the proposal @ " + gitblitUrl + "/proposal/" + proposal.token);
 		return true;
 	}
 
@@ -2877,16 +2870,8 @@ public class GitBlit implements ServletContextListener {
 	 * @param message
 	 */
 	public void sendMailToAdministrators(String subject, String message) {
-		try {
-			Message mail = mailExecutor.createMessageForAdministrators();
-			if (mail != null) {
-				mail.setSubject(subject);
-				mail.setText(message);
-				mailExecutor.queue(mail);
-			}
-		} catch (MessagingException e) {
-			logger.error("Messaging error", e);
-		}
+		List<String> toAddresses = settings.getStrings(Keys.mail.adminAddresses);
+		sendMail(subject, message, toAddresses);
 	}
 
 	/**
@@ -2916,7 +2901,16 @@ public class GitBlit implements ServletContextListener {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
-				mail.setText(message);
+				
+				MimeBodyPart messagePart = new MimeBodyPart();				
+				messagePart.setText(message, "utf-8");
+				messagePart.setHeader("Content-Type", "text/plain; charset=\"utf-8\"");
+				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
+				
+				MimeMultipart multiPart = new MimeMultipart();
+				multiPart.addBodyPart(messagePart);
+				mail.setContent(multiPart);
+				
 				mailExecutor.queue(mail);
 			}
 		} catch (MessagingException e) {
@@ -2951,7 +2945,16 @@ public class GitBlit implements ServletContextListener {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
-				mail.setContent(message, "text/html");
+				
+				MimeBodyPart messagePart = new MimeBodyPart();				
+				messagePart.setText(message, "utf-8");
+				messagePart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
+				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
+				
+				MimeMultipart multiPart = new MimeMultipart();
+				multiPart.addBodyPart(messagePart);
+				mail.setContent(multiPart);
+
 				mailExecutor.queue(mail);
 			}
 		} catch (MessagingException e) {

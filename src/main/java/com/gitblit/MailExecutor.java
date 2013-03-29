@@ -110,19 +110,6 @@ public class MailExecutor implements Runnable {
 		return session != null;
 	}
 
-	/**
-	 * Creates a message for the administrators.
-	 * 
-	 * @returna message
-	 */
-	public Message createMessageForAdministrators() {
-		List<String> toAddresses = settings.getStrings(Keys.mail.adminAddresses);
-		if (toAddresses.size() == 0) {
-			logger.warn("Can not notify administrators because no email addresses are defined!");
-			return null;
-		}
-		return createMessage(toAddresses);
-	}
 
 	/**
 	 * Create a message.

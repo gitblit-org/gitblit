@@ -16,6 +16,7 @@ r17: {
 	 - Do not queue emails with no recipients (issue 201)
 	 - Disable view and blame links for deleted blobs (issue 216)
 	 - Fixed 1.2.x regression with individually symlinked repositories (issue 217)
+	 - Fixed UTF-8 encoding errors in email notifications (issue 218)
 	 - Fixed NPE in 1.2.1 Federation Client (issue 219)
 	 - Fixed extracting Groovy scripts on Express installs (issue 220)
 	 - Ensure Redmine url is properly formatted (issue 223)
@@ -53,6 +54,9 @@ r17: {
 	- Yukihiko Sawanobori
     - github/akquinet
     - github/dapengme
+	
+	dependencyChanges:
+	- JGit 2.3.1.201302201838-r
 }
 
 #
