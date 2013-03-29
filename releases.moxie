@@ -30,6 +30,7 @@ r17: {
      - Implemented multiple repository owners
      - Chinese translation
 	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
+	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
 
     contributors:

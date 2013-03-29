@@ -53,6 +53,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -73,6 +74,7 @@ public class SummaryPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RepositoryModel model = getRepositoryModel();
+		UserModel user = GitBlitWebSession.get().getUser();
 
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
@@ -148,7 +150,7 @@ public class SummaryPage extends RepositoryPage {
 		} else {
 			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, user == null ? "" : user.username));
 		
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
 		add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));

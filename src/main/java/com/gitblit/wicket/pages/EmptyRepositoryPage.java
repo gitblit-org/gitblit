@@ -25,7 +25,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
@@ -56,7 +58,8 @@ public class EmptyRepositoryPage extends RootPage {
 			// add the Gitblit repository url
 			repositoryUrls.add(getRepositoryUrl(repository));
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName));
+		UserModel user = GitBlitWebSession.get().getUser();
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, user == null ? "" : user.username));
 		
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.get(0);
 		add(new Label("repository", repositoryName));

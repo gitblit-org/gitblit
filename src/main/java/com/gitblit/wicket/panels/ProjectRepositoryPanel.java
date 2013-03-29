@@ -221,7 +221,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			// add the Gitblit repository url
 			repositoryUrls.add(BasePage.getRepositoryUrl(entry));
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name));
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name, user == null ? "" : user.username));
 
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
 		add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));

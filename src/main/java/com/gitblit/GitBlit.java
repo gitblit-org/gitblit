@@ -454,12 +454,13 @@ public class GitBlit implements ServletContextListener {
 	 * advertise alternative urls for Git client repository access.
 	 * 
 	 * @param repositoryName
+	 * @param userName
 	 * @return list of non-gitblit clone urls
 	 */
-	public List<String> getOtherCloneUrls(String repositoryName) {
+	public List<String> getOtherCloneUrls(String repositoryName, String username) {
 		List<String> cloneUrls = new ArrayList<String>();
 		for (String url : settings.getStrings(Keys.web.otherUrls)) {
-			cloneUrls.add(MessageFormat.format(url, repositoryName));
+			cloneUrls.add(MessageFormat.format(url, repositoryName, username));
 		}
 		return cloneUrls;
 	}
