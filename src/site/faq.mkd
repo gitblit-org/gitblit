@@ -3,18 +3,19 @@
 ### Eclipse/Egit/JGit complains that it "can't open upload pack"?
 There are a few ways this can occur:
 
-1. You are using https with a self-signed certificate and you **did not** configure *http.sslVerify=false*
+1. Are you running Java 7?<br />Java 7 introduced SNI support for SSL connections and it is enabled by default.<br />[Java 7 Security Enhancements](http://docs.oracle.com/javase/7/docs/technotes/guides/security/enhancements-7.html)<br />To disable SNI alerts, add this line to your eclipse.ini file and restart Eclipse.<br /><pre>-Djsse.enableSNIExtension=false</pre>
+2. You are using https with a self-signed certificate and you **did not** configure *http.sslVerify=false*
     1. Window->Preferences->Team->Git->Configuration
     2. Click the *New Entry* button
     3. <pre>Key = <em>http.sslVerify</em>
 Value = <em>false</em></pre>
-2. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push between machines.
+3. Gitblit GO's default self-signed certificate is bound to *localhost* and you are trying to clone/push between machines.
     1. Review the contents of `makekeystore.cmd`
     2. Set *your hostname* in the *HOSTNAME* variable.
     3. Execute the script.<br/>This will generate a new certificate and keystore for *your hostname* protected by *server.storePassword*. 
-3. The repository is clone-restricted and you don't have access.
-4. The repository is clone-restricted and your password changed.
-5. A regression in Gitblit.  :(
+4. The repository is clone-restricted and you don't have access.
+5. The repository is clone-restricted and your password changed.
+6. A regression in Gitblit.  :(
 
 ### Why can't I access Gitblit GO from another machine?
 1. Please check *server.httpBindInterface* and *server.httpsBindInterface* in `gitblit.properties`, you may be only be serving on *localhost*.
