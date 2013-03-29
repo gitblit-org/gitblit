@@ -32,7 +32,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.AnnotatedLine;
+import com.gitblit.models.PathModel;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
@@ -69,6 +71,24 @@ public class BlamePage extends RepositoryPage {
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
+		
+		PathModel pathModel = null;
+		List<PathModel> paths = JGitUtils.getFilesInPath(getRepository(), StringUtils.getRootPath(blobPath), commit);
+		for (PathModel path : paths) {
+			if (path.path.equals(blobPath)) {
+				pathModel = path;
+				break;
+			}
+		}
+		
+		if (pathModel == null) {
+			add(new Label("annotation").setVisible(false));
+			add(new Label("missingBlob", missingBlob(blobPath, commit)).setEscapeModelStrings(false));
+			return;
+		}
+		
+		add(new Label("missingBlob").setVisible(false));
+		
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
 		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
@@ -125,5 +145,14 @@ public class BlamePage extends RepositoryPage {
 	@Override
 	protected String getPageName() {
 		return getString("gb.blame");
+	}
+	
+	protected String missingBlob(String blobPath, RevCommit commit) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<div class=\"alert alert-error\">");
+		String pattern = getString("gb.doesNotExistInTree").replace("{0}", "<b>{0}</b>").replace("{1}", "<b>{1}</b>");
+		sb.append(MessageFormat.format(pattern, blobPath, commit.getTree().getId().getName()));
+		sb.append("</div>");
+		return sb.toString();
 	}
 }

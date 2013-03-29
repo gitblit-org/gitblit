@@ -9,7 +9,7 @@ r17: {
 	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
     fixes:
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
-	 - Added more error checking to blob page
+	 - Added more error checking to blob page and blame page
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
 	 - Fixed incorrect icon file name for .doc files (issue 200)
