@@ -200,10 +200,12 @@ public class CommitPage extends RepositoryPage {
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
 									&& !entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
-							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+									&& !entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));

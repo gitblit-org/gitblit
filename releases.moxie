@@ -11,6 +11,7 @@ r17: {
 	 - Fix internal error on folder history links (issue 192)
 	 - Fixed incorrect icon file name for .doc files (issue 200)
 	 - Do not queue emails with no recipients (issue 201)
+	 - Disable view and blame links for deleted blobs (issue 216)
 	 - Fixed extracting Groovy scripts on Express installs (issue 220)
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
