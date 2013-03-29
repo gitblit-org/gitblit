@@ -5,6 +5,8 @@ r17: {
     title: Gitblit ${project.version} Released
     id: ${project.version}
     date: ${project.buildDate}
+	security:
+	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
     fixes:
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)

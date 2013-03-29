@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -31,17 +30,20 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
-public class RawPage extends WebPage {
+public class RawPage extends SessionPage {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
 	public RawPage(final PageParameters params) {
 		super(params);
-
+		
 		if (!params.containsKey("r")) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
@@ -60,7 +62,17 @@ public class RawPage extends WebPage {
 				final String objectId = WicketUtils.getObject(params);
 				final String blobPath = WicketUtils.getPath(params);
 				String[] encodings = GitBlit.getEncodings();
-
+				GitBlitWebSession session = GitBlitWebSession.get();
+				UserModel user = session.getUser();
+				
+				RepositoryModel model = GitBlit.self().getRepositoryModel(user, repositoryName);
+				if (model == null) {
+					// user does not have permission
+					error(getString("gb.canNotLoadRepository") + " " + repositoryName);
+					redirectToInterceptPage(new RepositoriesPage());
+					return;
+				}
+				
 				Repository r = GitBlit.self().getRepository(repositoryName);
 				if (r == null) {
 					error(getString("gb.canNotLoadRepository") + " " + repositoryName);

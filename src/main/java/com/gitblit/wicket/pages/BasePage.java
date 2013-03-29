@@ -38,15 +38,12 @@ import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +65,7 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
-public abstract class BasePage extends WebPage {
+public abstract class BasePage extends SessionPage {
 
 	private final Logger logger;
 	
@@ -78,14 +75,12 @@ public abstract class BasePage extends WebPage {
 		super();
 		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
-		login();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
 		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
-		login();
 	}
 	
 	private void customizeHeader() {
@@ -132,34 +127,6 @@ public abstract class BasePage extends WebPage {
 		}
 		super.onAfterRender();
 	}	
-
-	private void login() {
-		GitBlitWebSession session = GitBlitWebSession.get();
-		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
-			// already have a session, refresh usermodel to pick up
-			// any changes to permissions or roles (issue-186)
-			UserModel user = GitBlit.self().getUserModel(session.getUser().username);
-			session.setUser(user);
-			return;
-		}
-		
-		// try to authenticate by servlet request
-		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest()).getHttpServletRequest();
-		UserModel user = GitBlit.self().authenticate(httpRequest);
-
-		// Login the user
-		if (user != null) {
-			// issue 62: fix session fixation vulnerability
-			session.replaceSession();
-			session.setUser(user);
-
-			// Set Cookie
-			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			GitBlit.self().setCookie(response, user);
-			
-			session.continueRequest();
-		}
-	}
 
 	protected void setupPage(String repositoryName, String pageName) {
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
