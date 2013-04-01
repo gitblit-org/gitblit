@@ -92,7 +92,7 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox useDocs;
 
-	private JCheckBox useIncrementalRevisionNumbers;
+	private JCheckBox useIncrementalPushTags;
 	
 	private JCheckBox showRemoteBranches;
 
@@ -214,8 +214,8 @@ public class EditRepositoryDialog extends JDialog {
 				anRepository.useTickets);
 		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"),
 				anRepository.useDocs);
-		useIncrementalRevisionNumbers = new JCheckBox(Translation.get("gb.useIncrementalRevisionNumbersDescription"),
-				anRepository.useIncrementalRevisionNumbers);
+		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
+				anRepository.useIncrementalPushTags);
 		showRemoteBranches = new JCheckBox(
 				Translation.get("gb.showRemoteBranchesDescription"),
 				anRepository.showRemoteBranches);
@@ -314,7 +314,7 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
 		fieldsPanel
-		.add(newFieldPanel(Translation.get("gb.enableIncrementalRevisionNumbers"), useIncrementalRevisionNumbers));
+		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
 				showRemoteBranches));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"),
@@ -569,7 +569,7 @@ public class EditRepositoryDialog extends JDialog {
 		repository.gcThreshold = gcThreshold.getText();
 		repository.useTickets = useTickets.isSelected();
 		repository.useDocs = useDocs.isSelected();
-		repository.useIncrementalRevisionNumbers = useIncrementalRevisionNumbers.isSelected();
+		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
 		repository.showReadme = showReadme.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();

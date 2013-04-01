@@ -422,7 +422,7 @@ public class EditRepositoryPage extends RootSubPage {
 				new FederationTypeRenderer()));
 		form.add(new CheckBox("useTickets"));
 		form.add(new CheckBox("useDocs"));
-		form.add(new CheckBox("useIncrementalRevisionNumbers"));
+		form.add(new CheckBox("useIncrementalPushTags"));
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));

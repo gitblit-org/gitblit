@@ -153,7 +153,9 @@ public class GitBlitSuite {
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
+			automaticallyTagBranchTips("ticgit.git");
 			showRemoteBranches("test/jgit.git");
+			automaticallyTagBranchTips("test/jgit.git");	
 		}
 	}
 
@@ -192,6 +194,16 @@ public class GitBlitSuite {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			model.showRemoteBranches = true;
+			GitBlit.self().updateRepositoryModel(model.name, model, false);
+		} catch (GitBlitException g) {
+			g.printStackTrace();
+		}
+	}
+	
+	private static void automaticallyTagBranchTips(String repositoryName) {
+		try {
+			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+			model.useIncrementalPushTags = true;
 			GitBlit.self().updateRepositoryModel(model.name, model, false);
 		} catch (GitBlitException g) {
 			g.printStackTrace();

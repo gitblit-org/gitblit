@@ -248,7 +248,7 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
-		git.push().setPushAll().call();
+		git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
 	}
 	
@@ -283,7 +283,7 @@ public class GitServletTest {
 		git.commit().setMessage("test commit").call();
 		
 		try {
-			git.push().setPushAll().call();
+			git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 			assertTrue(false);
 		} catch (Exception e) {
 			assertTrue(e.getCause().getMessage().contains("access forbidden"));
@@ -293,7 +293,7 @@ public class GitServletTest {
 		model.isFrozen = false;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
-		git.push().setPushAll().call();
+		git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
 	}
 	
@@ -317,7 +317,7 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit followed by push to non-bare repository").call();
 		try {
-			git.push().setPushAll().call();
+			git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 			assertTrue(false);
 		} catch (Exception e) {
 			assertTrue(e.getCause().getMessage().contains("git-receive-pack not permitted"));

@@ -24,12 +24,13 @@ r17: {
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
     additions: 
-	 - Support --baseFolder parameter in Federation Client
+	 - Option to automatically tag branch tips on each push with an incremental revision number
+     - Implemented multiple repository owners
      - Optional periodic LDAP user and team pre-fetching & synchronization
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script
-     - Implemented multiple repository owners
      - Chinese translation
+	 - Support --baseFolder parameter in Federation Client
 	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
 	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
@@ -59,6 +60,9 @@ r17: {
 	
 	dependencyChanges:
 	- JGit 2.3.1.201302201838-r
+	
+	settings:
+    - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 }
 
 #

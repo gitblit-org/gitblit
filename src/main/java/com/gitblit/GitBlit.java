@@ -1676,7 +1676,8 @@ public class GitBlit implements ServletContextListener {
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
-			model.useIncrementalRevisionNumbers = getConfig(config, "useIncrementalRevisionNumbers", false);
+			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
+			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
 					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
@@ -2198,7 +2199,13 @@ public class GitBlit implements ServletContextListener {
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
-		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalRevisionNumbers", repository.useIncrementalRevisionNumbers);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
+		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||
+				repository.incrementalPushTagPrefix.equals(settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r"))) {
+			config.unset(Constants.CONFIG_GITBLIT, null, "incrementalPushTagPrefix");
+		} else {
+			config.setString(Constants.CONFIG_GITBLIT, null, "incrementalPushTagPrefix", repository.incrementalPushTagPrefix);
+		}
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "allowForks", repository.allowForks);
 		config.setString(Constants.CONFIG_GITBLIT, null, "accessRestriction", repository.accessRestriction.name());
 		config.setString(Constants.CONFIG_GITBLIT, null, "authorizationControl", repository.authorizationControl.name());

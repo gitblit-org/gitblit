@@ -16,6 +16,7 @@
 package com.gitblit.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -274,7 +275,7 @@ public class DiffUtils {
 				lines.add(line);
 			}
 		} catch (Throwable t) {
-			LOGGER.error("failed to generate blame!", t);
+			LOGGER.error(MessageFormat.format("failed to generate blame for {0} {1}!", blobPath, objectId), t);
 		}
 		return lines;
 	}

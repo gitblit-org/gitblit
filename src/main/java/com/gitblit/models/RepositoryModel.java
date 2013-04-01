@@ -50,7 +50,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean showRemoteBranches;
 	public boolean useTickets;
 	public boolean useDocs;
-	public boolean useIncrementalRevisionNumbers;
+	public boolean useIncrementalPushTags;
+	public String incrementalPushTagPrefix;
 	public AccessRestrictionType accessRestriction;
 	public AuthorizationControl authorizationControl;
 	public boolean allowAuthenticated;
@@ -202,7 +203,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.showRemoteBranches = false;
 		clone.allowForks = false;
 		clone.useDocs = useDocs;
-		clone.useIncrementalRevisionNumbers = useIncrementalRevisionNumbers;
 		clone.useTickets = useTickets;
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;

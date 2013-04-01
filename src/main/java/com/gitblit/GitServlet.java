@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +32,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.Part;
 
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.http.server.resolver.DefaultReceivePackFactory;
 import org.eclipse.jgit.http.server.resolver.DefaultUploadPackFactory;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -55,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.client.Translation;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ClientLogger;
@@ -297,26 +295,41 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 				return;
 			}
 
-			UserModel user = getUserModel(rp);
+			UserModel user = getUserModel(rp);			
 			RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
 			
-			if (repository.useIncrementalRevisionNumbers) {
-				List<ReceiveCommand> allCommands = rp.getAllCommands();
-				String cmds = "";
-				for (ReceiveCommand receiveCommand : allCommands) {
-					cmds += receiveCommand.getType() + "_"
-							+ receiveCommand.getResult() + "_"
-							+ receiveCommand.getMessage() + ", ";
-					if (receiveCommand.getType().equals(
-							ReceiveCommand.Type.UPDATE)
-							&& receiveCommand.getResult().equals(
-									ReceiveCommand.Result.OK)) {
-						// if type=update and update was ok, autotag
-						String objectId = receiveCommand.getNewId().toString()
-								.replace("AnyObjectId[", "").replace("]", "");
-						boolean result = JGitUtils
-								.createIncrementalRevisionTag(
-										rp.getRepository(), objectId);						
+			if (repository.useIncrementalPushTags) {
+				// tag each pushed branch tip
+				String emailAddress = user.emailAddress == null ? rp.getRefLogIdent().getEmailAddress() : user.emailAddress;
+				PersonIdent userIdent = new PersonIdent(user.getDisplayName(), emailAddress);
+
+				for (ReceiveCommand cmd : commands) {
+					if (!cmd.getRefName().startsWith("refs/heads/")) {
+						// only tag branch ref changes
+						continue;
+					}
+					
+					if (!ReceiveCommand.Type.DELETE.equals(cmd.getType())
+							&& ReceiveCommand.Result.OK.equals(cmd.getResult())) {
+						String objectId = cmd.getNewId().getName();
+						String branch = cmd.getRefName().substring("refs/heads/".length());
+						// get translation based on the server's locale setting
+						String template = Translation.get("gb.incrementalPushTagMessage");
+						String msg = MessageFormat.format(template, branch);
+						String prefix;
+						if (StringUtils.isEmpty(repository.incrementalPushTagPrefix)) {
+							prefix = GitBlit.getString(Keys.git.defaultIncrementalPushTagPrefix, "r");
+						} else {
+							prefix = repository.incrementalPushTagPrefix;
+						}
+						
+						JGitUtils.createIncrementalRevisionTag(
+									rp.getRepository(),
+									objectId,
+									userIdent,
+									prefix,
+									"0",
+									msg);
 					}
 				}				
 			}
@@ -331,6 +344,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 						break;
 					case CREATE:
 						logger.info(MessageFormat.format("{0} CREATED {1} in {2}", user.username, cmd.getRefName(), repository.name));
+						break;
+					case UPDATE:
+						logger.info(MessageFormat.format("{0} UPDATED {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
 						break;
 					case UPDATE_NONFASTFORWARD:
 						logger.info(MessageFormat.format("{0} UPDATED NON-FAST-FORWARD {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));

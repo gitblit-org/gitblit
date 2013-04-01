@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,8 +83,6 @@ import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -98,7 +97,6 @@ import com.gitblit.models.SubmoduleModel;
  */
 public class JGitUtils {
 
-	private static final String REVISION_TAG_PREFIX = "rev_";
 	static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
 
 	/**
@@ -1692,59 +1690,58 @@ public class JGitUtils {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * this method creates an incremental revision number as a tag according to
-	 * the amount of already existing tags, which start with a defined prefix {@link REVISION_TAG_PREFIX}
+	 * the amount of already existing tags, which start with a defined prefix.
 	 * 
 	 * @param repository
 	 * @param objectId
+	 * @param tagger
+	 * @param prefix
+	 * @param intPattern
+	 * @param message
 	 * @return true if operation was successful, otherwise false
 	 */
-	public static boolean createIncrementalRevisionTag(Repository repository, String objectId) {
+	public static boolean createIncrementalRevisionTag(Repository repository,
+			String objectId, PersonIdent tagger, String prefix, String intPattern, String message) {
 		boolean result = false;
 		Iterator<Entry<String, Ref>> iterator = repository.getTags().entrySet().iterator();
-		long revisionNumber = 1;
+		long lastRev = 0;
 		while (iterator.hasNext()) {
 			Entry<String, Ref> entry = iterator.next();
-			if (entry.getKey().startsWith(REVISION_TAG_PREFIX)) {
-				revisionNumber++;
+			if (entry.getKey().startsWith(prefix)) {
+				try {
+					long val = Long.parseLong(entry.getKey().substring(prefix.length()));
+					if (val > lastRev) {
+						lastRev = val;
+					}
+				} catch (Exception e) {
+					// this tag is NOT an incremental revision tag
+				}
 			}
 		}
-		result = createTag(repository,REVISION_TAG_PREFIX+revisionNumber,objectId);
+		DecimalFormat df = new DecimalFormat(intPattern);
+		result = createTag(repository, objectId, tagger, prefix + df.format((lastRev + 1)), message);
 		return result;
 	}
 
 	/**
-	 * creates a tag in a repository referring to the current head
-	 * 
-	 * @param repository
-	 * @param tag, the string label
-	 * @return boolean, true if operation was successful, otherwise false
-	 */
-	public static boolean createTag(Repository repository, String tag) {
-		return createTag(repository, tag, null);
-	}
-	
-	/**
 	 * creates a tag in a repository
 	 * 
 	 * @param repository
-	 * @param tag, the string label
 	 * @param objectId, the ref the tag points towards
+	 * @param tagger, the person tagging the object
+	 * @param tag, the string label
+	 * @param message, the string message
 	 * @return boolean, true if operation was successful, otherwise false
 	 */
-	public static boolean createTag(Repository repository, String tag,
-			String objectId) {
+	public static boolean createTag(Repository repository, String objectId, PersonIdent tagger, String tag, String message) {
 		try {			
-			PersonIdent author = new PersonIdent("GitblitAutoTagPush",
-					"gitblit@localhost");
-
-			LOGGER.debug("createTag in repo: "+repository.getDirectory().getAbsolutePath());
 			Git gitClient = Git.open(repository.getDirectory());
 			TagCommand tagCommand = gitClient.tag();
-			tagCommand.setTagger(author);
-			tagCommand.setMessage("autotag");
+			tagCommand.setTagger(tagger);
+			tagCommand.setMessage(message);
 			if (objectId != null) {
 				RevObject revObj = getCommit(repository, objectId);
 				tagCommand.setObjectId(revObj);
@@ -1753,7 +1750,7 @@ public class JGitUtils {
 			Ref call = tagCommand.call();			
 			return call != null ? true : false;
 		} catch (Exception e) {
-			e.printStackTrace();
+			error(e, repository, "Failed to create tag {1} in repository {0}", objectId, tag);
 		}
 		return false;
 	}
