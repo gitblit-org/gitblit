@@ -93,9 +93,9 @@
 			<fileset dir="${project.distrib.dir}/data" />
 		</copy>
 		
-		<!-- copy gitblit.properties to the WEB-INF directory.
+		<!-- copy gitblit.properties to the source directory.
 		     this file is only used for parsing setting descriptions. -->
-		<copy tofile="${project.src.dir}/WEB-INF/reference.properties" overwrite="true"
+		<copy tofile="${project.src.dir}/reference.properties" overwrite="true"
 			file="${project.distrib.dir}/data/gitblit.properties" />
 		
 		<!-- 
@@ -265,6 +265,26 @@
 		<!-- Build the WAR web.xml from the prototype web.xml -->
 		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml" />
 
+		<!-- Gitblit jar -->
+		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
+			<!-- Specify all web.xml servlets and filters -->
+			<class name="com.gitblit.GitBlit" />
+			<class name="com.gitblit.DownloadZipFilter" />
+			<class name="com.gitblit.DownloadZipServlet" />
+			<class name="com.gitblit.EnforceAuthenticationFilter" />
+			<class name="com.gitblit.FederationServlet" />
+			<class name="com.gitblit.GitFilter" />
+			<class name="com.gitblit.GitServlet" />
+			<class name="com.gitblit.PagesFilter" />
+			<class name="com.gitblit.PagesServlet" />
+			<class name="com.gitblit.RobotsTxtServlet" />
+			<class name="com.gitblit.RpcFilter" />
+			<class name="com.gitblit.RpcServlet" />
+			<class name="com.gitblit.SyndicationFilter" />
+			<class name="com.gitblit.SyndicationServlet" />
+			<class name="com.gitblit.wicket.GitBlitWebApp" />
+		</mx:genjar>
+
 		<!-- Build the WAR file -->
 		<mx:zip basedir="${war.dir}" destfile="${project.targetDirectory}/${distribution.warfile}" compress="true" >
 			<!-- Resources in root -->
@@ -273,20 +293,11 @@
 				<exclude name="*.mkd" />
 			</fileset>
 			<!-- WEB-INF directory -->
-			<zipfileset fullpath="WEB-INF/reference.properties" 
-				file="${project.distrib.dir}/data/gitblit.properties" />
 			<zipfileset prefix="WEB-INF" dir="${basedir}" >
 				<include name="LICENSE" />
 				<include name="NOTICE" />
 			</zipfileset>
 			<zipfileset prefix="WEB-INF" file="${project.compileOutputDirectory}/WEB-INF/weblogic.xml" />
-			<!-- Classes and classpath resources -->
-			<zipfileset prefix="WEB-INF/classes" dir="${project.compileOutputDirectory}">
-				<include name="**/*.class" />
-				<include name="**/*.properties" />
-				<include name="**/*.mkd" />
-				<exclude name="WEB-INF" />
-			</zipfileset>
 			<!-- include "war" tagged dependencies -->
 			<dependencies prefix="WEB-INF/lib" tag="war" />
 		</mx:zip>
@@ -303,7 +314,7 @@
 	
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
-		<mx:genjar tag="" excludeClasspathJars="true"
+		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/fedclient.jar">
 			<mainclass name="com.gitblit.FederationClient" />
 			<launcher paths="ext" />
@@ -363,7 +374,7 @@
 		skip="server.*" />
 
 		<!-- Gitblit classes -->
-		<mx:genjar destfile="${webinf}/lib/gitblit.jar" excludeclasspathjars="true">
+		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
 			<!-- Specify all web.xml servlets and filters -->
 			<class name="com.gitblit.GitBlit" />
 			<class name="com.gitblit.DownloadZipFilter" />
@@ -395,9 +406,6 @@
 				<exclude name="thumbs.db" />
 				<exclude name="*.mkd" />
 			</zipfileset>
-			<!-- reference.properties -->
-			<zipfileset fullpath="deployments/ROOT.war/WEB-INF/reference.properties" 
-				file="${project.distrib.dir}/data/gitblit.properties" />
 			<!-- include "war" tagged dependencies -->
 			<dependencies prefix="deployments/ROOT.war/WEB-INF/lib" tag="war" />
 		</mx:zip>
@@ -415,7 +423,7 @@
 
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
-		<mx:genjar tag="" excludeClasspathJars="true"
+		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/manager.jar">
 			<resource file="${project.src.dir}/com/gitblit/client/splash.png" />
 			<resource file="${project.resources.dir}/gitblt-favicon.png" />
@@ -553,7 +561,7 @@
 		<delete dir="${javadoc.dir}" />
 
 		<!-- Build API Library jar -->
-		<mx:genjar tag="" excludeClasspathJars="true"
+		<mx:genjar tag="" includeResources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/gbapi-${project.version}.jar">
 			<class name="com.gitblit.Keys" />
 			<class name="com.gitblit.client.GitblitClient" />

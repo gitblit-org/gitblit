@@ -2997,11 +2997,10 @@ public class GitBlit implements ServletContextListener {
 	 * Parse the properties file and aggregate all the comments by the setting
 	 * key. A setting model tracks the current value, the default value, the
 	 * description of the setting and and directives about the setting.
-	 * @param referencePropertiesInputStream
 	 * 
 	 * @return Map<String, SettingModel>
 	 */
-	private ServerSettings loadSettingModels(InputStream referencePropertiesInputStream) {
+	private ServerSettings loadSettingModels() {
 		ServerSettings settingsModel = new ServerSettings();
 		settingsModel.supportsCredentialChanges = userService.supportsCredentialChanges();
 		settingsModel.supportsDisplayNameChanges = userService.supportsDisplayNameChanges();
@@ -3011,7 +3010,7 @@ public class GitBlit implements ServletContextListener {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
 			// models map.
-			InputStream is = referencePropertiesInputStream;
+			InputStream is = getClass().getResourceAsStream("/reference.properties");
 			BufferedReader propertiesReader = new BufferedReader(new InputStreamReader(is));
 			StringBuilder description = new StringBuilder();
 			SettingModel setting = new SettingModel();
@@ -3239,10 +3238,6 @@ public class GitBlit implements ServletContextListener {
 	 */
 	@Override
 	public void contextInitialized(ServletContextEvent contextEvent) {
-		contextInitialized(contextEvent, contextEvent.getServletContext().getResourceAsStream("/WEB-INF/reference.properties"));
-	}
-
-	public void contextInitialized(ServletContextEvent contextEvent, InputStream referencePropertiesInputStream) {
 		servletContext = contextEvent.getServletContext();
 		if (settings == null) {
 			// Gitblit is running in a servlet container
@@ -3307,7 +3302,7 @@ public class GitBlit implements ServletContextListener {
 			}
 		}
 		
-		settingsModel = loadSettingModels(referencePropertiesInputStream);
+		settingsModel = loadSettingModels();
 		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
 
