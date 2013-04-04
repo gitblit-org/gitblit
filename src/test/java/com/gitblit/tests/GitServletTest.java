@@ -54,7 +54,7 @@ public class GitServletTest {
 	
 	static File jgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/jgit2");
 
-	String url = GitBlitSuite.url;
+	String url = GitBlitSuite.gitServletUrl;
 	String account = GitBlitSuite.account;
 	String password = GitBlitSuite.password;
 
@@ -100,7 +100,7 @@ public class GitServletTest {
 		}
 		
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -120,7 +120,7 @@ public class GitServletTest {
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
-			clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+			clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 			clone.setDirectory(ticgit2Folder);
 			clone.setBare(false);
 			clone.setCloneAllBranches(true);
@@ -155,7 +155,7 @@ public class GitServletTest {
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
-			clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+			clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 			clone.setDirectory(ticgit2Folder);
 			clone.setBare(false);
 			clone.setCloneAllBranches(true);
@@ -177,7 +177,7 @@ public class GitServletTest {
 		// try clone again
 		cloned = false;
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(ticgit2Folder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -203,8 +203,12 @@ public class GitServletTest {
 			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 
+		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		model.accessRestriction = AccessRestrictionType.NONE;
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -220,8 +224,13 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
-		git.push().setPushAll().call();
+		Iterable<PushResult> results = git.push().setPushAll().call();
 		GitBlitSuite.close(git);
+		for (PushResult result : results) {
+			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+				assertEquals(Status.OK, update.getStatus());
+			}
+		}
 	}
 
 	@Test
@@ -232,7 +241,7 @@ public class GitServletTest {
 		}
 		
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -248,8 +257,13 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
-		git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
+		Iterable<PushResult> results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
+		for (PushResult result : results) {
+			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+				assertEquals(Status.OK, update.getStatus());
+			}
+		}
 	}
 	
 	@Test
@@ -260,7 +274,7 @@ public class GitServletTest {
 		}
 		
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/test/jgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -282,25 +296,30 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
 		
-		try {
-			git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
-			assertTrue(false);
-		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage().contains("access forbidden"));
+		Iterable<PushResult> results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
+		for (PushResult result : results) {
+			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+				assertEquals(Status.REJECTED_OTHER_REASON, update.getStatus());
+			}
 		}
 		
 		// unfreeze repo
 		model.isFrozen = false;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
-		git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
+		results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
+		for (PushResult result : results) {
+			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+				assertEquals(Status.OK, update.getStatus());
+			}
+		}
 	}
 	
 	@Test
 	public void testPushToNonBareRepository() throws Exception {
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/working/jgit", url));
+		clone.setURI(MessageFormat.format("{0}/working/jgit", url));
 		clone.setDirectory(jgit2Folder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -316,13 +335,13 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit followed by push to non-bare repository").call();
-		try {
-			git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
-			assertTrue(false);
-		} catch (Exception e) {
-			assertTrue(e.getCause().getMessage().contains("git-receive-pack not permitted"));
-		}
+		Iterable<PushResult> results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
+		for (PushResult result : results) {
+			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
+				assertEquals(Status.REJECTED_OTHER_REASON, update.getStatus());
+			}
+		}
 	}
 
 	@Test
@@ -367,7 +386,7 @@ public class GitServletTest {
 			FileUtils.delete(verification, FileUtils.RECURSIVE);
 		}
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(verification);
 		clone.setBare(true);
 		clone.setCloneAllBranches(true);
@@ -392,7 +411,7 @@ public class GitServletTest {
 			FileUtils.delete(local, FileUtils.RECURSIVE);
 		}
 		clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/{1}", url, model.name));
+		clone.setURI(MessageFormat.format("{0}/{1}", url, model.name));
 		clone.setDirectory(local);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -478,7 +497,7 @@ public class GitServletTest {
 			FileUtils.delete(refChecks, FileUtils.RECURSIVE);
 		}
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(refChecks);
 		clone.setBare(true);
 		clone.setCloneAllBranches(true);
@@ -511,7 +530,7 @@ public class GitServletTest {
 			FileUtils.delete(local, FileUtils.RECURSIVE);
 		}
 		clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/{1}", url, model.name));
+		clone.setURI(MessageFormat.format("{0}/{1}", url, model.name));
 		clone.setDirectory(local);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
@@ -698,7 +717,7 @@ public class GitServletTest {
 		}
 
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/git/ticgit.git", url));
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(createCheck);
 		clone.setBare(true);
 		clone.setCloneAllBranches(true);
@@ -708,8 +727,8 @@ public class GitServletTest {
 		GitBlitSuite.close(personalRepo);
 		
 		// add a personal repository remote and a project remote
-		git.getRepository().getConfig().setString("remote", "user", "url", MessageFormat.format("{0}/git/~{1}/ticgit.git", url, user.username));
-		git.getRepository().getConfig().setString("remote", "project", "url", MessageFormat.format("{0}/git/project/ticgit.git", url));
+		git.getRepository().getConfig().setString("remote", "user", "url", MessageFormat.format("{0}/~{1}/ticgit.git", url, user.username));
+		git.getRepository().getConfig().setString("remote", "project", "url", MessageFormat.format("{0}/project/ticgit.git", url));
 		git.getRepository().getConfig().save();
 
 		// push to non-existent user repository

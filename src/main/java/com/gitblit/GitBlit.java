@@ -90,6 +90,7 @@ import com.gitblit.Constants.RegistrantType;
 import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
+import com.gitblit.git.GitDaemon;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -190,6 +191,8 @@ public class GitBlit implements ServletContextListener {
 	
 	private FanoutService fanoutService;
 
+	private GitDaemon gitDaemon;
+	
 	public GitBlit() {
 		if (gitblit == null) {
 			// set the static singleton reference
@@ -633,15 +636,18 @@ public class GitBlit implements ServletContextListener {
 		// try to authenticate by servlet container principal
 		Principal principal = httpRequest.getUserPrincipal();
 		if (principal != null) {
-			UserModel user = getUserModel(principal.getName());
-			if (user != null) {
-				flagWicketSession(AuthenticationType.CONTAINER);
-				logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
-						user.username, httpRequest.getRemoteAddr()));
-				return user;
-			} else {
-				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
-						principal.getName(), httpRequest.getRemoteAddr()));
+			String username = principal.getName();
+			if (StringUtils.isEmpty(username)) {
+				UserModel user = getUserModel(username);
+				if (user != null) {
+					flagWicketSession(AuthenticationType.CONTAINER);
+					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+							user.username, httpRequest.getRemoteAddr()));
+					return user;
+				} else {
+					logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
+							principal.getName(), httpRequest.getRemoteAddr()));
+				}
 			}
 		}
 		
@@ -1376,7 +1382,7 @@ public class GitBlit implements ServletContextListener {
 		FileBasedConfig config = (FileBasedConfig) getRepositoryConfig(r);
 		if (config.isOutdated()) {
 			// reload model
-			logger.info(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
+			logger.debug(MessageFormat.format("Config for \"{0}\" has changed. Reloading model and updating cache.", repositoryName));
 			model = loadRepositoryModel(model.name);
 			removeFromCachedRepositoryList(model.name);
 			addToCachedRepositoryList(model);
@@ -3115,18 +3121,34 @@ public class GitBlit implements ServletContextListener {
 		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
 		
-		// schedule mail engine
+		configureMailExecutor();		
+		configureLuceneIndexing();
+		configureGarbageCollector();
+		if (startFederation) {
+			configureFederation();
+		}
+		configureJGit();
+		configureFanout();
+		configureGitDaemon();
+		
+		ContainerUtils.CVE_2007_0450.test();
+	}
+	
+	protected void configureMailExecutor() {
 		if (mailExecutor.isReady()) {
 			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
 			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
 		}
-		
-		// schedule lucene engine
-		enableLuceneIndexing();
-
-		
+	}
+	
+	protected void configureLuceneIndexing() {
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
+		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+	}
+	
+	protected void configureGarbageCollector() {
 		// schedule gc engine
 		if (gcExecutor.isReady()) {
 			logger.info("GC executor is scheduled to scan repositories every 24 hours.");
@@ -3150,21 +3172,19 @@ public class GitBlit implements ServletContextListener {
 			logger.info(MessageFormat.format("Next scheculed GC scan is in {0}", when));
 			scheduledExecutor.scheduleAtFixedRate(gcExecutor, delay, 60*24, TimeUnit.MINUTES);
 		}
-		
-		if (startFederation) {
-			configureFederation();
-		}
-		
+	}
+	
+	protected void configureJGit() {
 		// Configure JGit
 		WindowCacheConfig cfg = new WindowCacheConfig();
-		
+
 		cfg.setPackedGitWindowSize(settings.getFilesize(Keys.git.packedGitWindowSize, cfg.getPackedGitWindowSize()));
 		cfg.setPackedGitLimit(settings.getFilesize(Keys.git.packedGitLimit, cfg.getPackedGitLimit()));
 		cfg.setDeltaBaseCacheLimit(settings.getFilesize(Keys.git.deltaBaseCacheLimit, cfg.getDeltaBaseCacheLimit()));
 		cfg.setPackedGitOpenFiles(settings.getFilesize(Keys.git.packedGitOpenFiles, cfg.getPackedGitOpenFiles()));
 		cfg.setStreamFileThreshold(settings.getFilesize(Keys.git.streamFileThreshold, cfg.getStreamFileThreshold()));
 		cfg.setPackedGitMMAP(settings.getBoolean(Keys.git.packedGitMmap, cfg.isPackedGitMMAP()));
-		
+
 		try {
 			WindowCache.reconfigure(cfg);
 			logger.debug(MessageFormat.format("{0} = {1,number,0}", Keys.git.packedGitWindowSize, cfg.getPackedGitWindowSize()));
@@ -3176,16 +3196,16 @@ public class GitBlit implements ServletContextListener {
 		} catch (IllegalArgumentException e) {
 			logger.error("Failed to configure JGit parameters!", e);
 		}
-
-		ContainerUtils.CVE_2007_0450.test();
-		
+	}
+	
+	protected void configureFanout() {
 		// startup Fanout PubSub service
 		if (settings.getInteger(Keys.fanout.port, 0) > 0) {
 			String bindInterface = settings.getString(Keys.fanout.bindInterface, null);
 			int port = settings.getInteger(Keys.fanout.port, FanoutService.DEFAULT_PORT);
 			boolean useNio = settings.getBoolean(Keys.fanout.useNio, true);
 			int limit = settings.getInteger(Keys.fanout.connectionLimit, 0);
-			
+
 			if (useNio) {
 				if (StringUtils.isEmpty(bindInterface)) {
 					fanoutService = new FanoutNioService(port);
@@ -3199,16 +3219,25 @@ public class GitBlit implements ServletContextListener {
 					fanoutService = new FanoutSocketService(bindInterface, port);
 				}
 			}
-			
+
 			fanoutService.setConcurrentConnectionLimit(limit);
 			fanoutService.setAllowAllChannelAnnouncements(false);
 			fanoutService.start();
 		}
 	}
 	
-	protected void enableLuceneIndexing() {
-		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
-		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+	protected void configureGitDaemon() {
+		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
+		int port = settings.getInteger(Keys.git.daemonPort, GitDaemon.DEFAULT_PORT);
+		if (port > 0) {
+			try {
+				gitDaemon = new GitDaemon(bindInterface, port, getRepositoriesFolder());
+				gitDaemon.start();
+				logger.info(MessageFormat.format("Git daemon is listening on {0}:{1,number,0}", bindInterface, port));
+			} catch (IOException e) {
+				logger.error(MessageFormat.format("Failed to start Git daemon on {0}:{1,number.0}", bindInterface, port), e);
+			}
+		}
 	}
 	
 	protected final Logger getLogger() {
@@ -3318,6 +3347,9 @@ public class GitBlit implements ServletContextListener {
 		gcExecutor.close();
 		if (fanoutService != null) {
 			fanoutService.stop();
+		}
+		if (gitDaemon != null) {
+			gitDaemon.stop();
 		}
 	}
 	

@@ -1,5 +1,6 @@
 ## Standard Features (GO/WAR)
-- JGit SmartHTTP servlet
+- JGit http/https SmartHTTP servlet
+- JGit git protocol daemon
 - Browser and git client authentication
 - Four *per-repository* access restriction configurations with a Read-Only control flag
     - ![anonymous](blank.png) *Anonymous View, Clone & Push*
@@ -72,7 +73,7 @@
 - Built-in AJP connector for Apache httpd
 
 ## Limitations
-- HTTP/HTTPS are the only supported Git protocols
+- HTTP/HTTPS/GIT are the only supported Git protocols
 - Built-in access controls are not path-based, they are repository-based.
 
 [jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

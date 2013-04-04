@@ -58,7 +58,7 @@ import com.gitblit.utils.JGitUtils;
 		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapUserServiceTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, X509UtilsTest.class,
-		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class,
+		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
 		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class })
 public class GitBlitSuite {
@@ -66,9 +66,12 @@ public class GitBlitSuite {
 	public static final File REPOSITORIES = new File("data/git");
 
 	static int port = 8280;
+	static int gitPort = 8300;
 	static int shutdownPort = 8281;
 
 	public static String url = "http://localhost:" + port;
+	public static String gitServletUrl = "http://localhost:" + port + "/git";
+	public static String gitDaemonUrl = "git://localhost:" + gitPort;
 	public static String account = "admin";
 	public static String password = "admin";
 
@@ -115,7 +118,7 @@ public class GitBlitSuite {
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
 			public void run() {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
-						"" + shutdownPort, "--repositoriesFolder",
+						"" + shutdownPort, "--gitPort", "" + gitPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
 						"test-users.conf", "--settings", "test-gitblit.properties",
 						"--baseFolder", "data");
@@ -166,7 +169,11 @@ public class GitBlitSuite {
 
 	private static void cloneOrFetch(String name, String fromUrl) throws Exception {
 		System.out.print("Fetching " + name + "... ");
-		JGitUtils.cloneRepository(REPOSITORIES, name, fromUrl);
+		try {
+			JGitUtils.cloneRepository(REPOSITORIES, name, fromUrl);
+		} catch (Throwable t) {
+			System.out.println("Error: " + t.getMessage());
+		}
 		System.out.println("done.");
 	}
 

@@ -112,15 +112,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean isActionAllowed(RepositoryModel repository, String action) {
-		if (!StringUtils.isEmpty(action)) {
-			if (action.equals(gitReceivePack)) {
-				// Push request
-				if (!repository.isBare) {
-					logger.warn("Gitblit does not allow pushes to repositories with a working copy");
-					return false;
-				}
-			}
-		}
+		// the log here has been moved into ReceiveHook to provide clients with
+		// error messages
 		return true;
 	}
 

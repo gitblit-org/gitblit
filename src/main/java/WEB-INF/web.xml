@@ -47,7 +47,7 @@
 			* Wicket Filter ignorePaths parameter -->
 	<servlet>
 		<servlet-name>GitServlet</servlet-name>
-		<servlet-class>com.gitblit.GitServlet</servlet-class>
+		<servlet-class>com.gitblit.git.GitServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>GitServlet</servlet-name>		

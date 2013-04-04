@@ -13,7 +13,7 @@ public class GitBlit4UITests extends GitBlit {
 	}
 
 	@Override
-	protected void enableLuceneIndexing() {
+	protected void configureLuceneIndexing() {
 		if (luceneIndexingEnabled) {
 			getScheduledExecutor().scheduleAtFixedRate(getLuceneExecutor(), 1,
 					2, TimeUnit.MINUTES);
