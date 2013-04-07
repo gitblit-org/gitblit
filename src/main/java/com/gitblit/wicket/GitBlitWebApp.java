@@ -15,6 +15,8 @@
  */
 package com.gitblit.wicket;
 
+import java.util.Locale;
+
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.Request;
@@ -25,6 +27,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
@@ -143,7 +146,13 @@ public class GitBlitWebApp extends WebApplication {
 	
 	@Override
 	public final Session newSession(Request request, Response response) {
-		return new GitBlitWebSession(request);
+		GitBlitWebSession gitBlitWebSession = new GitBlitWebSession(request);
+
+		String forcedLocale = GitBlit.getString(Keys.web.forceDefaultLocale, null);
+		if (!StringUtils.isEmpty(forcedLocale)) {
+			gitBlitWebSession.setLocale(new Locale(forcedLocale));
+		}
+		return gitBlitWebSession;
 	}
 
 	@Override
