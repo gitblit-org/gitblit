@@ -23,6 +23,9 @@ r17: {
 	 - Ensure Redmine url is properly formatted (issue 223)
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
+	changes:
+	 - Updated Polish translation
+	 
     additions: 
 	 - Added Git Daemon serving
 	 - Option to automatically tag branch tips on each push with an incremental revision number
@@ -46,6 +49,7 @@ r17: {
 	- John Crygier
 	- Laurens Vrijnsen
 	- Lee Grofit
+	- Lukasz Jader
 	- Martijn Laan
 	- Michael Schaefers
 	- Philip Boutros
