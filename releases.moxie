@@ -27,6 +27,7 @@ r17: {
 	 - Updated Polish translation
 	 
     additions: 
+	 - Added a server setting to force a particular translation/Locale for all sessions
 	 - Added Git Daemon serving
 	 - Option to automatically tag branch tips on each push with an incremental revision number
      - Implemented multiple repository owners
@@ -70,6 +71,7 @@ r17: {
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }
 	- { name: 'git.daemonPort', defaultValue: 9418 }
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
+	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 }
 
 #
