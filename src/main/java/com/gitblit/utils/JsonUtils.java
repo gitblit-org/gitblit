@@ -268,7 +268,6 @@ public class JsonUtils {
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Date.class, new GmtDateTypeAdapter());
 		builder.registerTypeAdapter(AccessPermission.class, new AccessPermissionTypeAdapter());
-		builder.setPrettyPrinting();
 		if (!ArrayUtils.isEmpty(strategies)) {
 			builder.setExclusionStrategies(strategies);
 		}
