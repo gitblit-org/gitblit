@@ -26,6 +26,7 @@ r17: {
 
 	changes:
  	 - Disable Gson's pretty printing which has a huge performance gain
+	 - Properly set application/json content-type on api calls
 	 - Updated Polish translation
 	 
     additions: 
