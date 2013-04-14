@@ -67,7 +67,8 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.revwalk.filter.CommitTimeRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
-import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.RefSpec;
@@ -198,7 +199,7 @@ public class JGitUtils {
 		File folder = new File(repositoriesFolder, name);
 		if (folder.exists()) {
 			File gitDir = FileKey.resolve(new File(repositoriesFolder, name), FS.DETECTED);
-			FileRepository repository = new FileRepository(gitDir);
+			FileRepository repository = (FileRepository)new FileRepositoryBuilder().setGitDir(gitDir).build();
 			result.fetchResult = fetchRepository(credentialsProvider, repository);
 			repository.close();
 		} else {
