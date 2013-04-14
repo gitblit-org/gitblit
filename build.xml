@@ -6,15 +6,15 @@
 		Retrieve Moxie Toolkit
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.8.0-SNAPSHOT" />
+	<property name="moxie.version" value="0.7.1" />
 	<property name="moxie.url" value="http://gitblit.github.com/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
-	<mkdir dir="${moxie.dir}" />
+	
 	<!-- Download Moxie from it's Maven repository to user.home -->
 	<mkdir dir="${moxie.dir}" />
 	<get src="${moxie.url}/org/moxie/moxie-toolkit/${moxie.version}/${moxie.jar}"
-		dest="${moxie.dir}/${moxie.jar}" skipexisting="true" verbose="true" />
+		dest="${moxie.dir}" skipexisting="true" verbose="true" />
 	
 	<!-- Register Moxie tasks -->
 	<taskdef uri="antlib:org.moxie">
@@ -991,10 +991,8 @@
 	-->
 	<target name="installMaven" depends="compile" description="Install Gitblit JAR as Maven module">
 		<local name="project.jar" />
-		<property name="project.jar"
-			  value="${project.outputDirectory}/gitblit.jar" />
-                <property name="resourceFolderPrefix" value=""/>
-		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}"/>
+		<property name="project.jar" value="${project.outputDirectory}/gitblit.jar" />
+		<mx:jar destfile="${project.jar}" includeresources="true" />
 
 		<exec executable="mvn">
 			<arg value="install:install-file" />
