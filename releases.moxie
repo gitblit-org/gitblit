@@ -11,6 +11,7 @@ r17: {
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 	 - Added more error checking to blob page and blame page
 	 - Disable SNI extensions for client SSL connections
+	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
 	 - Fixed incorrect icon file name for .doc files (issue 200)
@@ -56,6 +57,7 @@ r17: {
 	- Philip Boutros
 	- Rafael Cavazin
 	- Ryan Schneider
+	- Sakurai Youhei
 	- Sarah Haselbauer
 	- Slawomir Bochenski
 	- Stardrad Yin

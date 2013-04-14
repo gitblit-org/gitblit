@@ -4,10 +4,12 @@
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Retrieve Moxie Toolkit
+		
+		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.7.1" />
-	<property name="moxie.url" value="http://gitblit.github.com/moxie/maven" />
+	<property name="moxie.version" value="0.7.2" />
+	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
 	
@@ -992,7 +994,8 @@
 	<target name="installMaven" depends="compile" description="Install Gitblit JAR as Maven module">
 		<local name="project.jar" />
 		<property name="project.jar" value="${project.outputDirectory}/gitblit.jar" />
-		<mx:jar destfile="${project.jar}" includeresources="true" />
+		<property name="resourceFolderPrefix" value="" />
+		<mx:jar destfile="${project.jar}" includeresources="true" resourceFolderPrefix="${resourceFolderPrefix}" />
 
 		<exec executable="mvn">
 			<arg value="install:install-file" />
