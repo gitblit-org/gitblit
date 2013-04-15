@@ -277,7 +277,7 @@
 			<class name="com.gitblit.EnforceAuthenticationFilter" />
 			<class name="com.gitblit.FederationServlet" />
 			<class name="com.gitblit.GitFilter" />
-			<class name="com.gitblit.GitServlet" />
+			<class name="com.gitblit.git.GitServlet" />
 			<class name="com.gitblit.PagesFilter" />
 			<class name="com.gitblit.PagesServlet" />
 			<class name="com.gitblit.RobotsTxtServlet" />
@@ -385,7 +385,7 @@
 			<class name="com.gitblit.EnforceAuthenticationFilter" />
 			<class name="com.gitblit.FederationServlet" />
 			<class name="com.gitblit.GitFilter" />
-			<class name="com.gitblit.GitServlet" />
+			<class name="com.gitblit.git.GitServlet" />
 			<class name="com.gitblit.PagesFilter" />
 			<class name="com.gitblit.PagesServlet" />
 			<class name="com.gitblit.RobotsTxtServlet" />
