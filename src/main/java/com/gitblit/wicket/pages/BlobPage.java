@@ -39,6 +39,8 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
 public class BlobPage extends RepositoryPage {
 
+	protected String fileExtension;
+
 	public BlobPage(PageParameters params) {
 		super(params);
 
@@ -128,10 +130,11 @@ public class BlobPage extends RepositoryPage {
 					if (source == null) {
 						table = missingBlob(blobPath, commit);
 					} else {
-						table = generateSourceView(source, type == 1);
+						table = generateSourceView(source, extension, type == 1);
 					}
 					add(new Label("blobText", table).setEscapeModelStrings(false));
 					add(new Image("blobImage").setVisible(false));
+					fileExtension = extension;
 				}
 			} else {
 				// plain text
@@ -140,7 +143,7 @@ public class BlobPage extends RepositoryPage {
 				if (source == null) {
 					table = missingBlob(blobPath, commit);
 				} else {
-					table = generateSourceView(source, false);
+					table = generateSourceView(source, null, false);
 				}
 				add(new Label("blobText", table).setEscapeModelStrings(false));
 				add(new Image("blobImage").setVisible(false));
@@ -156,8 +159,8 @@ public class BlobPage extends RepositoryPage {
 		sb.append("</div>");
 		return sb.toString();
 	}
-	
-	protected String generateSourceView(String source, boolean prettyPrint) {
+
+	protected String generateSourceView(String source, String extension, boolean prettyPrint) {
 		String [] lines = source.split("\n");
 		
 		StringBuilder sb = new StringBuilder();
@@ -180,7 +183,7 @@ public class BlobPage extends RepositoryPage {
 		sb.append("<td id=\"lines\">");
 		sb.append("<div class=\"sourceview\">");
 		if (prettyPrint) {
-			sb.append("<pre class=\"prettyprint\">");
+			sb.append("<pre class=\"prettyprint lang-" + extension + "\">");
 		} else {
 			sb.append("<pre class=\"plainprint\">");
 		}
