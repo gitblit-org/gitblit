@@ -28,6 +28,7 @@ r17: {
  	 - Disable Gson's pretty printing which has a huge performance gain
 	 - Properly set application/json content-type on api calls
 	 - Updated Polish translation
+	 - Updated Japanese translation
 	 
     additions: 
 	 - Added a server setting to force a particular translation/Locale for all sessions
@@ -52,6 +53,7 @@ r17: {
 	- Ikslawek
 	- Jay Meyer
 	- John Crygier
+	- Kensuke Matsuzaki
 	- Laurens Vrijnsen
 	- Lee Grofit
 	- Lukasz Jader
