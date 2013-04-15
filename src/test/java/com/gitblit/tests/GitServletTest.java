@@ -19,8 +19,9 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
@@ -786,7 +787,7 @@ public class GitServletTest {
 	public void testPushLog() throws IOException {
 		String name = "refchecks/ticgit.git";
 		File refChecks = new File(GitBlitSuite.REPOSITORIES, name);
-		FileRepository repository = new FileRepository(refChecks);
+		Repository repository = new FileRepositoryBuilder().setGitDir(refChecks).build();
 		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
 		GitBlitSuite.close(repository);
 		assertTrue("Repository has an empty push log!", pushes.size() > 0);

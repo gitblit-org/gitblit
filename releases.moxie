@@ -25,6 +25,8 @@ r17: {
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
 	changes:
+ 	 - Disable Gson's pretty printing which has a huge performance gain
+	 - Properly set application/json content-type on api calls
 	 - Updated Polish translation
 	 
     additions: 
@@ -44,6 +46,7 @@ r17: {
     contributors:
 	- Bandarupalli Satyanarayana
 	- Christian Aistleitner
+	- David Ostrovsky
 	- Egbert Teeselink
 	- Hige Maniya
 	- Ikslawek
@@ -67,7 +70,7 @@ r17: {
     - github/dapengme
 	
 	dependencyChanges:
-	- JGit 2.3.1.201302201838-r
+	- JGit 3.0.0-SNAPSHOT
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }

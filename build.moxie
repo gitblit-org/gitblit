@@ -3,14 +3,14 @@
 #
 
 # Specify minimum Moxie version required to build
-requires: 0.7.1
+requires: 0.7.2
 
 # Project Metadata
 name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.4.0-SNAPSHOT
+version: 1.3.0-SNAPSHOT
 inceptionYear: 2011
 
 # Current stable release

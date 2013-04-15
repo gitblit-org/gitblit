@@ -20,14 +20,14 @@ import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.eclipse.jgit.api.GarbageCollectCommand;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
-import org.eclipse.jgit.internal.storage.file.GC;
-import org.eclipse.jgit.internal.storage.file.GC.RepoStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,10 +141,10 @@ public class GCExecutor implements Runnable {
 			}
 			boolean garbageCollected = false;
 			RepositoryModel model = null;
-			FileRepository repository = null;
+			Repository repository = null;
 			try {
 				model = GitBlit.self().getRepositoryModel(repositoryName);
-				repository = (FileRepository) GitBlit.self().getRepository(repositoryName);
+				repository = GitBlit.self().getRepository(repositoryName);
 				if (repository == null) {
 					logger.warn(MessageFormat.format("GCExecutor is missing repository {0}?!?", repositoryName));
 					continue;
@@ -165,8 +165,9 @@ public class GCExecutor implements Runnable {
 				
 				logger.debug(MessageFormat.format("GCExecutor locked idle repository {0}", repositoryName));
 				
-				GC gc = new GC(repository);
-				RepoStatistics stats = gc.getStatistics();
+				Git git = new Git(repository);
+				GarbageCollectCommand gc = git.gc();
+				Properties stats = gc.getStatistics();
 				
 				// determine if this is a scheduled GC
 				Calendar cal = Calendar.getInstance();
@@ -181,16 +182,17 @@ public class GCExecutor implements Runnable {
 
 				// determine if filesize triggered GC
 				long gcThreshold = FileUtils.convertSizeToLong(model.gcThreshold, 500*1024L);
-				boolean hasEnoughGarbage = stats.sizeOfLooseObjects >= gcThreshold;
+				long sizeOfLooseObjects = (Long) stats.get("sizeOfLooseObjects");
+				boolean hasEnoughGarbage = sizeOfLooseObjects >= gcThreshold;
 
 				// if we satisfy one of the requirements, GC
-				boolean hasGarbage = stats.sizeOfLooseObjects > 0;
+				boolean hasGarbage = sizeOfLooseObjects > 0;
 				if (hasGarbage && (hasEnoughGarbage || shouldCollectGarbage)) {
-					long looseKB = stats.sizeOfLooseObjects/1024L;
+					long looseKB = sizeOfLooseObjects/1024L;
 					logger.info(MessageFormat.format("Collecting {1} KB of loose objects from {0}", repositoryName, looseKB));
 					
 					// do the deed
-					gc.gc();
+					gc.call();
 					
 					garbageCollected = true;
 				}
@@ -217,7 +219,7 @@ public class GCExecutor implements Runnable {
 		running.set(false);
 	}
 	
-	private boolean isRepositoryIdle(FileRepository repository) {
+	private boolean isRepositoryIdle(Repository repository) {
 		try {
 			// Read the use count.
 			// An idle use count is 2:

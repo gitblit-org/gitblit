@@ -19,7 +19,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.lib.RepositoryCache.FileKey;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
+import org.eclipse.jgit.util.FS;
 import org.junit.Test;
 
 import com.gitblit.models.PushLogEntry;
@@ -30,7 +33,8 @@ public class PushLogTest {
 	@Test
 	public void testPushLog() throws IOException {
 		String name = "~james/helloworld.git";
-		FileRepository repository = new FileRepository(new File(GitBlitSuite.REPOSITORIES, name));
+		File gitDir = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, name), FS.DETECTED);
+		Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
 		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
 		GitBlitSuite.close(repository);
 	}

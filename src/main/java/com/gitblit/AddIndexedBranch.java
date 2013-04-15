@@ -25,9 +25,8 @@ import java.util.TreeSet;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
-import org.eclipse.jgit.storage.file.FileBasedConfig;
+import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.util.FS;
 
 import com.beust.jcommander.JCommander;
@@ -88,8 +87,8 @@ public class AddIndexedBranch {
 			try {
 				// load repository config
 				File gitDir = FileKey.resolve(new File(folder, repo), FS.DETECTED);
-				FileRepository repository = (FileRepository)new FileRepositoryBuilder().setGitDir(gitDir).build();
-				FileBasedConfig config = repository.getConfig();
+				Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
+				StoredConfig config = repository.getConfig();
 				config.load();
 				
 				Set<String> indexedBranches = new LinkedHashSet<String>();

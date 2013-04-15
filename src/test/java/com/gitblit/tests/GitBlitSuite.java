@@ -25,7 +25,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FS;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -78,32 +78,38 @@ public class GitBlitSuite {
 	private static AtomicBoolean started = new AtomicBoolean(false);
 
 	public static Repository getHelloworldRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "helloworld.git"));
+		return getRepository("helloworld.git");
 	}
 
 	public static Repository getTicgitRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "ticgit.git"));
+		return getRepository("ticgit.git");
 	}
 
 	public static Repository getJGitRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "test/jgit.git"));
+		return getRepository("test/jgit.git");
 	}
 
 	public static Repository getAmbitionRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "test/ambition.git"));
+		return getRepository("test/ambition.git");
 	}
 
 	public static Repository getTheoreticalPhysicsRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "test/theoretical-physics.git"));
+		return getRepository("test/theoretical-physics.git");
 	}
 
 	public static Repository getIssuesTestRepository() throws Exception {
 		JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
-		return new FileRepository(new File(REPOSITORIES, "gb-issues.git"));
+		return getRepository("gb-issues.git");
 	}
 	
 	public static Repository getGitectiveRepository() throws Exception {
-		return new FileRepository(new File(REPOSITORIES, "test/gitective.git"));
+		return getRepository("test/gitective.git");
+	}
+	
+	private static Repository getRepository(String name) throws Exception {
+		File gitDir = FileKey.resolve(new File(REPOSITORIES, name), FS.DETECTED);
+		Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
+		return repository;
 	}
 
 	public static boolean startGitblit() throws Exception {
