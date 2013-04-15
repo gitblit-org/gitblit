@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.storage.file.FileRepository;
-import org.eclipse.jgit.storage.file.GC;
-import org.eclipse.jgit.storage.file.GC.RepoStatistics;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.internal.storage.file.GC;
+import org.eclipse.jgit.internal.storage.file.GC.RepoStatistics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

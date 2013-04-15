@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.jgit.storage.file.FileRepository;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.junit.Test;
 
 import com.gitblit.models.PushLogEntry;
