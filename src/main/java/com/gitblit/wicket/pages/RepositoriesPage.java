@@ -26,8 +26,6 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.resource.ContextRelativeResource;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.GitBlit;
@@ -160,14 +158,14 @@ public class RepositoriesPage extends RootPage {
 			String message;
 			InputStreamReader reader = null;
 			try {
-				ContextRelativeResource res = WicketUtils.getResource(name);
-				InputStream is = res.getResourceStream().getInputStream();
+				InputStream is = getClass().getResourceAsStream("/" + name);
+				if (is == null) {
+					continue;
+				}
 				reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
 				message = MarkdownUtils.transformMarkdown(reader);
 				reader.close();
 				return message;
-			} catch (ResourceStreamNotFoundException t) {
-				continue;
 			} catch (Throwable t) {
 				message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
 				error(message, t, false);
