@@ -3234,7 +3234,7 @@ public class GitBlit implements ServletContextListener {
 				gitDaemon.start();
 				logger.info(MessageFormat.format("Git daemon is listening on {0}:{1,number,0}", bindInterface, port));
 			} catch (IOException e) {
-				logger.error(MessageFormat.format("Failed to start Git daemon on {0}:{1,number.0}", bindInterface, port), e);
+				logger.error(MessageFormat.format("Failed to start Git daemon on {0}:{1,number,0}", bindInterface, port), e);
 			}
 		}
 	}
