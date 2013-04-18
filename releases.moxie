@@ -77,7 +77,7 @@ r17: {
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }
-	- { name: 'git.daemonPort', defaultValue: 9418 }
+	- { name: 'git.daemonPort', defaultValue: 0 }
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 }

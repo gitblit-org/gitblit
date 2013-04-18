@@ -3227,7 +3227,7 @@ public class GitBlit implements ServletContextListener {
 	
 	protected void configureGitDaemon() {
 		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
-		int port = settings.getInteger(Keys.git.daemonPort, GitDaemon.DEFAULT_PORT);
+		int port = settings.getInteger(Keys.git.daemonPort, 0);
 		if (port > 0) {
 			try {
 				gitDaemon = new GitDaemon(bindInterface, port, getRepositoriesFolder());
