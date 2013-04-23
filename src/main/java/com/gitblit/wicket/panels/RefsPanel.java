@@ -41,6 +41,8 @@ import com.gitblit.wicket.pages.TagPage;
 public class RefsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String R_CHANGES = "refs/changes/";
 
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
 			Map<ObjectId, List<RefModel>> refs) {
@@ -108,6 +110,10 @@ public class RefsPanel extends Panel {
 					// local head
 					linkClass = LogPage.class;
 					cssClass = "headRef";
+				} else if (name.startsWith(R_CHANGES)) {
+					// Gerrit change ref
+					name = name.substring(R_CHANGES.length());
+					cssClass = "otherRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch
 					linkClass = LogPage.class;

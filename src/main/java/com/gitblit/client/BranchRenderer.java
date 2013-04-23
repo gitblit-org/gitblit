@@ -37,6 +37,8 @@ public class BranchRenderer extends DefaultTableCellRenderer implements ListCell
 	private static final String R_HEADS = "refs/heads/";
 
 	private static final String R_REMOTES = "refs/remotes/";
+	
+	private static final String R_CHANGES = "refs/changes/";
 
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
@@ -71,6 +73,9 @@ public class BranchRenderer extends DefaultTableCellRenderer implements ListCell
 		} else if (name.startsWith(R_REMOTES)) {
 			name = name.substring(R_REMOTES.length());
 			fg = Color.decode("#6C6CBF");
+		} else if (name.startsWith(R_CHANGES)) {
+			name = name.substring(R_CHANGES.length());
+			fg = Color.decode("#B0E0F0");
 		}
 		setForeground(fg);
 		super.setText(name);

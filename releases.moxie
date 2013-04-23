@@ -26,6 +26,7 @@ r17: {
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
 	changes:
+	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
  	 - Disable Gson's pretty printing which has a huge performance gain
 	 - Properly set application/json content-type on api calls
 	 - Updated Polish translation
