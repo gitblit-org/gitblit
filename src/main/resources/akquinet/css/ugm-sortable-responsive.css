@@ -1,0 +1,48 @@
+#sortableUgm { 
+	list-style-type: none; 
+	margin: 0; 
+	padding: 0; 
+	width: 60%; 
+}
+
+#sortableUgm li { 
+	width: 100%;
+	padding-top: 3px;
+	padding-bottom: 3px; 
+	margin: 2px 0 2px;
+}
+
+.header.ugm {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.ui-icon.ugm-ui-icon {
+	display: inline-block;
+}
+
+.ugmCol {
+   display: inline-block;
+   text-align: center;
+   vertical-align: middle;
+}
+
+.ugm {
+	width: 60%;
+}
+
+.btn.ugmBtn {
+	padding: 1px 5px 1px;
+}
+
+.ugmOrder {
+	width: 13%;
+}
+
+.ugmName {
+	width: 40%;	
+}
+
+.ugmMapping, .ugmConnector {
+	width: 20%;
+}
