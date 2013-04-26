@@ -3,7 +3,7 @@
 #
 
 # Specify minimum Moxie version required to build
-requires: 0.7.3
+requires: 0.7.4
 
 # Project Metadata
 name: Gitblit

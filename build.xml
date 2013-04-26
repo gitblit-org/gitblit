@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.7.3" />
+	<property name="moxie.version" value="0.7.4" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
