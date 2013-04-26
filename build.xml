@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.7.2" />
+	<property name="moxie.version" value="0.7.3" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
@@ -36,8 +36,9 @@
 	<target name="prepare">
 	
 		<!-- Setup Ant build from build.moxie and resolve dependencies.
-		     if it exists, build.properties is automatically loaded -->
-		<mx:init verbose="no" />
+		     If it exists, build.properties is automatically loaded.
+		     Explicitly set mxroot allowing CI servers to override the default. -->
+		<mx:init verbose="no" mxroot="${moxie.dir}" />
 				
 		<!-- Set Ant project properties -->
 		<property name="distribution.zipfile" value="gitblit-${project.version}.zip" />
