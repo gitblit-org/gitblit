@@ -287,6 +287,9 @@
 			<class name="com.gitblit.SyndicationFilter" />
 			<class name="com.gitblit.SyndicationServlet" />
 			<class name="com.gitblit.wicket.GitBlitWebApp" />
+			<!-- Manually include alternative User Services -->
+			<class name="com.gitblit.LdapUserService" />
+			<class name="com.gitblit.RedmineUserService" />
 		</mx:genjar>
 
 		<!-- Build the WAR file -->
@@ -395,6 +398,9 @@
 			<class name="com.gitblit.SyndicationFilter" />
 			<class name="com.gitblit.SyndicationServlet" />
 			<class name="com.gitblit.wicket.GitBlitWebApp" />
+			<!-- Manually include alternative User Services -->
+			<class name="com.gitblit.LdapUserService" />
+			<class name="com.gitblit.RedmineUserService" />
 		</mx:genjar>
 
 		<!-- Build Express Zip file -->
