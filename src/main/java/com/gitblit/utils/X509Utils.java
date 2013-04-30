@@ -662,7 +662,7 @@ public class X509Utils {
 	 * destroy any existing CRL file.
 	 * 
 	 * @param caRevocationList
-	 * @param storeFile
+	 * @param storeLocation
 	 * @param keystorePassword
 	 * @return
 	 */
