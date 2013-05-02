@@ -1294,7 +1294,15 @@ public class GitBlit implements ServletContextListener {
 		for (String repo : list) {
 			RepositoryModel model = getRepositoryModel(user, repo);
 			if (model != null) {
-				repositories.add(model);
+				if (!model.hasCommits) {
+					// only add empty repositories that user can push to
+					if (UserModel.ANONYMOUS.canPush(model)
+							|| user != null && user.canPush(model)) {
+						repositories.add(model);
+					}
+				} else {
+					repositories.add(model);
+				}
 			}
 		}
 		if (getBoolean(Keys.web.showRepositorySizes, true)) {
