@@ -281,7 +281,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
 			// anonymous rewind
-			ap.permissionType = PermissionType.ADMINISTRATOR;
+			ap.permissionType = PermissionType.ANONYMOUS;
 			ap.permission = AccessPermission.REWIND;
 			return ap;
 		}
@@ -320,7 +320,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified, use it
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
-			if (p != null) {
+			if (p != null && repository.accessRestriction.isValidPermission(p)) {
 				ap.permissionType = PermissionType.EXPLICIT;
 				ap.permission = p;
 				ap.mutable = true;
@@ -331,7 +331,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			for (String key : permissions.keySet()) {
 				if (StringUtils.matchesIgnoreCase(repository.name, key)) {
 					AccessPermission p = permissions.get(key);
-					if (p != null) {
+					if (p != null && repository.accessRestriction.isValidPermission(p)) {
 						// take first match
 						ap.permissionType = PermissionType.REGEX;
 						ap.permission = p;
@@ -345,13 +345,37 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		// try to find a team match
 		for (TeamModel team : teams) {
 			RegistrantAccessPermission p = team.getRepositoryPermission(repository);
-			if (p.permission.exceeds(ap.permission)) {
-				// use highest team permission
+			if (p.permission.exceeds(ap.permission) && PermissionType.ANONYMOUS != p.permissionType) {
+				// use highest team permission that is not an implicit permission
 				ap.permission = p.permission;
 				ap.source = team.name;
 				ap.permissionType = PermissionType.TEAM;
 			}
-		}		
+		}
+		
+		// still no explicit, regex, or team match, check for implicit permissions
+		if (AccessPermission.NONE == ap.permission) {
+			switch (repository.accessRestriction) {
+			case VIEW:
+				// no implicit permissions possible
+				break;
+			case CLONE:
+				// implied view permission
+				ap.permission = AccessPermission.VIEW;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			case PUSH:
+				// implied clone permission
+				ap.permission = AccessPermission.CLONE;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			case NONE:
+				// implied REWIND or CLONE if frozen
+				ap.permission = repository.isFrozen ? AccessPermission.CLONE : AccessPermission.REWIND;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			}
+		}
 		
 		return ap;
 	}

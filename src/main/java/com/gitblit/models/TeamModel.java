@@ -197,6 +197,13 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
 		
+		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
+			// anonymous rewind
+			ap.permissionType = PermissionType.ANONYMOUS;
+			ap.permission = AccessPermission.REWIND;
+			return ap;
+		}
+		
 		if (canAdmin) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
 			ap.permission = AccessPermission.REWIND;
@@ -206,7 +213,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
-			if (p != null) {
+			if (p != null && repository.accessRestriction.isValidPermission(p)) {
 				ap.permissionType = PermissionType.EXPLICIT;
 				ap.permission = p;
 				ap.mutable = true;
@@ -217,7 +224,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			for (String key : permissions.keySet()) {
 				if (StringUtils.matchesIgnoreCase(repository.name, key)) {
 					AccessPermission p = permissions.get(key);
-					if (p != null) {
+					if (p != null && repository.accessRestriction.isValidPermission(p)) {
 						// take first match
 						ap.permissionType = PermissionType.REGEX;
 						ap.permission = p;
@@ -227,6 +234,31 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 				}
 			}
 		}
+		
+		// still no explicit or regex, check for implicit permissions
+		if (AccessPermission.NONE == ap.permission) {
+			switch (repository.accessRestriction) {
+			case VIEW:
+				// no implicit permissions possible
+				break;
+			case CLONE:
+				// implied view permission
+				ap.permission = AccessPermission.VIEW;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			case PUSH:
+				// implied clone permission
+				ap.permission = AccessPermission.CLONE;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			case NONE:
+				// implied REWIND or CLONE if frozen
+				ap.permission = repository.isFrozen ? AccessPermission.CLONE : AccessPermission.REWIND;
+				ap.permissionType = PermissionType.ANONYMOUS;
+				break;
+			}
+		}
+
 		return ap;
 	}
 	

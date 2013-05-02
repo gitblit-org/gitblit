@@ -147,6 +147,28 @@ public class Constants {
 		public String toString() {
 			return name();
 		}
+		
+		public boolean isValidPermission(AccessPermission permission) {
+			switch (this) {
+			case VIEW:
+				// VIEW restriction
+				// all access permissions are valid
+				return true;
+			case CLONE:
+				// CLONE restriction
+				// only CLONE or greater access permissions are valid
+				return permission.atLeast(AccessPermission.CLONE);
+			case PUSH:
+				// PUSH restriction
+				// only PUSH or greater access permissions are valid 
+				return permission.atLeast(AccessPermission.PUSH);
+			case NONE:
+				// NO access restriction
+				// all access permissions are invalid
+				return false;
+			}
+			return false;
+		}
 	}
 	
 	/**
@@ -416,7 +438,7 @@ public class Constants {
 	}
 	
 	public static enum PermissionType {
-		MISSING, EXPLICIT, TEAM, REGEX, OWNER, ADMINISTRATOR;
+		MISSING, ANONYMOUS, EXPLICIT, TEAM, REGEX, OWNER, ADMINISTRATOR;
 	}
 	
 	public static enum GCStatus {
