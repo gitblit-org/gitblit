@@ -30,8 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.RpcRequest;
-import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;

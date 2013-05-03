@@ -36,10 +36,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
+import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
-import com.gitblit.Constants.RegistrantType;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.utils.StringUtils;

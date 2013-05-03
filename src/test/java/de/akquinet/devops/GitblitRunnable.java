@@ -18,7 +18,6 @@ package de.akquinet.devops;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
-import com.gitblit.GitBlitServer;
 import com.gitblit.tests.GitBlitSuite;
 
 /**

@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
-import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutClient;
 import com.gitblit.fanout.FanoutClient.FanoutAdapter;
 import com.gitblit.fanout.FanoutNioService;

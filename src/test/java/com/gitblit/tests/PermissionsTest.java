@@ -18,7 +18,6 @@ package com.gitblit.tests;
 import java.util.Date;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessPermission;

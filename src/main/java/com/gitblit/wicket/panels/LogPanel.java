@@ -38,8 +38,8 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.GitSearchPage;
+import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class LogPanel extends BasePanel {

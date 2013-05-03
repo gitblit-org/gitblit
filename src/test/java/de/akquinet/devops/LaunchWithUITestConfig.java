@@ -26,8 +26,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlitServer;
-import com.gitblit.tests.GitBlitSuite;
 
 /**
  * This test checks if it is possible to run two server instances in the same

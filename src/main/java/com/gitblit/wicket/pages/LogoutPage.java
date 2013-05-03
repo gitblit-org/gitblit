@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
