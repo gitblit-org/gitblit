@@ -5,26 +5,14 @@
       lang="en"> 
 
 <wicket:panel>
-	<span wicket:id="repositoryUrl" style="color: blue;">[repository url]</span><span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
-    
-    <!-- Plain JavaScript manual copy & paste -->
-    <wicket:fragment wicket:id="jsPanel">
-    	<span style="vertical-align:baseline;">
-    		<img wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard"></img>
-    	</span>
-    </wicket:fragment>
-    
-    <!-- flash-based button-press copy & paste -->
-    <wicket:fragment wicket:id="clippyPanel">
-   		<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
-   			wicket:id="clippy"
-   			width="14" 
-   			height="14"
-   			bgcolor="#ffffff" 
-       		quality="high"
-       		wmode="transparent"
-       		scale="noscale"
-       		allowScriptAccess="always"></object>
-	</wicket:fragment>
+	<div wicket:id="repositoryPrimaryUrl">[repository primary url]</div>
+	<div style="padding-top: 2px;">
+		<span class="link" wicket:id="appCloneLink">
+			<span wicket:id="icon"></span>
+			<span wicket:id="link"></span>
+			<span wicket:id="separator" style="padding: 0px 5px 0px 5px;"></span>
+		</span>
+	</div>	
+	<div wicket:id="repositoryGitDaemonUrl">[repository git daemon url]</div>
 </wicket:panel>
 </html>

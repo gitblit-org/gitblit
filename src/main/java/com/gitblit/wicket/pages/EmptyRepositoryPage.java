@@ -16,22 +16,17 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.Constants.AccessPermission;
 import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
+import com.gitblit.wicket.panels.RepositoryUrlPanel;
 
 public class EmptyRepositoryPage extends RootPage {
 
@@ -53,24 +48,17 @@ public class EmptyRepositoryPage extends RootPage {
 		
 		setupPage(repositoryName, getString("gb.emptyRepository"));
 
-		List<String> repositoryUrls = new ArrayList<String>();
-
-		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
-			// add the Gitblit repository url
-			repositoryUrls.add(getRepositoryUrl(repository));
-		}
 		UserModel user = GitBlitWebSession.get().getUser();
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
 		
-		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.get(0);
-		AccessPermission accessPermission = user.getRepositoryPermission(repository).permission;
+		RepositoryUrlPanel urlPanel = new RepositoryUrlPanel("pushurl", false, user, repository, getLocalizer(), this);
+		String primaryUrl = urlPanel.getPrimaryUrl();
 		
 		add(new Label("repository", repositoryName));
-		add(new DetailedRepositoryUrlPanel("pushurl", getLocalizer(), this, repository.name, primaryUrl, accessPermission));
-		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", repositoryUrls.get(0))));
+		add(urlPanel);
+		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", primaryUrl)));
 		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
 	}
 }

@@ -16,8 +16,6 @@
 package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
@@ -29,7 +27,6 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 
-import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -40,7 +37,6 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -58,7 +54,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 		super(wicketId);
 
 		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		final boolean gitServlet = GitBlit.getBoolean(Keys.git.enableGitServlet, true);
 		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
 
 		// repository swatch
@@ -217,15 +212,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink("", entry.name, null, 0)));
 
-		List<String> repositoryUrls = new ArrayList<String>();
-		if (gitServlet) {
-			// add the Gitblit repository url
-			repositoryUrls.add(BasePage.getRepositoryUrl(entry));
-		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
-
-		AccessPermission ap = user.getRepositoryPermission(entry).permission;
-		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
-		add(new DetailedRepositoryUrlPanel("repositoryPrimaryUrl",localizer, parent, entry.name, primaryUrl, ap));
+		add(new RepositoryUrlPanel("repositoryPrimaryUrl", true, user, entry, localizer, parent));
 	}
 }

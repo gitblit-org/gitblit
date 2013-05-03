@@ -42,7 +42,6 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
-import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -50,7 +49,6 @@ import com.gitblit.models.Metric;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -60,7 +58,7 @@ import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
-import com.gitblit.wicket.panels.SparkleShareInvitePanel;
+import com.gitblit.wicket.panels.RepositoryUrlPanel;
 import com.gitblit.wicket.panels.TagsPanel;
 
 public class SummaryPage extends RepositoryPage {
@@ -127,11 +125,7 @@ public class SummaryPage extends RepositoryPage {
 		add(new BookmarkablePageLink<Void>("metrics", MetricsPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
 
-		List<String> repositoryUrls = new ArrayList<String>();
-
-		AccessPermission accessPermission = null;
 		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {			
-			accessPermission = user.getRepositoryPermission(model).permission;
 			AccessRestrictionType accessRestriction = getRepositoryModel().accessRestriction;
 			switch (accessRestriction) {
 			case NONE:
@@ -152,32 +146,14 @@ public class SummaryPage extends RepositoryPage {
 			default:
 				add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 			}
-			// add the Gitblit repository url
-			repositoryUrls.add(getRepositoryUrl(getRepositoryModel()));
 		} else {
 			add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
 		
-		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
-		add(new DetailedRepositoryUrlPanel("repositoryPrimaryUrl", getLocalizer(), this, model.name, primaryUrl, accessPermission));
-
-		Component gitDaemonUrlPanel = createGitDaemonUrlPanel("repositoryGitDaemonUrl", user, model);
-		if (!StringUtils.isEmpty(primaryUrl) && gitDaemonUrlPanel instanceof DetailedRepositoryUrlPanel) {
-			WicketUtils.setCssStyle(gitDaemonUrlPanel, "padding-top: 10px");
-		}
-		add(gitDaemonUrlPanel);
-		
-		String sparkleshareUrl = getSparkleShareInviteUrl(model);
-		if (StringUtils.isEmpty(sparkleshareUrl)) {
-			add(new Label("repositorySparkleShareInviteUrl").setVisible(false));
-		} else {
-			Component sparklesharePanel = new SparkleShareInvitePanel("repositorySparkleShareInviteUrl", getLocalizer(), this, sparkleshareUrl, accessPermission);
-			WicketUtils.setCssStyle(sparklesharePanel, "padding-top: 10px;");
-			add(sparklesharePanel);
-		}
-
-		ListDataProvider<String> urls = new ListDataProvider<String>(repositoryUrls);
+		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model, getLocalizer(), this));
+				
+		List<String> otherUrls = GitBlit.self().getOtherCloneUrls(repositoryName, UserModel.ANONYMOUS.equals(user) ? "" : user.username);
+		ListDataProvider<String> urls = new ListDataProvider<String>(otherUrls);
 		DataView<String> otherUrlsView = new DataView<String>("otherUrls", urls) {
 			private static final long serialVersionUID = 1L;
 
