@@ -267,7 +267,9 @@
 		<prepareDataDirectory toDir="${webinf}/data" />
 
 		<!-- Build the WAR web.xml from the prototype web.xml -->
-		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml" />
+		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml">
+			<replace token="@gb.version@" value="${project.version}" />
+		</mx:webxml>
 
 		<!-- Gitblit jar -->
 		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
@@ -377,8 +379,10 @@
 		<!-- Build the Express web.xml from the prototype web.xml and gitblit.properties -->
 		<!-- THIS FILE IS NOT OVERRIDDEN ONCE IT IS BUILT!!! -->
 		<mx:webxml sourcefile="${project.src.dir}/WEB-INF/web.xml" destfile="${webinf}/web.xml"
-		propertiesFile="${project.distrib.dir}/data/gitblit.properties"
-		skip="server.*" />
+			propertiesFile="${project.distrib.dir}/data/gitblit.properties"
+			skip="server.*">
+			<replace token="@gb.version@" value="${project.version}" />
+		</mx:webxml>
 
 		<!-- Gitblit classes -->
 		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
