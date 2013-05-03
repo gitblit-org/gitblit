@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -221,9 +222,10 @@ public class ProjectRepositoryPanel extends BasePanel {
 			// add the Gitblit repository url
 			repositoryUrls.add(BasePage.getRepositoryUrl(entry));
 		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name, user == null ? "" : user.username));
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(entry.name, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
 
+		AccessPermission ap = user.getRepositoryPermission(entry).permission;
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.remove(0);
-		add(new RepositoryUrlPanel("repositoryCloneUrl", primaryUrl));
+		add(new DetailedRepositoryUrlPanel("repositoryPrimaryUrl",localizer, parent, entry.name, primaryUrl, ap));
 	}
 }

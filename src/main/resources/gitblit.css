@@ -179,6 +179,30 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	vertical-align: middle;
 }
 
+span.repositoryUrlContainer {
+	color: black;
+	background-color: #eee; 
+	padding: 4px;
+	border: 1px solid #ccc;
+	border-radius: 3px 
+}
+
+span.repositoryUrlEndCap {	
+	padding: 4px;
+	font-weight: bold;
+	font-size: 0.85em;
+	font-family:menlo,consolas,monospace;
+}
+
+span.repositoryUrl {
+	font-size: 1em;
+	padding: 4px;
+	color: blue;
+	background-color: #fff;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+}
+
 div.odd {
 	
 }

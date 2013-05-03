@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
@@ -30,7 +31,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.RepositoryUrlPanel;
+import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
 
 public class EmptyRepositoryPage extends RootPage {
 
@@ -59,11 +60,16 @@ public class EmptyRepositoryPage extends RootPage {
 			repositoryUrls.add(getRepositoryUrl(repository));
 		}
 		UserModel user = GitBlitWebSession.get().getUser();
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, user == null ? "" : user.username));
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
+		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repositoryName, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
 		
 		String primaryUrl = ArrayUtils.isEmpty(repositoryUrls) ? "" : repositoryUrls.get(0);
+		AccessPermission accessPermission = user.getRepositoryPermission(repository).permission;
+		
 		add(new Label("repository", repositoryName));
-		add(new RepositoryUrlPanel("pushurl", primaryUrl));
+		add(new DetailedRepositoryUrlPanel("pushurl", getLocalizer(), this, repository.name, primaryUrl, accessPermission));
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", repositoryUrls.get(0))));
 		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
 	}

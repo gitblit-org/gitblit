@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:panel>
+	<span wicket:id="urlPanel"></span>
+    
+    <!--  Repository url panel -->
+    <wicket:fragment wicket:id="repositoryUrlPanel">
+    	<span class="repositoryUrlContainer">
+			<span wicket:id="repositoryProtocol" class="repositoryUrlEndCap">[protocol]</span>
+			<span class="repositoryUrl">
+				<span wicket:id="repositoryUrl">[repository url]</span>
+				<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
+			</span>
+			<span class="hidden-phone hidden-tablet repositoryUrlEndCap" wicket:id="repositoryUrlPermission">[repository url permission]</span>
+		</span>
+	</wicket:fragment>
+	
+    <!-- Plain JavaScript manual copy & paste -->
+    <wicket:fragment wicket:id="jsPanel">
+    	<span style="vertical-align:baseline;">
+    		<img wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard"></img>
+    	</span>
+    </wicket:fragment>
+    
+    <!-- flash-based button-press copy & paste -->
+    <wicket:fragment wicket:id="clippyPanel">
+   		<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
+   			wicket:id="clippy"
+   			width="14" 
+   			height="14"
+   			bgcolor="#ffffff" 
+       		quality="high"
+       		wmode="transparent"
+       		scale="noscale"
+       		allowScriptAccess="always"></object>
+	</wicket:fragment>
+</wicket:panel>
+</html>
