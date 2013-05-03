@@ -101,6 +101,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.federationStrategy = FederationStrategy.FEDERATE_THIS;	
 		this.projectPath = StringUtils.getFirstPathElement(name);
 		this.owners = new ArrayList<String>();
+		this.isBare = true;
 		
 		addOwner(owner);
 	}

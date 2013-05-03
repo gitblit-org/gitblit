@@ -197,16 +197,29 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
 		
+		// determine maximum permission for the repository
+		final AccessPermission maxPermission = 
+				(repository.isFrozen || !repository.isBare) ?
+						AccessPermission.CLONE : AccessPermission.REWIND;
+
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {
 			// anonymous rewind
 			ap.permissionType = PermissionType.ANONYMOUS;
-			ap.permission = AccessPermission.REWIND;
+			if (AccessPermission.REWIND.atMost(maxPermission)) {
+				ap.permission = AccessPermission.REWIND;
+			} else {
+				ap.permission = maxPermission;
+			}
 			return ap;
 		}
 		
 		if (canAdmin) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
-			ap.permission = AccessPermission.REWIND;
+			if (AccessPermission.REWIND.atMost(maxPermission)) {
+				ap.permission = AccessPermission.REWIND;
+			} else {
+				ap.permission = maxPermission;
+			}
 			return ap;
 		}
 		
@@ -215,7 +228,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
 			if (p != null && repository.accessRestriction.isValidPermission(p)) {
 				ap.permissionType = PermissionType.EXPLICIT;
-				ap.permission = p;
+				if (p.atMost(maxPermission)) {
+					ap.permission = p;
+				} else {
+					ap.permission = maxPermission;
+				}
 				ap.mutable = true;
 				return ap;
 			}
@@ -227,7 +244,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 					if (p != null && repository.accessRestriction.isValidPermission(p)) {
 						// take first match
 						ap.permissionType = PermissionType.REGEX;
-						ap.permission = p;
+						if (p.atMost(maxPermission)) {
+							ap.permission = p;
+						} else {
+							ap.permission = maxPermission;
+						}
 						ap.source = key;
 						return ap;
 					}
@@ -252,8 +273,8 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 				ap.permissionType = PermissionType.ANONYMOUS;
 				break;
 			case NONE:
-				// implied REWIND or CLONE if frozen
-				ap.permission = repository.isFrozen ? AccessPermission.CLONE : AccessPermission.REWIND;
+				// implied REWIND or CLONE
+				ap.permission = maxPermission;
 				ap.permissionType = PermissionType.ANONYMOUS;
 				break;
 			}

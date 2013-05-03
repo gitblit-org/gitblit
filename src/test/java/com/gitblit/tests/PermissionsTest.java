@@ -2843,4 +2843,39 @@ public class PermissionsTest extends Assert {
 		assertTrue("User did not inherit create privileges", user.canCreate());
 	}
 
+	@Test
+	public void testIsFrozen() throws Exception {
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		repo.authorizationControl = AuthorizationControl.NAMED;
+		repo.accessRestriction = AccessRestrictionType.NONE;
+
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+
+		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
+		
+		// freeze repo
+		repo.isFrozen = true;
+		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
+	}
+	
+	@Test
+	public void testIsBare() throws Exception {
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		repo.authorizationControl = AuthorizationControl.NAMED;
+		repo.accessRestriction = AccessRestrictionType.NONE;
+
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+
+		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
+		
+		// set repo to have a working copy, pushes prohibited
+		repo.isBare = false;
+		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
+	}
 }

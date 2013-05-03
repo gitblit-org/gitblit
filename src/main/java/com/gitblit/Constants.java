@@ -385,7 +385,11 @@ public class Constants {
 		private AccessPermission(String code) {
 			this.code = code;
 		}
-		
+
+		public boolean atMost(AccessPermission perm) {
+			return ordinal() <= perm.ordinal();
+		}
+
 		public boolean atLeast(AccessPermission perm) {
 			return ordinal() >= perm.ordinal();
 		}
