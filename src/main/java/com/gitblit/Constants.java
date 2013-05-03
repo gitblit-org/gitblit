@@ -56,7 +56,9 @@ public class Constants {
 
 	public static final String RPC_PATH = "/rpc/";
 	
-	public static final String PAGES= "/pages/";
+	public static final String PAGES = "/pages/";
+	
+	public static final String SPARKLESHARE_INVITE_PATH = "/sparkleshare/";
 
 	public static final String BORDER = "***********************************************************";
 

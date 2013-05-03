@@ -60,6 +60,7 @@ import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
+import com.gitblit.wicket.panels.SparkleShareInvitePanel;
 import com.gitblit.wicket.panels.TagsPanel;
 
 public class SummaryPage extends RepositoryPage {
@@ -167,6 +168,15 @@ public class SummaryPage extends RepositoryPage {
 		}
 		add(gitDaemonUrlPanel);
 		
+		String sparkleshareUrl = getSparkleShareInviteUrl(model);
+		if (StringUtils.isEmpty(sparkleshareUrl)) {
+			add(new Label("repositorySparkleShareInviteUrl").setVisible(false));
+		} else {
+			Component sparklesharePanel = new SparkleShareInvitePanel("repositorySparkleShareInviteUrl", getLocalizer(), this, sparkleshareUrl, accessPermission);
+			WicketUtils.setCssStyle(sparklesharePanel, "padding-top: 10px;");
+			add(sparklesharePanel);
+		}
+
 		ListDataProvider<String> urls = new ListDataProvider<String>(repositoryUrls);
 		DataView<String> otherUrlsView = new DataView<String>("otherUrls", urls) {
 			private static final long serialVersionUID = 1L;

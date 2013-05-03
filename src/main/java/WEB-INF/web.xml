@@ -53,7 +53,21 @@
 		<servlet-name>GitServlet</servlet-name>		
 		<url-pattern>/git/*</url-pattern>
 	</servlet-mapping>
+
 	
+	<!-- SparkleShare Invite Servlet
+		 <url-pattern> MUST match: 
+			* com.gitblit.Constants.SPARKLESHARE_INVITE_PATH
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>SparkleShareInviteServlet</servlet-name>
+		<servlet-class>com.gitblit.SparkleShareInviteServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SparkleShareInviteServlet</servlet-name>		
+		<url-pattern>/sparkleshare/*</url-pattern>
+	</servlet-mapping>
+
 	
 	<!-- Syndication Servlet
 		 <url-pattern> MUST match: 
@@ -244,6 +258,8 @@
              	* GitFilter <url-pattern>
              	* GitServlet <url-pattern>
              	* com.gitblit.Constants.GIT_PATH
+             	* SparkleshareInviteServlet <url-pattern>
+             	* com.gitblit.Constants.SPARKLESHARE_INVITE_PATH
              	* Zipfilter <url-pattern>
              	* ZipServlet <url-pattern>
              	* com.gitblit.Constants.ZIP_PATH
@@ -253,7 +269,7 @@
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt</param-value>
+            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt,sparkleshare/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

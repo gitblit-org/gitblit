@@ -57,6 +57,7 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.SparkleShareInviteServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
@@ -311,7 +312,33 @@ public abstract class BasePage extends SessionPage {
 			return new Label(wicketId).setVisible(false);
 		}
 	}
-	
+
+	protected String getSparkleShareInviteUrl(RepositoryModel repository) {
+		if (repository.isBare && repository.isSparkleshared()) {
+			UserModel user = GitBlitWebSession.get().getUser();
+			if (user == null) {
+				user = UserModel.ANONYMOUS;
+			}
+			String username = null;
+			if (UserModel.ANONYMOUS != user) {
+				username = user.username;
+			}
+			if (GitBlit.getBoolean(Keys.git.enableGitServlet, true) || (GitBlit.getInteger(Keys.git.daemonPort, 0) > 0)) {
+				// Gitblit as server
+				// ensure user can rewind
+				if (user.canRewindRef(repository)) {
+					String baseURL = WicketUtils.getGitblitURL(RequestCycle.get().getRequest());
+					return SparkleShareInviteServlet.asLink(baseURL, repository.name, username);
+				}
+			} else {
+				// Gitblit as viewer, assume RW+ permission
+				String baseURL = WicketUtils.getGitblitURL(RequestCycle.get().getRequest());
+				return SparkleShareInviteServlet.asLink(baseURL, repository.name, username);
+			}
+		}
+		return null;
+	}
+
 	protected List<ProjectModel> getProjectModels() {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, true);
