@@ -85,9 +85,13 @@ public class DetailedRepositoryUrlPanel extends BasePanel {
 			// valid repository url
 			Fragment fragment = new Fragment("urlPanel", "repositoryUrlPanel", this);
 			add(fragment);
-			fragment.add(WicketUtils.setHtmlTooltip(new Label("repositoryProtocol", protocol + "://"), note));
+			Label protocolLabel = new Label("repositoryProtocol", protocol + "://");
+			WicketUtils.setHtmlTooltip(protocolLabel, note);
+			fragment.add(protocolLabel);
 			fragment.add(new Label("repositoryUrl", url.substring(url.indexOf("://") + 3)));
-			fragment.add(WicketUtils.setHtmlTooltip(new Label("repositoryUrlPermission", permission), note));
+			Label permissionLabel = new Label("repositoryUrlPermission", permission);
+			WicketUtils.setHtmlTooltip(permissionLabel, note);
+			fragment.add(permissionLabel);
 
 			if (StringUtils.isEmpty(url)) {
 				fragment.add(new Label("copyFunction").setVisible(false));
