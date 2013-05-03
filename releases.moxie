@@ -34,7 +34,7 @@ r17: {
 	 
     additions: 
 	 - Added a server setting to force a particular translation/Locale for all sessions
-	 - Added Git Daemon serving
+	 - Added smart Git Daemon serving.  If enabled, git:// access will be offered for any repository which permits anonymous access.  If the repository permits anonymous cloning, anonymous git:// clone will be permitted while anonmymous git:// pushes will be rejected.
 	 - Option to automatically tag branch tips on each push with an incremental revision number
      - Implemented multiple repository owners
      - Optional periodic LDAP user and team pre-fetching & synchronization

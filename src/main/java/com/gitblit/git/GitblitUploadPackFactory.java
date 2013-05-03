@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.DaemonClient;
 import org.eclipse.jgit.transport.RefFilter;
 import org.eclipse.jgit.transport.UploadPack;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
@@ -56,9 +55,9 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}
-		} else if (req instanceof DaemonClient) {
+		} else if (req instanceof GitDaemonClient) {
 			// git daemon request is always anonymous
-			DaemonClient client = (DaemonClient) req;
+			GitDaemonClient client = (GitDaemonClient) req;
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
 		}

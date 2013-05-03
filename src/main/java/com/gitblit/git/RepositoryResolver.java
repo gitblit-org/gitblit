@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.DaemonClient;
 import org.eclipse.jgit.transport.resolver.FileResolver;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
@@ -54,10 +53,19 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	public Repository open(final X req, final String name)
 			throws RepositoryNotFoundException, ServiceNotEnabledException {
 		Repository repo = super.open(req, name);
-		// XXX Set repository name for the pack factories
+		
+		// Set repository name for the pack factories
 		// We do this because the JGit API does not have a consistent way to
 		// retrieve the repository name from the pack factories or the hooks.
-		repo.getConfig().setString("gitblit", null, "repositoryName", name);
+		if (req instanceof HttpServletRequest) {
+			// http/https request
+			HttpServletRequest client = (HttpServletRequest) req;
+			client.setAttribute("gitblitRepositoryName", name);
+		} else if (req instanceof GitDaemonClient) {
+			// git request
+			GitDaemonClient client = (GitDaemonClient) req;
+			client.setRepositoryName(name);
+		}
 		return repo;
 	}
 	
@@ -72,10 +80,10 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 		UserModel user = null;
 		String origin = null;
 		
-		if (req instanceof DaemonClient) {
+		if (req instanceof GitDaemonClient) {
 			// git daemon request
 			// this is an anonymous/unauthenticated protocol
-			DaemonClient client = (DaemonClient) req;
+			GitDaemonClient client = (GitDaemonClient) req;
 			scheme = "git";
 			origin = client.getRemoteAddress().toString();
 			user = UserModel.ANONYMOUS;

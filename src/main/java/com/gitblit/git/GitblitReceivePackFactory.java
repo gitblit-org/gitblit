@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.DaemonClient;
 import org.eclipse.jgit.transport.ReceivePack;
 import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
@@ -50,18 +49,15 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 		final ReceivePack rp = new ReceivePack(db);
 		UserModel user = UserModel.ANONYMOUS;
+		String repositoryName = "";
 		String origin = "";
 		String gitblitUrl = "";
 		int timeout = 0;
 		
-		// XXX extract the repository name from the config
-		// the name is injected by GitRepositoryResolver
-		String repositoryName = db.getConfig().getString("gitblit", null, "repositoryName");
-		
-		
 		if (req instanceof HttpServletRequest) {
 			// http/https request may or may not be authenticated 
 			HttpServletRequest request = (HttpServletRequest) req;
+			repositoryName = request.getAttribute("gitblitRepositoryName").toString();
 			origin = request.getRemoteHost();
 			gitblitUrl = HttpUtils.getGitblitURL(request);
 
@@ -74,9 +70,10 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 					user = new UserModel(username);
 				}
 			}
-		} else if (req instanceof DaemonClient) {
+		} else if (req instanceof GitDaemonClient) {
 			// git daemon request is alway anonymous
-			DaemonClient client = (DaemonClient) req;
+			GitDaemonClient client = (GitDaemonClient) req;
+			repositoryName = client.getRepositoryName();
 			origin = client.getRemoteAddress().getHostAddress();
 			// set timeout from Git daemon
 			timeout = client.getDaemon().getTimeout();
