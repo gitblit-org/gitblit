@@ -52,29 +52,34 @@ import com.gitblit.utils.TimeUtils;
 
 public class WicketUtils {
 
-	public static void setCssClass(Component container, String value) {
+	public static Component setCssClass(Component container, String value) {
 		container.add(new SimpleAttributeModifier("class", value));
+		return container;
 	}
 
-	public static void setCssStyle(Component container, String value) {
+	public static Component setCssStyle(Component container, String value) {
 		container.add(new SimpleAttributeModifier("style", value));
+		return container;
 	}
 
-	public static void setCssBackground(Component container, String value) {
+	public static Component setCssBackground(Component container, String value) {
 		String background = MessageFormat.format("background-color:{0};",
 				StringUtils.getColor(value));
 		container.add(new SimpleAttributeModifier("style", background));
+		return container;
 	}
 
-	public static void setHtmlTooltip(Component container, String value) {
+	public static Component setHtmlTooltip(Component container, String value) {
 		container.add(new SimpleAttributeModifier("title", value));
+		return container;
 	}
 
-	public static void setInputPlaceholder(Component container, String value) {
+	public static Component setInputPlaceholder(Component container, String value) {
 		container.add(new SimpleAttributeModifier("placeholder", value));
+		return container;
 	}
 
-	public static void setChangeTypeCssClass(Component container, ChangeType type) {
+	public static Component setChangeTypeCssClass(Component container, ChangeType type) {
 		switch (type) {
 		case ADD:
 			setCssClass(container, "addition");
@@ -90,9 +95,10 @@ public class WicketUtils {
 			setCssClass(container, "modification");
 			break;
 		}
+		return container;
 	}
 
-	public static void setTicketCssClass(Component container, String state) {
+	public static Component setTicketCssClass(Component container, String state) {
 		String css = null;
 		if (state.equals("open")) {
 			css = "label label-important";
@@ -106,11 +112,13 @@ public class WicketUtils {
 		if (css != null) {
 			setCssClass(container, css);
 		}
+		return container;
 	}
 
-	public static void setAlternatingBackground(Component c, int i) {
+	public static Component setAlternatingBackground(Component c, int i) {
 		String clazz = i % 2 == 0 ? "light" : "dark";
 		setCssClass(c, clazz);
+		return c;
 	}
 
 	public static Label createAuthorLabel(String wicketId, String author) {
