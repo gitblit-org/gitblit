@@ -17,6 +17,12 @@ Value = <em>false</em></pre>
 5. The repository is clone-restricted and your password changed.
 6. A regression in Gitblit.  :(
 
+### I can not push using git:// protocol on Windows using native Git
+
+This is a long-standing, known bug in the native Git for Windows implementation.
+
+https://groups.google.com/d/topic/msysgit/at8D7J-h7mw/discussion
+
 ### Why can't I access Gitblit GO from another machine?
 1. Please check *server.httpBindInterface* and *server.httpsBindInterface* in `gitblit.properties`, you may be only be serving on *localhost*.
 2. Please see the above answer about "**can't open upload pack**".
