@@ -204,17 +204,23 @@ public class HistoryPanel extends BasePanel {
 					item.add(links);
 				} else if (isSubmodule) {
 					// submodule
-					item.add(new Label("hashLabel", submodulePath + "@"));
 					Repository repository = GitBlit.self().getRepository(repositoryName);
 					String submoduleId = JGitUtils.getSubmoduleCommitId(repository, path, entry);
 					repository.close();
-					LinkPanel commitHash = new LinkPanel("hashLink", null, submoduleId.substring(0, hashLen),
-							TreePage.class, WicketUtils.newObjectParameter(
-									submodulePath, submoduleId));
-					WicketUtils.setCssClass(commitHash, "shortsha1");
-					WicketUtils.setHtmlTooltip(commitHash, submoduleId);					
-					item.add(commitHash.setEnabled(hasSubmodule));
-					
+					if (StringUtils.isEmpty(submoduleId)) {
+						// not a submodule at this commit, just a matching path
+						item.add(new Label("hashLabel").setVisible(false));
+						item.add(new Label("hashLink").setVisible(false));
+					} else {
+						// really a submodule
+						item.add(new Label("hashLabel", submodulePath + "@"));
+						LinkPanel commitHash = new LinkPanel("hashLink", null, submoduleId.substring(0, hashLen),
+								TreePage.class, WicketUtils.newObjectParameter(
+										submodulePath, submoduleId));
+						WicketUtils.setCssClass(commitHash, "shortsha1");
+						WicketUtils.setHtmlTooltip(commitHash, submoduleId);					
+						item.add(commitHash.setEnabled(hasSubmodule));
+					}
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
