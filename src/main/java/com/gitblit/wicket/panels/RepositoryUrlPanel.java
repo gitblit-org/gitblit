@@ -83,36 +83,39 @@ public class RepositoryUrlPanel extends BasePanel {
 			add(new Label("repositoryGitDaemonUrl").setVisible(false));
 		}
 		
+		String cloneWith = localizer.getString("gb.cloneWithApp", owner);
 		final List<AppCloneLink> cloneLinks = new ArrayList<AppCloneLink>();
 		if (user.canClone(repository) && GitBlit.getBoolean(Keys.web.allowAppCloneLinks, true)) {
 			// universal app clone urls
-//			cloneLinks.add(new AppCloneLink(localizer.getString("gb.cloneWithSmartGit", owner),
+//			cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SmartGit\u2122"),
 //					MessageFormat.format("smartgit://cloneRepo/{0}", primaryUrl),
 //					"Syntevo SmartGit\u2122"));
 
 			if (isWindows()) {
 				// Windows client app clone urls
-				cloneLinks.add(new AppCloneLink(localizer.getString("gb.cloneWithSourceTree", owner),
+				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SourceTree\u2122"),
 						MessageFormat.format("sourcetree://cloneRepo/{0}", primaryUrl),
 						"Atlassian SourceTree\u2122"));
 //				cloneLinks.add(new AppCloneLink(
-//						MessageFormat.format(localizer.getString("gb.cloneWithGitHub", owner), "Windows"),
-//						MessageFormat.format("github-windows://openRepo/{0}", primaryUrl)));
+//						MessageFormat.format(cloneWith, "GitHub\u2122 for Windows"),
+//						MessageFormat.format("github-windows://openRepo/{0}", primaryUrl),
+//						"GitHub\u2122 for Windows"));
 			} else if (isMac()) {
 				// Mac client app clone urls
-				cloneLinks.add(new AppCloneLink(localizer.getString("gb.cloneWithSourceTree", owner),
+				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SourceTree\u2122"),
 						MessageFormat.format("sourcetree://cloneRepo/{0}", primaryUrl),
 						"Atlassian SourceTree\u2122"));
 //				cloneLinks.add(new AppCloneLink(
-//						MessageFormat.format(localizer.getString("gb.cloneWithGitHub", owner), "Mac"),
-//						MessageFormat.format("github-mac://openRepo/{0}", primaryUrl)));
+//						MessageFormat.format(cloneWith, "GitHub\u2122 for Mac"),
+//						MessageFormat.format("github-mac://openRepo/{0}", primaryUrl),
+//						"GitHub\u2122 for Mac"));
 			}
 
 			// sparkleshare invite url
 			String sparkleshareUrl = getSparkleShareInviteUrl(user, repository);
 			if (!StringUtils.isEmpty(sparkleshareUrl)) {
-				cloneLinks.add(new AppCloneLink(localizer.getString("gb.cloneWithSparkleShare", owner),
-						sparkleshareUrl, "SparkleShare \u2122", "icon-star"));
+				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SparkleShare\u2122"),
+						sparkleshareUrl, "SparkleShare\u2122", "icon-star"));
 			}
 		}
 
