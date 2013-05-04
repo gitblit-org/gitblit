@@ -105,6 +105,9 @@ public class RepositoryUrlPanel extends BasePanel {
 				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SourceTree\u2122"),
 						MessageFormat.format("sourcetree://cloneRepo/{0}", primaryUrl),
 						"Atlassian SourceTree\u2122"));
+				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "Tower\u2122"),
+						MessageFormat.format("gittower://openRepo/{0}", primaryUrl),
+						"fournova Tower\u2122"));
 //				cloneLinks.add(new AppCloneLink(
 //						MessageFormat.format(cloneWith, "GitHub\u2122 for Mac"),
 //						MessageFormat.format("github-mac://openRepo/{0}", primaryUrl),
