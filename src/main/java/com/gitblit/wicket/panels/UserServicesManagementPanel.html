@@ -5,19 +5,27 @@
 <body>
 	<wicket:panel>
 		<form id="ugmForm" wicket:id="ugmForm">
+			
 			<div class="header ugm">
 				<span class="ugmOrder ugmCol"><input type="submit" class="btn btn-primary" wicket:id="saveOrder" wicket:message="value:gb.realm.ugm.saveOrder" /></span>
 				<span class="ugmName ugmCol"><wicket:message key="gb.realm.ugm.name" /></span>
-				<span class="ugmMapping ugmCol"><wicket:message key="gb.realm.ugm.mapping" /></span>
 				<span class="ugmConnector ugmCol"><wicket:message key="gb.realm.ugm.connector" /></span>
+				<span class="ugmAuthUsers ugmCol"><wicket:message key="gb.realm.ugm.authUsers" /></span>
+				<span class="ugmMapGroups ugmCol"><wicket:message key="gb.realm.ugm.mapGroups" /></span>
+				<span class="ugmMapping ugmCol"><wicket:message key="gb.realm.ugm.mapping" /></span>
+				
 			</div>
-			<ul id="sortableUgm" class="ui-sortable">
-				<li class="ui-state-default" wicket:id="internal">[internal panel]</li>
-				<li class="ui-state-default" wicket:id="ldap">[internal panel]</li>
-				<li class="ui-state-default" wicket:id="crowd">[internal panel]</li>
-				<li class="ui-state-default" wicket:id="redmine">[internal panel]</li>
+			<div class="header ugmDivider ugmDividerActive">active user services</div>
+			<ul id="sortableUgm" class="ui-sortable connectedUgmSortable">
+				<li class="ui-state-default" wicket:id="internal">[internal panel]</li>							
 			</ul>
-		</form>
+			<div class="header ugmDivider">inactive user services</div>
+			<ul id="sortableUgmInactive" class="ui-sortable connectedUgmSortable">
+				<li class="ui-state-default" wicket:id="realm.ldap">[internal panel]</li>
+				<li class="ui-state-default" wicket:id="realm.crowd">[internal panel]</li>
+				<li class="ui-state-default" wicket:id="realm.redmine">[internal panel]</li>
+			</ul>
+		</form>		
 	</wicket:panel>
 </body>
 </html>

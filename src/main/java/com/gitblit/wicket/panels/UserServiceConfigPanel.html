@@ -4,10 +4,31 @@
 	xml:lang="en" lang="en">
 <body>
 	<wicket:panel>
+		<form id="ugmPanelForm" wicket:id="ugmPanelForm">
 		<span class="ugmOrder ugmCol"><span class="ui-icon ui-icon-arrowthick-2-n-s ugm-ui-icon"></span></span>
-		<span class="ugmName ugmCol">name</span>
-		<span class="ugmMapping ugmCol"><input type="button" value="M" class="btn ugmBtn"></input></span>
-		<span class="ugmConnector ugmCol"><input type="button" value="C" class="btn ugmBtn"></input></span>
+		<span class="ugmName ugmCol"><span wicket:id="titleLabel">this text will be replaced</span></span>
+		<span class="ugmConnector ugmCol"><a class="btn ugmBtn connectorButton" wicket:id="connector">C</a></span>
+		<span class="ugmAuthUsers ugmCol"><input type="checkbox" /></span>
+		<span class="ugmMapGroups ugmCol"><input type="checkbox" /></span>
+		<span class="ugmMapping ugmCol"><a class="btn ugmBtn mappingButton" wicket:id="mapping">M</a></span>
+		<div class="connectorDetails visibleUgmForm" style="display:none">
+			<div class="header ugmDivider ugmDividerActive textleft" wicket:id="ugmConnectorDetailsTitle">Connector Details Form</div>
+			<span wicket:id="listview" class="ugmListRow">
+				<input type="hidden" wicket:id="paramField"/>
+   				<span wicket:id="label" class="ugmConnectorDetailsLabel">label</span>
+   				<input type="text" class="ugmConnectorDetailsField" wicket:id="valueField"/>
+			</span>
+		</div>
+		<div class="mappingRules visibleUgmForm" style="display:none">
+			<div class="header ugmDivider ugmDividerActive textright" wicket:id="ugmMappingRulesTitle">Mapping Rules Form</div>
+			<span wicket:id="listRolesview" class="ugmListRow">
+				<input type="text" class="ugmMappingRulesField" wicket:id="remoteRole"/>
+				<select class="ugmMappingRulesSelection" wicket:id="systemRoleSelection"></select>
+				<input class="btn btn-inverse ugmMappingRulesBtn" type="button" value="Remove" wicket:message="value:gb.remove" />
+			</span>
+			<input class="btn btn-success" type="button" value="Add" wicket:message="value:gb.add" />
+		</div>
+		</form>		
 	</wicket:panel>
 </body>
 </html>

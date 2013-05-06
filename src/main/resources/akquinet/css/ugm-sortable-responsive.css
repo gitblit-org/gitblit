@@ -1,15 +1,35 @@
-#sortableUgm { 
+#sortableUgm, #sortableUgmInactive { 
 	list-style-type: none; 
 	margin: 0; 
 	padding: 0; 
-	width: 60%; 
+	width: 100%; 
 }
 
-#sortableUgm li { 
+#sortableUgm li, #sortableUgmInactive li { 
 	width: 100%;
 	padding-top: 3px;
 	padding-bottom: 3px; 
 	margin: 2px 0 2px;
+}
+
+#sortableUgm li {
+	background-color: #fff;
+	color: #04a;
+	background-image: none;
+}
+#sortableUgmInactive li {
+	background-color: #eee;
+	color: #999;
+	background-image: none;
+	font-weight: normal;
+} 
+
+#sortableUgm li .ugmBtn {
+	color: #04a;
+}
+
+#sortableUgmInactive li .ugmBtn {
+	color: #999;
 }
 
 .header.ugm {
@@ -28,7 +48,7 @@
 }
 
 .ugm {
-	width: 60%;
+	width: 100%;
 }
 
 .btn.ugmBtn {
@@ -43,6 +63,78 @@
 	width: 40%;	
 }
 
-.ugmMapping, .ugmConnector {
-	width: 20%;
+.ugmAuthUsers, .ugmMapGroups {
+	width: 10%;
 }
+
+.ugmMapping, .ugmConnector {
+	width: 10%;
+}
+
+.ugmDivider {
+	width: 100%;
+	display: inline-block;
+	border: solid 1px #eee;
+	background-color: #eee;
+	color: #666;
+	font-style: italic;
+	font-size: 0.9em;
+	text-align: center;
+}
+
+.header.ugmDivider {
+	padding: 0px 2px;
+	margin-bottom: 8px;
+}
+
+.ugmDividerActive {
+	background-color: #fff;
+	color: #04a;
+	margin-top: 10px;
+	font-weight: bold;
+}
+
+#ugmConnectorDetailsForm, #ugmMappingRulesForm {
+	width: 40%;
+}
+
+.visibleUgmForm {
+	display: block;
+	display: block;
+	margin-left: 57%;
+	width: 33%;
+	padding: 0px 10px;
+}
+
+.textright {
+	text-align: right;
+}
+
+.textleft {
+	text-align: left;
+}
+
+.ugmListRow .ugmConnectorDetailsLabel, .ugmListRow .ugmMappingRulesField {
+	margin-left: 3%;
+}
+
+.ugmListRow .ugmConnectorDetailsLabel , .ugmListRow .ugmConnectorDetailsField {
+	width: 45%;
+	display: inline-block;
+}
+
+.ugmListRow .ugmMappingRulesBtn {
+	width: 20%;
+	display: inline-block;
+	vertical-align: text-bottom;
+	padding: 0;
+}
+
+.ugmListRow .ugmMappingRulesField, .ugmListRow .ugmMappingRulesSelection {
+	width: 35%;
+	display: inline-block;
+}
+
+.ugmListRow {
+	width: 100%;
+	display: block;
