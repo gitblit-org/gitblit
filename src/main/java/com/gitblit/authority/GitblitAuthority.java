@@ -464,9 +464,9 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				
 				// refresh user
 				ucm.certs = null;
-				int modelIndex = table.convertRowIndexToModel(table.getSelectedRow());
+				int selectedIndex = table.getSelectedRow();
 				tableModel.fireTableDataChanged();
-				table.getSelectionModel().setSelectionInterval(modelIndex, modelIndex);
+				table.getSelectionModel().setSelectionInterval(selectedIndex, selectedIndex);
 				
 				if (sendEmail) {
 					sendEmail(user, metadata, zip);
