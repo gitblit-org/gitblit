@@ -804,6 +804,8 @@ public class GitblitAuthority extends JFrame implements X509Log {
 	}
 	
 	private void filterUsers(final String fragment) {
+		table.clearSelection();
+		userCertificatePanel.setUserCertificateModel(null);
 		if (StringUtils.isEmpty(fragment)) {
 			table.setRowSorter(defaultSorter);
 			return;

@@ -138,6 +138,9 @@ public class CertificatesTableModel extends AbstractTableModel {
 	
 	public void setUserCertificateModel(UserCertificateModel ucm) {
 		this.ucm = ucm;
+		if (ucm == null) {
+			return;
+		}
 		Collections.sort(ucm.certs, new Comparator<X509Certificate>() {
 			@Override
 			public int compare(X509Certificate o1, X509Certificate o2) {

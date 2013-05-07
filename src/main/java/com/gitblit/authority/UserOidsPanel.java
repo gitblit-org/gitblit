@@ -61,14 +61,14 @@ public class UserOidsPanel extends JPanel {
 	
 	public void setUserCertificateModel(UserCertificateModel ucm) {
 		setEditable(false);
-		displayname.setText(ucm.user.getDisplayName());
-		username.setText(ucm.user.username);
-		emailAddress.setText(ucm.user.emailAddress);
-		organizationalUnit.setText(ucm.user.organizationalUnit);
-		organization.setText(ucm.user.organization);
-		locality.setText(ucm.user.locality);
-		stateProvince.setText(ucm.user.stateProvince);
-		countryCode.setText(ucm.user.countryCode);
+		displayname.setText(ucm == null ? "" : ucm.user.getDisplayName());
+		username.setText(ucm == null ? "" : ucm.user.username);
+		emailAddress.setText(ucm == null ? "" : ucm.user.emailAddress);
+		organizationalUnit.setText(ucm == null ? "" : ucm.user.organizationalUnit);
+		organization.setText(ucm == null ? "" : ucm.user.organization);
+		locality.setText(ucm == null ? "" : ucm.user.locality);
+		stateProvince.setText(ucm == null ? "" : ucm.user.stateProvince);
+		countryCode.setText(ucm == null ? "" : ucm.user.countryCode);
 	}
 	
 	public void setEditable(boolean editable) {
