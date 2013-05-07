@@ -43,7 +43,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	/**
 	 * Extract the repository name from the url.
 	 * 
-	 * @param url
+	 * @param cloneUrl
 	 * @return repository name
 	 */
 	public static String getRepositoryName(String value) {

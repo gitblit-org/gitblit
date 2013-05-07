@@ -101,6 +101,11 @@
 		     this file is only used for parsing setting descriptions. -->
 		<copy tofile="${project.src.dir}/reference.properties" overwrite="true"
 			file="${project.distrib.dir}/data/gitblit.properties" />
+
+		<!-- copy clientapps.json to the source directory.
+		     this file is only used if a local file is not provided. -->
+		<copy tofile="${project.src.dir}/clientapps.json" overwrite="true"
+			file="${project.distrib.dir}/data/clientapps.json" />
 		
 		<!-- 
 			upgrade existing workspace to data directory
@@ -959,6 +964,7 @@
 					<include name="users.conf" />
 					<include name="projects.conf" />
 					<include name="gitblit.properties" />
+					<include name="clientapps.json" />
 				</fileset>
 			</copy>
 			<mkdir dir="@{toDir}/groovy" />

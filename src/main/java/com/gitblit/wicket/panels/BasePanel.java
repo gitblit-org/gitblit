@@ -22,7 +22,6 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -59,19 +58,6 @@ public abstract class BasePanel extends Panel {
 		return timeUtils;
 	}
 	
-	protected boolean isWindows() {
-		return isPlatform("windows");
-	}
-
-	protected boolean isMac() {
-		return isPlatform("macintosh");
-	}
-	
-	protected boolean isPlatform(String platform) {
-		String ua = ((WebClientInfo) GitBlitWebSession.get().getClientInfo()).getUserAgent();
-		return ua.toLowerCase().contains(platform);
-	}
-
 	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {
 		if (searchType.equals(Constants.SearchType.AUTHOR)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);

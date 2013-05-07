@@ -68,7 +68,7 @@ public class PagesFilter extends AccessRestrictionFilter {
 	/**
 	 * Analyze the url and returns the action of the request.
 	 * 
-	 * @param url
+	 * @param cloneUrl
 	 * @return action of the request
 	 */
 	@Override

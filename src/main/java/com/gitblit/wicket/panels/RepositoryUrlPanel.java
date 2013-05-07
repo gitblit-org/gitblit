@@ -24,10 +24,13 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Localizer;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.ContextImage;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
@@ -35,6 +38,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SparkleShareInviteServlet;
+import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -52,99 +56,174 @@ public class RepositoryUrlPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private final String primaryUrl;
+	private final RepoUrl primaryUrl;
 
 	public RepositoryUrlPanel(String wicketId, boolean onlyPrimary, UserModel user, 
-			RepositoryModel repository, Localizer localizer, Component owner) {
+			final RepositoryModel repository, Localizer localizer, Component owner) {
 		super(wicketId);
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		List<String> repositoryUrls = new ArrayList<String>();
+		List<RepoUrl> repositoryUrls = new ArrayList<RepoUrl>();
 
-		AccessPermission accessPermission = null;
+		// http/https url
 		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
-			accessPermission = user.getRepositoryPermission(repository).permission;
-			repositoryUrls.add(getRepositoryUrl(repository));
-		}
-		repositoryUrls.addAll(GitBlit.self().getOtherCloneUrls(repository.name, UserModel.ANONYMOUS.equals(user) ? "" : user.username));
-		
-		primaryUrl = repositoryUrls.size() == 0 ? "" : repositoryUrls.remove(0);
-
-		add(new DetailedRepositoryUrlPanel("repositoryPrimaryUrl", localizer, owner, repository.name, primaryUrl, accessPermission));
-		
-		if (!onlyPrimary) {
-			Component gitDaemonUrlPanel = createGitDaemonUrlPanel("repositoryGitDaemonUrl", user, repository);
-			if (!StringUtils.isEmpty(primaryUrl) && gitDaemonUrlPanel instanceof DetailedRepositoryUrlPanel) {
-				WicketUtils.setCssStyle(gitDaemonUrlPanel, "padding-top: 10px");
+			AccessPermission permission = user.getRepositoryPermission(repository).permission;
+			if (permission.exceeds(AccessPermission.NONE)) {
+				repositoryUrls.add(new RepoUrl(getRepositoryUrl(repository), permission));
 			}
-			add(gitDaemonUrlPanel);
-		} else {
-			add(new Label("repositoryGitDaemonUrl").setVisible(false));
 		}
 		
-		String cloneWith = localizer.getString("gb.cloneWithApp", owner);
-		final List<AppCloneLink> cloneLinks = new ArrayList<AppCloneLink>();
-		if (user.canClone(repository) && GitBlit.getBoolean(Keys.web.allowAppCloneLinks, true)) {
-			// universal app clone urls
-//			cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SmartGit\u2122"),
-//					MessageFormat.format("smartgit://cloneRepo/{0}", primaryUrl),
-//					"Syntevo SmartGit\u2122"));
+		// git daemon url
+		String gitDaemonUrl = getGitDaemonUrl(user, repository);
+		if (!StringUtils.isEmpty(gitDaemonUrl)) {
+			AccessPermission permission = getGitDaemonAccessPermission(user, repository);
+			if (permission.exceeds(AccessPermission.NONE)) {
+				repositoryUrls.add(new RepoUrl(gitDaemonUrl, permission));
+			}
+		}
+		
+		// add all other urls
+		for (String url : GitBlit.self().getOtherCloneUrls(repository.name, UserModel.ANONYMOUS.equals(user) ? "" : user.username)) {
+			repositoryUrls.add(new RepoUrl(url, null));
+		}
+		
+		// grab primary url from the top of the list
+		primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 
-			if (isWindows()) {
-				// Windows client app clone urls
-				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SourceTree\u2122"),
-						MessageFormat.format("sourcetree://cloneRepo/{0}", primaryUrl),
-						"Atlassian SourceTree\u2122"));
-//				cloneLinks.add(new AppCloneLink(
-//						MessageFormat.format(cloneWith, "GitHub\u2122 for Windows"),
-//						MessageFormat.format("github-windows://openRepo/{0}", primaryUrl),
-//						"GitHub\u2122 for Windows"));
-			} else if (isMac()) {
-				// Mac client app clone urls
-				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SourceTree\u2122"),
-						MessageFormat.format("sourcetree://cloneRepo/{0}", primaryUrl),
-						"Atlassian SourceTree\u2122"));
-				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "Tower\u2122"),
-						MessageFormat.format("gittower://openRepo/{0}", primaryUrl),
-						"fournova Tower\u2122"));
-//				cloneLinks.add(new AppCloneLink(
-//						MessageFormat.format(cloneWith, "GitHub\u2122 for Mac"),
-//						MessageFormat.format("github-mac://openRepo/{0}", primaryUrl),
-//						"GitHub\u2122 for Mac"));
+		add(new DetailedRepositoryUrlPanel("repositoryPrimaryUrl", localizer, owner, 
+				repository.name, primaryUrl == null ? "" : primaryUrl.url,
+				primaryUrl == null ? null : primaryUrl.permission));
+		
+		if (onlyPrimary) {
+			// only displaying the primary url
+			add(new Label("urlMenus").setVisible(false));
+			return;
+		}
+		
+		final String clonePattern = localizer.getString("gb.cloneUrl", owner);
+		final String visitSitePattern = localizer.getString("gb.visitSite", owner);
+		
+		GitClientApplication URLS = new GitClientApplication();
+		URLS.name = "URLs";
+		URLS.command = "{0}";
+		URLS.attribution = "Repository URLs";
+		URLS.isApplication = false;
+		URLS.isActive = true;
+		
+		GitClientApplication GIT = new GitClientApplication();
+		GIT.name = "Git";
+		GIT.command = "git clone {0}";
+		GIT.productUrl = "http://git-scm.org";
+		GIT.attribution = "Git Syntax";
+		GIT.isApplication = false;
+		GIT.isActive = true;
+		
+		final List<GitClientApplication> clientApps = new ArrayList<GitClientApplication>();
+		clientApps.add(URLS);
+		clientApps.add(GIT);
+		
+		final String userAgent = ((WebClientInfo) GitBlitWebSession.get().getClientInfo()).getUserAgent();
+		boolean allowAppLinks = GitBlit.getBoolean(Keys.web.allowAppCloneLinks, true);
+		if (user.canClone(repository)) {
+			for (GitClientApplication app : GitBlit.self().getClientApplications()) {
+				if (app.isActive && app.allowsPlatform(userAgent) && (!app.isApplication || (app.isApplication && allowAppLinks))) {
+					clientApps.add(app);
+				}
 			}
 
 			// sparkleshare invite url
 			String sparkleshareUrl = getSparkleShareInviteUrl(user, repository);
-			if (!StringUtils.isEmpty(sparkleshareUrl)) {
-				cloneLinks.add(new AppCloneLink(MessageFormat.format(cloneWith, "SparkleShare\u2122"),
-						sparkleshareUrl, "SparkleShare\u2122", "icon-star"));
+			if (!StringUtils.isEmpty(sparkleshareUrl) && allowAppLinks) {
+				GitClientApplication link = new GitClientApplication();
+				link.name = "SparkleShare";
+				link.cloneUrl = sparkleshareUrl;
+				link.attribution = "SparkleShare\u2122";
+				link.platforms = new String [] { "windows", "macintosh", "linux" };
+				link.productUrl = "http://sparkleshare.org";
+				link.isApplication = true;
+				link.isActive = true;
+				clientApps.add(link);
 			}
 		}
+		
+		final ListDataProvider<RepoUrl> repoUrls = new ListDataProvider<RepoUrl>(repositoryUrls);
 
 		// app clone links
-		ListDataProvider<AppCloneLink> appLinks = new ListDataProvider<AppCloneLink>(cloneLinks);
-		DataView<AppCloneLink> appCloneLinks = new DataView<AppCloneLink>("appCloneLink", appLinks) {
+		ListDataProvider<GitClientApplication> appLinks = new ListDataProvider<GitClientApplication>(clientApps);
+		DataView<GitClientApplication> urlMenus = new DataView<GitClientApplication>("urlMenus", appLinks) {
 			private static final long serialVersionUID = 1L;
-			int count;
 			
-			public void populateItem(final Item<AppCloneLink> item) {
-				final AppCloneLink appLink = item.getModelObject();
-				item.add(new Label("icon", MessageFormat.format("<i class=\"{0}\"></i>", appLink.icon)).setEscapeModelStrings(false));
-				LinkPanel linkPanel = new LinkPanel("link", null, appLink.name, appLink.url);
-				if (!StringUtils.isEmpty(appLink.tooltip)) {
-					WicketUtils.setHtmlTooltip(linkPanel, appLink.tooltip);
+			public void populateItem(final Item<GitClientApplication> item) {
+				final GitClientApplication cloneLink = item.getModelObject();
+				item.add(new Label("productName", cloneLink.name));
+				
+				// a nested repeater for all repo links
+				DataView<RepoUrl> repoLinks = new DataView<RepoUrl>("repoLinks", repoUrls) {
+					private static final long serialVersionUID = 1L;
+
+					public void populateItem(final Item<RepoUrl> repoLinkItem) {
+						RepoUrl repoUrl = repoLinkItem.getModelObject();
+						if (!StringUtils.isEmpty(cloneLink.cloneUrl)) {
+							// custom registered url
+							Fragment fragment = new Fragment("repoLink", "linkFragment", this);
+							String name;
+							if (repoUrl.permission != null) {
+								name = MessageFormat.format("{0} ({1})", repoUrl.url, repoUrl.permission);
+							} else {
+								name = repoUrl.url;
+							}
+							String url = MessageFormat.format(cloneLink.cloneUrl, repoUrl);
+							fragment.add(new LinkPanel("content", null, MessageFormat.format(clonePattern, name), url));
+							repoLinkItem.add(fragment);
+							String tooltip = getProtocolPermissionDescription(repository, repoUrl);
+							WicketUtils.setHtmlTooltip(fragment, tooltip);
+						} else if (!StringUtils.isEmpty(cloneLink.command)) {
+							// command-line
+							Fragment fragment = new Fragment("repoLink", "commandFragment", this);
+							WicketUtils.setCssClass(fragment, "repositoryUrlMenuItem");
+							String command = MessageFormat.format(cloneLink.command, repoUrl);
+							fragment.add(new Label("content", command));
+							repoLinkItem.add(fragment);
+							String tooltip = getProtocolPermissionDescription(repository, repoUrl);
+							WicketUtils.setHtmlTooltip(fragment, tooltip);
+							
+							// copy function for command
+							if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
+								// clippy: flash-based copy & paste
+								Fragment copyFragment = new Fragment("copyFunction", "clippyPanel", this);
+								String baseUrl = WicketUtils.getGitblitURL(getRequest());
+								ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
+								clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(command));
+								copyFragment.add(clippy);
+								fragment.add(copyFragment);
+							} else {
+								// javascript: manual copy & paste with modal browser prompt dialog
+								Fragment copyFragment = new Fragment("copyFunction", "jsPanel", this);
+								ContextImage img = WicketUtils.newImage("copyIcon", "clippy.png");
+								img.add(new JavascriptTextPrompt("onclick", "Copy to Clipboard (Ctrl+C, Enter)", command));
+								copyFragment.add(img);
+								fragment.add(copyFragment);
+							}
+						}
+					}};
+				item.add(repoLinks);
+				
+				item.add(new Label("productAttribution", cloneLink.attribution));
+				if (!StringUtils.isEmpty(cloneLink.productUrl)) {
+					LinkPanel productlinkPanel = new LinkPanel("productLink", null,
+							MessageFormat.format(visitSitePattern, cloneLink.name), cloneLink.productUrl, true);
+					item.add(productlinkPanel);
+				} else {
+					item.add(new Label("productLink").setVisible(false));
 				}
-				item.add(linkPanel);
-				item.add(new Label("separator", "|").setVisible(count < (cloneLinks.size() - 1)));
-				count++;
 			}
 		};
-		add(appCloneLinks);
+		add(urlMenus);
 	}
 	
 	public String getPrimaryUrl() {
-		return primaryUrl;
+		return primaryUrl == null ? "" : primaryUrl.url;
 	}
 	
 	protected String getRepositoryUrl(RepositoryModel repository) {
@@ -162,7 +241,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		return sb.toString();
 	}
 	
-	protected Component createGitDaemonUrlPanel(String wicketId, UserModel user, RepositoryModel repository) {
+	protected String getGitDaemonUrl(UserModel user, RepositoryModel repository) {
 		int gitDaemonPort = GitBlit.getInteger(Keys.git.daemonPort, 0);
 		if (gitDaemonPort > 0 && user.canClone(repository)) {
 			String servername = ((WebRequest) getRequest()).getHttpServletRequest().getServerName();
@@ -174,7 +253,14 @@ public class RepositoryUrlPanel extends BasePanel {
 				// non-standard port
 				gitDaemonUrl = MessageFormat.format("git://{0}:{1,number,0}/{2}", servername, gitDaemonPort, repository.name);
 			}
-			
+			return gitDaemonUrl;
+		}
+		return null;
+	}
+	
+	protected AccessPermission getGitDaemonAccessPermission(UserModel user, RepositoryModel repository) {
+		int gitDaemonPort = GitBlit.getInteger(Keys.git.daemonPort, 0);
+		if (gitDaemonPort > 0 && user.canClone(repository)) {
 			AccessPermission gitDaemonPermission = user.getRepositoryPermission(repository).permission;;
 			if (gitDaemonPermission.atLeast(AccessPermission.CLONE)) {
 				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
@@ -187,18 +273,9 @@ public class RepositoryUrlPanel extends BasePanel {
 					// normal user permission
 				}
 			}
-			
-			if (AccessPermission.NONE.equals(gitDaemonPermission)) {
-				// repository prohibits all anonymous access
-				return new Label(wicketId).setVisible(false);
-			} else {
-				// repository allows some form of anonymous access
-				return new DetailedRepositoryUrlPanel(wicketId, getLocalizer(), this, repository.name, gitDaemonUrl, gitDaemonPermission);
-			}
-		} else {
-			// git daemon is not running
-			return new Label(wicketId).setVisible(false);
+			return gitDaemonPermission;
 		}
+		return AccessPermission.NONE;
 	}
 
 	protected String getSparkleShareInviteUrl(UserModel user, RepositoryModel repository) {
@@ -223,24 +300,62 @@ public class RepositoryUrlPanel extends BasePanel {
 		return null;
 	}
 	
-	static class AppCloneLink implements Serializable {
+	protected String getProtocolPermissionDescription(RepositoryModel repository, RepoUrl repoUrl) {
+		String protocol = repoUrl.url.substring(0, repoUrl.url.indexOf("://"));
+		String note;
+		if (repoUrl.permission == null) {
+			note = MessageFormat.format(getString("gb.externalPermissions"), protocol, repository.name);			
+		} else {
+			note = null;			
+			String key;
+			switch (repoUrl.permission) {
+				case OWNER:
+				case REWIND:
+					key = "gb.rewindPermission";
+					break;
+				case DELETE:
+					key = "gb.deletePermission";
+					break;
+				case CREATE:
+					key = "gb.createPermission";
+					break;
+				case PUSH:
+					key = "gb.pushPermission";
+					break;
+				case CLONE:
+					key = "gb.clonePermission";
+					break;
+				default:
+					key = null;
+					note = getString("gb.viewAccess");
+					break;
+			}
+			
+			if (note == null) {
+				String pattern = getString(key);
+				String description = MessageFormat.format(pattern, repoUrl.permission.toString());
+				String permissionPattern = getString("gb.yourProtocolPermissionIs");
+				note = MessageFormat.format(permissionPattern, protocol.toUpperCase(), repository, description);
+			}
+		}
+		return note;
+	}
+	
+	private class RepoUrl implements Serializable {
 		
 		private static final long serialVersionUID = 1L;
 		
-		final String name;
 		final String url;
-		final String tooltip;
-		final String icon;
+		final AccessPermission permission;
 		
-		public AppCloneLink(String name, String url, String tooltip) {
-			this(name, url, tooltip, "icon-download");
+		RepoUrl(String url, AccessPermission permission) {
+			this.url = url;
+			this.permission = permission;
 		}
 		
-		public AppCloneLink(String name, String url, String tooltip, String icon) {
-			this.name = name;
-			this.url = url;
-			this.tooltip = tooltip;
-			this.icon = icon;
+		@Override
+		public String toString() {
+			return url;
 		}
 	}
 }

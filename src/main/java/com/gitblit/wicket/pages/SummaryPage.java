@@ -55,7 +55,6 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.BranchesPanel;
-import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
@@ -152,18 +151,6 @@ public class SummaryPage extends RepositoryPage {
 		
 		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model, getLocalizer(), this));
 				
-		List<String> otherUrls = GitBlit.self().getOtherCloneUrls(repositoryName, UserModel.ANONYMOUS.equals(user) ? "" : user.username);
-		ListDataProvider<String> urls = new ListDataProvider<String>(otherUrls);
-		DataView<String> otherUrlsView = new DataView<String>("otherUrls", urls) {
-			private static final long serialVersionUID = 1L;
-
-			public void populateItem(final Item<String> item) {
-				final String url = item.getModelObject();
-				item.add(new DetailedRepositoryUrlPanel("otherUrl", getLocalizer(), this, model.name, url));
-			}
-		};
-		add(otherUrlsView);
-
 		add(new LogPanel("commitsPanel", repositoryName, getRepositoryModel().HEAD, r, numberCommits, 0, getRepositoryModel().showRemoteBranches));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());

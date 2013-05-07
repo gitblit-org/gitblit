@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -90,6 +91,7 @@ import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
+import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -120,6 +122,11 @@ import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
@@ -147,6 +154,9 @@ public class GitBlit implements ServletContextListener {
 
 	private final List<FederationModel> federationRegistrations = Collections
 			.synchronizedList(new ArrayList<FederationModel>());
+	
+	private final List<GitClientApplication> clientApplications = Collections
+			.synchronizedList(new ArrayList<GitClientApplication>());
 
 	private final Map<String, FederationModel> federationPullResults = new ConcurrentHashMap<String, FederationModel>();
 
@@ -465,6 +475,45 @@ public class GitBlit implements ServletContextListener {
 			cloneUrls.add(MessageFormat.format(url, repositoryName, username));
 		}
 		return cloneUrls;
+	}
+	
+	/**
+	 * Returns the list of custom client applications to be used for the
+	 * repository url panel;
+	 * 
+	 * @return a list of client applications
+	 */
+	public List<GitClientApplication> getClientApplications() {
+		if (clientApplications.isEmpty()) {
+			try {
+				InputStream is = getClass().getResourceAsStream("/clientapps.json");
+				Collection<GitClientApplication> clients = readClientApplications(is);
+				is.close();
+				if (clients != null) {
+					clientApplications.clear();
+					clientApplications.addAll(clients);
+				}
+			} catch (IOException e) {
+				logger.error("Failed to deserialize clientapps.json resource!", e);
+			}
+		}
+		return clientApplications;
+	}
+	
+	private Collection<GitClientApplication> readClientApplications(InputStream is) {
+		try {
+			Type type = new TypeToken<Collection<GitClientApplication>>() {
+			}.getType();
+			InputStreamReader reader = new InputStreamReader(is);
+			Gson gson = new GsonBuilder().create();
+			Collection<GitClientApplication> links = gson.fromJson(reader, type);
+			return links;
+		} catch (JsonIOException e) {
+			logger.error("Error deserializing client applications!", e);
+		} catch (JsonSyntaxException e) {
+			logger.error("Error deserializing client applications!", e);
+		}
+		return null;
 	}
 
 	/**
