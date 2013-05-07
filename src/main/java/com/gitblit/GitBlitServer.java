@@ -203,7 +203,7 @@ public class GitBlitServer {
 
 		// conditionally configure the http connector
 		if (params.port > 0) {
-			Connector httpConnector = createConnector(params.useNIO, settings.getInteger(Keys.server.nioThreadPoolSize, 50), params.port);
+			Connector httpConnector = createConnector(params.useNIO, params.port, settings.getInteger(Keys.server.threadPoolSize, 50));
 			String bindInterface = settings.getString(Keys.server.httpBindInterface, null);
 			if (!StringUtils.isEmpty(bindInterface)) {
 				logger.warn(MessageFormat.format("Binding connector on port {0,number,0} to {1}",
@@ -262,7 +262,7 @@ public class GitBlitServer {
 
 			if (serverKeyStore.exists()) {		        
 				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
-						caRevocationList, params.useNIO, settings.getInteger(Keys.server.nioThreadPoolSize, 50), params.securePort, params.requireClientCertificates);
+						caRevocationList, params.useNIO, params.securePort, settings.getInteger(Keys.server.threadPoolSize, 50), params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
 				if (!StringUtils.isEmpty(bindInterface)) {
 					logger.warn(MessageFormat.format(
@@ -410,20 +410,25 @@ public class GitBlitServer {
 	 * 
 	 * @param useNIO
 	 * @param port
-	 * @param maxThreads
+	 * @param threadPoolSize
 	 * @return an http connector
 	 */
-	private Connector createConnector(boolean useNIO, int port, int maxThreads) {
+	private Connector createConnector(boolean useNIO, int port, int threadPoolSize) {
 		Connector connector;
 		if (useNIO) {
 			logger.info("Setting up NIO SelectChannelConnector on port " + port);
 			SelectChannelConnector nioconn = new SelectChannelConnector();
 			nioconn.setSoLingerTime(-1);
-			nioconn.setThreadPool(new QueuedThreadPool(maxThreads));
+			if (threadPoolSize > 0) {
+				nioconn.setThreadPool(new QueuedThreadPool(threadPoolSize));
+			}
 			connector = nioconn;
 		} else {
 			logger.info("Setting up SocketConnector on port " + port);
 			SocketConnector sockconn = new SocketConnector();
+			if (threadPoolSize > 0) {
+				sockconn.setThreadPool(new QueuedThreadPool(threadPoolSize));
+			}
 			connector = sockconn;
 		}
 
@@ -444,13 +449,13 @@ public class GitBlitServer {
 	 * @param storePassword
 	 * @param caRevocationList
 	 * @param useNIO
-	 * @param nioThreadPoolSize
 	 * @param port
+	 * @param threadPoolSize
 	 * @param requireClientCertificates
 	 * @return an https connector
 	 */
 	private Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
-			String storePassword, File caRevocationList, boolean useNIO,  int nioThreadPoolSize, int port,
+			String storePassword, File caRevocationList, boolean useNIO,  int port, int threadPoolSize, 
 			boolean requireClientCertificates) {
 		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
 				keyStore, clientTrustStore, storePassword, caRevocationList);
@@ -464,11 +469,16 @@ public class GitBlitServer {
 			} else {
 				factory.setWantClientAuth(true);
 			}
-			ssl.setThreadPool(new QueuedThreadPool(nioThreadPoolSize));
+			if (threadPoolSize > 0) {
+				ssl.setThreadPool(new QueuedThreadPool(threadPoolSize));
+			}
 			connector = ssl;
 		} else {
 			logger.info("Setting up NIO SslSocketConnector on port " + port);
 			SslSocketConnector ssl = new SslSocketConnector(factory);
+			if (threadPoolSize > 0) {
+				ssl.setThreadPool(new QueuedThreadPool(threadPoolSize));
+			}
 			connector = ssl;
 		}
 		connector.setPort(port);
