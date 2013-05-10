@@ -144,8 +144,8 @@
 			 	outputclass="com.gitblit.Keys"
 			 	todir="${project.src.dir}" />
 
-		<!-- Compile project incrementally -->
-		<mx:javac scope="compile" clean="false" />
+		<!-- Compile project -->
+		<mx:javac scope="compile" clean="true" />
 		
 	</target>
 
