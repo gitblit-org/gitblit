@@ -18,6 +18,7 @@ package com.gitblit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -159,8 +160,7 @@ public class GitBlit implements ServletContextListener {
 	private final List<FederationModel> federationRegistrations = Collections
 			.synchronizedList(new ArrayList<FederationModel>());
 	
-	private final List<GitClientApplication> clientApplications = Collections
-			.synchronizedList(new ArrayList<GitClientApplication>());
+	private final ObjectCache<Collection<GitClientApplication>> clientApplications = new ObjectCache<Collection<GitClientApplication>>();
 
 	private final Map<String, FederationModel> federationPullResults = new ConcurrentHashMap<String, FederationModel>();
 
@@ -568,23 +568,46 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the list of custom client applications to be used for the
 	 * repository url panel;
 	 * 
-	 * @return a list of client applications
+	 * @return a collection of client applications
 	 */
-	public List<GitClientApplication> getClientApplications() {
-		if (clientApplications.isEmpty()) {
+	public Collection<GitClientApplication> getClientApplications() {
+		// prefer user definitions, if they exist
+		File userDefs = new File(baseFolder, "clientapps.json");
+		if (userDefs.exists()) {
+			Date lastModified = new Date(userDefs.lastModified());
+			if (clientApplications.hasCurrent("user", lastModified)) {
+				return clientApplications.getObject("user");
+			} else {
+				// (re)load user definitions
+				try {
+					InputStream is = new FileInputStream(userDefs);
+					Collection<GitClientApplication> clients = readClientApplications(is);
+					is.close();
+					if (clients != null) {
+						clientApplications.updateObject("user", lastModified, clients);
+						return clients;
+					}				
+				} catch (IOException e) {
+					logger.error("Failed to deserialize " + userDefs.getAbsolutePath(), e);
+				}
+			}
+		}
+		
+		// no user definitions, use system definitions
+		if (!clientApplications.hasCurrent("system", new Date(0))) {
 			try {
 				InputStream is = getClass().getResourceAsStream("/clientapps.json");
 				Collection<GitClientApplication> clients = readClientApplications(is);
 				is.close();
 				if (clients != null) {
-					clientApplications.clear();
-					clientApplications.addAll(clients);
+					clientApplications.updateObject("system", new Date(0), clients);
 				}
 			} catch (IOException e) {
 				logger.error("Failed to deserialize clientapps.json resource!", e);
 			}
 		}
-		return clientApplications;
+		
+		return clientApplications.getObject("system");
 	}
 	
 	private Collection<GitClientApplication> readClientApplications(InputStream is) {
