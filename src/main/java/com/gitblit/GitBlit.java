@@ -3412,7 +3412,8 @@ public class GitBlit implements ServletContextListener {
 			// Gitblit is running in a servlet container
 			ServletContext context = contextEvent.getServletContext();
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
-			File contextFolder = new File(context.getRealPath("/"));
+			String contextRealPath = context.getRealPath("/");
+			File contextFolder = (contextRealPath != null) ? new File(contextRealPath) : null;
 			String openShift = System.getenv("OPENSHIFT_DATA_DIR");
 			
 			if (!StringUtils.isEmpty(openShift)) {
@@ -3444,27 +3445,40 @@ public class GitBlit implements ServletContextListener {
 				configureContext(webxmlSettings, base, true);
 			} else {
 				// Gitblit is running in a standard servlet container
-				logger.info("WAR contextFolder is " + contextFolder.getAbsolutePath());
+				logger.info("WAR contextFolder is " + ((contextFolder != null) ? contextFolder.getAbsolutePath() : "<empty>"));
 				
 				String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
+				
+				if (path.contains(Constants.contextFolder$) && contextFolder == null) {
+					// warn about null contextFolder (issue-199)
+					logger.error("");
+					logger.error(MessageFormat.format("\"{0}\" depends on \"{1}\" but \"{2}\" is returning NULL for \"{1}\"!",
+							Constants.baseFolder, Constants.contextFolder$, context.getServerInfo()));
+					logger.error(MessageFormat.format("Please specify a non-parameterized path for <context-param> {0} in web.xml!!", Constants.baseFolder));
+					logger.error(MessageFormat.format("OR configure your servlet container to specify a \"{0}\" parameter in the context configuration!!", Constants.baseFolder));
+					logger.error("");
+				}
+				
 				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
 				base.mkdirs();
-				
+
 				// try to copy the data folder contents to the baseFolder
 				File localSettings = new File(base, "gitblit.properties");
-				if (!localSettings.exists()) {
-					File contextData = new File(contextFolder, "/WEB-INF/data");
-					if (!base.equals(contextData)) {
-						try {
-							com.gitblit.utils.FileUtils.copy(base, contextData.listFiles());
-						} catch (IOException e) {
-							logger.error(MessageFormat.format(
-									"Failed to copy included data from {0} to {1}",
-								contextData, base));
+				if (contextFolder != null) {
+					if (!localSettings.exists()) {
+						File contextData = new File(contextFolder, "/WEB-INF/data");
+						if (!base.equals(contextData)) {
+							try {
+								com.gitblit.utils.FileUtils.copy(base, contextData.listFiles());
+							} catch (IOException e) {
+								logger.error(MessageFormat.format(
+										"Failed to copy included data from {0} to {1}",
+										contextData, base));
+							}
 						}
 					}
 				}
-				
+
 				// delegate all config to baseFolder/gitblit.properties file
 				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());				
 				configureContext(settings, base, true);

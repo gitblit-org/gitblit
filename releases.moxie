@@ -16,6 +16,7 @@ r17: {
 	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
+	 - Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (issue 199)
 	 - Fixed incorrect icon file name for .doc files (issue 200)
 	 - Do not queue emails with no recipients (issue 201)
 	 - Disable view and blame links for deleted blobs (issue 216)
@@ -27,6 +28,7 @@ r17: {
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 
 	changes:
+	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
 	 - Improved the repository url display.  This display now indicates your repository access permission, per-protocol.
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
  	 - Disable Gson's pretty printing which has a huge performance gain
@@ -64,6 +66,7 @@ r17: {
 	- Lee Grofit
 	- Lukasz Jader
 	- Martijn Laan
+	- Matthias Bauer
 	- Michael Schaefers
 	- Philip Boutros
 	- Rafael Cavazin
