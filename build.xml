@@ -963,8 +963,7 @@
 				<fileset dir="${project.distrib.dir}/data">
 					<include name="users.conf" />
 					<include name="projects.conf" />
-					<include name="gitblit.properties" />
-					<include name="clientapps.json" />
+					<include name="gitblit.properties" />					
 				</fileset>
 			</copy>
 			<mkdir dir="@{toDir}/groovy" />
