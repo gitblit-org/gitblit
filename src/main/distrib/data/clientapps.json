@@ -39,6 +39,7 @@
 		"cloneUrl": "gittower://openRepo/{0}",
 		"productUrl": "http://www.git-tower.com",
 		"platforms": [ "macintosh" ],
+		"icon": "tower_32x32.png",
 		"isActive": true
 	},
 	{
