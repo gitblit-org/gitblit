@@ -31,13 +31,15 @@ public class GitClientApplication implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public String name;
+	public String title;
+	public String description;
+	public String legal;
+	public String icon;
 	public String cloneUrl;
 	public String command;
 	public String productUrl;
-	public String attribution;
-	public boolean isApplication = true;
-	public boolean isActive = true;
 	public String[] platforms;
+	public boolean isActive;
 
 	public boolean allowsPlatform(String p) {
 		if (ArrayUtils.isEmpty(platforms)) {
@@ -54,5 +56,10 @@ public class GitClientApplication implements Serializable {
 			}
 		}
 		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return StringUtils.isEmpty(title) ? name : title;
 	}
 }

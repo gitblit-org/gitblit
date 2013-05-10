@@ -177,6 +177,20 @@ public class GitDaemon {
 					}
 				} };
 	}
+	
+	public int getPort() {
+		return myAddress.getPort();
+	}
+	
+	public String formatUrl(String servername, String repository) {
+		if (getPort() == 9418) {
+			// standard port
+			return MessageFormat.format("git://{0}/{1}", servername, repository);
+		} else {
+			// non-standard port
+			return MessageFormat.format("git://{0}:{1,number,0}/{2}", servername, getPort(), repository);
+		}
+	}
 
 	/** @return timeout (in seconds) before aborting an IO operation. */
 	public int getTimeout() {

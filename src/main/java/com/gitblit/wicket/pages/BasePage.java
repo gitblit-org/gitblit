@@ -32,11 +32,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
@@ -45,7 +43,6 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.RequestUtils;
-import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,14 +55,12 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
-import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.DetailedRepositoryUrlPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 
 public abstract class BasePage extends SessionPage {
@@ -258,60 +253,6 @@ public abstract class BasePage extends SessionPage {
 		return req.getServerName();
 	}
 	
-	public static String getRepositoryUrl(RepositoryModel repository) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(WicketUtils.getGitblitURL(RequestCycle.get().getRequest()));
-		sb.append(Constants.GIT_PATH);
-		sb.append(repository.name);
-		
-		// inject username into repository url if authentication is required
-		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
-				&& GitBlitWebSession.get().isLoggedIn()) {
-			String username = GitBlitWebSession.get().getUsername();
-			sb.insert(sb.indexOf("://") + 3, username + "@");
-		}
-		return sb.toString();
-	}
-	
-	protected Component createGitDaemonUrlPanel(String wicketId, UserModel user, RepositoryModel repository) {
-		int gitDaemonPort = GitBlit.getInteger(Keys.git.daemonPort, 0);
-		if (gitDaemonPort > 0 && user.canClone(repository)) {
-			String servername = ((WebRequest) getRequest()).getHttpServletRequest().getServerName();
-			String gitDaemonUrl;
-			if (gitDaemonPort == 9418) {
-				// standard port
-				gitDaemonUrl = MessageFormat.format("git://{0}/{1}", servername, repository.name);
-			} else {
-				// non-standard port
-				gitDaemonUrl = MessageFormat.format("git://{0}:{1,number,0}/{2}", servername, gitDaemonPort, repository.name);
-			}
-			
-			AccessPermission gitDaemonPermission = user.getRepositoryPermission(repository).permission;;
-			if (gitDaemonPermission.atLeast(AccessPermission.CLONE)) {
-				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
-					// can not authenticate clone via anonymous git protocol
-					gitDaemonPermission = AccessPermission.NONE;
-				} else if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
-					// can not authenticate push via anonymous git protocol
-					gitDaemonPermission = AccessPermission.CLONE;
-				} else {
-					// normal user permission
-				}
-			}
-			
-			if (AccessPermission.NONE.equals(gitDaemonPermission)) {
-				// repository prohibits all anonymous access
-				return new Label(wicketId).setVisible(false);
-			} else {
-				// repository allows some form of anonymous access
-				return new DetailedRepositoryUrlPanel(wicketId, getLocalizer(), this, repository.name, gitDaemonUrl, gitDaemonPermission);
-			}
-		} else {
-			// git daemon is not running
-			return new Label(wicketId).setVisible(false);
-		}
-	}
-
 	protected List<ProjectModel> getProjectModels() {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, true);

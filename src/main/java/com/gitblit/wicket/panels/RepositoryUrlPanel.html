@@ -5,33 +5,66 @@
       lang="en"> 
 
 <wicket:panel>
-	<div wicket:id="repositoryPrimaryUrl">[repository primary url]</div>
-	<div class="btn-toolbar" style="margin-bottom: 0px;">
-		<div class="btn-group" wicket:id="urlMenus">
-   			<a class="btn btn-mini btn-action" data-toggle="dropdown" href="#">
-   				<i class="icon-download icon-black"></i>
-    			<span wicket:id="productName"></span>
-    			<span class="caret"></span>
-   			</a>
-   			<ul class="dropdown-menu">
-   				<li><div style="padding-left: 15px; font-style: italic;" wicket:id="productAttribution"></div></li>
-   				<li class="divider"></li>
-   				
-   				<li wicket:id="repoLinks">
-   					<span wicket:id="repoLink"></span>
-   				</li>
-   				   				
-   				<li style="border-top: 1px solid #eee; margin-top:5px;padding-top:5px;"><span wicket:id="productLink"></span></li>
-   			</ul>
-   		</div>
-	</div>
-	
-	<wicket:fragment wicket:id="commandFragment">
-		<span wicket:id="content"></span><span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
-	</wicket:fragment>
 
-	<wicket:fragment wicket:id="linkFragment">
-		<span wicket:id="content"></span>
+	<div wicket:id="repositoryUrlPanel"></div>
+	<div wicket:id="applicationMenusPanel"></div>
+
+	
+	<wicket:fragment wicket:id="repositoryUrlFragment">
+		<div class="btn-toolbar" style="margin: 0px;">
+			<div class="btn-group repositoryUrlContainer">
+				<img style="vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
+				<span wicket:id="menu"></span>
+   				<span class="repositoryUrl">
+   					<span wicket:id="primaryUrl">[repository primary url]</span>
+   					<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
+   				</span>
+   				<span class="hidden-phone hidden-tablet repositoryUrlRightCap" wicket:id="primaryUrlPermission">[repository primary url permission]</span>
+   			</div>
+		</div>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="applicationMenusFragment">
+		<div class="btn-toolbar" style="margin: 4px 0px 0px 0px;">
+			<div class="btn-group" wicket:id="appMenus">
+   				<a class="btn btn-mini btn-inverse" data-toggle="dropdown" href="#">   				
+	    			<span wicket:id="applicationName"></span>
+    				<span class="caret"></span>
+   				</a>
+   				<ul class="dropdown-menu applicationMenu">
+   					<li>
+   						<div class="applicationHeaderMenuItem">
+   							<div style="float:right">
+   								<img style="padding-right: 5px;vertical-align: middle;" wicket:id="applicationIcon"></img>
+   							</div>
+   							<span class="applicationTitle" wicket:id="applicationTitle"></span>
+   						</div>
+   					</li>
+	   				<li><div class="applicationHeaderMenuItem"><span wicket:id="applicationDescription"></span></div></li>
+   					<li><div class="applicationLegalMenuItem"><span wicket:id="applicationLegal"></span></div></li>
+   					
+   					<li class="divider" style="margin: 5px 1px 0px 1px;clear:both;" ></li>
+   				
+   					<li class="action" wicket:id="actionItems">
+   						<span wicket:id="actionItem"></span>
+   					</li>
+   				</ul>
+   			</div>
+		</div>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="urlProtocolMenuFragment">
+		<a class="" data-toggle="dropdown" href="#">   				
+    		<span class="repositoryUrlLeftCap" wicket:id="menuText">URLs</span>
+	   		<span class="caret" style="vertical-align: middle;"></span>
+   		</a>
+   		<ul class="dropdown-menu urlMenu">
+   			<li class="url" wicket:id="repoUrls"><span wicket:id="repoUrl"></span></li>
+	   	</ul>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="actionFragment">
+		<span wicket:id="permission" style="margin: 0px 10px 0px 5px;"></span><span wicket:id="content"></span><span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
 	</wicket:fragment>
 
     <!-- Plain JavaScript manual copy & paste -->

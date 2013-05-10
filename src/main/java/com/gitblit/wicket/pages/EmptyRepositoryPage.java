@@ -53,7 +53,7 @@ public class EmptyRepositoryPage extends RootPage {
 			user = UserModel.ANONYMOUS;
 		}
 		
-		RepositoryUrlPanel urlPanel = new RepositoryUrlPanel("pushurl", false, user, repository, getLocalizer(), this);
+		RepositoryUrlPanel urlPanel = new RepositoryUrlPanel("pushurl", false, user, repository);
 		String primaryUrl = urlPanel.getPrimaryUrl();
 		
 		add(new Label("repository", repositoryName));

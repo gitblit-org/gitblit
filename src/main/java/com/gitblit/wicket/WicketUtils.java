@@ -41,6 +41,7 @@ import org.wicketstuff.googlecharts.AbstractChartData;
 import org.wicketstuff.googlecharts.IChartData;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -106,6 +107,29 @@ public class WicketUtils {
 		if (css != null) {
 			setCssClass(container, css);
 		}
+	}
+	
+	public static void setPermissionClass(Component container, AccessPermission permission) {
+		if (permission == null) {
+			setCssClass(container, "badge");
+			return;
+		}
+		switch (permission) {
+		case REWIND:
+		case DELETE:
+		case CREATE:
+			setCssClass(container, "badge badge-success");
+			break;
+		case PUSH:
+			setCssClass(container, "badge badge-info");
+			break;
+		case CLONE:
+			setCssClass(container, "badge badge-inverse");
+			break;
+		default:
+			setCssClass(container, "badge");
+			break;
+		}	
 	}
 
 	public static void setAlternatingBackground(Component c, int i) {

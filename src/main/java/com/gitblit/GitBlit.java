@@ -91,15 +91,16 @@ import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
-import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.ForkModel;
+import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -201,7 +202,7 @@ public class GitBlit implements ServletContextListener {
 	private FanoutService fanoutService;
 
 	private GitDaemon gitDaemon;
-	
+
 	public GitBlit() {
 		if (gitblit == null) {
 			// set the static singleton reference
@@ -460,23 +461,106 @@ public class GitBlit implements ServletContextListener {
 		serverStatus.heapFree = Runtime.getRuntime().freeMemory();
 		return serverStatus;
 	}
-
+	
 	/**
-	 * Returns the list of non-Gitblit clone urls. This allows Gitblit to
-	 * advertise alternative urls for Git client repository access.
+	 * Returns a list of repository URLs and the user access permission.
 	 * 
-	 * @param repositoryName
-	 * @param userName
-	 * @return list of non-gitblit clone urls
+	 * @param request
+	 * @param user
+	 * @param repository
+	 * @return a list of repository urls
 	 */
-	public List<String> getOtherCloneUrls(String repositoryName, String username) {
-		List<String> cloneUrls = new ArrayList<String>();
-		for (String url : settings.getStrings(Keys.web.otherUrls)) {
-			cloneUrls.add(MessageFormat.format(url, repositoryName, username));
+	public List<RepositoryUrl> getRepositoryUrls(HttpServletRequest request, UserModel user, RepositoryModel repository) {
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
 		}
-		return cloneUrls;
+		String username = UserModel.ANONYMOUS.equals(user) ? "" : user.username;
+
+		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
+		// http/https url
+		if (settings.getBoolean(Keys.git.enableGitServlet, true)) {
+			AccessPermission permission = user.getRepositoryPermission(repository).permission;
+			if (permission.exceeds(AccessPermission.NONE)) {
+				list.add(new RepositoryUrl(getRepositoryUrl(request, username, repository), permission));
+			}
+		}
+
+		// git daemon url
+		String gitDaemonUrl = getGitDaemonUrl(request, user, repository);
+		if (!StringUtils.isEmpty(gitDaemonUrl)) {
+			AccessPermission permission = getGitDaemonAccessPermission(user, repository);
+			if (permission.exceeds(AccessPermission.NONE)) {
+				list.add(new RepositoryUrl(gitDaemonUrl, permission));
+			}
+		}
+
+		// add all other urls
+		// {0} = repository
+		// {1} = username
+		for (String url : settings.getStrings(Keys.web.otherUrls)) {
+			if (url.contains("{1}")) {
+				// external url requires username, only add url IF we have one
+				if(!StringUtils.isEmpty(username)) {
+					list.add(new RepositoryUrl(MessageFormat.format(url, repository.name, username), null));
+				}
+			} else {
+				// external url does not require username
+				list.add(new RepositoryUrl(MessageFormat.format(url, repository.name), null));
+			}
+		}
+		return list;
 	}
 	
+	protected String getRepositoryUrl(HttpServletRequest request, String username, RepositoryModel repository) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(HttpUtils.getGitblitURL(request));
+		sb.append(Constants.GIT_PATH);
+		sb.append(repository.name);
+		
+		// inject username into repository url if authentication is required
+		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
+				&& !StringUtils.isEmpty(username)) {
+			sb.insert(sb.indexOf("://") + 3, username + "@");
+		}
+		return sb.toString();
+	}
+	
+	protected String getGitDaemonUrl(HttpServletRequest request, UserModel user, RepositoryModel repository) {
+		if (gitDaemon != null) {
+			String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
+			if (bindInterface.equals("localhost")
+					&& (!request.getServerName().equals("localhost") && !request.getServerName().equals("127.0.0.1"))) {
+				// git daemon is bound to localhost and the request is from elsewhere
+				return null;
+			}
+			if (user.canClone(repository)) {
+				String servername = request.getServerName();
+				String url = gitDaemon.formatUrl(servername, repository.name);
+				return url;
+			}
+		}
+		return null;
+	}
+	
+	protected AccessPermission getGitDaemonAccessPermission(UserModel user, RepositoryModel repository) {
+		if (gitDaemon != null && user.canClone(repository)) {
+			AccessPermission gitDaemonPermission = user.getRepositoryPermission(repository).permission;
+			if (gitDaemonPermission.atLeast(AccessPermission.CLONE)) {
+				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
+					// can not authenticate clone via anonymous git protocol
+					gitDaemonPermission = AccessPermission.NONE;
+				} else if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
+					// can not authenticate push via anonymous git protocol
+					gitDaemonPermission = AccessPermission.CLONE;
+				} else {
+					// normal user permission
+				}
+			}
+			return gitDaemonPermission;
+		}
+		return AccessPermission.NONE;
+	}
+
 	/**
 	 * Returns the list of custom client applications to be used for the
 	 * repository url panel;
@@ -3283,8 +3367,8 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	protected void configureGitDaemon() {
-		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 		int port = settings.getInteger(Keys.git.daemonPort, 0);
+		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 		if (port > 0) {
 			try {
 				gitDaemon = new GitDaemon(bindInterface, port, getRepositoriesFolder());

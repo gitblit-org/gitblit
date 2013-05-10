@@ -103,25 +103,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 		} else {
 			add(WicketUtils.newClearPixel("federatedIcon").setVisible(false));
 		}
-		switch (entry.accessRestriction) {
-		case NONE:
-			add(WicketUtils.newBlankImage("accessRestrictionIcon").setVisible(false));
-			break;
-		case PUSH:
-			add(WicketUtils.newImage("accessRestrictionIcon", "lock_go_16x16.png",
-					accessRestrictions.get(entry.accessRestriction)));
-			break;
-		case CLONE:
-			add(WicketUtils.newImage("accessRestrictionIcon", "lock_pull_16x16.png",
-					accessRestrictions.get(entry.accessRestriction)));
-			break;
-		case VIEW:
-			add(WicketUtils.newImage("accessRestrictionIcon", "shield_16x16.png",
-					accessRestrictions.get(entry.accessRestriction)));
-			break;
-		default:
-			add(WicketUtils.newBlankImage("accessRestrictionIcon"));
-		}
 
 		if (ArrayUtils.isEmpty(entry.owners)) {
 			add(new Label("repositoryOwner").setVisible(false));
@@ -212,6 +193,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink("", entry.name, null, 0)));
 
-		add(new RepositoryUrlPanel("repositoryPrimaryUrl", true, user, entry, localizer, parent));
+		add(new RepositoryUrlPanel("repositoryPrimaryUrl", true, user, entry));
 	}
 }

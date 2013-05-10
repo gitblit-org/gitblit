@@ -1,41 +1,63 @@
 [
 	{
+		"name": "Git",
+		"title": "Git",
+		"description": "a fast, open-source, distributed VCS",
+		"legal": "released under the GPLv2 open source license",
+		"command": "git clone {0}",
+		"productUrl": "http://git-scm.com",
+		"icon": "git-black_32x32.png",
+		"isActive": true
+	},
+	{
 		"name": "SmartGit/Hg",
+		"title": "syntevo SmartGit/Hg\u2122",
+		"description": "a Git client for Windows, Mac, & Linux",
+		"legal": "\u00a9 2013 syntevo GmbH. All rights reserved.",
 		"cloneUrl": "smartgit://cloneRepo/{0}",
 		"productUrl": "http://www.syntevo.com/smartgithg",
-		"attribution": "Syntevo SmartGit/Hg\u2122",
 		"platforms": [ "windows", "macintosh", "linux" ],
+		"icon": "smartgithg_32x32.png",
 		"isActive": false
 	},
 	{
 		"name": "SourceTree",
+		"title": "Atlassian SourceTree\u2122",
+		"description": "a free Git client for Windows or Mac",
+		"legal": "\u00a9 2013 Atlassian. All rights reserved.",
 		"cloneUrl": "sourcetree://cloneRepo/{0}",
 		"productUrl": "http://sourcetreeapp.com",
-		"attribution": "Atlassian SourceTree\u2122",
 		"platforms": [ "windows", "macintosh" ],
+		"icon": "sourcetree_32x32.png",
 		"isActive": true
 	},
 	{
 		"name": "Tower",
+		"title": "fournova Tower\u2122",
+		"description": "a Git client for Mac",
+		"legal": "\u00a9 2013 fournova Software GmbH. All rights reserved.",
 		"cloneUrl": "gittower://openRepo/{0}",
 		"productUrl": "http://www.git-tower.com",
-		"attribution": "fournova Tower\u2122",
 		"platforms": [ "macintosh" ],
 		"isActive": true
 	},
 	{
-		"name": "GitHub for Macintosh",
+		"name": "GitHub",
+		"title": "GitHub\u2122 for Macintosh",
+		"description": "a free Git client for Mac OS X",
+		"legal": "\u00a9 2013 GitHub. All rights reserved.",
 		"cloneUrl": "github-mac://openRepo/{0}",
 		"productUrl": "http://mac.github.com",
-		"attribution": "GitHub\u2122 for Macintosh",
 		"platforms": [ "macintosh" ],
 		"isActive": false
 	},
 	{
-		"name": "GitHub for Windows",
+		"name": "GitHub",
+		"title": "GitHub\u2122 for Windows",
+		"description": "a free Git client for Windows",
+		"legal": "\u00a9 2013 GitHub. All rights reserved.",
 		"cloneUrl": "github-windows://openRepo/{0}",
 		"productUrl": "http://windows.github.com",
-		"attribution": "GitHub\u2122 for Windows",
 		"platforms": [ "windows" ],
 		"isActive": false
 	}

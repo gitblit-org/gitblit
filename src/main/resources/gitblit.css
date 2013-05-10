@@ -117,6 +117,19 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	color: #ffffff !important;
 }
 
+.btn:first-child {
+	border-radius: 4px;
+}
+
+.btn-appmenu {
+    /*background-color: rgb(73, 175, 205);
+    background-image: -moz-linear-gradient(center top , rgb(91, 192, 222), rgb(47, 150, 180));*/
+    background-color: rgb(73, 175, 205);
+    background-image: -moz-linear-gradient(center top , rgb(91, 192, 222), rgb(47, 150, 180));
+    background-repeat: repeat-x;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+
 .breadcrumb {
 	margin-top: 5px !important;
 	margin-bottom: 5px !important;
@@ -179,33 +192,106 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	vertical-align: middle;
 }
 
-span.repositoryUrlContainer {
-	color: black;
-	background-color: whiteSmoke; 
-	padding: 4px;
-	border: 1px solid #ddd;
-	border-radius: 3px 
+div.repositoryUrlContainer {
+	padding: 2px;
+	background-color: #F5F5F5;
+    background-image: -moz-linear-gradient(center top , #FFFFFF, #E6E6E6);
+    background-repeat: repeat-x;
+    border-color: #E6E6E6 #E6E6E6 #B3B3B3;
+    border-image: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: #333333;    
+    vertical-align: middle;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
 }
 
-span.repositoryUrlEndCap {	
-	padding: 4px;
+div.repositoryUrlContainer:hover {
+	background-color: #E6E6E6;
+    background-position: 0 -15px;
+    color: #333333;
+    text-decoration: none;
+    transition: background-position 0.1s linear 0s;
+}
+
+div.repositoryUrlContainer:hover .caret {
+    opacity: 1;
+}
+
+div.repositoryUrlContainer:hover a:hover {
+	text-decoration: none;
+}
+
+span.repositoryUrlLeftCap, span.repositoryUrlRightCap {	
+	text-align: center;
+	color: black;
+	padding: 3px;
+	font-size: 11px;
+}
+
+span.repositoryUrlRightCap {	
 	font-weight: bold;
-	font-size: 0.85em;
 	font-family:menlo,consolas,monospace;
 }
 
 span.repositoryUrl {
 	font-size: 1em;
-	padding: 4px;
-	color: blue;
+	padding: 2px 4px 3px 4px;	
 	background-color: #fff;
 	border-left: 1px solid #ddd;
 	border-right: 1px solid #ddd;
 }
 
-span.repositoryUrlMenuItem {
+ul.urlMenu {
+	min-width: 350px;
+}
+
+ul.urlMenu li.url {
+	background-color: white;
+	padding: 0px 5px;
 	line-height: 24px;
-	padding: 3px 15px;
+}
+
+ul.applicationMenu {
+	background-color: whiteSmoke;
+	min-width: 400px;
+}
+
+ul.applicationMenu li.action {
+	background-color: white;
+	padding: 0px 5px;
+	line-height: 24px;
+}
+
+span.applicationTitle, span.applicationTitle a {
+	display: inline;
+	font-weight: bold;
+	font-size:1.1em;
+	color: black !important;
+	padding: 0px;
+}
+
+div.applicationHeaderMenuItem {
+	padding-left: 10px;
+	color: black;
+}
+
+div.applicationLegalMenuItem {
+	padding-left: 10px;
+	color: #999;
+	font-size: 0.85em;
+}
+
+a.applicationMenuItem, span.commandMenuItem {
+	padding: 3px 10px;	
+	color: black;
+	display: inline;
+	padding: 0px;
+}
+
+span.commandMenuItem {
 	font-size: 0.85em;
 	font-family: menlo,consolas,monospace;
 }
