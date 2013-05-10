@@ -18,9 +18,12 @@ package com.gitblit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -3462,21 +3465,10 @@ public class GitBlit implements ServletContextListener {
 				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
 				base.mkdirs();
 
-				// try to copy the data folder contents to the baseFolder
+				// try to extract the data folder resource to the baseFolder
 				File localSettings = new File(base, "gitblit.properties");
-				if (contextFolder != null) {
-					if (!localSettings.exists()) {
-						File contextData = new File(contextFolder, "/WEB-INF/data");
-						if (!base.equals(contextData)) {
-							try {
-								com.gitblit.utils.FileUtils.copy(base, contextData.listFiles());
-							} catch (IOException e) {
-								logger.error(MessageFormat.format(
-										"Failed to copy included data from {0} to {1}",
-										contextData, base));
-							}
-						}
-					}
+				if (!localSettings.exists()) {
+					extractResources(context, "/WEB-INF/data/", base);
 				}
 
 				// delegate all config to baseFolder/gitblit.properties file
@@ -3487,6 +3479,38 @@ public class GitBlit implements ServletContextListener {
 		
 		settingsModel = loadSettingModels();
 		serverStatus.servletContainer = servletContext.getServerInfo();
+	}
+	
+	protected void extractResources(ServletContext context, String path, File toDir) {
+		for (String resource : context.getResourcePaths(path)) {
+			// extract the resource to the directory if it does not exist
+			File f = new File(toDir, resource.substring(path.length()));
+			if (!f.exists()) {
+				try {
+					if (resource.charAt(resource.length() - 1) == '/') {
+						// directory
+						f.mkdirs();
+						extractResources(context, resource, f);
+					} else {
+						// file
+						f.getParentFile().mkdirs();
+						InputStream is = context.getResourceAsStream(resource);
+						OutputStream os = new FileOutputStream(f);
+						byte [] buffer = new byte[4096];
+						int len = 0;
+						while ((len = is.read(buffer)) > -1) {
+							os.write(buffer, 0, len);
+						}
+						is.close();
+						os.close();
+					}
+				} catch (FileNotFoundException e) {
+					logger.error("Failed to find resource \"" + resource + "\"", e);
+				} catch (IOException e) {
+					logger.error("Failed to copy resource \"" + resource + "\" to " + f, e);
+				}
+			}
+		}
 	}
 
 	/**
