@@ -173,10 +173,20 @@ public class RepositoryUrlPanel extends BasePanel {
 						getAccessRestrictions().get(repository.accessRestriction)));
 				break;
 			default:
-				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+				if (repositoryUrls.size() == 1) {
+					// force left end cap to have some width
+					urlPanel.add(WicketUtils.newBlankIcon("accessRestrictionIcon"));
+				} else {
+					urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+				}
 			}
 		} else {
-			urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+			if (repositoryUrls.size() == 1) {
+				// force left end cap to have some width
+				urlPanel.add(WicketUtils.newBlankIcon("accessRestrictionIcon"));
+			} else {
+				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
+			}
 		}
 		
 		urlPanel.add(new Label("primaryUrl", primaryUrl.url).setRenderBodyOnly(true));
@@ -316,7 +326,7 @@ public class RepositoryUrlPanel extends BasePanel {
 			app.cloneUrl = url;
 			app.platforms = new String [] { "windows", "macintosh", "linux" };
 			app.productUrl = "http://sparkleshare.org";
-			app.icon = "star_32x32.png";
+			app.icon = "sparkleshare_32x32.png";
 			app.isActive = true;
 			return app;
 		}
