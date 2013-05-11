@@ -246,14 +246,6 @@ public abstract class RepositoryPage extends BasePage {
 			}
 		}
 		
-		// show sparkleshare folder icon
-		if (model.isSparkleshared()) {
-			add(WicketUtils.newImage("repositoryIcon", "folder_star_32x32.png",
-					getString("gb.isSparkleshared")));
-		} else {
-			add(WicketUtils.newClearPixel("repositoryIcon").setVisible(false));
-		}
-		
 		if (getRepositoryModel().isBare) {
 			add(new Label("workingCopyIndicator").setVisible(false));
 		} else {

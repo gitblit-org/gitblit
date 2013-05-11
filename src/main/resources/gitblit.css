@@ -73,16 +73,9 @@ hr {
 }
 
 .navbar-inner {
-	background-color:#000050;
-	background-repeat:repeat-x;
-	background-image:-khtml-gradient(linear, left top, left bottom, from(#000060), to(#000040));
-	background-image:-moz-linear-gradient(top, #000060, #000040);
-	background-image:-ms-linear-gradient(top, #000060, #000040);
-	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%, #000060), color-stop(100%, #000040));
-	background-image:-webkit-linear-gradient(top, #000060, #000040);
-	background-image:-o-linear-gradient(top, #000060, #000040);
-	background-image:linear-gradient(top, #000060, #000040);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#000060', endColorstr='#000040', GradientType=0);
+	background-color: #002060;
+	background-repeat: none;
+	background-image: none;
 	-webkit-box-shadow:0 1px 3px rgba(0, 0, 0, 0.25),inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 	-moz-box-shadow:0 1px 3px rgba(0, 0, 0, 0.25),inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 	box-shadow:0 1px 3px rgba(0, 0, 0, 0.25),inset 0 -1px 0 rgba(0, 0, 0, 0.1);
@@ -117,17 +110,34 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	color: #ffffff !important;
 }
 
-.btn:first-child {
-	border-radius: 4px;
-}
-
 .btn-appmenu {
-    /*background-color: rgb(73, 175, 205);
-    background-image: -moz-linear-gradient(center top , rgb(91, 192, 222), rgb(47, 150, 180));*/
-    background-color: rgb(73, 175, 205);
-    background-image: -moz-linear-gradient(center top , rgb(91, 192, 222), rgb(47, 150, 180));
+	border-radius: 4px !important;
+    background-color: #002060;
+    background-image:-khtml-gradient(linear, left top, left bottom, from(#4060A0), to(#002060));
+	background-image:-moz-linear-gradient(center top, #4060A0, #002060);
+	background-image:-ms-linear-gradient(top, #4060A0, #002060);
+	background-image:-webkit-gradient(linear, left top, left bottom, color-stop(0%, #4060A0), color-stop(100%, #002060));
+	background-image:-webkit-linear-gradient(top, #4060A0, #002060);
+	background-image:-o-linear-gradient(top, #4060A0, #002060);
+	background-image:linear-gradient(top, #4060A0, #002060);
+    
     background-repeat: repeat-x;
     border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.btn-appmenu:hover, .btn-appmenu:active, .btn-appmenu.active, .btn-appmenu.disabled, .btn-appmenu[disabled] {
+    background-color: #002060;
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+
+.btn-appmenu .caret {
+    border-bottom-color: #FFFFFF;
+    border-top-color: #FFFFFF;
+    opacity: 0.75;
 }
 
 .breadcrumb {
@@ -1083,7 +1093,7 @@ tr.dark {
 /* currently both use the same, but it can change */
 tr.light:hover,
 tr.dark:hover {
-	background-color: #000070;
+	background-color: #002060;
 	color: white;
 }
 
