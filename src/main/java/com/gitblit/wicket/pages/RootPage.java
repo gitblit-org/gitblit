@@ -111,6 +111,9 @@ public abstract class RootPage extends BasePage {
 		if (showAdmin || showRegistrations) {
 			pages.add(new PageRegistration("gb.federation", FederationPage.class));
 		}
+		if (showAdmin || showRegistrations) {
+			pages.add(new PageRegistration("gb.system", SystemManagementPage.class));
+		}
 
 		if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
 			addDropDownMenus(pages);

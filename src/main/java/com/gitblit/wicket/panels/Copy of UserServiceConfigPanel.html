@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"
+	xml:lang="en" lang="en">
+<body>
+	<wicket:panel>
+		<table class="plain">
+			<tbody class="settings">
+				<tr><th class="left"><span wicket:id="titleLabel">this text will be replaced</span><img style="vertical-align: middle; border: 1px solid #888; background-color: white;" src="system-settings.png"/></th></tr>
+				<tr><td class="edit"><input type="checkbox" wicket:id="authenticateUsers" />&nbsp;<wicket:message key="gb.realm.authenticateUsers"></wicket:message></td></tr>
+				<tr><td class="edit"><input type="checkbox" wicket:id="mapGroups" />&nbsp;<wicket:message key="gb.realm.mapGroups"></wicket:message><br />
+				<span class="subedit"><wicket:message key="gb.realm.mapGroup.to.systemAdmin" />: <input type="text" wicket:id="remoteGroupToSystemAdmin" /></span><br />
+				<span class="subedit"><wicket:message key="gb.realm.mapGroup.to.repoAdmin" />: <input type="text" wicket:id="remoteGroupToRepoAdmin" /></span><br />
+				<span class="subedit"><wicket:message key="gb.realm.mapGroup.to.repoCreator" />: <input type="text" wicket:id="remoteGroupToRepoCreator" /></span><br />
+				</td></tr>
+				<tr><td class="edit"><input type="checkbox" wicket:id="groupsForPermissionManagement" />&nbsp;<wicket:message key="gb.realm.remoteGroups.forPermissionManagement"></wicket:message><br />
+				<span class="subedit"><wicket:message key="gb.realm.remoteGroups.forPermissionManagement.prefix" />: <input type="text" wicket:id="prefix" /></span>
+				</td></tr>
+				
+			</tbody>
+		</table>
+	</wicket:panel>
+</body>
+</html>
