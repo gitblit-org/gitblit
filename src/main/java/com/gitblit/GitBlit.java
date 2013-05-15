@@ -1364,11 +1364,12 @@ public class GitBlit implements ServletContextListener {
 
 				// optionally (re)calculate repository sizes
 				if (getBoolean(Keys.web.showRepositorySizes, true)) {
+					ByteFormat byteFormat = new ByteFormat();
 					msg = "{0} repositories identified with calculated folder sizes in {1} msecs";
 					for (String repository : repositories) {
 						RepositoryModel model = getRepositoryModel(repository);
 						if (!model.skipSizeCalculation) {
-							calculateSize(model);
+							model.size = byteFormat.format(calculateSize(model));
 						}
 					}
 				} else {
@@ -1559,6 +1560,10 @@ public class GitBlit implements ServletContextListener {
 			}
 
 			model.lastChange = JGitUtils.getLastChange(r);
+			if (!model.skipSizeCalculation) {
+				ByteFormat byteFormat = new ByteFormat();
+				model.size = byteFormat.format(calculateSize(model));
+			}
 		}
 		r.close();
 		
