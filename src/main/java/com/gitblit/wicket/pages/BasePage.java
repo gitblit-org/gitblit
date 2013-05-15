@@ -128,9 +128,9 @@ public abstract class BasePage extends SessionPage {
 
 	protected void setupPage(String repositoryName, String pageName) {
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
-			add(new Label("title", getServerName() + " - " + repositoryName));
+			add(new Label("title", repositoryName + " - " + Keys.web.siteName));
 		} else {
-			add(new Label("title", getServerName()));
+			add(new Label("title", Keys.web.siteName));
 		}
 
 		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(RepositoriesPage.class, null).toString());

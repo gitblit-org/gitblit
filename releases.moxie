@@ -33,6 +33,7 @@ r17: {
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
  	 - Disable Gson's pretty printing which has a huge performance gain
 	 - Properly set application/json content-type on api calls
+	 - Improved page title
 	 - Updated Polish translation
 	 - Updated Japanese translation
 	 
@@ -54,6 +55,7 @@ r17: {
 
     contributors:
 	- Bandarupalli Satyanarayana
+	- Chad H.
 	- Christian Aistleitner
 	- David Ostrovsky
 	- Egbert Teeselink
