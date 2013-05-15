@@ -132,8 +132,9 @@ public class PushLogUtils {
 				DirCache index = createIndex(repository, headId, commands);
 				ObjectId indexTreeId = index.writeTree(odi);
 
-				PersonIdent ident = new PersonIdent(user.getDisplayName(), 
-						user.emailAddress == null ? user.username:user.emailAddress);
+				PersonIdent ident = 
+						new PersonIdent(MessageFormat.format("{0}/{1}", user.getDisplayName(), user.username),
+						user.emailAddress == null ? user.username : user.emailAddress);
 
 				// Create a commit object
 				CommitBuilder commit = new CommitBuilder();
@@ -312,9 +313,24 @@ public class PushLogUtils {
 				// skip gitblit/internal commits
 				continue;
 			}
+
+			String name = push.getAuthorIdent().getName();
+			String username;
+			String displayname;
+			if (name.indexOf('/') > -1) {
+				int slash = name.indexOf('/');
+				displayname = name.substring(0, slash);
+				username = name.substring(slash + 1);
+			} else {
+				displayname = name;
+				username = push.getAuthorIdent().getEmailAddress();
+			}
+			
+			UserModel user = new UserModel(username);
+			user.displayName = displayname;
+			user.emailAddress = push.getAuthorIdent().getEmailAddress();
+			
 			Date date = push.getAuthorIdent().getWhen();
-			UserModel user = new UserModel(push.getAuthorIdent().getEmailAddress());
-			user.displayName = push.getAuthorIdent().getName();
 			PushLogEntry log = new PushLogEntry(repositoryName, date, user);
 			list.add(log);
 			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);

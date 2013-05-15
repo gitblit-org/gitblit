@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.ReceiveCommand;
 
@@ -182,6 +183,14 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		}
 		Collections.sort(list);
 		return list;
+	}
+	
+	public PersonIdent getCommitterIdent() {
+		return new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.username : user.emailAddress);
+	}
+
+	public PersonIdent getAuthorIdent() {
+		return getCommitterIdent();
 	}
 
 	@Override
