@@ -17,14 +17,12 @@ package com.gitblit;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -41,27 +39,6 @@ public class SparkleShareInviteServlet extends HttpServlet {
 
 	public SparkleShareInviteServlet() {
 		super();
-	}
-	
-	/**
-	 * Returns an Sparkleshare invite url to this servlet for the repository.
-	 * https://github.com/hbons/SparkleShare/wiki/Invites
-	 * 
-	 * @param baseURL
-	 * @param repository
-	 * @param username
-	 * @return an url
-	 */
-	public static String asLink(String baseURL, String repository, String username) {
-		if (baseURL.length() > 0 && baseURL.charAt(baseURL.length() - 1) == '/') {
-			baseURL = baseURL.substring(0, baseURL.length() - 1);
-		}
-		String url = baseURL + Constants.SPARKLESHARE_INVITE_PATH
-				+ ((StringUtils.isEmpty(username) ? "" : (username + "@")))
-				+ repository + ".xml";
-		url = url.replace("https://", "sparkleshare://");
-		url = url.replace("http://", "sparkleshare-unsafe://");
-		return url;
 	}
 	
 	@Override
@@ -81,22 +58,22 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			java.io.IOException {		
 		
 		// extract repo name from request
-		String path = request.getPathInfo();
-		if (path != null && path.length() > 1) {
-			if (path.charAt(0) == '/') {
-				path = path.substring(1);
-			}
-		}
+		String repoUrl = request.getPathInfo().substring(1);
+
 		// trim trailing .xml
-		if (path.endsWith(".xml")) {
-			path = path.substring(0, path.length() - 4);
+		if (repoUrl.endsWith(".xml")) {
+			repoUrl = repoUrl.substring(0, repoUrl.length() - 4);
 		}
 		
+		String servletPath =  Constants.GIT_PATH;
+		
+		int schemeIndex = repoUrl.indexOf("://") + 3;
+		String host = repoUrl.substring(0, repoUrl.indexOf('/', schemeIndex));				
+		String path = repoUrl.substring(repoUrl.indexOf(servletPath) + servletPath.length());
 		String username = null;
-		int fetch = path.indexOf('@');
-		if (fetch > -1) {
-			username = path.substring(0, fetch);
-			path = path.substring(fetch + 1);
+		int fetchIndex = repoUrl.indexOf('@');
+		if (fetchIndex > -1) {
+			username = repoUrl.substring(schemeIndex, fetchIndex);
 		}
 		UserModel user;
 		if (StringUtils.isEmpty(username)) {
@@ -109,102 +86,28 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			username = "";
 		}
 		
-		// ensure that the requested repository exists and is sparkleshared
+		// ensure that the requested repository exists
 		RepositoryModel model = GitBlit.self().getRepositoryModel(path);
 		if (model == null) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			response.getWriter().append(MessageFormat.format("Repository \"{0}\" not found!", path));
 			return;
-		} else if (!model.isSparkleshared()) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			response.getWriter().append(MessageFormat.format("Repository \"{0}\" is not sparkleshared!", path));
-			return;
 		}
 		
-		if (GitBlit.getBoolean(Keys.git.enableGitServlet, true)
-				|| GitBlit.getInteger(Keys.git.daemonPort, 0) > 0) {
-			// Gitblit as server
-			// determine username for repository url
-			if (model.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				if (!user.canRewindRef(model)) {
-					response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-					response.getWriter().append(MessageFormat.format("\"{0}\" does not have RW+ permissions for {1}!", user.username, path));
-					return;
-				}
-			}
-			
-			if (model.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-				username = user.username + "@";
-			} else {
-				username = "";
-			}
-
-			String serverPort = "";
-			if (request.getScheme().equals("https")) {
-				if (request.getServerPort() != 443) {
-					serverPort = ":" + request.getServerPort();
-				}
-			} else if (request.getScheme().equals("http")) {
-				if (request.getServerPort() != 80) {
-					serverPort = ":" + request.getServerPort();
-				}
-			}
-
-			// assume http/https serving
-			String scheme = request.getScheme();
-			String servletPath = Constants.GIT_PATH;
-
-			// try to switch to git://, if git servlet disabled and repo has no restrictions
-			if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)
-					&& (GitBlit.getInteger(Keys.git.daemonPort, 0) > 0)
-					&& AccessRestrictionType.NONE == model.accessRestriction) {
-				scheme = "git";
-				servletPath = "/";
-				serverPort = GitBlit.getString(Keys.git.daemonPort, "");
-			}
-
-			// construct Sparkleshare invite
-			StringBuilder sb = new StringBuilder();		
-			sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-			sb.append("<sparkleshare><invite>\n");
-			sb.append(MessageFormat.format("<address>{0}://{1}{2}{3}{4}</address>\n", scheme, username, request.getServerName(), serverPort, request.getContextPath()));
-			sb.append(MessageFormat.format("<remote_path>{0}{1}</remote_path>\n", servletPath, model.name));
-			if (GitBlit.getInteger(Keys.fanout.port, 0) > 0) {
-				// Gitblit is running it's own fanout service for pubsub notifications
-				sb.append(MessageFormat.format("<announcements_url>tcp://{0}:{1}</announcements_url>\n", request.getServerName(), GitBlit.getString(Keys.fanout.port, "")));
-			}
-			sb.append("</invite></sparkleshare>\n");
-
-			// write invite to client
-			response.setContentType("application/xml");
-			response.setContentLength(sb.length());
-			response.getWriter().append(sb.toString());
-		} else {
-			// Gitblit as viewer, repository access handled externally so
-			// assume RW+ permission
-			List<String> others = GitBlit.getStrings(Keys.web.otherUrls);
-			if (others.size() == 0) {
-				return;
-			}
-			
-			String address = MessageFormat.format(others.get(0), "", username);
-			
-			StringBuilder sb = new StringBuilder();		
-			sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-			sb.append("<sparkleshare><invite>\n");
-			
-			sb.append(MessageFormat.format("<address>{0}</address>\n", address));
-			sb.append(MessageFormat.format("<remote_path>{0}</remote_path>\n", model.name));
-			if (GitBlit.getInteger(Keys.fanout.port, 0) > 0) {
-				// Gitblit is running it's own fanout service for pubsub notifications
-				sb.append(MessageFormat.format("<announcements_url>tcp://{0}:{1}</announcements_url>\n", request.getServerName(), GitBlit.getString(Keys.fanout.port, "")));
-			}
-			sb.append("</invite></sparkleshare>\n");
-
-			// write invite to client
-			response.setContentType("application/xml");
-			response.setContentLength(sb.length());
-			response.getWriter().append(sb.toString());
+		StringBuilder sb = new StringBuilder();		
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+		sb.append("<sparkleshare><invite>\n");
+		sb.append(MessageFormat.format("<address>{0}</address>\n", host));
+		sb.append(MessageFormat.format("<remote_path>{0}{1}</remote_path>\n", servletPath, model.name));
+		if (GitBlit.getInteger(Keys.fanout.port, 0) > 0) {
+			// Gitblit is running it's own fanout service for pubsub notifications
+			sb.append(MessageFormat.format("<announcements_url>tcp://{0}:{1}</announcements_url>\n", request.getServerName(), GitBlit.getString(Keys.fanout.port, "")));
 		}
+		sb.append("</invite></sparkleshare>\n");
+
+		// write invite to client
+		response.setContentType("application/xml");
+		response.setContentLength(sb.length());
+		response.getWriter().append(sb.toString());
 	}
 }

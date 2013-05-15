@@ -4,7 +4,7 @@
 		"title": "Git",
 		"description": "a fast, open-source, distributed VCS",
 		"legal": "released under the GPLv2 open source license",
-		"command": "git clone {0}",
+		"command": "git clone ${repoUrl}",
 		"productUrl": "http://git-scm.com",
 		"icon": "git-black_32x32.png",
 		"isActive": true
@@ -14,7 +14,7 @@
 		"title": "syntevo SmartGit/Hg\u2122",
 		"description": "a Git client for Windows, Mac, & Linux",
 		"legal": "\u00a9 2013 syntevo GmbH. All rights reserved.",
-		"cloneUrl": "smartgit://cloneRepo/{0}",
+		"cloneUrl": "smartgit://cloneRepo/${repoUrl}",
 		"productUrl": "http://www.syntevo.com/smartgithg",
 		"platforms": [ "windows", "macintosh", "linux" ],
 		"icon": "smartgithg_32x32.png",
@@ -25,7 +25,7 @@
 		"title": "Atlassian SourceTree\u2122",
 		"description": "a free Git client for Windows or Mac",
 		"legal": "\u00a9 2013 Atlassian. All rights reserved.",
-		"cloneUrl": "sourcetree://cloneRepo/{0}",
+		"cloneUrl": "sourcetree://cloneRepo/${repoUrl}",
 		"productUrl": "http://sourcetreeapp.com",
 		"platforms": [ "windows", "macintosh" ],
 		"icon": "sourcetree_32x32.png",
@@ -36,7 +36,7 @@
 		"title": "fournova Tower\u2122",
 		"description": "a Git client for Mac",
 		"legal": "\u00a9 2013 fournova Software GmbH. All rights reserved.",
-		"cloneUrl": "gittower://openRepo/{0}",
+		"cloneUrl": "gittower://openRepo/${repoUrl}",
 		"productUrl": "http://www.git-tower.com",
 		"platforms": [ "macintosh" ],
 		"icon": "tower_32x32.png",
@@ -47,7 +47,7 @@
 		"title": "GitHub\u2122 for Macintosh",
 		"description": "a free Git client for Mac OS X",
 		"legal": "\u00a9 2013 GitHub. All rights reserved.",
-		"cloneUrl": "github-mac://openRepo/{0}",
+		"cloneUrl": "github-mac://openRepo/${repoUrl}",
 		"productUrl": "http://mac.github.com",
 		"platforms": [ "macintosh" ],
 		"isActive": false
@@ -57,9 +57,21 @@
 		"title": "GitHub\u2122 for Windows",
 		"description": "a free Git client for Windows",
 		"legal": "\u00a9 2013 GitHub. All rights reserved.",
-		"cloneUrl": "github-windows://openRepo/{0}",
+		"cloneUrl": "github-windows://openRepo/${repoUrl}",
 		"productUrl": "http://windows.github.com",
 		"platforms": [ "windows" ],
+		"isActive": false
+	},
+	{
+		"name": "SparkleShare",
+		"title": "SparkleShare\u2122",
+		"description": "an open source collaboration and sharing tool",
+		"legal": "released under the GPLv3 open source license",
+		"cloneUrl": "sparkleshare://inviteRepo/${baseUrl}/sparkleshare/${repoUrl}.xml",
+		"productUrl": "http://sparkleshare.org",
+		"platforms": [ "windows", "macintosh", "linux" ],
+		"icon": "sparkleshare_32x32.png",
+		"minimumPermission" : "RW+",
 		"isActive": false
 	}
 ]

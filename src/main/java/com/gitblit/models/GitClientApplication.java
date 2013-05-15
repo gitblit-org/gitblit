@@ -17,6 +17,7 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -39,6 +40,7 @@ public class GitClientApplication implements Serializable {
 	public String command;
 	public String productUrl;
 	public String[] platforms;
+	public AccessPermission minimumPermission;
 	public boolean isActive;
 
 	public boolean allowsPlatform(String p) {

@@ -38,12 +38,12 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.SparkleShareInviteServlet;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -200,7 +200,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		return urlPanel;
 	}
 	
-	protected Fragment createApplicationMenus(String wicketId, UserModel user, final RepositoryModel repository, List<RepositoryUrl> repositoryUrls) {
+	protected Fragment createApplicationMenus(String wicketId, UserModel user, final RepositoryModel repository, final List<RepositoryUrl> repositoryUrls) {
 		final List<GitClientApplication> displayedApps = new ArrayList<GitClientApplication>();
 		final String userAgent = ((WebClientInfo) GitBlitWebSession.get().getClientInfo()).getUserAgent();
 		
@@ -210,14 +210,9 @@ public class RepositoryUrlPanel extends BasePanel {
 					displayedApps.add(app);
 				}
 			}
-
-			GitClientApplication sparkleshare = getSparkleShareAppMenu(user, repository);
-			if (sparkleshare != null) {
-				displayedApps.add(sparkleshare);
-			}
 		}
 
-		final ListDataProvider<RepositoryUrl> urlsDp = new ListDataProvider<RepositoryUrl>(repositoryUrls);
+		final String baseURL = WicketUtils.getGitblitURL(RequestCycle.get().getRequest());
 		ListDataProvider<GitClientApplication> displayedAppsDp = new ListDataProvider<GitClientApplication>(displayedApps);
 		DataView<GitClientApplication> appMenus = new DataView<GitClientApplication>("appMenus", displayedAppsDp) {
 			private static final long serialVersionUID = 1L;
@@ -225,58 +220,92 @@ public class RepositoryUrlPanel extends BasePanel {
 			public void populateItem(final Item<GitClientApplication> item) {
 				final GitClientApplication clientApp = item.getModelObject();
 
+				// filter the urls for the client app
+				List<RepositoryUrl> urls;
+				if (clientApp.minimumPermission == null) {
+					// client app does not specify minimum access permission
+					urls = repositoryUrls;
+				} else {
+					urls = new ArrayList<RepositoryUrl>();
+					for (RepositoryUrl repoUrl : repositoryUrls) {
+						if (repoUrl.permission == null) {
+							// external permissions, assume it is satisfactory
+							urls.add(repoUrl);
+						} else if (repoUrl.permission.atLeast(clientApp.minimumPermission)) {
+							// repo url meets minimum permission requirement
+							urls.add(repoUrl);
+						}
+					}
+				}
+				
+				if (urls.size() == 0) {
+					// do not show this app menu because there are no urls
+					item.add(new Label("appMenu").setVisible(false));
+					return;
+				}
+				
+				Fragment appMenu = new Fragment("appMenu", "appMenuFragment", this);
+				appMenu.setRenderBodyOnly(true);
+				item.add(appMenu);
+				
 				// menu button
-				item.add(new Label("applicationName", clientApp.name));
+				appMenu.add(new Label("applicationName", clientApp.name));
 				
 				// application icon
 				Component img;
 				if (StringUtils.isEmpty(clientApp.icon)) {
 					img = WicketUtils.newClearPixel("applicationIcon").setVisible(false);	
 				} else {
-					img = WicketUtils.newImage("applicationIcon", clientApp.icon);	
+					if (clientApp.icon.contains("://")) {
+						// external image
+						img = new ExternalImage("applicationIcon", clientApp.icon);
+					} else {
+						// context image
+						img = WicketUtils.newImage("applicationIcon", clientApp.icon);
+					}
 				}				
-				item.add(img);
+				appMenu.add(img);
 				
 				// application menu title, may be a link
 				if (StringUtils.isEmpty(clientApp.productUrl)) {
-					item.add(new Label("applicationTitle", clientApp.toString()));
+					appMenu.add(new Label("applicationTitle", clientApp.toString()));
 				} else {
-					item.add(new LinkPanel("applicationTitle", null, clientApp.toString(), clientApp.productUrl, true));
+					appMenu.add(new LinkPanel("applicationTitle", null, clientApp.toString(), clientApp.productUrl, true));
 				}
 				
 				// brief application description
 				if (StringUtils.isEmpty(clientApp.description)) {
-					item.add(new Label("applicationDescription").setVisible(false));
+					appMenu.add(new Label("applicationDescription").setVisible(false));
 				} else {
-					item.add(new Label("applicationDescription", clientApp.description));
+					appMenu.add(new Label("applicationDescription", clientApp.description));
 				}
 				
 				// brief application legal info, copyright, license, etc
 				if (StringUtils.isEmpty(clientApp.legal)) {
-					item.add(new Label("applicationLegal").setVisible(false));
+					appMenu.add(new Label("applicationLegal").setVisible(false));
 				} else {
-					item.add(new Label("applicationLegal", clientApp.legal));
+					appMenu.add(new Label("applicationLegal", clientApp.legal));
 				}
 				
 				// a nested repeater for all action items
+				ListDataProvider<RepositoryUrl> urlsDp = new ListDataProvider<RepositoryUrl>(urls);
 				DataView<RepositoryUrl> actionItems = new DataView<RepositoryUrl>("actionItems", urlsDp) {
 					private static final long serialVersionUID = 1L;
 
 					public void populateItem(final Item<RepositoryUrl> repoLinkItem) {
 						RepositoryUrl repoUrl = repoLinkItem.getModelObject();
-						
 						Fragment fragment = new Fragment("actionItem", "actionFragment", this);
 						fragment.add(createPermissionBadge("permission", repoUrl));
 
 						if (!StringUtils.isEmpty(clientApp.cloneUrl)) {
 							// custom registered url
-							String url = MessageFormat.format(clientApp.cloneUrl, repoUrl);
+							String url = substitute(clientApp.cloneUrl, repoUrl.url, baseURL);
 							fragment.add(new LinkPanel("content", "applicationMenuItem", getString("gb.clone") + " " + repoUrl.url, url));
 							repoLinkItem.add(fragment);
 							fragment.add(new Label("copyFunction").setVisible(false));
 						} else if (!StringUtils.isEmpty(clientApp.command)) {
 							// command-line
-							String command = MessageFormat.format(clientApp.command, repoUrl);
+							String command = substitute(clientApp.command, repoUrl.url, baseURL);
 							Label content = new Label("content", command);
 							WicketUtils.setCssClass(content, "commandMenuItem");
 							fragment.add(content);
@@ -286,7 +315,7 @@ public class RepositoryUrlPanel extends BasePanel {
 							fragment.add(createCopyFragment(command));
 						}
 					}};
-					item.add(actionItems);
+					appMenu.add(actionItems);
 			}
 		};
 		
@@ -295,42 +324,8 @@ public class RepositoryUrlPanel extends BasePanel {
 		return applicationMenus;
 	}
 	
-	protected GitClientApplication getSparkleShareAppMenu(UserModel user, RepositoryModel repository) {
-		String url = null;
-		if (repository.isBare && repository.isSparkleshared()) {
-			String username = null;
-			if (UserModel.ANONYMOUS != user) {
-				username = user.username;
-			}
-			if (isGitblitServingRepositories()) {
-				// Gitblit as server
-				// ensure user can rewind
-				if (user.canRewindRef(repository)) {
-					String baseURL = WicketUtils.getGitblitURL(RequestCycle.get().getRequest());
-					url = SparkleShareInviteServlet.asLink(baseURL, repository.name, username);
-				}
-			} else {
-				// Gitblit as viewer, assume RW+ permission
-				String baseURL = WicketUtils.getGitblitURL(RequestCycle.get().getRequest());
-				url = SparkleShareInviteServlet.asLink(baseURL, repository.name, username);
-			}
-		}
-
-		// sparkleshare invite url
-		if (!StringUtils.isEmpty(url)) {
-			GitClientApplication app = new GitClientApplication();
-			app.name = "SparkleShare";
-			app.title = "SparkleShare\u2122";
-			app.description = "an open source collaboration and sharing tool";
-			app.legal = "released under the GPLv3 open source license";
-			app.cloneUrl = url;
-			app.platforms = new String [] { "windows", "macintosh", "linux" };
-			app.productUrl = "http://sparkleshare.org";
-			app.icon = "sparkleshare_32x32.png";
-			app.isActive = true;
-			return app;
-		}
-		return null;
+	protected String substitute(String pattern, String repoUrl, String baseUrl) {
+		return pattern.replace("${repoUrl}", repoUrl).replace("${baseUrl}", baseUrl);
 	}
 	
 	protected boolean isGitblitServingRepositories() {

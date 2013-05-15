@@ -15,10 +15,10 @@
 			<div class="btn-group repositoryUrlContainer">
 				<img style="vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
 				<span wicket:id="menu"></span>
-   				<span class="repositoryUrl">
+   				<div class="repositoryUrl">
    					<span wicket:id="primaryUrl">[repository primary url]</span>
    					<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
-   				</span>
+   				</div>
    				<span class="hidden-phone hidden-tablet repositoryUrlRightCap" wicket:id="primaryUrlPermission">[repository primary url permission]</span>
    			</div>
 		</div>
@@ -27,30 +27,34 @@
 	<wicket:fragment wicket:id="applicationMenusFragment">
 		<div class="btn-toolbar" style="margin: 4px 0px 0px 0px;">
 			<div class="btn-group" wicket:id="appMenus">
-   				<a class="btn btn-mini btn-appmenu" data-toggle="dropdown" href="#">   				
-	    			<span wicket:id="applicationName"></span>
-    				<span class="caret"></span>
-   				</a>
-   				<ul class="dropdown-menu applicationMenu">
-   					<li>
-   						<div class="applicationHeaderMenuItem">
-   							<div style="float:right">
-   								<img style="padding-right: 5px;vertical-align: middle;" wicket:id="applicationIcon"></img>
-   							</div>
-   							<span class="applicationTitle" wicket:id="applicationTitle"></span>
-   						</div>
-   					</li>
-	   				<li><div class="applicationHeaderMenuItem"><span wicket:id="applicationDescription"></span></div></li>
-   					<li><div class="applicationLegalMenuItem"><span wicket:id="applicationLegal"></span></div></li>
-   					
-   					<li class="divider" style="margin: 5px 1px 0px 1px;clear:both;" ></li>
-   				
-   					<li class="action" wicket:id="actionItems">
-   						<span wicket:id="actionItem"></span>
-   					</li>
-   				</ul>
+				<span wicket:id="appMenu"></span>
    			</div>
 		</div>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="appMenuFragment">
+		<a class="btn btn-mini btn-appmenu" data-toggle="dropdown" href="#">   				
+	    	<span wicket:id="applicationName"></span>
+    		<span class="caret"></span>
+   		</a>
+   		<ul class="dropdown-menu applicationMenu">
+   			<li>
+   				<div class="applicationHeaderMenuItem">
+   					<div style="float:right">
+   						<img style="padding-right: 5px;vertical-align: middle;" wicket:id="applicationIcon"></img>
+   					</div>
+   					<span class="applicationTitle" wicket:id="applicationTitle"></span>
+   				</div>
+   			</li>
+	   		<li><div class="applicationHeaderMenuItem"><span wicket:id="applicationDescription"></span></div></li>
+   			<li><div class="applicationLegalMenuItem"><span wicket:id="applicationLegal"></span></div></li>
+   			
+   			<li class="divider" style="margin: 5px 1px 0px 1px;clear:both;" ></li>
+   		
+   			<li class="action" wicket:id="actionItems">
+   				<span wicket:id="actionItem"></span>
+   			</li>
+   		</ul>
 	</wicket:fragment>
 	
 	<wicket:fragment wicket:id="urlProtocolMenuFragment">
