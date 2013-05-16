@@ -127,14 +127,15 @@ public abstract class BasePage extends SessionPage {
 	}	
 
 	protected void setupPage(String repositoryName, String pageName) {
+		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
-			add(new Label("title", repositoryName + " - " + Keys.web.siteName));
+			add(new Label("title", repositoryName + " - " + siteName));
 		} else {
-			add(new Label("title", Keys.web.siteName));
+			add(new Label("title", siteName));
 		}
 
 		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(RepositoriesPage.class, null).toString());
-		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
+		WicketUtils.setHtmlTooltip(rootLink, siteName);
 		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
