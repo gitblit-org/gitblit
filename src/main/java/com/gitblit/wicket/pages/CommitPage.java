@@ -222,4 +222,9 @@ public class CommitPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.commit");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return LogPage.class;
+	}
 }

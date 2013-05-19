@@ -149,4 +149,9 @@ public class SendProposalPage extends RootSubPage {
 				false, repositories, false, getAccessRestrictions());
 		add(repositoriesPanel);
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return FederationPage.class;
+	}
 }

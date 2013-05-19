@@ -29,6 +29,7 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
+import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -47,6 +48,7 @@ import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
+import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.ProjectsPage;
@@ -64,6 +66,8 @@ import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
+	public final static Class<? extends BasePage> HOME_PAGE_CLASS = RepositoriesPage.class;
+	
 	@Override
 	public void init() {
 		super.init();
@@ -88,7 +92,10 @@ public class GitBlitWebApp extends WebApplication {
 		}
 
 		// setup the standard gitweb-ish urls
+//		mount("/repositories", RepositoriesPage.class);
+		mount("/overview", OverviewPage.class, "r", "h");
 		mount("/summary", SummaryPage.class, "r");
+		mount("/commits", LogPage.class, "r", "h");
 		mount("/log", LogPage.class, "r", "h");
 		mount("/tags", TagsPage.class, "r");
 		mount("/branches", BranchesPage.class, "r");
@@ -141,7 +148,7 @@ public class GitBlitWebApp extends WebApplication {
 
 	@Override
 	public Class<? extends Page> getHomePage() {
-		return RepositoriesPage.class;
+		return HOME_PAGE_CLASS;
 	}
 	
 	@Override

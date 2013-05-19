@@ -70,4 +70,9 @@ public class MarkdownPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.markdown");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return DocsPage.class;
+	}
 }

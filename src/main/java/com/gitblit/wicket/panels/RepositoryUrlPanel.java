@@ -91,11 +91,18 @@ public class RepositoryUrlPanel extends BasePanel {
 			// no urls, nothing to show.
 			add(new Label("repositoryUrlPanel").setVisible(false));
 			add(new Label("applicationMenusPanel").setVisible(false));
+			add(new Label("repositoryIndicators").setVisible(false));
 			return;
 		}
 		
 		// display primary url
 		add(createPrimaryUrlPanel("repositoryUrlPanel", repository, repositoryUrls));
+
+		if (onlyUrls) {
+			add(new Label("repositoryIndicators").setVisible(false));
+		} else {
+			add(createRepositoryIndicators(repository));
+		}
 
 		boolean allowAppLinks = GitBlit.getBoolean(Keys.web.allowAppCloneLinks, true);
 		if (onlyUrls || !canClone || !allowAppLinks) {
@@ -424,5 +431,46 @@ public class RepositoryUrlPanel extends BasePanel {
 			}
 		}
 		return accessRestrictionsMap;
+	}
+	
+	protected Component createRepositoryIndicators(RepositoryModel repository) {
+		Fragment fragment = new Fragment("repositoryIndicators", "indicatorsFragment", this);
+		if (repository.isBare) {
+			fragment.add(new Label("workingCopyIndicator").setVisible(false));
+		} else {
+			Fragment wc = new Fragment("workingCopyIndicator", "workingCopyFragment", this);
+			Label lbl = new Label("workingCopy", getString("gb.workingCopy"));
+			WicketUtils.setHtmlTooltip(lbl,  getString("gb.workingCopyWarning"));
+			wc.add(lbl);
+			fragment.add(wc);
+		}
+		
+		boolean allowForking = GitBlit.getBoolean(Keys.web.allowForking, true);
+		if (!allowForking || user == null || !user.isAuthenticated) {
+			// must be logged-in to fork, hide all fork controls
+			fragment.add(new Label("forksProhibitedIndicator").setVisible(false));
+		} else {
+			String fork = GitBlit.self().getFork(user.username, repository.name);
+			boolean hasFork = fork != null;
+			boolean canFork = user.canFork(repository);
+
+			if (hasFork || !canFork) {
+				if (user.canFork() && !repository.allowForks) {
+					// show forks prohibited indicator
+					Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
+					Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));
+					WicketUtils.setHtmlTooltip(lbl,  getString("gb.forksProhibitedWarning"));
+					wc.add(lbl);
+					fragment.add(wc);
+				} else {
+					// can not fork, no need for forks prohibited indicator
+					fragment.add(new Label("forksProhibitedIndicator").setVisible(false));
+				}
+			} else if (canFork) {
+				// can fork and we do not have one
+				fragment.add(new Label("forksProhibitedIndicator").setVisible(false));
+			}
+		}
+		return fragment;
 	}
 }

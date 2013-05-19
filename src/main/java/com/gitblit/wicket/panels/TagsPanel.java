@@ -17,6 +17,7 @@ package com.gitblit.wicket.panels;
 
 import java.util.List;
 
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -35,7 +36,6 @@ import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.RawPage;
-import com.gitblit.wicket.pages.RepositoryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
 import com.gitblit.wicket.pages.TreePage;
@@ -71,7 +71,7 @@ public class TagsPanel extends BasePanel {
 
 				item.add(WicketUtils.createDateLabel("tagDate", entry.getDate(), getTimeZone(), getTimeUtils()));
 
-				Class<? extends RepositoryPage> linkClass;
+				Class<? extends WebPage> linkClass;
 				switch (entry.getReferencedObjectType()) {
 				case Constants.OBJ_BLOB:
 					linkClass = BlobPage.class;

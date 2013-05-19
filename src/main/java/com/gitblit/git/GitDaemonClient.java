@@ -50,6 +50,7 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import org.eclipse.jgit.transport.Daemon;
 import org.eclipse.jgit.transport.PacketLineIn;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;

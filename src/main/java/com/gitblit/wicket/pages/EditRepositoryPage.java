@@ -120,6 +120,11 @@ public class EditRepositoryPage extends RootSubPage {
 	protected boolean requiresPageMap() {
 		return true;
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return RepositoriesPage.class;
+	}
 
 	protected void setupPage(RepositoryModel model) {
 		this.repositoryModel = model;

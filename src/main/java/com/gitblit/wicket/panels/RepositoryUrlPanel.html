@@ -8,19 +8,26 @@
 
 	<div wicket:id="repositoryUrlPanel"></div>
 	<div wicket:id="applicationMenusPanel"></div>
-
+	<div wicket:id="repositoryIndicators"></div>
 	
 	<wicket:fragment wicket:id="repositoryUrlFragment">
 		<div class="btn-toolbar" style="margin: 0px;">
 			<div class="btn-group repositoryUrlContainer">
 				<img style="vertical-align: middle;padding: 0px 0px 1px 3px;" wicket:id="accessRestrictionIcon"></img>
 				<span wicket:id="menu"></span>
-   				<span class="repositoryUrl">
+   				<div class="repositoryUrl">
    					<span wicket:id="primaryUrl">[repository primary url]</span>
    					<span class="hidden-phone hidden-tablet" wicket:id="copyFunction"></span>
-   				</span>
+   				</div>
    				<span class="hidden-phone hidden-tablet repositoryUrlRightCap" wicket:id="primaryUrlPermission">[repository primary url permission]</span>
    			</div>
+		</div>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="indicatorsFragment">
+		<div>
+	   		<div wicket:id="workingCopyIndicator"></div>
+			<div wicket:id="forksProhibitedIndicator"></div>
 		</div>
 	</wicket:fragment>
 	
@@ -90,6 +97,18 @@
        		scale="noscale"
        		allowScriptAccess="always"></object>
 	</wicket:fragment>
-		
+
+	<wicket:fragment wicket:id="workingCopyFragment">
+		<div class="repositoryIndicator">
+			<span class="alert alert-info"><i class="icon-exclamation-sign"></i>&nbsp;<span class="hidden-phone" wicket:id="workingCopy">[working copy]</span></span>
+		</div>
+	</wicket:fragment>
+
+	<wicket:fragment wicket:id="forksProhibitedFragment">
+		<div class="repositoryIndicator">
+			<span class="alert alert-error"><i class="icon-ban-circle"></i>&nbsp;<span class="hidden-phone" wicket:id="forksProhibited">[forks prohibited]</span></span>
+		</div>
+	</wicket:fragment>
+			
 </wicket:panel>
 </html>

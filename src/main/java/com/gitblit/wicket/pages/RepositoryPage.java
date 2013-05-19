@@ -54,6 +54,7 @@ import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.PushLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -65,7 +66,7 @@ import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.NavigationPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
-public abstract class RepositoryPage extends BasePage {
+public abstract class RepositoryPage extends RootPage {
 
 	protected final String projectName;
 	protected final String repositoryName;
@@ -125,7 +126,7 @@ public abstract class RepositoryPage extends BasePage {
 
 		// standard page links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>(registeredPages.values());
-		NavigationPanel navigationPanel = new NavigationPanel("navPanel", getClass(), pages);
+		NavigationPanel navigationPanel = new NavigationPanel("repositoryNavPanel", getRepoNavPageClass(), pages);
 		add(navigationPanel);
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink(getRequest()
@@ -139,7 +140,16 @@ public abstract class RepositoryPage extends BasePage {
 		// set stateless page preference
 		setStatelessHint(true);
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return RepositoriesPage.class;
+	}
 
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return getClass();
+	}
+	
 	private Map<String, PageRegistration> registerPages() {
 		PageParameters params = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
@@ -147,26 +157,28 @@ public abstract class RepositoryPage extends BasePage {
 		}
 		Map<String, PageRegistration> pages = new LinkedHashMap<String, PageRegistration>();
 
+		Repository r = getRepository();
+		RepositoryModel model = getRepositoryModel();
+
 		// standard links
-		pages.put("repositories", new PageRegistration("gb.repositories", RepositoriesPage.class));
-		pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
-		pages.put("log", new PageRegistration("gb.log", LogPage.class, params));
-		pages.put("branches", new PageRegistration("gb.branches", BranchesPage.class, params));
-		pages.put("tags", new PageRegistration("gb.tags", TagsPage.class, params));
+		if (PushLogUtils.getPushLogBranch(r) == null) {
+			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
+		} else {
+			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
+//			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
+		}
+		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
 		if (GitBlit.getBoolean(Keys.web.allowForking, true)) {
 			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
 		}
 
 		// conditional links
-		Repository r = getRepository();
-		RepositoryModel model = getRepositoryModel();
-
 		// per-repository extra page links
 		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
 			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params));
 		}
-		if (model.useDocs) {
+		if (model.showReadme || model.useDocs) {
 			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params));
 		}
 		if (JGitUtils.getPagesBranch(r) != null) {
@@ -246,22 +258,11 @@ public abstract class RepositoryPage extends BasePage {
 			}
 		}
 		
-		if (getRepositoryModel().isBare) {
-			add(new Label("workingCopyIndicator").setVisible(false));
-		} else {
-			Fragment wc = new Fragment("workingCopyIndicator", "workingCopyFragment", this);
-			Label lbl = new Label("workingCopy", getString("gb.workingCopy"));
-			WicketUtils.setHtmlTooltip(lbl,  getString("gb.workingCopyWarning"));
-			wc.add(lbl);
-			add(wc);
-		}
-
 		// fork controls
 		if (!allowForkControls() || user == null || !user.isAuthenticated) {
 			// must be logged-in to fork, hide all fork controls
 			add(new ExternalLink("forkLink", "").setVisible(false));
 			add(new ExternalLink("myForkLink", "").setVisible(false));
-			add(new Label("forksProhibitedIndicator").setVisible(false));
 		} else {
 			String fork = GitBlit.self().getFork(user.username, model.name);
 			boolean hasFork = fork != null;
@@ -270,18 +271,6 @@ public abstract class RepositoryPage extends BasePage {
 			if (hasFork || !canFork) {
 				// user not allowed to fork or fork already exists or repo forbids forking
 				add(new ExternalLink("forkLink", "").setVisible(false));
-				
-				if (user.canFork() && !model.allowForks) {
-					// show forks prohibited indicator
-					Fragment wc = new Fragment("forksProhibitedIndicator", "forksProhibitedFragment", this);
-					Label lbl = new Label("forksProhibited", getString("gb.forksProhibited"));
-					WicketUtils.setHtmlTooltip(lbl,  getString("gb.forksProhibitedWarning"));
-					wc.add(lbl);
-					add(wc);
-				} else {
-					// can not fork, no need for forks prohibited indicator
-					add(new Label("forksProhibitedIndicator").setVisible(false));
-				}
 				
 				if (hasFork && !fork.equals(model.name)) {
 					// user has fork, view my fork link
@@ -293,7 +282,6 @@ public abstract class RepositoryPage extends BasePage {
 				}
 			} else if (canFork) {
 				// can fork and we do not have one
-				add(new Label("forksProhibitedIndicator").setVisible(false));
 				add(new ExternalLink("myForkLink", "").setVisible(false));
 				String url = getRequestCycle().urlFor(ForkPage.class, WicketUtils.newRepositoryParameter(model.name)).toString();
 				add(new ExternalLink("forkLink", url));
@@ -571,7 +559,12 @@ public abstract class RepositoryPage extends BasePage {
 		public void onSubmit() {
 			Constants.SearchType searchType = searchTypeModel.getObject();
 			String searchString = searchBoxModel.getObject();
-			if (searchString == null) {
+			if (StringUtils.isEmpty(searchString)) {
+				// redirect to self to avoid wicket page update bug 
+				PageParameters params = RepositoryPage.this.getPageParameters();
+				String relativeUrl = urlFor(RepositoryPage.this.getClass(), params).toString();
+				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 				return;
 			}
 			for (Constants.SearchType type : Constants.SearchType.values()) {

@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+<div wicket:id="push">
+	<table style="padding: 3px 0px;">
+	<tr>
+		<td class="hidden-phone" style="vertical-align: top;"><span wicket:id="whoAvatar"></span></td>
+		<td style="padding-left: 7px;">
+			<div><span wicket:id="whoPushed">[pusher]</span> <span wicket:id="whatPushed"></span><span wicket:id="wherePushed"></span></div>
+			<div wicket:id="whenPushed"></div>
+			<button type="button" class="btn btn-mini" style="padding: 1px 3px;line-height: 12px;" data-toggle="collapse" data-target="#demo"><span class="caret"></span></button>
+			<div id="demo" class="collapse">
+				<div style="padding: 10px 0px;">
+					<table>
+						<tr wicket:id="commit" style="border-left: 1px solid #ddd;">
+							<td style="vertical-align:top;"><span wicket:id="hashLink" style="padding-left: 10px;">[hash link]</span></td>
+							<td><img wicket:id="commitIcon" /></td>
+							<td style="vertical-align:top;">   							
+								<div wicket:id="commitShortMessage">[commit short message]</div>
+								<div wicket:id="commitRefs">[commit refs]</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</td>
+	</tr>	
+	</table>
+</div>
+</wicket:panel>
+</body>
+</html>

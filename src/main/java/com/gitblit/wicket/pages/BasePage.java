@@ -32,16 +32,13 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.slf4j.Logger;
@@ -59,9 +56,9 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.LinkPanel;
 
 public abstract class BasePage extends SessionPage {
 
@@ -134,21 +131,12 @@ public abstract class BasePage extends SessionPage {
 			add(new Label("title", siteName));
 		}
 
-		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(RepositoriesPage.class, null).toString());
-		WicketUtils.setHtmlTooltip(rootLink, siteName);
+		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(GitBlitWebApp.HOME_PAGE_CLASS, null).toString());
+		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
 		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));
-
-		// footer
-		if (GitBlit.getBoolean(Keys.web.authenticateViewPages, true)
-				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			UserFragment userFragment = new UserFragment("userPanel", "userFragment", BasePage.this);
-			add(userFragment);
-		} else {
-			add(new Label("userPanel", ""));
-		}
 
 		add(new Label("gbVersion", "v" + Constants.getVersion()));
 		if (GitBlit.getBoolean(Keys.web.aggressiveHeapManagement, false)) {
@@ -371,41 +359,5 @@ public abstract class BasePage extends SessionPage {
 			GitBlitWebSession.get().cacheRequest(getClass());
 		}
 		error(message, true);
-	}
-
-	/**
-	 * Panel fragment for displaying login or logout/change_password links.
-	 * 
-	 */
-	static class UserFragment extends Fragment {
-
-		private static final long serialVersionUID = 1L;
-
-		public UserFragment(String id, String markupId, MarkupContainer markupProvider) {
-			super(id, markupId, markupProvider);
-
-			GitBlitWebSession session = GitBlitWebSession.get();
-			if (session.isLoggedIn()) {				
-				UserModel user = session.getUser();
-				boolean editCredentials = GitBlit.self().supportsCredentialChanges(user);
-				boolean standardLogin = session.authenticationType.isStandard();
-
-				// username, logout, and change password
-				add(new Label("username", user.getDisplayName() + ":"));
-				add(new LinkPanel("loginLink", null, markupProvider.getString("gb.logout"),
-						LogoutPage.class).setVisible(standardLogin));
-				
-				// quick and dirty hack for showing a separator
-				add(new Label("separator", "|").setVisible(standardLogin && editCredentials));
-				add(new BookmarkablePageLink<Void>("changePasswordLink", 
-						ChangePasswordPage.class).setVisible(editCredentials));
-			} else {
-				// login
-				add(new Label("username").setVisible(false));
-				add(new Label("loginLink").setVisible(false));
-				add(new Label("separator").setVisible(false));
-				add(new Label("changePasswordLink").setVisible(false));
-			}
-		}
 	}
 }

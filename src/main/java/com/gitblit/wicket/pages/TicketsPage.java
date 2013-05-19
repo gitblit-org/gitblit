@@ -37,10 +37,6 @@ public class TicketsPage extends RepositoryPage {
 
 		List<TicketModel> tickets = TicgitUtils.getTickets(getRepository());
 
-		// header
-		add(new LinkPanel("header", "title", repositoryName, SummaryPage.class,
-				newRepositoryParameter()));
-
 		ListDataProvider<TicketModel> ticketsDp = new ListDataProvider<TicketModel>(tickets);
 		DataView<TicketModel> ticketsView = new DataView<TicketModel>("ticket", ticketsDp) {
 			private static final long serialVersionUID = 1L;

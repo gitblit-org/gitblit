@@ -19,13 +19,9 @@
 				
 				<div class="nav-collapse" wicket:id="navPanel"></div>
 				
-				<form class="pull-right" wicket:id="loginForm" style="padding-top:3px;">
-					<span class="form-search">
-						<input wicket:id="username" class="input-small" type="text" />
-						<input wicket:id="password" class="input-small" type="password" />
-						<button class="btn btn-primary" type="submit"><wicket:message key="gb.login"></wicket:message></button>
-					</span>
-				</form>
+				<ul class="nav pull-right">
+				 	<span wicket:id="userPanel"></span>
+				</ul>
 			</div>
 		</div>
 	</div>
@@ -33,9 +29,37 @@
 	<!-- subclass content -->
 	<div class="container">
 		<div style="text-align:center" wicket:id="feedback">[Feedback Panel]</div>
-		
-		<wicket:child/>
 	</div>
+	
+	<wicket:child/>
+	
+	<wicket:fragment wicket:id="loginFormFragment">
+		<li>
+			<form class="pull-right" wicket:id="loginForm">
+				<span class="form-search">
+					<input wicket:id="username" class="input-small" type="text" />
+					<input wicket:id="password" class="input-small" type="password" />
+					<button class="btn btn-primary" type="submit"><wicket:message key="gb.login"></wicket:message></button>
+				</span>
+			</form>
+		</li>
+	</wicket:fragment>
+	
+	<!-- user fragment -->
+	<wicket:fragment wicket:id="userMenuFragment">
+		<li class="dropdown">
+			<a data-toggle="dropdown" class="dropdown-toggle" href="#"><span wicket:id="username"></span> <b class="caret"></b></a>
+        	<ul class="dropdown-menu">
+        		<li style="color:#ccc;padding-left:15px;font-weight:bold;"><span wicket:id="displayName"></span></li>
+        		<li class="divider"></li>
+            	<li><a wicket:id="myProfile"><wicket:message key="gb.myProfile"></wicket:message></a></li>
+            	<li><a wicket:id="changePassword"><wicket:message key="gb.changePassword"></wicket:message></a></li>
+            	<li class="divider"></li>
+        		<li><a wicket:id="logout"><wicket:message key="gb.logout"></wicket:message></a></li>
+			</ul>
+		</li>
+	</wicket:fragment>
+	
 </wicket:extend>
 </body>
 </html>

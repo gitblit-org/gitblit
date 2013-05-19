@@ -30,9 +30,13 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.WebResponse;
@@ -49,6 +53,7 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.NavigationPanel;
 
 /**
@@ -94,67 +99,47 @@ public abstract class RootPage extends BasePage {
 				setStatelessHint(true);
 			}
 		}
+		
+		if (authenticateView || authenticateAdmin) {
+			if (GitBlitWebSession.get().isLoggedIn()) {
+				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
+				add(userFragment);
+			} else {
+				LoginForm loginForm = new LoginForm("userPanel", "loginFormFragment", RootPage.this);
+				add(loginForm);
+			}
+		} else {
+			add(new Label("userPanel").setVisible(false));
+		}
+		
 		boolean showRegistrations = GitBlit.canFederate()
 				&& GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
 
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
-		pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
-				getRootPageParameters()));
-		pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
-		if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)) {
-			pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
-		}
-		if (showAdmin) {
-			pages.add(new PageRegistration("gb.users", UsersPage.class));
-		}
-		if (showAdmin || showRegistrations) {
-			pages.add(new PageRegistration("gb.federation", FederationPage.class));
-		}
-
 		if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
-			addDropDownMenus(pages);
-		}
-
-		NavigationPanel navPanel = new NavigationPanel("navPanel", getClass(), pages);
-		add(navPanel);
-
-		// login form
-		SessionlessForm<Void> loginForm = new SessionlessForm<Void>("loginForm", getClass(), getPageParameters()) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onSubmit() {
-				String username = RootPage.this.username.getObject();
-				char[] password = RootPage.this.password.getObject().toCharArray();
-
-				UserModel user = GitBlit.self().authenticate(username, password);
-				if (user == null) {
-					error(getString("gb.invalidUsernameOrPassword"));
-				} else if (user.username.equals(Constants.FEDERATION_USER)) {
-					// disallow the federation user from logging in via the
-					// web ui
-					error(getString("gb.invalidUsernameOrPassword"));
-					user = null;
-				} else {
-					loginUser(user);
-				}
+//			pages.add(new PageRegistration("gb.home", HomePage.class,
+//					getRootPageParameters()));
+			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
+					getRootPageParameters()));
+			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
+			if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)) {
+				pages.add(new PageRegistration("gb.search", LuceneSearchPage.class));
 			}
-		};
-		TextField<String> unameField = new TextField<String>("username", username);
-		WicketUtils.setInputPlaceholder(unameField, getString("gb.username"));
-		loginForm.add(unameField);
-		PasswordTextField pwField = new PasswordTextField("password", password);
-		WicketUtils.setInputPlaceholder(pwField, getString("gb.password"));
-		loginForm.add(pwField);
-		add(loginForm);
+			if (showAdmin) {
+				pages.add(new PageRegistration("gb.users", UsersPage.class));
+			}
+			if (showAdmin || showRegistrations) {
+				pages.add(new PageRegistration("gb.federation", FederationPage.class));
+			}
 
-		if (authenticateView || authenticateAdmin) {
-			loginForm.setVisible(!GitBlitWebSession.get().isLoggedIn());
-		} else {
-			loginForm.setVisible(false);
+			if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
+				addDropDownMenus(pages);
+			}
 		}
+		
+		NavigationPanel navPanel = new NavigationPanel("navPanel", getRootNavPageClass(), pages);
+		add(navPanel);
 
 		// display an error message cached from a redirect
 		String cachedMessage = GitBlitWebSession.get().clearErrorMessage();
@@ -171,6 +156,10 @@ public abstract class RootPage extends BasePage {
 		}
 
 		super.setupPage(repositoryName, pageName);
+	}
+	
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return getClass();
 	}
 
 	private PageParameters getRootPageParameters() {
@@ -450,5 +439,82 @@ public abstract class RootPage extends BasePage {
 		List<RepositoryModel> list = new ArrayList<RepositoryModel>(models);
 		Collections.sort(list);
 		return list;
+	}
+	
+	/**
+	 * Inline login form. 
+	 */
+	private class LoginForm extends Fragment {
+		private static final long serialVersionUID = 1L;
+
+		public LoginForm(String id, String markupId, MarkupContainer markupProvider) {
+			super(id, markupId, markupProvider);
+			setRenderBodyOnly(true);
+
+			SessionlessForm<Void> loginForm = new SessionlessForm<Void>("loginForm", RootPage.this.getClass(), getPageParameters()) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void onSubmit() {
+					String username = RootPage.this.username.getObject();
+					char[] password = RootPage.this.password.getObject().toCharArray();
+
+					UserModel user = GitBlit.self().authenticate(username, password);
+					if (user == null) {
+						error(getString("gb.invalidUsernameOrPassword"));
+					} else if (user.username.equals(Constants.FEDERATION_USER)) {
+						// disallow the federation user from logging in via the
+						// web ui
+						error(getString("gb.invalidUsernameOrPassword"));
+						user = null;
+					} else {
+						loginUser(user);
+					}
+				}
+			};
+			TextField<String> unameField = new TextField<String>("username", username);
+			WicketUtils.setInputPlaceholder(unameField, markupProvider.getString("gb.username"));
+			loginForm.add(unameField);
+			PasswordTextField pwField = new PasswordTextField("password", password);
+			WicketUtils.setInputPlaceholder(pwField, markupProvider.getString("gb.password"));
+			loginForm.add(pwField);
+			add(loginForm);
+		}
+	}
+	
+	/**
+	 * Menu for the authenticated user.
+	 */
+	static class UserMenu extends Fragment {
+
+		private static final long serialVersionUID = 1L;
+
+		public UserMenu(String id, String markupId, MarkupContainer markupProvider) {
+			super(id, markupId, markupProvider);
+			setRenderBodyOnly(true);
+
+			GitBlitWebSession session = GitBlitWebSession.get();
+			UserModel user = session.getUser();
+			boolean editCredentials = GitBlit.self().supportsCredentialChanges(user);
+			boolean standardLogin = session.authenticationType.isStandard();
+
+			if (GitBlit.getBoolean(Keys.web.allowGravatar, true)) {
+				add(new GravatarImage("username", user.getDisplayName(), user.emailAddress, "navbarGravatar", 20, false));
+			} else {
+				add(new Label("username", user.getDisplayName()));
+			}
+
+			add(new Label("displayName", user.getDisplayName()));
+			
+			add(new BookmarkablePageLink<Void>("myProfile", 
+					UserPage.class, WicketUtils.newUsernameParameter(user.username)));
+
+			add(new BookmarkablePageLink<Void>("changePassword", 
+					ChangePasswordPage.class).setVisible(editCredentials));
+			
+			add(new BookmarkablePageLink<Void>("logout",
+					LogoutPage.class).setVisible(standardLogin));
+		}
 	}
 }

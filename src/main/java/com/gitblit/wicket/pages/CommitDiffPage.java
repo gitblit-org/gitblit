@@ -180,6 +180,11 @@ public class CommitDiffPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.commitdiff");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return LogPage.class;
+	}
 
 	private RevCommit getCommit(Repository r, String rev)
 	{

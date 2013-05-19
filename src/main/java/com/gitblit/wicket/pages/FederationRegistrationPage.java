@@ -92,4 +92,9 @@ public class FederationRegistrationPage extends RootSubPage {
 		};
 		add(dataView);
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return FederationPage.class;
+	}
 }

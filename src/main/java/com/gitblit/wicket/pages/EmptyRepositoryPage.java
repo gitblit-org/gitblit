@@ -61,4 +61,9 @@ public class EmptyRepositoryPage extends RootPage {
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", primaryUrl)));
 		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", primaryUrl)));
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return RepositoriesPage.class;
+	}
 }

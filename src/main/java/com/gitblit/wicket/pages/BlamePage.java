@@ -147,6 +147,11 @@ public class BlamePage extends RepositoryPage {
 		return getString("gb.blame");
 	}
 	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return TreePage.class;
+	}
+	
 	protected String missingBlob(String blobPath, RevCommit commit) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"alert alert-error\">");

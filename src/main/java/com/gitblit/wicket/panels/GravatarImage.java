@@ -50,22 +50,28 @@ public class GravatarImage extends Panel {
 	}
 
 	public GravatarImage(String id, PersonIdent person, int width, boolean linked) {
+		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, linked);
+	}
+	
+	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean linked) {
 		super(id);
 
-		String email = person.getEmailAddress() == null ? person.getName().toLowerCase() : person.getEmailAddress().toLowerCase();
+		String email = emailaddress == null ? username.toLowerCase() : emailaddress.toLowerCase();
 		String hash = StringUtils.getMD5(email);
 		Link<Void> link = new BookmarkablePageLink<Void>("link", GravatarProfilePage.class,
 				WicketUtils.newObjectParameter(hash));
 		link.add(new SimpleAttributeModifier("target", "_blank"));
 		String url = ActivityUtils.getGravatarThumbnailUrl(email, width);
 		ExternalImage image = new ExternalImage("image", url);
-		WicketUtils.setCssClass(image, "gravatar");
+		if (cssClass != null) {
+			WicketUtils.setCssClass(image, cssClass);
+		}
 		link.add(image);
 		if (linked) {
 			WicketUtils.setHtmlTooltip(link,
-				MessageFormat.format("View Gravatar profile for {0}", person.getName()));
+				MessageFormat.format("View Gravatar profile for {0}", username));
 		} else {
-			WicketUtils.setHtmlTooltip(link, person.getName());
+			WicketUtils.setHtmlTooltip(link, username);
 		}
 		add(link.setEnabled(linked));
 		setVisible(GitBlit.getBoolean(Keys.web.allowGravatar, true));

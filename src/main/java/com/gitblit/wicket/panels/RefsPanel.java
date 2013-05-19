@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -35,7 +36,6 @@ import com.gitblit.models.RefModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
-import com.gitblit.wicket.pages.RepositoryPage;
 import com.gitblit.wicket.pages.TagPage;
 
 public class RefsPanel extends Panel {
@@ -99,7 +99,7 @@ public class RefsPanel extends Panel {
 				String name = entry.displayName;
 				String objectid = entry.getReferencedObjectId().getName();
 				boolean breakLine = false;
-				Class<? extends RepositoryPage> linkClass = CommitPage.class;
+				Class<? extends WebPage> linkClass = CommitPage.class;
 				String cssClass = "";
 				if (name.startsWith(Constants.R_HEADS)) {
 					// local branch

@@ -213,4 +213,9 @@ public class BlobPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.view");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return TreePage.class;
+	}
 }

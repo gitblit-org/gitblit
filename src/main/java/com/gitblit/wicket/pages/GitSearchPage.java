@@ -66,4 +66,9 @@ public class GitSearchPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.search");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return LogPage.class;
+	}
 }

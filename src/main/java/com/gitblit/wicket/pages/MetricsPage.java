@@ -85,7 +85,7 @@ public class MetricsPage extends RepositoryPage {
 			provider.addAxis(commitAxis);
 
 			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
-			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.BLUE, 1, -1, 5));
+			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.decode("#002060"), 1, -1, 5));
 
 			add(new Chart(wicketId, provider));
 		} else {
@@ -180,5 +180,10 @@ public class MetricsPage extends RepositoryPage {
 	@Override
 	protected String getPageName() {
 		return getString("gb.metrics");
+	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return SummaryPage.class;
 	}
 }

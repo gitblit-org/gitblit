@@ -80,6 +80,11 @@ public class EditUserPage extends RootSubPage {
 	protected boolean requiresPageMap() {
 		return true;
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return UsersPage.class;
+	}
 
 	protected void setupPage(final UserModel userModel) {
 		if (isCreate) {

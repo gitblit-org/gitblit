@@ -71,6 +71,11 @@ public class TicketPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.ticket");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return TicketsPage.class;
+	}
 
 	private String prepareComment(String comment) {
 		String html = StringUtils.escapeForHtml(comment, false);

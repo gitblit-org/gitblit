@@ -62,4 +62,9 @@ public class HistoryPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.history");
 	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return TreePage.class;
+	}
 }

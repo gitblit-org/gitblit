@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
@@ -55,7 +56,7 @@ public class TagPage extends RepositoryPage {
 		}
 
 		// Display tag.
-		Class<? extends RepositoryPage> linkClass;
+		Class<? extends WebPage> linkClass;
 		PageParameters linkParameters = newCommitParameter(tagRef.getReferencedObjectId().getName());
 		String typeKey;
 		switch (tagRef.getReferencedObjectType()) {
@@ -95,5 +96,10 @@ public class TagPage extends RepositoryPage {
 	@Override
 	protected String getPageName() {
 		return getString("gb.tag");
+	}
+	
+	@Override
+	protected Class<? extends BasePage> getRepoNavPageClass() {
+		return LogPage.class;
 	}
 }
