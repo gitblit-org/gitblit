@@ -293,6 +293,7 @@
 			<class name="com.gitblit.RpcServlet" />
 			<class name="com.gitblit.SyndicationFilter" />
 			<class name="com.gitblit.SyndicationServlet" />
+			<class name="com.gitblit.SparkleShareInviteServlet" />
 			<class name="com.gitblit.wicket.GitBlitWebApp" />
 			<!-- Manually include alternative User Services -->
 			<class name="com.gitblit.LdapUserService" />
@@ -406,6 +407,7 @@
 			<class name="com.gitblit.RpcServlet" />
 			<class name="com.gitblit.SyndicationFilter" />
 			<class name="com.gitblit.SyndicationServlet" />
+			<class name="com.gitblit.SparkleShareInviteServlet" />
 			<class name="com.gitblit.wicket.GitBlitWebApp" />
 			<!-- Manually include alternative User Services -->
 			<class name="com.gitblit.LdapUserService" />
