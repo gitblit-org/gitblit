@@ -165,13 +165,32 @@ public class ActivityUtils {
 	 *            size of thumbnail. if width <= 0, the default of 50 is used.
 	 * @return
 	 */
-	public static String getGravatarThumbnailUrl(String email, int width) {
+	public static String getGravatarIdenticonUrl(String email, int width) {
 		if (width <= 0) {
 			width = 50;
 		}
 		String emailHash = StringUtils.getMD5(email);
 		String url = MessageFormat.format(
 				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", emailHash, width);
+		return url;
+	}
+	
+	/**
+	 * Creates a Gravatar thumbnail url from the specified email address.
+	 * 
+	 * @param email
+	 *            address to query Gravatar
+	 * @param width
+	 *            size of thumbnail. if width <= 0, the default of 50 is used.
+	 * @return
+	 */
+	public static String getGravatarThumbnailUrl(String email, int width) {
+		if (width <= 0) {
+			width = 50;
+		}
+		String emailHash = StringUtils.getMD5(email);
+		String url = MessageFormat.format(
+				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=mm", emailHash, width);
 		return url;
 	}
 

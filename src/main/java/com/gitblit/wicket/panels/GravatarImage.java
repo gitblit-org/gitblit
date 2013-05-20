@@ -50,10 +50,10 @@ public class GravatarImage extends Panel {
 	}
 
 	public GravatarImage(String id, PersonIdent person, int width, boolean linked) {
-		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, linked);
+		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, linked, true);
 	}
 	
-	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean linked) {
+	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean linked, boolean identicon) {
 		super(id);
 
 		String email = emailaddress == null ? username.toLowerCase() : emailaddress.toLowerCase();
@@ -61,7 +61,12 @@ public class GravatarImage extends Panel {
 		Link<Void> link = new BookmarkablePageLink<Void>("link", GravatarProfilePage.class,
 				WicketUtils.newObjectParameter(hash));
 		link.add(new SimpleAttributeModifier("target", "_blank"));
-		String url = ActivityUtils.getGravatarThumbnailUrl(email, width);
+		String url;
+		if (identicon) {
+			url = ActivityUtils.getGravatarIdenticonUrl(email, width);
+		} else {
+			url = ActivityUtils.getGravatarThumbnailUrl(email, width);
+		}
 		ExternalImage image = new ExternalImage("image", url);
 		if (cssClass != null) {
 			WicketUtils.setCssClass(image, cssClass);
