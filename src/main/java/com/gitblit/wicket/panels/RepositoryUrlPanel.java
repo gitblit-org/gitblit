@@ -228,18 +228,16 @@ public class RepositoryUrlPanel extends BasePanel {
 				final GitClientApplication clientApp = item.getModelObject();
 
 				// filter the urls for the client app
-				List<RepositoryUrl> urls;
-				if (clientApp.minimumPermission == null) {
-					// client app does not specify minimum access permission
-					urls = repositoryUrls;
-				} else {
-					urls = new ArrayList<RepositoryUrl>();
-					for (RepositoryUrl repoUrl : repositoryUrls) {
-						if (repoUrl.permission == null) {
-							// external permissions, assume it is satisfactory
+				List<RepositoryUrl> urls = new ArrayList<RepositoryUrl>();
+				for (RepositoryUrl repoUrl : repositoryUrls) {
+					if (clientApp.minimumPermission == null || repoUrl.permission == null) {
+						// no minimum permission or external permissions, assume it is satisfactory
+						if (clientApp.supportsTransport(repoUrl.url)) {
 							urls.add(repoUrl);
-						} else if (repoUrl.permission.atLeast(clientApp.minimumPermission)) {
-							// repo url meets minimum permission requirement
+						}
+					} else if (repoUrl.permission.atLeast(clientApp.minimumPermission)) {
+						// repo url meets minimum permission requirement
+						if (clientApp.supportsTransport(repoUrl.url)) {
 							urls.add(repoUrl);
 						}
 					}
