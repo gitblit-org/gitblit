@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,29 +51,9 @@ public class CommitDiffPage extends RepositoryPage {
 		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
 				DiffOutputType.GITBLIT.name()));
 
-		RevCommit commit = null, otherCommit = null;
+		RevCommit commit = getCommit();
 
-		if( objectId.contains("..") )
-		{
-			String[] parts = objectId.split("\\.\\.");
-			commit = getCommit(r, parts[0]);
-			otherCommit = getCommit(r, parts[1]);
-		}
-		else
-		{
-			commit = getCommit();
-		}
-
-		String diff;
-
-		if(otherCommit == null)
-		{
-			diff = DiffUtils.getCommitDiff(r, commit, diffType);
-		}
-		else
-		{
-			diff = DiffUtils.getDiff(r, commit, otherCommit, diffType);
-		}
+		String diff = DiffUtils.getCommitDiff(r, commit, diffType);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
@@ -98,16 +77,7 @@ public class CommitDiffPage extends RepositoryPage {
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
 		// changed paths list
-		List<PathChangeModel> paths;
-
-		if( otherCommit == null )
-		{
-			paths = JGitUtils.getFilesInCommit(r, commit);
-		}
-		else
-		{
-			paths = JGitUtils.getFilesInCommit(r, otherCommit);
-		}
+		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
 
 		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
@@ -187,14 +157,5 @@ public class CommitDiffPage extends RepositoryPage {
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;
-	}
-
-	private RevCommit getCommit(Repository r, String rev)
-	{
-		RevCommit otherCommit = JGitUtils.getCommit(r, rev);
-		if (otherCommit == null) {
-			error(MessageFormat.format(getString("gb.failedToFindCommit"), rev, repositoryName, getPageName()), true);
-		}
-		return otherCommit;
 	}
 }
