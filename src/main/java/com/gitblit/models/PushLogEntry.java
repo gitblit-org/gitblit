@@ -32,6 +32,8 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.ReceiveCommand;
 
+import com.gitblit.utils.StringUtils;
+
 /**
  * Model class to represent a push into a repository.
  * 
@@ -50,6 +52,8 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	private final Set<RepositoryCommit> commits;
 	
 	private final Map<String, ReceiveCommand.Type> refUpdates;
+	
+	private final Map<String, String> refIdChanges;
 
 	/**
 	 * Constructor for specified duration of push from start date.
@@ -67,6 +71,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		this.user = user;
 		this.commits = new LinkedHashSet<RepositoryCommit>();
 		this.refUpdates = new HashMap<String, ReceiveCommand.Type>();
+		this.refIdChanges = new HashMap<String, String>();
 	}
 	
 	/**
@@ -79,6 +84,60 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		if (!refUpdates.containsKey(ref)) {
 			refUpdates.put(ref, type);
 		}
+	}
+	
+	/**
+	 * Tracks the change type for the specified ref.
+	 * 
+	 * @param ref
+	 * @param type
+	 * @param oldId
+	 * @param newId
+	 */
+	public void updateRef(String ref, ReceiveCommand.Type type, String oldId, String newId) {
+		if (!refUpdates.containsKey(ref)) {
+			refUpdates.put(ref, type);
+			refIdChanges.put(ref, oldId + "-" + newId);
+		}
+	}
+	
+	/**
+	 * Returns the old id of a ref.
+	 * 
+	 * @param ref
+	 * @return the old id
+	 */
+	public String getOldId(String ref) {
+		String change = refIdChanges.get(ref);
+		if (StringUtils.isEmpty(change)) {
+			return null;
+		}
+		return change.split("-")[0];
+	}
+
+	/**
+	 * Returns the new id of a ref
+	 * 
+	 * @param ref
+	 * @return the new id
+	 */
+	public String getNewId(String ref) {
+		String change = refIdChanges.get(ref);
+		if (StringUtils.isEmpty(change)) {
+			return null;
+		}
+		return change.split("-")[1];
+	}
+	
+	/**
+	 * Returns the change type of the ref change.
+	 * 
+	 * @param ref
+	 * @return the change type for the ref
+	 */
+	public ReceiveCommand.Type getChangeType(String ref) {
+		ReceiveCommand.Type type = refUpdates.get(ref);
+		return type;
 	}
 
 	/**
@@ -99,6 +158,16 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	}
 	
 	/**
+	 * Adds a a list of repository commits.  This is used to construct discrete
+	 * ref push log entries
+	 * 
+	 * @param commits
+	 */
+	public void addCommits(List<RepositoryCommit> list) {
+		commits.addAll(list);
+	}
+	
+	/**
 	 * Returns true if this push contains a non-fastforward ref update.
 	 * 
 	 * @return true if this is a non-fastforward push
@@ -110,6 +179,43 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns true if this ref has been rewound.
+	 * 
+	 * @param ref
+	 * @return true if this is a non-fastforward ref update
+	 */
+	public boolean isNonFastForward(String ref) {
+		ReceiveCommand.Type type = refUpdates.get(ref);
+		if (type == null) {
+			return false;
+		}
+		return ReceiveCommand.Type.UPDATE_NONFASTFORWARD.equals(type);
+	}
+
+	/**
+	 * Returns true if this ref has been deleted.
+	 * 
+	 * @param ref
+	 * @return true if this is a delete ref update
+	 */
+	public boolean isDelete(String ref) {
+		ReceiveCommand.Type type = refUpdates.get(ref);
+		if (type == null) {
+			return false;
+		}
+		return ReceiveCommand.Type.DELETE.equals(type);
+	}
+	
+	/**
+	 * Returns the list of refs changed by the push.
+	 * 
+	 * @return a list of refs
+	 */
+	public List<String> getChangedRefs() {
+		return new ArrayList<String>(refUpdates.keySet());
 	}
 	
 	/**

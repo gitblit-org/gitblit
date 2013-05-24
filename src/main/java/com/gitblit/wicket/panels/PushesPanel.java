@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 gitblit.com.
+ * Copyright 2013 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
 package com.gitblit.wicket.panels;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
@@ -32,13 +32,15 @@ import com.gitblit.Keys;
 import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.models.UserModel;
 import com.gitblit.utils.PushLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
-import com.gitblit.wicket.pages.GitSearchPage;
+import com.gitblit.wicket.pages.ComparePage;
+import com.gitblit.wicket.pages.PushesPage;
 import com.gitblit.wicket.pages.SummaryPage;
+import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 
 public class PushesPanel extends BasePanel {
@@ -52,79 +54,136 @@ public class PushesPanel extends BasePanel {
 	public PushesPanel(String wicketId, final RepositoryModel model, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
-		if (itemsPerPage <= 1) {
-			itemsPerPage = 50;
+		int pushesPerPage = GitBlit.getInteger(Keys.web.pushesPerPage, 10);
+		if (pushesPerPage <= 1) {
+			pushesPerPage = 10;
 		}
 
-		final Map<String, String> usernameLookup = new HashMap<String, String>();
 		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
-		List<PushLogEntry> entries = PushLogUtils.getPushLog(model.name, r, limit);
-		// establish pusher identities
-		for (PushLogEntry push : entries) {
-			// handle push logs with email address instead of account name
-			String username = push.user.username;
-			if (push.user.username.indexOf('@') > -1) {
-				// push username is an email address, reverse lookup for account
-				if (!usernameLookup.containsKey(push.user.username)) {
-					for (UserModel user : GitBlit.self().getAllUsers()) {
-						if (push.user.username.equals(user.emailAddress)) {
-							username = user.username;
-							usernameLookup.put(push.user.username, username);
-							break;
-						}
-					}
-				} else {
-					username = usernameLookup.get(push.user.username);
-				}
-			} else {
-				// push username is an account name, lookup for email address
-				if (!usernameLookup.containsKey(push.user.username)) {
-					UserModel user = GitBlit.self().getUserModel(push.user.username);
-					if (user != null) {
-						push.user.emailAddress = user.emailAddress;
-						usernameLookup.put(push.user.username, user.emailAddress);
-					}
-				} else {
-					push.user.emailAddress = usernameLookup.get(push.user.username);
-				}
-			}
+		List<PushLogEntry> pushes;
+		if (pageResults) {
+			pushes = PushLogUtils.getPushLogByRef(model.name, r, pageOffset * pushesPerPage, pushesPerPage);
+		} else {
+			pushes = PushLogUtils.getPushLogByRef(model.name, r, limit);
 		}
 		
-		hasPushes = entries.size() > 0;
-		
-		ListDataProvider<PushLogEntry> dp = new ListDataProvider<PushLogEntry>(entries);
+		// inaccurate way to determine if there are more commits.
+		// works unless commits.size() represents the exact end.
+		hasMore = pushes.size() >= pushesPerPage;
+
+		hasPushes = pushes.size() > 0;
+
+		ListDataProvider<PushLogEntry> dp = new ListDataProvider<PushLogEntry>(pushes);
 		DataView<PushLogEntry> pushView = new DataView<PushLogEntry>("push", dp) {
 			private static final long serialVersionUID = 1L;
 
 			public void populateItem(final Item<PushLogEntry> pushItem) {
 				final PushLogEntry push = pushItem.getModelObject();
+				String fullRefName = push.getChangedRefs().get(0);
+				String shortRefName = fullRefName;
+				boolean isTag = false;
+				if (shortRefName.startsWith(org.eclipse.jgit.lib.Constants.R_HEADS)) {
+					shortRefName = shortRefName.substring(org.eclipse.jgit.lib.Constants.R_HEADS.length());
+				} else if (shortRefName.startsWith(org.eclipse.jgit.lib.Constants.R_TAGS)) {
+					shortRefName = shortRefName.substring(org.eclipse.jgit.lib.Constants.R_TAGS.length());
+					isTag = true;
+				}
 				
-				
-				pushItem.add(new GravatarImage("whoAvatar", push.getCommitterIdent(), 40));
-				pushItem.add(new LinkPanel("whoPushed", null, push.user.getDisplayName(),
-						UserPage.class, WicketUtils.newUsernameParameter(push.user.username)));
-				pushItem.add(new Label("whatPushed", 
-						MessageFormat.format(push.getCommitCount() > 1 ? "pushed {0} commits to":"pushed 1 commit to", push.getCommitCount())));
-				String repoName = StringUtils.stripDotGit(model.name);
-				pushItem.add(new LinkPanel("wherePushed", null, repoName,
-						SummaryPage.class, WicketUtils.newRepositoryParameter(model.name)));
 				pushItem.add(WicketUtils.createDateLabel("whenPushed", push.date, getTimeZone(), getTimeUtils()));
+				pushItem.add(new GravatarImage("whoAvatar", push.getCommitterIdent(), 40));
+				if (push.user.username.equals(push.user.emailAddress) && push.user.emailAddress.indexOf('@') > -1) {
+					// username is an email address - 1.2.1 push log bug
+					pushItem.add(new Label("whoPushed", push.user.getDisplayName()));
+				} else {
+					// link to user acount page
+					pushItem.add(new LinkPanel("whoPushed", null, push.user.getDisplayName(),
+						UserPage.class, WicketUtils.newUsernameParameter(push.user.username)));
+				}
+				
+				String preposition = "gb.at";
+				boolean isDelete = false;
+				boolean isRewind = false;
+				String what;
+				switch(push.getChangeType(fullRefName)) {
+				case CREATE:
+					if (isTag) {
+						what = getString("gb.pushedNewTag");
+					} else {
+						what = getString("gb.pushedNewBranch");
+					}
+					preposition = "gb.to";
+					break;
+				case DELETE:
+					isDelete = true;
+					if (isTag) {
+						what = getString("gb.deletedTag");
+					} else {
+						what = getString("gb.deletedBranch");
+					}
+					preposition = "gb.from";
+					break;
+				case UPDATE_NONFASTFORWARD:
+					isRewind = true;
+				default:
+					what = MessageFormat.format(push.getCommitCount() > 1 ? getString("gb.pushedNCommitsTo") : getString("gb.pushedOneCommitTo") , push.getCommitCount());
+					break;
+				}
+				pushItem.add(new Label("whatPushed", what));
+				
+				pushItem.add(new Label("refRewind", getString("gb.rewind")).setVisible(isRewind));
+				
+				if (isDelete) {
+					// can't link to deleted ref
+					pushItem.add(new Label("refPushed", shortRefName));
+				} else if (isTag) {
+					// link to tag
+					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
+							TagPage.class, WicketUtils.newObjectParameter(model.name, fullRefName)));
+				} else {
+					// link to tree
+					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
+						TreePage.class, WicketUtils.newObjectParameter(model.name, fullRefName)));
+				}
+				
+				// to/from/etc
+				pushItem.add(new Label("repoPreposition", getString(preposition)));
+				
+				String repoName = StringUtils.stripDotGit(model.name);
+				pushItem.add(new LinkPanel("repoPushed", null, repoName,
+						SummaryPage.class, WicketUtils.newRepositoryParameter(model.name)));
 
-				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(push.getCommits());
+				int maxCommitCount = 5;
+				List<RepositoryCommit> commits = push.getCommits();
+				if (commits.size() > maxCommitCount) {
+					commits = new ArrayList<RepositoryCommit>(commits.subList(0,  maxCommitCount));					
+				}
+				
+				// compare link
+				String compareLinkText = null;
+				if ((push.getCommitCount() <= maxCommitCount) && (push.getCommitCount() > 1)) {
+					compareLinkText = MessageFormat.format(getString("gb.viewComparison"), commits.size());
+				} else if (push.getCommitCount() > maxCommitCount) {
+					int diff = push.getCommitCount() - maxCommitCount;
+					compareLinkText = MessageFormat.format(diff > 1 ? getString("gb.nMoreCommits") : getString("gb.oneMoreCommit"), diff);
+				}
+				if (StringUtils.isEmpty(compareLinkText)) {
+					pushItem.add(new Label("compareLink").setVisible(false));
+				} else {
+					String endRangeId = push.getNewId(fullRefName);
+					String startRangeId = push.getOldId(fullRefName);
+					pushItem.add(new LinkPanel("compareLink", null, compareLinkText, ComparePage.class, WicketUtils.newRangeParameter(push.repository, startRangeId, endRangeId)));
+				}
+				
+				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(commits);
 				DataView<RepositoryCommit> commitsView = new DataView<RepositoryCommit>("commit", cdp) {
 					private static final long serialVersionUID = 1L;
 
 					public void populateItem(final Item<RepositoryCommit> commitItem) {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
-						// author search link
-						String author = commit.getAuthorIdent().getName();
-						LinkPanel authorLink = new LinkPanel("commitAuthor", "list", author,
-								GitSearchPage.class, WicketUtils.newSearchParameter(model.name,
-										null, author, Constants.SearchType.AUTHOR));
-						setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
-						commitItem.add(authorLink);
+						// author gravatar
+						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent().getName(),
+								commit.getAuthorIdent().getEmailAddress(), null, 16, false, false));
 						
 						// merge icon
 						if (commit.getParentCount() > 1) {
@@ -149,8 +208,6 @@ public class PushesPanel extends BasePanel {
 						}
 						commitItem.add(shortlog);
 
-						commitItem.add(new RefsPanel("commitRefs", commit.repository, commit.getRefs()));
-
 						// commit hash link
 						LinkPanel commitHash = new LinkPanel("hashLink", null, commit.getName().substring(0, hashLen),
 								CommitPage.class, WicketUtils.newObjectParameter(
@@ -158,12 +215,6 @@ public class PushesPanel extends BasePanel {
 						WicketUtils.setCssClass(commitHash, "shortsha1");
 						WicketUtils.setHtmlTooltip(commitHash, commit.getName());
 						commitItem.add(commitHash);
-						
-//						item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
-//								.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry
-//								.getParentCount() > 0));
-//						item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
-//								.newObjectParameter(repositoryName, entry.getName())));
 					}
 				};
 				
@@ -173,26 +224,26 @@ public class PushesPanel extends BasePanel {
 		add(pushView);
 
 		// determine to show pager, more, or neither
-//		if (limit <= 0) {
-//			// no display limit
-//			add(new Label("moreLogs", "").setVisible(false));
-//		} else {
-//			if (pageResults) {
-//				// paging
-//				add(new Label("moreLogs", "").setVisible(false));
-//			} else {
-//				// more
-//				if (commits.size() == limit) {
-//					// show more
-//					add(new LinkPanel("moreLogs", "link", new StringResourceModel("gb.moreLogs",
-//							this, null), LogPage.class,
-//							WicketUtils.newRepositoryParameter(repositoryName)));
-//				} else {
-//					// no more
-//					add(new Label("moreLogs", "").setVisible(false));
-//				}
-//			}
-//		}
+		if (limit <= 0) {
+			// no display limit
+			add(new Label("morePushes").setVisible(false));
+		} else {
+			if (pageResults) {
+				// paging
+				add(new Label("morePushes").setVisible(false));
+			} else {
+				// more
+				if (pushes.size() == limit) {
+					// show more
+					add(new LinkPanel("morePushes", "link", new StringResourceModel("gb.morePushes",
+							this, null), PushesPage.class,
+							WicketUtils.newRepositoryParameter(model.name)));
+				} else {
+					// no more
+					add(new Label("morePushes").setVisible(false));
+				}
+			}
+		}
 	}
 
 	public boolean hasMore() {

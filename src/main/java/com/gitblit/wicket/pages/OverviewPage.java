@@ -109,7 +109,8 @@ public class OverviewPage extends RepositoryPage {
 
 		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model));
 
-		PushesPanel pushes = new PushesPanel("pushesPanel", getRepositoryModel(), r, 10, 0);
+		int pushCount = GitBlit.getInteger(Keys.web.overviewPushCount, 5);
+		PushesPanel pushes = new PushesPanel("pushesPanel", getRepositoryModel(), r, pushCount, 0);
 		add(pushes);
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());

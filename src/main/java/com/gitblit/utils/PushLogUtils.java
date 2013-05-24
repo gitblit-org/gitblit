@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.UserModel;
 
 /**
@@ -283,28 +286,50 @@ public class PushLogUtils {
 		}
 		return inCoreIndex;
 	}
-
+	
 	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository) {
-		return getPushLog(repositoryName, repository, null, -1);
+		return getPushLog(repositoryName, repository, null, 0, -1);
 	}
 
 	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository, int maxCount) {
-		return getPushLog(repositoryName, repository, null, maxCount);
+		return getPushLog(repositoryName, repository, null, 0, maxCount);
+	}
+
+	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository, int offset, int maxCount) {
+		return getPushLog(repositoryName, repository, null, offset, maxCount);
 	}
 
 	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository, Date minimumDate) {
-		return getPushLog(repositoryName, repository, minimumDate, -1);
+		return getPushLog(repositoryName, repository, minimumDate, 0, -1);
 	}
 	
-	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository, Date minimumDate, int maxCount) {
+	/**
+	 * Returns the list of push log entries as they were recorded by Gitblit.
+	 * Each PushLogEntry may represent multiple ref updates.
+	 * 
+	 * @param repositoryName
+	 * @param repository
+	 * @param minimumDate
+	 * @param offset
+	 * @param maxCount
+	 * 			if < 0, all pushes are returned.
+	 * @return a list of push log entries
+	 */
+	public static List<PushLogEntry> getPushLog(String repositoryName, Repository repository,
+			Date minimumDate, int offset, int maxCount) {
 		List<PushLogEntry> list = new ArrayList<PushLogEntry>();
 		RefModel ref = getPushLogBranch(repository);
 		if (ref == null) {
 			return list;
 		}
+		if (maxCount == 0) {
+			return list;
+		}
+		
+		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
 		List<RevCommit> pushes;
 		if (minimumDate == null) {
-			pushes = JGitUtils.getRevLog(repository, GB_PUSHES, 0, maxCount);
+			pushes = JGitUtils.getRevLog(repository, GB_PUSHES, offset, maxCount);
 		} else {
 			pushes = JGitUtils.getRevLog(repository, GB_PUSHES, minimumDate);
 		}
@@ -344,17 +369,73 @@ public class PushLogUtils {
 				default:
 					String content = JGitUtils.getStringContent(repository, push.getTree(), change.path);
 					String [] fields = content.split(" ");
-					log.updateRef(change.path, ReceiveCommand.Type.valueOf(fields[0]));
 					String oldId = fields[1];
 					String newId = fields[2];
+					log.updateRef(change.path, ReceiveCommand.Type.valueOf(fields[0]), oldId, newId);
 					List<RevCommit> pushedCommits = JGitUtils.getRevLog(repository, oldId, newId);
 					for (RevCommit pushedCommit : pushedCommits) {
-						log.addCommit(change.path, pushedCommit);
+						RepositoryCommit repoCommit = log.addCommit(change.path, pushedCommit);
+						if (repoCommit != null) {
+							repoCommit.setRefs(allRefs.get(pushedCommit.getId()));
+						}
 					}
 				}
 			}
 		}
 		Collections.sort(list);
 		return list;
+	}
+
+	/**
+	 * Returns the list of pushes separated by ref (e.g. each ref has it's own
+	 * PushLogEntry object).
+	 *  
+	 * @param repositoryName
+	 * @param repository
+	 * @param maxCount
+	 * @return a list of push log entries separated by ref
+	 */
+	public static List<PushLogEntry> getPushLogByRef(String repositoryName, Repository repository, int maxCount) {
+		return getPushLogByRef(repositoryName, repository, 0, maxCount);
+	}
+	
+	/**
+	 * Returns the list of pushes separated by ref (e.g. each ref has it's own
+	 * PushLogEntry object).
+	 *  
+	 * @param repositoryName
+	 * @param repository
+	 * @param offset
+	 * @param maxCount
+	 * @return a list of push log entries separated by ref
+	 */
+	public static List<PushLogEntry> getPushLogByRef(String repositoryName, Repository repository,  int offset,
+			int maxCount) {
+		// break the push log into ref push logs and then merge them back into a list
+		Map<String, List<PushLogEntry>> refMap = new HashMap<String, List<PushLogEntry>>();
+		for (PushLogEntry push : getPushLog(repositoryName, repository, offset, maxCount)) {
+			for (String ref : push.getChangedRefs()) {
+				if (!refMap.containsKey(ref)) {
+					refMap.put(ref, new ArrayList<PushLogEntry>());
+				}
+				
+				// construct new ref-specific push log entry
+				PushLogEntry refPush = new PushLogEntry(push.repository, push.date, push.user);
+				refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
+				refPush.addCommits(push.getCommits(ref));
+				refMap.get(ref).add(refPush);
+			}
+		}
+		
+		// merge individual ref pushes into master list
+		List<PushLogEntry> refPushLog = new ArrayList<PushLogEntry>();
+		for (List<PushLogEntry> refPush : refMap.values()) {
+			refPushLog.addAll(refPush);
+		}
+		
+		// sort ref push log
+		Collections.sort(refPushLog);
+		
+		return refPushLog;
 	}
 }

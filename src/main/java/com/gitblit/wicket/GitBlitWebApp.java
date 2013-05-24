@@ -53,6 +53,7 @@ import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.ProjectsPage;
+import com.gitblit.wicket.pages.PushesPage;
 import com.gitblit.wicket.pages.RawPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
@@ -96,6 +97,7 @@ public class GitBlitWebApp extends WebApplication {
 //		mount("/repositories", RepositoriesPage.class);
 		mount("/overview", OverviewPage.class, "r", "h");
 		mount("/summary", SummaryPage.class, "r");
+		mount("/pushes", PushesPage.class, "r", "h");
 		mount("/commits", LogPage.class, "r", "h");
 		mount("/log", LogPage.class, "r", "h");
 		mount("/tags", TagsPage.class, "r");

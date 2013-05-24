@@ -166,7 +166,8 @@ public abstract class RepositoryPage extends RootPage {
 		} else {
 			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
 //			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
-		}
+			pages.put("pushes", new PageRegistration("gb.pushes", PushesPage.class, params));
+		}		
 		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
 		pages.put("compare", new PageRegistration("gb.compare", ComparePage.class, params));

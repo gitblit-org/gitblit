@@ -39,6 +39,7 @@ r17: {
 	 - Updated Japanese translation
 	 
     additions: 
+	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
 	 - Added client application menus for Git, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
 	 - Added GO http/https connector thread pool size setting
 	 - Added a server setting to force a particular translation/Locale for all sessions
@@ -92,6 +93,8 @@ r17: {
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 	- { name: 'web.allowAppCloneLinks', defaultValue: true }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
+	- { name: 'web.overviewPushCount', defaultValue: 5 }
+	- { name: 'web.pushesPerPage', defaultValue: 10 }
 	- { name: 'server.nioThreadPoolSize', defaultValue: 50 }
 }
 
