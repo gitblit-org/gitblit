@@ -151,19 +151,26 @@ public class CommitDiffPage extends RepositoryPage {
 							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
 					item.add(new ExternalLink("blame", "").setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				} else {
 					// tree or blob
 					item.add(new BookmarkablePageLink<Void>("patch", PatchPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+									&& !entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path)));
+							.newPathParameter(repositoryName, entry.commitId, entry.path))
+							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
+									&& !entry.changeType.equals(ChangeType.DELETE)));
 					item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				}
+				
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
