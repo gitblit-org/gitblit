@@ -18,9 +18,9 @@
 	<div class="row">
 	
 	
-	<div class="span10">
+	<div class="span10" style="padding-bottom:10px;">
 	<!-- commit info -->
-	<table class="plain">
+	<table class="summary">
 		<tr><th><wicket:message key="gb.refs">refs</wicket:message></th><td><div wicket:id="refsPanel">[references]</div></td></tr>
 		<tr><th><wicket:message key="gb.author">author</wicket:message></th><td><span class="sha1" wicket:id="commitAuthor">[author</span></td></tr>
 		<tr><th></th><td><span class="sha1" wicket:id="commitAuthorDate">[author date]</span></td></tr>
@@ -33,7 +33,7 @@
 					<a wicket:id="treeLink"><wicket:message key="gb.tree"></wicket:message></a> | <span wicket:id="compressedLinks"></span>
 				</span>
 			</td></tr>
-		<tr class="hidden-phone"><th valign="top"><wicket:message key="gb.parent">parent</wicket:message></th>
+		<tr class="hidden-phone"><th valign="top" style="vertical-align: top;"><wicket:message key="gb.parent">parent</wicket:message></th>
 			<td>
 				<span wicket:id="commitParents">
 					<span class="sha1" wicket:id="commitParent">[commit parents]</span>

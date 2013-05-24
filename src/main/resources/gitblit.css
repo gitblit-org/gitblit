@@ -969,7 +969,7 @@ div.diff table td.hunk_header {
 
 div.diff table td {
 	border-left: 1px solid #bbb;
-	background-color: #f5f5f5;
+	background-color: #fbfbfb;
 }
 
 td.changeType {
