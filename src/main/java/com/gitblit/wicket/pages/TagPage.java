@@ -74,7 +74,6 @@ public class TagPage extends RepositoryPage {
 			linkClass = CommitPage.class;
 			break;
 		}
-		add(new LinkPanel("commit", "title", tagRef.displayName, linkClass, linkParameters));
 		add(new GravatarImage("taggerAvatar", tagRef.getAuthorIdent()));
 		
 		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));

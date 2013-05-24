@@ -7,23 +7,22 @@
 <body>
 <wicket:extend>
 	
-	<!-- summary header -->
-	<div style="margin-top: 5px;" class="header" wicket:id="commit">[shortlog header]</div>
-	
 	<!-- Tagger Gravatar -->
 	<span style="float:right;vertical-align: top;" wicket:id="taggerAvatar" />
 	
+	<div style="padding-bottom:10px;">
 	<!-- commit info -->
-	<table class="plain">
+	<table class="summary">
 		<tr><th><wicket:message key="gb.name">[name]</wicket:message></th><td><span wicket:id="tagName">[tag name]</span></td></tr>
 		<tr><th><wicket:message key="gb.tag">[tag]</wicket:message></th><td><span class="sha1" wicket:id="tagId">[tag id]</span></td></tr>
 		<tr><th><wicket:message key="gb.object">[object]</wicket:message></th><td><span class="sha1" wicket:id="taggedObject">[tagged object]</span> <span class="link" wicket:id="taggedObjectType"></span></td></tr>
 		<tr><th><wicket:message key="gb.tagger">[tagger]</wicket:message></th><td><span class="sha1" wicket:id="tagger">[tagger]</span></td></tr>
 		<tr><th></th><td><span class="sha1" wicket:id="tagDate">[tag date]</span></td></tr>
 	</table>
+	</div>
 	
 	<!--  full message -->
-	<div style="border-bottom:0px;" class="commit_message" wicket:id="fullMessage">[tag full message]</div>
+	<pre class="commit_message" wicket:id="fullMessage">[commit message]</pre>
 	
 	<wicket:fragment wicket:id="fullPersonIdent">
 		<span wicket:id="personName"></span><span wicket:id="personAddress"></span>
