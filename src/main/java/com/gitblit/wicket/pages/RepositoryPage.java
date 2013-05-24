@@ -339,7 +339,7 @@ public abstract class RepositoryPage extends RootPage {
 		return commit;
 	}
 	
-	private Map<String, SubmoduleModel> getSubmodules(RevCommit commit) {	
+	protected Map<String, SubmoduleModel> getSubmodules(RevCommit commit) {	
 		if (submodules == null) {
 			submodules = new HashMap<String, SubmoduleModel>();
 			for (SubmoduleModel model : JGitUtils.getSubmodules(r, commit.getTree())) {
@@ -350,7 +350,10 @@ public abstract class RepositoryPage extends RootPage {
 	}
 	
 	protected SubmoduleModel getSubmodule(String path) {
-		SubmoduleModel model = submodules.get(path);
+		SubmoduleModel model = null;
+		if (submodules != null) {
+			model = submodules.get(path);
+		}
 		if (model == null) {
 			// undefined submodule?!
 			model = new SubmoduleModel(path.substring(path.lastIndexOf('/') + 1), path, path);

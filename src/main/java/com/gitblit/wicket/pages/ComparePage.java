@@ -103,6 +103,9 @@ public class ComparePage extends RepositoryPage {
 				toCommit = getCommit(r, toCommitId.getObject());
 			}
 
+			// prepare submodules
+			getSubmodules(toCommit);
+			
 			final String startId = fromCommit.getId().getName();
 			final String endId = toCommit.getId().getName();
 
