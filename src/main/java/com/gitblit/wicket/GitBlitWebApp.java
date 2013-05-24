@@ -36,6 +36,7 @@ import com.gitblit.wicket.pages.BlobPage;
 import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
+import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
@@ -106,6 +107,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/raw", RawPage.class, "r", "h", "f");
 		mount("/blobdiff", BlobDiffPage.class, "r", "h", "f");
 		mount("/commitdiff", CommitDiffPage.class, "r", "h");
+		mount("/compare", ComparePage.class, "r", "h");
 		mount("/patch", PatchPage.class, "r", "h", "f");
 		mount("/history", HistoryPage.class, "r", "h", "f");
 		mount("/search", GitSearchPage.class);

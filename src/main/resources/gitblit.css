@@ -119,6 +119,11 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	color: #ffffff !important;
 }
 
+.nav-pills > .active > a, .nav-pills > .active > a:hover {
+    color: #fff;
+    background-color: #002060;
+}
+
 .repositorynavbar {
 	background-color: #fbfbfb;
 	border-bottom: 1px solid #ccc;

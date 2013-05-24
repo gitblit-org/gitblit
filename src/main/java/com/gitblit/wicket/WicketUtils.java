@@ -319,6 +319,10 @@ public class WicketUtils {
 		return new PageParameters("r=" + repositoryName + ",h=" + objectId);
 	}
 
+	public static PageParameters newRangeParameter(String repositoryName, String startRange, String endRange) {
+		return new PageParameters("r=" + repositoryName + ",h=" + startRange + ".." + endRange);
+	}
+
 	public static PageParameters newPathParameter(String repositoryName, String objectId,
 			String path) {
 		if (StringUtils.isEmpty(path)) {
