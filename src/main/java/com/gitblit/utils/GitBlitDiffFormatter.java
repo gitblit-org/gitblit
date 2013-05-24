@@ -20,6 +20,7 @@ import static org.eclipse.jgit.lib.Constants.encode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.MessageFormat;
 
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.util.RawParseUtils;
@@ -150,7 +151,8 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 					sb.append("</tbody></table></div>\n");
 					inFile = false;
 				}
-				sb.append("<div class='header'>").append(line).append("</div>");
+				
+				sb.append(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"{0}\"><i class=\"icon-file\"></i> ", line)).append(line).append("</div></div>");
 				sb.append("<div class=\"diff\">");
 				sb.append("<table><tbody>");
 				inFile = true;

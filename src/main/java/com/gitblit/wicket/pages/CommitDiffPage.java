@@ -136,15 +136,11 @@ public class CommitDiffPage extends RepositoryPage {
 					submodulePath = submodule.gitblitPath;
 					hasSubmodule = submodule.hasSubmodule;
 
-					item.add(new LinkPanel("pathName", "list", entry.path + " @ " +
-							getShortObjectId(submoduleId), TreePage.class,
-							WicketUtils
-									.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
+					// add relative link
+					item.add(new LinkPanel("pathName", "list", entry.path + " @ " + getShortObjectId(submoduleId), "#" + entry.path));
 				} else {
-					// blob
-					item.add(new LinkPanel("pathName", "list", entry.path, BlobPage.class,
-							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+					// add relative link
+					item.add(new LinkPanel("pathName", "list", entry.path, "#" + entry.path));
 				}
 
 				// quick links
