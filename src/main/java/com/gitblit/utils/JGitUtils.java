@@ -771,6 +771,51 @@ public class JGitUtils {
 	}
 
 	/**
+	 * Returns the list of files changed in a specified commit. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param startCommit
+	 *            earliest commit
+	 * @param endCommit
+	 *            most recent commit. if null, HEAD is assumed.
+	 * @return list of files changed in a commit range
+	 */
+	public static List<PathChangeModel> getFilesInRange(Repository repository, RevCommit startCommit, RevCommit endCommit) {
+		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
+		if (!hasCommits(repository)) {
+			return list;
+		}
+		try {
+			DiffFormatter df = new DiffFormatter(null);
+			df.setRepository(repository);
+			df.setDiffComparator(RawTextComparator.DEFAULT);
+			df.setDetectRenames(true);
+
+			List<DiffEntry> diffEntries = df.scan(startCommit.getTree(), endCommit.getTree());
+			for (DiffEntry diff : diffEntries) {
+				
+				if (diff.getChangeType().equals(ChangeType.DELETE)) {
+					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
+							.getNewMode().getBits(), diff.getOldId().name(), null, diff
+							.getChangeType()));
+				} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
+					list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
+							.getNewMode().getBits(), diff.getNewId().name(), null, diff
+							.getChangeType()));
+				} else {
+					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
+							.getNewMode().getBits(), diff.getNewId().name(), null, diff
+							.getChangeType()));
+				}
+			}			
+			Collections.sort(list);
+		} catch (Throwable t) {
+			error(t, repository, "{0} failed to determine files in range {1}..{2}!", startCommit, endCommit);
+		}
+		return list;
+	}
+	/**
 	 * Returns the list of files in the repository on the default branch that
 	 * match one of the specified extensions. This is a CASE-SENSITIVE search.
 	 * If the repository does not exist or is empty, an empty list is returned.
@@ -981,18 +1026,30 @@ public class JGitUtils {
 		}
 		try {
 			// resolve branch
-			ObjectId branchObject;
+			ObjectId startRange = null;
+			ObjectId endRange;
 			if (StringUtils.isEmpty(objectId)) {
-				branchObject = getDefaultBranch(repository);
+				endRange = getDefaultBranch(repository);
 			} else {
-				branchObject = repository.resolve(objectId);
+				if( objectId.contains("..") ) {
+					// range expression
+					String[] parts = objectId.split("\\.\\.");
+					startRange = repository.resolve(parts[0]);
+					endRange = repository.resolve(parts[1]);
+				} else {
+					// objectid
+					endRange= repository.resolve(objectId);
+				}
 			}
-			if (branchObject == null) {
+			if (endRange == null) {
 				return list;
 			}
 
 			RevWalk rw = new RevWalk(repository);
-			rw.markStart(rw.parseCommit(branchObject));
+			rw.markStart(rw.parseCommit(endRange));
+			if (startRange != null) {
+				rw.markUninteresting(rw.parseCommit(startRange));	
+			}
 			if (!StringUtils.isEmpty(path)) {
 				TreeFilter filter = AndTreeFilter.create(
 						PathFilterGroup.createFromStrings(Collections.singleton(path)),

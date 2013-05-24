@@ -106,7 +106,7 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 
 		private static final long serialVersionUID = 1L;
 
-		public final ChangeType changeType;
+		public ChangeType changeType;
 
 		public PathChangeModel(String name, String path, long size, int mode, String objectId,
 				String commitId, ChangeType type) {
