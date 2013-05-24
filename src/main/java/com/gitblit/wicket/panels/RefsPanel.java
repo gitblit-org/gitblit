@@ -43,6 +43,8 @@ public class RefsPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String R_CHANGES = "refs/changes/";
+	
+	private static final String R_PULL= "refs/pull/";
 
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
 			Map<ObjectId, List<RefModel>> refs) {
@@ -114,6 +116,14 @@ public class RefsPanel extends Panel {
 					// Gerrit change ref
 					name = name.substring(R_CHANGES.length());
 					cssClass = "otherRef";
+				} else if (name.startsWith(R_PULL)) {
+					// Pull Request ref
+					name = "pull #" + name.substring(R_PULL.length());
+					if (name.endsWith("/head")) {
+						// strip pull request head from name 
+						name = name.substring(0, name.length() - "/head".length());
+					}
+					cssClass = "pullRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch
 					linkClass = LogPage.class;

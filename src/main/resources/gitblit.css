@@ -1266,7 +1266,7 @@ span.metricsTitle {
 	font-size: 2em;
 }
 
-.tagRef, .headRef, .localBranch, .remoteBranch, .otherRef {	
+.tagRef, .headRef, .localBranch, .remoteBranch, .otherRef, .pullRef {	
 	padding: 0px 3px;
 	margin-right:2px;
 	font-family: sans-serif;
@@ -1276,13 +1276,13 @@ span.metricsTitle {
 	color: black;	
 }
 
-.tagRef a, .headRef a, .localBranch a, .remoteBranch a, .otherRef a {
+.tagRef a, .headRef a, .localBranch a, .remoteBranch a, .otherRef a, .pullRef a {
 	font-size: 9px;
 	text-decoration: none;
 	color: black !important;
 }
 
-.tagRef a:hover, .headRef a:hover, .localBranch a:hover, .remoteBranch a:hover, .otherRef a:hover {
+.tagRef a:hover, .headRef a:hover, .localBranch a:hover, .remoteBranch a:hover, .otherRef a:hover, .pullRef a:hover {
 	color: black !important;
 	text-decoration: underline;
 }
@@ -1290,6 +1290,11 @@ span.metricsTitle {
 .otherRef {
 	background-color: #b0e0f0;
 	border-color: #80aaaa;	
+}
+
+.pullRef {
+	background-color: rgb(255, 221, 136);
+	border-color: rgb(136, 136, 136);
 }
 
 .remoteBranch {
