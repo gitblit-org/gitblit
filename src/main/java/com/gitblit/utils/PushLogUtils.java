@@ -438,4 +438,42 @@ public class PushLogUtils {
 		
 		return refPushLog;
 	}
+	
+	/**
+	 * Returns the list of pushes separated by ref (e.g. each ref has it's own
+	 * PushLogEntry object).
+	 *  
+	 * @param repositoryName
+	 * @param repository
+	 * @param minimumDate
+	 * @return a list of push log entries separated by ref
+	 */
+	public static List<PushLogEntry> getPushLogByRef(String repositoryName, Repository repository,  Date minimumDate) {
+		// break the push log into ref push logs and then merge them back into a list
+		Map<String, List<PushLogEntry>> refMap = new HashMap<String, List<PushLogEntry>>();
+		for (PushLogEntry push : getPushLog(repositoryName, repository, minimumDate)) {
+			for (String ref : push.getChangedRefs()) {
+				if (!refMap.containsKey(ref)) {
+					refMap.put(ref, new ArrayList<PushLogEntry>());
+				}
+				
+				// construct new ref-specific push log entry
+				PushLogEntry refPush = new PushLogEntry(push.repository, push.date, push.user);
+				refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
+				refPush.addCommits(push.getCommits(ref));
+				refMap.get(ref).add(refPush);
+			}
+		}
+		
+		// merge individual ref pushes into master list
+		List<PushLogEntry> refPushLog = new ArrayList<PushLogEntry>();
+		for (List<PushLogEntry> refPush : refMap.values()) {
+			refPushLog.addAll(refPush);
+		}
+		
+		// sort ref push log
+		Collections.sort(refPushLog);
+		
+		return refPushLog;
+	}
 }

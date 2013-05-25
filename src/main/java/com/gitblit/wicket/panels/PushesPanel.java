@@ -59,19 +59,52 @@ public class PushesPanel extends BasePanel {
 			pushesPerPage = 10;
 		}
 
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 		List<PushLogEntry> pushes;
 		if (pageResults) {
 			pushes = PushLogUtils.getPushLogByRef(model.name, r, pageOffset * pushesPerPage, pushesPerPage);
 		} else {
 			pushes = PushLogUtils.getPushLogByRef(model.name, r, limit);
 		}
-		
+
 		// inaccurate way to determine if there are more commits.
 		// works unless commits.size() represents the exact end.
 		hasMore = pushes.size() >= pushesPerPage;
-
 		hasPushes = pushes.size() > 0;
+		
+		setup(pushes);
+		
+		// determine to show pager, more, or neither
+		if (limit <= 0) {
+			// no display limit
+			add(new Label("morePushes").setVisible(false));
+		} else {
+			if (pageResults) {
+				// paging
+				add(new Label("morePushes").setVisible(false));
+			} else {
+				// more
+				if (pushes.size() == limit) {
+					// show more
+					add(new LinkPanel("morePushes", "link", new StringResourceModel("gb.morePushes",
+							this, null), PushesPage.class,
+							WicketUtils.newRepositoryParameter(model.name)));
+				} else {
+					// no more
+					add(new Label("morePushes").setVisible(false));
+				}
+			}
+		}
+	}
+	
+	public PushesPanel(String wicketId, List<PushLogEntry> pushes) {
+		super(wicketId);
+		hasPushes = pushes.size() > 0;
+		setup(pushes);
+		add(new Label("morePushes").setVisible(false));
+	}
+	
+	protected void setup(List<PushLogEntry> pushes) {
+		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 
 		ListDataProvider<PushLogEntry> dp = new ListDataProvider<PushLogEntry>(pushes);
 		DataView<PushLogEntry> pushView = new DataView<PushLogEntry>("push", dp) {
@@ -144,19 +177,19 @@ public class PushesPanel extends BasePanel {
 				} else if (isTag) {
 					// link to tag
 					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
-							TagPage.class, WicketUtils.newObjectParameter(model.name, fullRefName)));
+							TagPage.class, WicketUtils.newObjectParameter(push.repository, fullRefName)));
 				} else {
 					// link to tree
 					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
-						TreePage.class, WicketUtils.newObjectParameter(model.name, fullRefName)));
+						TreePage.class, WicketUtils.newObjectParameter(push.repository, fullRefName)));
 				}
 				
 				// to/from/etc
 				pushItem.add(new Label("repoPreposition", getString(preposition)));
 				
-				String repoName = StringUtils.stripDotGit(model.name);
+				String repoName = StringUtils.stripDotGit(push.repository);
 				pushItem.add(new LinkPanel("repoPushed", null, repoName,
-						SummaryPage.class, WicketUtils.newRepositoryParameter(model.name)));
+						SummaryPage.class, WicketUtils.newRepositoryParameter(push.repository)));
 
 				int maxCommitCount = 5;
 				List<RepositoryCommit> commits = push.getCommits();
@@ -208,7 +241,7 @@ public class PushesPanel extends BasePanel {
 						}
 						LinkPanel shortlog = new LinkPanel("commitShortMessage", "list",
 								trimmedMessage, CommitPage.class, WicketUtils.newObjectParameter(
-										model.name, commit.getName()));
+										push.repository, commit.getName()));
 						if (!shortMessage.equals(trimmedMessage)) {
 							WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 						}
@@ -217,7 +250,7 @@ public class PushesPanel extends BasePanel {
 						// commit hash link
 						LinkPanel commitHash = new LinkPanel("hashLink", null, commit.getName().substring(0, hashLen),
 								CommitPage.class, WicketUtils.newObjectParameter(
-										model.name, commit.getName()));
+										push.repository, commit.getName()));
 						WicketUtils.setCssClass(commitHash, "shortsha1");
 						WicketUtils.setHtmlTooltip(commitHash, commit.getName());
 						commitItem.add(commitHash);
@@ -229,27 +262,7 @@ public class PushesPanel extends BasePanel {
 		};
 		add(pushView);
 
-		// determine to show pager, more, or neither
-		if (limit <= 0) {
-			// no display limit
-			add(new Label("morePushes").setVisible(false));
-		} else {
-			if (pageResults) {
-				// paging
-				add(new Label("morePushes").setVisible(false));
-			} else {
-				// more
-				if (pushes.size() == limit) {
-					// show more
-					add(new LinkPanel("morePushes", "link", new StringResourceModel("gb.morePushes",
-							this, null), PushesPage.class,
-							WicketUtils.newRepositoryParameter(model.name)));
-				} else {
-					// no more
-					add(new Label("morePushes").setVisible(false));
-				}
-			}
-		}
+
 	}
 
 	public boolean hasMore() {
