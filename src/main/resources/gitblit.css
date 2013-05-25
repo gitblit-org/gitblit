@@ -139,7 +139,7 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
     font-weight: bold;
 }
 
-.repositorynavbar .project a, .repositorynavbar .repository a {
+.title .repository a, .repositorynavbar .project a, .repositorynavbar .repository a {
     font-family: Helvetica,arial,freesans,clean,sans-serif;
     font-size: 22px;
     color: #002060;

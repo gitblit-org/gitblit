@@ -86,6 +86,7 @@ r17: {
 	
 	dependencyChanges:
 	- JGit 3.0.0-SNAPSHOT
+	- Iconic font
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }

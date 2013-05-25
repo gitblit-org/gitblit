@@ -90,7 +90,13 @@ public class PushesPanel extends BasePanel {
 				}
 				
 				pushItem.add(WicketUtils.createDateLabel("whenPushed", push.date, getTimeZone(), getTimeUtils()));
-				pushItem.add(new GravatarImage("whoAvatar", push.getCommitterIdent(), 40));
+				Label pushIcon = new Label("pushIcon");
+				if (isTag) {
+					WicketUtils.setCssClass(pushIcon, "iconic-tag");
+				} else {
+					WicketUtils.setCssClass(pushIcon, "iconic-loop");
+				}
+				pushItem.add(pushIcon);
 				if (push.user.username.equals(push.user.emailAddress) && push.user.emailAddress.indexOf('@') > -1) {
 					// username is an email address - 1.2.1 push log bug
 					pushItem.add(new Label("whoPushed", push.user.getDisplayName()));

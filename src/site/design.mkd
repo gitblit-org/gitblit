@@ -1,7 +1,7 @@
 ## Design Principles
 1. [Keep It Simple, Stupid](http://en.wikipedia.org/wiki/KISS_principle)
 2. Offer useful features for serving Git repositories.  If feature is complex, refer to #1.
-3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to automate the setup of developer environments.  
+3. All dependencies must be retrievable from a publicly accessible [Maven](http://maven.apache.org) repository.<br/>This is to ensure authenticity of dependencies and to automate the setup of developer environments.
 
 ## Architecture
 
@@ -12,6 +12,7 @@ The following dependencies are bundled with Gitblit.
 
 - [Bootstrap](http://twitter.github.com/bootstrap) (Apache 2.0)
 - [GLYPHICONS](http://glyphicons.com) (Creative Commons CC-BY)
+- [Iconic](http://somerandomdude.com/work/iconic) (Creative Commons Share Alike 3.0)
 - [Clippy](https://github.com/mojombo/clippy) (MIT)
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)
@@ -30,7 +31,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [MarkdownPapers](http://markdown.tautua.org) (Apache 2.0)
 - [Jetty](http://eclipse.org/jetty) (Apache 2.0, EPL 1.0)
 - [SLF4J](http://www.slf4j.org) (MIT/X11)
-- [Log4j](http://logging.apache.org/log4j) (Apache 2.0) 
+- [Log4j](http://logging.apache.org/log4j) (Apache 2.0)
 - [JCommander](http://jcommander.org) (Apache 2.0)
 - [BouncyCastle](http://www.bouncycastle.org) (MIT/X11)
 - [JSch - Java Secure Channel](http://www.jcraft.com/jsch) (BSD)
@@ -59,16 +60,16 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 Additionally, [Google CodePro AnalytiX](http://code.google.com/javadevtools), [eclipse-cs](http://eclipse-cs.sourceforge.net), [FindBugs](http://findbugs.sourceforge.net), and [EclEmma](http://www.eclemma.org) are recommended development tools.
 
 1. Clone the git repository from [Github][gitbltsrc].
-2. Import the gitblit project into your Eclipse workspace.  
+2. Import the gitblit project into your Eclipse workspace.
 *There will be lots of build errors.*
-3. Using Ant, execute the `build.xml` script in the project root.  
+3. Using Ant, execute the `build.xml` script in the project root.
 *This will download all necessary build dependencies and will also generate the Keys class for accessing settings.*
 4. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
-5. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.  
+5. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.
 *This will clone some repositories from the web and run through the unit tests.*
 5. Review the settings in `gitblit.properties` in your project root.
-    - By default, the *git.repositoriesFolder* points to the repositories cloned by the test suite.  
-    - If running on Linux you may have to change the served port(s) to > 1024 unless you are developing as the root user. 
+    - By default, the *git.repositoriesFolder* points to the repositories cloned by the test suite.
+    - If running on Linux you may have to change the served port(s) to > 1024 unless you are developing as the root user.
 6. Execute the *com.gitblit.Launcher* class to start Gitblit.
 
 
