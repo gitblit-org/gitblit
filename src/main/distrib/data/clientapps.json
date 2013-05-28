@@ -71,11 +71,11 @@
 		"title": "SparkleShare\u2122",
 		"description": "an open source collaboration and sharing tool",
 		"legal": "released under the GPLv3 open source license",
-		"cloneUrl": "sparkleshare://inviteRepo/${baseUrl}/sparkleshare/${repoUrl}.xml",
+		"cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml",
 		"productUrl": "http://sparkleshare.org",
 		"platforms": [ "windows", "macintosh", "linux" ],
 		"icon": "sparkleshare_32x32.png",
 		"minimumPermission" : "RW+",
-		"isActive": false
+		"isActive": true
 	}
 ]
