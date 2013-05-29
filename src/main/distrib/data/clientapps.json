@@ -18,7 +18,7 @@
 		"productUrl": "http://www.syntevo.com/smartgithg",
 		"platforms": [ "windows", "macintosh", "linux" ],
 		"icon": "smartgithg_32x32.png",
-		"isActive": false
+		"isActive": true
 	},
 	{
 		"name": "SourceTree",
