@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -120,6 +121,13 @@ public final class GitBlitWebSession extends WebSession {
 
 	public void setUser(UserModel user) {
 		this.user = user;
+		if (user != null) {
+			Locale preferredLocale = user.getPreferences().getLocale();
+			if (preferredLocale != null) {
+				// set the user's preferred locale
+				setLocale(preferredLocale);
+			}
+		}
 	}
 
 	public TimeZone getTimezone() {

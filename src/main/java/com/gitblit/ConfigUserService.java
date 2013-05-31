@@ -92,6 +92,8 @@ public class ConfigUserService implements IUserService {
 	
 	private static final String STARRED = "starred";
 	
+	private static final String LOCALE = "locale";
+
 	private final File realmFile;
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
@@ -849,6 +851,11 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.countryCode)) {
 				config.setString(USER, model.username, COUNTRYCODE, model.countryCode);
 			}
+			if (model.getPreferences() != null) {
+				if (!StringUtils.isEmpty(model.getPreferences().locale)) {
+					config.setString(USER, model.username, LOCALE, model.getPreferences().locale);
+				}
+			}
 
 			// user roles
 			List<String> roles = new ArrayList<String>();
@@ -1010,6 +1017,7 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
+					user.getPreferences().locale = config.getString(USER, username, LOCALE);	
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);
 					}

@@ -37,6 +37,8 @@ public class UserPreferences implements Serializable {
 
 	public final String username;
 
+	public String locale;
+	
 	private final Map<String, UserRepositoryPreferences> repositoryPreferences = new TreeMap<String, UserRepositoryPreferences>();
 
 	public UserPreferences(String username) {
