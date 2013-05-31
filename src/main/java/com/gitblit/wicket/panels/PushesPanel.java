@@ -171,8 +171,13 @@ public class PushesPanel extends BasePanel {
 							preposition = "gb.to";
 						}
 					} else {
-						what = getString("gb.pushedNewBranch");
-						preposition = "gb.to";
+						if (isDigest) {
+							what = getString("gb.createdNewBranch");
+							preposition = "gb.in";
+						} else {
+							what = getString("gb.pushedNewBranch");
+							preposition = "gb.to";
+						}
 					}
 					break;
 				case DELETE:

@@ -531,7 +531,11 @@ public class PushLogUtils {
                     dailydigests.put(dateStr, new DailyLogEntry(repositoryName, date));
                 }
                 PushLogEntry digest = dailydigests.get(dateStr);
-                digest.updateRef(branch, ReceiveCommand.Type.UPDATE, commit.getParents()[0].getId().getName(), commit.getName());
+                if (commit.getParentCount() == 0) {
+                	digest.updateRef(branch, ReceiveCommand.Type.CREATE);
+                } else {
+                	digest.updateRef(branch, ReceiveCommand.Type.UPDATE, commit.getParents()[0].getId().getName(), commit.getName());
+                }
                 RepositoryCommit repoCommit = digest.addCommit(branch, commit);
                 if (repoCommit != null) {
                     repoCommit.setRefs(allRefs.get(commit.getId()));
