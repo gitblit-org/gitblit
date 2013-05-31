@@ -239,6 +239,26 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * or if it is merely a repository viewer.
+	 * 
+	 * @return true if Gitblit is serving repositories
+	 */
+	public static boolean isServingRepositories() {
+		return getBoolean(Keys.git.enableGitServlet, true) || (getInteger(Keys.git.daemonPort, 0) > 0);
+	}
+
+	/**
+	 * Determine if this Gitblit instance is actively serving git repositories
+	 * or if it is merely a repository viewer.
+	 * 
+	 * @return true if Gitblit is serving repositories
+	 */
+	public static boolean isSendingMail() {
+		return self().mailExecutor.isReady();
+	}
+
+	/**
 	 * Returns the preferred timezone for the Gitblit instance.
 	 * 
 	 * @return a timezone

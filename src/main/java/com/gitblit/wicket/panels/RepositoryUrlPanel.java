@@ -162,7 +162,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		}
 
 		// access restriction icon and tooltip
-		if (isGitblitServingRepositories()) {
+		if (GitBlit.isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
@@ -331,10 +331,6 @@ public class RepositoryUrlPanel extends BasePanel {
 	
 	protected String substitute(String pattern, String repoUrl, String baseUrl) {
 		return pattern.replace("${repoUrl}", repoUrl).replace("${baseUrl}", baseUrl);
-	}
-	
-	protected boolean isGitblitServingRepositories() {
-		return GitBlit.getBoolean(Keys.git.enableGitServlet, true) || (GitBlit.getInteger(Keys.git.daemonPort, 0) > 0);
 	}
 	
 	protected Label createPermissionBadge(String wicketId, RepositoryUrl repoUrl) {
