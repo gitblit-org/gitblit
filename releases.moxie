@@ -39,6 +39,7 @@ r17: {
 	 - Updated Japanese translation
 	 
     additions: 
+     - Added simple star/unstar function to flag or bookmark interesting repositories
 	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
 	 - Added client application menus for Git, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
 	 - Added GO http/https connector thread pool size setting

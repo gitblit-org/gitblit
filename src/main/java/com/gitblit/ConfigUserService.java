@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.models.UserRepositoryPreferences;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
@@ -88,7 +89,9 @@ public class ConfigUserService implements IUserService {
 	private static final String PRERECEIVE = "preReceiveScript";
 
 	private static final String POSTRECEIVE = "postReceiveScript";
-
+	
+	private static final String STARRED = "starred";
+	
 	private final File realmFile;
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
@@ -879,6 +882,14 @@ public class ConfigUserService implements IUserService {
 				}
 				config.setStringList(USER, model.username, REPOSITORY, permissions);
 			}
+			
+			// user preferences
+			if (model.getPreferences() != null) {
+				List<String> starred =  model.getPreferences().getStarredRepositories();
+				if (starred.size() > 0) {
+					config.setStringList(USER, model.username, STARRED, starred);
+				}
+			}
 		}
 
 		// write teams
@@ -1019,6 +1030,14 @@ public class ConfigUserService implements IUserService {
 						for (String repository : repositories) {
 							user.addRepositoryPermission(repository);
 						}
+					}
+
+					// starred repositories
+					Set<String> starred = new HashSet<String>(Arrays.asList(config
+							.getStringList(USER, username, STARRED)));
+					for (String repository : starred) {
+						UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(repository);
+						prefs.starred = true;
 					}
 
 					// update cache

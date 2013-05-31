@@ -161,7 +161,7 @@ public abstract class IStoredSettings {
 	
 	/**
 	 * Returns an long filesize from a string value such as 50m or 50mb
-	 * @param name
+	 * @param n
 	 * @param defaultValue
 	 * @return a long filesize or defaultValue if the key does not exist or can
 	 *         not be parsed

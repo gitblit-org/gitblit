@@ -38,8 +38,9 @@
 					<div>
 						<div class="hidden-phone btn-group pull-right" style="margin-top:5px;">
 							<!-- future spot for other repo buttons -->
-<!-- 							<a class="btn"><i class="icon-star-empty" style="padding-right:3px;"></i>star</a> -->
-<!-- 							<a class="btn"><i class="icon-envelope" style="padding-right:3px;"></i>subscribe</a> -->
+							<a class="btn" wicket:id="starLink"></a>
+							<a class="btn" wicket:id="unstarLink"></a>
+							
 							<a class="btn" wicket:id="myForkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.myFork"></wicket:message></a>
 							<a class="btn" wicket:id="forkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.fork"></wicket:message></a>
 						</div>
@@ -53,6 +54,10 @@
 		<div class="container">
 			<wicket:child />
 		</div>
+		
+		<wicket:fragment wicket:id="toolbarLinkFragment">
+			<i wicket:id="icon" style="padding-right:3px;"></i><span wicket:id="label"></span>
+		</wicket:fragment>
 		
 		<wicket:fragment wicket:id="originFragment">
 			<p class="originRepository"><wicket:message key="gb.forkedFrom">[forked from]</wicket:message> <span wicket:id="originRepository">[origin repository]</span></p>

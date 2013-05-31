@@ -353,7 +353,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns a list of space-separated strings from the specified key.
 	 * 
 	 * @see IStoredSettings.getStrings(String key)
-	 * @param name
+	 * @param n
 	 * @return list of strings
 	 */
 	public static List<String> getStrings(String key) {
@@ -364,7 +364,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns a map of space-separated key-value pairs from the specified key.
 	 * 
 	 * @see IStoredSettings.getStrings(String key)
-	 * @param name
+	 * @param n
 	 * @return map of string, string
 	 */
 	public static Map<String, String> getMap(String key) {
@@ -1571,6 +1571,22 @@ public class GitBlit implements ServletContextListener {
 		return DeepCopier.copy(model);
 	}
 	
+	/**
+	 * Returns the star count of the repository.
+	 * 
+	 * @param repository
+	 * @return the star count
+	 */
+	public long getStarCount(RepositoryModel repository) {
+		long count = 0;
+		for (UserModel user : getAllUsers()) {
+			if (user.getPreferences().isStarredRepository(repository.name)) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
 	
 	/**
 	 * Returns the map of project config.  This map is cached and reloaded if
@@ -1924,7 +1940,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Determines if this server has the requested repository.
 	 * 
-	 * @param name
+	 * @param n
 	 * @return true if the repository exists
 	 */
 	public boolean hasRepository(String repositoryName) {
@@ -1934,7 +1950,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Determines if this server has the requested repository.
 	 * 
-	 * @param name
+	 * @param n
 	 * @param caseInsensitive
 	 * @return true if the repository exists
 	 */

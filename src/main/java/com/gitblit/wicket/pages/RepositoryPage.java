@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
@@ -41,9 +42,12 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
+import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.PagesServlet;
 import com.gitblit.SyndicationServlet;
@@ -52,7 +56,9 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.models.UserRepositoryPreferences;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.PushLogUtils;
 import com.gitblit.utils.StringUtils;
@@ -67,7 +73,11 @@ import com.gitblit.wicket.panels.NavigationPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends RootPage {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
+	private final String PARAM_STAR = "star";
+	
 	protected final String projectName;
 	protected final String repositoryName;
 	protected final String objectId;
@@ -104,7 +114,7 @@ public abstract class RepositoryPage extends RootPage {
 		if (getRepositoryModel().isCollectingGarbage) {
 			error(MessageFormat.format(getString("gb.busyCollectingGarbage"), getRepositoryModel().name), true);
 		}
-
+		
 		if (objectId != null) {
 			RefModel branch = null;
 			if ((branch = JGitUtils.getBranch(getRepository(), objectId)) != null) {
@@ -117,6 +127,22 @@ public abstract class RepositoryPage extends RootPage {
 								branch.reference.getName());
 				if (!canAccess) {
 					error(getString("gb.accessDenied"), true);
+				}
+			}
+		}
+		
+		if (params.containsKey(PARAM_STAR)) {
+			// set starred state
+			boolean star = params.getBoolean(PARAM_STAR);
+			UserModel user = GitBlitWebSession.get().getUser();
+			if (user != null && user.isAuthenticated) {
+				UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(getRepositoryModel().name);
+				prefs.starred = star;
+				try {
+					GitBlit.self().updateUserModel(user.username, user, false);
+				} catch (GitBlitException e) {
+					logger.error("Failed to update user " + user.username, e);
+					error(getString("gb.failedToUpdateUser"), false);
 				}
 			}
 		}
@@ -260,6 +286,26 @@ public abstract class RepositoryPage extends RootPage {
 			}
 		}
 		
+		// (un)star link allows a user to star someone else's repository
+		if (user.isAuthenticated && !model.isOwner(user.username) && !model.isUsersPersonalRepository(user.username)) {
+			PageParameters starParams = DeepCopier.copy(getPageParameters());
+			starParams.put(PARAM_STAR, !user.getPreferences().isStarredRepository(model.name));
+			String toggleStarUrl = getRequestCycle().urlFor(getClass(), starParams).toString();
+			if (user.getPreferences().isStarredRepository(model.name)) {
+				// show unstar button
+				add(new Label("starLink").setVisible(false));
+				addToolbarButton("unstarLink", "icon-star-empty", getString("gb.unstar"), toggleStarUrl);
+			} else {
+				// show star button
+				addToolbarButton("starLink", "icon-star", getString("gb.star"), toggleStarUrl);
+				add(new Label("unstarLink").setVisible(false));
+			}
+		} else {
+			// anonymous user or the repository owner is browsing the repository
+			add(new Label("starLink").setVisible(false));
+			add(new Label("unstarLink").setVisible(false));
+		}
+
 		// fork controls
 		if (!allowForkControls() || user == null || !user.isAuthenticated) {
 			// must be logged-in to fork, hide all fork controls
@@ -291,6 +337,16 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		
 		super.setupPage(repositoryName, pageName);
+	}
+	
+	protected void addToolbarButton(String wicketId, String iconClass, String label, String url) {
+		Fragment button = new Fragment(wicketId, "toolbarLinkFragment", this);
+		Label icon = new Label("icon");
+		WicketUtils.setCssClass(icon, iconClass);
+		button.add(icon);
+		button.add(new Label("label", label));
+		button.add(new SimpleAttributeModifier("href", url));
+		add(button);
 	}
 
 	protected void addSyndicationDiscoveryLink() {

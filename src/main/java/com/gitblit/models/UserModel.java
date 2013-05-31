@@ -75,17 +75,21 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	// non-persisted fields
 	public boolean isAuthenticated;
 	public AccountType accountType;
+
+	public UserPreferences userPreferences;
 	
 	public UserModel(String username) {
 		this.username = username;
 		this.isAuthenticated = true;
 		this.accountType = AccountType.LOCAL;
+		this.userPreferences = new UserPreferences(this.username);
 	}
 
 	private UserModel() {
 		this.username = "$anonymous";
 		this.isAuthenticated = false;
 		this.accountType = AccountType.LOCAL;
+		this.userPreferences = new UserPreferences(this.username);
 	}
 	
 	public boolean isLocalAccount() {
@@ -600,6 +604,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	
 	public String getPersonalPath() {
 		return "~" + username;
+	}
+	
+	public UserPreferences getPreferences() {
+		return userPreferences;
 	}
 	
 	@Override
