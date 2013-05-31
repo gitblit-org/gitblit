@@ -12,7 +12,8 @@ r17: {
 	 - Added more error checking to blob page and blame page
 	 - Disable SNI extensions for client SSL connections
 	 - Fixed prettify language extension loading
-	 - Fixed index out of bounds exceptions when generating client certificates for a user when the user's table has bene filtered
+	 - Fixed index out of bounds exceptions when generating client certificates for a user when the user's table has been filtered
+	 - Fixed AddindexedBranch tool when specifying the non-default branch. 
 	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
@@ -49,6 +50,7 @@ r17: {
 	 - Option to automatically tag branch tips on each push with an incremental revision number
      - Implemented multiple repository owners
      - Optional periodic LDAP user and team pre-fetching & synchronization
+	 - Added option to index all local branches in AddIndexedBranches tool
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script
      - Chinese translation
@@ -73,6 +75,7 @@ r17: {
 	- Lukasz Jader
 	- Martijn Laan
 	- Matthias Bauer
+	- Michaël Pailloncy
 	- Michael Schaefers
 	- Philip Boutros
 	- Rafael Cavazin
