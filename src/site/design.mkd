@@ -13,6 +13,7 @@ The following dependencies are bundled with Gitblit.
 - [Bootstrap](http://twitter.github.com/bootstrap) (Apache 2.0)
 - [GLYPHICONS](http://glyphicons.com) (Creative Commons CC-BY)
 - [Iconic](http://somerandomdude.com/work/iconic) (Creative Commons Share Alike 3.0)
+- [AngularJS](http://angularjs.org) (MIT)
 - [Clippy](https://github.com/mojombo/clippy) (MIT)
 - [google-code-prettify](http://code.google.com/p/google-code-prettify) (Apache 2.0)
 - [Commons Daemon](http://commons.apache.org/daemon) (Apache 2.0)

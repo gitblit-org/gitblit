@@ -162,8 +162,6 @@ public class ActivityPage extends RootPage {
 		}
 
 		// build google charts
-		int w = 310;
-		int h = 150;
 		GoogleCharts charts = new GoogleCharts();
 
 		// sort in reverse-chronological order and then reverse that
@@ -178,8 +176,6 @@ public class ActivityPage extends RootPage {
 		for (Activity metric : recentActivity) {
 			chart.addValue(df.format(metric.startDate), metric.getCommitCount());
 		}
-		chart.setWidth(w);
-		chart.setHeight(h);
 		charts.addChart(chart);
 
 		// active repositories pie chart
@@ -188,8 +184,7 @@ public class ActivityPage extends RootPage {
 		for (Metric metric : repositoryMetrics.values()) {
 			chart.addValue(metric.name, metric.count);
 		}
-		chart.setWidth(w);
-		chart.setHeight(h);
+		chart.setShowLegend(false);
 		charts.addChart(chart);
 
 		// active authors pie chart
@@ -198,8 +193,7 @@ public class ActivityPage extends RootPage {
 		for (Metric metric : authorMetrics.values()) {
 			chart.addValue(metric.name, metric.count);
 		}
-		chart.setWidth(w);
-		chart.setHeight(h);
+		chart.setShowLegend(false);
 		charts.addChart(chart);
 
 		return charts;

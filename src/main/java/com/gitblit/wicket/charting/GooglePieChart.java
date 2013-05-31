@@ -68,8 +68,8 @@ public class GooglePieChart extends GoogleChart {
 				cName, tagId));
 		line(sb,
 				MessageFormat
-						.format("{0}.draw({1}, '{'width: {2,number,0}, height: {3,number,0}, chartArea:'{'left:20,top:20'}', title: ''{4}'', {5} '}');",
-								cName, dName, width, height, title, colors.toString()));
+						.format("{0}.draw({1}, '{' title: ''{4}'', {5}, legend: '{' position:''{6}'' '}' '}');",
+								cName, dName, width, height, title, colors.toString(), showLegend ? "right" : "none"));
 		line(sb, "");
 	}
 }

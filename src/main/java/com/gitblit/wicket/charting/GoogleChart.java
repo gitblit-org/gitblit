@@ -38,6 +38,7 @@ public abstract class GoogleChart implements Serializable {
 	final List<ChartValue> values;
 	int width;
 	int height;
+	boolean showLegend;
 
 	public GoogleChart(String tagId, String title, String keyName, String valueName) {
 		this.tagId = tagId;
@@ -46,6 +47,7 @@ public abstract class GoogleChart implements Serializable {
 		this.keyName = keyName;
 		this.valueName = valueName;
 		values = new ArrayList<ChartValue>();
+		showLegend = true;
 	}
 
 	public void setWidth(int width) {
@@ -54,6 +56,10 @@ public abstract class GoogleChart implements Serializable {
 
 	public void setHeight(int height) {
 		this.height = height;
+	}
+	
+	public void setShowLegend(boolean val) {
+		this.showLegend = val;
 	}
 
 	public void addValue(String name, int value) {

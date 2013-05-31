@@ -124,6 +124,15 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
     background-color: #002060;
 }
 
+div.push {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+div.push i {
+    font-size:3.25em;
+    color:#bbb;
+}
+
 .repositorynavbar {
 	background-color: #fbfbfb;
 	border-bottom: 1px solid #ccc;
@@ -613,12 +622,23 @@ span.link em, div.link span em {
 	font-size: 11px;	
 }
 
-span.repositorySwatch {
-	border-radius: 3px;	
-	padding: 1px 4px 2px 4px;	
+span.activitySwatch {
+	border-radius: 3px;
+	padding: 1px 4px 2px 4px;
 	color: #ffffff;
 	vertical-align: center;
 }
+
+span.activitySwatch a {
+	color: inherit;
+}
+
+span.repositorySwatch {
+	padding: 1px 1px 2px 1px;	
+	color: #ffffff;
+	vertical-align: center;
+}
+
 span.repositorySwatch a {
 	color: inherit;
 }

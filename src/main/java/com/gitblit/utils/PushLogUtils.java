@@ -16,8 +16,11 @@
 package com.gitblit.utils;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -50,6 +53,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RefModel;
@@ -109,6 +113,25 @@ public class PushLogUtils {
 		return null;
 	}
 	
+	private static UserModel newUserModelFrom(PersonIdent ident) {
+		String name = ident.getName();
+		String username;
+		String displayname;
+		if (name.indexOf('/') > -1) {
+			int slash = name.indexOf('/');
+			displayname = name.substring(0, slash);
+			username = name.substring(slash + 1);
+		} else {
+			displayname = name;
+			username = ident.getEmailAddress();
+		}
+		
+		UserModel user = new UserModel(username);
+		user.displayName = displayname;
+		user.emailAddress = ident.getEmailAddress();
+		return user;
+	}
+	
 	/**
 	 * Updates a push log.
 	 * 
@@ -135,9 +158,15 @@ public class PushLogUtils {
 				DirCache index = createIndex(repository, headId, commands);
 				ObjectId indexTreeId = index.writeTree(odi);
 
-				PersonIdent ident = 
-						new PersonIdent(MessageFormat.format("{0}/{1}", user.getDisplayName(), user.username),
+				PersonIdent ident;
+				if (UserModel.ANONYMOUS.equals(user)) {
+					// anonymous push
+					ident = new PersonIdent("anonymous", "anonymous");
+				} else {
+					// construct real pushing account
+					ident =	new PersonIdent(MessageFormat.format("{0}/{1}", user.getDisplayName(), user.username),
 						user.emailAddress == null ? user.username : user.emailAddress);
+				}
 
 				// Create a commit object
 				CommitBuilder commit = new CommitBuilder();
@@ -339,23 +368,9 @@ public class PushLogUtils {
 				continue;
 			}
 
-			String name = push.getAuthorIdent().getName();
-			String username;
-			String displayname;
-			if (name.indexOf('/') > -1) {
-				int slash = name.indexOf('/');
-				displayname = name.substring(0, slash);
-				username = name.substring(slash + 1);
-			} else {
-				displayname = name;
-				username = push.getAuthorIdent().getEmailAddress();
-			}
-			
-			UserModel user = new UserModel(username);
-			user.displayName = displayname;
-			user.emailAddress = push.getAuthorIdent().getEmailAddress();
-			
+			UserModel user = newUserModelFrom(push.getAuthorIdent());
 			Date date = push.getAuthorIdent().getWhen();
+			
 			PushLogEntry log = new PushLogEntry(repositoryName, date, user);
 			list.add(log);
 			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);
@@ -413,14 +428,22 @@ public class PushLogUtils {
 			int maxCount) {
 		// break the push log into ref push logs and then merge them back into a list
 		Map<String, List<PushLogEntry>> refMap = new HashMap<String, List<PushLogEntry>>();
-		for (PushLogEntry push : getPushLog(repositoryName, repository, offset, maxCount)) {
+        List<PushLogEntry> pushes = getPushLog(repositoryName, repository, offset, maxCount);
+		for (PushLogEntry push : pushes) {
 			for (String ref : push.getChangedRefs()) {
 				if (!refMap.containsKey(ref)) {
 					refMap.put(ref, new ArrayList<PushLogEntry>());
 				}
 				
 				// construct new ref-specific push log entry
-				PushLogEntry refPush = new PushLogEntry(push.repository, push.date, push.user);
+				PushLogEntry refPush;
+				if (push instanceof DailyLogEntry) {
+					// simulated push log from commits grouped by date
+					refPush = new DailyLogEntry(push.repository, push.date);
+				} else {
+					// real push log entry
+					refPush = new PushLogEntry(push.repository, push.date, push.user);
+				}
 				refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
 				refPush.addCommits(push.getCommits(ref));
 				refMap.get(ref).add(refPush);
@@ -451,15 +474,16 @@ public class PushLogUtils {
 	public static List<PushLogEntry> getPushLogByRef(String repositoryName, Repository repository,  Date minimumDate) {
 		// break the push log into ref push logs and then merge them back into a list
 		Map<String, List<PushLogEntry>> refMap = new HashMap<String, List<PushLogEntry>>();
-		for (PushLogEntry push : getPushLog(repositoryName, repository, minimumDate)) {
+		List<PushLogEntry> pushes = getPushLog(repositoryName, repository, minimumDate);
+		for (PushLogEntry push : pushes) {
 			for (String ref : push.getChangedRefs()) {
 				if (!refMap.containsKey(ref)) {
 					refMap.put(ref, new ArrayList<PushLogEntry>());
 				}
-				
-				// construct new ref-specific push log entry
-				PushLogEntry refPush = new PushLogEntry(push.repository, push.date, push.user);
-				refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
+
+                // construct new ref-specific push log entry
+                PushLogEntry refPush = new PushLogEntry(push.repository, push.date, push.user);
+                refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
 				refPush.addCommits(push.getCommits(ref));
 				refMap.get(ref).add(refPush);
 			}
@@ -476,4 +500,106 @@ public class PushLogUtils {
 		
 		return refPushLog;
 	}
+
+    /**
+     * Returns a commit log grouped by day.
+     *
+     * @param repositoryName
+     * @param repository
+     * @param minimumDate
+     * @param offset
+     * @param maxCount
+     * 			if < 0, all pushes are returned.
+     * @return a list of grouped commit log entries
+     */
+    public static List<DailyLogEntry> getDailyLog(String repositoryName, Repository repository,
+                                                 Date minimumDate, int offset, int maxCount) {
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+//		df.setTimeZone(timezone);
+
+        Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
+        Map<String, DailyLogEntry> tags = new HashMap<String, DailyLogEntry>();
+        Map<String, DailyLogEntry> dailydigests = new HashMap<String, DailyLogEntry>();
+        for (RefModel local : JGitUtils.getLocalBranches(repository, true, -1)) {
+            String branch = local.getName();
+            List<RevCommit> commits = JGitUtils.getRevLog(repository, branch, minimumDate);
+            for (RevCommit commit : commits) {
+                Date date = JGitUtils.getCommitDate(commit);
+                String dateStr = df.format(date);
+                if (!dailydigests.containsKey(dateStr)) {
+                    dailydigests.put(dateStr, new DailyLogEntry(repositoryName, date));
+                }
+                PushLogEntry digest = dailydigests.get(dateStr);
+                digest.updateRef(branch, ReceiveCommand.Type.UPDATE, commit.getParents()[0].getId().getName(), commit.getName());
+                RepositoryCommit repoCommit = digest.addCommit(branch, commit);
+                if (repoCommit != null) {
+                    repoCommit.setRefs(allRefs.get(commit.getId()));
+                    if (!ArrayUtils.isEmpty(repoCommit.getRefs())) {
+                        // treat tags as special events in the log
+                        for (RefModel ref : repoCommit.getRefs()) {
+                            if (ref.getName().startsWith(Constants.R_TAGS)) {
+                                if (!tags.containsKey(dateStr)) {
+                        			UserModel tagUser = newUserModelFrom(commit.getAuthorIdent());
+                        			Date tagDate = commit.getAuthorIdent().getWhen();
+                                    tags.put(dateStr, new DailyLogEntry(repositoryName, tagDate, tagUser));
+                                }
+                                PushLogEntry tagEntry = tags.get(dateStr);
+                                tagEntry.updateRef(ref.getName(), ReceiveCommand.Type.CREATE);
+                                tagEntry.addCommits(Arrays.asList(repoCommit));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        List<DailyLogEntry> list = new ArrayList<DailyLogEntry>(dailydigests.values());
+        list.addAll(tags.values());
+        Collections.sort(list);
+        return list;
+    }
+
+    /**
+     * Returns the list of commits separated by ref (e.g. each ref has it's own
+     * PushLogEntry object for each day).
+     *
+     * @param repositoryName
+     * @param repository
+     * @param minimumDate
+     * @return a list of push log entries separated by ref and date
+     */
+    public static List<DailyLogEntry> getDailyLogByRef(String repositoryName, Repository repository,  Date minimumDate) {
+        // break the push log into ref push logs and then merge them back into a list
+        Map<String, List<DailyLogEntry>> refMap = new HashMap<String, List<DailyLogEntry>>();
+        List<DailyLogEntry> pushes = getDailyLog(repositoryName, repository, minimumDate, 0, -1);
+        for (DailyLogEntry push : pushes) {
+            for (String ref : push.getChangedRefs()) {
+                if (!refMap.containsKey(ref)) {
+                    refMap.put(ref, new ArrayList<DailyLogEntry>());
+                }
+
+                // construct new ref-specific push log entry
+                DailyLogEntry refPush = new DailyLogEntry(push.repository, push.date, push.user);
+                refPush.updateRef(ref, push.getChangeType(ref), push.getOldId(ref), push.getNewId(ref));
+                refPush.addCommits(push.getCommits(ref));
+                refMap.get(ref).add(refPush);
+            }
+        }
+
+        // merge individual ref pushes into master list
+        List<DailyLogEntry> refPushLog = new ArrayList<DailyLogEntry>();
+        for (List<DailyLogEntry> refPush : refMap.values()) {
+        	for (DailyLogEntry entry : refPush) {
+        		if (entry.getCommitCount() > 0) {
+        			refPushLog.add(entry);
+        		}
+        	}
+        }
+
+        // sort ref push log
+        Collections.sort(refPushLog);
+
+        return refPushLog;
+    }
 }

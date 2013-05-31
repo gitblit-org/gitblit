@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+	<div class="markdown" style="padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
+	
+	<div class="row">
+		<div class="span7">
+			<div class="hidden-phone hidden-tablet"  style="text-align:center;">
+				<table>
+					<tr>
+						<td><div id="chartRepositories" style="display:inline-block;width: 175px; height:175px"></div></td>
+						<td><div id="chartAuthors" style="display:inline-block;width: 175px; height: 175px;"></div></td>
+					</tr>
+				</table>
+			</div>
+			<div wicket:id="pushes"></div>
+		</div>
+		<div class="span5">
+			<div wicket:id="active">[active]</div>
+			<div wicket:id="starred">[starred]</div>
+			<div wicket:id="owned">[owned]</div>
+		</div>
+		
+	</div>
+</div>
+
+<wicket:fragment wicket:id="starredListFragment">
+	<div ng-controller="starredCtrl" style="border: 1px solid #ddd;border-radius: 4px;margin-bottom: 20px;">
+		<div class="header" style="padding: 5px;border: none;"><i class="icon-star"></i> <wicket:message key="gb.starredRepositories"></wicket:message> ({{starred.length}})
+			<div class="pull-right">
+				<a class="btn btn-mini">more</a>
+			</div>
+			<div style="padding: 5px 0px 0px;">
+				<input type="text" ng-model="query.r" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
+			</div>
+		</div>
+		
+		<div ng-repeat="item in starred | limitTo: 20 | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
+			<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
+			<a href="summary/?r={{item.r}}">{{item.p}}<b>{{item.n}}</b></a>
+			<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
+			<span ng-show="item.s" class="pull-right">
+				<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i class="iconic-star"></i></span>
+			</span>
+		</div>
+		
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="ownedListFragment">
+	<div ng-controller="ownedCtrl" style="border: 1px solid #ddd;border-radius: 4px;">
+		<div class="header" style="padding: 5px;border: none;"><i class="icon-user"></i> <wicket:message key="gb.myRepositories"></wicket:message> ({{owned.length}})
+			<div class="pull-right">
+				<span wicket:id="create"></span>
+			</div>
+			<div style="padding: 5px 0px 0px;">
+				<input type="text" ng-model="query.r" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
+			</div>
+		</div>
+		
+		<div ng-repeat="item in owned | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
+			<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
+			<a href="summary/?r={{item.r}}">{{item.p}}<b>{{item.n}}</b></a>
+			<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
+			<span ng-show="item.s" class="pull-right">
+				<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i class="iconic-star"></i></span>
+			</span>
+		</div>		
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="activeListFragment">
+	<div ng-controller="activeCtrl" style="border: 1px solid #ddd;border-radius: 4px;">
+		<div class="header" style="padding: 5px;border: none;"><i class="icon-user"></i> <wicket:message key="gb.activeRepositories"></wicket:message> ({{active.length}})
+			<div style="padding: 5px 0px 0px;">
+				<input type="text" ng-model="query.r" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
+			</div>
+		</div>
+		
+		<div ng-repeat="item in active | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
+			<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
+			<a href="summary/?r={{item.r}}">{{item.p}}<b>{{item.n}}</b></a>
+			<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
+			<span ng-show="item.s" class="pull-right">
+				<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i class="iconic-star"></i></span>
+			</span>
+		</div>		
+	</div>
+</wicket:fragment>
+
+</wicket:extend>
+</body>
+</html>

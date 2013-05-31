@@ -29,6 +29,7 @@ import org.eclipse.jgit.lib.Repository;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.PushLogEntry;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
@@ -51,7 +52,7 @@ public class PushesPanel extends BasePanel {
 	
 	private boolean hasMore;
 
-	public PushesPanel(String wicketId, final RepositoryModel model, Repository r, int limit, int pageOffset) {
+	public PushesPanel(String wicketId, final RepositoryModel model, Repository r, int limit, int pageOffset, boolean showRepo) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
 		int pushesPerPage = GitBlit.getInteger(Keys.web.pushesPerPage, 10);
@@ -71,7 +72,7 @@ public class PushesPanel extends BasePanel {
 		hasMore = pushes.size() >= pushesPerPage;
 		hasPushes = pushes.size() > 0;
 		
-		setup(pushes);
+		setup(pushes, showRepo);
 		
 		// determine to show pager, more, or neither
 		if (limit <= 0) {
@@ -99,11 +100,11 @@ public class PushesPanel extends BasePanel {
 	public PushesPanel(String wicketId, List<PushLogEntry> pushes) {
 		super(wicketId);
 		hasPushes = pushes.size() > 0;
-		setup(pushes);
+		setup(pushes, true);
 		add(new Label("morePushes").setVisible(false));
 	}
 	
-	protected void setup(List<PushLogEntry> pushes) {
+	protected void setup(List<PushLogEntry> pushes, final boolean showRepo) {
 		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 
 		ListDataProvider<PushLogEntry> dp = new ListDataProvider<PushLogEntry>(pushes);
@@ -121,36 +122,58 @@ public class PushesPanel extends BasePanel {
 					shortRefName = shortRefName.substring(org.eclipse.jgit.lib.Constants.R_TAGS.length());
 					isTag = true;
 				}
+				boolean isDigest = push instanceof DailyLogEntry;
 				
 				pushItem.add(WicketUtils.createDateLabel("whenPushed", push.date, getTimeZone(), getTimeUtils()));
 				Label pushIcon = new Label("pushIcon");
+				if (showRepo) {
+					// if we are showing the repo, we are showing multiple
+					// repos.  use the repository hash color to differentiate
+					// the icon.
+	                String color = StringUtils.getColor(StringUtils.stripDotGit(push.repository));
+	                WicketUtils.setCssStyle(pushIcon, "color: " + color);
+				}
 				if (isTag) {
 					WicketUtils.setCssClass(pushIcon, "iconic-tag");
-				} else {
+				} else if (isDigest) {
 					WicketUtils.setCssClass(pushIcon, "iconic-loop");
+				} else {
+					WicketUtils.setCssClass(pushIcon, "iconic-upload");
 				}
 				pushItem.add(pushIcon);
-				if (push.user.username.equals(push.user.emailAddress) && push.user.emailAddress.indexOf('@') > -1) {
-					// username is an email address - 1.2.1 push log bug
-					pushItem.add(new Label("whoPushed", push.user.getDisplayName()));
-				} else {
-					// link to user acount page
-					pushItem.add(new LinkPanel("whoPushed", null, push.user.getDisplayName(),
-						UserPage.class, WicketUtils.newUsernameParameter(push.user.username)));
-				}
+
+                if (isDigest && !isTag) {
+                	pushItem.add(new Label("whoPushed").setVisible(false));
+                } else {
+                	if (push.user.username.equals(push.user.emailAddress) && push.user.emailAddress.indexOf('@') > -1) {
+                		// username is an email address - 1.2.1 push log bug
+                		pushItem.add(new Label("whoPushed", push.user.getDisplayName()));
+                	} else {
+                		// link to user account page
+                		pushItem.add(new LinkPanel("whoPushed", null, push.user.getDisplayName(),
+                				UserPage.class, WicketUtils.newUsernameParameter(push.user.username)));
+                	}
+                }
 				
-				String preposition = "gb.at";
+				String preposition = "gb.of";
 				boolean isDelete = false;
 				boolean isRewind = false;
 				String what;
+				String by = null;
 				switch(push.getChangeType(fullRefName)) {
 				case CREATE:
 					if (isTag) {
-						what = getString("gb.pushedNewTag");
+						if (isDigest) {
+							what = getString("gb.createdNewTag");
+							preposition = "gb.in";
+						} else {
+							what = getString("gb.pushedNewTag");
+							preposition = "gb.to";
+						}
 					} else {
 						what = getString("gb.pushedNewBranch");
+						preposition = "gb.to";
 					}
-					preposition = "gb.to";
 					break;
 				case DELETE:
 					isDelete = true;
@@ -164,10 +187,21 @@ public class PushesPanel extends BasePanel {
 				case UPDATE_NONFASTFORWARD:
 					isRewind = true;
 				default:
-					what = MessageFormat.format(push.getCommitCount() > 1 ? getString("gb.pushedNCommitsTo") : getString("gb.pushedOneCommitTo") , push.getCommitCount());
+					if (isDigest) {
+						what = MessageFormat.format(push.getCommitCount() > 1 ? getString("gb.commitsTo") : getString("gb.oneCommitTo"), push.getCommitCount());
+					} else {
+						what = MessageFormat.format(push.getCommitCount() > 1 ? getString("gb.pushedNCommitsTo") : getString("gb.pushedOneCommitTo") , push.getCommitCount());
+					}
+					
+					if (push.getAuthorCount() == 1) {
+						by = MessageFormat.format(getString("gb.byOneAuthor"), push.getAuthorIdent().getName());
+					} else {
+						by = MessageFormat.format(getString("gb.byNAuthors"), push.getAuthorCount());	
+					}
 					break;
 				}
 				pushItem.add(new Label("whatPushed", what));
+				pushItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
 				
 				pushItem.add(new Label("refRewind", getString("gb.rewind")).setVisible(isRewind));
 				
@@ -184,13 +218,20 @@ public class PushesPanel extends BasePanel {
 						TreePage.class, WicketUtils.newObjectParameter(push.repository, fullRefName)));
 				}
 				
-				// to/from/etc
-				pushItem.add(new Label("repoPreposition", getString(preposition)));
-				
-				String repoName = StringUtils.stripDotGit(push.repository);
-				pushItem.add(new LinkPanel("repoPushed", null, repoName,
-						SummaryPage.class, WicketUtils.newRepositoryParameter(push.repository)));
+				if (showRepo) {
+					// to/from/etc
+					pushItem.add(new Label("repoPreposition", getString(preposition)));
 
+					String repoName = StringUtils.stripDotGit(push.repository);
+					pushItem.add(new LinkPanel("repoPushed", null, repoName,
+							SummaryPage.class, WicketUtils.newRepositoryParameter(push.repository)));
+				} else {
+					// do not display repository name if we are viewing the push
+					// log of a repository.
+					pushItem.add(new Label("repoPreposition").setVisible(false));
+					pushItem.add(new Label("repoPushed").setVisible(false));
+				}
+				
 				int maxCommitCount = 5;
 				List<RepositoryCommit> commits = push.getCommits();
 				if (commits.size() > maxCommitCount) {
@@ -212,6 +253,8 @@ public class PushesPanel extends BasePanel {
 					String startRangeId = push.getOldId(fullRefName);
 					pushItem.add(new LinkPanel("compareLink", null, compareLinkText, ComparePage.class, WicketUtils.newRangeParameter(push.repository, startRangeId, endRangeId)));
 				}
+				
+				final boolean showSwatch = showRepo && GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
 				
 				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(commits);
 				DataView<RepositoryCommit> commitsView = new DataView<RepositoryCommit>("commit", cdp) {
@@ -254,15 +297,20 @@ public class PushesPanel extends BasePanel {
 						WicketUtils.setCssClass(commitHash, "shortsha1");
 						WicketUtils.setHtmlTooltip(commitHash, commit.getName());
 						commitItem.add(commitHash);
+						
+						if (showSwatch) {
+							// set repository color
+							String color = StringUtils.getColor(StringUtils.stripDotGit(push.repository));
+							WicketUtils.setCssStyle(commitItem, MessageFormat.format("border-left: 2px solid {0};", color));
+						}
 					}
 				};
-				
+
 				pushItem.add(commitsView);
 			}
 		};
+		
 		add(pushView);
-
-
 	}
 
 	public boolean hasMore() {

@@ -40,6 +40,7 @@ r17: {
 	 
     additions: 
      - Added simple star/unstar function to flag or bookmark interesting repositories
+     - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
 	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
 	 - Added client application menus for Git, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
 	 - Added GO http/https connector thread pool size setting
@@ -88,6 +89,7 @@ r17: {
 	dependencyChanges:
 	- JGit 3.0.0-SNAPSHOT
 	- Iconic font
+	- AngularJS 1.0.7
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }

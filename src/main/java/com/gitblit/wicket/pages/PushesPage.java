@@ -33,7 +33,7 @@ public class PushesPage extends RepositoryPage {
 		int nextPage = pageNumber + 1;
 
 		PushesPanel pushesPanel = new PushesPanel("pushesPanel", getRepositoryModel(), getRepository(), -1,
-				pageNumber - 1);
+				pageNumber - 1, false);
 		boolean hasMore = pushesPanel.hasMore();
 		add(pushesPanel);
 

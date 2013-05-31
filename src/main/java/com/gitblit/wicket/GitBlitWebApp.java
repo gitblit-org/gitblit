@@ -44,6 +44,7 @@ import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
+import com.gitblit.wicket.pages.DashboardPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
@@ -68,7 +69,7 @@ import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
-	public final static Class<? extends BasePage> HOME_PAGE_CLASS = RepositoriesPage.class;
+	public final static Class<? extends BasePage> HOME_PAGE_CLASS = DashboardPage.class;
 	
 	@Override
 	public void init() {
@@ -94,7 +95,7 @@ public class GitBlitWebApp extends WebApplication {
 		}
 
 		// setup the standard gitweb-ish urls
-//		mount("/repositories", RepositoriesPage.class);
+		mount("/repositories", RepositoriesPage.class);
 		mount("/overview", OverviewPage.class, "r", "h");
 		mount("/summary", SummaryPage.class, "r");
 		mount("/pushes", PushesPage.class, "r", "h");

@@ -54,6 +54,8 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	private final Map<String, ReceiveCommand.Type> refUpdates;
 	
 	private final Map<String, String> refIdChanges;
+	
+	private int authorCount;
 
 	/**
 	 * Constructor for specified duration of push from start date.
@@ -72,6 +74,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		this.commits = new LinkedHashSet<RepositoryCommit>();
 		this.refUpdates = new HashMap<String, ReceiveCommand.Type>();
 		this.refIdChanges = new HashMap<String, String>();
+		this.authorCount = -1;
 	}
 	
 	/**
@@ -152,6 +155,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	public RepositoryCommit addCommit(String branch, RevCommit commit) {
 		RepositoryCommit commitModel = new RepositoryCommit(repository, branch, commit);
 		if (commits.add(commitModel)) {
+			authorCount = -1;
 			return commitModel;
 		}
 		return null;
@@ -165,6 +169,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	 */
 	public void addCommits(List<RepositoryCommit> list) {
 		commits.addAll(list);
+		authorCount = -1;
 	}
 	
 	/**
@@ -252,6 +257,18 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 		List<String> list = new ArrayList<String>(refs);
 		Collections.sort(list);
 		return list;
+	}
+	
+	public int getAuthorCount() {
+		if (authorCount == -1) {
+			Set<String> authors = new HashSet<String>();
+			for (RepositoryCommit commit : commits) {
+				String name = commit.getAuthorIdent().getName();
+				authors.add(name);
+			}
+			authorCount = authors.size();
+		}
+		return authorCount;
 	}
 	
 	/**

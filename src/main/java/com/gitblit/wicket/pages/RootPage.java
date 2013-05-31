@@ -118,8 +118,8 @@ public abstract class RootPage extends BasePage {
 		// navigation links
 		List<PageRegistration> pages = new ArrayList<PageRegistration>();
 		if (!authenticateView || (authenticateView && GitBlitWebSession.get().isLoggedIn())) {
-//			pages.add(new PageRegistration("gb.home", HomePage.class,
-//					getRootPageParameters()));
+			pages.add(new PageRegistration("gb.dashboard", DashboardPage.class,
+					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.repositories", RepositoriesPage.class,
 					getRootPageParameters()));
 			pages.add(new PageRegistration("gb.activity", ActivityPage.class, getRootPageParameters()));
