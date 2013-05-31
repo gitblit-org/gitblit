@@ -92,7 +92,7 @@ public class AddIndexedBranch {
 				config.load();
 				
 				Set<String> indexedBranches = new LinkedHashSet<String>();
-				indexedBranches.add(Constants.DEFAULT_BRANCH);
+				indexedBranches.add(params.branch);
 				
 				String [] branches = config.getStringList("gitblit", null, "indexBranch");
 				if (!ArrayUtils.isEmpty(branches)) {
