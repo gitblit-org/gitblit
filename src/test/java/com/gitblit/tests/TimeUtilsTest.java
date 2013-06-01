@@ -43,12 +43,12 @@ public class TimeUtilsTest {
 
 	@Test
 	public void testToday() throws Exception {
-		assertTrue(TimeUtils.isToday(new Date()));
+		assertTrue(TimeUtils.isToday(new Date(), null));
 	}
 
 	@Test
 	public void testYesterday() throws Exception {
-		assertTrue(TimeUtils.isYesterday(offset(TimeUtils.ONEDAY)));
+		assertTrue(TimeUtils.isYesterday(offset(TimeUtils.ONEDAY), null));
 	}
 
 	@Test

@@ -186,6 +186,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		return !accessRestriction.atLeast(AccessRestrictionType.VIEW);
 	}
 	
+	public boolean isShowActivity() {
+		return maxActivityCommits > -1;
+	}
+	
 	public boolean isSparkleshared() {
 		return !StringUtils.isEmpty(sparkleshareId);
 	}

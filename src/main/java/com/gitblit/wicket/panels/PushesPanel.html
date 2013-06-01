@@ -9,13 +9,18 @@
 <div wicket:id="push" class="push">
 	<table style="padding: 3px 0px;">
 	<tr>
-		<td class="hidden-phone" style="vertical-align: top;padding-top:10px"><i wicket:id="pushIcon"></i></td>
-		<td style="padding-left: 7px;">
+		<td class="icon hidden-phone"><i wicket:id="pushIcon"></i></td>
+		<td style="padding-left: 7px;vertical-align:middle;">
 			<div>
-				<span wicket:id="whenPushed"></span> <span wicket:id="refRewind" class="alert alert-error" style="padding: 1px 5px;font-size: 10px;font-weight: bold;margin-left: 10px;">[rewind]</span>
+				<span style="color:#aaa;" wicket:id="whenPushed"></span> <span wicket:id="refRewind" class="alert alert-error" style="padding: 1px 5px;font-size: 10px;font-weight: bold;margin-left: 10px;">[rewind]</span>
 			</div>
 			<div style="font-weight:bold;"><span wicket:id="whoPushed">[pusher]</span> <span wicket:id="whatPushed"></span><span wicket:id="refPushed"></span> <span wicket:id="repoPreposition"></span> <span wicket:id="repoPushed"></span> <span wicket:id="byAuthors"></span></div>
-			<div style="padding: 10px 0px 5px;">
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td style="padding-left: 7px;">
+			<div>
 				<table>
 					<tr wicket:id="commit">
 						<td class="hidden-phone hidden-tablet" style="vertical-align:top;padding-left:7px;"><span wicket:id="commitAuthor"></span></td>

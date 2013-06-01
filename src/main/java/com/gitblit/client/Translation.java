@@ -43,7 +43,7 @@ public class Translation {
 		}
 		translation = bundle;
 		
-		timeUtils = new TimeUtils(translation);
+		timeUtils = new TimeUtils(translation, null);
 	}
 
 	public static String get(String key) {

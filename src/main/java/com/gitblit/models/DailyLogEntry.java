@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.transport.ReceiveCommand;
 
 /**
  * Model class to simulate a push for presentation in the push log news feed
@@ -56,4 +57,25 @@ public class DailyLogEntry extends PushLogEntry implements Serializable {
 		
 		return super.getAuthorIdent();
 	}
+	
+	/**
+	 * Tracks the change type for the specified ref.
+	 * 
+	 * @param ref
+	 * @param type
+	 * @param oldId
+	 * @param newId
+	 */
+	public void updateRef(String ref, ReceiveCommand.Type type, String oldId, String newId) {
+		// daily digests are filled from most recent to oldest 
+		String preservedNewId = getNewId(ref);
+		if (preservedNewId == null) {
+			// no preserved new id, this is newest commit
+			// for this ref
+			preservedNewId = newId;
+		}
+		refUpdates.put(ref, type);
+		refIdChanges.put(ref, oldId + "-" + preservedNewId);
+	}
+
 }

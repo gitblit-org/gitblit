@@ -100,7 +100,7 @@ public abstract class BasePage extends SessionPage {
 			} catch (Throwable t) {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
 			}
-			timeUtils = new TimeUtils(bundle);
+			timeUtils = new TimeUtils(bundle, getTimeZone());
 		}
 		return timeUtils;
 	}
@@ -125,6 +125,9 @@ public abstract class BasePage extends SessionPage {
 
 	protected void setupPage(String repositoryName, String pageName) {
 		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
+		if (StringUtils.isEmpty(siteName)) {
+			siteName = Constants.NAME;
+		}
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
 			add(new Label("title", repositoryName + " - " + siteName));
 		} else {

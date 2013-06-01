@@ -15,9 +15,14 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
@@ -35,6 +40,7 @@ import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.PushLogUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
@@ -107,6 +113,12 @@ public class PushesPanel extends BasePanel {
 	protected void setup(List<PushLogEntry> pushes, final boolean showRepo) {
 		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 
+		String dateFormat = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
+		final TimeZone timezone = getTimeZone();
+		final DateFormat df = new SimpleDateFormat(dateFormat);
+		df.setTimeZone(timezone);
+		final Calendar cal = Calendar.getInstance(timezone);
+		
 		ListDataProvider<PushLogEntry> dp = new ListDataProvider<PushLogEntry>(pushes);
 		DataView<PushLogEntry> pushView = new DataView<PushLogEntry>("push", dp) {
 			private static final long serialVersionUID = 1L;
@@ -116,15 +128,41 @@ public class PushesPanel extends BasePanel {
 				String fullRefName = push.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
 				boolean isTag = false;
-				if (shortRefName.startsWith(org.eclipse.jgit.lib.Constants.R_HEADS)) {
-					shortRefName = shortRefName.substring(org.eclipse.jgit.lib.Constants.R_HEADS.length());
-				} else if (shortRefName.startsWith(org.eclipse.jgit.lib.Constants.R_TAGS)) {
-					shortRefName = shortRefName.substring(org.eclipse.jgit.lib.Constants.R_TAGS.length());
+				boolean isPull = false;
+				if (shortRefName.startsWith(Constants.R_HEADS)) {
+					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
+				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
+					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
 					isTag = true;
+				} else if (shortRefName.startsWith(Constants.R_PULL)) {
+					shortRefName = "#" + shortRefName.substring(Constants.R_PULL.length());
+					if (shortRefName.endsWith("/head")) {
+						// strip pull request head from name 
+						shortRefName = shortRefName.substring(0, shortRefName.length() - "/head".length());
+					}					
+					isPull = true;
 				}
 				boolean isDigest = push instanceof DailyLogEntry;
 				
-				pushItem.add(WicketUtils.createDateLabel("whenPushed", push.date, getTimeZone(), getTimeUtils()));
+				String fuzzydate;
+				TimeUtils tu = getTimeUtils();
+				Date pushDate = push.date;
+				if (TimeUtils.isToday(pushDate, timezone)) {
+					fuzzydate = tu.today();
+				} else if (TimeUtils.isYesterday(pushDate, timezone)) {
+					fuzzydate = tu.yesterday();
+				} else {
+					// calculate a fuzzy time ago date
+                	cal.setTime(pushDate);
+                	cal.set(Calendar.HOUR_OF_DAY, 0);
+                	cal.set(Calendar.MINUTE, 0);
+                	cal.set(Calendar.SECOND, 0);
+                	cal.set(Calendar.MILLISECOND, 0);
+                	pushDate = cal.getTime();
+					fuzzydate = getTimeUtils().timeAgo(pushDate);
+				}
+				pushItem.add(new Label("whenPushed", fuzzydate + ", " + df.format(pushDate)));
+
 				Label pushIcon = new Label("pushIcon");
 				if (showRepo) {
 					// if we are showing the repo, we are showing multiple
@@ -135,6 +173,8 @@ public class PushesPanel extends BasePanel {
 				}
 				if (isTag) {
 					WicketUtils.setCssClass(pushIcon, "iconic-tag");
+				} else if (isPull) {
+					WicketUtils.setCssClass(pushIcon, "iconic-share");
 				} else if (isDigest) {
 					WicketUtils.setCssClass(pushIcon, "iconic-loop");
 				} else {
@@ -163,6 +203,7 @@ public class PushesPanel extends BasePanel {
 				switch(push.getChangeType(fullRefName)) {
 				case CREATE:
 					if (isTag) {
+						// new tag
 						if (isDigest) {
 							what = getString("gb.createdNewTag");
 							preposition = "gb.in";
@@ -170,7 +211,12 @@ public class PushesPanel extends BasePanel {
 							what = getString("gb.pushedNewTag");
 							preposition = "gb.to";
 						}
+					} else if (isPull) {
+						// merged pull request
+						what = getString("gb.mergedPullRequest");
+						preposition = "gb.in";
 					} else {
+						// new branch
 						if (isDigest) {
 							what = getString("gb.createdNewBranch");
 							preposition = "gb.in";
@@ -183,6 +229,8 @@ public class PushesPanel extends BasePanel {
 				case DELETE:
 					isDelete = true;
 					if (isTag) {
+						what = getString("gb.deletedTag");
+					} if (isPull) {
 						what = getString("gb.deletedTag");
 					} else {
 						what = getString("gb.deletedBranch");
@@ -215,6 +263,10 @@ public class PushesPanel extends BasePanel {
 					pushItem.add(new Label("refPushed", shortRefName));
 				} else if (isTag) {
 					// link to tag
+					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
+							TagPage.class, WicketUtils.newObjectParameter(push.repository, fullRefName)));
+				} else if (isPull) {
+					// link to pull request
 					pushItem.add(new LinkPanel("refPushed", null, shortRefName,
 							TagPage.class, WicketUtils.newObjectParameter(push.repository, fullRefName)));
 				} else {

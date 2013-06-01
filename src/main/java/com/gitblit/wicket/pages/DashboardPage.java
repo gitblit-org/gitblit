@@ -29,8 +29,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -103,6 +106,9 @@ public class DashboardPage extends RootPage {
 		add(repositoriesMessage);
 
 		UserModel user = GitBlitWebSession.get().getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
 
 		Comparator<RepositoryModel> lastUpdateSort = new Comparator<RepositoryModel>() {
 			@Override
@@ -111,33 +117,6 @@ public class DashboardPage extends RootPage {
 			}
 		};
 		
-		Map<String, RepositoryModel> reposMap = new HashMap<String, RepositoryModel>();
-
-		// owned repositories 
-		List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
-		if (user != null && !UserModel.ANONYMOUS.equals(user)) {
-			for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
-				reposMap.put(model.name, model);
-				if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
-					owned.add(model);
-				}
-			}
-		}
-		Collections.sort(owned, lastUpdateSort);
-
-		// starred repositories
-		List<RepositoryModel> starred = new ArrayList<RepositoryModel>();
-		if (user != null && !UserModel.ANONYMOUS.equals(user)) {
-			for (String name : user.getPreferences().getStarredRepositories()) {
-				if (!reposMap.containsKey(name)) {
-					RepositoryModel repo = GitBlit.self().getRepositoryModel(name);
-					reposMap.put(name, repo);
-				}
-				starred.add(reposMap.get(name));
-			}
-		}
-		Collections.sort(starred, lastUpdateSort);
-				
 		// parameters
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
@@ -146,38 +125,61 @@ public class DashboardPage extends RootPage {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
+		TimeZone timezone = getTimeZone();
 		
-		// active repositories (displayed for anonymous users)
+		// build repo lists 
+		List<RepositoryModel> starred = new ArrayList<RepositoryModel>();
+		List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
 		List<RepositoryModel> active = new ArrayList<RepositoryModel>();
-		if (user == null || UserModel.ANONYMOUS.equals(user)) {
-			List<RepositoryModel> list = GitBlit.self().getRepositoryModels(UserModel.ANONYMOUS);
-			for (RepositoryModel model : list) {
-				if (model.lastChange.after(minimumDate)) {
-					active.add(model);
-					reposMap.put(model.name, model);
-				}
+
+		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
+			if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
+				owned.add(model);
 			}
-			Collections.sort(active, lastUpdateSort);
+			
+			if (user.getPreferences().isStarredRepository(model.name)) {
+				starred.add(model);
+			}
+			
+			if (model.isShowActivity() && model.lastChange.after(minimumDate)) {
+				active.add(model);
+			}
 		}
 		
-		// show pushlog feed
+		Collections.sort(owned, lastUpdateSort);
+		Collections.sort(starred, lastUpdateSort);
+		Collections.sort(active, lastUpdateSort);
+		
+		Set<RepositoryModel> feedSources = new HashSet<RepositoryModel>();
+		feedSources.addAll(starred);
+		if (feedSources.isEmpty()) {
+			feedSources.addAll(active);
+		}
+		
+		// create daily commit digest feed
 		List<PushLogEntry> pushes = new ArrayList<PushLogEntry>();
-		for (RepositoryModel model : reposMap.values()) {
+		for (RepositoryModel model : feedSources) {
 			Repository repository = GitBlit.self().getRepository(model.name);
-			List<DailyLogEntry> entries = PushLogUtils.getDailyLogByRef(model.name, repository, minimumDate);
+			List<DailyLogEntry> entries = PushLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
 			pushes.addAll(entries);
 			repository.close();
 		}
 		
 		if (pushes.size() == 0) {
-			if (reposMap.size() == 0) {
-				add(new LinkPanel("pushes", null, "find some repositories", RepositoriesPage.class));
+			// quiet or no starred repositories
+			if (feedSources.size() == 0) {
+				if (UserModel.ANONYMOUS.equals(user)) {
+					add(new Label("digests", getString("gb.noActivity")));	
+				} else {
+					add(new LinkPanel("digests", null, getString("gb.findSomeRepositories"), RepositoriesPage.class));
+				}
 			} else {
-				add(new Label("pushes", "all is quiet"));
+				add(new Label("digests", getString("gb.noActivity")));
 			}
 		} else {
+			// show daily commit digest feed
 			Collections.sort(pushes);
-			add(new PushesPanel("pushes", pushes));
+			add(new PushesPanel("digests", pushes));
 		}
 		
 		// add the nifty charts
@@ -187,11 +189,11 @@ public class DashboardPage extends RootPage {
 		}
 		
 		// active repository list
-		if (ArrayUtils.isEmpty(active)) {
-			add(new Label("active").setVisible(false));
-		} else {
+		if (starred.isEmpty()) {
 			Fragment activeView = createNgList("active", "activeListFragment", "activeCtrl", active);
 			add(activeView);
+		} else {
+			add(new Label("active").setVisible(false));
 		}
 		
 		// starred repository list

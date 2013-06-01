@@ -51,9 +51,9 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 
 	private final Set<RepositoryCommit> commits;
 	
-	private final Map<String, ReceiveCommand.Type> refUpdates;
+	protected final Map<String, ReceiveCommand.Type> refUpdates;
 	
-	private final Map<String, String> refIdChanges;
+	protected final Map<String, String> refIdChanges;
 	
 	private int authorCount;
 

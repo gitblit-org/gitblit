@@ -28,10 +28,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.models.RefModel;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
@@ -42,10 +42,6 @@ public class RefsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final String R_CHANGES = "refs/changes/";
-	
-	private static final String R_PULL= "refs/pull/";
-
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
 			Map<ObjectId, List<RefModel>> refs) {
 		this(id, repositoryName, refs.get(c.getId()));
@@ -112,17 +108,17 @@ public class RefsPanel extends Panel {
 					// local head
 					linkClass = LogPage.class;
 					cssClass = "headRef";
-				} else if (name.startsWith(R_CHANGES)) {
+				} else if (name.startsWith(Constants.R_CHANGES)) {
 					// Gerrit change ref
-					name = name.substring(R_CHANGES.length());
+					name = name.substring(Constants.R_CHANGES.length());
 					cssClass = "otherRef";
-				} else if (name.startsWith(R_PULL)) {
+				} else if (name.startsWith(Constants.R_PULL)) {
 					// Pull Request ref
-					name = "pull #" + name.substring(R_PULL.length());
+					name = "pull #" + name.substring(Constants.R_PULL.length());
 					if (name.endsWith("/head")) {
 						// strip pull request head from name 
 						name = name.substring(0, name.length() - "/head".length());
-					}
+					}					
 					cssClass = "pullRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch

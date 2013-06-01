@@ -520,9 +520,9 @@ public class WicketUtils {
 			dateString = df.format(date);
 		}
 		String title = null;
-		if (TimeUtils.isToday(date)) {
+		if (TimeUtils.isToday(date, timeZone)) {
 			title = timeUtils.today();
-		} else if (TimeUtils.isYesterday(date)) {
+		} else if (TimeUtils.isYesterday(date, timeZone)) {
 				title = timeUtils.yesterday();
 		} else if (date.getTime() <= System.currentTimeMillis()) {
 			// past

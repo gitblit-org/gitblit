@@ -81,7 +81,7 @@ public class ActivityUtils {
 
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
-			if (model.maxActivityCommits == -1) {
+			if (!model.isShowActivity()) {
 				// skip this repository
 				continue;
 			}

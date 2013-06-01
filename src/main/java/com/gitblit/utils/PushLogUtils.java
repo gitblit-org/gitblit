@@ -20,7 +20,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
@@ -37,7 +37,6 @@ import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.CommitBuilder;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
@@ -53,6 +52,7 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.PushLogEntry;
@@ -172,7 +172,7 @@ public class PushLogUtils {
 				CommitBuilder commit = new CommitBuilder();
 				commit.setAuthor(ident);
 				commit.setCommitter(ident);
-				commit.setEncoding(Constants.CHARACTER_ENCODING);
+				commit.setEncoding(Constants.ENCODING);
 				commit.setMessage(message);
 				commit.setParentId(headId);
 				commit.setTreeId(indexTreeId);
@@ -272,7 +272,7 @@ public class PushLogUtils {
 				dcEntry.setFileMode(FileMode.REGULAR_FILE);
 
 				// insert object
-				dcEntry.setObjectId(inserter.insert(Constants.OBJ_BLOB, content.getBytes("UTF-8")));
+				dcEntry.setObjectId(inserter.insert(org.eclipse.jgit.lib.Constants.OBJ_BLOB, content.getBytes("UTF-8")));
 
 				// add to temporary in-core index
 				dcBuilder.add(dcEntry);
@@ -510,47 +510,71 @@ public class PushLogUtils {
      * @param offset
      * @param maxCount
      * 			if < 0, all pushes are returned.
+     * @param the timezone to use when aggregating commits by date
      * @return a list of grouped commit log entries
      */
     public static List<DailyLogEntry> getDailyLog(String repositoryName, Repository repository,
-                                                 Date minimumDate, int offset, int maxCount) {
-
+                                                 Date minimumDate, int offset, int maxCount,
+                                                 TimeZone timezone) {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-//		df.setTimeZone(timezone);
+		df.setTimeZone(timezone);
 
         Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
         Map<String, DailyLogEntry> tags = new HashMap<String, DailyLogEntry>();
+        Map<String, DailyLogEntry> pulls = new HashMap<String, DailyLogEntry>();
         Map<String, DailyLogEntry> dailydigests = new HashMap<String, DailyLogEntry>();
+        String linearParent = null;
         for (RefModel local : JGitUtils.getLocalBranches(repository, true, -1)) {
             String branch = local.getName();
             List<RevCommit> commits = JGitUtils.getRevLog(repository, branch, minimumDate);
             for (RevCommit commit : commits) {
+            	if (linearParent != null) {
+            		if (!commit.getName().equals(linearParent)) {
+            			// only follow linear branch commits
+            			continue;
+            		}
+            	}
                 Date date = JGitUtils.getCommitDate(commit);
                 String dateStr = df.format(date);
                 if (!dailydigests.containsKey(dateStr)) {
                     dailydigests.put(dateStr, new DailyLogEntry(repositoryName, date));
                 }
-                PushLogEntry digest = dailydigests.get(dateStr);
+                DailyLogEntry digest = dailydigests.get(dateStr);
                 if (commit.getParentCount() == 0) {
+                	linearParent = null;
                 	digest.updateRef(branch, ReceiveCommand.Type.CREATE);
                 } else {
-                	digest.updateRef(branch, ReceiveCommand.Type.UPDATE, commit.getParents()[0].getId().getName(), commit.getName());
+                	linearParent = commit.getParents()[0].getId().getName();
+                	digest.updateRef(branch, ReceiveCommand.Type.UPDATE, linearParent, commit.getName());
                 }
+                
                 RepositoryCommit repoCommit = digest.addCommit(branch, commit);
                 if (repoCommit != null) {
-                    repoCommit.setRefs(allRefs.get(commit.getId()));
-                    if (!ArrayUtils.isEmpty(repoCommit.getRefs())) {
-                        // treat tags as special events in the log
-                        for (RefModel ref : repoCommit.getRefs()) {
+                	List<RefModel> matchedRefs = allRefs.get(commit.getId());
+                    repoCommit.setRefs(matchedRefs);
+                    
+                    if (!ArrayUtils.isEmpty(matchedRefs)) {
+                        for (RefModel ref : matchedRefs) {
                             if (ref.getName().startsWith(Constants.R_TAGS)) {
+                                // treat tags as special events in the log
                                 if (!tags.containsKey(dateStr)) {
                         			UserModel tagUser = newUserModelFrom(commit.getAuthorIdent());
                         			Date tagDate = commit.getAuthorIdent().getWhen();
-                                    tags.put(dateStr, new DailyLogEntry(repositoryName, tagDate, tagUser));
+                        			tags.put(dateStr, new DailyLogEntry(repositoryName, tagDate, tagUser));
                                 }
                                 PushLogEntry tagEntry = tags.get(dateStr);
                                 tagEntry.updateRef(ref.getName(), ReceiveCommand.Type.CREATE);
-                                tagEntry.addCommits(Arrays.asList(repoCommit));
+                                tagEntry.addCommit(ref.getName(), commit);
+                            } else if (ref.getName().startsWith(Constants.R_PULL)) {
+                                // treat pull requests as special events in the log
+                                if (!pulls.containsKey(dateStr)) {
+                        			UserModel commitUser = newUserModelFrom(commit.getAuthorIdent());
+                        			Date commitDate = commit.getAuthorIdent().getWhen();
+                        			pulls.put(dateStr, new DailyLogEntry(repositoryName, commitDate, commitUser));
+                                }
+                                PushLogEntry pullEntry = pulls.get(dateStr);
+                                pullEntry.updateRef(ref.getName(), ReceiveCommand.Type.CREATE);
+                                pullEntry.addCommit(ref.getName(), commit);
                             }
                         }
                     }
@@ -560,6 +584,7 @@ public class PushLogUtils {
 
         List<DailyLogEntry> list = new ArrayList<DailyLogEntry>(dailydigests.values());
         list.addAll(tags.values());
+        //list.addAll(pulls.values());
         Collections.sort(list);
         return list;
     }
@@ -571,12 +596,14 @@ public class PushLogUtils {
      * @param repositoryName
      * @param repository
      * @param minimumDate
+     * @param the timezone to use when aggregating commits by date
      * @return a list of push log entries separated by ref and date
      */
-    public static List<DailyLogEntry> getDailyLogByRef(String repositoryName, Repository repository,  Date minimumDate) {
+    public static List<DailyLogEntry> getDailyLogByRef(String repositoryName, Repository repository,
+    		Date minimumDate, TimeZone timezone) {
         // break the push log into ref push logs and then merge them back into a list
         Map<String, List<DailyLogEntry>> refMap = new HashMap<String, List<DailyLogEntry>>();
-        List<DailyLogEntry> pushes = getDailyLog(repositoryName, repository, minimumDate, 0, -1);
+        List<DailyLogEntry> pushes = getDailyLog(repositoryName, repository, minimumDate, 0, -1, timezone);
         for (DailyLogEntry push : pushes) {
             for (String ref : push.getChangedRefs()) {
                 if (!refMap.containsKey(ref)) {

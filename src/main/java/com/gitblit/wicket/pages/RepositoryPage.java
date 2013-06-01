@@ -286,8 +286,8 @@ public abstract class RepositoryPage extends RootPage {
 			}
 		}
 		
-		// (un)star link allows a user to star someone else's repository
-		if (user.isAuthenticated && !model.isOwner(user.username) && !model.isUsersPersonalRepository(user.username)) {
+		// (un)star link allows a user to star a repository
+		if (user.isAuthenticated) {
 			PageParameters starParams = DeepCopier.copy(getPageParameters());
 			starParams.put(PARAM_STAR, !user.getPreferences().isStarredRepository(model.name));
 			String toggleStarUrl = getRequestCycle().urlFor(getClass(), starParams).toString();
@@ -301,7 +301,7 @@ public abstract class RepositoryPage extends RootPage {
 				add(new Label("unstarLink").setVisible(false));
 			}
 		} else {
-			// anonymous user or the repository owner is browsing the repository
+			// anonymous user
 			add(new Label("starLink").setVisible(false));
 			add(new Label("unstarLink").setVisible(false));
 		}

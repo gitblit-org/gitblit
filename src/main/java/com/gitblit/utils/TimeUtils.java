@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 /**
  * Utility class of time functions.
@@ -40,12 +41,15 @@ public class TimeUtils {
 	
 	private final ResourceBundle translation;
 	
+	private final TimeZone timezone;
+	
 	public TimeUtils() {
-		this(null);
+		this(null, null);
 	}
 	
-	public TimeUtils(ResourceBundle translation) {
+	public TimeUtils(ResourceBundle translation, TimeZone timezone) {
 		this.translation = translation;
+		this.timezone = timezone;
 	}
 
 	/**
@@ -54,8 +58,13 @@ public class TimeUtils {
 	 * @param date
 	 * @return true if date is today
 	 */
-	public static boolean isToday(Date date) {
-		return (System.currentTimeMillis() - date.getTime()) < ONEDAY;
+	public static boolean isToday(Date date, TimeZone timezone) {
+		Date now = new Date();
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		if (timezone != null) {
+			df.setTimeZone(timezone);
+		}
+		return df.format(now).equals(df.format(date));
 	}
 
 	/**
@@ -64,11 +73,14 @@ public class TimeUtils {
 	 * @param date
 	 * @return true if date is yesterday
 	 */
-	public static boolean isYesterday(Date date) {
+	public static boolean isYesterday(Date date, TimeZone timezone) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		cal.add(Calendar.DATE, -1);
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
+		if (timezone != null) {
+			df.setTimeZone(timezone);
+		}
 		return df.format(cal.getTime()).equals(df.format(date));
 	}
 
@@ -205,7 +217,7 @@ public class TimeUtils {
 	 * @return the string representation of the duration OR the css class
 	 */
 	private String timeAgo(Date date, boolean css) {
-		if (isToday(date) || isYesterday(date)) {
+		if (isToday(date, timezone) || isYesterday(date, timezone)) {
 			int mins = minutesAgo(date, true);
 			if (mins >= 120) {
 				if (css) {

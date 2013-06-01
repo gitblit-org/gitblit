@@ -53,7 +53,7 @@ public abstract class BasePanel extends Panel {
 			} catch (Throwable t) {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp");
 			}
-			timeUtils = new TimeUtils(bundle);
+			timeUtils = new TimeUtils(bundle, getTimeZone());
 		}
 		return timeUtils;
 	}

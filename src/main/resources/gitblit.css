@@ -29,7 +29,12 @@ a:focus {
 	outline: none;
 }
 
-[class^="icon-"], [class*=" icon-"] a i {
+a.btn i {
+	/* override for a links that look like bootstrap buttons */
+	vertical-align: text-bottom;
+}
+
+[class^="icon-"], [class*=" icon-"] i {
 	/* override for a links that look like bootstrap buttons */
 	vertical-align: text-bottom;
 }
@@ -126,11 +131,19 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 
 div.push {
     border-bottom: 1px solid #ddd;
-    margin-bottom: 15px;
+	margin-bottom: 5px;
+	padding-bottom: 5px;
 }
+
+div.push .icon {
+    font-size: 42px;
+    line-height: 42px;
+}
+
 div.push i {
-    font-size:3.25em;
-    color:#bbb;
+    font-size: 42px;
+    color: #bbb;
+    vertical-align: middle;
 }
 
 .repositorynavbar {

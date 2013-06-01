@@ -22,15 +22,13 @@
   [class*="iconic-"] {
     font-style: inherit;
     font-weight: normal;
-    vertical-align: bottom;
+    vertical-align: middle;
   }
   [class*="iconic-"]:before {
     display: inline-block;
     width: 1em;
     font-family: IconicFill;
-    font-size: 0.9em;
     text-align: center;
-    vertical-align: middle;
     content: "";
   }
   .iconic-stroke:before {

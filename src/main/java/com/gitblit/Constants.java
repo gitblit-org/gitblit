@@ -80,13 +80,27 @@ public class Constants {
 	
 	public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
 	
-	public static final String R_GITBLIT = "refs/gitblit/";
-	
 	public static final String baseFolder = "baseFolder";
 	
 	public static final String baseFolder$ = "${" + baseFolder + "}";
 	
 	public static final String contextFolder$ = "${contextFolder}";
+	
+	public static final String HEAD = "HEAD";
+
+	public static final String R_GITBLIT = "refs/gitblit/";
+	
+	public static final String R_HEADS = "refs/heads/";
+	
+	public static final String R_NOTES = "refs/notes/";
+	
+	public static final String R_CHANGES = "refs/changes/";
+	
+	public static final String R_PULL= "refs/pull/";
+
+	public static final String R_TAGS = "refs/tags/";
+	
+	public static final String R_REMOTES = "refs/remotes/";
 
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();
