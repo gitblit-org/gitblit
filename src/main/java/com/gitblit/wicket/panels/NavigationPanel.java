@@ -44,6 +44,9 @@ public class NavigationPanel extends Panel {
 
 			public void populateItem(final Item<PageRegistration> item) {
 				PageRegistration entry = item.getModelObject();
+				if (entry.hiddenPhone) {
+					WicketUtils.setCssClass(item, "hidden-phone");
+				}
 				if (entry instanceof OtherPageLink) {
 					// other link
 					OtherPageLink link = (OtherPageLink) entry;

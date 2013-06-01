@@ -36,6 +36,7 @@ public class PageRegistration implements Serializable {
 	public final String translationKey;
 	public final Class<? extends WebPage> pageClass;
 	public final PageParameters params;
+	public final boolean hiddenPhone;
 
 	public PageRegistration(String translationKey, Class<? extends WebPage> pageClass) {
 		this(translationKey, pageClass, null);
@@ -43,9 +44,15 @@ public class PageRegistration implements Serializable {
 
 	public PageRegistration(String translationKey, Class<? extends WebPage> pageClass,
 			PageParameters params) {
+		this(translationKey, pageClass, params, false);
+	}
+	
+	public PageRegistration(String translationKey, Class<? extends WebPage> pageClass,
+			PageParameters params, boolean hiddenPhone) {
 		this.translationKey = translationKey;
 		this.pageClass = pageClass;
 		this.params = params;
+		this.hiddenPhone = hiddenPhone;
 	}
 
 	/**
@@ -62,6 +69,11 @@ public class PageRegistration implements Serializable {
 
 		public OtherPageLink(String translationKey, String url) {
 			super(translationKey, null);
+			this.url = url;
+		}
+		
+		public OtherPageLink(String translationKey, String url, boolean hiddenPhone) {
+			super(translationKey, null, null, hiddenPhone);
 			this.url = url;
 		}
 	}

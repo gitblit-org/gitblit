@@ -196,22 +196,22 @@ public abstract class RepositoryPage extends RootPage {
 		}		
 		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
-		pages.put("compare", new PageRegistration("gb.compare", ComparePage.class, params));
+		pages.put("compare", new PageRegistration("gb.compare", ComparePage.class, params, true));
 		if (GitBlit.getBoolean(Keys.web.allowForking, true)) {
-			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params));
+			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params, true));
 		}
 
 		// conditional links
 		// per-repository extra page links
 		if (model.useTickets && TicgitUtils.getTicketsBranch(r) != null) {
-			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params));
+			pages.put("tickets", new PageRegistration("gb.tickets", TicketsPage.class, params, true));
 		}
 		if (model.showReadme || model.useDocs) {
-			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params));
+			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params, true));
 		}
 		if (JGitUtils.getPagesBranch(r) != null) {
 			OtherPageLink pagesLink = new OtherPageLink("gb.pages", PagesServlet.asLink(
-					getRequest().getRelativePathPrefixToContextRoot(), repositoryName, null));
+					getRequest().getRelativePathPrefixToContextRoot(), repositoryName, null), true);
 			pages.put("pages", pagesLink);
 		}
 

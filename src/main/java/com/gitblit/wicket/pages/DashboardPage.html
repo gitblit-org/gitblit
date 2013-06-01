@@ -7,7 +7,7 @@
 <body>
 <wicket:extend>
 <div class="container">
-	<div class="markdown" style="padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
+	<div class="hidden-phone markdown" style="padding-bottom:5px;" wicket:id="repositoriesMessage">[repositories message]</div>
 	
 	<div class="row">
 		<div class="span7">
@@ -56,7 +56,7 @@
 <wicket:fragment wicket:id="ownedListFragment">
 	<div ng-controller="ownedCtrl" style="border: 1px solid #ddd;border-radius: 4px;">
 		<div class="header" style="padding: 5px;border: none;"><i class="icon-user"></i> <wicket:message key="gb.myRepositories"></wicket:message> ({{owned.length}})
-			<div class="pull-right">
+			<div class="hidden-phone pull-right">
 				<span wicket:id="create"></span>
 			</div>
 			<div style="padding: 5px 0px 0px;">
