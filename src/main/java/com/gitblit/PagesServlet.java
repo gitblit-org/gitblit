@@ -212,6 +212,7 @@ public class PagesServlet extends HttpServlet {
 				if (resource.endsWith(ext)) {
 					String mkd = new String(content, Constants.ENCODING);
 					content = MarkdownUtils.transformMarkdown(mkd).getBytes(Constants.ENCODING);
+					response.setContentType("text/html; charset=" + Constants.ENCODING);
 					break;
 				}
 			}
