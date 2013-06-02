@@ -150,8 +150,9 @@ public class PagesServlet extends HttpServlet {
 			if (StringUtils.isEmpty(resource)) {
 				// find resource
 				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-				List<String> extensions = new ArrayList<String>(markdownExtensions.size() + 1);
+				List<String> extensions = new ArrayList<String>(markdownExtensions.size() + 2);
 				extensions.add("html");
+				extensions.add("htm");
 				extensions.addAll(markdownExtensions);
 				for (String ext : extensions){
 					String file = "index." + ext;
