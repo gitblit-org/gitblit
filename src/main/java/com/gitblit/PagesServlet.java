@@ -149,8 +149,11 @@ public class PagesServlet extends HttpServlet {
 				// find resource
 				String[] files = { "index.html", "index.htm", "index.mkd" };
 				for (String file : files) {
-					content = JGitUtils.getStringContent(r, tree, file, encodings)
-							.getBytes(Constants.ENCODING);
+					String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
+					if(stringContent == null){
+						continue;
+					}
+					content = stringContent.getBytes(Constants.ENCODING);
 					if (content != null) {
 						resource = file;
 						// assume text/html unless the servlet container
