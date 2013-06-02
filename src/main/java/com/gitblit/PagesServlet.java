@@ -18,6 +18,8 @@ package com.gitblit;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -147,8 +149,12 @@ public class PagesServlet extends HttpServlet {
 			byte[] content = null;
 			if (StringUtils.isEmpty(resource)) {
 				// find resource
-				String[] files = { "index.html", "index.htm", "index.mkd" };
-				for (String file : files) {
+				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+				List<String> extensions = new ArrayList<String>(markdownExtensions.size() + 1);
+				extensions.add("html");
+				extensions.addAll(markdownExtensions);
+				for (String ext : extensions){
+					String file = "index." + ext;
 					String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
 					if(stringContent == null){
 						continue;
