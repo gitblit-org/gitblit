@@ -94,7 +94,10 @@ public class DashboardPage extends RootPage {
 			String message = readMarkdown(messageSource, "login.mkd");
 			Component repositoriesMessage = new Label("repositoriesMessage", message);
 			add(repositoriesMessage.setEscapeModelStrings(false));
-			add(new Label("repositoriesPanel"));
+			add(new Label("digests"));
+			add(new Label("active").setVisible(false));
+			add(new Label("starred").setVisible(false));
+			add(new Label("owned").setVisible(false));
 			return;
 		}
 
