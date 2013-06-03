@@ -18,6 +18,8 @@ package com.gitblit;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -147,10 +149,18 @@ public class PagesServlet extends HttpServlet {
 			byte[] content = null;
 			if (StringUtils.isEmpty(resource)) {
 				// find resource
-				String[] files = { "index.html", "index.htm", "index.mkd" };
-				for (String file : files) {
-					content = JGitUtils.getStringContent(r, tree, file, encodings)
-							.getBytes(Constants.ENCODING);
+				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+				List<String> extensions = new ArrayList<String>(markdownExtensions.size() + 2);
+				extensions.add("html");
+				extensions.add("htm");
+				extensions.addAll(markdownExtensions);
+				for (String ext : extensions){
+					String file = "index." + ext;
+					String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
+					if(stringContent == null){
+						continue;
+					}
+					content = stringContent.getBytes(Constants.ENCODING);
 					if (content != null) {
 						resource = file;
 						// assume text/html unless the servlet container
@@ -209,6 +219,7 @@ public class PagesServlet extends HttpServlet {
 				if (resource.endsWith(ext)) {
 					String mkd = new String(content, Constants.ENCODING);
 					content = MarkdownUtils.transformMarkdown(mkd).getBytes(Constants.ENCODING);
+					response.setContentType("text/html; charset=" + Constants.ENCODING);
 					break;
 				}
 			}
