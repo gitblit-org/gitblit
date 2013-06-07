@@ -50,6 +50,7 @@ r17: {
 	 - Option to automatically tag branch tips on each push with an incremental revision number
      - Implemented multiple repository owners
      - Optional periodic LDAP user and team pre-fetching & synchronization
+	 - Added config setting to use SMTPS
 	 - Added option to index all local branches in AddIndexedBranches tool
      - Display name and version in Tomcat Manager
      - FogBugz post-receive hook script
@@ -66,6 +67,7 @@ r17: {
 	- David Ostrovsky
 	- Egbert Teeselink
 	- Hige Maniya
+	- Hirotaka Honma
 	- Ikslawek
 	- Jay Meyer
 	- John Crygier
@@ -98,6 +100,7 @@ r17: {
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }
 	- { name: 'git.daemonPort', defaultValue: 0 }
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
+	- { name: 'mail.smtps', defaultValue: false }
 	- { name: 'web.allowAppCloneLinks', defaultValue: true }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.overviewPushCount', defaultValue: 5 }
