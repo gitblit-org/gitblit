@@ -60,6 +60,7 @@ public class MailExecutor implements Runnable {
 
 		final String mailUser = settings.getString(Keys.mail.username, null);
 		final String mailPassword = settings.getString(Keys.mail.password, null);
+		final boolean smtps = settings.getBoolean(Keys.mail.smtps, false);
 		boolean authenticate = !StringUtils.isEmpty(mailUser) && !StringUtils.isEmpty(mailPassword);
 		String server = settings.getString(Keys.mail.server, "");
 		if (StringUtils.isEmpty(server)) {
@@ -79,7 +80,7 @@ public class MailExecutor implements Runnable {
 		props.setProperty("mail.smtp.auth", String.valueOf(authenticate));
 		props.setProperty("mail.smtp.auths", String.valueOf(authenticate));
 
-		if (isGMail) {
+		if (isGMail || smtps) {
 			props.setProperty("mail.smtp.starttls.enable", "true");
 			props.put("mail.smtp.socketFactory.port", String.valueOf(port));
 			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
