@@ -261,6 +261,41 @@ public abstract class IStoredSettings {
 	}
 	
 	/**
+	 * Returns a list of space-separated integers from the specified key.
+	 * 
+	 * @param name
+	 * @return list of strings
+	 */
+	public List<Integer> getIntegers(String name) {
+		return getIntegers(name, " ");
+	}
+
+	/**
+	 * Returns a list of integers from the specified key using the specified
+	 * string separator.
+	 * 
+	 * @param name
+	 * @param separator
+	 * @return list of integers
+	 */
+	public List<Integer> getIntegers(String name, String separator) {
+		List<Integer> ints = new ArrayList<Integer>();
+		Properties props = getSettings();
+		if (props.containsKey(name)) {
+			String value = props.getProperty(name);
+			List<String> strings = StringUtils.getStringsFromValue(value, separator);
+			for (String str : strings) {
+				try {
+					int i = Integer.parseInt(str);
+					ints.add(i);
+				} catch (NumberFormatException e) {
+				}
+			}
+		}
+		return ints;
+	}
+	
+	/**
 	 * Returns a map of strings from the specified key.
 	 * 
 	 * @param name

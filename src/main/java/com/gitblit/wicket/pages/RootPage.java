@@ -27,6 +27,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
@@ -178,7 +179,7 @@ public abstract class RootPage extends BasePage {
 
 				// remove days back parameter if it is the default value
 				if (params.containsKey("db")
-						&& params.getInt("db") == GitBlit.getInteger(Keys.web.activityDuration, 14)) {
+						&& params.getInt("db") == GitBlit.getInteger(Keys.web.activityDuration, 7)) {
 					params.remove("db");
 				}
 				return params;
@@ -295,12 +296,15 @@ public abstract class RootPage extends BasePage {
 
 	protected List<DropDownMenuItem> getTimeFilterItems(PageParameters params) {
 		// days back choices - additive parameters
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
+		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
 		if (daysBack < 1) {
-			daysBack = 14;
+			daysBack = 7;
 		}
 		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
-		Set<Integer> choicesSet = new HashSet<Integer>(Arrays.asList(daysBack, 14, 28, 60, 90, 180));
+		Set<Integer> choicesSet = new TreeSet<Integer>(GitBlit.getIntegers(Keys.web.activityDurationChoices));
+		if (choicesSet.isEmpty()) {
+			 choicesSet.addAll(Arrays.asList(7, 14, 28, 60, 90, 180));
+		}
 		List<Integer> choices = new ArrayList<Integer>(choicesSet);
 		Collections.sort(choices);
 		String lastDaysPattern = getString("gb.lastNDays");

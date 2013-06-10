@@ -35,6 +35,8 @@ r17: {
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
  	 - Disable Gson's pretty printing which has a huge performance gain
 	 - Properly set application/json content-type on api calls
+	 - Make days back filter choices a setting
+	 - Changed default days back filter setting to 7 days
 	 - Improved page title
 	 - Updated Polish translation
 	 - Updated Japanese translation
@@ -105,6 +107,7 @@ r17: {
 	- { name: 'mail.smtps', defaultValue: false }
 	- { name: 'realm.salesforce.backingUserService', defaultValue: 'users.conf' }
 	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
+	- { name: 'web.activityDurationChoices', defaultValue: '7 14 28 60 90 180' }
 	- { name: 'web.allowAppCloneLinks', defaultValue: true }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.overviewPushCount', defaultValue: 5 }

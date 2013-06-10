@@ -312,6 +312,19 @@ public class GitBlit implements ServletContextListener {
 	public static int getInteger(String key, int defaultValue) {
 		return self().settings.getInteger(key, defaultValue);
 	}
+
+	/**
+	 * Returns the integer list for the specified key. If the key does not
+	 * exist or the value for the key can not be interpreted as an integer, an
+	 * empty list is returned.
+	 * 
+	 * @see IStoredSettings.getIntegers(String key)
+	 * @param key
+	 * @return key value or defaultValue
+	 */
+	public static List<Integer> getIntegers(String key) {
+		return self().settings.getIntegers(key);
+	}
 	
 	/**
 	 * Returns the value in bytes for the specified key. If the key does not

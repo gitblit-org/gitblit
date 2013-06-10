@@ -109,7 +109,7 @@ public class ActivityPage extends RootPage {
 				ActivityPage.class);
 
 		PageParameters currentParameters = getPageParameters();
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 14);
+		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
 		if (currentParameters != null && !currentParameters.containsKey("db")) {
 			currentParameters.put("db", daysBack);
 		}
