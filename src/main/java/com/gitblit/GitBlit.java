@@ -1939,6 +1939,8 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "mailingList")));
 			model.indexedBranches = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
+			model.metricAuthorExclusions = new ArrayList<String>(Arrays.asList(config.getStringList(
+					Constants.CONFIG_GITBLIT, null, "metricAuthorExclusions")));
 			
 			// Custom defined properties
 			model.customFields = new LinkedHashMap<String, String>();
@@ -2465,6 +2467,7 @@ public class GitBlit implements ServletContextListener {
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
 		updateList(config, "mailingList", repository.mailingLists);
 		updateList(config, "indexBranch", repository.indexedBranches);
+		updateList(config, "metricAuthorExclusions", repository.metricAuthorExclusions);
 		
 		// User Defined Properties
 		if (repository.customFields != null) {

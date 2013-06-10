@@ -16,7 +16,9 @@
 package com.gitblit.wicket.charting;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.gitblit.utils.StringUtils;
 
@@ -44,10 +46,27 @@ public class GooglePieChart extends GoogleChart {
 		line(sb, MessageFormat.format("{0}.addRows({1,number,0});", dName, values.size()));
 
 		Collections.sort(values);
-
-		StringBuilder colors = new StringBuilder("colors:[");
-		for (int i = 0; i < values.size(); i++) {
+		List<ChartValue> list = new ArrayList<ChartValue>();
+		
+		int maxSlices = 10;
+		int maxCount = Math.min(maxSlices - 1,  values.size());
+		
+		for (int i = 0; i < maxCount; i++) {
 			ChartValue value = values.get(i);
+			list.add(value);
+		}
+		if (values.size() >= maxSlices) {
+			float others = 0;
+			for (int i = maxSlices - 1; i < values.size(); i++) {
+				others += values.get(i).value;	
+			}
+			ChartValue other = new ChartValue("other", others);
+			list.add(other);
+		}
+		
+		StringBuilder colors = new StringBuilder("colors:[");
+		for (int i = 0; i < list.size(); i++) {
+			ChartValue value = list.get(i);
 			colors.append('\'');
 			colors.append(StringUtils.getColor(value.name));
 			colors.append('\'');

@@ -27,7 +27,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
@@ -35,6 +37,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.models.RefModel;
@@ -78,6 +81,15 @@ public class ActivityUtils {
 		df.setTimeZone(timezone);
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(timezone);
+		
+		// aggregate author exclusions
+		Set<String> authorExclusions = new TreeSet<String>();
+		authorExclusions.addAll(GitBlit.getStrings(Keys.web.metricAuthorExclusions));
+		for (RepositoryModel model : models) {
+			if (!ArrayUtils.isEmpty(model.metricAuthorExclusions)) {
+				authorExclusions.addAll(model.metricAuthorExclusions);
+			}
+		}
 
 		Map<String, Activity> activity = new HashMap<String, Activity>();
 		for (RepositoryModel model : models) {
@@ -124,7 +136,9 @@ public class ActivityUtils {
 							cal.set(Calendar.MINUTE, 0);
 							cal.set(Calendar.SECOND, 0);
 							cal.set(Calendar.MILLISECOND, 0);
-							activity.put(dateStr, new Activity(cal.getTime()));
+							Activity a = new Activity(cal.getTime());
+							a.excludeAuthors(authorExclusions);
+							activity.put(dateStr, a);
 						}
 						RepositoryCommit commitModel = activity.get(dateStr)
 								.addCommit(model.name, shortName, commit);

@@ -17,6 +17,7 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -43,12 +45,14 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public final Date startDate;
 
 	public final Date endDate;
-
+	
 	private final Set<RepositoryCommit> commits;
 
 	private final Map<String, Metric> authorMetrics;
 
 	private final Map<String, Metric> repositoryMetrics;
+
+	private final Set<String> authorExclusions;
 
 	/**
 	 * Constructor for one day of activity.
@@ -73,6 +77,18 @@ public class Activity implements Serializable, Comparable<Activity> {
 		commits = new LinkedHashSet<RepositoryCommit>();
 		authorMetrics = new HashMap<String, Metric>();
 		repositoryMetrics = new HashMap<String, Metric>();
+		authorExclusions = new TreeSet<String>();
+	}
+	
+	/**
+	 * Exclude the specified authors from the metrics.
+	 * 
+	 * @param authors
+	 */
+	public void excludeAuthors(Collection<String> authors) {
+		for (String author : authors) {
+			authorExclusions.add(author.toLowerCase());
+		}
 	}
 
 	/**
@@ -88,16 +104,20 @@ public class Activity implements Serializable, Comparable<Activity> {
 	public RepositoryCommit addCommit(String repository, String branch, RevCommit commit) {
 		RepositoryCommit commitModel = new RepositoryCommit(repository, branch, commit);
 		if (commits.add(commitModel)) {
+			String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
+			String authorName = author.toLowerCase();
+			String authorEmail = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();
 			if (!repositoryMetrics.containsKey(repository)) {
 				repositoryMetrics.put(repository, new Metric(repository));
 			}
 			repositoryMetrics.get(repository).count++;
 
-			String author = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();			
-			if (!authorMetrics.containsKey(author)) {
-				authorMetrics.put(author, new Metric(author));
+			if (!authorExclusions.contains(authorName) && !authorExclusions.contains(authorEmail)) {
+				if (!authorMetrics.containsKey(author)) {
+					authorMetrics.put(author, new Metric(author));
+				}
+				authorMetrics.get(author).count++;
 			}
-			authorMetrics.get(author).count++;
 			return commitModel;
 		}
 		return null;

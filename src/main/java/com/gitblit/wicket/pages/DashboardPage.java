@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
@@ -187,7 +188,20 @@ public class DashboardPage extends RootPage {
 		
 		// add the nifty charts
 		if (!ArrayUtils.isEmpty(pushes)) {
-			GoogleCharts charts = createCharts(pushes);
+			// aggregate author exclusions
+			Set<String> authorExclusions = new TreeSet<String>();
+			for (String author : GitBlit.getStrings(Keys.web.metricAuthorExclusions)) {
+				authorExclusions.add(author.toLowerCase());
+			}
+			for (RepositoryModel model : feedSources) {
+				if (!ArrayUtils.isEmpty(model.metricAuthorExclusions)) {
+					for (String author : model.metricAuthorExclusions) {
+						authorExclusions.add(author.toLowerCase());
+					}
+				}
+			}
+
+			GoogleCharts charts = createCharts(pushes, authorExclusions);
 			add(new HeaderContributor(charts));
 		}
 		
@@ -359,7 +373,7 @@ public class DashboardPage extends RootPage {
 	 * @param recentPushes
 	 * @return
 	 */
-	private GoogleCharts createCharts(List<PushLogEntry> recentPushes) {
+	private GoogleCharts createCharts(List<PushLogEntry> recentPushes, Set<String> authorExclusions) {
 		// activity metrics
 		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
@@ -375,11 +389,15 @@ public class DashboardPage extends RootPage {
 			repositoryMetrics.get(repository).count += 1;
 			
 			for (RepositoryCommit commit : push.getCommits()) {
-				String author = commit.getAuthorIdent().getName();
-				if (!authorMetrics.containsKey(author)) {
-					authorMetrics.put(author, new Metric(author));
+				String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
+				String authorName = author.toLowerCase();
+				String authorEmail = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();
+				if (!authorExclusions.contains(authorName) && !authorExclusions.contains(authorEmail)) {
+					if (!authorMetrics.containsKey(author)) {
+						authorMetrics.put(author, new Metric(author));
+					}
+					authorMetrics.get(author).count += 1;
 				}
-				authorMetrics.get(author).count += 1;
 			}
 		}
 

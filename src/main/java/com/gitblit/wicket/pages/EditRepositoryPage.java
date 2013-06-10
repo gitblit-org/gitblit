@@ -76,6 +76,8 @@ public class EditRepositoryPage extends RootSubPage {
 	
 	RepositoryModel repositoryModel;
 
+	private IModel<String> metricAuthorExclusions;
+	
 	private IModel<String> mailingLists;
 
 	public EditRepositoryPage() {
@@ -316,6 +318,23 @@ public class EditRepositoryPage extends RootSubPage {
 						}
 					}
 
+					// set author metric exclusions
+					String ax = metricAuthorExclusions.getObject();
+					if (!StringUtils.isEmpty(ax)) {
+						Set<String> list = new HashSet<String>();
+						for (String exclusion : StringUtils.getStringsFromValue(ax,  " ")) {
+							if (StringUtils.isEmpty(exclusion)) {
+								continue;
+							}
+							if (exclusion.indexOf(' ') > -1) {
+								list.add("\"" + exclusion + "\"");	
+							} else {
+								list.add(exclusion);
+							}
+						}
+						repositoryModel.metricAuthorExclusions = new ArrayList<String>(list);
+					}
+
 					// set mailing lists
 					String ml = mailingLists.getObject();
 					if (!StringUtils.isEmpty(ml)) {
@@ -434,6 +453,10 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("skipSummaryMetrics"));
 		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500 );
 		form.add(new DropDownChoice<Integer>("maxActivityCommits", maxActivityCommits, new MaxActivityCommitsRenderer()));
+
+		metricAuthorExclusions = new Model<String>(ArrayUtils.isEmpty(repositoryModel.metricAuthorExclusions) ? ""
+				: StringUtils.flattenStrings(repositoryModel.metricAuthorExclusions, " "));
+		form.add(new TextField<String>("metricAuthorExclusions", metricAuthorExclusions));
 
 		mailingLists = new Model<String>(ArrayUtils.isEmpty(repositoryModel.mailingLists) ? ""
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
