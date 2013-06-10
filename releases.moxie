@@ -40,6 +40,7 @@ r17: {
 	 - Updated Japanese translation
 	 
     additions: 
+	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
      - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
 	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
@@ -87,6 +88,7 @@ r17: {
 	- Slawomir Bochenski
 	- Stardrad Yin
 	- Thomas Pummer
+	- William Whittle
 	- Yukihiko Sawanobori
     - github/akquinet
     - github/dapengme
