@@ -103,6 +103,8 @@ r17: {
 	- { name: 'git.daemonPort', defaultValue: 0 }
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 	- { name: 'mail.smtps', defaultValue: false }
+	- { name: 'realm.salesforce.backingUserService', defaultValue: 'users.conf' }
+	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
 	- { name: 'web.allowAppCloneLinks', defaultValue: true }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.overviewPushCount', defaultValue: 5 }
