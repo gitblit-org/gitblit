@@ -390,7 +390,8 @@ public abstract class RepositoryPage extends RootPage {
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		if (commit == null) {
 			error(MessageFormat.format(getString("gb.failedToFindCommit"),
-					objectId, repositoryName, getPageName()), true);
+					objectId, repositoryName, getPageName()), null, LogPage.class,
+					WicketUtils.newRepositoryParameter(repositoryName));
 		}
 		getSubmodules(commit);
 		return commit;

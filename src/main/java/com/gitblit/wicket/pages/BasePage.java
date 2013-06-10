@@ -32,9 +32,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Application;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
-import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -333,22 +333,28 @@ public abstract class BasePage extends SessionPage {
 	}
 	
 	public void error(String message, boolean redirect) {
-		logger.error(message  + " for " + GitBlitWebSession.get().getUsername());
-		if (redirect) {
-			GitBlitWebSession.get().cacheErrorMessage(message);
-			String relativeUrl = urlFor(RepositoriesPage.class, null).toString();
-			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
-			throw new RedirectToUrlException(absoluteUrl);
-		} else {
-			super.error(message);
-		}
+		error(message, null, redirect ? getApplication().getHomePage() : null);
 	}
 
 	public void error(String message, Throwable t, boolean redirect) {
-		logger.error(message, t);
-		if (redirect) {
+		error(message, t, getApplication().getHomePage());
+	}
+	
+	public void error(String message, Throwable t, Class<? extends Page> toPage) {
+		error(message, t, toPage, null);
+	}
+	
+	public void error(String message, Throwable t, Class<? extends Page> toPage, PageParameters params) {
+		if (t == null) {
+			logger.error(message  + " for " + GitBlitWebSession.get().getUsername());
+		} else {
+			logger.error(message  + " for " + GitBlitWebSession.get().getUsername(), t);
+		}
+		if (toPage != null) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
-			throw new RestartResponseException(getApplication().getHomePage());
+			String relativeUrl = urlFor(toPage, params).toString();
+			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+			throw new RedirectToUrlException(absoluteUrl);
 		} else {
 			super.error(message);
 		}
