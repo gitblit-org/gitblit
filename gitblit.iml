@@ -380,6 +380,39 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="force-partner-api-24.0.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/force-partner-api-24.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/force-partner-api-24.0.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="force-wsc-24.0.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/force-wsc-24.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/force-wsc-24.0.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="js-1.7R2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/js-1.7R2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/js-1.7R2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="junit-4.11.jar">
         <CLASSES>
