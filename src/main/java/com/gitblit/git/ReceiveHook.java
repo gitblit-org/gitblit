@@ -42,6 +42,7 @@ import com.gitblit.Keys;
 import com.gitblit.client.Translation;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.PushLogUtils;
@@ -170,7 +171,9 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
-		scripts.addAll(repository.preReceiveScripts);
+		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
+			scripts.addAll(repository.preReceiveScripts);
+		}
 		runGroovy(repository, user, commands, rp, scripts);
 		for (ReceiveCommand cmd : commands) {
 			if (!Result.NOT_ATTEMPTED.equals(cmd.getResult())) {
@@ -262,7 +265,9 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 		// run Groovy hook scripts 
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
-		scripts.addAll(repository.postReceiveScripts);
+		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
+			scripts.addAll(repository.postReceiveScripts);
+		}
 		runGroovy(repository, user, commands, rp, scripts);
 	}
 

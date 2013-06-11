@@ -3009,7 +3009,9 @@ public class GitBlit implements ServletContextListener {
 		if (repository != null) {
 			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
 				TeamModel team = userService.getTeamModel(teamname);
-				scripts.addAll(team.preReceiveScripts);
+				if (!ArrayUtils.isEmpty(team.preReceiveScripts)) {
+					scripts.addAll(team.preReceiveScripts);
+				}
 			}
 		}
 		return new ArrayList<String>(scripts);
@@ -3059,7 +3061,9 @@ public class GitBlit implements ServletContextListener {
 		if (repository != null) {
 			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
 				TeamModel team = userService.getTeamModel(teamname);
-				scripts.addAll(team.postReceiveScripts);
+				if (!ArrayUtils.isEmpty(team.postReceiveScripts)) {
+					scripts.addAll(team.postReceiveScripts);
+				}
 			}
 		}
 		return new ArrayList<String>(scripts);
