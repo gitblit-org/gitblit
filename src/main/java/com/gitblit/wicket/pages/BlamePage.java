@@ -27,6 +27,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
@@ -96,6 +97,7 @@ public class BlamePage extends RepositoryPage {
 			private int count;
 			private String lastCommitId = "";
 			private boolean showInitials = true;
+			private String zeroId = ObjectId.zeroId().getName();
 
 			public void populateItem(final Item<AnnotatedLine> item) {
 				AnnotatedLine entry = item.getModelObject();
@@ -105,14 +107,20 @@ public class BlamePage extends RepositoryPage {
 				if (!lastCommitId.equals(entry.commitId)) {
 					lastCommitId = entry.commitId;
 					count++;
-					// show the link for first line
-					LinkPanel commitLink = new LinkPanel("commit", null,
-							getShortObjectId(entry.commitId), CommitPage.class,
-							newCommitParameter(entry.commitId));
-					WicketUtils.setHtmlTooltip(commitLink,
-							MessageFormat.format("{0}, {1}", entry.author, df.format(entry.when)));
-					item.add(commitLink);
-					showInitials = true;
+					if (zeroId.equals(entry.commitId)) {
+						// unknown commit
+						item.add(new Label("commit", "<?>"));
+						showInitials = false;
+					} else {
+						// show the link for first line
+						LinkPanel commitLink = new LinkPanel("commit", null,
+								getShortObjectId(entry.commitId), CommitPage.class,
+								newCommitParameter(entry.commitId));
+						WicketUtils.setHtmlTooltip(commitLink,
+								MessageFormat.format("{0}, {1}", entry.author, df.format(entry.when)));
+						item.add(commitLink);
+						showInitials = true;
+					}
 				} else {
 					if (showInitials) {
 						showInitials = false;

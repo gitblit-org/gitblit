@@ -18,6 +18,7 @@ package com.gitblit.models;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 /**
@@ -38,9 +39,15 @@ public class AnnotatedLine implements Serializable {
 	public final String data;
 
 	public AnnotatedLine(RevCommit commit, int lineNumber, String data) {
-		this.commitId = commit.getName();
-		this.author = commit.getAuthorIdent().getName();
-		this.when = commit.getAuthorIdent().getWhen();
+		if (commit == null) {
+			this.commitId = ObjectId.zeroId().getName();
+			this.author = "?";
+			this.when = new Date(0);
+		} else {
+			this.commitId = commit.getName();
+			this.author = commit.getAuthorIdent().getName();
+			this.when = commit.getAuthorIdent().getWhen();
+		}
 		this.lineNumber = lineNumber;
 		this.data = data;
 	}

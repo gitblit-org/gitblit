@@ -28,7 +28,9 @@ r17: {
 	 - Ensure Redmine url is properly formatted (issue 223)
 	 - Use standard ServletRequestWrapper instead of custom wrapper (issue 224)
 	 - Switch commit message back to a pre and ensure that it is properly escaped when combined with commit message regex substitution (issue 242)
+	 - Fixed AddIndexedBranch tool --branch parameter (issue 247)  
 	 - Improve NPE handling for hook script enumeration (issue-253)
+	 - Workaround missing commit information in blame page (JGit bug 374382, issue-254) 
 
 	changes:
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
@@ -82,7 +84,7 @@ r17: {
 	- Lukasz Jader
 	- Martijn Laan
 	- Matthias Bauer
-	- Michaël Pailloncy
+	- Michaï¿½l Pailloncy
 	- Michael Schaefers
 	- Philip Boutros
 	- Rafael Cavazin
