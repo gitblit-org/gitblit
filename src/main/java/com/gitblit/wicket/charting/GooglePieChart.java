@@ -49,19 +49,11 @@ public class GooglePieChart extends GoogleChart {
 		List<ChartValue> list = new ArrayList<ChartValue>();
 		
 		int maxSlices = 10;
-		int maxCount = Math.min(maxSlices - 1,  values.size());
 		
-		for (int i = 0; i < maxCount; i++) {
-			ChartValue value = values.get(i);
-			list.add(value);
-		}
-		if (values.size() >= maxSlices) {
-			float others = 0;
-			for (int i = maxSlices - 1; i < values.size(); i++) {
-				others += values.get(i).value;	
-			}
-			ChartValue other = new ChartValue("other", others);
-			list.add(other);
+		if (values.size() > maxSlices) {
+			list.addAll(values.subList(0,  maxSlices));
+		} else {
+			list.addAll(values);
 		}
 		
 		StringBuilder colors = new StringBuilder("colors:[");
