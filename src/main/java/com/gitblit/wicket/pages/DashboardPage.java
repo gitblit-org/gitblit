@@ -201,8 +201,9 @@ public class DashboardPage extends RootPage {
 				}
 			}
 
-			GoogleCharts charts = createCharts(pushes, authorExclusions);
-			add(new HeaderContributor(charts));
+			addCharts(pushes, authorExclusions, daysBack);
+		} else {
+			add(new Label("feedheader").setVisible(false));
 		}
 		
 		// active repository list
@@ -371,14 +372,16 @@ public class DashboardPage extends RootPage {
 	 * and the active authors pie chart
 	 * 
 	 * @param recentPushes
-	 * @return
+	 * @param authorExclusions
+	 * @param daysBack
 	 */
-	private GoogleCharts createCharts(List<PushLogEntry> recentPushes, Set<String> authorExclusions) {
+	private void addCharts(List<PushLogEntry> recentPushes, Set<String> authorExclusions, int daysBack) {
 		// activity metrics
 		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
 
 		// aggregate repository and author metrics
+		int totalCommits = 0;
 		for (PushLogEntry push : recentPushes) {
 
 			// aggregate repository metrics
@@ -389,6 +392,7 @@ public class DashboardPage extends RootPage {
 			repositoryMetrics.get(repository).count += 1;
 			
 			for (RepositoryCommit commit : push.getCommits()) {
+				totalCommits++;
 				String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
 				String authorName = author.toLowerCase();
 				String authorEmail = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();
@@ -400,6 +404,9 @@ public class DashboardPage extends RootPage {
 				}
 			}
 		}
+		
+		add(new Label("feedheader", MessageFormat.format(getString("gb.recentActivityStats"),
+				daysBack, totalCommits, authorMetrics.size())));
 
 		// build google charts
 		GoogleCharts charts = new GoogleCharts();
@@ -422,7 +429,7 @@ public class DashboardPage extends RootPage {
 		chart.setShowLegend(false);
 		charts.addChart(chart);
 
-		return charts;
+		add(new HeaderContributor(charts));
 	}
 	
 	class RepoListItem implements Serializable {
