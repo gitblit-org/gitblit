@@ -42,6 +42,7 @@ import com.gitblit.models.FederationModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.service.FederationPullService;
+import com.gitblit.transport.ssh.SshDaemon;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
@@ -67,6 +68,8 @@ public class ServicesManager implements IManager {
 
 	private GitDaemon gitDaemon;
 
+	private SshDaemon sshDaemon;
+
 	public ServicesManager(IGitblit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
@@ -77,6 +80,7 @@ public class ServicesManager implements IManager {
 		configureFederation();
 		configureFanout();
 		configureGitDaemon();
+		configureSshDaemon();
 
 		return this;
 	}
@@ -135,6 +139,20 @@ public class ServicesManager implements IManager {
 			}
 		} else {
 			logger.info("Git Daemon is disabled.");
+		}
+	}
+
+	protected void configureSshDaemon() {
+		int port = settings.getInteger(Keys.git.sshPort, 0);
+		String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
+		if (port > 0) {
+			try {
+				sshDaemon = new SshDaemon(gitblit);
+				sshDaemon.start();
+			} catch (IOException e) {
+				sshDaemon = null;
+				logger.error(MessageFormat.format("Failed to start SSH daemon on {0}:{1,number,0}", bindInterface, port), e);
+			}
 		}
 	}
 
