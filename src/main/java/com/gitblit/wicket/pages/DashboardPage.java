@@ -99,6 +99,7 @@ public class DashboardPage extends RootPage {
 			add(new Label("active").setVisible(false));
 			add(new Label("starred").setVisible(false));
 			add(new Label("owned").setVisible(false));
+			add(new Label("feedheader").setVisible(false));
 			return;
 		}
 
