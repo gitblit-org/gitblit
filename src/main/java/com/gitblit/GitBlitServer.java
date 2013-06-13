@@ -386,6 +386,7 @@ public class GitBlitServer {
 		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 		settings.overrideSetting(Keys.git.daemonPort, params.gitPort);
+		settings.overrideSetting(Keys.git.sshPort, params.sshPort);
 
 		// Start up an in-memory LDAP server, if configured
 		try {
@@ -679,6 +680,9 @@ public class GitBlitServer {
 
 		@Parameter(names = "--gitPort", description = "Git Daemon port to serve.  (port <= 0 will disable this connector)")
 		public Integer gitPort = FILESETTINGS.getInteger(Keys.git.daemonPort, 9418);
+
+        @Parameter(names = "--sshPort", description = "Git SSH port to serve.  (port <= 0 will disable this connector)")
+        public Integer sshPort = FILESETTINGS.getInteger(Keys.git.sshPort, 29418);
 
 		@Parameter(names = "--alias", description = "Alias of SSL certificate in keystore for serving https.")
 		public String alias = FILESETTINGS.getString(Keys.server.certificateAlias, "");
