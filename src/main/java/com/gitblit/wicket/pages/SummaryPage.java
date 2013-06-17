@@ -96,12 +96,16 @@ public class SummaryPage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
 			public void populateItem(final Item<String> item) {
-				UserModel ownerModel = GitBlit.self().getUserModel(item.getModelObject());
+				String ownername = item.getModelObject();
+				UserModel ownerModel = GitBlit.self().getUserModel(ownername);
 				if (ownerModel != null) {
 					item.add(new LinkPanel("owner", null, ownerModel.getDisplayName(), UserPage.class,
 							WicketUtils.newUsernameParameter(ownerModel.username)).setRenderBodyOnly(true));
 				} else {
-					item.add(new Label("owner").setVisible(false));
+					Label owner = new Label("owner", ownername);
+					WicketUtils.setCssStyle(owner, "text-decoration: line-through;");
+					WicketUtils.setHtmlTooltip(owner,  MessageFormat.format(getString("gb.failedToFindAccount"), ownername));
+					item.add(owner);
 				}
 				counter++;
 				item.add(new Label("comma", ",").setVisible(counter < owners.size()));
