@@ -480,7 +480,7 @@ public class Constants {
 	}
 	
 	public static enum AccountType {
-		LOCAL, LDAP, REDMINE;
+		LOCAL, LDAP, REDMINE, SALESFORCE;
 		
 		public boolean isLocal() {
 			return this == LOCAL;

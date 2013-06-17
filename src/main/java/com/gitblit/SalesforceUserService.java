@@ -5,6 +5,7 @@ import java.io.File;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccountType;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -18,7 +19,11 @@ public class SalesforceUserService extends GitblitUserService {
 	public static final Logger logger = LoggerFactory
 			.getLogger(SalesforceUserService.class);
 	private IStoredSettings settings;
-
+	
+	protected AccountType getAccountType() {
+		return AccountType.SALESFORCE;
+	}
+	
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
