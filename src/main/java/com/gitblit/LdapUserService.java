@@ -129,7 +129,7 @@ public class LdapUserService extends GitblitUserService {
                                 logger.debug("detecting removed LDAP users...");
 
                                 for (UserModel userModel : super.getAllUsers()) {
-                                    if (ExternalAccount.equals(userModel.password)) {
+                                    if (Constants.EXTERNAL_ACCOUNT.equals(userModel.password)) {
                                         if (! ldapUsers.containsKey(userModel.username)) {
                                             logger.info("deleting removed LDAP user " + userModel.username + " from backing user service");
                                             super.deleteUser(userModel.username);
@@ -344,7 +344,7 @@ public class LdapUserService extends GitblitUserService {
 		setAdminAttribute(user);
 		
 		// Don't want visibility into the real password, make up a dummy
-		user.password = ExternalAccount;
+		user.password = Constants.EXTERNAL_ACCOUNT;
 		user.accountType = getAccountType();
 		
 		// Get full name Attribute

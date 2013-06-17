@@ -43,6 +43,8 @@ public class Constants {
 	public static final String NOT_FEDERATED_ROLE = "#notfederated";
 	
 	public static final String NO_ROLE = "#none";
+	
+	public static final String EXTERNAL_ACCOUNT = "#externalAccount";
 
 	public static final String PROPERTIES_FILE = "gitblit.properties";
 

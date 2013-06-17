@@ -52,8 +52,6 @@ public class GitblitUserService implements IUserService {
 
 	protected IUserService serviceImpl;
 	
-	protected final String ExternalAccount = "#externalAccount";
-
 	private final Logger logger = LoggerFactory.getLogger(GitblitUserService.class);
 
 	public GitblitUserService() {
@@ -324,7 +322,7 @@ public class GitblitUserService implements IUserService {
 	protected void setAccountType(UserModel user) {
 		if (user != null) {
 			if (!StringUtils.isEmpty(user.password)
-					&& !ExternalAccount.equalsIgnoreCase(user.password)
+					&& !Constants.EXTERNAL_ACCOUNT.equalsIgnoreCase(user.password)
 					&& !"StoredInLDAP".equalsIgnoreCase(user.password)) {
 				user.accountType = AccountType.LOCAL;
 			} else {

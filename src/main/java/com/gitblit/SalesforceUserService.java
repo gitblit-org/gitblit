@@ -96,7 +96,7 @@ public class SalesforceUserService extends GitblitUserService {
 
 	private void setUserAttributes(UserModel user, GetUserInfoResult info) {
 		// Don't want visibility into the real password, make up a dummy
-		user.password = ExternalAccount;
+		user.password = Constants.EXTERNAL_ACCOUNT;
 		user.accountType = getAccountType();
 
 		// Get full name Attribute

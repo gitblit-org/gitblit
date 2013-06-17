@@ -135,7 +135,7 @@ public class RedmineUserService extends GitblitUserService {
         user.accountType = getAccountType();
         user.displayName = current.user.firstname + " " + current.user.lastname;
         user.emailAddress = current.user.mail;
-        user.password = ExternalAccount;
+        user.password = Constants.EXTERNAL_ACCOUNT;
         if (!StringUtils.isEmpty(current.user.login)) {
         	// only admin users can get login name
         	// evidently this is an undocumented behavior of Redmine
