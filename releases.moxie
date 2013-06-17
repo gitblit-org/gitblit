@@ -66,6 +66,7 @@ r17: {
 	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
 	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
+	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
 
     contributors:
 	- Bandarupalli Satyanarayana
@@ -86,6 +87,7 @@ r17: {
 	- Matthias Bauer
 	- Micha�l Pailloncy
 	- Michael Schaefers
+	- Oliver Doepner
 	- Philip Boutros
 	- Rafael Cavazin
 	- Ryan Schneider
@@ -109,6 +111,7 @@ r17: {
 	- { name: 'git.daemonPort', defaultValue: 0 }
     - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 	- { name: 'mail.smtps', defaultValue: false }
+	- { name: 'realm.container.autoCreateAccounts', defaultValue: 'false' }
 	- { name: 'realm.salesforce.backingUserService', defaultValue: 'users.conf' }
 	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
 	- { name: 'web.activityDurationChoices', defaultValue: '7 14 28 60 90 180' }

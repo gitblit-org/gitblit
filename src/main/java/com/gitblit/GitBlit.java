@@ -827,11 +827,22 @@ public class GitBlit implements ServletContextListener {
 		Principal principal = httpRequest.getUserPrincipal();
 		if (principal != null) {
 			String username = principal.getName();
-			if (StringUtils.isEmpty(username)) {
+			if (!StringUtils.isEmpty(username)) {
 				UserModel user = getUserModel(username);
 				if (user != null) {
+					// existing user
 					flagWicketSession(AuthenticationType.CONTAINER);
 					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
+							user.username, httpRequest.getRemoteAddr()));
+					return user;
+				} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, true)) {
+					// auto-create user from an authenticated container principal
+					user = new UserModel(username.toLowerCase());
+					user.displayName = username;
+					user.password = Constants.EXTERNAL_ACCOUNT;
+					userService.updateUserModel(user);
+					flagWicketSession(AuthenticationType.CONTAINER);
+					logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
 				} else {
