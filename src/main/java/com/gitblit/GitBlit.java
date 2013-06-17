@@ -929,7 +929,10 @@ public class GitBlit implements ServletContextListener {
 		if (userService == null) {
 			return;
 		}
-		if (userService.supportsCookies()) {
+		GitBlitWebSession session = GitBlitWebSession.get();
+		boolean standardLogin = session.authenticationType.isStandard();
+
+		if (userService.supportsCookies() && standardLogin) {
 			Cookie userCookie;
 			if (user == null) {
 				// clear cookie for logout
