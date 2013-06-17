@@ -681,7 +681,15 @@ public class GitBlit implements ServletContextListener {
 	 * @return true if the user service supports credential changes
 	 */
 	public boolean supportsCredentialChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsCredentialChanges();
+		if (user == null) {
+			return false;
+		} else if (!Constants.EXTERNAL_ACCOUNT.equals(user.password)) {
+			// credentials likely maintained by Gitblit
+			return userService.supportsCredentialChanges();
+		} else {
+			// credentials are externally maintained
+			return false;
+		}
 	}
 
 	/**
