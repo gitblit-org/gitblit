@@ -24,7 +24,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -41,6 +40,7 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.panels.FilterableRepositoryList;
 
 public class ProjectPage extends DashboardPage {
 	
@@ -128,8 +128,9 @@ public class ProjectPage extends DashboardPage {
 		if (repositories.isEmpty()) {
 			add(new Label("repositoryList").setVisible(false));
 		} else {
-			Fragment activeView = createNgList("repositoryList", "repositoryListFragment", "repositoryListCtrl", repositories);
-			add(activeView);
+			FilterableRepositoryList repoList = new FilterableRepositoryList("repositoryList", repositories);
+			repoList.setAllowCreate(user.canCreate(project.name + "/"));
+			add(repoList);
 		}
 	}
 	

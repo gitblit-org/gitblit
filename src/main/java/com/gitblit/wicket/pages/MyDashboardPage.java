@@ -19,10 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,7 +31,6 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Constants;
@@ -49,8 +45,8 @@ import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.ng.NgController;
-import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.FilterableProjectList;
+import com.gitblit.wicket.panels.FilterableRepositoryList;
 
 public class MyDashboardPage extends DashboardPage {
 
@@ -152,38 +148,36 @@ public class MyDashboardPage extends DashboardPage {
 		
 		add(repositoryTabs);
 		
-		Fragment projectList = createProjectList();
-		repositoryTabs.add(projectList);
+		// projects list
+		List<ProjectModel> projects = GitBlit.self().getProjectModels(getRepositoryModels(), false);
+		repositoryTabs.add(new FilterableProjectList("projects", projects));
 		
 		// active repository list
 		if (active.isEmpty()) {
 			repositoryTabs.add(new Label("active").setVisible(false));
 		} else {
-			Fragment activeView = createNgList("active", "activeListFragment", "activeCtrl", active);
-			repositoryTabs.add(activeView);
+			FilterableRepositoryList repoList = new FilterableRepositoryList("active", active);
+			repoList.setTitle(getString("gb.activeRepositories"), "icon-time");
+			repositoryTabs.add(repoList);
 		}
 		
 		// starred repository list
 		if (ArrayUtils.isEmpty(starred)) {
 			repositoryTabs.add(new Label("starred").setVisible(false));
 		} else {
-			Fragment starredView = createNgList("starred", "starredListFragment", "starredCtrl", starred);
-			repositoryTabs.add(starredView);
+			FilterableRepositoryList repoList = new FilterableRepositoryList("starred", starred);
+			repoList.setTitle(getString("gb.starredRepositories"), "icon-star");
+			repositoryTabs.add(repoList);
 		}
 		
 		// owned repository list
 		if (ArrayUtils.isEmpty(owned)) {
 			repositoryTabs.add(new Label("owned").setVisible(false));
 		} else {
-			Fragment ownedView = createNgList("owned", "ownedListFragment", "ownedCtrl", owned);
-			if (user.canCreate) {
-				// create button
-				ownedView.add(new LinkPanel("create", "btn btn-mini", getString("gb.newRepository"), EditRepositoryPage.class));
-			} else {
-				// no button
-				ownedView.add(new Label("create").setVisible(false));
-			}
-			repositoryTabs.add(ownedView);
+			FilterableRepositoryList repoList = new FilterableRepositoryList("owned", starred);
+			repoList.setTitle(getString("gb.myRepositories"), "icon-user");
+			repoList.setAllowCreate(user.canCreate() || user.canAdmin());
+			repositoryTabs.add(repoList);
 		}
 	}
 	
@@ -258,54 +252,5 @@ public class MyDashboardPage extends DashboardPage {
 			}			
 		}
 		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
-	}
-	
-	protected Fragment createProjectList() {
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
-		final DateFormat df = new SimpleDateFormat(format);
-		df.setTimeZone(getTimeZone());
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(getRepositoryModels(), false);
-		Collections.sort(projects, new Comparator<ProjectModel>() {
-			@Override
-			public int compare(ProjectModel o1, ProjectModel o2) {
-				return o2.lastChange.compareTo(o1.lastChange);
-			}
-		});
-
-		List<ProjectListItem> list = new ArrayList<ProjectListItem>();
-		for (ProjectModel proj : projects) {
-			if (proj.isUserProject() || proj.repositories.isEmpty()) {
-				// exclude user projects from list
-				continue;
-			}
-			ProjectListItem item = new ProjectListItem();
-			item.p = proj.name;
-			item.n = StringUtils.isEmpty(proj.title) ? proj.name : proj.title;
-			item.i = proj.description;
-			item.t = getTimeUtils().timeAgo(proj.lastChange);
-			item.d = df.format(proj.lastChange);
-			item.c = proj.repositories.size();
-			list.add(item);
-		}
-		
-		// inject an AngularJS controller with static data
-		NgController ctrl = new NgController("projectListCtrl");
-		ctrl.addVariable("projectList", list);
-		add(new HeaderContributor(ctrl));
-		
-		Fragment fragment = new Fragment("projectList", "projectListFragment", this);
-		return fragment;
-	}
-	
-	protected class ProjectListItem implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-		
-		String p; // path
-		String n; // name
-		String t; // time ago
-		String d; // last updated
-		String i; // information/description
-		long c;   // repository count
 	}
 }

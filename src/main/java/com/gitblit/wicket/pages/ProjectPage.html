@@ -51,25 +51,7 @@
 		</tr>
 	</table>
 </wicket:fragment>
-		
-<wicket:fragment wicket:id="repositoryListFragment">
-	<div ng-controller="repositoryListCtrl" style="border: 1px solid #ddd;border-radius: 4px;margin-bottom: 20px;">
-		<div class="header" style="padding: 5px;border: none;"><img style="vertical-align: middle;" src="git-black-16x16.png"/> <wicket:message key="gb.repositories"></wicket:message> ({{repositoryList.length}})
-			<div style="padding: 5px 0px 0px;">
-				<input type="text" ng-model="query.r" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
-			</div>
-		</div>
-		
-		<div ng-repeat="item in repositoryList | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
-			<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
-			<a href="summary/?r={{item.r}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
-			<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
-			<span ng-show="item.s" class="pull-right">
-				<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i style="vertical-align:baseline;" class="iconic-star"></i></span>
-			</span>
-		</div>		
-	</div>
-</wicket:fragment>		
-	</wicket:extend>
+
+</wicket:extend>
 </body>
 </html>
