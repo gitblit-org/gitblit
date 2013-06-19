@@ -509,7 +509,7 @@ public class GitBlit implements ServletContextListener {
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		String username = UserModel.ANONYMOUS.equals(user) ? "" : user.username;
+		String username = encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
 
 		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
 		// http/https url
@@ -735,6 +735,7 @@ public class GitBlit implements ServletContextListener {
 			// can not authenticate empty username
 			return null;
 		}
+		String usernameDecoded = decodeUsername(username);
 		String pw = new String(password);
 		if (StringUtils.isEmpty(pw)) {
 			// can not authenticate empty password
@@ -743,7 +744,7 @@ public class GitBlit implements ServletContextListener {
 
 		// check to see if this is the federation user
 		if (canFederate()) {
-			if (username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
+			if (usernameDecoded.equalsIgnoreCase(Constants.FEDERATION_USER)) {
 				List<String> tokens = getFederationTokens();
 				if (tokens.contains(pw)) {
 					// the federation user is an administrator
@@ -758,7 +759,7 @@ public class GitBlit implements ServletContextListener {
 		if (userService == null) {
 			return null;
 		}
-		return userService.authenticate(username, password);
+		return userService.authenticate(usernameDecoded, password);
 	}
 
 	/**
@@ -966,6 +967,14 @@ public class GitBlit implements ServletContextListener {
 		userService.logout(user);
 	}
 
+	protected String encodeUsername(String name) {
+		return name.replace("@", "%40");	
+	}
+
+	protected String decodeUsername(String name) {
+		return name.replace("%40", "@");	
+	}
+	
 	/**
 	 * Returns the list of all users available to the login service.
 	 * 
@@ -999,7 +1008,8 @@ public class GitBlit implements ServletContextListener {
 		if (StringUtils.isEmpty(username)) {
 			return false;
 		}
-		return userService.deleteUser(username);
+		String usernameDecoded = decodeUsername(username);
+		return userService.deleteUser(usernameDecoded);
 	}
 
 	/**
@@ -1013,7 +1023,8 @@ public class GitBlit implements ServletContextListener {
 		if (StringUtils.isEmpty(username)) {
 			return null;
 		}
-		UserModel user = userService.getUserModel(username);		
+		String usernameDecoded = decodeUsername(username);
+		UserModel user = userService.getUserModel(usernameDecoded);		
 		return user;
 	}
 	
