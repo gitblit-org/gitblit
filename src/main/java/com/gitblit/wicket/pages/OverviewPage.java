@@ -41,7 +41,7 @@ import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GoogleLineChart;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
-import com.gitblit.wicket.panels.PushesPanel;
+import com.gitblit.wicket.panels.ReflogPanel;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
 import com.gitblit.wicket.panels.TagsPanel;
 
@@ -113,9 +113,9 @@ public class OverviewPage extends RepositoryPage {
 
 		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model));
 
-		int pushCount = GitBlit.getInteger(Keys.web.overviewPushCount, 5);
-		PushesPanel pushes = new PushesPanel("pushesPanel", getRepositoryModel(), r, pushCount, 0, false);
-		add(pushes);
+		int reflogCount = GitBlit.getInteger(Keys.web.overviewReflogCount, 5);
+		ReflogPanel reflog = new ReflogPanel("reflogPanel", getRepositoryModel(), r, reflogCount, 0);
+		add(reflog);
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 

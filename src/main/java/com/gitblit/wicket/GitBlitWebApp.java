@@ -44,18 +44,18 @@ import com.gitblit.wicket.pages.ForksPage;
 import com.gitblit.wicket.pages.GitSearchPage;
 import com.gitblit.wicket.pages.GravatarProfilePage;
 import com.gitblit.wicket.pages.HistoryPage;
-import com.gitblit.wicket.pages.DashboardPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
+import com.gitblit.wicket.pages.MyDashboardPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
 import com.gitblit.wicket.pages.ProjectsPage;
-import com.gitblit.wicket.pages.PushesPage;
 import com.gitblit.wicket.pages.RawPage;
+import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.RepositoriesPage;
 import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -69,7 +69,7 @@ import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
-	public final static Class<? extends BasePage> HOME_PAGE_CLASS = DashboardPage.class;
+	public final static Class<? extends BasePage> HOME_PAGE_CLASS = MyDashboardPage.class;
 	
 	@Override
 	public void init() {
@@ -98,7 +98,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/repositories", RepositoriesPage.class);
 		mount("/overview", OverviewPage.class, "r", "h");
 		mount("/summary", SummaryPage.class, "r");
-		mount("/pushes", PushesPage.class, "r", "h");
+		mount("/reflog", ReflogPage.class, "r", "h");
 		mount("/commits", LogPage.class, "r", "h");
 		mount("/log", LogPage.class, "r", "h");
 		mount("/tags", TagsPage.class, "r");

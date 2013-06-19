@@ -6,15 +6,15 @@
 
 <body>
 <wicket:panel>
-<div wicket:id="push" class="push">
+<div wicket:id="change" class="reflog">
 	<table style="padding: 3px 0px;">
 	<tr>
-		<td class="icon hidden-phone"><i wicket:id="pushIcon"></i></td>
+		<td class="icon hidden-phone"><i wicket:id="changeIcon"></i></td>
 		<td style="padding-left: 7px;vertical-align:middle;">
 			<div>
-				<span style="color:#aaa;" wicket:id="whenPushed"></span> <span wicket:id="refRewind" class="alert alert-error" style="padding: 1px 5px;font-size: 10px;font-weight: bold;margin-left: 10px;">[rewind]</span>
+				<span class="when" wicket:id="whenChanged"></span> <span wicket:id="refRewind" class="alert alert-error" style="padding: 1px 5px;font-size: 10px;font-weight: bold;margin-left: 10px;">[rewind]</span>
 			</div>
-			<div style="font-weight:bold;"><span wicket:id="whoPushed">[pusher]</span> <span wicket:id="whatPushed"></span><span wicket:id="refPushed"></span> <span wicket:id="repoPreposition"></span> <span wicket:id="repoPushed"></span> <span wicket:id="byAuthors"></span></div>
+			<div style="font-weight:bold;"><span wicket:id="whoChanged">[change author]</span> <span wicket:id="whatChanged"></span><span wicket:id="refChanged"></span> <span wicket:id="byAuthors"></span></div>
 		</td>
 	</tr>
 	<tr>
@@ -37,7 +37,7 @@
 	</tr>	
 	</table>
 </div>
-<div wicket:id="morePushes">[more...]</div>
+<div wicket:id="moreChanges">[more...]</div>
 </wicket:panel>
 </body>
 </html>

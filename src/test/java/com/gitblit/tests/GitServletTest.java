@@ -38,12 +38,12 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.models.PushLogEntry;
+import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.PushLogUtils;
+import com.gitblit.utils.RefLogUtils;
 
 public class GitServletTest {
 
@@ -788,7 +788,7 @@ public class GitServletTest {
 		String name = "refchecks/ticgit.git";
 		File refChecks = new File(GitBlitSuite.REPOSITORIES, name);
 		Repository repository = new FileRepositoryBuilder().setGitDir(refChecks).build();
-		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
+		List<RefLogEntry> pushes = RefLogUtils.getRefLog(name, repository);
 		GitBlitSuite.close(repository);
 		assertTrue("Repository has an empty push log!", pushes.size() > 0);
 	}

@@ -15,49 +15,40 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.Metric;
-import com.gitblit.models.PushLogEntry;
+import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.MarkdownUtils;
-import com.gitblit.utils.PushLogUtils;
+import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
@@ -66,19 +57,17 @@ import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GooglePieChart;
 import com.gitblit.wicket.ng.NgController;
+import com.gitblit.wicket.panels.DigestsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
-import com.gitblit.wicket.panels.PushesPanel;
 
-public class DashboardPage extends RootPage {
+public abstract class DashboardPage extends RootPage {
 
 	public DashboardPage() {
 		super();
-		setup(null);
 	}
 
 	public DashboardPage(PageParameters params) {
 		super(params);
-		setup(params);
 	}
 
 	@Override
@@ -86,115 +75,50 @@ public class DashboardPage extends RootPage {
 		return true;
 	}
 
-	private void setup(PageParameters params) {
-		setupPage("", "");
-		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
-		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
-			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
-			String message = readMarkdown(messageSource, "login.mkd");
-			Component repositoriesMessage = new Label("repositoriesMessage", message);
-			add(repositoriesMessage.setEscapeModelStrings(false));
-			add(new Label("digests"));
-			add(new Label("active").setVisible(false));
-			add(new Label("starred").setVisible(false));
-			add(new Label("owned").setVisible(false));
-			add(new Label("feedheader").setVisible(false));
-			return;
-		}
-
-		// Load the markdown welcome message
-		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
-		String message = readMarkdown(messageSource, "welcome.mkd");
-		Component repositoriesMessage = new Label("repositoriesMessage", message)
-				.setEscapeModelStrings(false).setVisible(message.length() > 0);
-		add(repositoriesMessage);
-
-		UserModel user = GitBlitWebSession.get().getUser();
-		if (user == null) {
-			user = UserModel.ANONYMOUS;
-		}
-
-		Comparator<RepositoryModel> lastUpdateSort = new Comparator<RepositoryModel>() {
-			@Override
-			public int compare(RepositoryModel o1, RepositoryModel o2) {
-				return o2.lastChange.compareTo(o1.lastChange);
-			}
-		};
-		
-		// parameters
-		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
-		if (daysBack < 1) {
-			daysBack = 7;
-		}
+	protected void addActivity(UserModel user, Collection<RepositoryModel> repositories, int daysBack) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
 		TimeZone timezone = getTimeZone();
 		
-		// build repo lists 
-		List<RepositoryModel> starred = new ArrayList<RepositoryModel>();
-		List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
-		List<RepositoryModel> active = new ArrayList<RepositoryModel>();
-
-		for (RepositoryModel model : getRepositoryModels()) {
-			if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
-				owned.add(model);
-			}
-			
-			if (user.getPreferences().isStarredRepository(model.name)) {
-				starred.add(model);
-			}
-			
-			if (model.isShowActivity() && model.lastChange.after(minimumDate)) {
-				active.add(model);
-			}
-		}
-		
-		Collections.sort(owned, lastUpdateSort);
-		Collections.sort(starred, lastUpdateSort);
-		Collections.sort(active, lastUpdateSort);
-		
-		Set<RepositoryModel> feedSources = new HashSet<RepositoryModel>();
-		feedSources.addAll(starred);
-		if (feedSources.isEmpty()) {
-			feedSources.addAll(active);
-		}
-		
 		// create daily commit digest feed
-		List<PushLogEntry> pushes = new ArrayList<PushLogEntry>();
-		for (RepositoryModel model : feedSources) {
+		List<DailyLogEntry> digests = new ArrayList<DailyLogEntry>();
+		for (RepositoryModel model : repositories) {
 			Repository repository = GitBlit.self().getRepository(model.name);
-			List<DailyLogEntry> entries = PushLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
-			pushes.addAll(entries);
+			List<DailyLogEntry> entries = RefLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
+			digests.addAll(entries);
 			repository.close();
 		}
 		
-		if (pushes.size() == 0) {
+		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
+		add(activityFragment);
+		if (digests.size() == 0) {
 			// quiet or no starred repositories
-			if (feedSources.size() == 0) {
+			if (repositories.size() == 0) {
 				if (UserModel.ANONYMOUS.equals(user)) {
-					add(new Label("digests", getString("gb.noActivity")));	
+					activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));	
 				} else {
-					add(new LinkPanel("digests", null, getString("gb.findSomeRepositories"), RepositoriesPage.class));
+					activityFragment.add(new LinkPanel("digests", null, getString("gb.findSomeRepositories"), RepositoriesPage.class));
 				}
 			} else {
-				add(new Label("digests", getString("gb.noActivity")));
+				activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));
 			}
 		} else {
 			// show daily commit digest feed
-			Collections.sort(pushes);
-			add(new PushesPanel("digests", pushes));
+			Collections.sort(digests);
+			DigestsPanel digestsPanel = new DigestsPanel("digests", digests);
+			WicketUtils.setCssStyle(digestsPanel,  "margin-top:-20px");
+			activityFragment.add(digestsPanel);
 		}
 		
 		// add the nifty charts
-		if (!ArrayUtils.isEmpty(pushes)) {
+		if (!ArrayUtils.isEmpty(digests)) {
 			// aggregate author exclusions
 			Set<String> authorExclusions = new TreeSet<String>();
 			for (String author : GitBlit.getStrings(Keys.web.metricAuthorExclusions)) {
 				authorExclusions.add(author.toLowerCase());
 			}
-			for (RepositoryModel model : feedSources) {
+			for (RepositoryModel model : repositories) {
 				if (!ArrayUtils.isEmpty(model.metricAuthorExclusions)) {
 					for (String author : model.metricAuthorExclusions) {
 						authorExclusions.add(author.toLowerCase());
@@ -202,40 +126,10 @@ public class DashboardPage extends RootPage {
 				}
 			}
 
-			addCharts(pushes, authorExclusions, daysBack);
+			addCharts(activityFragment, digests, authorExclusions, daysBack);
 		} else {
-			add(new Label("feedheader").setVisible(false));
-		}
-		
-		// active repository list
-		if (starred.isEmpty()) {
-			Fragment activeView = createNgList("active", "activeListFragment", "activeCtrl", active);
-			add(activeView);
-		} else {
-			add(new Label("active").setVisible(false));
-		}
-		
-		// starred repository list
-		if (ArrayUtils.isEmpty(starred)) {
-			add(new Label("starred").setVisible(false));
-		} else {
-			Fragment starredView = createNgList("starred", "starredListFragment", "starredCtrl", starred);
-			add(starredView);
-		}
-		
-		// owned repository list
-		if (ArrayUtils.isEmpty(owned)) {
-			add(new Label("owned").setVisible(false));
-		} else {
-			Fragment ownedView = createNgList("owned", "ownedListFragment", "ownedCtrl", owned);
-			if (user.canCreate) {
-				// create button
-				ownedView.add(new LinkPanel("create", "btn btn-mini", getString("gb.newRepository"), EditRepositoryPage.class));
-			} else {
-				// no button
-				ownedView.add(new Label("create").setVisible(false));
-			}
-			add(ownedView);
+			activityFragment.add(new Label("charts").setVisible(false));
+			activityFragment.add(new Label("feedheader").setVisible(false));
 		}
 	}
 	
@@ -259,6 +153,7 @@ public class DashboardPage extends RootPage {
 			item.n = name;
 			item.p = path;
 			item.r = repo.name;
+			item.i = repo.description;
 			item.s = GitBlit.self().getStarCount(repo);
 			item.t = getTimeUtils().timeAgo(repo.lastChange);
 			item.d = df.format(repo.lastChange);
@@ -295,104 +190,32 @@ public class DashboardPage extends RootPage {
 		pages.add(menu);
 	}
 
-	private String readMarkdown(String messageSource, String resource) {
-		String message = "";
-		if (messageSource.equalsIgnoreCase("gitblit")) {
-			// Read default message
-			message = readDefaultMarkdown(resource);
-		} else {
-			// Read user-supplied message
-			if (!StringUtils.isEmpty(messageSource)) {
-				File file = GitBlit.getFileOrFolder(messageSource);
-				if (file.exists()) {
-					try {
-						FileInputStream fis = new FileInputStream(file);
-						InputStreamReader reader = new InputStreamReader(fis,
-								Constants.CHARACTER_ENCODING);
-						message = MarkdownUtils.transformMarkdown(reader);
-						reader.close();
-					} catch (Throwable t) {
-						message = getString("gb.failedToRead") + " " + file;
-						warn(message, t);
-					}
-				} else {
-					message = messageSource + " " + getString("gb.isNotValidFile");
-				}
-			}
-		}
-		return message;
-	}
 
-	private String readDefaultMarkdown(String file) {
-		String base = file.substring(0, file.lastIndexOf('.'));
-		String ext = file.substring(file.lastIndexOf('.'));
-		String lc = getLanguageCode();
-		String cc = getCountryCode();
-
-		// try to read file_en-us.ext, file_en.ext, file.ext
-		List<String> files = new ArrayList<String>();
-		if (!StringUtils.isEmpty(lc)) {
-			if (!StringUtils.isEmpty(cc)) {
-				files.add(base + "_" + lc + "-" + cc + ext);
-				files.add(base + "_" + lc + "_" + cc + ext);
-			}
-			files.add(base + "_" + lc + ext);
-		}
-		files.add(file);
-
-		for (String name : files) {
-			String message;
-			InputStreamReader reader = null;
-			try {
-				InputStream is = getClass().getResourceAsStream("/" + name);
-				if (is == null) {
-					continue;
-				}
-				reader = new InputStreamReader(is, Constants.CHARACTER_ENCODING);
-				message = MarkdownUtils.transformMarkdown(reader);
-				reader.close();
-				return message;
-			} catch (Throwable t) {
-				message = MessageFormat.format(getString("gb.failedToReadMessage"), file);
-				error(message, t, false);
-				return message;
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (Exception e) {
-					}
-				}
-			}			
-		}
-		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
-	}
-	
 	/**
 	 * Creates the daily activity line chart, the active repositories pie chart,
 	 * and the active authors pie chart
 	 * 
-	 * @param recentPushes
+	 * @param recentChanges
 	 * @param authorExclusions
 	 * @param daysBack
 	 */
-	private void addCharts(List<PushLogEntry> recentPushes, Set<String> authorExclusions, int daysBack) {
+	protected void addCharts(Fragment frag, List<DailyLogEntry> recentChanges, Set<String> authorExclusions, int daysBack) {
 		// activity metrics
 		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
 		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
 
 		// aggregate repository and author metrics
 		int totalCommits = 0;
-		for (PushLogEntry push : recentPushes) {
+		for (RefLogEntry change : recentChanges) {
 
 			// aggregate repository metrics
-			String repository = StringUtils.stripDotGit(push.repository);
+			String repository = StringUtils.stripDotGit(change.repository);
 			if (!repositoryMetrics.containsKey(repository)) {
 				repositoryMetrics.put(repository, new Metric(repository));
 			}
 			repositoryMetrics.get(repository).count += 1;
 			
-			for (RepositoryCommit commit : push.getCommits()) {
+			for (RepositoryCommit commit : change.getCommits()) {
 				totalCommits++;
 				String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
 				String authorName = author.toLowerCase();
@@ -406,7 +229,7 @@ public class DashboardPage extends RootPage {
 			}
 		}
 		
-		add(new Label("feedheader", MessageFormat.format(getString("gb.recentActivityStats"),
+		frag.add(new Label("feedheader", MessageFormat.format(getString("gb.recentActivityStats"),
 				daysBack, totalCommits, authorMetrics.size())));
 
 		// build google charts
@@ -430,10 +253,11 @@ public class DashboardPage extends RootPage {
 		chart.setShowLegend(false);
 		charts.addChart(chart);
 
-		add(new HeaderContributor(charts));
+		add(new HeaderContributor(charts));		
+		frag.add(new Fragment("charts", "chartsFragment", this));
 	}
 	
-	class RepoListItem implements Serializable {
+	protected class RepoListItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 		
@@ -442,6 +266,7 @@ public class DashboardPage extends RootPage {
 		String p; // project/path
 		String t; // time ago
 		String d; // last updated
+		String i; // information/description
 		long s; // stars
 		String c; // html color
 		int wc; // working copy, 1 = true

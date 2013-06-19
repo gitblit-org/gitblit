@@ -60,7 +60,7 @@ import com.gitblit.models.UserRepositoryPreferences;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.PushLogUtils;
+import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -187,12 +187,12 @@ public abstract class RepositoryPage extends RootPage {
 		RepositoryModel model = getRepositoryModel();
 
 		// standard links
-		if (PushLogUtils.getPushLogBranch(r) == null) {
+		if (RefLogUtils.getRefLogBranch(r) == null) {
 			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
 		} else {
 			pages.put("summary", new PageRegistration("gb.summary", SummaryPage.class, params));
 //			pages.put("overview", new PageRegistration("gb.overview", OverviewPage.class, params));
-			pages.put("pushes", new PageRegistration("gb.pushes", PushesPage.class, params));
+			pages.put("reflog", new PageRegistration("gb.reflog", ReflogPage.class, params));
 		}		
 		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));

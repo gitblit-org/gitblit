@@ -19,11 +19,11 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.panels.PushesPanel;
+import com.gitblit.wicket.panels.ReflogPanel;
 
-public class PushesPage extends RepositoryPage {
+public class ReflogPage extends RepositoryPage {
 
-	public PushesPage(PageParameters params) {
+	public ReflogPage(PageParameters params) {
 		super(params);
 
 		addSyndicationDiscoveryLink();
@@ -32,24 +32,24 @@ public class PushesPage extends RepositoryPage {
 		int prevPage = Math.max(0, pageNumber - 1);
 		int nextPage = pageNumber + 1;
 
-		PushesPanel pushesPanel = new PushesPanel("pushesPanel", getRepositoryModel(), getRepository(), -1,
-				pageNumber - 1, false);
-		boolean hasMore = pushesPanel.hasMore();
-		add(pushesPanel);
+		ReflogPanel reflogPanel = new ReflogPanel("reflogPanel", getRepositoryModel(), getRepository(), -1,
+				pageNumber - 1);
+		boolean hasMore = reflogPanel.hasMore();
+		add(reflogPanel);
 
-		add(new BookmarkablePageLink<Void>("firstPage", PushesPage.class,
+		add(new BookmarkablePageLink<Void>("firstPage", ReflogPage.class,
 				WicketUtils.newObjectParameter(repositoryName, objectId))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("prevPage", PushesPage.class,
+		add(new BookmarkablePageLink<Void>("prevPage", ReflogPage.class,
 				WicketUtils.newLogPageParameter(repositoryName, objectId, prevPage))
 				.setEnabled(pageNumber > 1));
-		add(new BookmarkablePageLink<Void>("nextPage", PushesPage.class,
+		add(new BookmarkablePageLink<Void>("nextPage", ReflogPage.class,
 				WicketUtils.newLogPageParameter(repositoryName, objectId, nextPage))
 				.setEnabled(hasMore));
 	}
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.pushes");
+		return getString("gb.reflog");
 	}
 }

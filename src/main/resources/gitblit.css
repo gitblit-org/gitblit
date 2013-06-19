@@ -129,21 +129,37 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
     background-color: #002060;
 }
 
-div.push {
+div.reflog {
     border-bottom: 1px solid #ddd;
 	margin-bottom: 5px;
 	padding-bottom: 5px;
 }
 
-div.push .icon {
+div.reflog .icon {
     font-size: 42px;
     line-height: 42px;
 }
 
-div.push i {
+div.reflog .when {
+	color: #aaa;
+}
+
+div.reflog i {
     font-size: 42px;
     color: #bbb;
     vertical-align: middle;
+}
+
+div.dashboardTitle {
+	font-size: 1.75em;
+	padding-bottom: 5px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+div.dashboardTitle small {
+	color: #888;
+	font-size: 0.7em;
 }
 
 .repositorynavbar {

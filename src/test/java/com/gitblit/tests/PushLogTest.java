@@ -25,8 +25,8 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.util.FS;
 import org.junit.Test;
 
-import com.gitblit.models.PushLogEntry;
-import com.gitblit.utils.PushLogUtils;
+import com.gitblit.models.RefLogEntry;
+import com.gitblit.utils.RefLogUtils;
 
 public class PushLogTest {
 
@@ -35,7 +35,7 @@ public class PushLogTest {
 		String name = "~james/helloworld.git";
 		File gitDir = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, name), FS.DETECTED);
 		Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
-		List<PushLogEntry> pushes = PushLogUtils.getPushLog(name, repository);
+		List<RefLogEntry> pushes = RefLogUtils.getRefLog(name, repository);
 		GitBlitSuite.close(repository);
 	}
 }

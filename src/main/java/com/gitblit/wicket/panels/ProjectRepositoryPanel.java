@@ -192,7 +192,5 @@ public class ProjectRepositoryPanel extends BasePanel {
 		}
 
 		add(new ExternalLink("syndication", SyndicationServlet.asLink("", entry.name, null, 0)));
-
-		add(new RepositoryUrlPanel("repositoryPrimaryUrl", true, user, entry));
 	}
 }

@@ -45,7 +45,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.PushLogUtils;
+import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -256,7 +256,7 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 
 		// update push log
 		try {
-			PushLogUtils.updatePushLog(user, rp.getRepository(), commands);
+			RefLogUtils.updateRefLog(user, rp.getRepository(), commands);
 			logger.debug(MessageFormat.format("{0} push log updated", repository.name));
 		} catch (Exception e) {
 			logger.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);

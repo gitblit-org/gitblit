@@ -28,7 +28,7 @@ import org.eclipse.jgit.transport.ReceiveCommand;
  * 
  * @author James Moger
  */
-public class DailyLogEntry extends PushLogEntry implements Serializable {
+public class DailyLogEntry extends RefLogEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

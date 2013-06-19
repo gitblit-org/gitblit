@@ -39,7 +39,7 @@ import com.gitblit.utils.StringUtils;
  * 
  * @author James Moger
  */
-public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
+public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -67,7 +67,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	 * @param user
 	 *            the user who pushed
 	 */
-	public PushLogEntry(String repository, Date date, UserModel user) {
+	public RefLogEntry(String repository, Date date, UserModel user) {
 		this.repository = repository;
 		this.date = date;
 		this.user = user;
@@ -317,7 +317,7 @@ public class PushLogEntry implements Serializable, Comparable<PushLogEntry> {
 	}
 
 	@Override
-	public int compareTo(PushLogEntry o) {
+	public int compareTo(RefLogEntry o) {
 		// reverse chronological order
 		return o.date.compareTo(date);
 	}

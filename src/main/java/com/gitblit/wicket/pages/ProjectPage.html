@@ -6,66 +6,70 @@
 
 <body>
 <wicket:extend>
-
-<div class="container">
-	<div class="row">
-		<div class="span12">
-			<h2><span wicket:id="projectTitle"></span> <small><span wicket:id="projectDescription"></span></small>
-				<a class="hidden-phone hidden-tablet brand" style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
-					<img style="border:0px;vertical-align:middle;" src="feed_16x16.png"></img>
-				</a>
-			</h2>
-			<div class="markdown" wicket:id="projectMessage">[project message]</div>
+		<div class="container">
+			<div class="row" style="padding-top:5px;">
+				<div class="span12">
+					<div class="dashboardTitle">
+						<span wicket:id="projectTitle"></span>
+						<small><span wicket:id="projectDescription"></span></small>
+						
+						<a
+							class="hidden-phone hidden-tablet brand"
+							style="text-decoration: none;" wicket:id="syndication"
+							wicket:message="title:gb.feed"> <img
+							style="border: 0px; vertical-align: middle;" src="feed_16x16.png"></img>
+						</a>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="span7">					
+					<div class="markdown" style="padding-bottom: 30px;" wicket:id="projectMessage">[project message]</div>
+					<div wicket:id="activity">[activity panel]</div>
+				</div>
+				<div class="span5">
+					<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
+					<div wicket:id="repositoryList">[repository list]</div>
+				</div>
+			</div>
 		</div>
+
+<wicket:fragment wicket:id="activityFragment">
+	<div class="dashboardTitle"><wicket:message key="gb.recentActivity"></wicket:message> <small><span wicket:id="feedheader"></span></small></div>
+	<div class="hidden-phone hidden-tablet"  style="text-align:center;">
+		<div wicket:id="charts"></div>
 	</div>
+	<div wicket:id="digests"></div>
+</wicket:fragment>
 
-	<div class="tabbable">
-		<!-- tab titles -->
-		<ul class="nav nav-tabs">
-			<li class="active"><a href="#repositories" data-toggle="tab"><wicket:message key="gb.repositories"></wicket:message></a></li>
-			<li ><a href="#activity" data-toggle="tab"><wicket:message key="gb.activity"></wicket:message></a></li>
-		</ul>
-	
-		<!-- tab content -->
-		<div class="tab-content">
-
-			<!-- repositories tab -->
-			<div class="tab-pane active" id="repositories">
-				<!-- markdown -->
-				<div class="row">
-					<div class="span12">
-						<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="span6" wicket:id="repositoryList">
-						<span wicket:id="repository"></span>
-					</div>
-				</div>				
-			</div>
-			
-			<!-- activity tab -->
-			<div class="tab-pane" id="activity">
-				<div class="pageTitle">
-					<h2><wicket:message key="gb.recentActivity"></wicket:message><small> <span class="hidden-phone">/ <span wicket:id="subheader">[days back]</span></span></small></h2>
-				</div>
-			
-				<div class="hidden-phone" style="height: 155px;text-align: center;">
-					<table>
-					<tr>
-						<td><span class="hidden-tablet" id="chartDaily"></span></td>
-						<td><span id="chartRepositories"></span></td>
-						<td><span id="chartAuthors"></span></td>
-					</tr>
-					</table>
-				</div>
-			
-				<div wicket:id="activityPanel">[activity panel]</div>
-			</div>
+<wicket:fragment wicket:id="chartsFragment">
+	<table>
+		<tr>
+			<td><div id="chartRepositories" style="display:inline-block;width: 175px; height:175px"></div></td>
+			<td><div id="chartAuthors" style="display:inline-block;width: 175px; height: 175px;"></div></td>
+		</tr>
+	</table>
+</wicket:fragment>
 		
+<wicket:fragment wicket:id="repositoryListFragment">
+	<div ng-controller="repositoryListCtrl" style="border: 1px solid #ddd;border-radius: 4px;margin-bottom: 20px;">
+		<div class="header" style="padding: 5px;border: none;"><img style="vertical-align: middle;" src="git-black-16x16.png"/> <wicket:message key="gb.repositories"></wicket:message> ({{repositoryList.length}})
+			<div style="padding: 5px 0px 0px;">
+				<input type="text" ng-model="query.r" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
+			</div>
 		</div>
+		
+		<div ng-repeat="item in repositoryList | filter:query" style="padding: 3px;border-top: 1px solid #ddd;">
+			<b><span class="repositorySwatch" style="background-color:{{item.c}};"><span ng-show="item.wc">!</span><span ng-show="!item.wc">&nbsp;</span></span></b>
+			<a href="summary/?r={{item.r}}" title="{{item.i}}">{{item.p}}<b>{{item.n}}</b></a>
+			<span class="link hidden-tablet hidden-phone" style="color: #bbb;" title="{{item.d}}">{{item.t}}</span>
+			<span ng-show="item.s" class="pull-right">
+				<span style="padding: 0px 5px;color: #888;font-weight:bold;vertical-align:middle;">{{item.s | number}} <i style="vertical-align:baseline;" class="iconic-star"></i></span>
+			</span>
+		</div>		
 	</div>
-	</div>
-</wicket:extend>
+</wicket:fragment>		
+	</wicket:extend>
 </body>
 </html>

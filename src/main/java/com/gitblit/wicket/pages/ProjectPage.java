@@ -15,34 +15,23 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.markup.repeater.data.DataView;
-import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
-import com.gitblit.models.Activity;
-import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
-import com.gitblit.utils.ActivityUtils;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
@@ -52,14 +41,8 @@ import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.charting.GoogleChart;
-import com.gitblit.wicket.charting.GoogleCharts;
-import com.gitblit.wicket.charting.GoogleLineChart;
-import com.gitblit.wicket.charting.GooglePieChart;
-import com.gitblit.wicket.panels.ActivityPanel;
-import com.gitblit.wicket.panels.ProjectRepositoryPanel;
 
-public class ProjectPage extends RootPage {
+public class ProjectPage extends DashboardPage {
 	
 	List<ProjectModel> projectModels = new ArrayList<ProjectModel>();
 
@@ -72,10 +55,9 @@ public class ProjectPage extends RootPage {
 		super(params);
 		setup(params);
 	}
-
-	@Override
-	protected boolean reusePageParameters() {
-		return true;
+	
+	protected Class<? extends BasePage> getRootNavPageClass() {
+		return RepositoriesPage.class;
 	}
 
 	private void setup(PageParameters params) {
@@ -118,8 +100,20 @@ public class ProjectPage extends RootPage {
 				.setEscapeModelStrings(false).setVisible(rmessage.length() > 0);
 		add(repositoriesMessage);
 
-		List<RepositoryModel> repositories = getRepositories(params);
+		UserModel user = GitBlitWebSession.get().getUser();
+		if (user == null) {
+			user = UserModel.ANONYMOUS;
+		}
+		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
+		if (daysBack < 1) {
+			daysBack = 7;
+		}
+		// reset the daysback parameter so that we have a complete project
+		// repository list.  the recent activity will be built up by the
+		// reflog utils.
+		params.put("db", 0);
 		
+		List<RepositoryModel> repositories = getRepositories(params);
 		Collections.sort(repositories, new Comparator<RepositoryModel>() {
 			@Override
 			public int compare(RepositoryModel o1, RepositoryModel o2) {
@@ -128,144 +122,20 @@ public class ProjectPage extends RootPage {
 			}
 		});
 
-		final ListDataProvider<RepositoryModel> dp = new ListDataProvider<RepositoryModel>(repositories);
-		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("repositoryList", dp) {
-			private static final long serialVersionUID = 1L;
-
-			public void populateItem(final Item<RepositoryModel> item) {
-				final RepositoryModel entry = item.getModelObject();
-				
-				ProjectRepositoryPanel row = new ProjectRepositoryPanel("repository", 
-						getLocalizer(), this, showAdmin, entry, getAccessRestrictions());
-				item.add(row);
-			}
-		};
-		add(dataView);
-
-		// project activity
-		// parameters
-		int daysBack = WicketUtils.getDaysBack(params);
-		if (daysBack < 1) {
-			daysBack = 14;
-		}
-		String objectId = WicketUtils.getObject(params);
-
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(repositories, 
-				daysBack, objectId, getTimeZone());
-		if (recentActivity.size() == 0) {
-			// no activity, skip graphs and activity panel
-			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityNone"),
-					daysBack)));
-			add(new Label("activityPanel"));
+		
+		addActivity(user, repositories, daysBack);
+		
+		if (repositories.isEmpty()) {
+			add(new Label("repositoryList").setVisible(false));
 		} else {
-			// calculate total commits and total authors
-			int totalCommits = 0;
-			Set<String> uniqueAuthors = new HashSet<String>();
-			for (Activity activity : recentActivity) {
-				totalCommits += activity.getCommitCount();
-				uniqueAuthors.addAll(activity.getAuthorMetrics().keySet());
-			}
-			int totalAuthors = uniqueAuthors.size();
-
-			// add the subheader with stat numbers
-			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityStats"),
-					daysBack, totalCommits, totalAuthors)));
-
-			// create the activity charts
-			GoogleCharts charts = createCharts(recentActivity);
-			add(new HeaderContributor(charts));
-
-			// add activity panel
-			add(new ActivityPanel("activityPanel", recentActivity));
+			Fragment activeView = createNgList("repositoryList", "repositoryListFragment", "repositoryListCtrl", repositories);
+			add(activeView);
 		}
 	}
 	
-	/**
-	 * Creates the daily activity line chart, the active repositories pie chart,
-	 * and the active authors pie chart
-	 * 
-	 * @param recentActivity
-	 * @return
-	 */
-	private GoogleCharts createCharts(List<Activity> recentActivity) {
-		// activity metrics
-		Map<String, Metric> repositoryMetrics = new HashMap<String, Metric>();
-		Map<String, Metric> authorMetrics = new HashMap<String, Metric>();
-
-		// aggregate repository and author metrics
-		for (Activity activity : recentActivity) {
-
-			// aggregate author metrics
-			for (Map.Entry<String, Metric> entry : activity.getAuthorMetrics().entrySet()) {
-				String author = entry.getKey();
-				if (!authorMetrics.containsKey(author)) {
-					authorMetrics.put(author, new Metric(author));
-				}
-				authorMetrics.get(author).count += entry.getValue().count;
-			}
-
-			// aggregate repository metrics
-			for (Map.Entry<String, Metric> entry : activity.getRepositoryMetrics().entrySet()) {
-				String repository = StringUtils.stripDotGit(entry.getKey());
-				if (!repositoryMetrics.containsKey(repository)) {
-					repositoryMetrics.put(repository, new Metric(repository));
-				}
-				repositoryMetrics.get(repository).count += entry.getValue().count;
-			}
-		}
-
-		// build google charts
-		int w = 310;
-		int h = 150;
-		GoogleCharts charts = new GoogleCharts();
-
-		// sort in reverse-chronological order and then reverse that
-		Collections.sort(recentActivity);
-		Collections.reverse(recentActivity);
-
-		// daily line chart
-		GoogleChart chart = new GoogleLineChart("chartDaily", getString("gb.dailyActivity"), "day",
-				getString("gb.commits"));
-		SimpleDateFormat df = new SimpleDateFormat("MMM dd");
-		df.setTimeZone(getTimeZone());
-		for (Activity metric : recentActivity) {
-			chart.addValue(df.format(metric.startDate), metric.getCommitCount());
-		}
-		chart.setWidth(w);
-		chart.setHeight(h);
-		charts.addChart(chart);
-
-		// active repositories pie chart
-		chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
-				getString("gb.repository"), getString("gb.commits"));
-		for (Metric metric : repositoryMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
-		}
-		chart.setWidth(w);
-		chart.setHeight(h);
-		charts.addChart(chart);
-
-		// active authors pie chart
-		chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
-				getString("gb.author"), getString("gb.commits"));
-		for (Metric metric : authorMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
-		}
-		chart.setWidth(w);
-		chart.setHeight(h);
-		charts.addChart(chart);
-
-		return charts;
-	}
-
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
-
-		DropDownMenuRegistration projects = new DropDownMenuRegistration("gb.projects",
-				ProjectPage.class);
-		projects.menuItems.addAll(getProjectsMenu());
-		pages.add(0, projects);
 
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
 				ProjectPage.class);
@@ -277,10 +147,15 @@ public class ProjectPage extends RootPage {
 
 		if (menu.menuItems.size() > 0) {
 			// Reset Filter
-			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), null, null));
+			menu.menuItems.add(new DropDownMenuItem(getString("gb.reset"), "p", WicketUtils.getProjectName(params)));
 		}
 
 		pages.add(menu);
+		
+		DropDownMenuRegistration projects = new DropDownMenuRegistration("gb.projects",
+				ProjectPage.class);
+		projects.menuItems.addAll(getProjectsMenu());
+		pages.add(projects);
 	}
 	
 	@Override
