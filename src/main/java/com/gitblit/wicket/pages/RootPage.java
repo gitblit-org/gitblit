@@ -522,7 +522,10 @@ public abstract class RootPage extends BasePage {
 			}
 
 			add(new Label("displayName", user.getDisplayName()));
-			
+
+			add(new BookmarkablePageLink<Void>("newRepository",
+					EditRepositoryPage.class).setVisible(user.canAdmin() || user.canCreate()));
+
 			add(new BookmarkablePageLink<Void>("myProfile", 
 					UserPage.class, WicketUtils.newUsernameParameter(user.username)));
 
