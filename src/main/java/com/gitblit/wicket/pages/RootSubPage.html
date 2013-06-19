@@ -6,15 +6,21 @@
 
 <body>
 <wicket:extend>
-<div class="container">
-	<!-- page header -->
-	<div class="pageTitle">
-		<h2><span wicket:id="pageName">[page name]</span> <small><span wicket:id="pageSubName">[sub name]</span></small></h2>
+	<div class="repositorynavbar">
+		<div class="repositorynavbar-inner">
+			<div class="container">
+				<!-- page header -->
+				<div class="title" style="font-size: 22px; color: rgb(0, 32, 96);padding: 3px 0px 7px;">
+					<span class="project" wicket:id="pageName">[page name]</span> <span class="repository" wicket:id="pageSubName">[sub name]</span>
+				</div>
+			</div>
+		</div>
 	</div>
 	
-	<!-- Subclass Content -->
-	<wicket:child/>
-</div>
+	<div class="container">	
+		<!-- Subclass Content -->
+		<wicket:child/>
+	</div>
 </wicket:extend>
 </body>
 </html>
