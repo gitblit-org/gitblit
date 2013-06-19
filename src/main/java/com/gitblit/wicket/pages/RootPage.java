@@ -300,6 +300,17 @@ public abstract class RootPage extends BasePage {
 		if (daysBack < 1) {
 			daysBack = 7;
 		}
+		PageParameters clonedParams;;
+		if (params == null) {
+			clonedParams = new PageParameters();
+		} else {
+			clonedParams = new PageParameters(params);
+		}
+		
+		if (!clonedParams.containsKey("db")) {
+			clonedParams.put("db",  daysBack);
+		}
+		
 		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
 		Set<Integer> choicesSet = new TreeSet<Integer>(GitBlit.getIntegers(Keys.web.activityDurationChoices));
 		if (choicesSet.isEmpty()) {
@@ -310,7 +321,7 @@ public abstract class RootPage extends BasePage {
 		String lastDaysPattern = getString("gb.lastNDays");
 		for (Integer db : choices) {
 			String txt = MessageFormat.format(lastDaysPattern, db);
-			items.add(new DropDownMenuItem(txt, "db", db.toString(), params));
+			items.add(new DropDownMenuItem(txt, "db", db.toString(), clonedParams));
 		}
 		items.add(new DropDownMenuItem());
 		return items;
