@@ -31,6 +31,7 @@ r17: {
 	 - Fixed AddIndexedBranch tool --branch parameter (issue 247)  
 	 - Improve NPE handling for hook script enumeration (issue-253)
 	 - Workaround missing commit information in blame page (JGit bug 374382, issue-254) 
+	 - Ignore orphan ".git" folder in the repositories root folder (issue-256)
 
 	changes:
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)

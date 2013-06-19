@@ -297,6 +297,7 @@ public class JGitUtils {
 		list.addAll(getRepositoryList(repositoriesFolder.getAbsolutePath(), repositoriesFolder,
 				onlyBare, searchSubfolders, depth, patterns));
 		StringUtils.sortRepositorynames(list);
+		list.remove(".git"); // issue-256
 		return list;
 	}
 
