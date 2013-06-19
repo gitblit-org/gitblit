@@ -52,7 +52,6 @@ import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
-import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GooglePieChart;
@@ -75,7 +74,7 @@ public abstract class DashboardPage extends RootPage {
 		return true;
 	}
 
-	protected void addActivity(UserModel user, Collection<RepositoryModel> repositories, int daysBack) {
+	protected void addActivity(UserModel user, Collection<RepositoryModel> repositories, boolean isStarred, int daysBack) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
@@ -92,6 +91,7 @@ public abstract class DashboardPage extends RootPage {
 		
 		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
 		add(activityFragment);
+		activityFragment.add(new Label("feedTitle", getString( isStarred ?  "gb.starredAndOwned" : "gb.recentActivity")));
 		if (digests.size() == 0) {
 			// quiet or no starred repositories
 			if (repositories.size() == 0) {
@@ -107,7 +107,6 @@ public abstract class DashboardPage extends RootPage {
 			// show daily commit digest feed
 			Collections.sort(digests);
 			DigestsPanel digestsPanel = new DigestsPanel("digests", digests);
-			WicketUtils.setCssStyle(digestsPanel,  "margin-top:-20px");
 			activityFragment.add(digestsPanel);
 		}
 		

@@ -141,7 +141,7 @@ public class MyDashboardPage extends DashboardPage {
 			feed.addAll(active);
 		}
 		
-		addActivity(user, feed, daysBack);
+		addActivity(user, feed, starred.size() > 0 || owned.size() > 0, daysBack);
 		
 		Fragment repositoryTabs;
 		if (UserModel.ANONYMOUS.equals(user)) {

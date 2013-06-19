@@ -123,7 +123,7 @@ public class ProjectPage extends DashboardPage {
 		});
 
 		
-		addActivity(user, repositories, daysBack);
+		addActivity(user, repositories, false, daysBack);
 		
 		if (repositories.isEmpty()) {
 			add(new Label("repositoryList").setVisible(false));

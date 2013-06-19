@@ -25,18 +25,18 @@
 			
 			<div class="row">
 				<div class="span7">					
-					<div class="markdown" style="padding-bottom: 30px;" wicket:id="projectMessage">[project message]</div>
+					<div class="hidden-phone hidden-tablet markdown" style="padding-bottom: 30px;" wicket:id="projectMessage">[project message]</div>
 					<div wicket:id="activity">[activity panel]</div>
 				</div>
 				<div class="span5">
-					<div class="markdown" wicket:id="repositoriesMessage">[repositories message]</div>
+					<div class="hidden-phone hidden-tablet markdown" wicket:id="repositoriesMessage">[repositories message]</div>
 					<div wicket:id="repositoryList">[repository list]</div>
 				</div>
 			</div>
 		</div>
 
 <wicket:fragment wicket:id="activityFragment">
-	<div class="dashboardTitle"><wicket:message key="gb.recentActivity"></wicket:message> <small><span wicket:id="feedheader"></span></small></div>
+	<div class="dashboardTitle"><span class="hidden-phone hidden-tablet" wicket:id="feedTitle"></span> <small><span wicket:id="feedheader"></span></small></div>
 	<div class="hidden-phone hidden-tablet"  style="text-align:center;">
 		<div wicket:id="charts"></div>
 	</div>
