@@ -15,6 +15,9 @@
  */
 package com.gitblit.git;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,8 +32,6 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
 import com.gitblit.GitBlit;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.IssueUtils;
-import com.gitblit.utils.PushLogUtils;
 
 /**
  * The upload pack factory creates an upload pack which controls what refs are
@@ -89,9 +90,17 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 				return refs;
 			}
 
-			// normal users can not clone gitblit refs
-			refs.remove(IssueUtils.GB_ISSUES);
-			refs.remove(PushLogUtils.GB_PUSHES);
+			// normal users can not clone any gitblit refs
+			// JGit's RefMap is custom and does not support iterator removal :(
+			List<String> toRemove = new ArrayList<String>();
+			for (String ref : refs.keySet()) {
+				if (ref.startsWith("refs/gitblit/")) {
+					toRemove.add(ref);
+				}
+			}
+			for (String ref : toRemove) {
+				refs.remove(ref);
+			}
 			return refs;
 		}
 	}
