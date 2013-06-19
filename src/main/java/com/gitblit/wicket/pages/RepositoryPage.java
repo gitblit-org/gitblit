@@ -226,9 +226,6 @@ public abstract class RepositoryPage extends RootPage {
 		isOwner = GitBlitWebSession.get().isLoggedIn()
 				&& (model.isOwner(GitBlitWebSession.get()
 						.getUsername()));
-		if (showAdmin || isOwner) {
-			pages.put("edit", new PageRegistration("gb.edit", EditRepositoryPage.class, params));
-		}
 		return pages;
 	}
 	
@@ -334,6 +331,13 @@ public abstract class RepositoryPage extends RootPage {
 				String url = getRequestCycle().urlFor(ForkPage.class, WicketUtils.newRepositoryParameter(model.name)).toString();
 				add(new ExternalLink("forkLink", url));
 			}
+		}
+		
+		if (showAdmin || isOwner) {
+			String url = getRequestCycle().urlFor(EditRepositoryPage.class, WicketUtils.newRepositoryParameter(model.name)).toString();
+			add(new ExternalLink("editLink", url)); 
+		} else {
+			add(new Label("editLink").setVisible(false));
 		}
 		
 		super.setupPage(repositoryName, pageName);
