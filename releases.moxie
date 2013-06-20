@@ -36,6 +36,7 @@ r17: {
 	changes:
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
+	 - Display full commit message on commitdiff page (issue-258)
 	 - Improved the repository url display.  This display now indicates your repository access permission, per-protocol.
 	 - Automatically encode/decode usernames for urls using %XX notation on space, @, and \
  	 - Disable Gson's pretty printing which has a huge performance gain

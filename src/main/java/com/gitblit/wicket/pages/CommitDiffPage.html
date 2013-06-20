@@ -15,13 +15,14 @@
 	<!-- commit header -->
 	<div wicket:id="commitHeader">[commit header]</div>
 
-	<!-- changed paths -->
-	<div style="padding-top:15px;">
-		<!-- commit legend -->
-		<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
+	<!-- full message -->
+	<pre style="border-style:none" "class="commit_message" wicket:id="fullMessage">[commit message]</pre>
+
+	<!-- commit legend -->
+	<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
 	
-		<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
-	</div>
+	<!-- changed paths -->
+	<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
 	
 	<table class="pretty">
 		<tr wicket:id="changedPath">
