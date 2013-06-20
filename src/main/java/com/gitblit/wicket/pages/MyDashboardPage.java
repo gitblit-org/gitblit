@@ -130,14 +130,26 @@ public class MyDashboardPage extends DashboardPage {
 		Collections.sort(starred, lastUpdateSort);
 		Collections.sort(active, lastUpdateSort);
 		
+		String activityTitle;
 		Set<RepositoryModel> feed = new HashSet<RepositoryModel>();
 		feed.addAll(starred);
 		feed.addAll(owned);
 		if (feed.isEmpty()) {
+			// no starred or owned, go with recent activity
+			activityTitle = getString("gb.recentActivity");
 			feed.addAll(active);
+		} else if (starred.isEmpty()){
+			// no starred, owned repos feed
+			activityTitle = getString("gb.owned");
+		} else if (owned.isEmpty()){
+			// no owned, starred repos feed
+			activityTitle = getString("gb.starred");
+		} else {
+			// starred and owned repositories
+			activityTitle = getString("gb.starredAndOwned");
 		}
 		
-		addActivity(user, feed, starred.size() > 0 || owned.size() > 0, daysBack);
+		addActivity(user, feed, activityTitle, daysBack);
 		
 		Fragment repositoryTabs;
 		if (UserModel.ANONYMOUS.equals(user)) {
@@ -174,7 +186,7 @@ public class MyDashboardPage extends DashboardPage {
 		if (ArrayUtils.isEmpty(owned)) {
 			repositoryTabs.add(new Label("owned").setVisible(false));
 		} else {
-			FilterableRepositoryList repoList = new FilterableRepositoryList("owned", starred);
+			FilterableRepositoryList repoList = new FilterableRepositoryList("owned", owned);
 			repoList.setTitle(getString("gb.myRepositories"), "icon-user");
 			repoList.setAllowCreate(user.canCreate() || user.canAdmin());
 			repositoryTabs.add(repoList);

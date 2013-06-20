@@ -74,7 +74,7 @@ public abstract class DashboardPage extends RootPage {
 		return true;
 	}
 
-	protected void addActivity(UserModel user, Collection<RepositoryModel> repositories, boolean isStarred, int daysBack) {
+	protected void addActivity(UserModel user, Collection<RepositoryModel> repositories, String feedTitle, int daysBack) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
@@ -91,7 +91,7 @@ public abstract class DashboardPage extends RootPage {
 		
 		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
 		add(activityFragment);
-		activityFragment.add(new Label("feedTitle", getString( isStarred ?  "gb.starredAndOwned" : "gb.recentActivity")));
+		activityFragment.add(new Label("feedTitle", feedTitle));
 		if (digests.size() == 0) {
 			// quiet or no starred repositories
 			if (repositories.size() == 0) {
