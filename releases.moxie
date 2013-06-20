@@ -46,7 +46,8 @@ r17: {
 	 - Updated Polish translation
 	 - Updated Japanese translation
 	 
-    additions: 
+    additions:
+	 - Added WindowsUserService to authenticate users against Windows accounts (issue-250)
 	 - Global and per-repository setting to exclude authors from metrics (issue-251)
 	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
@@ -74,6 +75,7 @@ r17: {
 	- Bandarupalli Satyanarayana
 	- Chad Horohoe
 	- Christian Aistleitner
+	- Colin Bowern
 	- David Ostrovsky
 	- Egbert Teeselink
 	- Hige Maniya
@@ -108,15 +110,20 @@ r17: {
 	- Iconic font
 	- AngularJS 1.0.7
 	- FreeMarker 2.3.19
+	- Waffle 1.5
+	- JNA 3.5.0
+	- Guava 13.0.1
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }
 	- { name: 'git.daemonPort', defaultValue: 0 }
-        - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
+	- { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
 	- { name: 'mail.smtps', defaultValue: 'false' }
 	- { name: 'realm.container.autoCreateAccounts', defaultValue: 'false' }
 	- { name: 'realm.salesforce.backingUserService', defaultValue: 'users.conf' }
 	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
+	- { name: 'realm.windows.defaultDomain', defaultValue: ' ' }
+	- { name: 'realm.windows.backingUserService', defaultValue: 'users.conf' }
 	- { name: 'web.activityDurationChoices', defaultValue: '7 14 28 60 90 180' }
 	- { name: 'web.allowAppCloneLinks', defaultValue: 'true' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }

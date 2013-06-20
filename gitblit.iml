@@ -424,6 +424,50 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="waffle-jna-1.5.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/waffle-jna-1.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/waffle-jna-1.5.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="platform-3.5.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/platform-3.5.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/platform-3.5.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jna-3.5.0.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jna-3.5.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jna-3.5.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="guava-13.0.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/guava-13.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/guava-13.0.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="junit-4.11.jar">
         <CLASSES>
@@ -524,17 +568,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
-      <library name="guava-13.0.1.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/guava-13.0.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/guava-13.0.1.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
       <library name="httpclient-4.2.1.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/httpclient-4.2.1.jar!/" />
@@ -586,28 +619,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/commons-exec-1.1.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="jna-3.4.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/jna-3.4.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/jna-3.4.0.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="platform-3.4.0.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/platform-3.4.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/platform-3.4.0.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

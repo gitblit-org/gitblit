@@ -36,6 +36,7 @@
 - LDAP authentication and optional LDAP-controlled Team memberships
 - Redmine authentication
 - Salesforce.com authentication
+- Windows authentication
 - Gravatar integration
 - Git-notes display support
 - Submodule support

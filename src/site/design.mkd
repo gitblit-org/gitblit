@@ -48,6 +48,9 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [Commons-Compress](http://commons.apache.org/compress) (Apache 2.0)
 - [XZ for Java](http://tukaani.org/xz/java.html) (Public Domain)
 - [FreeMarker](http://www.freemarker.org) (modified BSD)
+- [Waffle](http://dblock.github.io/waffle) (EPL 1.0)
+- [JNA](https://github.com/twall/jna) (LGPL 2.1)
+- [Guava](https://code.google.com/p/guava-libraries) (Apache 2.0)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

@@ -149,6 +149,7 @@ dependencies:
 - compile 'org.apache.commons:commons-compress:1.4.1' :war
 - compile 'com.force.api:force-partner-api:24.0.0' :war
 - compile 'org.freemarker:freemarker:2.3.19' :war
+- compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
 - test 'junit'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar

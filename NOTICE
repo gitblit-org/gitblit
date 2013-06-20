@@ -278,3 +278,28 @@ FreeMarker
    modified BSD License. (http://www.freemarker.org/docs/app_license.html)
    
    http://www.freemarker.org/
+
+---------------------------------------------------------------------------
+Waffle
+---------------------------------------------------------------------------
+   Waffle, release under the
+   Eclipse Public License, version 1.0
+   
+   http://dblock.github.io/waffle
+
+---------------------------------------------------------------------------
+JNA
+---------------------------------------------------------------------------
+   JNA, release under the
+   Lesser GNU Public License, version 2.1
+   
+   https://github.com/twall/jna
+   
+---------------------------------------------------------------------------
+Guava
+---------------------------------------------------------------------------
+   Guava, release under the
+   Apache License 2.0.
+   
+   https://code.google.com/p/guava-libraries
+  
