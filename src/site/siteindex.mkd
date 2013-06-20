@@ -1,4 +1,3 @@
-## What is Gitblit?
 <div class="well" style="margin-left:5px;float:right;width:275px;padding: 10px 10px;">
 <div style="text-align:center">
 <b>Current Release ${project.releaseVersion} (${project.releaseDate})</b><br/><a href="releasenotes.html">release notes</a>
@@ -25,6 +24,8 @@
 		</table>
 	</div>
 </div>
+
+## What is Gitblit?
 
 Gitblit is an open-source, pure Java stack for managing, viewing, and serving [Git][git] repositories.  
 It's designed primarily as a tool for small workgroups who want to host centralized repositories.
@@ -67,6 +68,9 @@ Administrators can create and manage all repositories, user accounts, and teams 
 - Groovy push hook scripts
 - Pluggable user service mechanism
     - LDAP authentication with optional LDAP-controlled Team memberships
+	- Redmine authentication
+	- SalesForce.com authentication
+	- Windows authentication
     - Custom authentication, authorization, and user management
 - Rich RSS feeds
 - JSON-based RPC mechanism

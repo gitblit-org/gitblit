@@ -8,12 +8,6 @@ r17: {
 	security:
 	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
     fixes:
-     - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
-	 - Added more error checking to blob page and blame page
-	 - Disable SNI extensions for client SSL connections
-	 - Fixed prettify language extension loading
-	 - Fixed index out of bounds exceptions when generating client certificates for a user when the user's table has been filtered
-	 - Fixed AddindexedBranch tool when specifying the non-default branch. 
 	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
@@ -32,11 +26,18 @@ r17: {
 	 - Improve NPE handling for hook script enumeration (issue-253)
 	 - Workaround missing commit information in blame page (JGit bug 374382, issue-254) 
 	 - Ignore orphan ".git" folder in the repositories root folder (issue-256)
+     - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
+	 - Added more error checking to blob page and blame page
+	 - Disable SNI extensions for client SSL connections
+	 - Fixed prettify language extension loading
+	 - Fixed index out of bounds exceptions when generating client certificates for a user when the user's table has been filtered
+	 - Fixed AddindexedBranch tool when specifying the non-default branch. 
 
 	changes:
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
-	 - Improved the repository url display.  This display now indicates your repository access permission, per-protocol.
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
+	 - Improved the repository url display.  This display now indicates your repository access permission, per-protocol.
+	 - Automatically encode/decode usernames for urls using %XX notation on space, @, and \
  	 - Disable Gson's pretty printing which has a huge performance gain
 	 - Properly set application/json content-type on api calls
 	 - Make days back filter choices a setting
@@ -46,13 +47,17 @@ r17: {
 	 - Updated Polish translation
 	 - Updated Japanese translation
 	 
-    additions:
+    additions: 
+	 - Added a ui for the ref log introduced in 1.2.1 (issue-177)
+	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
+	 - Support username substitution in web.otherUrls (issue 213)
+	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
+	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
 	 - Added WindowsUserService to authenticate users against Windows accounts (issue-250)
 	 - Global and per-repository setting to exclude authors from metrics (issue-251)
 	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
      - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
-	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
 	 - Added client application menus for Git, SmartGit/Hg, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
 	 - Added GO http/https connector thread pool size setting
 	 - Added a server setting to force a particular translation/Locale for all sessions
@@ -66,10 +71,6 @@ r17: {
      - FogBugz post-receive hook script
      - Chinese translation
 	 - Support --baseFolder parameter in Federation Client
-	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
-	 - Support username substitution in web.otherUrls (issue 213)
-	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
-	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
 
     contributors:
 	- Bandarupalli Satyanarayana
@@ -128,8 +129,8 @@ r17: {
 	- { name: 'web.allowAppCloneLinks', defaultValue: 'true' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.metricAuthorExclusions', defaultValue: ' ' }
-	- { name: 'web.overviewPushCount', defaultValue: 5 }
-	- { name: 'web.pushesPerPage', defaultValue: 10 }
+	- { name: 'web.overviewReflogCount', defaultValue: 5 }
+	- { name: 'web.reflogChangesPerPage', defaultValue: 10 }
 	- { name: 'server.nioThreadPoolSize', defaultValue: 50 }
 }
 
