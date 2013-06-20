@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebPage;
@@ -105,6 +106,11 @@ public class LinkPanel extends Panel {
 		link.add(new Label("icon").setVisible(false));
 		link.add(new Label("label", labelModel));
 		add(link);
+	}
+	
+	public void setNoFollow() {
+		Component c = get("link");
+		c.add(new SimpleAttributeModifier("rel", "nofollow"));
 	}
 
 }

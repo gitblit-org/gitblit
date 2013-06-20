@@ -41,6 +41,7 @@ r17: {
 	 - Properly set application/json content-type on api calls
 	 - Make days back filter choices a setting
 	 - Changed default days back filter setting to 7 days
+	 - Set rel="nofollow" on compressed download links
 	 - Improved page title
 	 - Updated Polish translation
 	 - Updated Japanese translation
@@ -71,7 +72,7 @@ r17: {
 
     contributors:
 	- Bandarupalli Satyanarayana
-	- Chad H.
+	- Chad Horohoe
 	- Christian Aistleitner
 	- David Ostrovsky
 	- Egbert Teeselink
@@ -86,7 +87,7 @@ r17: {
 	- Lukasz Jader
 	- Martijn Laan
 	- Matthias Bauer
-	- Micha�l Pailloncy
+	- Michael Pailloncy
 	- Michael Schaefers
 	- Oliver Doepner
 	- Philip Boutros
@@ -99,14 +100,14 @@ r17: {
 	- Thomas Pummer
 	- William Whittle
 	- Yukihiko Sawanobori
-        - github/akquinet
-        - github/dapengme
+	- github/akquinet
+	- github/dapengme
 	
 	dependencyChanges:
 	- JGit 3.0.0-SNAPSHOT
 	- Iconic font
 	- AngularJS 1.0.7
-        - FreeMarker 2.3.19
+	- FreeMarker 2.3.19
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }

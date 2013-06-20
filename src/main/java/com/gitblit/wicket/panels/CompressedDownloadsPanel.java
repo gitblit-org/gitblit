@@ -60,7 +60,8 @@ public class CompressedDownloadsPanel extends Panel {
 				
 				String href = DownloadZipServlet.asLink(baseUrl, repositoryName,
 						objectId, path, format);
-				Component c = new LinkPanel("compressedLink", null, format.name(), href);
+				LinkPanel c = new LinkPanel("compressedLink", null, format.name(), href);
+				c.setNoFollow();
 				item.add(c);
 				Label lb = new Label("linkSep", "|");
 				lb.setVisible(counter > 0);
