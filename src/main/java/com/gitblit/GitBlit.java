@@ -967,12 +967,24 @@ public class GitBlit implements ServletContextListener {
 		userService.logout(user);
 	}
 
+	/**
+	 * Encode the username for user in an url.
+	 * 
+	 * @param name
+	 * @return the encoded name
+	 */
 	protected String encodeUsername(String name) {
-		return name.replace("@", "%40");	
+		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");	
 	}
 
+	/**
+	 * Decode a username from an encoded url.
+	 * 
+	 * @param name
+	 * @return the decoded name
+	 */
 	protected String decodeUsername(String name) {
-		return name.replace("%40", "@");	
+		return name.replace("%40", "@").replace("%20", " ").replace("%5C", "\\");
 	}
 	
 	/**
