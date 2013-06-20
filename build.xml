@@ -298,6 +298,7 @@
 			<!-- Manually include alternative User Services -->
 			<class name="com.gitblit.LdapUserService" />
 			<class name="com.gitblit.RedmineUserService" />
+			<class name="com.gitblit.SalesforceUserService" />
 		</mx:genjar>
 
 		<!-- Build the WAR file -->
@@ -412,6 +413,7 @@
 			<!-- Manually include alternative User Services -->
 			<class name="com.gitblit.LdapUserService" />
 			<class name="com.gitblit.RedmineUserService" />
+			<class name="com.gitblit.SalesforceUserService" />
 		</mx:genjar>
 
 		<!-- Build Express Zip file -->
@@ -701,7 +703,8 @@
 				</menu>
 				
 				<menu name="links">
-					<link name="Demo" src="https://demo-gitblit.rhcloud.com" />
+					<link name="Gitblit Demo (RELEASE)" src="https://demo-gitblit.rhcloud.com" />
+					<link name="Gitblit Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
 					<divider />
 					<link name="Github" src="${project.scmUrl}" />
 					<link name="Issues" src="${project.issuesUrl}" />
@@ -917,7 +920,8 @@
 						<page name="older releases" src="releasehistory.mkd" />
 					</menu>
 					<menu name="links">
-						<link name="Demo" src="https://demo-gitblit.rhcloud.com" />
+						<link name="Gitblit Demo (RELEASE)" src="https://demo-gitblit.rhcloud.com" />
+						<link name="Gitbilt Next (SNAPSHOT)" src="https://next-gitblit.rhcloud.com" />
 						<divider />
 						<link name="Github" src="${project.scmUrl}" />
 						<link name="Issues" src="${project.issuesUrl}" />

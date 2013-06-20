@@ -1,6 +1,7 @@
 ## Standard Features (GO/WAR)
 - JGit http/https SmartHTTP servlet
 - JGit git protocol daemon
+- Menu driven native platform clone links for all popular Git clients
 - Browser and git client authentication
 - Four *per-repository* access restriction configurations with a Read-Only control flag
     - ![anonymous](blank.png) *Anonymous View, Clone & Push*
@@ -34,10 +35,11 @@
 - Administrators and Repository Owners may set the default branch through the web UI or RPC interface
 - LDAP authentication and optional LDAP-controlled Team memberships
 - Redmine authentication
+- Salesforce.com authentication
 - Gravatar integration
 - Git-notes display support
 - Submodule support
-- Push log based on a hidden, orphan branch refs/gitblit/pushes
+- User-tracked reflog for pushes, tags, etc.
 - Fanout PubSub notifications service for self-hosted [Sparkleshare](http://sparkleshare.org) use
 - gh-pages display support (Jekyll is not supported)
 - Branch metrics (uses Google Charts)
@@ -53,16 +55,16 @@
 - Single text file for users configuration
 - Optional utility pages
     - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
-    - ![tickets](bug_16x16.png) **readonly** Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
+    - ![tickets](bug_16x16.png) **readonly and deprecated** Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
 - Translations
     - English
     - Japanese
     - Spanish
     - Polish
     - Korean
-	- Brazilian Portuguese
-	- Dutch
-	- Chinese (zh_CN)
+    - Brazilian Portuguese
+    - Dutch
+    - Chinese (zh_CN)
 
 ## Gitblit GO Features
 - Out-of-the-box integrated stack requiring minimal configuration

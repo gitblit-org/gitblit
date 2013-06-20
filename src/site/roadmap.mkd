@@ -8,7 +8,6 @@ This list is volatile.
 * Eclipse: create plugin to enumerate repositories and delegate cloning to EGit
 * Manager: support federation RPCs
 * Manager: redesign ref indicators in log, search, and activity views to support multiple local branches, remote branches, and tags
-* Gitblit: Serve repositories on root URL rather than /git (investigate JGit 1.2 GitFilter)
 
 ### TODO (medium priority)
 
@@ -21,9 +20,7 @@ This list is volatile.
 
 ### IDEAS
 
-* Gitblit: Pull requests
-* Gitblit: Watch/Star like github with personalized activity feed
-* Gitblit: Push database or orphan branch
+* Gitblit: GitHub-style Pull Requests or Gerrit-style Patchsets
 * Gitblit: Re-use the EGit branch visualization table cell renderer as some sort of servlet
 * Gitblit: diff should highlight inserted/removed fragment compared to original line
 * Gitblit: respect Gerrit branch permissions

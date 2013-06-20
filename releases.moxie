@@ -51,7 +51,7 @@ r17: {
      - Added simple star/unstar function to flag or bookmark interesting repositories
      - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
 	 - Added a ui for the push log introduced in 1.2.1 (issue-177)
-	 - Added client application menus for Git, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
+	 - Added client application menus for Git, SmartGit/Hg, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
 	 - Added GO http/https connector thread pool size setting
 	 - Added a server setting to force a particular translation/Locale for all sessions
 	 - Added smart Git Daemon serving.  If enabled, git:// access will be offered for any repository which permits anonymous access.  If the repository permits anonymous cloning, anonymous git:// clone will be permitted while anonmymous git:// pushes will be rejected.
@@ -99,24 +99,25 @@ r17: {
 	- Thomas Pummer
 	- William Whittle
 	- Yukihiko Sawanobori
-    - github/akquinet
-    - github/dapengme
+        - github/akquinet
+        - github/dapengme
 	
 	dependencyChanges:
 	- JGit 3.0.0-SNAPSHOT
 	- Iconic font
 	- AngularJS 1.0.7
+        - FreeMarker 2.3.19
 	
 	settings:
 	- { name: 'git.daemonBindInterface', defaultValue: 'localhost' }
 	- { name: 'git.daemonPort', defaultValue: 0 }
-    - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
-	- { name: 'mail.smtps', defaultValue: false }
+        - { name: 'git.defaultIncrementalPushTagPrefix', defaultValue: 'r' }
+	- { name: 'mail.smtps', defaultValue: 'false' }
 	- { name: 'realm.container.autoCreateAccounts', defaultValue: 'false' }
 	- { name: 'realm.salesforce.backingUserService', defaultValue: 'users.conf' }
 	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
 	- { name: 'web.activityDurationChoices', defaultValue: '7 14 28 60 90 180' }
-	- { name: 'web.allowAppCloneLinks', defaultValue: true }
+	- { name: 'web.allowAppCloneLinks', defaultValue: 'true' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.metricAuthorExclusions', defaultValue: ' ' }
 	- { name: 'web.overviewPushCount', defaultValue: 5 }
