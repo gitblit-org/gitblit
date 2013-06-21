@@ -15,6 +15,7 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,6 +34,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 import com.gitblit.models.RefModel;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
@@ -99,6 +101,7 @@ public class RefsPanel extends Panel {
 				boolean breakLine = false;
 				Class<? extends WebPage> linkClass = CommitPage.class;
 				String cssClass = "";
+				String tooltip = "";
 				if (name.startsWith(Constants.R_HEADS)) {
 					// local branch
 					linkClass = LogPage.class;
@@ -111,6 +114,10 @@ public class RefsPanel extends Panel {
 				} else if (name.startsWith(Constants.R_CHANGES)) {
 					// Gerrit change ref
 					name = name.substring(Constants.R_CHANGES.length());
+					// strip leading nn/ from nn/#####nn/ps = #####nn-ps
+					name = name.substring(name.indexOf('/') + 1).replace('/', '-');
+					String [] values = name.split("-");
+					tooltip = MessageFormat.format(getString("gb.reviewPatchset"), values[0], values[1]);
 					cssClass = "otherRef";
 				} else if (name.startsWith(Constants.R_PULL)) {
 					// Pull Request ref
@@ -154,7 +161,11 @@ public class RefsPanel extends Panel {
 				Component c = new LinkPanel("refName", null, name, linkClass,
 						WicketUtils.newObjectParameter(repositoryName, objectid));
 				WicketUtils.setCssClass(c, cssClass);
-				WicketUtils.setHtmlTooltip(c, name);
+				if (StringUtils.isEmpty(tooltip)) {
+					WicketUtils.setHtmlTooltip(c, name);
+				} else {
+					WicketUtils.setHtmlTooltip(c, tooltip);
+				}
 				item.add(c);
 				Label lb = new Label("lineBreak", "<br/>");
 				lb.setVisible(breakLine);
