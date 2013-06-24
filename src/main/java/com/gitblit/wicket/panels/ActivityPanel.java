@@ -22,6 +22,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -101,7 +102,7 @@ public class ActivityPanel extends BasePanel {
 						commitItem.add(repositoryLink);
 
 						// repository branch
-						LinkPanel branchLink = new LinkPanel("branch", "list", commit.branch,
+						LinkPanel branchLink = new LinkPanel("branch", "list", Repository.shortenRefName(commit.branch),
 								LogPage.class, WicketUtils.newObjectParameter(commit.repository,
 										commit.branch), true);
 						WicketUtils.setCssStyle(branchLink, "color: #008000;");

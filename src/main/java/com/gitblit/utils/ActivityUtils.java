@@ -32,9 +32,7 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.eclipse.jgit.lib.Constants;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -112,22 +110,19 @@ public class ActivityUtils {
 				} else {
 					branches.add(objectId);
 				}
-				Map<ObjectId, List<RefModel>> allRefs = JGitUtils
-						.getAllRefs(repository, model.showRemoteBranches);
 
 				for (String branch : branches) {
 					String shortName = branch;
 					if (shortName.startsWith(Constants.R_HEADS)) {
 						shortName = shortName.substring(Constants.R_HEADS.length());
 					}
-					List<RevCommit> commits = JGitUtils.getRevLog(repository,
-							branch, thresholdDate);
+					List<RepositoryCommit> commits = CommitCache.instance().getCommits(model.name, repository, branch, thresholdDate);
 					if (model.maxActivityCommits > 0 && commits.size() > model.maxActivityCommits) {
 						// trim commits to maximum count
 						commits = commits.subList(0,  model.maxActivityCommits);
 					}
-					for (RevCommit commit : commits) {						
-						Date date = JGitUtils.getCommitDate(commit);
+					for (RepositoryCommit commit : commits) {						
+						Date date = commit.getCommitDate();
 						String dateStr = df.format(date);
 						if (!activity.containsKey(dateStr)) {
 							// Normalize the date to midnight
@@ -140,11 +135,7 @@ public class ActivityUtils {
 							a.excludeAuthors(authorExclusions);
 							activity.put(dateStr, a);
 						}
-						RepositoryCommit commitModel = activity.get(dateStr)
-								.addCommit(model.name, shortName, commit);
-						if (commitModel != null) {
-							commitModel.setRefs(allRefs.get(commit.getId()));
-						}
+						activity.get(dateStr).addCommit(commit);
 					}
 				}
 				

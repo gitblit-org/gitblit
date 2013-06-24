@@ -160,7 +160,24 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Adds a commit to the push entry object as long as the commit is not a
+	 * duplicate.
+	 * 
+	 * @param branch
+	 * @param commit
+	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
+	 *         commit
+	 */
+	public RepositoryCommit addCommit(RepositoryCommit commit) {
+		if (commits.add(commit)) {
+			authorCount = -1;
+			return commit;
+		}
+		return null;
+	}
+
 	/**
 	 * Adds a a list of repository commits.  This is used to construct discrete
 	 * ref push log entries

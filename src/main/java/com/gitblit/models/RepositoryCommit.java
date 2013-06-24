@@ -17,8 +17,10 @@ package com.gitblit.models;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -54,6 +56,10 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 		return refs;
 	}
 
+	public ObjectId getId() {
+		return commit.getId();
+	}
+
 	public String getName() {
 		return commit.getName();
 	}
@@ -65,9 +71,17 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 	public String getShortMessage() {
 		return commit.getShortMessage();
 	}
+	
+	public Date getCommitDate() {
+		return new Date(commit.getCommitTime() * 1000L);
+	}
 
 	public int getParentCount() {
 		return commit.getParentCount();
+	}
+	
+	public RevCommit [] getParents() {
+		return commit.getParents();
 	}
 
 	public PersonIdent getAuthorIdent() {
@@ -77,7 +91,7 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 	public PersonIdent getCommitterIdent() {
 		return commit.getCommitterIdent();
 	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof RepositoryCommit) {
@@ -101,6 +115,10 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 			return 1;
 		}
 		return 0;
+	}
+	
+	public RepositoryCommit clone(String withRef) {
+		return new RepositoryCommit(repository, withRef, commit);
 	}
 	
 	@Override

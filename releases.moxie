@@ -56,6 +56,7 @@ r17: {
 	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
 	 - Added WindowsUserService to authenticate users against Windows accounts (issue-250)
 	 - Global and per-repository setting to exclude authors from metrics (issue-251)
+	 - Added commit cache to improve Activity, Dashboard, and Project page generation times
 	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
      - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
@@ -126,7 +127,8 @@ r17: {
 	- { name: 'realm.salesforce.orgId', defaultValue: 0 }
 	- { name: 'realm.windows.defaultDomain', defaultValue: ' ' }
 	- { name: 'realm.windows.backingUserService', defaultValue: 'users.conf' }
-	- { name: 'web.activityDurationChoices', defaultValue: '7 14 28 60 90 180' }
+	- { name: 'web.activityDurationChoices', defaultValue: '7 14 21 28' }
+	- { name: 'web.activityCacheDays', defaultValue: 14 }
 	- { name: 'web.allowAppCloneLinks', defaultValue: 'true' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
 	- { name: 'web.metricAuthorExclusions', defaultValue: ' ' }

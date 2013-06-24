@@ -549,15 +549,15 @@ public class RefLogUtils {
         String linearParent = null;
         for (RefModel local : JGitUtils.getLocalBranches(repository, true, -1)) {
             String branch = local.getName();
-            List<RevCommit> commits = JGitUtils.getRevLog(repository, branch, minimumDate);
-            for (RevCommit commit : commits) {
+            List<RepositoryCommit> commits = CommitCache.instance().getCommits(repositoryName, repository,  branch, minimumDate);
+            for (RepositoryCommit commit : commits) {
             	if (linearParent != null) {
             		if (!commit.getName().equals(linearParent)) {
             			// only follow linear branch commits
             			continue;
             		}
             	}
-                Date date = JGitUtils.getCommitDate(commit);
+                Date date = commit.getCommitDate();
                 String dateStr = df.format(date);
                 if (!dailydigests.containsKey(dateStr)) {
                     dailydigests.put(dateStr, new DailyLogEntry(repositoryName, date));
@@ -571,7 +571,7 @@ public class RefLogUtils {
                 	digest.updateRef(branch, ReceiveCommand.Type.UPDATE, linearParent, commit.getName());
                 }
                 
-                RepositoryCommit repoCommit = digest.addCommit(branch, commit);
+                RepositoryCommit repoCommit = digest.addCommit(commit);
                 if (repoCommit != null) {
                 	List<RefModel> matchedRefs = allRefs.get(commit.getId());
                     repoCommit.setRefs(matchedRefs);
@@ -587,7 +587,8 @@ public class RefLogUtils {
                                 }
                                 RefLogEntry tagEntry = tags.get(dateStr);
                                 tagEntry.updateRef(ref.getName(), ReceiveCommand.Type.CREATE);
-                                tagEntry.addCommit(ref.getName(), commit);
+                                RepositoryCommit rc = repoCommit.clone(ref.getName());
+                                tagEntry.addCommit(rc);
                             } else if (ref.getName().startsWith(Constants.R_PULL)) {
                                 // treat pull requests as special events in the log
                                 if (!pulls.containsKey(dateStr)) {
@@ -597,7 +598,8 @@ public class RefLogUtils {
                                 }
                                 RefLogEntry pullEntry = pulls.get(dateStr);
                                 pullEntry.updateRef(ref.getName(), ReceiveCommand.Type.CREATE);
-                                pullEntry.addCommit(ref.getName(), commit);
+                                RepositoryCommit rc = repoCommit.clone(ref.getName());
+                                pullEntry.addCommit(rc);
                             }
                         }
                     }

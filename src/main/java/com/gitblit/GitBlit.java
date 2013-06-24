@@ -114,6 +114,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.Base64;
 import com.gitblit.utils.ByteFormat;
+import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
@@ -3401,6 +3402,8 @@ public class GitBlit implements ServletContextListener {
 		configureJGit();
 		configureFanout();
 		configureGitDaemon();
+		
+		CommitCache.instance().setCacheDays(settings.getInteger(Keys.web.activityCacheDays, 14));
 		
 		ContainerUtils.CVE_2007_0450.test();
 	}

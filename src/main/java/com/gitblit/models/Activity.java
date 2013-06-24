@@ -103,14 +103,28 @@ public class Activity implements Serializable, Comparable<Activity> {
 	 */
 	public RepositoryCommit addCommit(String repository, String branch, RevCommit commit) {
 		RepositoryCommit commitModel = new RepositoryCommit(repository, branch, commit);
+		return addCommit(commitModel);
+	}
+
+	/**
+	 * Adds a commit to the activity object as long as the commit is not a
+	 * duplicate.
+	 * 
+	 * @param repository
+	 * @param branch
+	 * @param commit
+	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
+	 *         commit
+	 */
+	public RepositoryCommit addCommit(RepositoryCommit commitModel) {
 		if (commits.add(commitModel)) {
-			String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
+			String author = StringUtils.removeNewlines(commitModel.getAuthorIdent().getName());
 			String authorName = author.toLowerCase();
-			String authorEmail = StringUtils.removeNewlines(commit.getAuthorIdent().getEmailAddress()).toLowerCase();
-			if (!repositoryMetrics.containsKey(repository)) {
-				repositoryMetrics.put(repository, new Metric(repository));
+			String authorEmail = StringUtils.removeNewlines(commitModel.getAuthorIdent().getEmailAddress()).toLowerCase();
+			if (!repositoryMetrics.containsKey(commitModel.repository)) {
+				repositoryMetrics.put(commitModel.repository, new Metric(commitModel.repository));
 			}
-			repositoryMetrics.get(repository).count++;
+			repositoryMetrics.get(commitModel.repository).count++;
 
 			if (!authorExclusions.contains(authorName) && !authorExclusions.contains(authorEmail)) {
 				if (!authorMetrics.containsKey(author)) {
@@ -122,7 +136,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 		}
 		return null;
 	}
-	
+
 	public int getCommitCount() {
 		return commits.size();
 	}
