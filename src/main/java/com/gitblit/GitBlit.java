@@ -102,6 +102,7 @@ import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
+import com.gitblit.models.RefModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
@@ -3402,9 +3403,8 @@ public class GitBlit implements ServletContextListener {
 		configureJGit();
 		configureFanout();
 		configureGitDaemon();
-		
-		CommitCache.instance().setCacheDays(settings.getInteger(Keys.web.activityCacheDays, 14));
-		
+		configureCommitCache();
+
 		ContainerUtils.CVE_2007_0450.test();
 	}
 	
@@ -3511,6 +3511,42 @@ public class GitBlit implements ServletContextListener {
 				gitDaemon = null;
 				logger.error(MessageFormat.format("Failed to start Git daemon on {0}:{1,number,0}", bindInterface, port), e);
 			}
+		}
+	}
+	
+	protected void configureCommitCache() {
+		int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
+		if (daysToCache <= 0) {
+			logger.info("commit cache disabled");
+		} else {
+			long start = System.nanoTime();
+			long repoCount = 0;
+			long commitCount = 0;
+			logger.info(MessageFormat.format("preparing {0} day commit cache. please wait...", daysToCache));
+			CommitCache.instance().setCacheDays(daysToCache);
+			Date cutoff = CommitCache.instance().getCutoffDate();
+			for (String repositoryName : getRepositoryList()) {
+				RepositoryModel model = getRepositoryModel(repositoryName);
+				if (model.hasCommits && model.lastChange.after(cutoff)) {
+					repoCount++;
+					Repository repository = getRepository(repositoryName);
+					for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
+						if (!ref.getDate().after(cutoff)) {
+							// branch not recently updated
+							continue;
+						}
+						List<?> commits = CommitCache.instance().getCommits(repositoryName, repository, ref.getName());
+						if (commits.size() > 0) {
+							logger.info(MessageFormat.format("  cached {0} commits for {1}:{2}",
+									commits.size(), repositoryName, ref.getName()));
+							commitCount += commits.size();
+						}
+					}
+					repository.close();
+				}
+			}
+			logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
+					daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
 		}
 	}
 	

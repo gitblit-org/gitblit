@@ -548,6 +548,10 @@ public class RefLogUtils {
         Map<String, DailyLogEntry> dailydigests = new HashMap<String, DailyLogEntry>();
         String linearParent = null;
         for (RefModel local : JGitUtils.getLocalBranches(repository, true, -1)) {
+        	if (!local.getDate().after(minimumDate)) {
+				// branch not recently updated
+        		continue;
+        	}
             String branch = local.getName();
             List<RepositoryCommit> commits = CommitCache.instance().getCommits(repositoryName, repository,  branch, minimumDate);
             for (RepositoryCommit commit : commits) {

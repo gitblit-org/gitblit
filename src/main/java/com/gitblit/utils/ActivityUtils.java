@@ -105,6 +105,10 @@ public class ActivityUtils {
 				if (StringUtils.isEmpty(objectId)) {
 					for (RefModel local : JGitUtils.getLocalBranches(
 							repository, true, -1)) {
+			        	if (!local.getDate().after(thresholdDate)) {
+							// branch not recently updated
+			        		continue;
+			        	}
 						branches.add(local.getName());
 					}
 				} else {

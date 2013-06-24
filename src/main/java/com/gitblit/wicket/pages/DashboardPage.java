@@ -16,9 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -55,7 +53,6 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GooglePieChart;
-import com.gitblit.wicket.ng.NgController;
 import com.gitblit.wicket.panels.DigestsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -83,10 +80,15 @@ public abstract class DashboardPage extends RootPage {
 		// create daily commit digest feed
 		List<DailyLogEntry> digests = new ArrayList<DailyLogEntry>();
 		for (RepositoryModel model : repositories) {
-			Repository repository = GitBlit.self().getRepository(model.name);
-			List<DailyLogEntry> entries = RefLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
-			digests.addAll(entries);
-			repository.close();
+			if (model.isCollectingGarbage) {
+				continue;
+			}
+			if (model.hasCommits && model.lastChange.after(minimumDate)) {
+				Repository repository = GitBlit.self().getRepository(model.name);
+				List<DailyLogEntry> entries = RefLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
+				digests.addAll(entries);
+				repository.close();
+			}
 		}
 		
 		Fragment activityFragment = new Fragment("activity", "activityFragment", this);

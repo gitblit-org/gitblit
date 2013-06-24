@@ -67,7 +67,7 @@ public class CommitCache {
 	 * 
 	 * @return
 	 */
-	protected Date getCacheCutoffDate() {
+	public Date getCutoffDate() {
 		final Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(System.currentTimeMillis());
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -118,7 +118,7 @@ public class CommitCache {
 	 * @return a list of commits
 	 */
 	public List<RepositoryCommit> getCommits(String repositoryName, Repository repository, String branch) {
-		return getCommits(repositoryName, repository, branch, getCacheCutoffDate());
+		return getCommits(repositoryName, repository, branch, getCutoffDate());
 	}
 	
 	/**
@@ -134,7 +134,7 @@ public class CommitCache {
 	 */
 	public List<RepositoryCommit> getCommits(String repositoryName, Repository repository, String branch, Date sinceDate) {
 		long start = System.nanoTime();
-		Date cacheCutoffDate = getCacheCutoffDate();
+		Date cacheCutoffDate = getCutoffDate();
 		List<RepositoryCommit> list;
 		if (cacheDays > 0 && (sinceDate.getTime() >= cacheCutoffDate.getTime())) {
 			// request fits within the cache window
