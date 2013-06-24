@@ -142,43 +142,6 @@ public abstract class DashboardPage extends RootPage {
 		}
 	}
 	
-	protected Fragment createNgList(String wicketId, String fragmentId, String ngController, List<RepositoryModel> repositories) {
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
-		final DateFormat df = new SimpleDateFormat(format);
-		df.setTimeZone(getTimeZone());
-
-		Fragment fragment = new Fragment(wicketId, fragmentId, this);
-		
-		List<RepoListItem> list = new ArrayList<RepoListItem>();
-		for (RepositoryModel repo : repositories) {
-			String name = StringUtils.stripDotGit(repo.name); 
-			String path = "";
-			if (name.indexOf('/') > -1) {
-				path = name.substring(0, name.lastIndexOf('/') + 1);
-				name = name.substring(name.lastIndexOf('/') + 1);
-			}
-			
-			RepoListItem item = new RepoListItem();
-			item.n = name;
-			item.p = path;
-			item.r = repo.name;
-			item.i = repo.description;
-			item.s = GitBlit.self().getStarCount(repo);
-			item.t = getTimeUtils().timeAgo(repo.lastChange);
-			item.d = df.format(repo.lastChange);
-			item.c = StringUtils.getColor(StringUtils.stripDotGit(repo.name));
-			item.wc = repo.isBare ? 0 : 1;
-			list.add(item);
-		}
-		
-		// inject an AngularJS controller with static data
-		NgController ctrl = new NgController(ngController);
-		ctrl.addVariable(wicketId, list);
-		add(new HeaderContributor(ctrl));
-		
-		return fragment;
-	}
-
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
@@ -280,20 +243,5 @@ public abstract class DashboardPage extends RootPage {
 
 		add(new HeaderContributor(charts));		
 		frag.add(new Fragment("charts", "chartsFragment", this));
-	}
-	
-	protected class RepoListItem implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-		
-		String r; // repository
-		String n; // name
-		String p; // project/path
-		String t; // time ago
-		String d; // last updated
-		String i; // information/description
-		long s; // stars
-		String c; // html color
-		int wc; // working copy, 1 = true
 	}
 }
