@@ -1475,7 +1475,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		
 		// return sorted copy of cached list
-		List<String> list = new ArrayList<String>(repositoryListCache.keySet());		
+		List<String> list = new ArrayList<String>();
+		for (RepositoryModel model : repositoryListCache.values()) {
+			list.add(model.name);
+		}
 		StringUtils.sortRepositorynames(list);
 		return list;
 	}
