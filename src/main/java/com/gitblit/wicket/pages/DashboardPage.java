@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -148,8 +147,6 @@ public abstract class DashboardPage extends RootPage {
 
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
 				GitBlitWebApp.HOME_PAGE_CLASS);
-		// preserve time filter option on repository choices
-		menu.menuItems.addAll(getRepositoryFilterItems(params));
 
 		// preserve repository filter option on time choices
 		menu.menuItems.addAll(getTimeFilterItems(params));
