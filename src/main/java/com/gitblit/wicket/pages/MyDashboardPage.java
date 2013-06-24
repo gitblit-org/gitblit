@@ -94,7 +94,7 @@ public class MyDashboardPage extends DashboardPage {
 		// parameters
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = 7;
+			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
 		}
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);

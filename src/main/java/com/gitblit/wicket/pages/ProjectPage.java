@@ -106,12 +106,12 @@ public class ProjectPage extends DashboardPage {
 		}
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = 7;
+			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
 		}
 		// reset the daysback parameter so that we have a complete project
 		// repository list.  the recent activity will be built up by the
 		// reflog utils.
-		params.put("db", 0);
+		params.remove("db");
 		
 		List<RepositoryModel> repositories = getRepositories(params);
 		Collections.sort(repositories, new Comparator<RepositoryModel>() {

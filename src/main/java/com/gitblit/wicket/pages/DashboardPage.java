@@ -96,12 +96,20 @@ public abstract class DashboardPage extends RootPage {
 			// quiet or no starred repositories
 			if (repositories.size() == 0) {
 				if (UserModel.ANONYMOUS.equals(user)) {
-					activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));	
+					if (daysBack == 1) {
+						activityFragment.add(new Label("digests", getString("gb.noActivityToday")));
+					} else {
+						activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));
+					}
 				} else {
 					activityFragment.add(new LinkPanel("digests", null, getString("gb.findSomeRepositories"), RepositoriesPage.class));
 				}
 			} else {
-				activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));
+				if (daysBack == 1) {
+					activityFragment.add(new Label("digests", getString("gb.noActivityToday")));
+				} else {
+					activityFragment.add(new Label("digests", MessageFormat.format(getString("gb.noActivity"), daysBack)));
+				}
 			}
 		} else {
 			// show daily commit digest feed
@@ -228,7 +236,23 @@ public abstract class DashboardPage extends RootPage {
 			}
 		}
 		
-		frag.add(new Label("feedheader", MessageFormat.format(getString("gb.recentActivityStats"),
+		String headerPattern;
+		if (daysBack == 1) {
+			// today
+			if (totalCommits == 0) {
+				headerPattern = getString("gb.todaysActivityNone");
+			} else {
+				headerPattern = getString("gb.todaysActivityStats");
+			}
+		} else {
+			// multiple days
+			if (totalCommits == 0) {
+				headerPattern = getString("gb.recentActivityNone");
+			} else {
+				headerPattern = getString("gb.recentActivityStats");
+			}
+		}
+		frag.add(new Label("feedheader", MessageFormat.format(headerPattern,
 				daysBack, totalCommits, authorMetrics.size())));
 
 		// build google charts

@@ -61,7 +61,7 @@ public class ActivityPage extends RootPage {
 		// parameters
 		int daysBack = WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = 14;
+			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
 		}
 		String objectId = WicketUtils.getObject(params);
 
@@ -70,9 +70,26 @@ public class ActivityPage extends RootPage {
 		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, 
 				daysBack, objectId, getTimeZone());
 
+		String headerPattern;
+		if (daysBack == 1) {
+			// today
+			if (recentActivity.size() == 0) {
+				headerPattern = getString("gb.todaysActivityNone");
+			} else {
+				headerPattern = getString("gb.todaysActivityStats");
+			}
+		} else {
+			// multiple days
+			if (recentActivity.size() == 0) {
+				headerPattern = getString("gb.recentActivityNone");
+			} else {
+				headerPattern = getString("gb.recentActivityStats");
+			}
+		}
+		
 		if (recentActivity.size() == 0) {
 			// no activity, skip graphs and activity panel
-			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityNone"),
+			add(new Label("subheader", MessageFormat.format(headerPattern,
 					daysBack)));
 			add(new Label("activityPanel"));
 		} else {
@@ -86,7 +103,7 @@ public class ActivityPage extends RootPage {
 			int totalAuthors = uniqueAuthors.size();
 
 			// add the subheader with stat numbers
-			add(new Label("subheader", MessageFormat.format(getString("gb.recentActivityStats"),
+			add(new Label("subheader", MessageFormat.format(headerPattern,
 					daysBack, totalCommits, totalAuthors)));
 
 			// create the activity charts

@@ -52,6 +52,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
+import com.gitblit.wicket.PageRegistration.DropDownToggleItem;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
@@ -256,7 +257,7 @@ public abstract class RootPage extends BasePage {
 			List<String> sets = new ArrayList<String>(setMap.keySet());
 			Collections.sort(sets);
 			for (String set : sets) {
-				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", set,
+				filters.add(new DropDownToggleItem(MessageFormat.format("{0} ({1})", set,
 						setMap.get(set).get()), "set", set, params));
 			}
 			// divider
@@ -268,7 +269,7 @@ public abstract class RootPage extends BasePage {
 			List<TeamModel> teams = new ArrayList<TeamModel>(user.teams);
 			Collections.sort(teams);
 			for (TeamModel team : teams) {
-				filters.add(new DropDownMenuItem(MessageFormat.format("{0} ({1})", team.name,
+				filters.add(new DropDownToggleItem(MessageFormat.format("{0} ({1})", team.name,
 						team.repositories.size()), "team", team.name, params));
 			}
 			// divider
@@ -283,7 +284,7 @@ public abstract class RootPage extends BasePage {
 			for (String expression : expressions) {
 				if (!StringUtils.isEmpty(expression)) {
 					addedExpression = true;
-					filters.add(new DropDownMenuItem(null, "x", expression, params));
+					filters.add(new DropDownToggleItem(null, "x", expression, params));
 				}
 			}
 			// if we added any custom expressions, add a divider
@@ -300,7 +301,7 @@ public abstract class RootPage extends BasePage {
 		if (daysBack < 1) {
 			daysBack = 7;
 		}
-		PageParameters clonedParams;;
+		PageParameters clonedParams;
 		if (params == null) {
 			clonedParams = new PageParameters();
 		} else {
@@ -314,14 +315,18 @@ public abstract class RootPage extends BasePage {
 		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
 		Set<Integer> choicesSet = new TreeSet<Integer>(GitBlit.getIntegers(Keys.web.activityDurationChoices));
 		if (choicesSet.isEmpty()) {
-			 choicesSet.addAll(Arrays.asList(7, 14, 28, 60, 90, 180));
+			 choicesSet.addAll(Arrays.asList(1, 3, 7, 14, 21, 28));
 		}
 		List<Integer> choices = new ArrayList<Integer>(choicesSet);
 		Collections.sort(choices);
 		String lastDaysPattern = getString("gb.lastNDays");
 		for (Integer db : choices) {
-			String txt = MessageFormat.format(lastDaysPattern, db);
-			items.add(new DropDownMenuItem(txt, "db", db.toString(), clonedParams));
+			if (db == 1) {
+				items.add(new DropDownMenuItem(getString("gb.time.today"), "db", db.toString(), clonedParams));
+			} else {
+				String txt = MessageFormat.format(lastDaysPattern, db);
+				items.add(new DropDownMenuItem(txt, "db", db.toString(), clonedParams));
+			}
 		}
 		items.add(new DropDownMenuItem());
 		return items;

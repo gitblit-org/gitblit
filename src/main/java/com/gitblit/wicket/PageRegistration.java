@@ -152,13 +152,8 @@ public class PageRegistration implements Serializable {
 				parameters = new PageParameters(params);
 				if (parameters.containsKey(parameter)) {
 					isSelected = params.getString(parameter).equals(value);
-					if (isSelected) {
-						// already selected, so remove this enables toggling
-						parameters.remove(parameter);
-					} else {
-						// set the new selection value
-						setParameter(parameter, value);
-					}
+					// set the new selection value
+					setParameter(parameter, value);
 				} else {
 					// not currently selected
 					isSelected = false;
@@ -167,7 +162,7 @@ public class PageRegistration implements Serializable {
 			}
 		}
 
-		private void setParameter(String parameter, String value) {
+		protected void setParameter(String parameter, String value) {
 			if (!StringUtils.isEmpty(parameter)) {
 				if (StringUtils.isEmpty(value)) {
 					this.parameters.remove(parameter);
@@ -222,6 +217,27 @@ public class PageRegistration implements Serializable {
 				return formatParameter();
 			}
 			return displayText;
+		}
+	}
+	
+	public static class DropDownToggleItem extends DropDownMenuItem {
+		
+		private static final long serialVersionUID = 1L;
+
+		/**
+		 * Toggle Menu Item constructor that preserves aggregate parameters.
+		 * 
+		 * @param displayText
+		 * @param parameter
+		 * @param value
+		 */
+		public DropDownToggleItem(String displayText, String parameter, String value,
+				PageParameters params) {
+			super(displayText, parameter, value, params);
+			if (isSelected) {
+				// already selected, so remove this enables toggling
+				parameters.remove(parameter);
+			}
 		}
 	}
 }

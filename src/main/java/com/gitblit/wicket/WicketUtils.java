@@ -431,7 +431,7 @@ public class WicketUtils {
 	}
 
 	public static int getDaysBack(PageParameters params) {
-		return params.getInt("db", 7);
+		return params.getInt("db", 0);
 	}
 
 	public static String getUsername(PageParameters params) {
