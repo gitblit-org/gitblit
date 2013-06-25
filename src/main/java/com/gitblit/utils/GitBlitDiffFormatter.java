@@ -157,7 +157,19 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 				sb.append("<table><tbody>");
 				inFile = true;
 			} else {
+				boolean gitLinkDiff = line.length() > 0 && line.substring(1).startsWith("Subproject commit");
+				if (gitLinkDiff) {
+					sb.append("<tr><th></th><th></th>");
+					if (line.charAt(0) == '+') {
+						sb.append("<td><div class=\"diff add2\">");
+					} else {
+						sb.append("<td><div class=\"diff remove2\">");
+					}
+				}
 				sb.append(line);
+				if (gitLinkDiff) {
+					sb.append("</div></td></tr>");
+				}
 			}
 		}
 		sb.append("</table></div>");

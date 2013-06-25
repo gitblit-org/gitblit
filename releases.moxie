@@ -31,7 +31,8 @@ r17: {
 	 - Disable SNI extensions for client SSL connections
 	 - Fixed prettify language extension loading
 	 - Fixed index out of bounds exceptions when generating client certificates for a user when the user's table has been filtered
-	 - Fixed AddindexedBranch tool when specifying the non-default branch. 
+	 - Fixed AddindexedBranch tool when specifying the non-default branch.
+	 - Fixed submodule diff display
 
 	changes:
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
