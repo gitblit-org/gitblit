@@ -140,7 +140,20 @@
 		<servlet-name>PagesServlet</servlet-name>		
 		<url-pattern>/pages/*</url-pattern>
 	</servlet-mapping>	
+
 	
+	<!-- Logo Servlet
+		 <url-pattern> MUST match: 
+			* Wicket Filter ignorePaths parameter -->
+	<servlet>
+		<servlet-name>LogoServlet</servlet-name>
+		<servlet-class>com.gitblit.LogoServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LogoServlet</servlet-name>		
+		<url-pattern>/logo.png</url-pattern>
+	</servlet-mapping>
+
 
 	<!-- Robots.txt Servlet
 		 <url-pattern> MUST match: 
@@ -269,7 +282,7 @@
              	* PagesFilter <url-pattern>
              	* PagesServlet <url-pattern>
              	* com.gitblit.Constants.PAGES_PATH -->
-            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt,sparkleshare/</param-value>
+            <param-value>git/,feed/,zip/,federation/,rpc/,pages/,robots.txt,logo.png,sparkleshare/</param-value>
         </init-param>
     </filter>
     <filter-mapping>

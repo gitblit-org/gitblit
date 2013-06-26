@@ -52,6 +52,7 @@ r17: {
     additions: 
 	 - Added a ui for the ref log introduced in 1.2.1 (issue-177)
 	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
+	 - Support setting a custom header logo (issue 208)
 	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
 	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
