@@ -53,6 +53,7 @@ r17: {
 	 - Added a ui for the ref log introduced in 1.2.1 (issue-177)
 	 - Added weblogic.xml to WAR for deployment on WebLogic (issue 199)
 	 - Support setting a custom header logo (issue 208)
+	 - Support header color customizations (issue 209)
 	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
 	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
@@ -134,6 +135,12 @@ r17: {
 	- { name: 'web.activityCacheDays', defaultValue: 14 }
 	- { name: 'web.allowAppCloneLinks', defaultValue: 'true' }
 	- { name: 'web.forceDefaultLocale', defaultValue: ' ' }
+	- { name: 'web.headerLogo', defaultValue: '${baseFolder}/logo.png' }
+	- { name: 'web.headerBackgroundColor', defaultValue: ' ' }
+	- { name: 'web.headerForegroundColor', defaultValue: ' ' }
+	- { name: 'web.headerHoverColor', defaultValue: ' ' }
+	- { name: 'web.headerBorderColor', defaultValue: ' ' }
+	- { name: 'web.headerBorderFocusColor', defaultValue: ' ' }
 	- { name: 'web.metricAuthorExclusions', defaultValue: ' ' }
 	- { name: 'web.overviewReflogCount', defaultValue: 5 }
 	- { name: 'web.reflogChangesPerPage', defaultValue: 10 }

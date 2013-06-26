@@ -688,23 +688,18 @@
     position: static;
   }
   .navbar-fixed-top {
-    margin-bottom: 18px;
+    margin-bottom: 0px;
   }
   .navbar-fixed-bottom {
     margin-top: 18px;
   }
   .navbar-fixed-top .navbar-inner,
   .navbar-fixed-bottom .navbar-inner {
-    padding: 5px;
+    padding: 0px 5px 1px;
   }
   .navbar .container {
     width: auto;
     padding: 0;
-  }
-  .navbar .brand {
-    padding-right: 10px;
-    padding-left: 10px;
-    margin: 0 0 0 -5px;
   }
   .nav-collapse {
     clear: both;

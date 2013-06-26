@@ -33,6 +33,9 @@ import java.util.regex.Pattern;
 
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.TextField;
@@ -83,6 +86,50 @@ public abstract class RootPage extends BasePage {
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
+
+		// CSS header overrides
+		add(new HeaderContributor(new IHeaderContributor() {
+			private static final long serialVersionUID = 1L;
+
+			public void renderHead(IHeaderResponse response) {
+				StringBuilder buffer = new StringBuilder();
+				buffer.append("<style type=\"text/css\">\n");
+				buffer.append(".navbar-inner {\n");
+				final String headerBackground = GitBlit.getString(Keys.web.headerBackgroundColor, null);
+				if (!StringUtils.isEmpty(headerBackground)) {
+					buffer.append(MessageFormat.format("background-color: {0};\n", headerBackground));
+				}
+				final String headerBorder = GitBlit.getString(Keys.web.headerBorderColor, null);
+				if (!StringUtils.isEmpty(headerBorder)) {
+					buffer.append(MessageFormat.format("border-bottom: 1px solid {0} !important;\n", headerBorder));
+				}
+				buffer.append("}\n");
+				final String headerBorderFocus = GitBlit.getString(Keys.web.headerBorderFocusColor, null);
+				if (!StringUtils.isEmpty(headerBorderFocus)) {
+					buffer.append(".navbar ul li:focus, .navbar .active {\n");
+					buffer.append(MessageFormat.format("border-bottom: 4px solid {0};\n", headerBorderFocus));
+					buffer.append("}\n");
+				}
+				final String headerForeground = GitBlit.getString(Keys.web.headerForegroundColor, null);
+				if (!StringUtils.isEmpty(headerForeground)) {
+					buffer.append(".navbar ul.nav li a {\n");
+					buffer.append(MessageFormat.format("color: {0};\n", headerForeground));
+					buffer.append("}\n");
+					buffer.append(".navbar ul.nav .active a {\n");
+					buffer.append(MessageFormat.format("color: {0};\n", headerForeground));
+					buffer.append("}\n");
+				}
+				final String headerHover = GitBlit.getString(Keys.web.headerHoverColor, null);
+				if (!StringUtils.isEmpty(headerHover)) {
+					buffer.append(".navbar ul.nav li a:hover {\n");
+					buffer.append(MessageFormat.format("color: {0} !important;\n", headerHover));
+					buffer.append("}\n");
+				}
+				buffer.append("</style>\n");
+				response.renderString(buffer.toString());
+				}
+			}));
+		
 		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
 		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
