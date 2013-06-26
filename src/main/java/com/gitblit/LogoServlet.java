@@ -47,7 +47,7 @@ public class LogoServlet extends HttpServlet {
 	protected long getLastModified(HttpServletRequest req) {
 		File file = GitBlit.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
 		if (file.exists()) {
-			return file.lastModified();
+			return Math.max(lastModified, file.lastModified());
 		} else {
 			return lastModified;
 		}
@@ -65,7 +65,7 @@ public class LogoServlet extends HttpServlet {
 				ServletContext context = request.getSession().getServletContext();
 				contentType = context.getMimeType(file.getName());
 				response.setContentLength((int) file.length());
-				response.setDateHeader("Last-Modified", file.lastModified());
+				response.setDateHeader("Last-Modified", Math.max(lastModified, file.lastModified()));
 				is = new FileInputStream(file);
 			} else {
 				// default logo
