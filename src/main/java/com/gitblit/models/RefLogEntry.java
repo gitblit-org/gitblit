@@ -330,6 +330,9 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	}
 
 	public PersonIdent getAuthorIdent() {
+		if (getAuthorCount() == 1) {
+			return getCommits().get(0).getAuthorIdent();
+		}
 		return getCommitterIdent();
 	}
 
