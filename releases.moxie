@@ -63,7 +63,7 @@ r17: {
 	 - Added SalesForce.com user service
      - Added simple star/unstar function to flag or bookmark interesting repositories
      - Added Dashboard page which shows a news feed for starred repositories and offers a filterable list of repositories you care about
-	 - Added client application menus for Git, SmartGit/Hg, SourceTree, Tower, GitHub for Windows, GitHub for Mac, and SparkleShare
+	 - Added client application menus for Git, SmartGit/Hg, SourceTree, Tower, GitHub for Windows, and GitHub for Mac
 	 - Added GO http/https connector thread pool size setting
 	 - Added a server setting to force a particular translation/Locale for all sessions
 	 - Added smart Git Daemon serving.  If enabled, git:// access will be offered for any repository which permits anonymous access.  If the repository permits anonymous cloning, anonymous git:// clone will be permitted while anonmymous git:// pushes will be rejected.

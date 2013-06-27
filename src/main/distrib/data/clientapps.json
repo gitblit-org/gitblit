@@ -76,6 +76,6 @@
 		"platforms": [ "windows", "macintosh", "linux" ],
 		"icon": "sparkleshare_32x32.png",
 		"minimumPermission" : "RW+",
-		"isActive": true
+		"isActive": false
 	}
 ]
