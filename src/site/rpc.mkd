@@ -88,15 +88,15 @@ Use *SET_REPOSITORY_TEAM_PERMISSIONS* instead.
 <tr><td colspan='6'><em>web.enableRpcManagement=true</em></td></tr>
 <tr><td>CREATE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>EDIT_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>RepositoryModel</td><td>-</td></tr>
-<tr><td>DELETE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>-</td><td>-</td></tr>
+<tr><td>DELETE_REPOSITORY</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>RepositoryModel</td><td>-</td></tr>
 <tr><td>LIST_USERS</td><td>-</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;UserModel&gt;</td></tr>
 <tr><td>CREATE_USER</td><td>user name</td><td><em>admin</em></td><td>1</td><td>UserModel</td><td>-</td></tr>
 <tr><td>EDIT_USER</td><td>user name</td><td><em>admin</em></td><td>1</td><td>UserModel</td><td>-</td></tr>
-<tr><td>DELETE_USER</td><td>user name</td><td><em>admin</em></td><td>1</td><td>-</td><td>-</td></tr>
+<tr><td>DELETE_USER</td><td>user name</td><td><em>admin</em></td><td>1</td><td>UserModel</td><td>-</td></tr>
 <tr><td>LIST_TEAMS</td><td>-</td><td><em>admin</em></td><td>2</td><td>-</td><td>List&lt;TeamModel&gt;</td></tr>
 <tr><td>CREATE_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>TeamModel</td><td>-</td></tr>
 <tr><td>EDIT_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>TeamModel</td><td>-</td></tr>
-<tr><td>DELETE_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>-</td><td>-</td></tr>
+<tr><td>DELETE_TEAM</td><td>team name</td><td><em>admin</em></td><td>2</td><td>TeamModel</td><td>-</td></tr>
 <tr><td>LIST_REPOSITORY_MEMBERS</td><td>repository name</td><td><em>admin</em></td><td>1</td><td>-</td><td>List&lt;String&gt;</td></tr>
 <tr><td><s>SET_REPOSITORY_MEMBERS</s></td><td><s>repository name</s></td><td><em><s>admin</s></em></td><td><s>1</s></td><td><s>List&lt;String&gt;</s></td><td>-</td></tr>
 <tr><td>LIST_REPOSITORY_MEMBER_PERMISSIONS</td><td>repository name</td><td><em>admin</em></td><td>5</td><td>-</td><td>List&lt;String&gt;</td></tr>
