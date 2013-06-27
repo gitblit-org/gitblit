@@ -554,6 +554,7 @@ public class RefLogUtils {
         	}
             String branch = local.getName();
             List<RepositoryCommit> commits = CommitCache.instance().getCommits(repositoryName, repository,  branch, minimumDate);
+            linearParent = null;
             for (RepositoryCommit commit : commits) {
             	if (linearParent != null) {
             		if (!commit.getName().equals(linearParent)) {
