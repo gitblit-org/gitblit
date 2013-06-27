@@ -151,7 +151,7 @@ div.reflog i {
 
 div.dashboardTitle {
 	font-size: 1.75em;
-	padding: 5px 0px;
+	padding: 10px 0px 5px 0px;
 	margin: 10px 0px;
 	border-bottom: 1px solid #ccc;
 }
