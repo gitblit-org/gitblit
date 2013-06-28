@@ -207,13 +207,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit-3.0.0-SNAPSHOT.jar">
+      <library name="org.eclipse.jgit-3.0.0.201306101825-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.0.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.0.0.201306101825-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.0.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit-3.0.0.201306101825-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -240,13 +240,13 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="org.eclipse.jgit.http.server-3.0.0-SNAPSHOT.jar">
+      <library name="org.eclipse.jgit.http.server-3.0.0.201306101825-r.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.0.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit.http.server-3.0.0.201306101825-r.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.0.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/org.eclipse.jgit.http.server-3.0.0.201306101825-r.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

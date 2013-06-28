@@ -112,7 +112,7 @@ r17: {
 	- github/dapengme
 	
 	dependencyChanges:
-	- JGit 3.0.0-SNAPSHOT
+	- JGit 3.0.0.201306101825-r
 	- Iconic font
 	- AngularJS 1.0.7
 	- FreeMarker 2.3.19

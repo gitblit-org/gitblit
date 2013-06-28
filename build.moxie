@@ -100,7 +100,7 @@ properties: {
   jetty.version  : 7.6.8.v20121106
   wicket.version : 1.4.21
   lucene.version : 3.6.1
-  jgit.version   : 3.0.0-SNAPSHOT
+  jgit.version   : 3.0.0.201306101825-r
   groovy.version : 1.8.8
   bouncycastle.version : 1.47
   selenium.version : 2.28.0
