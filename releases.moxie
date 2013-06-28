@@ -35,6 +35,7 @@ r17: {
 	 - Fixed submodule diff display
 
 	changes:
+	 - Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (issue 190) 
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
 	 - Display full commit message on commitdiff page (issue-258)

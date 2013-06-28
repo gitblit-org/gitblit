@@ -1948,6 +1948,7 @@ public class GitBlit implements ServletContextListener {
 		
 		if (config != null) {
 			model.description = getConfig(config, "description", "");
+			model.originRepository = getConfig(config, "originRepository", null);
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
 			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
@@ -2003,7 +2004,7 @@ public class GitBlit implements ServletContextListener {
 		model.sparkleshareId = JGitUtils.getSparkleshareId(r);
 		r.close();
 		
-		if (model.origin != null && model.origin.startsWith("file://")) {
+		if (StringUtils.isEmpty(model.originRepository) && model.origin != null && model.origin.startsWith("file://")) {
 			// repository was cloned locally... perhaps as a fork
 			try {
 				File folder = new File(new URI(model.origin));
@@ -2412,6 +2413,7 @@ public class GitBlit implements ServletContextListener {
 							String origin = config.getString("remote", "origin", "url");
 							origin = origin.replace(repositoryName, repository.name);
 							config.setString("remote", "origin", "url", origin);
+							config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.name);
 							config.save();
 						} catch (Exception e) {
 							logger.error("Failed to update repository fork config for " + fork, e);
@@ -2420,11 +2422,12 @@ public class GitBlit implements ServletContextListener {
 					}
 				}
 				
-				// remove this repository from any origin model's fork list
+				// update this repository's origin's fork list
 				if (!StringUtils.isEmpty(repository.originRepository)) {
 					RepositoryModel origin = repositoryListCache.get(repository.originRepository);
 					if (origin != null && !ArrayUtils.isEmpty(origin.forks)) {
 						origin.forks.remove(repositoryName);
+						origin.forks.add(repository.name);
 					}
 				}
 
@@ -2473,6 +2476,7 @@ public class GitBlit implements ServletContextListener {
 	public void updateConfiguration(Repository r, RepositoryModel repository) {
 		StoredConfig config = r.getConfig();
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
+		config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.originRepository);
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
