@@ -149,6 +149,24 @@ div.reflog i {
     vertical-align: middle;
 }
 
+div.reflog td.header {
+	padding-left: 7px;
+	vertical-align:middle;
+}
+
+div.reflog td.commits {
+	padding-left: 7px;
+}
+
+div.reflog tr.commit td {
+	vertical-align:top;
+	padding-left: 5px;
+}
+
+div.reflog tr.commit img {
+	max-width: none;
+}
+
 div.dashboardTitle {
 	font-size: 1.75em;
 	padding: 10px 0px 5px 0px;

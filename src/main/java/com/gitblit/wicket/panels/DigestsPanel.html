@@ -10,7 +10,7 @@
 	<table style="padding: 3px 0px;">
 	<tr>
 		<td class="icon hidden-phone"><i wicket:id="changeIcon"></i></td>
-		<td style="padding-left: 7px;vertical-align:middle;">
+		<td class="header">
 			<div>
 				<span class="when" wicket:id="whenChanged"></span>
 			</div>
@@ -19,14 +19,14 @@
 	</tr>
 	<tr>
 		<td class="hidden-phone"></td>
-		<td style="padding-left: 7px;">
+		<td class="commits">
 			<div>
 				<table>
-					<tr wicket:id="commit">
-						<td class="hidden-phone hidden-tablet" style="vertical-align:top;padding-left:7px;"><span wicket:id="commitAuthor"></span></td>
-						<td style="vertical-align:top;"><span wicket:id="hashLink" style="padding-left: 5px;">[hash link]</span></td>
-						<td style="vertical-align:top;padding-left:5px;"><img wicket:id="commitIcon" /></td>
-						<td style="vertical-align:top;">   							
+					<tr class="commit" wicket:id="commit">
+						<td class="hidden-phone hidden-tablet"><span wicket:id="commitAuthor"></span></td>
+						<td><span wicket:id="hashLink">[hash link]</span></td>
+						<td><img wicket:id="commitIcon" /></td>
+						<td>   							
 							<span wicket:id="commitShortMessage">[commit short message]</span>
 						</td>
 					</tr>
