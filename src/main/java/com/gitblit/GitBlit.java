@@ -749,10 +749,7 @@ public class GitBlit implements ServletContextListener {
 			if (usernameDecoded.equalsIgnoreCase(Constants.FEDERATION_USER)) {
 				List<String> tokens = getFederationTokens();
 				if (tokens.contains(pw)) {
-					// the federation user is an administrator
-					UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
-					federationUser.canAdmin = true;
-					return federationUser;
+					return getFederationUser();
 				}
 			}
 		}
@@ -846,7 +843,8 @@ public class GitBlit implements ServletContextListener {
 					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
-				} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, true)) {
+				} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, false)
+						&& !username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
 					// auto-create user from an authenticated container principal
 					user = new UserModel(username.toLowerCase());
 					user.displayName = username;
@@ -1024,6 +1022,13 @@ public class GitBlit implements ServletContextListener {
 		}
 		String usernameDecoded = decodeUsername(username);
 		return userService.deleteUser(usernameDecoded);
+	}
+	
+	protected UserModel getFederationUser() {
+		// the federation user is an administrator
+		UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
+		federationUser.canAdmin = true;
+		return federationUser;
 	}
 
 	/**
