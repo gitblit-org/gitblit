@@ -184,7 +184,7 @@ public class RefLogUtils {
 				PersonIdent ident;
 				if (UserModel.ANONYMOUS.equals(user)) {
 					// anonymous push
-					ident = new PersonIdent("anonymous", "anonymous");
+					ident = new PersonIdent(user.username + "/" + user.username, user.username);
 				} else {
 					// construct real pushing account
 					ident =	new PersonIdent(MessageFormat.format("{0}/{1}", user.getDisplayName(), user.username),

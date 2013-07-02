@@ -37,6 +37,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -163,6 +164,9 @@ public class ReflogPanel extends BasePanel {
 				if (change.user.username.equals(change.user.emailAddress) && change.user.emailAddress.indexOf('@') > -1) {
 					// username is an email address - 1.2.1 push log bug
 					changeItem.add(new Label("whoChanged", change.user.getDisplayName()));
+				} else if (change.user.username.equals(UserModel.ANONYMOUS.username)) {
+					// anonymous change
+					changeItem.add(new Label("whoChanged", getString("gb.anonymousUser")));
 				} else {
 					// link to user account page
 					changeItem.add(new LinkPanel("whoChanged", null, change.user.getDisplayName(),

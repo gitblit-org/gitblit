@@ -725,6 +725,18 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
+	 * Returns true if the username represents an internal account
+	 * 
+	 * @param username
+	 * @return true if the specified username represents an internal account
+	 */
+	protected boolean isInternalAccount(String username) {
+		return !StringUtils.isEmpty(username)
+				&& (username.equalsIgnoreCase(Constants.FEDERATION_USER)
+						|| username.equalsIgnoreCase(UserModel.ANONYMOUS.username));
+	}
+
+	/**
 	 * Authenticate a user based on a username and password.
 	 * 
 	 * @see IUserService.authenticate(String, char[])
@@ -836,6 +848,7 @@ public class GitBlit implements ServletContextListener {
 		if (principal != null) {
 			String username = principal.getName();
 			if (!StringUtils.isEmpty(username)) {
+				boolean internalAccount = isInternalAccount(username);
 				UserModel user = getUserModel(username);
 				if (user != null) {
 					// existing user
@@ -844,7 +857,7 @@ public class GitBlit implements ServletContextListener {
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
 				} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, false)
-						&& !username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
+						&& !internalAccount) {
 					// auto-create user from an authenticated container principal
 					user = new UserModel(username.toLowerCase());
 					user.displayName = username;
@@ -854,7 +867,7 @@ public class GitBlit implements ServletContextListener {
 					logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
-				} else {
+				} else if (!internalAccount) {
 					logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
 							principal.getName(), httpRequest.getRemoteAddr()));
 				}
@@ -2933,8 +2946,7 @@ public class GitBlit implements ServletContextListener {
 		String cloneUrl = sb.toString();
 
 		// Retrieve all available repositories
-		UserModel user = new UserModel(Constants.FEDERATION_USER);
-		user.canAdmin = true;
+		UserModel user = getFederationUser();
 		List<RepositoryModel> list = getRepositoryModels(user);
 
 		// create the [cloneurl, repositoryModel] map
