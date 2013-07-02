@@ -39,7 +39,7 @@ public class JsonUtilsTest {
 		map.put("e", "eagle");
 		String json = JsonUtils.toJsonString(map);
 		assertEquals(
-				"{\n  \"d\": \"dingo\",\n  \"e\": \"eagle\",\n  \"b\": \"bear\",\n  \"c\": \"caterpillar\",\n  \"a\": \"alligator\"\n}",
+				"{\"d\":\"dingo\",\"e\":\"eagle\",\"b\":\"bear\",\"c\":\"caterpillar\",\"a\":\"alligator\"}",
 				json);
 		Map<String, String> map2 = JsonUtils.fromJsonString(json,
 				new TypeToken<Map<String, String>>() {
