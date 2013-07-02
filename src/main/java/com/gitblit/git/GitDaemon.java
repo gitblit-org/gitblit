@@ -245,8 +245,8 @@ public class GitDaemon {
 					//
 				} finally {
 					acceptSocket = null;
-					acceptThread = null;
 				}
+
 			}
 		};
 		acceptThread.start();
@@ -261,9 +261,9 @@ public class GitDaemon {
 
 	/** Stop this daemon. */
 	public synchronized void stop() {
-		if (acceptThread != null) {
-			logger.info("Git Daemon stopping...");
+		if (isRunning() && acceptThread != null) {
 			run.set(false);
+			logger.info("Git Daemon stopping...");
 			try {
 				// close the accept socket
 				// this throws a SocketException in the accept thread
@@ -276,6 +276,8 @@ public class GitDaemon {
 				logger.info("Git Daemon stopped.");
 			} catch (InterruptedException e) {
 				logger.error("Accept thread join interrupted", e);
+			} finally {
+				acceptThread = null;
 			}
 		}
 	}
