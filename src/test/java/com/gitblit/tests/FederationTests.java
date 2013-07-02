@@ -152,9 +152,16 @@ public class FederationTests {
 
 	@Test
 	public void testPullTeams() throws Exception {
+		TeamModel team = new TeamModel("testteam");
+		team.addUser("test");
+		team.addRepositoryPermission("helloworld.git");
+		assertTrue(RpcUtils.createTeam(team, url, account, password.toCharArray()));
+		
 		List<TeamModel> teams = FederationUtils.getTeams(getRegistration());
 		assertNotNull(teams);
 		assertTrue(teams.size() > 0);
+		
+		assertTrue(RpcUtils.deleteTeam(team, url, account, password.toCharArray()));
 	}
 	
 	@Test
