@@ -115,7 +115,7 @@ if (mailinglist != null) {
 }
 
 // add all mailing lists defined in gitblit.properties or web.xml
-toAddresses.addAll(GitBlit.getStrings(Keys.mail.mailingLists))
+toAddresses.addAll(gitblit.getStrings(Keys.mail.mailingLists))
 
 // add all team mailing lists
 def teams = gitblit.getRepositoryTeams(repository)
