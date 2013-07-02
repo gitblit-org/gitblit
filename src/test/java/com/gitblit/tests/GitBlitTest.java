@@ -131,7 +131,7 @@ public class GitBlitTest {
 
 	@Test
 	public void testFileSettings() throws Exception {
-		FileSettings settings = new FileSettings("distrib/gitblit.properties");
+		FileSettings settings = new FileSettings("src/main/distrib/data/gitblit.properties");
 		assertEquals(true, settings.getBoolean("missing", true));
 		assertEquals("default", settings.getString("missing", "default"));
 		assertEquals(10, settings.getInteger("missing", 10));
@@ -160,7 +160,7 @@ public class GitBlitTest {
 		assertEquals(5, GitBlit.getInteger("realm.userService", 5));
 
 		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false));
-		assertEquals("test-users.conf", GitBlit.getString("realm.userService", null));
+		assertEquals(GitBlitSuite.USERSCONF.getAbsolutePath(), GitBlit.getString("realm.userService", null));
 		assertEquals(5, GitBlit.getInteger("realm.minPasswordLength", 0));
 		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);

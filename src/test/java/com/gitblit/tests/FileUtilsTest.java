@@ -47,7 +47,7 @@ public class FileUtilsTest {
 		assertEquals(-1, FileUtils.folderSize(null));
 		assertEquals(-1, FileUtils.folderSize(new File(System.getProperty("user.dir"), "pretend")));
 
-		File dir = new File(System.getProperty("user.dir"), "distrib");
+		File dir = new File(System.getProperty("user.dir"), "src/main/distrib");
 		long size = FileUtils.folderSize(dir);
 		assertTrue("size is actually " + size, size >= 470000L);
 

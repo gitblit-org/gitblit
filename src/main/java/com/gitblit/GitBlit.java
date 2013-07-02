@@ -278,6 +278,15 @@ public class GitBlit implements ServletContextListener {
 	}
 	
 	/**
+	 * Returns the active settings.
+	 * 
+	 * @return the active settings
+	 */
+	public static IStoredSettings getSettings() {
+		return self().settings;
+	}
+	
+	/**
 	 * Returns the user-defined blob encodings.
 	 * 
 	 * @return an array of encodings, may be empty

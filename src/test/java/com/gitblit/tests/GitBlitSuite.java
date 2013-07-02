@@ -64,6 +64,10 @@ import com.gitblit.utils.JGitUtils;
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("data/git");
+	
+	public static final File SETTINGS = new File("src/test/config/test-gitblit.properties");
+	
+	public static final File USERSCONF = new File("src/test/config/test-users.conf");
 
 	static int port = 8280;
 	static int gitPort = 8300;
@@ -126,7 +130,7 @@ public class GitBlitSuite {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--gitPort", "" + gitPort, "--repositoriesFolder",
 						"\"" + GitBlitSuite.REPOSITORIES.getAbsolutePath() + "\"", "--userService",
-						"test-users.conf", "--settings", "test-gitblit.properties",
+						GitBlitSuite.USERSCONF.getAbsolutePath(), "--settings", GitBlitSuite.SETTINGS.getAbsolutePath(),
 						"--baseFolder", "data");
 			}
 		});
