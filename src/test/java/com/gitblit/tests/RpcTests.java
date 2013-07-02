@@ -172,6 +172,7 @@ public class RpcTests {
 		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
 
 		// create
+		RpcUtils.deleteRepository(model, url, account, password.toCharArray());
 		assertTrue("Failed to create repository!",
 				RpcUtils.createRepository(model, url, account, password.toCharArray()));
 
@@ -183,24 +184,31 @@ public class RpcTests {
 		// rename and change access restriciton
 		String originalName = model.name;
 		model.name = "garbagerepo2.git";
-		model.accessRestriction = AccessRestrictionType.PUSH;
+		model.accessRestriction = AccessRestrictionType.CLONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
+		RpcUtils.deleteRepository(model, url, account, password.toCharArray());
 		assertTrue("Failed to update repository!", RpcUtils.updateRepository(originalName, model,
 				url, account, password.toCharArray()));
 
 		retrievedRepository = findRepository(model.name);
 		assertNotNull("Failed to find " + model.name, retrievedRepository);
 		assertTrue("Access retriction type is wrong",
-				AccessRestrictionType.PUSH.equals(retrievedRepository.accessRestriction));
+				AccessRestrictionType.CLONE.equals(retrievedRepository.accessRestriction));
 
+		// restore VIEW restriction
+		retrievedRepository.accessRestriction = AccessRestrictionType.VIEW;
+		assertTrue("Failed to update repository!", RpcUtils.updateRepository(retrievedRepository.name, retrievedRepository,
+				url, account, password.toCharArray()));
+		retrievedRepository = findRepository(retrievedRepository.name);
+		
 		// memberships
 		UserModel testMember = new UserModel("justadded");
 		assertTrue(RpcUtils.createUser(testMember, url, account, password.toCharArray()));
 
 		List<RegistrantAccessPermission> permissions = RpcUtils.getRepositoryMemberPermissions(retrievedRepository, url, account,
 				password.toCharArray());
-		assertEquals("Membership permissions is not empty!", 0, permissions.size());
-		permissions.add(new RegistrantAccessPermission(testMember.username, AccessPermission.PUSH, PermissionType.EXPLICIT, RegistrantType.USER, null, true));
+		assertEquals("Unexpected permissions! " + permissions.toString(), 1, permissions.size());
+		permissions.add(new RegistrantAccessPermission(testMember.username, AccessPermission.VIEW, PermissionType.EXPLICIT, RegistrantType.USER, null, true));
 		assertTrue(
 				"Failed to set member permissions!",
 				RpcUtils.setRepositoryMemberPermissions(retrievedRepository, permissions, url, account,
@@ -211,7 +219,7 @@ public class RpcTests {
 		for (RegistrantAccessPermission permission : permissions) {
 			if (permission.registrant.equalsIgnoreCase(testMember.username)) {
 				foundMember = true;
-				assertEquals(AccessPermission.PUSH, permission.permission);
+				assertEquals(AccessPermission.VIEW, permission.permission);
 				break;
 			}
 		}
