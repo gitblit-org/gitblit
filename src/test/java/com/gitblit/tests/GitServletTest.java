@@ -60,10 +60,24 @@ public class GitServletTest {
 	String password = GitBlitSuite.password;
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
+	
+	private static UserModel getUser() {
+		UserModel user = new UserModel("james");
+		user.password = "james";
+		return user;
+	}
+	
+	private static void delete(UserModel user) {
+		if (GitBlit.self().getUserModel(user.username) != null) {
+			GitBlit.self().deleteUser(user.username);
+		}
+	}
 
 	@BeforeClass
 	public static void startGitblit() throws Exception {
 		started.set(GitBlitSuite.startGitblit());
+
+		delete(getUser());
 	}
 
 	@AfterClass
@@ -72,6 +86,8 @@ public class GitServletTest {
 			GitBlitSuite.stopGitblit();
 			deleteWorkingFolders();
 		}
+		
+		delete(getUser());
 	}
 	
 	public static void deleteWorkingFolders() throws Exception {
@@ -194,7 +210,8 @@ public class GitServletTest {
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		GitBlit.self().deleteUser(user.username);
+		
+		delete(user);		
 	}
 
 	@Test
@@ -347,8 +364,7 @@ public class GitServletTest {
 
 	@Test
 	public void testCommitterVerification() throws Exception {
-		UserModel user = new UserModel("james");
-		user.password = "james";
+		UserModel user = getUser();
 
 		// account only uses account name to verify
 		testCommitterVerification(user, user.username, null, true);
@@ -375,9 +391,7 @@ public class GitServletTest {
 	
 	private void testCommitterVerification(UserModel user, String displayName, String emailAddress, boolean expectedSuccess) throws Exception {
 		
-		if (GitBlit.self().getUserModel(user.username) != null) {
-			GitBlit.self().deleteUser(user.username);
-		}
+		delete(user);
 		
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
 		
@@ -483,12 +497,8 @@ public class GitServletTest {
 
 	private void testRefChange(AccessPermission permission, Status expectedCreate, Status expectedDelete, Status expectedRewind) throws Exception {
 
-		UserModel user = new UserModel("james");
-		user.password = "james";
-		
-		if (GitBlit.self().getUserModel(user.username) != null) {
-			GitBlit.self().deleteUser(user.username);
-		}
+		UserModel user = getUser();
+		delete(user);
 		
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
 		
@@ -672,7 +682,7 @@ public class GitServletTest {
 		// close serving repository
 		GitBlitSuite.close(refChecks);
 
-		GitBlit.self().deleteUser(user.username);
+		delete(user);
 	}
 	
 	@Test
@@ -687,9 +697,7 @@ public class GitServletTest {
 		UserModel user = new UserModel("sampleuser");
 		user.password = user.username;
 		
-		if (GitBlit.self().getUserModel(user.username) != null) {
-			GitBlit.self().deleteUser(user.username);
-		}
+		delete(user);
 		
 		user.canCreate = canCreate;
 		user.canAdmin = canAdmin;
@@ -780,7 +788,7 @@ public class GitServletTest {
 		}
 
 		GitBlitSuite.close(git);
-		GitBlit.self().deleteUser(user.username);
+		delete(user);
 	}
 	
 	@Test
