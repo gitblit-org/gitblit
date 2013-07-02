@@ -97,10 +97,6 @@ public class GitBlitSuite {
 		return getRepository("test/ambition.git");
 	}
 
-	public static Repository getTheoreticalPhysicsRepository() throws Exception {
-		return getRepository("test/theoretical-physics.git");
-	}
-
 	public static Repository getIssuesTestRepository() throws Exception {
 		JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
 		return getRepository("gb-issues.git");
@@ -160,7 +156,6 @@ public class GitBlitSuite {
 			cloneOrFetch("test/jgit.git", "https://github.com/eclipse/jgit.git");
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
-			cloneOrFetch("test/theoretical-physics.git", "https://github.com/certik/theoretical-physics.git");
 			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
 			
 			enableTickets("ticgit.git");

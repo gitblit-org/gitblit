@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jgit.lib.Repository;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.gitblit.LuceneExecutor;
@@ -43,6 +45,8 @@ import com.gitblit.utils.JGitUtils;
  */
 public class LuceneExecutorTest {
 
+	LuceneExecutor lucene;
+	
 	private LuceneExecutor newLuceneExecutor() {
 		Map<String, Object> map = new HashMap<String, Object>();
 		MemorySettings settings = new MemorySettings(map);		
@@ -62,10 +66,18 @@ public class LuceneExecutorTest {
 		return model;
 	}
 	
+	@Before
+	public void setup() {
+		lucene = newLuceneExecutor();
+	}
+	
+	@After
+	public void tearDown() {
+		lucene.close();
+	}
+	
 	@Test
 	public void testIndex() throws Exception {
-		LuceneExecutor lucene = newLuceneExecutor();
-		
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RepositoryModel model = newRepositoryModel(repository);
@@ -77,25 +89,15 @@ public class LuceneExecutorTest {
 		result = lucene.search("type:blob AND path:clipper.prg", 1, 1, model.name).get(0);		
 		assertEquals("tinogomes", result.author);		
 
-		// reindex theoretical physics
-		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
-		model = newRepositoryModel(repository);
-		lucene.reindex(model, repository);
-		repository.close();
-		
 		// reindex JGit
 		repository = GitBlitSuite.getJGitRepository();
 		model = newRepositoryModel(repository);
 		lucene.reindex(model, repository);
 		repository.close();
-		
-		lucene.close();
 	}
 
 	@Test
 	public void testQuery() throws Exception {
-		LuceneExecutor lucene = new LuceneExecutor(null, GitBlitSuite.REPOSITORIES);
-		
 		// 2 occurrences on the master branch
 		Repository repository = GitBlitSuite.getHelloworldRepository();				
 		RepositoryModel model = newRepositoryModel(repository);
@@ -116,42 +118,33 @@ public class LuceneExecutorTest {
 		assertEquals(1, results.size());
 		assertEquals("d.D", results.get(0).path);
 		
-		// 1 occurrence on the gh-pages branch
-		repository = GitBlitSuite.getTheoreticalPhysicsRepository();
-		model = newRepositoryModel(repository);
-		repository.close();
-		
-		results = lucene.search("\"add the .nojekyll file\"", 1, 10, model.name);
-		assertEquals(1, results.size());
-		assertEquals("Ondrej Certik", results.get(0).author);
-		assertEquals("2648c0c98f2101180715b4d432fc58d0e21a51d7", results.get(0).commitId);
-		assertEquals("refs/heads/gh-pages", results.get(0).branch);
-		
-		results = lucene.search("type:blob AND \"src/intro.rst\"", 1, 10, model.name);
-		assertEquals(4, results.size());
-		
-		// hash id tests
-		results = lucene.search("commit:57c4f26f157ece24b02f4f10f5f68db1d2ce7ff5", 1, 10, model.name);
-		assertEquals(1, results.size());
-
-		results = lucene.search("commit:57c4f26f157*", 1, 10, model.name);
-		assertEquals(1, results.size());		
-		
-		// annotated tag test
+		// commit test
 		repository = GitBlitSuite.getJGitRepository();
 		model = newRepositoryModel(repository);
 		repository.close();
 		
+		results = lucene.search("\"initial jgit contribution to eclipse.org\"", 1, 10, model.name);
+		assertEquals(1, results.size());
+		assertEquals("Git Development Community", results.get(0).author);
+		assertEquals("1a6964c8274c50f0253db75f010d78ef0e739343", results.get(0).commitId);
+		assertEquals("refs/heads/master", results.get(0).branch);
+		
+		// hash id tests
+		results = lucene.search("type:commit AND commit:1a6964c8274c50f0253db75f010d78ef0e739343", 1, 10, model.name);
+		assertEquals(1, results.size());
+
+		results = lucene.search("type:commit AND commit:1a6964c8274*", 1, 10, model.name);
+		assertEquals("Shawn O. Pearce", results.get(0).committer);
+		assertEquals(1, results.size());		
+		
+		// annotated tag test
 		results = lucene.search("I663208919f297836a9c16bf458e4a43ffaca4c12", 1, 10, model.name);
 		assertEquals(1, results.size());
 		assertEquals("[v1.3.0.201202151440-r]", results.get(0).tags.toString());		
-		
-		lucene.close();
 	}
 	
 	@Test
 	public void testMultiSearch() throws Exception {
-		LuceneExecutor lucene = newLuceneExecutor();
 		List<String> list = new ArrayList<String>();
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		list.add(newRepositoryModel(repository).name);
@@ -162,14 +155,12 @@ public class LuceneExecutorTest {
 		repository.close();
 
 		List<SearchResult> results = lucene.search("test", 1, 10, list);
-		lucene.close();
 		assertEquals(10, results.size());
 	}
 	
 	@Test
 	public void testDeleteBlobFromIndex() throws Exception {
 		// start with a fresh reindex of entire repository
-		LuceneExecutor lucene = newLuceneExecutor();
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RepositoryModel model = newRepositoryModel(repository);
 		lucene.reindex(model, repository);
