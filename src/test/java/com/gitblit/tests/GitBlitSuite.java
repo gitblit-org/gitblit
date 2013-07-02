@@ -132,7 +132,7 @@ public class GitBlitSuite {
 		});
 
 		// Wait a few seconds for it to be running
-		Thread.sleep(2500);
+		Thread.sleep(5000);
 
 		started.set(true);
 		return true;

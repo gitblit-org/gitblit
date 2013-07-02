@@ -137,18 +137,36 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 			// identity of the merging user.
 			boolean allRejected = false;
 			for (ReceiveCommand cmd : commands) {
+				String linearParent = null;
 				try {
 					List<RevCommit> commits = JGitUtils.getRevLog(rp.getRepository(), cmd.getOldId().name(), cmd.getNewId().name());
 					for (RevCommit commit : commits) {
+						
+						if (linearParent != null) {
+		            		if (!commit.getName().equals(linearParent)) {
+		            			// ignore: commit is right-descendant of a merge
+		            			continue;
+		            		}
+		            	}
+						
+						// update expected next commit id
+						if (commit.getParentCount() == 0) {
+		                	linearParent = null;
+						} else {
+							linearParent = commit.getParents()[0].getId().getName();
+						}
+						
 						PersonIdent committer = commit.getCommitterIdent();
 						if (!user.is(committer.getName(), committer.getEmailAddress())) {
 							String reason;
 							if (StringUtils.isEmpty(user.emailAddress)) {
-								// account does not have en email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})", commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username);
+								// account does not have an email address
+								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})", 
+										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username);
 							} else {
 								// account has an email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>", commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
+								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>", 
+										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
 							}
 							logger.warn(reason);
 							cmd.setResult(Result.REJECTED_OTHER_REASON, reason);

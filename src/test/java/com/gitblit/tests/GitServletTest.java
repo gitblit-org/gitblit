@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.MergeCommand.FastForwardMode;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
@@ -63,6 +65,8 @@ public class GitServletTest {
 	
 	private static UserModel getUser() {
 		UserModel user = new UserModel("james");
+		user.displayName = "James Moger";
+		user.emailAddress = "james.moger@gmail.com";
 		user.password = "james";
 		return user;
 	}
@@ -448,6 +452,119 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("push test").call();
+		Iterable<PushResult> results = git.push().setCredentialsProvider(cp).setRemote("origin").call();
+		
+		for (PushResult result : results) {
+			RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
+			Status status = ref.getStatus();
+			if (expectedSuccess) {
+				assertTrue("Verification failed! User was NOT able to push commit! " + status.name(), Status.OK.equals(status));
+			} else {
+				assertTrue("Verification failed! User was able to push commit! " + status.name(), Status.REJECTED_OTHER_REASON.equals(status));
+			}
+		}
+		
+		GitBlitSuite.close(git);
+		// close serving repository
+		GitBlitSuite.close(verification);
+	}
+	
+	@Test
+	public void testMergeCommitterVerification() throws Exception {
+		
+		testMergeCommitterVerification(false);
+		
+		testMergeCommitterVerification(true);
+	}
+	
+	private void testMergeCommitterVerification(boolean expectedSuccess) throws Exception {
+		UserModel user = getUser();
+		
+		delete(user);
+		
+		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
+		
+		// fork from original to a temporary bare repo
+		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
+		if (verification.exists()) {
+			FileUtils.delete(verification, FileUtils.RECURSIVE);
+		}
+		CloneCommand clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
+		clone.setDirectory(verification);
+		clone.setBare(true);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(cp);
+		GitBlitSuite.close(clone.call());
+		
+		// require push permissions and committer verification
+		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
+		model.authorizationControl = AuthorizationControl.NAMED;
+		model.accessRestriction = AccessRestrictionType.PUSH;
+		model.verifyCommitter = true;
+		
+		// grant user push permission
+		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
+		
+		GitBlit.self().updateUserModel(user.username, user, true);
+		GitBlit.self().updateRepositoryModel(model.name, model, false);
+
+		// clone temp bare repo to working copy
+		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-wc");
+		if (local.exists()) {
+			FileUtils.delete(local, FileUtils.RECURSIVE);
+		}
+		clone = Git.cloneRepository();
+		clone.setURI(MessageFormat.format("{0}/{1}", url, model.name));
+		clone.setDirectory(local);
+		clone.setBare(false);
+		clone.setCloneAllBranches(true);
+		clone.setCredentialsProvider(cp);
+		GitBlitSuite.close(clone.call());
+		
+		Git git = Git.open(local);
+		
+		// checkout a mergetest branch
+		git.checkout().setCreateBranch(true).setName("mergetest").call();
+		
+		// change identity
+		git.getRepository().getConfig().setString("user", null, "name", "mergetest");
+		git.getRepository().getConfig().setString("user", null, "email", "mergetest@merge.com");
+		git.getRepository().getConfig().save();
+		
+		// commit a file
+		File file = new File(local, "MERGECHK2");
+		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
+		BufferedWriter w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		RevCommit mergeTip = git.commit().setMessage(file.getName() + " test").call();
+				
+		// return to master
+		git.checkout().setName("master").call();
+
+		// restore identity
+		if (expectedSuccess) {
+			git.getRepository().getConfig().setString("user", null, "name", user.username);
+			git.getRepository().getConfig().setString("user", null, "email", user.emailAddress);
+			git.getRepository().getConfig().save();
+		}
+
+		// commit a file
+		file = new File(local, "MERGECHK1");
+		os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
+		w = new BufferedWriter(os);
+		w.write("// " + new Date().toString() + "\n");
+		w.close();
+		git.add().addFilepattern(file.getName()).call();
+		git.commit().setMessage(file.getName() + " test").call();
+		
+		// merge the tip of the mergetest branch into master with --no-ff
+		MergeResult mergeResult = git.merge().setFastForward(FastForwardMode.NO_FF).include(mergeTip.getId()).call();
+		assertEquals(MergeResult.MergeStatus.MERGED, mergeResult.getMergeStatus());
+		
+		// push the merged master to the origin
 		Iterable<PushResult> results = git.push().setCredentialsProvider(cp).setRemote("origin").call();
 		
 		for (PushResult result : results) {
