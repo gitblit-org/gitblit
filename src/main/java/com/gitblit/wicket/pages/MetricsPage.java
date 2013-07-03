@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.eclipse.jgit.lib.Repository;
-import org.wicketstuff.googlecharts.Chart;
 import org.wicketstuff.googlecharts.ChartAxis;
 import org.wicketstuff.googlecharts.ChartAxisType;
 import org.wicketstuff.googlecharts.ChartProvider;
@@ -42,6 +41,7 @@ import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.charting.SecureChart;
 
 public class MetricsPage extends RepositoryPage {
 
@@ -87,7 +87,7 @@ public class MetricsPage extends RepositoryPage {
 			provider.setLineStyles(new LineStyle[] { new LineStyle(2, 4, 0), new LineStyle(0, 4, 1) });
 			provider.addShapeMarker(new ShapeMarker(MarkerType.CIRCLE, Color.decode("#002060"), 1, -1, 5));
 
-			add(new Chart(wicketId, provider));
+			add(new SecureChart(wicketId, provider));
 		} else {
 			add(WicketUtils.newBlankImage(wicketId));
 		}
@@ -112,7 +112,7 @@ public class MetricsPage extends RepositoryPage {
 					String.valueOf((int) WicketUtils.maxValue(metrics)) });
 			provider.addAxis(commitAxis);
 
-			add(new Chart(wicketId, provider));
+			add(new SecureChart(wicketId, provider));
 		} else {
 			add(WicketUtils.newBlankImage(wicketId));
 		}
@@ -127,7 +127,7 @@ public class MetricsPage extends RepositoryPage {
 			}
 			ChartProvider provider = new ChartProvider(new Dimension(800, 200), ChartType.PIE, data);
 			provider.setPieLabels(labels.toArray(new String[labels.size()]));
-			add(new Chart(wicketId, provider));
+			add(new SecureChart(wicketId, provider));
 		} else {
 			add(WicketUtils.newBlankImage(wicketId));
 		}

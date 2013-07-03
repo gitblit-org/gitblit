@@ -36,6 +36,7 @@ r17: {
 	 - Fixed submodule diff display
 
 	changes:
+	 - Retrieve summary and metric graphs from Google over https (issue-61)
 	 - Persist originRepository (for forks) in the repository config instead of relying on parsing origin urls which are susceptible to filesystem relocation (issue 190) 
 	 - Improved error logging for servlet containers which provide a null contextFolder (issue 199)
 	 - Improve Gerrit change ref decoration in the refs panel (issue 206)
