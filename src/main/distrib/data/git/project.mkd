@@ -1,0 +1,12 @@
+This project contains all repositories created directly in the root of *git.repositoriesFolder*.
+
+This message is stored in *git.repositoriesFolder*/**project.mkd**
+
+#### Other Projects
+
+Each project, or repository group, may specify it's own message by defining a **project.mkd** file in the project folder.
+
+<pre>
+<i>git.repositoriesFolder</i>/projecta/<b>project.mkd</b>
+<i>git.repositoriesFolder</i>/projectb/<b>project.mkd</b>
+</pre>

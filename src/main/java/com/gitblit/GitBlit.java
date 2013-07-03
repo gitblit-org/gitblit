@@ -1697,6 +1697,30 @@ public class GitBlit implements ServletContextListener {
 		return count;
 	}
 	
+	private void reloadProjectMarkdown(ProjectModel project) {
+		// project markdown
+		File pmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : project.name) + "/project.mkd");
+		if (pmkd.exists()) {
+			Date lm = new Date(pmkd.lastModified());
+			if (!projectMarkdownCache.hasCurrent(project.name, lm)) {
+				String mkd = com.gitblit.utils.FileUtils.readContent(pmkd,  "\n");
+				projectMarkdownCache.updateObject(project.name, lm, mkd);
+			}
+			project.projectMarkdown = projectMarkdownCache.getObject(project.name);
+		}
+		
+		// project repositories markdown
+		File rmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : project.name) + "/repositories.mkd");
+		if (rmkd.exists()) {
+			Date lm = new Date(rmkd.lastModified());
+			if (!projectRepositoriesMarkdownCache.hasCurrent(project.name, lm)) {
+				String mkd = com.gitblit.utils.FileUtils.readContent(rmkd,  "\n");
+				projectRepositoriesMarkdownCache.updateObject(project.name, lm, mkd);
+			}
+			project.repositoriesMarkdown = projectRepositoriesMarkdownCache.getObject(project.name);
+		}
+	}
+	
 	
 	/**
 	 * Returns the map of project config.  This map is cached and reloaded if
@@ -1731,27 +1755,7 @@ public class GitBlit implements ServletContextListener {
 				project.title = projectConfigs.getString("project", name, "title");
 				project.description = projectConfigs.getString("project", name, "description");
 				
-				// project markdown
-				File pmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/project.mkd");
-				if (pmkd.exists()) {
-					Date lm = new Date(pmkd.lastModified());
-					if (!projectMarkdownCache.hasCurrent(name, lm)) {
-						String mkd = com.gitblit.utils.FileUtils.readContent(pmkd,  "\n");
-						projectMarkdownCache.updateObject(name, lm, mkd);
-					}
-					project.projectMarkdown = projectMarkdownCache.getObject(name);
-				}
-				
-				// project repositories markdown
-				File rmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : name) + "/repositories.mkd");
-				if (rmkd.exists()) {
-					Date lm = new Date(rmkd.lastModified());
-					if (!projectRepositoriesMarkdownCache.hasCurrent(name, lm)) {
-						String mkd = com.gitblit.utils.FileUtils.readContent(rmkd,  "\n");
-						projectRepositoriesMarkdownCache.updateObject(name, lm, mkd);
-					}
-					project.repositoriesMarkdown = projectRepositoriesMarkdownCache.getObject(name);
-				}
+				reloadProjectMarkdown(project);
 				
 				configs.put(name.toLowerCase(), project);
 			}
@@ -1873,6 +1877,8 @@ public class GitBlit implements ServletContextListener {
 			// no repositories == no project
 			return null;
 		}
+		
+		reloadProjectMarkdown(project);
 		return project;
 	}
 	

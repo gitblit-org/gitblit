@@ -976,6 +976,12 @@
 					<include name="gitblit.properties" />					
 				</fileset>
 			</copy>
+			<mkdir dir="@{toDir}/git" />
+			<copy todir="@{toDir}/git" overwrite="false">
+				<fileset dir="${project.distrib.dir}/data/git">
+					<include name="project.mkd" />
+				</fileset>
+			</copy>
 			<mkdir dir="@{toDir}/groovy" />
 			<copy todir="@{toDir}/groovy">
 				<fileset dir="${project.distrib.dir}/data/groovy">					
