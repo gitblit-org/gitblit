@@ -132,7 +132,7 @@ public class RepositoriesPanel extends BasePanel {
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
 				ProjectModel project = GitBlit.self().getProjectModel(root);
-				GroupRepositoryModel group = new GroupRepositoryModel(project.name, subModels.size());
+				GroupRepositoryModel group = new GroupRepositoryModel(project == null ? root : project.name, subModels.size());
 				if (project != null) {
 					group.title = project.title;
 					group.description = project.description;

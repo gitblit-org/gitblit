@@ -11,6 +11,7 @@ r17: {
 	 - Use bash instead of sh in Linux/OSX shell scripts (issue 154)
 	 - Fix NPE when getting user's fork without repository list caching (issue 182)
 	 - Fix internal error on folder history links (issue 192)
+	 - Fix NPE in repositories panel when viewing a federation proposal (issue 195)
 	 - Fix NPEs when initializing the context on a servlet containers which returns a null contextFolder (issue 199)
 	 - Fixed incorrect icon file name for .doc files (issue 200)
 	 - Do not queue emails with no recipients (issue 201)
