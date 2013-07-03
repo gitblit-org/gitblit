@@ -112,7 +112,7 @@ public class ReflogPanel extends BasePanel {
 	protected void setup(List<RefLogEntry> changes) {
 		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 
-		String dateFormat = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
+		String dateFormat = GitBlit.getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
 		final TimeZone timezone = getTimeZone();
 		final DateFormat df = new SimpleDateFormat(dateFormat);
 		df.setTimeZone(timezone);
