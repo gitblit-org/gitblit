@@ -439,39 +439,56 @@ public class JGitUtils {
 		}
 		return false;
 	}
+	
+	/**
+	 * Encapsulates the result of cloning or pulling from a repository.
+	 */
+	public static class LastChange {
+		public Date when;
+		public String who;
+		
+		LastChange() {
+			when = new Date(0);			
+		}
+		
+		LastChange(long lastModified) {
+			this.when = new Date(lastModified);
+		}
+	}
 
 	/**
-	 * Returns the date of the most recent commit on a branch. If the repository
-	 * does not exist Date(0) is returned. If it does exist but is empty, the
-	 * last modified date of the repository folder is returned.
+	 * Returns the date and author of the most recent commit on a branch. If the
+	 * repository does not exist Date(0) is returned. If it does exist but is
+	 * empty, the last modified date of the repository folder is returned.
 	 * 
 	 * @param repository
-	 * @return
+	 * @return a LastChange object
 	 */
-	public static Date getLastChange(Repository repository) {
+	public static LastChange getLastChange(Repository repository) {
 		if (!hasCommits(repository)) {
 			// null repository
 			if (repository == null) {
-				return new Date(0);
+				return new LastChange();
 			}
 			// fresh repository
-			return new Date(repository.getDirectory().lastModified());
+			return new LastChange(repository.getDirectory().lastModified());
 		}
 
 		List<RefModel> branchModels = getLocalBranches(repository, true, -1);
 		if (branchModels.size() > 0) {
 			// find most recent branch update
-			Date lastChange = new Date(0);
+			LastChange lastChange = new LastChange();			
 			for (RefModel branchModel : branchModels) {
-				if (branchModel.getDate().after(lastChange)) {
-					lastChange = branchModel.getDate();
+				if (branchModel.getDate().after(lastChange.when)) {
+					lastChange.when = branchModel.getDate();
+					lastChange.who = branchModel.getAuthorIdent().getName();
 				}
 			}
 			return lastChange;
 		}
 		
 		// default to the repository folder modification date
-		return new Date(repository.getDirectory().lastModified());
+		return new LastChange(repository.getDirectory().lastModified());
 	}
 
 	/**

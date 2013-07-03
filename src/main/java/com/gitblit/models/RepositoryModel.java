@@ -46,6 +46,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String description;
 	public List<String> owners;
 	public Date lastChange;
+	public String lastChangeAuthor;
 	public boolean hasCommits;
 	public boolean showRemoteBranches;
 	public boolean useTickets;

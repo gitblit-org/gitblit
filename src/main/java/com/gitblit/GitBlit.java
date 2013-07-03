@@ -121,6 +121,7 @@ import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.LastChange;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ObjectCache;
@@ -1669,7 +1670,9 @@ public class GitBlit implements ServletContextListener {
 				model.hasCommits = JGitUtils.hasCommits(r);
 			}
 
-			model.lastChange = JGitUtils.getLastChange(r);
+			LastChange lc = JGitUtils.getLastChange(r);
+			model.lastChange = lc.when;
+			model.lastChangeAuthor = lc.who;
 			if (!model.skipSizeCalculation) {
 				ByteFormat byteFormat = new ByteFormat();
 				model.size = byteFormat.format(calculateSize(model));
@@ -1973,7 +1976,9 @@ public class GitBlit implements ServletContextListener {
 			model.name = repositoryName;
 		}
 		model.hasCommits = JGitUtils.hasCommits(r);
-		model.lastChange = JGitUtils.getLastChange(r);
+		LastChange lc = JGitUtils.getLastChange(r);
+		model.lastChange = lc.when;
+		model.lastChangeAuthor = lc.who;
 		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
 		
 		StoredConfig config = r.getConfig();

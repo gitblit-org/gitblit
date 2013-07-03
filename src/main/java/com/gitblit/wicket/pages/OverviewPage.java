@@ -98,7 +98,7 @@ public class OverviewPage extends RepositoryPage {
 		add(ownersView);
 		
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
-				JGitUtils.getLastChange(r), getTimeZone(), getTimeUtils()));
+				JGitUtils.getLastChange(r).when, getTimeZone(), getTimeUtils()));
 		add(new Label("repositorySize", model.size));
 		
 		if (metricsTotal == null) {

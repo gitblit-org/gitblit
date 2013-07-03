@@ -118,11 +118,11 @@ public class JGitUtilsTest {
 
 	@Test
 	public void testLastCommit() throws Exception {
-		assertEquals(new Date(0), JGitUtils.getLastChange(null));
+		assertEquals(new Date(0), JGitUtils.getLastChange(null).when);
 
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		assertTrue(JGitUtils.getCommit(repository, null) != null);
-		Date date = JGitUtils.getLastChange(repository);
+		Date date = JGitUtils.getLastChange(repository).when;
 		repository.close();
 		assertNotNull("Could not get last repository change date!", date);
 	}
@@ -140,7 +140,7 @@ public class JGitUtilsTest {
 			assertNull(JGitUtils.getFirstCommit(repository, null));
 			assertEquals(folder.lastModified(), JGitUtils.getFirstChange(repository, null)
 					.getTime());
-			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository).getTime());
+			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository).when.getTime());
 			assertNull(JGitUtils.getCommit(repository, null));
 			repository.close();
 			RepositoryCache.close(repository);

@@ -322,6 +322,9 @@ public class RepositoriesPanel extends BasePanel {
 				Label lastChangeLabel = new Label("repositoryLastChange", lastChange);
 				row.add(lastChangeLabel);
 				WicketUtils.setCssClass(lastChangeLabel, getTimeUtils().timeAgoCss(entry.lastChange));
+				if (!StringUtils.isEmpty(entry.lastChangeAuthor)) {
+					WicketUtils.setHtmlTooltip(lastChangeLabel, getString("gb.author") + ": " + entry.lastChangeAuthor);
+				}
 
 				boolean showOwner = user != null && entry.isOwner(user.username);
 				boolean myPersonalRepository = showOwner && entry.isUsersPersonalRepository(user.username);

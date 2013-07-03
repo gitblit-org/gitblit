@@ -60,6 +60,7 @@ r17: {
 	 - Support header color customizations (issue 209)
 	 - Support username substitution in web.otherUrls (issue 213)
 	 - Option to force client-side basic authentication instead of form-based authentication if web.authenticateViewPages=true (issue 222)
+	 - Set author as tooltip of last change column in the repositories panel (issue-238)
 	 - Setting to automatically create an user account based on an authenticated user principal from the servlet container (issue-246)
 	 - Added WindowsUserService to authenticate users against Windows accounts (issue-250)
 	 - Global and per-repository setting to exclude authors from metrics (issue-251)
