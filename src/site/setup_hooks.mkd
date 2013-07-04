@@ -1,0 +1,96 @@
+## Groovy Hook Scripts
+
+Gitblit uses Groovy for its push hook mechanism.  This mechanism only executes when pushing to Gitblit, not when pushing to some other Git tooling in your stack.
+
+The Groovy hook mechanism allows for dynamic extension of Gitblit to execute custom tasks on receiving and processing push events.  The scripts run within the context of your Gitblit instance and therefore have access to Gitblit's internals at runtime.
+
+### Rules, Requirements, & Behaviors
+1. Your Groovy scripts must be stored in the *groovy.scriptsFolder* as specified in `gitblit.properties` or `web.xml`.
+2. All script files must have the *.groovy* extension. Because of this you may omit the extension when specifying the script.
+3. Script filenames must not have spaces!
+4. Scripts must be explicitly specified to be executed, no scripts are *automatically* executed by name or extension.
+5. A script can be specified to run on *all repositories* by adding the script file name to *groovy.preReceiveScripts* or *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`.
+6. Scripts can be specified for a team.
+7. Scripts may also be specified per-repository in the repository's settings.
+8. Globally-specified scripts and team-specified scripts are excluded from the list of available scripts in a repository's settings 
+9. Globally-specified scripts are executed first, in their listed order; followed by team-specified scripts in their listed order by alphabetical team order; followed by per-repository scripts, in their listed order.
+10. A script may only be defined once in a pre-receive chain and once in a post-receive chain.  
+You may execute the same script on pre-receive and post-receive, just not multiple times within a pre-receive or post-receive event.
+11. Gitblit does not differentiate between what can be a pre-receive script and what can be a post-receive script.
+12. If a script *returns false* then the hook chain is aborted and none of the subsequent scripts will execute.
+
+Some sample scripts are included in the GO and WAR distributions to show you how you can tap into Gitblit with the provided bound variables.  Additional implementation details may be specified in the header comment of these examples.
+
+Hook contributions and improvements are welcome.
+
+### Grapes
+
+*SINCE 1.0.0*
+
+[Grape](http://groovy.codehaus.org/Grape) lets you quickly add maven repository dependencies to your Groovy hook script.  
+
+<blockquote>Grape (The Groovy Adaptable Packaging Engine or Groovy Advanced Packaging Engine) is the infrastructure enabling the grab() calls in Groovy, a set of classes leveraging <a href="http://ant.apache.org/ivy">Ivy</a> to allow for a repository driven module system for Groovy. This allows a developer to write a script with an essentially arbitrary library requirement, and ship just the script. Grape will, at runtime, download as needed and link the named libraries and all dependencies forming a transitive closure when the script is run from existing repositories such as Ibiblio, Codehaus, and java.net.</blockquote>
+
+---JAVA---
+// create and use a primitive array
+import org.apache.commons.collections.primitives.ArrayIntList
+
+@Grab(group='commons-primitives', module='commons-primitives', version='1.0')
+def createEmptyInts() { new ArrayIntList() }
+
+def ints = createEmptyInts()
+ints.add(0, 42)
+assert ints.size() == 1
+assert ints.get(0) == 42
+---JAVA---
+
+### Custom Fields
+
+*SINCE 1.0.0*
+
+Gitblit allows custom repository string fields to be defined in `gitblit.properties` or `web.xml`.  Entry textfields are automatically created for these fields in the Edit Repository page of Gitblit and the Edit Repository dialog of the Gitblit Manager.  These fields are accessible from your Groovy hook scripts as
+
+    repository.customFields.myField
+
+This feature allows you to customize the behavior of your hook scripts without hard-coding values in the hook scripts themselves.
+
+### Pre-Receive
+
+Pre-Receive scripts execute after the pushed objects have all been written to the Git repository but before the refs have been updated to point to these new objects.
+
+This is the appropriate point to block a push and is how many Git tools implement branch-write permissions.
+
+### Post-Receive
+
+Post-Receive scripts execute after all refs have been updated.
+
+This is the appropriate point to trigger continuous integration builds or send email notifications, etc.
+
+## Push Email Notifications
+
+Gitblit implements email notifications in *sendmail.groovy* which uses the Groovy Hook Script mechanism.  This allows for dynamic customization of the notification process at the installation site and serves as an example push script.
+
+### Enabling Push Notifications
+
+In order to send email notifications on a push to Gitblit, this script must be specified somewhere in the *post-receive* script chain.  
+You may specify *sendmail* in one of three places:
+
+1. *groovy.postReceiveScripts* in `gitblit.properties` or `web.xml`, globally applied to all repositories
+2. post-receive scripts of a Team definition
+3. post-receive scripts of a Repository definition
+
+### Destination Addresses
+
+Gitblit does not currently support individual subscriptions to repositories; i.e. a *user* can not subscribe or unsubscribe from push notifications.
+
+However, Repository Managers and Administrators can specify subscribed email addresses in one of three places:
+
+1. *mail.mailingLists* in `gitblit.properties` or `web.xml`, globally applied to all push-notified repositories
+2. mailing lists in a Team definition, applied to all repositories that are part of the team definition
+3. mailing lists in a Repository definition
+
+All three sources are checked and merged into a unique list of destination addresses for push notifications.
+
+**NOTE:**  
+Care should be taken when devising your notification scheme as it relates to any VIEW restricted repositories you might have.  Setting a global mailing list and activating push notifications for a VIEW restricted repository may send unwanted emails.
+

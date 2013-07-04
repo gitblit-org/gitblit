@@ -672,8 +672,21 @@
 					<page name="features" src="features.mkd" />
 					<page name="screenshots" src="screenshots.mkd" />
 				</menu>
-				<menu name="documentation">
-					<page name="setup" src="setup.mkd" />
+				<menu name="documentation" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+					<page name="setup GO" src="setup_go.mkd" />
+					<page name="upgrade GO" src="upgrade_go.mkd" />
+					<divider />
+					<page name="setup WAR" src="setup_war.mkd" />
+					<page name="upgrade WAR" src="upgrade_war.mkd" />
+					<divider />
+					<page name="administration" src="setup.mkd" />
+					<page name="authentication" src="setup_authentication.mkd" />
+					<page name="push hooks" src="setup_hooks.mkd" />
+					<page name="lucene indexing" src="setup_lucene.mkd" />
+					<page name="reverse proxies" src="setup_proxy.mkd" />
+					<divider />
+					<page name="git client setup" src="setup_client.mkd" />
+					<divider />
 					<page name="federation" src="federation.mkd" />
 					<divider />
 					<page name="settings" src="properties.mkd" />
