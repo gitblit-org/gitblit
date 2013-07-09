@@ -310,4 +310,12 @@ libpam4j
    MIT license.
    
    https://github.com/kohsuke/libpam4j
-  
+
+---------------------------------------------------------------------------
+commons-codec
+---------------------------------------------------------------------------
+   commons-codec, release under the
+   Apache License 2.0.
+   
+   http://commons.apache.org/proper/commons-codec
+    

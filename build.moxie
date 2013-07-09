@@ -152,6 +152,7 @@ dependencies:
 - compile 'org.freemarker:freemarker:2.3.19' :war
 - compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
 - compile 'org.kohsuke:libpam4j:1.7' :war
+- compile 'commons-codec:commons-codec:1.7' :war
 - test 'junit'
 # Dependencies for Selenium web page testing
 - test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar

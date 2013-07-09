@@ -20,13 +20,18 @@ r19: {
     changes: ~
     additions:
     - Add setting for maximum number of days of activity to that may be requested
-    dependencyChanges: ~
+    - Added HtpasswdUserService to authenticate users against an htpasswd file
+    dependencyChanges:
+    - Added commons-codec 1.7
     contributors:
     - github/guriguri
     - Doug Ayers
     - Ori Livneh
+    - Florian Zschocke
     settings:
     - { name: 'web.activityDurationMaximum', defaultValue: 30 }
+    - { name: 'realm.htpasswd.userFile', defaultValue: '${baseFolder}/htpasswd' }
+    - { name: 'realm.htpasswd.overrideLocalAuthentication', defaultValue: 'false' }
 }
 
 #

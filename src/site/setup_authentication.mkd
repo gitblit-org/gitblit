@@ -7,6 +7,7 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 * LDAP authentication
 * Windows authentication
 * PAM authentication
+* Htpasswd authentication
 * Redmine auhentication
 * Salesforce.com authentication
 * Servlet container authentication
@@ -90,6 +91,13 @@ PAM authentication is based on the use of libpam4j and JNA.  To use this service
 
     realm.userService = com.gitblit.PAMUserService
     realm.pam.serviceName = system-auth
+
+### Htpasswd Authentication
+
+Htpasswd authentication allows you to maintain your user credentials in an Apache htpasswd file thay may be shared with other htpasswd-capable servers.
+
+    realm.userService = com.gitblit.HtpasswdUserService
+    realm.htpasswd.userFile = /path/to/htpasswd
 
 ### Redmine Authentication
 
