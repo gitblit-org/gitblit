@@ -28,6 +28,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -177,11 +178,11 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	}
 	
 	public boolean isPersonalRepository() {
-		return !StringUtils.isEmpty(projectPath) && projectPath.charAt(0) == '~';
+		return !StringUtils.isEmpty(projectPath) && ModelUtils.isPersonalRepository(projectPath);
 	}
 	
 	public boolean isUsersPersonalRepository(String username) {
-		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+		return !StringUtils.isEmpty(projectPath) && ModelUtils.isUsersPersonalRepository(username, projectPath);
 	}
 	
 	public boolean allowAnonymousView() {

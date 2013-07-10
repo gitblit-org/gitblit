@@ -50,6 +50,7 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -169,9 +170,9 @@ public class RepositoriesPanel extends BasePanel {
 					item.add(row);
 					
 					String name = groupRow.name;
-					if (name.charAt(0) == '~') {
+					if (name.startsWith(ModelUtils.getUserRepoPrefix())) {
 						// user page
-						String username = name.substring(1);
+						String username = ModelUtils.getUserNameFromRepoPath(name);
 						UserModel user = GitBlit.self().getUserModel(username);
 						row.add(new LinkPanel("groupName", null, (user == null ? username : user.getDisplayName()) + " (" + groupRow.count + ")", UserPage.class, WicketUtils.newUsernameParameter(username)));
 						row.add(new Label("groupDescription", getString("gb.personalRepositories")));

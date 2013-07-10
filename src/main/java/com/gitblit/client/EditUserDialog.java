@@ -57,6 +57,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 public class EditUserDialog extends JDialog {
@@ -403,7 +404,7 @@ public class EditUserDialog extends JDialog {
 		// repositories
 		list.add(".*");
 		// all repositories excluding personal repositories
-		list.add("[^~].*");
+		if (ModelUtils.getUserRepoPrefix().length() == 1) list.add("[^" + ModelUtils.getUserRepoPrefix() +"].*");
 		String lastProject = null;
 		for (String repo : restricted) {
 			String projectPath = StringUtils.getFirstPathElement(repo).toLowerCase();

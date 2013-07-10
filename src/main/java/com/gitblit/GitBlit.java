@@ -125,6 +125,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.LastChange;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -1243,8 +1244,8 @@ public class GitBlit implements ServletContextListener {
 					// personal repository
 					model.addOwner(user.username);
 					String oldRepositoryName = model.name;
-					model.name = "~" + user.username + model.name.substring(model.projectPath.length());
-					model.projectPath = "~" + user.username;
+					model.name = user.getPersonalPath() + model.name.substring(model.projectPath.length());
+					model.projectPath = user.getPersonalPath();
 					updateRepositoryModel(oldRepositoryName, model, false);
 				} else if (model.isOwner(username)) {
 					// common/shared repo
@@ -1853,8 +1854,8 @@ public class GitBlit implements ServletContextListener {
 		ProjectModel project = configs.get(name.toLowerCase());
 		if (project == null) {
 			project = new ProjectModel(name);
-			if (name.length() > 0 && name.charAt(0) == '~') {
-				UserModel user = getUserModel(name.substring(1));
+			if (ModelUtils.isPersonalRepository(name)) {
+				UserModel user = getUserModel(ModelUtils.getUserNameFromRepoPath(name));
 				if (user != null) {
 					project.title = user.getDisplayName();
 					project.description = "personal repositories";
@@ -2126,7 +2127,7 @@ public class GitBlit implements ServletContextListener {
 	 * @return the name of the user's fork, null otherwise
 	 */
 	public String getFork(String username, String origin) {
-		String userProject = "~" + username.toLowerCase();
+		String userProject = ModelUtils.getPersonalPath(username);
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			String userPath = userProject + "/";
 
@@ -3818,7 +3819,7 @@ public class GitBlit implements ServletContextListener {
 	 * @throws GitBlitException
 	 */
 	public RepositoryModel fork(RepositoryModel repository, UserModel user) throws GitBlitException {
-		String cloneName = MessageFormat.format("~{0}/{1}.git", user.username, StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
+		String cloneName = MessageFormat.format("{0}/{1}.git", user.getPersonalPath(), StringUtils.stripDotGit(StringUtils.getLastPathElement(repository.name)));
 		String fromUrl = MessageFormat.format("file://{0}/{1}", repositoriesFolder.getAbsolutePath(), repository.name);
 
 		// clone the repository

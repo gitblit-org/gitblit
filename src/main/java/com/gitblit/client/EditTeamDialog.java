@@ -51,6 +51,7 @@ import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 public class EditTeamDialog extends JDialog {
@@ -177,7 +178,7 @@ public class EditTeamDialog extends JDialog {
 		postReceivePalette = new JPalette<String>(true);
 		postReceiveInherited = new JLabel();
 		JPanel postReceivePanel = new JPanel(new BorderLayout(5, 5));
-		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);		
+		postReceivePanel.add(postReceivePalette, BorderLayout.CENTER);
 		postReceivePanel.add(postReceiveInherited, BorderLayout.WEST);
 
 		JTabbedPane panel = new JTabbedPane(JTabbedPane.TOP);
@@ -323,7 +324,7 @@ public class EditTeamDialog extends JDialog {
 		// repositories
 		list.add(".*");
 		// all repositories excluding personal repositories
-		list.add("[^~].*");
+		if (ModelUtils.getUserRepoPrefix().length() == 1) list.add("[^" + ModelUtils.getUserRepoPrefix() +"].*");
 		String lastProject = null;
 		for (String repo : restricted) {
 			String projectPath = StringUtils.getFirstPathElement(repo);
