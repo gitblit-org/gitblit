@@ -3440,6 +3440,9 @@ public class GitBlit implements ServletContextListener {
 		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
 		gcExecutor = new GCExecutor(settings);
 		
+		// initialize utilities
+		ModelUtils.setUserRepoPrefix(settings);
+
 		// calculate repository list settings checksum for future config changes
 		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());
 
