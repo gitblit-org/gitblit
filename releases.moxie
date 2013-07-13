@@ -5,6 +5,25 @@ r17: {
     title: Gitblit ${project.version} Released
     id: ${project.version}
     date: ${project.buildDate}
+    html: ''
+          Release highlights include:
+          <ul>
+          <li>integrated git daemon</li>
+          <li>compare refs or commits page</li>
+          <li>completed the Gitblit reflog (formerly pushlog) introduced in 1.2.1</li>
+          <li>added new dashboard pages</li>
+          <li>added a stars feature</li>
+          <li>improved the repository url panel to show your access permission and to offer native app clone links</li>
+          <li>improved navigation and theme</li>
+          <li>customizable page header colors and logo</li>
+          <li>recent activity commit caching to improve performance of dashboard and activity pages</li>
+          <li>Windows authentication</li>
+          <li>Salesforce.com authentication</li>
+          <li>lots of bug fixes</li>
+          </ul>
+          <p> </p>
+          Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian.com">Atlassian</a>, <a href="http://fournova.com">fournova</a>, and <a href="http://github.com">Github</a> for their permission and use of their artwork for the native app clone menus.
+          ''
     note: ''
           If you have forked repositories and your are upgrading to ${project.version}, please DO NOT RELOCATE your repositories folder when running ${project.version} the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
