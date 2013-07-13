@@ -2052,6 +2052,9 @@ public class GitBlit implements ServletContextListener {
 					File repoFolder = new File(getRepositoriesFolder(), originRepo);
 					if (repoFolder.exists()) {
 						model.originRepository = originRepo.toLowerCase();
+						
+						// persist the fork origin
+						updateConfiguration(r, model);
 					}
 				}
 			} catch (URISyntaxException e) {

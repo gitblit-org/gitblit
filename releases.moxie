@@ -5,6 +5,9 @@ r17: {
     title: Gitblit ${project.version} Released
     id: ${project.version}
     date: ${project.buildDate}
+    note: ''
+          If you have forked repositories and your are upgrading to ${project.version}, please DO NOT RELOCATE your repositories folder when running ${project.version} the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
+          ''
 	security:
 	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
     fixes:
@@ -159,12 +162,12 @@ r16: {
     title: Gitblit 1.2.1 Released
     id: 1.2.1
     date: 2013-01-15
-    note: ''
+    html: ''
           Because there are now several types of files and folders that must be considered Gitblit data, the default location for data has changed.
-          
-          You will need to move a few files around when upgrading.  Please see the Upgrading section of the <a href="setup.html">setup</a> page for details.
-
-          <b>Express Users</b> make sure to update your web.xml file with the ${baseFolder} values!
+          <p />
+          You will need to move a few files around when upgrading.  Please review the <a href="upgrade_go.html">upgrading GO</a> or <a href="upgrade_war.html">upgrading WAR</a> page for details.
+          <p />
+          <b>Express Users</b> make sure to update your web.xml file with the ${baseFolder} values!          
           ''
     fixes:
     - Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy
