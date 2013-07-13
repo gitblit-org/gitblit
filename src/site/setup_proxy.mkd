@@ -65,3 +65,27 @@ ProxyPreserveHost On
     4. Set *web.mountParameters=false* in `gitblit.properties` or `web.xml` this will use parameterized URLs.  
     Alternatively, you can respecify *web.forwardSlashCharacter*.
 
+### Controlling Advertised Repository URLs
+
+In some reverse-proxy configurations you may be running Gitblit using an http interface with an https reverse-proxy proxy.  This will lead to Gitblit generating incorrect repository urls.
+
+You can control the url that Gitblit generates by setting X-Forwarded headers in your proxy server.
+
+*X-Forwarded-Proto*://servername(:*X-Forwarded-Port*)(/*X-Forwarded-Context*)
+
+---X:MEDIAWIKI---
+{| class="table table-bordered"
+! Header
+! Description
+|-
+| X-Forwarded-Port
+| The port to use in generated repository http/https urls
+|-
+| X-Forwarded-Proto
+| The protocol/scheme to use in generated repository http/https urls
+|-
+| X-Forwarded-Context
+| The context to use in generated repository http/https urls
+|}
+---X:MEDIAWIKI---
+

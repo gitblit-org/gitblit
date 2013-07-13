@@ -48,6 +48,14 @@ These permission codes are combined with the repository path to create a user pe
 
     RW:mygroup/myrepo.git
 
+**NOTE:**  
+The following repository permissions are equivalent:
+
+- myrepo.git
+- RW+:myrepo.git
+
+This is to preserve backwards-compatibility with Gitblit <= 1.1.0 which granted rewind power to all access-permitted users.
+
 #### Discrete Permissions with Regex Matching (Gitblit v1.2.0+)
 
 Gitblit also supports *case-insensitive* regex matching for repository permissions.  The following permission grants push privileges to all repositories in the *mygroup* folder.
@@ -170,14 +178,6 @@ There are four actual *roles* in Gitblit:
 - *#notfederated*, which prevents an account from being pulled by another Gitblit instance
 - *#create*, which allows the user the power to create personal repositories
 - *#fork*, which allows the user to create a personal fork of an existing Gitblit-hosted repository
-
-**NOTE:**  
-The following repository permissions are equivalent:
-
-- myrepo.git
-- RW+:myrepo.git
-
-This is to preserve backwards-compatibility with Gitblit <= 1.1.0 which granted rewind power to all access-permitted users.
 
 ### Personal Repositories & Forks
 
