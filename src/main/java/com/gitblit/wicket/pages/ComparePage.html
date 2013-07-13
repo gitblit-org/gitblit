@@ -38,15 +38,15 @@
 	
 		<div class="tabbable">
     		<ul class="nav nav-tabs">
-    			<li class="active"><a href="#commits" data-toggle="tab"><wicket:message key="gb.commits"></wicket:message></a></li>
-    			<li><a href="#diff" data-toggle="tab"><wicket:message key="gb.diff"></wicket:message></a></li>
+    			<li><a href="#commits" data-toggle="tab"><wicket:message key="gb.commits"></wicket:message></a></li>
+    			<li class="active"><a href="#diff" data-toggle="tab"><wicket:message key="gb.diff"></wicket:message></a></li>
     		</ul>
     		<div class="tab-content">
-    			<div class="tab-pane active" id="commits">
+    			<div class="tab-pane" id="commits">
 					<!-- commit list -->
 					<div wicket:id="commitList">[commit list]</div>
     			</div>
-	    		<div class="tab-pane" id="diff">
+	    		<div class="tab-pane active" id="diff">
 <!-- 					<div class="page_nav2"> -->
 <!-- 						<a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> -->
 <!-- 					</div>	 -->
