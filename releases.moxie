@@ -51,6 +51,7 @@ r17: {
 	 - Ignore orphan ".git" folder in the repositories root folder (issue-256)
 	 - Fixed bug where a null permission was added to a user model on a repository rename when the permission had really been inherited from a team membership (issue-259)
 	 - Fixed committer verification with merge commits (issue-264)
+	 - Fixed bug in submodule repository linking (issue-266)
      - Could not reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
 	 - Added more error checking to blob page and blame page
 	 - Disable SNI extensions for client SSL connections

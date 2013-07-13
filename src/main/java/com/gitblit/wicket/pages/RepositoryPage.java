@@ -446,7 +446,7 @@ public abstract class RepositoryPage extends RootPage {
 			if (submoduleName.lastIndexOf('/') > -1) {
 				String name = submoduleName.substring(submoduleName.lastIndexOf('/') + 1);
 				candidates.add(currentPath + StringUtils.stripDotGit(name));
-				candidates.add(currentPath + candidates.get(candidates.size() - 1) + ".git");
+				candidates.add(candidates.get(candidates.size() - 1) + ".git");
 			}
 
 			// absolute
