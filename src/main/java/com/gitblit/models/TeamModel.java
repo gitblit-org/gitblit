@@ -186,8 +186,15 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	}
 	
 	public void setRepositoryPermission(String repository, AccessPermission permission) {
-		permissions.put(repository.toLowerCase(), permission);
-		repositories.add(repository.toLowerCase());
+		if (permission == null) {
+			// remove the permission
+			permissions.remove(repository.toLowerCase());
+			repositories.remove(repository.toLowerCase());
+		} else {
+			// set the new permission
+			permissions.put(repository.toLowerCase(), permission);
+			repositories.add(repository.toLowerCase());
+		}
 	}
 	
 	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {

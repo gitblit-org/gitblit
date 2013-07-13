@@ -273,7 +273,13 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 		
 	public void setRepositoryPermission(String repository, AccessPermission permission) {
-		permissions.put(repository.toLowerCase(), permission);
+		if (permission == null) {
+			// remove the permission
+			permissions.remove(repository.toLowerCase());
+		} else {
+			// set the new permission
+			permissions.put(repository.toLowerCase(), permission);
+		}
 	}
 
 	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {
