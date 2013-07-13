@@ -132,6 +132,11 @@ public class Issue0259Test extends Assert {
 			a.teams.add(t2);
 		}
 		
+		// simulate a repository rename
+		a.setRepositoryPermission("projects/renamed.git", null);
+		t1.setRepositoryPermission("projects/renamed.git", null);
+		t2.setRepositoryPermission("projects/renamed.git", null);
+
 		assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(test).permission);
 		assertEquals(AccessPermission.DELETE, a.getRepositoryPermission(projects_test).permission);
 		
@@ -185,6 +190,10 @@ public class Issue0259Test extends Assert {
 		}
 		UserModel a = new UserModel("a");
 		a.teams.add(t1);
+
+		// simulate a repository rename
+		a.setRepositoryPermission("projects/renamed.git", null);
+		t1.setRepositoryPermission("projects/renamed.git", null);
 		
 		assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(test).permission);
 		assertTrue(a.canClone(test));
@@ -199,6 +208,6 @@ public class Issue0259Test extends Assert {
 			// R permission is found first
 			assertEquals(AccessPermission.CLONE, a.getRepositoryPermission(projects_test).permission);
 			assertFalse(a.canDeleteRef(projects_test));
-		}
+		}		
 	}
 }
