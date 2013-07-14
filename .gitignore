@@ -20,3 +20,5 @@
 /data
 /*.conf
 /build-next.xml
+/*.ps1
+/*.sh
