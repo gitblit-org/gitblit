@@ -1,10 +1,10 @@
 #
-# ${project.version}
+# 1.3.0
 #
 r17: {
-    title: Gitblit ${project.version} Released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.3.0 Released
+    id: 1.3.0
+    date: 2013-07-14
     html: ''
           Release highlights include:
           <ul>
@@ -25,7 +25,7 @@ r17: {
           Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian.com">Atlassian</a>, <a href="http://fournova.com">fournova</a>, and <a href="http://github.com">Github</a> for their permission and use of their artwork for the native app clone menus.
           ''
     note: ''
-          If you have forked repositories and your are upgrading to 1.3.0, please DO NOT RELOCATE your repositories folder when running ${project.version} the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
+          If you have forked repositories and your are upgrading to 1.3.0, please DO NOT RELOCATE your repositories folder when running 1.3.0 the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
 	security:
 	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
@@ -874,6 +874,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r17
-release: &r16
-releases: &r[1..16]
+snapshot: ~
+release: &r17
+releases: &r[1..17]

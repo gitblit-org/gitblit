@@ -10,12 +10,12 @@ name: Gitblit
 description: pure Java Git solution
 groupId: com.gitblit
 artifactId: gitblit
-version: 1.3.0-SNAPSHOT
+version: 1.3.0
 inceptionYear: 2011
 
 # Current stable release
-releaseVersion: 1.2.1
-releaseDate: '2013-01-15'
+releaseVersion: 1.3.0
+releaseDate: 2013-07-14
 
 # Project urls
 url: 'http://gitblit.com'
@@ -158,4 +158,3 @@ dependencies:
 # Dependencies with the "build" scope are retrieved
 # and injected into the Ant runtime classpath
 - build 'jacoco'
-
