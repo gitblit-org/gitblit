@@ -817,51 +817,72 @@
 		Publish binaries to Google Code
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" description="Publish the Gitblit binaries to Google Code">
+	<target name="publishBinaries" depends="prepare" description="Publish the Gitblit binaries to Google Code">
 
 		<echo>Uploading Gitblit ${project.version} binaries</echo>
 
 		<!-- Upload Gitblit GO Windows ZIP file -->
 		<mx:gcupload 
-			 sourceFile="${distribution.zipfile}" 
-			 targetFile="gitblit-${project.version}.zip"
-			 description="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Windows)" />
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${distribution.zipfile}" 
+			targetFilename="gitblit-${project.version}.zip"
+			summary="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Windows)" />
 
 		<!-- Upload Gitblit GO Linux/Unix tar.gz file -->
 		<mx:gcupload
-			 sourceFile="${distribution.tgzfile}" 
-			 targetFile="gitblit-${project.version}.tar.gz"
-			 description="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Linux/Unix)" />
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${distribution.tgzfile}" 
+			targetFilename="gitblit-${project.version}.tar.gz"
+			summary="Gitblit GO v${project.version} (standalone, integrated Gitblit server for Linux/Unix)" />
 
 		<!-- Upload Gitblit WAR file -->
-		<mx:gcupload 
-		     sourceFile="${distribution.warfile}" 
-		     targetFile="gitblit-${project.version}.war"
-		     description="Gitblit WAR v${project.version} (standard WAR webapp for servlet containers)" />
+		<mx:gcupload
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${distribution.warfile}" 
+			targetFilename="gitblit-${project.version}.war"
+			summary="Gitblit WAR v${project.version} (standard WAR webapp for servlet containers)" />
 
 		<!-- Upload Gitblit FedClient -->
-		<mx:gcupload 
-			sourceFile="${fedclient.zipfile}" 
-			targetFile="fedclient-${project.version}.zip"
-			description="Gitblit Federation Client v${project.version} (command-line tool to clone data from federated Gitblit instances)" />
+		<mx:gcupload
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+		    projectname="gitblit"
+			filename="${project.targetDirectory}/${fedclient.zipfile}" 
+			targetFilename="fedclient-${project.version}.zip"
+		    summary="Gitblit Federation Client v${project.version} (command-line tool to clone data from federated Gitblit instances)" />
 
 		<!-- Upload Gitblit Manager -->
 		<mx:gcupload
-			sourceFile="${manager.zipfile}" 
-			targetFile="manager-${project.version}.zip"
-			description="Gitblit Manager v${project.version} (Swing tool to remotely administer a Gitblit server)" />
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${manager.zipfile}" 
+			targetFilename="manager-${project.version}.zip"
+			summary="Gitblit Manager v${project.version} (Swing tool to remotely administer a Gitblit server)" />
 
 		<!-- Upload Gitblit API Library -->
 		<mx:gcupload
-			sourceFile="${gbapi.zipfile}" 
-			targetFile="gbapi-${project.version}.zip"
-			description="Gitblit API Library v${project.version} (JSON RPC library to integrate with your software)" />
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${gbapi.zipfile}" 
+			targetFilename="gbapi-${project.version}.zip"
+			summary="Gitblit API Library v${project.version} (JSON RPC library to integrate with your software)" />
 
 		<!-- Upload Gitblit Express for RedHat OpenShift -->
-		<mx:gcupload 
-			sourceFile="${express.zipfile}" 
-			targetFile="express-${project.version}.zip"
-			description="Gitblit Express v${project.version} (run Gitblit on RedHat's OpenShift cloud)" />
+		<mx:gcupload
+			username="${googlecode.user}"
+			password="${googlecode.password}"
+			projectname="gitblit"
+			filename="${project.targetDirectory}/${express.zipfile}" 
+			targetFilename="express-${project.version}.zip"
+			summary="Gitblit Express v${project.version} (run Gitblit on RedHat's OpenShift cloud)" />
 
 	</target>
 
