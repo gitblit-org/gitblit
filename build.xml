@@ -683,11 +683,17 @@
 						<page name="upgrade WAR" src="upgrade_war.mkd" />
 					</menu>
 					<divider />
+					<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="setup Express" src="setup_express.mkd" />
+						<page name="upgrade Express" src="upgrade_express.mkd" />
+					</menu>
+					<divider />
 					<page name="administration" src="administration.mkd" />
 					<page name="authentication" src="setup_authentication.mkd" />
 					<page name="push hooks" src="setup_hooks.mkd" />
 					<page name="lucene indexing" src="setup_lucene.mkd" />
 					<page name="reverse proxies" src="setup_proxy.mkd" />
+					<page name="client app menus" src="setup_clientmenus.mkd" />
 					<divider />
 					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					<divider />
@@ -939,11 +945,17 @@
 							<page name="upgrade WAR" src="upgrade_war.mkd" />
 						</menu>
 						<divider />
+						<menu name="Gitblit Express" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="setup Express" src="setup_express.mkd" />
+							<page name="upgrade Express" src="upgrade_express.mkd" />
+						</menu>
+						<divider />
 						<page name="administration" src="administration.mkd" />
 						<page name="authentication" src="setup_authentication.mkd" />
 						<page name="push hooks" src="setup_hooks.mkd" />
 						<page name="lucene indexing" src="setup_lucene.mkd" />
 						<page name="reverse proxies" src="setup_proxy.mkd" />
+						<page name="client app menus" src="setup_clientmenus.mkd" />
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						<divider />

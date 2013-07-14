@@ -25,7 +25,7 @@ r17: {
           Thank you to <a href="http://syntevo.com">syntevo</a>, <a href="http://atlassian.com">Atlassian</a>, <a href="http://fournova.com">fournova</a>, and <a href="http://github.com">Github</a> for their permission and use of their artwork for the native app clone menus.
           ''
     note: ''
-          If you have forked repositories and your are upgrading to ${project.version}, please DO NOT RELOCATE your repositories folder when running ${project.version} the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
+          If you have forked repositories and your are upgrading to 1.3.0, please DO NOT RELOCATE your repositories folder when running ${project.version} the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
 	security:
 	- Raw servlet was insecure. If someone knew the exact repository name and path to a file, the raw blob could be retrieved bypassing security constraints. (issue 198)
@@ -107,6 +107,7 @@ r17: {
 	 - Support --baseFolder parameter in Federation Client
 
     contributors:
+	- James Moger
 	- Bandarupalli Satyanarayana
 	- Chad Horohoe
 	- Christian Aistleitner
@@ -225,6 +226,7 @@ r16: {
     - { name: fanout.connectionLimit, defaultValue: 0 }
 
     contributors:
+	- James Moger
     - github/mystygage
     - github/ds5apn
     - github/kwoot
@@ -341,6 +343,7 @@ r15: {
     - XZ for Java 1.0
 
     contributors:
+	- James Moger
     - github/rafaelcavazin
     - github/mallowlabs
     - github/sauthieg
@@ -417,6 +420,7 @@ r14: {
     - { name: git.defaultAuthorizationControl, defaultValue: NAMED }
 
     contributors:
+	- James Moger
     - Steffen Gebert
 }
 
@@ -486,6 +490,7 @@ r13: {
     - Ivy 2.2.0
 
     contributors:
+	- James Moger
     - Eduardo Guervos Narvaez
     - Lukasz Jader
     - github/mragab
@@ -505,6 +510,9 @@ r12: {
     fixes:
     - Fixed bug where you could not remove all selections from a RepositoryModel list (permitted users, permitted teams, hook scripts, federation sets, etc) (issue 81)
     - Automatically set *java.awt.headless=true* for Gitblit GO
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -525,6 +533,7 @@ r11: {
     - Fixed EditRepositoryPage for IE8; missing save button (issue 80)
 
     contributors:
+	- James Moger
     - github/jonnybbb
     - github/mohamedmansour
     - github/jcrygier
@@ -540,6 +549,9 @@ r10: {
 
     fixes:
     - Lucene folder was stored in working copy instead of in .git folder
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -607,6 +619,7 @@ r9: {
     - Wicket 1.4.20
 
     contributors:
+	- James Moger
     - github/lemval
     - github/zakki
     - github/plm
@@ -622,6 +635,9 @@ r8: {
 
     fixes:
     - Fixed bug when upgrading from users.properties to users.conf (issue 41)
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -635,6 +651,9 @@ r7: {
     fixes:
     - Include missing icon resource for the manager (issue 40)
     - Fixed sendmail.groovy message content with incorrect tag/branch labels
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -693,6 +712,9 @@ r6: {
     - JGit 1.2.0
     - Groovy 1.8.5
     - Clippy
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -747,6 +769,7 @@ r5: {
     - Wicket 1.4.19
 
     contributors:
+	- James Moger
     - github/dadalar
     - github/alyandon
     - github/trygvis
@@ -783,6 +806,9 @@ r4: {
     - JGit 1.1.0
     - google-gson
     - javamail
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -813,6 +839,9 @@ r3: {
     dependencyChanges:
     - MarkdownPapers 1.1.0
     - Jetty 7.4.3
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -827,6 +856,9 @@ r2: {
     - clarified SSL certificate generation and configuration for both server-side and client-side
     - added some more troubleshooting information to documentation
     - replaced JavaService with Apache Commons Daemon
+
+    contributors:
+	- James Moger
 }
 
 #
@@ -837,6 +869,9 @@ r1: {
     id: 0.5.0
     date: 2011-06-26
     text: initial release
+
+    contributors:
+	- James Moger
 }
 
 snapshot: &r17
