@@ -806,7 +806,7 @@
 		Update the gh-pages branch with the current site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="updateGhPages" depends="buildSite">
+	<target name="updateGhPages">
 		<!-- Build gh-pages branch -->
 		<mx:ghpages repositorydir="${basedir}" obliterate="true" />
 	</target>
@@ -817,7 +817,7 @@
 		Publish binaries to Google Code
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishBinaries" depends="clean,buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary" description="Publish the Gitblit binaries to Google Code">
+	<target name="publishBinaries" description="Publish the Gitblit binaries to Google Code">
 
 		<echo>Uploading Gitblit ${project.version} binaries</echo>
 
@@ -869,32 +869,23 @@
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Publish site to site hosting service
-		You must add ext/commons-net-1.4.0.jar to your ANT classpath.
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="publishSite" depends="clean,buildSite,updateGhPages" description="Publish the Gitblit site to a webserver (requires ext/commons-net-1.4.0.jar)" >
+	<target name="publishSite" depends="clean,buildSite,updateGhPages" description="Publish the Gitblit site to a host" >
 
 		<echo>Uploading Gitblit ${project.version} website</echo>
 
-		<ftp server="${ftp.server}"
+		<mx:ftp server="${ftp.server}"
 			userid="${ftp.user}"
 			password="${ftp.password}"
 			remotedir="${ftp.dir}"
 			passive="true"
 			verbose="yes">
 			<fileset dir="${project.siteTargetDirectory}" />
-		</ftp>
+		</mx:ftp>
 	</target>
 
 
-	<!--
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-		Compile from source, publish binaries, and build & deploy site
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-->
-	<target name="publishAll" depends="publishBinaries,publishSite" />
-
-	
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 		Tag a new version and prepare for the next development cycle.
@@ -904,19 +895,45 @@
 		<!-- release -->
 		<property name="dryrun" value="false" />
 		<mx:version stage="release" dryrun="${dryrun}" />		
+		<property name="project.tag" value="v${project.version}" />
 		<!-- commit build.moxie & releases.moxie (automatic) -->
 		<mx:commit showtitle="no">
 		    <message>Prepare ${project.version} release</message>
-			<tag name="v${project.version}">
+			<tag name="${project.tag}">
 				<message>${project.name} ${project.version} release</message>
 			</tag>
 		</mx:commit>
+
+		<!-- create the release process script -->
+		<mx:if>
+			<os family="windows" />
+			<then>
+				<!-- Windows PowerShell script        -->
+				<!-- set-executionpolicy remotesigned -->
+				<property name="recipe" value="release_${project.version}.ps1" />
+			</then>
+			<else>
+				<!-- Bash script -->
+				<property name="recipe" value="release_${project.version}.sh" />
+			</else>
+		</mx:if>
+		<delete file="${recipe}" failonerror="false" quiet="true" verbose="false" />
+		<!-- Work-around for lack of proper ant property substitution in copy -->
+		<property name="dollar" value="$"/>
+		<copy file="release.template" tofile="${recipe}">
+			<filterset begintoken="${dollar}{" endtoken="}">
+				<filter token="project.version" value="${project.version}" />
+				<filter token="project.commitId" value="${project.commitId}" />
+				<filter token="project.tag" value="${project.tag}" />
+			</filterset>
+		</copy>
+		<chmod file="${recipe}" perm="ugo+rx" />
 
 		<!-- next cycle -->
 		<mx:version stage="snapshot" incrementNumber="incremental" dryrun="${dryrun}" />
 		<mx:commit showtitle="no">
 		    <message>Reset build identifiers for next development cycle</message>
-		</mx:commit>
+		</mx:commit>		
 	</target>
 
 		
