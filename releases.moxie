@@ -9,7 +9,8 @@ r18: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
+    fixes:
+	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
     changes: ~
     additions: ~
     dependencyChanges: ~

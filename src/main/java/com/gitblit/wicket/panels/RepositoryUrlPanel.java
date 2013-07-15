@@ -85,7 +85,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		// grab primary url from the top of the list
 		primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 
-		boolean canClone = ((primaryUrl.permission == null) || primaryUrl.permission.atLeast(AccessPermission.CLONE));
+		boolean canClone = primaryUrl != null && ((primaryUrl.permission == null) || primaryUrl.permission.atLeast(AccessPermission.CLONE));
 
 		if (repositoryUrls.size() == 0 || !canClone) {
 			// no urls, nothing to show.
