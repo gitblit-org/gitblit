@@ -11,6 +11,7 @@ r18: {
     security: ~
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
+	- Fixed missing model class dependencies in Gitblit Manager build
     changes: ~
     additions: ~
     dependencyChanges: ~

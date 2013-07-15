@@ -484,6 +484,11 @@
 			</resource>
 
 			<mainclass name="com.gitblit.client.GitblitManagerLauncher" />
+			<class name="com.gitblit.Keys" />
+			<class name="com.gitblit.client.GitblitClient" />
+			<class name="com.gitblit.models.FederationModel" />
+			<class name="com.gitblit.models.FederationProposal" />
+			<class name="com.gitblit.models.FederationSet" />			
 			<manifest>
 				<attribute name="SplashScreen-Image" value="splash.png" />
 			</manifest>
