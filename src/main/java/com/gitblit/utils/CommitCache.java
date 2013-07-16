@@ -110,6 +110,23 @@ public class CommitCache {
 	}
 	
 	/**
+	 * Clears the commit cache for a specific branch of a specific repository.
+	 * 
+	 * @param repositoryName
+	 * @param branch
+	 */
+	public void clear(String repositoryName, String branch) {
+		String repoKey = repositoryName.toLowerCase();
+		ObjectCache<List<RepositoryCommit>> repoCache = cache.get(repoKey);
+		if (repoCache != null) {
+			List<RepositoryCommit> commits = repoCache.remove(branch.toLowerCase());
+			if (!ArrayUtils.isEmpty(commits)) {
+				logger.info(MessageFormat.format("{0}:{1} commit cache cleared", repositoryName, branch));
+			}
+		}
+	}
+	
+	/**
 	 * Get all commits for the specified repository:branch that are in the cache.
 	 * 
 	 * @param repositoryName

@@ -13,6 +13,7 @@ r18: {
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatability mode
+	- Reset dashboard and activity commit cache on branch REWIND or DELETE
     changes: ~
     additions: ~
     dependencyChanges: ~

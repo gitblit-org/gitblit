@@ -36,6 +36,7 @@ import org.eclipse.jgit.transport.ReceivePack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -44,6 +45,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
+import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
@@ -184,6 +186,21 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 			if (allRejected) {
 				// all ref updates rejected, abort
 				return;
+			}
+		}
+		
+		// reset branch commit cache on REWIND and DELETE
+		for (ReceiveCommand cmd : commands) {
+			String ref = cmd.getRefName();
+			if (ref.startsWith(Constants.R_HEADS)) {
+				switch (cmd.getType()) {
+				case UPDATE_NONFASTFORWARD:
+				case DELETE:
+					CommitCache.instance().clear(repository.name, ref);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 
