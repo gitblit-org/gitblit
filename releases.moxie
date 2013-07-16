@@ -12,10 +12,14 @@ r18: {
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
 	- Fixed missing model class dependencies in Gitblit Manager build
+	- Fix for IE10 compatability mode
     changes: ~
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+	- Rainer Alföldi 
+	- Liyu Wang
+	- James Moger
 }
 
 #
