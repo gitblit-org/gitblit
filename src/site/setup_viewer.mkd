@@ -1,0 +1,47 @@
+## Gitblit as a Viewer
+
+Gitblit is designed to be a complete Git server solution, however you may already have a Git serving solution such as ssh+gitolite or Gerrit.  For these scenarios, you may configure Gitblit to be just a repository viewer.
+
+### Lock-down your Viewer
+
+Here is an example configuration that disables all administration, all Git serving features, and requires an authenticated user to view anything.
+
+    git.repositoriesFolder = ${baseFolder}/git
+    git.cacheRepositoryList = true
+    git.searchRepositoriesSubfolders = true
+    git.searchRecursionDepth = -1
+    git.searchExclusions =
+    git.daemonPort = 0
+    git.enableGitServlet = false
+    git.enableGarbageCollection = false
+    git.defaultAccessRestriction = VIEW
+    web.authenticateViewPages = true
+    web.allowAdministration = false
+    web.enableRpcServlet = false
+    web.enableRpcManagement = false
+    web.enableRpcAdministration = false
+    web.allowForking = false
+
+###  Tomcat or Reverse-Proxy Servers
+
+If you are running Gitblit on a Tomcat-based container you will likely run into forward-slash character troubles.
+
+To resolve this either set:
+
+    web.mountParameters = false
+
+or
+
+    web.forwardSlashCharacter = !
+
+
+### Advertised Repository Urls
+
+You may also want to advertise repository urls for your other Git serving solution from Gitblit.
+
+- *{0}* is the token for the repository name
+- *{1}* is the token for the username
+
+The username is only practical if you have setup the account names for your other git serving solution to match the Gitblit account.
+
+    web.otherUrls = ssh://localhost/git/{0} git://localhost:29418/git/{0} https://{1}@localhost/r/{0}

@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	<div class="repositorynavbar">
+		<div class="repositorynavbar-inner">
+			<div class="container">
+				<!-- page header -->
+				<div class="title" style="font-size: 22px; color: rgb(0, 32, 96);padding: 3px 0px 7px;">
+					<span class="project" wicket:id="pageName">[page name]</span> <span class="repository" wicket:id="pageSubName">[sub name]</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="container">	
+		<!-- Subclass Content -->
+		<wicket:child/>
+	</div>
+</wicket:extend>
+</body>
+</html>

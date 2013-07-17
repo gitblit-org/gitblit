@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+		<div wicket:id="adminPanel">[admin links]</div>
+		
+		<table class="repositories">
+		<tr>
+			<th class="left">
+				<img style="vertical-align: middle; border: 1px solid #888; background-color: white;" src="user_16x16.png"/>
+				<wicket:message key="gb.users">[users]</wicket:message>
+			</th>
+			<th class="hidden-phone hidden-tablet left"><wicket:message key="gb.displayName">[display name]</wicket:message></th>
+			<th class="hidden-phone hidden-tablet left"><wicket:message key="gb.emailAddress">[email address]</wicket:message></th>
+			<th class="hidden-phone" style="width:140px;"><wicket:message key="gb.type">[type]</wicket:message></th>
+			<th class="hidden-phone" style="width:140px;"><wicket:message key="gb.teamMemberships">[team memberships]</wicket:message></th>
+			<th class="hidden-phone" style="width:100px;"><wicket:message key="gb.repositories">[repositories]</wicket:message></th>
+			<th style="width:80px;" class="right"></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="userRow">
+       			<td class="left" ><span class="list" wicket:id="username">[username]</span></td>
+       			<td class="hidden-phone hidden-tablet left" ><span class="list" wicket:id="displayName">[display name]</span></td>
+       			<td class="hidden-phone hidden-tablet left" ><span class="list" wicket:id="emailAddress">[email address]</span></td>
+       			<td class="hidden-phone left" ><span style="font-size: 0.8em;" wicket:id="accountType">[account type]</span></td>
+       			<td class="hidden-phone left" ><span class="list" wicket:id="teams">[team memberships]</span></td>
+       			<td class="hidden-phone left" ><span class="list" wicket:id="repositories">[repositories]</span></td>
+       			<td class="rightAlign"><span wicket:id="userLinks"></span></td>      			
+       		</tr>
+    	</tbody>
+	</table>
+	
+	<wicket:fragment wicket:id="adminLinks">
+		<!-- page nav links -->	
+		<div class="admin_nav">
+			<a class="btn-small" wicket:id="newUser" style="padding-right:0px;">
+				<i class="icon icon-plus-sign"></i>
+				<wicket:message key="gb.newUser"></wicket:message>
+			</a>
+		</div>	
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="userAdminLinks">
+		<span class="link"><a wicket:id="editUser"><wicket:message key="gb.edit">[edit]</wicket:message></a> | <a wicket:id="deleteUser"><wicket:message key="gb.delete">[delete]</wicket:message></a></span>
+	</wicket:fragment>
+	
+</wicket:panel>
+</body>
+</html>

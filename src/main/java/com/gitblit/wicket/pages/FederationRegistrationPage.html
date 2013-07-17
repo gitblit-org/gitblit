@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	<!-- registration info -->
+	<table class="summary">
+		<tr><th><wicket:message key="gb.url">url</wicket:message></th><td><img style="border:0px;vertical-align:middle;" wicket:id="typeIcon" /> <span wicket:id="url">[url]</span></td></tr>
+		<tr><th><wicket:message key="gb.token">token</wicket:message></th><td><span class="sha1" wicket:id="token">[token]</span></td></tr>
+		<tr><th><wicket:message key="gb.folder">folder</wicket:message></th><td><span wicket:id="folder">[folder]</span></td></tr>
+		<tr><th><wicket:message key="gb.frequency">frequency</wicket:message></th><td><span wicket:id="frequency">[frequency]</span></td></tr>
+		<tr><th><wicket:message key="gb.lastPull">lastPull</wicket:message></th><td><span wicket:id="lastPull">[lastPull]</span></td></tr>
+		<tr><th><wicket:message key="gb.nextPull">nextPull</wicket:message></th><td><span wicket:id="nextPull">[nextPull]</span></td></tr>
+		<tr><th valign="top"><wicket:message key="gb.exclusions">exclusions</wicket:message></th><td><span class="sha1" wicket:id="exclusions">[exclusions]</span></td></tr>
+		<tr><th valign="top"><wicket:message key="gb.inclusions">inclusions</wicket:message></th><td><span class="sha1" wicket:id="inclusions">[inclusions]</span></td></tr>
+	</table>
+	
+	<table class="repositories">
+		<tr>
+			<th class="left">
+				<img style="vertical-align: top; border: 1px solid #888; background-color: white;" src="git-black-16x16.png"/>
+				<wicket:message key="gb.repositories">[repositories]</wicket:message>
+			</th>
+			<th class="right"><wicket:message key="gb.status">[status]</wicket:message></th>
+		</tr>
+		<tbody>		
+       		<tr wicket:id="row">
+       			<td class="left"><img style="border:0px;vertical-align:middle;" wicket:id="statusIcon" /><span wicket:id="name">[name]</span></td>
+       			<td class="right"><span wicket:id="status">[status]</span></td>
+       		</tr>
+    	</tbody>
+	</table>
+		
+</wicket:extend>    
+</body>
+</html>

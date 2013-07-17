@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">
+      
+<!-- contribute google-code-prettify resources to the page header -->
+<wicket:head>
+  <wicket:link>
+   	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="prettify/prettify.js"></script>
+	<script type="text/javascript" src="prettify/lang-apollo.js"></script>
+	<script type="text/javascript" src="prettify/lang-basic.js"></script>
+	<script type="text/javascript" src="prettify/lang-clj.js"></script>
+	<script type="text/javascript" src="prettify/lang-css.js"></script>
+	<script type="text/javascript" src="prettify/lang-dart.js"></script>
+	<script type="text/javascript" src="prettify/lang-erlang.js"></script>
+	<script type="text/javascript" src="prettify/lang-go.js"></script>
+	<script type="text/javascript" src="prettify/lang-hs.js"></script>
+	<script type="text/javascript" src="prettify/lang-lisp.js"></script>
+	<script type="text/javascript" src="prettify/lang-llvm.js"></script>
+	<script type="text/javascript" src="prettify/lang-lua.js"></script>
+	<script type="text/javascript" src="prettify/lang-matlab.js"></script>
+	<script type="text/javascript" src="prettify/lang-ml.js"></script>
+	<script type="text/javascript" src="prettify/lang-mumps.js"></script>
+	<script type="text/javascript" src="prettify/lang-n.js"></script>
+	<script type="text/javascript" src="prettify/lang-pascal.js"></script>
+	<script type="text/javascript" src="prettify/lang-proto.js"></script>
+	<script type="text/javascript" src="prettify/lang-r.js"></script>
+	<script type="text/javascript" src="prettify/lang-rd.js"></script>
+	<script type="text/javascript" src="prettify/lang-scala.js"></script>
+	<script type="text/javascript" src="prettify/lang-sql.js"></script>
+	<script type="text/javascript" src="prettify/lang-tcl.js"></script>
+	<script type="text/javascript" src="prettify/lang-tex.js"></script>
+	<script type="text/javascript" src="prettify/lang-vb.js"></script>
+	<script type="text/javascript" src="prettify/lang-vhdl.js"></script>
+	<script type="text/javascript" src="prettify/lang-wiki.js"></script>
+	<script type="text/javascript" src="prettify/lang-xq.js"></script>
+	<script type="text/javascript" src="prettify/lang-yaml.js"></script>
+  </wicket:link>
+</wicket:head>
+
+<wicket:extend>
+<!-- need to specify body.onload -->
+<body onload="prettyPrint()">
+
+		<!-- blob nav links -->	
+		<div class="page_nav2">
+			<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a> | <a wicket:id="headLink"><wicket:message key="gb.head"></wicket:message></a>
+		</div>	
+	
+		<!-- commit header -->
+		<div wicket:id="commitHeader">[commit header]</div>
+
+		<!-- breadcrumbs -->
+		<div wicket:id="breadcrumbs">[breadcrumbs]</div>
+		
+		<!--  blob content -->
+		<pre style="border:0px;" wicket:id="blobText">[blob content]</pre>
+
+		<!--  blob image -->
+		<img wicket:id="blobImage" style="padding-top:5px;"></img>
+	
+</body>
+</wicket:extend>
+</html>

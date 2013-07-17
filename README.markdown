@@ -32,4 +32,9 @@ Building Gitblit
 3. Select your gitblit project root and **Refresh** the project, this should correct all build problems.
 4. Using JUnit, execute the `com.gitblit.tests.GitBlitSuite` test suite.<br/>
 *This will clone some repositories from the web and run through the unit tests.*
-5. Execute the *com.gitblit.Launcher* class to start Gitblit.   
+5. Execute the *com.gitblit.GitBlitServer* class to start Gitblit GO.
+
+Building Tips & Tricks
+----------------------
+1. If you are running Ant from an ANSI-capable console, consider setting the `MX_COLOR` ennvironment variable before executing Ant.<pre>set MX_COLOR=true</pre>
+2. The build script will honor your Maven proxy settings.  If you need to fine-tune this, please review the [settings.moxie](http://gitblit.github.io/moxie/settings.html) documentation.

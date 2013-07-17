@@ -1,0 +1,17 @@
+## Upgrading Gitblit WAR (1.2.1+)
+1. Make sure your `WEB-INF/web.xml` *baseFolder* context parameter is not `${contextFolder}/WEB-INF/data`!<br/>
+If it is, move your `WEB-INF/data` folder to a location writeable by your servlet container.
+2. Deploy new WAR
+3. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
+4. Review and optionally apply any new settings as indicated in the [release log](releases.html) to `${baseFolder}/gitblit.properties`. 
+ 
+
+## Upgrading Gitblit WAR (pre-1.2.1)
+
+1. Create a `data` as outlined in step 1 of *Upgrading Gitblit GO (pre-1.2.1)*
+2. Copy your existing web.xml to your data folder
+3. Deploy new WAR
+4. Copy the new WAR's `WEB-INF/data/gitblit.properties` file to your data folder
+5. Manually apply any changes you made to your original web.xml file to the gitblit.properties file you copied to your data folder
+6. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
+

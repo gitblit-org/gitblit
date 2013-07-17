@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+	<wicket:extend>
+		<div class="repositorynavbar">
+			<div class="repositorynavbar-inner">
+				<div class="container">
+		
+					<div class="title">
+						<div class="row">
+							<!-- search form -->
+							<div class="hidden-phone pull-right">
+								<form class="form-search" style="margin: 0px;" wicket:id="searchForm">
+									<div class="input-append">
+										<select class="span2" style="border-radius: 4px;" wicket:id="searchType"/>
+										<input type="text" class="search-query" style="width: 170px;border-radius: 14px 0 0 14px; padding-left: 14px;" id="searchBox" wicket:id="searchBox" value=""/>
+										<button class="btn" style="border-radius: 0 14px 14px 0px;margin-left:-5px;" type="submit"><i class="icon-search"></i></button>
+									</div>
+								</form>
+							</div>
+							
+							<div class="span7">
+								<div>
+									<span class="project" wicket:id="projectTitle">[project title]</span>/<span class="repository" wicket:id="repositoryName">[repository name]</span>
+									<a class="hidden-phone hidden-tablet" style="text-decoration: none;" wicket:id="syndication" wicket:message="title:gb.feed">
+										<img style="border:0px;vertical-align:baseline;" src="feed_16x16.png"></img>
+									</a>
+								</div>
+								<span wicket:id="originRepository">[origin repository]</span>								
+							</div>
+						</div>
+					</div>
+			
+					<div>
+						<div class="hidden-phone btn-group pull-right" style="margin-top:5px;">
+							<!-- future spot for other repo buttons -->
+							<a class="btn" wicket:id="starLink"></a>
+							<a class="btn" wicket:id="unstarLink"></a>
+							<a class="btn" wicket:id="myForkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.myFork"></wicket:message></a>
+							<a class="btn" wicket:id="forkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.fork"></wicket:message></a>
+							<a class="btn" wicket:id="editLink"><i class="icon-cog"></i> <wicket:message key="gb.edit"></wicket:message></a>
+						</div>
+						
+						<div wicket:id="repositoryNavPanel"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+				
+		<div class="container">
+			<wicket:child />
+		</div>
+		
+		<wicket:fragment wicket:id="toolbarLinkFragment">
+			<i wicket:id="icon" style="padding-right:3px;"></i><span wicket:id="label"></span>
+		</wicket:fragment>
+		
+		<wicket:fragment wicket:id="originFragment">
+			<p class="originRepository"><wicket:message key="gb.forkedFrom">[forked from]</wicket:message> <span wicket:id="originRepository">[origin repository]</span></p>
+		</wicket:fragment>
+				
+	</wicket:extend>
+</body>
+</html>

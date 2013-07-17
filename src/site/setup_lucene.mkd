@@ -1,0 +1,50 @@
+## Lucene Search Integration
+
+Repositories may optionally be indexed using the Lucene search engine.  The Lucene search offers several advantages over commit-traversal search:
+
+1. very fast commit and blob searches
+2. multi-term searches
+3. term-highlighted and syntax-highlighted fragment matches
+4. multi-repository searches
+
+### How do I use it?
+
+First you must ensure that *web.allowLuceneIndexing* is set *true* in `gitblit.properties` or `web.xml`.  Then you must understand that Lucene indexing is an opt-in feature which means that no repositories are automatically indexed.  
+Like anything else, this design has pros and cons.
+
+#### Pros
+1. no wasted cycles indexing repositories you will never search
+2. you specify exactly what branches are indexed; experimental/dead/personal branches can be ignored
+
+#### Cons
+1. you specify exactly what branches are indexed
+
+#### I have 300 repositories and you want me to specify indexed branches on each one??
+
+Yeah, I agree that is inconvenient.
+
+If you are using Gitblit GO there is a utility script `add-indexed-branch.cmd` which allows you to specify an indexed branch for many repositories in one step.
+
+If you are using Gitblit WAR then, at present, you are out of luck unless you write your own script to traverse your repositories and use native Git to manipulate each repository config.
+
+    git config --add gitblit.indexBranch "default"
+    git config --add gitblit.indexBranch "refs/heads/master"
+
+#### Indexing Branches
+You may specify which branches should be indexed per-repository in the *Edit Repository* page.  New/empty repositories may only specify the *default* branch which will resolve to whatever commit HEAD points to or the most recently updated branch if HEAD is unresolvable.
+
+Indexes are built and incrementally updated on a 2 minute cycle so you may have to wait a few minutes before your index is built or before your latest pushes get indexed.
+
+**NOTE:**  
+After specifying branches, only the content from those branches can be searched via Gitblit.  Gitblit will automatically redirect any queries entered on a repository's search box to the Lucene search page. Repositories that do not specify any indexed branches will use the traditional commit-traversal search.
+
+#### Adequate Heap
+
+The initial indexing of an existing repository can potentially exhaust the memory allocated to your Java instance and may throw OutOfMemory exceptions.  Be sure to provide your Gitblit server adequate heap space to index your repositories.  The heap is set using the *-Xmx* JVM parameter in your Gitblit launch command (e.g. -Xmx1024M).
+
+#### Why does Gitblit check every 2 mins for repository/branch changes?
+
+Gitblit has to balance its design as a complete, integrated Git server and its utility as a repository viewer in an existing Git setup.
+
+Gitblit could build indexes immediately on *edit repository* or on *receiving pushes*, but that design would not work if someone is pushing via ssh://, git://, or file:// (i.e. not pushing to Gitblit http(s)://).  For this reason Gitblit has a polling mechanism to check for ref changes every 2 mins.  This design works well for all use cases, aside from adding a little lag in updating the index.
+

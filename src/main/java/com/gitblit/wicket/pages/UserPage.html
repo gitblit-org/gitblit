@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+	<div class="row" style="padding-top:10px;">
+		<div class="span4">
+			<div wicket:id="gravatar"></div>
+			<div style="text-align: left;">
+				<h2><span wicket:id="userDisplayName"></span></h2>
+				<div><i class="icon-user"></i> <span wicket:id="userUsername"></span></div>
+				<div><i class="icon-envelope"></i><span wicket:id="userEmail"></span></div>
+			</div>
+		</div>
+		
+		<div class="span8">
+			<div class="pull-right">
+				<a class="btn-small" wicket:id="newRepository" style="padding-right:0px;">
+					<i class="icon icon-plus-sign"></i>
+					<wicket:message key="gb.newRepository"></wicket:message>
+				</a>
+			</div>
+			<div class="tabbable">
+				<!-- tab titles -->
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#repositories" data-toggle="tab"><wicket:message key="gb.repositories"></wicket:message></a></li>
+				</ul>
+	
+				<!-- tab content -->
+				<div class="tab-content">
+
+					<!-- repositories tab -->
+					<div class="tab-pane active" id="repositories">
+						<table width="100%">
+							<tbody>
+								<tr wicket:id="repositoryList"><td style="border-bottom:1px solid #eee;"><span wicket:id="repository"></span></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</wicket:extend>
+</body>
+</html>

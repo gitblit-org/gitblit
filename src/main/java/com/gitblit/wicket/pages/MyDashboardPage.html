@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+
+	<div class="row" style="padding-top:10px;">
+		<div class="span7">
+			<div class="hidden-phone hidden-tablet markdown" style="padding-bottom: 10px;" wicket:id="repositoriesMessage">[repositories message]</div>
+			<div ng-non-bindable wicket:id="activity"></div>
+		</div>
+		<div class="span5">
+			<div wicket:id="repositoryTabs"></div>
+		</div>		
+	</div>
+</div>
+
+<wicket:fragment wicket:id="anonymousTabsFragment">
+	<ul class="nav nav-pills">
+		<li class="active"><a href="#recent" data-toggle="tab"><wicket:message key="gb.active">[active]</wicket:message></a></li>
+		<li><a href="#projects" data-toggle="tab"><wicket:message key="gb.projects">[projects]</wicket:message></a></li>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane active" id="recent">
+			<div wicket:id="active">[recently active]</div>
+		</div>
+		<div class="tab-pane" id="projects">
+			<div wicket:id="projects">[all projects]</div>
+		</div>
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="authenticatedTabsFragment">
+	<ul class="nav nav-pills">
+		<li class="active"><a href="#starred" data-toggle="tab"><wicket:message key="gb.starred">[starred]</wicket:message></a></li>
+		<li><a href="#owned" data-toggle="tab"><wicket:message key="gb.owned">[owned]</wicket:message></a></li>
+		<li><a href="#recent" data-toggle="tab"><wicket:message key="gb.active">[active]</wicket:message></a></li>
+		<li><a href="#projects" data-toggle="tab"><wicket:message key="gb.projects">[projects]</wicket:message></a></li>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane active" id="starred">
+			<div wicket:id="starred">[starred repositories]</div>
+		</div>
+		<div class="tab-pane" id="owned">
+			<div wicket:id="owned">[my repositories]</div>
+		</div>
+		<div class="tab-pane" id="recent">
+			<div wicket:id="active">[recently active]</div>
+		</div>
+		<div class="tab-pane" id="projects">
+			<div wicket:id="projects">[all projects]</div>
+		</div>
+	</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="activityFragment">
+	<div class="dashboardTitle"><span class="hidden-phone hidden-tablet" wicket:id="feedTitle"></span> <small><span wicket:id="feedheader"></span></small></div>
+	<div class="hidden-phone hidden-tablet"  style="text-align:center;">
+		<div wicket:id="charts"></div>
+	</div>
+	<div wicket:id="digests"></div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="chartsFragment">
+	<table>
+		<tr>
+			<td><div id="chartRepositories" style="display:inline-block;width: 175px; height:175px"></div></td>
+			<td><div id="chartAuthors" style="display:inline-block;width: 175px; height: 175px;"></div></td>
+		</tr>
+	</table>
+</wicket:fragment>
+
+</wicket:extend>
+</body>
+</html>

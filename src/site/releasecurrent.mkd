@@ -1,0 +1,67 @@
+## Current Release (${project.releaseVersion})
+
+<div class="alert alert-info">
+<h4>Update Note ${project.releaseVersion}</h4>
+Because there are now several types of files and folders that must be considered Gitblit data, the default location for data has changed.
+<p>You will need to move a few files around when upgrading.  Please see the Upgrading section of the <a href="setup.html">setup</a> page for details.</p>
+
+<b>Express Users</b> make sure to update your web.xml file with the ${baseFolder} values!
+</div>
+
+**downloads:** [GO Windows](%GCURL%gitblit-${project.releaseVersion}.zip) | [GO Linux/OSX](%GCURL%gitblit-${project.releaseVersion}.tar.gz) | [WAR](%GCURL%gitblit-${project.releaseVersion}.war) | [Express](%GCURL%express-${project.releaseVersion}.zip) | [Federatoin Client](%GCURL%fedclient-${project.releaseVersion}.zip) | [Gitblit Manager](%GCURL%manager-${project.releaseVersion}.zip) | [API Library](%GCURL%gbapi-${project.releaseVersion}.zip) &nbsp; *released ${project.releaseDate}*
+
+#### fixes
+
+- Fixed nullpointer on recursively calculating folder sizes when there is a named pipe or symlink in the hierarchy
+- Added nullchecking when concurrently forking a repository and trying to display it's fork network (issue-187)
+- Fixed bug where permission changes were not visible in the web ui to a logged-in user until the user logged-out and then logged back in again (issue-186)
+- Fixed nullpointer on creating a repository with mixed case (issue 185)
+- Include missing model classes in api library (issue-184)
+- Fixed nullpointer when using *web.allowForking = true* && *git.cacheRepositoryList = false* (issue 182)
+- Likely fix for commit and commitdiff page failures when a submodule reference changes (issue 178)
+- Build project models from the repository model cache, when possible, to reduce page load time (issue 172)
+- Fixed loading of Brazilian Portuguese translation from *nix server (github/inaiat)
+
+#### additions
+
+- Fanout PubSub service for self-hosted [Sparkleshare](http://sparkleshare.org) notifications.<br/>
+This service is disabled by default.<br/>
+    **New:** *fanout.bindInterface = localhost*<br/>
+	**New:** *fanout.port = 0*<br/>
+	**New:** *fanout.useNio = true*<br/>
+	**New:** *fanout.connectionLimit = 0*
+- Implemented a simple push log based on a hidden, orphan branch refs/gitblit/pushes (issue 177)<br/>
+The push log is not currently visible in the ui, but the data will be collected and it will be exposed to the ui in the next release.
+- Support for locally and remotely authenticated accounts in LdapUserService and RedmineUserService (issue 183)
+- Added Dutch translation (github/kwoot)
+
+#### changes
+
+- Gitblit GO and Gitblit WAR are now both configured by `gitblit.properties`. WAR is no longer configured by `web.xml`.<br/>
+However, Express for OpenShift continues to be configured by `web.xml`.
+- Support for a *--baseFolder* command-line argument for Gitblit GO and Gitblit Certificate Authority
+- Support for specifying a *${baseFolder}* parameter in `gitblit.properties` and `web.xml` for several settings
+- Improve history display of a submodule link
+- Updated Korean translation (github/ds5apn)
+- Updated checkstyle definition (github/mystygage)
+
+<div style="padding-top:20px;" />
+
+## Next Release (${project.version})
+
+<div class="alert alert-info">
+<h4>Update Note ${project.version}</h4>
+These are the fixes, changes, and additions queued for the next release.
+</div>
+
+#### fixes
+
+- Can't set reset settings with $ or { characters through Gitblit Manager because they are not properly escaped
+
+#### additions
+ 
+ - FogBugz post-receive hook script (github/djschny)
+ - Implemented multiple repository owners (github/akquinet)
+ - Chinese translation (github/dapengme, github/yin8086)
+
+[jgit]: http://eclipse.org/jgit "Eclipse JGit Site"

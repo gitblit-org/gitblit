@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+		<div class="container">
+			<div class="row">
+				<div class="span12">
+					<div class="dashboardTitle">
+						<span wicket:id="projectTitle"></span>
+						<small class="hidden-phone"><span wicket:id="projectDescription"></span></small>
+						
+						<a
+							class="hidden-phone hidden-tablet brand"
+							style="text-decoration: none;" wicket:id="syndication"
+							wicket:message="title:gb.feed"> <img
+							style="border: 0px; vertical-align: middle;" src="feed_16x16.png"></img>
+						</a>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="span7">					
+					<div class="hidden-phone hidden-tablet markdown" style="padding-bottom: 30px;" wicket:id="projectMessage">[project message]</div>
+					<div ng-non-bindable wicket:id="activity">[activity panel]</div>
+				</div>
+				<div class="span5">
+					<div class="hidden-phone hidden-tablet markdown" wicket:id="repositoriesMessage">[repositories message]</div>
+					<div wicket:id="repositoryList">[repository list]</div>
+				</div>
+			</div>
+		</div>
+
+<wicket:fragment wicket:id="activityFragment">
+	<div class="dashboardTitle"><span class="hidden-phone hidden-tablet" wicket:id="feedTitle"></span> <small><span wicket:id="feedheader"></span></small></div>
+	<div class="hidden-phone hidden-tablet"  style="text-align:center;">
+		<div wicket:id="charts"></div>
+	</div>
+	<div wicket:id="digests"></div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="chartsFragment">
+	<table>
+		<tr>
+			<td><div id="chartRepositories" style="display:inline-block;width: 175px; height:175px"></div></td>
+			<td><div id="chartAuthors" style="display:inline-block;width: 175px; height: 175px;"></div></td>
+		</tr>
+	</table>
+</wicket:fragment>
+
+</wicket:extend>
+</body>
+</html>

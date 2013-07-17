@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	
+	<!-- Tagger Gravatar -->
+	<span style="float:right;vertical-align: top;" wicket:id="taggerAvatar" />
+	
+	<div style="padding-bottom:10px;">
+	<!-- commit info -->
+	<table class="summary">
+		<tr><th><wicket:message key="gb.name">[name]</wicket:message></th><td><span wicket:id="tagName">[tag name]</span></td></tr>
+		<tr><th><wicket:message key="gb.tag">[tag]</wicket:message></th><td><span class="sha1" wicket:id="tagId">[tag id]</span></td></tr>
+		<tr><th><wicket:message key="gb.object">[object]</wicket:message></th><td><span class="sha1" wicket:id="taggedObject">[tagged object]</span> <span class="link" wicket:id="taggedObjectType"></span></td></tr>
+		<tr><th><wicket:message key="gb.tagger">[tagger]</wicket:message></th><td><span class="sha1" wicket:id="tagger">[tagger]</span></td></tr>
+		<tr><th></th><td><span class="sha1" wicket:id="tagDate">[tag date]</span></td></tr>
+	</table>
+	</div>
+	
+	<!--  full message -->
+	<pre class="commit_message" wicket:id="fullMessage">[commit message]</pre>
+	
+	<wicket:fragment wicket:id="fullPersonIdent">
+		<span wicket:id="personName"></span><span wicket:id="personAddress"></span>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="partialPersonIdent">
+		<span wicket:id="personName"></span>
+	</wicket:fragment>
+	
+</wicket:extend>
+</body>
+</html>

@@ -1,0 +1,143 @@
+## Screenshots
+
+### Gitblit GO/WAR
+
+<ul class="thumbnails">
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/00.png" title="Repository List"><img alt="Repositories" src="thumbs/00.png" /></a>
+	<h5>Repository List</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/00b.png" title="Repository List (Admin)"><img alt="Repositories (Admin)" src="thumbs/00b.png" /></a>
+	<h5>Repository List (Admin)</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/00c.png" title="Activity"><img alt="Activity" src="thumbs/00c.png" /></a>
+	<h5>Activity</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/00d.png" title="Lucene Search"><img alt="Lucene Search" src="thumbs/00d.png" /></a>
+	<h5>Lucene Search</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/01c.png" title="Users &amp; Teams"><img alt="Users &amp; Teams" src="thumbs/01c.png" /></a>
+	<h5>Users &amp; Teams</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/01.png" title="New User"><img alt="New User" src="thumbs/01.png" /></a>
+	<h5>New User</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/01b.png" title="New Team"><img alt="New Team" src="thumbs/01b.png" /></a>
+	<h5>New Team</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/02.png" title="Edit Repository"><img alt="Edit Repository" src="thumbs/02.png" /></a>
+	<h5>Edit Repository</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/03.png" title="Repository Summary"><img alt="Summary" src="thumbs/03.png" /></a>
+	<h5>Repository Summary</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/04.png" title="Repository Log"><img alt="Log" src="thumbs/04.png" /></a>
+	<h5>Repository Log</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/05.png" title="Repository Tree"><img alt="Tree" src="thumbs/05.png" /></a>
+	<h5>Repository Tree</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/06.png" title="Commit Page"><img alt="Commit Page" src="thumbs/06.png" /></a>
+	<h5>Commit Page</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/07.png" title="Commit Diff"><img alt="Commit Diff" src="thumbs/07.png" /></a>
+	<h5>Commit Diff</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/09.png" title="Branch Metrics"><img alt="Metrics" src="thumbs/09.png" /></a>
+	<h5>Branch Metrics</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/08.png" title="Blob View with Syntax Highlighting"><img alt="Blob" src="thumbs/08.png" /></a>
+	<h5>Blob View with Syntax Highlighting</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/11.png" title="Blame"><img alt="Blame" src="thumbs/11.png" /></a>
+	<h5>Blame</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/12.png" title="Federation Panels"><img alt="Federation Panels" src="thumbs/12.png" /></a>
+	<h5>Federation Panels</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/13.png" title="Detailed Status of a Registration"><img alt="Registration Status" src="thumbs/13.png" /></a>
+	<h5>Detailed Status of a Registration</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/14.png" title="Send Proposal"><img alt="Propose" src="thumbs/14.png" /></a>
+	<h5>Send Proposal</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/15.png" title="Empty Repository"><img alt="Empty Repository" src="thumbs/15.png" /></a>
+	<h5>Empty Repository</h5>
+</li>
+</ul>
+
+### Gitblit Manager
+
+<ul class="thumbnails">
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m00.png" title="Repositories Panel"><img alt="Repositories Panel" src="thumbs/m00.png" /></a>
+	<h5>Repositories Panel</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m01.png" title="Search Dialog"><img alt="Search Dialog" src="thumbs/m01.png" /></a>
+	<h5>Search Dialog</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m02.png" title="Activity Panel"><img alt="Activity Panel" src="thumbs/m02.png" /></a>
+	<h5>Activity Panel</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m03.png" title="Subscriptions Dialog"><img alt="Subscriptions Dialog" src="thumbs/m03.png" /></a>
+	<h5>Subscriptions Dialog</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m04.png" title="Users Panel"><img alt="Users Panels" src="thumbs/m04.png" /></a>
+	<h5>Users Panel</h5>
+</li>
+<li class="span3">
+	<a rel="screenshots_group" href="screenshots/m05.png" title="Settings Panel"><img alt="Settings Panel" src="thumbs/m05.png" /></a>
+	<h5>Settings Panel</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m06.png" title="Status Panel"><img alt="Status Panel" src="thumbs/m06.png" /></a>
+	<h5>Status Panel</h5>
+</li>
+</ul>
+
+<ul class="thumbnails">
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m07.png" title="Edit Repository Settings"><img alt="Repository Settings" src="thumbs/m07.png" /></a>
+	<h5>Edit Repository Settings</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m08.png" title="Edit Repository Access Restrictions"><img alt="Access Restrictions" src="thumbs/m08.png" /></a>
+	<h5>Edit Repository Access Restriction</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m09.png" title="Edit Repository Federation Settings"><img alt="Federation Settings" src="thumbs/m09.png" /></a>
+	<h5>Edit Repository Federation Settings</h5>
+</li>
+<li class="span3">
+	<a class="thumbnail" rel="screenshots_group" href="screenshots/m10.png" title="Edit User Dialog"><img alt="Edit User Dialog" src="thumbs/m10.png" /></a>
+	<h5>Edit User Dialog</h5>
+</li>
+</ul>
+
+<script type="text/javascript" src="./fancybox/jquery.mousewheel-3.0.4.pack.js"> </script>
+<script type="text/javascript" src="./fancybox/jquery.fancybox-1.3.4.pack.js"> </script>
+<link rel="stylesheet" type="text/css" href="./fancybox/jquery.fancybox-1.3.4.css" media="screen" />
+<script type="text/javascript" src="./screenshots.js"> </script>	
