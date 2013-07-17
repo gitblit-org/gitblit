@@ -38,3 +38,7 @@ Building Tips & Tricks
 ----------------------
 1. If you are running Ant from an ANSI-capable console, consider setting the `MX_COLOR` ennvironment variable before executing Ant.<pre>set MX_COLOR=true</pre>
 2. The build script will honor your Maven proxy settings.  If you need to fine-tune this, please review the [settings.moxie](http://gitblit.github.io/moxie/settings.html) documentation.
+
+Using Gitblit for Local Repos
+-----------------------------
+http://amitgharat.wordpress.com/2013/07/16/setting-up-github-like-server-locally-using-gitblit/
