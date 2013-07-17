@@ -219,7 +219,7 @@ public class HtpasswdUserService extends GitblitUserService
      * @return AccountType.REDMINE
      */
     protected AccountType getAccountType() {
-        return AccountType.REDMINE;
+        return AccountType.EXTERNAL;
     }
 
 
