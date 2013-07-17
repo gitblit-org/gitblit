@@ -84,6 +84,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationRequest;
@@ -695,12 +696,12 @@ public class GitBlit implements ServletContextListener {
 	public boolean supportsCredentialChanges(UserModel user) {
 		if (user == null) {
 			return false;
-		} else if (!Constants.EXTERNAL_ACCOUNT.equals(user.password)) {
-			// credentials likely maintained by Gitblit
-			return userService.supportsCredentialChanges();
+		} else if (AccountType.LOCAL.equals(user.accountType)) {
+			// local account, we can change credentials
+			return true;
 		} else {
-			// credentials are externally maintained
-			return false;
+			// external account, ask user service
+			return userService.supportsCredentialChanges();
 		}
 	}
 

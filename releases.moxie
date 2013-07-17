@@ -14,8 +14,9 @@ r18: {
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatability mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
+	- Fixed bug with adding new local users with external authentication
     changes:
-	- updated Chinese translation
+	- updated Chinese translation	
     additions: ~
     dependencyChanges: ~
     contributors:
