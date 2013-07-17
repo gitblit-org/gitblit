@@ -164,9 +164,11 @@ public class HtpasswdUserService extends GitblitUserService
                 authenticated = true;
             }
             // test Apache MD5 variant encrypted password
-            else if ( storedPwd.startsWith("$apr1$") && storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd)) ) {
+            else if ( storedPwd.startsWith("$apr1$") ) {
+                if ( storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd)) ) {
                 logger.debug("Apache MD5 encoded password matched for user '" + username + "'");
                 authenticated = true;
+            }
             }
             // test unsalted SHA password
             else if ( storedPwd.startsWith("{SHA}") ) {
