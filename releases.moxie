@@ -18,12 +18,14 @@ r18: {
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
 	- Fixed bug with adding new local users with external authentication
     changes:
-	- updated Chinese translation	
+	- updated Chinese translation
+	- updated Dutch translation
     additions: ~
     dependencyChanges: ~
     contributors:
 	- Rainer Alföldi 
 	- Liyu Wang
+	- Jeroen Baten
 	- James Moger
 	- Stardrad Yin
 }
