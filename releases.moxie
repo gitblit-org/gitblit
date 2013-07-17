@@ -14,13 +14,15 @@ r18: {
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatability mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
-    changes: ~
+    changes:
+	- updated Chinese translation
     additions: ~
     dependencyChanges: ~
     contributors:
 	- Rainer Alföldi 
 	- Liyu Wang
 	- James Moger
+	- Stardrad Yin
 }
 
 #
