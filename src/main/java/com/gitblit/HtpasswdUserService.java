@@ -74,7 +74,8 @@ public class HtpasswdUserService extends GitblitUserService
 
 
 
-    private final File realmFile;
+    private IStoredSettings settings;
+    private final File htpasswdFile;
 
 
     private final Logger logger = LoggerFactory.getLogger(HtpasswdUserService.class);
@@ -89,7 +90,7 @@ public class HtpasswdUserService extends GitblitUserService
     public HtpasswdUserService()
     {
         super();
-        this.realmFile = GitBlit.getFileOrFolder(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
+        this.htpasswdFile = GitBlit.getFileOrFolder(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
     }
 
 
@@ -107,13 +108,15 @@ public class HtpasswdUserService extends GitblitUserService
      */
     @Override
     public void setup(IStoredSettings settings) {
+        this.settings = settings;
+        
         File realmFile = GitBlit.getFileOrFolder(KEY_BACKING_US, DEFAULT_BACKING_US);
         serviceImpl = createUserService(realmFile);
         logger.info("Htpasswd User Service backed by " + serviceImpl.toString());
 
         read();
 
-        logger.debug("Read " + users.size() + " users from realm file: " + this.realmFile);
+        logger.debug("Read " + users.size() + " users from realm file: " + this.htpasswdFile);
     }
 
 
@@ -166,9 +169,9 @@ public class HtpasswdUserService extends GitblitUserService
             // test Apache MD5 variant encrypted password
             else if ( storedPwd.startsWith("$apr1$") ) {
                 if ( storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd)) ) {
-                logger.debug("Apache MD5 encoded password matched for user '" + username + "'");
-                authenticated = true;
-            }
+                    logger.debug("Apache MD5 encoded password matched for user '" + username + "'");
+                    authenticated = true;
+                }
             }
             // test unsalted SHA password
             else if ( storedPwd.startsWith("{SHA}") ) {
@@ -234,7 +237,7 @@ public class HtpasswdUserService extends GitblitUserService
      * according to the logic of the GitblitUserService.
      */
     protected boolean isLocalAccount(String username) {
-        if ( GitBlit.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
+        if ( settings.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
             read();
             if ( users.containsKey(username) ) return false;
         }
@@ -260,16 +263,16 @@ public class HtpasswdUserService extends GitblitUserService
      * Reads the realm file and rebuilds the in-memory lookup tables.
      */
     protected synchronized void read() {
-        if (realmFile.exists() && (realmFile.lastModified() != lastModified)) {
+        if (htpasswdFile.exists() && (htpasswdFile.lastModified() != lastModified)) {
 //            forceReload = false;
-            lastModified = realmFile.lastModified();
+            lastModified = htpasswdFile.lastModified();
             users.clear();
 
             Pattern entry = Pattern.compile("^([^:]+):(.+)");
 
             Scanner scanner = null;
             try {
-                scanner = new Scanner(new FileInputStream(realmFile));
+                scanner = new Scanner(new FileInputStream(htpasswdFile));
                 while( scanner.hasNextLine()) {
                     String line = scanner.nextLine().trim();
                     if ( !line.isEmpty() &&  !line.startsWith("#") ) {
@@ -280,7 +283,7 @@ public class HtpasswdUserService extends GitblitUserService
                     }
                 }
             } catch (Exception e) {
-                logger.error(MessageFormat.format("Failed to read {0}", realmFile), e);
+                logger.error(MessageFormat.format("Failed to read {0}", htpasswdFile), e);
             }
             finally {
                 if (scanner != null) scanner.close();
@@ -293,7 +296,7 @@ public class HtpasswdUserService extends GitblitUserService
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(" + ((realmFile != null) ? realmFile.getAbsolutePath() : "null") + ")";
+        return getClass().getSimpleName() + "(" + ((htpasswdFile != null) ? htpasswdFile.getAbsolutePath() : "null") + ")";
     }
 
 }
