@@ -280,6 +280,7 @@
 		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
 			<!-- Specify all web.xml servlets and filters -->
 			<class name="com.gitblit.GitBlit" />
+			<class name="com.gitblit.Keys" />
 			<class name="com.gitblit.DownloadZipFilter" />
 			<class name="com.gitblit.DownloadZipServlet" />
 			<class name="com.gitblit.EnforceAuthenticationFilter" />
@@ -335,6 +336,7 @@
 		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
 			destfile="${project.targetDirectory}/fedclient.jar">
 			<mainclass name="com.gitblit.FederationClient" />
+			<class name="com.gitblit.Keys" />
 			<launcher paths="ext" />
 			<resource file="${project.compileOutputDirectory}/log4j.properties" />
 		</mx:genjar>
@@ -395,6 +397,7 @@
 
 		<!-- Gitblit classes -->
 		<mx:genjar destfile="${webinf}/lib/gitblit.jar" includeresources="false" excludeclasspathjars="true">
+			<class name="com.gitblit.Keys" />
 			<!-- Specify all web.xml servlets and filters -->
 			<class name="com.gitblit.GitBlit" />
 			<class name="com.gitblit.DownloadZipFilter" />
@@ -552,6 +555,7 @@
 			</resource>
 
 			<mainclass name="com.gitblit.authority.Launcher" />
+			<class name="com.gitblit.Keys" />
 			<manifest>
 				<attribute name="SplashScreen-Image" value="splash.png" />
 			</manifest>
