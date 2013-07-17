@@ -50,9 +50,9 @@ import com.gitblit.utils.StringUtils;
  * realm.htpasswd.backingUserService - Specify the backing user service that is used
  *                                     to keep the user data other than the password.
  *                                     The default is '${baseFolder}/users.conf'.
- * realm.htpasswd.file - The text file with the htpasswd entries to be used for
- *                       authentication.
- *                       The default is '${baseFolder}/htpasswd'
+ * realm.htpasswd.userfile - The text file with the htpasswd entries to be used for
+ *                           authentication.
+ *                           The default is '${baseFolder}/htpasswd'.
  * 
  * @author Florian Zschocke
  *
@@ -60,11 +60,11 @@ import com.gitblit.utils.StringUtils;
 public class HtpasswdUserService extends GitblitUserService
 {
 
-    private static final String KEY_BACKING_US = "realm.htpasswd.backingUserService";
-
+    private static final String KEY_BACKING_US = Keys.realm.htpasswd.backingUserService;
     private static final String DEFAULT_BACKING_US = "${baseFolder}/users.conf";
 
-    private static final String KEY_HTPASSWD_FILE = "realm.htpasswd.file";
+    private static final String KEY_HTPASSWD_FILE = Keys.realm.htpasswd.userfile;
+    private static final String DEFAULT_HTPASSWD_FILE = "${baseFolder}/htpasswd";
 
     private static final String DEFAULT_HTPASSWD_FILE = "${baseFolder}/htpasswd";
 
