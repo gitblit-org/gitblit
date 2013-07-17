@@ -53,6 +53,9 @@ import com.gitblit.utils.StringUtils;
  * realm.htpasswd.userfile - The text file with the htpasswd entries to be used for
  *                           authentication.
  *                           The default is '${baseFolder}/htpasswd'.
+ * realm.htpasswd.overrideLocalAuthentication - Specify if local accounts are overwritten
+ *                                              when authentication matches for an
+ *                                              external account.
  * 
  * @author Florian Zschocke
  *
@@ -66,7 +69,8 @@ public class HtpasswdUserService extends GitblitUserService
     private static final String KEY_HTPASSWD_FILE = Keys.realm.htpasswd.userfile;
     private static final String DEFAULT_HTPASSWD_FILE = "${baseFolder}/htpasswd";
 
-    private static final String DEFAULT_HTPASSWD_FILE = "${baseFolder}/htpasswd";
+    private static final String KEY_OVERRIDE_LOCALAUTH = Keys.realm.htpasswd.overrideLocalAuthentication;
+    private static final boolean DEFAULT_OVERRIDE_LOCALAUTH = true;
 
 
 
@@ -205,6 +209,33 @@ public class HtpasswdUserService extends GitblitUserService
         }
 
         return null;
+    }
+
+
+
+    /**
+     * Determine if the account is to be treated as a local account.
+     * 
+     * This influences authentication. A local account will be authenticated
+     * by the backing user service while an external account will be handled 
+     * by this user service.
+     * The decision also depends on the setting of the key
+     * realm.htpasswd.overrideLocalAuthentication.
+     * If it is set to true, then passwords will first be checked against the
+     * htpasswd store, no matter if the account is marked as local in the backing
+     * user service and the setting will be overwritten by the result. That
+     * mean that an account that looks local to the backing user service will
+     * be turned into an external account upon valid login of a user that has
+     * an entry in the htpasswd file.
+     * If the key is set to false, then it is determined if the account is local
+     * according to the logic of the GitblitUserService.
+     */
+    protected boolean isLocalAccount(String username) {
+        if ( GitBlit.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
+            read();
+            if ( users.containsKey(username) ) return false;
+        }
+        return super.isLocalAccount(username);
     }
 
 
