@@ -219,12 +219,13 @@ public class HtpasswdUserService extends GitblitUserService
      * This influences authentication. A local account will be authenticated
      * by the backing user service while an external account will be handled 
      * by this user service.
+     * <br/>
      * The decision also depends on the setting of the key
      * realm.htpasswd.overrideLocalAuthentication.
      * If it is set to true, then passwords will first be checked against the
-     * htpasswd store, no matter if the account is marked as local in the backing
-     * user service and the setting will be overwritten by the result. That
-     * mean that an account that looks local to the backing user service will
+     * htpasswd store. If an account exists and is marked as local in the backing
+     * user service, that setting will be overwritten by the result. This
+     * means that an account that looks local to the backing user service will
      * be turned into an external account upon valid login of a user that has
      * an entry in the htpasswd file.
      * If the key is set to false, then it is determined if the account is local
@@ -243,11 +244,9 @@ public class HtpasswdUserService extends GitblitUserService
     /**
      * Get the account type used for this user service.
      *
-     * Due to lack of a specific account type as well as lack of a generic
-     * account type for external accounts. this user service has to misuse
-     * one of the existing account types.
-     *
-     * @return AccountType.REDMINE
+     * We use the generic EXTERNAL type here.
+     * 
+     * @return AccountType.EXTERNAL
      */
     protected AccountType getAccountType() {
         return AccountType.EXTERNAL;
