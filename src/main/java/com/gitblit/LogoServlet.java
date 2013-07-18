@@ -87,7 +87,9 @@ public class LogoServlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			is.close();
+			if(is != null) {
+				is.close();
+			}
 		}
 	}
 }
