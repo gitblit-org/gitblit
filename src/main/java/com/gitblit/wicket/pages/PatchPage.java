@@ -25,9 +25,12 @@ import com.gitblit.GitBlit;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
+@CacheControl(LastModified.BOOT)
 public class PatchPage extends WebPage {
 
 	public PatchPage(PageParameters params) {

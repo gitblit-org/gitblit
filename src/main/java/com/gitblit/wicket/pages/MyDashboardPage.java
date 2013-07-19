@@ -43,11 +43,14 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.FilterableProjectList;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
 
+@CacheControl(LastModified.ACTIVITY)
 public class MyDashboardPage extends DashboardPage {
 
 	public MyDashboardPage() {

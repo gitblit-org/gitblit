@@ -18,9 +18,12 @@ package com.gitblit.wicket.pages;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.HistoryPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class HistoryPage extends RepositoryPage {
 
 	public HistoryPage(PageParameters params) {

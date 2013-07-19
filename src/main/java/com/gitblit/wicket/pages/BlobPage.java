@@ -32,11 +32,14 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class BlobPage extends RepositoryPage {
 
 	protected String fileExtension;

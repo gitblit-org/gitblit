@@ -29,8 +29,11 @@ import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 
+@CacheControl(LastModified.BOOT)
 public class MarkdownPage extends RepositoryPage {
 
 	public MarkdownPage(PageParameters params) {

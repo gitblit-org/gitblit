@@ -20,14 +20,18 @@ r18: {
     changes:
 	- updated Chinese translation
 	- updated Dutch translation
-    additions: ~
+    additions:
+	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
     dependencyChanges: ~
+	settings:
+	- { name: 'web.pageCacheExpires', defaultValue: 0 }
     contributors:
 	- Rainer Alföldi 
 	- Liyu Wang
 	- Jeroen Baten
 	- James Moger
 	- Stardrad Yin
+	- Chad Horohoe
 }
 
 #

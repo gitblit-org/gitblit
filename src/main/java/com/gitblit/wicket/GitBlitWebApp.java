@@ -15,7 +15,9 @@
  */
 package com.gitblit.wicket;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
@@ -70,6 +72,8 @@ import com.gitblit.wicket.pages.UsersPage;
 public class GitBlitWebApp extends WebApplication {
 
 	public final static Class<? extends BasePage> HOME_PAGE_CLASS = MyDashboardPage.class;
+	
+	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 	
 	@Override
 	public void init() {
@@ -149,6 +153,12 @@ public class GitBlitWebApp extends WebApplication {
 			parameters = new String[] {};
 		}
 		mount(new GitblitParamUrlCodingStrategy(location, clazz, parameters));
+		
+		// map the mount point to the cache control definition 
+		if (clazz.isAnnotationPresent(CacheControl.class)) {
+			CacheControl cacheControl = clazz.getAnnotation(CacheControl.class);
+			cacheablePages.put(location.substring(1), cacheControl);
+		}
 	}
 
 	@Override
@@ -156,6 +166,14 @@ public class GitBlitWebApp extends WebApplication {
 		return HOME_PAGE_CLASS;
 	}
 	
+	public boolean isCacheablePage(String mountPoint) {
+		return cacheablePages.containsKey(mountPoint);
+	}
+
+	public CacheControl getCacheControl(String mountPoint) {
+		return cacheablePages.get(mountPoint);
+	}
+
 	@Override
 	public final Session newSession(Request request, Response response) {
 		GitBlitWebSession gitBlitWebSession = new GitBlitWebSession(request);

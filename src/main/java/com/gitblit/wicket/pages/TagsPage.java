@@ -17,8 +17,11 @@ package com.gitblit.wicket.pages;
 
 import org.apache.wicket.PageParameters;
 
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.TagsPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class TagsPage extends RepositoryPage {
 
 	public TagsPage(PageParameters params) {

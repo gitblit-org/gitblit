@@ -33,6 +33,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
@@ -42,6 +44,7 @@ import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
 
+@CacheControl(LastModified.PROJECT)
 public class ProjectPage extends DashboardPage {
 	
 	List<ProjectModel> projectModels = new ArrayList<ProjectModel>();
@@ -60,6 +63,26 @@ public class ProjectPage extends DashboardPage {
 		return RepositoriesPage.class;
 	}
 
+	@Override
+	protected void setLastModified() {
+		if (getClass().isAnnotationPresent(CacheControl.class)) {
+			CacheControl cacheControl = getClass().getAnnotation(CacheControl.class);
+			switch (cacheControl.value()) {
+			case PROJECT:
+				String projectName = WicketUtils.getProjectName(getPageParameters());
+				if (!StringUtils.isEmpty(projectName)) {
+					ProjectModel project = getProjectModel(projectName);
+					if (project != null) {
+						setLastModified(project.lastChange);
+					}
+				}
+				break;
+			default:
+				super.setLastModified();
+			}
+		}
+	}
+	
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message

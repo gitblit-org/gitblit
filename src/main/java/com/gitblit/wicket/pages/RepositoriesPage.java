@@ -33,13 +33,16 @@ import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.RepositoriesPanel;
 
+@CacheControl(LastModified.ACTIVITY)
 public class RepositoriesPage extends RootPage {
 
 	public RepositoriesPage() {

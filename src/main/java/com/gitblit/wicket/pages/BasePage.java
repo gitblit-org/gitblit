@@ -40,7 +40,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
+import org.apache.wicket.util.time.Duration;
+import org.apache.wicket.util.time.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +59,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -121,7 +125,68 @@ public abstract class BasePage extends SessionPage {
 			Application.get().getMarkupSettings().setStripWicketTags(false);
 		}
 		super.onAfterRender();
-	}	
+	}
+		
+	@Override
+	protected void setHeaders(WebResponse response)	{
+		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
+		if (expires > 0) {
+			// pages are personalized for the authenticated user so they must be
+			// marked private to prohibit proxy servers from caching them
+			response.setHeader("Cache-Control", "private, must-revalidate");
+			setLastModified();
+		} else {
+			// use default Wicket caching behavior
+			super.setHeaders(response);
+		}
+	}
+	
+	/**
+	 * Sets the last-modified header date, if appropriate, for this page.  The
+	 * date used is determined by the CacheControl annotation.
+	 * 
+	 */
+	protected void setLastModified() {
+		if (getClass().isAnnotationPresent(CacheControl.class)) {
+			CacheControl cacheControl = getClass().getAnnotation(CacheControl.class);
+			switch (cacheControl.value()) {
+			case ACTIVITY:
+				setLastModified(GitBlit.getLastActivityDate());
+				break;
+			case BOOT:
+				setLastModified(GitBlit.getBootDate());
+				break;
+			case NONE:
+				break;
+			default:
+				logger.warn(getClass().getSimpleName() + ": unhandled LastModified type " + cacheControl.value());
+				break;
+			}
+		}
+	}
+	
+	/**
+	 * Sets the last-modified header field and the expires field.
+	 * 
+	 * @param when
+	 */
+	protected final void setLastModified(Date when) {
+		if (when == null) {
+			return;
+		}
+		
+		if (when.before(GitBlit.getBootDate())) {
+			// last-modified can not be before the Gitblit boot date
+			// this helps ensure that pages are properly refreshed after a
+			// server config change
+			when = GitBlit.getBootDate();
+		}
+		
+		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
+		WebResponse response = (WebResponse) getResponse();
+		response.setLastModifiedTime(Time.valueOf(when));
+		response.setDateHeader("Expires", System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds());
+	}
 
 	protected void setupPage(String repositoryName, String pageName) {
 		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);

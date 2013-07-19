@@ -40,9 +40,12 @@ import org.wicketstuff.googlecharts.ShapeMarker;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.charting.SecureChart;
 
+@CacheControl(LastModified.REPOSITORY)
 public class MetricsPage extends RepositoryPage {
 
 	public MetricsPage(PageParameters params) {

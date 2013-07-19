@@ -35,7 +35,9 @@ import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.PageRegistration;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
@@ -52,6 +54,8 @@ import com.gitblit.wicket.panels.ActivityPanel;
  * @author James Moger
  * 
  */
+
+@CacheControl(LastModified.ACTIVITY)
 public class ActivityPage extends RootPage {
 
 	public ActivityPage(PageParameters params) {

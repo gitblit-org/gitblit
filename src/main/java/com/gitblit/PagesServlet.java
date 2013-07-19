@@ -141,7 +141,6 @@ public class PagesServlet extends HttpServlet {
 				r.close();
 				return;
 			}
-			response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
 
 			String [] encodings = GitBlit.getEncodings();
 
@@ -226,6 +225,8 @@ public class PagesServlet extends HttpServlet {
 
 			try {
 				// output the content
+				response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+				response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commit).getTime());
 				response.getOutputStream().write(content);
 				response.flushBuffer();
 			} catch (Throwable t) {

@@ -28,11 +28,14 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class TagPage extends RepositoryPage {
 
 	public TagPage(PageParameters params) {

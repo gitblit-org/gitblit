@@ -232,6 +232,33 @@ public class GitBlit implements ServletContextListener {
 		}
 		return gitblit;
 	}
+	
+	/**
+	 * Returns the boot date of the Gitblit server.
+	 * 
+	 * @return the boot date of Gitblit
+	 */
+	public static Date getBootDate() {
+		return self().serverStatus.bootDate;
+	}
+	
+	/**
+	 * Returns the most recent change date of any repository served by Gitblit.
+	 * 
+	 * @return a date
+	 */
+	public static Date getLastActivityDate() {
+		Date date = null;
+		for (String name : self().getRepositoryList()) {
+			Repository r = self().getRepository(name);
+			Date lastChange = JGitUtils.getLastChange(r).when;
+			r.close();
+			if (lastChange != null && (date == null || lastChange.after(date))) {
+				date = lastChange;
+			}
+		}
+		return date;
+	}
 
 	/**
 	 * Determine if this is the GO variant of Gitblit.

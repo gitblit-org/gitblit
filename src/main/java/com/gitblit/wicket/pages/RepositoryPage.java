@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -63,6 +64,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TicgitUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.OtherPageLink;
@@ -571,6 +573,30 @@ public abstract class RepositoryPage extends RootPage {
 		// setup page header and footer
 		setupPage(repositoryName, "/ " + getPageName());
 		super.onBeforeRender();
+	}
+	
+	@Override
+	protected void setLastModified() {
+		if (getClass().isAnnotationPresent(CacheControl.class)) {
+			CacheControl cacheControl = getClass().getAnnotation(CacheControl.class);
+			switch (cacheControl.value()) {
+			case REPOSITORY:
+				RepositoryModel repository = getRepositoryModel();
+				if (repository != null) {
+					setLastModified(repository.lastChange);
+				}
+				break;
+			case COMMIT:
+				RevCommit commit = getCommit();
+				if (commit != null) {
+					Date commitDate = JGitUtils.getCommitDate(commit);
+					setLastModified(commitDate);
+				}
+				break;
+			default:
+				super.setLastModified();
+			}
+		}
 	}
 
 	protected PageParameters newRepositoryParameter() {

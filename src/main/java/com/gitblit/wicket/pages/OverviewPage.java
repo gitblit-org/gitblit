@@ -34,8 +34,10 @@ import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GoogleLineChart;
@@ -45,6 +47,7 @@ import com.gitblit.wicket.panels.ReflogPanel;
 import com.gitblit.wicket.panels.RepositoryUrlPanel;
 import com.gitblit.wicket.panels.TagsPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class OverviewPage extends RepositoryPage {
 
 	public OverviewPage(PageParameters params) {

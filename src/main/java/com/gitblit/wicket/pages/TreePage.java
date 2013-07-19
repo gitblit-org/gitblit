@@ -33,12 +33,15 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CompressedDownloadsPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
+@CacheControl(LastModified.BOOT)
 public class TreePage extends RepositoryPage {
 
 	public TreePage(PageParameters params) {

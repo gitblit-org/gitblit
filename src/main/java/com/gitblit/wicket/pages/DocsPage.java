@@ -30,9 +30,12 @@ import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.LinkPanel;
 
+@CacheControl(LastModified.REPOSITORY)
 public class DocsPage extends RepositoryPage {
 
 	public DocsPage(PageParameters params) {

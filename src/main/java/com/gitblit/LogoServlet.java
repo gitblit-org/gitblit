@@ -76,6 +76,7 @@ public class LogoServlet extends HttpServlet {
 				contentType = "image/png";
 			}
 			response.setContentType(contentType);
+			response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
 			OutputStream os = response.getOutputStream();
 			byte[] buf = new byte[4096];
 			int bytesRead = is.read(buf);
