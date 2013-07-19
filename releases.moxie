@@ -14,12 +14,15 @@ r18: {
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
 	- Fixed missing model class dependencies in Gitblit Manager build
-	- Fix for IE10 compatability mode
+	- Fix for IE10 compatibility mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
 	- Fixed bug with adding new local users with external authentication
+	- Fixed missing clone url on the empty repository page
     changes:
 	- updated Chinese translation
 	- updated Dutch translation
+	- updated Spanish translation
+	- updated Korean translation
     additions:
 	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
     dependencyChanges: ~
@@ -32,6 +35,8 @@ r18: {
 	- James Moger
 	- Stardrad Yin
 	- Chad Horohoe
+	- Eduardo Guervós Narvaez
+	- Dongsu, KIM
 }
 
 #
@@ -264,8 +269,8 @@ r16: {
     contributors:
 	- James Moger
     - github/mystygage
-    - github/ds5apn
-    - github/kwoot
+    - Dongsu, KIM
+    - Jeroen Baten
     - github/inaiat
 }
 
