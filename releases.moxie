@@ -5,17 +5,29 @@ r18: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: ''
+          If you have forked repositories and your are upgrading from 1.2.x to 1.3.x, please DO NOT RELOCATE your repositories folder when running 1.3.x the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
+          ''
     html: ~
     text: ~
     security: ~
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
 	- Fixed missing model class dependencies in Gitblit Manager build
-    changes: ~
+	- Fix for IE10 compatability mode
+	- Reset dashboard and activity commit cache on branch REWIND or DELETE
+	- Fixed bug with adding new local users with external authentication
+    changes:
+	- updated Chinese translation
+	- updated Dutch translation
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+	- Rainer Alföldi 
+	- Liyu Wang
+	- Jeroen Baten
+	- James Moger
+	- Stardrad Yin
 }
 
 #
