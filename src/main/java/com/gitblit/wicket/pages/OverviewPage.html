@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+<body>
+<wicket:extend>
+
+	<div class="row" style="clear:both;">
+	<div class="span6 hidden-phone" style="border-right: 1px solid #ddd; margin-right: -1px;">
+	
+		<!-- Repository info -->
+		<div>
+			<table class="summary">
+				<tr><th><wicket:message key="gb.description">[description]</wicket:message></th><td><span wicket:id="repositoryDescription">[repository description]</span></td></tr>
+				<tr><th><wicket:message key="gb.owners">[owner]</wicket:message></th><td><span wicket:id="repositoryOwners"><span wicket:id="owner"></span><span wicket:id="comma"></span></span></td></tr>
+				<tr><th><wicket:message key="gb.lastChange">[last change]</wicket:message></th><td><span wicket:id="repositoryLastChange">[repository last change]</span></td></tr>
+				<tr><th><wicket:message key="gb.size">[size]</wicket:message></th><td><span wicket:id="repositorySize">[repository size]</span></td></tr>
+				<tr class="hidden-phone hidden-tablet"><th style="vertical-align: top;"><wicket:message key="gb.stats">[stats]</wicket:message></th>
+				<td><div><span wicket:id="branchStats">[branch stats]</span> <span class="link"><a wicket:id="metrics"><wicket:message key="gb.metrics">[metrics]</wicket:message></a></span></div>
+					<span class="hidden-tablet" style="margin: 10px 0px;" id="chartDaily"></span>
+				</td></tr>
+			</table>
+
+			<ul class="nav nav-tabs" style="padding-top:10px;">
+				<li class="active"><a data-toggle="tab" href="#branches"><wicket:message key="gb.branches">[branches]</wicket:message></a></li>
+				<li><a data-toggle="tab" href="#tags"><wicket:message key="gb.tags">[tags]</wicket:message></a></li>
+				<li><a data-toggle="tab" href="#forks"><wicket:message key="gb.forks">[forks]</wicket:message></a></li>
+			</ul>
+ 
+			<div class="tab-content">
+				<div class="tab-pane active" id="branches">
+					<!-- branches -->
+					<div style="padding: 0 15px 15px 0px;" wicket:id="branchesPanel">[branches panel]</div>
+				</div>
+				<div class="tab-pane" id="tags">
+					<!-- tags -->
+					<div style="padding: 0 15px 15px 0px;" wicket:id="tagsPanel">[tags panel]</div>
+				</div>
+				<div class="tab-pane" id="forks">
+				</div>
+			</div>						
+		</div>
+		
+	</div>
+
+		<!-- pushes -->
+		<div class="span6">
+			<div class="hidden-tablet" style="padding-bottom: 10px; margin-bottom: 10px; border-bottom: 1px solid #ddd;" wicket:id="repositoryUrlPanel">[repository url panel]</div>
+		
+			<div wicket:id="reflogPanel">[reflog panel]</div>	
+		</div>
+	</div>
+
+	<wicket:fragment wicket:id="ownersFragment">
+		
+	</wicket:fragment>
+</wicket:extend>	
+</body>
+</html>

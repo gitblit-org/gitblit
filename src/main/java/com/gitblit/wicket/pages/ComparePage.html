@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<div class="tabbable">
+    	<ul class="nav nav-pills">
+    		<li class="active"><a href="#refs" data-toggle="tab"><wicket:message key="gb.refs"></wicket:message></a></li>
+    		<li><a href="#ids" data-toggle="tab"><wicket:message key="gb.manual"></wicket:message></a></li>
+    	</ul>
+    	<div class="tab-content">
+    		<div class="tab-pane active" id="refs">
+				<form wicket:id="compareRefsForm" class="form-inline">
+					<select wicket:id="fromRef" class="span3" />
+					<i class="icon-arrow-right"></i>
+					<select wicket:id="toRef" class="span3" />
+					<button class="btn" type="submit"><wicket:message key="gb.compare"></wicket:message></button>
+				</form>
+			</div>
+    		<div class="tab-pane" id="ids">
+				<form wicket:id="compareIdsForm" class="form-inline">
+					<input wicket:id="fromId" type="text" class="span3" />
+					<i class="icon-arrow-right"></i>
+					<input wicket:id="toId" type="text" class="span3" />
+					<button class="btn" type="submit"><wicket:message key="gb.compare"></wicket:message></button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div wicket:id="comparison"></div>
+
+	<wicket:fragment wicket:id="comparisonFragment">
+	
+		<div class="tabbable">
+    		<ul class="nav nav-tabs">
+    			<li><a href="#commits" data-toggle="tab"><wicket:message key="gb.commits"></wicket:message></a></li>
+    			<li class="active"><a href="#diff" data-toggle="tab"><wicket:message key="gb.diff"></wicket:message></a></li>
+    		</ul>
+    		<div class="tab-content">
+    			<div class="tab-pane" id="commits">
+					<!-- commit list -->
+					<div wicket:id="commitList">[commit list]</div>
+    			</div>
+	    		<div class="tab-pane active" id="diff">
+<!-- 					<div class="page_nav2"> -->
+<!-- 						<a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> -->
+<!-- 					</div>	 -->
+	    		
+	    			<!-- changed paths -->
+					<div>
+						<!-- commit legend -->
+						<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
+						<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
+					</div>
+					<table class="pretty">
+						<tr wicket:id="changedPath">
+							<td class="changeType"><span wicket:id="changeType">[change type]</span></td>		
+							<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+							<td class="hidden-phone rightAlign">
+								<span class="link">
+									<a wicket:id="patch"><wicket:message key="gb.patch"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+								</span>
+							</td>
+						</tr>
+					</table>
+	    	
+					<!--  diff content -->
+					<pre style="padding-top:10px;" wicket:id="diffText">[diff text]</pre>
+    			</div>
+    		</div>
+    	</div>
+	</wicket:fragment>
+
+</wicket:extend>
+</body>
+</html>

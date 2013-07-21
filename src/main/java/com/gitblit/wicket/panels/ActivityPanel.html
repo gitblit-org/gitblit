@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+
+	<div wicket:id="activity" style="padding-bottom:10px;">
+		<div class="header"><i class="icon-refresh" style="vertical-align: middle;"></i> <span style="font-weight:bold;" wicket:id="title">[title]</span></div>
+		<table class="activity">
+			<tr wicket:id="commit">
+				<td class="hidden-phone date" style="width:60px; vertical-align: middle;text-align: right;padding-right:10px;" ><span wicket:id="time">[time of day]</span></td>
+				<td style="width:10em;text-align:left;vertical-align: middle;">
+					<span wicket:id="repository" class="activitySwatch">[repository link]</span>
+				</td>
+				<td class="hidden-phone hidden-tablet" style="width:30px;vertical-align: middle;"><span wicket:id="avatar" style="vertical-align: middle;"></span></td>
+				<td style="vertical-align: middle;padding-left:15px;">
+					<img class="hidden-phone hidden-tablet" wicket:id="commitIcon" style="vertical-align: top;"></img>
+					<span wicket:id="message">[shortlog commit link]</span><br/>
+					<span wicket:id="author">[author link]</span> <span class="hidden-phone"><wicket:message key="gb.authored"></wicket:message> <span wicket:id="commitid">[commit id]</span></span> on <span wicket:id="branch"></span>
+				</td>
+				<td class="hidden-phone" style="text-align:right;vertical-align: middle;">
+					<div wicket:id="commitRefs">[commit refs]</div>
+				</td>
+				<td class="hidden-phone rightAlign" style="width:7em;vertical-align: middle;">
+        			<span class="link">
+						<a wicket:id="diff" target="_blank"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="tree" target="_blank"><wicket:message key="gb.tree"></wicket:message></a>
+					</span>
+				</td>		
+			</tr>		
+		</table>	
+	</div>
+</wicket:panel>
+</body>
+</html>

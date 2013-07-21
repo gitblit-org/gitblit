@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<!-- contribute google-code-prettify resources to the page header -->
+<wicket:head>
+  <wicket:link>
+   	<link href="prettify/prettify.css" type="text/css" rel="stylesheet" />
+	<script type="text/javascript" src="prettify/prettify.js"></script>
+  </wicket:link>
+</wicket:head>
+      
+<wicket:extend>
+<body onload="document.getElementById('query').focus(); prettyPrint();">
+<div class="container">
+	<!-- page header -->
+	<div class="dashboardTitle">
+		<wicket:message key="gb.search"></wicket:message>				
+	</div>
+	<form class="form-inline" wicket:id="searchForm">
+		<div class="row">
+			<div class="span3">
+				<h3><wicket:message key="gb.repositories"></wicket:message></h3>
+				<select wicket:id="repositories" ></select>
+			</div>
+			<div class="span9" style="margin-left:10px">
+				<div>
+					<h3><wicket:message key="gb.query"></wicket:message></h3>
+					<input class="span8" id="query" type="text" wicket:id="query" placeholder="enter search text"></input>
+					<button class="btn btn-primary" type="submit" value="Search"><wicket:message key="gb.search"></wicket:message></button>
+				</div>
+				<div style="margin-top:10px;">
+					<div style="margin-left:0px;" class="span3">
+						<div class="alert alert">
+							<b>type:</b> commit or blob<br/>
+							<b>commit:</b> commit id<br/>
+							<b>path:</b> "path/to/blob"<br/>
+							<b>branch:</b> "refs/heads/master"<br/>
+							<b>author:</b> or <b>committer:</b>							
+						</div>
+					</div>
+					<div style="margin-left:10px;" class="span4">						
+						<div class="alert alert-info">
+							type:commit AND "bug fix"<br/>
+							type:commit AND author:james*<br/>
+							type:blob AND "int errorCode"<br/>
+							type:blob AND test AND path:*.java<br/>
+							commit:d91e5*
+						</div>
+					</div>
+					<div style="margin-left:10px;" class="span2">
+						<wicket:message key="gb.queryHelp"></wicket:message>
+					</div>
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<div class="row-fluid">	
+	<!-- results header -->
+	<div class="span8">
+		<h3><span wicket:id="resultsHeader"></span> <small><br/><span wicket:id="resultsCount"></span></small></h3>
+	</div>
+	<!-- pager links -->
+	<div class="span4" wicket:id="topPager"></div>
+	</div>
+	
+	<div class="row-fluid">	
+	<!--  search result repeater -->
+	<div class="searchResult" wicket:id="searchResults">
+		<div><i wicket:id="type"></i><span class="summary" wicket:id="summary"></span> <span wicket:id="tags" style="padding-left:10px;"></span></div>
+		<div class="body">
+			<div class="fragment" wicket:id="fragment"></div>
+			<div><span class="author" wicket:id="author"></span> <span class="date" ><wicket:message key="gb.authored"></wicket:message> <span class="date" wicket:id="date"></span></span></div>
+			<span class="repository" wicket:id="repository"></span>:<span class="branch" wicket:id="branch"></span>		
+		</div>
+	</div>
+
+	<!-- pager links -->
+	<div wicket:id="bottomPager"></div>
+
+	</div>
+	</div>
+</body>
+
+	<wicket:fragment wicket:id="tagsPanel">
+		<span wicket:id="tag">
+			<span wicket:id="tagLink">[tag]</span>
+		</span>	
+	</wicket:fragment>
+
+</wicket:extend>
+</html>

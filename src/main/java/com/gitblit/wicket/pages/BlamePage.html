@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+	
+	<!-- blame nav links -->	
+	<div class="page_nav2">
+		<a wicket:id="blobLink"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="headLink"><wicket:message key="gb.head"></wicket:message></a> | <a wicket:id="commitLink"><wicket:message key="gb.commit"></wicket:message></a> | <a wicket:id="commitDiffLink"><wicket:message key="gb.commitdiff"></wicket:message></a>
+	</div>	
+	
+	<!-- commit header -->
+	<div wicket:id="commitHeader">[commit header]</div>
+
+	<!-- breadcrumbs -->
+	<div wicket:id="breadcrumbs">[breadcrumbs]</div>
+	
+	<div wicket:id="missingBlob">[missing blob]</div>
+		
+	<!--  blame content -->
+	<table class="annotated" style="margin-bottom:5px;">
+		<tbody>
+			<tr>
+				<th><wicket:message key="gb.commit">[commit]</wicket:message></th>
+				<th><wicket:message key="gb.line">[line]</wicket:message></th>
+				<th><wicket:message key="gb.content">[content]</wicket:message></th>
+			</tr>
+			<tr wicket:id="annotation">
+				<td><span class="sha1" wicket:id="commit"></span></td>
+				<td><span class="sha1" wicket:id="line"></span></td>
+				<td><span class="sha1" wicket:id="data"></span></td>
+			</tr>
+		</tbody>
+	</table>
+	
+</wicket:extend>
+</body>
+</html>

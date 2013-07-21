@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+<div class="container">
+	
+	<table class="repositories">
+		<thead>
+			<tr>	
+				<th class="left">
+					<i class="icon-folder-close" ></i>
+					<wicket:message key="gb.project">Project</wicket:message>
+				</th>
+				<th class="hidden-phone" ><span><wicket:message key="gb.description">Description</wicket:message></span></th>
+				<th class="hidden-phone"><wicket:message key="gb.repositories">Repositories</wicket:message></th>
+				<th><wicket:message key="gb.lastChange">Last Change</wicket:message></th>
+				<th class="right"></th>
+			</tr>
+		</thead>
+		<tbody>		
+       		<tr wicket:id="project">
+				<td class="left" style="padding-left:3px;" ><span style="padding-left:3px;" wicket:id="projectTitle">[project title]</span></td>
+        		<td class="hidden-phone"><span class="list" wicket:id="projectDescription">[project description]</span></td>
+        		<td class="hidden-phone" style="padding-right:15px;"><span style="font-size:0.8em;" wicket:id="repositoryCount">[repository count]</span></td>
+        		<td><span wicket:id="projectLastChange">[last change]</span></td>
+		        <td class="rightAlign"></td>				       			
+       		</tr>
+    	</tbody>
+	</table>
+</div>
+</wicket:extend>
+</body>
+</html>

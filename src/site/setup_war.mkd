@@ -1,0 +1,20 @@
+## Gitblit WAR Installation & Setup
+
+1. Download Gitblit WAR [${project.releaseVersion}](%GCURL%gitblit-${project.releaseVersion}.war) to the webapps folder of your servlet container.  
+2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
+3. By default, the Gitblit webapp is configured through `WEB-INF/data/gitblit.properties`.<br/>
+Open `WEB-INF/data/gitblit.properties` in your favorite text editor and make sure to review and set:
+    - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
+    - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)
+4. You may have to restart your servlet container. 
+5. Open your browser to <http://localhost/gitblit> or whatever the url should be.
+6. Enter the default administrator credentials: **admin / admin** and click the *Login* button  
+    **NOTE:** Make sure to change the administrator username and/or password!! 
+
+### WAR Data Location
+By default, Gitblit WAR stores all data (users, settings, repositories, etc) in `${contextFolder}/WEB-INF/data`.  This is fine for a quick setup, but there are many reasons why you don't want to keep your data within the webapps folder of your servlet container.  You may specify an external location for your data by editing `WEB-INF/web.xml` and manipulating the *baseFolder* context parameter.  Choose a location that is writeable by your servlet container.  Your servlet container may be smart enough to recognize the change and to restart Gitblit.
+
+On the next restart of Gitblit, Gitblit will copy the contents of the `WEB-INF/data` folder to your specified *baseFolder* **IF** the file `${baseFolder}/gitblit.properties` does not already exist.  This allows you to get going with minimal fuss.
+
+Specifying an alternate *baseFolder* also allows for simpler upgrades in the future.
+

@@ -1,0 +1,94 @@
+/*!
+ * Gitblit Bootstrap Overrides
+ *
+ * Copyright 2012 gitblit.com
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+
+// GLOBAL VALUES
+// --------------------------------------------------
+@blueDark:					#002060;
+@standardGray:				#ccc;
+@cornflower:				#abd4ff;
+@white:						#fff;
+
+
+// Dropdown
+// -------------------------
+@dropdownLinkBackgroundHover:   @blueDark;
+
+// Navbar
+// -------------------------
+@navbarHeight:                    45px;
+@navbarBackground:                @blueDark;
+@navbarBackgroundHighlight:       @blueDark;
+@navbarText:                      @white;
+@navbarLinkColor:                 @white;
+@navbarLinkColorHover:            @cornflower;
+@navbarLinkColorActive:           @cornflower;
+@navbarLinkBackgroundHover:       transparent;
+@navbarLinkBackgroundActive:      transparent;
+
+
+.navbar {
+	.nav {
+		margin: 0px;
+
+		li > a {
+			text-shadow: 0 1px 0 #000;
+		}
+
+		li > a:hover {
+			text-shadow: 0 0 1em white;
+		}
+		
+		.active > a, 
+		.active > a:hover,
+		.active > a:focus {
+			box-shadow: none;
+			text-decoration: underline;
+		}
+		
+		ul.dropdown-menu > li > a {
+			text-shadow: none;
+		}
+	}
+
+	.brand {
+		@elementHeight: 27px;
+		padding: 10px 20px;
+	}
+	
+	.pull-right {
+		margin: 0;
+	}
+	
+	ul > li:focus, .active {
+		outline: 0;	
+		padding-bottom: 1px;
+		border-bottom: 3px solid #ff9900;
+		margin-bottom: -1px;
+	}
+}
+
+.navbar-inner {
+	background-color: @blueDark;
+	border-bottom: 2px solid #ff9900;
+}
+
+h3 small { font-size: @baseFontSize + 3; }
+body { padding-top: @navbarHeight + 15 } /* 60px to make the container go all the way to the bottom of the topbar */
+footer { margin-top: 25px; padding: 15px 0 16px; border-top: 1px solid #E5E5E5; }
+
+a:hover { text-decoration: underline !important; }
+em { color: #b05000; }
+code {
+	color: #000000;
+	background-color: #ffffe0;
+    border: 1px solid orange;
+    border-radius: 3px;
+    padding: 0 0.2em;
+    font-family: monospace;
+}

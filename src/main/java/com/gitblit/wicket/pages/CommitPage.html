@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+	<!-- commit nav links -->	
+	<div class="page_nav2">
+		<wicket:message key="gb.parent"></wicket:message>: <span wicket:id="parentLink">[parent link]</span> | <a wicket:id="patchLink"><wicket:message key="gb.patch"></wicket:message></a> | <span wicket:id="commitdiffLink">[commitdiff link]</span>
+	</div>	
+	
+	<!-- commit header -->
+	<div wicket:id="commitHeader">[commit header]</div>
+	
+	<div class="row">
+	
+	
+	<div class="span10" style="padding-bottom:10px;">
+	<!-- commit info -->
+	<table class="summary">
+		<tr><th><wicket:message key="gb.refs">refs</wicket:message></th><td><div wicket:id="refsPanel">[references]</div></td></tr>
+		<tr><th><wicket:message key="gb.author">author</wicket:message></th><td><span class="sha1" wicket:id="commitAuthor">[author</span></td></tr>
+		<tr><th></th><td><span class="sha1" wicket:id="commitAuthorDate">[author date]</span></td></tr>
+		<tr><th><wicket:message key="gb.committer">committer</wicket:message></th><td><span class="sha1" wicket:id="commitCommitter">[committer]</span></td></tr>
+		<tr><th></th><td><span class="sha1" wicket:id="commitCommitterDate">[commit date]</span></td></tr>
+		<tr class="hidden-phone"><th><wicket:message key="gb.commit">commit</wicket:message></th><td><span class="sha1" wicket:id="commitId">[commit id]</span></td></tr>
+		<tr class="hidden-phone"><th><wicket:message key="gb.tree">tree</wicket:message></th>
+			<td><span class="sha1" wicket:id="commitTree">[commit tree]</span>
+				<span class="link">
+					<a wicket:id="treeLink"><wicket:message key="gb.tree"></wicket:message></a> | <span wicket:id="compressedLinks"></span>
+				</span>
+			</td></tr>
+		<tr class="hidden-phone"><th valign="top" style="vertical-align: top;"><wicket:message key="gb.parent">parent</wicket:message></th>
+			<td>
+				<span wicket:id="commitParents">
+					<span class="sha1" wicket:id="commitParent">[commit parents]</span>
+					<span class="link">
+						<a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a>
+					</span><br/>			
+				</span>
+			</td>
+		</tr>
+	</table>
+	</div>
+	
+	</div>
+	
+	<!-- full message -->
+	<pre class="commit_message" wicket:id="fullMessage">[commit message]</pre>
+
+	<!--  git notes -->
+	<table class="gitnotes">
+		<tr wicket:id="notes">
+			<td class="info">
+				<table>
+					<tr><td><span wicket:id="refName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorDate"></span></td></tr>
+				</table>
+				<!--  Note Author Gravatar -->
+				<span style="vertical-align: top;" wicket:id="noteAuthorAvatar" />				
+			</td>
+			<td class="message"><span class="sha1" wicket:id="noteContent"></span></td>
+		</tr>
+	</table>
+	
+	<!--  commit legend -->
+	<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
+	
+	<!-- header -->
+	<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
+	
+	<!-- changed paths -->
+	<table class="pretty">
+		<tr wicket:id="changedPath">
+			<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
+			<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+			<td class="hidden-phone rightAlign">
+				<span class="link">
+					<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
+				</span>
+			</td>
+		</tr>
+	</table>
+	
+	<wicket:fragment wicket:id="fullPersonIdent">
+		<span wicket:id="personName"></span><span wicket:id="personAddress"></span>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="partialPersonIdent">
+		<span wicket:id="personName"></span>
+	</wicket:fragment>
+	
+</wicket:extend>
+</body>
+</html>

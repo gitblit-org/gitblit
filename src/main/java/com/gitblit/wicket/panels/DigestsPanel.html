@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:panel>
+<div wicket:id="change" class="reflog">
+	<table style="padding: 3px 0px;">
+	<tr>
+		<td class="icon hidden-phone"><i wicket:id="changeIcon"></i></td>
+		<td class="header">
+			<div>
+				<span class="when" wicket:id="whenChanged"></span>
+			</div>
+			<div style="font-weight:bold;"><span wicket:id="whoChanged">[who changed]</span> <span wicket:id="whatChanged"></span> <span wicket:id="refChanged"></span> <span wicket:id="repoPreposition"></span> <span wicket:id="repoChanged"></span> <span wicket:id="byAuthors"></span></div>
+		</td>
+	</tr>
+	<tr>
+		<td class="hidden-phone"></td>
+		<td class="commits">
+			<div>
+				<table>
+					<tr class="commit" wicket:id="commit">
+						<td class="hidden-phone hidden-tablet"><span wicket:id="commitAuthor"></span></td>
+						<td><span wicket:id="hashLink">[hash link]</span></td>
+						<td><img wicket:id="commitIcon" /></td>
+						<td>   							
+							<span wicket:id="commitShortMessage">[commit short message]</span>
+						</td>
+					</tr>
+				</table>
+				<span class="link" wicket:id="compareLink"></span>
+			</div>
+		</td>
+	</tr>	
+	</table>
+</div>
+</wicket:panel>
+</body>
+</html>
