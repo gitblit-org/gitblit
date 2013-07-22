@@ -36,9 +36,11 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RpcUtils;
+import com.gitblit.utils.StringUtils;
 
 /**
  * Handles remote procedure calls.
@@ -50,7 +52,7 @@ public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int PROTOCOL_VERSION = 5;
+	public static final int PROTOCOL_VERSION = 6;
 
 	public RpcServlet() {
 		super();
@@ -132,6 +134,28 @@ public class RpcServlet extends JsonServlet {
 				repository.close();
 			}
 			result = localBranches;
+		} else if (RpcRequest.GET_USER.equals(reqType)) {
+			if (StringUtils.isEmpty(objectName)) {
+				if (UserModel.ANONYMOUS.equals(user)) {
+					response.sendError(forbiddenCode);
+				} else {
+					// return the current user, reset credentials
+					UserModel requestedUser = DeepCopier.copy(user);
+					result = requestedUser;
+				}
+			} else {
+				if (user.canAdmin() || objectName.equals(user.username)) {
+					// return the specified user
+					UserModel requestedUser = GitBlit.self().getUserModel(objectName);
+					if (requestedUser == null) {
+						response.setStatus(failureCode);
+					} else {
+						result = requestedUser;
+					}
+				} else {
+					response.sendError(forbiddenCode);
+				}
+			}
 		} else if (RpcRequest.LIST_USERS.equals(reqType)) {
 			// list users
 			List<String> names = GitBlit.self().getAllUsernames();

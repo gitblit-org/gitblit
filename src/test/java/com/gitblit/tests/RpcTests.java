@@ -37,6 +37,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
 import com.gitblit.RpcServlet;
@@ -101,6 +102,20 @@ public class RpcTests {
 
 		list = RpcUtils.getUsers(url, "admin", "admin".toCharArray());
 		assertTrue("User list is empty!", list.size() > 0);
+	}
+	
+	@Test
+	public void testGetUser() throws IOException {
+		UserModel user = null;
+		try {
+			user = RpcUtils.getUser("admin", url, null, null);
+		} catch (NotAllowedException e) {
+		}
+		assertNull("Server allows anyone to get user!", user);
+
+		user = RpcUtils.getUser("admin", url, "admin", "admin".toCharArray());
+		assertEquals("User is not the admin!", "admin", user.username);
+		assertTrue("User is not an administrator!", user.canAdmin());
 	}
 
 	@Test

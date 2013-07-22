@@ -29,6 +29,7 @@ r18: {
 	- updated Brazilian Portuguese translation
     additions:
 	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
+	- Added a GET_USER request type for the RPC mechanism (issue-275)
     dependencyChanges: ~
 	settings:
 	- { name: 'web.pageCacheExpires', defaultValue: 0 }
@@ -45,6 +46,7 @@ r18: {
 	- Rafael Cavazin
 	- Tamás Papp
 	- Florian Zschocke
+	- Amélie Benoit
 }
 
 #

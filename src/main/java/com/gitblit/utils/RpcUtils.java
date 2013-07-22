@@ -297,6 +297,24 @@ public class RpcUtils {
 			char[] password) throws IOException {
 		return doAction(RpcRequest.DELETE_USER, null, user, serverUrl, account, password);
 	}
+	
+	/**
+	 * Tries to get the specified gitblit user account from the remote gitblit instance.
+	 * If the username is null or empty, the current user is returned.
+	 * 
+	 * @param username
+	 * @param serverUrl
+	 * @param account
+	 * @param password
+	 * @return a UserModel or null
+	 * @throws IOException
+	 */
+	public static UserModel getUser(String username, String serverUrl, String account, char[] password)
+			throws IOException {
+		String url = asLink(serverUrl, RpcRequest.GET_USER);
+		UserModel model = JsonUtils.retrieveJson(url, UserModel.class, account, password);
+		return model;
+	}
 
 	/**
 	 * Create a team on the Gitblit server.
