@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -41,6 +42,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefRename;
 import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.RefUpdate.Result;
@@ -95,6 +97,21 @@ public class RefLogUtils {
 			parameters.add(0, repository.getDirectory().getAbsolutePath());
 		}
 		LOGGER.error(MessageFormat.format(pattern, parameters.toArray()), t);
+	}
+	
+	/**
+	 * Returns true if the repository has a reflog branch.
+	 * 
+	 * @param repository
+	 * @return true if the repository has a reflog branch
+	 */
+	public static boolean hasRefLogBranch(Repository repository) {
+		try {
+			return repository.getRef(GB_REFLOG) != null;
+		} catch(Exception e) {
+			LOGGER.error("failed to determine hasRefLogBranch", e);
+		}
+		return false;
 	}
 
 	/**
@@ -153,6 +170,37 @@ public class RefLogUtils {
 		user.displayName = displayname;
 		user.emailAddress = ident.getEmailAddress();
 		return user;
+	}
+	
+	/**
+	 * Logs a ref deletion.
+	 * 
+	 * @param user
+	 * @param repository
+	 * @param ref
+	 * @return true, if the update was successful
+	 */
+	public static boolean deleteRef(UserModel user, Repository repository, String ref) {
+		try {
+			Ref refObj = repository.getRef(ref);
+			if (refObj == null && !ref.startsWith(Constants.R_HEADS) && ref.startsWith(Constants.R_TAGS)) {
+				// find fully qualified ref
+				refObj = repository.getRef(Constants.R_HEADS + ref);
+				if (refObj == null) {
+					refObj = repository.getRef(Constants.R_TAGS + ref);
+				}
+			}
+
+			if (refObj == null) {
+				return false;
+			}
+			
+			ReceiveCommand cmd = new ReceiveCommand(refObj.getObjectId(), ObjectId.zeroId(), refObj.getName());
+			return updateRefLog(user, repository, Arrays.asList(cmd));
+		} catch (Throwable t) {
+			error(t, repository, "Failed to commit reflog entry to {0}");
+		}
+		return false;
 	}
 	
 	/**

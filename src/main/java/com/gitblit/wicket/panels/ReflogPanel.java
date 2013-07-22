@@ -30,6 +30,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.transport.ReceiveCommand.Type;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -154,7 +155,9 @@ public class ReflogPanel extends BasePanel {
 				changeItem.add(new Label("whenChanged", fuzzydate + ", " + df.format(changeDate)));
 
 				Label changeIcon = new Label("changeIcon");
-				if (isTag) {
+				if (Type.DELETE.equals(change.getChangeType(fullRefName))) {
+					WicketUtils.setCssClass(changeIcon, "iconic-trash-stroke");
+				} else if (isTag) {
 					WicketUtils.setCssClass(changeIcon, "iconic-tag");
 				} else {
 					WicketUtils.setCssClass(changeIcon, "iconic-upload");

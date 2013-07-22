@@ -37,7 +37,9 @@ import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
@@ -191,15 +193,28 @@ public class BranchesPanel extends BasePanel {
 					}
 					return;
 				}
-				boolean success = JGitUtils.deleteBranchRef(r, entry.getName());
-				r.close();
+				final String branch = entry.getName();
+				boolean success = JGitUtils.deleteBranchRef(r, branch);
 				if (success) {
-					info(MessageFormat.format("Branch \"{0}\" deleted", entry.displayName));
+					// clear commit cache
+					CommitCache.instance().clear(repositoryModel.name, branch);
+					
+					// optionally update reflog
+					if (RefLogUtils.hasRefLogBranch(r)) {
+						UserModel user = GitBlitWebSession.get().getUser();
+						success = RefLogUtils.deleteRef(user, r, branch);
+					}
+				}
+				
+				r.close();
+				
+				if (success) {
+					info(MessageFormat.format("Branch \"{0}\" deleted", branch));
 					// redirect to the owning page
 					setResponsePage(getPage().getClass(), WicketUtils.newRepositoryParameter(repositoryModel.name));
 				}
 				else {
-					error(MessageFormat.format("Failed to delete branch \"{0}\"", entry.displayName));
+					error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
 				}
 			}
 		};

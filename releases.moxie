@@ -22,6 +22,8 @@ r18: {
 	- Fixed Ubuntu service script for LSB compliance
 	- Inserted "sleep 5" in Ubuntu & Centos bash script for service restart
     changes:    
+	- Use trash icon in Gitblit Reflog for branch and tag deletion
+	- Update Gitblit Reflog on branch deletion from web UI
 	- updated Chinese translation
 	- updated Dutch translation
 	- updated Spanish translation
