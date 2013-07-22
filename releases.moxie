@@ -18,6 +18,7 @@ r18: {
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
 	- Fixed bug with adding new local users with external authentication
 	- Fixed missing clone url on the empty repository page
+	- Fixed incorrect tagger in the dashboard pages (issue-276)
     changes:
 	- updated Chinese translation
 	- updated Dutch translation
@@ -37,6 +38,7 @@ r18: {
 	- Chad Horohoe
 	- Eduardo Guervós Narvaez
 	- Dongsu, KIM
+	- Gareth Collins
 }
 
 #

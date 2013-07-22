@@ -28,6 +28,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
@@ -42,7 +43,6 @@ import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TreePage;
-import com.gitblit.wicket.pages.UserPage;
 
 public class DigestsPanel extends BasePanel {
 
@@ -111,17 +111,16 @@ public class DigestsPanel extends BasePanel {
 				}
 				logItem.add(changeIcon);
 
-                if (!isTag) {
-                	logItem.add(new Label("whoChanged").setVisible(false));
-                } else {
-                	if (change.user.username.equals(change.user.emailAddress) && change.user.emailAddress.indexOf('@') > -1) {
-                		// username is an email address can not link - 1.2.1 push log bug
-                		logItem.add(new Label("whoChanged", change.user.getDisplayName()));
+                if (isTag) {
+                	// tags are special
+                	PersonIdent ident = change.getCommits().get(0).getAuthorIdent();
+                	if (!StringUtils.isEmpty(ident.getName())) {
+                		logItem.add(new Label("whoChanged", ident.getName()));
                 	} else {
-                		// link to user account page
-                		logItem.add(new LinkPanel("whoChanged", null, change.user.getDisplayName(),
-                				UserPage.class, WicketUtils.newUsernameParameter(change.user.username)));
+                		logItem.add(new Label("whoChanged", ident.getEmailAddress()));
                 	}
+                } else {
+                	logItem.add(new Label("whoChanged").setVisible(false));
                 }
 				
 				String preposition = "gb.of";
