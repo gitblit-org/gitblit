@@ -1,6 +1,14 @@
 #!/bin/bash
-# chkconfig: 3 21 91
-# Source function library.
+### BEGIN INIT INFO
+# Provides:          gitblit
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Gitblit repository server
+# Description:       Gitblit is a stand-alone service for managing, viewing and serving Git repositories.
+### END INIT INFO
+
 . /lib/init/vars.sh
 . /lib/lsb/init-functions
 
@@ -36,6 +44,7 @@ case "$1" in
   
   force-reload|restart)
       $0 stop
+      sleep 5
       $0 start
   ;;
 

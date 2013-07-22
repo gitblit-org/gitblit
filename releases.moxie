@@ -19,7 +19,9 @@ r18: {
 	- Fixed bug with adding new local users with external authentication
 	- Fixed missing clone url on the empty repository page
 	- Fixed incorrect tagger in the dashboard pages (issue-276)
-    changes:
+	- Fixed Ubuntu service script for LSB compliance
+	- Inserted "sleep 5" in Ubuntu & Centos bash script for service restart
+    changes:    
 	- updated Chinese translation
 	- updated Dutch translation
 	- updated Spanish translation
@@ -41,6 +43,8 @@ r18: {
 	- Dongsu, KIM
 	- Gareth Collins
 	- Rafael Cavazin
+	- Tamás Papp
+	- Florian Zschocke
 }
 
 #
