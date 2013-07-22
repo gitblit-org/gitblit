@@ -24,6 +24,7 @@ r18: {
 	- updated Dutch translation
 	- updated Spanish translation
 	- updated Korean translation
+	- updated Brazilian Portuguese translation
     additions:
 	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
     dependencyChanges: ~
@@ -39,6 +40,7 @@ r18: {
 	- Eduardo Guervós Narvaez
 	- Dongsu, KIM
 	- Gareth Collins
+	- Rafael Cavazin
 }
 
 #
