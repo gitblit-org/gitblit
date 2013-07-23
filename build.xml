@@ -302,6 +302,7 @@
 			<class name="com.gitblit.RedmineUserService" />
 			<class name="com.gitblit.SalesforceUserService" />
 			<class name="com.gitblit.WindowsUserService" />
+			<class name="com.gitblit.PAMUserService" />
 		</mx:genjar>
 
 		<!-- Build the WAR file -->
@@ -421,6 +422,7 @@
 			<class name="com.gitblit.RedmineUserService" />
 			<class name="com.gitblit.SalesforceUserService" />
 			<class name="com.gitblit.WindowsUserService" />
+			<class name="com.gitblit.PAMUserService" />
 		</mx:genjar>
 
 		<!-- Build Express Zip file -->

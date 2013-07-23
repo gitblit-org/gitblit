@@ -37,6 +37,7 @@
 - Redmine authentication
 - Salesforce.com authentication
 - Windows authentication
+- PAM authentication
 - Gravatar integration
 - Git-notes display support
 - Submodule support

@@ -6,6 +6,7 @@ Gitblit supports additional authentication mechanisms aside from it's internal o
 
 * LDAP authentication
 * Windows authentication
+* PAM authentication
 * Redmine auhentication
 * Salesforce.com authentication
 * Servlet container authentication
@@ -82,6 +83,13 @@ Windows authentication is based on the use of Waffle and JNA.  It is known to wo
 
     realm.userService = com.gitblit.WindowsUserService
     realm.windows.defaultDomain =
+
+### PAM Authentication
+
+PAM authentication is based on the use of libpam4j and JNA.  To use this service, your Gitblit server must be installed on a Linux/Unix/MacOSX machine and the user that Gitblit runs-as must have root permissions.
+
+    realm.userService = com.gitblit.PAMUserService
+    realm.pam.serviceName = system-auth
 
 ### Redmine Authentication
 
