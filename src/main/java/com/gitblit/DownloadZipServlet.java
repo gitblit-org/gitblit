@@ -16,7 +16,6 @@
 package com.gitblit;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -177,7 +176,7 @@ public class DownloadZipServlet extends HttpServlet {
 				}
 				
 				response.flushBuffer();
-			} catch (SocketException t) {
+			} catch (IOException t) {
 				String message = t.getMessage() == null ? "" : t.getMessage().toLowerCase();
 				if (message.contains("reset") || message.contains("broken pipe")) {
 					logger.error("Client aborted zip download: " + message);
