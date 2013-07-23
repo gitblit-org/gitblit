@@ -51,6 +51,7 @@ The following dependencies are automatically downloaded by Gitblit GO (or alread
 - [Waffle](http://dblock.github.io/waffle) (EPL 1.0)
 - [JNA](https://github.com/twall/jna) (LGPL 2.1)
 - [Guava](https://code.google.com/p/guava-libraries) (Apache 2.0)
+- [libpam4j](https://github.com/kohsuke/libpam4j) (MIT)
 
 ### Other Build Dependencies
 - [Fancybox image viewer](http://fancybox.net) (MIT and GPL dual-licensed)

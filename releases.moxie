@@ -33,7 +33,8 @@ r18: {
 	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
 	- Added a GET_USER request type for the RPC mechanism (issue-275)
 	- Added PAMUserService to authenticate against a local Linux/Unix/MacOSX server
-    dependencyChanges: ~
+    dependencyChanges:
+    - added libpam4j 1.7
 	settings:
 	- { name: 'web.pageCacheExpires', defaultValue: 0 }
 	- { name: 'realm.pam.backingUserService', defaultValue: 'users.conf' }
