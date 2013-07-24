@@ -28,7 +28,7 @@ You may run into SNI alerts (Server Name Indication).  These will manifest as fa
 
 #### Java-based Clients
 
-When using Java 7-based clients, SNI is enabled by default.  You can disable SNI by specifying the JVM system parameter `-Djsse.enableSNIExtension=false` when your Java-based client launches.
+Luckily, Java 6-based clients ignore SNI alerts but when using Java 7-based clients, SNI checking is enabled by default.  You can disable SNI alerts by specifying the JVM system parameter `-Djsse.enableSNIExtension=false` when your Java-based client launches.
 
 For Eclipse, you can append `-Djsse.enableSNIExtension=false` to your *eclipse.ini* file.
 
