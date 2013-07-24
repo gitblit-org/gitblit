@@ -13,12 +13,13 @@ r18: {
     security: ~
     fixes:
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
+	- Fixed incorrect tagger in the dashboard pages (issue-276)
+	- Automatically decode %7E in repository names from git clients that encode ~ (issue-278)
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatibility mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
 	- Fixed bug with adding new local users with external authentication
 	- Fixed missing clone url on the empty repository page
-	- Fixed incorrect tagger in the dashboard pages (issue-276)
 	- Fixed Ubuntu service script for LSB compliance
 	- Inserted "sleep 5" in Ubuntu & Centos bash script for service restart
     changes:    

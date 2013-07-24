@@ -1557,6 +1557,10 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository or null
 	 */
 	public Repository getRepository(String repositoryName, boolean logError) {
+		// Decode url-encoded repository name (issue-278)
+		// http://stackoverflow.com/questions/17183110
+		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
+		
 		if (isCollectingGarbage(repositoryName)) {
 			logger.warn(MessageFormat.format("Rejecting request for {0}, busy collecting garbage!", repositoryName));
 			return null;
@@ -1656,6 +1660,10 @@ public class GitBlit implements ServletContextListener {
 	 * @return repository model or null
 	 */
 	public RepositoryModel getRepositoryModel(String repositoryName) {
+		// Decode url-encoded repository name (issue-278)
+		// http://stackoverflow.com/questions/17183110
+		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
+
 		if (!repositoryListCache.containsKey(repositoryName)) {
 			RepositoryModel model = loadRepositoryModel(repositoryName);
 			if (model == null) {
