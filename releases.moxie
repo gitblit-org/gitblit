@@ -1,10 +1,10 @@
 #
-# ${project.version} release
+# 1.3.1 release
 #
 r18: {
-    title: ${project.name} ${project.version} released
-    id: ${project.version}
-    date: ${project.buildDate}
+    title: Gitblit 1.3.1 released
+    id: 1.3.1
+    date: 2013-07-24
     note: ''
           If you have forked repositories and your are upgrading from 1.2.x to 1.3.x, please DO NOT RELOCATE your repositories folder when running 1.3.x the first time.  Gitblit will update forked repository configs on the first execution and it is critical that ${git.repositoriesFolder} points to the same location used by 1.2.x.
           ''
@@ -934,6 +934,6 @@ r1: {
 	- James Moger
 }
 
-snapshot: &r18
-release: &r17
-releases: &r[1..17]
+snapshot: ~
+release: &r18
+releases: &r[1..18]
