@@ -185,6 +185,13 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="run" depends="compile" description="Run Gitblit GO">
+        <!-- copy static files -->
+        <copy todir="${basedir}/build/classes" overwrite="false">
+            <fileset dir="${project.resources.dir}">
+                <exclude name="thumbs.db" />
+                <exclude name="*.mkd" />
+            </fileset>
+        </copy>
 		
 		<!-- run the mainclass in a separate JVM -->
 		<mx:run fork="true" />
