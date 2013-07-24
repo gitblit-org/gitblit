@@ -15,6 +15,7 @@ r18: {
 	- Gitblit-as-viewer with no repository urls failed to display summary page (issue 269)
 	- Fixed incorrect tagger in the dashboard pages (issue-276)
 	- Automatically decode %7E in repository names from git clients that encode ~ (issue-278)
+	- Fixed missing Keys class in WAR and Express builds
 	- Fixed missing model class dependencies in Gitblit Manager build
 	- Fix for IE10 compatibility mode
 	- Reset dashboard and activity commit cache on branch REWIND or DELETE
@@ -25,17 +26,17 @@ r18: {
     changes:    
 	- Use trash icon in Gitblit Reflog for branch and tag deletion
 	- Update Gitblit Reflog on branch deletion from web UI
-	- updated Chinese translation
-	- updated Dutch translation
-	- updated Spanish translation
-	- updated Korean translation
-	- updated Brazilian Portuguese translation
+	- Updated Chinese translation
+	- Updated Dutch translation
+	- Updated Spanish translation
+	- Updated Korean translation
+	- Updated Brazilian Portuguese translation
     additions:
-	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages
+	- Added optional browser-side page caching using Last-Modified and Cache-Control for the dashboard, activity, project, and several repository pages (issue-274)
 	- Added a GET_USER request type for the RPC mechanism (issue-275)
 	- Added PAMUserService to authenticate against a local Linux/Unix/MacOSX server
     dependencyChanges:
-    - added libpam4j 1.7
+    - Added libpam4j 1.7
 	settings:
 	- { name: 'web.pageCacheExpires', defaultValue: 0 }
 	- { name: 'realm.pam.backingUserService', defaultValue: 'users.conf' }

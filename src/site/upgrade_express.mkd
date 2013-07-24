@@ -6,6 +6,10 @@
 
 These steps are necessary to ensure that you end up using the specified libraries and resources for the new version.  Otherwise you could end up with a hybrid filesystem that would make it difficult to troubleshoot.  It is important to note that the web.xml file contains both your default settings AND application configuration.  Not updating the web.xml is just a likely to create problems as making a hybrid filesystem.
 
+### 1.3.1 web.xml
+
+- Changed *WicketFilter* to *GitblitWicketFilter* to handle optional, smart cache-control updates (issue-274)
+
 ### 1.3.0 web.xml
 
 - Added LogoServlet
