@@ -932,7 +932,7 @@
 		Tag a new version and prepare for the next development cycle.
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 	-->
-	<target name="tagRelease" depends="prepare">
+	<target name="tagRelease" depends="prepare" description="tag a new version and prepare for the next development cycle">
 		<!-- release -->
 		<property name="dryrun" value="false" />
 		<mx:version stage="release" dryrun="${dryrun}" />		
