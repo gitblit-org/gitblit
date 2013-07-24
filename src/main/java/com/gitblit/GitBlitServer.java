@@ -165,6 +165,23 @@ public class GitBlitServer {
 	}
 
 	/**
+	 * Returns a file object the keystore location. If a file does not exists at storeLocation,
+	 * then the default file will be returned.
+	 * 
+	 * @param params {@link Params}
+	 * @param defaultFolder {@link File}
+	 * @param defaultFileName {@link String}
+	 * @return {@link File}
+	 */
+	public static File getConfigFile(String storeLocation, File defaultFolder, String defaultFileName) {
+	  File storeFile = new File(storeLocation);
+	  if (storeLocation.isEmpty() || !storeFile.exists()) {
+	    return new File(defaultFolder, defaultFileName);
+	  }
+	  return storeFile;
+	}
+	
+	/**
 	 * Start Gitblit GO.
 	 */
 	protected final void start(Params params) {
@@ -218,47 +235,52 @@ public class GitBlitServer {
 
 		// conditionally configure the https connector
 		if (params.securePort > 0) {
-			File certificatesConf = new File(baseFolder, X509Utils.CA_CONFIG);
-			File serverKeyStore = new File(baseFolder, X509Utils.SERVER_KEY_STORE);
-			File serverTrustStore = new File(baseFolder, X509Utils.SERVER_TRUST_STORE);
-			File caRevocationList = new File(baseFolder, X509Utils.CA_REVOCATION_LIST);
 
-			// generate CA & web certificates, create certificate stores
-			X509Metadata metadata = new X509Metadata("localhost", params.storePassword);
-			// set default certificate values from config file
-			if (certificatesConf.exists()) {
-				FileBasedConfig config = new FileBasedConfig(certificatesConf, FS.detect());
-				try {
-					config.load();
-				} catch (Exception e) {
-					logger.error("Error parsing " + certificatesConf, e);
-				}
-				NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
-				certificateConfig.update(metadata);
-			}
-			
-			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
-			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
-				@Override
-				public void log(String message) {
-					BufferedWriter writer = null;
-					try {
-						writer = new BufferedWriter(new FileWriter(new File(baseFolder, X509Utils.CERTS + File.separator + "log.txt"), true));
-						writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
-						writer.newLine();
-						writer.flush();
-					} catch (Exception e) {
-						LoggerFactory.getLogger(GitblitAuthority.class).error("Failed to append log entry!", e);
-					} finally {
-						if (writer != null) {
-							try {
-								writer.close();
-							} catch (IOException e) {
-							}
-						}
-					}
-				}
-			});
+      File serverKeyStore = getConfigFile(params.storeLocation, baseFolder, X509Utils.SERVER_KEY_STORE);      
+      File serverTrustStore = getConfigFile(params.trustStoreLocation, baseFolder, X509Utils.SERVER_TRUST_STORE);
+      File caRevocationList = getConfigFile(params.caRevocationList, baseFolder, X509Utils.CA_REVOCATION_LIST);
+      
+      // generate local certificate.
+		  if (params.useGeneratedSSLCertificate) {		    
+  			File certificatesConf = getConfigFile(params.caConfig, baseFolder, X509Utils.CA_CONFIG);
+  
+  			// generate CA & web certificates, create certificate stores
+  			X509Metadata metadata = new X509Metadata("localhost", params.storePassword);
+  			// set default certificate values from config file
+  			if (certificatesConf.exists()) {
+  				FileBasedConfig config = new FileBasedConfig(certificatesConf, FS.detect());
+  				try {
+  					config.load();
+  				} catch (Exception e) {
+  					logger.error("Error parsing " + certificatesConf, e);
+  				}
+  				NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
+  				certificateConfig.update(metadata);
+  			}
+  			
+  			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
+  			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
+  				@Override
+  				public void log(String message) {
+  					BufferedWriter writer = null;
+  					try {
+  						writer = new BufferedWriter(new FileWriter(new File(baseFolder, X509Utils.CERTS + File.separator + "log.txt"), true));
+  						writer.write(MessageFormat.format("{0,date,yyyy-MM-dd HH:mm}: {1}", new Date(), message));
+  						writer.newLine();
+  						writer.flush();
+  					} catch (Exception e) {
+  						LoggerFactory.getLogger(GitblitAuthority.class).error("Failed to append log entry!", e);
+  					} finally {
+  						if (writer != null) {
+  							try {
+  								writer.close();
+  							} catch (IOException e) {
+  							}
+  						}
+  					}
+  				}
+  			});
+      }
 
 			if (serverKeyStore.exists()) {		        
 				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
@@ -569,7 +591,7 @@ public class GitBlitServer {
 	@Parameters(separators = " ")
 	public static class Params {
 
-		public static String baseFolder;
+    public static String baseFolder;
 
 		private final FileSettings FILESETTINGS = new FileSettings(new File(baseFolder, Constants.PROPERTIES_FILE).getAbsolutePath());
 
@@ -619,7 +641,7 @@ public class GitBlitServer {
 
 		@Parameter(names = "--alias", description = "Alias of SSL certificate in keystore for serving https.")
 		public String alias = FILESETTINGS.getString(Keys.server.certificateAlias, "");
-
+		
 		@Parameter(names = "--storePassword", description = "Password for SSL (https) keystore.")
 		public String storePassword = FILESETTINGS.getString(Keys.server.storePassword, "");
 
@@ -628,6 +650,23 @@ public class GitBlitServer {
 
 		@Parameter(names = "--requireClientCertificates", description = "Require client X509 certificates for https connections.")
 		public Boolean requireClientCertificates = FILESETTINGS.getBoolean(Keys.server.requireClientCertificates, false);
+
+
+    @Parameter(names = "--useGeneratedSSLCertificate", description = "Generate a Certificate Authority certificate.")
+    public boolean useGeneratedSSLCertificate = FILESETTINGS.getBoolean(Keys.server.useGeneratedSSLCertificate, true);
+		
+    @Parameter(names = "--storeLocation", description = "Location of the SSL (https) keystore.")
+    public String storeLocation = FILESETTINGS.getString(Keys.server.storeLocation, "");
+
+    @Parameter(names = "--caRevocationList", description = "List of the revoked certificates.")
+    public String caRevocationList = FILESETTINGS.getString(Keys.server.caRevocationList, "");
+    
+    @Parameter(names = "--caConfig", description = "Certificate Authority configuration.")
+    public String caConfig = FILESETTINGS.getString(Keys.server.caConfig, "");
+
+    @Parameter(names = "--trustStoreLocation", description = "Location of the SSL (https) truststore.")
+    public String trustStoreLocation = FILESETTINGS.getString(Keys.server.trustStoreLocation, "");
+
 
 		/*
 		 * Setting overrides
