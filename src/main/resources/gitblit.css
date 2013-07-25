@@ -1478,3 +1478,7 @@ div.markdown table.text th, div.markdown table.text td {
 	border-top: 1px solid #ccc;
 	padding:5px;
 }
+
+.has-flash .show-flash {
+  display: inline !important;
+}

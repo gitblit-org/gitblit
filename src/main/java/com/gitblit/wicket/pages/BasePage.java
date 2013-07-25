@@ -35,7 +35,10 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -116,6 +119,21 @@ public abstract class BasePage extends SessionPage {
 			Application.get().getMarkupSettings().setStripWicketTags(true);
 		}
 		super.onBeforeRender();
+		
+		if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
+			add(new HeaderContributor(new IHeaderContributor() {
+				
+				/**
+				 * Serial ID.
+				 */
+				private static final long serialVersionUID = -3665928613714437882L;
+	
+				@Override
+				public void renderHead(IHeaderResponse response) {
+					response.renderOnDomReadyJavascript("(function(){if (swfobject.hasFlashPlayerVersion('9.0.0')) {$('html').addClass('has-flash');} }());");
+				}
+			}));
+		}
 	}
 
 	@Override
