@@ -22,6 +22,7 @@ url: 'http://gitblit.com'
 issuesUrl: 'http://code.google.com/p/gitblit/issues/list'
 socialNetworkUrl: 'https://plus.google.com/114464678392593421684'
 forumUrl: 'http://groups.google.com/group/gitblit'
+mavenUrl: 'http://gitblit.github.io/gitblit-maven'
 
 # Licenses section included for POM generation
 licenses:

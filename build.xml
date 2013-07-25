@@ -49,7 +49,8 @@
 		<property name="authority.zipfile" value="authority-${project.version}.zip" />
 		<property name="gbapi.zipfile" value="gbapi-${project.version}.zip" />
 		<property name="express.zipfile" value="express-${project.version}.zip" />
-		
+		<property name="maven.directory" value="${basedir}/../gitblit-maven" />
+
 		<!-- Download links -->
 		<property name="gc.url" value="http://code.google.com/p/gitblit/downloads/detail?name=" />
 	</target>
@@ -812,6 +813,16 @@
 
 	</target>
 
+	<!--
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Package and deploy RELEASE artifacts to the Maven repository
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	-->
+	<target name="buildMavenArtifacts" depends="prepare">
+		<mx:package />		
+		<mx:deploy basedir="${maven.directory}" allowsnapshots="false" />
+	</target>
+
 
 	<!--
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -966,6 +977,8 @@
 				<filter token="project.version" value="${project.version}" />
 				<filter token="project.commitId" value="${project.commitId}" />
 				<filter token="project.tag" value="${project.tag}" />
+				<filter token="project.directory" value="${basedir}" />
+				<filter token="maven.directory" value="${maven.directory}" />
 			</filterset>
 		</copy>
 		<chmod file="${recipe}" perm="ugo+rx" />

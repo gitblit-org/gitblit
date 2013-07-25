@@ -3,6 +3,17 @@
 # ${project.version} release script
 #
 
+# ensure Maven repository is up-to-date
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Preparing Maven repository"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+cd ${maven.directory}
+git checkout gh-pages
+git pull
+cd ${project.directory}
+
 # go back one commit to RELEASE commit
 echo ""
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -18,6 +29,17 @@ echo "Building ${project.version} RELEASE artifacts"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
 ant clean buildAll
+
+# commit all generated artifacts and metadata
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Committing Maven repository ${project.version} RELEASE artifacts"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+cd ${maven.directory}
+git add .
+git commit -m "${project.version} artifacts"
+cd ${project.directory}
 
 # upload artifacts
 echo ""
@@ -42,6 +64,16 @@ echo "Checking out master"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
 git checkout master
+
+# push Maven repository to origin
+echo ""
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Pushing Maven repository"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo ""
+cd ${maven.directory}
+git push origin gh-pages
+cd ${project.directory}
 
 # push project branches
 echo ""
