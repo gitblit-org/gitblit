@@ -261,12 +261,9 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		String us = gitblitSettings.getString(Keys.realm.userService, "${baseFolder}/users.conf");
 		String ext = us.substring(us.lastIndexOf(".") + 1).toLowerCase();
 		IUserService service = null;
-		if (!ext.equals("conf") && !ext.equals("properties")) {
-			if (us.equals("com.gitblit.LdapUserService")) {
-				us = gitblitSettings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");		
-			} else if (us.equals("com.gitblit.LdapUserService")) {
-				us = gitblitSettings.getString(Keys.realm.redmine.backingUserService, "${baseFolder}/users.conf");
-			}
+		if (!ext.equals("conf") && !ext.equals("properties") && ext.contains("userservice")) {
+			String realm = ext.substring(0, ext.indexOf("userservice"));
+			us = gitblitSettings.getString(MessageFormat.format("realm.{0}.backingUserService", realm), "${baseFolder}/users.conf");
 		}
 
 		if (us.endsWith(".conf")) {
