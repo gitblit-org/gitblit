@@ -62,22 +62,6 @@
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
 	<target name="clean" depends="prepare" description="Cleanup all build artifacts and directories">
-		<!-- cleanup legacy build structure -->
-		<!-- this can be eliminated after 1.3.0 release -->
-		<delete>
-			<fileset dir="${basedir}">
-				<include name="*.zip" />
-				<include name="*.war" />
-				<include name="*.jar" />
-			</fileset>
-		</delete>
-		<delete dir="${basedir}/deploy" failonerror="false" />
-		<delete dir="${basedir}/express" failonerror="false" />
-		<delete dir="${basedir}/jar" failonerror="false" />
-		<delete dir="${basedir}/javadoc" failonerror="false" />
-		<delete dir="${basedir}/site" failonerror="false" />
-		<delete dir="${basedir}/temp" failonerror="false" />
-		<delete dir="${basedir}/war" failonerror="false" />
 		
 		<!-- Clean build and target directories -->
 		<mx:clean />
@@ -107,29 +91,7 @@
 		     this file is only used if a local file is not provided. -->
 		<copy tofile="${project.src.dir}/clientapps.json" overwrite="true"
 			file="${project.distrib.dir}/data/clientapps.json" />
-		
-		<!-- 
-			upgrade existing workspace to data directory
-			this code can be eliminated after 1.3.0 release
-		 -->
-		<move todir="${basedir}/data" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}">
-				<include name="users.conf" />
-				<include name="projects.conf" />
-				<include name="gitblit.properties" />
-				<include name="serverKeyStore.jks" />
-				<include name="serverTrustStore.jks" />
-			</fileset>
-		</move>
-		<move todir="${basedir}/data/certs" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/certs" />
-		</move>
-		<move todir="${basedir}/data/git" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/git" />
-		</move>
-		<move todir="${basedir}/data/proposals" overwrite="true" failonerror="false">
-			<fileset dir="${basedir}/proposals" />
-		</move>
+
 	</target>
 
 
@@ -525,76 +487,7 @@
 		<!-- Cleanup -->
 		<delete file="${project.targetDirectory}/manager.jar" />
 	</target>
-	
-	
-	<!-- 
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		Build the stand-alone, Gitblit Authority
-		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	-->
-	<target name="buildAuthority" depends="compile" description="Builds the stand-alone Gitblit Authority">
-		<echo>Building Gitblit Authority ${project.version}</echo>
 
-		<!-- generate jar by traversing the class hierarchy of the specified
-			 classes, exclude any classes in "authority" classpath jars -->
-		<mx:genjar tag="authority" excludeClasspathJars="true" 
-			destfile="${project.targetDirectory}/authority.jar">
-			<resource file="${project.src.dir}/com/gitblit/client/splash.png" />
-			<resource file="${project.resources.dir}/gitblt-favicon.png" />
-			<resource file="${project.resources.dir}/user_16x16.png" />
-			<resource file="${project.resources.dir}/users_16x16.png" />
-			<resource file="${project.resources.dir}/rosette_16x16.png" />
-			<resource file="${project.resources.dir}/rosette_32x32.png" />
-			<resource file="${project.resources.dir}/vcard_16x16.png" />
-			<resource file="${project.resources.dir}/settings_16x16.png" />
-			<resource file="${project.resources.dir}/settings_32x32.png" />
-			<resource file="${project.resources.dir}/search-icon.png" />
-			<resource file="${project.resources.dir}/mail_16x16.png" />
-			<resource file="${project.resources.dir}/script_16x16.png" />
-			<resource file="${project.resources.dir}/blank.png" />
-			<resource file="${project.resources.dir}/bullet_green.png" />
-			<resource file="${project.resources.dir}/bullet_orange.png" />
-			<resource file="${project.resources.dir}/bullet_red.png" />
-			<resource file="${project.resources.dir}/bullet_white.png" />
-			<resource file="${project.resources.dir}/bullet_delete.png" />
-			<resource file="${project.resources.dir}/bullet_key.png" />
-			<resource file="${project.src.dir}/log4j.properties" />
-			<resource>
-				<!-- inlcude all translations -->
-				<fileset dir="${project.src.dir}/com/gitblit/wicket">
-					<include name="*.properties" />
-				</fileset>
-			</resource>
-
-			<mainclass name="com.gitblit.authority.Launcher" />
-			<class name="com.gitblit.Keys" />
-			<manifest>
-				<attribute name="SplashScreen-Image" value="splash.png" />
-			</manifest>
-		</mx:genjar>
-
-		<!-- Build Authority Zip file -->
-		<mx:zip destfile="${project.targetDirectory}/${authority.zipfile}">
-			<fileset dir="${basedir}">
-				<include name="LICENSE" />
-				<include name="NOTICE" />
-			</fileset>
-			<fileset dir="${project.targetDirectory}">
-				<include name="authority.jar" />
-			</fileset>
-			<zipfileset dir="${project.distrib.dir}/data" prefix="data">
-				<include name="users.conf" />
-				<include name="gitblit.properties" />
-			</zipfileset>
-			<!-- Gitblit Authority data -->
-			<zipfileset dir="${project.distrib.dir}/data/certs" prefix="data/certs" />
-			<!-- include "authority" tagged dependencies -->
-			<dependencies prefix="ext" tag="authority" />
-		</mx:zip>
-				
-		<!-- Cleanup -->
-		<delete file="${project.targetDirectory}/authority.jar" />
-	</target>
 					
 	<!-- 
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -829,7 +722,7 @@
 		Build all binaries and site
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildAll" depends="buildAuthority,buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
+	<target name="buildAll" depends="buildGO,buildWAR,buildExpress,buildFederationClient,buildManager,buildApiLibrary,buildSite" />		
 
 	
 	<!--
@@ -1180,5 +1073,6 @@
 			<arg value="-DrepositoryId=${project.maven.repo.id}" />
 			<arg value="-DcreateChecksum=true" />
 		</exec>
-	</target>					
+	</target>
+	
 </project>
