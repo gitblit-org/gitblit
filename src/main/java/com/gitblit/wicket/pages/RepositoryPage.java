@@ -564,7 +564,9 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	@Override
-	protected void onBeforeRender() {
+	protected void onInitialize() {
+		super.onInitialize();
+		
 		// dispose of repository object
 		if (r != null) {
 			r.close();
@@ -572,7 +574,6 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		// setup page header and footer
 		setupPage(repositoryName, "/ " + getPageName());
-		super.onBeforeRender();
 	}
 	
 	@Override

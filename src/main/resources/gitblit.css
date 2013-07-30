@@ -1,6 +1,7 @@
 body {
 	 /* 47px is the header height */
 	padding-top: 47px;
+	min-width : 280px;
 }
 
 footer {
@@ -208,7 +209,6 @@ div.dashboardTitle small {
 	list-style: none outside;
 	display: block;
 	position: relative;
-	border-top: 1px solid #ccc;
 }
 
 .repositorynavbar ul li {
@@ -239,11 +239,79 @@ div.dashboardTitle small {
 	text-decoration: underline;
 }
 
-@media (max-width: 767px) {
+.repo-nav-buttons {
+    margin-top: 5px !important;
+    float: right !important;
+    letter-spacing: -0.31em;
+    text-align: right;
+}
+
+ .repo-nav-buttons .btn {
+   letter-spacing: normal;
+   float: none;
+ }
+
+@media (min-width: 1200px) {
+}
+
+@media (min-width: 980px) and (max-width: 1199px) {
+}
+
+@media (max-width: 979px) {
+  .nav-collapse .nav > li > a:hover, .nav-collapse .dropdown-menu a:hover {
+    background-color: #002060;
+  }
+  
+  .navbar div > ul .dropdown-menu li a {
+    color: #ccc;
+  }
+}
+
+@media (max-width: 979px) and (min-width: 768px) {
+  .repo-nav-tabs {
+    width : 50% !important;
+  }
+  
+  .repo-nav-buttons {
+    width : 40% !important;
+  }
+}
+
+@media (max-width: 767px) and (min-width: 551px) {
 	.repositorynavbar {
     margin-right: -20px;
     margin-left: -20px;
     padding: 0px 5px;
+  }
+  
+  .repo-nav-tabs {
+    width : 43% !important;
+  }
+  
+  .repo-nav-buttons {
+    width : 57% !important;
+  }
+    
+  .repo-nav-tabs .nav {
+    margin-bottom : 0px !important;
+  }
+}
+
+@media (max-width: 550px) {  
+  .repo-nav-buttons {
+    text-align: left;
+    width: 100% !important;
+  }
+
+  .repo-nav-buttons > a:first-child {
+    margin-left : 10px !important;
+  }
+  
+  .repo-nav-buttons > a:first-child {
+  }
+
+  .repo-nav-tabs {
+    margin-top: 10px;
   }
 }
 

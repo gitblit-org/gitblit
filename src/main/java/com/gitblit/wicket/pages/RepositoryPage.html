@@ -35,23 +35,25 @@
 						</div>
 					</div>
 			
-					<div>
-						<div class="hidden-phone btn-group pull-right" style="margin-top:5px;">
-							<!-- future spot for other repo buttons -->
-							<a class="btn" wicket:id="starLink"></a>
-							<a class="btn" wicket:id="unstarLink"></a>
-							<a class="btn" wicket:id="myForkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.myFork"></wicket:message></a>
-							<a class="btn" wicket:id="forkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.fork"></wicket:message></a>
-							<a class="btn" wicket:id="editLink"><i class="icon-cog"></i> <wicket:message key="gb.edit"></wicket:message></a>
-						</div>
-						
-						<div wicket:id="repositoryNavPanel"></div>
+          <div class="row repo-nav-row" style="border-top: 1px solid #ccc;">            
+            <div class="btn-group span6 repo-nav-buttons">
+              <!-- future spot for other repo buttons -->
+              <a class="btn" wicket:id="starLink"></a>
+              <a class="btn" wicket:id="unstarLink"></a>
+              <a class="btn" wicket:id="myForkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.myFork"></wicket:message></a>
+              <a class="btn" wicket:id="forkLink"><img style="border:0px;vertical-align:middle;" src="fork-black_16x16.png"></img> <wicket:message key="gb.fork"></wicket:message></a>
+              <a class="btn" wicket:id="editLink"><i class="icon-cog"></i> <wicket:message key="gb.edit"></wicket:message></a>
+            </div>
+            
+            <div wicket:id="repositoryNavPanel" class="repo-nav-tabs span6">
+              [navigation tabs]
+            </div>
 					</div>
 				</div>
 			</div>
 		</div>
 				
-		<div class="container">
+		<div class="container view-body">
 			<wicket:child />
 		</div>
 		
