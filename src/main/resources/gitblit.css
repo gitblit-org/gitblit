@@ -239,82 +239,6 @@ div.dashboardTitle small {
 	text-decoration: underline;
 }
 
-.repo-nav-buttons {
-    margin-top: 5px !important;
-    float: right !important;
-    letter-spacing: -0.31em;
-    text-align: right;
-}
-
- .repo-nav-buttons .btn {
-   letter-spacing: normal;
-   float: none;
- }
-
-@media (min-width: 1200px) {
-}
-
-@media (min-width: 980px) and (max-width: 1199px) {
-}
-
-@media (max-width: 979px) {
-  .nav-collapse .nav > li > a:hover, .nav-collapse .dropdown-menu a:hover {
-    background-color: #002060;
-  }
-  
-  .navbar div > ul .dropdown-menu li a {
-    color: #ccc;
-  }
-}
-
-@media (max-width: 979px) and (min-width: 768px) {
-  .repo-nav-tabs {
-    width : 50% !important;
-  }
-  
-  .repo-nav-buttons {
-    width : 40% !important;
-  }
-}
-
-@media (max-width: 767px) and (min-width: 551px) {
-	.repositorynavbar {
-    margin-right: -20px;
-    margin-left: -20px;
-    padding: 0px 5px;
-  }
-  
-  .repo-nav-tabs {
-    width : 43% !important;
-  }
-  
-  .repo-nav-buttons {
-    width : 57% !important;
-  }
-    
-  .repo-nav-tabs .nav {
-    margin-bottom : 0px !important;
-  }
-}
-
-@media (max-width: 550px) {  
-  .repo-nav-buttons {
-    text-align: left;
-    width: 100% !important;
-  }
-
-  .repo-nav-buttons > a:first-child {
-    margin-left : 10px !important;
-  }
-  
-  .repo-nav-buttons > a:first-child {
-  }
-
-  .repo-nav-tabs {
-    margin-top: 10px;
-  }
-}
-
 .btn-appmenu {
 	border-radius: 4px !important;
     background-color: #002060;
@@ -1549,4 +1473,92 @@ div.markdown table.text th, div.markdown table.text td {
 
 .has-flash .show-flash {
   display: inline !important;
+}
+
+.repo-nav-buttons {
+    margin-top: 5px !important;
+    float: right !important;
+    letter-spacing: -0.31em;
+    text-align: right;
+}
+
+ .repo-nav-buttons .btn {
+   letter-spacing: normal;
+   float: none;
+ }
+ 
+ .summary-container .summary-description {
+   
+ }
+ 
+ .summary-container .summary-activity {
+    float: right;   
+ }
+
+@media (min-width: 1200px) {
+}
+
+@media (min-width: 980px) and (max-width: 1199px) {
+}
+
+@media (max-width: 979px) {
+  .nav-collapse .nav > li > a:hover, .nav-collapse .dropdown-menu a:hover {
+    background-color: #002060;
+  }
+  
+  .navbar div > ul .dropdown-menu li a {
+    color: #ccc;
+  }
+}
+
+@media (max-width: 979px) and (min-width: 768px) {
+  .repo-nav-tabs {
+    width : 50% !important;
+  }
+  
+  .repo-nav-buttons {
+    width : 40% !important;
+  }
+}
+
+@media (max-width: 767px) and (min-width: 601px) {
+  .repositorynavbar {
+    margin-right: -20px;
+    margin-left: -20px;
+    padding: 0px 5px;
+  }
+  
+  .repo-nav-tabs {
+    width : 44% !important;
+  }
+  
+  .repo-nav-buttons {
+    width : 56% !important;
+  }
+    
+  .repo-nav-tabs .nav {
+    margin-bottom : 0px !important;
+  }
+}
+
+@media (max-width: 600px) {  
+  .summary-container .summary-activity {
+    float: none;
+  }
+
+  .repo-nav-buttons {
+    text-align: left;
+    width: 100% !important;
+  }
+
+  .repo-nav-buttons > a:first-child {
+    margin-left : 10px !important;
+  }
+  
+  .repo-nav-buttons > a:first-child {
+  }
+
+  .repo-nav-tabs {
+    margin-top: 10px;
+  }
 }
