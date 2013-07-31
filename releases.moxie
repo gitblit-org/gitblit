@@ -13,10 +13,14 @@ r19: {
     - Fixed Gitblit Authority startup failures when using alternate user services (issue-280)
     - Manually redirect after branch deletion (issue 282)
     - Improved branch deletion-reflog interaction
+    - Encode page url parameters as UTF-8
+    - Encode filename for binary files on RawPage according to browser
+    - Added pptx extension for tree page icon lookup
     changes: ~
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+    - github/guriguri
 }
 
 #
