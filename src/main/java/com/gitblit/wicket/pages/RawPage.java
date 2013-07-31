@@ -16,12 +16,15 @@
 package com.gitblit.wicket.pages;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wicket.IRequestTarget;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -134,8 +137,27 @@ public class RawPage extends SessionPage {
 							// binary blobs (download)
 							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							response.setContentLength(binary.length);
-							response.setContentType("application/octet-stream");
-							response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+							response.setContentType("application/octet-stream; charset=UTF-8");
+							
+						    try {
+						    	WebRequest request = (WebRequest) requestCycle.getRequest();
+						    	String userAgent = request.getHttpServletRequest().getHeader("User-Agent");
+						    	
+								if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
+								      response.setHeader("Content-Disposition", "filename=\""
+								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								} else if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
+								      response.setHeader("Content-Disposition", "attachment; filename=\""
+								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
+								} else {
+										response.setHeader("Content-Disposition", "attachment; filename=\""
+										      + new String(filename.getBytes("UTF-8"), "latin1") + "\"");
+								}
+							}
+							catch (UnsupportedEncodingException e) {
+								response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+							}
+							
 							try {
 								response.getOutputStream().write(binary);
 							} catch (IOException e) {

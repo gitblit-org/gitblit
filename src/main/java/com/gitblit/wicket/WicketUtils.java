@@ -20,7 +20,9 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
@@ -190,7 +192,7 @@ public class WicketUtils {
 			return newImage(wicketId, "file_excel_16x16.png");
 		} else if (filename.endsWith(".doc") || filename.endsWith(".docx")) {
 			return newImage(wicketId, "file_doc_16x16.png");
-		} else if (filename.endsWith(".ppt")) {
+		} else if (filename.endsWith(".ppt") || filename.endsWith(".pptx")) {
 			return newImage(wicketId, "file_ppt_16x16.png");
 		} else if (filename.endsWith(".zip")) {
 			return newImage(wicketId, "file_zip_16x16.png");
@@ -285,104 +287,170 @@ public class WicketUtils {
 	}
 
 	public static PageParameters newTokenParameter(String token) {
-		return new PageParameters("t=" + token);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("t", token);
+		return new PageParameters(parameterMap);
 	}
 
-	public static PageParameters newRegistrationParameter(String url, String name) {
-		return new PageParameters("u=" + url + ",n=" + name);
+	public static PageParameters newRegistrationParameter(String url,
+			String name) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("u", url);
+		parameterMap.put("n", name);
+		return new PageParameters(parameterMap);
 	}
 
 	public static PageParameters newUsernameParameter(String username) {
-		return new PageParameters("user=" + username);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("user", username);
+		return new PageParameters(parameterMap);
 	}
 
 	public static PageParameters newTeamnameParameter(String teamname) {
-		return new PageParameters("team=" + teamname);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("team", teamname);
+		return new PageParameters(parameterMap);
 	}
 
 	public static PageParameters newProjectParameter(String projectName) {
-		return new PageParameters("p=" + projectName);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("p", projectName);
+		return new PageParameters(parameterMap);
 	}
 
 	public static PageParameters newRepositoryParameter(String repositoryName) {
-		return new PageParameters("r=" + repositoryName);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("r", repositoryName);
+		return new PageParameters(parameterMap);
 	}
 
 	public static PageParameters newObjectParameter(String objectId) {
-		return new PageParameters("h=" + objectId);
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("h", objectId);
+		return new PageParameters(parameterMap);
 	}
 
-	public static PageParameters newObjectParameter(String repositoryName, String objectId) {
+	public static PageParameters newObjectParameter(String repositoryName,
+			String objectId) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
 		if (StringUtils.isEmpty(objectId)) {
 			return newRepositoryParameter(repositoryName);
 		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId);
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		return new PageParameters(parameterMap);
 	}
 
-	public static PageParameters newRangeParameter(String repositoryName, String startRange, String endRange) {
-		return new PageParameters("r=" + repositoryName + ",h=" + startRange + ".." + endRange);
+	public static PageParameters newRangeParameter(String repositoryName,
+			String startRange, String endRange) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", startRange + ".." + endRange);
+		return new PageParameters(parameterMap);
 	}
 
-	public static PageParameters newPathParameter(String repositoryName, String objectId,
-			String path) {
+	public static PageParameters newPathParameter(String repositoryName,
+			String objectId, String path) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
 		if (StringUtils.isEmpty(path)) {
 			return newObjectParameter(repositoryName, objectId);
 		}
 		if (StringUtils.isEmpty(objectId)) {
-			return new PageParameters("r=" + repositoryName + ",f=" + path);
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("f", path);
+			return new PageParameters(parameterMap);
 		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path);
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("f", path);
+		return new PageParameters(parameterMap);
 	}
 
-	public static PageParameters newLogPageParameter(String repositoryName, String objectId,
+	public static PageParameters newLogPageParameter(String repositoryName,
+			String objectId, int pageNumber) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (pageNumber <= 1) {
+			return newObjectParameter(repositoryName, objectId);
+		}
+		if (StringUtils.isEmpty(objectId)) {
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("pg", String.valueOf(pageNumber));
+			return new PageParameters(parameterMap);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("pg", String.valueOf(pageNumber));
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newHistoryPageParameter(String repositoryName,
+			String objectId, String path, int pageNumber) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (pageNumber <= 1) {
+			return newObjectParameter(repositoryName, objectId);
+		}
+		if (StringUtils.isEmpty(objectId)) {
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("f", path);
+			parameterMap.put("pg", String.valueOf(pageNumber));
+			return new PageParameters(parameterMap);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", objectId);
+		parameterMap.put("f", path);
+		parameterMap.put("pg", String.valueOf(pageNumber));
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newBlobDiffParameter(String repositoryName,
+			String baseCommitId, String commitId, String path) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(commitId)) {
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("f", path);
+			parameterMap.put("hb", baseCommitId);
+			return new PageParameters(parameterMap);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", commitId);
+		parameterMap.put("f", path);
+		parameterMap.put("hb", baseCommitId);
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newSearchParameter(String repositoryName,
+			String commitId, String search, Constants.SearchType type) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		if (StringUtils.isEmpty(commitId)) {
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("s", search);
+			parameterMap.put("st", type.name());
+			return new PageParameters(parameterMap);
+		}
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", commitId);
+		parameterMap.put("s", search);
+		parameterMap.put("st", type.name());
+		return new PageParameters(parameterMap);
+	}
+
+	public static PageParameters newSearchParameter(String repositoryName,
+			String commitId, String search, Constants.SearchType type,
 			int pageNumber) {
-		if (pageNumber <= 1) {
-			return newObjectParameter(repositoryName, objectId);
-		}
-		if (StringUtils.isEmpty(objectId)) {
-			return new PageParameters("r=" + repositoryName + ",pg=" + pageNumber);
-		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",pg=" + pageNumber);
-	}
-
-	public static PageParameters newHistoryPageParameter(String repositoryName, String objectId,
-			String path, int pageNumber) {
-		if (pageNumber <= 1) {
-			return newObjectParameter(repositoryName, objectId);
-		}
-		if (StringUtils.isEmpty(objectId)) {
-			return new PageParameters("r=" + repositoryName + ",f=" + path + ",pg=" + pageNumber);
-		}
-		return new PageParameters("r=" + repositoryName + ",h=" + objectId + ",f=" + path + ",pg="
-				+ pageNumber);
-	}
-
-	public static PageParameters newBlobDiffParameter(String repositoryName, String baseCommitId,
-			String commitId, String path) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
 		if (StringUtils.isEmpty(commitId)) {
-			return new PageParameters("r=" + repositoryName + ",f=" + path + ",hb=" + baseCommitId);
+			parameterMap.put("r", repositoryName);
+			parameterMap.put("s", search);
+			parameterMap.put("st", type.name());
+			parameterMap.put("pg", String.valueOf(pageNumber));
+			return new PageParameters(parameterMap);
 		}
-		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",f=" + path + ",hb="
-				+ baseCommitId);
-	}
-
-	public static PageParameters newSearchParameter(String repositoryName, String commitId,
-			String search, Constants.SearchType type) {
-		if (StringUtils.isEmpty(commitId)) {
-			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name());
-		}
-		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search
-				+ ",st=" + type.name());
-	}
-
-	public static PageParameters newSearchParameter(String repositoryName, String commitId,
-			String search, Constants.SearchType type, int pageNumber) {
-		if (StringUtils.isEmpty(commitId)) {
-			return new PageParameters("r=" + repositoryName + ",s=" + search + ",st=" + type.name()
-					+ ",pg=" + pageNumber);
-		}
-		return new PageParameters("r=" + repositoryName + ",h=" + commitId + ",s=" + search
-				+ ",st=" + type.name() + ",pg=" + pageNumber);
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", commitId);
+		parameterMap.put("s", search);
+		parameterMap.put("st", type.name());
+		parameterMap.put("pg", String.valueOf(pageNumber));
+		return new PageParameters(parameterMap);
 	}
 
 	public static String getProjectName(PageParameters params) {
