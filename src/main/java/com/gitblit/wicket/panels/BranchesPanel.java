@@ -199,28 +199,34 @@ public class BranchesPanel extends BasePanel {
 					return;
 				}
 				final String branch = entry.getName();
-				boolean success = JGitUtils.deleteBranchRef(r, branch);
-				if (success) {
-					// clear commit cache
-					CommitCache.instance().clear(repositoryModel.name, branch);
+				Ref ref = null;
+				try {
+					ref = r.getRef(branch);
+					if (ref == null && !branch.startsWith(Constants.R_HEADS)) {
+						ref = r.getRef(Constants.R_HEADS + branch);
+					}
+				} catch (IOException e) {
+				}
+				if (ref != null) {
+					boolean success = JGitUtils.deleteBranchRef(r, ref.getName());
+					if (success) {
+						// clear commit cache
+						CommitCache.instance().clear(repositoryModel.name, branch);
+
+						// optionally update reflog
+						if (RefLogUtils.hasRefLogBranch(r)) {
+							UserModel user = GitBlitWebSession.get().getUser();
+							RefLogUtils.deleteRef(user, r, ref);
+						}
+					}
 					
-					// optionally update reflog
-					if (RefLogUtils.hasRefLogBranch(r)) {
-						UserModel user = GitBlitWebSession.get().getUser();
-						success = RefLogUtils.deleteRef(user, r, branch);
+					if (success) {
+						info(MessageFormat.format("Branch \"{0}\" deleted", branch));					
+					} else {
+						error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
 					}
 				}
-				
 				r.close();
-				
-				if (success) {
-					info(MessageFormat.format("Branch \"{0}\" deleted", branch));
-					// redirect to the owning page
-					setResponsePage(getPage().getClass(), WicketUtils.newRepositoryParameter(repositoryModel.name));
-				}
-				else {
-					error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
-				}
 				
 				// redirect to the owning page
 				PageParameters params = WicketUtils.newRepositoryParameter(repositoryModel.name);

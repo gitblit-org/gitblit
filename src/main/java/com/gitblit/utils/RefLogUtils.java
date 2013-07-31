@@ -180,22 +180,22 @@ public class RefLogUtils {
 	 * @param ref
 	 * @return true, if the update was successful
 	 */
-	public static boolean deleteRef(UserModel user, Repository repository, String ref) {
+	public static boolean deleteRef(UserModel user, Repository repository, Ref ref) {
 		try {
-			Ref refObj = repository.getRef(ref);
-			if (refObj == null && !ref.startsWith(Constants.R_HEADS) && ref.startsWith(Constants.R_TAGS)) {
-				// find fully qualified ref
-				refObj = repository.getRef(Constants.R_HEADS + ref);
-				if (refObj == null) {
-					refObj = repository.getRef(Constants.R_TAGS + ref);
-				}
+			if (ref == null) {
+				return false;
 			}
-
-			if (refObj == null) {
+			RefModel reflogBranch = getRefLogBranch(repository);
+			if (reflogBranch == null) {
 				return false;
 			}
 			
-			ReceiveCommand cmd = new ReceiveCommand(refObj.getObjectId(), ObjectId.zeroId(), refObj.getName());
+			List<RevCommit> log = JGitUtils.getRevLog(repository, reflogBranch.getName(), ref.getName(), 0, 1);
+			if (log.isEmpty()) {
+				// this ref is not in the reflog branch
+				return false;
+			}
+			ReceiveCommand cmd = new ReceiveCommand(ref.getObjectId(), ObjectId.zeroId(), ref.getName());
 			return updateRefLog(user, repository, Arrays.asList(cmd));
 		} catch (Throwable t) {
 			error(t, repository, "Failed to commit reflog entry to {0}");
@@ -442,9 +442,13 @@ public class RefLogUtils {
 			UserModel user = newUserModelFrom(push.getAuthorIdent());
 			Date date = push.getAuthorIdent().getWhen();
 			
-			RefLogEntry log = new RefLogEntry(repositoryName, date, user);
-			list.add(log);
+			RefLogEntry log = new RefLogEntry(repositoryName, date, user);			
 			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);
+			if (changedRefs.isEmpty()) {
+				// skip empty commits
+				continue;
+			}
+			list.add(log);
 			for (PathChangeModel change : changedRefs) {
 				switch (change.changeType) {
 				case DELETE:
@@ -458,6 +462,10 @@ public class RefLogUtils {
 					String oldId = fields[1];
 					String newId = fields[2];
 					log.updateRef(change.path, ReceiveCommand.Type.valueOf(fields[0]), oldId, newId);
+					if (ObjectId.zeroId().getName().equals(newId)) {
+						// ref deletion
+						continue;
+					}
 					List<RevCommit> pushedCommits = JGitUtils.getRevLog(repository, oldId, newId);
 					for (RevCommit pushedCommit : pushedCommits) {
 						RepositoryCommit repoCommit = log.addCommit(change.path, pushedCommit);

@@ -12,6 +12,7 @@ r19: {
     fixes:
     - Fixed Gitblit Authority startup failures when using alternate user services (issue-280)
     - Manually redirect after branch deletion (issue 282)
+    - Improved branch deletion-reflog interaction
     changes: ~
     additions: ~
     dependencyChanges: ~
