@@ -15,11 +15,13 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -29,6 +31,9 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
@@ -216,6 +221,12 @@ public class BranchesPanel extends BasePanel {
 				else {
 					error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
 				}
+				
+				// redirect to the owning page
+				PageParameters params = WicketUtils.newRepositoryParameter(repositoryModel.name);
+				String relativeUrl = urlFor(getPage().getClass(), params).toString();
+				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
 		
