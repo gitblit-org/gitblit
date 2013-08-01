@@ -26,11 +26,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.wicket.Component;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.image.ContextImage;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
@@ -196,7 +198,7 @@ public class RepositoryUrlPanel extends BasePanel {
 			}
 		}
 		
-		urlPanel.add(new Label("primaryUrl", primaryUrl.url).setRenderBodyOnly(true));
+		urlPanel.add(new TextField<String>("primaryUrl", new PropertyModel<String>(primaryUrl, "url")));
 
 		Label permissionLabel = new Label("primaryUrlPermission", primaryUrl.isExternal() ? externalPermission : primaryUrl.permission.toString());		
 		String tooltip = getProtocolPermissionDescription(repository, primaryUrl);

@@ -119,21 +119,6 @@ public abstract class BasePage extends SessionPage {
 			Application.get().getMarkupSettings().setStripWicketTags(true);
 		}
 		super.onBeforeRender();
-		
-		if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
-			add(new HeaderContributor(new IHeaderContributor() {
-				
-				/**
-				 * Serial ID.
-				 */
-				private static final long serialVersionUID = -3665928613714437882L;
-	
-				@Override
-				public void renderHead(IHeaderResponse response) {
-					response.renderOnDomReadyJavascript("(function(){if (swfobject.hasFlashPlayerVersion('9.0.0')) {$('html').addClass('has-flash');} }());");
-				}
-			}));
-		}
 	}
 
 	@Override

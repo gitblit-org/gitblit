@@ -1492,7 +1492,20 @@ div.markdown table.text th, div.markdown table.text td {
  }
  
  .summary-container .summary-activity {
-    float: right;   
+  float: right;
+  text-align: right;
+ }
+ 
+ .repositoryUrlContainer {
+   margin-top: 15px;
+ }
+ 
+ .repositoryUrlContainer .primary-url  {
+  display: inline-block;
+  margin: 0px;
+  background-color: white;
+  cursor: pointer;
+  width: 300px;
  }
 
 @media (min-width: 1200px) {
@@ -1541,11 +1554,7 @@ div.markdown table.text th, div.markdown table.text td {
   }
 }
 
-@media (max-width: 600px) {  
-  .summary-container .summary-activity {
-    float: none;
-  }
-
+@media (max-width: 600px) {
   .repo-nav-buttons {
     text-align: left;
     width: 100% !important;
@@ -1560,5 +1569,17 @@ div.markdown table.text th, div.markdown table.text td {
 
   .repo-nav-tabs {
     margin-top: 10px;
+  } 
+  
+  .repositoryUrlContainer .primary-url {
+    width : 175px;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary-container .summary-activity {
+    text-align: left;
+    width: 100% !important;
+    float: none;
   }
 }
