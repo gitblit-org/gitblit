@@ -343,15 +343,20 @@ public class RepositoryUrlPanel extends BasePanel {
 		return permissionLabel;
 	}
 	
-	protected Fragment createCopyFragment(String text) {
+	protected Component createCopyFragment(String text) {
 		if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
-			// clippy: flash-based copy & paste
-			Fragment copyFragment = new Fragment("copyFunction", "clippyPanel", this);
-			String baseUrl = WicketUtils.getGitblitURL(getRequest());
-			ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
-			clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(text));
-			copyFragment.add(clippy);
-			return copyFragment;
+			if (GitBlitWebSession.get().isMobileView()) {
+				return new Label("copyFunction");
+			}
+			else {
+				// clippy: flash-based copy & paste
+				Fragment copyFragment = new Fragment("copyFunction", "clippyPanel", this);
+				String baseUrl = WicketUtils.getGitblitURL(getRequest());
+				ShockWaveComponent clippy = new ShockWaveComponent("clippy", baseUrl + "/clippy.swf");
+				clippy.setValue("flashVars", "text=" + StringUtils.encodeURL(text));
+				copyFragment.add(clippy);
+				return copyFragment;				
+			}
 		} else {
 			// javascript: manual copy & paste with modal browser prompt dialog
 			Fragment copyFragment = new Fragment("copyFunction", "jsPanel", this);

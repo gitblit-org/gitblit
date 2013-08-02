@@ -1507,6 +1507,10 @@ div.markdown table.text th, div.markdown table.text td {
   cursor: pointer;
   width: 300px;
  }
+ 
+ .toggle-site-view {
+   margin-right : 20px;
+ }
 
 @media (min-width: 1200px) {
 }
