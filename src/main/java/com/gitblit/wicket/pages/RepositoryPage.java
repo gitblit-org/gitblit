@@ -487,12 +487,7 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
-		String html = StringUtils.escapeForHtml(text, false);
-		if (substituteRegex) {
-			html = GitBlit.self().processCommitMessage(repositoryName, html);
-		} else {
-			html = StringUtils.breakLinesForHtml(html);
-		}
+		String html = GitBlit.self().processCommitMessage(repositoryName, text, substituteRegex);
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
 	}
 
