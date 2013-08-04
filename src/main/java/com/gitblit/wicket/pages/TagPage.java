@@ -92,7 +92,7 @@ public class TagPage extends RepositoryPage {
 		}
 		add(WicketUtils.createTimestampLabel("tagDate", when, getTimeZone(), getTimeUtils()));
 
-		addFullText("fullMessage", tagRef.getFullMessage(), true);
+		addFullText("fullMessage", tagRef.getFullMessage());
 	}
 
 	@Override

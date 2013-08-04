@@ -79,7 +79,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
-		addFullText("fullMessage", commit.getFullMessage(), true);
+		addFullText("fullMessage", commit.getFullMessage());
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);

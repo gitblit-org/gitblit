@@ -482,12 +482,17 @@ public abstract class RepositoryPage extends RootPage {
 		add(new RefsPanel("refsPanel", repositoryName, c, JGitUtils.getAllRefs(r, getRepositoryModel().showRemoteBranches)));
 	}
 
-	protected void addFullText(String wicketId, String text, boolean substituteRegex) {
-		String html = StringUtils.escapeForHtml(text, false);
-		if (substituteRegex) {
-			html = GitBlit.self().processCommitMessage(repositoryName, html);
-		} else {
-			html = StringUtils.breakLinesForHtml(html);
+	protected void addFullText(String wicketId, String text) {
+		RepositoryModel model = getRepositoryModel();
+		String content = GitBlit.self().processCommitMessage(model, text);
+		String html;
+		switch (model.commitMessageRenderer) {
+		case MARKDOWN:
+			html = MessageFormat.format("<div class='commit_message'>{0}</div>", content);
+			break;
+		default:
+			html = MessageFormat.format("<pre class='commit_message'>{0}</pre>", content);
+			break;
 		}
 		add(new Label(wicketId, html).setEscapeModelStrings(false));
 	}

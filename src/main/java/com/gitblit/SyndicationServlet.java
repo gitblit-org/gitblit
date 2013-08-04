@@ -244,7 +244,7 @@ public class SyndicationServlet extends HttpServlet {
 						StringUtils.encodeURL(model.name.replace('/', fsc)), commit.getName());
 				entry.published = commit.getCommitterIdent().getWhen();
 				entry.contentType = "text/html";
-				String message = GitBlit.self().processCommitMessage(model.name,
+				String message = GitBlit.self().processCommitMessage(model,
 						commit.getFullMessage());
 				entry.content = message;
 				entry.repository = model.name;

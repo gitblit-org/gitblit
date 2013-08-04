@@ -490,6 +490,19 @@ public class Constants {
 			return this == LOCAL;
 		}
 	}
+	
+	public static enum CommitMessageRenderer {
+		PLAIN, MARKDOWN;
+		
+		public static CommitMessageRenderer fromName(String name) {
+			for (CommitMessageRenderer renderer : values()) {
+				if (renderer.name().equalsIgnoreCase(name)) {
+					return renderer;
+				}
+			}
+			return CommitMessageRenderer.PLAIN;
+		}
+	}
 
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)

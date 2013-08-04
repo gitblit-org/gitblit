@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,6 +88,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
@@ -124,6 +126,7 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.LastChange;
 import com.gitblit.utils.JsonUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.MetricUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
@@ -2014,6 +2017,8 @@ public class GitBlit implements ServletContextListener {
 			model.showReadme = getConfig(config, "showReadme", false);
 			model.skipSizeCalculation = getConfig(config, "skipSizeCalculation", false);
 			model.skipSummaryMetrics = getConfig(config, "skipSummaryMetrics", false);
+			model.commitMessageRenderer = CommitMessageRenderer.fromName(getConfig(config, "commitMessageRenderer",
+					settings.getString(Keys.web.commitMessageRenderer, null)));
 			model.federationStrategy = FederationStrategy.fromName(getConfig(config,
 					"federationStrategy", null));
 			model.federationSets = new ArrayList<String>(Arrays.asList(config.getStringList(
@@ -2041,7 +2046,7 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			model.metricAuthorExclusions = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "metricAuthorExclusions")));
-			
+					
 			// Custom defined properties
 			model.customFields = new LinkedHashMap<String, String>();
 			for (String aProperty : config.getNames(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS)) {
@@ -2596,6 +2601,16 @@ public class GitBlit implements ServletContextListener {
 			config.setInt(Constants.CONFIG_GITBLIT, null, "maxActivityCommits", repository.maxActivityCommits);
 		}
 
+		CommitMessageRenderer defaultRenderer = CommitMessageRenderer.fromName(settings.getString(Keys.web.commitMessageRenderer, null));
+		if (repository.commitMessageRenderer == null || repository.commitMessageRenderer == defaultRenderer) {
+			// use default from config
+			config.unset(Constants.CONFIG_GITBLIT, null, "commitMessageRenderer");
+		} else {
+			// repository overrides default
+			config.setString(Constants.CONFIG_GITBLIT, null, "commitMessageRenderer",
+					repository.commitMessageRenderer.name());
+		}
+		
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
@@ -2685,12 +2700,56 @@ public class GitBlit implements ServletContextListener {
 	 * Returns an html version of the commit message with any global or
 	 * repository-specific regular expression substitution applied.
 	 * 
+	 * This method uses the preferred renderer to transform the commit message.
+	 * 
+	 * @param repository
+	 * @param text
+	 * @return html version of the commit message
+	 */
+	public String processCommitMessage(RepositoryModel repository, String text) {
+		switch (repository.commitMessageRenderer) {
+		case MARKDOWN:
+			try {
+				String prepared = processCommitMessageRegex(repository.name, text);
+				return MarkdownUtils.transformMarkdown(prepared);
+			} catch (ParseException e) {
+				logger.error("Failed to render commit message as markdown", e);
+			}
+			break;
+		default:
+			// noop
+			break;
+		}
+		
+		return processPlainCommitMessage(repository.name, text);
+	}
+	
+	/**
+	 * Returns an html version of the commit message with any global or
+	 * repository-specific regular expression substitution applied.
+	 * 
+	 * This method assumes the commit message is plain text.
+	 * 
 	 * @param repositoryName
 	 * @param text
 	 * @return html version of the commit message
 	 */
-	public String processCommitMessage(String repositoryName, String text) {
-		String html = StringUtils.breakLinesForHtml(text);
+	public String processPlainCommitMessage(String repositoryName, String text) {
+		String html = StringUtils.escapeForHtml(text, false);
+		html = processCommitMessageRegex(repositoryName, html);
+		return StringUtils.breakLinesForHtml(html);
+		
+	}
+	
+	/**
+	 * Apply globally or per-repository specified regex substitutions to the
+	 * commit message.
+	 * 
+	 * @param repositoryName
+	 * @param text
+	 * @return the processed commit message
+	 */
+	protected String processCommitMessageRegex(String repositoryName, String text) {
 		Map<String, String> map = new HashMap<String, String>();
 		// global regex keys
 		if (settings.getBoolean(Keys.regex.global, false)) {
@@ -2714,14 +2773,14 @@ public class GitBlit implements ServletContextListener {
 			String definition = entry.getValue().trim();
 			String[] chunks = definition.split("!!!");
 			if (chunks.length == 2) {
-				html = html.replaceAll(chunks[0], chunks[1]);
+				text = text.replaceAll(chunks[0], chunks[1]);
 			} else {
 				logger.warn(entry.getKey()
 						+ " improperly formatted.  Use !!! to separate match from replacement: "
 						+ definition);
 			}
 		}
-		return html;
+		return text;
 	}
 
 	/**

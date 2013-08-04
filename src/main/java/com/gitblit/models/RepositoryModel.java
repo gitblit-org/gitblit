@@ -26,6 +26,7 @@ import java.util.TreeSet;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
@@ -85,6 +86,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int gcPeriod;
 	public int maxActivityCommits;	
 	public List<String> metricAuthorExclusions;
+	public CommitMessageRenderer commitMessageRenderer;
 	
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;

@@ -117,7 +117,7 @@ public class CommitPage extends RepositoryPage {
 		};
 		add(parentsView);
 
-		addFullText("fullMessage", c.getFullMessage(), true);
+		addFullText("fullMessage", c.getFullMessage());
 
 		// git notes
 		List<GitNote> notes = JGitUtils.getNotesOnCommit(r, c);
@@ -133,8 +133,8 @@ public class CommitPage extends RepositoryPage {
 				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
-				item.add(new Label("noteContent", GitBlit.self().processCommitMessage(
-						repositoryName, entry.content)).setEscapeModelStrings(false));
+				item.add(new Label("noteContent", GitBlit.self().processPlainCommitMessage(repositoryName,
+						entry.content)).setEscapeModelStrings(false));
 			}
 		};
 		add(notesView.setVisible(notes.size() > 0));

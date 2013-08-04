@@ -891,6 +891,9 @@ span.login input:focus {
 
 .commit_message {
 	padding: 8px;
+}
+
+.topborder {
 	border: solid #ddd;
 	border-width: 1px 0px 0px;
 	border-radius: 0px;

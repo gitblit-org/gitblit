@@ -52,6 +52,7 @@ import org.apache.wicket.model.util.ListModel;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlit;
@@ -552,6 +553,10 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		});
 		
+		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
+		DropDownChoice<CommitMessageRenderer> messageRendererChoice = new DropDownChoice<CommitMessageRenderer>("commitMessageRenderer", renderers);
+		form.add(messageRendererChoice);
+		
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
@@ -721,5 +726,4 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
-	
 }
