@@ -27,6 +27,9 @@ import java.util.TreeSet;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
+import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -84,6 +87,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int gcPeriod;
 	public int maxActivityCommits;	
 	public List<String> metricAuthorExclusions;
+	public String commitMessageDefaultConverter;
 	
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
@@ -94,6 +98,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	}
 
 	public RepositoryModel(String name, String description, String owner, Date lastchange) {
+		IStoredSettings settings = GitBlit.self().getSettings();
+		
 		this.name = name;
 		this.description = description;
 		this.lastChange = lastchange;
@@ -104,6 +110,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.projectPath = StringUtils.getFirstPathElement(name);
 		this.owners = new ArrayList<String>();
 		this.isBare = true;
+		
+		this.commitMessageDefaultConverter = settings.getString(Keys.web.commitMessageDefaultConverter, "html");
 		
 		addOwner(owner);
 	}

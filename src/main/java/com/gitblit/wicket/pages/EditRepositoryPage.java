@@ -70,6 +70,11 @@ import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
+	/**
+	 * Defines the available converter types.
+	 */
+	public final static List<String> converterTypes = Arrays.asList("none", "html", "markdown");
+	
 	private final boolean isCreate;
 
 	private boolean isAdmin;
@@ -552,6 +557,9 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		});
 		
+	    DropDownChoice<String> defaultConverter = new DropDownChoice<String>("commitMessageDefaultConverter", converterTypes, new CommitMessageDefaultConverterRenderer());
+		form.add(defaultConverter);
+		
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
@@ -721,5 +729,20 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
+
 	
+	private class CommitMessageDefaultConverterRenderer implements IChoiceRenderer<String> {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getIdValue(String value, int index) {
+			return value;
+		}
+
+		@Override
+		public Object getDisplayValue(String value) {
+			return value;
+		}
+	}
 }

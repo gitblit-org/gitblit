@@ -2068,6 +2068,9 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			model.metricAuthorExclusions = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "metricAuthorExclusions")));
+					
+			model.commitMessageDefaultConverter = getConfig(config, "commitMessageDefaultConverter",
+					settings.getString(Keys.web.commitMessageDefaultConverter, "html"));
 			
 			// Custom defined properties
 			model.customFields = new LinkedHashMap<String, String>();
@@ -2595,6 +2598,9 @@ public class GitBlit implements ServletContextListener {
 			config.setInt(Constants.CONFIG_GITBLIT, null, "maxActivityCommits", repository.maxActivityCommits);
 		}
 
+		config.setString(Constants.CONFIG_GITBLIT, null, "commitMessageDefaultConverter", repository.commitMessageDefaultConverter);
+		
+		
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
@@ -2702,9 +2708,8 @@ public class GitBlit implements ServletContextListener {
 	 * @return html version of the commit message
 	 */
 	public String processCommitMessage(String repositoryName, String text, boolean substituteRegex) {		
-		
-		String globalConvertor = settings.getString(Keys.web.commitMessageDefaultConverter, "html");
-		String convertor = settings.getString(Keys.web._ROOT + "." + repositoryName.toLowerCase(), globalConvertor);
+		StoredConfig config = getRepository(repositoryName).getConfig();
+		String convertor = config.getString(Constants.CONFIG_GITBLIT, null, "commitMessageDefaultConverter");
 		
 		String message = StringUtils.escapeForHtml(text, false);
 		if ("html".equalsIgnoreCase(convertor) && substituteRegex) {
