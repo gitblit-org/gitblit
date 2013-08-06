@@ -32,6 +32,8 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
+import org.apache.wicket.extensions.markup.html.form.select.Select;
+import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -46,6 +48,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -557,7 +560,8 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		});
 		
-	    DropDownChoice<String> defaultConverter = new DropDownChoice<String>("commitMessageDefaultConverter", converterTypes, new CommitMessageDefaultConverterRenderer());
+		PropertyModel<String> defaultConverterModel = new PropertyModel<String>(repositoryModel, "commitMessageDefaultConverter");
+		DropDownChoice<String> defaultConverter = new DropDownChoice<String>("commitMessageDefaultConverter", defaultConverterModel, converterTypes);
 		form.add(defaultConverter);
 		
 		form.add(new Button("save"));
