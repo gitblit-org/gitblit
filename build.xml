@@ -8,7 +8,7 @@
 		documentation @ http://gitblit.github.io/moxie
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<property name="moxie.version" value="0.8.0" />
+	<property name="moxie.version" value="0.8.1" />
 	<property name="moxie.url" value="http://gitblit.github.io/moxie/maven" />
 	<property name="moxie.jar" value="moxie-toolkit-${moxie.version}.jar" />
 	<property name="moxie.dir" value="${user.home}/.moxie" />
@@ -558,9 +558,6 @@
 		<delete>
 			<fileset dir="${project.targetDirectory}">
 				<include name="javadoc/**" />
-				<include name="gbapi-${project.version}.jar" />
-				<include name="gbapi-${project.version}-sources.jar" />
-				<include name="gbapi-${project.version}-javadoc.jar" />
 		</fileset>
 		</delete>
 	</target>
@@ -711,9 +708,12 @@
 		Package and deploy RELEASE artifacts to the Maven repository
 		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-->
-	<target name="buildMavenArtifacts" depends="prepare">
-		<mx:package />		
+	<target name="buildMavenArtifacts" depends="buildApiLibrary">
+		<mx:package />
 		<mx:deploy basedir="${maven.directory}" allowsnapshots="false" />
+		<mx:deploy basedir="${maven.directory}" allowsnapshots="false"
+			name="Gitblit API" description="Gitblit JSON/RSS API client library"
+			tags="api" artifactid="gbapi" />
 	</target>
 
 
