@@ -16,11 +16,13 @@ r19: {
     - Encode page url parameters as UTF-8
     - Encode filename for binary files on RawPage according to browser
     - Added pptx extension for tree page icon lookup
+    - Fixed project links on dashboard page when web.mountParameters=false
     changes: ~
     additions: ~
     dependencyChanges: ~
     contributors:
     - github/guriguri
+    - Doug Ayers
 }
 
 #
