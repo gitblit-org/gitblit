@@ -345,8 +345,12 @@ public abstract class RootPage extends BasePage {
 	protected List<DropDownMenuItem> getTimeFilterItems(PageParameters params) {
 		// days back choices - additive parameters
 		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+		int maxDaysBack = GitBlit.getInteger(Keys.web.activityDurationMaximum, 30);
 		if (daysBack < 1) {
 			daysBack = 7;
+		}
+		if (daysBack > maxDaysBack) {
+			daysBack = maxDaysBack;
 		}
 		PageParameters clonedParams;
 		if (params == null) {
@@ -397,6 +401,7 @@ public abstract class RootPage extends BasePage {
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
+		int maxDaysBack = GitBlit.getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<RepositoryModel> availableModels = getRepositoryModels();
 		Set<RepositoryModel> models = new HashSet<RepositoryModel>();
@@ -487,6 +492,9 @@ public abstract class RootPage extends BasePage {
 
 		// time-filter the list
 		if (daysBack > 0) {
+			if (maxDaysBack > 0 && daysBack > maxDaysBack) {
+				daysBack = maxDaysBack;
+			}
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);

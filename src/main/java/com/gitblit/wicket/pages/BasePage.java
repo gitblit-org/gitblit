@@ -325,6 +325,7 @@ public abstract class BasePage extends SessionPage {
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
+		int maxDaysBack = GitBlit.getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<ProjectModel> availableModels = getProjectModels();
 		Set<ProjectModel> models = new HashSet<ProjectModel>();
@@ -372,6 +373,9 @@ public abstract class BasePage extends SessionPage {
 
 		// time-filter the list
 		if (daysBack > 0) {
+			if (maxDaysBack > 0 && daysBack > maxDaysBack) {
+				daysBack = maxDaysBack;
+			}
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
