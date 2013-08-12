@@ -479,6 +479,17 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library name="commons-codec-1.7.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/commons-codec-1.7.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/commons-codec-1.7.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="module-library" scope="TEST">
       <library name="junit-4.11.jar">
         <CLASSES>
@@ -608,17 +619,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/commons-logging-1.1.1.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="commons-codec-1.7.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-codec-1.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-codec-1.7.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
