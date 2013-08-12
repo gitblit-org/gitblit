@@ -474,4 +474,83 @@ public class HtpasswdUserServiceTest {
         assertNull(user);
     }
 
+
+    @Test
+    public void testChangeHtpasswdFile()
+    {
+        UserModel user;
+
+        // User default set up.
+        user = htpwdUserService.authenticate("md5", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("md5", user.username);
+
+        user = htpwdUserService.authenticate("sha", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("sha", user.username);
+
+        user = htpwdUserService.authenticate("blueone", "GoBlue!".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("bluetwo", "YayBlue!".toCharArray());
+        assertNull(user);
+
+
+        // Switch to different htpasswd file.
+        getSettings(RESOURCE_DIR + "htpasswd-user", null, null);
+
+        user = htpwdUserService.authenticate("md5", "password".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("sha", "password".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("blueone", "GoBlue!".toCharArray());
+        assertNotNull(user);
+        assertEquals("blueone", user.username);
+
+        user = htpwdUserService.authenticate("bluetwo", "YayBlue!".toCharArray());
+        assertNotNull(user);
+        assertEquals("bluetwo", user.username);
+    }
+
+
+    @Test
+    public void testChangeHtpasswdFileNotExisting()
+    {
+        UserModel user;
+
+        // User default set up.
+        user = htpwdUserService.authenticate("md5", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("md5", user.username);
+
+        user = htpwdUserService.authenticate("sha", "password".toCharArray());
+        assertNotNull(user);
+        assertEquals("sha", user.username);
+
+        user = htpwdUserService.authenticate("blueone", "GoBlue!".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("bluetwo", "YayBlue!".toCharArray());
+        assertNull(user);
+
+
+        // Switch to different htpasswd file that doesn't exist.
+        // Currently we stop working with old users upon this change.
+        getSettings(RESOURCE_DIR + "no-such-file", null, null);
+
+        user = htpwdUserService.authenticate("md5", "password".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("sha", "password".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("blueone", "GoBlue!".toCharArray());
+        assertNull(user);
+
+        user = htpwdUserService.authenticate("bluetwo", "YayBlue!".toCharArray());
+        assertNull(user);
+    }
+
 }

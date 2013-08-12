@@ -89,6 +89,7 @@ public class HtpasswdUserService extends GitblitUserService
 
     private volatile long lastModified;
 
+    private volatile boolean forceReload;
 
 
 
@@ -122,15 +123,12 @@ public class HtpasswdUserService extends GitblitUserService
     public void setup(IStoredSettings settings)
     {
         this.settings = settings;
-        
+
         // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
         String file = settings.getString(KEY_BACKING_US, DEFAULT_BACKING_US);
         File realmFile = GitBlit.getFileOrFolder(file);
         serviceImpl = createUserService(realmFile);
         logger.info("Htpasswd User Service backed by " + serviceImpl.toString());
-
-        file = settings.getString(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
-        this.htpasswdFile = GitBlit.getFileOrFolder(file);
 
         read();
 
@@ -281,13 +279,25 @@ public class HtpasswdUserService extends GitblitUserService
 
 
 
+    private String htpasswdFilePath = null;
     /**
      * Reads the realm file and rebuilds the in-memory lookup tables.
      */
     protected synchronized void read()
     {
-        if (htpasswdFile.exists() && (htpasswdFile.lastModified() != lastModified)) {
-//            forceReload = false;
+
+        // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
+        String file = settings.getString(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
+        if ( !file.equals(htpasswdFilePath) ) {
+            // The htpasswd file setting changed. Rediscover the file.
+            this.htpasswdFilePath = file;
+            this.htpasswdFile = GitBlit.getFileOrFolder(file);
+            this.users.clear();
+            this.forceReload = true;
+        }
+
+        if (htpasswdFile.exists() && (forceReload || (htpasswdFile.lastModified() != lastModified))) {
+            forceReload = false;
             lastModified = htpasswdFile.lastModified();
             users.clear();
 
