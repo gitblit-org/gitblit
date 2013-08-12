@@ -75,7 +75,7 @@ public class HtpasswdUserService extends GitblitUserService
 
 
     private IStoredSettings settings;
-    private final File htpasswdFile;
+    private File htpasswdFile;
 
 
     private final Logger logger = LoggerFactory.getLogger(HtpasswdUserService.class);
@@ -90,7 +90,6 @@ public class HtpasswdUserService extends GitblitUserService
     public HtpasswdUserService()
     {
         super();
-        this.htpasswdFile = GitBlit.getFileOrFolder(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
     }
 
 
@@ -107,12 +106,18 @@ public class HtpasswdUserService extends GitblitUserService
      * @since 0.7.0
      */
     @Override
-    public void setup(IStoredSettings settings) {
+    public void setup(IStoredSettings settings)
+    {
         this.settings = settings;
         
-        File realmFile = GitBlit.getFileOrFolder(KEY_BACKING_US, DEFAULT_BACKING_US);
+        // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
+        String file = settings.getString(KEY_BACKING_US, DEFAULT_BACKING_US);
+        File realmFile = GitBlit.getFileOrFolder(file);
         serviceImpl = createUserService(realmFile);
         logger.info("Htpasswd User Service backed by " + serviceImpl.toString());
+
+        file = settings.getString(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
+        this.htpasswdFile = GitBlit.getFileOrFolder(file);
 
         read();
 
@@ -129,7 +134,8 @@ public class HtpasswdUserService extends GitblitUserService
      * @since 1.0.0
      */
     @Override
-    public boolean supportsCredentialChanges() {
+    public boolean supportsCredentialChanges()
+    {
         return false;
     }
 
@@ -148,7 +154,8 @@ public class HtpasswdUserService extends GitblitUserService
      * @return a user object or null
      */
     @Override
-    public UserModel authenticate(String username, char[] password) {
+    public UserModel authenticate(String username, char[] password)
+    {
         if (isLocalAccount(username)) {
             // local account, bypass htpasswd authentication
             return super.authenticate(username, password);
@@ -236,7 +243,8 @@ public class HtpasswdUserService extends GitblitUserService
      * If the key is set to false, then it is determined if the account is local
      * according to the logic of the GitblitUserService.
      */
-    protected boolean isLocalAccount(String username) {
+    protected boolean isLocalAccount(String username)
+    {
         if ( settings.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
             read();
             if ( users.containsKey(username) ) return false;
@@ -253,7 +261,8 @@ public class HtpasswdUserService extends GitblitUserService
      * 
      * @return AccountType.EXTERNAL
      */
-    protected AccountType getAccountType() {
+    protected AccountType getAccountType()
+    {
         return AccountType.EXTERNAL;
     }
 
@@ -262,7 +271,8 @@ public class HtpasswdUserService extends GitblitUserService
     /**
      * Reads the realm file and rebuilds the in-memory lookup tables.
      */
-    protected synchronized void read() {
+    protected synchronized void read()
+    {
         if (htpasswdFile.exists() && (htpasswdFile.lastModified() != lastModified)) {
 //            forceReload = false;
             lastModified = htpasswdFile.lastModified();
@@ -295,8 +305,20 @@ public class HtpasswdUserService extends GitblitUserService
 
 
     @Override
-    public String toString() {
+    public String toString()
+    {
         return getClass().getSimpleName() + "(" + ((htpasswdFile != null) ? htpasswdFile.getAbsolutePath() : "null") + ")";
     }
 
+
+
+
+    /*
+     * Method only used for unit tests. Return number of users read from htpasswd file.
+     */
+    protected int getNumberUsers()
+    {
+        if ( this.users == null ) return -1;
+        return this.users.size();
+    }
 }
