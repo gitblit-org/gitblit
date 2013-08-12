@@ -35,10 +35,18 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RedirectToUrlException;
+import org.apache.wicket.behavior.HeaderContributor;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.StatelessLink;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
@@ -110,11 +118,47 @@ public abstract class BasePage extends SessionPage {
 	}
 	
 	@Override
+	protected void onInitialize() {
+		super.onInitialize();
+
+		add(new StatelessLink("toggle-site-view") {
+			/**
+			 * Serial ID.
+			 */
+			private static final long serialVersionUID = 7278745204965008603L;
+						
+			@Override
+			protected void onInitialize() {
+				super.onInitialize();
+				
+				String label = getLabel();
+				add(new Label("toggle-site-view-label", new PropertyModel<String>(this, "label")));
+								
+				this.add(new SimpleAttributeModifier("title", label));
+			}
+			
+			public String getLabel() {
+				GitBlitWebSession session = GitBlitWebSession.get();
+				return session.isMobileView() ? "View Desktop Site" : "View Mobile Site";
+			}
+
+			@Override
+			public void onClick() {
+				GitBlitWebSession session = GitBlitWebSession.get();
+				session.toggleMobileView();
+				
+				//TODO fix page parameters.
+			}
+		});
+	}
+	
+	@Override
 	protected void onBeforeRender() {
 		if (GitBlit.isDebugMode()) {
 			// strip Wicket tags in debug mode for jQuery DOM traversal
 			Application.get().getMarkupSettings().setStripWicketTags(true);
 		}
+		
 		super.onBeforeRender();
 	}
 

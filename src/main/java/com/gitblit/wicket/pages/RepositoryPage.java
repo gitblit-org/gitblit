@@ -27,9 +27,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
@@ -38,6 +42,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -564,7 +569,9 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	@Override
-	protected void onBeforeRender() {
+	protected void onInitialize() {
+		super.onInitialize();
+		
 		// dispose of repository object
 		if (r != null) {
 			r.close();
@@ -572,6 +579,23 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		// setup page header and footer
 		setupPage(repositoryName, "/ " + getPageName());
+	}
+	
+	@Override
+	protected void onBeforeRender() {
+		add(new HeaderContributor(new IHeaderContributor() {
+			
+			/**
+			 * Serial ID.
+			 */
+			private static final long serialVersionUID = -3665928613714437882L;
+
+			@Override
+			public void renderHead(IHeaderResponse response) {
+				response.renderOnDomReadyJavascript("Gitblit.repository.selectUrl('.primary-url');");
+			}
+		}));
+		
 		super.onBeforeRender();
 	}
 	
