@@ -27,6 +27,7 @@ import com.gitblit.utils.StringUtils;
 public class HtpasswdUserServiceTest {
 
     private static final String RESOURCE_DIR = "src/test/resources/htpasswdUSTest/";
+    private static final String KEY_SUPPORT_PLAINTEXT_PWD = "realm.htpasswd.supportPlaintextPasswords";
 
     private static final int NUM_USERS_HTPASSWD = 10;
 
@@ -41,6 +42,8 @@ public class HtpasswdUserServiceTest {
         MS.put("realm.htpasswd.userfile", (userfile == null) ? (RESOURCE_DIR+"htpasswd") : userfile);
         MS.put("realm.htpasswd.groupfile", (groupfile == null) ? (RESOURCE_DIR+"htgroup") : groupfile);
         MS.put("realm.htpasswd.overrideLocalAuthentication", (overrideLA == null) ? "false" : overrideLA.toString());
+        // Default to keep test the same on all platforms.
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
 
         return MS;
     }
@@ -124,6 +127,7 @@ public class HtpasswdUserServiceTest {
     @Test
     public void testAuthenticate()
     {
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
         UserModel user = htpwdUserService.authenticate("user1", "pass1".toCharArray());
         assertNotNull(user);
         assertEquals("user1", user.username);
@@ -137,6 +141,7 @@ public class HtpasswdUserServiceTest {
         assertNotNull(user);
         assertEquals("plain", user.username);
 
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
         user = htpwdUserService.authenticate("crypt", "password".toCharArray());
         assertNotNull(user);
         assertEquals("crypt", user.username);
@@ -174,6 +179,7 @@ public class HtpasswdUserServiceTest {
     @Test
     public void testAttributes()
     {
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
         UserModel user = htpwdUserService.authenticate("user1", "pass1".toCharArray());
         assertNotNull(user);
         assertEquals("El Capitan", user.displayName);
@@ -204,6 +210,7 @@ public class HtpasswdUserServiceTest {
     public void testAuthenticateDenied()
     {
         UserModel user = null;
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
         user = htpwdUserService.authenticate("user1", "".toCharArray());
         assertNull("User 'user1' falsely authenticated.", user);
 
@@ -226,6 +233,9 @@ public class HtpasswdUserServiceTest {
 
         user = htpwdUserService.authenticate("plain", "password".toCharArray());
         assertNull("User 'plain' falsely authenticated.", user);
+
+
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
 
         user = htpwdUserService.authenticate("crypt", "".toCharArray());
         assertNull("User 'cyrpt' falsely authenticated.", user);
@@ -272,6 +282,36 @@ public class HtpasswdUserServiceTest {
 
         assertTrue("Failed to delete local account.", htpwdUserService.deleteUser(localAccount.username));
         assertNull(htpwdUserService.authenticate(newUser.username, "localPwd2".toCharArray()));
+    }
+
+
+    @Test
+    public void testCleartextIntrusion()
+    {
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
+        assertNull(htpwdUserService.authenticate("md5", "$apr1$qAGGNfli$sAn14mn.WKId/3EQS7KSX0".toCharArray()));
+        assertNull(htpwdUserService.authenticate("sha", "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=".toCharArray()));
+
+        assertNull(htpwdUserService.authenticate("user1", "#externalAccount".toCharArray()));
+
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
+        assertNull(htpwdUserService.authenticate("md5", "$apr1$qAGGNfli$sAn14mn.WKId/3EQS7KSX0".toCharArray()));
+        assertNull(htpwdUserService.authenticate("sha", "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=".toCharArray()));
+
+        assertNull(htpwdUserService.authenticate("user1", "#externalAccount".toCharArray()));
+    }
+
+
+    @Test
+    public void testCryptVsPlaintext()
+    {
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "false");
+        assertNull(htpwdUserService.authenticate("crypt", "6TmlbxqZ2kBIA".toCharArray()));
+        assertNotNull(htpwdUserService.authenticate("crypt", "password".toCharArray()));
+
+        MS.put(KEY_SUPPORT_PLAINTEXT_PWD, "true");
+        assertNotNull(htpwdUserService.authenticate("crypt", "6TmlbxqZ2kBIA".toCharArray()));
+        assertNull(htpwdUserService.authenticate("crypt", "password".toCharArray()));
     }
 
 
@@ -366,6 +406,10 @@ public class HtpasswdUserServiceTest {
         user = htpwdUserService.authenticate("staylocal", "localUser".toCharArray());
         assertNotNull(user);
         assertEquals("staylocal", user.getName());
+
+        // Make sure no authentication by using the string constant for external accounts is possible.
+        user = htpwdUserService.authenticate("leaderred", "#externalAccount".toCharArray());
+        assertNull(user);
     }
 
 
@@ -405,6 +449,10 @@ public class HtpasswdUserServiceTest {
         assertNotNull(user);
         assertEquals("staylocal", user.getName());
 
+        // Make sure no authentication by using the string constant for external accounts is possible.
+        user = htpwdUserService.authenticate("leaderred", "#externalAccount".toCharArray());
+        assertNull(user);
+
 
         getSettings(false);
         // The preference is now back to local accounts but since the prepared account got switched
@@ -420,6 +468,10 @@ public class HtpasswdUserServiceTest {
         user = htpwdUserService.authenticate("staylocal", "localUser".toCharArray());
         assertNotNull(user);
         assertEquals("staylocal", user.getName());
+
+        // Make sure no authentication by using the string constant for external accounts is possible.
+        user = htpwdUserService.authenticate("leaderred", "#externalAccount".toCharArray());
+        assertNull(user);
     }
 
 }

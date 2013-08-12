@@ -42,9 +42,12 @@ import com.gitblit.utils.StringUtils;
  * Implementation of a user service using an Apache htpasswd file for authentication.
  * 
  * This user service implement custom authentication using entries in a file created
- * by the 'htpasswd' program of an Apache web server. All currently possible output
- * options of the 'htpasswd' program are supported:
- * clear text, glibc crypt(), Apache MD5 (apr1), unsalted SHA-1
+ * by the 'htpasswd' program of an Apache web server. All possible output
+ * options of the 'htpasswd' program version 2.2 are supported:
+ * plain text (only on Windows and Netware),
+ * glibc crypt() (not on Windows and NetWare),
+ * Apache MD5 (apr1),
+ * unsalted SHA-1.
  * 
  * Configuration options:
  * realm.htpasswd.backingUserService - Specify the backing user service that is used
@@ -72,7 +75,9 @@ public class HtpasswdUserService extends GitblitUserService
     private static final String KEY_OVERRIDE_LOCALAUTH = Keys.realm.htpasswd.overrideLocalAuthentication;
     private static final boolean DEFAULT_OVERRIDE_LOCALAUTH = true;
 
+    private static final String KEY_SUPPORT_PLAINTEXT_PWD = "realm.htpasswd.supportPlaintextPasswords";
 
+    private final boolean SUPPORT_PLAINTEXT_PWD;
 
     private IStoredSettings settings;
     private File htpasswdFile;
@@ -90,6 +95,14 @@ public class HtpasswdUserService extends GitblitUserService
     public HtpasswdUserService()
     {
         super();
+
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.startsWith("windows") || os.startsWith("netware")) {
+            SUPPORT_PLAINTEXT_PWD = true;
+        }
+        else {
+            SUPPORT_PLAINTEXT_PWD = false;
+        }
     }
 
 
@@ -166,15 +179,10 @@ public class HtpasswdUserService extends GitblitUserService
         String storedPwd = users.get(username);
         if (storedPwd != null) {
             boolean authenticated = false;
-            String passwd = new String(password);
+            final String passwd = new String(password);
 
-            // test clear text
-            if ( storedPwd.equals(new String(password)) ){
-                logger.debug("Clear text password matched for user '" + username + "'");
-                authenticated = true;
-            }
             // test Apache MD5 variant encrypted password
-            else if ( storedPwd.startsWith("$apr1$") ) {
+            if ( storedPwd.startsWith("$apr1$") ) {
                 if ( storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd)) ) {
                     logger.debug("Apache MD5 encoded password matched for user '" + username + "'");
                     authenticated = true;
@@ -189,8 +197,13 @@ public class HtpasswdUserService extends GitblitUserService
                 }
             }
             // test libc crypt() encoded password
-            else if ( storedPwd.equals(Crypt.crypt(passwd, storedPwd)) ) {
+            else if ( supportCryptPwd() && storedPwd.equals(Crypt.crypt(passwd, storedPwd)) ) {
                 logger.debug("Libc crypt encoded password matched for user '" + username + "'");
+                authenticated = true;
+            }
+            // test clear text
+            else if ( supportPlaintextPwd() && storedPwd.equals(passwd) ){
+                logger.debug("Clear text password matched for user '" + username + "'");
                 authenticated = true;
             }
 
@@ -206,7 +219,7 @@ public class HtpasswdUserService extends GitblitUserService
 
                 // create a user cookie
                 if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-                    user.cookie = StringUtils.getSHA1(user.username + new String(password));
+                    user.cookie = StringUtils.getSHA1(user.username + passwd);
                 }
 
                 // Set user attributes, hide password from backing user service.
@@ -301,6 +314,18 @@ public class HtpasswdUserService extends GitblitUserService
         }
     }
 
+
+
+    private boolean supportPlaintextPwd()
+    {
+        return this.settings.getBoolean(KEY_SUPPORT_PLAINTEXT_PWD, SUPPORT_PLAINTEXT_PWD);
+    }
+
+
+    private boolean supportCryptPwd()
+    {
+        return !supportPlaintextPwd();
+    }
 
 
 
