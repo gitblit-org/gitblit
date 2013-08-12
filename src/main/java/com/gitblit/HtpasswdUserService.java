@@ -268,13 +268,11 @@ public class HtpasswdUserService extends GitblitUserService
     /**
      * Get the account type used for this user service.
      *
-     * We use the generic EXTERNAL type here.
-     * 
-     * @return AccountType.EXTERNAL
+     * @return AccountType.HTPASSWD
      */
     protected AccountType getAccountType()
     {
-        return AccountType.EXTERNAL;
+        return AccountType.HTPASSWD;
     }
 
 
