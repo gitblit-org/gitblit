@@ -18,11 +18,15 @@ r19: {
     - Added pptx extension for tree page icon lookup
     - Fixed project links on dashboard page when web.mountParameters=false
     changes: ~
-    additions: ~
+    additions:
+    - Add setting for maximum number of days of activity to that may be requested
     dependencyChanges: ~
     contributors:
     - github/guriguri
     - Doug Ayers
+    - Ori Livneh
+    settings:
+    - { name: 'web.activityDurationMaximum', defaultValue: 30 }
 }
 
 #
