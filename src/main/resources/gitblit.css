@@ -1146,6 +1146,32 @@ table.pretty table.nestedTable {
 	margin-bottom: 0px !important;
 }
 
+table.pretty td.graph {
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+table.pretty tr.commit {
+	/* must match branch graph servlet row height definition */
+	height: 24px;
+}
+
+@media (min-width: 768px) {
+  td.ellipsize {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+  }
+}
+
+@media (max-width: 767px) {
+  td.ellipsize {
+    text-overflow: inherit;
+    overflow: visible;
+    white-space: wrap;
+  }	
+}
+
 table.comments td {
 	padding: 4px;
 	line-height: 17px;
@@ -1204,7 +1230,7 @@ table.palette td.header {
 	font-weight: bold; 
 	background-color: #ffffff !important;
 	padding-top: 0px !important;
-	margin-bottom: 0 !imporant;	
+	margin-bottom: 0 !important;	
 	border: 0 !important;
 	border-radius: 0 !important;
 	line-height: 1em;

@@ -37,6 +37,10 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
+import org.eclipse.jgit.revplot.PlotCommit;
+import org.eclipse.jgit.revplot.PlotCommitList;
+import org.eclipse.jgit.revplot.PlotLane;
+import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.util.FS;
@@ -602,5 +606,17 @@ public class JGitUtilsTest {
 		assertTrue(zipFileB.length() > 0);
 		zipFileB.delete();
 	}
-
+	
+	@Test
+	public void testPlots() throws Exception {
+		Repository repository = GitBlitSuite.getTicgitRepository();
+		PlotWalk pw = new PlotWalk(repository);
+		PlotCommitList<PlotLane> commits = new PlotCommitList<PlotLane>();
+		commits.source(pw);
+		commits.fillTo(25);
+		for (PlotCommit<PlotLane> commit : commits) {
+			System.out.println(commit);
+		}
+		repository.close();
+	}
 }

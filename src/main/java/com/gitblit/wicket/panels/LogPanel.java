@@ -19,6 +19,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
@@ -32,9 +35,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
+import com.gitblit.BranchGraphServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
@@ -70,6 +75,20 @@ public class LogPanel extends BasePanel {
 		// inaccurate way to determine if there are more commits.
 		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
+		
+		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
+		final boolean showGraph = GitBlit.getBoolean(Keys.web.showBranchGraph, true);
+		
+		MarkupContainer graph = new WebMarkupContainer("graph");
+		add(graph);
+		if (!showGraph || commits.isEmpty()) {
+			// not showing or nothing to show
+			graph.setVisible(false);
+		} else {
+			// set the rowspan on the graph row and +1 for the graph row itself
+			graph.add(new SimpleAttributeModifier("rowspan", "" + (commits.size() + 1)));
+			graph.add(new ExternalImage("image", BranchGraphServlet.asLink(baseUrl, repositoryName, commits.get(0).name(), commits.size())));
+		}
 
 		// header
 		if (pageResults) {

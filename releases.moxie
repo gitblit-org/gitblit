@@ -15,10 +15,12 @@ r20: {
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Updated default binary and Lucene ignore extensions
     additions:
+	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
     dependencyChanges: ~
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
+	- { name: 'web.showBranchGraph', defaultValue: 'true' }
     contributors:
 	- James Moger
 	- Robin Rosenberg
