@@ -170,13 +170,24 @@ public class LdapUserService extends GitblitUserService {
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 636;
 				
-				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager()); 
-				return new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+				LDAPConnection conn;
+				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
+					 conn = new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort);
+				} else {
+					 conn = new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+				}
+				return conn;
 			} else {
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 389;
-				
-				LDAPConnection conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
+
+				LDAPConnection conn;
+				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
+					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort);	
+				} else {
+					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);	
+				}
 
 				if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
 					SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
