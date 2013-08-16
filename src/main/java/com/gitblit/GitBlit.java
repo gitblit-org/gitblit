@@ -1670,7 +1670,7 @@ public class GitBlit implements ServletContextListener {
 				return null;
 			}
 			addToCachedRepositoryList(model);
-			return model;
+			return DeepCopier.copy(model);
 		}
 		
 		// cached model
