@@ -12,6 +12,7 @@ r19: {
     fixes:
     - Fixed Gitblit Authority startup failures when using alternate user services (issue-280)
     - Manually redirect after branch deletion (issue 282)
+    - Simplify when repository size is calculated to ensure we have one IF we want one (issue-295)
     - Fixed anonymous LDAP connections (issue-297)
     - Improved branch deletion-reflog interaction
     - Encode page url parameters as UTF-8
@@ -30,6 +31,7 @@ r19: {
     - Ori Livneh
     - Florian Zschocke
     - Tito Nobre
+    - Hugo Questroy
     settings:
     - { name: 'web.activityDurationMaximum', defaultValue: 30 }
     - { name: 'realm.htpasswd.userFile', defaultValue: '${baseFolder}/htpasswd' }

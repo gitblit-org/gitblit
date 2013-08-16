@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.eclipse.jgit.lib.Repository;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -40,11 +41,12 @@ public class GitBlitTest {
 				"Missing Helloworld repository!",
 				repositories.contains(GitBlitSuite.getHelloworldRepository().getDirectory()
 						.getName()));
-		RepositoryModel model = GitBlit.self().getRepositoryModel(
-				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
+		Repository r = GitBlitSuite.getHelloworldRepository();
+		RepositoryModel model = GitBlit.self().getRepositoryModel(r.getDirectory().getName());
 		assertTrue("Helloworld model is null!", model != null);
 		assertEquals(GitBlitSuite.getHelloworldRepository().getDirectory().getName(), model.name);
-		assertTrue(GitBlit.self().calculateSize(model) > 22000L);
+		assertTrue(GitBlit.self().updateLastChangeFields(r, model) > 22000L);
+		r.close();
 	}
 
 	@Test
