@@ -89,8 +89,6 @@ import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.SubmoduleModel;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
 
 /**
  * Collection of static methods for retrieving information from a repository.
@@ -270,103 +268,99 @@ public class JGitUtils {
 		}
 	}
 
-    /**
-     * Creates a bare, shared repository.
-     * 
-     * @param repositoriesFolder
-     * @param name
-     * @param shared
-     *          the setting for the --shared option of "git init".
-     * @return Repository
-     */
-    public static Repository createRepository(File repositoriesFolder, String name, String shared) {
-        try {
-            Repository repo = createRepository(repositoriesFolder, name);
+	/**
+	 * Creates a bare, shared repository.
+	 * 
+	 * @param repositoriesFolder
+	 * @param name
+	 * @param shared
+	 *          the setting for the --shared option of "git init".
+	 * @return Repository
+	 */
+	public static Repository createRepository(File repositoriesFolder, String name, String shared) {
+		try {
+			Repository repo = createRepository(repositoriesFolder, name);
 
-            GitConfigSharedRepository sharedRepository = new GitConfigSharedRepository(shared);
-            if (sharedRepository.isShared()) {
-                StoredConfig config = repo.getConfig();
-                config.setString("core", null, "sharedRepository", sharedRepository.getValue());
-                config.setBoolean("receive", null, "denyNonFastforwards", true);
-                config.save();
+			GitConfigSharedRepository sharedRepository = new GitConfigSharedRepository(shared);
+			if (sharedRepository.isShared()) {
+				StoredConfig config = repo.getConfig();
+				config.setString("core", null, "sharedRepository", sharedRepository.getValue());
+				config.setBoolean("receive", null, "denyNonFastforwards", true);
+				config.save();
 
-                if (! System.getProperty("os.name").toLowerCase().startsWith("windows")) {
-                    final CLibrary libc = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+				if (! JnaUtils.isWindows()) {
 
-                    //libc.chmod("/path/to/file", 0755);
-                }
-            }
+					//libc.chmod("/path/to/file", 0755);
+				}
+			}
 
-            return repo;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    interface CLibrary extends Library {
-        public int chmod(String path, int mode);
-    }
-    private enum GitConfigSharedRepositoryValue {
-        UMASK("0", 0), FALSE("0", 0), OFF("0", 0), NO("0", 0),
-        GROUP("1", 0660), TRUE("1", 0660), ON("1", 0660), YES("1", 0660),
-        ALL("2", 0664), WORLD("2", 0664), EVERYBODY("2", 0664),
-        Oxxx(null, -1);
+			return repo;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	private enum GitConfigSharedRepositoryValue {
+		UMASK("0", 0), FALSE("0", 0), OFF("0", 0), NO("0", 0),
+		GROUP("1", 0660), TRUE("1", 0660), ON("1", 0660), YES("1", 0660),
+		ALL("2", 0664), WORLD("2", 0664), EVERYBODY("2", 0664),
+		Oxxx(null, -1);
 
-        private String configValue;
-        private int permValue;
-        private GitConfigSharedRepositoryValue(String config, int perm) { configValue = config; permValue = perm; };
+		private String configValue;
+		private int permValue;
+		private GitConfigSharedRepositoryValue(String config, int perm) { configValue = config; permValue = perm; };
 
-        public String getConfigValue() { return configValue; };
-        public int getPerm() { return permValue; };
+		public String getConfigValue() { return configValue; };
+		public int getPerm() { return permValue; };
 
-    }
-    private static class GitConfigSharedRepository
-    {
-        private int intValue;
-        GitConfigSharedRepositoryValue enumValue;
+	}
+	private static class GitConfigSharedRepository
+	{
+		private int intValue;
+		GitConfigSharedRepositoryValue enumValue;
 
-        GitConfigSharedRepository(String s)
-        {
-            if ( s == null || s.trim().isEmpty() ) {
-                enumValue = GitConfigSharedRepositoryValue.GROUP;
-            }
-            else {
-                try {
-                    // Try one of the string values
-                    enumValue = GitConfigSharedRepositoryValue.valueOf(s.trim().toUpperCase());
-                } catch (IllegalArgumentException  iae) {
-                    try {
-                        // Try if this is an octal number
-                        int i = Integer.parseInt(s, 8);
-                        if ( (i & 0600) != 0600 ) {
-                            String msg = String.format("Problem with core.sharedRepository filemode value (0%03o).\nThe owner of files must always have read and write permissions.", i);
-                            throw new IllegalArgumentException(msg);
-                        }
-                        intValue = i & 0666;
-                        enumValue = GitConfigSharedRepositoryValue.Oxxx;
-                    } catch (NumberFormatException nfe) {
-                        throw new IllegalArgumentException("Bad configuration value for 'shared': '" + s + "'");
-                    }
-                }
-            }
-        }
-        
-        String getValue()
-        {
-            if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return Integer.toOctalString(intValue);
-            return enumValue.getConfigValue();
-        }
+		GitConfigSharedRepository(String s)
+		{
+			if ( s == null || s.trim().isEmpty() ) {
+				enumValue = GitConfigSharedRepositoryValue.GROUP;
+			}
+			else {
+				try {
+					// Try one of the string values
+					enumValue = GitConfigSharedRepositoryValue.valueOf(s.trim().toUpperCase());
+				} catch (IllegalArgumentException  iae) {
+					try {
+						// Try if this is an octal number
+						int i = Integer.parseInt(s, 8);
+						if ( (i & 0600) != 0600 ) {
+							String msg = String.format("Problem with core.sharedRepository filemode value (0%03o).\nThe owner of files must always have read and write permissions.", i);
+							throw new IllegalArgumentException(msg);
+						}
+						intValue = i & 0666;
+						enumValue = GitConfigSharedRepositoryValue.Oxxx;
+					} catch (NumberFormatException nfe) {
+						throw new IllegalArgumentException("Bad configuration value for 'shared': '" + s + "'");
+					}
+				}
+			}
+		}
 
-        int getPerm()
-        {
-            if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return intValue;
-            return enumValue.getPerm();
-        }
+		String getValue()
+		{
+			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return Integer.toOctalString(intValue);
+			return enumValue.getConfigValue();
+		}
 
-        boolean isShared()
-        {
-            return (enumValue.getPerm() > 0) || enumValue == GitConfigSharedRepositoryValue.Oxxx;
-        }
-    }
+		int getPerm()
+		{
+			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return intValue;
+			return enumValue.getPerm();
+		}
+
+		boolean isShared()
+		{
+			return (enumValue.getPerm() > 0) || enumValue == GitConfigSharedRepositoryValue.Oxxx;
+		}
+	}
 
 
 	/**

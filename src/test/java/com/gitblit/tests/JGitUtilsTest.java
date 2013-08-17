@@ -149,6 +149,27 @@ public class JGitUtilsTest {
 	}
 
 	@Test
+	public void testCreateRepositoryShared() throws Exception {
+		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
+		for (String repositoryName : repositories) {
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, "group");
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
+			assertNotNull(repository);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+			assertEquals(folder.lastModified(), JGitUtils.getFirstChange(repository, null)
+					.getTime());
+			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository).when.getTime());
+			assertNull(JGitUtils.getCommit(repository, null));
+			repository.close();
+			RepositoryCache.close(repository);
+//			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
 	public void testRefs() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
 		Map<ObjectId, List<RefModel>> map = JGitUtils.getAllRefs(repository);
