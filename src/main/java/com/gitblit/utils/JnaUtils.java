@@ -240,7 +240,7 @@ public class JnaUtils {
 	 */
 	private static String runProcessLs(String path)
 	{
-		String cmd = "ls -ldO " + path;
+		String cmd = "ls -ld " + path;
 		Runtime rt = Runtime.getRuntime();
 		Process pr = null;
 		InputStreamReader ir = null;
