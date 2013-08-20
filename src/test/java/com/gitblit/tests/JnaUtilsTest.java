@@ -37,64 +37,78 @@ public class JnaUtilsTest {
 
 	@Test
 	public void testGetFilemode() throws IOException {
-		String repositoryName = "NewJnaTestRepository.git";
-		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
-		File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
-		assertTrue(folder.exists());
+		if (JnaUtils.isWindows()) {
+			try {
+				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+			} catch(UnsupportedOperationException e) {}
+		}
+		else {
+			String repositoryName = "NewJnaTestRepository.git";
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
+			assertTrue(folder.exists());
 
-		int mode = JnaUtils.getFilemode(folder);
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_IFDIR, (mode & JnaUtils.S_IFMT)); // directory
-		assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR | JnaUtils.S_IXUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
+			int mode = JnaUtils.getFilemode(folder);
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_IFDIR, (mode & JnaUtils.S_IFMT)); // directory
+			assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR | JnaUtils.S_IXUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
 
-		mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_IFREG, (mode & JnaUtils.S_IFMT)); // directory
-		assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
+			mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_IFREG, (mode & JnaUtils.S_IFMT)); // directory
+			assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
 
-		repository.close();
-		RepositoryCache.close(repository);
-		FileUtils.deleteDirectory(repository.getDirectory());
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.deleteDirectory(repository.getDirectory());
+			}
 	}
 
 
 	@Test
 	public void testSetFilemode() throws IOException {
-		String repositoryName = "NewJnaTestRepository.git";
-		Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
-		File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
-		assertTrue(folder.exists());
+		if (JnaUtils.isWindows()) {
+			try {
+				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+			} catch(UnsupportedOperationException e) {}
+		}
+		else {
+			String repositoryName = "NewJnaTestRepository.git";
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repositoryName);
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName), FS.DETECTED);
+			assertTrue(folder.exists());
 
-		File path = new File(folder, "refs");
-		int mode = JnaUtils.getFilemode(path);
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_IFDIR, (mode & JnaUtils.S_IFMT)); // directory
-		assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR | JnaUtils.S_IXUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
+			File path = new File(folder, "refs");
+			int mode = JnaUtils.getFilemode(path);
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_IFDIR, (mode & JnaUtils.S_IFMT)); // directory
+			assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR | JnaUtils.S_IXUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
 
-		mode |= JnaUtils.S_ISGID;
-		mode |= JnaUtils.S_IRWXG;
-		int ret = JnaUtils.setFilemode(path, mode);
-		assertEquals(0, ret);
-		mode = JnaUtils.getFilemode(path);
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_ISGID, (mode & JnaUtils.S_ISGID)); // set-gid-bit set
-		assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP | JnaUtils.S_IXGRP, (mode & JnaUtils.S_IRWXG)); // group full access
+			mode |= JnaUtils.S_ISGID;
+			mode |= JnaUtils.S_IRWXG;
+			int ret = JnaUtils.setFilemode(path, mode);
+			assertEquals(0, ret);
+			mode = JnaUtils.getFilemode(path);
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_ISGID, (mode & JnaUtils.S_ISGID)); // set-gid-bit set
+			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP | JnaUtils.S_IXGRP, (mode & JnaUtils.S_IRWXG)); // group full access
 
-		path = new File(folder, "config");
-		mode = JnaUtils.getFilemode(path.getAbsolutePath());
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_IFREG, (mode & JnaUtils.S_IFMT)); // directory
-		assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
+			path = new File(folder, "config");
+			mode = JnaUtils.getFilemode(path.getAbsolutePath());
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_IFREG, (mode & JnaUtils.S_IFMT)); // directory
+			assertEquals(JnaUtils.S_IRUSR | JnaUtils.S_IWUSR, (mode & JnaUtils.S_IRWXU)); // owner full access
 
-		mode |= (JnaUtils.S_IRGRP | JnaUtils.S_IWGRP);
-		ret = JnaUtils.setFilemode(path.getAbsolutePath(), mode);
-		assertEquals(0, ret);
-		mode = JnaUtils.getFilemode(path.getAbsolutePath());
-		assertTrue(mode > 0);
-		assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, (mode & JnaUtils.S_IRWXG)); // group full access
+			mode |= (JnaUtils.S_IRGRP | JnaUtils.S_IWGRP);
+			ret = JnaUtils.setFilemode(path.getAbsolutePath(), mode);
+			assertEquals(0, ret);
+			mode = JnaUtils.getFilemode(path.getAbsolutePath());
+			assertTrue(mode > 0);
+			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, (mode & JnaUtils.S_IRWXG)); // group full access
 
-		repository.close();
-		RepositoryCache.close(repository);
-		FileUtils.deleteDirectory(repository.getDirectory());
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.deleteDirectory(repository.getDirectory());
+		}
 	}
 }

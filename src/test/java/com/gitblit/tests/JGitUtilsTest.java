@@ -161,16 +161,20 @@ public class JGitUtilsTest {
 			assertFalse(JGitUtils.hasCommits(repository));
 			assertNull(JGitUtils.getFirstCommit(repository, null));
 
+			assertEquals("1", repository.getConfig().getString("core", null, "sharedRepository"));
+
 			assertTrue(folder.exists());
-			int mode = JnaUtils.getFilemode(folder);
-			assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
-			assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+			if (! JnaUtils.isWindows()) {
+				int mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+				assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
 
-			mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
-			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
 
-			mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
-			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+			}
 
 			repository.close();
 			RepositoryCache.close(repository);
