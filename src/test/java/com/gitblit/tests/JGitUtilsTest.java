@@ -52,6 +52,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
 
 public class JGitUtilsTest {
@@ -150,7 +151,7 @@ public class JGitUtilsTest {
 
 	@Test
 	public void testCreateRepositoryShared() throws Exception {
-		String[] repositories = { "NewTestRepository.git", "NewTestRepository" };
+		String[] repositories = { "NewSharedTestRepository.git" };
 		for (String repositoryName : repositories) {
 			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
 					repositoryName, "group");
@@ -159,13 +160,21 @@ public class JGitUtilsTest {
 			assertNotNull(repository);
 			assertFalse(JGitUtils.hasCommits(repository));
 			assertNull(JGitUtils.getFirstCommit(repository, null));
-			assertEquals(folder.lastModified(), JGitUtils.getFirstChange(repository, null)
-					.getTime());
-			assertEquals(folder.lastModified(), JGitUtils.getLastChange(repository).when.getTime());
-			assertNull(JGitUtils.getCommit(repository, null));
+
+			assertTrue(folder.exists());
+			int mode = JnaUtils.getFilemode(folder);
+			assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+			assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+
+			mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+
+			mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+			assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+
 			repository.close();
 			RepositoryCache.close(repository);
-//			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
 		}
 	}
 

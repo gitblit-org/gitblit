@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
@@ -260,12 +261,7 @@ public class JGitUtils {
 	 * @return Repository
 	 */
 	public static Repository createRepository(File repositoriesFolder, String name) {
-		try {
-			Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
-			return git.getRepository();
-		} catch (GitAPIException e) {
-			throw new RuntimeException(e);
-		}
+		return createRepository(repositoriesFolder, name, "FALSE");
 	}
 
 	/**
@@ -279,7 +275,13 @@ public class JGitUtils {
 	 */
 	public static Repository createRepository(File repositoriesFolder, String name, String shared) {
 		try {
-			Repository repo = createRepository(repositoriesFolder, name);
+			Repository repo = null;
+			try {
+				Git git = Git.init().setDirectory(new File(repositoriesFolder, name)).setBare(true).call();
+				repo = git.getRepository();
+			} catch (GitAPIException e) {
+				throw new RuntimeException(e);
+			}
 
 			GitConfigSharedRepository sharedRepository = new GitConfigSharedRepository(shared);
 			if (sharedRepository.isShared()) {
@@ -289,8 +291,12 @@ public class JGitUtils {
 				config.save();
 
 				if (! JnaUtils.isWindows()) {
-
-					//libc.chmod("/path/to/file", 0755);
+					Iterator<File> iter = org.apache.commons.io.FileUtils.iterateFilesAndDirs(repo.getDirectory(),
+							TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+					// Adjust permissions on file/directory
+					while (iter.hasNext()) {
+						adjustSharedPerm(iter.next(), sharedRepository);
+					}
 				}
 			}
 
@@ -299,7 +305,9 @@ public class JGitUtils {
 			throw new RuntimeException(e);
 		}
 	}
-	private enum GitConfigSharedRepositoryValue {
+
+	private enum GitConfigSharedRepositoryValue
+	{
 		UMASK("0", 0), FALSE("0", 0), OFF("0", 0), NO("0", 0),
 		GROUP("1", 0660), TRUE("1", 0660), ON("1", 0660), YES("1", 0660),
 		ALL("2", 0664), WORLD("2", 0664), EVERYBODY("2", 0664),
@@ -313,13 +321,13 @@ public class JGitUtils {
 		public int getPerm() { return permValue; };
 
 	}
+
 	private static class GitConfigSharedRepository
 	{
 		private int intValue;
-		GitConfigSharedRepositoryValue enumValue;
+		private GitConfigSharedRepositoryValue enumValue;
 
-		GitConfigSharedRepository(String s)
-		{
+		GitConfigSharedRepository(String s) {
 			if ( s == null || s.trim().isEmpty() ) {
 				enumValue = GitConfigSharedRepositoryValue.GROUP;
 			}
@@ -344,22 +352,58 @@ public class JGitUtils {
 			}
 		}
 
-		String getValue()
-		{
+		String getValue() {
 			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return Integer.toOctalString(intValue);
 			return enumValue.getConfigValue();
 		}
 
-		int getPerm()
-		{
+		int getPerm() {
 			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return intValue;
 			return enumValue.getPerm();
 		}
 
-		boolean isShared()
-		{
+		boolean isCustom() {
+			return enumValue == GitConfigSharedRepositoryValue.Oxxx;
+		}
+
+		boolean isShared() {
 			return (enumValue.getPerm() > 0) || enumValue == GitConfigSharedRepositoryValue.Oxxx;
 		}
+	}
+
+
+	public static int adjustSharedPerm(File path, String configShared) {
+		return adjustSharedPerm(path, new GitConfigSharedRepository(configShared));
+	}
+
+
+	public static int adjustSharedPerm(File path, GitConfigSharedRepository configShared) {
+		if (! configShared.isShared()) return 0;
+
+		int perm = configShared.getPerm();
+		int mode = JnaUtils.getFilemode(path);
+		if (mode < 0) return -1;
+
+		// If the owner has no write access, delete it from group and other, too.
+		if ((mode & JnaUtils.S_IWUSR) == 0) perm &= ~0222;
+		// If the owner has execute access, set it for all blocks that have read access.
+		if ((mode & JnaUtils.S_IXUSR) == JnaUtils.S_IXUSR) perm |= (perm & 0444) >> 2;
+
+		if (configShared.isCustom()) {
+			// Use the custom value for access permissions.
+			mode |= (mode & ~0777) | perm;
+		}
+		else {
+			// Just add necessary bits to existing permissions.
+			mode |= perm;
+		}
+
+		if (path.isDirectory()) {
+			mode |= (mode & 0444) >> 2;
+			mode |= JnaUtils.S_ISGID;
+		}
+
+		return JnaUtils.setFilemode(path, mode);
 	}
 
 
