@@ -1497,22 +1497,13 @@ public class GitBlit implements ServletContextListener {
 			} else {
 				// we are caching this list
 				String msg = "{0} repositories identified in {1} msecs";
-
-				// optionally (re)calculate repository sizes
 				if (getBoolean(Keys.web.showRepositorySizes, true)) {
-					ByteFormat byteFormat = new ByteFormat();
+					// optionally (re)calculate repository sizes
 					msg = "{0} repositories identified with calculated folder sizes in {1} msecs";
-					for (String repository : repositories) {
-						RepositoryModel model = getRepositoryModel(repository);
-						if (!model.skipSizeCalculation) {
-							model.size = byteFormat.format(calculateSize(model));
-						}
-					}
-				} else {
-					// update cache
-					for (String repository : repositories) {
-						getRepositoryModel(repository);
-					}
+				}
+				
+				for (String repository : repositories) {
+					getRepositoryModel(repository);
 				}
 				
 				// rebuild fork networks
@@ -1607,23 +1598,6 @@ public class GitBlit implements ServletContextListener {
 				}
 			}
 		}
-		if (getBoolean(Keys.web.showRepositorySizes, true)) {
-			int repoCount = 0;
-			long startTime = System.currentTimeMillis();
-			ByteFormat byteFormat = new ByteFormat();
-			for (RepositoryModel model : repositories) {
-				if (!model.skipSizeCalculation) {
-					repoCount++;
-					model.size = byteFormat.format(calculateSize(model));
-				}
-			}
-			long duration = System.currentTimeMillis() - startTime;
-			if (duration > 250) {
-				// only log calcualtion time if > 250 msecs
-				logger.info(MessageFormat.format("{0} repository sizes calculated in {1} msecs",
-					repoCount, duration));
-			}
-		}
 		long duration = System.currentTimeMillis() - methodStart;
 		logger.info(MessageFormat.format("{0} repository models loaded for {1} in {2} msecs",
 				repositories.size(), user == null ? "anonymous" : user.username, duration));
@@ -1670,7 +1644,7 @@ public class GitBlit implements ServletContextListener {
 				return null;
 			}
 			addToCachedRepositoryList(model);
-			return model;
+			return DeepCopier.copy(model);
 		}
 		
 		// cached model
@@ -1706,13 +1680,7 @@ public class GitBlit implements ServletContextListener {
 				model.hasCommits = JGitUtils.hasCommits(r);
 			}
 
-			LastChange lc = JGitUtils.getLastChange(r);
-			model.lastChange = lc.when;
-			model.lastChangeAuthor = lc.who;
-			if (!model.skipSizeCalculation) {
-				ByteFormat byteFormat = new ByteFormat();
-				model.size = byteFormat.format(calculateSize(model));
-			}
+			updateLastChangeFields(r, model);
 		}
 		r.close();
 		
@@ -2011,10 +1979,6 @@ public class GitBlit implements ServletContextListener {
 			// is symlinked.  Use the provided repository name.
 			model.name = repositoryName;
 		}
-		model.hasCommits = JGitUtils.hasCommits(r);
-		LastChange lc = JGitUtils.getLastChange(r);
-		model.lastChange = lc.when;
-		model.lastChangeAuthor = lc.who;
 		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
 		
 		StoredConfig config = r.getConfig();
@@ -2076,6 +2040,8 @@ public class GitBlit implements ServletContextListener {
 		model.HEAD = JGitUtils.getHEADRef(r);
 		model.availableRefs = JGitUtils.getAvailableHeadTargets(r);
 		model.sparkleshareId = JGitUtils.getSparkleshareId(r);
+		model.hasCommits = JGitUtils.hasCommits(r);
+		updateLastChangeFields(r, model);
 		r.close();
 		
 		if (StringUtils.isEmpty(model.originRepository) && model.origin != null && model.origin.startsWith("file://")) {
@@ -2271,21 +2237,31 @@ public class GitBlit implements ServletContextListener {
 	}
 
 	/**
-	 * Returns the size in bytes of the repository. Gitblit caches the
-	 * repository sizes to reduce the performance penalty of recursive
-	 * calculation. The cache is updated if the repository has been changed
-	 * since the last calculation.
+	 * Updates the last changed fields and optionally calculates the size of the
+	 * repository.  Gitblit caches the repository sizes to reduce the performance
+	 * penalty of recursive calculation. The cache is updated if the repository
+	 * has been changed since the last calculation.
 	 * 
 	 * @param model
-	 * @return size in bytes
+	 * @return size in bytes of the repository
 	 */
-	public long calculateSize(RepositoryModel model) {
-		if (repositorySizeCache.hasCurrent(model.name, model.lastChange)) {
-			return repositorySizeCache.getObject(model.name);
+	public long updateLastChangeFields(Repository r, RepositoryModel model) {
+		LastChange lc = JGitUtils.getLastChange(r);
+		model.lastChange = lc.when;
+		model.lastChangeAuthor = lc.who;
+
+		if (!getBoolean(Keys.web.showRepositorySizes, true) || model.skipSizeCalculation) {
+			model.size = null;
+			return 0L;
 		}
-		File gitDir = FileKey.resolve(new File(repositoriesFolder, model.name), FS.DETECTED);
-		long size = com.gitblit.utils.FileUtils.folderSize(gitDir);
-		repositorySizeCache.updateObject(model.name, model.lastChange, size);
+		if (!repositorySizeCache.hasCurrent(model.name, model.lastChange)) {
+			File gitDir = r.getDirectory();
+			long sz = com.gitblit.utils.FileUtils.folderSize(gitDir);
+			repositorySizeCache.updateObject(model.name, model.lastChange, sz);
+		}
+		long size = repositorySizeCache.getObject(model.name);
+		ByteFormat byteFormat = new ByteFormat();
+		model.size = byteFormat.format(size);
 		return size;
 	}
 
