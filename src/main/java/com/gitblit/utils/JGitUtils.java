@@ -266,7 +266,7 @@ public class JGitUtils {
 
 	/**
 	 * Creates a bare, shared repository.
-	 * 
+	 *
 	 * @param repositoriesFolder
 	 * @param name
 	 * @param shared
@@ -372,13 +372,32 @@ public class JGitUtils {
 	}
 
 
+	/**
+	 * Adjust file permissions of a file/directory for shared repositories
+	 *
+	 * @param path
+	 * 			File that should get its permissions changed.
+	 * @param configShared
+	 * 			Configuration string value for the shared mode.
+	 * @return Upon successful completion, a value of 0 is returned. Otherwise, a value of -1 is returned.
+	 */
 	public static int adjustSharedPerm(File path, String configShared) {
 		return adjustSharedPerm(path, new GitConfigSharedRepository(configShared));
 	}
 
 
+	/**
+	 * Adjust file permissions of a file/directory for shared repositories
+	 *
+	 * @param path
+	 * 			File that should get its permissions changed.
+	 * @param configShared
+	 * 			Configuration setting for the shared mode.
+	 * @return Upon successful completion, a value of 0 is returned. Otherwise, a value of -1 is returned.
+	 */
 	public static int adjustSharedPerm(File path, GitConfigSharedRepository configShared) {
 		if (! configShared.isShared()) return 0;
+		if (! path.exists()) return -1;
 
 		int perm = configShared.getPerm();
 		int mode = JnaUtils.getFilemode(path);

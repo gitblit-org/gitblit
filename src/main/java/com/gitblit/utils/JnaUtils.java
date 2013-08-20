@@ -34,31 +34,31 @@ import org.slf4j.LoggerFactory;
  * @author Florian Zschocke
  */
 public class JnaUtils {
-	public static final int S_IFMT =   0170000;
-	public static final int S_IFIFO =  0010000;
-	public static final int S_IFCHR =  0020000;
-	public static final int S_IFDIR =  0040000;
-	public static final int S_IFBLK =  0060000;
-	public static final int S_IFREG =  0100000;
-	public static final int S_IFLNK =  0120000;
-	public static final int S_IFSOCK = 0140000;
+	public static final int S_ISUID =  0004000; // set user id on execution
+	public static final int S_ISGID =  0002000; // set group id on execution
+	public static final int S_ISVTX =  0001000; // sticky bit, save swapped text even after use
 
-	public static final int S_ISUID =  0004000;
-	public static final int S_ISGID =  0002000;
-	public static final int S_ISVTX =  0001000;
+	public static final int S_IRWXU =  0000700; // RWX mask for owner
+	public static final int S_IRUSR =  0000400; // read permission for owner
+	public static final int S_IWUSR =  0000200; // write permission for owner
+	public static final int S_IXUSR =  0000100; // execute/search permission for owner
+	public static final int S_IRWXG =  0000070; // RWX mask for group
+	public static final int S_IRGRP =  0000040; // read permission for group
+	public static final int S_IWGRP =  0000020; // write permission for group
+	public static final int S_IXGRP =  0000010; // execute/search permission for group
+	public static final int S_IRWXO =  0000007; // RWX mask for other
+	public static final int S_IROTH =  0000004; // read permission for other
+	public static final int S_IWOTH =  0000002; // write permission for other
+	public static final int S_IXOTH =  0000001; // execute/search permission for other
 
-	public static final int S_IRWXU =  0000700;
-	public static final int S_IRUSR =  0000400;
-	public static final int S_IWUSR =  0000200;
-	public static final int S_IXUSR =  0000100;
-	public static final int S_IRWXG =  0000070;
-	public static final int S_IRGRP =  0000040;
-	public static final int S_IWGRP =  0000020;
-	public static final int S_IXGRP =  0000010;
-	public static final int S_IRWXO =  0000007;
-	public static final int S_IROTH =  0000004;
-	public static final int S_IWOTH =  0000002;
-	public static final int S_IXOTH =  0000001;
+	public static final int S_IFMT =   0170000; // type of file mask
+	public static final int S_IFIFO =  0010000; // named pipe (fifo)
+	public static final int S_IFCHR =  0020000; // character special device
+	public static final int S_IFDIR =  0040000; // directory
+	public static final int S_IFBLK =  0060000; // block special device
+	public static final int S_IFREG =  0100000; // regular file
+	public static final int S_IFLNK =  0120000; // symbolic link
+	public static final int S_IFSOCK = 0140000; // socket
 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JGitUtils.class);
@@ -66,6 +66,11 @@ public class JnaUtils {
 	private static UnixCLibrary unixlibc = null;
 
 
+	/**
+	 * Utility method to check if the JVM is running on a Windows OS.
+	 *
+	 * @return true, if the system property 'os.name' starts with 'Windows'.
+	 */
 	public static boolean isWindows()
 	{
 		return System.getProperty("os.name").toLowerCase().startsWith("windows");
@@ -77,11 +82,37 @@ public class JnaUtils {
 	}
 
 
-	public static int setFilemode(File path, int mode)
+	/**
+	 * Set the permission bits of a file.
+	 *
+	 * The permission bits are set to the provided mode. This method is only
+	 * implemented for OSes of the Unix family and makes use of the 'chmod'
+	 * function of the native C library. See 'man 2 chmod' for more information.
+	 *
+	 * @param path
+	 * 			File/directory to set the permission bits for.
+	 * @param mode
+	 * 			A mode created from or'd permission bit masks S_I*
+	 * @return	Upon successful completion, a value of 0 returned. Otherwise, a value of -1 is returned.
+	 */
+	public static int setFilemode(File file, int mode)
 	{
-		return setFilemode(path.getAbsolutePath(), mode);
+		return setFilemode(file.getAbsolutePath(), mode);
 	}
 
+	/**
+	 * Set the permission bits of a file.
+	 *
+	 * The permission bits are set to the provided mode. This method is only
+	 * implemented for OSes of the Unix family and makes use of the 'chmod'
+	 * function of the native C library. See 'man 2 chmod' for more information.
+	 *
+	 * @param path
+	 * 			Path to a file/directory to set the permission bits for.
+	 * @param mode
+	 * 			A mode created from or'd permission bit masks S_I*
+	 * @return	Upon successful completion, a value of 0 returned. Otherwise, a value of -1 is returned.
+	 */
 	public static int setFilemode(String path, int mode)
 	{
 		if (isWindows()) {
@@ -93,11 +124,33 @@ public class JnaUtils {
 
 
 
+	/**
+	 * Get the file mode bits of a file.
+	 *
+	 * This method is only implemented for OSes of the Unix family. It returns the file mode
+	 * information as available in the st_mode member of the resulting struct stat when calling
+	 * 'lstat' on a file.
+	 *
+	 * @param path
+	 * 			File/directory to get the file mode from.
+	 * @return	Upon successful completion, the file mode bits are returned. Otherwise, a value of -1 is returned.
+	 */
 	public static int getFilemode(File path)
 	{
 		return getFilemode(path.getAbsolutePath());
 	}
 
+	/**
+	 * Get the file mode bits of a file.
+	 *
+	 * This method is only implemented for OSes of the Unix family. It returns the file mode
+	 * information as available in the st_mode member of the resulting struct stat when calling
+	 * 'lstat' on a file.
+	 *
+	 * @param path
+	 * 			Path to a file/directory to get the file mode from.
+	 * @return	Upon successful completion, the file mode bits are returned. Otherwise, a value of -1 is returned.
+	 */
 	public static int getFilemode(String path)
 	{
 		if (isWindows()) {
@@ -178,6 +231,13 @@ public class JnaUtils {
 	}
 
 
+	/**
+	 * Run the unix command 'ls -ldO' on a single file and return the resulting output line.
+	 *
+	 * @param path
+	 * 			Path to a single file or directory.
+	 * @return The first line of output from the 'ls' command. Null, if an error occurred and no line could be read.
+	 */
 	private static String runProcessLs(String path)
 	{
 		String cmd = "ls -ldO " + path;
