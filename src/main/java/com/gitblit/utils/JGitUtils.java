@@ -353,7 +353,10 @@ public class JGitUtils {
 		}
 
 		String getValue() {
-			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) return Integer.toOctalString(intValue);
+			if ( enumValue == GitConfigSharedRepositoryValue.Oxxx ) {
+				if (intValue == 0) return "0";
+				return String.format("0%o", intValue);
+			}
 			return enumValue.getConfigValue();
 		}
 
@@ -410,7 +413,7 @@ public class JGitUtils {
 
 		if (configShared.isCustom()) {
 			// Use the custom value for access permissions.
-			mode |= (mode & ~0777) | perm;
+			mode = (mode & ~0777) | perm;
 		}
 		else {
 			// Just add necessary bits to existing permissions.
