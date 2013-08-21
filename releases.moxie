@@ -23,6 +23,7 @@ r19: {
     additions:
     - Add setting for maximum number of days of activity to that may be requested
     - Added HtpasswdUserService to authenticate users against an htpasswd file
+    - Automatically maintain the .git/description file used by some other tooling
     dependencyChanges:
     - Added commons-codec 1.7
     contributors:
