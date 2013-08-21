@@ -2021,6 +2021,14 @@ public class GitBlit implements ServletContextListener {
 		boolean hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
 		
 		if (config != null) {
+			// Initialize description from description file
+			if (getConfig(config,"description", null) == null) {
+				File descFile = new File(r.getDirectory(), "description");
+				if (descFile.exists()) {
+					config.setString(Constants.CONFIG_GITBLIT, null, "description",
+							com.gitblit.utils.FileUtils.readContent(descFile, System.getProperty("line.separator")));
+				}
+			}
 			model.description = getConfig(config, "description", "");
 			model.originRepository = getConfig(config, "originRepository", null);
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
@@ -2521,6 +2529,15 @@ public class GitBlit implements ServletContextListener {
 		// update settings
 		if (r != null) {
 			updateConfiguration(r, repository);
+			// Update the description file
+			File descFile = new File(r.getDirectory(), "description");
+			if (repository.description != null)
+			{
+				com.gitblit.utils.FileUtils.writeContent(descFile, repository.description);
+			}
+			else if (descFile.exists() && !descFile.isDirectory()) {
+				descFile.delete();
+			}
 			// only update symbolic head if it changes
 			String currentRef = JGitUtils.getHEADRef(r);
 			if (!StringUtils.isEmpty(repository.HEAD) && !repository.HEAD.equals(currentRef)) {
