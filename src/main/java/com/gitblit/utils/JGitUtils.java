@@ -403,8 +403,22 @@ public class JGitUtils {
 		if (! path.exists()) return -1;
 
 		int perm = configShared.getPerm();
-		int mode = JnaUtils.getFilemode(path);
+		JnaUtils.Filestat stat = JnaUtils.getFilestat(path);
+		if (stat == null) return -1;
+		int mode = stat.mode;
 		if (mode < 0) return -1;
+
+		// Now, here is the kicker: Under Linux, chmod'ing a sgid file whose guid is different from the process'
+		// effective guid will reset the sgid flag of the file. Since there is no way to get the sgid flag back in
+		// that case, we decide to rather not touch is and getting the right permissions will have to be achieved
+		// in a different way, e.g. by using an appropriate umask for the Gitblit process.
+		if (System.getProperty("os.name").toLowerCase().startsWith("linux")) {
+			if ( ((mode & (JnaUtils.S_ISGID | JnaUtils.S_ISUID)) != 0)
+				&& stat.gid != JnaUtils.getegid() ) {
+				LOGGER.debug("Not adjusting permissions to prevent clearing suid/sgid bits for '" + path + "'" );
+				return 0;
+			}
+		}
 
 		// If the owner has no write access, delete it from group and other, too.
 		if ((mode & JnaUtils.S_IWUSR) == 0) perm &= ~0222;

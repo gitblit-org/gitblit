@@ -79,6 +79,28 @@ public class JnaUtils {
 
 	private interface UnixCLibrary extends Library {
 		public int chmod(String path, int mode);
+		public int getgid();
+		public int getegid();
+	}
+
+
+	public static int getgid()
+	{
+		if (isWindows()) {
+			throw new UnsupportedOperationException("The method JnaUtils.getgid is not supported under Windows.");
+		}
+
+		return getUnixCLibrary().getgid();
+	}
+
+
+	public static int getegid()
+	{
+		if (isWindows()) {
+			throw new UnsupportedOperationException("The method JnaUtils.getegid is not supported under Windows.");
+		}
+
+		return getUnixCLibrary().getegid();
 	}
 
 
@@ -157,21 +179,77 @@ public class JnaUtils {
 			throw new UnsupportedOperationException("The method JnaUtils.getFilemode is not supported under Windows.");
 		}
 
+		Filestat stat = getFilestat(path);
+		if ( stat == null ) return -1;
+		return stat.mode;
+	}
+
+
+	/**
+	 * Status information of a file.
+	 */
+	public static class Filestat
+	{
+		public int mode;  // file mode, permissions, type
+		public int uid;   // user Id of owner
+		public int gid;   // group Id of owner
+
+		Filestat(int mode, int uid, int gid) {
+			this.mode = mode; this.uid = uid; this.gid = gid;
+		}
+	}
+
+
+	/**
+	 * Get Unix file status information for a file.
+	 *
+	 * This method is only implemented for OSes of the Unix family. It returns file status
+	 * information for a file. Currently this is the file mode, the user id and group id of the owner.
+	 *
+	 * @param path
+	 * 			File/directory to get the file status from.
+	 * @return	Upon successful completion, a Filestat object containing the file information is returned.
+	 * 			Otherwise, null is returned.
+	 */
+	public static Filestat getFilestat(File path)
+	{
+		return getFilestat(path.getAbsolutePath());
+	}
+
+
+	/**
+	 * Get Unix file status information for a file.
+	 *
+	 * This method is only implemented for OSes of the Unix family. It returns file status
+	 * information for a file. Currently this is the file mode, the user id and group id of the owner.
+	 *
+	 * @param path
+	 * 			Path to a file/directory to get the file status from.
+	 * @return	Upon successful completion, a Filestat object containing the file information is returned.
+	 * 			Otherwise, null is returned.
+	 */
+	public static Filestat getFilestat(String path)
+	{
+		if (isWindows()) {
+			throw new UnsupportedOperationException("The method JnaUtils.getFilestat is not supported under Windows.");
+		}
+
 
 		int mode = 0;
 
 		// Use a Runtime, because implementing stat() via JNA is just too much trouble.
+		// This could be done with the 'stat' command, too. But that may have a shell specific implementation, so we use 'ls' instead.
 		String lsLine = runProcessLs(path);
 		if (lsLine == null) {
 			LOGGER.debug("Could not get file information for path " + path);
-			return -1;
+			return null;
 		}
 
-		Pattern p = Pattern.compile("^(([-bcdlsp])([-r][-w][-xSs])([-r][-w][-xSs])([-r][-w][-xTt])) ");
+		Pattern p = Pattern.compile("^(([-bcdlspCDMnP?])([-r][-w][-xSs])([-r][-w][-xSs])([-r][-w][-xTt]))[@+.]? +[0-9]+ +([0-9]+) +([0-9]+) ");
 		Matcher m = p.matcher(lsLine);
 		if ( !m.lookingAt() ) {
 			LOGGER.debug("Could not parse valid file mode information for path " + path);
-			return -1;
+			return null;
 		}
 
 		// Parse mode string to mode bits
@@ -227,12 +305,12 @@ public class JnaUtils {
 			}
 		}
 
-		return mode;
+		return new Filestat(mode, Integer.parseInt(m.group(6)), Integer.parseInt(m.group(7)));
 	}
 
 
 	/**
-	 * Run the unix command 'ls -ldO' on a single file and return the resulting output line.
+	 * Run the unix command 'ls -ldn' on a single file and return the resulting output line.
 	 *
 	 * @param path
 	 * 			Path to a single file or directory.
@@ -240,7 +318,7 @@ public class JnaUtils {
 	 */
 	private static String runProcessLs(String path)
 	{
-		String cmd = "ls -ld " + path;
+		String cmd = "ls -ldn " + path;
 		Runtime rt = Runtime.getRuntime();
 		Process pr = null;
 		InputStreamReader ir = null;

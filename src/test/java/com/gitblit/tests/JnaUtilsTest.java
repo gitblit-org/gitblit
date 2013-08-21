@@ -20,6 +20,7 @@ import com.gitblit.utils.JnaUtils;
 import java.io.File;
 import java.io.IOException;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.io.FileUtils;
@@ -34,6 +35,24 @@ import org.junit.Test;
  * @author Florian Zschocke
  */
 public class JnaUtilsTest {
+
+	@Test
+	public void testGetgid() {
+		if (JnaUtils.isWindows()) {
+			try {
+				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+			} catch(UnsupportedOperationException e) {}
+		}
+		else {
+			int gid = JnaUtils.getgid();
+			assertTrue(gid >= 0);
+			int egid = JnaUtils.getegid();
+			assertTrue(egid >= 0);
+			assertTrue("Really? You're running unit tests as root?!", gid > 0);
+			System.out.println("gid: " + gid + "  egid: " + egid);
+		}
+	}
+
 
 	@Test
 	public void testGetFilemode() throws IOException {
@@ -111,4 +130,23 @@ public class JnaUtilsTest {
 			FileUtils.deleteDirectory(repository.getDirectory());
 		}
 	}
+
+
+	@Test
+	public void testGetFilestat() {
+		if (JnaUtils.isWindows()) {
+			try {
+				JnaUtils.getFilemode(GitBlitSuite.REPOSITORIES);
+			} catch(UnsupportedOperationException e) {}
+		}
+		else {
+			JnaUtils.Filestat stat = JnaUtils.getFilestat(GitBlitSuite.REPOSITORIES);
+			assertNotNull(stat);
+			assertTrue(stat.mode > 0);
+			assertTrue(stat.uid > 0);
+			assertTrue(stat.gid > 0);
+		}
+	}
+
+
 }
