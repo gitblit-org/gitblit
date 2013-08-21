@@ -1,0 +1,163 @@
+#
+# Gitblit project descriptor
+#
+
+# Specify minimum Moxie version required to build
+requires: 0.7.4
+
+# Project Metadata
+name: Gitblit
+description: pure Java Git solution
+groupId: com.gitblit
+artifactId: gitblit
+version: 1.3.2-SNAPSHOT
+inceptionYear: 2011
+
+# Current stable release
+releaseVersion: 1.3.1
+releaseDate: 2013-07-24
+
+# Project urls
+url: 'http://gitblit.com'
+issuesUrl: 'http://code.google.com/p/gitblit/issues/list'
+socialNetworkUrl: 'https://plus.google.com/114464678392593421684'
+forumUrl: 'http://groups.google.com/group/gitblit'
+mavenUrl: 'http://gitblit.github.io/gitblit-maven'
+
+# Licenses section included for POM generation
+licenses:
+- {
+    name: Apache ASL v2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  }
+
+# Developers section included for POM generation
+developers:
+- {
+  id: james
+  name: James Moger
+  url: 'https://plus.google.com/u/0/116428776452027956920'
+  organization: VAS
+  organizationUrl: 'http://www.vas.com'
+  roles: developer
+  }
+
+# SCM section included for POM generation
+scm: {
+  connection: 'scm:git:git://github.com/gitblit/gitblit.git'
+  developerConnection: 'scm:git:https://github.com/gitblit/gitblit.git'
+  url: 'https://github.com/gitblit/gitblit'
+  tag: HEAD
+  }
+
+# Mainclass is used for setting jar manifests and using the mx:run target
+mainclass: com.gitblit.GitBlitServer
+
+# Moxie supports multiple source directories and allows you to assign
+# a scope to each directory.
+sourceDirectories:
+- compile 'src/main/java'
+- test 'src/test/java'
+# Moxie supports one site-scoped directory for mx:doc
+- site 'src/site'
+
+resourceDirectories:
+- compile 'src/main/resources'
+- site 'src/site/resources'
+
+# compile for Java 6 class format
+tasks: {
+	'mx:javac' : {
+        source: 1.6
+        target: 1.6
+        compiler: javac1.6
+        encoding: UTF-8
+        # stop complaints about bootstrap classpath when compiling with Java 7
+        compilerArgs: '-Xlint:-options'
+    }
+}
+
+# Generate Eclipse project files.
+# Generate IntelliJ IDEA module files.
+# Generate a distribution Maven POM (not suitable for building with Maven).
+apply: eclipse, intellij, pom
+
+# Copy all retrieved dependencies to the "ext" directory.
+# Generated IDE settings (.classpath, etc) will use the artifacts
+# from this project-relative directory. This allows the IDE settings
+# to be version-controlled and shared.
+dependencyDirectory: ext
+
+# Register the Eclipse JGit Maven repositories
+registeredRepositories:
+- { id: jgit, url: 'http://download.eclipse.org/jgit/maven' }
+- { id: jgit-snapshots, url: 'https://repo.eclipse.org/content/groups/snapshots' }
+
+# Source all dependencies from the following repositories in the specified order
+repositories: central, jgit-snapshots, jgit
+
+# Convenience properties for dependencies
+properties: {
+  jetty.version  : 7.6.8.v20121106
+  wicket.version : 1.4.21
+  lucene.version : 3.6.1
+  jgit.version   : 3.0.0.201306101825-r
+  groovy.version : 1.8.8
+  bouncycastle.version : 1.47
+  selenium.version : 2.28.0
+  }
+
+# Dependencies
+#
+#   May be tagged with ":label" notation to group dependencies.
+#
+#   "@extension" fetches the artifact with the specified extension
+#   and ignores all transitive dependencies.
+#
+#   "!groupId" or "!groupId:artifactId" excludes all matching transitive
+#   dependencies in that dependency's dependency graph.
+#
+
+dependencies:
+# Standard dependencies
+- compile 'com.beust:jcommander:1.17' :fedclient :authority
+- compile 'log4j:log4j:1.2.17' :war :fedclient :authority
+- compile 'org.slf4j:slf4j-api:1.6.6' :war :fedclient :authority
+- compile 'org.slf4j:slf4j-log4j12:1.6.6' :war :fedclient :authority
+- compile 'javax.mail:mail:1.4.3' :war :fedclient :authority
+- compile 'javax.servlet:javax.servlet-api:3.0.1' :fedclient
+- compile 'org.eclipse.jetty.aggregate:jetty-webapp:${jetty.version}' @jar
+- compile 'org.eclipse.jetty:jetty-ajp:${jetty.version}' @jar
+- compile 'org.apache.wicket:wicket:${wicket.version}' :war !org.mockito
+- compile 'org.apache.wicket:wicket-auth-roles:${wicket.version}' :war !org.mockito
+- compile 'org.apache.wicket:wicket-extensions:${wicket.version}' :war !org.mockito
+- compile 'org.wicketstuff:googlecharts:${wicket.version}' :war
+- compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient
+- compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
+- compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
+- compile 'org.tautua.markdownpapers:markdownpapers-core:1.3.2' :war
+- compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager :authority
+- compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :fedclient :manager :authority
+- compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war :authority
+- compile 'org.bouncycastle:bcmail-jdk15on:${bouncycastle.version}' :war :authority
+- compile 'org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}' :war :authority
+- compile 'rome:rome:0.9' :war :manager :api
+- compile 'com.google.code.gson:gson:1.7.2' :war :fedclient :manager :api
+- compile 'org.codehaus.groovy:groovy-all:${groovy.version}' :war
+- compile 'com.unboundid:unboundid-ldapsdk:2.3.0' :war
+- compile 'org.apache.ivy:ivy:2.2.0' :war
+- compile 'com.toedter:jcalendar:1.3.2' :authority
+- compile 'org.apache.commons:commons-compress:1.4.1' :war
+- compile 'com.force.api:force-partner-api:24.0.0' :war
+- compile 'org.freemarker:freemarker:2.3.19' :war
+- compile 'com.github.dblock.waffle:waffle-jna:1.5' :war
+- compile 'org.kohsuke:libpam4j:1.7' :war
+- compile 'commons-codec:commons-codec:1.7' :war
+- test 'junit'
+# Dependencies for Selenium web page testing
+- test 'org.seleniumhq.selenium:selenium-java:${selenium.version}' @jar
+- test 'org.seleniumhq.selenium:selenium-support:${selenium.version}' @jar
+- test 'org.seleniumhq.selenium:selenium-firefox-driver:${selenium.version}'
+# Dependencies with the "build" scope are retrieved
+# and injected into the Ant runtime classpath
+- build 'jacoco'
