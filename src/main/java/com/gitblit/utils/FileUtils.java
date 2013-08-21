@@ -108,13 +108,22 @@ public class FileUtils {
 	 */
 	public static byte [] readContent(File file) {
 		byte [] buffer = new byte[(int) file.length()];
+		BufferedInputStream is = null;
 		try {
-			BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+			is = new BufferedInputStream(new FileInputStream(file));
 			is.read(buffer,  0,  buffer.length);
-			is.close();
 		} catch (Throwable t) {
 			System.err.println("Failed to read byte content of " + file.getAbsolutePath());
 			t.printStackTrace();
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException ioe) {
+					System.err.println("Failed to close file " + file.getAbsolutePath());
+					ioe.printStackTrace();
+				}
+			}
 		}
 		return buffer;
 	}
@@ -128,9 +137,9 @@ public class FileUtils {
 	 */
 	public static String readContent(File file, String lineEnding) {
 		StringBuilder sb = new StringBuilder();
+		InputStreamReader is = null;
 		try {
-			InputStreamReader is = new InputStreamReader(new FileInputStream(file),
-					Charset.forName("UTF-8"));
+			is = new InputStreamReader(new FileInputStream(file), Charset.forName("UTF-8"));
 			BufferedReader reader = new BufferedReader(is);
 			String line = null;
 			while ((line = reader.readLine()) != null) {
@@ -139,10 +148,18 @@ public class FileUtils {
 					sb.append(lineEnding);
 				}
 			}
-			reader.close();
 		} catch (Throwable t) {
 			System.err.println("Failed to read content of " + file.getAbsolutePath());
 			t.printStackTrace();
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException ioe) {
+					System.err.println("Failed to close file " + file.getAbsolutePath());
+					ioe.printStackTrace();
+				}
+			}
 		}
 		return sb.toString();
 	}
@@ -154,15 +171,24 @@ public class FileUtils {
 	 * @param content
 	 */
 	public static void writeContent(File file, String content) {
+		OutputStreamWriter os = null;
 		try {
-			OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file),
-					Charset.forName("UTF-8"));
+			os = new OutputStreamWriter(new FileOutputStream(file), Charset.forName("UTF-8"));
 			BufferedWriter writer = new BufferedWriter(os);
 			writer.append(content);
-			writer.close();
+			writer.flush();
 		} catch (Throwable t) {
 			System.err.println("Failed to write content of " + file.getAbsolutePath());
 			t.printStackTrace();
+		} finally {
+			if (os != null) {
+				try {
+					os.close();
+				} catch (IOException ioe) {
+					System.err.println("Failed to close file " + file.getAbsolutePath());
+					ioe.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -219,11 +245,11 @@ public class FileUtils {
 					}
 				} finally {
 					try {
-						bufin.close();
+						if (bufin != null) bufin.close();
 					} catch (Throwable t) {
 					}
 					try {
-						fos.close();
+						if (fos != null) fos.close();
 					} catch (Throwable t) {
 					}
 				}
