@@ -28,7 +28,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "Building ${project.version} RELEASE artifacts"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo ""
-ant clean buildAll
+ant clean buildAll buildMavenArtifacts
 
 # commit all generated artifacts and metadata
 echo ""
