@@ -3603,7 +3603,7 @@ public class GitBlit implements ServletContextListener {
 			Date cutoff = CommitCache.instance().getCutoffDate();
 			for (String repositoryName : getRepositoryList()) {
 				RepositoryModel model = getRepositoryModel(repositoryName);
-				if (model.hasCommits && model.lastChange.after(cutoff)) {
+				if (model != null && model.hasCommits && model.lastChange.after(cutoff)) {
 					repoCount++;
 					Repository repository = getRepository(repositoryName);
 					for (RefModel ref : JGitUtils.getLocalBranches(repository, true, -1)) {
