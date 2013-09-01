@@ -566,6 +566,8 @@ public class JGitUtils {
 		try {
 			if (tree == null) {
 				ObjectId object = getDefaultBranch(repository);
+				if (object == null)
+					return null;
 				RevCommit commit = rw.parseCommit(object);
 				tree = commit.getTree();
 			}
