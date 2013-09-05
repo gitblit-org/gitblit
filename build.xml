@@ -1003,6 +1003,8 @@
 					<include name="sendmail-html.groovy" />
 					<include name="jenkins.groovy" />
 					<include name="protect-refs.groovy" />
+					<include name="blockpush.groovy" />
+					<include name="localclone.groovy" />
 					<include name="fogbugz.groovy" />
 					<include name="thebuggenie.groovy" />
 				</fileset>
