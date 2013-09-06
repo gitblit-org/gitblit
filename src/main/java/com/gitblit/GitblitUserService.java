@@ -33,25 +33,25 @@ import com.gitblit.utils.StringUtils;
 /**
  * This class wraps the default user service and is recommended as the starting
  * point for custom user service implementations.
- * 
+ *
  * This does seem a little convoluted, but the idea is to allow IUserService to
  * evolve with new methods and implementations without breaking custom
  * authentication implementations.
- * 
+ *
  * The most common implementation of a custom IUserService is to only override
  * authentication and then delegate all other functionality to one of Gitblit's
  * user services. This class optimizes that use-case.
- * 
+ *
  * Extending GitblitUserService allows for authentication customization without
  * having to keep-up-with IUSerService API changes.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitUserService implements IUserService {
 
 	protected IUserService serviceImpl;
-	
+
 	private final Logger logger = LoggerFactory.getLogger(GitblitUserService.class);
 
 	public GitblitUserService() {
@@ -64,13 +64,9 @@ public class GitblitUserService implements IUserService {
 		logger.info("GUS delegating to " + serviceImpl.toString());
 	}
 
-	@SuppressWarnings("deprecation")
 	protected IUserService createUserService(File realmFile) {
 		IUserService service = null;
-		if (realmFile.getName().toLowerCase().endsWith(".properties")) {
-			// v0.5.0 - v0.7.0 properties-based realm file
-			service = new FileUserService(realmFile);
-		} else if (realmFile.getName().toLowerCase().endsWith(".conf")) {
+		if (realmFile.getName().toLowerCase().endsWith(".conf")) {
 			// v0.8.0+ config-based realm file
 			service = new ConfigUserService(realmFile);
 		}
@@ -91,25 +87,9 @@ public class GitblitUserService implements IUserService {
 			service.updateUserModel(admin);
 		}
 
-		if (service instanceof FileUserService) {
-			// automatically create a users.conf realm file from the original
-			// users.properties file
-			File usersConfig = new File(realmFile.getParentFile(), "users.conf");
-			if (!usersConfig.exists()) {
-				logger.info(MessageFormat.format("Automatically creating {0} based on {1}",
-						usersConfig.getAbsolutePath(), realmFile.getAbsolutePath()));
-				ConfigUserService configService = new ConfigUserService(usersConfig);
-				for (String username : service.getAllUsernames()) {
-					UserModel userModel = service.getUserModel(username);
-					configService.updateUserModel(userModel);
-				}
-			}
-			// issue suggestion about switching to users.conf
-			logger.warn("Please consider using \"users.conf\" instead of the deprecated \"users.properties\" file");
-		}
 		return service;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
@@ -158,7 +138,7 @@ public class GitblitUserService implements IUserService {
 		setAccountType(user);
 		return user;
 	}
-	
+
 	@Override
 	public void logout(UserModel user) {
 		serviceImpl.logout(user);
@@ -187,7 +167,7 @@ public class GitblitUserService implements IUserService {
 			if (!model.isLocalAccount() && !supportsTeamMembershipChanges()) {
 				//  teams are externally controlled - copy from original model
 				UserModel existingModel = getUserModel(username);
-				
+
 				model = DeepCopier.copy(model);
 				model.teams.clear();
 				model.teams.addAll(existingModel.teams);
@@ -200,7 +180,7 @@ public class GitblitUserService implements IUserService {
 			if (!model.isLocalAccount() && !supportsTeamMembershipChanges()) {
 				//  teams are externally controlled- copy from original model
 				UserModel existingModel = getUserModel(username);
-				
+
 				model = DeepCopier.copy(model);
 				model.teams.clear();
 				model.teams.addAll(existingModel.teams);
@@ -231,7 +211,7 @@ public class GitblitUserService implements IUserService {
     	for (UserModel user : users) {
     		setAccountType(user);
     	}
-		return users; 
+		return users;
 	}
 
 	@Override
@@ -275,7 +255,7 @@ public class GitblitUserService implements IUserService {
 		if (!supportsTeamMembershipChanges()) {
 			// teams are externally controlled - copy from original model
 			TeamModel existingModel = getTeamModel(teamname);
-			
+
 			model = DeepCopier.copy(model);
 			model.users.clear();
 			model.users.addAll(existingModel.users);
@@ -313,12 +293,12 @@ public class GitblitUserService implements IUserService {
 	public boolean deleteRepositoryRole(String role) {
 		return serviceImpl.deleteRepositoryRole(role);
 	}
-	
+
 	protected boolean isLocalAccount(String username) {
 		UserModel user = getUserModel(username);
 		return user != null && user.isLocalAccount();
 	}
-	
+
 	protected void setAccountType(UserModel user) {
 		if (user != null) {
 			if (!StringUtils.isEmpty(user.password)
@@ -330,7 +310,7 @@ public class GitblitUserService implements IUserService {
 			}
 		}
 	}
-	
+
 	protected AccountType getAccountType() {
 		return AccountType.LOCAL;
 	}

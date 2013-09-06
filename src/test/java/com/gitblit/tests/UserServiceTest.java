@@ -26,23 +26,12 @@ import org.junit.Test;
 
 import com.gitblit.ConfigUserService;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.FileUserService;
 import com.gitblit.IUserService;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
 public class UserServiceTest {
-
-	@Test
-	public void testFileUserService() throws IOException {
-		File file = new File("us-test.properties");
-		file.delete();
-		IUserService service = new FileUserService(file);
-		testUsers(service);
-		testTeams(service);
-		file.delete();
-	}
 
 	@Test
 	public void testConfigUserService() throws IOException {
@@ -62,13 +51,13 @@ public class UserServiceTest {
 		// add admin and admins team
 		TeamModel admins = new TeamModel("admins");
 		admins.mailingLists.add("admins@localhost.com");
-		
+
 		admin = new UserModel("admin");
 		admin.password = "password";
 		admin.canAdmin = true;
 		admin.excludeFromFederation = true;
 		admin.teams.add(admins);
-		
+
 		service.updateUserModel(admin);
 		admin = null;
 		admins = null;
@@ -125,7 +114,7 @@ public class UserServiceTest {
 		// confirm we have 1 team (admins)
 		assertEquals(1, service.getAllTeamNames().size());
 		assertEquals("admins", service.getAllTeamNames().get(0));
-		
+
 		RepositoryModel newrepo1 = new RepositoryModel("newrepo1", null, null, null);
 		newrepo1.accessRestriction = AccessRestrictionType.VIEW;
 		RepositoryModel NEWREPO1 = new RepositoryModel("NEWREPO1", null, null, null);
@@ -168,7 +157,7 @@ public class UserServiceTest {
 		newrepo2.accessRestriction = AccessRestrictionType.VIEW;
 		RepositoryModel NEWREPO2 = new RepositoryModel("NEWREPO2", null, null, null);
 		NEWREPO2.accessRestriction = AccessRestrictionType.VIEW;
-		
+
 		team.addRepositoryPermission(newrepo2.name);
 		team.name = "testteam2";
 		service.updateTeamModel("testteam", team);
@@ -233,11 +222,11 @@ public class UserServiceTest {
 		// delete both teams
 		service.deleteTeam("testteam");
 		service.deleteTeam("nextteam");
-		
+
 		// assert we still have the admins team
 		assertEquals(1, service.getAllTeamNames().size());
 		assertEquals("admins", service.getAllTeamNames().get(0));
-		
+
 		team = service.getTeamModel("admins");
 		assertEquals(1, team.mailingLists.size());
 		assertTrue(team.mailingLists.contains("admins@localhost.com"));
