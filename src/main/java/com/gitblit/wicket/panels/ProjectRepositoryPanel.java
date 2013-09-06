@@ -41,7 +41,6 @@ import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
-import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 
 public class ProjectRepositoryPanel extends BasePanel {
@@ -78,7 +77,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(new Label("originRepository").setVisible(false));
 		} else {
 			Fragment forkFrag = new Fragment("originRepository", "originFragment", this);
-			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(entry.originRepository), 
+			forkFrag.add(new LinkPanel("originRepository", null, StringUtils.stripDotGit(entry.originRepository),
 					SummaryPage.class, WicketUtils.newRepositoryParameter(entry.originRepository)));
 			add(forkFrag);
 		}
@@ -89,7 +88,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 		}
 
-		add(new BookmarkablePageLink<Void>("tickets", TicketsPage.class, pp).setVisible(entry.useTickets));
 		add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
 
 		if (entry.isFrozen) {
@@ -110,10 +108,10 @@ public class ProjectRepositoryPanel extends BasePanel {
 			String owner = "";
 			for (String username : entry.owners) {
 				UserModel ownerModel = GitBlit.self().getUserModel(username);
-			
+
 				if (ownerModel != null) {
 					owner = ownerModel.getDisplayName();
-				}				
+				}
 			}
 			if (entry.owners.size() > 1) {
 				owner += ", ...";

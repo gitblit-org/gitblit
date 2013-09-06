@@ -43,21 +43,21 @@ import com.gitblit.utils.JGitUtils;
  * The GitBlitSuite uses test-gitblit.properties and test-users.conf. The suite
  * is fairly comprehensive for all lower-level functionality. Wicket pages are
  * currently not unit-tested.
- * 
+ *
  * This suite starts a Gitblit server instance within the same JVM instance as
  * the unit tests. This allows the unit tests to access the GitBlit static
  * singleton while also being able to communicate with the instance via tcp/ip
  * for testing rpc requests, federation requests, and git servlet operations.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 @RunWith(Suite.class)
 @SuiteClasses({ ArrayUtilsTest.class, FileUtilsTest.class, TimeUtilsTest.class,
 		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
 		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapUserServiceTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
-		DiffUtilsTest.class, MetricUtilsTest.class, TicgitUtilsTest.class, X509UtilsTest.class,
+		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
 		GroovyScriptTest.class, LuceneExecutorTest.class, IssuesTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdUserServiceTest.class,
@@ -65,9 +65,9 @@ import com.gitblit.utils.JGitUtils;
 public class GitBlitSuite {
 
 	public static final File REPOSITORIES = new File("data/git");
-	
+
 	public static final File SETTINGS = new File("src/test/config/test-gitblit.properties");
-	
+
 	public static final File USERSCONF = new File("src/test/config/test-users.conf");
 
 	static int port = 8280;
@@ -102,11 +102,11 @@ public class GitBlitSuite {
 		JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
 		return getRepository("gb-issues.git");
 	}
-	
+
 	public static Repository getGitectiveRepository() throws Exception {
 		return getRepository("test/gitective.git");
 	}
-	
+
 	private static Repository getRepository(String name) throws Exception {
 		File gitDir = FileKey.resolve(new File(REPOSITORIES, name), FS.DETECTED);
 		Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
@@ -118,11 +118,12 @@ public class GitBlitSuite {
 			// already started
 			return false;
 		}
-		
+
 		GitServletTest.deleteWorkingFolders();
-		
+
 		// Start a Gitblit instance
 		Executors.newSingleThreadExecutor().execute(new Runnable() {
+			@Override
 			public void run() {
 				GitBlitServer.main("--httpPort", "" + port, "--httpsPort", "0", "--shutdownPort",
 						"" + shutdownPort, "--gitPort", "" + gitPort, "--repositoriesFolder",
@@ -158,13 +159,13 @@ public class GitBlitSuite {
 			cloneOrFetch("test/helloworld.git", "https://github.com/git/hello-world.git");
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
-			
+
 			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
 			automaticallyTagBranchTips("ticgit.git");
 			showRemoteBranches("test/jgit.git");
-			automaticallyTagBranchTips("test/jgit.git");	
+			automaticallyTagBranchTips("test/jgit.git");
 		}
 	}
 
@@ -212,7 +213,7 @@ public class GitBlitSuite {
 			g.printStackTrace();
 		}
 	}
-	
+
 	private static void automaticallyTagBranchTips(String repositoryName) {
 		try {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
@@ -222,7 +223,7 @@ public class GitBlitSuite {
 			g.printStackTrace();
 		}
 	}
-	
+
 	public static void close(File repository) {
 		try {
 			File gitDir = FileKey.resolve(repository, FS.detect());
@@ -233,11 +234,11 @@ public class GitBlitSuite {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void close(Git git) {
 		close(git.getRepository());
 	}
-	
+
 	public static void close(Repository r) {
 		RepositoryCache.close(r);
 

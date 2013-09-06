@@ -63,8 +63,6 @@ import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
-import com.gitblit.wicket.pages.TicketPage;
-import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
@@ -72,9 +70,9 @@ import com.gitblit.wicket.pages.UsersPage;
 public class GitBlitWebApp extends WebApplication {
 
 	public final static Class<? extends BasePage> HOME_PAGE_CLASS = MyDashboardPage.class;
-	
+
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
-	
+
 	@Override
 	public void init() {
 		super.init();
@@ -123,10 +121,6 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/users", UsersPage.class);
 		mount("/logout", LogoutPage.class);
 
-		// setup ticket urls
-		mount("/tickets", TicketsPage.class, "r");
-		mount("/ticket", TicketPage.class, "r", "f");
-
 		// setup the markdown urls
 		mount("/docs", DocsPage.class, "r");
 		mount("/markdown", MarkdownPage.class, "r", "h", "f");
@@ -153,8 +147,8 @@ public class GitBlitWebApp extends WebApplication {
 			parameters = new String[] {};
 		}
 		mount(new GitblitParamUrlCodingStrategy(location, clazz, parameters));
-		
-		// map the mount point to the cache control definition 
+
+		// map the mount point to the cache control definition
 		if (clazz.isAnnotationPresent(CacheControl.class)) {
 			CacheControl cacheControl = clazz.getAnnotation(CacheControl.class);
 			cacheablePages.put(location.substring(1), cacheControl);
@@ -165,7 +159,7 @@ public class GitBlitWebApp extends WebApplication {
 	public Class<? extends Page> getHomePage() {
 		return HOME_PAGE_CLASS;
 	}
-	
+
 	public boolean isCacheablePage(String mountPoint) {
 		return cacheablePages.containsKey(mountPoint);
 	}

@@ -55,9 +55,8 @@
 - Syntax highlighting for popular source code types
 - Customizable regular expression substitution for commit messages (i.e. bug or code review link integration)
 - Single text file for users configuration
-- Optional utility pages
-    - ![docs](book_16x16.png) Docs page which enumerates all Markdown files within a repository
-    - ![tickets](bug_16x16.png) **readonly and deprecated** Ticgit ticket pages *(based on last MIT release bf57b032 2009-01-27)*
+- Optional Docs page which enumerates all Markdown files within a repository
+2009-01-27)*
 - Translations
     - English
     - Japanese
