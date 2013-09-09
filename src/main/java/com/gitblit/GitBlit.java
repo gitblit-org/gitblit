@@ -2426,7 +2426,8 @@ public class GitBlit implements ServletContextListener {
 			}
 			// create repository
 			logger.info("create repository " + repository.name);
-			r = JGitUtils.createRepository(repositoriesFolder, repository.name);
+			String shared = getString(Keys.git.createRepositoriesShared, "FALSE");
+			r = JGitUtils.createRepository(repositoriesFolder, repository.name, shared);
 		} else {
 			// rename repository
 			if (!repositoryName.equalsIgnoreCase(repository.name)) {
@@ -2528,7 +2529,13 @@ public class GitBlit implements ServletContextListener {
 			// close the repository object
 			r.close();
 		}
-		
+
+		// Adjust permissions in case we updated the config files
+		JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "config"),
+				getString(Keys.git.createRepositoriesShared, "FALSE"));
+		JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "HEAD"),
+				getString(Keys.git.createRepositoriesShared, "FALSE"));
+
 		// update repository cache
 		removeFromCachedRepositoryList(repositoryName);
 		// model will actually be replaced on next load because config is stale

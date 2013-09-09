@@ -381,6 +381,17 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="commons-io-2.2.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/commons-io-2.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/commons-io-2.2.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="force-partner-api-24.0.0.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/force-partner-api-24.0.0.jar!/" />
@@ -630,17 +641,6 @@
         <JAVADOC />
         <SOURCES>
           <root url="jar://$MODULE_DIR$/ext/src/commons-exec-1.1.jar!/" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
-      <library name="commons-io-2.2.jar">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/commons-io-2.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/commons-io-2.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

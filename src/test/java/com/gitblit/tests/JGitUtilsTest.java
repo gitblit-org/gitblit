@@ -52,6 +52,7 @@ import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
 
 public class JGitUtilsTest {
@@ -145,6 +146,139 @@ public class JGitUtilsTest {
 			repository.close();
 			RepositoryCache.close(repository);
 			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
+	public void testCreateRepositoryShared() throws Exception {
+		String[] repositories = { "NewSharedTestRepository.git" };
+		for (String repositoryName : repositories) {
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, "group");
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
+			assertNotNull(repository);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+
+			assertEquals("1", repository.getConfig().getString("core", null, "sharedRepository"));
+
+			assertTrue(folder.exists());
+			if (! JnaUtils.isWindows()) {
+				int mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+				assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+			}
+
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
+	public void testCreateRepositorySharedCustom() throws Exception {
+		String[] repositories = { "NewSharedTestRepository.git" };
+		for (String repositoryName : repositories) {
+			Repository repository = JGitUtils.createRepository(GitBlitSuite.REPOSITORIES,
+					repositoryName, "660");
+			File folder = FileKey.resolve(new File(GitBlitSuite.REPOSITORIES, repositoryName),
+					FS.DETECTED);
+			assertNotNull(repository);
+			assertFalse(JGitUtils.hasCommits(repository));
+			assertNull(JGitUtils.getFirstCommit(repository, null));
+
+			assertEquals("0660", repository.getConfig().getString("core", null, "sharedRepository"));
+
+			assertTrue(folder.exists());
+			if (! JnaUtils.isWindows()) {
+				int mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+				assertEquals(JnaUtils.S_IRWXG, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(0, mode & JnaUtils.S_IRWXO);
+			}
+
+			repository.close();
+			RepositoryCache.close(repository);
+			FileUtils.delete(repository.getDirectory(), FileUtils.RECURSIVE);
+		}
+	}
+
+	@Test
+	public void testCreateRepositorySharedSgidParent() throws Exception {
+		if (! JnaUtils.isWindows()) {
+			String repositoryAll = "NewTestRepositoryAll.git";
+			String repositoryUmask = "NewTestRepositoryUmask.git";
+			String sgidParent = "sgid";
+			
+			File parent = new File(GitBlitSuite.REPOSITORIES, sgidParent);
+			File folder = null;
+			boolean parentExisted = parent.exists();
+			try {
+				if (!parentExisted) {
+					assertTrue("Could not create SGID parent folder.", parent.mkdir());
+				}
+				int mode = JnaUtils.getFilemode(parent);
+				assertTrue(mode > 0);
+				assertEquals(0, JnaUtils.setFilemode(parent, mode | JnaUtils.S_ISGID | JnaUtils.S_IWGRP));
+
+				Repository repository = JGitUtils.createRepository(parent, repositoryAll, "all");
+				folder = FileKey.resolve(new File(parent, repositoryAll), FS.DETECTED);
+				assertNotNull(repository);
+		
+				assertEquals("2", repository.getConfig().getString("core", null, "sharedRepository"));
+		
+				assertTrue(folder.exists());
+				mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+	
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
+	
+				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
+				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
+				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
+	
+				repository.close();
+				RepositoryCache.close(repository);
+
+
+
+				repository = JGitUtils.createRepository(parent, repositoryUmask, "umask");
+				folder = FileKey.resolve(new File(parent, repositoryUmask), FS.DETECTED);
+				assertNotNull(repository);
+		
+				assertEquals(null, repository.getConfig().getString("core", null, "sharedRepository"));
+		
+				assertTrue(folder.exists());
+				mode = JnaUtils.getFilemode(folder);
+				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
+	
+				repository.close();
+				RepositoryCache.close(repository);
+			}
+			finally {
+				FileUtils.delete(new File(parent, repositoryAll), FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				FileUtils.delete(new File(parent, repositoryUmask), FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				if (!parentExisted) {
+					FileUtils.delete(parent, FileUtils.RECURSIVE | FileUtils.IGNORE_ERRORS);
+				}
+			}
 		}
 	}
 
