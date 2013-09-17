@@ -1990,8 +1990,10 @@ public class GitBlit implements ServletContextListener {
 			if (getConfig(config,"description", null) == null) {
 				File descFile = new File(r.getDirectory(), "description");
 				if (descFile.exists()) {
-					config.setString(Constants.CONFIG_GITBLIT, null, "description",
-							com.gitblit.utils.FileUtils.readContent(descFile, System.getProperty("line.separator")));
+					String desc = com.gitblit.utils.FileUtils.readContent(descFile, System.getProperty("line.separator"));
+					if (!desc.toLowerCase().startsWith("unnamed repository")) {
+						config.setString(Constants.CONFIG_GITBLIT, null, "description", desc);
+					}
 				}
 			}
 			model.description = getConfig(config, "description", "");

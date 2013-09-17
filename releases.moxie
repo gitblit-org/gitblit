@@ -11,6 +11,7 @@ r20: {
     security: ~
     fixes:
 	- Fix potential NPE on removing uncached repository from cache
+	- Ignore the default contents of .git/description file
     changes:
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Updated default binary and Lucene ignore extensions
