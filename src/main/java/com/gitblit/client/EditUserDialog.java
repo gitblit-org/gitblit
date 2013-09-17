@@ -47,6 +47,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
@@ -57,7 +58,6 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 public class EditUserDialog extends JDialog {
@@ -403,8 +403,22 @@ public class EditUserDialog extends JDialog {
 		List<String> list = new ArrayList<String>();
 		// repositories
 		list.add(".*");
-		// all repositories excluding personal repositories
-		if (ModelUtils.getUserRepoPrefix().length() == 1) list.add("[^" + ModelUtils.getUserRepoPrefix() +"].*");
+		
+		String prefix;
+		if (settings.hasKey(Keys.git.userRepositoryPrefix)) {
+			prefix = settings.get(Keys.git.userRepositoryPrefix).currentValue;
+			if (StringUtils.isEmpty(prefix)) {
+				prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+			}
+		} else {
+			prefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+		}
+
+		if (prefix.length() == 1) {
+			// all repositories excluding personal repositories
+			list.add("[^" + prefix + "].*");
+		}
+		
 		String lastProject = null;
 		for (String repo : restricted) {
 			String projectPath = StringUtils.getFirstPathElement(repo).toLowerCase();

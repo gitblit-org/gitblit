@@ -1,7 +1,23 @@
+/*
+ * Copyright 2013 gitblit.com
+ * Copyright 2013 Florian Zschocke
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.gitblit.utils;
 
-import com.gitblit.IStoredSettings;
-import com.gitblit.Keys;
+import com.gitblit.Constants;
+
 
 /**
  * Utility functions for model classes that do not fit in any other category.
@@ -10,28 +26,22 @@ import com.gitblit.Keys;
  */
 public class ModelUtils
 {
-	/**
-	 * Default value for the prefix for user repository directories.
-	 */
-	private static final String DEFAULT_USER_REPO_PREFIX = "~";
-
-	private static String userRepoPrefix = DEFAULT_USER_REPO_PREFIX;
-
-
+	private static String userRepoPrefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
 
 	/**
-	 * Set the user repository prefix from configuration settings.
-	 * @param settings
+	 * Set the user repository prefix.
+	 * @param prefix
 	 */
-	public static void setUserRepoPrefix(IStoredSettings settings)
+	public static void setUserRepoPrefix(String prefix)
 	{
-		String newPrefix = DEFAULT_USER_REPO_PREFIX;
-		if (settings != null) {
-			String prefix = settings.getString(Keys.git.userRepositoryPrefix, DEFAULT_USER_REPO_PREFIX);
-			if (prefix != null && !prefix.trim().isEmpty()) {
-				if (prefix.charAt(0) == '/') prefix = prefix.substring(1);
-				newPrefix = prefix;
-			}
+		if (StringUtils.isEmpty(prefix)) {
+			userRepoPrefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
+			return;
+		}
+		
+		String newPrefix = prefix.replace('\\', '/');
+		if (prefix.charAt(0) == '/') {
+			newPrefix = prefix.substring(1);
 		}
 
 		userRepoPrefix = newPrefix;
@@ -68,7 +78,7 @@ public class ModelUtils
 	 */
 	public static boolean isPersonalRepository(String name)
 	{
-		if ( name.startsWith(getUserRepoPrefix()) ) return true;
+		if ( name.startsWith(userRepoPrefix) ) return true;
 		return false;
 	}
 
@@ -101,7 +111,7 @@ public class ModelUtils
 	{
 		if ( !isPersonalRepository(path) ) return "";
 
-		return path.substring(getUserRepoPrefix().length());
+		return path.substring(userRepoPrefix.length());
 	}
 
 }

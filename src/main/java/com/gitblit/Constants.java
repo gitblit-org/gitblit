@@ -47,6 +47,8 @@ public class Constants {
 	public static final String EXTERNAL_ACCOUNT = "#externalAccount";
 
 	public static final String PROPERTIES_FILE = "gitblit.properties";
+	
+	public static final String DEFAULT_USER_REPOSITORY_PREFIX = "~";
 
 	public static final String GIT_PATH = "/git/";
 

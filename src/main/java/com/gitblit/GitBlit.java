@@ -3441,7 +3441,8 @@ public class GitBlit implements ServletContextListener {
 		gcExecutor = new GCExecutor(settings);
 		
 		// initialize utilities
-		ModelUtils.setUserRepoPrefix(settings);
+		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
+		ModelUtils.setUserRepoPrefix(prefix);
 
 		// calculate repository list settings checksum for future config changes
 		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());

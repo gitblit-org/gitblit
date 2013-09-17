@@ -9,11 +9,18 @@ r20: {
     html: ~
     text: ~
     security: ~
-    fixes: ~
-    changes: ~
+    fixes:
+	- Fix potential NPE on removing uncached repository from cache
+    changes:
+	- Personal repository prefix (~) is now configurable (issue-265)
+	- Updated default binary and Lucene ignore extensions
     additions: ~
     dependencyChanges: ~
-    contributors: ~
+    contributors:
+	- James Moger
+	- Robin Rosenberg
+	- Klaus Nuber
+	- Florian Zschocke
 }
 
 #
