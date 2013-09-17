@@ -14,8 +14,11 @@ r20: {
     changes:
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Updated default binary and Lucene ignore extensions
-    additions: ~
+    additions:
+	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
     dependencyChanges: ~
+    settings:
+    - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     contributors:
 	- James Moger
 	- Robin Rosenberg
