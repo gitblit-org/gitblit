@@ -56,7 +56,6 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.highlight.Fragmenter;
 import org.apache.lucene.search.highlight.Highlighter;
@@ -86,14 +85,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.SearchObjectType;
-import com.gitblit.models.IssueModel;
-import com.gitblit.models.IssueModel.Attachment;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.IssueUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -109,7 +105,6 @@ public class LuceneExecutor implements Runnable {
 	private static final int INDEX_VERSION = 5;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
-	private static final String FIELD_ISSUE = "issue";
 	private static final String FIELD_PATH = "path";
 	private static final String FIELD_COMMIT = "commit";
 	private static final String FIELD_BRANCH = "branch";
@@ -120,7 +115,6 @@ public class LuceneExecutor implements Runnable {
 	private static final String FIELD_DATE = "date";
 	private static final String FIELD_TAG = "tag";
 	private static final String FIELD_LABEL = "label";
-	private static final String FIELD_ATTACHMENT = "attachment";
 
 	private static final String CONF_FILE = "lucene.conf";
 	private static final String LUCENE_DIR = "lucene";
@@ -475,9 +469,8 @@ public class LuceneExecutor implements Runnable {
 						&& branch.equals(defaultBranch)) {
 					// indexing "default" branch
 					indexBranch = true;
-				} else if (IssueUtils.GB_ISSUES.equals(branch)) {
-					// skip the GB_ISSUES branch because it is indexed later
-					// note: this is different than updateIndex
+				} else if (branch.getName().startsWith(com.gitblit.Constants.R_GITBLIT)) {
+					// skip Gitblit internal branches
 					indexBranch = false;
 				} else {
 					// normal explicit branch check
@@ -617,19 +610,6 @@ public class LuceneExecutor implements Runnable {
 			// finished
 			reader.release();
 			
-			// this repository has a gb-issues branch, index all issues
-			if (IssueUtils.getIssuesBranch(repository) != null) {
-				List<IssueModel> issues = IssueUtils.getIssues(repository, null);
-				if (issues.size() > 0) {
-					result.branchCount += 1;
-				}
-				for (IssueModel issue : issues) {
-					result.issueCount++;
-					Document doc = createDocument(issue);
-					writer.addDocument(doc);
-				}
-			}
-
 			// commit all changes and reset the searcher
 			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
@@ -722,55 +702,6 @@ public class LuceneExecutor implements Runnable {
 		return result;
 	}
 
-	/**
-	 * Incrementally update the index with the specified issue for the
-	 * repository.
-	 * 
-	 * @param repositoryName
-	 * @param issue
-	 * @return true, if successful
-	 */
-	public boolean index(String repositoryName, IssueModel issue) {
-		try {
-			// delete the old issue from the index, if exists
-			deleteIssue(repositoryName, issue.id);
-			Document doc = createDocument(issue);
-			return index(repositoryName, doc);
-		} catch (Exception e) {
-			logger.error(MessageFormat.format("Error while indexing issue {0} in {1}", issue.id, repositoryName), e);
-		}
-		return false;
-	}
-	
-	/**
-	 * Delete an issue from the repository index.
-	 * 
-	 * @param repositoryName
-	 * @param issueId
-	 * @throws Exception
-	 * @return true, if deleted, false if no record was deleted
-	 */
-	private boolean deleteIssue(String repositoryName, String issueId) throws Exception {
-		BooleanQuery query = new BooleanQuery();
-		Term objectTerm = new Term(FIELD_OBJECT_TYPE, SearchObjectType.issue.name());
-		query.add(new TermQuery(objectTerm), Occur.MUST);
-		Term issueidTerm = new Term(FIELD_ISSUE, issueId);
-		query.add(new TermQuery(issueidTerm), Occur.MUST);
-		
-		IndexWriter writer = getIndexWriter(repositoryName);
-		int numDocsBefore = writer.numDocs();
-		writer.deleteDocuments(query);
-		writer.commit();
-		int numDocsAfter = writer.numDocs();
-		if (numDocsBefore == numDocsAfter) {
-			logger.debug(MessageFormat.format("no records found to delete {0}", query.toString()));
-			return false;
-		} else {
-			logger.debug(MessageFormat.format("deleted {0} records with {1}", numDocsBefore - numDocsAfter, query.toString()));
-			return true;
-		}
-	}
-	
 	/**
 	 * Delete a blob from the specified branch of the repository index.
 	 * 
@@ -870,10 +801,9 @@ public class LuceneExecutor implements Runnable {
 						&& branch.equals(defaultBranch)) {
 					// indexing "default" branch
 					indexBranch = true;
-				} else if (IssueUtils.GB_ISSUES.equals(branch)) {
-					// update issues modified on the GB_ISSUES branch
-					// note: this is different than reindex
-					indexBranch = true;
+				} else if (branch.getName().startsWith(com.gitblit.Constants.R_GITBLIT)) {
+					// ignore internal Gitblit branches
+					indexBranch = false;
 				} else {
 					// normal explicit branch check
 					indexBranch = model.indexedBranches.contains(branch.getName());
@@ -904,35 +834,11 @@ public class LuceneExecutor implements Runnable {
 					result.branchCount += 1;
 				}
 				
-				// track the issue ids that we have already indexed
-				Set<String> indexedIssues = new TreeSet<String>();
-				
 				// reverse the list of commits so we start with the first commit				
 				Collections.reverse(revs);
 				for (RevCommit commit : revs) {					
-					if (IssueUtils.GB_ISSUES.equals(branch)) {
-						// only index an issue once during updateIndex
-						String issueId = commit.getShortMessage().substring(2).trim();
-						if (indexedIssues.contains(issueId)) {
-							continue;
-						}
-						indexedIssues.add(issueId);
-						
-						IssueModel issue = IssueUtils.getIssue(repository, issueId);
-						if (issue == null) {
-							// issue was deleted, remove from index
-							if (!deleteIssue(model.name, issueId)) {
-								logger.error(MessageFormat.format("Failed to delete issue {0} from Lucene index!", issueId));
-							}
-						} else {
-							// issue was updated
-							index(model.name, issue);
-							result.issueCount++;
-						}
-					} else {
-						// index a commit
-						result.add(index(model.name, repository, branchName, commit));
-					}
+					// index a commit
+					result.add(index(model.name, repository, branchName, commit));
 				}
 
 				// update the config
@@ -958,34 +864,6 @@ public class LuceneExecutor implements Runnable {
 		return result;
 	}
 	
-	/**
-	 * Creates a Lucene document from an issue.
-	 * 
-	 * @param issue
-	 * @return a Lucene document
-	 */
-	private Document createDocument(IssueModel issue) {
-		Document doc = new Document();
-		doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.issue.name(), Store.YES,
-				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(FIELD_ISSUE, issue.id, Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_BRANCH, IssueUtils.GB_ISSUES, Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_DATE, DateTools.dateToString(issue.created, Resolution.MINUTE),
-				Store.YES, Field.Index.NO));
-		doc.add(new Field(FIELD_AUTHOR, issue.reporter, Store.YES, Index.ANALYZED));
-		List<String> attachments = new ArrayList<String>();
-		for (Attachment attachment : issue.getAttachments()) {
-			attachments.add(attachment.name.toLowerCase());
-		}
-		doc.add(new Field(FIELD_ATTACHMENT, StringUtils.flattenStrings(attachments), Store.YES,
-				Index.ANALYZED));
-		doc.add(new Field(FIELD_SUMMARY, issue.summary, Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_CONTENT, issue.toString(), Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_LABEL, StringUtils.flattenStrings(issue.getLabels()), Store.YES,
-				Index.ANALYZED));
-		return doc;
-	}
-
 	/**
 	 * Creates a Lucene document for a commit
 	 * 
@@ -1042,7 +920,6 @@ public class LuceneExecutor implements Runnable {
 		result.type = SearchObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
 		result.branch = doc.get(FIELD_BRANCH);
 		result.commitId = doc.get(FIELD_COMMIT);
-		result.issueId = doc.get(FIELD_ISSUE);
 		result.path = doc.get(FIELD_PATH);
 		if (doc.get(FIELD_TAG) != null) {
 			result.tags = StringUtils.getStringsFromValue(doc.get(FIELD_TAG));
