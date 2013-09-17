@@ -51,6 +51,7 @@ import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
@@ -393,7 +394,7 @@ public abstract class RootPage extends BasePage {
 		String userName = WicketUtils.getUsername(params);
 		if (StringUtils.isEmpty(projectName)) {
 			if (!StringUtils.isEmpty(userName)) {
-				projectName = "~" + userName;
+				projectName = ModelUtils.getPersonalPath(userName);
 			}
 		}
 		String repositoryName = WicketUtils.getRepositoryName(params);

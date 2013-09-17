@@ -35,6 +35,7 @@ import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -567,7 +568,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		if (canCreate) {
 			String projectPath = StringUtils.getFirstPathElement(repository);
-			if (!StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username)) {
+			if (!StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath())) {
 				// personal repository
 				return true;
 			}
@@ -609,7 +610,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 	
 	public String getPersonalPath() {
-		return "~" + username;
+		return ModelUtils.getPersonalPath(username);
 	}
 	
 	public UserPreferences getPreferences() {
@@ -675,6 +676,6 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	
 	public boolean isMyPersonalRepository(String repository) {
 		String projectPath = StringUtils.getFirstPathElement(repository);
-		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase("~" + username);
+		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath());
 	}
 }
