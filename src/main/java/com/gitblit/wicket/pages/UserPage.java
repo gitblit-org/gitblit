@@ -84,7 +84,7 @@ public class UserPage extends RootPage {
 			user = new UserModel(userName);
 		}
 		
-		String projectName = "~" + userName;
+		String projectName = user.getPersonalPath();
 		
 		ProjectModel project = GitBlit.self().getProjectModel(projectName);
 		if (project == null) {

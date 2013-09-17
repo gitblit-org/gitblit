@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -57,7 +58,7 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 	}
 	
 	public boolean isUserProject() {
-		return name.charAt(0) == '~';
+		return ModelUtils.isPersonalRepository(name);
 	}
 
 	public boolean hasRepository(String name) {

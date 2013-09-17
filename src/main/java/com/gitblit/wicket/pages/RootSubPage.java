@@ -27,6 +27,7 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -80,7 +81,7 @@ public abstract class RootSubPage extends RootPage {
 			// all repositories
 			repos.add(".*");
 			// all repositories excluding personal repositories
-			repos.add("[^~].*");
+			if (ModelUtils.getUserRepoPrefix().length() == 1) repos.add("[^" + ModelUtils.getUserRepoPrefix() +"].*");
 		}
 		
 		for (String repo : GitBlit.self().getRepositoryList()) {
