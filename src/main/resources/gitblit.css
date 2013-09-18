@@ -1131,7 +1131,7 @@ table.pretty td.icon {
 }
 
 table.pretty td.icon img {
-	vertical-align: top;
+	vertical-align: middle;
 }
 
 table.pretty td {
@@ -1159,7 +1159,7 @@ table.pretty tr.commit {
 	height: 24px;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 979px) {
   td.ellipsize {
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -1167,7 +1167,7 @@ table.pretty tr.commit {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 979px) {
   td.ellipsize {
     text-overflow: inherit;
     overflow: visible;
@@ -1324,6 +1324,7 @@ tr.dark:hover a {
 
 td.author {
 	font-style: italic !important;
+	white-space: nowrap;
 }
 
 td.date {
