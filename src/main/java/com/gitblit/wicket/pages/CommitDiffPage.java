@@ -16,6 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -29,8 +30,10 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.GitNote;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
@@ -40,7 +43,9 @@ import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
+import com.gitblit.wicket.panels.RefsPanel;
 
 @CacheControl(LastModified.BOOT)
 public class CommitDiffPage extends RepositoryPage {
@@ -77,6 +82,26 @@ public class CommitDiffPage extends RepositoryPage {
 
 		addFullText("fullMessage", commit.getFullMessage());
 
+		// git notes
+		List<GitNote> notes = JGitUtils.getNotesOnCommit(r, commit);
+		ListDataProvider<GitNote> notesDp = new ListDataProvider<GitNote>(notes);
+		DataView<GitNote> notesView = new DataView<GitNote>("notes", notesDp) {
+			private static final long serialVersionUID = 1L;
+
+			public void populateItem(final Item<GitNote> item) {
+				GitNote entry = item.getModelObject();
+				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
+				item.add(createPersonPanel("authorName", entry.notesRef.getAuthorIdent(),
+						Constants.SearchType.AUTHOR));
+				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
+				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
+						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
+				item.add(new Label("noteContent", GitBlit.self().processPlainCommitMessage(repositoryName,
+						entry.content)).setEscapeModelStrings(false));
+			}
+		};
+		add(notesView.setVisible(notes.size() > 0));
+		
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
 

@@ -18,6 +18,22 @@
 	<!-- full message -->
 	<div wicket:id="fullMessage">[commit message]</div>
 
+	<!--  git notes -->
+	<table class="gitnotes">
+		<tr wicket:id="notes">
+			<td class="info">
+				<table>
+					<tr><td><span wicket:id="refName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorName"></span></td></tr>
+					<tr><td><span class="sha1" wicket:id="authorDate"></span></td></tr>
+				</table>
+				<!--  Note Author Gravatar -->
+				<span style="vertical-align: top;" wicket:id="noteAuthorAvatar" />				
+			</td>
+			<td class="message"><span class="sha1" wicket:id="noteContent"></span></td>
+		</tr>
+	</table>
+	
 	<!-- commit legend -->
 	<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
 	
@@ -38,6 +54,14 @@
 	
 	<!--  diff content -->
 	<pre style="padding-top:10px;" wicket:id="diffText">[diff text]</pre>
+
+	<wicket:fragment wicket:id="fullPersonIdent">
+		<span wicket:id="personName"></span><span wicket:id="personAddress"></span>
+	</wicket:fragment>
+	
+	<wicket:fragment wicket:id="partialPersonIdent">
+		<span wicket:id="personName"></span>
+	</wicket:fragment>
 	
 </wicket:extend>
 </body>
