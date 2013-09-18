@@ -32,6 +32,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -153,11 +155,31 @@ public class BranchGraphServlet extends HttpServlet {
 
 			// determine the appropriate width for the image
 			int numLanes = 0;
-			int numCommits = Math.min(requestedCommits, commitList.size());			
-			for (int i = 0; i < numCommits; i++) {
+			int numCommits = Math.min(requestedCommits, commitList.size());
+			Set<String> parents = new TreeSet<String>();
+			for (int i = 0; i < commitList.size(); i++) {
 				PlotCommit<Lane> commit = commitList.get(i);
-				int pos = commit.getLane().getPosition();
-				numLanes = Math.max(numLanes, pos + 1);
+				boolean checkLane = false;
+				
+				if (i < numCommits) {
+					// commit in visible list
+					checkLane = true;
+					
+					// remember parents
+					for (RevCommit p : commit.getParents()) {
+						parents.add(p.getName());
+					}
+				} else if (parents.contains(commit.getName())) {
+					// commit outside visible list, but it is a parent of a
+					// commit in the visible list so we need to know it's lane
+					// assignment
+					checkLane = true;
+				}
+				
+				if (checkLane) {
+					int pos = commit.getLane().getPosition();
+					numLanes = Math.max(numLanes, pos + 1);
+				}
 			}
 
 			int graphWidth = numLanes * LANE_WIDTH + RIGHT_PAD;
@@ -170,7 +192,7 @@ public class BranchGraphServlet extends HttpServlet {
 				g = image.createGraphics();
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				LanesRenderer renderer = new LanesRenderer();
-				for (int i = 0; i < numCommits; i++) {
+				for (int i = 0; i < commitList.size(); i++) {
 					PlotCommit<Lane> commit = commitList.get(i);
 					Graphics row = g.create(0, i*rowHeight, graphWidth, rowHeight);
 					try {
