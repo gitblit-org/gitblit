@@ -34,8 +34,7 @@ public class DiffUtilsTest {
 	@Test
 	public void testDiffOutputTypes() throws Exception {
 		assertEquals(DiffOutputType.PLAIN, DiffOutputType.forName("plain"));
-		assertEquals(DiffOutputType.GITWEB, DiffOutputType.forName("gitweb"));
-		assertEquals(DiffOutputType.GITBLIT, DiffOutputType.forName("gitblit"));
+		assertEquals(DiffOutputType.HTML, DiffOutputType.forName("html"));
 		assertEquals(null, DiffOutputType.forName(null));
 	}
 

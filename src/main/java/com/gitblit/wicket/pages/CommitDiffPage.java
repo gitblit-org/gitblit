@@ -30,7 +30,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.DiffUtils;
@@ -51,12 +50,9 @@ public class CommitDiffPage extends RepositoryPage {
 
 		Repository r = getRepository();
 
-		DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
-				DiffOutputType.GITBLIT.name()));
-
 		RevCommit commit = getCommit();
 
-		String diff = DiffUtils.getCommitDiff(r, commit, diffType);
+		String diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {

@@ -53,7 +53,7 @@ public class DiffUtils {
 	 * Enumeration for the diff output types.
 	 */
 	public static enum DiffOutputType {
-		PLAIN, GITWEB, GITBLIT;
+		PLAIN, HTML;
 
 		public static DiffOutputType forName(String name) {
 			for (DiffOutputType type : values()) {
@@ -130,10 +130,7 @@ public class DiffUtils {
 			RawTextComparator cmp = RawTextComparator.DEFAULT;
 			DiffFormatter df;
 			switch (outputType) {
-			case GITWEB:
-				df = new GitWebDiffFormatter(os);
-				break;
-			case GITBLIT:
+			case HTML:
 				df = new GitBlitDiffFormatter(os);
 				break;
 			case PLAIN:
@@ -172,9 +169,9 @@ public class DiffUtils {
 			} else {
 				df.format(diffEntries);
 			}
-			if (df instanceof GitWebDiffFormatter) {
+			if (df instanceof GitBlitDiffFormatter) {
 				// workaround for complex private methods in DiffFormatter
-				diff = ((GitWebDiffFormatter) df).getHtml();
+				diff = ((GitBlitDiffFormatter) df).getHtml();
 			} else {
 				diff = os.toString();
 			}

@@ -37,8 +37,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -80,9 +78,6 @@ public class ComparePage extends RepositoryPage {
 			Fragment comparison = new Fragment("comparison", "comparisonFragment", this);
 			add(comparison);
 			
-			DiffOutputType diffType = DiffOutputType.forName(GitBlit.getString(Keys.web.diffStyle,
-					DiffOutputType.GITBLIT.name()));
-
 			RevCommit fromCommit;
 			RevCommit toCommit;
 			
@@ -113,7 +108,7 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			String diff = DiffUtils.getDiff(r, fromCommit, toCommit, diffType);
+			String diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
 
 			// compare page links
 //			comparison.add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,

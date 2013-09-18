@@ -16,12 +16,14 @@
 package com.gitblit.utils;
 
 import static org.eclipse.jgit.lib.Constants.encode;
+import static org.eclipse.jgit.lib.Constants.encodeASCII;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 
+import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.util.RawParseUtils;
 
@@ -31,7 +33,7 @@ import org.eclipse.jgit.util.RawParseUtils;
  * @author James Moger
  * 
  */
-public class GitBlitDiffFormatter extends GitWebDiffFormatter {
+public class GitBlitDiffFormatter extends DiffFormatter {
 
 	private final OutputStream os;
 
@@ -69,6 +71,39 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 		os.write("</td></tr>\n".getBytes());
 		left = aStartLine + 1;
 		right = bStartLine + 1;
+	}
+	
+	protected void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
+		os.write(' ');
+		os.write(prefix);
+		switch (cnt) {
+		case 0:
+			// If the range is empty, its beginning number must
+			// be the
+			// line just before the range, or 0 if the range is
+			// at the
+			// start of the file stream. Here, begin is always 1
+			// based,
+			// so an empty file would produce "0,0".
+			//
+			os.write(encodeASCII(begin - 1));
+			os.write(',');
+			os.write('0');
+			break;
+
+		case 1:
+			// If the range is exactly one line, produce only
+			// the number.
+			//
+			os.write(encodeASCII(begin));
+			break;
+
+		default:
+			os.write(encodeASCII(begin));
+			os.write(',');
+			os.write(encodeASCII(cnt));
+			break;
+		}
 	}
 
 	@Override
@@ -110,7 +145,6 @@ public class GitBlitDiffFormatter extends GitWebDiffFormatter {
 	 * 
 	 * @return
 	 */
-	@Override
 	public String getHtml() {
 		ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
 		String html = RawParseUtils.decode(bos.toByteArray());
