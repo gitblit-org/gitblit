@@ -137,10 +137,11 @@ public class BranchGraphServlet extends HttpServlet {
 
 			// default to the items-per-page setting, unless specified
 			int maxCommits = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+			int requestedCommits = maxCommits;
 			if (!StringUtils.isEmpty(length)) {
 				int l = Integer.parseInt(length);
 				if (l > 0) {
-					maxCommits = l;
+					requestedCommits = l;
 				}
 			}
 
@@ -148,11 +149,11 @@ public class BranchGraphServlet extends HttpServlet {
 			// commit displayed *likely* has correct lane assignments  
 			CommitList commitList = new CommitList();
 			commitList.source(rw);
-			commitList.fillTo(2*maxCommits);
+			commitList.fillTo(2*Math.max(requestedCommits, maxCommits));
 
 			// determine the appropriate width for the image
 			int numLanes = 0;
-			int numCommits = Math.min(maxCommits, commitList.size());			
+			int numCommits = Math.min(requestedCommits, commitList.size());			
 			for (int i = 0; i < numCommits; i++) {
 				PlotCommit<Lane> commit = commitList.get(i);
 				int pos = commit.getLane().getPosition();
