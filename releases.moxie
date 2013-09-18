@@ -17,16 +17,19 @@ r20: {
 	- Updated default binary and Lucene ignore extensions
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
+	- Added option to render Markdown commit messages (issue-203)
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
     dependencyChanges: ~
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
+	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
     contributors:
 	- James Moger
 	- Robin Rosenberg
 	- Klaus Nuber
 	- Florian Zschocke
+	- Bret Ikehara
 }
 
 #
