@@ -85,6 +85,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int gcPeriod;
 	public int maxActivityCommits;	
 	public List<String> metricAuthorExclusions;
+	public String commitMessageDefaultConverter;
 	
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;

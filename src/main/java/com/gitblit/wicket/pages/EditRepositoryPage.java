@@ -32,6 +32,8 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
+import org.apache.wicket.extensions.markup.html.form.select.Select;
+import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -46,6 +48,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -70,6 +73,11 @@ import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
 public class EditRepositoryPage extends RootSubPage {
 
+	/**
+	 * Defines the available converter types.
+	 */
+	public final static List<String> converterTypes = Arrays.asList("none", "html", "markdown");
+	
 	private final boolean isCreate;
 
 	private boolean isAdmin;
@@ -552,6 +560,10 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		});
 		
+		PropertyModel<String> defaultConverterModel = new PropertyModel<String>(repositoryModel, "commitMessageDefaultConverter");
+		DropDownChoice<String> defaultConverter = new DropDownChoice<String>("commitMessageDefaultConverter", defaultConverterModel, converterTypes);
+		form.add(defaultConverter);
+		
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
@@ -721,5 +733,20 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
+
 	
+	private class CommitMessageDefaultConverterRenderer implements IChoiceRenderer<String> {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String getIdValue(String value, int index) {
+			return value;
+		}
+
+		@Override
+		public Object getDisplayValue(String value) {
+			return value;
+		}
+	}
 }

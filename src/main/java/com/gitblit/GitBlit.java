@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,6 +123,7 @@ import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.JGitUtils.LastChange;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.MetricUtils;
@@ -2041,6 +2043,9 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			model.metricAuthorExclusions = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "metricAuthorExclusions")));
+					
+			model.commitMessageDefaultConverter = getConfig(config, "commitMessageDefaultConverter",
+					settings.getString(Keys.web.commitMessageDefaultConverter, "html"));
 			
 			// Custom defined properties
 			model.customFields = new LinkedHashMap<String, String>();
@@ -2596,6 +2601,9 @@ public class GitBlit implements ServletContextListener {
 			config.setInt(Constants.CONFIG_GITBLIT, null, "maxActivityCommits", repository.maxActivityCommits);
 		}
 
+		config.setString(Constants.CONFIG_GITBLIT, null, "commitMessageDefaultConverter", repository.commitMessageDefaultConverter);
+		
+		
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
@@ -2690,38 +2698,67 @@ public class GitBlit implements ServletContextListener {
 	 * @return html version of the commit message
 	 */
 	public String processCommitMessage(String repositoryName, String text) {
-		String html = StringUtils.breakLinesForHtml(text);
-		Map<String, String> map = new HashMap<String, String>();
-		// global regex keys
-		if (settings.getBoolean(Keys.regex.global, false)) {
-			for (String key : settings.getAllKeys(Keys.regex.global)) {
-				if (!key.equals(Keys.regex.global)) {
-					String subKey = key.substring(key.lastIndexOf('.') + 1);
-					map.put(subKey, settings.getString(key, ""));
+		return processCommitMessage(repositoryName, text, true);
+	}
+	
+	/**
+	 * Returns an html version of the commit message with any global or
+	 * repository-specific regular expression substitution applied.
+	 * 
+	 * @param repositoryName
+	 * @param text
+	 * @param substituteRegex
+	 * @return html version of the commit message
+	 */
+	public String processCommitMessage(String repositoryName, String text, boolean substituteRegex) {		
+		StoredConfig config = getRepository(repositoryName).getConfig();
+		String convertor = config.getString(Constants.CONFIG_GITBLIT, null, "commitMessageDefaultConverter");
+		
+		String message = StringUtils.escapeForHtml(text, false);
+		if ("html".equalsIgnoreCase(convertor) && substituteRegex) {
+			message = StringUtils.breakLinesForHtml(text);
+			Map<String, String> map = new HashMap<String, String>();
+			// global regex keys
+			if (settings.getBoolean(Keys.regex.global, false)) {
+				for (String key : settings.getAllKeys(Keys.regex.global)) {
+					if (!key.equals(Keys.regex.global)) {
+						String subKey = key.substring(key.lastIndexOf('.') + 1);
+						map.put(subKey, settings.getString(key, ""));
+					}
 				}
 			}
+	
+			// repository-specific regex keys
+			List<String> keys = settings.getAllKeys(Keys.regex._ROOT + "."
+					+ repositoryName.toLowerCase());
+			for (String key : keys) {
+				String subKey = key.substring(key.lastIndexOf('.') + 1);
+				map.put(subKey, settings.getString(key, ""));
+			}
+	
+			for (Entry<String, String> entry : map.entrySet()) {
+				String definition = entry.getValue().trim();
+				String[] chunks = definition.split("!!!");
+				if (chunks.length == 2) {
+					message = message.replaceAll(chunks[0], chunks[1]);
+				} else {
+					logger.warn(entry.getKey()
+							+ " improperly formatted.  Use !!! to separate match from replacement: "
+							+ definition);
+				}
+			}
+			return message;
 		}
-
-		// repository-specific regex keys
-		List<String> keys = settings.getAllKeys(Keys.regex._ROOT + "."
-				+ repositoryName.toLowerCase());
-		for (String key : keys) {
-			String subKey = key.substring(key.lastIndexOf('.') + 1);
-			map.put(subKey, settings.getString(key, ""));
-		}
-
-		for (Entry<String, String> entry : map.entrySet()) {
-			String definition = entry.getValue().trim();
-			String[] chunks = definition.split("!!!");
-			if (chunks.length == 2) {
-				html = html.replaceAll(chunks[0], chunks[1]);
-			} else {
-				logger.warn(entry.getKey()
-						+ " improperly formatted.  Use !!! to separate match from replacement: "
-						+ definition);
+		else if ("markdown".equalsIgnoreCase(convertor)) {
+			try {
+				// returns as if convertor is none on parse exception.
+				return MarkdownUtils.transformMarkdown(message);
+			} catch (ParseException e) {
+				logger.error("Failed to convert commit message using markdown converter", e);
 			}
 		}
-		return html;
+	
+		return StringUtils.breakLinesForHtml(text);
 	}
 
 	/**
