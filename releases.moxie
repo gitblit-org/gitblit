@@ -10,6 +10,7 @@ r20: {
     text: ~
     security: ~
     fixes:
+	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
     changes:
@@ -32,6 +33,8 @@ r20: {
 	- Klaus Nuber
 	- Florian Zschocke
 	- Bret Ikehara
+	- Chad Horohoe
+	- Domingo Oropeza
 }
 
 #

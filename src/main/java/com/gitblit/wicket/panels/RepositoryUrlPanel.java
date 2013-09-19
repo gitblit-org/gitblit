@@ -365,7 +365,15 @@ public class RepositoryUrlPanel extends BasePanel {
 		if (!urlPermissionsMap.containsKey(repoUrl.url)) {
 			String note;
 			if (repoUrl.isExternal()) {
-				String protocol = repoUrl.url.substring(0, repoUrl.url.indexOf("://"));
+				String protocol;
+				int protocolIndex = repoUrl.url.indexOf("://");
+				if (protocolIndex > -1) {
+					// explicit protocol specified
+					protocol = repoUrl.url.substring(0, protocolIndex);
+				} else {
+					// implicit SSH url
+					protocol = "ssh";
+				}
 				note = MessageFormat.format(getString("gb.externalPermissions"), protocol);			
 			} else {
 				note = null;			
