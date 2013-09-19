@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -36,8 +37,8 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
-import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.CacheControl.LastModified;
+import com.gitblit.wicket.PageRegistration;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
@@ -111,8 +112,13 @@ public class ActivityPage extends RootPage {
 					daysBack, totalCommits, totalAuthors)));
 
 			// create the activity charts
-			GoogleCharts charts = createCharts(recentActivity);
-			add(new HeaderContributor(charts));
+			if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+				GoogleCharts charts = createCharts(recentActivity);
+				add(new HeaderContributor(charts));
+				add(new Fragment("chartsPanel", "chartsFragment", this));
+			} else {
+				add(new Label("chartsPanel").setVisible(false));
+			}
 
 			// add activity panel
 			add(new ActivityPanel("activityPanel", recentActivity));

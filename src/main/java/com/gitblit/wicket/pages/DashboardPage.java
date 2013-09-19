@@ -217,28 +217,32 @@ public abstract class DashboardPage extends RootPage {
 		frag.add(new Label("feedheader", MessageFormat.format(headerPattern,
 				daysBack, totalCommits, authorMetrics.size())));
 
-		// build google charts
-		GoogleCharts charts = new GoogleCharts();
+		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+			// build google charts
+			GoogleCharts charts = new GoogleCharts();
 
-		// active repositories pie chart
-		GoogleChart chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
-				getString("gb.repository"), getString("gb.commits"));
-		for (Metric metric : repositoryMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
+			// active repositories pie chart
+			GoogleChart chart = new GooglePieChart("chartRepositories", getString("gb.activeRepositories"),
+					getString("gb.repository"), getString("gb.commits"));
+			for (Metric metric : repositoryMetrics.values()) {
+				chart.addValue(metric.name, metric.count);
+			}
+			chart.setShowLegend(false);
+			charts.addChart(chart);
+
+			// active authors pie chart
+			chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
+					getString("gb.author"), getString("gb.commits"));
+			for (Metric metric : authorMetrics.values()) {
+				chart.addValue(metric.name, metric.count);
+			}
+			chart.setShowLegend(false);
+			charts.addChart(chart);
+
+			add(new HeaderContributor(charts));		
+			frag.add(new Fragment("charts", "chartsFragment", this));
+		} else {
+			frag.add(new Label("charts").setVisible(false));
 		}
-		chart.setShowLegend(false);
-		charts.addChart(chart);
-
-		// active authors pie chart
-		chart = new GooglePieChart("chartAuthors", getString("gb.activeAuthors"),
-				getString("gb.author"), getString("gb.commits"));
-		for (Metric metric : authorMetrics.values()) {
-			chart.addValue(metric.name, metric.count);
-		}
-		chart.setShowLegend(false);
-		charts.addChart(chart);
-
-		add(new HeaderContributor(charts));		
-		frag.add(new Fragment("charts", "chartsFragment", this));
 	}
 }
