@@ -539,21 +539,29 @@ pre.prettyprint ol {
 }
 
 /* CSS trick to workaround #link topOfWindow offset problem */
-#nums .num {
-    border-top: 160px solid transparent;
-    margin-top: -160px;
-    -webkit-background-clip: padding-box;
-    -moz-background-clip: padding;
-    background-clip: padding-box;
+#nums .jump {
+    border-top: 50px solid transparent;
+    margin-top: -50px;
+	background: url(arrow_line.png) no-repeat scroll bottom right transparent;	
+}
 
+#nums .jump:target {
+	border-left: 7px solid transparent;
+	margin-right: 3px;
+}
+
+#lines .line {
+    padding-left: 5px;
     color: #888;
 }
 
-#nums span:target {
+#nums a:hover {
 	background-color: #ffffbf;
 	color: black;
 	font-weight: bold;
+	border-top: 1px solid red;
 	border-bottom: 1px solid red;
+	text-decoration: none;
 }
 
 #lines table {
@@ -568,11 +576,6 @@ pre.prettyprint ol {
 	padding-left: 5px;
 }
 
-#lines a:hover {
-	background-color: #ffffbf;
-	text-decoration: none;
-}
-
 #lines tr:hover {
 	background-color: #ffffbf;
 }
@@ -583,8 +586,6 @@ pre.prettyprint ol {
 #lines .even {
 	background-color: #fafafa;
 }
-
-
 
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #888;
@@ -1152,6 +1153,8 @@ table.pretty table.nestedTable {
 table.pretty td.graph {
 	border-right: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
+	padding: 0px;
+	/*width: 1px;*/
 }
 
 table.pretty tr.commit {

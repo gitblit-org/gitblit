@@ -174,7 +174,7 @@ public class BlobPage extends RepositoryPage {
 		sb.append("<!-- start nums column -->");
 		sb.append("<td id=\"nums\">");
 		sb.append("<pre>");
-		String numPattern = "<span id=\"L{0}\" class=\"num\">{0}</span>\n";
+		String numPattern = "<span id=\"L{0}\" class=\"jump\"></span><a href=\"#L{0}\">{0}</a>\n";
 		for (int i = 0; i < lines.length; i++) {
 			sb.append(MessageFormat.format(numPattern, "" + (i + 1)));
 		}
@@ -194,10 +194,13 @@ public class BlobPage extends RepositoryPage {
 		
 		sb.append("<table width=\"100%\"><tbody>");
 		
-		String linePattern = "<tr class=\"{0}\"><td><a href=\"#L{2}\">{1}</a>\r</tr>";
+		String linePattern = "<tr class=\"{0}\"><td><div><span class=\"line\">{1}</span></div>\r</tr>";
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i].replace('\r', ' ');
 			String cssClass = (i % 2 == 0) ? "even" : "odd";
+			if (StringUtils.isEmpty(line.trim())) {
+				line = "&nbsp;";
+			}
 			sb.append(MessageFormat.format(linePattern, cssClass, line, "" + (i + 1)));
 		}
 		sb.append("</tbody></table></pre>");

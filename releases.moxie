@@ -14,6 +14,7 @@ r20: {
 	- Ignore the default contents of .git/description file
     changes:
 	- Personal repository prefix (~) is now configurable (issue-265)
+	- Reversed line links in blob view (issue-309)
 	- Updated default binary and Lucene ignore extensions
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
