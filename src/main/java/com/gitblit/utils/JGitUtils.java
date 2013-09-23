@@ -1342,14 +1342,17 @@ public class JGitUtils {
 	 */
 	public static List<RevCommit> searchRevlogs(Repository repository, String objectId,
 			String value, final com.gitblit.Constants.SearchType type, int offset, int maxCount) {
-		final String lcValue = value.toLowerCase();
 		List<RevCommit> list = new ArrayList<RevCommit>();
+		if (StringUtils.isEmpty(value)) {
+			return list;
+		}
 		if (maxCount == 0) {
 			return list;
 		}
 		if (!hasCommits(repository)) {
 			return list;
 		}
+		final String lcValue = value.toLowerCase();
 		try {
 			// resolve branch
 			ObjectId branchObject;
