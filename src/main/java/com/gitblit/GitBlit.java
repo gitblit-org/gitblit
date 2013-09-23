@@ -2534,15 +2534,15 @@ public class GitBlit implements ServletContextListener {
 				}
 			}
 
+			// Adjust permissions in case we updated the config files
+			JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "config"),
+					getString(Keys.git.createRepositoriesShared, "FALSE"));
+			JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "HEAD"),
+					getString(Keys.git.createRepositoriesShared, "FALSE"));
+
 			// close the repository object
 			r.close();
 		}
-
-		// Adjust permissions in case we updated the config files
-		JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "config"),
-				getString(Keys.git.createRepositoriesShared, "FALSE"));
-		JGitUtils.adjustSharedPerm(new File(r.getDirectory().getAbsolutePath(), "HEAD"),
-				getString(Keys.git.createRepositoriesShared, "FALSE"));
 
 		// update repository cache
 		removeFromCachedRepositoryList(repositoryName);
