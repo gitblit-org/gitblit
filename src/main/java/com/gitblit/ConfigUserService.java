@@ -186,8 +186,7 @@ public class ConfigUserService implements IUserService {
 		if (!StringUtils.isEmpty(model.cookie)) {
 			return model.cookie;
 		}
-		read();
-		UserModel storedModel = users.get(model.username.toLowerCase());
+		UserModel storedModel = getUserModel(model.username);
 		if (storedModel == null) {
 			return null;
 		}
@@ -229,7 +228,6 @@ public class ConfigUserService implements IUserService {
 	 */
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		read();
 		UserModel returnedUser = null;
 		UserModel user = getUserModel(username);
 		if (user == null) {
