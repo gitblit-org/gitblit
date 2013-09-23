@@ -160,7 +160,9 @@ public class LogPanel extends BasePanel {
 				item.add(new BookmarkablePageLink<Void>("tree", TreePage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())));
 
-				WicketUtils.setAlternatingBackground(item, counter);
+				String clazz = counter % 2 == 0 ? "light commit" : "dark commit";
+				WicketUtils.setCssClass(item, clazz);
+
 				counter++;
 			}
 		};
