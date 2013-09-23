@@ -208,6 +208,12 @@ public class ConfigUserService implements IUserService {
 		if (cookies.containsKey(hash)) {
 			model = cookies.get(hash);
 		}
+		
+		if (model != null) {
+			// clone the model, otherwise all changes to this object are
+			// live and unpersisted
+			model = DeepCopier.copy(model);
+		}
 		return model;
 	}
 
