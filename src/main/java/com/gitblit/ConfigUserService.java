@@ -188,6 +188,9 @@ public class ConfigUserService implements IUserService {
 		}
 		read();
 		UserModel storedModel = users.get(model.username.toLowerCase());
+		if (storedModel == null) {
+			return null;
+		}
 		return storedModel.cookie;
 	}
 
