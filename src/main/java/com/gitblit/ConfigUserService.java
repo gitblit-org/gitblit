@@ -200,7 +200,7 @@ public class ConfigUserService implements IUserService {
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(char[] cookie) {
+	public synchronized UserModel authenticate(char[] cookie) {
 		String hash = new String(cookie);
 		if (StringUtils.isEmpty(hash)) {
 			return null;
@@ -269,7 +269,7 @@ public class ConfigUserService implements IUserService {
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel getUserModel(String username) {
+	public synchronized UserModel getUserModel(String username) {
 		read();
 		UserModel model = users.get(username.toLowerCase());
 		if (model != null) {
@@ -299,7 +299,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 1.2.0
 	 */
 	@Override
-	public boolean updateUserModels(Collection<UserModel> models) {
+	public synchronized boolean updateUserModels(Collection<UserModel> models) {
 		try {
 			read();
 			for (UserModel model : models) {
@@ -351,7 +351,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if update is successful
 	 */
 	@Override
-	public boolean updateUserModel(String username, UserModel model) {
+	public synchronized boolean updateUserModel(String username, UserModel model) {
 		UserModel originalUser = null;
 		try {
 			read();
@@ -417,7 +417,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
-	public boolean deleteUser(String username) {
+	public synchronized boolean deleteUser(String username) {
 		try {
 			// Read realm file
 			read();
@@ -467,7 +467,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public List<TeamModel> getAllTeams() {
+	public synchronized List<TeamModel> getAllTeams() {
 		read();
 		List<TeamModel> list = new ArrayList<TeamModel>(teams.values());
 		list = DeepCopier.copy(list);
@@ -484,7 +484,7 @@ public class ConfigUserService implements IUserService {
 	 * @return list of all usernames that can bypass the access restriction
 	 */
 	@Override
-	public List<String> getTeamnamesForRepositoryRole(String role) {
+	public synchronized List<String> getTeamnamesForRepositoryRole(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
 			read();
@@ -511,7 +511,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
-	public boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
+	public synchronized boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
 		try {
 			Set<String> specifiedTeams = new HashSet<String>();
 			for (String teamname : teamnames) {
@@ -548,7 +548,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public TeamModel getTeamModel(String teamname) {
+	public synchronized TeamModel getTeamModel(String teamname) {
 		read();
 		TeamModel model = teams.get(teamname.toLowerCase());
 		if (model != null) {
@@ -678,7 +678,7 @@ public class ConfigUserService implements IUserService {
 	 * @return list of all usernames
 	 */
 	@Override
-	public List<UserModel> getAllUsers() {
+	public synchronized List<UserModel> getAllUsers() {
 		read();
 		List<UserModel> list = new ArrayList<UserModel>(users.values());
 		list = DeepCopier.copy(list);
@@ -695,7 +695,7 @@ public class ConfigUserService implements IUserService {
 	 * @return list of all usernames that can bypass the access restriction
 	 */
 	@Override
-	public List<String> getUsernamesForRepositoryRole(String role) {
+	public synchronized List<String> getUsernamesForRepositoryRole(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
 			read();
@@ -723,7 +723,7 @@ public class ConfigUserService implements IUserService {
 	 */
 	@Override
 	@Deprecated
-	public boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
+	public synchronized boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
 		try {
 			Set<String> specifiedUsers = new HashSet<String>();
 			for (String username : usernames) {
@@ -760,7 +760,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
-	public boolean renameRepositoryRole(String oldRole, String newRole) {
+	public synchronized boolean renameRepositoryRole(String oldRole, String newRole) {
 		try {
 			read();
 			// identify users which require role rename
@@ -795,7 +795,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
-	public boolean deleteRepositoryRole(String role) {
+	public synchronized boolean deleteRepositoryRole(String role) {
 		try {
 			read();
 
