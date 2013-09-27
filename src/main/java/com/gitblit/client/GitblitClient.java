@@ -193,7 +193,7 @@ public class GitblitClient implements Serializable {
 	}
 	
 	public AccessRestrictionType getDefaultAccessRestriction() {
-		String restriction = null;
+		String restriction = "PUSH";
 		if (settings.hasKey(Keys.git.defaultAccessRestriction)) {
 			restriction = settings.get(Keys.git.defaultAccessRestriction).currentValue;
 		}

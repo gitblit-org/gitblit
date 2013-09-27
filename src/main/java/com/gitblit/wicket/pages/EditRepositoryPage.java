@@ -86,7 +86,7 @@ public class EditRepositoryPage extends RootSubPage {
 		super();
 		isCreate = true;
 		RepositoryModel model = new RepositoryModel();
-		String restriction = GitBlit.getString(Keys.git.defaultAccessRestriction, null);
+		String restriction = GitBlit.getString(Keys.git.defaultAccessRestriction, "PUSH");
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
 		String authorization = GitBlit.getString(Keys.git.defaultAuthorizationControl, null);
 		model.authorizationControl = AuthorizationControl.fromName(authorization);
@@ -418,7 +418,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(ownersPalette);
 		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction",
-				AccessRestrictionType.choices(GitBlit.getBoolean(Keys.git.allowAnonymousPushes, true)), new AccessRestrictionRenderer());
+				AccessRestrictionType.choices(GitBlit.getBoolean(Keys.git.allowAnonymousPushes, false)), new AccessRestrictionRenderer());
 		form.add(accessRestriction);
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition

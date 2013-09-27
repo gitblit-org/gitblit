@@ -224,7 +224,7 @@ public class GitFilter extends AccessRestrictionFilter {
 				} else {
 					// common repository, user default server settings
 					model.authorizationControl = AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, ""));
-					model.accessRestriction = AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, ""));
+					model.accessRestriction = AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "PUSH"));
 				}
 
 				// create the repository

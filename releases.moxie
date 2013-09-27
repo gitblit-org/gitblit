@@ -5,7 +5,7 @@ r20: {
     title: ${project.name} ${project.version} released
     id: ${project.version}
     date: ${project.buildDate}
-    note: ~
+    note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled."
     html: ~
     text: ~
     security: ~
@@ -27,7 +27,8 @@ r20: {
     dependencyChanges: ~
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
-    - { name: 'git.allowAnonymousPushes', defaultValue: 'true' }
+    - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
+	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
     contributors:

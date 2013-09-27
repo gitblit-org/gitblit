@@ -2008,7 +2008,7 @@ public class GitBlit implements ServletContextListener {
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
 			model.accessRestriction = AccessRestrictionType.fromName(getConfig(config,
-					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, null)));
+					"accessRestriction", settings.getString(Keys.git.defaultAccessRestriction, "PUSH")));
 			model.authorizationControl = AuthorizationControl.fromName(getConfig(config,
 					"authorizationControl", settings.getString(Keys.git.defaultAuthorizationControl, null)));
 			model.verifyCommitter = getConfig(config, "verifyCommitter", false);

@@ -81,7 +81,7 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		boolean allowAnonymousPushes = GitBlit.getBoolean(Keys.git.allowAnonymousPushes, true);
+		boolean allowAnonymousPushes = GitBlit.getBoolean(Keys.git.allowAnonymousPushes, false);
 		if (!allowAnonymousPushes && UserModel.ANONYMOUS.equals(user)) {
 			// prohibit anonymous pushes
 			throw new ServiceNotEnabledException();
