@@ -947,8 +947,8 @@ public class GitBlit implements ServletContextListener {
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
 				} else {
-					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials ({1}) from {2}", 
-							username, credentials, httpRequest.getRemoteAddr()));
+					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}", 
+							username, httpRequest.getRemoteAddr()));
 				}
 			}
 		}

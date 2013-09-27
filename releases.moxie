@@ -17,6 +17,7 @@ r20: {
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Reversed line links in blob view (issue-309)
 	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
+	- Do not log passwords on failed authentication attempts (issue-316)
 	- Updated default binary and Lucene ignore extensions
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
