@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 gitblit.com.
+ * Copyright 2013 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.gitblit.git;
 
+import static org.eclipse.jgit.transport.BasePackPushConnection.CAPABILITY_SIDE_BAND_64K;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
@@ -25,8 +26,13 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jgit.lib.BatchRefUpdate;
+import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.ProgressMonitor;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PostReceiveHook;
 import org.eclipse.jgit.transport.PreReceiveHook;
@@ -50,40 +56,60 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 
+
 /**
- * The Gitblit receive hook allows for special processing on push events.
- * That might include rejecting writes to specific branches or executing a
- * script.
- * 
+ * GitblitReceivePack processes receive commands.  It also executes Groovy pre-
+ * and post- receive hooks.
+ *
+ * The general execution flow is:
+ * <ol>
+ *    <li>onPreReceive()</li>
+ *    <li>executeCommands()</li>
+ *    <li>onPostReceive()</li>
+ * </ol>
+ *
+ * @author Android Open Source Project
  * @author James Moger
- * 
+ *
  */
-public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
+public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, PostReceiveHook {
 
-	protected final Logger logger = LoggerFactory.getLogger(ReceiveHook.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GitblitReceivePack.class);
 
-	protected UserModel user;
-	
-	protected RepositoryModel repository;
+	protected final RepositoryModel repository;
+
+	protected final UserModel user;
+
+	protected final File groovyDir;
 
 	protected String gitblitUrl;
 
-	private GroovyScriptEngine gse;
+	protected String repositoryUrl;
 
-	private File groovyDir;
+	protected GroovyScriptEngine gse;
 
-	public ReceiveHook() {
-		groovyDir = GitBlit.getGroovyScriptsFolder();
+	public GitblitReceivePack(Repository db, RepositoryModel repository, UserModel user) {
+		super(db);
+		this.repository = repository;
+		this.user = user == null ? UserModel.ANONYMOUS : user;
+		this.groovyDir = GitBlit.getGroovyScriptsFolder();
 		try {
 			// set Grape root
 			File grapeRoot = GitBlit.getFileOrFolder(Keys.groovy.grapeFolder, "${baseFolder}/groovy/grape").getAbsoluteFile();
 			grapeRoot.mkdirs();
 			System.setProperty("grape.root", grapeRoot.getAbsolutePath());
-
-			gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());			
+			this.gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
 		} catch (IOException e) {
-			//throw new ServletException("Failed to instantiate Groovy Script Engine!", e);
 		}
+
+		// set advanced ref permissions
+		setAllowCreates(user.canCreateRef(repository));
+		setAllowDeletes(user.canDeleteRef(repository));
+		setAllowNonFastForwards(user.canRewindRef(repository));
+		
+		// setup pre and post receive hook
+		setPreReceiveHook(this);
+		setPostReceiveHook(this);
 	}
 
 	/**
@@ -93,32 +119,27 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 	 */
 	@Override
 	public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
+
 		if (repository.isFrozen) {
 			// repository is frozen/readonly
-			String reason = MessageFormat.format("Gitblit does not allow pushes to \"{0}\" because it is frozen!", repository.name);
-			logger.warn(reason);
 			for (ReceiveCommand cmd : commands) {
-				cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
+				sendRejection(cmd, "Gitblit does not allow pushes to \"{0}\" because it is frozen!", repository.name);
 			}
 			return;
 		}
-		
+
 		if (!repository.isBare) {
 			// repository has a working copy
-			String reason = MessageFormat.format("Gitblit does not allow pushes to \"{0}\" because it has a working copy!", repository.name);
-			logger.warn(reason);
 			for (ReceiveCommand cmd : commands) {
-				cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
+				sendRejection(cmd, "Gitblit does not allow pushes to \"{0}\" because it has a working copy!", repository.name);
 			}
 			return;
 		}
 
 		if (!user.canPush(repository)) {
 			// user does not have push permissions
-			String reason = MessageFormat.format("User \"{0}\" does not have push permissions for \"{1}\"!", user.username, repository.name);
-			logger.warn(reason);
 			for (ReceiveCommand cmd : commands) {
-				cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
+				sendRejection(cmd, "User \"{0}\" does not have push permissions for \"{1}\"!", user.username, repository.name);
 			}
 			return;
 		}
@@ -126,51 +147,51 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 		if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH) && repository.verifyCommitter) {
 			// enforce committer verification
 			if (StringUtils.isEmpty(user.emailAddress)) {
-				// emit warning if user does not have an email address 
-				logger.warn(MessageFormat.format("Consider setting an email address for {0} ({1}) to improve committer verification.", user.getDisplayName(), user.username));
+				// emit warning if user does not have an email address
+				LOGGER.warn(MessageFormat.format("Consider setting an email address for {0} ({1}) to improve committer verification.", user.getDisplayName(), user.username));
 			}
 
-			// Optionally enforce that the committer of the left parent chain
+			// Optionally enforce that the committer of first parent chain
 			// match the account being used to push the commits.
-			// 
+			//
 			// This requires all merge commits are executed with the "--no-ff"
 			// option to force a merge commit even if fast-forward is possible.
-			// This ensures that the chain of left parents has the commit
+			// This ensures that the chain first parents has the commit
 			// identity of the merging user.
 			boolean allRejected = false;
 			for (ReceiveCommand cmd : commands) {
-				String linearParent = null;
+				String firstParent = null;
 				try {
 					List<RevCommit> commits = JGitUtils.getRevLog(rp.getRepository(), cmd.getOldId().name(), cmd.getNewId().name());
 					for (RevCommit commit : commits) {
-						
-						if (linearParent != null) {
-		            		if (!commit.getName().equals(linearParent)) {
+
+						if (firstParent != null) {
+		            		if (!commit.getName().equals(firstParent)) {
 		            			// ignore: commit is right-descendant of a merge
 		            			continue;
 		            		}
 		            	}
-						
+
 						// update expected next commit id
 						if (commit.getParentCount() == 0) {
-		                	linearParent = null;
+		                	firstParent = null;
 						} else {
-							linearParent = commit.getParents()[0].getId().getName();
+							firstParent = commit.getParents()[0].getId().getName();
 						}
-						
+
 						PersonIdent committer = commit.getCommitterIdent();
 						if (!user.is(committer.getName(), committer.getEmailAddress())) {
 							String reason;
 							if (StringUtils.isEmpty(user.emailAddress)) {
 								// account does not have an email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})", 
+								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})",
 										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username);
 							} else {
 								// account has an email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>", 
+								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>",
 										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
 							}
-							logger.warn(reason);
+							LOGGER.warn(reason);
 							cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
 							allRejected &= true;
 							break;
@@ -179,7 +200,7 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 						}
 					}
 				} catch (Exception e) {
-					logger.error("Failed to verify commits were made by pushing user", e);
+					LOGGER.error("Failed to verify commits were made by pushing user", e);
 				}
 			}
 
@@ -188,7 +209,7 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 				return;
 			}
 		}
-		
+
 		// reset branch commit cache on REWIND and DELETE
 		for (ReceiveCommand cmd : commands) {
 			String ref = cmd.getRefName();
@@ -209,10 +230,10 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
 			scripts.addAll(repository.preReceiveScripts);
 		}
-		runGroovy(repository, user, commands, rp, scripts);
+		runGroovy(commands, scripts);
 		for (ReceiveCommand cmd : commands) {
 			if (!Result.NOT_ATTEMPTED.equals(cmd.getResult())) {
-				logger.warn(MessageFormat.format("{0} {1} because \"{2}\"", cmd.getNewId()
+				LOGGER.warn(MessageFormat.format("{0} {1} because \"{2}\"", cmd.getNewId()
 						.getName(), cmd.getResult(), cmd.getMessage()));
 			}
 		}
@@ -226,26 +247,27 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 	@Override
 	public void onPostReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
 		if (commands.size() == 0) {
-			logger.debug("skipping post-receive hooks, no refs created, updated, or removed");
+			LOGGER.debug("skipping post-receive hooks, no refs created, updated, or removed");
 			return;
 		}
 
 		// log ref changes
 		for (ReceiveCommand cmd : commands) {
+
 			if (Result.OK.equals(cmd.getResult())) {
 				// add some logging for important ref changes
 				switch (cmd.getType()) {
 				case DELETE:
-					logger.info(MessageFormat.format("{0} DELETED {1} in {2} ({3})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name()));
+					LOGGER.info(MessageFormat.format("{0} DELETED {1} in {2} ({3})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name()));
 					break;
 				case CREATE:
-					logger.info(MessageFormat.format("{0} CREATED {1} in {2}", user.username, cmd.getRefName(), repository.name));
+					LOGGER.info(MessageFormat.format("{0} CREATED {1} in {2}", user.username, cmd.getRefName(), repository.name));
 					break;
 				case UPDATE:
-					logger.info(MessageFormat.format("{0} UPDATED {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
+					LOGGER.info(MessageFormat.format("{0} UPDATED {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
 					break;
 				case UPDATE_NONFASTFORWARD:
-					logger.info(MessageFormat.format("{0} UPDATED NON-FAST-FORWARD {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
+					LOGGER.info(MessageFormat.format("{0} UPDATED NON-FAST-FORWARD {1} in {2} (from {3} to {4})", user.username, cmd.getRefName(), repository.name, cmd.getOldId().name(), cmd.getNewId().name()));
 					break;
 				default:
 					break;
@@ -259,7 +281,7 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 			PersonIdent userIdent = new PersonIdent(user.getDisplayName(), emailAddress);
 
 			for (ReceiveCommand cmd : commands) {
-				if (!cmd.getRefName().startsWith("refs/heads/")) {
+				if (!cmd.getRefName().startsWith(Constants.R_HEADS)) {
 					// only tag branch ref changes
 					continue;
 				}
@@ -267,7 +289,7 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 				if (!ReceiveCommand.Type.DELETE.equals(cmd.getType())
 						&& ReceiveCommand.Result.OK.equals(cmd.getResult())) {
 					String objectId = cmd.getNewId().getName();
-					String branch = cmd.getRefName().substring("refs/heads/".length());
+					String branch = cmd.getRefName().substring(Constants.R_HEADS.length());
 					// get translation based on the server's locale setting
 					String template = Translation.get("gb.incrementalPushTagMessage");
 					String msg = MessageFormat.format(template, branch);
@@ -286,36 +308,120 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 							"0",
 							msg);
 				}
-			}				
+			}
 		}
 
 		// update push log
 		try {
 			RefLogUtils.updateRefLog(user, rp.getRepository(), commands);
-			logger.debug(MessageFormat.format("{0} push log updated", repository.name));
+			LOGGER.debug(MessageFormat.format("{0} push log updated", repository.name));
 		} catch (Exception e) {
-			logger.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
+			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
 		}
 
-		// run Groovy hook scripts 
+		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
 			scripts.addAll(repository.postReceiveScripts);
 		}
-		runGroovy(repository, user, commands, rp, scripts);
+		runGroovy(commands, scripts);
+	}
+
+	/** Execute commands to update references. */
+	@Override
+	protected void executeCommands() {
+		List<ReceiveCommand> toApply = filterCommands(Result.NOT_ATTEMPTED);
+		if (toApply.isEmpty()) {
+			return;
+		}
+
+		ProgressMonitor updating = NullProgressMonitor.INSTANCE;
+		boolean sideBand = isCapabilityEnabled(CAPABILITY_SIDE_BAND_64K);
+		if (sideBand) {
+			SideBandProgressMonitor pm = new SideBandProgressMonitor(msgOut);
+			pm.setDelayStart(250, TimeUnit.MILLISECONDS);
+			updating = pm;
+		}
+
+		BatchRefUpdate batch = getRepository().getRefDatabase().newBatchUpdate();
+		batch.setAllowNonFastForwards(isAllowNonFastForwards());
+		batch.setRefLogIdent(getRefLogIdent());
+		batch.setRefLogMessage("push", true);
+
+		for (ReceiveCommand cmd : toApply) {
+			if (Result.NOT_ATTEMPTED != cmd.getResult()) {
+				// Already rejected by the core receive process.
+				continue;
+			}
+			batch.addCommand(cmd);
+		}
+
+		if (!batch.getCommands().isEmpty()) {
+			try {
+				batch.execute(getRevWalk(), updating);
+			} catch (IOException err) {
+				for (ReceiveCommand cmd : toApply) {
+					if (cmd.getResult() == Result.NOT_ATTEMPTED) {
+						sendRejection(cmd, "lock error: {0}", err.getMessage());
+					}
+				}
+			}
+		}
+	}
+
+	protected void setGitblitUrl(String url) {
+		this.gitblitUrl = url;
+	}
+
+	protected void setRepositoryUrl(String url) {
+		this.repositoryUrl = url;
+	}
+
+	protected void sendRejection(final ReceiveCommand cmd, final String why, Object... objects) {
+		String text;
+		if (ArrayUtils.isEmpty(objects)) {
+			text = why;
+		} else {
+			text = MessageFormat.format(why, objects);
+		}
+		cmd.setResult(Result.REJECTED_OTHER_REASON, text);
+		LOGGER.error(text + " (" + user.username + ")");
+	}
+
+	protected void sendMessage(String msg, Object... objects) {
+		String text;
+		if (ArrayUtils.isEmpty(objects)) {
+			text = msg;
+			super.sendMessage(msg);
+		} else {
+			text = MessageFormat.format(msg, objects);
+			super.sendMessage(text);
+		}
+		LOGGER.info(text + " (" + user.username + ")");
+	}
+
+	protected void sendError(String msg, Object... objects) {
+		String text;
+		if (ArrayUtils.isEmpty(objects)) {
+			text = msg;
+			super.sendError(msg);
+		} else {
+			text = MessageFormat.format(msg, objects);
+			super.sendError(text);
+		}
+		LOGGER.error(text + " (" + user.username + ")");
 	}
 
 	/**
 	 * Runs the specified Groovy hook scripts.
-	 * 
+	 *
 	 * @param repository
 	 * @param user
 	 * @param commands
 	 * @param scripts
 	 */
-	protected void runGroovy(RepositoryModel repository, UserModel user,
-			Collection<ReceiveCommand> commands, ReceivePack rp, Set<String> scripts) {
+	protected void runGroovy(Collection<ReceiveCommand> commands, Set<String> scripts) {
 		if (scripts == null || scripts.size() == 0) {
 			// no Groovy scripts to execute
 			return;
@@ -324,12 +430,12 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 		Binding binding = new Binding();
 		binding.setVariable("gitblit", GitBlit.self());
 		binding.setVariable("repository", repository);
-		binding.setVariable("receivePack", rp);
+		binding.setVariable("receivePack", this);
 		binding.setVariable("user", user);
 		binding.setVariable("commands", commands);
 		binding.setVariable("url", gitblitUrl);
-		binding.setVariable("logger", logger);
-		binding.setVariable("clientLogger", new ClientLogger(rp));
+		binding.setVariable("logger", LOGGER);
+		binding.setVariable("clientLogger", new ClientLogger(this));
 		for (String script : scripts) {
 			if (StringUtils.isEmpty(script)) {
 				continue;
@@ -347,13 +453,13 @@ public class ReceiveHook implements PreReceiveHook, PostReceiveHook {
 				Object result = gse.run(script, binding);
 				if (result instanceof Boolean) {
 					if (!((Boolean) result)) {
-						logger.error(MessageFormat.format(
+						LOGGER.error(MessageFormat.format(
 								"Groovy script {0} has failed!  Hook scripts aborted.", script));
 						break;
 					}
 				}
 			} catch (Exception e) {
-				logger.error(
+				LOGGER.error(
 						MessageFormat.format("Failed to execute Groovy script {0}", script), e);
 			}
 		}

@@ -16,7 +16,6 @@
 package com.gitblit.git;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +29,7 @@ import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.models.UserModel;
 
@@ -94,7 +94,7 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 			// JGit's RefMap is custom and does not support iterator removal :(
 			List<String> toRemove = new ArrayList<String>();
 			for (String ref : refs.keySet()) {
-				if (ref.startsWith("refs/gitblit/")) {
+				if (ref.startsWith(Constants.R_GITBLIT)) {
 					toRemove.add(ref);
 				}
 			}
