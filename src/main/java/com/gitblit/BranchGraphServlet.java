@@ -154,31 +154,34 @@ public class BranchGraphServlet extends HttpServlet {
 			commitList.fillTo(2*Math.max(requestedCommits, maxCommits));
 
 			// determine the appropriate width for the image
-			int numLanes = 0;
+			int numLanes = 1;
 			int numCommits = Math.min(requestedCommits, commitList.size());
-			Set<String> parents = new TreeSet<String>();
-			for (int i = 0; i < commitList.size(); i++) {
-				PlotCommit<Lane> commit = commitList.get(i);
-				boolean checkLane = false;
-				
-				if (i < numCommits) {
-					// commit in visible list
-					checkLane = true;
-					
-					// remember parents
-					for (RevCommit p : commit.getParents()) {
-						parents.add(p.getName());
+			if (numCommits > 1) {
+				// determine graph width
+				Set<String> parents = new TreeSet<String>();
+				for (int i = 0; i < commitList.size(); i++) {
+					PlotCommit<Lane> commit = commitList.get(i);
+					boolean checkLane = false;
+
+					if (i < numCommits) {
+						// commit in visible list
+						checkLane = true;
+
+						// remember parents
+						for (RevCommit p : commit.getParents()) {
+							parents.add(p.getName());
+						}
+					} else if (parents.contains(commit.getName())) {
+						// commit outside visible list, but it is a parent of a
+						// commit in the visible list so we need to know it's lane
+						// assignment
+						checkLane = true;
 					}
-				} else if (parents.contains(commit.getName())) {
-					// commit outside visible list, but it is a parent of a
-					// commit in the visible list so we need to know it's lane
-					// assignment
-					checkLane = true;
-				}
-				
-				if (checkLane) {
-					int pos = commit.getLane().getPosition();
-					numLanes = Math.max(numLanes, pos + 1);
+
+					if (checkLane) {
+						int pos = commit.getLane().getPosition();
+						numLanes = Math.max(numLanes, pos + 1);
+					}
 				}
 			}
 
@@ -187,6 +190,7 @@ public class BranchGraphServlet extends HttpServlet {
 
 			// create an image buffer and render the lanes
 			BufferedImage image = new BufferedImage(graphWidth, rowHeight*numCommits, BufferedImage.TYPE_INT_ARGB);
+			
 			Graphics2D g = null;
 			try {
 				g = image.createGraphics();
@@ -211,7 +215,7 @@ public class BranchGraphServlet extends HttpServlet {
 
 			// write the image buffer to the client
 			response.setContentType("image/png");
-			if (numCommits > 0) {
+			if (numCommits > 1) {
 				response.setHeader("Cache-Control", "public, max-age=60, must-revalidate");
 				response.setDateHeader("Last-Modified", JGitUtils.getCommitDate(commitList.get(0)).getTime());
 			}
