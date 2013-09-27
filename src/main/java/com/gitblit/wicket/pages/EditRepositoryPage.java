@@ -417,8 +417,8 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("description"));
 		form.add(ownersPalette);
 		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
-		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction", Arrays
-				.asList(AccessRestrictionType.values()), new AccessRestrictionRenderer());
+		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction",
+				AccessRestrictionType.choices(GitBlit.getBoolean(Keys.git.allowAnonymousPushes, true)), new AccessRestrictionRenderer());
 		form.add(accessRestriction);
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition

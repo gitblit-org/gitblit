@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
@@ -80,8 +81,7 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		// TODO make this a setting
-		boolean allowAnonymousPushes = true;
+		boolean allowAnonymousPushes = GitBlit.getBoolean(Keys.git.allowAnonymousPushes, true);
 		if (!allowAnonymousPushes && UserModel.ANONYMOUS.equals(user)) {
 			// prohibit anonymous pushes
 			throw new ServiceNotEnabledException();

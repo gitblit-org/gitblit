@@ -19,6 +19,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -148,6 +150,8 @@ public class Constants {
 	 */
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
+		
+		private static final AccessRestrictionType [] AUTH_TYPES = { PUSH, CLONE, VIEW };
 
 		public static AccessRestrictionType fromName(String name) {
 			for (AccessRestrictionType type : values()) {
@@ -156,6 +160,13 @@ public class Constants {
 				}
 			}
 			return NONE;
+		}
+		
+		public static List<AccessRestrictionType> choices(boolean allowAnonymousPush) {
+			if (allowAnonymousPush) {
+				return Arrays.asList(values());
+			}
+			return Arrays.asList(AUTH_TYPES);
 		}
 
 		public boolean exceeds(AccessRestrictionType type) {
