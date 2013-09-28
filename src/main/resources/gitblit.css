@@ -587,6 +587,45 @@ pre.prettyprint ol {
 	background-color: #fafafa;
 }
 
+.diffstat {
+	padding: 1px 5px;
+	font-size: smaller;
+	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	color: #ccc;
+	font-weight:bold;
+}
+
+.diffstat-inline {
+	font-size: smaller;
+	color: #ccc;
+	font-weight:bold;	
+}
+
+.diffstat .diffstat-total {
+	color: black;
+	border-right: 1px solid #ccc;
+	padding-right: 4px;
+	margin-right: 2px;
+}
+
+.diffstat-inline .diffstat-total {
+	color: #999;
+	padding-right: 2px;
+}
+
+.diffstat-segments {
+	vertical-align: top;
+}
+
+.diffstat-add {
+	color: #629E62; 
+}
+
+.diffstat-delete {
+	color: #B9583B; 
+}
+
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     color: #888;
 }

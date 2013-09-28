@@ -32,10 +32,11 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
-import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.GitNote;
+import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
@@ -43,6 +44,7 @@ import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -57,7 +59,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 		RevCommit commit = getCommit();
 
-		String diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML);
+		final DiffOutput diff = DiffUtils.getCommitDiff(r, commit, DiffOutputType.HTML);
 
 		List<String> parents = new ArrayList<String>();
 		if (commit.getParentCount() > 0) {
@@ -79,6 +81,15 @@ public class CommitDiffPage extends RepositoryPage {
 				WicketUtils.newObjectParameter(repositoryName, objectId)));
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
+
+		// add commit diffstat
+		int insertions = 0;
+		int deletions = 0;
+		for (PathChangeModel pcm : diff.stat.paths) {
+			insertions += pcm.insertions;
+			deletions += pcm.deletions;
+		}
+		add(new DiffStatPanel("diffStat", insertions, deletions));
 
 		addFullText("fullMessage", commit.getFullMessage());
 
@@ -103,10 +114,8 @@ public class CommitDiffPage extends RepositoryPage {
 		add(notesView.setVisible(notes.size() > 0));
 		
 		// changed paths list
-		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, commit);
-
-		add(new CommitLegendPanel("commitLegend", paths));
-		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
+		add(new CommitLegendPanel("commitLegend", diff.stat.paths));
+		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(diff.stat.paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -117,6 +126,7 @@ public class CommitDiffPage extends RepositoryPage {
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
+				item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 
 				boolean hasSubmodule = false;
 				String submodulePath = null;
@@ -172,7 +182,7 @@ public class CommitDiffPage extends RepositoryPage {
 			}
 		};
 		add(pathsView);
-		add(new Label("diffText", diff).setEscapeModelStrings(false));
+		add(new Label("diffText", diff.content).setEscapeModelStrings(false));
 	}
 
 	@Override

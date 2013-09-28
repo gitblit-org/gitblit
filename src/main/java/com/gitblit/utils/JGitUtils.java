@@ -81,7 +81,6 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
-import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -901,7 +900,7 @@ public class JGitUtils {
 		Collections.sort(list);
 		return list;
 	}
-
+	
 	/**
 	 * Returns the list of files changed in a specified commit. If the
 	 * repository does not exist or is empty, an empty list is returned.
@@ -912,6 +911,21 @@ public class JGitUtils {
 	 * @return list of files changed in a commit
 	 */
 	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit) {
+		return getFilesInCommit(repository, commit, true);
+	}
+
+	/**
+	 * Returns the list of files changed in a specified commit. If the
+	 * repository does not exist or is empty, an empty list is returned.
+	 * 
+	 * @param repository
+	 * @param commit
+	 *            if null, HEAD is assumed.
+	 * @param calculateDiffStat
+	 *            if true, each PathChangeModel will have insertions/deletions
+	 * @return list of files changed in a commit
+	 */
+	public static List<PathChangeModel> getFilesInCommit(Repository repository, RevCommit commit, boolean calculateDiffStat) {
 		List<PathChangeModel> list = new ArrayList<PathChangeModel>();
 		if (!hasCommits(repository)) {
 			return list;
@@ -936,26 +950,25 @@ public class JGitUtils {
 				tw.release();
 			} else {
 				RevCommit parent = rw.parseCommit(commit.getParent(0).getId());
-				DiffFormatter df = new DiffFormatter(DisabledOutputStream.INSTANCE);
+				DiffStatFormatter df = new DiffStatFormatter(commit.getName());
 				df.setRepository(repository);
 				df.setDiffComparator(RawTextComparator.DEFAULT);
 				df.setDetectRenames(true);
 				List<DiffEntry> diffs = df.scan(parent.getTree(), commit.getTree());
 				for (DiffEntry diff : diffs) {
-					String objectId = diff.getNewId().name();
-					if (diff.getChangeType().equals(ChangeType.DELETE)) {
-						list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
-								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
-								.getChangeType()));
-					} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
-						list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
-								.getChangeType()));
-					} else {
-						list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
-								.getNewMode().getBits(), objectId, commit.getId().getName(), diff
-								.getChangeType()));
+					// create the path change model
+					PathChangeModel pcm = PathChangeModel.from(diff, commit.getName());
+					
+					if (calculateDiffStat) {
+						// update file diffstats
+						df.format(diff);
+						PathChangeModel pathStat = df.getDiffStat().getPath(pcm.path);
+						if (pathStat != null) {
+							pcm.insertions = pathStat.insertions;
+							pcm.deletions = pathStat.deletions;
+						}
 					}
+					list.add(pcm);
 				}
 			}
 		} catch (Throwable t) {
@@ -990,20 +1003,8 @@ public class JGitUtils {
 
 			List<DiffEntry> diffEntries = df.scan(startCommit.getTree(), endCommit.getTree());
 			for (DiffEntry diff : diffEntries) {
-				
-				if (diff.getChangeType().equals(ChangeType.DELETE)) {
-					list.add(new PathChangeModel(diff.getOldPath(), diff.getOldPath(), 0, diff
-							.getNewMode().getBits(), diff.getOldId().name(), null, diff
-							.getChangeType()));
-				} else if (diff.getChangeType().equals(ChangeType.RENAME)) {
-					list.add(new PathChangeModel(diff.getOldPath(), diff.getNewPath(), 0, diff
-							.getNewMode().getBits(), diff.getNewId().name(), null, diff
-							.getChangeType()));
-				} else {
-					list.add(new PathChangeModel(diff.getNewPath(), diff.getNewPath(), 0, diff
-							.getNewMode().getBits(), diff.getNewId().name(), null, diff
-							.getChangeType()));
-				}
+				PathChangeModel pcm = PathChangeModel.from(diff,  null);
+				list.add(pcm);
 			}			
 			Collections.sort(list);
 		} catch (Throwable t) {

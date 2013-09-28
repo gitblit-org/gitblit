@@ -23,12 +23,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 
+import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.util.RawParseUtils;
 
+import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.utils.DiffUtils.DiffStat;
+
 /**
- * Generates an html snippet of a diff in Gitblit's style.
+ * Generates an html snippet of a diff in Gitblit's style, tracks changed paths,
+ * and calculates diff stats.
  * 
  * @author James Moger
  * 
@@ -37,13 +42,24 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 
 	private final OutputStream os;
 
-	private int left, right;
+	private final DiffStat diffStat;
 
-	public GitBlitDiffFormatter(OutputStream os) {
+	private PathChangeModel currentPath;
+
+	private int left, right;
+	
+	public GitBlitDiffFormatter(OutputStream os, String commitId) {
 		super(os);
 		this.os = os;
+		this.diffStat = new DiffStat(commitId);
 	}
-
+	
+	@Override
+	public void format(DiffEntry ent) throws IOException {
+		currentPath = diffStat.addPath(ent);
+		super.format(ent);
+	}
+	
 	/**
 	 * Output a hunk header
 	 * 
@@ -109,6 +125,10 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	@Override
 	protected void writeLine(final char prefix, final RawText text, final int cur)
 			throws IOException {
+		// update entry diffstat
+		currentPath.update(prefix);
+		
+		// output diff
 		os.write("<tr>".getBytes());
 		switch (prefix) {
 		case '+':
@@ -208,5 +228,9 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		}
 		sb.append("</table></div>");
 		return sb.toString();
+	}
+	
+	public DiffStat getDiffStat() {
+		return diffStat;
 	}
 }

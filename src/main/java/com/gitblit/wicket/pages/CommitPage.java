@@ -43,6 +43,7 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.CommitLegendPanel;
 import com.gitblit.wicket.panels.CompressedDownloadsPanel;
+import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.RefsPanel;
@@ -141,6 +142,16 @@ public class CommitPage extends RepositoryPage {
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
+		
+		// add commit diffstat
+		int insertions = 0;
+		int deletions = 0;
+		for (PathChangeModel pcm : paths) {
+			insertions += pcm.insertions;
+			deletions += pcm.deletions;
+		}
+		add(new DiffStatPanel("diffStat", insertions, deletions));
+		
 		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
@@ -153,7 +164,8 @@ public class CommitPage extends RepositoryPage {
 				WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 				setChangeTypeTooltip(changeType, entry.changeType);
 				item.add(changeType);
-				
+				item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
+
 				boolean hasSubmodule = false;
 				String submodulePath = null;
 				if (entry.isTree()) {

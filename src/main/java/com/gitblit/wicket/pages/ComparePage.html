@@ -55,13 +55,14 @@
 					<div>
 						<!-- commit legend -->
 						<div class="hidden-phone" style="text-align:right;" wicket:id="commitLegend"></div>
-						<div class="header"><i class="icon-file"></i> <wicket:message key="gb.changedFiles">[changed files]</wicket:message></div>
+						<div class="header"><span wicket:id="diffStat"></span><span style="padding-left:5px;"><wicket:message key="gb.changedFiles">[changed files]</wicket:message></span></div>
 					</div>
 					<table class="pretty">
 						<tr wicket:id="changedPath">
 							<td class="changeType"><span wicket:id="changeType">[change type]</span></td>		
 							<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
 							<td class="hidden-phone rightAlign">
+								<span class="hidden-tablet" style="padding-right:20px;" wicket:id="diffStat"></span>
 								<span class="link">
 									<a wicket:id="patch"><wicket:message key="gb.patch"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a> | <a wicket:id="blame"><wicket:message key="gb.blame"></wicket:message></a> | <a wicket:id="history"><wicket:message key="gb.history"></wicket:message></a>
 								</span>

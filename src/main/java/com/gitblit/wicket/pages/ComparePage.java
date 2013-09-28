@@ -42,12 +42,14 @@ import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffOutput;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.SessionlessForm;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitLegendPanel;
+import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.LogPanel;
 
@@ -108,7 +110,16 @@ public class ComparePage extends RepositoryPage {
 			fromCommitId.setObject(startId);
 			toCommitId.setObject(endId);
 
-			String diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+			final DiffOutput diff = DiffUtils.getDiff(r, fromCommit, toCommit, DiffOutputType.HTML);
+
+			// add compare diffstat
+			int insertions = 0;
+			int deletions = 0;
+			for (PathChangeModel pcm : diff.stat.paths) {
+				insertions += pcm.insertions;
+				deletions += pcm.deletions;
+			}
+			comparison.add(new DiffStatPanel("diffStat", insertions, deletions));
 
 			// compare page links
 //			comparison.add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
@@ -118,10 +129,8 @@ public class ComparePage extends RepositoryPage {
 			comparison.add(new LogPanel("commitList", repositoryName, objectId, r, 0, 0, repository.showRemoteBranches));
 
 			// changed paths list
-			List<PathChangeModel> paths = JGitUtils.getFilesInRange(r, fromCommit, toCommit);
-
-			comparison.add(new CommitLegendPanel("commitLegend", paths));
-			ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
+			comparison.add(new CommitLegendPanel("commitLegend", diff.stat.paths));
+			ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(diff.stat.paths);
 			DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 				private static final long serialVersionUID = 1L;
 				int counter;
@@ -132,6 +141,7 @@ public class ComparePage extends RepositoryPage {
 					WicketUtils.setChangeTypeCssClass(changeType, entry.changeType);
 					setChangeTypeTooltip(changeType, entry.changeType);
 					item.add(changeType);
+					item.add(new DiffStatPanel("diffStat", entry.insertions, entry.deletions, true));
 
 					boolean hasSubmodule = false;
 					String submodulePath = null;
@@ -185,7 +195,7 @@ public class ComparePage extends RepositoryPage {
 				}
 			};
 			comparison.add(pathsView);
-			comparison.add(new Label("diffText", diff).setEscapeModelStrings(false));
+			comparison.add(new Label("diffText", diff.content).setEscapeModelStrings(false));
 		}
 
 		//
