@@ -95,22 +95,6 @@ public class WicketUtils {
 		}
 	}
 
-	public static void setTicketCssClass(Component container, String state) {
-		String css = null;
-		if (state.equals("open")) {
-			css = "label label-important";
-		} else if (state.equals("hold")) {
-			css = "label label-warning";
-		} else if (state.equals("resolved")) {
-			css = "label label-success";
-		} else if (state.equals("invalid")) {
-			css = "label";
-		}
-		if (css != null) {
-			setCssClass(container, css);
-		}
-	}
-	
 	public static void setPermissionClass(Component container, AccessPermission permission) {
 		if (permission == null) {
 			setCssClass(container, "badge");

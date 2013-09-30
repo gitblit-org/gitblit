@@ -218,14 +218,6 @@ public class LuceneSearchPage extends RootPage {
 					item.add(new Label("tags").setVisible(false));
 					break;
 				}
-				case issue: {
-					Label icon = WicketUtils.newIcon("type", "icon-file");
-					WicketUtils.setHtmlTooltip(icon, "issue");
-					item.add(icon);
-					item.add(new Label("summary", "issue: " + sr.issueId));
-					item.add(new Label("tags").setVisible(false));
-					break;
-				}
 				}
 				item.add(new Label("fragment", sr.fragment).setEscapeModelStrings(false).setVisible(!StringUtils.isEmpty(sr.fragment)));
 				item.add(new LinkPanel("repository", null, sr.repository, SummaryPage.class, WicketUtils.newRepositoryParameter(sr.repository)));

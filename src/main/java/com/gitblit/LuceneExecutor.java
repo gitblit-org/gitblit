@@ -114,7 +114,6 @@ public class LuceneExecutor implements Runnable {
 	private static final String FIELD_COMMITTER = "committer";
 	private static final String FIELD_DATE = "date";
 	private static final String FIELD_TAG = "tag";
-	private static final String FIELD_LABEL = "label";
 
 	private static final String CONF_FILE = "lucene.conf";
 	private static final String LUCENE_DIR = "lucene";
@@ -924,9 +923,6 @@ public class LuceneExecutor implements Runnable {
 		if (doc.get(FIELD_TAG) != null) {
 			result.tags = StringUtils.getStringsFromValue(doc.get(FIELD_TAG));
 		}
-		if (doc.get(FIELD_LABEL) != null) {
-			result.labels = StringUtils.getStringsFromValue(doc.get(FIELD_LABEL));
-		}
 		return result;
 	}
 
@@ -1197,13 +1193,11 @@ public class LuceneExecutor implements Runnable {
 		int branchCount;
 		int commitCount;
 		int blobCount;
-		int issueCount;
 		
 		void add(IndexResult result) {
 			this.branchCount += result.branchCount;
 			this.commitCount += result.commitCount;
 			this.blobCount += result.blobCount;
-			this.issueCount += result.issueCount;			
 		}
 		
 		void success() {

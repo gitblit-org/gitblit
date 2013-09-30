@@ -389,7 +389,7 @@ public class Constants {
 	 * The types of objects that can be indexed and queried.
 	 */
 	public static enum SearchObjectType {
-		commit, blob, issue;
+		commit, blob;
 
 		static SearchObjectType fromName(String name) {
 			for (SearchObjectType value : values()) {

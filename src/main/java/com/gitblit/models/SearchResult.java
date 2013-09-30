@@ -40,12 +40,8 @@ public class SearchResult implements Serializable {
 	
 	public String path;
 	
-	public String issueId;
-
 	public List<String> tags;
 	
-	public List<String> labels;
-
 	public SearchObjectType type;
 
 	public SearchResult() {
@@ -57,8 +53,6 @@ public class SearchResult implements Serializable {
 			return path;
 		case commit:
 			return commitId;
-		case issue:
-			return issueId;
 		}
 		return commitId;
 	}
