@@ -26,7 +26,7 @@ import com.gitblit.wicket.WicketUtils;
 
 /**
  * Display a diffstat.
- * 
+ *
  * @author James Moger
  *
  */
@@ -62,12 +62,18 @@ public class DiffStatPanel extends Panel {
 		WicketUtils.setHtmlTooltip(this, diffStat);
 
 		final NormalizedDiffStat n = DiffUtils.normalizeDiffStat(5, insertions, deletions);
-		
-		final String square = "&#9632;";
+
+		final String segment;
+		if (inline) {
+			segment = "&#9679;";
+		} else {
+			segment = "&#9632;";
+		}
+
 		add(new Label("total", String.valueOf(total)));
-		add(new Label("insertions", timesRepeat(n.insertions, square)).setEscapeModelStrings(false).setVisible(n.insertions > 0));
-		add(new Label("deletions", timesRepeat(n.deletions, square)).setEscapeModelStrings(false).setVisible(n.deletions > 0));
-		add(new Label("blank", timesRepeat(n.blanks, square)).setEscapeModelStrings(false).setVisible(n.blanks > 0));
+		add(new Label("insertions", timesRepeat(n.insertions, segment)).setEscapeModelStrings(false).setVisible(n.insertions > 0));
+		add(new Label("deletions", timesRepeat(n.deletions, segment)).setEscapeModelStrings(false).setVisible(n.deletions > 0));
+		add(new Label("blank", timesRepeat(n.blanks, segment)).setEscapeModelStrings(false).setVisible(n.blanks > 0));
 
 		if (inline) {
 			WicketUtils.setCssClass(this, "diffstat-inline");
