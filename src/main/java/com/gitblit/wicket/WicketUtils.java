@@ -507,6 +507,10 @@ public class WicketUtils {
 	}
 
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
+		return createDateLabel(wicketId, date, timeZone, timeUtils, true);
+	}
+	
+	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils, boolean setCss) {
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
@@ -530,7 +534,9 @@ public class WicketUtils {
 			title = tmp;
 		}
 		Label label = new Label(wicketId, dateString);
-		WicketUtils.setCssClass(label, timeUtils.timeAgoCss(date));
+		if (setCss) {
+			WicketUtils.setCssClass(label, timeUtils.timeAgoCss(date));
+		}
 		if (!StringUtils.isEmpty(title)) {
 			WicketUtils.setHtmlTooltip(label, title);
 		}
