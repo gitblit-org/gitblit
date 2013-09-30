@@ -28,12 +28,12 @@ import com.gitblit.models.UserModel;
 
 /**
  * https://code.google.com/p/gitblit/issues/detail?id=271
- * 
+ *
  * Reported Problem:
  * Inherited team permissions are incorrect.
- * 
+ *
  * @see src/test/resources/issue0270.conf
- * 
+ *
  * @author James Moger
  *
  */
@@ -45,29 +45,29 @@ public class Issue0271Test extends Assert {
 		repo.accessRestriction = restriction;
 		return repo;
 	}
-	
+
 	/**
 	 * Test the provided users.conf file for expected access permissions.
-	 *  
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testFile() throws Exception {
 		File realmFile = new File("src/test/resources/issue0271.conf");
 		ConfigUserService service = new ConfigUserService(realmFile);
-		
+
 		RepositoryModel test = repo("test.git", AccessRestrictionType.VIEW);
 		RepositoryModel teama_test = repo("teama/test.git", AccessRestrictionType.VIEW);
-		
+
 		UserModel a = service.getUserModel("a");
 		UserModel b = service.getUserModel("b");
 		UserModel c = service.getUserModel("c");
-		
+
 		// assert V for test.git
 		assertEquals(AccessPermission.VIEW, a.getRepositoryPermission(test).permission);
 		assertEquals(AccessPermission.VIEW, b.getRepositoryPermission(test).permission);
 		assertEquals(AccessPermission.VIEW, c.getRepositoryPermission(test).permission);
-		
+
 		// assert expected permissions for teama/test.git
 		assertEquals(AccessPermission.VIEW, a.getRepositoryPermission(teama_test).permission);
 		assertEquals(AccessPermission.PUSH, b.getRepositoryPermission(teama_test).permission);

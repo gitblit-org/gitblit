@@ -60,10 +60,10 @@ public class ModelUtilsTest {
 
 		username = "James";
 		assertEquals(Constants.DEFAULT_USER_REPOSITORY_PREFIX+username.toLowerCase(), ModelUtils.getPersonalPath(username));
-		
+
 		ModelUtils.setUserRepoPrefix("usr/");
 		username = "noMan";
-		assertEquals("usr/"+username.toLowerCase(), ModelUtils.getPersonalPath(username));		
+		assertEquals("usr/"+username.toLowerCase(), ModelUtils.getPersonalPath(username));
 	}
 
 

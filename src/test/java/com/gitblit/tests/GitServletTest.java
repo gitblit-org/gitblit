@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.gitblit.tests;
 
 import static org.junit.Assert.assertEquals;
@@ -50,11 +65,11 @@ import com.gitblit.utils.RefLogUtils;
 public class GitServletTest {
 
 	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
-	
+
 	static File ticgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit2");
 
 	static File jgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/jgit");
-	
+
 	static File jgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/jgit2");
 
 	String url = GitBlitSuite.gitServletUrl;
@@ -62,7 +77,7 @@ public class GitServletTest {
 	String password = GitBlitSuite.password;
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
-	
+
 	private static UserModel getUser() {
 		UserModel user = new UserModel("james");
 		user.displayName = "James Moger";
@@ -70,7 +85,7 @@ public class GitServletTest {
 		user.password = "james";
 		return user;
 	}
-	
+
 	private static void delete(UserModel user) {
 		if (GitBlit.self().getUserModel(user.username) != null) {
 			GitBlit.self().deleteUser(user.username);
@@ -90,10 +105,10 @@ public class GitServletTest {
 			GitBlitSuite.stopGitblit();
 			deleteWorkingFolders();
 		}
-		
+
 		delete(getUser());
 	}
-	
+
 	public static void deleteWorkingFolders() throws Exception {
 		if (ticgitFolder.exists()) {
 			GitBlitSuite.close(ticgitFolder);
@@ -119,14 +134,14 @@ public class GitServletTest {
 		if (ticgitFolder.exists()) {
 			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		GitBlitSuite.close(clone.call());		
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
 	}
 
@@ -137,7 +152,7 @@ public class GitServletTest {
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
-		// delete any existing working folder		
+		// delete any existing working folder
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
@@ -158,7 +173,7 @@ public class GitServletTest {
 
 		assertFalse("Bogus login cloned a repository?!", cloned);
 	}
-	
+
 	@Test
 	public void testUnauthorizedLoginClone() throws Exception {
 		// restrict repository access
@@ -171,8 +186,8 @@ public class GitServletTest {
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
-		
-		// delete any existing working folder		
+
+		// delete any existing working folder
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
@@ -190,11 +205,11 @@ public class GitServletTest {
 		assertFalse("Unauthorized login cloned a repository?!", cloned);
 
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
-		
+
 		// switch to authenticated
 		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		
+
 		// try clone again
 		cloned = false;
 		CloneCommand clone = Git.cloneRepository();
@@ -207,15 +222,15 @@ public class GitServletTest {
 		cloned = true;
 
 		assertTrue("Authenticated login could not clone!", cloned);
-		
+
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
-		
+
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		
-		delete(user);		
+
+		delete(user);
 	}
 
 	@Test
@@ -235,9 +250,9 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
-		GitBlitSuite.close(clone.call());		
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -261,7 +276,7 @@ public class GitServletTest {
 		if (jgitFolder.exists()) {
 			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
@@ -287,14 +302,14 @@ public class GitServletTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testPushToFrozenRepo() throws Exception {
 		GitBlitSuite.close(jgitFolder);
 		if (jgitFolder.exists()) {
 			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
@@ -303,7 +318,7 @@ public class GitServletTest {
 		clone.setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password));
 		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		// freeze repo
 		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
 		model.isFrozen = true;
@@ -317,14 +332,14 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
-		
+
 		Iterable<PushResult> results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		for (PushResult result : results) {
 			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
 				assertEquals(Status.REJECTED_OTHER_REASON, update.getStatus());
 			}
 		}
-		
+
 		// unfreeze repo
 		model.isFrozen = false;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
@@ -337,7 +352,7 @@ public class GitServletTest {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testPushToNonBareRepository() throws Exception {
 		CloneCommand clone = Git.cloneRepository();
@@ -382,23 +397,23 @@ public class GitServletTest {
 		testCommitterVerification(user, user.displayName, null, true);
 		testCommitterVerification(user, user.displayName, "something", true);
 		testCommitterVerification(user, "joe", null, false);
-		
+
 		// test email address verification
 		user.emailAddress = "something";
 		testCommitterVerification(user, user.displayName, null, false);
 		testCommitterVerification(user, user.displayName, "somethingelse", false);
 		testCommitterVerification(user, user.displayName, user.emailAddress, true);
-		
+
 		// use same email address but with different committer
 		testCommitterVerification(user, "joe", "somethingelse", false);
 	}
-	
+
 	private void testCommitterVerification(UserModel user, String displayName, String emailAddress, boolean expectedSuccess) throws Exception {
-		
+
 		delete(user);
-		
+
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
-		
+
 		// fork from original to a temporary bare repo
 		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
 		if (verification.exists()) {
@@ -411,16 +426,16 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		GitBlitSuite.close(clone.call());
-		
+
 		// require push permissions and committer verification
 		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
 		model.authorizationControl = AuthorizationControl.NAMED;
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.verifyCommitter = true;
-		
+
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
-		
+
 		GitBlit.self().updateUserModel(user.username, user, true);
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
@@ -436,14 +451,14 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		GitBlitSuite.close(clone.call());
-		
+
 		Git git = Git.open(local);
-		
+
 		// force an identity which may or may not match the account's identity
 		git.getRepository().getConfig().setString("user", null, "name", displayName);
 		git.getRepository().getConfig().setString("user", null, "email", emailAddress);
 		git.getRepository().getConfig().save();
-		
+
 		// commit a file and push it
 		File file = new File(local, "PUSHCHK");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -453,7 +468,7 @@ public class GitServletTest {
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("push test").call();
 		Iterable<PushResult> results = git.push().setCredentialsProvider(cp).setRemote("origin").call();
-		
+
 		for (PushResult result : results) {
 			RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
 			Status status = ref.getStatus();
@@ -463,27 +478,27 @@ public class GitServletTest {
 				assertTrue("Verification failed! User was able to push commit! " + status.name(), Status.REJECTED_OTHER_REASON.equals(status));
 			}
 		}
-		
+
 		GitBlitSuite.close(git);
 		// close serving repository
 		GitBlitSuite.close(verification);
 	}
-	
+
 	@Test
 	public void testMergeCommitterVerification() throws Exception {
-		
+
 		testMergeCommitterVerification(false);
-		
+
 		testMergeCommitterVerification(true);
 	}
-	
+
 	private void testMergeCommitterVerification(boolean expectedSuccess) throws Exception {
 		UserModel user = getUser();
-		
+
 		delete(user);
-		
+
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
-		
+
 		// fork from original to a temporary bare repo
 		File verification = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-committer.git");
 		if (verification.exists()) {
@@ -496,16 +511,16 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		GitBlitSuite.close(clone.call());
-		
+
 		// require push permissions and committer verification
 		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
 		model.authorizationControl = AuthorizationControl.NAMED;
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.verifyCommitter = true;
-		
+
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
-		
+
 		GitBlit.self().updateUserModel(user.username, user, true);
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 
@@ -521,17 +536,17 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		GitBlitSuite.close(clone.call());
-		
+
 		Git git = Git.open(local);
-		
+
 		// checkout a mergetest branch
 		git.checkout().setCreateBranch(true).setName("mergetest").call();
-		
+
 		// change identity
 		git.getRepository().getConfig().setString("user", null, "name", "mergetest");
 		git.getRepository().getConfig().setString("user", null, "email", "mergetest@merge.com");
 		git.getRepository().getConfig().save();
-		
+
 		// commit a file
 		File file = new File(local, "MERGECHK2");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -540,7 +555,7 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		RevCommit mergeTip = git.commit().setMessage(file.getName() + " test").call();
-				
+
 		// return to master
 		git.checkout().setName("master").call();
 
@@ -559,14 +574,14 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage(file.getName() + " test").call();
-		
+
 		// merge the tip of the mergetest branch into master with --no-ff
 		MergeResult mergeResult = git.merge().setFastForward(FastForwardMode.NO_FF).include(mergeTip.getId()).call();
 		assertEquals(MergeResult.MergeStatus.MERGED, mergeResult.getMergeStatus());
-		
+
 		// push the merged master to the origin
 		Iterable<PushResult> results = git.push().setCredentialsProvider(cp).setRemote("origin").call();
-		
+
 		for (PushResult result : results) {
 			RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
 			Status status = ref.getStatus();
@@ -576,7 +591,7 @@ public class GitServletTest {
 				assertTrue("Verification failed! User was able to push commit! " + status.name(), Status.REJECTED_OTHER_REASON.equals(status));
 			}
 		}
-		
+
 		GitBlitSuite.close(git);
 		// close serving repository
 		GitBlitSuite.close(verification);
@@ -601,14 +616,14 @@ public class GitServletTest {
 	public void testBlockBranchDeletion() throws Exception {
 		testRefChange(AccessPermission.CREATE, Status.OK, Status.REJECTED_OTHER_REASON, null);
 	}
-	
+
 	@Test
 	public void testBlockBranchRewind() throws Exception {
 		testRefChange(AccessPermission.DELETE, Status.OK, Status.OK, Status.REJECTED_OTHER_REASON);
 	}
 
 	@Test
-	public void testBranchRewind() throws Exception {		
+	public void testBranchRewind() throws Exception {
 		testRefChange(AccessPermission.REWIND, Status.OK, Status.OK, Status.OK);
 	}
 
@@ -616,9 +631,9 @@ public class GitServletTest {
 
 		UserModel user = getUser();
 		delete(user);
-		
+
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
-		
+
 		// fork from original to a temporary bare repo
 		File refChecks = new File(GitBlitSuite.REPOSITORIES, "refchecks/ticgit.git");
 		if (refChecks.exists()) {
@@ -645,7 +660,7 @@ public class GitServletTest {
 				model.accessRestriction = AccessRestrictionType.PUSH;
 		}
 		model.authorizationControl = AuthorizationControl.NAMED;
-		
+
 		// grant user specified
 		user.setRepositoryPermission(model.name, permission);
 
@@ -663,7 +678,7 @@ public class GitServletTest {
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
-		
+
 		try {
 			GitBlitSuite.close(clone.call());
 		} catch (GitAPIException e) {
@@ -672,15 +687,15 @@ public class GitServletTest {
 			} else {
 				// close serving repository
 				GitBlitSuite.close(refChecks);
-				
+
 				// user does not have clone permission
-				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));	
+				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));
 				return;
 			}
 		}
-		
+
 		Git git = Git.open(local);
-		
+
 		// commit a file and push it
 		File file = new File(local, "PUSHCHK");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -698,14 +713,14 @@ public class GitServletTest {
 			} else {
 				// close serving repository
 				GitBlitSuite.close(refChecks);
-				
+
 				// user does not have push permission
 				assertTrue(e.getMessage(), e.getMessage().contains("not permitted"));
 				GitBlitSuite.close(git);
 				return;
 			}
 		}
-		
+
 		for (PushResult result : results) {
 			RemoteRefUpdate ref = result.getRemoteUpdate("refs/heads/master");
 			Status status = ref.getStatus();
@@ -721,8 +736,8 @@ public class GitServletTest {
 				return;
 			}
 		}
-		
-		// create a local branch and push the new branch back to the origin				
+
+		// create a local branch and push the new branch back to the origin
 		git.branchCreate().setName("protectme").call();
 		RefSpec refSpec = new RefSpec("refs/heads/protectme:refs/heads/protectme");
 		results = git.push().setCredentialsProvider(cp).setRefSpecs(refSpec).setRemote("origin").call();
@@ -741,10 +756,10 @@ public class GitServletTest {
 				return;
 			}
 		}
-		
+
 		// delete the branch locally
 		git.branchDelete().setBranchNames("protectme").call();
-		
+
 		// push a delete ref command
 		refSpec = new RefSpec(":refs/heads/protectme");
 		results = git.push().setCredentialsProvider(cp).setRefSpecs(refSpec).setRemote("origin").call();
@@ -763,10 +778,10 @@ public class GitServletTest {
 				return;
 			}
 		}
-		
+
 		// rewind master by two commits
 		git.reset().setRef("HEAD~2").setMode(ResetType.HARD).call();
-		
+
 		// commit a change on this detached HEAD
 		file = new File(local, "REWINDCHK");
 		os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -775,11 +790,11 @@ public class GitServletTest {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		RevCommit commit = git.commit().setMessage("rewind master and new commit").call();
-		
+
 		// Reset master to our new commit now we our local branch tip is no longer
 		// upstream of the remote branch tip.  It is an alternate tip of the branch.
 		JGitUtils.setBranchRef(git.getRepository(), "refs/heads/master", commit.getName());
-		
+
 		// Try pushing our new tip to the origin.
 		// This requires the server to "rewind" it's master branch and update it
 		// to point to our alternate tip.  This leaves the original master tip
@@ -795,41 +810,41 @@ public class GitServletTest {
 			}
 		}
 		GitBlitSuite.close(git);
-		
+
 		// close serving repository
 		GitBlitSuite.close(refChecks);
 
 		delete(user);
 	}
-	
+
 	@Test
 	public void testCreateOnPush() throws Exception {
 		testCreateOnPush(false, false);
 		testCreateOnPush(true, false);
 		testCreateOnPush(false, true);
 	}
-	
+
 	private void testCreateOnPush(boolean canCreate, boolean canAdmin) throws Exception {
 
 		UserModel user = new UserModel("sampleuser");
 		user.password = user.username;
-		
+
 		delete(user);
-		
+
 		user.canCreate = canCreate;
 		user.canAdmin = canAdmin;
-		
+
 		GitBlit.self().updateUserModel(user.username, user, true);
 
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
-		
+
 		// fork from original to a temporary bare repo
 		File tmpFolder = File.createTempFile("gitblit", "").getParentFile();
 		File createCheck = new File(tmpFolder, "ticgit.git");
 		if (createCheck.exists()) {
 			FileUtils.delete(createCheck, FileUtils.RECURSIVE);
 		}
-		
+
 		File personalRepo = new File(GitBlitSuite.REPOSITORIES, MessageFormat.format("~{0}/ticgit.git", user.username));
 		GitBlitSuite.close(personalRepo);
 		if (personalRepo.exists()) {
@@ -849,9 +864,9 @@ public class GitServletTest {
 		clone.setCloneAllBranches(true);
 		clone.setCredentialsProvider(cp);
 		Git git = clone.call();
-		
+
 		GitBlitSuite.close(personalRepo);
-		
+
 		// add a personal repository remote and a project remote
 		git.getRepository().getConfig().setString("remote", "user", "url", MessageFormat.format("{0}/~{1}/ticgit.git", url, user.username));
 		git.getRepository().getConfig().setString("remote", "project", "url", MessageFormat.format("{0}/project/ticgit.git", url));
@@ -868,18 +883,18 @@ public class GitServletTest {
 			}
 
 			assertTrue("User canAdmin:" + user.canAdmin + " canCreate:" + user.canCreate, user.canAdmin || user.canCreate);
-			
+
 			// confirm default personal repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
 			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
 			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
-			
+
 		} catch (GitAPIException e) {
 			assertTrue(e.getMessage(), e.getMessage().contains("git-receive-pack not found"));
 			assertFalse("User canAdmin:" + user.canAdmin + " canCreate:" + user.canCreate, user.canAdmin || user.canCreate);
 		}
-		
+
 		// push to non-existent project repository
 		try {
 			Iterable<PushResult> results = git.push().setRemote("project").setPushAll().setCredentialsProvider(cp).call();
@@ -890,9 +905,9 @@ public class GitServletTest {
 				Status status = ref.getStatus();
 				assertTrue("User failed to create repository?! " + status.name(), Status.OK.equals(status));
 			}
-			
+
 			assertTrue("User canAdmin:" + user.canAdmin, user.canAdmin);
-			
+
 			// confirm default project repository permissions
 			RepositoryModel model = GitBlit.self().getRepositoryModel("project/ticgit.git");
 			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
@@ -907,7 +922,7 @@ public class GitServletTest {
 		GitBlitSuite.close(git);
 		delete(user);
 	}
-	
+
 	@Test
 	public void testPushLog() throws IOException {
 		String name = "refchecks/ticgit.git";

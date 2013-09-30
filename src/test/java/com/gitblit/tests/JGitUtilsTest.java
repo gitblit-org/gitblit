@@ -228,7 +228,7 @@ public class JGitUtilsTest {
 			String repositoryAll = "NewTestRepositoryAll.git";
 			String repositoryUmask = "NewTestRepositoryUmask.git";
 			String sgidParent = "sgid";
-			
+
 			File parent = new File(GitBlitSuite.REPOSITORIES, sgidParent);
 			File folder = null;
 			boolean parentExisted = parent.exists();
@@ -243,21 +243,21 @@ public class JGitUtilsTest {
 				Repository repository = JGitUtils.createRepository(parent, repositoryAll, "all");
 				folder = FileKey.resolve(new File(parent, repositoryAll), FS.DETECTED);
 				assertNotNull(repository);
-		
+
 				assertEquals("2", repository.getConfig().getString("core", null, "sharedRepository"));
-		
+
 				assertTrue(folder.exists());
 				mode = JnaUtils.getFilemode(folder);
 				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
-	
+
 				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/HEAD");
 				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
 				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
-	
+
 				mode = JnaUtils.getFilemode(folder.getAbsolutePath() + "/config");
 				assertEquals(JnaUtils.S_IRGRP | JnaUtils.S_IWGRP, mode & JnaUtils.S_IRWXG);
 				assertEquals(JnaUtils.S_IROTH, mode & JnaUtils.S_IRWXO);
-	
+
 				repository.close();
 				RepositoryCache.close(repository);
 
@@ -266,13 +266,13 @@ public class JGitUtilsTest {
 				repository = JGitUtils.createRepository(parent, repositoryUmask, "umask");
 				folder = FileKey.resolve(new File(parent, repositoryUmask), FS.DETECTED);
 				assertNotNull(repository);
-		
+
 				assertEquals(null, repository.getConfig().getString("core", null, "sharedRepository"));
-		
+
 				assertTrue(folder.exists());
 				mode = JnaUtils.getFilemode(folder);
 				assertEquals(JnaUtils.S_ISGID, mode & JnaUtils.S_ISGID);
-	
+
 				repository.close();
 				RepositoryCache.close(repository);
 			}
@@ -372,7 +372,7 @@ public class JGitUtilsTest {
 		assertEquals("183474d554e6f68478a02d9d7888b67a9338cdff", list.get(0).notesRef
 				.getReferencedObjectId().getName());
 	}
-	
+
 	@Test
 	public void testRelinkHEAD() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
@@ -381,7 +381,7 @@ public class JGitUtilsTest {
 		assertEquals("refs/heads/master", currentRef);
 		List<String> availableHeads = JGitUtils.getAvailableHeadTargets(repository);
 		assertTrue(availableHeads.size() > 0);
-		
+
 		// set HEAD to stable-1.2
 		JGitUtils.setHEADtoRef(repository, "refs/heads/stable-1.2");
 		currentRef = JGitUtils.getHEADRef(repository);
@@ -391,19 +391,19 @@ public class JGitUtilsTest {
 		JGitUtils.setHEADtoRef(repository, "refs/heads/master");
 		currentRef = JGitUtils.getHEADRef(repository);
 		assertEquals("refs/heads/master", currentRef);
-		
+
 		repository.close();
 	}
 
 	@Test
 	public void testRelinkBranch() throws Exception {
 		Repository repository = GitBlitSuite.getJGitRepository();
-		
+
 		// create/set the branch
 		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "3b358ce514ec655d3ff67de1430994d8428cdb04");
 		assertEquals(1, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")).size());
 		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("755dfdb40948f5c1ec79e06bde3b0a78c352f27f")));
-		
+
 		// reset the branch
 		JGitUtils.setBranchRef(repository, "refs/heads/reftest", "755dfdb40948f5c1ec79e06bde3b0a78c352f27f");
 		assertEquals(null, JGitUtils.getAllRefs(repository).get(ObjectId.fromString("3b358ce514ec655d3ff67de1430994d8428cdb04")));
@@ -606,7 +606,7 @@ public class JGitUtilsTest {
 		assertTrue(zipFileB.length() > 0);
 		zipFileB.delete();
 	}
-	
+
 	@Test
 	public void testPlots() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();

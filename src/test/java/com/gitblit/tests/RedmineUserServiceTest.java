@@ -50,7 +50,7 @@ public class RedmineUserServiceTest {
         assertNotNull(userModel.cookie);
         assertThat(userModel.canAdmin, is(false));
     }
-    
+
     @Test
 	public void testLocalAccount() {
         RedmineUserService redmineUserService = new RedmineUserService();
@@ -62,8 +62,8 @@ public class RedmineUserServiceTest {
 		redmineUserService.deleteUser(localAccount.username);
 		assertTrue("Failed to add local account",
 				redmineUserService.updateUserModel(localAccount));
-		assertEquals("Accounts are not equal!", 
-				localAccount, 
+		assertEquals("Accounts are not equal!",
+				localAccount,
 				redmineUserService.authenticate(localAccount.username, "gimmesomesugar".toCharArray()));
 		assertTrue("Failed to delete local account!",
 				redmineUserService.deleteUser(localAccount.username));

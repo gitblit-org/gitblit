@@ -54,9 +54,9 @@ import com.gitblit.utils.RpcUtils;
 
 /**
  * Tests all the rpc client utility methods, the rpc filter and rpc servlet.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RpcTests {
 
@@ -103,7 +103,7 @@ public class RpcTests {
 		list = RpcUtils.getUsers(url, "admin", "admin".toCharArray());
 		assertTrue("User list is empty!", list.size() > 0);
 	}
-	
+
 	@Test
 	public void testGetUser() throws IOException {
 		UserModel user = null;
@@ -215,7 +215,7 @@ public class RpcTests {
 		assertTrue("Failed to update repository!", RpcUtils.updateRepository(retrievedRepository.name, retrievedRepository,
 				url, account, password.toCharArray()));
 		retrievedRepository = findRepository(retrievedRepository.name);
-		
+
 		// memberships
 		UserModel testMember = new UserModel("justadded");
 		assertTrue(RpcUtils.createUser(testMember, url, account, password.toCharArray()));
@@ -272,7 +272,7 @@ public class RpcTests {
 	public void testTeamAdministration() throws IOException {
 		List<TeamModel> teams = RpcUtils.getTeams(url, account, password.toCharArray());
 		assertEquals(1, teams.size());
-		
+
 		// Create the A-Team
 		TeamModel aTeam = new TeamModel("A-Team");
 		aTeam.users.add("admin");
@@ -302,7 +302,7 @@ public class RpcTests {
 			}
 		}
 		assertNotNull(helloworld);
-		
+
 		// Confirm that we have added the team
 		List<String> helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
 				password.toCharArray());
@@ -319,7 +319,7 @@ public class RpcTests {
 		helloworldTeams = RpcUtils.getRepositoryTeams(helloworld, url, account,
 				password.toCharArray());
 		assertEquals(0, helloworldTeams.size());
-		
+
 		// delete the A-Team
 		assertTrue(RpcUtils.deleteTeam(aTeam, url, account, password.toCharArray()));
 

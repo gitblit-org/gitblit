@@ -27,7 +27,7 @@ import com.gitblit.utils.ActivityUtils;
 public class ActivityTest {
 
 	@Test
-	public void testGravatarProfile() throws IOException {		
+	public void testGravatarProfile() throws IOException {
 		GravatarProfile profile = ActivityUtils.getGravatarProfile("beau@dentedreality.com.au");
 		assertEquals("beau", profile.preferredUsername);
 	}

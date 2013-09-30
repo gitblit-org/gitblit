@@ -31,37 +31,37 @@ import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 
 public class RepositoryModelTest {
-	
+
 	private static boolean wasStarted = false;
-	
+
 	@BeforeClass
 	public static void startGitBlit() throws Exception {
 		wasStarted = GitBlitSuite.startGitblit() == false;
 	}
-	
+
 	@AfterClass
 	public static void stopGitBlit() throws Exception {
 		if (wasStarted == false)
 			GitBlitSuite.stopGitblit();
 	}
-	
+
 	@Before
 	public void initializeConfiguration() throws Exception{
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = r.getConfig();
-		
+
 		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
 		config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, "commitMessageRegEx", "\\d");
 		config.setString(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS, "anotherProperty", "Hello");
-		
+
 		config.save();
 	}
-	
+
 	@After
 	public void teardownConfiguration() throws Exception {
 		Repository r = GitBlitSuite.getHelloworldRepository();
 		StoredConfig config = r.getConfig();
-		
+
 		config.unsetSection(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS);
 		config.save();
 	}
@@ -70,25 +70,25 @@ public class RepositoryModelTest {
 	public void testGetCustomProperty() throws Exception {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
-		
+
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));
 		assertEquals("Hello", model.customFields.get("anotherProperty"));
 	}
-	
+
 	@Test
 	public void testSetCustomProperty() throws Exception {
 		RepositoryModel model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
-		
+
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));
 		assertEquals("Hello", model.customFields.get("anotherProperty"));
-		
+
 		assertEquals("Hello", model.customFields.put("anotherProperty", "GoodBye"));
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		
+
 		model = GitBlit.self().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
-		
+
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));
 		assertEquals("GoodBye", model.customFields.get("anotherProperty"));
 	}

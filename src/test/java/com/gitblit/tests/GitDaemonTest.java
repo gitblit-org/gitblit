@@ -43,11 +43,11 @@ import com.gitblit.models.RepositoryModel;
 public class GitDaemonTest extends Assert {
 
 	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
-	
+
 	static File ticgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit2");
 
 	static File jgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/jgit");
-	
+
 	static File jgit2Folder = new File(GitBlitSuite.REPOSITORIES, "working/jgit2");
 
 	String url = GitBlitSuite.gitDaemonUrl;
@@ -98,21 +98,21 @@ public class GitDaemonTest extends Assert {
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
-		GitBlitSuite.close(clone.call());		
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
 	}
-	
+
 	@Test
 	public void testCloneRestrictedRepo() throws Exception {
 		GitBlitSuite.close(ticgit2Folder);
@@ -125,8 +125,8 @@ public class GitDaemonTest extends Assert {
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
-		
-		// delete any existing working folder		
+
+		// delete any existing working folder
 		boolean cloned = false;
 		try {
 			CloneCommand clone = Git.cloneRepository();
@@ -143,7 +143,7 @@ public class GitDaemonTest extends Assert {
 		assertFalse("Anonymous was able to clone the repository?!", cloned);
 
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
-		
+
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
@@ -168,9 +168,9 @@ public class GitDaemonTest extends Assert {
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
-		GitBlitSuite.close(clone.call());		
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -206,9 +206,9 @@ public class GitDaemonTest extends Assert {
 		clone.setDirectory(ticgitFolder);
 		clone.setBare(false);
 		clone.setCloneAllBranches(true);
-		GitBlitSuite.close(clone.call());		
+		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		Git git = Git.open(ticgitFolder);
 		File file = new File(ticgitFolder, "TODO");
 		OutputStreamWriter os = new OutputStreamWriter(new FileOutputStream(file, true), Constants.CHARSET);
@@ -232,7 +232,7 @@ public class GitDaemonTest extends Assert {
 		if (jgitFolder.exists()) {
 			FileUtils.delete(jgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/test/jgit.git", url));
 		clone.setDirectory(jgitFolder);
@@ -240,7 +240,7 @@ public class GitDaemonTest extends Assert {
 		clone.setCloneAllBranches(true);
 		GitBlitSuite.close(clone.call());
 		assertTrue(true);
-		
+
 		// freeze repo
 		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
 		model.isFrozen = true;
@@ -254,14 +254,14 @@ public class GitDaemonTest extends Assert {
 		w.close();
 		git.add().addFilepattern(file.getName()).call();
 		git.commit().setMessage("test commit").call();
-		
+
 		Iterable<PushResult> results = git.push().call();
 		for (PushResult result : results) {
 			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
 				assertEquals(Status.REJECTED_OTHER_REASON, update.getStatus());
 			}
 		}
-	
+
 		// unfreeze repo
 		model.isFrozen = false;
 		GitBlit.self().updateRepositoryModel(model.name, model, false);
@@ -274,14 +274,14 @@ public class GitDaemonTest extends Assert {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testPushToNonBareRepository() throws Exception {
 		GitBlitSuite.close(jgit2Folder);
 		if (jgit2Folder.exists()) {
 			FileUtils.delete(jgit2Folder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
-		
+
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/working/jgit", url));
 		clone.setDirectory(jgit2Folder);
@@ -301,7 +301,7 @@ public class GitDaemonTest extends Assert {
 
 		Iterable<PushResult> results = git.push().setPushAll().call();
 		GitBlitSuite.close(git);
-		
+
 		for (PushResult result : results) {
 			for (RemoteRefUpdate update : result.getRemoteUpdates()) {
 				assertEquals(Status.REJECTED_OTHER_REASON, update.getStatus());

@@ -37,10 +37,10 @@ public class ArrayUtilsTest {
 
 		Object [] emptyArray = new Object[0];
 		assertTrue(ArrayUtils.isEmpty(emptyArray));
-		
+
 		assertFalse(ArrayUtils.isEmpty(new String [] { "" }));
 	}
-	
+
 	@Test
 	public void testLists() {
 		List<?> nullList = null;
@@ -48,11 +48,11 @@ public class ArrayUtilsTest {
 
 		List<?> emptyList = new ArrayList<Object>();
 		assertTrue(ArrayUtils.isEmpty(emptyList));
-		
+
 		List<?> list = Arrays.asList("");
 		assertFalse(ArrayUtils.isEmpty(list));
 	}
-	
+
 	@Test
 	public void testSets() {
 		Set<?> nullSet = null;
@@ -60,7 +60,7 @@ public class ArrayUtilsTest {
 
 		Set<?> emptySet = new HashSet<Object>();
 		assertTrue(ArrayUtils.isEmpty(emptySet));
-		
+
 		Set<?> set = new HashSet<Object>(Arrays.asList(""));
 		assertFalse(ArrayUtils.isEmpty(set));
 	}
