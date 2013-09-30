@@ -250,13 +250,6 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newClearPixel("forkIcon").setVisible(false));
 				}
 
-				if (entry.useTickets) {
-					row.add(WicketUtils.newImage("ticketsIcon", "bug_16x16.png",
-							getString("gb.tickets")));
-				} else {
-					row.add(WicketUtils.newBlankImage("ticketsIcon"));
-				}
-
 				if (entry.useDocs) {
 					row.add(WicketUtils
 							.newImage("docsIcon", "book_16x16.png", getString("gb.docs")));

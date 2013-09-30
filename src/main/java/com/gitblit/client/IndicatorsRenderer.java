@@ -46,8 +46,6 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 
 	private final ImageIcon viewIcon;
 
-	private final ImageIcon tixIcon;
-
 	private final ImageIcon doxIcon;
 
 	private final ImageIcon frozenIcon;
@@ -64,7 +62,6 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 		pushIcon = new ImageIcon(getClass().getResource("/lock_go_16x16.png"));
 		pullIcon = new ImageIcon(getClass().getResource("/lock_pull_16x16.png"));
 		viewIcon = new ImageIcon(getClass().getResource("/shield_16x16.png"));
-		tixIcon = new ImageIcon(getClass().getResource("/bug_16x16.png"));
 		doxIcon = new ImageIcon(getClass().getResource("/book_16x16.png"));
 		frozenIcon = new ImageIcon(getClass().getResource("/cold_16x16.png"));
 		federatedIcon = new ImageIcon(getClass().getResource("/federated_16x16.png"));
@@ -91,11 +88,6 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 			if (model.isFork()) {
 				JLabel icon = new JLabel(forkIcon);
 				tooltip.append(Translation.get("gb.isFork")).append("<br/>");
-				add(icon);
-			}
-			if (model.useTickets) {
-				JLabel icon = new JLabel(tixIcon);
-				tooltip.append(Translation.get("gb.tickets")).append("<br/>");
 				add(icon);
 			}
 			if (model.useDocs) {

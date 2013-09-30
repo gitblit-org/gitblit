@@ -2002,7 +2002,6 @@ public class GitBlit implements ServletContextListener {
 			model.description = getConfig(config, "description", "");
 			model.originRepository = getConfig(config, "originRepository", null);
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
-			model.useTickets = getConfig(config, "useTickets", false);
 			model.useDocs = getConfig(config, "useDocs", false);
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
@@ -2563,7 +2562,6 @@ public class GitBlit implements ServletContextListener {
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
 		config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.originRepository);
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
-		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useTickets", repository.useTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useDocs", repository.useDocs);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||

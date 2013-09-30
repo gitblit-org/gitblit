@@ -88,8 +88,6 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField descriptionField;
 
-	private JCheckBox useTickets;
-
 	private JCheckBox useDocs;
 
 	private JCheckBox useIncrementalPushTags;
@@ -211,8 +209,6 @@ public class EditRepositoryDialog extends JDialog {
 
 		ownersPalette = new JPalette<String>(true);
 
-		useTickets = new JCheckBox(Translation.get("gb.useTicketsDescription"),
-				anRepository.useTickets);
 		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"),
 				anRepository.useDocs);
 		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
@@ -310,8 +306,6 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.enableTickets"),
-				useTickets));
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
 		fieldsPanel
@@ -570,7 +564,6 @@ public class EditRepositoryDialog extends JDialog {
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
 		repository.gcThreshold = gcThreshold.getText();
-		repository.useTickets = useTickets.isSelected();
 		repository.useDocs = useDocs.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();

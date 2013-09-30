@@ -160,7 +160,6 @@ public class GitBlitSuite {
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
 
-			enableTickets("ticgit.git");
 			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
 			automaticallyTagBranchTips("ticgit.git");
@@ -182,16 +181,6 @@ public class GitBlitSuite {
 			System.out.println("Error: " + t.getMessage());
 		}
 		System.out.println("done.");
-	}
-
-	private static void enableTickets(String repositoryName) {
-		try {
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			model.useTickets = true;
-			GitBlit.self().updateRepositoryModel(model.name, model, false);
-		} catch (GitBlitException g) {
-			g.printStackTrace();
-		}
 	}
 
 	private static void enableDocs(String repositoryName) {
