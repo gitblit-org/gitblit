@@ -216,6 +216,30 @@ public class FileUtils {
 	}
 
 	/**
+	 * Delete a file or recursively delete a folder.
+	 *
+	 * @param fileOrFolder
+	 * @return true, if successful
+	 */
+	public static boolean delete(File fileOrFolder) {
+		boolean success = false;
+		if (fileOrFolder.isDirectory()) {
+			File [] files = fileOrFolder.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isDirectory()) {
+						success |= delete(file);
+					} else {
+						success |= file.delete();
+					}
+				}
+			}
+		}
+		success |= fileOrFolder.delete();
+		return success;
+	}
+
+	/**
 	 * Copies a file or folder (recursively) to a destination folder.
 	 * 
 	 * @param destinationFolder
