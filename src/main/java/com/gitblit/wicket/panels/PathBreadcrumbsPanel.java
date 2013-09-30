@@ -56,6 +56,7 @@ public class PathBreadcrumbsPanel extends Panel {
 		DataView<BreadCrumb> pathsView = new DataView<BreadCrumb>("path", crumbsDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<BreadCrumb> item) {
 				final BreadCrumb entry = item.getModelObject();
 				String path = entry.path;

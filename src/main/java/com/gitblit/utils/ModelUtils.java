@@ -38,7 +38,7 @@ public class ModelUtils
 			userRepoPrefix = Constants.DEFAULT_USER_REPOSITORY_PREFIX;
 			return;
 		}
-		
+
 		String newPrefix = prefix.replace('\\', '/');
 		if (prefix.charAt(0) == '/') {
 			newPrefix = prefix.substring(1);

@@ -84,6 +84,7 @@ public class SearchPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);

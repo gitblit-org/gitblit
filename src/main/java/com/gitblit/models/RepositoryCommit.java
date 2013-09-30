@@ -27,7 +27,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 /**
  * Model class to represent a RevCommit, it's source repository, and the branch.
  * This class is used by the activity page.
- * 
+ *
  * @author James Moger
  */
 public class RepositoryCommit implements Serializable, Comparable<RepositoryCommit> {
@@ -71,7 +71,7 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 	public String getShortMessage() {
 		return commit.getShortMessage();
 	}
-	
+
 	public Date getCommitDate() {
 		return new Date(commit.getCommitTime() * 1000L);
 	}
@@ -79,7 +79,7 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 	public int getParentCount() {
 		return commit.getParentCount();
 	}
-	
+
 	public RevCommit [] getParents() {
 		return commit.getParents();
 	}
@@ -91,7 +91,7 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 	public PersonIdent getCommitterIdent() {
 		return commit.getCommitterIdent();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof RepositoryCommit) {
@@ -116,14 +116,14 @@ public class RepositoryCommit implements Serializable, Comparable<RepositoryComm
 		}
 		return 0;
 	}
-	
+
 	public RepositoryCommit clone(String withRef) {
 		return new RepositoryCommit(repository, withRef, commit);
 	}
-	
+
 	@Override
 	public String toString() {
-		return MessageFormat.format("{0} {1} {2,date,yyyy-MM-dd HH:mm} {3} {4}", 
+		return MessageFormat.format("{0} {1} {2,date,yyyy-MM-dd HH:mm} {3} {4}",
 				getShortName(), branch, getCommitterIdent().getWhen(), getAuthorIdent().getName(),
 				getShortMessage());
 	}

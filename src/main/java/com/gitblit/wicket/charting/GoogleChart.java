@@ -23,9 +23,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Abstract parent class for Google Charts built with the Visualization API.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class GoogleChart implements Serializable {
 
@@ -57,7 +57,7 @@ public abstract class GoogleChart implements Serializable {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-	
+
 	public void setShowLegend(boolean val) {
 		this.showLegend = val;
 	}

@@ -32,21 +32,22 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
- * 
+ *
  * Customization of the WicketFilter to allow smart browser-side caching of
  * some pages.
- * 
+ *
  * @author James Moger
  *
  */
 public class GitblitWicketFilter extends WicketFilter {
-	
+
 	/**
 	 * Determines the last-modified date of the requested resource.
-	 * 
+	 *
 	 * @param servletRequest
 	 * @return The last modified time stamp
 	 */
+	@Override
 	protected long getLastModified(final HttpServletRequest servletRequest)	{
 		final String pathInfo = getRelativePath(servletRequest);
 		if (Strings.isEmpty(pathInfo))
@@ -55,10 +56,10 @@ public class GitblitWicketFilter extends WicketFilter {
 		if (lastModified > -1) {
 			return lastModified;
 		}
-		
+
 		// try to match request against registered CacheControl pages
 		String [] paths = pathInfo.split("/");
-		
+
 		String page = paths[0];
 		String repo = "";
 		String commitId = "";
@@ -68,14 +69,14 @@ public class GitblitWicketFilter extends WicketFilter {
 		if (paths.length >= 3) {
 			commitId = paths[2];
 		}
-		
+
 		if (!StringUtils.isEmpty(servletRequest.getParameter("r"))) {
 			repo = servletRequest.getParameter("r");
 		}
 		if (!StringUtils.isEmpty(servletRequest.getParameter("h"))) {
 			commitId = servletRequest.getParameter("h");
 		}
-		
+
 		repo = repo.replace("%2f", "/").replace("%2F", "/").replace(GitBlit.getChar(Keys.web.forwardSlashCharacter, '/'), '/');
 
 		GitBlitWebApp app = (GitBlitWebApp) getWebApplication();
@@ -116,7 +117,7 @@ public class GitblitWicketFilter extends WicketFilter {
 					// no commit id, use boot date
 					return bootDate.getTime();
 				} else {
-					// last modified date is the commit date 
+					// last modified date is the commit date
 					Repository r = null;
 					try {
 						// return the timestamp of the associated commit
@@ -138,7 +139,7 @@ public class GitblitWicketFilter extends WicketFilter {
 			default:
 				break;
 			}
-		}			
+		}
 
 		return -1;
 	}

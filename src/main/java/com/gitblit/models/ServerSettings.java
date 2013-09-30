@@ -26,7 +26,7 @@ import java.util.TreeMap;
  * setting metadata such as name, current value, default value, description, and
  * directives. It is a model class for serialization and presentation, but not
  * for persistence.
- * 
+ *
  * @author James Moger
  */
 public class ServerSettings implements Serializable {
@@ -36,13 +36,13 @@ public class ServerSettings implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public List<String> pushScripts;
-	
+
 	public boolean supportsCredentialChanges;
-	
+
 	public boolean supportsDisplayNameChanges;
-	
+
 	public boolean supportsEmailAddressChanges;
-	
+
 	public boolean supportsTeamMembershipChanges;
 
 	public ServerSettings() {
@@ -62,7 +62,7 @@ public class ServerSettings implements Serializable {
 	public SettingModel get(String key) {
 		return settings.get(key);
 	}
-	
+
 	public boolean hasKey(String key) {
 		return settings.containsKey(key);
 	}

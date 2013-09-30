@@ -24,9 +24,9 @@ import com.gitblit.GitBlit;
 /**
  * The GitServlet provides http/https access to Git repositories.
  * Access to this servlet is protected by the GitFilter.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 

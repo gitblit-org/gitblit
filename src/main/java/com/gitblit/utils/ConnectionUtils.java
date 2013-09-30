@@ -38,9 +38,9 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Utility class for establishing HTTP/HTTPS connections.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ConnectionUtils {
 
@@ -61,7 +61,7 @@ public class ConnectionUtils {
 		SSL_CONTEXT = context;
 		HOSTNAME_VERIFIER = new DummyHostnameVerifier();
 		CHARSET = "UTF-8";
-		
+
 		// Disable Java 7 SNI checks
 		// http://stackoverflow.com/questions/7615645/ssl-handshake-alert-unrecognized-name-error-since-upgrade-to-java-1-7-0
 		System.setProperty("jsse.enableSNIExtension", "false");
@@ -97,7 +97,7 @@ public class ConnectionUtils {
 		}
 		return conn;
 	}
-		
+
 	// Copyright (C) 2009 The Android Open Source Project
 	//
 	// Licensed under the Apache License, Version 2.0 (the "License");
@@ -183,7 +183,7 @@ public class ConnectionUtils {
 
 	/**
 	 * DummyTrustManager trusts all certificates.
-	 * 
+	 *
 	 * @author James Moger
 	 */
 	private static class DummyTrustManager implements X509TrustManager {
@@ -206,7 +206,7 @@ public class ConnectionUtils {
 
 	/**
 	 * Trusts all hostnames from a certificate, including self-signed certs.
-	 * 
+	 *
 	 * @author James Moger
 	 */
 	private static class DummyHostnameVerifier implements HostnameVerifier {

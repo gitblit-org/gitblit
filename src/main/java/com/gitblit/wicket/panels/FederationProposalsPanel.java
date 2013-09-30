@@ -52,6 +52,7 @@ public class FederationProposalsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<FederationProposal> item) {
 				final FederationProposal entry = item.getModelObject();
 				item.add(new LinkPanel("url", "list", entry.url, ReviewProposalPage.class,

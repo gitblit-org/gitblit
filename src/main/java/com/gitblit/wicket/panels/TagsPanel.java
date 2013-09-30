@@ -66,6 +66,7 @@ public class TagsPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 
@@ -89,7 +90,7 @@ public class TagsPanel extends BasePanel {
 								.getReferencedObjectId().getName())));
 
 				// workaround for RevTag returning a lengthy shortlog. :(
-				String message = StringUtils.trimString(entry.getShortMessage(), 
+				String message = StringUtils.trimString(entry.getShortMessage(),
 						com.gitblit.Constants.LEN_SHORTLOG);
 
 				if (linkClass.equals(BlobPage.class)) {

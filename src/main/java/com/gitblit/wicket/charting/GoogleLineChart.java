@@ -19,9 +19,9 @@ import java.text.MessageFormat;
 
 /**
  * Builds an interactive line chart using the Visualization API.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GoogleLineChart extends GoogleChart {
 

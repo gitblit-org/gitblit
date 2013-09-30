@@ -41,9 +41,9 @@ import javax.swing.event.ListSelectionListener;
 /**
  * Displays a list of registrations and allows management of server
  * registrations.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RegistrationsDialog extends JDialog {
 
@@ -82,6 +82,7 @@ public class RegistrationsDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -98,6 +99,7 @@ public class RegistrationsDialog extends JDialog {
 				.getColumnName(RegistrationsTableModel.Columns.Name.ordinal());
 		registrationsTable.getColumn(id).setCellRenderer(nameRenderer);
 		registrationsTable.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					login();
@@ -107,6 +109,7 @@ public class RegistrationsDialog extends JDialog {
 
 		final JButton create = new JButton(Translation.get("gb.create"));
 		create.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				create();
 			}
@@ -115,6 +118,7 @@ public class RegistrationsDialog extends JDialog {
 		final JButton login = new JButton(Translation.get("gb.login"));
 		login.setEnabled(false);
 		login.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				login();
 			}
@@ -123,6 +127,7 @@ public class RegistrationsDialog extends JDialog {
 		final JButton edit = new JButton(Translation.get("gb.edit"));
 		edit.setEnabled(false);
 		edit.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				edit();
 			}
@@ -131,6 +136,7 @@ public class RegistrationsDialog extends JDialog {
 		final JButton delete = new JButton(Translation.get("gb.delete"));
 		delete.setEnabled(false);
 		delete.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				delete();
 			}
@@ -162,6 +168,7 @@ public class RegistrationsDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return insets;
 			}

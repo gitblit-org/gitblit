@@ -40,9 +40,9 @@ import com.gitblit.utils.TimeUtils;
 
 /**
  * Handles federation requests.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FederationServlet extends JsonServlet {
 
@@ -54,7 +54,7 @@ public class FederationServlet extends JsonServlet {
 
 	/**
 	 * Processes a federation request.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException
@@ -231,7 +231,7 @@ public class FederationServlet extends JsonServlet {
 					return;
 				}
 				Map<String, String> scripts = new HashMap<String, String>();
-				
+
 				Set<String> names = new HashSet<String>();
 				names.addAll(GitBlit.getStrings(Keys.groovy.preReceiveScripts));
 				names.addAll(GitBlit.getStrings(Keys.groovy.postReceiveScripts));

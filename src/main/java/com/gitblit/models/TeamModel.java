@@ -35,9 +35,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * TeamModel is a serializable model class that represents a group of users and
  * a list of accessible repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class TeamModel implements Serializable, Comparable<TeamModel> {
 
@@ -77,7 +77,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public void addRepository(String name) {
 		addRepositoryPermission(name);
 	}
-	
+
 	@Deprecated
 	@Unused
 	public void addRepositories(Collection<String> names) {
@@ -90,10 +90,10 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		removeRepositoryPermission(name);
 	}
 
-	
+
 	/**
 	 * Returns a list of repository permissions for this team.
-	 * 
+	 *
 	 * @return the team's list of permissions
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
@@ -117,11 +117,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Returns true if the team has any type of specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return true if team has a specified access permission for the repository
 	 */
@@ -143,11 +143,11 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the team has an explicitly specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return if the team has an explicitly specified access permission
 	 */
@@ -155,7 +155,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		return permissions.containsKey(repository);
 	}
-	
+
 	/**
 	 * Adds a repository permission to the team.
 	 * <p>
@@ -178,13 +178,13 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			addRepositoryPermission(role);
 		}
 	}
-	
+
 	public AccessPermission removeRepositoryPermission(String name) {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		repositories.remove(repository);
 		return permissions.remove(repository);
 	}
-	
+
 	public void setRepositoryPermission(String repository, AccessPermission permission) {
 		if (permission == null) {
 			// remove the permission
@@ -196,16 +196,16 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			repositories.add(repository.toLowerCase());
 		}
 	}
-	
+
 	public RegistrantAccessPermission getRepositoryPermission(RepositoryModel repository) {
 		RegistrantAccessPermission ap = new RegistrantAccessPermission();
 		ap.registrant = name;
 		ap.registrantType = RegistrantType.TEAM;
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
-		
+
 		// determine maximum permission for the repository
-		final AccessPermission maxPermission = 
+		final AccessPermission maxPermission =
 				(repository.isFrozen || !repository.isBare) ?
 						AccessPermission.CLONE : AccessPermission.REWIND;
 
@@ -219,7 +219,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			}
 			return ap;
 		}
-		
+
 		if (canAdmin) {
 			ap.permissionType = PermissionType.ADMINISTRATOR;
 			if (AccessPermission.REWIND.atMost(maxPermission)) {
@@ -229,7 +229,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 			}
 			return ap;
 		}
-		
+
 		if (permissions.containsKey(repository.name.toLowerCase())) {
 			// exact repository permission specified
 			AccessPermission p = permissions.get(repository.name.toLowerCase());
@@ -262,7 +262,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 				}
 			}
 		}
-		
+
 		// still no explicit or regex, check for implicit permissions
 		if (AccessPermission.NONE == ap.permission) {
 			switch (repository.accessRestriction) {
@@ -289,7 +289,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 		return ap;
 	}
-	
+
 	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
 			RegistrantAccessPermission ap = getRepositoryPermission(repository);
@@ -297,7 +297,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		}
 		return true;
 	}
-	
+
 	public boolean canView(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
 	}

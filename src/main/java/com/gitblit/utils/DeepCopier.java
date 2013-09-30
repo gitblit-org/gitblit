@@ -57,7 +57,7 @@ public class DeepCopier {
 	 * very large objects. The current thread is used for serializing the
 	 * original object in order to respect any synchronization the caller may
 	 * have around it, and a new thread is used for deserializing the copy.
-	 * 
+	 *
 	 */
 	public static <T> T copyParallel(T original) {
 		try {
@@ -88,6 +88,7 @@ public class DeepCopier {
 			start();
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public void run() {
 

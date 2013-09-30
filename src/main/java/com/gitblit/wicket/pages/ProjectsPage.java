@@ -49,7 +49,7 @@ public class ProjectsPage extends RootPage {
 	protected boolean reusePageParameters() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;
@@ -83,6 +83,7 @@ public class ProjectsPage extends RootPage {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<ProjectModel> item) {
 				final ProjectModel entry = item.getModelObject();
 
@@ -117,7 +118,7 @@ public class ProjectsPage extends RootPage {
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
-		
+
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
 				ProjectsPage.class);
 		// preserve time filter option on repository choices

@@ -37,7 +37,7 @@ public class FederationSet implements Serializable {
 
 	/**
 	 * The constructor for a federation set.
-	 * 
+	 *
 	 * @param name
 	 *            the name of this federation set
 	 * @param tokenType

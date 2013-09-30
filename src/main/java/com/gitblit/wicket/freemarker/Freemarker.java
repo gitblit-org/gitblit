@@ -27,18 +27,18 @@ import freemarker.template.TemplateException;
 public class Freemarker {
 
 	private static final Configuration fm;
-	
+
 	static {
 		fm = new Configuration();
 		fm.setObjectWrapper(new DefaultObjectWrapper());
 		fm.setOutputEncoding("UTF-8");
 		fm.setClassForTemplateLoading(Freemarker.class, "templates");
 	}
-	
+
 	public static Template getTemplate(String name) throws IOException {
 		return fm.getTemplate(name);
 	}
-	
+
 	public static void evaluate(Template template, Map<String, Object> values, Writer out) throws TemplateException, IOException {
 		template.process(values, out);
 	}

@@ -44,6 +44,7 @@ public class CommitLegendPanel extends Panel {
 		DataView<ChangeType> legendsView = new DataView<ChangeType>("legend", legendDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<ChangeType> item) {
 				ChangeType entry = item.getModelObject();
 

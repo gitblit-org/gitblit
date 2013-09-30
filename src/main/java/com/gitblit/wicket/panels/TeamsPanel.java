@@ -54,6 +54,7 @@ public class TeamsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<TeamModel> item) {
 				final TeamModel entry = item.getModelObject();
 				LinkPanel editLink = new LinkPanel("teamname", "list", entry.name,

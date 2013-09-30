@@ -52,17 +52,17 @@ import com.gitblit.wicket.WicketUtils;
 
 /**
  * Allows user to manipulate registrant access permissions.
- * 
+ *
  * @author James Moger
  *
  */
 public class RegistrantPermissionsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public enum Show {
 		specified, mutable, effective;
-		
+
 		public boolean show(RegistrantAccessPermission ap) {
 			switch (this) {
 			case specified:
@@ -76,9 +76,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			}
 		}
 	}
-	
+
 	private Show activeState = Show.mutable;
-	
+
 	public RegistrantPermissionsPanel(String wicketId, RegistrantType registrantType, List<String> allRegistrants, final List<RegistrantAccessPermission> permissions, final Map<AccessPermission, String> translations) {
 		super(wicketId);
 		setOutputMarkupId(true);
@@ -97,7 +97,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 		 */
 		RefreshingView<RegistrantAccessPermission> dataView = new RefreshingView<RegistrantAccessPermission>("permissionRow") {
 			private static final long serialVersionUID = 1L;
-		
+
 			@Override
             protected Iterator<IModel<RegistrantAccessPermission>> getItemModels() {
                 // the iterator returns RepositoryPermission objects, but we need it to
@@ -116,7 +116,8 @@ public class RegistrantPermissionsPanel extends BasePanel {
                 // 'even' for decoration
                 return new OddEvenItem<RegistrantAccessPermission>(id, index, model);
             }
-            
+
+			@Override
 			public void populateItem(final Item<RegistrantAccessPermission> item) {
 				final RegistrantAccessPermission entry = item.getModelObject();
 				if (RegistrantType.REPOSITORY.equals(entry.registrantType)) {
@@ -135,7 +136,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 						Label label = new Label("registrant", entry.registrant);
 						WicketUtils.setCssStyle(label, "font-weight: bold;");
 						item.add(label);
-					}					
+					}
 				} else if (RegistrantType.USER.equals(entry.registrantType)) {
 					// user
 					PersonIdent ident = new PersonIdent(entry.registrant, "");
@@ -146,8 +147,8 @@ public class RegistrantPermissionsPanel extends BasePanel {
 
 					Fragment userFragment = new Fragment("registrant", "userRegistrant", RegistrantPermissionsPanel.this);
 					userFragment.add(new GravatarImage("userAvatar", ident, 20, false));
-					userFragment.add(new Label("userName", entry.registrant));					
-					item.add(userFragment);					
+					userFragment.add(new Label("userName", entry.registrant));
+					item.add(userFragment);
 				} else {
 					// team
 					Fragment teamFragment = new Fragment("registrant", "teamRegistrant", RegistrantPermissionsPanel.this);
@@ -209,9 +210,10 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				permissionChoice.setOutputMarkupId(true);
 				if (entry.mutable) {
 					permissionChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-		           
+
 						private static final long serialVersionUID = 1L;
 
+						@Override
 						protected void onUpdate(AjaxRequestTarget target) {
 							target.addComponent(permissionChoice);
 						}
@@ -265,29 +267,30 @@ public class RegistrantPermissionsPanel extends BasePanel {
 					copy.source = copy.registrant;
 				}
 				permissions.add(copy);
-				
+
 				// resort permissions after insert to convey idea of eval order
 				Collections.sort(permissions);
-				
+
 				// remove registrant from available choices
 				registrants.remove(rp.registrant);
-				
+
 				// force the panel to refresh
 				target.addComponent(RegistrantPermissionsPanel.this);
 			}
 		};
 		addPermissionForm.add(button);
-		
+
 		// only show add permission form if we have a registrant choice
 		add(addPermissionForm.setVisible(registrants.size() > 0));
 	}
-	
+
+	@Override
 	protected boolean getStatelessHint()
 	{
 		return false;
 	}
 
-	
+
 	private class AccessPermissionRenderer implements IChoiceRenderer<AccessPermission> {
 
 		private static final long serialVersionUID = 1L;
@@ -308,18 +311,18 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			return Integer.toString(index);
 		}
 	}
-	
+
 	private class ShowStateButton extends AjaxButton {
 		private static final long serialVersionUID = 1L;
 
 		Show buttonState;
-		
+
 		public ShowStateButton(String wicketId, Show state) {
 			super(wicketId);
 			this.buttonState = state;
 			setOutputMarkupId(true);
 		}
-		
+
 		@Override
 		protected void onBeforeRender()
 		{
@@ -330,7 +333,7 @@ public class RegistrantPermissionsPanel extends BasePanel {
 			WicketUtils.setCssClass(this, cssClass);
 			super.onBeforeRender();
 		}
-		
+
 		@Override
 		protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 			RegistrantPermissionsPanel.this.activeState = buttonState;

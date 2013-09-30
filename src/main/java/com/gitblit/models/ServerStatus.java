@@ -25,9 +25,9 @@ import com.gitblit.Constants;
 /**
  * ServerStatus encapsulates runtime status information about the server
  * including some information about the system environment.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ServerStatus implements Serializable {
 

@@ -45,7 +45,7 @@ import com.toedter.calendar.JDateChooser;
 public class NewClientCertificateDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	JDateChooser expirationDate;
 	JPasswordField pw1;
 	JPasswordField pw2;
@@ -55,47 +55,48 @@ public class NewClientCertificateDialog extends JDialog {
 
 	public NewClientCertificateDialog(Frame owner, String displayname, Date defaultExpiration, boolean allowEmail) {
 		super(owner);
-		
+
 		setTitle(Translation.get("gb.newCertificate"));
-		
-		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
+
+		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Insets getInsets() {
-				
+
 				return Utils.INSETS;
 			}
 		};
-		
+
 		expirationDate = new JDateChooser(defaultExpiration);
 		pw1 = new JPasswordField(20);
 		pw2 = new JPasswordField(20);
 		hint = new JTextField(20);
 		sendEmail = new JCheckBox(Translation.get("gb.sendEmail"));
-		
+
 		JPanel panel = new JPanel(new GridLayout(0, 2, Utils.MARGIN, Utils.MARGIN));
-		
+
 		panel.add(new JLabel(Translation.get("gb.expires")));
 		panel.add(expirationDate);
-		
+
 		panel.add(new JLabel(Translation.get("gb.password")));
 		panel.add(pw1);
 
 		panel.add(new JLabel(Translation.get("gb.confirmPassword")));
 		panel.add(pw2);
-		
+
 		panel.add(new JLabel(Translation.get("gb.passwordHint")));
 		panel.add(hint);
-		
+
 		if (allowEmail) {
 			panel.add(new JLabel(""));
 			panel.add(sendEmail);
 		}
 
-		
+
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (validateInputs()) {
 					isCanceled = false;
@@ -105,34 +106,35 @@ public class NewClientCertificateDialog extends JDialog {
 		});
 		JButton cancel = new JButton(Translation.get("gb.cancel"));
 		cancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				isCanceled = true;
 				setVisible(false);
 			}
 		});
-		
+
 		JPanel controls = new JPanel();
 		controls.add(ok);
 		controls.add(cancel);
-		
+
 		JTextArea message = new JTextArea(Translation.get("gb.newClientCertificateMessage"));
 		message.setLineWrap(true);
 		message.setWrapStyleWord(true);
 		message.setEditable(false);
 		message.setRows(6);
 		message.setPreferredSize(new Dimension(300, 100));
-		
+
 		content.add(new JScrollPane(message), BorderLayout.CENTER);
 		content.add(panel, BorderLayout.NORTH);
 		content.add(controls, BorderLayout.SOUTH);
-		
+
 		getContentPane().add(new HeaderPanel(Translation.get("gb.newCertificate") + " (" + displayname + ")", "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
-		
+
 		setLocationRelativeTo(owner);
 	}
-	
+
 	private boolean validateInputs() {
 		if (getExpiration().getTime() < System.currentTimeMillis()) {
 			// expires before now
@@ -154,23 +156,23 @@ public class NewClientCertificateDialog extends JDialog {
 		}
 		return true;
 	}
-	
+
 	public String getPassword() {
 		return new String(pw1.getPassword());
 	}
-	
+
 	public String getPasswordHint() {
 		return hint.getText();
 	}
-	
+
 	public Date getExpiration() {
 		return expirationDate.getDate();
 	}
-	
+
 	public boolean sendEmail() {
 		return sendEmail.isSelected();
 	}
-	
+
 	public boolean isCanceled() {
 		return isCanceled;
 	}

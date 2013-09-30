@@ -78,7 +78,7 @@ public class TagPage extends RepositoryPage {
 			break;
 		}
 		add(new GravatarImage("taggerAvatar", tagRef.getAuthorIdent()));
-		
+
 		add(new RefsPanel("tagName", repositoryName, Arrays.asList(tagRef)));
 		add(new Label("tagId", tagRef.getObjectId().getName()));
 		add(new LinkPanel("taggedObject", "list", tagRef.getReferencedObjectId().getName(),
@@ -99,7 +99,7 @@ public class TagPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.tag");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

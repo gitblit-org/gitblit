@@ -8,16 +8,16 @@ import com.gitblit.Constants.SearchObjectType;
 
 /**
  * Model class that represents a search result.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SearchResult implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public int hitId;
-	
+
 	public int totalHits;
 
 	public float score;
@@ -29,24 +29,24 @@ public class SearchResult implements Serializable {
 	public String committer;
 
 	public String summary;
-	
+
 	public String fragment;
-	
+
 	public String repository;
-	
+
 	public String branch;
 
 	public String commitId;
-	
+
 	public String path;
-	
+
 	public List<String> tags;
-	
+
 	public SearchObjectType type;
 
 	public SearchResult() {
 	}
-	
+
 	public String getId() {
 		switch (type) {
 		case blob:

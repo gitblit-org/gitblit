@@ -26,22 +26,23 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  * Time ago cell renderer with real date tooltip.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class DateCellRenderer extends DefaultTableCellRenderer {
 
 	private static final long serialVersionUID = 1L;
 
 	private final String pattern;
-	
+
 	public DateCellRenderer(String pattern, Color foreground) {
 		this.pattern = (pattern == null ? "yyyy-MM-dd HH:mm" : pattern);
 		setForeground(foreground);
 		setHorizontalAlignment(SwingConstants.CENTER);
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

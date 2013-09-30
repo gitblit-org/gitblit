@@ -33,9 +33,9 @@ import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.ExternalImage;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 
@@ -50,7 +50,7 @@ public class BlobPage extends RepositoryPage {
 		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
 		String [] encodings = GitBlit.getEncodings();
-		
+
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
 
@@ -153,7 +153,7 @@ public class BlobPage extends RepositoryPage {
 			}
 		}
 	}
-	
+
 	protected String missingBlob(String blobPath, RevCommit commit) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"alert alert-error\">");
@@ -165,11 +165,11 @@ public class BlobPage extends RepositoryPage {
 
 	protected String generateSourceView(String source, String extension, boolean prettyPrint) {
 		String [] lines = source.split("\n");
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!-- start blob table -->");
 		sb.append("<table width=\"100%\"><tbody><tr>");
-		
+
 		// nums column
 		sb.append("<!-- start nums column -->");
 		sb.append("<td id=\"nums\">");
@@ -181,7 +181,7 @@ public class BlobPage extends RepositoryPage {
 		sb.append("</pre>");
 		sb.append("<!-- end nums column -->");
 		sb.append("</td>");
-		
+
 		sb.append("<!-- start lines column -->");
 		sb.append("<td id=\"lines\">");
 		sb.append("<div class=\"sourceview\">");
@@ -191,9 +191,9 @@ public class BlobPage extends RepositoryPage {
 			sb.append("<pre class=\"plainprint\">");
 		}
 		lines = StringUtils.escapeForHtml(source, true).split("\n");
-		
+
 		sb.append("<table width=\"100%\"><tbody>");
-		
+
 		String linePattern = "<tr class=\"{0}\"><td><div><span class=\"line\">{1}</span></div>\r</tr>";
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i].replace('\r', ' ');
@@ -208,10 +208,10 @@ public class BlobPage extends RepositoryPage {
 		sb.append("</div>");
 		sb.append("</td>");
 		sb.append("<!-- end lines column -->");
-		
+
 		sb.append("</tr></tbody></table>");
 		sb.append("<!-- end blob table -->");
-		
+
 		return sb.toString();
 	}
 
@@ -219,7 +219,7 @@ public class BlobPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.view");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;

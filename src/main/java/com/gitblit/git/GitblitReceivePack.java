@@ -106,7 +106,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		setAllowCreates(user.canCreateRef(repository));
 		setAllowDeletes(user.canDeleteRef(repository));
 		setAllowNonFastForwards(user.canRewindRef(repository));
-		
+
 		// setup pre and post receive hook
 		setPreReceiveHook(this);
 		setPostReceiveHook(this);

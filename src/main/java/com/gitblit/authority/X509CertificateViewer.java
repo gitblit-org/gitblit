@@ -41,24 +41,24 @@ import com.gitblit.utils.StringUtils;
 public class X509CertificateViewer extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public X509CertificateViewer(Frame owner, X509Certificate cert) {
 		super(owner);
-		
+
 		setTitle(Translation.get("gb.viewCertificate"));
-		
-		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
+
+		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Insets getInsets() {
-				
+
 				return Utils.INSETS;
 			}
 		};
-		
+
 		DateFormat df = DateFormat.getDateTimeInstance();
-		
+
 		int l1 = 15;
 		int l2 = 25;
 		int l3 = 45;
@@ -82,26 +82,27 @@ public class X509CertificateViewer extends JDialog {
 		}
 
 		content.add(panel, BorderLayout.CENTER);
-		
+
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false);
 			}
 		});
-		
+
 		JPanel controls = new JPanel();
 		controls.add(ok);
-		
+
 		content.add(controls, BorderLayout.SOUTH);
-		
+
 		getContentPane().add(new HeaderPanel(Translation.get("gb.certificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
-		
+
 		setLocationRelativeTo(owner);
 	}
-	
+
 	private JPanel newField(String label, String value, int cols) {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2*Utils.MARGIN, 0));
 		JLabel lbl = new JLabel(label);
@@ -114,7 +115,7 @@ public class X509CertificateViewer extends JDialog {
 		panel.add(tf);
 		return panel;
 	}
-	
+
 	private String fingerprint(String value) {
 		value = value.toUpperCase();
 		StringBuilder sb = new StringBuilder();

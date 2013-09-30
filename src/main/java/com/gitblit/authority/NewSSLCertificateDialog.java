@@ -39,7 +39,7 @@ import com.toedter.calendar.JDateChooser;
 public class NewSSLCertificateDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	JDateChooser expirationDate;
 	JTextField hostname;
 	JCheckBox serveCertificate;
@@ -47,36 +47,37 @@ public class NewSSLCertificateDialog extends JDialog {
 
 	public NewSSLCertificateDialog(Frame owner, Date defaultExpiration) {
 		super(owner);
-		
+
 		setTitle(Translation.get("gb.newSSLCertificate"));
-		
-		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {			
+
+		JPanel content = new JPanel(new BorderLayout(Utils.MARGIN, Utils.MARGIN)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public Insets getInsets() {
-				
+
 				return Utils.INSETS;
 			}
 		};
-		
+
 		expirationDate = new JDateChooser(defaultExpiration);
 		hostname = new JTextField(20);
 		serveCertificate = new JCheckBox(Translation.get("gb.serveCertificate"), true);
-		
+
 		JPanel panel = new JPanel(new GridLayout(0, 2, Utils.MARGIN, Utils.MARGIN));
-		
+
 		panel.add(new JLabel(Translation.get("gb.hostname")));
 		panel.add(hostname);
 
 		panel.add(new JLabel(Translation.get("gb.expires")));
 		panel.add(expirationDate);
-		
+
 		panel.add(new JLabel(""));
 		panel.add(serveCertificate);
-		
+
 		JButton ok = new JButton(Translation.get("gb.ok"));
 		ok.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (validateInputs()) {
 					isCanceled = false;
@@ -86,26 +87,27 @@ public class NewSSLCertificateDialog extends JDialog {
 		});
 		JButton cancel = new JButton(Translation.get("gb.cancel"));
 		cancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				isCanceled = true;
 				setVisible(false);
 			}
 		});
-		
+
 		JPanel controls = new JPanel();
 		controls.add(ok);
 		controls.add(cancel);
 
 		content.add(panel, BorderLayout.CENTER);
 		content.add(controls, BorderLayout.SOUTH);
-		
+
 		getContentPane().add(new HeaderPanel(Translation.get("gb.newSSLCertificate"), "rosette_16x16.png"), BorderLayout.NORTH);
 		getContentPane().add(content, BorderLayout.CENTER);
 		pack();
-		
+
 		setLocationRelativeTo(owner);
 	}
-	
+
 	private boolean validateInputs() {
 		if (getExpiration().getTime() < System.currentTimeMillis()) {
 			// expires before now
@@ -121,11 +123,11 @@ public class NewSSLCertificateDialog extends JDialog {
 		}
 		return true;
 	}
-	
+
 	public String getHostname() {
 		return hostname.getText();
 	}
-	
+
 	public Date getExpiration() {
 		return expirationDate.getDate();
 	}

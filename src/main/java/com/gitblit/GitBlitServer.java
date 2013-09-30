@@ -75,9 +75,9 @@ import com.unboundid.ldif.LDIFReader;
  * simplify command line parameter processing. This class also automatically
  * generates a self-signed certificate for localhost, if the keystore does not
  * already exist.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitBlitServer {
 
@@ -85,7 +85,7 @@ public class GitBlitServer {
 
 	public static void main(String... args) {
 		GitBlitServer server = new GitBlitServer();
-		
+
 		// filter out the baseFolder parameter
 		List<String> filtered = new ArrayList<String>();
 		String folder = "data";
@@ -103,7 +103,7 @@ public class GitBlitServer {
 				filtered.add(arg);
 			}
 		}
-		
+
 		Params.baseFolder = folder;
 		Params params = new Params();
 		JCommander jc = new JCommander(params);
@@ -125,7 +125,7 @@ public class GitBlitServer {
 
 	/**
 	 * Display the command line usage of Gitblit GO.
-	 * 
+	 *
 	 * @param jc
 	 * @param t
 	 */
@@ -172,7 +172,7 @@ public class GitBlitServer {
 		FileSettings settings = params.FILESETTINGS;
 		if (!StringUtils.isEmpty(params.settingsfile)) {
 			if (new File(params.settingsfile).exists()) {
-				settings = new FileSettings(params.settingsfile);				
+				settings = new FileSettings(params.settingsfile);
 			}
 		}
 		logger = LoggerFactory.getLogger(GitBlitServer.class);
@@ -198,7 +198,7 @@ public class GitBlitServer {
 		String osname = System.getProperty("os.name");
 		String osversion = System.getProperty("os.version");
 		logger.info("Running on " + osname + " (" + osversion + ")");
-		
+
 		List<Connector> connectors = new ArrayList<Connector>();
 
 		// conditionally configure the http connector
@@ -236,7 +236,7 @@ public class GitBlitServer {
 				NewCertificateConfig certificateConfig = NewCertificateConfig.KEY.parse(config);
 				certificateConfig.update(metadata);
 			}
-			
+
 			metadata.notAfter = new Date(System.currentTimeMillis() + 10*TimeUtils.ONEYEAR);
 			X509Utils.prepareX509Infrastructure(metadata, baseFolder, new X509Log() {
 				@Override
@@ -260,7 +260,7 @@ public class GitBlitServer {
 				}
 			});
 
-			if (serverKeyStore.exists()) {		        
+			if (serverKeyStore.exists()) {
 				Connector secureConnector = createSSLConnector(params.alias, serverKeyStore, serverTrustStore, params.storePassword,
 						caRevocationList, params.useNIO, params.securePort, settings.getInteger(Keys.server.threadPoolSize, 50), params.requireClientCertificates);
 				String bindInterface = settings.getString(Keys.server.httpsBindInterface, null);
@@ -297,7 +297,7 @@ public class GitBlitServer {
 
 		// tempDir is where the embedded Gitblit web application is expanded and
 		// where Jetty creates any necessary temporary files
-		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);		
+		File tempDir = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.temp);
 		if (tempDir.exists()) {
 			try {
 				FileUtils.delete(tempDir, FileUtils.RECURSIVE | FileUtils.RETRY);
@@ -343,7 +343,7 @@ public class GitBlitServer {
 		settings.overrideSetting(Keys.realm.userService, params.userService);
 		settings.overrideSetting(Keys.git.repositoriesFolder, params.repositoriesFolder);
 		settings.overrideSetting(Keys.git.daemonPort, params.gitPort);
-		
+
 		// Start up an in-memory LDAP server, if configured
 		try {
 			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
@@ -354,21 +354,21 @@ public class GitBlitServer {
 					String rootDN = firstLine.substring(4);
 					String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 					String bindPassword = settings.getString(Keys.realm.ldap.password, "");
-					
+
 					// Get the port
 					int port = ldapUrl.getPort();
 					if (port == -1)
 						port = 389;
-					
+
 					InMemoryDirectoryServerConfig config = new InMemoryDirectoryServerConfig(rootDN);
 					config.addAdditionalBindCredentials(bindUserName, bindPassword);
 					config.setListenerConfigs(InMemoryListenerConfig.createLDAPConfig("default", port));
 					config.setSchema(null);
-					
+
 					InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
 					ds.importFromLDIF(true, new LDIFReader(ldifFile));
 					ds.startListening();
-					
+
 					logger.info("LDAP Server started at ldap://localhost:" + port);
 				}
 			}
@@ -400,14 +400,14 @@ public class GitBlitServer {
 			System.exit(100);
 		}
 	}
-	
+
 	protected GitBlit getGitBlitInstance() {
 		return GitBlit.self();
 	}
 
 	/**
 	 * Creates an http connector.
-	 * 
+	 *
 	 * @param useNIO
 	 * @param port
 	 * @param threadPoolSize
@@ -439,10 +439,10 @@ public class GitBlitServer {
 
 	/**
 	 * Creates an https connector.
-	 * 
+	 *
 	 * SSL renegotiation will be enabled if the JVM is 1.6.0_22 or later.
 	 * oracle.com/technetwork/java/javase/documentation/tlsreadme2-176330.html
-	 * 
+	 *
 	 * @param certAlias
 	 * @param keyStore
 	 * @param clientTrustStore
@@ -455,7 +455,7 @@ public class GitBlitServer {
 	 * @return an https connector
 	 */
 	private Connector createSSLConnector(String certAlias, File keyStore, File clientTrustStore,
-			String storePassword, File caRevocationList, boolean useNIO,  int port, int threadPoolSize, 
+			String storePassword, File caRevocationList, boolean useNIO,  int port, int threadPoolSize,
 			boolean requireClientCertificates) {
 		GitblitSslContextFactory factory = new GitblitSslContextFactory(certAlias,
 				keyStore, clientTrustStore, storePassword, caRevocationList);
@@ -486,10 +486,10 @@ public class GitBlitServer {
 
 		return connector;
 	}
-	
+
 	/**
 	 * Creates an ajp connector.
-	 * 
+	 *
 	 * @param port
 	 * @return an ajp connector
 	 */
@@ -505,7 +505,7 @@ public class GitBlitServer {
 
 	/**
 	 * Tests to see if the operating system is Windows.
-	 * 
+	 *
 	 * @return true if this is a windows machine
 	 */
 	private boolean isWindows() {
@@ -516,9 +516,9 @@ public class GitBlitServer {
 	 * The ShutdownMonitorThread opens a socket on a specified port and waits
 	 * for an incoming connection. When that connection is accepted a shutdown
 	 * message is issued to the running Jetty server.
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	private static class ShutdownMonitorThread extends Thread {
 
@@ -634,7 +634,7 @@ public class GitBlitServer {
 		 */
 		@Parameter(names = { "--settings" }, description = "Path to alternative settings")
 		public String settingsfile;
-		
+
 		@Parameter(names = { "--ldapLdifFile" }, description = "Path to LDIF file.  This will cause an in-memory LDAP server to be started according to gitblit settings")
 		public String ldapLdifFile;
 

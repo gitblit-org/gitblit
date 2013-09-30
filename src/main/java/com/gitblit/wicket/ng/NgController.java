@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 package com.gitblit.wicket.ng;
 
 import java.text.MessageFormat;
@@ -31,23 +30,23 @@ import com.google.gson.GsonBuilder;
  * Simple AngularJS data controller which injects scoped objects as static,
  * embedded JSON within the generated page.  This allows use of AngularJS
  * client-side databinding (magic) with server-generated pages.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class NgController implements IHeaderContributor {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	final String name;
-	
+
 	final Map<String, Object> variables;
-	
+
 	public NgController(String name) {
 		this.name = name;
 		this.variables = new HashMap<String, Object>();
 	}
-		
+
 	public void addVariable(String name, Object o) {
 		variables.put(name,  o);
 	}
@@ -69,7 +68,7 @@ public class NgController implements IHeaderContributor {
 			line(sb, MessageFormat.format("\t$scope.{0} = {1};", var, json));
 		}
 		line(sb, "}");
-		
+
 		response.renderJavascript(sb.toString(), null);
 	}
 

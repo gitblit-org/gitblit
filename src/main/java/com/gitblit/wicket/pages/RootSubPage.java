@@ -32,9 +32,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * RootSubPage is a non-topbar navigable RootPage. It also has a page header.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class RootSubPage extends RootPage {
 
@@ -47,11 +47,11 @@ public abstract class RootSubPage extends RootPage {
 		super(params);
 		createPageMapIfNeeded();
 	}
-	
+
 	protected boolean requiresPageMap() {
 		return false;
 	}
-	
+
 	protected void createPageMapIfNeeded() {
 		if (requiresPageMap()) {
 			// because Gitblit strives for page-statelessness
@@ -72,7 +72,7 @@ public abstract class RootSubPage extends RootPage {
 		add(new Label("pageSubName", subName));
 		super.setupPage("", pageName);
 	}
-	
+
 	protected List<String> getAccessRestrictedRepositoryList(boolean includeWildcards, UserModel user) {
 		// build list of access-restricted projects
 		String lastProject = null;
@@ -85,7 +85,7 @@ public abstract class RootSubPage extends RootPage {
 				repos.add("[^" + ModelUtils.getUserRepoPrefix() + "].*");
 			}
 		}
-		
+
 		for (String repo : GitBlit.self().getRepositoryList()) {
 			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)

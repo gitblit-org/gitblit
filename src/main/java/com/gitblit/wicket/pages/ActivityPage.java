@@ -51,9 +51,9 @@ import com.gitblit.wicket.panels.ActivityPanel;
 /**
  * Activity Page shows a list of recent commits across all visible Gitblit
  * repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 
 @CacheControl(LastModified.ACTIVITY)
@@ -72,7 +72,7 @@ public class ActivityPage extends RootPage {
 
 		// determine repositories to view and retrieve the activity
 		List<RepositoryModel> models = getRepositories(params);
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models, 
+		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models,
 				daysBack, objectId, getTimeZone());
 
 		String headerPattern;
@@ -91,7 +91,7 @@ public class ActivityPage extends RootPage {
 				headerPattern = getString("gb.recentActivityStats");
 			}
 		}
-		
+
 		if (recentActivity.size() == 0) {
 			// no activity, skip graphs and activity panel
 			add(new Label("subheader", MessageFormat.format(headerPattern,
@@ -157,7 +157,7 @@ public class ActivityPage extends RootPage {
 	/**
 	 * Creates the daily activity line chart, the active repositories pie chart,
 	 * and the active authors pie chart
-	 * 
+	 *
 	 * @param recentActivity
 	 * @return
 	 */

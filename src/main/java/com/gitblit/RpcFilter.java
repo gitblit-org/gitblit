@@ -30,23 +30,23 @@ import com.gitblit.models.UserModel;
 
 /**
  * The RpcFilter is a servlet filter that secures the RpcServlet.
- * 
+ *
  * The filter extracts the rpc request type from the url and determines if the
  * requested action requires a Basic authentication prompt. If authentication is
  * required and no credentials are stored in the "Authorization" header, then a
  * basic authentication challenge is issued.
- * 
+ *
  * http://en.wikipedia.org/wiki/Basic_access_authentication
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RpcFilter extends AuthenticationFilter {
 
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
-	 * 
+	 *
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
 	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */

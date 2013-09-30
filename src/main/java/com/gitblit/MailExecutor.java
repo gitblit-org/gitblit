@@ -41,9 +41,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * The mail executor handles sending email messages asynchronously from queue.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class MailExecutor implements Runnable {
 
@@ -90,6 +90,7 @@ public class MailExecutor implements Runnable {
 		if (!StringUtils.isEmpty(mailUser) && !StringUtils.isEmpty(mailPassword)) {
 			// SMTP requires authentication
 			session = Session.getInstance(props, new Authenticator() {
+				@Override
 				protected PasswordAuthentication getPasswordAuthentication() {
 					PasswordAuthentication passwordAuthentication = new PasswordAuthentication(
 							mailUser, mailPassword);
@@ -104,7 +105,7 @@ public class MailExecutor implements Runnable {
 
 	/**
 	 * Indicates if the mail executor can send emails.
-	 * 
+	 *
 	 * @return true if the mail executor is ready to send emails
 	 */
 	public boolean isReady() {
@@ -114,7 +115,7 @@ public class MailExecutor implements Runnable {
 
 	/**
 	 * Create a message.
-	 * 
+	 *
 	 * @param toAddresses
 	 * @return a message
 	 */
@@ -124,7 +125,7 @@ public class MailExecutor implements Runnable {
 
 	/**
 	 * Create a message.
-	 * 
+	 *
 	 * @param toAddresses
 	 * @return a message
 	 */
@@ -143,7 +144,7 @@ public class MailExecutor implements Runnable {
 			for (String address : toAddresses) {
 				uniques.add(address.toLowerCase());
 			}
-			
+
 			Pattern validEmail = Pattern
 					.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
 			List<InternetAddress> tos = new ArrayList<InternetAddress>();
@@ -157,7 +158,7 @@ public class MailExecutor implements Runnable {
 					} catch (Throwable t) {
 					}
 				}
-			}			
+			}
 			message.setRecipients(Message.RecipientType.BCC,
 					tos.toArray(new InternetAddress[tos.size()]));
 			message.setSentDate(new Date());
@@ -169,7 +170,7 @@ public class MailExecutor implements Runnable {
 
 	/**
 	 * Returns the status of the mail queue.
-	 * 
+	 *
 	 * @return true, if the queue is empty
 	 */
 	public boolean hasEmptyQueue() {
@@ -178,7 +179,7 @@ public class MailExecutor implements Runnable {
 
 	/**
 	 * Queue's an email message to be sent.
-	 * 
+	 *
 	 * @param message
 	 * @return true if the message was queued
 	 */
@@ -213,13 +214,13 @@ public class MailExecutor implements Runnable {
 						failures.add(message);
 					}
 				}
-				
+
 				// push the failures back onto the queue for the next cycle
 				queue.addAll(failures);
 			}
 		}
 	}
-	
+
 	public void sendNow(Message message) throws Exception {
 		Transport.send(message);
 	}

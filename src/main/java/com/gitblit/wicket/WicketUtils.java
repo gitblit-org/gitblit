@@ -115,7 +115,7 @@ public class WicketUtils {
 		default:
 			setCssClass(container, "badge");
 			break;
-		}	
+		}
 	}
 
 	public static void setAlternatingBackground(Component c, int i) {
@@ -232,17 +232,17 @@ public class WicketUtils {
 
 	public static Label newIcon(String wicketId, String css) {
 		Label lbl = new Label(wicketId);
-		setCssClass(lbl, css);		
+		setCssClass(lbl, css);
 		return lbl;
 	}
-	
+
 	public static Label newBlankIcon(String wicketId) {
 		Label lbl = new Label(wicketId);
 		setCssClass(lbl, "");
 		lbl.setRenderBodyOnly(true);
 		return lbl;
 	}
-	
+
 	public static ContextRelativeResource getResource(String file) {
 		return new ContextRelativeResource(file);
 	}
@@ -257,6 +257,7 @@ public class WicketUtils {
 		return new HeaderContributor(new IHeaderContributor() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void renderHead(IHeaderResponse response) {
 				String contentType = "application/rss+xml";
 
@@ -509,7 +510,7 @@ public class WicketUtils {
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
 		return createDateLabel(wicketId, date, timeZone, timeUtils, true);
 	}
-	
+
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils, boolean setCss) {
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
@@ -642,6 +643,7 @@ public class WicketUtils {
 		IChartData data = new AbstractChartData(max) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public double[][] getData() {
 				return new double[][] { commits, tags };
 			}
@@ -677,6 +679,7 @@ public class WicketUtils {
 		IChartData data = new AbstractChartData(max) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public double[][] getData() {
 				return new double[][] { x, y };
 			}

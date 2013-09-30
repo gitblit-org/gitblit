@@ -26,9 +26,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 /**
  * Branch renderer displays refs/heads and refs/remotes in a color similar to
  * the site.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class BranchRenderer extends DefaultTableCellRenderer implements ListCellRenderer {
 
@@ -37,9 +37,10 @@ public class BranchRenderer extends DefaultTableCellRenderer implements ListCell
 	private static final String R_HEADS = "refs/heads/";
 
 	private static final String R_REMOTES = "refs/remotes/";
-	
+
 	private static final String R_CHANGES = "refs/changes/";
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

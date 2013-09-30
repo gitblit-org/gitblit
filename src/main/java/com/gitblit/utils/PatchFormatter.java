@@ -32,9 +32,9 @@ import com.gitblit.Constants;
 
 /**
  * A diff formatter that outputs standard patch content.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PatchFormatter extends DiffFormatter {
 
@@ -49,6 +49,7 @@ public class PatchFormatter extends DiffFormatter {
 		this.os = os;
 	}
 
+	@Override
 	public void format(DiffEntry entry) throws IOException {
 		currentTouple = new PatchTouple();
 		changes.put(entry.getNewPath(), currentTouple);

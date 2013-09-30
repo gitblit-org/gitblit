@@ -39,9 +39,9 @@ import com.gitblit.models.RefModel;
 /**
  * Utility class for collecting metrics on a branch, tag, or other ref within
  * the repository.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class MetricUtils {
 
@@ -49,7 +49,7 @@ public class MetricUtils {
 
 	/**
 	 * Log an error message and exception.
-	 * 
+	 *
 	 * @param t
 	 * @param repository
 	 *            if repository is not null it MUST be the {0} parameter in the
@@ -74,12 +74,12 @@ public class MetricUtils {
 	 * Returns the list of metrics for the specified commit reference, branch,
 	 * or tag within the repository. If includeTotal is true, the total of all
 	 * the metrics will be included as the first element in the returned list.
-	 * 
+	 *
 	 * If the dateformat is unspecified an attempt is made to determine an
 	 * appropriate date format by determining the time difference between the
 	 * first commit on the branch and the most recent commit. This assumes that
 	 * the commits are linear.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if null or empty, HEAD is assumed.
@@ -172,7 +172,7 @@ public class MetricUtils {
 
 	/**
 	 * Returns a list of author metrics for the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if null or empty, HEAD is assumed.

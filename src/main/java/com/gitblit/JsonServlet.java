@@ -33,20 +33,20 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Servlet class for interpreting json requests.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class JsonServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	protected final int forbiddenCode = HttpServletResponse.SC_FORBIDDEN;
-	
+
 	protected final int notAllowedCode = HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 
 	protected final int failureCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-	
+
 	protected final Logger logger;
 
 	public JsonServlet() {
@@ -56,7 +56,7 @@ public abstract class JsonServlet extends HttpServlet {
 
 	/**
 	 * Processes an gson request.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException

@@ -37,25 +37,25 @@ import com.gitblit.utils.StringUtils;
 /**
  * Streams out a zip file from the specified repository for any tree path at any
  * revision.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class DownloadZipServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
-	
+
 	public static enum Format {
 		zip(".zip"), tar(".tar"), gz(".tar.gz"), xz(".tar.xz"), bzip2(".tar.bzip2");
-		
+
 		public final String extension;
-		
+
 		Format(String ext) {
 			this.extension = ext;
 		}
-		
+
 		public static Format fromName(String name) {
 			for (Format format : values()) {
 				if (format.name().equalsIgnoreCase(name)) {
@@ -72,7 +72,7 @@ public class DownloadZipServlet extends HttpServlet {
 
 	/**
 	 * Returns an url to this servlet for the specified parameters.
-	 * 
+	 *
 	 * @param baseURL
 	 * @param repository
 	 * @param objectId
@@ -92,7 +92,7 @@ public class DownloadZipServlet extends HttpServlet {
 
 	/**
 	 * Creates a zip stream from the repository of the requested data.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException
@@ -106,7 +106,7 @@ public class DownloadZipServlet extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
-		
+
 		Format format = Format.zip;
 		String repository = request.getParameter("r");
 		String basePath = request.getParameter("p");
@@ -115,7 +115,7 @@ public class DownloadZipServlet extends HttpServlet {
 		if (!StringUtils.isEmpty(f)) {
 			format = Format.fromName(f);
 		}
-		
+
 		try {
 			String name = repository;
 			if (name.indexOf('/') > -1) {
@@ -129,7 +129,7 @@ public class DownloadZipServlet extends HttpServlet {
 			if (!StringUtils.isEmpty(objectId)) {
 				name += "-" + objectId;
 			}
-						
+
 			Repository r = GitBlit.self().getRepository(repository);
 			if (r == null) {
 				if (GitBlit.self().isCollectingGarbage(repository)) {
@@ -174,14 +174,14 @@ public class DownloadZipServlet extends HttpServlet {
 					CompressionUtils.bzip2(r, basePath, objectId, response.getOutputStream());
 					break;
 				}
-				
+
 				response.flushBuffer();
 			} catch (IOException t) {
 				String message = t.getMessage() == null ? "" : t.getMessage().toLowerCase();
 				if (message.contains("reset") || message.contains("broken pipe")) {
 					logger.error("Client aborted zip download: " + message);
 				} else {
-					logger.error("Failed to write attachment to client", t);	
+					logger.error("Failed to write attachment to client", t);
 				}
 			} catch (Throwable t) {
 				logger.error("Failed to write attachment to client", t);

@@ -55,9 +55,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Handles requests for branch graphs
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class BranchGraphServlet extends HttpServlet {
 
@@ -82,7 +82,7 @@ public class BranchGraphServlet extends HttpServlet {
 
 	/**
 	 * Returns an url to this servlet for the specified parameters.
-	 * 
+	 *
 	 * @param baseURL
 	 * @param repository
 	 * @param objectId
@@ -148,7 +148,7 @@ public class BranchGraphServlet extends HttpServlet {
 			}
 
 			// fetch the requested commits plus some extra so that the last
-			// commit displayed *likely* has correct lane assignments  
+			// commit displayed *likely* has correct lane assignments
 			CommitList commitList = new CommitList();
 			commitList.source(rw);
 			commitList.fillTo(2*Math.max(requestedCommits, maxCommits));
@@ -190,7 +190,7 @@ public class BranchGraphServlet extends HttpServlet {
 
 			// create an image buffer and render the lanes
 			BufferedImage image = new BufferedImage(graphWidth, rowHeight*numCommits, BufferedImage.TYPE_INT_ARGB);
-			
+
 			Graphics2D g = null;
 			try {
 				g = image.createGraphics();

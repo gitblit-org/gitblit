@@ -45,30 +45,30 @@ public class EmptyRepositoryPage extends RootPage {
 		if (repository == null) {
 			error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 		}
-		
+
 		if (repository.hasCommits) {
 			// redirect to the summary page if this repository is not empty
 			throw new GitblitRedirectException(SummaryPage.class, params);
 		}
-		
+
 		setupPage(repositoryName, getString("gb.emptyRepository"));
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		
+
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
 		List<RepositoryUrl> repositoryUrls = GitBlit.self().getRepositoryUrls(req, user, repository);
 		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 		String url = primaryUrl != null ? primaryUrl.url : "";
-		
+
 		add(new Label("repository", repositoryName));
 		add(new RepositoryUrlPanel("pushurl", false, user, repository));
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", url)));
 		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", url)));
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;

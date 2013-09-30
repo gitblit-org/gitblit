@@ -16,14 +16,15 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
 public class SalesforceUserService extends GitblitUserService {
-	public static final Logger logger = LoggerFactory
-			.getLogger(SalesforceUserService.class);
+
+	public static final Logger logger = LoggerFactory.getLogger(SalesforceUserService.class);
 	private IStoredSettings settings;
-	
+
+	@Override
 	protected AccountType getAccountType() {
 		return AccountType.SALESFORCE;
 	}
-	
+
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;

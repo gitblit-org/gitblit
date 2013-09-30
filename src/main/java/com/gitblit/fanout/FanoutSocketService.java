@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * This implementation creates a master acceptor thread which accepts incoming
  * fanout connections and then spawns a daemon thread for each accepted connection.
  * If there are 100 concurrent fanout connections, there are 101 threads.
- *   
+ *
  * @author James Moger
  *
  */
@@ -50,10 +50,10 @@ public class FanoutSocketService extends FanoutService {
 		pubsub.setAllowAllChannelAnnouncements(false);
 		pubsub.start();
 	}
-	
+
 	/**
 	 * Create a multi-threaded fanout service.
-	 * 
+	 *
 	 * @param port
 	 *            the port for running the fanout PubSub service
 	 * @throws IOException
@@ -64,7 +64,7 @@ public class FanoutSocketService extends FanoutService {
 
 	/**
 	 * Create a multi-threaded fanout service.
-	 * 
+	 *
 	 * @param bindInterface
 	 *            the ip address to bind for the service, may be null
 	 * @param port
@@ -74,12 +74,12 @@ public class FanoutSocketService extends FanoutService {
 	public FanoutSocketService(String bindInterface, int port) {
 		super(bindInterface, port, "Fanout socket service");
 	}
-	
+
 	@Override
 	protected boolean isConnected() {
 		return serviceSocket != null;
 	}
-		
+
 	@Override
 	protected boolean connect() {
 		if (serviceSocket == null) {
@@ -88,7 +88,7 @@ public class FanoutSocketService extends FanoutService {
 				serviceSocket.setReuseAddress(true);
 				serviceSocket.setSoTimeout(serviceTimeout);
 				serviceSocket.bind(host == null ? new InetSocketAddress(port) : new InetSocketAddress(host, port));
-				logger.info(MessageFormat.format("{0} is ready on {1}:{2,number,0}", 
+				logger.info(MessageFormat.format("{0} is ready on {1}:{2,number,0}",
 						name, host == null ? "0.0.0.0" : host, serviceSocket.getLocalPort()));
 			} catch (IOException e) {
 				logger.error(MessageFormat.format("failed to open {0} on {1}:{2,number,0}",
@@ -140,17 +140,17 @@ public class FanoutSocketService extends FanoutService {
 			// ignore accept timeout exceptions
 		}
 	}
-	
+
 	/**
 	 * FanoutSocketConnection handles reading/writing messages from a remote fanout
 	 * connection.
-	 * 
+	 *
 	 * @author James Moger
 	 *
 	 */
 	class FanoutSocketConnection extends FanoutServiceConnection implements Runnable {
 		Socket socket;
-		
+
 		FanoutSocketConnection(Socket socket) {
 			super(socket);
 			this.socket = socket;
@@ -205,7 +205,7 @@ public class FanoutSocketService extends FanoutService {
 
 			logger.info(MessageFormat.format("thread for fanout connection {0} is finished", id));
 		}
-				
+
 		@Override
 		protected void reply(String content) throws IOException {
 			// synchronously send reply
@@ -218,7 +218,7 @@ public class FanoutSocketService extends FanoutService {
 			}
 			os.flush();
 		}
-		
+
 		protected void closeConnection() {
 			// close the connection socket
 			try {
@@ -226,7 +226,7 @@ public class FanoutSocketService extends FanoutService {
 			} catch (IOException e) {
 			}
 			socket = null;
-			
+
 			// remove this connection from the service
 			removeConnection(this);
 		}

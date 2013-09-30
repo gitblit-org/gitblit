@@ -32,22 +32,22 @@ import com.gitblit.utils.StringUtils;
 /**
  * The AccessRestrictionFilter is an AuthenticationFilter that confirms that the
  * requested repository can be accessed by the anonymous or named user.
- * 
+ *
  * The filter extracts the name of the repository from the url and determines if
  * the requested action for the repository requires a Basic authentication
  * prompt. If authentication is required and no credentials are stored in the
  * "Authorization" header, then a basic authentication challenge is issued.
- * 
+ *
  * http://en.wikipedia.org/wiki/Basic_access_authentication
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param url
 	 * @return repository name
 	 */
@@ -55,7 +55,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	/**
 	 * Analyze the url and returns the action of the request.
-	 * 
+	 *
 	 * @param url
 	 * @return action of the request
 	 */
@@ -63,14 +63,14 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	/**
 	 * Determine if a non-existing repository can be created using this filter.
-	 *  
+	 *
 	 * @return true if the filter allows repository creation
 	 */
 	protected abstract boolean isCreationAllowed();
-	
+
 	/**
 	 * Determine if the action may be executed on the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if the action may be performed
@@ -79,7 +79,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	/**
 	 * Determine if the repository requires authentication.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if authentication required
@@ -89,7 +89,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	/**
 	 * Determine if the user can access the repository and perform the specified
 	 * action.
-	 * 
+	 *
 	 * @param repository
 	 * @param user
 	 * @param action
@@ -99,7 +99,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	/**
 	 * Allows a filter to create a repository, if one does not exist.
-	 * 
+	 *
 	 * @param user
 	 * @param repository
 	 * @param action
@@ -108,11 +108,11 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 	protected RepositoryModel createRepository(UserModel user, String repository, String action) {
 		return null;
 	}
-	
+
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
-	 * 
+	 *
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
 	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
@@ -125,7 +125,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
-		
+
 		if (GitBlit.self().isCollectingGarbage(repository)) {
 			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, busy collecting garbage!", repository));
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -155,7 +155,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 					model = createRepository(user, repository, urlRequestType);
 				}
 			}
-			
+
 			if (model == null) {
 				// repository not found. send 404.
 				logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
@@ -164,7 +164,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 				return;
 			}
 		}
-		
+
 		// Confirm that the action may be executed on the repository
 		if (!isActionAllowed(model, urlRequestType)) {
 			logger.info(MessageFormat.format("ARF: action {0} on {1} forbidden ({2})",

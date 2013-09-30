@@ -47,9 +47,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * Users panel displays a list of user accounts and allows management of those
  * accounts.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class TeamsPanel extends JPanel {
 
@@ -76,6 +76,7 @@ public abstract class TeamsPanel extends JPanel {
 	private void initialize() {
 		JButton refreshTeams = new JButton(Translation.get("gb.refresh"));
 		refreshTeams.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshTeams();
 			}
@@ -83,6 +84,7 @@ public abstract class TeamsPanel extends JPanel {
 
 		JButton createTeam = new JButton(Translation.get("gb.create"));
 		createTeam.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				createTeam();
 			}
@@ -91,6 +93,7 @@ public abstract class TeamsPanel extends JPanel {
 		final JButton editTeam = new JButton(Translation.get("gb.edit"));
 		editTeam.setEnabled(false);
 		editTeam.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				editTeam(getSelectedTeams().get(0));
 			}
@@ -99,6 +102,7 @@ public abstract class TeamsPanel extends JPanel {
 		final JButton delTeam = new JButton(Translation.get("gb.delete"));
 		delTeam.setEnabled(false);
 		delTeam.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				deleteTeams(getSelectedTeams());
 			}
@@ -136,6 +140,7 @@ public abstract class TeamsPanel extends JPanel {
 		});
 
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					editTeam(getSelectedTeams().get(0));
@@ -145,11 +150,13 @@ public abstract class TeamsPanel extends JPanel {
 
 		filterTextfield = new JTextField();
 		filterTextfield.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				filterTeams(filterTextfield.getText());
 			}
 		});
 		filterTextfield.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent e) {
 				filterTeams(filterTextfield.getText());
 			}
@@ -204,6 +211,7 @@ public abstract class TeamsPanel extends JPanel {
 			return;
 		}
 		RowFilter<TeamsTableModel, Object> containsFilter = new RowFilter<TeamsTableModel, Object>() {
+			@Override
 			public boolean include(Entry<? extends TeamsTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
@@ -247,7 +255,7 @@ public abstract class TeamsPanel extends JPanel {
 	/**
 	 * Displays the create team dialog and fires a SwingWorker to update the
 	 * server, if appropriate.
-	 * 
+	 *
 	 */
 	protected void createTeam() {
 		EditTeamDialog dialog = new EditTeamDialog(gitblit.getProtocolVersion(),
@@ -296,7 +304,7 @@ public abstract class TeamsPanel extends JPanel {
 	/**
 	 * Displays the edit team dialog and fires a SwingWorker to update the
 	 * server, if appropriate.
-	 * 
+	 *
 	 * @param user
 	 */
 	protected void editTeam(final TeamModel team) {

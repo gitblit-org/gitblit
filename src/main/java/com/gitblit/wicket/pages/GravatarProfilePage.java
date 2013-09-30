@@ -29,9 +29,9 @@ import com.gitblit.wicket.WicketUtils;
 
 /**
  * Gravatar Profile Page shows the Gravatar information, if available.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GravatarProfilePage extends RootPage {
 
@@ -49,7 +49,7 @@ public class GravatarProfilePage extends RootPage {
 		} catch (IOException e) {
 			error(MessageFormat.format(getString("gb.failedToFindGravatarProfile"), object), e, true);
 		}
-		
+
 		if (profile == null) {
 			error(MessageFormat.format(getString("gb.failedToFindGravatarProfile"), object), true);
 		}

@@ -46,7 +46,7 @@ import com.gitblit.utils.StringUtils;
 public class RegistrantPermissionsPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private JTable permissionsTable;
 
 	private RegistrantPermissionsTableModel tableModel;
@@ -67,7 +67,7 @@ public class RegistrantPermissionsPanel extends JPanel {
 		permissionsTable = Utils.newTable(tableModel, Utils.DATE_FORMAT, new RowRenderer() {
 			Color clear = new Color(0, 0, 0, 0);
 			Color iceGray = new Color(0xf0, 0xf0, 0xf0);
-			
+
 			@Override
 			public void prepareRow(Component c, boolean isSelected, int row, int column) {
 				if (isSelected) {
@@ -85,19 +85,20 @@ public class RegistrantPermissionsPanel extends JPanel {
 		permissionsTable.setPreferredScrollableViewportSize(new Dimension(400, 150));
 		JScrollPane jsp = new JScrollPane(permissionsTable);
 		add(jsp, BorderLayout.CENTER);
-		
+
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Registrant.ordinal())
 		.setCellRenderer(new NameRenderer());
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Type.ordinal())
 				.setCellRenderer(new PermissionTypeRenderer());
 		permissionsTable.getColumnModel().getColumn(RegistrantPermissionsTableModel.Columns.Permission.ordinal())
 		.setCellEditor(new AccessPermissionEditor());
-		
+
 		registrantModel = new DefaultComboBoxModel();
 		registrantSelector = new JComboBox(registrantModel);
 		permissionSelector = new JComboBox(AccessPermission.NEWPERMISSIONS);
 		addButton = new JButton(Translation.get("gb.add"));
 		addButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (registrantSelector.getSelectedIndex() < 0) {
 					return;
@@ -105,7 +106,7 @@ public class RegistrantPermissionsPanel extends JPanel {
 				if (permissionSelector.getSelectedIndex() < 0) {
 					return;
 				}
-				
+
 				RegistrantAccessPermission rp = new RegistrantAccessPermission(registrantType);
 				rp.registrant = registrantSelector.getSelectedItem().toString();
 				rp.permission = (AccessPermission) permissionSelector.getSelectedItem();
@@ -119,16 +120,16 @@ public class RegistrantPermissionsPanel extends JPanel {
 				tableModel.permissions.add(rp);
 				// resort permissions after insert to convey idea of eval order
 				Collections.sort(tableModel.permissions);
-				
+
 				registrantModel.removeElement(rp.registrant);
 				registrantSelector.setSelectedIndex(-1);
 				registrantSelector.invalidate();
 				addPanel.setVisible(registrantModel.getSize() > 0);
-				
+
 				tableModel.fireTableDataChanged();
 			}
 		});
-		
+
 		addPanel = new JPanel();
 		addPanel.add(registrantSelector);
 		addPanel.add(permissionSelector);
@@ -172,7 +173,7 @@ public class RegistrantPermissionsPanel extends JPanel {
 			registrantModel.addElement(registrant);
 		}
 		tableModel.setPermissions(permissions);
-		
+
 		registrantSelector.setSelectedIndex(-1);
 		permissionSelector.setSelectedIndex(-1);
 		addPanel.setVisible(filtered.size() > 0);
@@ -181,16 +182,16 @@ public class RegistrantPermissionsPanel extends JPanel {
 	public List<RegistrantAccessPermission> getPermissions() {
 		return tableModel.permissions;
 	}
-	
+
 	private class AccessPermissionEditor extends DefaultCellEditor {
-	    
+
 		private static final long serialVersionUID = 1L;
 
 		public AccessPermissionEditor() {
-	        super(new JComboBox(AccessPermission.values()));	        
+	        super(new JComboBox(AccessPermission.values()));
 	    }
 	}
-	
+
 	private class PermissionTypeRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;

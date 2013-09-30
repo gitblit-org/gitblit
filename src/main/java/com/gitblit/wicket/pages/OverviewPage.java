@@ -35,9 +35,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.charting.GoogleChart;
 import com.gitblit.wicket.charting.GoogleCharts;
 import com.gitblit.wicket.charting.GoogleLineChart;
@@ -73,13 +73,14 @@ public class OverviewPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		
+
 		// owner links
 		final List<String> owners = new ArrayList<String>(getRepositoryModel().owners);
 		ListDataProvider<String> ownersDp = new ListDataProvider<String>(owners);
 		DataView<String> ownersView = new DataView<String>("repositoryOwners", ownersDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
+			@Override
 			public void populateItem(final Item<String> item) {
 				String ownername = item.getModelObject();
 				UserModel ownerModel = GitBlit.self().getUserModel(ownername);
@@ -99,11 +100,11 @@ public class OverviewPage extends RepositoryPage {
 		};
 		ownersView.setRenderBodyOnly(true);
 		add(ownersView);
-		
+
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
 				JGitUtils.getLastChange(r).when, getTimeZone(), getTimeUtils()));
 		add(new Label("repositorySize", model.size));
-		
+
 		if (metricsTotal == null) {
 			add(new Label("branchStats", ""));
 		} else {
@@ -134,7 +135,7 @@ public class OverviewPage extends RepositoryPage {
 	private void insertActivityGraph(List<Metric> metrics) {
 		if ((metrics != null) && (metrics.size() > 0)
 				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			
+
 			// daily line chart
 			GoogleChart chart = new GoogleLineChart("chartDaily", "", "unit",
 					getString("gb.commits"));
@@ -143,7 +144,7 @@ public class OverviewPage extends RepositoryPage {
 			}
 			chart.setWidth(375);
 			chart.setHeight(150);
-			
+
 			GoogleCharts charts = new GoogleCharts();
 			charts.addChart(chart);
 			add(new HeaderContributor(charts));

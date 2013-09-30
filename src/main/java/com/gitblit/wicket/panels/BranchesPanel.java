@@ -101,15 +101,16 @@ public class BranchesPanel extends BasePanel {
 			// branches page
 			add(new Label("branches", new StringResourceModel("gb.branches", this, null)));
 		}
-		
+
 		// only allow delete if we have multiple branches
 		final boolean showDelete = showAdmin && branches.size() > 1;
-		
+
 		ListDataProvider<RefModel> branchesDp = new ListDataProvider<RefModel>(branches);
 		DataView<RefModel> branchesView = new DataView<RefModel>("branch", branchesDp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RefModel> item) {
 				final RefModel entry = item.getModelObject();
 
@@ -136,7 +137,7 @@ public class BranchesPanel extends BasePanel {
 					WicketUtils.setHtmlTooltip(shortlog, shortMessage);
 				}
 				item.add(shortlog);
-				
+
 				if (maxCount <= 0) {
 					Fragment fragment = new Fragment("branchLinks", showDelete? "branchPageAdminLinks" : "branchPageLinks", this);
 					fragment.add(new BookmarkablePageLink<Void>("log", LogPage.class, WicketUtils
@@ -219,15 +220,15 @@ public class BranchesPanel extends BasePanel {
 							RefLogUtils.deleteRef(user, r, ref);
 						}
 					}
-					
+
 					if (success) {
-						info(MessageFormat.format("Branch \"{0}\" deleted", branch));					
+						info(MessageFormat.format("Branch \"{0}\" deleted", branch));
 					} else {
 						error(MessageFormat.format("Failed to delete branch \"{0}\"", branch));
 					}
 				}
 				r.close();
-				
+
 				// redirect to the owning page
 				PageParameters params = WicketUtils.newRepositoryParameter(repositoryModel.name);
 				String relativeUrl = urlFor(getPage().getClass(), params).toString();
@@ -235,7 +236,7 @@ public class BranchesPanel extends BasePanel {
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		deleteLink.add(new JavascriptEventConfirmation("onclick", MessageFormat.format(
 				"Delete branch \"{0}\"?", entry.displayName )));
 		return deleteLink;

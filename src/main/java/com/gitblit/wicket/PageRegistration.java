@@ -26,9 +26,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Represents a page link registration for the topbar.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PageRegistration implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public class PageRegistration implements Serializable {
 			PageParameters params) {
 		this(translationKey, pageClass, params, false);
 	}
-	
+
 	public PageRegistration(String translationKey, Class<? extends WebPage> pageClass,
 			PageParameters params, boolean hiddenPhone) {
 		this.translationKey = translationKey;
@@ -57,9 +57,9 @@ public class PageRegistration implements Serializable {
 
 	/**
 	 * Represents a page link to a non-Wicket page. Might be external.
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	public static class OtherPageLink extends PageRegistration {
 
@@ -71,7 +71,7 @@ public class PageRegistration implements Serializable {
 			super(translationKey, null);
 			this.url = url;
 		}
-		
+
 		public OtherPageLink(String translationKey, String url, boolean hiddenPhone) {
 			super(translationKey, null, null, hiddenPhone);
 			this.url = url;
@@ -80,9 +80,9 @@ public class PageRegistration implements Serializable {
 
 	/**
 	 * Represents a DropDownMenu for the topbar
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	public static class DropDownMenuRegistration extends PageRegistration {
 
@@ -98,9 +98,9 @@ public class PageRegistration implements Serializable {
 
 	/**
 	 * A MenuItem for the DropDownMenu.
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	public static class DropDownMenuItem implements Serializable {
 
@@ -121,7 +121,7 @@ public class PageRegistration implements Serializable {
 
 		/**
 		 * Standard Menu Item constructor.
-		 * 
+		 *
 		 * @param displayText
 		 * @param parameter
 		 * @param value
@@ -132,7 +132,7 @@ public class PageRegistration implements Serializable {
 
 		/**
 		 * Standard Menu Item constructor that preserves aggregate parameters.
-		 * 
+		 *
 		 * @param displayText
 		 * @param parameter
 		 * @param value
@@ -219,14 +219,14 @@ public class PageRegistration implements Serializable {
 			return displayText;
 		}
 	}
-	
+
 	public static class DropDownToggleItem extends DropDownMenuItem {
-		
+
 		private static final long serialVersionUID = 1L;
 
 		/**
 		 * Toggle Menu Item constructor that preserves aggregate parameters.
-		 * 
+		 *
 		 * @param displayText
 		 * @param parameter
 		 * @param value

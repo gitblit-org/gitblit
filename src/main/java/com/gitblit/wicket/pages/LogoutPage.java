@@ -30,8 +30,8 @@ public class LogoutPage extends BasePage {
 		UserModel user = session.getUser();
 		GitBlit.self().setCookie((WebResponse) getResponse(), null);
 		GitBlit.self().logout(user);
-		session.invalidate();		
-		
+		session.invalidate();
+
 		/*
 		 * Now check whether the authentication was realized via the Authorization in the header.
 		 * If so, it is likely to be cached by the browser, and cannot be undone. Effectively, this means
@@ -41,7 +41,7 @@ public class LogoutPage extends BasePage {
 			// authentication will be done via this route anyway, show a page to close the browser:
 			// this will be done by Wicket.
 			setupPage(null, getString("gb.logout"));
-			
+
 		} else {
 			setRedirect(true);
 			setResponsePage(getApplication().getHomePage());

@@ -35,7 +35,7 @@ public class TagsPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.tags");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

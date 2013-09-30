@@ -27,9 +27,9 @@ import com.gitblit.utils.FileUtils;
 
 /**
  * Handles requests for robots.txt
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RobotsTxtServlet extends HttpServlet {
 
@@ -38,7 +38,7 @@ public class RobotsTxtServlet extends HttpServlet {
 	public RobotsTxtServlet() {
 		super();
 	}
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, java.io.IOException {

@@ -95,13 +95,13 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * The Lucene executor handles indexing and searching repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class LuceneExecutor implements Runnable {
-	
-		
+
+
 	private static final int INDEX_VERSION = 5;
 
 	private static final String FIELD_OBJECT_TYPE = "type";
@@ -121,20 +121,20 @@ public class LuceneExecutor implements Runnable {
 	private static final String CONF_VERSION = "version";
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
-		
+
 	private static final Version LUCENE_VERSION = Version.LUCENE_35;
-	
+
 	private final Logger logger = LoggerFactory.getLogger(LuceneExecutor.class);
-	
+
 	private final IStoredSettings storedSettings;
 	private final File repositoriesFolder;
-	
+
 	private final Map<String, IndexSearcher> searchers = new ConcurrentHashMap<String, IndexSearcher>();
 	private final Map<String, IndexWriter> writers = new ConcurrentHashMap<String, IndexWriter>();
-	
+
 	private final String luceneIgnoreExtensions = "7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip";
 	private Set<String> excludedExtensions;
-	
+
 	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
 		this.storedSettings = settings;
 		this.repositoriesFolder = repositoriesFolder;
@@ -146,7 +146,7 @@ public class LuceneExecutor implements Runnable {
 	}
 
 	/**
-	 * Run is executed by the Gitblit executor service.  Because this is called 
+	 * Run is executed by the Gitblit executor service.  Because this is called
 	 * by an executor service, calls will queue - i.e. there can never be
 	 * concurrent execution of repository index updates.
 	 */
@@ -164,7 +164,7 @@ public class LuceneExecutor implements Runnable {
 			// busy collecting garbage, try again later
 			return;
 		}
-		
+
 		for (String repositoryName: GitBlit.self().getRepositoryList()) {
 			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
@@ -175,7 +175,7 @@ public class LuceneExecutor implements Runnable {
 					}
 					continue;
 				}
-				index(model, repository);				
+				index(model, repository);
 				repository.close();
 				System.gc();
 			}
@@ -185,7 +185,7 @@ public class LuceneExecutor implements Runnable {
 	/**
 	 * Synchronously indexes a repository. This may build a complete index of a
 	 * repository or it may update an existing index.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the repository
 	 * @param repository
@@ -225,10 +225,10 @@ public class LuceneExecutor implements Runnable {
 			logger.error(MessageFormat.format("Lucene indexing failure for {0}", model.name), t);
 		}
 	}
-	
+
 	/**
 	 * Close the writer/searcher objects for a repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 */
 	public synchronized void close(String repositoryName) {
@@ -240,7 +240,7 @@ public class LuceneExecutor implements Runnable {
 		} catch (Exception e) {
 			logger.error("Failed to close index searcher for " + repositoryName, e);
 		}
-		
+
 		try {
 			IndexWriter writer = writers.remove(repositoryName);
 			if (writer != null) {
@@ -248,12 +248,12 @@ public class LuceneExecutor implements Runnable {
 			}
 		} catch (Exception e) {
 			logger.error("Failed to close index writer for " + repositoryName, e);
-		}		
+		}
 	}
 
 	/**
 	 * Close all Lucene indexers.
-	 * 
+	 *
 	 */
 	public synchronized void close() {
 		// close all writers
@@ -277,10 +277,10 @@ public class LuceneExecutor implements Runnable {
 		searchers.clear();
 	}
 
-	
+
 	/**
 	 * Deletes the Lucene index for the specified repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return true, if successful
 	 */
@@ -306,10 +306,10 @@ public class LuceneExecutor implements Runnable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
 	 * Returns the author for the commit, if this information is available.
-	 * 
+	 *
 	 * @param commit
 	 * @return an author or unknown
 	 */
@@ -320,14 +320,14 @@ public class LuceneExecutor implements Runnable {
 			if (StringUtils.isEmpty(name)) {
 				name = commit.getAuthorIdent().getEmailAddress();
 			}
-		} catch (NullPointerException n) {						
+		} catch (NullPointerException n) {
 		}
 		return name;
 	}
-	
+
 	/**
 	 * Returns the committer for the commit, if this information is available.
-	 * 
+	 *
 	 * @param commit
 	 * @return an committer or unknown
 	 */
@@ -338,11 +338,11 @@ public class LuceneExecutor implements Runnable {
 			if (StringUtils.isEmpty(name)) {
 				name = commit.getCommitterIdent().getEmailAddress();
 			}
-		} catch (NullPointerException n) {						
+		} catch (NullPointerException n) {
 		}
 		return name;
 	}
-	
+
 	/**
 	 * Get the tree associated with the given commit.
 	 *
@@ -363,7 +363,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Construct a keyname from the branch.
-	 * 
+	 *
 	 * @param branchName
 	 * @return a keyname appropriate for the Git config file format
 	 */
@@ -373,7 +373,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Returns the Lucene configuration for the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @return a config object
 	 */
@@ -387,7 +387,7 @@ public class LuceneExecutor implements Runnable {
 	 * Reads the Lucene config file for the repository to check the index
 	 * version. If the index version is different, then rebuild the repository
 	 * index.
-	 * 
+	 *
 	 * @param repository
 	 * @return true of the on-disk index format is different than INDEX_VERSION
 	 */
@@ -407,13 +407,13 @@ public class LuceneExecutor implements Runnable {
 	/**
 	 * This completely indexes the repository and will destroy any existing
 	 * index.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @return IndexResult
 	 */
 	public IndexResult reindex(RepositoryModel model, Repository repository) {
-		IndexResult result = new IndexResult();		
+		IndexResult result = new IndexResult();
 		if (!deleteIndex(model.name)) {
 			return result;
 		}
@@ -434,12 +434,12 @@ public class LuceneExecutor implements Runnable {
 				}
 				tags.get(tag.getReferencedObjectId().getName()).add(tag.displayName);
 			}
-			
+
 			ObjectReader reader = repository.newObjectReader();
 
 			// get the local branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
-			
+
 			// sort them by most recently updated
 			Collections.sort(branches, new Comparator<RefModel>() {
 				@Override
@@ -447,7 +447,7 @@ public class LuceneExecutor implements Runnable {
 					return ref2.getDate().compareTo(ref1.getDate());
 				}
 			});
-			
+
 			// reorder default branch to first position
 			RefModel defaultBranch = null;
 			ObjectId defaultBranchId = JGitUtils.getDefaultBranch(repository);
@@ -459,7 +459,7 @@ public class LuceneExecutor implements Runnable {
 			}
 			branches.remove(defaultBranch);
 			branches.add(0, defaultBranch);
-			
+
 			// walk through each branch
 			for (RefModel branch : branches) {
 
@@ -475,7 +475,7 @@ public class LuceneExecutor implements Runnable {
 					// normal explicit branch check
 					indexBranch = model.indexedBranches.contains(branch.getName());
 				}
-				
+
 				// if this branch is not specifically indexed then skip
 				if (!indexBranch) {
 					continue;
@@ -493,22 +493,22 @@ public class LuceneExecutor implements Runnable {
 				// index the blob contents of the tree
 				TreeWalk treeWalk = new TreeWalk(repository);
 				treeWalk.addTree(tip.getTree());
-				treeWalk.setRecursive(true);								
-				
+				treeWalk.setRecursive(true);
+
 				Map<String, ObjectId> paths = new TreeMap<String, ObjectId>();
 				while (treeWalk.next()) {
 					// ensure path is not in a submodule
 					if (treeWalk.getFileMode(0) != FileMode.GITLINK) {
 						paths.put(treeWalk.getPathString(), treeWalk.getObjectId(0));
 					}
-				}				
+				}
 
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				byte[] tmp = new byte[32767];
 
 				RevWalk commitWalk = new RevWalk(reader);
 				commitWalk.markStart(tip);
-				
+
 				RevCommit commit;
 				while ((paths.size() > 0) && (commit = commitWalk.next()) != null) {
 					TreeWalk diffWalk = new TreeWalk(reader);
@@ -532,17 +532,17 @@ public class LuceneExecutor implements Runnable {
 						if (!paths.containsKey(path)) {
 							continue;
 						}
-						
+
 						// remove path from set
 						ObjectId blobId = paths.remove(path);
 						result.blobCount++;
-						
+
 						// index the blob metadata
 						String blobAuthor = getAuthor(commit);
 						String blobCommitter = getCommitter(commit);
 						String blobDate = DateTools.timeToString(commit.getCommitTime() * 1000L,
 								Resolution.MINUTE);
-						
+
 						Document doc = new Document();
 						doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
 						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
@@ -550,7 +550,7 @@ public class LuceneExecutor implements Runnable {
 						doc.add(new Field(FIELD_PATH, path, Store.YES, Index.ANALYZED));
 						doc.add(new Field(FIELD_DATE, blobDate, Store.YES, Index.NO));
 						doc.add(new Field(FIELD_AUTHOR, blobAuthor, Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));					
+						doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));
 
 						// determine extension to compare to the extension
 						// blacklist
@@ -561,20 +561,20 @@ public class LuceneExecutor implements Runnable {
 						}
 
 						// index the blob content
-						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {							
+						if (StringUtils.isEmpty(ext) || !excludedExtensions.contains(ext)) {
 							ObjectLoader ldr = repository.open(blobId, Constants.OBJ_BLOB);
-							InputStream in = ldr.openStream();						
+							InputStream in = ldr.openStream();
 							int n;
 							while ((n = in.read(tmp)) > 0) {
 								os.write(tmp, 0, n);
 							}
 							in.close();
 							byte[] content = os.toByteArray();
-							String str = StringUtils.decodeString(content, encodings);							
+							String str = StringUtils.decodeString(content, encodings);
 							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
 							os.reset();
-						}							
-						
+						}
+
 						// add the blob to the index
 						writer.addDocument(doc);
 					}
@@ -608,7 +608,7 @@ public class LuceneExecutor implements Runnable {
 
 			// finished
 			reader.release();
-			
+
 			// commit all changes and reset the searcher
 			config.setInt(CONF_INDEX, null, CONF_VERSION, INDEX_VERSION);
 			config.save();
@@ -620,11 +620,11 @@ public class LuceneExecutor implements Runnable {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Incrementally update the index with the specified commit for the
 	 * repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param branch
@@ -632,7 +632,7 @@ public class LuceneExecutor implements Runnable {
 	 * @param commit
 	 * @return true, if successful
 	 */
-	private IndexResult index(String repositoryName, Repository repository, 
+	private IndexResult index(String repositoryName, Repository repository,
 			String branch, RevCommit commit) {
 		IndexResult result = new IndexResult();
 		try {
@@ -681,7 +681,7 @@ public class LuceneExecutor implements Runnable {
 				}
 			}
 			writer.commit();
-			
+
 			// get any annotated commit tags
 			List<String> commitTags = new ArrayList<String>();
 			for (RefModel ref : JGitUtils.getTags(repository, false, -1)) {
@@ -689,7 +689,7 @@ public class LuceneExecutor implements Runnable {
 					commitTags.add(ref.displayName);
 				}
 			}
-			
+
 			// create and write the Lucene document
 			Document doc = createDocument(commit, commitTags);
 			doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
@@ -703,7 +703,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Delete a blob from the specified branch of the repository index.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param branch
 	 * @param path
@@ -713,7 +713,7 @@ public class LuceneExecutor implements Runnable {
 	public boolean deleteBlob(String repositoryName, String branch, String path) throws Exception {
 		String pattern = MessageFormat.format("{0}:'{'0} AND {1}:\"'{'1'}'\" AND {2}:\"'{'2'}'\"", FIELD_OBJECT_TYPE, FIELD_BRANCH, FIELD_PATH);
 		String q = MessageFormat.format(pattern, SearchObjectType.blob.name(), branch, path);
-		
+
 		BooleanQuery query = new BooleanQuery();
 		StandardAnalyzer analyzer = new StandardAnalyzer(LUCENE_VERSION);
 		QueryParser qp = new QueryParser(LUCENE_VERSION, FIELD_SUMMARY, analyzer);
@@ -721,7 +721,7 @@ public class LuceneExecutor implements Runnable {
 
 		IndexWriter writer = getIndexWriter(repositoryName);
 		int numDocsBefore = writer.numDocs();
-		writer.deleteDocuments(query);		
+		writer.deleteDocuments(query);
 		writer.commit();
 		int numDocsAfter = writer.numDocs();
 		if (numDocsBefore == numDocsAfter) {
@@ -735,7 +735,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Updates a repository index incrementally from the last indexed commits.
-	 * 
+	 *
 	 * @param model
 	 * @param repository
 	 * @return IndexResult
@@ -770,7 +770,7 @@ public class LuceneExecutor implements Runnable {
 
 			// get the local branches
 			List<RefModel> branches = JGitUtils.getLocalBranches(repository, true, -1);
-			
+
 			// sort them by most recently updated
 			Collections.sort(branches, new Comparator<RefModel>() {
 				@Override
@@ -778,7 +778,7 @@ public class LuceneExecutor implements Runnable {
 					return ref2.getDate().compareTo(ref1.getDate());
 				}
 			});
-						
+
 			// reorder default branch to first position
 			RefModel defaultBranch = null;
 			ObjectId defaultBranchId = JGitUtils.getDefaultBranch(repository);
@@ -790,7 +790,7 @@ public class LuceneExecutor implements Runnable {
 			}
 			branches.remove(defaultBranch);
 			branches.add(0, defaultBranch);
-			
+
 			// walk through each branches
 			for (RefModel branch : branches) {
 				String branchName = branch.getName();
@@ -807,15 +807,15 @@ public class LuceneExecutor implements Runnable {
 					// normal explicit branch check
 					indexBranch = model.indexedBranches.contains(branch.getName());
 				}
-				
+
 				// if this branch is not specifically indexed then skip
 				if (!indexBranch) {
 					continue;
 				}
-				
+
 				// remove this branch from the deletedBranches set
 				deletedBranches.remove(branchName);
-				
+
 				// determine last commit
 				String keyName = getBranchKey(branchName);
 				String lastCommit = config.getString(CONF_BRANCH, null, keyName);
@@ -832,10 +832,10 @@ public class LuceneExecutor implements Runnable {
 				if (revs.size() > 0) {
 					result.branchCount += 1;
 				}
-				
-				// reverse the list of commits so we start with the first commit				
+
+				// reverse the list of commits so we start with the first commit
 				Collections.reverse(revs);
-				for (RevCommit commit : revs) {					
+				for (RevCommit commit : revs) {
 					// index a commit
 					result.add(index(model.name, repository, branchName, commit));
 				}
@@ -862,10 +862,10 @@ public class LuceneExecutor implements Runnable {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Creates a Lucene document for a commit
-	 * 
+	 *
 	 * @param commit
 	 * @param tags
 	 * @return a Lucene document
@@ -889,13 +889,13 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Incrementally index an object for the repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param doc
 	 * @return true, if successful
 	 */
 	private boolean index(String repositoryName, Document doc) {
-		try {			
+		try {
 			IndexWriter writer = getIndexWriter(repositoryName);
 			writer.addDocument(doc);
 			writer.commit();
@@ -913,7 +913,7 @@ public class LuceneExecutor implements Runnable {
 		result.totalHits = totalHits;
 		result.score = score;
 		result.date = DateTools.stringToDate(doc.get(FIELD_DATE));
-		result.summary = doc.get(FIELD_SUMMARY);		
+		result.summary = doc.get(FIELD_SUMMARY);
 		result.author = doc.get(FIELD_AUTHOR);
 		result.committer = doc.get(FIELD_COMMITTER);
 		result.type = SearchObjectType.fromName(doc.get(FIELD_OBJECT_TYPE));
@@ -935,7 +935,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Gets an index searcher for the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @return
 	 * @throws IOException
@@ -953,16 +953,16 @@ public class LuceneExecutor implements Runnable {
 	/**
 	 * Gets an index writer for the repository. The index will be created if it
 	 * does not already exist or if forceCreate is specified.
-	 * 
+	 *
 	 * @param repository
 	 * @return an IndexWriter
 	 * @throws IOException
 	 */
 	private IndexWriter getIndexWriter(String repository) throws IOException {
-		IndexWriter indexWriter = writers.get(repository);				
+		IndexWriter indexWriter = writers.get(repository);
 		File repositoryFolder = FileKey.resolve(new File(repositoriesFolder, repository), FS.DETECTED);
 		File indexFolder = new File(repositoryFolder, LUCENE_DIR);
-		Directory directory = FSDirectory.open(indexFolder);		
+		Directory directory = FSDirectory.open(indexFolder);
 
 		if (indexWriter == null) {
 			if (!indexFolder.exists()) {
@@ -979,7 +979,7 @@ public class LuceneExecutor implements Runnable {
 
 	/**
 	 * Searches the specified repositories for the given text or query
-	 * 
+	 *
 	 * @param text
 	 *            if the text is null or empty, null is returned
 	 * @param page
@@ -990,7 +990,7 @@ public class LuceneExecutor implements Runnable {
 	 *            a list of repositories to search. if no repositories are
 	 *            specified null is returned.
 	 * @return a list of SearchResults in order from highest to the lowest score
-	 * 
+	 *
 	 */
 	public List<SearchResult> search(String text, int page, int pageSize, List<String> repositories) {
 		if (ArrayUtils.isEmpty(repositories)) {
@@ -998,10 +998,10 @@ public class LuceneExecutor implements Runnable {
 		}
 		return search(text, page, pageSize, repositories.toArray(new String[0]));
 	}
-	
+
 	/**
 	 * Searches the specified repositories for the given text or query
-	 * 
+	 *
 	 * @param text
 	 *            if the text is null or empty, null is returned
 	 * @param page
@@ -1012,7 +1012,7 @@ public class LuceneExecutor implements Runnable {
 	 *            a list of repositories to search. if no repositories are
 	 *            specified null is returned.
 	 * @return a list of SearchResults in order from highest to the lowest score
-	 * 
+	 *
 	 */
 	public List<SearchResult> search(String text, int page, int pageSize, String... repositories) {
 		if (StringUtils.isEmpty(text)) {
@@ -1034,7 +1034,7 @@ public class LuceneExecutor implements Runnable {
 			qp = new QueryParser(LUCENE_VERSION, FIELD_CONTENT, analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
-			
+
 			IndexSearcher searcher;
 			if (repositories.length == 1) {
 				// single repository search
@@ -1050,7 +1050,7 @@ public class LuceneExecutor implements Runnable {
 				MultiSourceReader reader = new MultiSourceReader(rdrs);
 				searcher = new IndexSearcher(reader);
 			}
-			
+
 			Query rewrittenQuery = searcher.rewrite(query);
 			logger.debug(rewrittenQuery.toString());
 
@@ -1072,7 +1072,7 @@ public class LuceneExecutor implements Runnable {
 					int index = reader.getSourceIndex(docId);
 					result.repository = repositories[index];
 				}
-				String content = doc.get(FIELD_CONTENT);				
+				String content = doc.get(FIELD_CONTENT);
 				result.fragment = getHighlightedFragment(analyzer, query, content, result);
 				results.add(result);
 			}
@@ -1081,9 +1081,9 @@ public class LuceneExecutor implements Runnable {
 		}
 		return new ArrayList<SearchResult>(results);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param analyzer
 	 * @param query
 	 * @param content
@@ -1096,18 +1096,18 @@ public class LuceneExecutor implements Runnable {
 			String content, SearchResult result) throws IOException, InvalidTokenOffsetsException {
 		if (content == null) {
 			content = "";
-		}		
+		}
 
 		int fragmentLength = SearchObjectType.commit == result.type ? 512 : 150;
 
 		QueryScorer scorer = new QueryScorer(query, "content");
-		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, fragmentLength); 
+		Fragmenter fragmenter = new SimpleSpanFragmenter(scorer, fragmentLength);
 
 		// use an artificial delimiter for the token
 		String termTag = "!!--[";
 		String termTagEnd = "]--!!";
 		SimpleHTMLFormatter formatter = new SimpleHTMLFormatter(termTag, termTagEnd);
-		Highlighter highlighter = new Highlighter(formatter, scorer);		
+		Highlighter highlighter = new Highlighter(formatter, scorer);
 		highlighter.setTextFragmenter(fragmenter);
 
 		String [] fragments = highlighter.getBestFragments(analyzer, "content", content, 3);
@@ -1122,14 +1122,14 @@ public class LuceneExecutor implements Runnable {
 			}
 			return "<pre class=\"text\">" + StringUtils.escapeForHtml(fragment, true) + "</pre>";
 		}
-		
+
 		// make sure we have unique fragments
 		Set<String> uniqueFragments = new LinkedHashSet<String>();
 		for (String fragment : fragments) {
 			uniqueFragments.add(fragment);
 		}
 		fragments = uniqueFragments.toArray(new String[uniqueFragments.size()]);
-		
+
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0, len = fragments.length; i < len; i++) {
 			String fragment = fragments[i];
@@ -1140,7 +1140,7 @@ public class LuceneExecutor implements Runnable {
 
 			// determine position of the raw fragment in the content
 			int pos = content.indexOf(raw);
-				
+
 			// restore complete first line of fragment
 			int c = pos;
 			while (c > 0) {
@@ -1153,11 +1153,11 @@ public class LuceneExecutor implements Runnable {
 				// inject leading chunk of first fragment line
 				fragment = content.substring(c + 1, pos) + fragment;
 			}
-				
+
 			if (SearchObjectType.blob  == result.type) {
 				// count lines as offset into the content for this fragment
 				int line = Math.max(1, StringUtils.countLines(content.substring(0, pos)));
-				
+
 				// create fragment tag with line number and language
 				String lang = "";
 				String ext = StringUtils.getFileExtension(result.path).toLowerCase();
@@ -1166,9 +1166,9 @@ public class LuceneExecutor implements Runnable {
 					lang = " lang-" + ext;
 				}
 				tag = MessageFormat.format("<pre class=\"prettyprint linenums:{0,number,0}{1}\">", line, lang);
-								
+
 			}
-			
+
 			sb.append(tag);
 
 			// replace the artificial delimiter with html tags
@@ -1181,10 +1181,10 @@ public class LuceneExecutor implements Runnable {
 			}
 		}
 		return sb.toString();
-	}	
-	
+	}
+
 	/**
-	 * Simple class to track the results of an index update. 
+	 * Simple class to track the results of an index update.
 	 */
 	private class IndexResult {
 		long startTime = System.currentTimeMillis();
@@ -1193,33 +1193,33 @@ public class LuceneExecutor implements Runnable {
 		int branchCount;
 		int commitCount;
 		int blobCount;
-		
+
 		void add(IndexResult result) {
 			this.branchCount += result.branchCount;
 			this.commitCount += result.commitCount;
 			this.blobCount += result.blobCount;
 		}
-		
+
 		void success() {
 			success = true;
 			endTime = System.currentTimeMillis();
 		}
-		
+
 		float duration() {
 			return (endTime - startTime)/1000f;
 		}
 	}
-	
+
 	/**
 	 * Custom subclass of MultiReader to identify the source index for a given
 	 * doc id.  This would not be necessary of there was a public method to
 	 * obtain this information.
-	 *  
+	 *
 	 */
 	private class MultiSourceReader extends MultiReader {
-		
+
 		final Method method;
-		
+
 		MultiSourceReader(IndexReader[] subReaders) {
 			super(subReaders);
 			Method m = null;
@@ -1231,7 +1231,7 @@ public class LuceneExecutor implements Runnable {
 			}
 			method = m;
 		}
-		
+
 		int getSourceIndex(int docId) {
 			int index = -1;
 			try {

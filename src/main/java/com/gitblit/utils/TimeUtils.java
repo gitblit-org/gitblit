@@ -24,9 +24,9 @@ import java.util.TimeZone;
 
 /**
  * Utility class of time functions.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class TimeUtils {
 	public static final long MIN = 1000 * 60L;
@@ -38,15 +38,15 @@ public class TimeUtils {
 	public static final long ONEDAY = ONEHOUR * 24L;
 
 	public static final long ONEYEAR = ONEDAY * 365L;
-	
+
 	private final ResourceBundle translation;
-	
+
 	private final TimeZone timezone;
-	
+
 	public TimeUtils() {
 		this(null, null);
 	}
-	
+
 	public TimeUtils(ResourceBundle translation, TimeZone timezone) {
 		this.translation = translation;
 		this.timezone = timezone;
@@ -54,7 +54,7 @@ public class TimeUtils {
 
 	/**
 	 * Returns true if date is today.
-	 * 
+	 *
 	 * @param date
 	 * @return true if date is today
 	 */
@@ -69,7 +69,7 @@ public class TimeUtils {
 
 	/**
 	 * Returns true if date is yesterday.
-	 * 
+	 *
 	 * @param date
 	 * @return true if date is yesterday
 	 */
@@ -87,7 +87,7 @@ public class TimeUtils {
 	/**
 	 * Returns the string representation of the duration as days, months and/or
 	 * years.
-	 * 
+	 *
 	 * @param days
 	 * @return duration as string in days, months, and/or years
 	 */
@@ -123,7 +123,7 @@ public class TimeUtils {
 	/**
 	 * Returns the number of minutes ago between the start time and the end
 	 * time.
-	 * 
+	 *
 	 * @param date
 	 * @param endTime
 	 * @param roundup
@@ -140,7 +140,7 @@ public class TimeUtils {
 
 	/**
 	 * Return the difference in minutes between now and the date.
-	 * 
+	 *
 	 * @param date
 	 * @param roundup
 	 * @return minutes ago
@@ -151,7 +151,7 @@ public class TimeUtils {
 
 	/**
 	 * Return the difference in hours between now and the date.
-	 * 
+	 *
 	 * @param date
 	 * @param roundup
 	 * @return hours ago
@@ -167,7 +167,7 @@ public class TimeUtils {
 
 	/**
 	 * Return the difference in days between now and the date.
-	 * 
+	 *
 	 * @param date
 	 * @return days ago
 	 */
@@ -190,7 +190,7 @@ public class TimeUtils {
 	/**
 	 * Returns the string representation of the duration between now and the
 	 * date.
-	 * 
+	 *
 	 * @param date
 	 * @return duration as a string
 	 */
@@ -200,7 +200,7 @@ public class TimeUtils {
 
 	/**
 	 * Returns the CSS class for the date based on its age from Now.
-	 * 
+	 *
 	 * @param date
 	 * @return the css class
 	 */
@@ -211,7 +211,7 @@ public class TimeUtils {
 	/**
 	 * Returns the string representation of the duration OR the css class for
 	 * the duration.
-	 * 
+	 *
 	 * @param date
 	 * @param css
 	 * @return the string representation of the duration OR the css class
@@ -279,7 +279,7 @@ public class TimeUtils {
 			}
 		}
 	}
-	
+
 	public String inFuture(Date date) {
 		long diff = date.getTime() - System.currentTimeMillis();
 		if (diff > ONEDAY) {
@@ -295,7 +295,7 @@ public class TimeUtils {
 			}
 		}
 	}
-	
+
 	private String translate(String key, String defaultValue) {
 		String value = defaultValue;
 		if (translation != null && translation.containsKey(key)) {
@@ -306,7 +306,7 @@ public class TimeUtils {
 		}
 		return value;
 	}
-	
+
 	private String translate(int val, String key, String defaultPattern) {
 		String pattern = defaultPattern;
 		if (translation != null && translation.containsKey(key)) {
@@ -320,7 +320,7 @@ public class TimeUtils {
 
 	/**
 	 * Convert a frequency string into minutes.
-	 * 
+	 *
 	 * @param frequency
 	 * @return minutes
 	 */

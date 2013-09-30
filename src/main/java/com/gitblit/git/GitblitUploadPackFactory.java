@@ -36,9 +36,9 @@ import com.gitblit.models.UserModel;
 /**
  * The upload pack factory creates an upload pack which controls what refs are
  * advertised to cloning/pulling clients.
- * 
+ *
  * @author James Moger
- * 
+ *
  * @param <X> the connection type
  */
 public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
@@ -51,7 +51,7 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 		int timeout = 0;
 
 		if (req instanceof HttpServletRequest) {
-			// http/https request may or may not be authenticated 
+			// http/https request may or may not be authenticated
 			user = GitBlit.self().authenticate((HttpServletRequest) req);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
@@ -67,7 +67,7 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 		UploadPack up = new UploadPack(db);
 		up.setRefFilter(refFilter);
 		up.setTimeout(timeout);
-		
+
 		return up;
 	}
 
@@ -76,13 +76,13 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 	 * requesting user.
 	 */
 	public static class UserRefFilter implements RefFilter {
-		
+
 		final UserModel user;
-		
+
 		public UserRefFilter(UserModel user) {
 			this.user = user;
 		}
-		
+
 		@Override
 		public Map<String, Ref> filter(Map<String, Ref> refs) {
 			if (user.canAdmin()) {

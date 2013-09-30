@@ -23,7 +23,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Model class to represent a git client application.
- * 
+ *
  * @author James Moger
  *
  */
@@ -60,18 +60,18 @@ public class GitClientApplication implements Serializable {
 		}
 		return false;
 	}
-	
+
 	public boolean supportsTransport(String transportOrUrl) {
 		if (ArrayUtils.isEmpty(transports)) {
 			return true;
 		}
-		
+
 		String scheme = transportOrUrl;
 		if (transportOrUrl.indexOf(':') > -1) {
 			// strip scheme
 			scheme = transportOrUrl.substring(0, transportOrUrl.indexOf(':'));
 		}
-		
+
 		for (String transport : transports) {
 			if (transport.equalsIgnoreCase(scheme)) {
 				return true;
@@ -79,7 +79,7 @@ public class GitClientApplication implements Serializable {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		return StringUtils.isEmpty(title) ? name : title;

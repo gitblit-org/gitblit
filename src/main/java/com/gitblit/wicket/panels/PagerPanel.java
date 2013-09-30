@@ -39,10 +39,10 @@ public class PagerPanel extends Panel {
 		int[] deltas;
 		if (currentPage == 1) {
 			// [1], 2, 3, 4, 5
-			deltas = new int[] { 0, 1, 2, 3, 4 };			
+			deltas = new int[] { 0, 1, 2, 3, 4 };
 		} else if (currentPage == 2) {
 			// 1, [2], 3, 4, 5
-			deltas = new int[] { -1, 0, 1, 2, 3 };			
+			deltas = new int[] { -1, 0, 1, 2, 3 };
 		} else {
 			// 1, 2, [3], 4, 5
 			deltas = new int[] { -2, -1, 0, 1, 2 };
@@ -65,6 +65,7 @@ public class PagerPanel extends Panel {
 		final DataView<PageObject> pagesView = new DataView<PageObject>("page", pagesProvider) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<PageObject> item) {
 				PageObject pageItem = item.getModelObject();
 				PageParameters pageParams = new PageParameters(baseParams);
@@ -83,7 +84,7 @@ public class PagerPanel extends Panel {
 	private class PageObject implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		String text;
 		int page;
 

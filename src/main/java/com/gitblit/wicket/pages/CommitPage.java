@@ -56,7 +56,7 @@ public class CommitPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit c = getCommit();
-		
+
 		List<String> parents = new ArrayList<String>();
 		if (c.getParentCount() > 0) {
 			for (RevCommit parent : c.getParents()) {
@@ -86,7 +86,7 @@ public class CommitPage extends RepositoryPage {
 		add(createPersonPanel("commitAuthor", c.getAuthorIdent(), Constants.SearchType.AUTHOR));
 		add(WicketUtils.createTimestampLabel("commitAuthorDate", c.getAuthorIdent().getWhen(),
 				getTimeZone(), getTimeUtils()));
-		
+
 		// committer
 		add(createPersonPanel("commitCommitter", c.getCommitterIdent(), Constants.SearchType.COMMITTER));
 		add(WicketUtils.createTimestampLabel("commitCommitterDate",
@@ -98,7 +98,7 @@ public class CommitPage extends RepositoryPage {
 				newCommitParameter()));
 		add(new BookmarkablePageLink<Void>("treeLink", TreePage.class, newCommitParameter()));
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		
+
 		add(new CompressedDownloadsPanel("compressedLinks", baseUrl, repositoryName, objectId, null));
 
 		// Parent Commits
@@ -106,6 +106,7 @@ public class CommitPage extends RepositoryPage {
 		DataView<String> parentsView = new DataView<String>("commitParents", parentsDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<String> item) {
 				String entry = item.getModelObject();
 				item.add(new LinkPanel("commitParent", "list", entry, CommitPage.class,
@@ -126,6 +127,7 @@ public class CommitPage extends RepositoryPage {
 		DataView<GitNote> notesView = new DataView<GitNote>("notes", notesDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<GitNote> item) {
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
@@ -142,7 +144,7 @@ public class CommitPage extends RepositoryPage {
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInCommit(r, c);
-		
+
 		// add commit diffstat
 		int insertions = 0;
 		int deletions = 0;
@@ -151,13 +153,14 @@ public class CommitPage extends RepositoryPage {
 			deletions += pcm.deletions;
 		}
 		add(new DiffStatPanel("diffStat", insertions, deletions));
-		
+
 		add(new CommitLegendPanel("commitLegend", paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
 				Label changeType = new Label("changeType", "");
@@ -179,7 +182,7 @@ public class CommitPage extends RepositoryPage {
 					SubmoduleModel submodule = getSubmodule(entry.path);
 					submodulePath = submodule.gitblitPath;
 					hasSubmodule = submodule.hasSubmodule;
-					
+
 					item.add(new LinkPanel("pathName", "list", entry.path + " @ " +
 							getShortObjectId(submoduleId), TreePage.class,
 							WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
@@ -195,10 +198,10 @@ public class CommitPage extends RepositoryPage {
 							WicketUtils
 									.newPathParameter(repositoryName, entry.commitId, path)));
 				}
-				
+
 				// quick links
 				if (entry.isSubmodule()) {
-					// submodule					
+					// submodule
 					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
@@ -237,7 +240,7 @@ public class CommitPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.commit");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

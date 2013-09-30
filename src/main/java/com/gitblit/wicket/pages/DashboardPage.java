@@ -75,7 +75,7 @@ public abstract class DashboardPage extends RootPage {
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
 		TimeZone timezone = getTimeZone();
-		
+
 		// create daily commit digest feed
 		List<DailyLogEntry> digests = new ArrayList<DailyLogEntry>();
 		for (RepositoryModel model : repositories) {
@@ -89,7 +89,7 @@ public abstract class DashboardPage extends RootPage {
 				repository.close();
 			}
 		}
-		
+
 		Fragment activityFragment = new Fragment("activity", "activityFragment", this);
 		add(activityFragment);
 		activityFragment.add(new Label("feedTitle", feedTitle));
@@ -118,7 +118,7 @@ public abstract class DashboardPage extends RootPage {
 			DigestsPanel digestsPanel = new DigestsPanel("digests", digests);
 			activityFragment.add(digestsPanel);
 		}
-		
+
 		// add the nifty charts
 		if (!ArrayUtils.isEmpty(digests)) {
 			// aggregate author exclusions
@@ -140,7 +140,7 @@ public abstract class DashboardPage extends RootPage {
 			activityFragment.add(new Label("feedheader").setVisible(false));
 		}
 	}
-	
+
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
@@ -163,7 +163,7 @@ public abstract class DashboardPage extends RootPage {
 	/**
 	 * Creates the daily activity line chart, the active repositories pie chart,
 	 * and the active authors pie chart
-	 * 
+	 *
 	 * @param recentChanges
 	 * @param authorExclusions
 	 * @param daysBack
@@ -183,7 +183,7 @@ public abstract class DashboardPage extends RootPage {
 				repositoryMetrics.put(repository, new Metric(repository));
 			}
 			repositoryMetrics.get(repository).count += 1;
-			
+
 			for (RepositoryCommit commit : change.getCommits()) {
 				totalCommits++;
 				String author = StringUtils.removeNewlines(commit.getAuthorIdent().getName());
@@ -197,7 +197,7 @@ public abstract class DashboardPage extends RootPage {
 				}
 			}
 		}
-		
+
 		String headerPattern;
 		if (daysBack == 1) {
 			// today
@@ -239,7 +239,7 @@ public abstract class DashboardPage extends RootPage {
 			chart.setShowLegend(false);
 			charts.addChart(chart);
 
-			add(new HeaderContributor(charts));		
+			add(new HeaderContributor(charts));
 			frag.add(new Fragment("charts", "chartsFragment", this));
 		} else {
 			frag.add(new Label("charts").setVisible(false));

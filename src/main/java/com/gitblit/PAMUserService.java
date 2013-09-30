@@ -30,7 +30,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Implementation of a PAM user service for Linux/Unix/MacOSX.
- * 
+ *
  * @author James Moger
  */
 public class PAMUserService extends GitblitUserService {
@@ -38,7 +38,7 @@ public class PAMUserService extends GitblitUserService {
     private final Logger logger = LoggerFactory.getLogger(PAMUserService.class);
 
     private IStoredSettings settings;
-    
+
     public PAMUserService() {
         super();
     }
@@ -52,7 +52,7 @@ public class PAMUserService extends GitblitUserService {
 
         serviceImpl = createUserService(realmFile);
         logger.info("PAM User Service backed by " + serviceImpl.toString());
-        
+
         // Try to identify the passwd database
         String [] files = { "/etc/shadow", "/etc/master.passwd" };
 		File passwdFile = null;
@@ -69,7 +69,7 @@ public class PAMUserService extends GitblitUserService {
 			logger.error("PAM User Service can not read passwd database {}! PAM authentications may fail!", passwdFile);
 		}
     }
-    
+
     @Override
     public boolean supportsCredentialChanges() {
         return false;
@@ -89,7 +89,7 @@ public class PAMUserService extends GitblitUserService {
     public boolean supportsTeamMembershipChanges() {
         return true;
     }
-    
+
 	 @Override
 	protected AccountType getAccountType() {
 		return AccountType.PAM;
@@ -101,7 +101,7 @@ public class PAMUserService extends GitblitUserService {
 			// local account, bypass PAM authentication
 			return super.authenticate(username, password);
 		}
-		
+
 		if (CLibrary.libc.getpwnam(username) == null) {
 			logger.warn("Can not get PAM passwd for " + username);
 			return null;
@@ -136,7 +136,7 @@ public class PAMUserService extends GitblitUserService {
 
         // push the changes to the backing user service
         super.updateUserModel(user);
-        
+
         return user;
     }
 }

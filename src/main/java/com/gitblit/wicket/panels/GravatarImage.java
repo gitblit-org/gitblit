@@ -33,9 +33,9 @@ import com.gitblit.wicket.pages.GravatarProfilePage;
 
 /**
  * Represents a Gravatar image and links to the Gravatar profile page.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GravatarImage extends Panel {
 
@@ -44,7 +44,7 @@ public class GravatarImage extends Panel {
 	public GravatarImage(String id, PersonIdent person) {
 		this(id, person, 0);
 	}
-	
+
 	public GravatarImage(String id, PersonIdent person, int width) {
 		this(id, person, width, true);
 	}
@@ -52,7 +52,7 @@ public class GravatarImage extends Panel {
 	public GravatarImage(String id, PersonIdent person, int width, boolean linked) {
 		this(id, person.getName(), person.getEmailAddress(), "gravatar", width, linked, true);
 	}
-	
+
 	public GravatarImage(String id, String username, String emailaddress, String cssClass, int width, boolean linked, boolean identicon) {
 		super(id);
 

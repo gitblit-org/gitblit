@@ -30,8 +30,8 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
-import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.CacheControl.LastModified;
+import com.gitblit.wicket.WicketUtils;
 
 @CacheControl(LastModified.BOOT)
 public class MarkdownPage extends RepositoryPage {
@@ -44,7 +44,7 @@ public class MarkdownPage extends RepositoryPage {
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		String [] encodings = GitBlit.getEncodings();
-		
+
 		// markdown page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, markdownPath)));
@@ -73,7 +73,7 @@ public class MarkdownPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.markdown");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return DocsPage.class;

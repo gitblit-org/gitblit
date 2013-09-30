@@ -66,19 +66,19 @@ import com.gitblit.models.UserModel;
 /**
  * Utility class for maintaining a reflog within a git repository on an
  * orphan branch.
- * 
+ *
  * @author James Moger
  *
  */
 public class RefLogUtils {
-	
+
 	private static final String GB_REFLOG = "refs/gitblit/reflog";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RefLogUtils.class);
 
 	/**
 	 * Log an error message and exception.
-	 * 
+	 *
 	 * @param t
 	 * @param repository
 	 *            if repository is not null it MUST be the {0} parameter in the
@@ -98,10 +98,10 @@ public class RefLogUtils {
 		}
 		LOGGER.error(MessageFormat.format(pattern, parameters.toArray()), t);
 	}
-	
+
 	/**
 	 * Returns true if the repository has a reflog branch.
-	 * 
+	 *
 	 * @param repository
 	 * @return true if the repository has a reflog branch
 	 */
@@ -117,7 +117,7 @@ public class RefLogUtils {
 	/**
 	 * Returns a RefModel for the reflog branch in the repository. If the
 	 * branch can not be found, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @return a refmodel for the reflog branch or null
 	 */
@@ -152,7 +152,7 @@ public class RefLogUtils {
 		}
 		return null;
 	}
-	
+
 	private static UserModel newUserModelFrom(PersonIdent ident) {
 		String name = ident.getName();
 		String username;
@@ -165,16 +165,16 @@ public class RefLogUtils {
 			displayname = name;
 			username = ident.getEmailAddress();
 		}
-		
+
 		UserModel user = new UserModel(username);
 		user.displayName = displayname;
 		user.emailAddress = ident.getEmailAddress();
 		return user;
 	}
-	
+
 	/**
 	 * Logs a ref deletion.
-	 * 
+	 *
 	 * @param user
 	 * @param repository
 	 * @param ref
@@ -189,7 +189,7 @@ public class RefLogUtils {
 			if (reflogBranch == null) {
 				return false;
 			}
-			
+
 			List<RevCommit> log = JGitUtils.getRevLog(repository, reflogBranch.getName(), ref.getName(), 0, 1);
 			if (log.isEmpty()) {
 				// this ref is not in the reflog branch
@@ -202,10 +202,10 @@ public class RefLogUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Updates the reflog with the received commands.
-	 * 
+	 *
 	 * @param user
 	 * @param repository
 	 * @param commands
@@ -217,10 +217,10 @@ public class RefLogUtils {
 		if (reflogBranch == null) {
 			JGitUtils.createOrphanBranch(repository, GB_REFLOG, null);
 		}
-		
+
 		boolean success = false;
 		String message = "push";
-		
+
 		try {
 			ObjectId headId = repository.resolve(GB_REFLOG + "^{commit}");
 			ObjectInserter odi = repository.newObjectInserter();
@@ -286,17 +286,17 @@ public class RefLogUtils {
 		}
 		return success;
 	}
-	
+
 	/**
 	 * Creates an in-memory index of the push log entry.
-	 * 
+	 *
 	 * @param repo
 	 * @param headId
 	 * @param commands
 	 * @return an in-memory index
 	 * @throws IOException
 	 */
-	private static DirCache createIndex(Repository repo, ObjectId headId, 
+	private static DirCache createIndex(Repository repo, ObjectId headId,
 			Collection<ReceiveCommand> commands) throws IOException {
 
 		DirCache inCoreIndex = DirCache.newInCore();
@@ -335,7 +335,7 @@ public class RefLogUtils {
 					continue;
 				}
 				String content = change.toString();
-				
+
 				// create an index entry for this attachment
 				final DirCacheEntry dcEntry = new DirCacheEntry(path);
 				dcEntry.setLength(content.length());
@@ -386,7 +386,7 @@ public class RefLogUtils {
 		}
 		return inCoreIndex;
 	}
-	
+
 	public static List<RefLogEntry> getRefLog(String repositoryName, Repository repository) {
 		return getRefLog(repositoryName, repository, null, 0, -1);
 	}
@@ -402,11 +402,11 @@ public class RefLogUtils {
 	public static List<RefLogEntry> getRefLog(String repositoryName, Repository repository, Date minimumDate) {
 		return getRefLog(repositoryName, repository, minimumDate, 0, -1);
 	}
-	
+
 	/**
 	 * Returns the list of reflog entries as they were recorded by Gitblit.
 	 * Each RefLogEntry may represent multiple ref updates.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param minimumDate
@@ -425,7 +425,7 @@ public class RefLogUtils {
 		if (maxCount == 0) {
 			return list;
 		}
-		
+
 		Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository);
 		List<RevCommit> pushes;
 		if (minimumDate == null) {
@@ -441,8 +441,8 @@ public class RefLogUtils {
 
 			UserModel user = newUserModelFrom(push.getAuthorIdent());
 			Date date = push.getAuthorIdent().getWhen();
-			
-			RefLogEntry log = new RefLogEntry(repositoryName, date, user);			
+
+			RefLogEntry log = new RefLogEntry(repositoryName, date, user);
 			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);
 			if (changedRefs.isEmpty()) {
 				// skip empty commits
@@ -483,7 +483,7 @@ public class RefLogUtils {
 	/**
 	 * Returns the list of pushes separated by ref (e.g. each ref has it's own
 	 * PushLogEntry object).
-	 *  
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param maxCount
@@ -492,11 +492,11 @@ public class RefLogUtils {
 	public static List<RefLogEntry> getLogByRef(String repositoryName, Repository repository, int maxCount) {
 		return getLogByRef(repositoryName, repository, 0, maxCount);
 	}
-	
+
 	/**
 	 * Returns the list of pushes separated by ref (e.g. each ref has it's own
 	 * PushLogEntry object).
-	 *  
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param offset
@@ -513,7 +513,7 @@ public class RefLogUtils {
 				if (!refMap.containsKey(ref)) {
 					refMap.put(ref, new ArrayList<RefLogEntry>());
 				}
-				
+
 				// construct new ref-specific ref change entry
 				RefLogEntry refChange;
 				if (entry instanceof DailyLogEntry) {
@@ -528,23 +528,23 @@ public class RefLogUtils {
 				refMap.get(ref).add(refChange);
 			}
 		}
-		
+
 		// merge individual ref changes into master list
 		List<RefLogEntry> mergedRefLog = new ArrayList<RefLogEntry>();
 		for (List<RefLogEntry> refPush : refMap.values()) {
 			mergedRefLog.addAll(refPush);
 		}
-		
+
 		// sort ref log
 		Collections.sort(mergedRefLog);
-		
+
 		return mergedRefLog;
 	}
-	
+
 	/**
 	 * Returns the list of ref changes separated by ref (e.g. each ref has it's own
 	 * RefLogEntry object).
-	 *  
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param minimumDate
@@ -567,16 +567,16 @@ public class RefLogUtils {
 				refMap.get(ref).add(refPush);
 			}
 		}
-		
+
 		// merge individual ref pushes into master list
 		List<RefLogEntry> refPushLog = new ArrayList<RefLogEntry>();
 		for (List<RefLogEntry> refPush : refMap.values()) {
 			refPushLog.addAll(refPush);
 		}
-		
+
 		// sort ref push log
 		Collections.sort(refPushLog);
-		
+
 		return refPushLog;
 	}
 
@@ -631,12 +631,12 @@ public class RefLogUtils {
                 	linearParent = commit.getParents()[0].getId().getName();
                 	digest.updateRef(branch, ReceiveCommand.Type.UPDATE, linearParent, commit.getName());
                 }
-                
+
                 RepositoryCommit repoCommit = digest.addCommit(commit);
                 if (repoCommit != null) {
                 	List<RefModel> matchedRefs = allRefs.get(commit.getId());
                     repoCommit.setRefs(matchedRefs);
-                    
+
                     if (!ArrayUtils.isEmpty(matchedRefs)) {
                         for (RefModel ref : matchedRefs) {
                             if (ref.getName().startsWith(Constants.R_TAGS)) {

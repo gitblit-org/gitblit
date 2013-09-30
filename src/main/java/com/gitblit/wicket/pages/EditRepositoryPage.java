@@ -74,11 +74,11 @@ public class EditRepositoryPage extends RootSubPage {
 	private final boolean isCreate;
 
 	private boolean isAdmin;
-	
+
 	RepositoryModel repositoryModel;
 
 	private IModel<String> metricAuthorExclusions;
-	
+
 	private IModel<String> mailingLists;
 
 	public EditRepositoryPage() {
@@ -90,7 +90,7 @@ public class EditRepositoryPage extends RootSubPage {
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
 		String authorization = GitBlit.getString(Keys.git.defaultAuthorizationControl, null);
 		model.authorizationControl = AuthorizationControl.fromName(authorization);
-		
+
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
 		if (user != null && user.canCreate() && !user.canAdmin()) {
@@ -102,7 +102,7 @@ public class EditRepositoryPage extends RootSubPage {
 			model.accessRestriction = AccessRestrictionType.VIEW;
 			model.authorizationControl = AuthorizationControl.NAMED;
 		}
-		
+
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -118,12 +118,12 @@ public class EditRepositoryPage extends RootSubPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 	}
-	
+
 	@Override
 	protected boolean requiresPageMap() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;
@@ -131,7 +131,7 @@ public class EditRepositoryPage extends RootSubPage {
 
 	protected void setupPage(RepositoryModel model) {
 		this.repositoryModel = model;
-		
+
 		// ensure this user can create or edit this repository
 		checkPermissions(repositoryModel);
 
@@ -145,7 +145,7 @@ public class EditRepositoryPage extends RootSubPage {
 		GitBlitWebSession session = GitBlitWebSession.get();
 		final UserModel user = session.getUser() == null ? UserModel.ANONYMOUS : session.getUser();
 		final boolean allowEditName = isCreate || isAdmin || repositoryModel.isUsersPersonalRepository(user.username);
-		
+
 		if (isCreate) {
 			if (user.canAdmin()) {
 				super.setupPage(getString("gb.newRepository"), "");
@@ -158,7 +158,7 @@ public class EditRepositoryPage extends RootSubPage {
 			repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
 			Collections.sort(repositoryUsers);
 			Collections.sort(repositoryTeams);
-			
+
 			federationSets.addAll(repositoryModel.federationSets);
 			if (!ArrayUtils.isEmpty(repositoryModel.indexedBranches)) {
 				indexedBranches.addAll(repositoryModel.indexedBranches);
@@ -167,9 +167,9 @@ public class EditRepositoryPage extends RootSubPage {
 
 		final String oldName = repositoryModel.name;
 
-		final RegistrantPermissionsPanel usersPalette = new RegistrantPermissionsPanel("users", 
+		final RegistrantPermissionsPanel usersPalette = new RegistrantPermissionsPanel("users",
 				RegistrantType.USER, GitBlit.self().getAllUsernames(), repositoryUsers, getAccessPermissions());
-		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams", 
+		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams",
 				RegistrantType.TEAM, GitBlit.self().getAllTeamnames(), repositoryTeams, getAccessPermissions());
 
 		// owners palette
@@ -177,7 +177,7 @@ public class EditRepositoryPage extends RootSubPage {
 		List<String> persons = GitBlit.self().getAllUsernames();
 		final Palette<String> ownersPalette = new Palette<String>("owners", new ListModel<String>(owners), new CollectionModel<String>(
 		      persons), new StringChoiceRenderer(), 12, true);
-		
+
 		// indexed local branches palette
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);
@@ -187,7 +187,7 @@ public class EditRepositoryPage extends RootSubPage {
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);
 		indexedBranchesPalette.setEnabled(luceneEnabled);
-		
+
 		// federation sets palette
 		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
 		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
@@ -211,19 +211,19 @@ public class EditRepositoryPage extends RootSubPage {
 				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
 						.self().getPostReceiveScriptsUnused(repositoryModel)),
 				new StringChoiceRenderer(), 12, true);
-		
+
 		// custom fields
 		final Map<String, String> customFieldsMap = GitBlit.getMap(Keys.groovy.customFields);
 		List<String> customKeys = new ArrayList<String>(customFieldsMap.keySet());
 		final ListView<String> customFieldsListView = new ListView<String>("customFieldsListView", customKeys) {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(ListItem<String> item) {
 				String key = item.getModelObject();
 				item.add(new Label("customFieldLabel", customFieldsMap.get(key)));
-				
+
 				String value = "";
 				if (repositoryModel.customFields != null && repositoryModel.customFields.containsKey(key)) {
 					value = repositoryModel.customFields.get(key);
@@ -248,10 +248,10 @@ public class EditRepositoryPage extends RootSubPage {
 						error(getString("gb.pleaseSetRepositoryName"));
 						return;
 					}
-					
+
 					// ensure name is trimmed
 					repositoryModel.name = repositoryModel.name.trim();
-					
+
 					// automatically convert backslashes to forward slashes
 					repositoryModel.name = repositoryModel.name.replace('\\', '/');
 					// Automatically replace // with /
@@ -269,7 +269,7 @@ public class EditRepositoryPage extends RootSubPage {
 					if (repositoryModel.name.contains("/../")) {
 						error(getString("gb.illegalRelativeSlash"));
 						return;
-					}					
+					}
 					if (repositoryModel.name.endsWith("/")) {
 						repositoryModel.name = repositoryModel.name.substring(0, repositoryModel.name.length() - 1);
 					}
@@ -281,7 +281,7 @@ public class EditRepositoryPage extends RootSubPage {
 								c));
 						return;
 					}
-					
+
 					if (user.canCreate() && !user.canAdmin() && allowEditName) {
 						// ensure repository name begins with the user's path
 						if (!repositoryModel.name.startsWith(user.getPersonalPath())) {
@@ -289,7 +289,7 @@ public class EditRepositoryPage extends RootSubPage {
 									user.getPersonalPath()));
 							return;
 						}
-						
+
 						if (repositoryModel.name.equals(user.getPersonalPath())) {
 							// reset path prefix and show error
 							repositoryModel.name = user.getPersonalPath() + "/";
@@ -328,7 +328,7 @@ public class EditRepositoryPage extends RootSubPage {
 								continue;
 							}
 							if (exclusion.indexOf(' ') > -1) {
-								list.add("\"" + exclusion + "\"");	
+								list.add("\"" + exclusion + "\"");
 							} else {
 								list.add(exclusion);
 							}
@@ -363,7 +363,7 @@ public class EditRepositoryPage extends RootSubPage {
 					while (owners.hasNext()) {
 						repositoryModel.addOwner(owners.next());
 					}
-					
+
 					// pre-receive scripts
 					List<String> preReceiveScripts = new ArrayList<String>();
 					Iterator<String> pres = preReceivePalette.getSelectedChoices();
@@ -379,7 +379,7 @@ public class EditRepositoryPage extends RootSubPage {
 						postReceiveScripts.add(post.next());
 					}
 					repositoryModel.postReceiveScripts = postReceiveScripts;
-					
+
 					// custom fields
 					repositoryModel.customFields = new LinkedHashMap<String, String>();
 					for (int i = 0; i < customFieldsListView.size(); i++) {
@@ -388,10 +388,10 @@ public class EditRepositoryPage extends RootSubPage {
 
 						TextField<String> field = (TextField<String>) child.get("customFieldValue");
 						String value = field.getValue();
-						
+
 						repositoryModel.customFields.put(key, value);
 					}
-					
+
 					// save the repository
 					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
@@ -423,7 +423,7 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
 		form.add(new TextField<String>("origin").setEnabled(false/* isCreate */));
-		
+
 		// allow relinking HEAD to a branch or tag other than master on edit repository
 		List<String> availableRefs = new ArrayList<String>();
 		if (!ArrayUtils.isEmpty(repositoryModel.availableRefs)) {
@@ -431,7 +431,7 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
-		boolean gcEnabled = GitBlit.getBoolean(Keys.git.enableGarbageCollection, false); 
+		boolean gcEnabled = GitBlit.getBoolean(Keys.git.enableGarbageCollection, false);
 		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
 		form.add(new DropDownChoice<Integer>("gcPeriod", gcPeriods, new GCPeriodRenderer()).setEnabled(gcEnabled));
 		form.add(new TextField<String>("gcThreshold").setEnabled(gcEnabled));
@@ -463,12 +463,12 @@ public class EditRepositoryPage extends RootSubPage {
 				: StringUtils.flattenStrings(repositoryModel.mailingLists, " "));
 		form.add(new TextField<String>("mailingLists", mailingLists));
 		form.add(indexedBranchesPalette);
-		
+
 		List<AuthorizationControl> acList = Arrays.asList(AuthorizationControl.values());
 		final RadioChoice<AuthorizationControl> authorizationControl = new RadioChoice<Constants.AuthorizationControl>(
 				"authorizationControl", acList, new AuthorizationControlRenderer());
 		form.add(authorizationControl);
-		
+
 		final CheckBox verifyCommitter = new CheckBox("verifyCommitter");
 		verifyCommitter.setOutputMarkupId(true);
 		form.add(verifyCommitter);
@@ -482,11 +482,11 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(postReceivePalette);
 		form.add(new BulletListPanel("inheritedPostReceive", getString("gb.inherited"), GitBlit.self()
 				.getPostReceiveScriptsInherited(repositoryModel)));
-		
+
 		WebMarkupContainer customFieldsSection = new WebMarkupContainer("customFieldsSection");
 		customFieldsSection.add(customFieldsListView);
 		form.add(customFieldsSection.setVisible(!GitBlit.getString(Keys.groovy.customFields, "").isEmpty()));
-		
+
 		// initial enable/disable of permission controls
 		if (repositoryModel.accessRestriction.equals(AccessRestrictionType.NONE)) {
 			// anonymous everything, disable all controls
@@ -499,64 +499,66 @@ public class EditRepositoryPage extends RootSubPage {
 			// enable authorization controls
 			authorizationControl.setEnabled(true);
 			verifyCommitter.setEnabled(true);
-			
+
 			boolean allowFineGrainedControls = repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
 			usersPalette.setEnabled(allowFineGrainedControls);
 			teamsPalette.setEnabled(allowFineGrainedControls);
 		}
-		
+
 		accessRestriction.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-	           
+
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				// enable/disable permissions panel based on access restriction
 				boolean allowAuthorizationControl = repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE);
 				authorizationControl.setEnabled(allowAuthorizationControl);
 				verifyCommitter.setEnabled(allowAuthorizationControl);
-				
+
 				boolean allowFineGrainedControls = allowAuthorizationControl && repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
 				usersPalette.setEnabled(allowFineGrainedControls);
 				teamsPalette.setEnabled(allowFineGrainedControls);
-				
+
 				if (allowFineGrainedControls) {
 					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
 				}
-				
+
 				target.addComponent(authorizationControl);
 				target.addComponent(verifyCommitter);
 				target.addComponent(usersPalette);
 				target.addComponent(teamsPalette);
 			}
 		});
-		
+
 		authorizationControl.add(new AjaxFormChoiceComponentUpdatingBehavior() {
-	           
+
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				// enable/disable permissions panel based on access restriction
 				boolean allowAuthorizationControl = repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE);
 				authorizationControl.setEnabled(allowAuthorizationControl);
-				
+
 				boolean allowFineGrainedControls = allowAuthorizationControl && repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED);
 				usersPalette.setEnabled(allowFineGrainedControls);
 				teamsPalette.setEnabled(allowFineGrainedControls);
-				
+
 				if (allowFineGrainedControls) {
 					repositoryModel.authorizationControl = AuthorizationControl.NAMED;
 				}
-				
+
 				target.addComponent(authorizationControl);
 				target.addComponent(usersPalette);
 				target.addComponent(teamsPalette);
 			}
 		});
-		
+
 		List<CommitMessageRenderer> renderers = Arrays.asList(CommitMessageRenderer.values());
 		DropDownChoice<CommitMessageRenderer> messageRendererChoice = new DropDownChoice<CommitMessageRenderer>("commitMessageRenderer", renderers);
 		form.add(messageRendererChoice);
-		
+
 		form.add(new Button("save"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
@@ -576,7 +578,7 @@ public class EditRepositoryPage extends RootSubPage {
 	 * Unfortunately must repeat part of AuthorizaitonStrategy here because that
 	 * mechanism does not take PageParameters into consideration, only page
 	 * instantiation.
-	 * 
+	 *
 	 * Repository Owners should be able to edit their repository.
 	 */
 	private void checkPermissions(RepositoryModel model) {
@@ -659,7 +661,7 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
-	
+
 	private class AuthorizationControlRenderer implements IChoiceRenderer<AuthorizationControl> {
 
 		private static final long serialVersionUID = 1L;
@@ -680,7 +682,7 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
-	
+
 	private class GCPeriodRenderer implements IChoiceRenderer<Integer> {
 
 		private static final long serialVersionUID = 1L;
@@ -702,7 +704,7 @@ public class EditRepositoryPage extends RootSubPage {
 			return Integer.toString(index);
 		}
 	}
-	
+
 	private class MaxActivityCommitsRenderer implements IChoiceRenderer<Integer> {
 
 		private static final long serialVersionUID = 1L;

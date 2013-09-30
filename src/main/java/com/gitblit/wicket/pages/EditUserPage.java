@@ -51,7 +51,7 @@ import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 public class EditUserPage extends RootSubPage {
 
 	private final boolean isCreate;
-	
+
 	public EditUserPage() {
 		// create constructor
 		super();
@@ -75,12 +75,12 @@ public class EditUserPage extends RootSubPage {
 		setStatelessHint(false);
 		setOutputMarkupId(true);
 	}
-	
+
 	@Override
 	protected boolean requiresPageMap() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return UsersPage.class;
@@ -99,13 +99,13 @@ public class EditUserPage extends RootSubPage {
 
 		// build list of projects including all repositories wildcards
 		List<String> repos = getAccessRestrictedRepositoryList(true, userModel);
-		
+
 		List<String> userTeams = new ArrayList<String>();
 		for (TeamModel team : userModel.teams) {
 			userTeams.add(team.name);
 		}
 		Collections.sort(userTeams);
-		
+
 		final String oldName = userModel.username;
 		final List<RegistrantAccessPermission> permissions = GitBlit.self().getUserAccessPermissions(userModel);
 
@@ -115,10 +115,10 @@ public class EditUserPage extends RootSubPage {
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
-			
+
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.markup.html.form.Form#onSubmit()
 			 */
 			@Override
@@ -158,7 +158,7 @@ public class EditUserPage extends RootSubPage {
 									minLength));
 							return;
 						}
-	
+
 						// Optionally store the password MD5 digest.
 						String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
 						if (type.equalsIgnoreCase("md5")) {
@@ -192,7 +192,7 @@ public class EditUserPage extends RootSubPage {
 					userModel.teams.add(team);
 				}
 
-				try {					
+				try {
 					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
@@ -210,13 +210,13 @@ public class EditUserPage extends RootSubPage {
 				}
 			}
 		};
-		
+
 		// do not let the browser pre-populate these fields
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
-		
+
 		// not all user services support manipulating username and password
 		boolean editCredentials = GitBlit.self().supportsCredentialChanges(userModel);
-		
+
 		// not all user services support manipulating display name
 		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges(userModel);
 

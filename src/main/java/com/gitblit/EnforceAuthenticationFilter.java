@@ -41,10 +41,10 @@ import com.gitblit.models.UserModel;
  *
  */
 public class EnforceAuthenticationFilter implements Filter {
-	
+
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	/* 
+	/*
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	@Override
@@ -52,27 +52,27 @@ public class EnforceAuthenticationFilter implements Filter {
 		// nothing to be done
 
 	} //init
-	
 
-	/* 
+
+	/*
 	 * This does the actual filtering: is the user authenticated? If not, enforce HTTP authentication (401)
-	 * 
+	 *
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		
+
 		/*
 		 * Determine whether to enforce the BASIC authentication:
 		 */
 		@SuppressWarnings("static-access")
 		Boolean mustForceAuth = GitBlit.self().getBoolean(Keys.web.authenticateViewPages, false)
 								&& GitBlit.self().getBoolean(Keys.web.enforceHttpBasicAuthentication, false);
-		
+
 		HttpServletRequest  HttpRequest  = (HttpServletRequest)request;
-		HttpServletResponse HttpResponse = (HttpServletResponse)response; 
+		HttpServletResponse HttpResponse = (HttpServletResponse)response;
 		UserModel user = GitBlit.self().authenticate(HttpRequest);
-		
+
 		if (mustForceAuth && (user == null)) {
 			// not authenticated, enforce now:
 			logger.debug(MessageFormat.format("EnforceAuthFilter: user not authenticated for URL {0}!", request.toString()));
@@ -85,12 +85,12 @@ public class EnforceAuthenticationFilter implements Filter {
 		} else {
 			// user is authenticated, or don't care, continue handling
 			chain.doFilter( request, response );
-			
+
 		} // authenticated
 	} // doFilter
 
-	
-	/* 
+
+	/*
 	 * @see javax.servlet.Filter#destroy()
 	 */
 	@Override

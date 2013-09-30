@@ -145,28 +145,28 @@ import com.google.gson.reflect.TypeToken;
  * the web ui and the servlets. This class is either directly instantiated by
  * the GitBlitServer class (Gitblit GO) or is reflectively instantiated from the
  * definition in the web.xml file (Gitblit WAR).
- * 
+ *
  * This class is the central logic processor for Gitblit. All settings, user
  * object, and repository object operations pass through this class.
- * 
+ *
  * Repository Resolution. There are two pathways for finding repositories. One
  * pathway, for web ui display and repository authentication & authorization, is
  * within this class. The other pathway is through the standard GitServlet.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitBlit implements ServletContextListener {
 
 	private static GitBlit gitblit;
-	
+
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
 	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(5);
 
 	private final List<FederationModel> federationRegistrations = Collections
 			.synchronizedList(new ArrayList<FederationModel>());
-	
+
 	private final ObjectCache<Collection<GitClientApplication>> clientApplications = new ObjectCache<Collection<GitClientApplication>>();
 
 	private final Map<String, FederationModel> federationPullResults = new ConcurrentHashMap<String, FederationModel>();
@@ -174,19 +174,19 @@ public class GitBlit implements ServletContextListener {
 	private final ObjectCache<Long> repositorySizeCache = new ObjectCache<Long>();
 
 	private final ObjectCache<List<Metric>> repositoryMetricsCache = new ObjectCache<List<Metric>>();
-	
+
 	private final Map<String, RepositoryModel> repositoryListCache = new ConcurrentHashMap<String, RepositoryModel>();
-	
+
 	private final Map<String, ProjectModel> projectCache = new ConcurrentHashMap<String, ProjectModel>();
-	
+
 	private final AtomicReference<String> repositoryListSettingsChecksum = new AtomicReference<String>("");
-	
+
 	private final ObjectCache<String> projectMarkdownCache = new ObjectCache<String>();
-	
+
 	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
 
 	private ServletContext servletContext;
-	
+
 	private File baseFolder;
 
 	private File repositoriesFolder;
@@ -200,15 +200,15 @@ public class GitBlit implements ServletContextListener {
 	private ServerStatus serverStatus;
 
 	private MailExecutor mailExecutor;
-	
+
 	private LuceneExecutor luceneExecutor;
-	
+
 	private GCExecutor gcExecutor;
-	
+
 	private TimeZone timezone;
-	
+
 	private FileBasedConfig projectConfigs;
-	
+
 	private FanoutService fanoutService;
 
 	private GitDaemon gitDaemon;
@@ -227,7 +227,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the Gitblit singleton.
-	 * 
+	 *
 	 * @return gitblit singleton
 	 */
 	public static GitBlit self() {
@@ -236,19 +236,19 @@ public class GitBlit implements ServletContextListener {
 		}
 		return gitblit;
 	}
-	
+
 	/**
 	 * Returns the boot date of the Gitblit server.
-	 * 
+	 *
 	 * @return the boot date of Gitblit
 	 */
 	public static Date getBootDate() {
 		return self().serverStatus.bootDate;
 	}
-	
+
 	/**
 	 * Returns the most recent change date of any repository served by Gitblit.
-	 * 
+	 *
 	 * @return a date
 	 */
 	public static Date getLastActivityDate() {
@@ -266,17 +266,17 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Determine if this is the GO variant of Gitblit.
-	 * 
+	 *
 	 * @return true if this is the GO variant of Gitblit.
 	 */
 	public static boolean isGO() {
 		return self().settings instanceof FileSettings;
 	}
-	
+
 	/**
 	 * Determine if this Gitblit instance is actively serving git repositories
 	 * or if it is merely a repository viewer.
-	 * 
+	 *
 	 * @return true if Gitblit is serving repositories
 	 */
 	public static boolean isServingRepositories() {
@@ -286,7 +286,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Determine if this Gitblit instance is actively serving git repositories
 	 * or if it is merely a repository viewer.
-	 * 
+	 *
 	 * @return true if Gitblit is serving repositories
 	 */
 	public static boolean isSendingMail() {
@@ -295,7 +295,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the preferred timezone for the Gitblit instance.
-	 * 
+	 *
 	 * @return a timezone
 	 */
 	public static TimeZone getTimezone() {
@@ -309,31 +309,31 @@ public class GitBlit implements ServletContextListener {
 		}
 		return self().timezone;
 	}
-	
+
 	/**
 	 * Returns the active settings.
-	 * 
+	 *
 	 * @return the active settings
 	 */
 	public static IStoredSettings getSettings() {
 		return self().settings;
 	}
-	
+
 	/**
 	 * Returns the user-defined blob encodings.
-	 * 
+	 *
 	 * @return an array of encodings, may be empty
 	 */
 	public static String [] getEncodings() {
 		return getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 	}
-	
+
 
 	/**
 	 * Returns the boolean value for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as a boolean, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getBoolean(String, boolean)
 	 * @param key
 	 * @param defaultValue
@@ -347,7 +347,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the integer value for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as an integer, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getInteger(String key, int defaultValue)
 	 * @param key
 	 * @param defaultValue
@@ -361,7 +361,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the integer list for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as an integer, an
 	 * empty list is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getIntegers(String key)
 	 * @param key
 	 * @return key value or defaultValue
@@ -369,12 +369,12 @@ public class GitBlit implements ServletContextListener {
 	public static List<Integer> getIntegers(String key) {
 		return self().settings.getIntegers(key);
 	}
-	
+
 	/**
 	 * Returns the value in bytes for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as an integer, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getFilesize(String key, int defaultValue)
 	 * @param key
 	 * @param defaultValue
@@ -388,7 +388,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the value in bytes for the specified key. If the key does not
 	 * exist or the value for the key can not be interpreted as a long, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getFilesize(String key, long defaultValue)
 	 * @param key
 	 * @param defaultValue
@@ -402,7 +402,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the char value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a character, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getChar(String key, char defaultValue)
 	 * @param key
 	 * @param defaultValue
@@ -416,7 +416,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the string value for the specified key. If the key does not exist
 	 * or the value for the key can not be interpreted as a string, the
 	 * defaultValue is returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getString(String key, String defaultValue)
 	 * @param key
 	 * @param defaultValue
@@ -428,7 +428,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns a list of space-separated strings from the specified key.
-	 * 
+	 *
 	 * @see IStoredSettings.getStrings(String key)
 	 * @param n
 	 * @return list of strings
@@ -439,7 +439,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns a map of space-separated key-value pairs from the specified key.
-	 * 
+	 *
 	 * @see IStoredSettings.getStrings(String key)
 	 * @param n
 	 * @return map of string, string
@@ -451,7 +451,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of keys whose name starts with the specified prefix. If
 	 * the prefix is null or empty, all key names are returned.
-	 * 
+	 *
 	 * @see IStoredSettings.getAllKeys(String key)
 	 * @param startingWith
 	 * @return list of keys
@@ -463,7 +463,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Is Gitblit running in debug mode?
-	 * 
+	 *
 	 * @return true if Gitblit is running in debug mode
 	 */
 	public static boolean isDebugMode() {
@@ -472,7 +472,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the file object for the specified configuration key.
-	 * 
+	 *
 	 * @return the file
 	 */
 	public static File getFileOrFolder(String key, String defaultFileOrFolder) {
@@ -486,7 +486,7 @@ public class GitBlit implements ServletContextListener {
 	 * file or folder retrievals are (at least initially) funneled through this
 	 * method so it is the correct point to globally override/alter filesystem
 	 * access based on environment or some other indicator.
-	 * 
+	 *
 	 * @return the file
 	 */
 	public static File getFileOrFolder(String fileOrFolder) {
@@ -497,7 +497,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the path of the repositories folder. This method checks to see if
 	 * Gitblit is running on a cloud service and may return an adjusted path.
-	 * 
+	 *
 	 * @return the repositories folder path
 	 */
 	public static File getRepositoriesFolder() {
@@ -507,7 +507,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the path of the proposals folder. This method checks to see if
 	 * Gitblit is running on a cloud service and may return an adjusted path.
-	 * 
+	 *
 	 * @return the proposals folder path
 	 */
 	public static File getProposalsFolder() {
@@ -517,16 +517,16 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the path of the Groovy folder. This method checks to see if
 	 * Gitblit is running on a cloud service and may return an adjusted path.
-	 * 
+	 *
 	 * @return the Groovy scripts folder path
 	 */
 	public static File getGroovyScriptsFolder() {
 		return getFileOrFolder(Keys.groovy.scriptsFolder, "${baseFolder}/groovy");
 	}
-	
+
 	/**
 	 * Updates the list of server settings.
-	 * 
+	 *
 	 * @param settings
 	 * @return true if the update succeeded
 	 */
@@ -540,10 +540,10 @@ public class GitBlit implements ServletContextListener {
 		serverStatus.heapFree = Runtime.getRuntime().freeMemory();
 		return serverStatus;
 	}
-	
+
 	/**
 	 * Returns a list of repository URLs and the user access permission.
-	 * 
+	 *
 	 * @param request
 	 * @param user
 	 * @param repository
@@ -589,13 +589,13 @@ public class GitBlit implements ServletContextListener {
 		}
 		return list;
 	}
-	
+
 	protected String getRepositoryUrl(HttpServletRequest request, String username, RepositoryModel repository) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(HttpUtils.getGitblitURL(request));
 		sb.append(Constants.GIT_PATH);
 		sb.append(repository.name);
-		
+
 		// inject username into repository url if authentication is required
 		if (repository.accessRestriction.exceeds(AccessRestrictionType.NONE)
 				&& !StringUtils.isEmpty(username)) {
@@ -603,7 +603,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return sb.toString();
 	}
-	
+
 	protected String getGitDaemonUrl(HttpServletRequest request, UserModel user, RepositoryModel repository) {
 		if (gitDaemon != null) {
 			String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
@@ -620,7 +620,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return null;
 	}
-	
+
 	protected AccessPermission getGitDaemonAccessPermission(UserModel user, RepositoryModel repository) {
 		if (gitDaemon != null && user.canClone(repository)) {
 			AccessPermission gitDaemonPermission = user.getRepositoryPermission(repository).permission;
@@ -643,7 +643,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of custom client applications to be used for the
 	 * repository url panel;
-	 * 
+	 *
 	 * @return a collection of client applications
 	 */
 	public Collection<GitClientApplication> getClientApplications() {
@@ -662,13 +662,13 @@ public class GitBlit implements ServletContextListener {
 					if (clients != null) {
 						clientApplications.updateObject("user", lastModified, clients);
 						return clients;
-					}				
+					}
 				} catch (IOException e) {
 					logger.error("Failed to deserialize " + userDefs.getAbsolutePath(), e);
 				}
 			}
 		}
-		
+
 		// no user definitions, use system definitions
 		if (!clientApplications.hasCurrent("system", new Date(0))) {
 			try {
@@ -682,10 +682,10 @@ public class GitBlit implements ServletContextListener {
 				logger.error("Failed to deserialize clientapps.json resource!", e);
 			}
 		}
-		
+
 		return clientApplications.getObject("system");
 	}
-	
+
 	private Collection<GitClientApplication> readClientApplications(InputStream is) {
 		try {
 			Type type = new TypeToken<Collection<GitClientApplication>>() {
@@ -705,7 +705,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Set the user service. The user service authenticates all users and is
 	 * responsible for managing user permissions.
-	 * 
+	 *
 	 * @param userService
 	 */
 	public void setUserService(IUserService userService) {
@@ -713,14 +713,14 @@ public class GitBlit implements ServletContextListener {
 		this.userService = userService;
 		this.userService.setup(settings);
 	}
-	
+
 	public boolean supportsAddUser() {
 		return supportsCredentialChanges(new UserModel(""));
 	}
-	
+
 	/**
 	 * Returns true if the user's credentials can be changed.
-	 * 
+	 *
 	 * @param user
 	 * @return true if the user service supports credential changes
 	 */
@@ -738,7 +738,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns true if the user's display name can be changed.
-	 * 
+	 *
 	 * @param user
 	 * @return true if the user service supports display name changes
 	 */
@@ -748,7 +748,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns true if the user's email address can be changed.
-	 * 
+	 *
 	 * @param user
 	 * @return true if the user service supports email address changes
 	 */
@@ -758,7 +758,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns true if the user's team memberships can be changed.
-	 * 
+	 *
 	 * @param user
 	 * @return true if the user service supports team membership changes
 	 */
@@ -768,7 +768,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns true if the username represents an internal account
-	 * 
+	 *
 	 * @param username
 	 * @return true if the specified username represents an internal account
 	 */
@@ -780,7 +780,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Authenticate a user based on a username and password.
-	 * 
+	 *
 	 * @see IUserService.authenticate(String, char[])
 	 * @param username
 	 * @param password
@@ -817,7 +817,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Authenticate a user based on their cookie.
-	 * 
+	 *
 	 * @param cookies
 	 * @return a user object or null
 	 */
@@ -840,22 +840,22 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Authenticate a user based on HTTP request parameters.
-	 * 
+	 *
 	 * Authentication by X509Certificate is tried first and then by cookie.
-	 * 
+	 *
 	 * @param httpRequest
 	 * @return a user object or null
 	 */
 	public UserModel authenticate(HttpServletRequest httpRequest) {
 		return authenticate(httpRequest, false);
 	}
-	
+
 	/**
 	 * Authenticate a user based on HTTP request parameters.
-	 * 
+	 *
 	 * Authentication by X509Certificate, servlet container principal, cookie,
 	 * and BASIC header.
-	 * 
+	 *
 	 * @param httpRequest
 	 * @param requiresCertificate
 	 * @return a user object or null
@@ -879,12 +879,12 @@ public class GitBlit implements ServletContextListener {
 						model.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
 			}
 		}
-		
+
 		if (requiresCertificate) {
 			// caller requires client certificate authentication (e.g. git servlet)
 			return null;
 		}
-		
+
 		// try to authenticate by servlet container principal
 		Principal principal = httpRequest.getUserPrincipal();
 		if (principal != null) {
@@ -915,7 +915,7 @@ public class GitBlit implements ServletContextListener {
 				}
 			}
 		}
-		
+
 		// try to authenticate by cookie
 		if (allowCookieAuthentication()) {
 			UserModel user = authenticate(httpRequest.getCookies());
@@ -926,7 +926,7 @@ public class GitBlit implements ServletContextListener {
 				return user;
 			}
 		}
-		
+
 		// try to authenticate by BASIC
 		final String authorization = httpRequest.getHeader("Authorization");
 		if (authorization != null && authorization.startsWith("Basic")) {
@@ -947,14 +947,14 @@ public class GitBlit implements ServletContextListener {
 							user.username, httpRequest.getRemoteAddr()));
 					return user;
 				} else {
-					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}", 
+					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
 							username, httpRequest.getRemoteAddr()));
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	protected void flagWicketSession(AuthenticationType authenticationType) {
 		RequestCycle requestCycle = RequestCycle.get();
 		if (requestCycle != null) {
@@ -977,7 +977,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Sets a cookie for the specified user.
-	 * 
+	 *
 	 * @param response
 	 * @param user
 	 */
@@ -1009,10 +1009,10 @@ public class GitBlit implements ServletContextListener {
 			response.addCookie(userCookie);
 		}
 	}
-	
+
 	/**
 	 * Logout a user.
-	 * 
+	 *
 	 * @param user
 	 */
 	public void logout(UserModel user) {
@@ -1024,27 +1024,27 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Encode the username for user in an url.
-	 * 
+	 *
 	 * @param name
 	 * @return the encoded name
 	 */
 	protected String encodeUsername(String name) {
-		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");	
+		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");
 	}
 
 	/**
 	 * Decode a username from an encoded url.
-	 * 
+	 *
 	 * @param name
 	 * @return the decoded name
 	 */
 	protected String decodeUsername(String name) {
 		return name.replace("%40", "@").replace("%20", " ").replace("%5C", "\\");
 	}
-	
+
 	/**
 	 * Returns the list of all users available to the login service.
-	 * 
+	 *
 	 * @see IUserService.getAllUsernames()
 	 * @return list of all usernames
 	 */
@@ -1055,7 +1055,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of all users available to the login service.
-	 * 
+	 *
 	 * @see IUserService.getAllUsernames()
 	 * @return list of all usernames
 	 */
@@ -1066,7 +1066,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Delete the user object with the specified username
-	 * 
+	 *
 	 * @see IUserService.deleteUser(String)
 	 * @param username
 	 * @return true if successful
@@ -1078,7 +1078,7 @@ public class GitBlit implements ServletContextListener {
 		String usernameDecoded = decodeUsername(username);
 		return userService.deleteUser(usernameDecoded);
 	}
-	
+
 	protected UserModel getFederationUser() {
 		// the federation user is an administrator
 		UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
@@ -1088,7 +1088,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Retrieve the user object for the specified username.
-	 * 
+	 *
 	 * @see IUserService.getUserModel(String)
 	 * @param username
 	 * @return a user object or null
@@ -1098,14 +1098,14 @@ public class GitBlit implements ServletContextListener {
 			return null;
 		}
 		String usernameDecoded = decodeUsername(username);
-		UserModel user = userService.getUserModel(usernameDecoded);		
+		UserModel user = userService.getUserModel(usernameDecoded);
 		return user;
 	}
-	
+
 	/**
 	 * Returns the effective list of permissions for this user, taking into account
 	 * team memberships, ownerships.
-	 * 
+	 *
 	 * @param user
 	 * @return the effective list of permissions for the user
 	 */
@@ -1140,7 +1140,7 @@ public class GitBlit implements ServletContextListener {
 				set.add(rp);
 			}
 		}
-		
+
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>(set);
 		Collections.sort(list);
 		return list;
@@ -1150,7 +1150,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the list of users and their access permissions for the specified
 	 * repository including permission source information such as the team or
 	 * regular expression which sets the permission.
-	 * 
+	 *
 	 * @param repository
 	 * @return a list of RegistrantAccessPermissions
 	 */
@@ -1173,10 +1173,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * Sets the access permissions to the specified repository for the specified users.
-	 * 
+	 *
 	 * @param repository
 	 * @param permissions
 	 * @return true if the user models have been updated
@@ -1193,11 +1193,11 @@ public class GitBlit implements ServletContextListener {
 		}
 		return userService.updateUserModels(users);
 	}
-	
+
 	/**
 	 * Returns the list of all users who have an explicit access permission
 	 * for the specified repository.
-	 * 
+	 *
 	 * @see IUserService.getUsernamesForRepositoryRole(String)
 	 * @param repository
 	 * @return list of all usernames that have an access permission for the repository
@@ -1209,7 +1209,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Sets the list of all uses who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @see IUserService.setUsernamesForRepositoryRole(String, List<String>)
 	 * @param repository
 	 * @param usernames
@@ -1225,7 +1225,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Adds/updates a complete user object keyed by username. This method allows
 	 * for renaming a user.
-	 * 
+	 *
 	 * @see IUserService.updateUserModel(String, UserModel)
 	 * @param username
 	 * @param user
@@ -1240,7 +1240,7 @@ public class GitBlit implements ServletContextListener {
 						"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
 						user.username));
 			}
-			
+
 			// rename repositories and owner fields for all repositories
 			for (RepositoryModel model : getRepositoryModels(user)) {
 				if (model.isUsersPersonalRepository(username)) {
@@ -1265,7 +1265,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of available teams that a user or repository may be
 	 * assigned to.
-	 * 
+	 *
 	 * @return the list of teams
 	 */
 	public List<String> getAllTeamnames() {
@@ -1276,7 +1276,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of available teams that a user or repository may be
 	 * assigned to.
-	 * 
+	 *
 	 * @return the list of teams
 	 */
 	public List<TeamModel> getAllTeams() {
@@ -1286,19 +1286,19 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the TeamModel object for the specified name.
-	 * 
+	 *
 	 * @param teamname
 	 * @return a TeamModel object or null
 	 */
 	public TeamModel getTeamModel(String teamname) {
 		return userService.getTeamModel(teamname);
 	}
-	
+
 	/**
 	 * Returns the list of teams and their access permissions for the specified
 	 * repository including the source of the permission such as the admin flag
 	 * or a regular expression.
-	 * 
+	 *
 	 * @param repository
 	 * @return a list of RegistrantAccessPermissions
 	 */
@@ -1313,10 +1313,10 @@ public class GitBlit implements ServletContextListener {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Sets the access permissions to the specified repository for the specified teams.
-	 * 
+	 *
 	 * @param repository
 	 * @param permissions
 	 * @return true if the team models have been updated
@@ -1333,11 +1333,11 @@ public class GitBlit implements ServletContextListener {
 		}
 		return userService.updateTeamModels(teams);
 	}
-	
+
 	/**
 	 * Returns the list of all teams who have an explicit access permission for
 	 * the specified repository.
-	 * 
+	 *
 	 * @see IUserService.getTeamnamesForRepositoryRole(String)
 	 * @param repository
 	 * @return list of all teamnames with explicit access permissions to the repository
@@ -1349,7 +1349,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Sets the list of all uses who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @see IUserService.setTeamnamesForRepositoryRole(String, List<String>)
 	 * @param repository
 	 * @param teamnames
@@ -1364,7 +1364,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Updates the TeamModel object for the specified name.
-	 * 
+	 *
 	 * @param teamname
 	 * @param team
 	 * @param isCreate
@@ -1385,7 +1385,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Delete the team object with the specified teamname
-	 * 
+	 *
 	 * @see IUserService.deleteTeam(String)
 	 * @param teamname
 	 * @return true if successful
@@ -1393,17 +1393,17 @@ public class GitBlit implements ServletContextListener {
 	public boolean deleteTeam(String teamname) {
 		return userService.deleteTeam(teamname);
 	}
-	
+
 	/**
 	 * Adds the repository to the list of cached repositories if Gitblit is
 	 * configured to cache the repository list.
-	 * 
+	 *
 	 * @param model
 	 */
 	private void addToCachedRepositoryList(RepositoryModel model) {
 		if (settings.getBoolean(Keys.git.cacheRepositoryList, true)) {
 			repositoryListCache.put(model.name.toLowerCase(), model);
-			
+
 			// update the fork origin repository with this repository clone
 			if (!StringUtils.isEmpty(model.originRepository)) {
 				if (repositoryListCache.containsKey(model.originRepository)) {
@@ -1413,10 +1413,10 @@ public class GitBlit implements ServletContextListener {
 			}
 		}
 	}
-	
+
 	/**
 	 * Removes the repository from the list of cached repositories.
-	 * 
+	 *
 	 * @param name
 	 * @return the model being removed
 	 */
@@ -1429,23 +1429,23 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Clears all the cached metadata for the specified repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 */
 	private void clearRepositoryMetadataCache(String repositoryName) {
 		repositorySizeCache.remove(repositoryName);
 		repositoryMetricsCache.remove(repositoryName);
 	}
-	
+
 	/**
 	 * Resets the repository list cache.
-	 * 
+	 *
 	 */
 	public void resetRepositoryListCache() {
 		logger.info("Repository cache manually reset");
 		repositoryListCache.clear();
 	}
-	
+
 	/**
 	 * Calculate the checksum of settings that affect the repository list cache.
 	 * @return a checksum
@@ -1460,11 +1460,11 @@ public class GitBlit implements ServletContextListener {
 		String checksum = StringUtils.getSHA1(ns.toString());
 		return checksum;
 	}
-	
+
 	/**
 	 * Compare the last repository list setting checksum to the current checksum.
 	 * If different then clear the cache so that it may be rebuilt.
-	 * 
+	 *
 	 * @return true if the cached repository list is valid since the last check
 	 */
 	private boolean isValidRepositoryList() {
@@ -1481,14 +1481,14 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of all repositories available to Gitblit. This method
 	 * does not consider user access permissions.
-	 * 
+	 *
 	 * @return list of all repositories
 	 */
 	public List<String> getRepositoryList() {
 		if (repositoryListCache.size() == 0 || !isValidRepositoryList()) {
 			// we are not caching OR we have not yet cached OR the cached list is invalid
 			long startTime = System.currentTimeMillis();
-			List<String> repositories = JGitUtils.getRepositoryList(repositoriesFolder, 
+			List<String> repositories = JGitUtils.getRepositoryList(repositoriesFolder,
 					settings.getBoolean(Keys.git.onlyAccessBareRepositories, false),
 					settings.getBoolean(Keys.git.searchRepositoriesSubfolders, true),
 					settings.getInteger(Keys.git.searchRecursionDepth, -1),
@@ -1505,11 +1505,11 @@ public class GitBlit implements ServletContextListener {
 					// optionally (re)calculate repository sizes
 					msg = "{0} repositories identified with calculated folder sizes in {1} msecs";
 				}
-				
+
 				for (String repository : repositories) {
 					getRepositoryModel(repository);
 				}
-				
+
 				// rebuild fork networks
 				for (RepositoryModel model : repositoryListCache.values()) {
 					if (!StringUtils.isEmpty(model.originRepository)) {
@@ -1519,12 +1519,12 @@ public class GitBlit implements ServletContextListener {
 						}
 					}
 				}
-				
+
 				long duration = System.currentTimeMillis() - startTime;
 				logger.info(MessageFormat.format(msg, repositoryListCache.size(), duration));
 			}
 		}
-		
+
 		// return sorted copy of cached list
 		List<String> list = new ArrayList<String>();
 		for (RepositoryModel model : repositoryListCache.values()) {
@@ -1536,7 +1536,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the JGit repository for the specified name.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return repository or null
 	 */
@@ -1546,7 +1546,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the JGit repository for the specified name.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param logError
 	 * @return repository or null
@@ -1555,7 +1555,7 @@ public class GitBlit implements ServletContextListener {
 		// Decode url-encoded repository name (issue-278)
 		// http://stackoverflow.com/questions/17183110
 		repositoryName = repositoryName.replace("%7E", "~").replace("%7e", "~");
-		
+
 		if (isCollectingGarbage(repositoryName)) {
 			logger.warn(MessageFormat.format("Rejecting request for {0}, busy collecting garbage!", repositoryName));
 			return null;
@@ -1564,7 +1564,7 @@ public class GitBlit implements ServletContextListener {
 		File dir = FileKey.resolve(new File(repositoriesFolder, repositoryName), FS.DETECTED);
 		if (dir == null)
 			return null;
-		
+
 		Repository r = null;
 		try {
 			FileKey key = FileKey.exact(dir, FS.DETECTED);
@@ -1580,7 +1580,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of repository models that are accessible to the user.
-	 * 
+	 *
 	 * @param user
 	 * @return list of repository models accessible to user
 	 */
@@ -1611,7 +1611,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns a repository model if the repository exists and the user may
 	 * access the repository.
-	 * 
+	 *
 	 * @param user
 	 * @param repositoryName
 	 * @return repository model or null
@@ -1633,7 +1633,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the repository model for the specified repository. This method
 	 * does not consider user access permissions.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return repository model or null
 	 */
@@ -1650,7 +1650,7 @@ public class GitBlit implements ServletContextListener {
 			addToCachedRepositoryList(model);
 			return DeepCopier.copy(model);
 		}
-		
+
 		// cached model
 		RepositoryModel model = repositoryListCache.get(repositoryName.toLowerCase());
 
@@ -1669,7 +1669,7 @@ public class GitBlit implements ServletContextListener {
 			logger.error(MessageFormat.format("Repository \"{0}\" is missing! Removing from cache.", repositoryName));
 			return null;
 		}
-		
+
 		FileBasedConfig config = (FileBasedConfig) getRepositoryConfig(r);
 		if (config.isOutdated()) {
 			// reload model
@@ -1678,7 +1678,7 @@ public class GitBlit implements ServletContextListener {
 			removeFromCachedRepositoryList(model.name);
 			addToCachedRepositoryList(model);
 		} else {
-			// update a few repository parameters 
+			// update a few repository parameters
 			if (!model.hasCommits) {
 				// update hasCommits, assume a repository only gains commits :)
 				model.hasCommits = JGitUtils.hasCommits(r);
@@ -1687,14 +1687,14 @@ public class GitBlit implements ServletContextListener {
 			updateLastChangeFields(r, model);
 		}
 		r.close();
-		
+
 		// return a copy of the cached model
 		return DeepCopier.copy(model);
 	}
-	
+
 	/**
 	 * Returns the star count of the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @return the star count
 	 */
@@ -1707,7 +1707,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return count;
 	}
-	
+
 	private void reloadProjectMarkdown(ProjectModel project) {
 		// project markdown
 		File pmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : project.name) + "/project.mkd");
@@ -1719,7 +1719,7 @@ public class GitBlit implements ServletContextListener {
 			}
 			project.projectMarkdown = projectMarkdownCache.getObject(project.name);
 		}
-		
+
 		// project repositories markdown
 		File rmkd = new File(getRepositoriesFolder(), (project.isRoot ? "" : project.name) + "/repositories.mkd");
 		if (rmkd.exists()) {
@@ -1731,17 +1731,17 @@ public class GitBlit implements ServletContextListener {
 			project.repositoriesMarkdown = projectRepositoriesMarkdownCache.getObject(project.name);
 		}
 	}
-	
-	
+
+
 	/**
 	 * Returns the map of project config.  This map is cached and reloaded if
 	 * the underlying projects.conf file changes.
-	 * 
+	 *
 	 * @return project config map
 	 */
 	private Map<String, ProjectModel> getProjectConfigs() {
 		if (projectCache.isEmpty() || projectConfigs.isOutdated()) {
-			
+
 			try {
 				projectConfigs.load();
 			} catch (Exception e) {
@@ -1765,9 +1765,9 @@ public class GitBlit implements ServletContextListener {
 				}
 				project.title = projectConfigs.getString("project", name, "title");
 				project.description = projectConfigs.getString("project", name, "description");
-				
+
 				reloadProjectMarkdown(project);
-				
+
 				configs.put(name.toLowerCase(), project);
 			}
 			projectCache.clear();
@@ -1775,10 +1775,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return projectCache;
 	}
-	
+
 	/**
 	 * Returns a list of project models for the user.
-	 * 
+	 *
 	 * @param user
 	 * @param includeUsers
 	 * @return list of projects that are accessible to the user
@@ -1790,9 +1790,9 @@ public class GitBlit implements ServletContextListener {
 		Map<String, ProjectModel> map = new TreeMap<String, ProjectModel>();
 		// root project
 		map.put("", configs.get(""));
-		
+
 		for (RepositoryModel model : getRepositoryModels(user)) {
-			String rootPath = StringUtils.getRootPath(model.name).toLowerCase();			
+			String rootPath = StringUtils.getRootPath(model.name).toLowerCase();
 			if (!map.containsKey(rootPath)) {
 				ProjectModel project;
 				if (configs.containsKey(rootPath)) {
@@ -1806,7 +1806,7 @@ public class GitBlit implements ServletContextListener {
 			}
 			map.get(rootPath).addRepository(model);
 		}
-		
+
 		// sort projects, root project first
 		List<ProjectModel> projects;
 		if (includeUsers) {
@@ -1829,10 +1829,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return projects;
 	}
-	
+
 	/**
 	 * Returns the project model for the specified user.
-	 * 
+	 *
 	 * @param name
 	 * @param user
 	 * @return a project model, or null if it does not exist
@@ -1845,10 +1845,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns a project model for the Gitblit/system user.
-	 * 
+	 *
 	 * @param name a project name
 	 * @return a project model or null if the project does not exist
 	 */
@@ -1888,16 +1888,16 @@ public class GitBlit implements ServletContextListener {
 			// no repositories == no project
 			return null;
 		}
-		
+
 		reloadProjectMarkdown(project);
 		return project;
 	}
-	
+
 	/**
 	 * Returns the list of project models that are referenced by the supplied
 	 * repository model	list.  This is an alternative method exists to ensure
 	 * Gitblit does not call getRepositoryModels(UserModel) twice in a request.
-	 * 
+	 *
 	 * @param repositoryModels
 	 * @param includeUsers
 	 * @return a list of project models
@@ -1935,7 +1935,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return new ArrayList<ProjectModel>(projects.values());
 	}
-	
+
 	/**
 	 * Workaround JGit.  I need to access the raw config object directly in order
 	 * to see if the config is dirty so that I can reload a repository model.
@@ -1943,7 +1943,7 @@ public class GitBlit implements ServletContextListener {
 	 * config.  If the config changes are made within Gitblit this is fine as
 	 * the returned config will still be flagged as dirty.  BUT... if the config
 	 * is manipulated outside Gitblit then it fails to recognize this as dirty.
-	 *  
+	 *
 	 * @param r
 	 * @return a config
 	 */
@@ -1958,10 +1958,10 @@ public class GitBlit implements ServletContextListener {
 		}
 		return r.getConfig();
 	}
-	
+
 	/**
 	 * Create a repository model from the configuration and repository data.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return a repositoryModel or null if the repository does not exist
 	 */
@@ -1984,10 +1984,10 @@ public class GitBlit implements ServletContextListener {
 			model.name = repositoryName;
 		}
 		model.projectPath = StringUtils.getFirstPathElement(repositoryName);
-		
+
 		StoredConfig config = r.getConfig();
 		boolean hasOrigin = !StringUtils.isEmpty(config.getString("remote", "origin", "url"));
-		
+
 		if (config != null) {
 			// Initialize description from description file
 			if (getConfig(config,"description", null) == null) {
@@ -2046,7 +2046,7 @@ public class GitBlit implements ServletContextListener {
 					Constants.CONFIG_GITBLIT, null, "indexBranch")));
 			model.metricAuthorExclusions = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "metricAuthorExclusions")));
-					
+
 			// Custom defined properties
 			model.customFields = new LinkedHashMap<String, String>();
 			for (String aProperty : config.getNames(Constants.CONFIG_GITBLIT, Constants.CONFIG_CUSTOM_FIELDS)) {
@@ -2059,7 +2059,7 @@ public class GitBlit implements ServletContextListener {
 		model.hasCommits = JGitUtils.hasCommits(r);
 		updateLastChangeFields(r, model);
 		r.close();
-		
+
 		if (StringUtils.isEmpty(model.originRepository) && model.origin != null && model.origin.startsWith("file://")) {
 			// repository was cloned locally... perhaps as a fork
 			try {
@@ -2070,7 +2070,7 @@ public class GitBlit implements ServletContextListener {
 					File repoFolder = new File(getRepositoriesFolder(), originRepo);
 					if (repoFolder.exists()) {
 						model.originRepository = originRepo.toLowerCase();
-						
+
 						// persist the fork origin
 						updateConfiguration(r, model);
 					}
@@ -2081,20 +2081,20 @@ public class GitBlit implements ServletContextListener {
 		}
 		return model;
 	}
-	
+
 	/**
 	 * Determines if this server has the requested repository.
-	 * 
+	 *
 	 * @param n
 	 * @return true if the repository exists
 	 */
 	public boolean hasRepository(String repositoryName) {
 		return hasRepository(repositoryName, false);
 	}
-	
+
 	/**
 	 * Determines if this server has the requested repository.
-	 * 
+	 *
 	 * @param n
 	 * @param caseInsensitive
 	 * @return true if the repository exists
@@ -2104,7 +2104,7 @@ public class GitBlit implements ServletContextListener {
 			// if we are caching use the cache to determine availability
 			// otherwise we end up adding a phantom repository to the cache
 			return repositoryListCache.containsKey(repositoryName.toLowerCase());
-		}		
+		}
 		Repository r = getRepository(repositoryName, false);
 		if (r == null) {
 			return false;
@@ -2112,11 +2112,11 @@ public class GitBlit implements ServletContextListener {
 		r.close();
 		return true;
 	}
-	
+
 	/**
 	 * Determines if the specified user has a fork of the specified origin
 	 * repository.
-	 * 
+	 *
 	 * @param username
 	 * @param origin
 	 * @return true the if the user has a fork
@@ -2124,11 +2124,11 @@ public class GitBlit implements ServletContextListener {
 	public boolean hasFork(String username, String origin) {
 		return getFork(username, origin) != null;
 	}
-	
+
 	/**
 	 * Gets the name of a user's fork of the specified origin
 	 * repository.
-	 * 
+	 *
 	 * @param username
 	 * @param origin
 	 * @return the name of the user's fork, null otherwise
@@ -2150,7 +2150,7 @@ public class GitBlit implements ServletContextListener {
 						}
 					}
 				}
-				
+
 				if (originModel.originRepository != null) {
 					roots.add(originModel.originRepository);
 					originModel = repositoryListCache.get(originModel.originRepository);
@@ -2159,7 +2159,7 @@ public class GitBlit implements ServletContextListener {
 					originModel = null;
 				}
 			}
-			
+
 			for (String repository : repositoryListCache.keySet()) {
 				if (repository.startsWith(userPath)) {
 					RepositoryModel model = repositoryListCache.get(repository);
@@ -2190,11 +2190,11 @@ public class GitBlit implements ServletContextListener {
 		// user does not have a fork
 		return null;
 	}
-	
+
 	/**
 	 * Returns the fork network for a repository by traversing up the fork graph
 	 * to discover the root and then down through all children of the root node.
-	 * 
+	 *
 	 * @param repository
 	 * @return a ForkModel
 	 */
@@ -2217,7 +2217,7 @@ public class GitBlit implements ServletContextListener {
 			return root;
 		}
 	}
-	
+
 	private ForkModel getForkModelFromCache(String repository) {
 		RepositoryModel model = repositoryListCache.get(repository.toLowerCase());
 		if (model == null) {
@@ -2234,7 +2234,7 @@ public class GitBlit implements ServletContextListener {
 		}
 		return fork;
 	}
-	
+
 	private ForkModel getForkModel(String repository) {
 		RepositoryModel model = getRepositoryModel(repository.toLowerCase());
 		if (model == null) {
@@ -2257,7 +2257,7 @@ public class GitBlit implements ServletContextListener {
 	 * repository.  Gitblit caches the repository sizes to reduce the performance
 	 * penalty of recursive calculation. The cache is updated if the repository
 	 * has been changed since the last calculation.
-	 * 
+	 *
 	 * @param model
 	 * @return size in bytes of the repository
 	 */
@@ -2284,7 +2284,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Ensure that a cached repository is completely closed and its resources
 	 * are properly released.
-	 * 
+	 *
 	 * @param repositoryName
 	 */
 	private void closeRepository(String repositoryName) {
@@ -2319,7 +2319,7 @@ public class GitBlit implements ServletContextListener {
 				repository.close();
 			}
 		}
-		
+
 		// close any open index writer/searcher in the Lucene executor
 		luceneExecutor.close(repositoryName);
 	}
@@ -2329,7 +2329,7 @@ public class GitBlit implements ServletContextListener {
 	 * This method builds a metrics cache. The cache is updated if the
 	 * repository is updated. A new copy of the metrics list is returned on each
 	 * call so that modifications to the list are non-destructive.
-	 * 
+	 *
 	 * @param model
 	 * @param repository
 	 * @return a new array list of metrics
@@ -2346,7 +2346,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the gitblit string value for the specified key. If key is not
 	 * set, returns defaultValue.
-	 * 
+	 *
 	 * @param config
 	 * @param field
 	 * @param defaultValue
@@ -2363,7 +2363,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the gitblit boolean value for the specified key. If key is not
 	 * set, returns defaultValue.
-	 * 
+	 *
 	 * @param config
 	 * @param field
 	 * @param defaultValue
@@ -2372,11 +2372,11 @@ public class GitBlit implements ServletContextListener {
 	private boolean getConfig(StoredConfig config, String field, boolean defaultValue) {
 		return config.getBoolean(Constants.CONFIG_GITBLIT, field, defaultValue);
 	}
-	
+
 	/**
 	 * Returns the gitblit string value for the specified key. If key is not
 	 * set, returns defaultValue.
-	 * 
+	 *
 	 * @param config
 	 * @param field
 	 * @param defaultValue
@@ -2398,11 +2398,11 @@ public class GitBlit implements ServletContextListener {
 	 * Creates/updates the repository model keyed by reopsitoryName. Saves all
 	 * repository settings in .git/config. This method allows for renaming
 	 * repositories and will update user access permissions accordingly.
-	 * 
+	 *
 	 * All repositories created by this method are bare and automatically have
 	 * .git appended to their names, which is the standard convention for bare
 	 * repositories.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param repository
 	 * @param isCreate
@@ -2473,7 +2473,7 @@ public class GitBlit implements ServletContextListener {
 							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
 							repositoryName, repository.name));
 				}
-				
+
 				// rename fork origins in their configs
 				if (!ArrayUtils.isEmpty(repository.forks)) {
 					for (String fork : repository.forks) {
@@ -2491,7 +2491,7 @@ public class GitBlit implements ServletContextListener {
 						rf.close();
 					}
 				}
-				
+
 				// update this repository's origin's fork list
 				if (!StringUtils.isEmpty(repository.originRepository)) {
 					RepositoryModel origin = repositoryListCache.get(repository.originRepository);
@@ -2526,7 +2526,7 @@ public class GitBlit implements ServletContextListener {
 			// only update symbolic head if it changes
 			String currentRef = JGitUtils.getHEADRef(r);
 			if (!StringUtils.isEmpty(repository.HEAD) && !repository.HEAD.equals(currentRef)) {
-				logger.info(MessageFormat.format("Relinking {0} HEAD from {1} to {2}", 
+				logger.info(MessageFormat.format("Relinking {0} HEAD from {1} to {2}",
 						repository.name, currentRef, repository.HEAD));
 				if (JGitUtils.setHEADtoRef(r, repository.HEAD)) {
 					// clear the cache
@@ -2549,10 +2549,10 @@ public class GitBlit implements ServletContextListener {
 		// model will actually be replaced on next load because config is stale
 		addToCachedRepositoryList(repository);
 	}
-	
+
 	/**
 	 * Updates the Gitblit configuration for the specified repository.
-	 * 
+	 *
 	 * @param r
 	 *            the Git repository
 	 * @param repository
@@ -2610,14 +2610,14 @@ public class GitBlit implements ServletContextListener {
 			config.setString(Constants.CONFIG_GITBLIT, null, "commitMessageRenderer",
 					repository.commitMessageRenderer.name());
 		}
-		
+
 		updateList(config, "federationSets", repository.federationSets);
 		updateList(config, "preReceiveScript", repository.preReceiveScripts);
 		updateList(config, "postReceiveScript", repository.postReceiveScripts);
 		updateList(config, "mailingList", repository.mailingLists);
 		updateList(config, "indexBranch", repository.indexedBranches);
 		updateList(config, "metricAuthorExclusions", repository.metricAuthorExclusions);
-		
+
 		// User Defined Properties
 		if (repository.customFields != null) {
 			if (repository.customFields.size() == 0) {
@@ -2639,7 +2639,7 @@ public class GitBlit implements ServletContextListener {
 			logger.error("Failed to save repository config!", e);
 		}
 	}
-	
+
 	private void updateList(StoredConfig config, String field, List<String> list) {
 		// a null list is skipped, not cleared
 		// this is for RPC administration where an older manager might be used
@@ -2656,7 +2656,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Deletes the repository from the file system and removes the repository
 	 * permission from all repository users.
-	 * 
+	 *
 	 * @param model
 	 * @return true if successful
 	 */
@@ -2667,7 +2667,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Deletes the repository from the file system and removes the repository
 	 * permission from all repository users.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return true if successful
 	 */
@@ -2676,7 +2676,7 @@ public class GitBlit implements ServletContextListener {
 			closeRepository(repositoryName);
 			// clear the repository cache
 			clearRepositoryMetadataCache(repositoryName);
-			
+
 			RepositoryModel model = removeFromCachedRepositoryList(repositoryName);
 			if (model != null && !ArrayUtils.isEmpty(model.forks)) {
 				resetRepositoryListCache();
@@ -2699,9 +2699,9 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns an html version of the commit message with any global or
 	 * repository-specific regular expression substitution applied.
-	 * 
+	 *
 	 * This method uses the preferred renderer to transform the commit message.
-	 * 
+	 *
 	 * @param repository
 	 * @param text
 	 * @return html version of the commit message
@@ -2720,16 +2720,16 @@ public class GitBlit implements ServletContextListener {
 			// noop
 			break;
 		}
-		
+
 		return processPlainCommitMessage(repository.name, text);
 	}
-	
+
 	/**
 	 * Returns an html version of the commit message with any global or
 	 * repository-specific regular expression substitution applied.
-	 * 
+	 *
 	 * This method assumes the commit message is plain text.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param text
 	 * @return html version of the commit message
@@ -2738,13 +2738,13 @@ public class GitBlit implements ServletContextListener {
 		String html = StringUtils.escapeForHtml(text, false);
 		html = processCommitMessageRegex(repositoryName, html);
 		return StringUtils.breakLinesForHtml(html);
-		
+
 	}
-	
+
 	/**
 	 * Apply globally or per-repository specified regex substitutions to the
 	 * commit message.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @param text
 	 * @return the processed commit message
@@ -2785,7 +2785,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns Gitblit's scheduled executor service for scheduling tasks.
-	 * 
+	 *
 	 * @return scheduledExecutor
 	 */
 	public ScheduledExecutorService executor() {
@@ -2833,7 +2833,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of federated gitblit instances that this instance will
 	 * try to pull.
-	 * 
+	 *
 	 * @return list of registered gitblit instances
 	 */
 	public List<FederationModel> getFederationRegistrations() {
@@ -2845,7 +2845,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Retrieve the specified federation registration.
-	 * 
+	 *
 	 * @param name
 	 *            the name of the registration
 	 * @return a federation registration
@@ -2869,7 +2869,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of federation sets.
-	 * 
+	 *
 	 * @return list of federation sets
 	 */
 	public List<FederationSet> getFederationSets(String gitblitUrl) {
@@ -2892,7 +2892,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of possible federation tokens for this Gitblit instance.
-	 * 
+	 *
 	 * @return list of federation tokens
 	 */
 	public List<String> getFederationTokens() {
@@ -2910,7 +2910,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the specified federation token for this Gitblit instance.
-	 * 
+	 *
 	 * @param type
 	 * @return a federation token
 	 */
@@ -2920,7 +2920,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the specified federation token for this Gitblit instance.
-	 * 
+	 *
 	 * @param value
 	 * @return a federation token
 	 */
@@ -2932,7 +2932,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Compares the provided token with this Gitblit instance's tokens and
 	 * determines if the requested permission may be granted to the token.
-	 * 
+	 *
 	 * @param req
 	 * @param token
 	 * @return true if the request can be executed
@@ -2958,7 +2958,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Acknowledge and cache the status of a remote Gitblit instance.
-	 * 
+	 *
 	 * @param identification
 	 *            the identification of the pulling Gitblit instance
 	 * @param registration
@@ -2978,7 +2978,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of registration results.
-	 * 
+	 *
 	 * @return the list of registration results
 	 */
 	public List<FederationModel> getFederationResultRegistrations() {
@@ -2988,7 +2988,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Submit a federation proposal. The proposal is cached locally and the
 	 * Gitblit administrator(s) are notified via email.
-	 * 
+	 *
 	 * @param proposal
 	 *            the proposal
 	 * @param gitblitUrl
@@ -3020,7 +3020,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the list of pending federation proposals
-	 * 
+	 *
 	 * @return list of federation proposals
 	 */
 	public List<FederationProposal> getPendingFederationProposals() {
@@ -3046,7 +3046,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Get repositories for the specified token.
-	 * 
+	 *
 	 * @param gitblitUrl
 	 *            the base url of this gitblit instance
 	 * @param token
@@ -3105,7 +3105,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Creates a proposal from the token.
-	 * 
+	 *
 	 * @param gitblitUrl
 	 *            the url of this Gitblit instance
 	 * @param token
@@ -3127,7 +3127,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the proposal identified by the supplied token.
-	 * 
+	 *
 	 * @param token
 	 * @return the specified proposal or null
 	 */
@@ -3143,7 +3143,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Deletes a pending federation proposal.
-	 * 
+	 *
 	 * @param a
 	 *            proposal
 	 * @return true if the proposal was deleted
@@ -3157,7 +3157,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of all Groovy push hook scripts. Script files must have
 	 * .groovy extension
-	 * 
+	 *
 	 * @return list of available hook scripts
 	 */
 	public List<String> getAllScripts() {
@@ -3181,7 +3181,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of pre-receive scripts the repository inherited from the
 	 * global settings and team affiliations.
-	 * 
+	 *
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
@@ -3213,7 +3213,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the list of all available Groovy pre-receive push hook scripts
 	 * that are not already inherited by the repository. Script files must have
 	 * .groovy extension
-	 * 
+	 *
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
@@ -3234,7 +3234,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Returns the list of post-receive scripts the repository inherited from
 	 * the global settings and team affiliations.
-	 * 
+	 *
 	 * @param repository
 	 *            if null only the globally specified scripts are returned
 	 * @return a list of scripts
@@ -3265,7 +3265,7 @@ public class GitBlit implements ServletContextListener {
 	 * Returns the list of unused Groovy post-receive push hook scripts that are
 	 * not already inherited by the repository. Script files must have .groovy
 	 * extension
-	 * 
+	 *
 	 * @param repository
 	 *            optional parameter
 	 * @return list of available hook scripts
@@ -3282,24 +3282,24 @@ public class GitBlit implements ServletContextListener {
 		}
 		return scripts;
 	}
-	
+
 	/**
 	 * Search the specified repositories using the Lucene query.
-	 * 
+	 *
 	 * @param query
 	 * @param page
 	 * @param pageSize
 	 * @param repositories
 	 * @return
 	 */
-	public List<SearchResult> search(String query, int page, int pageSize, List<String> repositories) {		
+	public List<SearchResult> search(String query, int page, int pageSize, List<String> repositories) {
 		List<SearchResult> srs = luceneExecutor.search(query, page, pageSize, repositories);
 		return srs;
 	}
 
 	/**
 	 * Notify the administrators by email.
-	 * 
+	 *
 	 * @param subject
 	 * @param message
 	 */
@@ -3310,7 +3310,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Notify users by email of something.
-	 * 
+	 *
 	 * @param subject
 	 * @param message
 	 * @param toAddresses
@@ -3321,7 +3321,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Notify users by email of something.
-	 * 
+	 *
 	 * @param subject
 	 * @param message
 	 * @param toAddresses
@@ -3335,16 +3335,16 @@ public class GitBlit implements ServletContextListener {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
-				
-				MimeBodyPart messagePart = new MimeBodyPart();				
+
+				MimeBodyPart messagePart = new MimeBodyPart();
 				messagePart.setText(message, "utf-8");
 				messagePart.setHeader("Content-Type", "text/plain; charset=\"utf-8\"");
 				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-				
+
 				MimeMultipart multiPart = new MimeMultipart();
 				multiPart.addBodyPart(messagePart);
 				mail.setContent(multiPart);
-				
+
 				mailExecutor.queue(mail);
 			}
 		} catch (MessagingException e) {
@@ -3354,7 +3354,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Notify users by email of something.
-	 * 
+	 *
 	 * @param subject
 	 * @param message
 	 * @param toAddresses
@@ -3365,7 +3365,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Notify users by email of something.
-	 * 
+	 *
 	 * @param subject
 	 * @param message
 	 * @param toAddresses
@@ -3379,12 +3379,12 @@ public class GitBlit implements ServletContextListener {
 			Message mail = mailExecutor.createMessage(toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
-				
-				MimeBodyPart messagePart = new MimeBodyPart();				
+
+				MimeBodyPart messagePart = new MimeBodyPart();
 				messagePart.setText(message, "utf-8");
 				messagePart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
 				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-				
+
 				MimeMultipart multiPart = new MimeMultipart();
 				multiPart.addBodyPart(messagePart);
 				mail.setContent(multiPart);
@@ -3398,7 +3398,7 @@ public class GitBlit implements ServletContextListener {
 
 	/**
 	 * Returns the descriptions/comments of the Gitblit config settings.
-	 * 
+	 *
 	 * @return SettingsModel
 	 */
 	public ServerSettings getSettingsModel() {
@@ -3411,7 +3411,7 @@ public class GitBlit implements ServletContextListener {
 				setting.name = key;
 				settingsModel.add(setting);
 			}
-			setting.currentValue = settings.getString(key, "");			
+			setting.currentValue = settings.getString(key, "");
 		}
 		settingsModel.pushScripts = getAllScripts();
 		return settingsModel;
@@ -3421,7 +3421,7 @@ public class GitBlit implements ServletContextListener {
 	 * Parse the properties file and aggregate all the comments by the setting
 	 * key. A setting model tracks the current value, the default value, the
 	 * description of the setting and and directives about the setting.
-	 * 
+	 *
 	 * @return Map<String, SettingModel>
 	 */
 	private ServerSettings loadSettingModels() {
@@ -3490,7 +3490,7 @@ public class GitBlit implements ServletContextListener {
 	 * Configure the Gitblit singleton with the specified settings source. This
 	 * source may be file settings (Gitblit GO) or may be web.xml settings
 	 * (Gitblit WAR).
-	 * 
+	 *
 	 * @param settings
 	 */
 	public void configureContext(IStoredSettings settings, File folder, boolean startFederation) {
@@ -3507,7 +3507,7 @@ public class GitBlit implements ServletContextListener {
 		mailExecutor = new MailExecutor(settings);
 		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
 		gcExecutor = new GCExecutor(settings);
-		
+
 		// initialize utilities
 		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
 		ModelUtils.setUserRepoPrefix(prefix);
@@ -3520,7 +3520,7 @@ public class GitBlit implements ServletContextListener {
 			logger.info("Identifying available repositories...");
 			getRepositoryList();
 		}
-		
+
 		logTimezone("JVM", TimeZone.getDefault());
 		logTimezone(Constants.NAME, getTimezone());
 
@@ -3538,12 +3538,12 @@ public class GitBlit implements ServletContextListener {
 			}
 			setUserService(loginService);
 		}
-		
+
 		// load and cache the project metadata
 		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
-		
-		configureMailExecutor();		
+
+		configureMailExecutor();
 		configureLuceneIndexing();
 		configureGarbageCollector();
 		if (startFederation) {
@@ -3556,7 +3556,7 @@ public class GitBlit implements ServletContextListener {
 
 		ContainerUtils.CVE_2007_0450.test();
 	}
-	
+
 	protected void configureMailExecutor() {
 		if (mailExecutor.isReady()) {
 			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
@@ -3565,12 +3565,12 @@ public class GitBlit implements ServletContextListener {
 			logger.warn("Mail server is not properly configured.  Mail services disabled.");
 		}
 	}
-	
+
 	protected void configureLuceneIndexing() {
 		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
 		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
 	}
-	
+
 	protected void configureGarbageCollector() {
 		// schedule gc engine
 		if (gcExecutor.isReady()) {
@@ -3590,13 +3590,13 @@ public class GitBlit implements ServletContextListener {
 			delay = (int) ((cd.getTime() - now.getTime())/TimeUtils.MIN);
 			String when = delay + " mins";
 			if (delay > 60) {
-				when = MessageFormat.format("{0,number,0.0} hours", ((float)delay)/60f);
+				when = MessageFormat.format("{0,number,0.0} hours", (delay)/60f);
 			}
 			logger.info(MessageFormat.format("Next scheculed GC scan is in {0}", when));
 			scheduledExecutor.scheduleAtFixedRate(gcExecutor, delay, 60*24, TimeUnit.MINUTES);
 		}
 	}
-	
+
 	protected void configureJGit() {
 		// Configure JGit
 		WindowCacheConfig cfg = new WindowCacheConfig();
@@ -3620,7 +3620,7 @@ public class GitBlit implements ServletContextListener {
 			logger.error("Failed to configure JGit parameters!", e);
 		}
 	}
-	
+
 	protected void configureFanout() {
 		// startup Fanout PubSub service
 		if (settings.getInteger(Keys.fanout.port, 0) > 0) {
@@ -3648,7 +3648,7 @@ public class GitBlit implements ServletContextListener {
 			fanoutService.start();
 		}
 	}
-	
+
 	protected void configureGitDaemon() {
 		int port = settings.getInteger(Keys.git.daemonPort, 0);
 		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
@@ -3662,7 +3662,7 @@ public class GitBlit implements ServletContextListener {
 			}
 		}
 	}
-	
+
 	protected void configureCommitCache() {
 		int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
 		if (daysToCache <= 0) {
@@ -3698,11 +3698,11 @@ public class GitBlit implements ServletContextListener {
 					daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
 		}
 	}
-	
+
 	protected final Logger getLogger() {
 		return logger;
 	}
-	
+
 	protected final ScheduledExecutorService getScheduledExecutor() {
 		return scheduledExecutor;
 	}
@@ -3710,7 +3710,7 @@ public class GitBlit implements ServletContextListener {
 	protected final LuceneExecutor getLuceneExecutor() {
 		return luceneExecutor;
 	}
-	
+
 	private void logTimezone(String type, TimeZone zone) {
 		SimpleDateFormat df = new SimpleDateFormat("z Z");
 		df.setTimeZone(zone);
@@ -3721,7 +3721,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Configure Gitblit from the web.xml, if no configuration has already been
 	 * specified.
-	 * 
+	 *
 	 * @see ServletContextListener.contextInitialize(ServletContextEvent)
 	 */
 	@Override
@@ -3734,7 +3734,7 @@ public class GitBlit implements ServletContextListener {
 			String contextRealPath = context.getRealPath("/");
 			File contextFolder = (contextRealPath != null) ? new File(contextRealPath) : null;
 			String openShift = System.getenv("OPENSHIFT_DATA_DIR");
-			
+
 			if (!StringUtils.isEmpty(openShift)) {
 				// Gitblit is running in OpenShift/JBoss
 				File base = new File(openShift);
@@ -3743,7 +3743,7 @@ public class GitBlit implements ServletContextListener {
 				// gitblit.properties setting overrides
 				File overrideFile = new File(base, "gitblit.properties");
 				webxmlSettings.applyOverrides(overrideFile);
-				
+
 				// Copy the included scripts to the configured groovy folder
 				String path = webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy");
 				File localScripts = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, path);
@@ -3759,15 +3759,15 @@ public class GitBlit implements ServletContextListener {
 						}
 					}
 				}
-				
+
 				// configure context using the web.xml
 				configureContext(webxmlSettings, base, true);
 			} else {
 				// Gitblit is running in a standard servlet container
 				logger.info("WAR contextFolder is " + ((contextFolder != null) ? contextFolder.getAbsolutePath() : "<empty>"));
-				
+
 				String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
-				
+
 				if (path.contains(Constants.contextFolder$) && contextFolder == null) {
 					// warn about null contextFolder (issue-199)
 					logger.error("");
@@ -3777,7 +3777,7 @@ public class GitBlit implements ServletContextListener {
 					logger.error(MessageFormat.format("OR configure your servlet container to specify a \"{0}\" parameter in the context configuration!!", Constants.baseFolder));
 					logger.error("");
 				}
-				
+
 				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
 				base.mkdirs();
 
@@ -3788,15 +3788,15 @@ public class GitBlit implements ServletContextListener {
 				}
 
 				// delegate all config to baseFolder/gitblit.properties file
-				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());				
+				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());
 				configureContext(settings, base, true);
 			}
 		}
-		
+
 		settingsModel = loadSettingModels();
 		serverStatus.servletContainer = servletContext.getServerInfo();
 	}
-	
+
 	protected void extractResources(ServletContext context, String path, File toDir) {
 		for (String resource : context.getResourcePaths(path)) {
 			// extract the resource to the directory if it does not exist
@@ -3861,18 +3861,18 @@ public class GitBlit implements ServletContextListener {
 			gitDaemon.stop();
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return true if we are running the gc executor
 	 */
 	public boolean isCollectingGarbage() {
 		return gcExecutor.isRunning();
 	}
-	
+
 	/**
 	 * Returns true if Gitblit is actively collecting garbage in this repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return true if actively collecting garbage
 	 */
@@ -3883,8 +3883,8 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Creates a personal fork of the specified repository. The clone is view
 	 * restricted by default and the owner of the source repository is given
-	 * access to the clone. 
-	 * 
+	 * access to the clone.
+	 *
 	 * @param repository
 	 * @param user
 	 * @return the repository model of the fork, if successful
@@ -3944,7 +3944,7 @@ public class GitBlit implements ServletContextListener {
 			}
 			cloneTeams.add(cloneTeam);
 		}
-		userService.updateTeamModels(cloneTeams);			
+		userService.updateTeamModels(cloneTeams);
 
 		// add this clone to the cached model
 		addToCachedRepositoryList(cloneModel);
@@ -3954,7 +3954,7 @@ public class GitBlit implements ServletContextListener {
 	/**
 	 * Allow to understand if GitBlit supports and is configured to allow
 	 * cookie-based authentication.
-	 * 
+	 *
 	 * @return status of Cookie authentication enablement.
 	 */
 	public boolean allowCookieAuthentication() {

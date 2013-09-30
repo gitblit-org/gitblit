@@ -21,18 +21,18 @@ import java.util.Date;
 
 /**
  * Encapsulates the runtime stats of a fanout service.
- * 
+ *
  * @author James Moger
  *
  */
 public class FanoutStats implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public long concurrentConnectionLimit;
 	public boolean allowAllChannelAnnouncements;
 	public boolean strictRequestTermination;
-	
+
 	public Date bootDate;
 	public long rejectedConnectionCount;
 	public int peakConnectionCount;
@@ -45,7 +45,7 @@ public class FanoutStats implements Serializable {
 	public long totalSubscribes;
 	public long totalUnsubscribes;
 	public long totalPings;
-	
+
 	public String info() {
 		int i = 0;
 		StringBuilder sb = new StringBuilder();
@@ -67,14 +67,14 @@ public class FanoutStats implements Serializable {
 		sb.append(infoInt(i++, "total pings"));
 		String template = sb.toString();
 
-		String info = MessageFormat.format(template, 
+		String info = MessageFormat.format(template,
 				bootDate.toString(),
 				Boolean.toString(strictRequestTermination),
 				Boolean.toString(allowAllChannelAnnouncements),
 				concurrentConnectionLimit,
 				rejectedConnectionCount,
 				peakConnectionCount,
-				currentConnections, 
+				currentConnections,
 				currentChannels,
 				currentSubscriptions,
 				currentSubscriptions == 0 ? 0 : (currentSubscriptions - currentConnections),
@@ -86,11 +86,11 @@ public class FanoutStats implements Serializable {
 						totalPings);
 		return info;
 	}
-	
+
 	private String infoStr(int index, String label) {
 		return label + ": {" + index + "}\n";
 	}
-	
+
 	private String infoInt(int index, String label) {
 		return label + ": {" + index + ",number,0}\n";
 	}

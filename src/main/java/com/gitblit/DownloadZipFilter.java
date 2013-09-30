@@ -23,15 +23,15 @@ import com.gitblit.models.UserModel;
  * The DownloadZipFilter is an AccessRestrictionFilter which ensures that zip
  * requests for view-restricted repositories have proper authentication
  * credentials and are authorized.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param url
 	 * @return repository name
 	 */
@@ -47,7 +47,7 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Analyze the url and returns the action of the request.
-	 * 
+	 *
 	 * @param url
 	 * @return action of the request
 	 */
@@ -58,7 +58,7 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if a non-existing repository can be created using this filter.
-	 *  
+	 *
 	 * @return true if the filter allows repository creation
 	 */
 	@Override
@@ -68,7 +68,7 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if the action may be executed on the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if the action may be performed
@@ -80,7 +80,7 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if the repository requires authentication.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if authentication required
@@ -93,7 +93,7 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 	/**
 	 * Determine if the user can access the repository and perform the specified
 	 * action.
-	 * 
+	 *
 	 * @param repository
 	 * @param user
 	 * @param action

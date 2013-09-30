@@ -55,7 +55,7 @@ import com.gitblit.wicket.panels.LogPanel;
 
 /**
  * The compare page allows you to compare two branches, tags, or hash ids.
- * 
+ *
  * @author James Moger
  *
  */
@@ -71,7 +71,7 @@ public class ComparePage extends RepositoryPage {
 		super(params);
 		Repository r = getRepository();
 		RepositoryModel repository = getRepositoryModel();
-		
+
 		if (StringUtils.isEmpty(objectId)) {
 			// seleciton form
 			add(new Label("comparison").setVisible(false));
@@ -79,30 +79,30 @@ public class ComparePage extends RepositoryPage {
 			// active comparison
 			Fragment comparison = new Fragment("comparison", "comparisonFragment", this);
 			add(comparison);
-			
+
 			RevCommit fromCommit;
 			RevCommit toCommit;
-			
+
 			String[] parts = objectId.split("\\.\\.");
 			if (parts[0].startsWith("refs/") && parts[1].startsWith("refs/")) {
 				// set the ref models
 				fromRefId.setObject(parts[0]);
 				toRefId.setObject(parts[1]);
-				
+
 				fromCommit = getCommit(r, fromRefId.getObject());
 				toCommit = getCommit(r, toRefId.getObject());
 			} else {
 				// set the id models
 				fromCommitId.setObject(parts[0]);
 				toCommitId.setObject(parts[1]);
-				
+
 				fromCommit = getCommit(r, fromCommitId.getObject());
 				toCommit = getCommit(r, toCommitId.getObject());
 			}
 
 			// prepare submodules
 			getSubmodules(toCommit);
-			
+
 			final String startId = fromCommit.getId().getName();
 			final String endId = toCommit.getId().getName();
 
@@ -135,6 +135,7 @@ public class ComparePage extends RepositoryPage {
 				private static final long serialVersionUID = 1L;
 				int counter;
 
+				@Override
 				public void populateItem(final Item<PathChangeModel> item) {
 					final PathChangeModel entry = item.getModelObject();
 					Label changeType = new Label("changeType", "");
@@ -209,14 +210,14 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromRefId.getObject();
 				String to = ComparePage.this.toRefId.getObject();
-				
+
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		List<String> refs = new ArrayList<String>();
 		for (RefModel ref : JGitUtils.getLocalBranches(r, true, -1)) {
 			refs.add(ref.getName());
@@ -232,7 +233,7 @@ public class ComparePage extends RepositoryPage {
 		refsForm.add(new DropDownChoice<String>("fromRef", fromRefId, refs).setEnabled(refs.size() > 0));
 		refsForm.add(new DropDownChoice<String>("toRef", toRefId, refs).setEnabled(refs.size() > 0));
 		add(refsForm);
-		
+
 		//
 		// manual ids form
 		//
@@ -244,23 +245,23 @@ public class ComparePage extends RepositoryPage {
 			public void onSubmit() {
 				String from = ComparePage.this.fromCommitId.getObject();
 				String to = ComparePage.this.toCommitId.getObject();
-				
+
 				PageParameters params = WicketUtils.newRangeParameter(repositoryName, from, to);
 				String relativeUrl = urlFor(ComparePage.class, params).toString();
 				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 			}
 		};
-		
+
 		TextField<String> fromIdField = new TextField<String>("fromId", fromCommitId);
 		WicketUtils.setInputPlaceholder(fromIdField, getString("gb.from") + "...");
 		idsForm.add(fromIdField);
-		
+
 		TextField<String> toIdField = new TextField<String>("toId", toCommitId);
 		WicketUtils.setInputPlaceholder(toIdField, getString("gb.to") + "...");
 		idsForm.add(toIdField);
 		add(idsForm);
-		
+
 		r.close();
 	}
 
@@ -268,7 +269,7 @@ public class ComparePage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.compare");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return ComparePage.class;

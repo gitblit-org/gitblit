@@ -29,11 +29,11 @@ import org.apache.wicket.util.value.IValueMap;
 
 /**
  * https://cwiki.apache.org/WICKET/object-container-adding-flash-to-a-wicket-application.html
- * 
+ *
  * @author Jan Kriesten
  * @author manuelbarzi
  * @author James Moger
- * 
+ *
  */
 public class ShockWaveComponent extends ObjectContainer {
 	private static final long serialVersionUID = 1L;
@@ -67,7 +67,7 @@ public class ShockWaveComponent extends ObjectContainer {
 		attributes = new HashMap<String, String>();
 		parameters = new HashMap<String, String>();
 	}
-	
+
 	public ShockWaveComponent(String id, String movie) {
 		this(id);
 		setValue("movie", movie);
@@ -81,6 +81,7 @@ public class ShockWaveComponent extends ObjectContainer {
 		setValue("height", height);
 	}
 
+	@Override
 	public void setValue(String name, String value) {
 		// IE and other browsers handle movie/data differently. So movie is used
 		// for IE, whereas
@@ -100,6 +101,7 @@ public class ShockWaveComponent extends ObjectContainer {
 			parameters.put(parameter, value);
 	}
 
+	@Override
 	public String getValue(String name) {
 		String parameter = name.toLowerCase();
 		String value = null;
@@ -122,6 +124,7 @@ public class ShockWaveComponent extends ObjectContainer {
 		return value;
 	}
 
+	@Override
 	public void onComponentTag(ComponentTag tag) {
 		// get options from the markup
 		IValueMap valueMap = tag.getAttributes();
@@ -142,6 +145,7 @@ public class ShockWaveComponent extends ObjectContainer {
 		super.onComponentTag(tag);
 	}
 
+	@Override
 	public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
 
 		super.onComponentTagBody(markupStream, openTag);

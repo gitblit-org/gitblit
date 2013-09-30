@@ -24,22 +24,22 @@ import com.gitblit.models.UserModel;
 /**
  * The PagesFilter is an AccessRestrictionFilter which ensures the gh-pages
  * requests for a view-restricted repository are authenticated and authorized.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PagesFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param url
 	 * @return repository name
 	 */
 	@Override
-	protected String extractRepositoryName(String url) {		
+	protected String extractRepositoryName(String url) {
 		// get the repository name from the url by finding a known url suffix
-		String repository = "";		
+		String repository = "";
 		Repository r = null;
 		int offset = 0;
 		while (r == null) {
@@ -52,11 +52,11 @@ public class PagesFilter extends AccessRestrictionFilter {
 			r = GitBlit.self().getRepository(repository, false);
 			if (r == null) {
 				// try again
-				offset = slash + 1;	
+				offset = slash + 1;
 			} else {
 				// close the repo
 				r.close();
-			}			
+			}
 			if (repository.equals(url)) {
 				// either only repository in url or no repository found
 				break;
@@ -67,7 +67,7 @@ public class PagesFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Analyze the url and returns the action of the request.
-	 * 
+	 *
 	 * @param cloneUrl
 	 * @return action of the request
 	 */
@@ -78,7 +78,7 @@ public class PagesFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if a non-existing repository can be created using this filter.
-	 *  
+	 *
 	 * @return true if the filter allows repository creation
 	 */
 	@Override
@@ -88,7 +88,7 @@ public class PagesFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if the action may be executed on the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if the action may be performed
@@ -97,10 +97,10 @@ public class PagesFilter extends AccessRestrictionFilter {
 	protected boolean isActionAllowed(RepositoryModel repository, String action) {
 		return true;
 	}
-	
+
 	/**
 	 * Determine if the repository requires authentication.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if authentication required
@@ -113,14 +113,14 @@ public class PagesFilter extends AccessRestrictionFilter {
 	/**
 	 * Determine if the user can access the repository and perform the specified
 	 * action.
-	 * 
+	 *
 	 * @param repository
 	 * @param user
 	 * @param action
 	 * @return true if user may execute the action on the repository
 	 */
 	@Override
-	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {		
+	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
 		return user.canView(repository);
 	}
 }

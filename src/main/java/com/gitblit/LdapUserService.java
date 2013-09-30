@@ -49,7 +49,7 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
 
 /**
  * Implementation of an LDAP user service.
- * 
+ *
  * @author John Crygier
  */
 public class LdapUserService extends GitblitUserService {
@@ -58,7 +58,7 @@ public class LdapUserService extends GitblitUserService {
 
 	private IStoredSettings settings;
     private AtomicLong lastLdapUserSync = new AtomicLong(0L);
-	
+
 	public LdapUserService() {
 		super();
 	}
@@ -74,19 +74,19 @@ public class LdapUserService extends GitblitUserService {
             throw new IllegalArgumentException(Keys.realm.ldap.ldapCachePeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
         }
     }
-    
+
 	@Override
 	public void setup(IStoredSettings settings) {
 		this.settings = settings;
 		String file = settings.getString(Keys.realm.ldap.backingUserService, "${baseFolder}/users.conf");
 		File realmFile = GitBlit.getFileOrFolder(file);
-		
+
 		serviceImpl = createUserService(realmFile);
 		logger.info("LDAP User Service backed by " + serviceImpl.toString());
-		
+
 		synchronizeLdapUsers();
 	}
-	
+
 	protected synchronized void synchronizeLdapUsers() {
         final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
         if (enabled) {
@@ -150,7 +150,7 @@ public class LdapUserService extends GitblitUserService {
                                 updateTeamModels(userTeams.values());
                             }
                         }
-                        lastLdapUserSync.set(System.currentTimeMillis()); 
+                        lastLdapUserSync.set(System.currentTimeMillis());
                     } finally {
                         ldapConnection.close();
                     }
@@ -158,18 +158,18 @@ public class LdapUserService extends GitblitUserService {
             }
         }
     }
-	
+
 	private LDAPConnection getLdapConnection() {
 		try {
 			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
 			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
 			int ldapPort = ldapUrl.getPort();
-			
+
 			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
 				if (ldapPort == -1)	// Default Port
 					ldapPort = 636;
-				
+
 				LDAPConnection conn;
 				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
 				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
@@ -184,9 +184,9 @@ public class LdapUserService extends GitblitUserService {
 
 				LDAPConnection conn;
 				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
-					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort);	
+					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort);
 				} else {
-					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);	
+					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
 				}
 
 				if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
@@ -208,10 +208,10 @@ public class LdapUserService extends GitblitUserService {
 		} catch (LDAPException e) {
 			logger.error("Error Connecting to LDAP", e);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Credentials are defined in the LDAP server and can not be manipulated
 	 * from Gitblit.
@@ -223,7 +223,7 @@ public class LdapUserService extends GitblitUserService {
 	public boolean supportsCredentialChanges() {
 		return false;
 	}
-	
+
 	/**
 	 * If no displayName pattern is defined then Gitblit can manage the display name.
 	 *
@@ -234,7 +234,7 @@ public class LdapUserService extends GitblitUserService {
 	public boolean supportsDisplayNameChanges() {
 		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.displayName, ""));
 	}
-	
+
 	/**
 	 * If no email pattern is defined then Gitblit can manage the email address.
 	 *
@@ -246,19 +246,20 @@ public class LdapUserService extends GitblitUserService {
 		return StringUtils.isEmpty(settings.getString(Keys.realm.ldap.email, ""));
 	}
 
-	
+
 	/**
 	 * If the LDAP server will maintain team memberships then LdapUserService
 	 * will not allow team membership changes.  In this scenario all team
 	 * changes must be made on the LDAP server by the LDAP administrator.
-	 * 
+	 *
 	 * @return true or false
 	 * @since 1.0.0
-	 */	
+	 */
+	@Override
 	public boolean supportsTeamMembershipChanges() {
 		return !settings.getBoolean(Keys.realm.ldap.maintainTeams, false);
 	}
-	
+
 	@Override
 	protected AccountType getAccountType() {
 		 return AccountType.LDAP;
@@ -270,9 +271,9 @@ public class LdapUserService extends GitblitUserService {
 			// local account, bypass LDAP authentication
 			return super.authenticate(username, password);
 		}
-		
+
 		String simpleUsername = getSimpleUsername(username);
-		
+
 		LDAPConnection ldapConnection = getLdapConnection();
 		if (ldapConnection != null) {
 			try {
@@ -313,7 +314,7 @@ public class LdapUserService extends GitblitUserService {
 									updateTeamModel(userTeam);
 							}
 						}
-						
+
 						return user;
 					}
 				}
@@ -321,14 +322,14 @@ public class LdapUserService extends GitblitUserService {
 				ldapConnection.close();
 			}
 		}
-		return null;		
+		return null;
 	}
 
 	/**
 	 * Set the admin attribute from team memberships retrieved from LDAP.
 	 * If we are not storing teams in LDAP and/or we have not defined any
 	 * administrator teams, then do not change the admin flag.
-	 * 
+	 *
 	 * @param user
 	 */
 	private void setAdminAttribute(UserModel user) {
@@ -349,17 +350,17 @@ public class LdapUserService extends GitblitUserService {
 			}
 		}
 	}
-	
+
 	private void setUserAttributes(UserModel user, SearchResultEntry userEntry) {
 		// Is this user an admin?
 		setAdminAttribute(user);
-		
+
 		// Don't want visibility into the real password, make up a dummy
 		user.password = Constants.EXTERNAL_ACCOUNT;
 		user.accountType = getAccountType();
-		
+
 		// Get full name Attribute
-		String displayName = settings.getString(Keys.realm.ldap.displayName, "");		
+		String displayName = settings.getString(Keys.realm.ldap.displayName, "");
 		if (!StringUtils.isEmpty(displayName)) {
 			// Replace embedded ${} with attributes
 			if (displayName.contains("${")) {
@@ -374,7 +375,7 @@ public class LdapUserService extends GitblitUserService {
 				}
 			}
 		}
-		
+
 		// Get email address Attribute
 		String email = settings.getString(Keys.realm.ldap.email, "");
 		if (!StringUtils.isEmpty(email)) {
@@ -394,39 +395,39 @@ public class LdapUserService extends GitblitUserService {
 
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
-		
+
 		user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
-		
+
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${dn}", escapeLDAPSearchFilter(loggingInUserDN));
 		groupMemberPattern = StringUtils.replace(groupMemberPattern, "${username}", escapeLDAPSearchFilter(simpleUsername));
-		
+
 		// Fill in attributes into groupMemberPattern
 		for (Attribute userAttribute : loggingInUser.getAttributes())
 			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
-		
+
 		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
 			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
 				String teamName = teamEntry.getAttribute("cn").getValue();
-				
+
 				TeamModel teamModel = getTeamModel(teamName);
 				if (teamModel == null)
 					teamModel = createTeamFromLdap(teamEntry);
-					
+
 				user.teams.add(teamModel);
 				teamModel.addUser(user.getName());
 			}
 		}
 	}
-	
+
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
 		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
 		// potentially retrieve other attributes here in the future
-		
-		return answer;		
+
+		return answer;
 	}
 
 	private SearchResult doSearch(LDAPConnection ldapConnection, String base, String filter) {
@@ -434,11 +435,11 @@ public class LdapUserService extends GitblitUserService {
 			return ldapConnection.search(base, SearchScope.SUB, filter);
 		} catch (LDAPSearchException e) {
 			logger.error("Problem Searching LDAP", e);
-			
+
 			return null;
 		}
 	}
-	
+
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
 		try {
 			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
@@ -461,10 +462,10 @@ public class LdapUserService extends GitblitUserService {
         synchronizeLdapUsers();
         return super.getAllUsers();
     }
-	
+
 	/**
 	 * Returns a simple username without any domain prefixes.
-	 * 
+	 *
 	 * @param username
 	 * @return a simple username
 	 */
@@ -473,10 +474,10 @@ public class LdapUserService extends GitblitUserService {
 		if (lastSlash > -1) {
 			username = username.substring(lastSlash + 1);
 		}
-		
+
 		return username;
 	}
-	
+
 	// From: https://www.owasp.org/index.php/Preventing_LDAP_Injection_in_Java
 	public static final String escapeLDAPSearchFilter(String filter) {
 		StringBuilder sb = new StringBuilder();
@@ -495,8 +496,8 @@ public class LdapUserService extends GitblitUserService {
 			case ')':
 				sb.append("\\29");
 				break;
-			case '\u0000': 
-				sb.append("\\00"); 
+			case '\u0000':
+				sb.append("\\00");
 				break;
 			default:
 				sb.append(curChar);

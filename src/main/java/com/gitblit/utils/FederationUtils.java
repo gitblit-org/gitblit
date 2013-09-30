@@ -44,9 +44,9 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Utility methods for federation functions.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FederationUtils {
 
@@ -66,7 +66,7 @@ public class FederationUtils {
 
 	/**
 	 * Returns an url to this servlet for the specified parameters.
-	 * 
+	 *
 	 * @param sourceURL
 	 *            the url of the source gitblit instance
 	 * @param token
@@ -79,7 +79,7 @@ public class FederationUtils {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param remoteURL
 	 *            the url of the remote gitblit instance
 	 * @param tokenType
@@ -109,7 +109,7 @@ public class FederationUtils {
 	/**
 	 * Returns the list of federated gitblit instances that this instance will
 	 * try to pull.
-	 * 
+	 *
 	 * @return list of registered gitblit instances
 	 */
 	public static List<FederationModel> getFederationRegistrations(IStoredSettings settings) {
@@ -194,7 +194,7 @@ public class FederationUtils {
 	 * sent by an pulling Gitblit instance to an origin Gitblit instance as part
 	 * of the proposal process. This is to ensure that the pulling Gitblit
 	 * instance has an IP route to the origin instance.
-	 * 
+	 *
 	 * @param remoteUrl
 	 *            the remote Gitblit instance to send a federation proposal to
 	 * @param proposal
@@ -210,7 +210,7 @@ public class FederationUtils {
 
 	/**
 	 * Sends a federation proposal to the Gitblit instance at remoteUrl
-	 * 
+	 *
 	 * @param remoteUrl
 	 *            the remote Gitblit instance to send a federation proposal to
 	 * @param proposal
@@ -246,7 +246,7 @@ public class FederationUtils {
 	/**
 	 * Retrieves a map of the repositories at the remote gitblit instance keyed
 	 * by the repository clone url.
-	 * 
+	 *
 	 * @param registration
 	 * @param checkExclusions
 	 *            should returned repositories remove registration exclusions
@@ -272,7 +272,7 @@ public class FederationUtils {
 
 	/**
 	 * Tries to pull the gitblit user accounts from the remote gitblit instance.
-	 * 
+	 *
 	 * @param registration
 	 * @return a collection of UserModel objects
 	 * @throws Exception
@@ -287,7 +287,7 @@ public class FederationUtils {
 	/**
 	 * Tries to pull the gitblit team definitions from the remote gitblit
 	 * instance.
-	 * 
+	 *
 	 * @param registration
 	 * @return a collection of TeamModel objects
 	 * @throws Exception
@@ -302,7 +302,7 @@ public class FederationUtils {
 	/**
 	 * Tries to pull the gitblit server settings from the remote gitblit
 	 * instance.
-	 * 
+	 *
 	 * @param registration
 	 * @return a map of the remote gitblit settings
 	 * @throws Exception
@@ -315,7 +315,7 @@ public class FederationUtils {
 
 	/**
 	 * Tries to pull the referenced scripts from the remote gitblit instance.
-	 * 
+	 *
 	 * @param registration
 	 * @return a map of the remote gitblit scripts by script name
 	 * @throws Exception
@@ -328,7 +328,7 @@ public class FederationUtils {
 
 	/**
 	 * Send an status acknowledgment to the remote Gitblit server.
-	 * 
+	 *
 	 * @param identification
 	 *            identification of this pulling instance
 	 * @param registration

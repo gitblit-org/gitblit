@@ -15,13 +15,12 @@
  */
 package com.gitblit.tests;
 
-import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.JnaUtils;
-import java.io.File;
-import java.io.IOException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.lib.Repository;
@@ -29,6 +28,9 @@ import org.eclipse.jgit.lib.RepositoryCache;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.util.FS;
 import org.junit.Test;
+
+import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JnaUtils;
 
 /**
  *

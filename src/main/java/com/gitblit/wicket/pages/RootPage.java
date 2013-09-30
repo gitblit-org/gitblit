@@ -65,9 +65,9 @@ import com.gitblit.wicket.panels.NavigationPanel;
 /**
  * Root page is a topbar, navigable page like Repositories, Users, or
  * Federation.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class RootPage extends BasePage {
 
@@ -92,6 +92,7 @@ public abstract class RootPage extends BasePage {
 		add(new HeaderContributor(new IHeaderContributor() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void renderHead(IHeaderResponse response) {
 				StringBuilder buffer = new StringBuilder();
 				buffer.append("<style type=\"text/css\">\n");
@@ -130,7 +131,7 @@ public abstract class RootPage extends BasePage {
 				response.renderString(buffer.toString());
 				}
 			}));
-		
+
 		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
 		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
 		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
@@ -149,7 +150,7 @@ public abstract class RootPage extends BasePage {
 				setStatelessHint(true);
 			}
 		}
-		
+
 		if (authenticateView || authenticateAdmin) {
 			if (GitBlitWebSession.get().isLoggedIn()) {
 				UserMenu userFragment = new UserMenu("userPanel", "userMenuFragment", RootPage.this);
@@ -161,7 +162,7 @@ public abstract class RootPage extends BasePage {
 		} else {
 			add(new Label("userPanel").setVisible(false));
 		}
-		
+
 		boolean showRegistrations = GitBlit.canFederate()
 				&& GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
 
@@ -187,7 +188,7 @@ public abstract class RootPage extends BasePage {
 				addDropDownMenus(pages);
 			}
 		}
-		
+
 		NavigationPanel navPanel = new NavigationPanel("navPanel", getRootNavPageClass(), pages);
 		add(navPanel);
 
@@ -207,7 +208,7 @@ public abstract class RootPage extends BasePage {
 
 		super.setupPage(repositoryName, pageName);
 	}
-	
+
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return getClass();
 	}
@@ -232,7 +233,7 @@ public abstract class RootPage extends BasePage {
 					params.remove("db");
 				}
 				return params;
-			}			
+			}
 		}
 		return null;
 	}
@@ -269,7 +270,7 @@ public abstract class RootPage extends BasePage {
 			}
 		}
 	}
-	
+
 	protected List<RepositoryModel> getRepositoryModels() {
 		if (repositoryModels.isEmpty()) {
 			final UserModel user = GitBlitWebSession.get().getUser();
@@ -359,11 +360,11 @@ public abstract class RootPage extends BasePage {
 		} else {
 			clonedParams = new PageParameters(params);
 		}
-		
+
 		if (!clonedParams.containsKey("db")) {
 			clonedParams.put("db",  daysBack);
 		}
-		
+
 		List<DropDownMenuItem> items = new ArrayList<DropDownMenuItem>();
 		Set<Integer> choicesSet = new TreeSet<Integer>(GitBlit.getIntegers(Keys.web.activityDurationChoices));
 		if (choicesSet.isEmpty()) {
@@ -420,7 +421,7 @@ public abstract class RootPage extends BasePage {
 
 		if (!StringUtils.isEmpty(projectName)) {
 			// try named project
-			hasParameter = true;			
+			hasParameter = true;
 			if (projectName.equalsIgnoreCase(GitBlit.getString(Keys.web.repositoryRootGroupName, "main"))) {
 				// root project/group
 				for (RepositoryModel model : availableModels) {
@@ -511,14 +512,14 @@ public abstract class RootPage extends BasePage {
 			}
 			models = timeFiltered;
 		}
-		
+
 		List<RepositoryModel> list = new ArrayList<RepositoryModel>(models);
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
-	 * Inline login form. 
+	 * Inline login form.
 	 */
 	private class LoginForm extends Fragment {
 		private static final long serialVersionUID = 1L;
@@ -558,7 +559,7 @@ public abstract class RootPage extends BasePage {
 			add(loginForm);
 		}
 	}
-	
+
 	/**
 	 * Menu for the authenticated user.
 	 */
@@ -587,12 +588,12 @@ public abstract class RootPage extends BasePage {
 			add(new BookmarkablePageLink<Void>("newRepository",
 					EditRepositoryPage.class).setVisible(user.canAdmin() || user.canCreate()));
 
-			add(new BookmarkablePageLink<Void>("myProfile", 
+			add(new BookmarkablePageLink<Void>("myProfile",
 					UserPage.class, WicketUtils.newUsernameParameter(user.username)));
 
-			add(new BookmarkablePageLink<Void>("changePassword", 
+			add(new BookmarkablePageLink<Void>("changePassword",
 					ChangePasswordPage.class).setVisible(editCredentials));
-			
+
 			add(new BookmarkablePageLink<Void>("logout",
 					LogoutPage.class).setVisible(standardLogin));
 		}

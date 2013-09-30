@@ -25,9 +25,9 @@ import com.gitblit.models.RegistrantAccessPermission;
 
 /**
  * Table model of a registrant permissions.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RegistrantPermissionsTableModel extends AbstractTableModel {
 
@@ -82,11 +82,12 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		if (columnIndex == Columns.Permission.ordinal()) {
 			return AccessPermission.class;
@@ -95,7 +96,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		}
 		return String.class;
 	}
-	
+
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		if (columnIndex == Columns.Permission.ordinal()) {
@@ -123,7 +124,7 @@ public class RegistrantPermissionsTableModel extends AbstractTableModel {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void setValueAt(Object o, int rowIndex, int columnIndex) {
 		RegistrantAccessPermission rp = permissions.get(rowIndex);

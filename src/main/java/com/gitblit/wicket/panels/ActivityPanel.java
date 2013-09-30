@@ -40,9 +40,9 @@ import com.gitblit.wicket.pages.TreePage;
 
 /**
  * Renders activity in day-blocks in reverse-chronological order.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ActivityPanel extends BasePanel {
 
@@ -52,12 +52,13 @@ public class ActivityPanel extends BasePanel {
 		super(wicketId);
 
 		Collections.sort(recentActivity);
-		
+
 		final int shortHashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
 		DataView<Activity> activityView = new DataView<Activity>("activity",
 				new ListDataProvider<Activity>(recentActivity)) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<Activity> activityItem) {
 				final Activity entry = activityItem.getModelObject();
 				activityItem.add(WicketUtils.createDatestampLabel("title", entry.startDate, getTimeZone(), getTimeUtils()));
@@ -67,6 +68,7 @@ public class ActivityPanel extends BasePanel {
 						new ListDataProvider<RepositoryCommit>(entry.getCommits())) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public void populateItem(final Item<RepositoryCommit> commitItem) {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
@@ -138,7 +140,7 @@ public class ActivityPanel extends BasePanel {
 								WicketUtils.newObjectParameter(commit.repository, commit.getName()))
 								.setEnabled(commit.getParentCount() > 0));
 						commitItem.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-								WicketUtils.newObjectParameter(commit.repository, commit.getName())));						
+								WicketUtils.newObjectParameter(commit.repository, commit.getName())));
 					}
 				};
 				activityItem.add(commits);

@@ -30,9 +30,9 @@ import com.gitblit.models.RepositoryModel;
 /**
  * Renders the type indicators (tickets, frozen, access restriction, etc) in a
  * single cell.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Serializable {
 
@@ -53,9 +53,9 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 	private final ImageIcon frozenIcon;
 
 	private final ImageIcon federatedIcon;
-	
+
 	private final ImageIcon forkIcon;
-	
+
 	private final ImageIcon sparkleshareIcon;
 
 	public IndicatorsRenderer() {

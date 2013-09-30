@@ -26,11 +26,12 @@ import com.gitblit.utils.X509Utils.X509Metadata;
 
 /**
  * Certificate config file parser.
- *  
+ *
  * @author James Moger
  */
 public class NewCertificateConfig {
 		public static final SectionParser<NewCertificateConfig> KEY = new SectionParser<NewCertificateConfig>() {
+			@Override
 			public NewCertificateConfig parse(final Config cfg) {
 				return new NewCertificateConfig(cfg);
 			}
@@ -41,18 +42,18 @@ public class NewCertificateConfig {
 		public String L;
 		public String ST;
 		public String C;
-		
+
 		public int duration;
-		
+
 		private NewCertificateConfig(final Config c) {
 			duration = c.getInt("new",  null, "duration", 0);
 			OU = c.getString("new", null, "organizationalUnit");
 			O = c.getString("new", null, "organization");
 			L = c.getString("new", null, "locality");
 			ST = c.getString("new", null, "stateProvince");
-			C = c.getString("new", null, "countryCode");			
+			C = c.getString("new", null, "countryCode");
 		}
-		
+
 		public void update(X509Metadata metadata) {
 			update(metadata, "OU", OU);
 			update(metadata, "O", O);
@@ -63,13 +64,13 @@ public class NewCertificateConfig {
 				metadata.notAfter = new Date(System.currentTimeMillis() + duration*TimeUtils.ONEDAY);
 			}
 		}
-		
+
 		private void update(X509Metadata metadata, String oid, String value) {
 			if (!StringUtils.isEmpty(value)) {
 				metadata.oids.put(oid, value);
 			}
 		}
-		
+
 		public void store(Config c, X509Metadata metadata) {
 			store(c, "new", "organizationalUnit", metadata.getOID("OU", null));
 			store(c, "new", "organization", metadata.getOID("O", null));
@@ -82,7 +83,7 @@ public class NewCertificateConfig {
 				c.setInt("new", null, "duration", duration);
 			}
 		}
-		
+
 		private void store(Config c, String section, String name, String value) {
 			if (StringUtils.isEmpty(value)) {
 				c.unset(section, null, name);

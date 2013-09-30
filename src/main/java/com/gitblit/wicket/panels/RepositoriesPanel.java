@@ -128,7 +128,7 @@ public class RepositoriesPanel extends BasePanel {
 				roots.add(0, "");
 				groups.put("", rootRepositories);
 			}
-						
+
 			List<RepositoryModel> groupedModels = new ArrayList<RepositoryModel>();
 			for (String root : roots) {
 				List<RepositoryModel> subModels = groups.get(root);
@@ -149,7 +149,7 @@ public class RepositoriesPanel extends BasePanel {
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		
+
 		DataView<RepositoryModel> dataView = new DataView<RepositoryModel>("row", dp) {
 			private static final long serialVersionUID = 1L;
 			int counter;
@@ -161,6 +161,7 @@ public class RepositoriesPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<RepositoryModel> item) {
 				final RepositoryModel entry = item.getModelObject();
 				if (entry instanceof GroupRepositoryModel) {
@@ -168,7 +169,7 @@ public class RepositoriesPanel extends BasePanel {
 					currGroupName = entry.name;
 					Fragment row = new Fragment("rowContent", "groupRepositoryRow", this);
 					item.add(row);
-					
+
 					String name = groupRow.name;
 					if (name.startsWith(ModelUtils.getUserRepoPrefix())) {
 						// user page
@@ -194,7 +195,7 @@ public class RepositoriesPanel extends BasePanel {
 				if (!StringUtils.isEmpty(currGroupName) && (repoName.indexOf('/') > -1)) {
 					repoName = repoName.substring(currGroupName.length() + 1);
 				}
-								
+
 				// repository swatch
 				Component swatch;
 				if (entry.isBare){
@@ -241,7 +242,7 @@ public class RepositoriesPanel extends BasePanel {
 				} else {
 					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 				}
-				
+
 				if (entry.isFork()) {
 					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
 							getString("gb.isFork")));

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.gitblit.authority;
 
 import java.awt.Color;
@@ -26,7 +41,7 @@ import com.gitblit.client.Translation;
 import com.gitblit.utils.StringUtils;
 
 public class Utils {
-	
+
 	public final static int LABEL_WIDTH = 175;
 
 	public final static int MARGIN = 5;
@@ -49,11 +64,11 @@ public class Utils {
 				new DateCellRenderer(datePattern, Color.orange.darker()));
 		return table;
 	}
-	
+
 	public static JPanel newFieldPanel(String label, Component c) {
 		return newFieldPanel(label, c, null);
 	}
-	
+
 	public static JPanel newFieldPanel(String label, Component c, String trailingLabel) {
 		JLabel jlabel = new JLabel(label);
 		jlabel.setPreferredSize(new Dimension(Utils.LABEL_WIDTH, 20));
@@ -61,11 +76,11 @@ public class Utils {
 		panel.add(jlabel);
 		panel.add(c);
 		if (!StringUtils.isEmpty(trailingLabel)) {
-			panel.add(new JLabel(trailingLabel));	
+			panel.add(new JLabel(trailingLabel));
 		}
 		return panel;
 	}
-	
+
 	public static void showException(Component c, Throwable t) {
 		StringWriter writer = new StringWriter();
 		t.printStackTrace(new PrintWriter(writer));
@@ -81,7 +96,7 @@ public class Utils {
 		JOptionPane.showMessageDialog(c, jsp, Translation.get("gb.error"),
 				JOptionPane.ERROR_MESSAGE);
 	}
-	
+
 	public static void packColumns(JTable table, int margin) {
 		for (int c = 0; c < table.getColumnCount(); c++) {
 			packColumn(table, c, 4);

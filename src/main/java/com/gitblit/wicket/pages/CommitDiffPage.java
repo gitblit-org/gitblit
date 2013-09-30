@@ -99,6 +99,7 @@ public class CommitDiffPage extends RepositoryPage {
 		DataView<GitNote> notesView = new DataView<GitNote>("notes", notesDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<GitNote> item) {
 				GitNote entry = item.getModelObject();
 				item.add(new RefsPanel("refName", repositoryName, Arrays.asList(entry.notesRef)));
@@ -112,7 +113,7 @@ public class CommitDiffPage extends RepositoryPage {
 			}
 		};
 		add(notesView.setVisible(notes.size() > 0));
-		
+
 		// changed paths list
 		add(new CommitLegendPanel("commitLegend", diff.stat.paths));
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(diff.stat.paths);
@@ -120,6 +121,7 @@ public class CommitDiffPage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<PathChangeModel> item) {
 				final PathChangeModel entry = item.getModelObject();
 				Label changeType = new Label("changeType", "");
@@ -176,7 +178,7 @@ public class CommitDiffPage extends RepositoryPage {
 							.newPathParameter(repositoryName, entry.commitId, entry.path))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 				}
-				
+
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
@@ -189,7 +191,7 @@ public class CommitDiffPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.commitdiff");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return LogPage.class;

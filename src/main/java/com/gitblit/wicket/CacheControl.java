@@ -21,20 +21,20 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Page attribute to control what date as last-modified for the browser cache.
- * 
+ *
  * http://betterexplained.com/articles/how-to-optimize-your-site-with-http-caching
  * https://developers.google.com/speed/docs/best-practices/caching
- * 
+ *
  * @author James Moger
  *
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CacheControl {
-	
+
 	public static enum LastModified {
 		BOOT, ACTIVITY, PROJECT, REPOSITORY, COMMIT, NONE
 	}
-	
+
 	LastModified value() default LastModified.NONE;
 }

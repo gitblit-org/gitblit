@@ -67,7 +67,7 @@ import com.gitblit.wicket.WicketUtils;
 public abstract class BasePage extends SessionPage {
 
 	private final Logger logger;
-	
+
 	private transient TimeUtils timeUtils;
 
 	public BasePage() {
@@ -81,24 +81,24 @@ public abstract class BasePage extends SessionPage {
 		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
 	}
-	
+
 	private void customizeHeader() {
 		if (GitBlit.getBoolean(Keys.web.useResponsiveLayout, true)) {
 			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
 		}
 	}
-	
+
 	protected String getLanguageCode() {
 		return GitBlitWebSession.get().getLocale().getLanguage();
 	}
-	
+
 	protected String getCountryCode() {
 		return GitBlitWebSession.get().getLocale().getCountry().toLowerCase();
 	}
-	
+
 	protected TimeUtils getTimeUtils() {
 		if (timeUtils == null) {
-			ResourceBundle bundle;		
+			ResourceBundle bundle;
 			try {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
 			} catch (Throwable t) {
@@ -108,7 +108,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		return timeUtils;
 	}
-	
+
 	@Override
 	protected void onBeforeRender() {
 		if (GitBlit.isDebugMode()) {
@@ -126,7 +126,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		super.onAfterRender();
 	}
-		
+
 	@Override
 	protected void setHeaders(WebResponse response)	{
 		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
@@ -140,11 +140,11 @@ public abstract class BasePage extends SessionPage {
 			super.setHeaders(response);
 		}
 	}
-	
+
 	/**
 	 * Sets the last-modified header date, if appropriate, for this page.  The
 	 * date used is determined by the CacheControl annotation.
-	 * 
+	 *
 	 */
 	protected void setLastModified() {
 		if (getClass().isAnnotationPresent(CacheControl.class)) {
@@ -164,24 +164,24 @@ public abstract class BasePage extends SessionPage {
 			}
 		}
 	}
-	
+
 	/**
 	 * Sets the last-modified header field and the expires field.
-	 * 
+	 *
 	 * @param when
 	 */
 	protected final void setLastModified(Date when) {
 		if (when == null) {
 			return;
 		}
-		
+
 		if (when.before(GitBlit.getBootDate())) {
 			// last-modified can not be before the Gitblit boot date
 			// this helps ensure that pages are properly refreshed after a
 			// server config change
 			when = GitBlit.getBootDate();
 		}
-		
+
 		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
 		WebResponse response = (WebResponse) getResponse();
 		response.setLastModifiedTime(Time.valueOf(when));
@@ -232,7 +232,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		return map;
 	}
-	
+
 	protected Map<AccessPermission, String> getAccessPermissions() {
 		Map<AccessPermission, String> map = new LinkedHashMap<AccessPermission, String>();
 		for (AccessPermission type : AccessPermission.values()) {
@@ -265,7 +265,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		return map;
 	}
-	
+
 	protected Map<FederationStrategy, String> getFederationTypes() {
 		Map<FederationStrategy, String> map = new LinkedHashMap<FederationStrategy, String>();
 		for (FederationStrategy type : FederationStrategy.values()) {
@@ -283,7 +283,7 @@ public abstract class BasePage extends SessionPage {
 		}
 		return map;
 	}
-	
+
 	protected Map<AuthorizationControl, String> getAuthorizationControls() {
 		Map<AuthorizationControl, String> map = new LinkedHashMap<AuthorizationControl, String>();
 		for (AuthorizationControl type : AuthorizationControl.values()) {
@@ -309,13 +309,13 @@ public abstract class BasePage extends SessionPage {
 		HttpServletRequest req = servletWebRequest.getHttpServletRequest();
 		return req.getServerName();
 	}
-	
+
 	protected List<ProjectModel> getProjectModels() {
 		final UserModel user = GitBlitWebSession.get().getUser();
 		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, true);
 		return projects;
 	}
-	
+
 	protected List<ProjectModel> getProjects(PageParameters params) {
 		if (params == null) {
 			return getProjectModels();
@@ -400,7 +400,7 @@ public abstract class BasePage extends SessionPage {
 	public void warn(String message, Throwable t) {
 		logger.warn(message, t);
 	}
-	
+
 	public void error(String message, boolean redirect) {
 		error(message, null, redirect ? getApplication().getHomePage() : null);
 	}
@@ -408,11 +408,11 @@ public abstract class BasePage extends SessionPage {
 	public void error(String message, Throwable t, boolean redirect) {
 		error(message, t, getApplication().getHomePage());
 	}
-	
+
 	public void error(String message, Throwable t, Class<? extends Page> toPage) {
 		error(message, t, toPage, null);
 	}
-	
+
 	public void error(String message, Throwable t, Class<? extends Page> toPage, PageParameters params) {
 		if (t == null) {
 			logger.error(message  + " for " + GitBlitWebSession.get().getUsername());

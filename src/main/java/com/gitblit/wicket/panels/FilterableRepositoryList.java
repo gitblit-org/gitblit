@@ -38,8 +38,8 @@ import com.gitblit.wicket.pages.EditRepositoryPage;
 
 /**
  * A client-side filterable rich repository list which uses Freemarker, Wicket,
- * and AngularJS. 
- * 
+ * and AngularJS.
+ *
  * @author James Moger
  *
  */
@@ -48,23 +48,23 @@ public class FilterableRepositoryList extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final List<RepositoryModel> repositories;
-	
+
 	private String title;
-	
+
 	private String iconClass;
-	
+
 	private boolean allowCreate;
-	
+
 	public FilterableRepositoryList(String id, List<RepositoryModel> repositories) {
 		super(id);
 		this.repositories = repositories;
 	}
-	
+
 	public void setTitle(String title, String iconClass) {
 		this.title = title;
 		this.iconClass = iconClass;
 	}
-	
+
 	public void setAllowCreate(boolean value) {
 		this.allowCreate = value;
 	}
@@ -76,18 +76,18 @@ public class FilterableRepositoryList extends BasePanel {
 		String id = getId();
 		String ngCtrl = id + "Ctrl";
 		String ngList = id + "List";
-		
+
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put("ngCtrl",  ngCtrl);
 		values.put("ngList",  ngList);
-		
+
 		// use Freemarker to setup an AngularJS/Wicket html snippet
 		FreemarkerPanel panel = new FreemarkerPanel("listComponent", "FilterableRepositoryList.fm", values);
 		panel.setParseGeneratedMarkup(true);
 		panel.setRenderBodyOnly(true);
 		add(panel);
-		
-		// add the Wicket controls that are referenced in the snippet 
+
+		// add the Wicket controls that are referenced in the snippet
 		String listTitle = StringUtils.isEmpty(title) ? getString("gb.repositories") : title;
 		panel.add(new Label(ngList + "Title", MessageFormat.format("{0} ({1})", listTitle, repositories.size())));
 		if (StringUtils.isEmpty(iconClass)) {
@@ -97,13 +97,13 @@ public class FilterableRepositoryList extends BasePanel {
 			WicketUtils.setCssClass(icon, iconClass);
 			panel.add(icon);
 		}
-		
+
 		if (allowCreate) {
 			panel.add(new LinkPanel(ngList + "Button", "btn btn-mini", getString("gb.newRepository"), EditRepositoryPage.class));
 		} else {
 			panel.add(new Label(ngList + "Button").setVisible(false));
 		}
-		
+
 		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
@@ -111,13 +111,13 @@ public class FilterableRepositoryList extends BasePanel {
 		// prepare the simplified repository models list
 		List<RepoListItem> list = new ArrayList<RepoListItem>();
 		for (RepositoryModel repo : repositories) {
-			String name = StringUtils.stripDotGit(repo.name); 
+			String name = StringUtils.stripDotGit(repo.name);
 			String path = "";
 			if (name.indexOf('/') > -1) {
 				path = name.substring(0, name.lastIndexOf('/') + 1);
 				name = name.substring(name.lastIndexOf('/') + 1);
 			}
-			
+
 			RepoListItem item = new RepoListItem();
 			item.n = name;
 			item.p = path;
@@ -130,17 +130,17 @@ public class FilterableRepositoryList extends BasePanel {
 			item.wc = repo.isBare ? 0 : 1;
 			list.add(item);
 		}
-		
+
 		// inject an AngularJS controller with static data
 		NgController ctrl = new NgController(ngCtrl);
 		ctrl.addVariable(ngList, list);
 		add(new HeaderContributor(ctrl));
 	}
-	
+
 	protected class RepoListItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		String r; // repository
 		String n; // name
 		String p; // project/path

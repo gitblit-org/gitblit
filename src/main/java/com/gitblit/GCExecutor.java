@@ -36,15 +36,15 @@ import com.gitblit.utils.FileUtils;
 
 /**
  * The GC executor handles periodic garbage collection in repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GCExecutor implements Runnable {
 
 	public static enum GCStatus {
 		READY, COLLECTING;
-		
+
 		public boolean exceeds(GCStatus s) {
 			return ordinal() > s.ordinal();
 		}
@@ -52,11 +52,11 @@ public class GCExecutor implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(GCExecutor.class);
 
 	private final IStoredSettings settings;
-	
+
 	private AtomicBoolean running = new AtomicBoolean(false);
-	
+
 	private AtomicBoolean forceClose = new AtomicBoolean(false);
-	
+
 	private final Map<String, GCStatus> gcCache = new ConcurrentHashMap<String, GCStatus>();
 
 	public GCExecutor(IStoredSettings settings) {
@@ -65,24 +65,24 @@ public class GCExecutor implements Runnable {
 
 	/**
 	 * Indicates if the GC executor is ready to process repositories.
-	 * 
+	 *
 	 * @return true if the GC executor is ready to process repositories
 	 */
 	public boolean isReady() {
 		return settings.getBoolean(Keys.git.enableGarbageCollection, false);
 	}
-	
+
 	public boolean isRunning() {
 		return running.get();
 	}
-	
+
 	public boolean lock(String repositoryName) {
 		return setGCStatus(repositoryName, GCStatus.COLLECTING);
 	}
 
 	/**
 	 * Tries to set a GCStatus for the specified repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return true if the status has been set
 	 */
@@ -100,7 +100,7 @@ public class GCExecutor implements Runnable {
 
 	/**
 	 * Returns true if Gitblit is actively collecting garbage in this repository.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return true if actively collecting garbage
 	 */
@@ -111,13 +111,13 @@ public class GCExecutor implements Runnable {
 
 	/**
 	 * Resets the GC status to ready.
-	 * 
+	 *
 	 * @param repositoryName
 	 */
 	public void releaseLock(String repositoryName) {
 		gcCache.put(repositoryName.toLowerCase(), GCStatus.READY);
 	}
-	
+
 	public void close() {
 		forceClose.set(true);
 	}
@@ -127,8 +127,8 @@ public class GCExecutor implements Runnable {
 		if (!isReady()) {
 			return;
 		}
-		
-		running.set(true);		
+
+		running.set(true);
 		Date now = new Date();
 
 		for (String repositoryName : GitBlit.self().getRepositoryList()) {
@@ -149,7 +149,7 @@ public class GCExecutor implements Runnable {
 					logger.warn(MessageFormat.format("GCExecutor is missing repository {0}?!?", repositoryName));
 					continue;
 				}
-				
+
 				if (!isRepositoryIdle(repository)) {
 					logger.debug(MessageFormat.format("GCExecutor is skipping {0} because it is not idle", repositoryName));
 					continue;
@@ -162,13 +162,13 @@ public class GCExecutor implements Runnable {
 					logger.warn(MessageFormat.format("Can not acquire GC lock for {0}, skipping", repositoryName));
 					continue;
 				}
-				
+
 				logger.debug(MessageFormat.format("GCExecutor locked idle repository {0}", repositoryName));
-				
+
 				Git git = new Git(repository);
 				GarbageCollectCommand gc = git.gc();
 				Properties stats = gc.getStatistics();
-				
+
 				// determine if this is a scheduled GC
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(model.lastGC);
@@ -190,10 +190,10 @@ public class GCExecutor implements Runnable {
 				if (hasGarbage && (hasEnoughGarbage || shouldCollectGarbage)) {
 					long looseKB = sizeOfLooseObjects/1024L;
 					logger.info(MessageFormat.format("Collecting {1} KB of loose objects from {0}", repositoryName, looseKB));
-					
+
 					// do the deed
 					gc.call();
-					
+
 					garbageCollected = true;
 				}
 			} catch (Exception e) {
@@ -206,19 +206,19 @@ public class GCExecutor implements Runnable {
 						model.lastGC = new Date();
 						GitBlit.self().updateConfiguration(repository, model);
 					}
-				
+
 					repository.close();
 				}
-				
-				// reset the GC lock 
+
+				// reset the GC lock
 				releaseLock(repositoryName);
 				logger.debug(MessageFormat.format("GCExecutor released GC lock for {0}", repositoryName));
 			}
 		}
-		
+
 		running.set(false);
 	}
-	
+
 	private boolean isRepositoryIdle(Repository repository) {
 		try {
 			// Read the use count.

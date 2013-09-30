@@ -25,9 +25,9 @@ import com.gitblit.models.UserModel;
 
 /**
  * Table model of a list of users.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class UsersTableModel extends AbstractTableModel {
 
@@ -83,11 +83,12 @@ public class UsersTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		return String.class;
 	}

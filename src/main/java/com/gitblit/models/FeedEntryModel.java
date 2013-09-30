@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * FeedEntryModel represents an entry in a syndication (RSS) feed.
- * 
+ *
  * @author James Moger
  */
 public class FeedEntryModel implements Serializable, Comparable<FeedEntryModel> {

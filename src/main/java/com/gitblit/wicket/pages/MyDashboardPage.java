@@ -44,9 +44,9 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.panels.FilterableProjectList;
 import com.gitblit.wicket.panels.FilterableRepositoryList;
 
@@ -106,8 +106,8 @@ public class MyDashboardPage extends DashboardPage {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1*daysBack);
 		Date minimumDate = c.getTime();
-		
-		// build repo lists 
+
+		// build repo lists
 		List<RepositoryModel> starred = new ArrayList<RepositoryModel>();
 		List<RepositoryModel> owned = new ArrayList<RepositoryModel>();
 		List<RepositoryModel> active = new ArrayList<RepositoryModel>();
@@ -116,27 +116,27 @@ public class MyDashboardPage extends DashboardPage {
 			if (model.isUsersPersonalRepository(user.username) || model.isOwner(user.username)) {
 				owned.add(model);
 			}
-			
+
 			if (user.getPreferences().isStarredRepository(model.name)) {
 				starred.add(model);
 			}
-			
+
 			if (model.isShowActivity() && model.lastChange.after(minimumDate)) {
 				active.add(model);
 			}
 		}
-		
+
 		Comparator<RepositoryModel> lastUpdateSort = new Comparator<RepositoryModel>() {
 			@Override
 			public int compare(RepositoryModel o1, RepositoryModel o2) {
 				return o2.lastChange.compareTo(o1.lastChange);
 			}
 		};
-		
+
 		Collections.sort(owned, lastUpdateSort);
 		Collections.sort(starred, lastUpdateSort);
 		Collections.sort(active, lastUpdateSort);
-		
+
 		String activityTitle;
 		Set<RepositoryModel> feed = new HashSet<RepositoryModel>();
 		feed.addAll(starred);
@@ -155,22 +155,22 @@ public class MyDashboardPage extends DashboardPage {
 			// starred and owned repositories
 			activityTitle = getString("gb.starredAndOwned");
 		}
-		
+
 		addActivity(user, feed, activityTitle, daysBack);
-		
+
 		Fragment repositoryTabs;
 		if (UserModel.ANONYMOUS.equals(user)) {
 			repositoryTabs = new Fragment("repositoryTabs", "anonymousTabsFragment", this);
 		} else {
 			repositoryTabs = new Fragment("repositoryTabs", "authenticatedTabsFragment", this);
 		}
-		
+
 		add(repositoryTabs);
-		
+
 		// projects list
 		List<ProjectModel> projects = GitBlit.self().getProjectModels(getRepositoryModels(), false);
 		repositoryTabs.add(new FilterableProjectList("projects", projects));
-		
+
 		// active repository list
 		if (active.isEmpty()) {
 			repositoryTabs.add(new Label("active").setVisible(false));
@@ -179,7 +179,7 @@ public class MyDashboardPage extends DashboardPage {
 			repoList.setTitle(getString("gb.activeRepositories"), "icon-time");
 			repositoryTabs.add(repoList);
 		}
-		
+
 		// starred repository list
 		if (ArrayUtils.isEmpty(starred)) {
 			repositoryTabs.add(new Label("starred").setVisible(false));
@@ -188,7 +188,7 @@ public class MyDashboardPage extends DashboardPage {
 			repoList.setTitle(getString("gb.starredRepositories"), "icon-star");
 			repositoryTabs.add(repoList);
 		}
-		
+
 		// owned repository list
 		if (ArrayUtils.isEmpty(owned)) {
 			repositoryTabs.add(new Label("owned").setVisible(false));
@@ -199,7 +199,7 @@ public class MyDashboardPage extends DashboardPage {
 			repositoryTabs.add(repoList);
 		}
 	}
-	
+
 	private String readMarkdown(String messageSource, String resource) {
 		String message = "";
 		if (messageSource.equalsIgnoreCase("gitblit")) {
@@ -268,7 +268,7 @@ public class MyDashboardPage extends DashboardPage {
 					} catch (Exception e) {
 					}
 				}
-			}			
+			}
 		}
 		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
 	}

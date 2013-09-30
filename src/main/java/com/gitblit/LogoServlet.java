@@ -29,20 +29,20 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Handles requests for logo.png
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class LogoServlet extends HttpServlet {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final long lastModified = System.currentTimeMillis();
 
 	public LogoServlet() {
 		super();
 	}
-	
+
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
 		File file = GitBlit.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
@@ -52,7 +52,7 @@ public class LogoServlet extends HttpServlet {
 			return lastModified;
 		}
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -71,7 +71,7 @@ public class LogoServlet extends HttpServlet {
 				// default logo
 				response.setDateHeader("Last-Modified", lastModified);
 				is = getClass().getResourceAsStream("/logo.png");
-			}			
+			}
 			if (contentType == null) {
 				contentType = "image/png";
 			}

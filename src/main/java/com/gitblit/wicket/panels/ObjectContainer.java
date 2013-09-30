@@ -83,7 +83,7 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 		if (parent instanceof Fragment) {
 			// must check for fragment, otherwise we end up in Wicket namespace
 			parent = parent.getParent();
-		}		
+		}
 		if (parent != null) {
 			ResourceReference resRef = new ResourceReference(parent.getClass(), src, false);
 			return (urlFor(resRef).toString());
@@ -92,6 +92,7 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 		return (src);
 	}
 
+	@Override
 	public void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
 
@@ -122,6 +123,7 @@ public abstract class ObjectContainer extends WebMarkupContainer {
 		}
 	}
 
+	@Override
 	public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
 		Response response = getResponse();
 		response.write("\n");

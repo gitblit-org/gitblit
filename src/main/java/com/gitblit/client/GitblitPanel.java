@@ -31,9 +31,9 @@ import com.gitblit.models.FeedModel;
 
 /**
  * GitblitPanel is a container for the repository, users, settings, etc panels.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitPanel extends JPanel implements CloseTabListener {
 
@@ -50,7 +50,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 	private FeedsPanel feedsPanel;
 
 	private UsersPanel usersPanel;
-	
+
 	private TeamsPanel teamsPanel;
 
 	private SettingsPanel settingsPanel;
@@ -69,6 +69,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		tabs.addTab(Translation.get("gb.settings"), createSettingsPanel());
 		tabs.addTab(Translation.get("gb.status"), createStatusPanel());
 		tabs.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent e) {
 				tabs.getSelectedComponent().requestFocus();
 			}
@@ -92,7 +93,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			protected void updateUsersTable() {
 				usersPanel.updateTable(false);
 			}
-			
+
 			@Override
 			protected void updateTeamsTable() {
 				teamsPanel.updateTable(false);
@@ -116,9 +117,9 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 
 	private JPanel createUsersPanel() {
 		usersPanel = new UsersPanel(gitblit) {
-			
+
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
 			protected void updateTeamsTable() {
 				teamsPanel.updateTable(false);
@@ -126,10 +127,10 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 		};
 		return usersPanel;
 	}
-	
+
 	private JPanel createTeamsPanel() {
 		teamsPanel = new TeamsPanel(gitblit) {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -138,7 +139,7 @@ public class GitblitPanel extends JPanel implements CloseTabListener {
 			}
 		};
 		return teamsPanel;
-	}	
+	}
 
 	private JPanel createSettingsPanel() {
 		settingsPanel = new SettingsPanel(gitblit);

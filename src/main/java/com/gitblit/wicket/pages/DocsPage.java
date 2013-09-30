@@ -31,8 +31,8 @@ import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.wicket.CacheControl;
-import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.CacheControl.LastModified;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
 @CacheControl(LastModified.REPOSITORY)
@@ -55,6 +55,7 @@ public class DocsPage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<PathModel> item) {
 				PathModel entry = item.getModelObject();
 				item.add(WicketUtils.newImage("docIcon", "file_world_16x16.png"));

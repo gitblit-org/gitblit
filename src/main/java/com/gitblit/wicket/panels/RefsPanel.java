@@ -43,7 +43,7 @@ import com.gitblit.wicket.pages.TagPage;
 public class RefsPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public RefsPanel(String id, final String repositoryName, RevCommit c,
 			Map<ObjectId, List<RefModel>> refs) {
 		this(id, repositoryName, refs.get(c.getId()));
@@ -65,7 +65,7 @@ public class RefsPanel extends Panel {
 				boolean remote2 = o2.displayName.startsWith(Constants.R_REMOTES);
 				if (remote1 && remote2) {
 					// both are remote heads, sort by name
-					return o1.displayName.compareTo(o2.displayName);	
+					return o1.displayName.compareTo(o2.displayName);
 				}
 				if (remote1) {
 					// o1 is remote, o2 comes first
@@ -79,7 +79,7 @@ public class RefsPanel extends Panel {
 				return o1.displayName.compareTo(o2.displayName);
 			}
 		});
-		
+
 		// count remote and determine if we should insert a break
 		int remoteCount = 0;
 		for (RefModel ref : refs) {
@@ -88,12 +88,13 @@ public class RefsPanel extends Panel {
 			}
 		}
 		final boolean shouldBreak = remoteCount < refs.size();
-		
+
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
 			private static final long serialVersionUID = 1L;
 			private boolean alreadyInsertedBreak = !shouldBreak;
 
+			@Override
 			public void populateItem(final Item<RefModel> item) {
 				RefModel entry = item.getModelObject();
 				String name = entry.displayName;
@@ -123,9 +124,9 @@ public class RefsPanel extends Panel {
 					// Pull Request ref
 					name = "pull #" + name.substring(Constants.R_PULL.length());
 					if (name.endsWith("/head")) {
-						// strip pull request head from name 
+						// strip pull request head from name
 						name = name.substring(0, name.length() - "/head".length());
-					}					
+					}
 					cssClass = "pullRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch

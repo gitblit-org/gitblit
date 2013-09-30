@@ -55,6 +55,7 @@ public class FederationRegistrationsPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<FederationModel> item) {
 				final FederationModel entry = item.getModelObject();
 				item.add(new LinkPanel("url", "list", entry.url, FederationRegistrationPage.class,

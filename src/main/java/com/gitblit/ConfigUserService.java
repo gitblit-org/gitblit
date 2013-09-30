@@ -45,16 +45,16 @@ import com.gitblit.utils.StringUtils;
 /**
  * ConfigUserService is Gitblit's default user service implementation since
  * version 0.8.0.
- * 
+ *
  * Users and their repository memberships are stored in a git-style config file
  * which is cached and dynamically reloaded when modified. This file is
  * plain-text, human-readable, and may be edited with a text editor.
- * 
+ *
  * Additionally, this format allows for expansion of the user model without
  * bringing in the complexity of a database.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ConfigUserService implements IUserService {
 
@@ -63,21 +63,21 @@ public class ConfigUserService implements IUserService {
 	private static final String USER = "user";
 
 	private static final String PASSWORD = "password";
-	
+
 	private static final String DISPLAYNAME = "displayName";
-	
+
 	private static final String EMAILADDRESS = "emailAddress";
-	
+
 	private static final String ORGANIZATIONALUNIT = "organizationalUnit";
-	
+
 	private static final String ORGANIZATION = "organization";
-	
+
 	private static final String LOCALITY = "locality";
-	
+
 	private static final String STATEPROVINCE = "stateProvince";
-	
+
 	private static final String COUNTRYCODE = "countryCode";
-	
+
 	private static final String COOKIE = "cookie";
 
 	private static final String REPOSITORY = "repository";
@@ -89,9 +89,9 @@ public class ConfigUserService implements IUserService {
 	private static final String PRERECEIVE = "preReceiveScript";
 
 	private static final String POSTRECEIVE = "postReceiveScript";
-	
+
 	private static final String STARRED = "starred";
-	
+
 	private static final String LOCALE = "locale";
 
 	private final File realmFile;
@@ -105,7 +105,7 @@ public class ConfigUserService implements IUserService {
 	private final Map<String, TeamModel> teams = new ConcurrentHashMap<String, TeamModel>();
 
 	private volatile long lastModified;
-	
+
 	private volatile boolean forceReload;
 
 	public ConfigUserService(File realmFile) {
@@ -114,7 +114,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Setup the user service.
-	 * 
+	 *
 	 * @param settings
 	 * @since 0.7.0
 	 */
@@ -124,7 +124,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Does the user service support changes to credentials?
-	 * 
+	 *
 	 * @return true or false
 	 * @since 1.0.0
 	 */
@@ -135,7 +135,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Does the user service support changes to user display name?
-	 * 
+	 *
 	 * @return true or false
 	 * @since 1.0.0
 	 */
@@ -146,7 +146,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Does the user service support changes to user email address?
-	 * 
+	 *
 	 * @return true or false
 	 * @since 1.0.0
 	 */
@@ -157,17 +157,18 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Does the user service support changes to team memberships?
-	 * 
+	 *
 	 * @return true or false
 	 * @since 1.0.0
-	 */	
+	 */
+	@Override
 	public boolean supportsTeamMembershipChanges() {
 		return true;
 	}
-	
+
 	/**
 	 * Does the user service support cookie authentication?
-	 * 
+	 *
 	 * @return true or false
 	 */
 	@Override
@@ -177,7 +178,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Returns the cookie value for the specified user.
-	 * 
+	 *
 	 * @param model
 	 * @return cookie value
 	 */
@@ -195,7 +196,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Authenticate a user based on their cookie.
-	 * 
+	 *
 	 * @param cookie
 	 * @return a user object or null
 	 */
@@ -210,7 +211,7 @@ public class ConfigUserService implements IUserService {
 		if (cookies.containsKey(hash)) {
 			model = cookies.get(hash);
 		}
-		
+
 		if (model != null) {
 			// clone the model, otherwise all changes to this object are
 			// live and unpersisted
@@ -221,7 +222,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Authenticate a user based on a username and password.
-	 * 
+	 *
 	 * @param username
 	 * @param password
 	 * @return a user object or null
@@ -255,16 +256,16 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Logout a user.
-	 * 
+	 *
 	 * @param user
 	 */
 	@Override
-	public void logout(UserModel user) {	
+	public void logout(UserModel user) {
 	}
-	
+
 	/**
 	 * Retrieve the user object for the specified username.
-	 * 
+	 *
 	 * @param username
 	 * @return a user object or null
 	 */
@@ -282,7 +283,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Updates/writes a complete user object.
-	 * 
+	 *
 	 * @param model
 	 * @return true if update is successful
 	 */
@@ -293,7 +294,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Updates/writes all specified user objects.
-	 * 
+	 *
 	 * @param models a list of user models
 	 * @return true if update is successful
 	 * @since 1.2.0
@@ -317,7 +318,7 @@ public class ConfigUserService implements IUserService {
 						} else {
 							// do not clobber existing team definition
 							// maybe because this is a federated user
-							t.addUser(model.username);							
+							t.addUser(model.username);
 						}
 					}
 
@@ -343,7 +344,7 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Updates/writes and replaces a complete user object keyed by username.
 	 * This method allows for renaming a user.
-	 * 
+	 *
 	 * @param username
 	 *            the old username
 	 * @param model
@@ -401,7 +402,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Deletes the user object from the user service.
-	 * 
+	 *
 	 * @param model
 	 * @return true if successful
 	 */
@@ -412,7 +413,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Delete the user object with the specified username
-	 * 
+	 *
 	 * @param username
 	 * @return true if successful
 	 */
@@ -448,7 +449,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Returns the list of all teams available to the login service.
-	 * 
+	 *
 	 * @return list of all teams
 	 * @since 0.8.0
 	 */
@@ -462,7 +463,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Returns the list of all teams available to the login service.
-	 * 
+	 *
 	 * @return list of all teams
 	 * @since 0.8.0
 	 */
@@ -478,7 +479,7 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @param role
 	 *            the repository name
 	 * @return list of all usernames that can bypass the access restriction
@@ -504,7 +505,7 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Sets the list of all teams who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @param role
 	 *            the repository name
 	 * @param teamnames
@@ -542,7 +543,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Retrieve the team object for the specified team name.
-	 * 
+	 *
 	 * @param teamname
 	 * @return a team object or null
 	 * @since 0.8.0
@@ -561,7 +562,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Updates/writes a complete team object.
-	 * 
+	 *
 	 * @param model
 	 * @return true if update is successful
 	 * @since 0.8.0
@@ -573,7 +574,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Updates/writes all specified team objects.
-	 * 
+	 *
 	 * @param models a list of team models
 	 * @return true if update is successful
 	 * @since 1.2.0
@@ -596,7 +597,7 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Updates/writes and replaces a complete team object keyed by teamname.
 	 * This method allows for renaming a team.
-	 * 
+	 *
 	 * @param teamname
 	 *            the old teamname
 	 * @param model
@@ -628,7 +629,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Deletes the team object from the user service.
-	 * 
+	 *
 	 * @param model
 	 * @return true if successful
 	 * @since 0.8.0
@@ -640,7 +641,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Delete the team object with the specified teamname
-	 * 
+	 *
 	 * @param teamname
 	 * @return true if successful
 	 * @since 0.8.0
@@ -661,7 +662,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Returns the list of all users available to the login service.
-	 * 
+	 *
 	 * @return list of all usernames
 	 */
 	@Override
@@ -671,10 +672,10 @@ public class ConfigUserService implements IUserService {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Returns the list of all users available to the login service.
-	 * 
+	 *
 	 * @return list of all usernames
 	 */
 	@Override
@@ -684,12 +685,12 @@ public class ConfigUserService implements IUserService {
 		list = DeepCopier.copy(list);
 		Collections.sort(list);
 		return list;
-	}	
+	}
 
 	/**
 	 * Returns the list of all users who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @param role
 	 *            the repository name
 	 * @return list of all usernames that can bypass the access restriction
@@ -715,7 +716,7 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Sets the list of all uses who are allowed to bypass the access
 	 * restriction placed on the specified repository.
-	 * 
+	 *
 	 * @param role
 	 *            the repository name
 	 * @param usernames
@@ -754,7 +755,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Renames a repository role.
-	 * 
+	 *
 	 * @param oldRole
 	 * @param newRole
 	 * @return true if successful
@@ -790,7 +791,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Removes a repository role from all users.
-	 * 
+	 *
 	 * @param role
 	 * @return true if successful
 	 */
@@ -820,7 +821,7 @@ public class ConfigUserService implements IUserService {
 
 	/**
 	 * Writes the properties file.
-	 * 
+	 *
 	 * @throws IOException
 	 */
 	private synchronized void write() throws IOException {
@@ -896,7 +897,7 @@ public class ConfigUserService implements IUserService {
 				}
 				config.setStringList(USER, model.username, REPOSITORY, permissions);
 			}
-			
+
 			// user preferences
 			if (model.getPreferences() != null) {
 				List<String> starred =  model.getPreferences().getStarredRepositories();
@@ -925,7 +926,7 @@ public class ConfigUserService implements IUserService {
 				roles.add(Constants.NO_ROLE);
 			}
 			config.setStringList(TEAM, model.name, ROLE, roles);
-			
+
 			if (!model.canAdmin) {
 				// write team permission for non-admin teams
 				if (model.permissions == null) {
@@ -1015,7 +1016,7 @@ public class ConfigUserService implements IUserService {
 				Set<String> usernames = config.getSubsections(USER);
 				for (String username : usernames) {
 					UserModel user = new UserModel(username.toLowerCase());
-					user.password = config.getString(USER, username, PASSWORD);					
+					user.password = config.getString(USER, username, PASSWORD);
 					user.displayName = config.getString(USER, username, DISPLAYNAME);
 					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
 					user.organizationalUnit = config.getString(USER, username, ORGANIZATIONALUNIT);
@@ -1024,7 +1025,7 @@ public class ConfigUserService implements IUserService {
 					user.stateProvince = config.getString(USER, username, STATEPROVINCE);
 					user.countryCode = config.getString(USER, username, COUNTRYCODE);
 					user.cookie = config.getString(USER, username, COOKIE);
-					user.getPreferences().locale = config.getString(USER, username, LOCALE);	
+					user.getPreferences().locale = config.getString(USER, username, LOCALE);
 					if (StringUtils.isEmpty(user.cookie) && !StringUtils.isEmpty(user.password)) {
 						user.cookie = StringUtils.getSHA1(user.username + user.password);
 					}
@@ -1071,7 +1072,7 @@ public class ConfigUserService implements IUserService {
 					team.canAdmin = roles.contains(Constants.ADMIN_ROLE);
 					team.canFork = roles.contains(Constants.FORK_ROLE);
 					team.canCreate = roles.contains(Constants.CREATE_ROLE);
-					
+
 					if (!team.canAdmin) {
 						// non-admin team, read permissions
 						team.addRepositoryPermissions(Arrays.asList(config.getStringList(TEAM, teamname,

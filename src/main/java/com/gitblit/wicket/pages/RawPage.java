@@ -46,7 +46,7 @@ public class RawPage extends SessionPage {
 
 	public RawPage(final PageParameters params) {
 		super(params);
-		
+
 		if (!params.containsKey("r")) {
 			error(getString("gb.repositoryNotSpecified"));
 			redirectToInterceptPage(new RepositoriesPage());
@@ -67,7 +67,7 @@ public class RawPage extends SessionPage {
 				String[] encodings = GitBlit.getEncodings();
 				GitBlitWebSession session = GitBlitWebSession.get();
 				UserModel user = session.getUser();
-				
+
 				RepositoryModel model = GitBlit.self().getRepositoryModel(user, repositoryName);
 				if (model == null) {
 					// user does not have permission
@@ -75,7 +75,7 @@ public class RawPage extends SessionPage {
 					redirectToInterceptPage(new RepositoriesPage());
 					return;
 				}
-				
+
 				Repository r = GitBlit.self().getRepository(repositoryName);
 				if (r == null) {
 					error(getString("gb.canNotLoadRepository") + " " + repositoryName);
@@ -138,11 +138,11 @@ public class RawPage extends SessionPage {
 							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
 							response.setContentLength(binary.length);
 							response.setContentType("application/octet-stream; charset=UTF-8");
-							
+
 						    try {
 						    	WebRequest request = (WebRequest) requestCycle.getRequest();
 						    	String userAgent = request.getHttpServletRequest().getHeader("User-Agent");
-						    	
+
 								if (userAgent != null && userAgent.indexOf("MSIE 5.5") > -1) {
 								      response.setHeader("Content-Disposition", "filename=\""
 								    		  +  URLEncoder.encode(filename, "UTF-8") + "\"");
@@ -157,7 +157,7 @@ public class RawPage extends SessionPage {
 							catch (UnsupportedEncodingException e) {
 								response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 							}
-							
+
 							try {
 								response.getOutputStream().write(binary);
 							} catch (IOException e) {

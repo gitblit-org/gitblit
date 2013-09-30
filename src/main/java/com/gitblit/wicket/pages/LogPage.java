@@ -20,8 +20,8 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
-import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.CacheControl.LastModified;
+import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LogPanel;
 
 @CacheControl(LastModified.REPOSITORY)

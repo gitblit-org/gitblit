@@ -34,9 +34,9 @@ import com.gitblit.utils.DiffUtils.DiffStat;
 /**
  * Generates an html snippet of a diff in Gitblit's style, tracks changed paths,
  * and calculates diff stats.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitBlitDiffFormatter extends DiffFormatter {
 
@@ -47,22 +47,22 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	private PathChangeModel currentPath;
 
 	private int left, right;
-	
+
 	public GitBlitDiffFormatter(OutputStream os, String commitId) {
 		super(os);
 		this.os = os;
 		this.diffStat = new DiffStat(commitId);
 	}
-	
+
 	@Override
 	public void format(DiffEntry ent) throws IOException {
 		currentPath = diffStat.addPath(ent);
 		super.format(ent);
 	}
-	
+
 	/**
 	 * Output a hunk header
-	 * 
+	 *
 	 * @param aStartLine
 	 *            within first source
 	 * @param aEndLine
@@ -88,7 +88,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		left = aStartLine + 1;
 		right = bStartLine + 1;
 	}
-	
+
 	protected void writeRange(final char prefix, final int begin, final int cnt) throws IOException {
 		os.write(' ');
 		os.write(prefix);
@@ -127,7 +127,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 			throws IOException {
 		// update entry diffstat
 		currentPath.update(prefix);
-		
+
 		// output diff
 		os.write("<tr>".getBytes());
 		switch (prefix) {
@@ -162,7 +162,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 	/**
 	 * Workaround function for complex private methods in DiffFormatter. This
 	 * sets the html for the diff headers.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getHtml() {
@@ -191,10 +191,10 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 				} else {
 					// use a
 					line = line.substring("diff --git ".length()).trim();
-					line = line.substring(line.startsWith("\"a/") ? 3 : 2);					
+					line = line.substring(line.startsWith("\"a/") ? 3 : 2);
 					line = line.substring(0, line.indexOf(" b/") > -1 ? line.indexOf(" b/") : line.indexOf("\"b/")).trim();
 				}
-				
+
 				if (line.charAt(0) == '"') {
 					line = line.substring(1);
 				}
@@ -205,7 +205,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 					sb.append("</tbody></table></div>\n");
 					inFile = false;
 				}
-				
+
 				sb.append(MessageFormat.format("<div class='header'><div class=\"diffHeader\" id=\"{0}\"><i class=\"icon-file\"></i> ", line)).append(line).append("</div></div>");
 				sb.append("<div class=\"diff\">");
 				sb.append("<table><tbody>");
@@ -229,7 +229,7 @@ public class GitBlitDiffFormatter extends DiffFormatter {
 		sb.append("</table></div>");
 		return sb.toString();
 	}
-	
+
 	public DiffStat getDiffStat() {
 		return diffStat;
 	}

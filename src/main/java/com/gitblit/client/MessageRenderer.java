@@ -36,20 +36,20 @@ import com.gitblit.models.FeedEntryModel;
 /**
  * Message renderer displays the short log message and then any refs in a style
  * like the site.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class MessageRenderer extends JPanel implements TableCellRenderer, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private final GitblitClient gitblit;
-	
+
 	private final ImageIcon mergeIcon;
-	
+
 	private final ImageIcon blankIcon;
-	
+
 	private final JLabel messageLabel;
 
 	private final JLabel headLabel;
@@ -67,12 +67,12 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 	public MessageRenderer(GitblitClient gitblit) {
 		super(new FlowLayout(FlowLayout.LEFT, Utils.MARGIN, 1));
 		this.gitblit = gitblit;
-	
+
 		mergeIcon = new ImageIcon(getClass().getResource("/commit_merge_16x16.png"));
 		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
 
 		messageLabel = new JLabel();
-	
+
 		headLabel = newRefLabel();
 		branchLabel = newRefLabel();
 		remoteLabel = newRefLabel();
@@ -85,7 +85,7 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 		add(tagLabel);
 	}
 
-	private JLabel newRefLabel() {		
+	private JLabel newRefLabel() {
 		JLabel label = new JLabel();
 		label.setOpaque(true);
 		Font font = label.getFont();
@@ -131,6 +131,7 @@ public class MessageRenderer extends JPanel implements TableCellRenderer, Serial
 		label.setVisible(true);
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		if (isSelected)

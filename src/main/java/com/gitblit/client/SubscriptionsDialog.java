@@ -40,9 +40,9 @@ import com.gitblit.models.FeedModel;
 /**
  * Displays a list of repository branches and allows the user to check or
  * uncheck branches.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class SubscriptionsDialog extends JDialog {
 
@@ -68,6 +68,7 @@ public abstract class SubscriptionsDialog extends JDialog {
 		KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		JRootPane rootPane = new JRootPane();
 		rootPane.registerKeyboardAction(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent actionEvent) {
 				setVisible(false);
 			}
@@ -111,6 +112,7 @@ public abstract class SubscriptionsDialog extends JDialog {
 
 		final JButton cancel = new JButton(Translation.get("gb.cancel"));
 		cancel.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				setVisible(false);
 			}
@@ -118,6 +120,7 @@ public abstract class SubscriptionsDialog extends JDialog {
 
 		final JButton save = new JButton(Translation.get("gb.save"));
 		save.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				save();
 			}
@@ -141,6 +144,7 @@ public abstract class SubscriptionsDialog extends JDialog {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public Insets getInsets() {
 				return insets;
 			}

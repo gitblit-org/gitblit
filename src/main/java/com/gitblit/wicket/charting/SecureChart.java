@@ -43,7 +43,7 @@ import org.wicketstuff.googlecharts.Range;
 /**
  * This is a fork of org.wicketstuff.googlecharts.Chart whose only purpose
  * is to build https urls instead of http urls.
- * 
+ *
  * @author Daniel Spiewak
  * @author James Moger
  */
@@ -140,7 +140,7 @@ public class SecureChart extends WebComponent implements Serializable {
 
         url.append(param).append('=').append(value);
     }
-    
+
     private CharSequence convert(ChartDataEncoding encoding, double value, double max) {
     	switch (encoding) {
     	case TEXT:

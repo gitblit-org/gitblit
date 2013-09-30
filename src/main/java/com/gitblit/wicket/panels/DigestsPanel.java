@@ -49,7 +49,7 @@ public class DigestsPanel extends BasePanel {
 	private static final long serialVersionUID = 1L;
 
 	private final boolean hasChanges;
-	
+
 	private boolean hasMore;
 
 	public DigestsPanel(String wicketId, List<DailyLogEntry> digests) {
@@ -63,11 +63,12 @@ public class DigestsPanel extends BasePanel {
 		final DateFormat df = new SimpleDateFormat(dateFormat);
 		df.setTimeZone(timezone);
 		final Calendar cal = Calendar.getInstance(timezone);
-		
+
 		ListDataProvider<DailyLogEntry> dp = new ListDataProvider<DailyLogEntry>(digests);
 		DataView<DailyLogEntry> pushView = new DataView<DailyLogEntry>("change", dp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<DailyLogEntry> logItem) {
 				final DailyLogEntry change = logItem.getModelObject();
 				String fullRefName = change.getChangedRefs().get(0);
@@ -79,7 +80,7 @@ public class DigestsPanel extends BasePanel {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
 					isTag = true;
 				}
-				
+
 				String fuzzydate;
 				TimeUtils tu = getTimeUtils();
 				Date pushDate = change.date;
@@ -122,7 +123,7 @@ public class DigestsPanel extends BasePanel {
                 } else {
                 	logItem.add(new Label("whoChanged").setVisible(false));
                 }
-				
+
 				String preposition = "gb.of";
 				boolean isDelete = false;
 				String what;
@@ -150,17 +151,17 @@ public class DigestsPanel extends BasePanel {
 					break;
 				default:
 					what = MessageFormat.format(change.getCommitCount() > 1 ? getString("gb.commitsTo") : getString("gb.oneCommitTo"), change.getCommitCount());
-					
+
 					if (change.getAuthorCount() == 1) {
 						by = MessageFormat.format(getString("gb.byOneAuthor"), change.getAuthorIdent().getName());
 					} else {
-						by = MessageFormat.format(getString("gb.byNAuthors"), change.getAuthorCount());	
+						by = MessageFormat.format(getString("gb.byNAuthors"), change.getAuthorCount());
 					}
 					break;
 				}
 				logItem.add(new Label("whatChanged", what));
 				logItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
-				
+
 				if (isDelete) {
 					// can't link to deleted ref
 					logItem.add(new Label("refChanged", shortRefName));
@@ -173,19 +174,19 @@ public class DigestsPanel extends BasePanel {
 					logItem.add(new LinkPanel("refChanged", null, shortRefName,
 						TreePage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
 				}
-				
+
 				// to/from/etc
 				logItem.add(new Label("repoPreposition", getString(preposition)));
 				String repoName = StringUtils.stripDotGit(change.repository);
 				logItem.add(new LinkPanel("repoChanged", null, repoName,
 						SummaryPage.class, WicketUtils.newRepositoryParameter(change.repository)));
-				
+
 				int maxCommitCount = 5;
 				List<RepositoryCommit> commits = change.getCommits();
 				if (commits.size() > maxCommitCount) {
-					commits = new ArrayList<RepositoryCommit>(commits.subList(0,  maxCommitCount));					
+					commits = new ArrayList<RepositoryCommit>(commits.subList(0,  maxCommitCount));
 				}
-				
+
 				// compare link
 				String compareLinkText = null;
 				if ((change.getCommitCount() <= maxCommitCount) && (change.getCommitCount() > 1)) {
@@ -201,20 +202,21 @@ public class DigestsPanel extends BasePanel {
 					String startRangeId = change.getOldId(fullRefName);
 					logItem.add(new LinkPanel("compareLink", null, compareLinkText, ComparePage.class, WicketUtils.newRangeParameter(change.repository, startRangeId, endRangeId)));
 				}
-				
+
 				final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-				
+
 				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(commits);
 				DataView<RepositoryCommit> commitsView = new DataView<RepositoryCommit>("commit", cdp) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public void populateItem(final Item<RepositoryCommit> commitItem) {
 						final RepositoryCommit commit = commitItem.getModelObject();
 
 						// author gravatar
 						commitItem.add(new GravatarImage("commitAuthor", commit.getAuthorIdent().getName(),
 								commit.getAuthorIdent().getEmailAddress(), null, 16, false, false));
-						
+
 						// merge icon
 						if (commit.getParentCount() > 1) {
 							commitItem.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
@@ -245,7 +247,7 @@ public class DigestsPanel extends BasePanel {
 						WicketUtils.setCssClass(commitHash, "shortsha1");
 						WicketUtils.setHtmlTooltip(commitHash, commit.getName());
 						commitItem.add(commitHash);
-						
+
 						if (showSwatch) {
 							// set repository color
 							String color = StringUtils.getColor(StringUtils.stripDotGit(change.repository));
@@ -257,14 +259,14 @@ public class DigestsPanel extends BasePanel {
 				logItem.add(commitsView);
 			}
 		};
-		
+
 		add(pushView);
 	}
 
 	public boolean hasMore() {
 		return hasMore;
 	}
-	
+
 	public boolean hideIfEmpty() {
 		setVisible(hasChanges);
 		return hasChanges;

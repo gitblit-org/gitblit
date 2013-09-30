@@ -42,6 +42,7 @@ public class NavigationPanel extends Panel {
 		DataView<PageRegistration> refsView = new DataView<PageRegistration>("navLink", refsDp) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public void populateItem(final Item<PageRegistration> item) {
 				PageRegistration entry = item.getModelObject();
 				if (entry.hiddenPhone) {

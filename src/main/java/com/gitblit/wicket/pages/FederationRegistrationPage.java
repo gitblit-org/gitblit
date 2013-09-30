@@ -33,7 +33,7 @@ public class FederationRegistrationPage extends RootSubPage {
 
 	public FederationRegistrationPage(PageParameters params) {
 		super(params);
-		
+
 		setStatelessHint(true);
 
 		String url = WicketUtils.getUrlParameter(params);
@@ -81,6 +81,7 @@ public class FederationRegistrationPage extends RootSubPage {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<RepositoryStatus> item) {
 				final RepositoryStatus entry = item.getModelObject();
 				item.add(WicketUtils.getPullStatusImage("statusIcon", entry.status));
@@ -92,7 +93,7 @@ public class FederationRegistrationPage extends RootSubPage {
 		};
 		add(dataView);
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return FederationPage.class;

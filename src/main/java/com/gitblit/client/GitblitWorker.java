@@ -50,6 +50,7 @@ public abstract class GitblitWorker extends SwingWorker<Boolean, Void> {
 		return doRequest();
 	}
 
+	@Override
 	protected void done() {
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		try {

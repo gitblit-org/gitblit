@@ -27,6 +27,7 @@ public class ExternalImage extends WebComponent {
 		super(id, new Model<String>(url));
 	}
 
+	@Override
 	protected void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
 		checkComponentTag(tag, "img");

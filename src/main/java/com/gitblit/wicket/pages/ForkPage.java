@@ -35,7 +35,7 @@ public class ForkPage extends RepositoryPage {
 		super(params);
 
 		setVersioned(false);
-		
+
 		GitBlitWebSession session = GitBlitWebSession.get();
 
 		RepositoryModel repository = getRepositoryModel();

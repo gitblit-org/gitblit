@@ -43,11 +43,11 @@ import com.gitblit.utils.SyndicationUtils;
 
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
- * 
+ *
  * Access to this servlet is protected by the SyndicationFilter.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SyndicationServlet extends HttpServlet {
 
@@ -57,7 +57,7 @@ public class SyndicationServlet extends HttpServlet {
 
 	/**
 	 * Create a feed link for the specified repository and branch/tag/commit id.
-	 * 
+	 *
 	 * @param baseURL
 	 * @param repository
 	 *            the repository name
@@ -95,7 +95,7 @@ public class SyndicationServlet extends HttpServlet {
 
 	/**
 	 * Determines the appropriate title for a feed.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 * @return title of the feed
@@ -116,7 +116,7 @@ public class SyndicationServlet extends HttpServlet {
 
 	/**
 	 * Generates the feed content.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException
@@ -162,12 +162,12 @@ public class SyndicationServlet extends HttpServlet {
 		}
 
 		response.setContentType("application/rss+xml; charset=UTF-8");
-		
+
 		boolean isProjectFeed = false;
 		String feedName = null;
 		String feedTitle = null;
 		String feedDescription = null;
-		
+
 		List<String> repositories = null;
 		if (repositoryName.indexOf('/') == -1 && !repositoryName.toLowerCase().endsWith(".git")) {
 			// try to find a project
@@ -179,14 +179,14 @@ public class SyndicationServlet extends HttpServlet {
 			if (project != null) {
 				isProjectFeed = true;
 				repositories = new ArrayList<String>(project.repositories);
-				
+
 				// project feed
 				feedName = project.name;
 				feedTitle = project.title;
 				feedDescription = project.description;
 			}
 		}
-		
+
 		if (repositories == null) {
 			// could not find project, assume this is a repository
 			repositories = Arrays.asList(repositoryName);
@@ -214,7 +214,7 @@ public class SyndicationServlet extends HttpServlet {
 			if (repository == null) {
 				if (model.isCollectingGarbage) {
 					logger.warn(MessageFormat.format("Temporarily excluding {0} from feed, busy collecting garbage", name));
-				} 
+				}
 				continue;
 			}
 			if (!isProjectFeed) {
@@ -223,7 +223,7 @@ public class SyndicationServlet extends HttpServlet {
 				feedTitle = model.name;
 				feedDescription = model.description;
 			}
-			
+
 			List<RevCommit> commits;
 			if (StringUtils.isEmpty(searchString)) {
 				// standard log/history lookup
@@ -248,7 +248,7 @@ public class SyndicationServlet extends HttpServlet {
 						commit.getFullMessage());
 				entry.content = message;
 				entry.repository = model.name;
-				entry.branch = objectId;			
+				entry.branch = objectId;
 				entry.tags = new ArrayList<String>();
 
 				// add commit id and parent commit ids
@@ -263,18 +263,18 @@ public class SyndicationServlet extends HttpServlet {
 					for (RefModel ref : refs) {
 						entry.tags.add("ref:" + ref.getName());
 					}
-				}			
+				}
 				entries.add(entry);
 			}
 		}
-		
+
 		// sort & truncate the feed
 		Collections.sort(entries);
 		if (entries.size() > length) {
 			// clip the list
 			entries = entries.subList(0, length);
 		}
-		
+
 		String feedLink;
 		if (isProjectFeed) {
 			// project feed

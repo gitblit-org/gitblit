@@ -44,9 +44,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Handles remote procedure calls.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RpcServlet extends JsonServlet {
 
@@ -60,7 +60,7 @@ public class RpcServlet extends JsonServlet {
 
 	/**
 	 * Processes an rpc request.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException

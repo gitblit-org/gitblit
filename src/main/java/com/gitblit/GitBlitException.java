@@ -19,9 +19,9 @@ import java.io.IOException;
 
 /**
  * GitBlitException is a marginally useful class. :)
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitBlitException extends IOException {
 

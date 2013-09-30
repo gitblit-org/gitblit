@@ -50,9 +50,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * Settings panel displays a list of server settings and their associated
  * metadata. This panel also allows editing of a setting.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SettingsPanel extends JPanel {
 
@@ -79,6 +79,7 @@ public class SettingsPanel extends JPanel {
 	private void initialize() {
 		JButton refreshSettings = new JButton(Translation.get("gb.refresh"));
 		refreshSettings.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshSettings();
 			}
@@ -86,6 +87,7 @@ public class SettingsPanel extends JPanel {
 
 		final JButton editSetting = new JButton(Translation.get("gb.edit"));
 		editSetting.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				int viewRow = table.getSelectedRow();
 				int modelRow = table.convertRowIndexToModel(viewRow);
@@ -125,6 +127,7 @@ public class SettingsPanel extends JPanel {
 			}
 		});
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					int viewRow = table.getSelectedRow();
@@ -137,11 +140,13 @@ public class SettingsPanel extends JPanel {
 
 		filterTextfield = new JTextField();
 		filterTextfield.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				filterSettings(filterTextfield.getText());
 			}
 		});
 		filterTextfield.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent e) {
 				filterSettings(filterTextfield.getText());
 			}
@@ -166,7 +171,7 @@ public class SettingsPanel extends JPanel {
 		add(settingsTablePanel, BorderLayout.CENTER);
 		add(settingsControls, BorderLayout.SOUTH);
 	}
-	
+
 	@Override
 	public void requestFocus() {
 		filterTextfield.requestFocus();
@@ -192,6 +197,7 @@ public class SettingsPanel extends JPanel {
 			return;
 		}
 		RowFilter<SettingsTableModel, Object> containsFilter = new RowFilter<SettingsTableModel, Object>() {
+			@Override
 			public boolean include(Entry<? extends SettingsTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {

@@ -80,7 +80,7 @@ public class BlobDiffPage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.diff");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;

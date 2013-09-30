@@ -34,14 +34,14 @@ import com.gitblit.models.UserModel;
 
 /**
  * Resolves repositories and grants export access.
- * 
+ *
  * @author James Moger
  *
  */
 public class RepositoryResolver<X> extends FileResolver<X> {
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryResolver.class);
-	
+
 	public RepositoryResolver(File repositoriesFolder) {
 		super(repositoriesFolder, true);
 	}
@@ -53,7 +53,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	public Repository open(final X req, final String name)
 			throws RepositoryNotFoundException, ServiceNotEnabledException {
 		Repository repo = super.open(req, name);
-		
+
 		// Set repository name for the pack factories
 		// We do this because the JGit API does not have a consistent way to
 		// retrieve the repository name from the pack factories or the hooks.
@@ -68,7 +68,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 		}
 		return repo;
 	}
-	
+
 	/**
 	 * Check if this repository can be served by the requested client connection.
 	 */
@@ -79,7 +79,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 		String scheme = null;
 		UserModel user = null;
 		String origin = null;
-		
+
 		if (req instanceof GitDaemonClient) {
 			// git daemon request
 			// this is an anonymous/unauthenticated protocol
@@ -90,7 +90,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 		} else if (req instanceof HttpServletRequest) {
 			// http/https request
 			HttpServletRequest httpRequest = (HttpServletRequest) req;
-			scheme = httpRequest.getScheme(); 
+			scheme = httpRequest.getScheme();
 			origin = httpRequest.getRemoteAddr();
 			user = GitBlit.self().authenticate(httpRequest);
 			if (user == null) {
@@ -104,7 +104,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 					scheme, repositoryName, user.username, origin));
 			return true;
 		}
-		
+
 		// user can not access this git repo
 		logger.warn(MessageFormat.format("{0}:// access of {1} by {2} from {3} DENIED",
 				scheme, repositoryName, user.username, origin));

@@ -27,9 +27,9 @@ import com.gitblit.utils.ArrayUtils;
 
 /**
  * Table model of a list of repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class RepositoriesTableModel extends AbstractTableModel {
 
@@ -85,11 +85,12 @@ public class RepositoriesTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		Columns col = Columns.values()[columnIndex];
 		switch (col) {

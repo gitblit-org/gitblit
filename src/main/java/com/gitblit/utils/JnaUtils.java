@@ -15,9 +15,6 @@
  */
 package com.gitblit.utils;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +24,9 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.jna.Library;
+import com.sun.jna.Native;
 
 /**
  * Collection of static methods to access native OS library functionality.

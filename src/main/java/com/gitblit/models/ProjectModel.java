@@ -26,9 +26,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * ProjectModel is a serializable model class.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 
@@ -39,7 +39,7 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 	public String title;
 	public String description;
 	public final Set<String> repositories = new HashSet<String>();
-	
+
 	public String projectMarkdown;
 	public String repositoriesMarkdown;
 	public Date lastChange;
@@ -48,7 +48,7 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 	public ProjectModel(String name) {
 		this(name, false);
 	}
-	
+
 	public ProjectModel(String name, boolean isRoot) {
 		this.name = name;
 		this.isRoot = isRoot;
@@ -56,7 +56,7 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 		this.title = "";
 		this.description = "";
 	}
-	
+
 	public boolean isUserProject() {
 		return ModelUtils.isPersonalRepository(name);
 	}
@@ -80,16 +80,16 @@ public class ProjectModel implements Serializable, Comparable<ProjectModel> {
 		for (String name:names) {
 			repositories.add(name.toLowerCase());
 		}
-	}	
+	}
 
 	public void removeRepository(String name) {
 		repositories.remove(name.toLowerCase());
 	}
-	
+
 	public String getDisplayName() {
 		return StringUtils.isEmpty(title) ? name : title;
 	}
-	
+
 	@Override
 	public String toString() {
 		return name;

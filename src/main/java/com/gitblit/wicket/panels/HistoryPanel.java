@@ -107,13 +107,13 @@ public class HistoryPanel extends BasePanel {
 				tw.release();
 			}
 		}
-		
+
 		final boolean isTree = matchingPath == null ? true : matchingPath.isTree();
 		final boolean isSubmodule = matchingPath == null ? false : matchingPath.isSubmodule();
 
 		// submodule
 		final String submodulePath;
-		final boolean hasSubmodule; 
+		final boolean hasSubmodule;
 		if (isSubmodule) {
 			SubmoduleModel submodule = getSubmodule(submodules, repositoryName, matchingPath == null ? null : matchingPath.path);
 			submodulePath = submodule.gitblitPath;
@@ -122,7 +122,7 @@ public class HistoryPanel extends BasePanel {
 			submodulePath = "";
 			hasSubmodule = false;
 		}
-		
+
 		final Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(r, showRemoteRefs);
 		List<RevCommit> commits;
 		if (pageResults) {
@@ -149,6 +149,7 @@ public class HistoryPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
@@ -195,9 +196,9 @@ public class HistoryPanel extends BasePanel {
 							TreePage.class, WicketUtils.newObjectParameter(
 									repositoryName, entry.getName()));
 					WicketUtils.setCssClass(commitHash, "shortsha1");
-					WicketUtils.setHtmlTooltip(commitHash, entry.getName());					
+					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
-					
+
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
@@ -218,14 +219,14 @@ public class HistoryPanel extends BasePanel {
 								TreePage.class, WicketUtils.newObjectParameter(
 										submodulePath, submoduleId));
 						WicketUtils.setCssClass(commitHash, "shortsha1");
-						WicketUtils.setHtmlTooltip(commitHash, submoduleId);					
+						WicketUtils.setHtmlTooltip(commitHash, submoduleId);
 						item.add(commitHash.setEnabled(hasSubmodule));
 					}
 					Fragment links = new Fragment("historyLinks", "treeLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
 					item.add(links);
-				} else {					
+				} else {
 					// commit
 					item.add(new Label("hashLabel", getString("gb.blob") + "@"));
 					LinkPanel commitHash = new LinkPanel("hashLink", null, entry.getName().substring(0, hashLen),
@@ -234,7 +235,7 @@ public class HistoryPanel extends BasePanel {
 					WicketUtils.setCssClass(commitHash, "sha1");
 					WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 					item.add(commitHash);
-					
+
 					Fragment links = new Fragment("historyLinks", "blobLinks", this);
 					links.add(new BookmarkablePageLink<Void>("commitdiff", CommitDiffPage.class,
 							WicketUtils.newObjectParameter(repositoryName, entry.getName())));
@@ -276,7 +277,7 @@ public class HistoryPanel extends BasePanel {
 	public boolean hasMore() {
 		return hasMore;
 	}
-	
+
 	protected SubmoduleModel getSubmodule(Map<String, SubmoduleModel> submodules, String repositoryName, String path) {
 		SubmoduleModel model = submodules.get(path);
 		if (model == null) {
@@ -289,7 +290,7 @@ public class HistoryPanel extends BasePanel {
 			// extract the repository name from the clone url
 			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
 			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
-			
+
 			// determine the current path for constructing paths relative
 			// to the current repository
 			String currentPath = "";
@@ -332,10 +333,10 @@ public class HistoryPanel extends BasePanel {
 					return model;
 				}
 			}
-			
+
 			// we do not have a copy of the submodule, but we need a path
 			model.gitblitPath = candidates.get(0);
 			return model;
-		}		
+		}
 	}
 }

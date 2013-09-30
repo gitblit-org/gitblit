@@ -33,7 +33,7 @@ import com.gitblit.wicket.WicketUtils;
 public abstract class BasePanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private transient TimeUtils timeUtils;
 
 	public BasePanel(String wicketId) {
@@ -44,10 +44,10 @@ public abstract class BasePanel extends Panel {
 		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
 				.getTimezone() : GitBlit.getTimezone();
 	}
-	
+
 	protected TimeUtils getTimeUtils() {
 		if (timeUtils == null) {
-			ResourceBundle bundle;		
+			ResourceBundle bundle;
 			try {
 				bundle = ResourceBundle.getBundle("com.gitblit.wicket.GitBlitWebApp", GitBlitWebSession.get().getLocale());
 			} catch (Throwable t) {
@@ -57,7 +57,7 @@ public abstract class BasePanel extends Panel {
 		}
 		return timeUtils;
 	}
-	
+
 	protected void setPersonSearchTooltip(Component component, String value, Constants.SearchType searchType) {
 		if (searchType.equals(Constants.SearchType.AUTHOR)) {
 			WicketUtils.setHtmlTooltip(component, getString("gb.searchForAuthor") + " " + value);
@@ -74,6 +74,7 @@ public abstract class BasePanel extends Panel {
 			super(event, true, new Model<String>(msg));
 		}
 
+		@Override
 		protected String newValue(final String currentValue, final String replacementValue) {
 			String prefix = "var conf = confirm('" + replacementValue + "'); "
 					+ "if (!conf) return false; ";
@@ -90,12 +91,13 @@ public abstract class BasePanel extends Panel {
 		private static final long serialVersionUID = 1L;
 
 		private String initialValue = "";
-		
+
 		public JavascriptTextPrompt(String event, String msg, String value) {
 			super(event, true, new Model<String>(msg));
 			initialValue = value;
 		}
 
+		@Override
 		protected String newValue(final String currentValue, final String message) {
 			String result = "var userText = prompt('" + message + "','"
 					+ (initialValue == null ? "" : initialValue) + "'); " + "return userText; ";

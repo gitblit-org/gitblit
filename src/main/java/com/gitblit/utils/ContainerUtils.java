@@ -27,7 +27,7 @@ import com.gitblit.Keys;
 
 /**
  * This is the support class for all container specific code.
- * 
+ *
  * @author jpyeron
  */
 public class ContainerUtils
@@ -37,7 +37,7 @@ public class ContainerUtils
     /**
      * The support class for managing and evaluating the environment with
      * regards to CVE-2007-0405.
-     * 
+     *
      * @see http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
      * @author jpyeron
      */
@@ -80,7 +80,7 @@ public class ContainerUtils
          * blocked from use in certain URL s. It will emit a warning to the
          * logger if the configuration of Tomcat causes the URL processing to
          * fail on %2F.
-         * 
+         *
          * @return true if it recognizes Tomcat, false if it does not recognize
          *         Tomcat
          */
@@ -96,7 +96,7 @@ public class ContainerUtils
 
                 // mb.setBytes(test, 0, test.length);
                 Method mByteChunck_setBytes = cByteChunk.getMethod("setBytes", byte[].class, int.class, int.class);
-                mByteChunck_setBytes.invoke(mb, test, (int) 0, test.length);
+                mByteChunck_setBytes.invoke(mb, test, 0, test.length);
 
                 // UDecoder ud=new UDecoder();
                 Class<?> cUDecoder = Class.forName("org.apache.tomcat.util.buf.UDecoder");

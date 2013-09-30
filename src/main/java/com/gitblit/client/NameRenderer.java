@@ -26,9 +26,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 /**
  * Repository name cell renderer. This renderer shows the group name in a gray
  * color and accentuates the repository name in a cornflower blue color.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class NameRenderer extends DefaultTableCellRenderer implements ListCellRenderer {
 
@@ -56,6 +56,7 @@ public class NameRenderer extends DefaultTableCellRenderer implements ListCellRe
 		return sb.toString();
 	}
 
+	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 			boolean hasFocus, int row, int column) {
 		super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);

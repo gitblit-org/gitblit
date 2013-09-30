@@ -74,7 +74,7 @@ public class FederationPullExecutor implements Runnable {
 	/**
 	 * Constructor for specifying a single federation registration. This
 	 * constructor is used to schedule the next pull execution.
-	 * 
+	 *
 	 * @param registration
 	 */
 	private FederationPullExecutor(FederationModel registration) {
@@ -85,7 +85,7 @@ public class FederationPullExecutor implements Runnable {
 	 * Constructor to specify a group of federation registrations. This is
 	 * normally used at startup to pull and then schedule the next update based
 	 * on each registrations frequency setting.
-	 * 
+	 *
 	 * @param registrations
 	 * @param isDaemon
 	 *            if true, registrations are rescheduled in perpetuity. if
@@ -137,7 +137,7 @@ public class FederationPullExecutor implements Runnable {
 	/**
 	 * Mirrors a repository and, optionally, the server's users, and/or
 	 * configuration settings from a origin Gitblit instance.
-	 * 
+	 *
 	 * @param registration
 	 * @throws Exception
 	 */
@@ -189,12 +189,12 @@ public class FederationPullExecutor implements Runnable {
 							repositoryName.indexOf(DOT_GIT_EXT));
 				}
 			}
-			
+
 			// confirm that the origin of any pre-existing repository matches
 			// the clone url
 			String fetchHead = null;
 			Repository existingRepository = GitBlit.self().getRepository(repositoryName);
-			
+
 			if (existingRepository == null && GitBlit.self().isCollectingGarbage(repositoryName)) {
 				logger.warn(MessageFormat.format("Skipping local repository {0}, busy collecting garbage", repositoryName));
 				continue;
@@ -253,13 +253,13 @@ public class FederationPullExecutor implements Runnable {
 								String branch = org.eclipse.jgit.lib.Constants.R_HEADS
 										+ ref.displayName.substring(ref.displayName.indexOf('/') + 1);
 								String hash = ref.getReferencedObjectId().getName();
-								
+
 								JGitUtils.setBranchRef(r, branch, hash);
 								logger.info(MessageFormat.format("     resetting {0} of {1} to {2}", branch,
 										repository.name, hash));
 							}
 						}
-						
+
 						String newHead;
 						if (StringUtils.isEmpty(repository.HEAD)) {
 							newHead = newFetchHead;
@@ -298,7 +298,7 @@ public class FederationPullExecutor implements Runnable {
 					federationSets.addAll(repository.federationSets);
 				}
 				repository.federationSets = new ArrayList<String>(federationSets);
-				
+
 				// merge indexed branches
 				Set<String> indexedBranches = new HashSet<String>();
 				if (rm.indexedBranches != null) {
@@ -487,7 +487,7 @@ public class FederationPullExecutor implements Runnable {
 	/**
 	 * Sends a status acknowledgment to the origin Gitblit instance. This
 	 * includes the results of the federated pull.
-	 * 
+	 *
 	 * @param registration
 	 * @throws Exception
 	 */
@@ -507,7 +507,7 @@ public class FederationPullExecutor implements Runnable {
 
 	/**
 	 * Schedules the next check of the federated Gitblit instance.
-	 * 
+	 *
 	 * @param registration
 	 */
 	private void schedule(FederationModel registration) {

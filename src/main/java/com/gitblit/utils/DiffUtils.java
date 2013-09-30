@@ -66,23 +66,23 @@ public class DiffUtils {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Encapsulates the output of a diff. 
+	 * Encapsulates the output of a diff.
 	 */
 	public static class DiffOutput implements Serializable {
 		private static final long serialVersionUID = 1L;
-		
+
 		public final DiffOutputType type;
 		public final String content;
 		public final DiffStat stat;
-		
+
 		DiffOutput(DiffOutputType type, String content, DiffStat stat) {
 			this.type = type;
 			this.content = content;
 			this.stat = stat;
 		}
-		
+
 		public PathChangeModel getPath(String path) {
 			if (stat == null) {
 				return null;
@@ -98,15 +98,15 @@ public class DiffUtils {
 	public static class DiffStat implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		public final List<PathChangeModel> paths = new ArrayList<PathChangeModel>();
-		
+
 		private final String commitId;
-		
+
 		public DiffStat(String commitId) {
 			this.commitId = commitId;
 		}
-		
+
 		public PathChangeModel addPath(DiffEntry entry) {
 			PathChangeModel pcm = PathChangeModel.from(entry, commitId);
 			paths.add(pcm);
@@ -128,7 +128,7 @@ public class DiffUtils {
 			}
 			return val;
 		}
-		
+
 		public PathChangeModel getPath(String path) {
 			PathChangeModel stat = null;
 			for (PathChangeModel p : paths) {
@@ -138,7 +138,7 @@ public class DiffUtils {
 				}
 			}
 			return stat;
-		}		
+		}
 
 		@Override
 		public String toString() {
@@ -150,15 +150,15 @@ public class DiffUtils {
 			return sb.toString();
 		}
 	}
-	
+
 	public static class NormalizedDiffStat implements Serializable {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public final int insertions;
 		public final int deletions;
 		public final int blanks;
-		
+
 		NormalizedDiffStat(int insertions, int deletions, int blanks) {
 			this.insertions = insertions;
 			this.deletions = deletions;
@@ -282,7 +282,7 @@ public class DiffUtils {
 		} catch (Throwable t) {
 			LOGGER.error("failed to generate commit diff!", t);
 		}
-		
+
 		return new DiffOutput(outputType, diff, stat);
 	}
 
@@ -442,10 +442,10 @@ public class DiffUtils {
 		}
 		return lines;
 	}
-	
+
 	/**
 	 * Normalizes a diffstat to an N-segment display.
-	 * 
+	 *
 	 * @params segments
 	 * @param insertions
 	 * @param deletions
@@ -482,7 +482,7 @@ public class DiffUtils {
 			sd = segments - si;
 			sb = 0;
 		}
-		
+
 		return new NormalizedDiffStat(si, sd, sb);
 	}
 }

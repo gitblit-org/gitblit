@@ -31,12 +31,12 @@ import com.gitblit.Keys;
 /**
  * Simple subclass of mixed parameter url coding strategy that works around the
  * encoded forward-slash issue that is present in some servlet containers.
- * 
+ *
  * https://issues.apache.org/jira/browse/WICKET-1303
  * http://tomcat.apache.org/security-6.html
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
@@ -44,7 +44,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
 	/**
 	 * Construct.
-	 * 
+	 *
 	 * @param <C>
 	 * @param mountPath
 	 *            mount path (not empty)
@@ -60,11 +60,12 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
 	/**
 	 * Url encodes a string that is mean for a URL path (e.g., between slashes)
-	 * 
+	 *
 	 * @param string
 	 *            string to be encoded
 	 * @return encoded string
 	 */
+	@Override
 	protected String urlEncodePathComponent(String string) {
 		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
@@ -76,10 +77,11 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	/**
 	 * Returns a decoded value of the given value (taken from a URL path
 	 * section)
-	 * 
+	 *
 	 * @param value
 	 * @return Decodes the value
 	 */
+	@Override
 	protected String urlDecodePathComponent(String value) {
 		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
@@ -90,7 +92,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
 	/**
 	 * Gets the decoded request target.
-	 * 
+	 *
 	 * @param requestParameters
 	 *            the request parameters
 	 * @return the decoded request target

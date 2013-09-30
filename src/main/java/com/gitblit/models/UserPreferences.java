@@ -27,7 +27,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * User preferences.
- * 
+ *
  * @author James Moger
  *
  */
@@ -38,20 +38,20 @@ public class UserPreferences implements Serializable {
 	public final String username;
 
 	public String locale;
-	
+
 	private final Map<String, UserRepositoryPreferences> repositoryPreferences = new TreeMap<String, UserRepositoryPreferences>();
 
 	public UserPreferences(String username) {
 		this.username = username;
 	}
-	
+
 	public Locale getLocale() {
 		if (StringUtils.isEmpty(locale)) {
 			return null;
 		}
 		return new Locale(locale);
 	}
-	
+
 	public UserRepositoryPreferences getRepositoryPreferences(String repositoryName) {
 		String key = repositoryName.toLowerCase();
 		if (!repositoryPreferences.containsKey(key)) {
@@ -63,11 +63,11 @@ public class UserPreferences implements Serializable {
 		}
 		return repositoryPreferences.get(key);
 	}
-	
+
 	public void setRepositoryPreferences(UserRepositoryPreferences pref) {
 		repositoryPreferences.put(pref.repositoryName.toLowerCase(), pref);
 	}
-	
+
 	public boolean isStarredRepository(String repository) {
 		if (repositoryPreferences == null) {
 			return false;
@@ -79,7 +79,7 @@ public class UserPreferences implements Serializable {
 		}
 		return false;
 	}
-	
+
 	public List<String> getStarredRepositories() {
 		List<String> list = new ArrayList<String>();
 		for (UserRepositoryPreferences prefs : repositoryPreferences.values()) {

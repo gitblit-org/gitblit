@@ -46,7 +46,7 @@ import com.gitblit.wicket.panels.FilterableRepositoryList;
 
 @CacheControl(LastModified.PROJECT)
 public class ProjectPage extends DashboardPage {
-	
+
 	List<ProjectModel> projectModels = new ArrayList<ProjectModel>();
 
 	public ProjectPage() {
@@ -58,7 +58,8 @@ public class ProjectPage extends DashboardPage {
 		super(params);
 		setup(params);
 	}
-	
+
+	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return RepositoriesPage.class;
 	}
@@ -82,7 +83,7 @@ public class ProjectPage extends DashboardPage {
 			}
 		}
 	}
-	
+
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
@@ -96,21 +97,21 @@ public class ProjectPage extends DashboardPage {
 		if (StringUtils.isEmpty(projectName)) {
 			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
-		
+
 		ProjectModel project = getProjectModel(projectName);
 		if (project == null) {
 			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
-		
+
 		add(new Label("projectTitle", project.getDisplayName()));
 		add(new Label("projectDescription", project.description));
-		
+
 		String feedLink = SyndicationServlet.asLink(getRequest().getRelativePathPrefixToContextRoot(), projectName, null, 0);
 		add(new ExternalLink("syndication", feedLink));
 
 		add(WicketUtils.syndicationDiscoveryLink(SyndicationServlet.getTitle(project.getDisplayName(),
 				null), feedLink));
-		
+
 		// project markdown message
 		String pmessage = transformMarkdown(project.projectMarkdown);
 		Component projectMessage = new Label("projectMessage", pmessage)
@@ -135,7 +136,7 @@ public class ProjectPage extends DashboardPage {
 		// repository list.  the recent activity will be built up by the
 		// reflog utils.
 		params.remove("db");
-		
+
 		List<RepositoryModel> repositories = getRepositories(params);
 		Collections.sort(repositories, new Comparator<RepositoryModel>() {
 			@Override
@@ -146,7 +147,7 @@ public class ProjectPage extends DashboardPage {
 		});
 
 		addActivity(user, repositories, getString("gb.recentActivity"), daysBack);
-		
+
 		if (repositories.isEmpty()) {
 			add(new Label("repositoryList").setVisible(false));
 		} else {
@@ -155,7 +156,7 @@ public class ProjectPage extends DashboardPage {
 			add(repoList);
 		}
 	}
-	
+
 	@Override
 	protected void addDropDownMenus(List<PageRegistration> pages) {
 		PageParameters params = getPageParameters();
@@ -174,13 +175,13 @@ public class ProjectPage extends DashboardPage {
 		}
 
 		pages.add(menu);
-		
+
 		DropDownMenuRegistration projects = new DropDownMenuRegistration("gb.projects",
 				ProjectPage.class);
 		projects.menuItems.addAll(getProjectsMenu());
 		pages.add(projects);
 	}
-	
+
 	@Override
 	protected List<ProjectModel> getProjectModels() {
 		if (projectModels.isEmpty()) {
@@ -190,7 +191,7 @@ public class ProjectPage extends DashboardPage {
 		}
 		return projectModels;
 	}
-	
+
 	private ProjectModel getProjectModel(String name) {
 		for (ProjectModel project : getProjectModels()) {
 			if (name.equalsIgnoreCase(project.name)) {
@@ -199,7 +200,7 @@ public class ProjectPage extends DashboardPage {
 		}
 		return null;
 	}
-	
+
 	protected List<DropDownMenuItem> getProjectsMenu() {
 		List<DropDownMenuItem> menu = new ArrayList<DropDownMenuItem>();
 		List<ProjectModel> projects = new ArrayList<ProjectModel>();
@@ -236,7 +237,7 @@ public class ProjectPage extends DashboardPage {
 		}
 		return menu;
 	}
-	
+
 	private String transformMarkdown(String markdown) {
 		String message = "";
 		if (!StringUtils.isEmpty(markdown)) {

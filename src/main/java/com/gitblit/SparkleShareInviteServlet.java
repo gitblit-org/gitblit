@@ -29,9 +29,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Handles requests for Sparkleshare Invites
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SparkleShareInviteServlet extends HttpServlet {
 
@@ -40,7 +40,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 	public SparkleShareInviteServlet() {
 		super();
 	}
-	
+
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, java.io.IOException {
@@ -55,8 +55,8 @@ public class SparkleShareInviteServlet extends HttpServlet {
 
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
-			java.io.IOException {		
-		
+			java.io.IOException {
+
 		// extract repo name from request
 		String repoUrl = request.getPathInfo().substring(1);
 
@@ -64,11 +64,11 @@ public class SparkleShareInviteServlet extends HttpServlet {
 		if (repoUrl.endsWith(".xml")) {
 			repoUrl = repoUrl.substring(0, repoUrl.length() - 4);
 		}
-		
+
 		String servletPath =  Constants.GIT_PATH;
-		
+
 		int schemeIndex = repoUrl.indexOf("://") + 3;
-		String host = repoUrl.substring(0, repoUrl.indexOf('/', schemeIndex));				
+		String host = repoUrl.substring(0, repoUrl.indexOf('/', schemeIndex));
 		String path = repoUrl.substring(repoUrl.indexOf(servletPath) + servletPath.length());
 		String username = null;
 		int fetchIndex = repoUrl.indexOf('@');
@@ -85,7 +85,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			user = UserModel.ANONYMOUS;
 			username = "";
 		}
-		
+
 		// ensure that the requested repository exists
 		RepositoryModel model = GitBlit.self().getRepositoryModel(path);
 		if (model == null) {
@@ -93,8 +93,8 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			response.getWriter().append(MessageFormat.format("Repository \"{0}\" not found!", path));
 			return;
 		}
-		
-		StringBuilder sb = new StringBuilder();		
+
+		StringBuilder sb = new StringBuilder();
 		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 		sb.append("<sparkleshare><invite>\n");
 		sb.append(MessageFormat.format("<address>{0}</address>\n", host));

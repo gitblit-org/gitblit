@@ -36,7 +36,7 @@ import com.sun.jna.platform.win32.Win32Exception;
 
 /**
  * Implementation of a Windows user service.
- * 
+ *
  * @author James Moger
  */
 public class WindowsUserService extends GitblitUserService {
@@ -44,7 +44,7 @@ public class WindowsUserService extends GitblitUserService {
     private final Logger logger = LoggerFactory.getLogger(WindowsUserService.class);
 
     private IStoredSettings settings;
-    
+
     private IWindowsAuthProvider waffle;
 
     public WindowsUserService() {
@@ -60,7 +60,7 @@ public class WindowsUserService extends GitblitUserService {
 
         serviceImpl = createUserService(realmFile);
         logger.info("Windows User Service backed by " + serviceImpl.toString());
-        
+
         waffle = new WindowsAuthProviderImpl();
         IWindowsComputer computer = waffle.getCurrentComputer();
         logger.info("      name = " + computer.getComputerName());
@@ -68,7 +68,7 @@ public class WindowsUserService extends GitblitUserService {
         logger.info("  memberOf = " + computer.getMemberOf());
         //logger.info("  groups     = " + Arrays.asList(computer.getGroups()));
     }
-    
+
     protected String describeJoinStatus(String value) {
     	if ("NetSetupUnknownStatus".equals(value)) {
     		return "unknown";
@@ -101,7 +101,7 @@ public class WindowsUserService extends GitblitUserService {
     public boolean supportsTeamMembershipChanges() {
         return true;
     }
-    
+
 	 @Override
 	protected AccountType getAccountType() {
 		return AccountType.WINDOWS;
@@ -150,7 +150,7 @@ public class WindowsUserService extends GitblitUserService {
 			identity.dispose();
 			return null;
 		}
-		
+
         UserModel user = getUserModel(username);
         if (user == null)	// create user object for new authenticated user
         	user = new UserModel(username.toLowerCase());
@@ -174,12 +174,12 @@ public class WindowsUserService extends GitblitUserService {
        	for (IWindowsAccount group : identity.getGroups()) {
        		groupNames.add(group.getFqn());
         }
-        
+
         if (groupNames.contains("BUILTIN\\Administrators")) {
         	// local administrator
         	user.canAdmin = true;
         }
-        
+
         // TODO consider mapping Windows groups to teams
 
         // push the changes to the backing user service
@@ -188,7 +188,7 @@ public class WindowsUserService extends GitblitUserService {
 
         // cleanup resources
         identity.dispose();
-        
+
         return user;
     }
 }

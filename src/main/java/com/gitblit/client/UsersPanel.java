@@ -48,9 +48,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * Users panel displays a list of user accounts and allows management of those
  * accounts.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class UsersPanel extends JPanel {
 
@@ -77,6 +77,7 @@ public abstract class UsersPanel extends JPanel {
 	private void initialize() {
 		JButton refreshUsers = new JButton(Translation.get("gb.refresh"));
 		refreshUsers.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshUsers();
 			}
@@ -84,6 +85,7 @@ public abstract class UsersPanel extends JPanel {
 
 		JButton createUser = new JButton(Translation.get("gb.create"));
 		createUser.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				createUser();
 			}
@@ -92,6 +94,7 @@ public abstract class UsersPanel extends JPanel {
 		final JButton editUser = new JButton(Translation.get("gb.edit"));
 		editUser.setEnabled(false);
 		editUser.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				editUser(getSelectedUsers().get(0));
 			}
@@ -100,6 +103,7 @@ public abstract class UsersPanel extends JPanel {
 		final JButton delUser = new JButton(Translation.get("gb.delete"));
 		delUser.setEnabled(false);
 		delUser.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				deleteUsers(getSelectedUsers());
 			}
@@ -111,7 +115,7 @@ public abstract class UsersPanel extends JPanel {
 		table = Utils.newTable(tableModel, Utils.DATE_FORMAT);
 		String name = table.getColumnName(UsersTableModel.Columns.Name.ordinal());
 		table.getColumn(name).setCellRenderer(nameRenderer);
-		
+
 		int w = 130;
 		name = table.getColumnName(UsersTableModel.Columns.Type.ordinal());
 		table.getColumn(name).setMinWidth(w);
@@ -122,7 +126,7 @@ public abstract class UsersPanel extends JPanel {
 		name = table.getColumnName(UsersTableModel.Columns.Repositories.ordinal());
 		table.getColumn(name).setMinWidth(w);
 		table.getColumn(name).setMaxWidth(w);
-		
+
 		table.setRowSorter(defaultSorter);
 		table.getRowSorter().toggleSortOrder(UsersTableModel.Columns.Name.ordinal());
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -140,6 +144,7 @@ public abstract class UsersPanel extends JPanel {
 		});
 
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
 					editUser(getSelectedUsers().get(0));
@@ -149,11 +154,13 @@ public abstract class UsersPanel extends JPanel {
 
 		filterTextfield = new JTextField();
 		filterTextfield.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				filterUsers(filterTextfield.getText());
 			}
 		});
 		filterTextfield.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent e) {
 				filterUsers(filterTextfield.getText());
 			}
@@ -191,7 +198,7 @@ public abstract class UsersPanel extends JPanel {
 	}
 
 	protected abstract void updateTeamsTable();
-	
+
 	protected void updateTable(boolean pack) {
 		tableModel.list.clear();
 		tableModel.list.addAll(gitblit.getUsers());
@@ -208,6 +215,7 @@ public abstract class UsersPanel extends JPanel {
 			return;
 		}
 		RowFilter<UsersTableModel, Object> containsFilter = new RowFilter<UsersTableModel, Object>() {
+			@Override
 			public boolean include(Entry<? extends UsersTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
@@ -251,7 +259,7 @@ public abstract class UsersPanel extends JPanel {
 	/**
 	 * Displays the create user dialog and fires a SwingWorker to update the
 	 * server, if appropriate.
-	 * 
+	 *
 	 */
 	protected void createUser() {
 		EditUserDialog dialog = new EditUserDialog(gitblit.getProtocolVersion(),
@@ -300,7 +308,7 @@ public abstract class UsersPanel extends JPanel {
 	/**
 	 * Displays the edit user dialog and fires a SwingWorker to update the
 	 * server, if appropriate.
-	 * 
+	 *
 	 * @param user
 	 */
 	protected void editUser(final UserModel user) {

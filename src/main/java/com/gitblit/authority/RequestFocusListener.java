@@ -34,7 +34,7 @@ import javax.swing.event.AncestorListener;
  *  allows you to specify a boolean value of false to prevent the
  *  AncestorListener from being removed when the event is generated. This will
  *  allow you to reuse the listener each time the event is generated.
- *  
+ *
  *  @author Rob Camick
  */
 public class RequestFocusListener implements AncestorListener

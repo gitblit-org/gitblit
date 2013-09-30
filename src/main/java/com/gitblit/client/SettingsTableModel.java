@@ -26,9 +26,9 @@ import com.gitblit.models.SettingModel;
 
 /**
  * Table model of Map<String, SettingModel>.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SettingsTableModel extends AbstractTableModel {
 
@@ -89,11 +89,12 @@ public class SettingsTableModel extends AbstractTableModel {
 
 	/**
 	 * Returns <code>Object.class</code> regardless of <code>columnIndex</code>.
-	 * 
+	 *
 	 * @param columnIndex
 	 *            the column being queried
 	 * @return the Object.class
 	 */
+	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		if (Columns.Value.ordinal() == columnIndex) {
 			return SettingModel.class;

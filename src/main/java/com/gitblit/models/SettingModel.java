@@ -26,7 +26,7 @@ import com.gitblit.utils.StringUtils;
 /**
  * SettingModel represents a setting and all its metadata: name, current value,
  * default value, description, and directives.
- * 
+ *
  * @author James Moger
  */
 public class SettingModel implements Serializable {
@@ -55,7 +55,7 @@ public class SettingModel implements Serializable {
 
 	/**
 	 * Returns true if the current value is the default value.
-	 * 
+	 *
 	 * @return true if current value is the default value
 	 */
 	public boolean isDefaultValue() {
@@ -66,7 +66,7 @@ public class SettingModel implements Serializable {
 	/**
 	 * Returns the boolean value for the currentValue. If the currentValue can
 	 * not be interpreted as a boolean, the defaultValue is returned.
-	 * 
+	 *
 	 * @param defaultValue
 	 * @return key value or defaultValue
 	 */
@@ -80,7 +80,7 @@ public class SettingModel implements Serializable {
 	/**
 	 * Returns the integer value for the currentValue. If the currentValue can
 	 * not be interpreted as an integer, the defaultValue is returned.
-	 * 
+	 *
 	 * @param defaultValue
 	 * @return key value or defaultValue
 	 */
@@ -97,7 +97,7 @@ public class SettingModel implements Serializable {
 	/**
 	 * Returns the char value for currentValue. If the currentValue can not be
 	 * interpreted as a char, the defaultValue is returned.
-	 * 
+	 *
 	 * @param defaultValue
 	 * @return key value or defaultValue
 	 */
@@ -111,7 +111,7 @@ public class SettingModel implements Serializable {
 	/**
 	 * Returns the string value for currentValue. If the currentValue is null,
 	 * the defaultValue is returned.
-	 * 
+	 *
 	 * @param defaultValue
 	 * @return key value or defaultValue
 	 */
@@ -124,7 +124,7 @@ public class SettingModel implements Serializable {
 
 	/**
 	 * Returns a list of space-separated strings from the specified key.
-	 * 
+	 *
 	 * @return list of strings
 	 */
 	public List<String> getStrings() {
@@ -134,7 +134,7 @@ public class SettingModel implements Serializable {
 	/**
 	 * Returns a list of strings from the currentValue using the specified
 	 * string separator.
-	 * 
+	 *
 	 * @param separator
 	 * @return list of strings
 	 */
@@ -143,10 +143,10 @@ public class SettingModel implements Serializable {
 		strings = StringUtils.getStringsFromValue(currentValue, separator);
 		return strings;
 	}
-	
+
 	/**
 	 * Returns a map of strings from the current value.
-	 * 
+	 *
 	 * @return map of string, string
 	 */
 	public Map<String, String> getMap() {
@@ -154,7 +154,7 @@ public class SettingModel implements Serializable {
 		for (String string : getStrings()) {
 			String[] kvp = string.split("=", 2);
 			String key = kvp[0];
-			String value = kvp[1];				
+			String value = kvp[1];
 			map.put(key,  value);
 		}
 		return map;

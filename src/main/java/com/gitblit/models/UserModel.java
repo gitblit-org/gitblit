@@ -42,16 +42,16 @@ import com.gitblit.utils.StringUtils;
  * UserModel is a serializable model class that represents a user and the user's
  * restricted repository memberships. Instances of UserModels are also used as
  * servlet user principals.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class UserModel implements Principal, Serializable, Comparable<UserModel> {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final UserModel ANONYMOUS = new UserModel();
-	
+
 	// field names are reflectively mapped in EditUser page
 	public String username;
 	public String password;
@@ -78,7 +78,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public AccountType accountType;
 
 	public UserPreferences userPreferences;
-	
+
 	public UserModel(String username) {
 		this.username = username;
 		this.isAuthenticated = true;
@@ -92,7 +92,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		this.accountType = AccountType.LOCAL;
 		this.userPreferences = new UserPreferences(this.username);
 	}
-	
+
 	public boolean isLocalAccount() {
 		return accountType.isLocal();
 	}
@@ -100,7 +100,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	/**
 	 * This method does not take into consideration Ownership where the
 	 * administrator has not explicitly granted access to the owner.
-	 * 
+	 *
 	 * @param repositoryName
 	 * @return
 	 */
@@ -129,7 +129,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
-	
+
 	@Deprecated
 	@Unused
 	public boolean hasRepository(String name) {
@@ -147,11 +147,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public void removeRepository(String name) {
 		removeRepositoryPermission(name);
 	}
-	
+
 	/**
 	 * Returns a list of repository permissions for this user exclusive of
 	 * permissions inherited from team memberships.
-	 * 
+	 *
 	 * @return the user's list of permissions
 	 */
 	public List<RegistrantAccessPermission> getRepositoryPermissions() {
@@ -178,7 +178,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			list.add(new RegistrantAccessPermission(registrant, ap, pType, RegistrantType.REPOSITORY, source, mutable));
 		}
 		Collections.sort(list);
-		
+
 		// include immutable team permissions, being careful to preserve order
 		Set<RegistrantAccessPermission> set = new LinkedHashSet<RegistrantAccessPermission>(list);
 		for (TeamModel team : teams) {
@@ -193,11 +193,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return new ArrayList<RegistrantAccessPermission>(set);
 	}
-	
+
 	/**
 	 * Returns true if the user has any type of specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return true if user has a specified access permission for the repository
 	 */
@@ -219,11 +219,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the user has an explicitly specified access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return if the user has an explicitly specified access permission
 	 */
@@ -231,11 +231,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		return permissions.containsKey(repository);
 	}
-	
+
 	/**
 	 * Returns true if the user's team memberships specify an access permission for
 	 * this repository.
-	 * 
+	 *
 	 * @param name
 	 * @return if the user's team memberships specifi an access permission
 	 */
@@ -249,7 +249,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Adds a repository permission to the team.
 	 * <p>
@@ -266,13 +266,13 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		repositories.add(repository);
 		permissions.put(repository, permission);
 	}
-	
+
 	public AccessPermission removeRepositoryPermission(String name) {
 		String repository = AccessPermission.repositoryFromRole(name).toLowerCase();
 		repositories.remove(repository);
 		return permissions.remove(repository);
 	}
-		
+
 	public void setRepositoryPermission(String repository, AccessPermission permission) {
 		if (permission == null) {
 			// remove the permission
@@ -289,9 +289,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		ap.registrantType = RegistrantType.USER;
 		ap.permission = AccessPermission.NONE;
 		ap.mutable = false;
-		
+
 		// determine maximum permission for the repository
-		final AccessPermission maxPermission = 
+		final AccessPermission maxPermission =
 				(repository.isFrozen || !repository.isBare) ?
 						AccessPermission.CLONE : AccessPermission.REWIND;
 
@@ -325,7 +325,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 			return ap;
 		}
-		
+
 		// repository owner - either specified owner or personal repository
 		if (repository.isOwner(username) || repository.isUsersPersonalRepository(username)) {
 			ap.permissionType = PermissionType.OWNER;
@@ -336,7 +336,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 			return ap;
 		}
-		
+
 		if (AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl) && isAuthenticated) {
 			// AUTHENTICATED is a shortcut for authorizing all logged-in users RW+ access
 			if (AccessPermission.REWIND.atMost(maxPermission)) {
@@ -346,7 +346,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			}
 			return ap;
 		}
-		
+
 		// explicit user permission OR user regex match is used
 		// if that fails, then the best team permission is used
 		if (permissions.containsKey(repository.name.toLowerCase())) {
@@ -381,7 +381,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				}
 			}
 		}
-		
+
 		// try to find a team match
 		for (TeamModel team : teams) {
 			RegistrantAccessPermission p = team.getRepositoryPermission(repository);
@@ -392,7 +392,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				ap.permissionType = PermissionType.TEAM;
 			}
 		}
-		
+
 		// still no explicit, regex, or team match, check for implicit permissions
 		if (AccessPermission.NONE == ap.permission) {
 			switch (repository.accessRestriction) {
@@ -416,10 +416,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 				break;
 			}
 		}
-		
+
 		return ap;
 	}
-	
+
 	protected boolean canAccess(RepositoryModel repository, AccessRestrictionType ifRestriction, AccessPermission requirePermission) {
 		if (repository.accessRestriction.atLeast(ifRestriction)) {
 			RegistrantAccessPermission ap = getRepositoryPermission(repository);
@@ -427,11 +427,11 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return true;
 	}
-	
+
 	public boolean canView(RepositoryModel repository) {
 		return canAccess(repository, AccessRestrictionType.VIEW, AccessPermission.VIEW);
 	}
-	
+
 	public boolean canView(RepositoryModel repository, String ref) {
 		// Default UserModel doesn't implement ref-level security.
 		// Other Realms (i.e. Gerrit) may override this method.
@@ -486,19 +486,19 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return canClone(repository);
 	}
-	
+
 	public boolean canDelete(RepositoryModel model) {
 		return canAdmin() || model.isUsersPersonalRepository(username);
 	}
-	
+
 	public boolean canEdit(RepositoryModel model) {
 		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
 	}
-	
+
 	/**
 	 * This returns true if the user has fork privileges or the user has fork
 	 * privileges because of a team membership.
-	 * 
+	 *
 	 * @return true if the user can fork
 	 */
 	public boolean canFork() {
@@ -518,7 +518,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	/**
 	 * This returns true if the user has admin privileges or the user has admin
 	 * privileges because of a team membership.
-	 * 
+	 *
 	 * @return true if the user can admin
 	 */
 	public boolean canAdmin() {
@@ -538,7 +538,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	/**
 	 * This returns true if the user has create privileges or the user has create
 	 * privileges because of a team membership.
-	 * 
+	 *
 	 * @return true if the user can admin
 	 */
 	public boolean canCreate() {
@@ -554,10 +554,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the user is allowed to create the specified repository.
-	 * 
+	 *
 	 * @param repository
 	 * @return true if the user can create the repository
 	 */
@@ -601,27 +601,27 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public String getName() {
 		return username;
 	}
-	
+
 	public String getDisplayName() {
 		if (StringUtils.isEmpty(displayName)) {
 			return username;
 		}
 		return displayName;
 	}
-	
+
 	public String getPersonalPath() {
 		return ModelUtils.getPersonalPath(username);
 	}
-	
+
 	public UserPreferences getPreferences() {
 		return userPreferences;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return username.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof UserModel) {
@@ -639,10 +639,10 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	public int compareTo(UserModel o) {
 		return username.compareTo(o.username);
 	}
-	
+
 	/**
 	 * Returns true if the name/email pair match this user account.
-	 * 
+	 *
 	 * @param name
 	 * @param email
 	 * @return true, if the name and email address match this account
@@ -667,13 +667,13 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		}
 		return nameVerified && emailVerified;
 	}
-	
+
 	@Deprecated
 	public boolean hasBranchPermission(String repositoryName, String branch) {
 		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
 		return hasRepositoryPermission(repositoryName) || hasTeamRepositoryPermission(repositoryName);
 	}
-	
+
 	public boolean isMyPersonalRepository(String repository) {
 		String projectPath = StringUtils.getFirstPathElement(repository);
 		return !StringUtils.isEmpty(projectPath) && projectPath.equalsIgnoreCase(getPersonalPath());

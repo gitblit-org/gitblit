@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * milliseconds and in fast, concurrent systems this cache is too simplistic.
  * However, for the cases where its being used in Gitblit this cache technique
  * is just fine.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ObjectCache<X> implements Serializable {
 
@@ -91,7 +91,7 @@ public class ObjectCache<X> implements Serializable {
 		}
 		return null;
 	}
-	
+
 	public int size() {
 		return cache.size();
 	}

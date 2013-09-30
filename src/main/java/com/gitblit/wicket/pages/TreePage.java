@@ -86,6 +86,7 @@ public class TreePage extends RepositoryPage {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<PathModel> item) {
 				PathModel entry = item.getModelObject();
 				item.add(new Label("pathPermissions", JGitUtils.getPermissionsFromMode(entry.mode)));
@@ -113,26 +114,26 @@ public class TreePage extends RepositoryPage {
 										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
 								WicketUtils.newPathParameter(repositoryName, entry.commitId,
-										entry.path)));						
+										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								repositoryName, objectId, entry.path));
 
 						item.add(links);
 					} else if (entry.isSubmodule()) {
 						// submodule
-						String submoduleId = entry.objectId;						
+						String submoduleId = entry.objectId;
 						String submodulePath;
 						boolean hasSubmodule = false;
 						SubmoduleModel submodule = getSubmodule(entry.path);
 						submodulePath = submodule.gitblitPath;
 						hasSubmodule = submodule.hasSubmodule;
-						
+
 						item.add(WicketUtils.newImage("pathIcon", "git-orange-16x16.png"));
 						item.add(new Label("pathSize", ""));
-						item.add(new LinkPanel("pathName", "list", entry.name + " @ " + 
+						item.add(new LinkPanel("pathName", "list", entry.name + " @ " +
 								getShortObjectId(submoduleId), TreePage.class,
 								WicketUtils.newPathParameter(submodulePath, submoduleId, "")).setEnabled(hasSubmodule));
-						
+
 						Fragment links = new Fragment("pathLinks", "submoduleLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", SummaryPage.class,
 								WicketUtils.newRepositoryParameter(submodulePath)).setEnabled(hasSubmodule));
@@ -144,7 +145,7 @@ public class TreePage extends RepositoryPage {
 										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								submodulePath, submoduleId, "").setEnabled(hasSubmodule));
-						item.add(links);						
+						item.add(links);
 					} else {
 						// blob link
 						String displayPath = entry.name;

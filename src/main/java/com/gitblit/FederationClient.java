@@ -29,9 +29,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Command-line client to pull federated Gitblit repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FederationClient {
 
@@ -75,7 +75,7 @@ public class FederationClient {
 			System.out.println("No Federation Registrations!  Nothing to do.");
 			System.exit(0);
 		}
-		
+
 		// command-line specified repositories folder
 		if (!StringUtils.isEmpty(params.repositoriesFolder)) {
 			settings.overrideSetting(Keys.git.repositoriesFolder, new File(

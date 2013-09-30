@@ -38,7 +38,7 @@ import com.gitblit.utils.ByteFormat;
 
 /**
  * This panel displays the server status.
- * 
+ *
  * @author James Moger
  */
 public class StatusPanel extends JPanel {
@@ -65,6 +65,7 @@ public class StatusPanel extends JPanel {
 	private void initialize() {
 		JButton refreshStatus = new JButton(Translation.get("gb.refresh"));
 		refreshStatus.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshStatus();
 			}
@@ -153,7 +154,7 @@ public class StatusPanel extends JPanel {
 		ServerStatus status = gitblit.getStatus();
 		header.setText(Translation.get("gb.status"));
 		version.setText(Constants.NAME + (status.isGO ? " GO v" : " WAR v") + status.version);
-		releaseDate.setText(status.releaseDate);		
+		releaseDate.setText(status.releaseDate);
 		bootDate.setText(status.bootDate.toString() + " (" + Translation.getTimeUtils().timeAgo(status.bootDate)
 				+ ")");
 		url.setText(gitblit.url);

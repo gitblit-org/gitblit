@@ -34,15 +34,15 @@ import com.gitblit.models.UserModel;
  * The SyndicationFilter is an AuthenticationFilter which ensures that feed
  * requests for projects or view-restricted repositories have proper authentication
  * credentials and are authorized for the requested feed.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class SyndicationFilter extends AuthenticationFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param url
 	 * @return repository name
 	 */
@@ -56,7 +56,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
-	 * 
+	 *
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
 	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
@@ -72,7 +72,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 
 		ProjectModel project = GitBlit.self().getProjectModel(name);
 		RepositoryModel model = null;
-		
+
 		if (project == null) {
 			// try loading a repository model
 			model = GitBlit.self().getRepositoryModel(name);
@@ -84,7 +84,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 				return;
 			}
 		}
-		
+
 		// Wrap the HttpServletRequest with the AccessRestrictionRequest which
 		// overrides the servlet container user principal methods.
 		// JGit requires either:

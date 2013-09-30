@@ -37,9 +37,9 @@ import com.gitblit.client.Translation;
 
 /**
  * Downloads dependencies and launches Gitblit Authority.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class Launcher {
 
@@ -53,10 +53,10 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		final SplashScreen splash = SplashScreen.getSplashScreen();
-		
+
 		File libFolder = new File("ext");
 		List<File> jars = findJars(libFolder.getAbsoluteFile());
-		
+
 		// sort the jars by name and then reverse the order so the newer version
 		// of the library gets loaded in the event that this is an upgrade
 		Collections.sort(jars);
@@ -69,7 +69,7 @@ public class Launcher {
 
 			}
 		}
-		
+
 		updateSplash(splash, Translation.get("gb.starting") + " Gitblit Authority...");
 		GitblitAuthority.main(args);
 	}
@@ -80,12 +80,13 @@ public class Launcher {
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
+				@Override
 				public void run() {
 					Graphics2D g = splash.createGraphics();
 					if (g != null) {
 						// Splash is 320x120
 						FontMetrics fm = g.getFontMetrics();
-						
+
 						// paint startup status
 						g.setColor(Color.darkGray);
 						int h = fm.getHeight() + fm.getMaxDescent();
@@ -98,7 +99,7 @@ public class Launcher {
 						g.setColor(Color.WHITE);
 						int xw = fm.stringWidth(string);
 						g.drawString(string, x + ((w - xw) / 2), y - 5);
-						
+
 						// paint version
 						String ver = "v" + Constants.getVersion();
 						int vw = g.getFontMetrics().stringWidth(ver);
@@ -112,7 +113,7 @@ public class Launcher {
 			t.printStackTrace();
 		}
 	}
-	
+
 	public static List<File> findJars(File folder) {
 		List<File> jars = new ArrayList<File>();
 		if (folder.exists()) {
@@ -137,7 +138,7 @@ public class Launcher {
 
 	/**
 	 * Adds a file to the classpath
-	 * 
+	 *
 	 * @param f
 	 *            the file to be added
 	 * @throws IOException

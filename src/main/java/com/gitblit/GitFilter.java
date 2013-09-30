@@ -27,9 +27,9 @@ import com.gitblit.utils.StringUtils;
  * The GitFilter is an AccessRestrictionFilter which ensures that Git client
  * requests for push, clone, or view restricted repositories are authenticated
  * and authorized.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GitFilter extends AccessRestrictionFilter {
 
@@ -42,7 +42,7 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param cloneUrl
 	 * @return repository name
 	 */
@@ -59,7 +59,7 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Extract the repository name from the url.
-	 * 
+	 *
 	 * @param url
 	 * @return repository name
 	 */
@@ -71,7 +71,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	/**
 	 * Analyze the url and returns the action of the request. Return values are
 	 * either "/git-receive-pack" or "/git-upload-pack".
-	 * 
+	 *
 	 * @param serverUrl
 	 * @return action of the request
 	 */
@@ -92,20 +92,20 @@ public class GitFilter extends AccessRestrictionFilter {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Determine if a non-existing repository can be created using this filter.
-	 *  
+	 *
 	 * @return true if the server allows repository creation on-push
 	 */
 	@Override
 	protected boolean isCreationAllowed() {
 		return GitBlit.getBoolean(Keys.git.allowCreateOnPush, true);
 	}
-	
+
 	/**
 	 * Determine if the repository can receive pushes.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if the action may be performed
@@ -124,7 +124,7 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	/**
 	 * Determine if the repository requires authentication.
-	 * 
+	 *
 	 * @param repository
 	 * @param action
 	 * @return true if authentication required
@@ -133,7 +133,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected boolean requiresAuthentication(RepositoryModel repository, String action) {
 		if (gitUploadPack.equals(action)) {
 			// send to client
-			return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);	
+			return repository.accessRestriction.atLeast(AccessRestrictionType.CLONE);
 		} else if (gitReceivePack.equals(action)) {
 			// receive from client
 			return repository.accessRestriction.atLeast(AccessRestrictionType.PUSH);
@@ -144,7 +144,7 @@ public class GitFilter extends AccessRestrictionFilter {
 	/**
 	 * Determine if the user can access the repository and perform the specified
 	 * action.
-	 * 
+	 *
 	 * @param repository
 	 * @param user
 	 * @param action
@@ -155,7 +155,7 @@ public class GitFilter extends AccessRestrictionFilter {
 		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
 			// Git Servlet disabled
 			return false;
-		}		
+		}
 		if (action.equals(gitReceivePack)) {
 			// Push request
 			if (user.canPush(repository)) {
@@ -179,11 +179,11 @@ public class GitFilter extends AccessRestrictionFilter {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * An authenticated user with the CREATE role can create a repository on
 	 * push.
-	 * 
+	 *
 	 * @param user
 	 * @param repository
 	 * @param action
@@ -203,7 +203,7 @@ public class GitFilter extends AccessRestrictionFilter {
 				if (repository.contains("/../")) {
 					logger.error(MessageFormat.format("Illegal relative path in repository name! {0}", repository));
 					return null;
-				}					
+				}
 
 				// confirm valid characters in repository name
 				Character c = StringUtils.findInvalidCharacter(repository);
@@ -239,7 +239,7 @@ public class GitFilter extends AccessRestrictionFilter {
 				logger.warn(MessageFormat.format("{0} is not permitted to create repository {1} ON-PUSH!", user.username, repository));
 			}
 		}
-		
+
 		// repository could not be created or action was not a push
 		return null;
 	}

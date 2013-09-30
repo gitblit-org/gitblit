@@ -35,35 +35,35 @@ import com.gitblit.wicket.pages.BasePage;
  * This class is used to create a stateless form that can POST or GET to a
  * bookmarkable page regardless of the pagemap and even after session expiration
  * or a server restart.
- * 
+ *
  * The trick is to embed "wicket:bookmarkablePage" as a hidden field of the form.
  * Wicket already has logic to extract this parameter when it is trying
  * to determine which page should receive the request.
- * 
+ *
  * The parameters of the containing page can optionally be included as hidden
- * fields in this form.  Note that if a page parameter's name collides with any 
+ * fields in this form.  Note that if a page parameter's name collides with any
  * child's wicket:id in this form then the page parameter is excluded.
- * 
+ *
  * @author James Moger
  *
  */
 public class SessionlessForm<T> extends StatelessForm<T> {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private static final String HIDDEN_DIV_START = "<div style=\"width:0px;height:0px;position:absolute;left:-100px;top:-100px;overflow:hidden\">";
-	
+
 	private final Class<? extends BasePage> pageClass;
-	
+
 	private final PageParameters pageParameters;
-	
+
 	private final Logger log = LoggerFactory.getLogger(SessionlessForm.class);
 
 	/**
 	 * Sessionless forms must have a bookmarkable page class.  A bookmarkable
 	 * page is defined as a page that has only a default and/or a PageParameter
 	 * constructor.
-	 * 
+	 *
 	 * @param id
 	 * @param bookmarkablePageClass
 	 */
@@ -75,7 +75,7 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 	 * Sessionless forms must have a bookmarkable page class.  A bookmarkable
 	 * page is defined as a page that has only a default and/or a PageParameter
 	 * constructor.
-	 * 
+	 *
 	 * @param id
 	 * @param bookmarkablePageClass
 	 * @param pageParameters
@@ -87,12 +87,12 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 		this.pageParameters = pageParameters;
 	}
 
-	
+
 	/**
 	 * Append an additional hidden input tag that forces Wicket to correctly
 	 * determine the destination page class even after a session expiration or
 	 * a server restart.
-	 * 
+	 *
 	 * @param markupStream
 	 *            The markup stream
 	 * @param openTag
@@ -133,10 +133,10 @@ public class SessionlessForm<T> extends StatelessForm<T> {
 		getResponse().write(buffer);
 		super.onComponentTagBody(markupStream, openTag);
 	}
-	
+
 	/**
 	 * Take URL-encoded query string value, unencode it and return HTML-escaped version
-	 * 
+	 *
 	 * @param s
 	 *            value to reencode
 	 * @return reencoded value

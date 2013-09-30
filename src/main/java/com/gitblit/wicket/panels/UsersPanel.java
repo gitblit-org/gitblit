@@ -56,13 +56,14 @@ public class UsersPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<UserModel> item) {
 				final UserModel entry = item.getModelObject();
 				LinkPanel editLink = new LinkPanel("username", "list", entry.username,
 						EditUserPage.class, WicketUtils.newUsernameParameter(entry.username));
 				WicketUtils.setHtmlTooltip(editLink, getString("gb.edit") + " " + entry.getDisplayName());
 				item.add(editLink);
-				
+
 				if (StringUtils.isEmpty(entry.displayName)) {
 					item.add(new Label("displayName").setVisible(false));
 				} else {

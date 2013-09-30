@@ -92,9 +92,9 @@ import com.gitblit.models.SubmoduleModel;
 
 /**
  * Collection of static methods for retrieving information from a repository.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class JGitUtils {
 
@@ -102,7 +102,7 @@ public class JGitUtils {
 
 	/**
 	 * Log an error message and exception.
-	 * 
+	 *
 	 * @param t
 	 * @param repository
 	 *            if repository is not null it MUST be the {0} parameter in the
@@ -126,7 +126,7 @@ public class JGitUtils {
 	/**
 	 * Returns the displayable name of the person in the form "Real Name <email
 	 * address>".  If the email address is empty, just "Real Name" is returned.
-	 * 
+	 *
 	 * @param person
 	 * @return "Real Name <email address>" or "Real Name"
 	 */
@@ -155,7 +155,7 @@ public class JGitUtils {
 	 * Clone or Fetch a repository. If the local repository does not exist,
 	 * clone is called. If the repository does exist, fetch is called. By
 	 * default the clone/fetch retrieves the remote heads, tags, and notes.
-	 * 
+	 *
 	 * @param repositoriesFolder
 	 * @param name
 	 * @param fromUrl
@@ -171,7 +171,7 @@ public class JGitUtils {
 	 * Clone or Fetch a repository. If the local repository does not exist,
 	 * clone is called. If the repository does exist, fetch is called. By
 	 * default the clone/fetch retrieves the remote heads, tags, and notes.
-	 * 
+	 *
 	 * @param repositoriesFolder
 	 * @param name
 	 * @param fromUrl
@@ -212,7 +212,7 @@ public class JGitUtils {
 				clone.setCredentialsProvider(credentialsProvider);
 			}
 			Repository repository = clone.call().getRepository();
-			
+
 			// Now we have to fetch because CloneCommand doesn't fetch
 			// refs/notes nor does it allow manual RefSpec.
 			result.createdRepository = true;
@@ -225,7 +225,7 @@ public class JGitUtils {
 	/**
 	 * Fetch updates from the remote repository. If refSpecs is unspecifed,
 	 * remote heads, tags, and notes are retrieved.
-	 * 
+	 *
 	 * @param credentialsProvider
 	 * @param repository
 	 * @param refSpecs
@@ -254,7 +254,7 @@ public class JGitUtils {
 
 	/**
 	 * Creates a bare repository.
-	 * 
+	 *
 	 * @param repositoriesFolder
 	 * @param name
 	 * @return Repository
@@ -444,7 +444,7 @@ public class JGitUtils {
 
 	/**
 	 * Returns a list of repository names in the specified folder.
-	 * 
+	 *
 	 * @param repositoriesFolder
 	 * @param onlyBare
 	 *            if true, only bare repositories repositories are listed. If
@@ -478,7 +478,7 @@ public class JGitUtils {
 
 	/**
 	 * Recursive function to find git repositories.
-	 * 
+	 *
 	 * @param basePath
 	 *            basePath is stripped from the repository name as repositories
 	 *            are relative to this path
@@ -501,7 +501,7 @@ public class JGitUtils {
 		if (depth == 0) {
 			return list;
 		}
-		
+
 		int nextDepth = (depth == -1) ? -1 : depth - 1;
 		for (File file : searchFolder.listFiles()) {
 			if (file.isDirectory()) {
@@ -546,7 +546,7 @@ public class JGitUtils {
 	/**
 	 * Returns the first commit on a branch. If the repository does not exist or
 	 * is empty, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param branch
 	 *            if unspecified, HEAD is assumed.
@@ -582,7 +582,7 @@ public class JGitUtils {
 	 * Returns the date of the first commit on a branch. If the repository does
 	 * not exist, Date(0) is returned. If the repository does exist bit is
 	 * empty, the last modified date of the repository folder is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param branch
 	 *            if unspecified, HEAD is assumed.
@@ -603,7 +603,7 @@ public class JGitUtils {
 	/**
 	 * Determine if a repository has any commits. This is determined by checking
 	 * the for loose and packed objects.
-	 * 
+	 *
 	 * @param repository
 	 * @return true if the repository has commits
 	 */
@@ -614,18 +614,18 @@ public class JGitUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Encapsulates the result of cloning or pulling from a repository.
 	 */
 	public static class LastChange {
 		public Date when;
 		public String who;
-		
+
 		LastChange() {
-			when = new Date(0);			
+			when = new Date(0);
 		}
-		
+
 		LastChange(long lastModified) {
 			this.when = new Date(lastModified);
 		}
@@ -635,7 +635,7 @@ public class JGitUtils {
 	 * Returns the date and author of the most recent commit on a branch. If the
 	 * repository does not exist Date(0) is returned. If it does exist but is
 	 * empty, the last modified date of the repository folder is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @return a LastChange object
 	 */
@@ -652,7 +652,7 @@ public class JGitUtils {
 		List<RefModel> branchModels = getLocalBranches(repository, true, -1);
 		if (branchModels.size() > 0) {
 			// find most recent branch update
-			LastChange lastChange = new LastChange();			
+			LastChange lastChange = new LastChange();
 			for (RefModel branchModel : branchModels) {
 				if (branchModel.getDate().after(lastChange.when)) {
 					lastChange.when = branchModel.getDate();
@@ -661,14 +661,14 @@ public class JGitUtils {
 			}
 			return lastChange;
 		}
-		
+
 		// default to the repository folder modification date
 		return new LastChange(repository.getDirectory().lastModified());
 	}
 
 	/**
 	 * Retrieves a Java Date from a Git commit.
-	 * 
+	 *
 	 * @param commit
 	 * @return date of the commit or Date(0) if the commit is null
 	 */
@@ -681,7 +681,7 @@ public class JGitUtils {
 
 	/**
 	 * Retrieves a Java Date from a Git commit.
-	 * 
+	 *
 	 * @param commit
 	 * @return date of the commit or Date(0) if the commit is null
 	 */
@@ -695,7 +695,7 @@ public class JGitUtils {
 	/**
 	 * Returns the specified commit from the repository. If the repository does
 	 * not exist or is empty, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if unspecified, HEAD is assumed.
@@ -726,7 +726,7 @@ public class JGitUtils {
 
 	/**
 	 * Retrieves the raw byte content of a file in the specified tree.
-	 * 
+	 *
 	 * @param repository
 	 * @param tree
 	 *            if null, the RevTree from HEAD is assumed.
@@ -782,7 +782,7 @@ public class JGitUtils {
 
 	/**
 	 * Returns the UTF-8 string content of a file in the specified tree.
-	 * 
+	 *
 	 * @param repository
 	 * @param tree
 	 *            if null, the RevTree from HEAD is assumed.
@@ -800,7 +800,7 @@ public class JGitUtils {
 
 	/**
 	 * Gets the raw byte content of the specified blob object.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 * @return byte [] blob content
@@ -831,7 +831,7 @@ public class JGitUtils {
 
 	/**
 	 * Gets the UTF-8 string content of the blob specified by objectId.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 * @param charsets optional
@@ -849,7 +849,7 @@ public class JGitUtils {
 	 * Returns the list of files in the specified folder at the specified
 	 * commit. If the repository does not exist or is empty, an empty list is
 	 * returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param path
 	 *            if unspecified, root folder is assumed.
@@ -900,11 +900,11 @@ public class JGitUtils {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Returns the list of files changed in a specified commit. If the
 	 * repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 *            if null, HEAD is assumed.
@@ -917,7 +917,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of files changed in a specified commit. If the
 	 * repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 *            if null, HEAD is assumed.
@@ -958,7 +958,7 @@ public class JGitUtils {
 				for (DiffEntry diff : diffs) {
 					// create the path change model
 					PathChangeModel pcm = PathChangeModel.from(diff, commit.getName());
-					
+
 					if (calculateDiffStat) {
 						// update file diffstats
 						df.format(diff);
@@ -982,7 +982,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of files changed in a specified commit. If the
 	 * repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param startCommit
 	 *            earliest commit
@@ -1005,7 +1005,7 @@ public class JGitUtils {
 			for (DiffEntry diff : diffEntries) {
 				PathChangeModel pcm = PathChangeModel.from(diff,  null);
 				list.add(pcm);
-			}			
+			}
 			Collections.sort(list);
 		} catch (Throwable t) {
 			error(t, repository, "{0} failed to determine files in range {1}..{2}!", startCommit, endCommit);
@@ -1016,7 +1016,7 @@ public class JGitUtils {
 	 * Returns the list of files in the repository on the default branch that
 	 * match one of the specified extensions. This is a CASE-SENSITIVE search.
 	 * If the repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param extensions
 	 * @return list of files in repository with a matching extension
@@ -1029,7 +1029,7 @@ public class JGitUtils {
 	 * Returns the list of files in the repository in the specified commit that
 	 * match one of the specified extensions. This is a CASE-SENSITIVE search.
 	 * If the repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param extensions
 	 * @param objectId
@@ -1078,7 +1078,7 @@ public class JGitUtils {
 
 	/**
 	 * Returns a path model of the current file in the treewalk.
-	 * 
+	 *
 	 * @param tw
 	 * @param basePath
 	 * @param commit
@@ -1106,7 +1106,7 @@ public class JGitUtils {
 
 	/**
 	 * Returns a permissions representation of the mode bits.
-	 * 
+	 *
 	 * @param mode
 	 * @return string representation of the mode bits
 	 */
@@ -1128,7 +1128,7 @@ public class JGitUtils {
 	/**
 	 * Returns a list of commits since the minimum date starting from the
 	 * specified object id.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if unspecified, HEAD is assumed.
@@ -1166,7 +1166,7 @@ public class JGitUtils {
 
 	/**
 	 * Returns a list of commits starting from HEAD and working backwards.
-	 * 
+	 *
 	 * @param repository
 	 * @param maxCount
 	 *            if < 0, all commits for the repository are returned.
@@ -1181,7 +1181,7 @@ public class JGitUtils {
 	 * offset and maxCount for paging. This is similar to LIMIT n OFFSET p in
 	 * SQL. If the repository does not exist or is empty, an empty list is
 	 * returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if unspecified, HEAD is assumed.
@@ -1200,7 +1200,7 @@ public class JGitUtils {
 	 * repository. Caller may specify ending revision with objectId. Caller may
 	 * specify offset and maxCount to achieve pagination of results. If the
 	 * repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if unspecified, HEAD is assumed.
@@ -1245,7 +1245,7 @@ public class JGitUtils {
 			RevWalk rw = new RevWalk(repository);
 			rw.markStart(rw.parseCommit(endRange));
 			if (startRange != null) {
-				rw.markUninteresting(rw.parseCommit(startRange));	
+				rw.markUninteresting(rw.parseCommit(startRange));
 			}
 			if (!StringUtils.isEmpty(path)) {
 				TreeFilter filter = AndTreeFilter.create(
@@ -1284,7 +1284,7 @@ public class JGitUtils {
 	 * Returns a list of commits for the repository within the range specified
 	 * by startRangeId and endRangeId. If the repository does not exist or is
 	 * empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param startRangeId
 	 *            the first commit (not included in results)
@@ -1329,7 +1329,7 @@ public class JGitUtils {
 	 * Search results require a specified SearchType of AUTHOR, COMMITTER, or
 	 * COMMIT. Results may be paginated using offset and maxCount. If the
 	 * repository does not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 *            if unspecified, HEAD is assumed.
@@ -1429,7 +1429,7 @@ public class JGitUtils {
 	 * Returns the default branch to use for a repository. Normally returns
 	 * whatever branch HEAD points to, but if HEAD points to nothing it returns
 	 * the most recently updated branch.
-	 * 
+	 *
 	 * @param repository
 	 * @return the objectid of a branch
 	 * @throws Exception
@@ -1492,7 +1492,7 @@ public class JGitUtils {
 		}
 		return target;
 	}
-	
+
 	/**
 	 * Sets the symbolic ref HEAD to the specified target ref. The
 	 * HEAD will be detached if the target ref is not a branch.
@@ -1519,7 +1519,7 @@ public class JGitUtils {
 			case FORCED:
 			case NO_CHANGE:
 			case FAST_FORWARD:
-				return true;				
+				return true;
 			default:
 				LOGGER.error(MessageFormat.format("{0} HEAD update to {1} returned result {2}",
 						repository.getDirectory().getAbsolutePath(), targetRef, result));
@@ -1529,7 +1529,7 @@ public class JGitUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Sets the local branch ref to point to the specified commit id.
 	 *
@@ -1554,7 +1554,7 @@ public class JGitUtils {
 			case FORCED:
 			case NO_CHANGE:
 			case FAST_FORWARD:
-				return true;				
+				return true;
 			default:
 				LOGGER.error(MessageFormat.format("{0} {1} update to {2} returned result {3}",
 						repository.getDirectory().getAbsolutePath(), branchName, commitId, result));
@@ -1564,10 +1564,10 @@ public class JGitUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Deletes the specified branch ref.
-	 *  
+	 *
 	 * @param repository
 	 * @param branch
 	 * @return true if successful
@@ -1587,7 +1587,7 @@ public class JGitUtils {
 			case FORCED:
 			case NO_CHANGE:
 			case FAST_FORWARD:
-				return true;				
+				return true;
 			default:
 				LOGGER.error(MessageFormat.format("{0} failed to delete to {1} returned result {2}",
 						repository.getDirectory().getAbsolutePath(), branchName, result));
@@ -1597,7 +1597,7 @@ public class JGitUtils {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Get the full branch and tag ref names for any potential HEAD targets.
 	 *
@@ -1618,17 +1618,17 @@ public class JGitUtils {
 
 	/**
 	 * Returns all refs grouped by their associated object id.
-	 * 
+	 *
 	 * @param repository
 	 * @return all refs grouped by their referenced object id
 	 */
 	public static Map<ObjectId, List<RefModel>> getAllRefs(Repository repository) {
 		return getAllRefs(repository, true);
 	}
-	
+
 	/**
 	 * Returns all refs grouped by their associated object id.
-	 * 
+	 *
 	 * @param repository
 	 * @param includeRemoteRefs
 	 * @return all refs grouped by their referenced object id
@@ -1652,7 +1652,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of tags in the repository. If repository does not exist
 	 * or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param fullName
 	 *            if true, /refs/tags/yadayadayada is returned. If false,
@@ -1668,7 +1668,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of local branches in the repository. If repository does
 	 * not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param fullName
 	 *            if true, /refs/heads/yadayadayada is returned. If false,
@@ -1685,7 +1685,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of remote branches in the repository. If repository does
 	 * not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param fullName
 	 *            if true, /refs/remotes/yadayadayada is returned. If false,
@@ -1702,7 +1702,7 @@ public class JGitUtils {
 	/**
 	 * Returns the list of note branches. If repository does not exist or is
 	 * empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param fullName
 	 *            if true, /refs/notes/yadayadayada is returned. If false,
@@ -1715,11 +1715,11 @@ public class JGitUtils {
 			int maxCount) {
 		return getRefs(repository, Constants.R_NOTES, fullName, maxCount);
 	}
-	
+
 	/**
-	 * Returns the list of refs in the specified base ref. If repository does 
+	 * Returns the list of refs in the specified base ref. If repository does
 	 * not exist or is empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param fullName
 	 *            if true, /refs/yadayadayada is returned. If false,
@@ -1733,7 +1733,7 @@ public class JGitUtils {
 	/**
 	 * Returns a list of references in the repository matching "refs". If the
 	 * repository is null or empty, an empty list is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param refs
 	 *            if unspecified, all refs are returned
@@ -1780,7 +1780,7 @@ public class JGitUtils {
 	/**
 	 * Returns a RefModel for the gh-pages branch in the repository. If the
 	 * branch can not be found, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @return a refmodel for the gh-pages branch or null
 	 */
@@ -1791,7 +1791,7 @@ public class JGitUtils {
 	/**
 	 * Returns a RefModel for a specific branch name in the repository. If the
 	 * branch can not be found, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @return a refmodel for the branch or null
 	 */
@@ -1820,10 +1820,10 @@ public class JGitUtils {
 		}
 		return branch;
 	}
-		
+
 	/**
 	 * Returns the list of submodules for this repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 * @return list of submodules
@@ -1832,10 +1832,10 @@ public class JGitUtils {
 		RevCommit commit = getCommit(repository, commitId);
 		return getSubmodules(repository, commit.getTree());
 	}
-	
+
 	/**
 	 * Returns the list of submodules for this repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 * @return list of submodules
@@ -1858,11 +1858,11 @@ public class JGitUtils {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * Returns the submodule definition for the specified path at the specified
 	 * commit.  If no module is defined for the path, null is returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 * @param path
@@ -1876,7 +1876,7 @@ public class JGitUtils {
 		}
 		return null;
 	}
-	
+
 	public static String getSubmoduleCommitId(Repository repository, String path, RevCommit commit) {
 		String commitId = null;
 		RevWalk rw = new RevWalk(repository);
@@ -1907,7 +1907,7 @@ public class JGitUtils {
 	 * Returns the list of notes entered about the commit from the refs/notes
 	 * namespace. If the repository does not exist or is empty, an empty list is
 	 * returned.
-	 * 
+	 *
 	 * @param repository
 	 * @param commit
 	 * @return list of notes
@@ -1931,7 +1931,7 @@ public class JGitUtils {
 				list.add(gitNote);
 				continue;
 			}
-			
+
 			// folder structure
 			StringBuilder sb = new StringBuilder(commit.getName());
 			sb.insert(2, '/');
@@ -1951,7 +1951,7 @@ public class JGitUtils {
 	/**
 	 * this method creates an incremental revision number as a tag according to
 	 * the amount of already existing tags, which start with a defined prefix.
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId
 	 * @param tagger
@@ -1985,7 +1985,7 @@ public class JGitUtils {
 
 	/**
 	 * creates a tag in a repository
-	 * 
+	 *
 	 * @param repository
 	 * @param objectId, the ref the tag points towards
 	 * @param tagger, the person tagging the object
@@ -1994,7 +1994,7 @@ public class JGitUtils {
 	 * @return boolean, true if operation was successful, otherwise false
 	 */
 	public static boolean createTag(Repository repository, String objectId, PersonIdent tagger, String tag, String message) {
-		try {			
+		try {
 			Git gitClient = Git.open(repository.getDirectory());
 			TagCommand tagCommand = gitClient.tag();
 			tagCommand.setTagger(tagger);
@@ -2004,17 +2004,17 @@ public class JGitUtils {
 				tagCommand.setObjectId(revObj);
 			}
 			tagCommand.setName(tag);
-			Ref call = tagCommand.call();			
+			Ref call = tagCommand.call();
 			return call != null ? true : false;
 		} catch (Exception e) {
 			error(e, repository, "Failed to create tag {1} in repository {0}", objectId, tag);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Create an orphaned branch in a repository.
-	 * 
+	 *
 	 * @param repository
 	 * @param branchName
 	 * @param author
@@ -2082,10 +2082,10 @@ public class JGitUtils {
 		}
 		return success;
 	}
-	
+
 	/**
 	 * Reads the sparkleshare id, if present, from the repository.
-	 * 
+	 *
 	 * @param repository
 	 * @return an id or null
 	 */

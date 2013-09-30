@@ -36,7 +36,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Model class to represent a push into a repository.
- * 
+ *
  * @author James Moger
  */
 public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
@@ -44,22 +44,22 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	private static final long serialVersionUID = 1L;
 
 	public final String repository;
-	
+
 	public final Date date;
-	
+
 	public final UserModel user;
 
 	private final Set<RepositoryCommit> commits;
-	
+
 	protected final Map<String, ReceiveCommand.Type> refUpdates;
-	
+
 	protected final Map<String, String> refIdChanges;
-	
+
 	private int authorCount;
 
 	/**
 	 * Constructor for specified duration of push from start date.
-	 * 
+	 *
 	 * @param repository
 	 *            the repository that received the push
 	 * @param date
@@ -76,10 +76,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		this.refIdChanges = new HashMap<String, String>();
 		this.authorCount = -1;
 	}
-	
+
 	/**
 	 * Tracks the change type for the specified ref.
-	 * 
+	 *
 	 * @param ref
 	 * @param type
 	 */
@@ -88,10 +88,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 			refUpdates.put(ref, type);
 		}
 	}
-	
+
 	/**
 	 * Tracks the change type for the specified ref.
-	 * 
+	 *
 	 * @param ref
 	 * @param type
 	 * @param oldId
@@ -103,10 +103,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 			refIdChanges.put(ref, oldId + "-" + newId);
 		}
 	}
-	
+
 	/**
 	 * Returns the old id of a ref.
-	 * 
+	 *
 	 * @param ref
 	 * @return the old id
 	 */
@@ -120,7 +120,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 
 	/**
 	 * Returns the new id of a ref
-	 * 
+	 *
 	 * @param ref
 	 * @return the new id
 	 */
@@ -131,10 +131,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		}
 		return change.split("-")[1];
 	}
-	
+
 	/**
 	 * Returns the change type of the ref change.
-	 * 
+	 *
 	 * @param ref
 	 * @return the change type for the ref
 	 */
@@ -146,7 +146,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	/**
 	 * Adds a commit to the push entry object as long as the commit is not a
 	 * duplicate.
-	 * 
+	 *
 	 * @param branch
 	 * @param commit
 	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
@@ -164,7 +164,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	/**
 	 * Adds a commit to the push entry object as long as the commit is not a
 	 * duplicate.
-	 * 
+	 *
 	 * @param branch
 	 * @param commit
 	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
@@ -181,17 +181,17 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	/**
 	 * Adds a a list of repository commits.  This is used to construct discrete
 	 * ref push log entries
-	 * 
+	 *
 	 * @param commits
 	 */
 	public void addCommits(List<RepositoryCommit> list) {
 		commits.addAll(list);
 		authorCount = -1;
 	}
-	
+
 	/**
 	 * Returns true if this push contains a non-fastforward ref update.
-	 * 
+	 *
 	 * @return true if this is a non-fastforward push
 	 */
 	public boolean isNonFastForward() {
@@ -202,10 +202,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if this ref has been rewound.
-	 * 
+	 *
 	 * @param ref
 	 * @return true if this is a non-fastforward ref update
 	 */
@@ -219,7 +219,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 
 	/**
 	 * Returns true if this ref has been deleted.
-	 * 
+	 *
 	 * @param ref
 	 * @return true if this is a delete ref update
 	 */
@@ -230,28 +230,28 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		}
 		return ReceiveCommand.Type.DELETE.equals(type);
 	}
-	
+
 	/**
 	 * Returns the list of refs changed by the push.
-	 * 
+	 *
 	 * @return a list of refs
 	 */
 	public List<String> getChangedRefs() {
 		return new ArrayList<String>(refUpdates.keySet());
 	}
-	
+
 	/**
 	 * Returns the list of branches changed by the push.
-	 * 
+	 *
 	 * @return a list of branches
 	 */
 	public List<String> getChangedBranches() {
 		return getChangedRefs(Constants.R_HEADS);
 	}
-	
+
 	/**
 	 * Returns the list of tags changed by the push.
-	 * 
+	 *
 	 * @return a list of tags
 	 */
 	public List<String> getChangedTags() {
@@ -260,7 +260,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 
 	/**
 	 * Gets the changed refs in the push.
-	 * 
+	 *
 	 * @param baseRef
 	 * @return the changed refs
 	 */
@@ -275,7 +275,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	public int getAuthorCount() {
 		if (authorCount == -1) {
 			Set<String> authors = new HashSet<String>();
@@ -287,19 +287,19 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		}
 		return authorCount;
 	}
-	
+
 	/**
 	 * The total number of commits in the push.
-	 * 
+	 *
 	 * @return the number of commits in the push
 	 */
 	public int getCommitCount() {
 		return commits.size();
 	}
-	
+
 	/**
 	 * Returns all commits in the push.
-	 * 
+	 *
 	 * @return a list of commits
 	 */
 	public List<RepositoryCommit> getCommits() {
@@ -307,10 +307,10 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	/**
 	 * Returns all commits that belong to a particular ref
-	 * 
+	 *
 	 * @param ref
 	 * @return a list of commits
 	 */
@@ -324,7 +324,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		Collections.sort(list);
 		return list;
 	}
-	
+
 	public PersonIdent getCommitterIdent() {
 		return new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.username : user.emailAddress);
 	}
@@ -341,7 +341,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 		// reverse chronological order
 		return o.date.compareTo(date);
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

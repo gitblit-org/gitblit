@@ -40,7 +40,7 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Implementation of a user service using an Apache htpasswd file for authentication.
- * 
+ *
  * This user service implement custom authentication using entries in a file created
  * by the 'htpasswd' program of an Apache web server. All possible output
  * options of the 'htpasswd' program version 2.2 are supported:
@@ -48,7 +48,7 @@ import com.gitblit.utils.StringUtils;
  * glibc crypt() (not on Windows and NetWare),
  * Apache MD5 (apr1),
  * unsalted SHA-1.
- * 
+ *
  * Configuration options:
  * realm.htpasswd.backingUserService - Specify the backing user service that is used
  *                                     to keep the user data other than the password.
@@ -59,7 +59,7 @@ import com.gitblit.utils.StringUtils;
  * realm.htpasswd.overrideLocalAuthentication - Specify if local accounts are overwritten
  *                                              when authentication matches for an
  *                                              external account.
- * 
+ *
  * @author Florian Zschocke
  *
  */
@@ -110,12 +110,12 @@ public class HtpasswdUserService extends GitblitUserService
 
     /**
      * Setup the user service.
-     * 
+     *
      * The HtpasswdUserService extends the GitblitUserService and is thus
      * backed by the available user services provided by the GitblitUserService.
      * In addition the setup tries to read and parse the htpasswd file to be used
      * for authentication.
-     * 
+     *
      * @param settings
      * @since 0.7.0
      */
@@ -238,9 +238,9 @@ public class HtpasswdUserService extends GitblitUserService
 
     /**
      * Determine if the account is to be treated as a local account.
-     * 
+     *
      * This influences authentication. A local account will be authenticated
-     * by the backing user service while an external account will be handled 
+     * by the backing user service while an external account will be handled
      * by this user service.
      * <br/>
      * The decision also depends on the setting of the key
@@ -254,7 +254,8 @@ public class HtpasswdUserService extends GitblitUserService
      * If the key is set to false, then it is determined if the account is local
      * according to the logic of the GitblitUserService.
      */
-    protected boolean isLocalAccount(String username)
+    @Override
+	protected boolean isLocalAccount(String username)
     {
         if ( settings.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
             read();
@@ -270,7 +271,8 @@ public class HtpasswdUserService extends GitblitUserService
      *
      * @return AccountType.HTPASSWD
      */
-    protected AccountType getAccountType()
+    @Override
+	protected AccountType getAccountType()
     {
         return AccountType.HTPASSWD;
     }

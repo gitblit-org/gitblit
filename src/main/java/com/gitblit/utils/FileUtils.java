@@ -29,12 +29,12 @@ import java.nio.charset.Charset;
 
 /**
  * Common file utilities.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FileUtils {
-	
+
 	/** 1024 (number of bytes in one kilobyte) */
 	public static final int KB = 1024;
 
@@ -47,7 +47,7 @@ public class FileUtils {
 	/**
 	 * Returns an int from a string representation of a file size.
 	 * e.g. 50m = 50 megabytes
-	 * 
+	 *
 	 * @param aString
 	 * @param defaultValue
 	 * @return an int value or the defaultValue if aString can not be parsed
@@ -55,24 +55,24 @@ public class FileUtils {
 	public static int convertSizeToInt(String aString, int defaultValue) {
 		return (int) convertSizeToLong(aString, defaultValue);
 	}
-	
+
 	/**
 	 * Returns a long from a string representation of a file size.
 	 * e.g. 50m = 50 megabytes
-	 * 
+	 *
 	 * @param aString
 	 * @param defaultValue
 	 * @return a long value or the defaultValue if aString can not be parsed
 	 */
 	public static long convertSizeToLong(String aString, long defaultValue) {
-		// trim string and remove all spaces 
+		// trim string and remove all spaces
 		aString = aString.toLowerCase().trim();
 		StringBuilder sb = new StringBuilder();
 		for (String a : aString.split(" ")) {
 			sb.append(a);
 		}
 		aString = sb.toString();
-		
+
 		// identify value and unit
 		int idx = 0;
 		int len = aString.length();
@@ -99,10 +99,10 @@ public class FileUtils {
 		}
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Returns the byte [] content of the specified file.
-	 * 
+	 *
 	 * @param file
 	 * @return the byte content of the file
 	 */
@@ -130,7 +130,7 @@ public class FileUtils {
 
 	/**
 	 * Returns the string content of the specified file.
-	 * 
+	 *
 	 * @param file
 	 * @param lineEnding
 	 * @return the string content of the file
@@ -166,7 +166,7 @@ public class FileUtils {
 
 	/**
 	 * Writes the string content to the file.
-	 * 
+	 *
 	 * @param file
 	 * @param content
 	 */
@@ -195,14 +195,14 @@ public class FileUtils {
 	/**
 	 * Recursively traverses a folder and its subfolders to calculate the total
 	 * size in bytes.
-	 * 
+	 *
 	 * @param directory
 	 * @return folder size in bytes
 	 */
 	public static long folderSize(File directory) {
 		if (directory == null || !directory.exists()) {
 			return -1;
-		}		
+		}
 		if (directory.isDirectory()) {
 			long length = 0;
 			for (File file : directory.listFiles()) {
@@ -241,7 +241,7 @@ public class FileUtils {
 
 	/**
 	 * Copies a file or folder (recursively) to a destination folder.
-	 * 
+	 *
 	 * @param destinationFolder
 	 * @param filesOrFolders
 	 * @return
@@ -281,11 +281,11 @@ public class FileUtils {
 			}
 		}
 	}
-	
+
 	/**
 	 * Determine the relative path between two files.  Takes into account
 	 * canonical paths, if possible.
-	 * 
+	 *
 	 * @param basePath
 	 * @param path
 	 * @return a relative path from basePath to path
@@ -309,11 +309,11 @@ public class FileUtils {
 		// no relative relationship
 		return null;
 	}
-	
+
 	/**
 	 * Returns the exact path for a file. This path will be the canonical path
 	 * unless an exception is thrown in which case it will be the absolute path.
-	 * 
+	 *
 	 * @param path
 	 * @return the exact file
 	 */
@@ -327,7 +327,7 @@ public class FileUtils {
 
 	public static File resolveParameter(String parameter, File aFolder, String path) {
 		if (aFolder == null) {
-			// strip any parameter reference		
+			// strip any parameter reference
 			path = path.replace(parameter, "").trim();
 			if (path.length() > 0 && path.charAt(0) == '/') {
 				// strip leading /

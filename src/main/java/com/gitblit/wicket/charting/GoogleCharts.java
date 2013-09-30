@@ -13,7 +13,6 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 package com.gitblit.wicket.charting;
 
 import java.util.ArrayList;
@@ -26,9 +25,9 @@ import org.apache.wicket.markup.html.IHeaderResponse;
  * The Google Visualization API provides interactive JavaScript based charts and
  * graphs. This class implements the JavaScript header necessary to display
  * complete graphs and charts.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class GoogleCharts implements IHeaderContributor {
 

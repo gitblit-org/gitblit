@@ -26,9 +26,9 @@ import java.util.jar.Manifest;
 
 /**
  * Constant values used by Gitblit.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class Constants {
 
@@ -37,19 +37,19 @@ public class Constants {
 	public static final String FULL_NAME = "Gitblit - a pure Java Git solution";
 
 	public static final String ADMIN_ROLE = "#admin";
-	
+
 	public static final String FORK_ROLE = "#fork";
-	
+
 	public static final String CREATE_ROLE = "#create";
 
 	public static final String NOT_FEDERATED_ROLE = "#notfederated";
-	
+
 	public static final String NO_ROLE = "#none";
-	
+
 	public static final String EXTERNAL_ACCOUNT = "#externalAccount";
 
 	public static final String PROPERTIES_FILE = "gitblit.properties";
-	
+
 	public static final String DEFAULT_USER_REPOSITORY_PREFIX = "~";
 
 	public static final String GIT_PATH = "/git/";
@@ -61,11 +61,11 @@ public class Constants {
 	public static final String FEDERATION_PATH = "/federation/";
 
 	public static final String RPC_PATH = "/rpc/";
-	
+
 	public static final String PAGES = "/pages/";
-	
+
 	public static final String SPARKLESHARE_INVITE_PATH = "/sparkleshare/";
-	
+
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
 	public static final String BORDER = "***********************************************************";
@@ -73,41 +73,41 @@ public class Constants {
 	public static final String FEDERATION_USER = "$gitblit";
 
 	public static final String PROPOSAL_EXT = ".json";
-	
+
 	public static final String ENCODING = "UTF-8";
-	
+
 	public static final int LEN_SHORTLOG = 78;
-	
+
 	public static final int LEN_SHORTLOG_REFS = 60;
-	
+
 	public static final String DEFAULT_BRANCH = "default";
-	
+
 	public static final String CONFIG_GITBLIT = "gitblit";
-	
+
 	public static final String CONFIG_CUSTOM_FIELDS = "customFields";
-	
+
 	public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
-	
+
 	public static final String baseFolder = "baseFolder";
-	
+
 	public static final String baseFolder$ = "${" + baseFolder + "}";
-	
+
 	public static final String contextFolder$ = "${contextFolder}";
-	
+
 	public static final String HEAD = "HEAD";
 
 	public static final String R_GITBLIT = "refs/gitblit/";
-	
+
 	public static final String R_HEADS = "refs/heads/";
-	
+
 	public static final String R_NOTES = "refs/notes/";
-	
+
 	public static final String R_CHANGES = "refs/changes/";
-	
+
 	public static final String R_PULL= "refs/pull/";
 
 	public static final String R_TAGS = "refs/tags/";
-	
+
 	public static final String R_REMOTES = "refs/remotes/";
 
 	public static String getVersion() {
@@ -121,11 +121,11 @@ public class Constants {
 	public static String getGitBlitVersion() {
 		return NAME + " v" + getVersion();
 	}
-	
+
 	public static String getBuildDate() {
 		return getManifestValue("build-date", "PENDING");
 	}
-	
+
 	private static String getManifestValue(String attrib, String defaultValue) {
 		Class<?> clazz = Constants.class;
 		String className = clazz.getSimpleName() + ".class";
@@ -144,13 +144,13 @@ public class Constants {
 		}
 		return defaultValue;
 	}
-	
+
 	/**
 	 * Enumeration representing the four access restriction levels.
 	 */
 	public static enum AccessRestrictionType {
 		NONE, PUSH, CLONE, VIEW;
-		
+
 		private static final AccessRestrictionType [] AUTH_TYPES = { PUSH, CLONE, VIEW };
 
 		public static AccessRestrictionType fromName(String name) {
@@ -161,7 +161,7 @@ public class Constants {
 			}
 			return NONE;
 		}
-		
+
 		public static List<AccessRestrictionType> choices(boolean allowAnonymousPush) {
 			if (allowAnonymousPush) {
 				return Arrays.asList(values());
@@ -177,10 +177,11 @@ public class Constants {
 			return this.ordinal() >= type.ordinal();
 		}
 
+		@Override
 		public String toString() {
 			return name();
 		}
-		
+
 		public boolean isValidPermission(AccessPermission permission) {
 			switch (this) {
 			case VIEW:
@@ -193,7 +194,7 @@ public class Constants {
 				return permission.atLeast(AccessPermission.CLONE);
 			case PUSH:
 				// PUSH restriction
-				// only PUSH or greater access permissions are valid 
+				// only PUSH or greater access permissions are valid
 				return permission.atLeast(AccessPermission.PUSH);
 			case NONE:
 				// NO access restriction
@@ -203,14 +204,14 @@ public class Constants {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Enumeration representing the types of authorization control for an
 	 * access restricted resource.
 	 */
 	public static enum AuthorizationControl {
 		AUTHENTICATED, NAMED;
-		
+
 		public static AuthorizationControl fromName(String name) {
 			for (AuthorizationControl type : values()) {
 				if (type.name().equalsIgnoreCase(name)) {
@@ -219,7 +220,8 @@ public class Constants {
 			}
 			return NAMED;
 		}
-		
+
+		@Override
 		public String toString() {
 			return name();
 		}
@@ -241,6 +243,7 @@ public class Constants {
 			return REPOSITORIES;
 		}
 
+		@Override
 		public String toString() {
 			return name();
 		}
@@ -261,6 +264,7 @@ public class Constants {
 			return PULL_REPOSITORIES;
 		}
 
+		@Override
 		public String toString() {
 			return name();
 		}
@@ -337,11 +341,11 @@ public class Constants {
 		// Order is important here.  anything above LIST_SETTINGS requires
 		// administrator privileges and web.allowRpcManagement.
 		CLEAR_REPOSITORY_CACHE, GET_PROTOCOL, LIST_REPOSITORIES, LIST_BRANCHES, GET_USER, LIST_SETTINGS,
-		CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY, 
-		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER, 
+		CREATE_REPOSITORY, EDIT_REPOSITORY, DELETE_REPOSITORY,
+		LIST_USERS, CREATE_USER, EDIT_USER, DELETE_USER,
 		LIST_TEAMS, CREATE_TEAM, EDIT_TEAM, DELETE_TEAM,
-		LIST_REPOSITORY_MEMBERS, SET_REPOSITORY_MEMBERS, LIST_REPOSITORY_TEAMS, SET_REPOSITORY_TEAMS, 
-		LIST_REPOSITORY_MEMBER_PERMISSIONS, SET_REPOSITORY_MEMBER_PERMISSIONS, LIST_REPOSITORY_TEAM_PERMISSIONS, SET_REPOSITORY_TEAM_PERMISSIONS, 
+		LIST_REPOSITORY_MEMBERS, SET_REPOSITORY_MEMBERS, LIST_REPOSITORY_TEAMS, SET_REPOSITORY_TEAMS,
+		LIST_REPOSITORY_MEMBER_PERMISSIONS, SET_REPOSITORY_MEMBER_PERMISSIONS, LIST_REPOSITORY_TEAM_PERMISSIONS, SET_REPOSITORY_TEAM_PERMISSIONS,
 		LIST_FEDERATION_REGISTRATIONS, LIST_FEDERATION_RESULTS, LIST_FEDERATION_PROPOSALS, LIST_FEDERATION_SETS,
 		EDIT_SETTINGS, LIST_STATUS;
 
@@ -352,7 +356,7 @@ public class Constants {
 				}
 			}
 			return null;
-		}		
+		}
 
 		public boolean exceeds(RpcRequest type) {
 			return this.ordinal() > type.ordinal();
@@ -369,7 +373,7 @@ public class Constants {
 	 */
 	public static enum SearchType {
 		AUTHOR, COMMITTER, COMMIT;
-	
+
 		public static SearchType forName(String name) {
 			for (SearchType type : values()) {
 				if (type.name().equalsIgnoreCase(name)) {
@@ -378,13 +382,13 @@ public class Constants {
 			}
 			return COMMIT;
 		}
-	
+
 		@Override
 		public String toString() {
 			return name().toLowerCase();
 		}
 	}
-	
+
 	/**
 	 * The types of objects that can be indexed and queried.
 	 */
@@ -400,19 +404,19 @@ public class Constants {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * The access permissions available for a repository. 
+	 * The access permissions available for a repository.
 	 */
 	public static enum AccessPermission {
 		NONE("N"), EXCLUDE("X"), VIEW("V"), CLONE("R"), PUSH("RW"), CREATE("RWC"), DELETE("RWD"), REWIND("RW+"), OWNER("RW+");
-		
+
 		public static final AccessPermission [] NEWPERMISSIONS = { EXCLUDE, VIEW, CLONE, PUSH, CREATE, DELETE, REWIND };
-		
+
 		public static AccessPermission LEGACY = REWIND;
-		
+
 		public final String code;
-		
+
 		private AccessPermission(String code) {
 			this.code = code;
 		}
@@ -428,16 +432,16 @@ public class Constants {
 		public boolean exceeds(AccessPermission perm) {
 			return ordinal() > perm.ordinal();
 		}
-		
+
 		public String asRole(String repository) {
 			return code + ":" + repository;
 		}
-		
+
 		@Override
 		public String toString() {
 			return code;
 		}
-		
+
 		public static AccessPermission permissionFromRole(String role) {
 			String [] fields = role.split(":", 2);
 			if (fields.length == 1) {
@@ -448,7 +452,7 @@ public class Constants {
 				return AccessPermission.fromCode(fields[0]);
 			}
 		}
-		
+
 		public static String repositoryFromRole(String role) {
 			String [] fields = role.split(":", 2);
 			if (fields.length == 1) {
@@ -459,7 +463,7 @@ public class Constants {
 				return fields[1];
 			}
 		}
-		
+
 		public static AccessPermission fromCode(String code) {
 			for (AccessPermission perm : values()) {
 				if (perm.code.equalsIgnoreCase(code)) {
@@ -469,18 +473,18 @@ public class Constants {
 			return AccessPermission.NONE;
 		}
 	}
-	
+
 	public static enum RegistrantType {
 		REPOSITORY, USER, TEAM;
 	}
-	
+
 	public static enum PermissionType {
 		MISSING, ANONYMOUS, EXPLICIT, TEAM, REGEX, OWNER, ADMINISTRATOR;
 	}
-	
+
 	public static enum GCStatus {
 		READY, COLLECTING;
-		
+
 		public boolean exceeds(GCStatus s) {
 			return ordinal() > s.ordinal();
 		}
@@ -488,23 +492,23 @@ public class Constants {
 
 	public static enum AuthenticationType {
 		CREDENTIALS, COOKIE, CERTIFICATE, CONTAINER;
-		
+
 		public boolean isStandard() {
 			return ordinal() <= COOKIE.ordinal();
 		}
 	}
-	
+
 	public static enum AccountType {
 		LOCAL, EXTERNAL, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD;
-		
+
 		public boolean isLocal() {
 			return this == LOCAL;
 		}
 	}
-	
+
 	public static enum CommitMessageRenderer {
 		PLAIN, MARKDOWN;
-		
+
 		public static CommitMessageRenderer fromName(String name) {
 			for (CommitMessageRenderer renderer : values()) {
 				if (renderer.name().equalsIgnoreCase(name)) {

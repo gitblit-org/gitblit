@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Class to log messages to the pushing Git client. Intended to be used by the
  * Groovy Hooks.
- * 
+ *
  * @author John Crygier
- * 
+ *
  */
 public class ClientLogger {
 
@@ -41,7 +41,7 @@ public class ClientLogger {
 
 	/**
 	 * Sends an info/warning message to the git client.
-	 * 
+	 *
 	 * @param message
 	 */
 	public void info(String message) {
@@ -50,7 +50,7 @@ public class ClientLogger {
 
 	/**
 	 * Sends an error message to the git client.
-	 * 
+	 *
 	 * @param message
 	 */
 	public void error(String message) {
@@ -59,7 +59,7 @@ public class ClientLogger {
 
 	/**
 	 * Sends an error message to the git client with an exception.
-	 * 
+	 *
 	 * @param message
 	 * @param t
 	 *            an exception

@@ -24,9 +24,9 @@ import org.eclipse.jgit.lib.FileMode;
 /**
  * PathModel is a serializable model class that represents a file or a folder,
  * including all its metadata and associated commit id.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PathModel implements Serializable, Comparable<PathModel> {
 
@@ -56,7 +56,7 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 	public boolean isSubmodule() {
 		return FileMode.GITLINK.equals(mode);
 	}
-	
+
 	public boolean isTree() {
 		return FileMode.TREE.equals(mode);
 	}
@@ -105,26 +105,26 @@ public class PathModel implements Serializable, Comparable<PathModel> {
 	/**
 	 * PathChangeModel is a serializable class that represents a file changed in
 	 * a commit.
-	 * 
+	 *
 	 * @author James Moger
-	 * 
+	 *
 	 */
 	public static class PathChangeModel extends PathModel {
 
 		private static final long serialVersionUID = 1L;
 
 		public ChangeType changeType;
-		
+
 		public int insertions;
-		
+
 		public int deletions;
-		
+
 		public PathChangeModel(String name, String path, long size, int mode, String objectId,
 				String commitId, ChangeType type) {
 			super(name, path, size, mode, objectId, commitId);
 			this.changeType = type;
 		}
-		
+
 		public void update(char op) {
 			switch (op) {
 			case '+':

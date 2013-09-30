@@ -45,16 +45,16 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * Utility class for building activity information from repositories.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class ActivityUtils {
 
 	/**
 	 * Gets the recent activity from the repositories for the last daysBack days
 	 * on the specified branch.
-	 * 
+	 *
 	 * @param models
 	 *            the list of repositories to query
 	 * @param daysBack
@@ -79,7 +79,7 @@ public class ActivityUtils {
 		df.setTimeZone(timezone);
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeZone(timezone);
-		
+
 		// aggregate author exclusions
 		Set<String> authorExclusions = new TreeSet<String>();
 		authorExclusions.addAll(GitBlit.getStrings(Keys.web.metricAuthorExclusions));
@@ -125,7 +125,7 @@ public class ActivityUtils {
 						// trim commits to maximum count
 						commits = commits.subList(0,  model.maxActivityCommits);
 					}
-					for (RepositoryCommit commit : commits) {						
+					for (RepositoryCommit commit : commits) {
 						Date date = commit.getCommitDate();
 						String dateStr = df.format(date);
 						if (!activity.containsKey(dateStr)) {
@@ -142,7 +142,7 @@ public class ActivityUtils {
 						activity.get(dateStr).addCommit(commit);
 					}
 				}
-				
+
 				// close the repository
 				repository.close();
 			}
@@ -155,7 +155,7 @@ public class ActivityUtils {
 	/**
 	 * Returns the Gravatar profile, if available, for the specified email
 	 * address.
-	 * 
+	 *
 	 * @param emailaddress
 	 * @return a Gravatar Profile
 	 * @throws IOException
@@ -167,7 +167,7 @@ public class ActivityUtils {
 
 	/**
 	 * Creates a Gravatar thumbnail url from the specified email address.
-	 * 
+	 *
 	 * @param email
 	 *            address to query Gravatar
 	 * @param width
@@ -183,10 +183,10 @@ public class ActivityUtils {
 				"https://www.gravatar.com/avatar/{0}?s={1,number,0}&d=identicon", emailHash, width);
 		return url;
 	}
-	
+
 	/**
 	 * Creates a Gravatar thumbnail url from the specified email address.
-	 * 
+	 *
 	 * @param email
 	 *            address to query Gravatar
 	 * @param width
@@ -206,7 +206,7 @@ public class ActivityUtils {
 	/**
 	 * Returns the Gravatar profile, if available, for the specified hashcode.
 	 * address.
-	 * 
+	 *
 	 * @param hash
 	 *            the hash of the email address
 	 * @return a Gravatar Profile

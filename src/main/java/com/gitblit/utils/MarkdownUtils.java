@@ -26,15 +26,15 @@ import org.tautua.markdownpapers.parser.ParseException;
 
 /**
  * Utility methods for transforming raw markdown text to html.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class MarkdownUtils {
 
 	/**
 	 * Returns the html version of the markdown source text.
-	 * 
+	 *
 	 * @param markdown
 	 * @return html version of markdown text
 	 * @throws java.text.ParseException
@@ -55,7 +55,7 @@ public class MarkdownUtils {
 	/**
 	 * Returns the html version of the markdown source reader. The reader is
 	 * closed regardless of success or failure.
-	 * 
+	 *
 	 * @param markdownReader
 	 * @return html version of the markdown text
 	 * @throws java.text.ParseException

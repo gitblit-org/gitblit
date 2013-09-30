@@ -24,9 +24,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 /**
  * AnnotatedLine is a serializable model class that represents a the most recent
  * author, date, and commit id of a line in a source file.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class AnnotatedLine implements Serializable {
 

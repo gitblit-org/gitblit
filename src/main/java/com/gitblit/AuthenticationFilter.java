@@ -42,11 +42,11 @@ import com.gitblit.utils.StringUtils;
 /**
  * The AuthenticationFilter is a servlet filter that preprocesses requests that
  * match its url pattern definition in the web.xml file.
- * 
+ *
  * http://en.wikipedia.org/wiki/Basic_access_authentication
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class AuthenticationFilter implements Filter {
 
@@ -59,17 +59,17 @@ public abstract class AuthenticationFilter implements Filter {
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
-	 * 
+	 *
 	 * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
 	 *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
 	 */
 	@Override
 	public abstract void doFilter(final ServletRequest request, final ServletResponse response,
 			final FilterChain chain) throws IOException, ServletException;
-	
+
 	/**
 	 * Allow the filter to require a client certificate to continue processing.
-	 * 
+	 *
 	 * @return true, if a client certificate is required
 	 */
 	protected boolean requiresClientCertificate() {
@@ -78,7 +78,7 @@ public abstract class AuthenticationFilter implements Filter {
 
 	/**
 	 * Returns the full relative url of the request.
-	 * 
+	 *
 	 * @param httpRequest
 	 * @return url
 	 */
@@ -95,7 +95,7 @@ public abstract class AuthenticationFilter implements Filter {
 
 	/**
 	 * Returns the user making the request, if the user has authenticated.
-	 * 
+	 *
 	 * @param httpRequest
 	 * @return user
 	 */

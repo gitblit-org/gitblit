@@ -57,9 +57,9 @@ import com.gitblit.utils.StringUtils;
 /**
  * RSS Feeds Panel displays recent entries and launches the browser to view the
  * commit. commitdiff, or tree of a commit.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public abstract class RepositoriesPanel extends JPanel {
 
@@ -95,6 +95,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		final JButton browseRepository = new JButton(Translation.get("gb.browse"));
 		browseRepository.setEnabled(false);
 		browseRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
 				String url = gitblit.getURL("summary", model.name, null);
@@ -104,13 +105,15 @@ public abstract class RepositoriesPanel extends JPanel {
 
 		JButton refreshRepositories = new JButton(Translation.get("gb.refresh"));
 		refreshRepositories.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				refreshRepositories();
 			}
 		});
-		
+
 		clearCache = new JButton(Translation.get("gb.clearCache"));
 		clearCache.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearCache();
 			}
@@ -118,6 +121,7 @@ public abstract class RepositoriesPanel extends JPanel {
 
 		createRepository = new JButton(Translation.get("gb.create"));
 		createRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				createRepository();
 			}
@@ -126,6 +130,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		editRepository = new JButton(Translation.get("gb.edit"));
 		editRepository.setEnabled(false);
 		editRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				editRepository(getSelectedRepositories().get(0));
 			}
@@ -134,6 +139,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		delRepository = new JButton(Translation.get("gb.delete"));
 		delRepository.setEnabled(false);
 		delRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				deleteRepositories(getSelectedRepositories());
 			}
@@ -142,6 +148,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		final JButton subscribeRepository = new JButton(Translation.get("gb.subscribe") + "...");
 		subscribeRepository.setEnabled(false);
 		subscribeRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				List<FeedModel> feeds = gitblit.getAvailableFeeds(getSelectedRepositories().get(0));
 				subscribeFeeds(feeds);
@@ -151,6 +158,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		final JButton logRepository = new JButton(Translation.get("gb.log") + "...");
 		logRepository.setEnabled(false);
 		logRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
 				showSearchDialog(false, model);
@@ -160,6 +168,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		final JButton searchRepository = new JButton(Translation.get("gb.search") + "...");
 		searchRepository.setEnabled(false);
 		searchRepository.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				RepositoryModel model = getSelectedRepositories().get(0);
 				showSearchDialog(true, model);
@@ -223,6 +232,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		});
 
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && gitblit.allowManagement()) {
 					editRepository(getSelectedRepositories().get(0));
@@ -232,11 +242,13 @@ public abstract class RepositoriesPanel extends JPanel {
 
 		filterTextfield = new JTextField();
 		filterTextfield.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				filterRepositories(filterTextfield.getText());
 			}
 		});
 		filterTextfield.addKeyListener(new KeyAdapter() {
+			@Override
 			public void keyReleased(KeyEvent e) {
 				filterRepositories(filterTextfield.getText());
 			}
@@ -318,6 +330,7 @@ public abstract class RepositoriesPanel extends JPanel {
 			return;
 		}
 		RowFilter<RepositoriesTableModel, Object> containsFilter = new RowFilter<RepositoriesTableModel, Object>() {
+			@Override
 			public boolean include(Entry<? extends RepositoriesTableModel, ? extends Object> entry) {
 				for (int i = entry.getValueCount() - 1; i >= 0; i--) {
 					if (entry.getStringValue(i).toLowerCase().contains(fragment.toLowerCase())) {
@@ -359,7 +372,7 @@ public abstract class RepositoriesPanel extends JPanel {
 		};
 		worker.execute();
 	}
-	
+
 	protected void clearCache() {
 		GitblitWorker worker = new GitblitWorker(RepositoriesPanel.this,
 				RpcRequest.CLEAR_REPOSITORY_CACHE) {
@@ -383,7 +396,7 @@ public abstract class RepositoriesPanel extends JPanel {
 	/**
 	 * Displays the create repository dialog and fires a SwingWorker to update
 	 * the server, if appropriate.
-	 * 
+	 *
 	 */
 	protected void createRepository() {
 		EditRepositoryDialog dialog = new EditRepositoryDialog(gitblit.getProtocolVersion());
@@ -444,7 +457,7 @@ public abstract class RepositoriesPanel extends JPanel {
 	/**
 	 * Displays the edit repository dialog and fires a SwingWorker to update the
 	 * server, if appropriate.
-	 * 
+	 *
 	 * @param repository
 	 */
 	protected void editRepository(final RepositoryModel repository) {

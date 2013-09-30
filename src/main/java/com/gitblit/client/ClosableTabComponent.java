@@ -46,6 +46,7 @@ public class ClosableTabComponent extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private static final MouseListener BUTTON_MOUSE_LISTENER = new MouseAdapter() {
+		@Override
 		public void mouseEntered(MouseEvent e) {
 			Component component = e.getComponent();
 			if (component instanceof AbstractButton) {
@@ -54,6 +55,7 @@ public class ClosableTabComponent extends JPanel {
 			}
 		}
 
+		@Override
 		public void mouseExited(MouseEvent e) {
 			Component component = e.getComponent();
 			if (component instanceof AbstractButton) {
@@ -112,6 +114,7 @@ public class ClosableTabComponent extends JPanel {
 			addActionListener(this);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int i = pane.indexOfTabComponent(ClosableTabComponent.this);
 			Component c = pane.getComponentAt(i);
@@ -123,6 +126,7 @@ public class ClosableTabComponent extends JPanel {
 			}
 		}
 
+		@Override
 		public void updateUI() {
 		}
 

@@ -51,9 +51,9 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.charting.SecureChart;
 import com.gitblit.wicket.panels.BranchesPanel;
 import com.gitblit.wicket.panels.LinkPanel;
@@ -91,13 +91,14 @@ public class SummaryPage extends RepositoryPage {
 
 		// repository description
 		add(new Label("repositoryDescription", getRepositoryModel().description));
-		
+
 		// owner links
 		final List<String> owners = new ArrayList<String>(getRepositoryModel().owners);
 		ListDataProvider<String> ownersDp = new ListDataProvider<String>(owners);
 		DataView<String> ownersView = new DataView<String>("repositoryOwners", ownersDp) {
 			private static final long serialVersionUID = 1L;
 			int counter = 0;
+			@Override
 			public void populateItem(final Item<String> item) {
 				String ownername = item.getModelObject();
 				UserModel ownerModel = GitBlit.self().getUserModel(ownername);
@@ -117,7 +118,7 @@ public class SummaryPage extends RepositoryPage {
 		};
 		ownersView.setRenderBodyOnly(true);
 		add(ownersView);
-		
+
 		add(WicketUtils.createTimestampLabel("repositoryLastChange",
 				JGitUtils.getLastChange(r).when, getTimeZone(), getTimeUtils()));
 		add(new Label("repositorySize", getRepositoryModel().size));
@@ -132,7 +133,7 @@ public class SummaryPage extends RepositoryPage {
 				WicketUtils.newRepositoryParameter(repositoryName)));
 
 		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model));
-				
+
 		add(new LogPanel("commitsPanel", repositoryName, getRepositoryModel().HEAD, r, numberCommits, 0, getRepositoryModel().showRemoteBranches));
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
@@ -144,7 +145,7 @@ public class SummaryPage extends RepositoryPage {
 			try {
 				RevCommit head = JGitUtils.getCommit(r, null);
 				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);				
+				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
 				for (PathModel path : paths) {
 					if (!path.isTree()) {
 						String name = path.name.toLowerCase();

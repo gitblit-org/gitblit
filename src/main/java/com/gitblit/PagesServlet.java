@@ -41,9 +41,9 @@ import com.gitblit.utils.StringUtils;
 
 /**
  * Serves the content of a gh-pages branch.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class PagesServlet extends HttpServlet {
 
@@ -57,7 +57,7 @@ public class PagesServlet extends HttpServlet {
 
 	/**
 	 * Returns an url to this servlet for the specified parameters.
-	 * 
+	 *
 	 * @param baseURL
 	 * @param repository
 	 * @param path
@@ -73,7 +73,7 @@ public class PagesServlet extends HttpServlet {
 	/**
 	 * Retrieves the specified resource from the gh-pages branch of the
 	 * repository.
-	 * 
+	 *
 	 * @param request
 	 * @param response
 	 * @throws javax.servlet.ServletException

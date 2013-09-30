@@ -32,10 +32,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.BranchGraphServlet;
 import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
-import com.gitblit.BranchGraphServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -75,10 +75,10 @@ public class LogPanel extends BasePanel {
 		// inaccurate way to determine if there are more commits.
 		// works unless commits.size() represents the exact end.
 		hasMore = commits.size() >= itemsPerPage;
-		
+
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 		final boolean showGraph = GitBlit.getBoolean(Keys.web.showBranchGraph, true);
-		
+
 		MarkupContainer graph = new WebMarkupContainer("graph");
 		add(graph);
 		if (!showGraph || commits.isEmpty()) {
@@ -107,6 +107,7 @@ public class LogPanel extends BasePanel {
 			private static final long serialVersionUID = 1L;
 			int counter;
 
+			@Override
 			public void populateItem(final Item<RevCommit> item) {
 				final RevCommit entry = item.getModelObject();
 				final Date date = JGitUtils.getCommitDate(entry);
@@ -120,7 +121,7 @@ public class LogPanel extends BasePanel {
 								objectId, author, Constants.SearchType.AUTHOR));
 				setPersonSearchTooltip(authorLink, author, Constants.SearchType.AUTHOR);
 				item.add(authorLink);
-				
+
 				// merge icon
 				if (entry.getParentCount() > 1) {
 					item.add(WicketUtils.newImage("commitIcon", "commit_merge_16x16.png"));
@@ -153,7 +154,7 @@ public class LogPanel extends BasePanel {
 				WicketUtils.setCssClass(commitHash, "shortsha1");
 				WicketUtils.setHtmlTooltip(commitHash, entry.getName());
 				item.add(commitHash);
-				
+
 				item.add(new BookmarkablePageLink<Void>("diff", CommitDiffPage.class, WicketUtils
 						.newObjectParameter(repositoryName, entry.getName())).setEnabled(entry
 						.getParentCount() > 0));

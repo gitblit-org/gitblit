@@ -26,9 +26,9 @@ import com.gitblit.utils.FileUtils;
 /**
  * Dynamically loads and reloads a properties file by keeping track of the last
  * modification date.
- * 
+ *
  * @author James Moger
- * 
+ *
  */
 public class FileSettings extends IStoredSettings {
 
@@ -37,7 +37,7 @@ public class FileSettings extends IStoredSettings {
 	private final Properties properties = new Properties();
 
 	private volatile long lastModified;
-	
+
 	private volatile boolean forceReload;
 
 	public FileSettings(String file) {
@@ -83,6 +83,7 @@ public class FileSettings extends IStoredSettings {
 	/**
 	 * Updates the specified settings in the settings file.
 	 */
+	@Override
 	public synchronized boolean saveSettings(Map<String, String> settings) {
 		String content = FileUtils.readContent(propertiesFile, "\n");
 		for (Map.Entry<String, String> setting:settings.entrySet()) {
@@ -98,11 +99,11 @@ public class FileSettings extends IStoredSettings {
 		}
 		FileUtils.writeContent(propertiesFile, content);
 		// manually set the forceReload flag because not all JVMs support real
-		// millisecond resolution of lastModified. (issue-55)		
+		// millisecond resolution of lastModified. (issue-55)
 		forceReload = true;
 		return true;
 	}
-	
+
 	private String regExEscape(String input) {
 		return input.replace(".", "\\.").replace("$", "\\$").replace("{", "\\{");
 	}

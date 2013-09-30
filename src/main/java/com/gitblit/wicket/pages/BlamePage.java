@@ -75,7 +75,7 @@ public class BlamePage extends RepositoryPage {
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
-		
+
 		PathModel pathModel = null;
 		List<PathModel> paths = JGitUtils.getFilesInPath(getRepository(), StringUtils.getRootPath(blobPath), commit);
 		for (PathModel path : paths) {
@@ -84,15 +84,15 @@ public class BlamePage extends RepositoryPage {
 				break;
 			}
 		}
-		
+
 		if (pathModel == null) {
 			add(new Label("annotation").setVisible(false));
 			add(new Label("missingBlob", missingBlob(blobPath, commit)).setEscapeModelStrings(false));
 			return;
 		}
-		
+
 		add(new Label("missingBlob").setVisible(false));
-		
+
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
 		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
@@ -102,6 +102,7 @@ public class BlamePage extends RepositoryPage {
 			private boolean showInitials = true;
 			private String zeroId = ObjectId.zeroId().getName();
 
+			@Override
 			public void populateItem(final Item<AnnotatedLine> item) {
 				AnnotatedLine entry = item.getModelObject();
 				item.add(new Label("line", "" + entry.lineNumber));
@@ -157,12 +158,12 @@ public class BlamePage extends RepositoryPage {
 	protected String getPageName() {
 		return getString("gb.blame");
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRepoNavPageClass() {
 		return TreePage.class;
 	}
-	
+
 	protected String missingBlob(String blobPath, RevCommit commit) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"alert alert-error\">");

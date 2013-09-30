@@ -80,7 +80,7 @@ public class EditTeamPage extends RootSubPage {
 	protected boolean requiresPageMap() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<? extends BasePage> getRootNavPageClass() {
 		return UsersPage.class;
@@ -134,7 +134,7 @@ public class EditTeamPage extends RootSubPage {
 
 			/*
 			 * (non-Javadoc)
-			 * 
+			 *
 			 * @see org.apache.wicket.markup.html.form.Form#onSubmit()
 			 */
 			@Override
@@ -218,7 +218,7 @@ public class EditTeamPage extends RootSubPage {
 
 		// not all user services support manipulating team memberships
 		boolean editMemberships = GitBlit.self().supportsTeamMembershipChanges(null);
-		
+
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
 		form.add(new CheckBox("canAdmin"));

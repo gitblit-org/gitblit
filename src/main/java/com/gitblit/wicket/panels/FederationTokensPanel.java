@@ -71,6 +71,7 @@ public class FederationTokensPanel extends BasePanel {
 				counter = 0;
 			}
 
+			@Override
 			public void populateItem(final Item<String[]> item) {
 				final String[] entry = item.getModelObject();
 				final FederationToken token = FederationToken.fromName(entry[0]);

@@ -34,9 +34,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
+import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.PageRegistration;
-import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.PageRegistration.DropDownMenuItem;
 import com.gitblit.wicket.PageRegistration.DropDownMenuRegistration;
 import com.gitblit.wicket.WicketUtils;
@@ -180,7 +180,7 @@ public class RepositoriesPage extends RootPage {
 					} catch (Exception e) {
 					}
 				}
-			}			
+			}
 		}
 		return MessageFormat.format(getString("gb.failedToReadMessage"), file);
 	}
