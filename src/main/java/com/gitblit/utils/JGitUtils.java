@@ -1540,7 +1540,7 @@ public class JGitUtils {
 	 */
 	public static boolean setBranchRef(Repository repository, String branch, String commitId) {
 		String branchName = branch;
-		if (!branchName.startsWith(Constants.R_HEADS)) {
+		if (!branchName.startsWith(Constants.R_REFS)) {
 			branchName = Constants.R_HEADS + branch;
 		}
 
