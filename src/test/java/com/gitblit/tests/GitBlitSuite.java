@@ -98,11 +98,6 @@ public class GitBlitSuite {
 		return getRepository("test/ambition.git");
 	}
 
-	public static Repository getIssuesTestRepository() throws Exception {
-		JGitUtils.createRepository(REPOSITORIES, "gb-issues.git").close();
-		return getRepository("gb-issues.git");
-	}
-
 	public static Repository getGitectiveRepository() throws Exception {
 		return getRepository("test/gitective.git");
 	}
