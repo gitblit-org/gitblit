@@ -389,14 +389,22 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		LOGGER.error(text + " (" + user.username + ")");
 	}
 
+	protected void sendHeader(String msg, Object... objects) {
+		sendMessage("--->", msg, objects);
+	}
+
 	protected void sendMessage(String msg, Object... objects) {
+		sendMessage("    ", msg, objects);
+	}
+
+	protected void sendMessage(String prefix, String msg, Object... objects) {
 		String text;
 		if (ArrayUtils.isEmpty(objects)) {
 			text = msg;
-			super.sendMessage(msg);
+			super.sendMessage(prefix + msg);
 		} else {
 			text = MessageFormat.format(msg, objects);
-			super.sendMessage(text);
+			super.sendMessage(prefix + text);
 		}
 		LOGGER.info(text + " (" + user.username + ")");
 	}
@@ -421,7 +429,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	 * @param commands
 	 * @param scripts
 	 */
-	protected void runGroovy(Collection<ReceiveCommand> commands, Set<String> scripts) {
+	private void runGroovy(Collection<ReceiveCommand> commands, Set<String> scripts) {
 		if (scripts == null || scripts.size() == 0) {
 			// no Groovy scripts to execute
 			return;
