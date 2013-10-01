@@ -615,10 +615,10 @@ pre.prettyprint ol {
 }
 
 .diffstat-segments {
-	vertical-align: top;
+	vertical-align: baseline;
 }
 
-.diffstat-add {
+.diffstat-insert {
 	color: #629E62; 
 }
 
