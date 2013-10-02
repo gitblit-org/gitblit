@@ -26,7 +26,8 @@ r20: {
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
 	- Added setting to globally disable anonymous pushes in the receive pack
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
-    dependencyChanges: ~
+    dependencyChanges:
+	- updated to Jetty 7.6.13
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }

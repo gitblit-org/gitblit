@@ -98,7 +98,7 @@ repositories: central, jgit-snapshots, jgit
 
 # Convenience properties for dependencies
 properties: {
-  jetty.version  : 7.6.8.v20121106
+  jetty.version  : 7.6.13.v20130916
   wicket.version : 1.4.21
   lucene.version : 3.6.1
   jgit.version   : 3.0.0.201306101825-r
