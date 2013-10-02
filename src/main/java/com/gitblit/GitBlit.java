@@ -62,6 +62,9 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -3774,6 +3777,18 @@ public class GitBlit implements ServletContextListener {
 					logger.error(MessageFormat.format("Please specify a non-parameterized path for <context-param> {0} in web.xml!!", Constants.baseFolder));
 					logger.error(MessageFormat.format("OR configure your servlet container to specify a \"{0}\" parameter in the context configuration!!", Constants.baseFolder));
 					logger.error("");
+				}
+
+				try {
+					// try to lookup JNDI env-entry for the baseFolder
+					InitialContext ic = new InitialContext();
+					Context env = (Context) ic.lookup("java:comp/env");
+					String val = (String) env.lookup("baseFolder");
+					if (!StringUtils.isEmpty(val)) {
+						path = val;
+					}
+				} catch (NamingException n) {
+					logger.error("Failed to get JNDI env-entry: " + n.getExplanation());
 				}
 
 				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
