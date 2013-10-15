@@ -96,6 +96,7 @@ public class ActivityPage extends RootPage {
 			// no activity, skip graphs and activity panel
 			add(new Label("subheader", MessageFormat.format(headerPattern,
 					daysBack)));
+			add(new Label("chartsPanel").setVisible(false));
 			add(new Label("activityPanel"));
 		} else {
 			// calculate total commits and total authors
