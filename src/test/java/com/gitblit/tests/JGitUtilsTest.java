@@ -48,8 +48,6 @@ import org.eclipse.jgit.util.FileUtils;
 import org.junit.Test;
 
 import com.gitblit.Constants.SearchType;
-import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -484,14 +482,11 @@ public class JGitUtilsTest {
 	@Test
 	public void testDocuments() throws Exception {
 		Repository repository = GitBlitSuite.getTicgitRepository();
-		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+		List<String> extensions = Arrays.asList(new String[] { ".mkd", ".md" });
 		List<PathModel> markdownDocs = JGitUtils.getDocuments(repository, extensions);
-		List<PathModel> markdownDocs2 = JGitUtils.getDocuments(repository,
-				Arrays.asList(new String[] { ".mkd", ".md" }));
 		List<PathModel> allFiles = JGitUtils.getDocuments(repository, null);
 		repository.close();
 		assertTrue(markdownDocs.size() > 0);
-		assertTrue(markdownDocs2.size() > 0);
 		assertTrue(allFiles.size() > markdownDocs.size());
 	}
 

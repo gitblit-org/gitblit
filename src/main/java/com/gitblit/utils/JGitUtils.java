@@ -1049,10 +1049,10 @@ public class JGitUtils {
 				List<TreeFilter> suffixFilters = new ArrayList<TreeFilter>();
 				for (String extension : extensions) {
 					if (extension.charAt(0) == '.') {
-						suffixFilters.add(PathSuffixFilter.create("\\" + extension));
+						suffixFilters.add(PathSuffixFilter.create(extension));
 					} else {
 						// escape the . since this is a regexp filter
-						suffixFilters.add(PathSuffixFilter.create("\\." + extension));
+						suffixFilters.add(PathSuffixFilter.create("." + extension));
 					}
 				}
 				TreeFilter filter;
