@@ -44,6 +44,8 @@ public class RawPage extends SessionPage {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass().getSimpleName());
 
+	String contentType;
+
 	public RawPage(final PageParameters params) {
 		super(params);
 
@@ -86,7 +88,8 @@ public class RawPage extends SessionPage {
 				if (StringUtils.isEmpty(blobPath)) {
 					// objectid referenced raw view
 					byte [] binary = JGitUtils.getByteContent(r, objectId);
-					response.setContentType("application/octet-stream");
+					contentType = "application/octet-stream";
+					response.setContentType(contentType);
 					response.setContentLength(binary.length);
 					try {
 						response.getOutputStream().write(binary);
@@ -125,7 +128,8 @@ public class RawPage extends SessionPage {
 						case 2:
 							// image blobs
 							byte[] image = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
-							response.setContentType("image/" + extension.toLowerCase());
+							contentType = "image/" + extension.toLowerCase();
+							response.setContentType(contentType);
 							response.setContentLength(image.length);
 							try {
 								response.getOutputStream().write(image);
@@ -136,8 +140,9 @@ public class RawPage extends SessionPage {
 						case 3:
 							// binary blobs (download)
 							byte[] binary = JGitUtils.getByteContent(r, commit.getTree(), blobPath, true);
+							contentType = "application/octet-stream";
 							response.setContentLength(binary.length);
-							response.setContentType("application/octet-stream; charset=UTF-8");
+							response.setContentType(contentType);
 
 						    try {
 						    	WebRequest request = (WebRequest) requestCycle.getRequest();
@@ -168,7 +173,8 @@ public class RawPage extends SessionPage {
 							// plain text
 							String content = JGitUtils.getStringContent(r, commit.getTree(),
 									blobPath, encodings);
-							response.setContentType("text/plain; charset=UTF-8");
+							contentType = "text/plain; charset=UTF-8";
+							response.setContentType(contentType);
 							try {
 								response.getOutputStream().write(content.getBytes("UTF-8"));
 							} catch (Exception e) {
@@ -180,7 +186,8 @@ public class RawPage extends SessionPage {
 						// plain text
 						String content = JGitUtils.getStringContent(r, commit.getTree(), blobPath,
 								encodings);
-						response.setContentType("text/plain; charset=UTF-8");
+						contentType = "text/plain; charset=UTF-8";
+						response.setContentType(contentType);
 						try {
 							response.getOutputStream().write(content.getBytes("UTF-8"));
 						} catch (Exception e) {
@@ -191,5 +198,13 @@ public class RawPage extends SessionPage {
 				r.close();
 			}
 		});
+	}
+
+	@Override
+	protected void setHeaders(WebResponse response) {
+		super.setHeaders(response);
+		if (!StringUtils.isEmpty(contentType)) {
+			response.setContentType(contentType);
+		}
 	}
 }

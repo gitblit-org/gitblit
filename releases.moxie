@@ -14,6 +14,7 @@ r20: {
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity
+	- Fix raw page content type of binaries when running behind a reverse proxy
     changes:
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Reversed line links in blob view (issue-309)
