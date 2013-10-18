@@ -32,6 +32,7 @@ r20: {
     dependencyChanges:
 	- updated to Jetty 7.6.13
 	- updated to JGit 3.1.0
+	- replaced MarkdownPapers with pegdown 1.4.1
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }

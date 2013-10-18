@@ -32,7 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2713,7 +2712,7 @@ public class GitBlit implements ServletContextListener {
 			try {
 				String prepared = processCommitMessageRegex(repository.name, text);
 				return MarkdownUtils.transformMarkdown(prepared);
-			} catch (ParseException e) {
+			} catch (Exception e) {
 				logger.error("Failed to render commit message as markdown", e);
 			}
 			break;

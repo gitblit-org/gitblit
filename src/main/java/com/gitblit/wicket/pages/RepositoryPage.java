@@ -75,7 +75,7 @@ import com.gitblit.wicket.panels.RefsPanel;
 
 public abstract class RepositoryPage extends RootPage {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	private final String PARAM_STAR = "star";
 

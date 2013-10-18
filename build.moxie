@@ -135,7 +135,7 @@ dependencies:
 - compile 'org.apache.lucene:lucene-core:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-highlighter:${lucene.version}' :war :fedclient
 - compile 'org.apache.lucene:lucene-memory:${lucene.version}' :war :fedclient
-- compile 'org.tautua.markdownpapers:markdownpapers-core:1.3.2' :war
+- compile 'org.pegdown:pegdown:1.4.1' :war
 - compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager :authority
 - compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :fedclient :manager :authority
 - compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war :authority

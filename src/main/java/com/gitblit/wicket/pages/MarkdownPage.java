@@ -16,7 +16,6 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
-import java.text.ParseException;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -60,7 +59,8 @@ public class MarkdownPage extends RepositoryPage {
 		String htmlText;
 		try {
 			htmlText = MarkdownUtils.transformMarkdown(markdownText);
-		} catch (ParseException p) {
+		} catch (Exception e) {
+			logger.error("failed to transform markdown", e);
 			markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
 			htmlText = StringUtils.breakLinesForHtml(markdownText);
 		}

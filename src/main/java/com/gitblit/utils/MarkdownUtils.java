@@ -15,14 +15,14 @@
  */
 package com.gitblit.utils;
 
+import static org.pegdown.Extensions.ALL;
+
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.slf4j.LoggerFactory;
-import org.tautua.markdownpapers.Markdown;
-import org.tautua.markdownpapers.parser.ParseException;
+import org.apache.commons.io.IOUtils;
+import org.pegdown.PegDownProcessor;
 
 /**
  * Utility methods for transforming raw markdown text to html.
@@ -39,17 +39,10 @@ public class MarkdownUtils {
 	 * @return html version of markdown text
 	 * @throws java.text.ParseException
 	 */
-	public static String transformMarkdown(String markdown) throws java.text.ParseException {
-		try {
-			StringReader reader = new StringReader(markdown);
-			String html = transformMarkdown(reader);
-			reader.close();
-			return html;
-		} catch (IllegalArgumentException e) {
-			throw new java.text.ParseException(e.getMessage(), 0);
-		} catch (NullPointerException p) {
-			throw new java.text.ParseException("Markdown string is null!", 0);
-		}
+	public static String transformMarkdown(String markdown) {
+		PegDownProcessor pd = new PegDownProcessor(ALL);
+		String html = pd.markdownToHtml(markdown);
+		return html;
 	}
 
 	/**
@@ -60,22 +53,13 @@ public class MarkdownUtils {
 	 * @return html version of the markdown text
 	 * @throws java.text.ParseException
 	 */
-	public static String transformMarkdown(Reader markdownReader) throws java.text.ParseException {
+	public static String transformMarkdown(Reader markdownReader) throws IOException {
 		// Read raw markdown content and transform it to html
 		StringWriter writer = new StringWriter();
 		try {
-			Markdown md = new Markdown();
-			md.transform(markdownReader, writer);
-			return writer.toString().trim();
-		} catch (StringIndexOutOfBoundsException e) {
-			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", e);
-			throw new java.text.ParseException(e.getMessage(), 0);
-		} catch (ParseException p) {
-			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", p);
-			throw new java.text.ParseException(p.getMessage(), 0);
-		} catch (Exception e) {
-			LoggerFactory.getLogger(MarkdownUtils.class).error("MarkdownPapers failed to parse Markdown!", e);
-			throw new java.text.ParseException(e.getMessage(), 0);
+			IOUtils.copy(markdownReader, writer);
+			String markdown = writer.toString();
+			return transformMarkdown(markdown);
 		} finally {
 			try {
 				writer.close();

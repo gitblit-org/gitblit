@@ -196,13 +196,79 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
-      <library name="markdownpapers-core-1.3.2.jar">
+      <library name="pegdown-1.4.1.jar">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/ext/markdownpapers-core-1.3.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/pegdown-1.4.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/ext/src/markdownpapers-core-1.3.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/ext/src/pegdown-1.4.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="parboiled-java-1.1.5.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/parboiled-java-1.1.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/parboiled-java-1.1.5.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="parboiled-core-1.1.5.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/parboiled-core-1.1.5.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/parboiled-core-1.1.5.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="asm-4.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/asm-4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/asm-4.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="asm-tree-4.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/asm-tree-4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/asm-tree-4.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="asm-analysis-4.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/asm-analysis-4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/asm-analysis-4.1.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="asm-util-4.1.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/asm-util-4.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/asm-util-4.1.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

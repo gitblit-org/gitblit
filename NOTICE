@@ -56,14 +56,6 @@ WicketStuff GoogleCharts
    https://github.com/wicketstuff/core/wiki/GoogleCharts   
    
 ---------------------------------------------------------------------------
-MarkdownPapers
----------------------------------------------------------------------------
-   MarkdownPapers, released under the
-   Apache Software License, Version 2.0.
-
-   http://markdown.tautua.org
-   
----------------------------------------------------------------------------
 Jetty
 ---------------------------------------------------------------------------
    Jetty, released under the
@@ -318,4 +310,12 @@ commons-codec
    Apache License 2.0.
    
    http://commons.apache.org/proper/commons-codec
-    
+
+---------------------------------------------------------------------------
+pegdown
+---------------------------------------------------------------------------
+   pegdown, release under the
+   Apache License 2.0.
+   
+   https://github.com/sirthias/pegdown
+        

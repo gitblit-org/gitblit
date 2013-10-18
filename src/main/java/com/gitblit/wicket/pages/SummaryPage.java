@@ -18,7 +18,6 @@ package com.gitblit.wicket.pages;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,7 +165,8 @@ public class SummaryPage extends RepositoryPage {
 					markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
 					htmlText = MarkdownUtils.transformMarkdown(markdownText);
 				}
-			} catch (ParseException p) {
+			} catch (Exception e) {
+				logger.error("failed to transform markdown", e);
 				markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
 				htmlText = StringUtils.breakLinesForHtml(markdownText);
 			}
