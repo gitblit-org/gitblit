@@ -94,8 +94,6 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JCheckBox showRemoteBranches;
 
-	private JCheckBox showReadme;
-
 	private JCheckBox skipSizeCalculation;
 
 	private JCheckBox skipSummaryMetrics;
@@ -216,8 +214,6 @@ public class EditRepositoryDialog extends JDialog {
 		showRemoteBranches = new JCheckBox(
 				Translation.get("gb.showRemoteBranchesDescription"),
 				anRepository.showRemoteBranches);
-		showReadme = new JCheckBox(Translation.get("gb.showReadmeDescription"),
-				anRepository.showReadme);
 		skipSizeCalculation = new JCheckBox(
 				Translation.get("gb.skipSizeCalculationDescription"),
 				anRepository.skipSizeCalculation);
@@ -312,8 +308,6 @@ public class EditRepositoryDialog extends JDialog {
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
 				showRemoteBranches));
-		fieldsPanel.add(newFieldPanel(Translation.get("gb.showReadme"),
-				showReadme));
 		fieldsPanel
 				.add(newFieldPanel(Translation.get("gb.skipSizeCalculation"),
 						skipSizeCalculation));
@@ -567,7 +561,6 @@ public class EditRepositoryDialog extends JDialog {
 		repository.useDocs = useDocs.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
-		repository.showReadme = showReadme.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();
 		repository.skipSummaryMetrics = skipSummaryMetrics.isSelected();
 		repository.maxActivityCommits = (Integer) maxActivityCommits.getSelectedItem();

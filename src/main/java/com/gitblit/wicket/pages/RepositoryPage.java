@@ -204,7 +204,7 @@ public abstract class RepositoryPage extends RootPage {
 
 		// conditional links
 		// per-repository extra page links
-		if (model.showReadme || model.useDocs) {
+		if (model.useDocs) {
 			pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params, true));
 		}
 		if (JGitUtils.getPagesBranch(r) != null) {

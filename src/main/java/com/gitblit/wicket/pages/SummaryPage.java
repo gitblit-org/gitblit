@@ -137,47 +137,56 @@ public class SummaryPage extends RepositoryPage {
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 
-		if (getRepositoryModel().showReadme) {
-			String htmlText = null;
-			String markdownText = null;
-			String readme = null;
-			try {
-				RevCommit head = JGitUtils.getCommit(r, null);
-				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-				List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
-				for (PathModel path : paths) {
-					if (!path.isTree()) {
-						String name = path.name.toLowerCase();
-
-						if (name.startsWith("readme")) {
-							if (name.indexOf('.') > -1) {
-								String ext = name.substring(name.lastIndexOf('.') + 1);
-								if (markdownExtensions.contains(ext)) {
-									readme = path.name;
-									break;
-								}
+		String htmlText = null;
+		String markdownText = null;
+		String readme = null;
+		boolean isMarkdown = false;
+		try {
+			RevCommit head = JGitUtils.getCommit(r, null);
+			List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+			List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
+			for (PathModel path : paths) {
+				if (!path.isTree()) {
+					String name = path.name.toLowerCase();
+					if (name.equals("readme") || name.equals("readme.txt")) {
+						readme = path.name;
+						isMarkdown = false;
+					} else if (name.startsWith("readme")) {
+						if (name.indexOf('.') > -1) {
+							String ext = name.substring(name.lastIndexOf('.') + 1);
+							if (markdownExtensions.contains(ext)) {
+								readme = path.name;
+								isMarkdown = true;
+								break;
 							}
 						}
 					}
 				}
-				if (!StringUtils.isEmpty(readme)) {
-					String [] encodings = GitBlit.getEncodings();
-					markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
-					htmlText = MarkdownUtils.transformMarkdown(markdownText);
-				}
-			} catch (Exception e) {
-				logger.error("failed to transform markdown", e);
-				markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
-				htmlText = StringUtils.breakLinesForHtml(markdownText);
 			}
-			Fragment fragment = new Fragment("readme", "markdownPanel");
+			if (!StringUtils.isEmpty(readme)) {
+				String [] encodings = GitBlit.getEncodings();
+				markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
+				if (isMarkdown) {
+					htmlText = MarkdownUtils.transformMarkdown(markdownText);
+				} else {
+					htmlText = MarkdownUtils.transformPlainText(markdownText);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("failed to transform markdown", e);
+			markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
+			htmlText = MarkdownUtils.transformPlainText(markdownText);
+		}
+
+		if (StringUtils.isEmpty(htmlText)) {
+			add(new Label("readme").setVisible(false));
+		} else {
+			Fragment fragment = new Fragment("readme", isMarkdown ? "markdownPanel" : "plaintextPanel");
 			fragment.add(new Label("readmeFile", readme));
 			// Add the html to the page
 			Component content = new Label("readmeContent", htmlText).setEscapeModelStrings(false);
 			fragment.add(content.setVisible(!StringUtils.isEmpty(htmlText)));
 			add(fragment);
-		} else {
-			add(new Label("readme").setVisible(false));
 		}
 
 		// Display an activity line graph

@@ -448,7 +448,6 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new CheckBox("useDocs"));
 		form.add(new CheckBox("useIncrementalPushTags"));
 		form.add(new CheckBox("showRemoteBranches"));
-		form.add(new CheckBox("showReadme"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
 		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500 );

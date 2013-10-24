@@ -2015,7 +2015,6 @@ public class GitBlit implements ServletContextListener {
 			model.verifyCommitter = getConfig(config, "verifyCommitter", false);
 			model.showRemoteBranches = getConfig(config, "showRemoteBranches", hasOrigin);
 			model.isFrozen = getConfig(config, "isFrozen", false);
-			model.showReadme = getConfig(config, "showReadme", false);
 			model.skipSizeCalculation = getConfig(config, "skipSizeCalculation", false);
 			model.skipSummaryMetrics = getConfig(config, "skipSummaryMetrics", false);
 			model.commitMessageRenderer = CommitMessageRenderer.fromName(getConfig(config, "commitMessageRenderer",
@@ -2578,7 +2577,6 @@ public class GitBlit implements ServletContextListener {
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "verifyCommitter", repository.verifyCommitter);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showRemoteBranches", repository.showRemoteBranches);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "isFrozen", repository.isFrozen);
-		config.setBoolean(Constants.CONFIG_GITBLIT, null, "showReadme", repository.showReadme);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "skipSizeCalculation", repository.skipSizeCalculation);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "skipSummaryMetrics", repository.skipSummaryMetrics);
 		config.setString(Constants.CONFIG_GITBLIT, null, "federationStrategy",

@@ -33,6 +33,21 @@ import org.pegdown.PegDownProcessor;
 public class MarkdownUtils {
 
 	/**
+	 * Returns the html version of the plain source text.
+	 *
+	 * @param text
+	 * @return html version of plain text
+	 * @throws java.text.ParseException
+	 */
+	public static String transformPlainText(String text) {
+		// url auto-linking
+		text = text.replaceAll("((http|https)://[0-9A-Za-z-_=\\?\\.\\$#&/]*)", "<a href=\"$1\">$1</a>");
+		String html = "<pre>" + text + "</pre>";
+		return html;
+	}
+
+
+	/**
 	 * Returns the html version of the markdown source text.
 	 *
 	 * @param markdown

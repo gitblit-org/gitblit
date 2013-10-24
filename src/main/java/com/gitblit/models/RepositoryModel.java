@@ -58,7 +58,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public AuthorizationControl authorizationControl;
 	public boolean allowAuthenticated;
 	public boolean isFrozen;
-	public boolean showReadme;
 	public FederationStrategy federationStrategy;
 	public List<String> federationSets;
 	public boolean isFederated;
@@ -208,7 +207,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.accessRestriction = AccessRestrictionType.PUSH;
 		clone.authorizationControl = AuthorizationControl.NAMED;
 		clone.federationStrategy = federationStrategy;
-		clone.showReadme = showReadme;
 		clone.showRemoteBranches = false;
 		clone.allowForks = false;
 		clone.useDocs = useDocs;
