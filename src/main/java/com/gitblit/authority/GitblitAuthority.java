@@ -146,7 +146,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 				if (i + 1 == args.length) {
 					System.out.println("Invalid --baseFolder parameter!");
 					System.exit(-1);
-				} else if (args[i + 1] != ".") {
+				} else if (!".".equals(args[i + 1])) {
 					folder = args[i+1];
 				}
 				break;

@@ -95,7 +95,7 @@ public class GitBlitServer {
 				if (i + 1 == args.length) {
 					System.out.println("Invalid --baseFolder parameter!");
 					System.exit(-1);
-				} else if (args[i + 1] != ".") {
+				} else if (!".".equals(args[i + 1])) {
 					folder = args[i + 1];
 				}
 				i = i + 1;
@@ -346,7 +346,7 @@ public class GitBlitServer {
 
 		// Start up an in-memory LDAP server, if configured
 		try {
-			if (StringUtils.isEmpty(params.ldapLdifFile) == false) {
+			if (!StringUtils.isEmpty(params.ldapLdifFile)) {
 				File ldifFile = new File(params.ldapLdifFile);
 				if (ldifFile != null && ldifFile.exists()) {
 					URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
