@@ -15,21 +15,14 @@
  */
 package com.gitblit.git;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.RefFilter;
 import org.eclipse.jgit.transport.UploadPack;
 import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
-import com.gitblit.Constants;
 import com.gitblit.GitBlit;
 import com.gitblit.models.UserModel;
 
@@ -63,45 +56,9 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		RefFilter refFilter = new UserRefFilter(user);
 		UploadPack up = new UploadPack(db);
-		up.setRefFilter(refFilter);
 		up.setTimeout(timeout);
 
 		return up;
-	}
-
-	/**
-	 * Restricts advertisement of certain refs based on the permission of the
-	 * requesting user.
-	 */
-	public static class UserRefFilter implements RefFilter {
-
-		final UserModel user;
-
-		public UserRefFilter(UserModel user) {
-			this.user = user;
-		}
-
-		@Override
-		public Map<String, Ref> filter(Map<String, Ref> refs) {
-			if (user.canAdmin()) {
-				// admins can see all refs
-				return refs;
-			}
-
-			// normal users can not clone any gitblit refs
-			// JGit's RefMap is custom and does not support iterator removal :(
-			List<String> toRemove = new ArrayList<String>();
-			for (String ref : refs.keySet()) {
-				if (ref.startsWith(Constants.R_GITBLIT)) {
-					toRemove.add(ref);
-				}
-			}
-			for (String ref : toRemove) {
-				refs.remove(ref);
-			}
-			return refs;
-		}
 	}
 }

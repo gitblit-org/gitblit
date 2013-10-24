@@ -22,6 +22,7 @@ r20: {
 	- Do not log passwords on failed authentication attempts (issue-316)
 	- Updated default binary and Lucene ignore extensions
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
+	- Removed internal Gitblit ref exclusions in the upload pack
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
