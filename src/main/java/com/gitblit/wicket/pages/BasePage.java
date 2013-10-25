@@ -88,6 +88,16 @@ public abstract class BasePage extends SessionPage {
 		}
 	}
 
+	protected String getCanonicalUrl() {
+		return getCanonicalUrl(getClass(), getPageParameters());
+	}
+
+	protected String getCanonicalUrl(Class<? extends BasePage> clazz, PageParameters params) {
+		String relativeUrl = urlFor(clazz, params).toString();
+		String canonicalUrl = RequestUtils.toAbsolutePath(relativeUrl);
+		return canonicalUrl;
+	}
+
 	protected String getLanguageCode() {
 		return GitBlitWebSession.get().getLocale().getLanguage();
 	}
@@ -129,6 +139,9 @@ public abstract class BasePage extends SessionPage {
 
 	@Override
 	protected void setHeaders(WebResponse response)	{
+		// set canonical link as http header for SEO (issue-304)
+		// https://support.google.com/webmasters/answer/139394?hl=en
+		response.setHeader("Link" ,MessageFormat.format("<{0}>; rel=\"canonical\"", getCanonicalUrl()));
 		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
 		if (expires > 0) {
 			// pages are personalized for the authenticated user so they must be

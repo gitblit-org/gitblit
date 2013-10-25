@@ -39,7 +39,6 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -721,9 +720,7 @@ public abstract class RepositoryPage extends RootPage {
 			String searchString = searchBoxModel.getObject();
 			if (StringUtils.isEmpty(searchString)) {
 				// redirect to self to avoid wicket page update bug
-				PageParameters params = RepositoryPage.this.getPageParameters();
-				String relativeUrl = urlFor(RepositoryPage.this.getClass(), params).toString();
-				String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+				String absoluteUrl = getCanonicalUrl();
 				getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 				return;
 			}
@@ -745,8 +742,7 @@ public abstract class RepositoryPage extends RootPage {
 			// use an absolute url to workaround Wicket-Tomcat problems with
 			// mounted url parameters (issue-111)
 			PageParameters params = WicketUtils.newSearchParameter(repositoryName, null, searchString, searchType);
-			String relativeUrl = urlFor(searchPageClass, params).toString();
-			String absoluteUrl = RequestUtils.toAbsolutePath(relativeUrl);
+			String absoluteUrl = getCanonicalUrl(searchPageClass, params);
 			getRequestCycle().setRequestTarget(new RedirectRequestTarget(absoluteUrl));
 		}
 	}
