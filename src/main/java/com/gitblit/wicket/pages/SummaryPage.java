@@ -167,7 +167,7 @@ public class SummaryPage extends RepositoryPage {
 				String [] encodings = GitBlit.getEncodings();
 				markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
 				if (isMarkdown) {
-					htmlText = MarkdownUtils.transformMarkdown(markdownText, getLinkRenderer());
+					htmlText = MarkdownUtils.transformMarkdown(markdownText, getMarkdownLinkRenderer());
 				} else {
 					htmlText = MarkdownUtils.transformPlainText(markdownText);
 				}

@@ -653,7 +653,7 @@ public abstract class RepositoryPage extends RootPage {
 	 *
 	 * @return a link renderer
 	 */
-	protected LinkRenderer getLinkRenderer() {
+	protected LinkRenderer getMarkdownLinkRenderer() {
 		RevCommit head = JGitUtils.getCommit(r, "HEAD");
 		final String id = getBestCommitId(head);
 		LinkRenderer renderer = new LinkRenderer() {
@@ -662,9 +662,20 @@ public abstract class RepositoryPage extends RootPage {
 				try {
 					String fsc = GitBlit.getString(Keys.web.forwardSlashCharacter, "/");
 					String path = URLEncoder.encode(node.getText().replace(' ', '-'), "UTF-8").replace("%2F", fsc);
+
+					// extract document name
 					String name = node.getText();
 					if (name.indexOf('/') > -1) {
 						name = name.substring(name.lastIndexOf('/') + 1);
+					}
+
+					// strip Markdown extension
+					for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
+						String x = "." + ext;
+						if (name.endsWith(x)) {
+							name = name.substring(0, name.length() - x.length());
+							break;
+						}
 					}
 					String url = urlFor(MarkdownPage.class, WicketUtils.newPathParameter(repositoryName, id, path)).toString();
 					return new Rendering(url, name);

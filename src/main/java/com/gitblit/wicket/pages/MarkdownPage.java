@@ -79,7 +79,7 @@ public class MarkdownPage extends RepositoryPage {
 
 		String htmlText;
 		try {
-			htmlText = MarkdownUtils.transformMarkdown(markdownText, getLinkRenderer());
+			htmlText = MarkdownUtils.transformMarkdown(markdownText, getMarkdownLinkRenderer());
 		} catch (Exception e) {
 			logger.error("failed to transform markdown", e);
 			if (markdownText == null) {

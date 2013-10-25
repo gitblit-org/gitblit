@@ -74,7 +74,7 @@ public class DocsPage extends RepositoryPage {
 			// load the document
 			String [] encodings = GitBlit.getEncodings();
 			markdown = JGitUtils.getStringContent(r, head.getTree(), doc, encodings);
-			html = MarkdownUtils.transformMarkdown(markdown, getLinkRenderer());
+			html = MarkdownUtils.transformMarkdown(markdown, getMarkdownLinkRenderer());
 		}
 
 		Fragment fragment = null;
