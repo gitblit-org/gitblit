@@ -31,7 +31,7 @@ Hook contributions and improvements are welcome.
 
 <blockquote>Grape (The Groovy Adaptable Packaging Engine or Groovy Advanced Packaging Engine) is the infrastructure enabling the grab() calls in Groovy, a set of classes leveraging <a href="http://ant.apache.org/ivy">Ivy</a> to allow for a repository driven module system for Groovy. This allows a developer to write a script with an essentially arbitrary library requirement, and ship just the script. Grape will, at runtime, download as needed and link the named libraries and all dependencies forming a transitive closure when the script is run from existing repositories such as Ibiblio, Codehaus, and java.net.</blockquote>
 
----JAVA---
+```java
 // create and use a primitive array
 import org.apache.commons.collections.primitives.ArrayIntList
 
@@ -42,7 +42,7 @@ def ints = createEmptyInts()
 ints.add(0, 42)
 assert ints.size() == 1
 assert ints.get(0) == 42
----JAVA---
+```
 
 ### Custom Fields
 

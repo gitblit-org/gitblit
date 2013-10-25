@@ -48,12 +48,13 @@ Changing your *federation.passphrase* will break any registrations you have esta
 If you want your repositories (and optionally users accounts and settings) to be pulled by another Gitblit instance, you need to register your origin Gitblit instance with a pulling Gitblit instance by providing the url of your Gitblit instance and a federation token.
 
 Gitblit generates the following standard federation tokens:
----JAVA---
+
+```java
 String allToken = SHA1(passphrase + "-ALL");
 String usersAndRepositoriesToken = SHA1(passphrase + "-USERS_AND_REPOSITORIES");
 String repositoriesToken = SHA1(passphrase + "-REPOSITORIES");
----JAVA---
-    
+```
+
 The *ALL* token allows another Gitblit instance to pull all your repositories, user accounts, server settings, and referenced push scripts.  
 The *USERS_AND_REPOSITORIES* token allows another Gitblit instance to pull all your repositories and  user accounts.  
 The *REPOSITORIES* token only allows pulling of the repositories.

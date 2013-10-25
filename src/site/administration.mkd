@@ -95,15 +95,15 @@ You may optionally enable committer verification which requires that each commit
 **How is this enforced?**
 
 Bob must set his *user.name* and *user.email* values for the repository to match his Gitblit user account **BEFORE** committing to his repository.
-<pre>
+
+```
 [user "bob"]
     displayName = Bob Jones
     emailAddress = bob@somewhere.com
-</pre>
-<pre>
+```
+
     git config user.name "Bob Jones"
     git config user.email bob@somewhere.com	
-</pre>
 or
 
     git config user.name bob

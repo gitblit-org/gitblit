@@ -99,12 +99,12 @@ Small workgroups that require centralized repositories.
 Gitblit is not meant to be a social coding resource like [Github](http://github.com) or [Bitbucket](http://bitbucket.com) with 100s or 1000s of users.  Gitblit is designed to fulfill the same function as your centralized Subversion or CVS server.
 
 ### Why does Gitblit exist when there is Git and Gitweb?
-As a Java developer I prefer that as much of my tooling as possible is Java.<br/>
+As a Java developer I prefer that as much of my tooling as possible is Java.
 Originally, I was going to use [Mercurial](http://mercurial.selenic.com) but...
 
-- MercurialEclipse [shells to Python, writes to System.out, and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)<br/>
+- MercurialEclipse [shells to Python, writes to System.out, and captures System.in](http://mercurial.808500.n3.nabble.com/Hg4J-Mercurial-pure-Java-library-tp2693090p2694555.html)
 Parsing command-line output is fragile and suboptimal.<br/>Unfortunately this is necessary because Mercurial is an application, not a library.
-- Mercurial HTTP/HTTPS needs to run as CGI through Apache/IIS/etc, as mod_python through Apache, or served with a built-in http server.<br/>
+- Mercurial HTTP/HTTPS needs to run as CGI through Apache/IIS/etc, as mod_python through Apache, or served with a built-in http server.
 This requires setup and maintenance of multiple, mixed 3rd party components.
 
 Gitblit eliminates all that complication with its 100% Java stack and simple single configuration file.
@@ -112,7 +112,7 @@ Gitblit eliminates all that complication with its 100% Java stack and simple sin
 Additionally, Git and Gitweb do not offer repository creation or user management.
 
 ### Do I need real Git?
-No (mostly).  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].<br/>
+No (mostly).  Gitblit is based on [JGit][jgit] which is a pure Java implementation of the [Git version control system][git].
 Everything you need for Gitblit (except Java) is either bundled in the distribution file or automatically downloaded on execution.
 
 #### mostly
@@ -155,7 +155,7 @@ You might consider running [Gerrit](http://gerrit.googlecode.org) which does int
 
 As of 0.9.0, Gitblit supports Lucene-based searching.
 
-If Lucene indexing is disabled, Gitblit falls back to brute-force commit-traversal search.  Commit-traversal search supports case-insensitive searching of *commit message* (default), *author*, and *committer*.<br/>
+If Lucene indexing is disabled, Gitblit falls back to brute-force commit-traversal search.  Commit-traversal search supports case-insensitive searching of *commit message* (default), *author*, and *committer*.
 
 To search by *author* or *committer* use the following syntax in the search box:
 

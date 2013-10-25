@@ -2,7 +2,7 @@
 
 1. Download Gitblit WAR [${project.releaseVersion}](%GCURL%gitblit-${project.releaseVersion}.war) to the webapps folder of your servlet container.  
 2. You may have to manually extract the WAR (zip file) to a folder within your webapps folder.
-3. By default, the Gitblit webapp is configured through `WEB-INF/data/gitblit.properties`.<br/>
+3. By default, the Gitblit webapp is configured through `WEB-INF/data/gitblit.properties`.
 Open `WEB-INF/data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - &lt;context-parameter&gt; *git.packedGitLimit* (set larger than the size of your largest repository)
     - &lt;context-parameter&gt; *git.streamFileThreshold* (set larger than the size of your largest committed file)

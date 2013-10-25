@@ -7,7 +7,8 @@ Gitblit supports defining menus for native platform git client clone urls.  By d
 You can define new client integrations and deactivate/remove the default integrations by creating a file *$(baseFolder}/clientapps.json*.
 
 ### Example definitions
----JSON---
+
+```json
 [
     {
         "name": "SmartGit/Hg",
@@ -45,4 +46,4 @@ You can define new client integrations and deactivate/remove the default integra
         "isActive": false
     }
 ]
----JSON---
+```

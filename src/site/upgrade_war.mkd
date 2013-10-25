@@ -1,5 +1,5 @@
 ## Upgrading Gitblit WAR (1.2.1+)
-1. Make sure your `WEB-INF/web.xml` *baseFolder* context parameter is not `${contextFolder}/WEB-INF/data`!<br/>
+1. Make sure your `WEB-INF/web.xml` *baseFolder* context parameter is not `${contextFolder}/WEB-INF/data`!
 If it is, move your `WEB-INF/data` folder to a location writeable by your servlet container.
 2. Deploy new WAR
 3. Edit the new WAR's `WEB-INF/web.xml` file and set the *baseFolder* context parameter to your external baseFolder.
