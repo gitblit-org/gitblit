@@ -1540,10 +1540,6 @@ div.markdown a {
 	text-decoration: underline;	
 }
 
-div.markdown em {
-	color: #b05000;
-}
-
 div.markdown table.text th, div.markdown table.text td {
 	vertical-align: top;
 	border-top: 1px solid #ccc;
