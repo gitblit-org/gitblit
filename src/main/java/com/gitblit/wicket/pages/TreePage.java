@@ -76,8 +76,8 @@ public class TreePage extends RepositoryPage {
 			paths.add(0, model);
 		}
 
+		final String id = getBestCommitId(commit);
 		final ByteFormat byteFormat = new ByteFormat();
-
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
 
 		// changed paths list
@@ -96,7 +96,7 @@ public class TreePage extends RepositoryPage {
 					item.add(new Label("pathSize", ""));
 					item.add(new LinkPanel("pathName", null, entry.name, TreePage.class,
 							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path)));
+									.newPathParameter(repositoryName, id, entry.path)));
 					item.add(new Label("pathLinks", ""));
 				} else {
 					if (entry.isTree()) {
@@ -104,16 +104,16 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.newImage("pathIcon", "folder_16x16.png"));
 						item.add(new Label("pathSize", ""));
 						item.add(new LinkPanel("pathName", "list", entry.name, TreePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "treeLinks", this);
 						links.add(new BookmarkablePageLink<Void>("tree", TreePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								repositoryName, objectId, entry.path));
@@ -141,7 +141,7 @@ public class TreePage extends RepositoryPage {
 								WicketUtils.newPathParameter(submodulePath, submoduleId,
 										"")).setEnabled(hasSubmodule));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										entry.path)));
 						links.add(new CompressedDownloadsPanel("compressedLinks", baseUrl,
 								submodulePath, submoduleId, "").setEnabled(hasSubmodule));
@@ -157,21 +157,21 @@ public class TreePage extends RepositoryPage {
 						item.add(WicketUtils.getFileImage("pathIcon", entry.name));
 						item.add(new Label("pathSize", byteFormat.format(entry.size)));
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 
 						// links
 						Fragment links = new Fragment("pathLinks", "blobLinks", this);
 						links.add(new BookmarkablePageLink<Void>("view", BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						links.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-								.newPathParameter(repositoryName, entry.commitId, path)));
+								.newPathParameter(repositoryName, id, path)));
 						links.add(new BookmarkablePageLink<Void>("blame", BlamePage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						links.add(new BookmarkablePageLink<Void>("history", HistoryPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId,
+								WicketUtils.newPathParameter(repositoryName, id,
 										path)));
 						item.add(links);
 					}

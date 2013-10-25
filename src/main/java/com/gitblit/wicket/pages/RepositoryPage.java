@@ -399,6 +399,30 @@ public abstract class RepositoryPage extends RootPage {
 		return commit;
 	}
 
+	protected String getBestCommitId(RevCommit commit) {
+		String head = null;
+		try {
+			head = r.resolve(getRepositoryModel().HEAD).getName();
+		} catch (Exception e) {
+		}
+
+		String id = commit.getName();
+		if (!StringUtils.isEmpty(head) && head.equals(id)) {
+			// match default branch
+			return Repository.shortenRefName(getRepositoryModel().HEAD);
+		}
+
+		// find first branch match
+		for (RefModel ref : JGitUtils.getLocalBranches(r, false, -1)) {
+			if (ref.getObjectId().getName().equals(id)) {
+				return ref.getName();
+			}
+		}
+
+		// return sha
+		return id;
+	}
+
 	protected Map<String, SubmoduleModel> getSubmodules(RevCommit commit) {
 		if (submodules == null) {
 			submodules = new HashMap<String, SubmoduleModel>();

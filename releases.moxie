@@ -25,6 +25,7 @@ r20: {
 	- Removed internal Gitblit ref exclusions in the upload pack
 	- Removed "show readme" setting in favor of automatic detection
 	- Support plain text "readme" files
+	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
