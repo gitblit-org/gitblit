@@ -16,6 +16,7 @@
 package com.gitblit.utils;
 
 import static org.pegdown.Extensions.ALL;
+import static org.pegdown.Extensions.SMARTYPANTS;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -67,7 +68,7 @@ public class MarkdownUtils {
 	 * @throws java.text.ParseException
 	 */
 	public static String transformMarkdown(String markdown, LinkRenderer linkRenderer) {
-		PegDownProcessor pd = new PegDownProcessor(ALL);
+		PegDownProcessor pd = new PegDownProcessor(ALL & ~SMARTYPANTS);
 		String html = pd.markdownToHtml(markdown, linkRenderer == null ? new LinkRenderer() : linkRenderer);
 		return html;
 	}
