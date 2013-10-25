@@ -167,7 +167,7 @@ public class SummaryPage extends RepositoryPage {
 				String [] encodings = GitBlit.getEncodings();
 				markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
 				if (isMarkdown) {
-					htmlText = MarkdownUtils.transformMarkdown(markdownText);
+					htmlText = MarkdownUtils.transformMarkdown(markdownText, getLinkRenderer());
 				} else {
 					htmlText = MarkdownUtils.transformPlainText(markdownText);
 				}
@@ -181,7 +181,7 @@ public class SummaryPage extends RepositoryPage {
 		if (StringUtils.isEmpty(htmlText)) {
 			add(new Label("readme").setVisible(false));
 		} else {
-			Fragment fragment = new Fragment("readme", isMarkdown ? "markdownPanel" : "plaintextPanel");
+			Fragment fragment = new Fragment("readme", isMarkdown ? "markdownPanel" : "plaintextPanel", this);
 			fragment.add(new Label("readmeFile", readme));
 			// Add the html to the page
 			Component content = new Label("readmeContent", htmlText).setEscapeModelStrings(false);

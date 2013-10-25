@@ -15,21 +15,27 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MarkdownUtils;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
@@ -42,14 +48,51 @@ public class DocsPage extends RepositoryPage {
 		super(params);
 
 		Repository r = getRepository();
+		RevCommit head = JGitUtils.getCommit(r, null);
 		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
 		List<PathModel> paths = JGitUtils.getDocuments(r, extensions);
 
+		String doc = null;
+		String markdown = null;
+		String html = null;
+
+		List<String> roots = Arrays.asList("home");
+
+		// try to find a custom index/root page
+		for (PathModel path : paths) {
+			String name = path.name.toLowerCase();
+			if (name.indexOf('.') > -1) {
+				name = name.substring(0, name.lastIndexOf('.'));
+			}
+			if (roots.contains(name)) {
+				doc = path.name;
+				break;
+			}
+		}
+
+		if (!StringUtils.isEmpty(doc)) {
+			// load the document
+			String [] encodings = GitBlit.getEncodings();
+			markdown = JGitUtils.getStringContent(r, head.getTree(), doc, encodings);
+			html = MarkdownUtils.transformMarkdown(markdown, getLinkRenderer());
+		}
+
+		Fragment fragment = null;
+		if (StringUtils.isEmpty(html)) {
+			// no custom index/root, use the standard document list
+			fragment = new Fragment("docs", "noIndexFragment", this);
+			fragment.add(new Label("header", getString("gb.docs")));
+		} else {
+			// custom index/root, use tabbed ui of index/root and document list
+			fragment = new Fragment("docs", "indexFragment", this);
+			Component content = new Label("index", html).setEscapeModelStrings(false);
+			fragment.add(content);
+		}
+
+		// document list
+		final String id = getBestCommitId(head);
 		final ByteFormat byteFormat = new ByteFormat();
-
-		add(new Label("header", getString("gb.docs")));
-
-		// documents list
+		Fragment docs = new Fragment("documents", "documentsFragment", this);
 		ListDataProvider<PathModel> pathsDp = new ListDataProvider<PathModel>(paths);
 		DataView<PathModel> pathsView = new DataView<PathModel>("document", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -60,23 +103,25 @@ public class DocsPage extends RepositoryPage {
 				PathModel entry = item.getModelObject();
 				item.add(WicketUtils.newImage("docIcon", "file_world_16x16.png"));
 				item.add(new Label("docSize", byteFormat.format(entry.size)));
-				item.add(new LinkPanel("docName", "list", entry.name, BlobPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				item.add(new LinkPanel("docName", "list", entry.name, MarkdownPage.class, WicketUtils
+						.newPathParameter(repositoryName, id, entry.path)));
 
 				// links
-				item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+				item.add(new BookmarkablePageLink<Void>("view", MarkdownPage.class, WicketUtils
+						.newPathParameter(repositoryName, id, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						.newPathParameter(repositoryName, id, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("blame", BlamePage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						.newPathParameter(repositoryName, id, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("history", HistoryPage.class, WicketUtils
-						.newPathParameter(repositoryName, entry.commitId, entry.path)));
+						.newPathParameter(repositoryName, id, entry.path)));
 				WicketUtils.setAlternatingBackground(item, counter);
 				counter++;
 			}
 		};
-		add(pathsView);
+		docs.add(pathsView);
+		fragment.add(docs);
+		add(fragment);
 	}
 
 	@Override

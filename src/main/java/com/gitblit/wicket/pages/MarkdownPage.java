@@ -16,6 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import java.text.MessageFormat;
+import java.util.List;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -25,6 +26,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -38,11 +40,32 @@ public class MarkdownPage extends RepositoryPage {
 	public MarkdownPage(PageParameters params) {
 		super(params);
 
-		final String markdownPath = WicketUtils.getPath(params);
+		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
 		String [] encodings = GitBlit.getEncodings();
+		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+
+		// Read raw markdown content and transform it to html
+		String markdownPath = path;
+		String markdownText = JGitUtils.getStringContent(r, commit.getTree(), path, encodings);
+		if (StringUtils.isEmpty(markdownText)) {
+			String name = path;
+			if (path.indexOf('.') > -1) {
+				name = path.substring(0, path.lastIndexOf('.'));
+			}
+
+			for (String ext : extensions) {
+				String checkName = name + "." + ext;
+				markdownText = JGitUtils.getStringContent(r, commit.getTree(), checkName, encodings);
+				if (!StringUtils.isEmpty(markdownText)) {
+					// found it
+					markdownPath = path;
+					break;
+				}
+			}
+		}
 
 		// markdown page links
 		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
@@ -54,13 +77,14 @@ public class MarkdownPage extends RepositoryPage {
 		add(new BookmarkablePageLink<Void>("headLink", MarkdownPage.class,
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, markdownPath)));
 
-		// Read raw markdown content and transform it to html
-		String markdownText = JGitUtils.getStringContent(r, commit.getTree(), markdownPath, encodings);
 		String htmlText;
 		try {
-			htmlText = MarkdownUtils.transformMarkdown(markdownText);
+			htmlText = MarkdownUtils.transformMarkdown(markdownText, getLinkRenderer());
 		} catch (Exception e) {
 			logger.error("failed to transform markdown", e);
+			if (markdownText == null) {
+				markdownText = String.format("Markdown document <b>%1$s</b> not found in <em>%2$s</em>", markdownPath, repositoryName);
+			}
 			markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
 			htmlText = StringUtils.breakLinesForHtml(markdownText);
 		}

@@ -490,7 +490,6 @@ pre, code, pre.prettyprint, pre.plainprint {
 	border:0px;
 	padding: 0;
 	line-height: 1.35em;
-	vertical-align:top;
 }
 
 table {
@@ -821,7 +820,6 @@ div.header {
 	padding: 3px;
 	border: 1px solid #ddd;
 	border-bottom: 0;
-	border-radius: 3px 3px 0 0;
 	font-weight: bold;
 	font-family: Helvetica,arial,freesans,clean,sans-serif;
 }
@@ -839,9 +837,6 @@ div.commitHeader {
 	margin:0 0 2px;
 	padding:7px 14px;	
 	border:1px solid #ddd;
-	border-radius: 3px;
-	-webkit-border-radius:3px;
-	-moz-border-radius:3px;border-radius:3px;
 }
 
 div.header a, div.commitHeader a {
@@ -1512,9 +1507,13 @@ li.L5,
 li.L7,
 li.L9 { background: #fafafa !important; }
 
+div.markdown {
+	max-width: 900px;
+}
+
 div.markdown pre {
-    background-color: #F5F5F5;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+	background-color: rgb(251, 251, 251);
+	border: 1px solid rgb(221, 221, 221);
     border-radius: 4px 4px 4px 4px;
     display: block;
     font-size: 12px;
@@ -1531,8 +1530,8 @@ div.markdown pre code {
 }
 
 div.markdown code {
-	background-color: #ffffe0;
-    border: 1px solid orange;
+	background-color: rgb(251, 251, 251);
+	border: 1px solid rgb(221, 221, 221);
     border-radius: 3px;
     padding: 0 0.2em;
 }

@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.pegdown.LinkRenderer;
 import org.pegdown.PegDownProcessor;
 
 /**
@@ -55,8 +56,19 @@ public class MarkdownUtils {
 	 * @throws java.text.ParseException
 	 */
 	public static String transformMarkdown(String markdown) {
+		return transformMarkdown(markdown, null);
+	}
+
+	/**
+	 * Returns the html version of the markdown source text.
+	 *
+	 * @param markdown
+	 * @return html version of markdown text
+	 * @throws java.text.ParseException
+	 */
+	public static String transformMarkdown(String markdown, LinkRenderer linkRenderer) {
 		PegDownProcessor pd = new PegDownProcessor(ALL);
-		String html = pd.markdownToHtml(markdown);
+		String html = pd.markdownToHtml(markdown, linkRenderer == null ? new LinkRenderer() : linkRenderer);
 		return html;
 	}
 
