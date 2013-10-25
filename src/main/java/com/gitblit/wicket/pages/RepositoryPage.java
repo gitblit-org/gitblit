@@ -660,7 +660,8 @@ public abstract class RepositoryPage extends RootPage {
 			@Override
 			public Rendering render(WikiLinkNode node) {
 				try {
-					String path = URLEncoder.encode(node.getText().replace(' ', '-'), "UTF-8");
+					String fsc = GitBlit.getString(Keys.web.forwardSlashCharacter, "/");
+					String path = URLEncoder.encode(node.getText().replace(' ', '-'), "UTF-8").replace("%2F", fsc);
 					String name = node.getText();
 					if (name.indexOf('/') > -1) {
 						name = name.substring(name.lastIndexOf('/') + 1);
