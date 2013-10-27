@@ -26,6 +26,7 @@ r20: {
 	- Removed "show readme" setting in favor of automatic detection
 	- Support plain text "readme" files
 	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
+	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
@@ -35,6 +36,7 @@ r20: {
 	- Support intradocument linking in Markdown content using [[WikiLinks]] syntax (issue-324)
 	- Added setting to globally disable anonymous pushes in the receive pack
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
+	- Added GO setting to automatically redirect all http requests to the secure https connector
     dependencyChanges:
 	- updated to Jetty 7.6.13
 	- updated to JGit 3.1.0
@@ -45,6 +47,7 @@ r20: {
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
+	- { name: 'server.redirectToHttpsPort', defaultValue: 'true' }
     contributors:
 	- James Moger
 	- Robin Rosenberg

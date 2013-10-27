@@ -5,8 +5,7 @@
 2. The server itself is configured through a simple text file.
 Open `data/gitblit.properties` in your favorite text editor and make sure to review and set:
     - *server.httpPort* and *server.httpsPort*
-    - *server.httpBindInterface* and *server.httpsBindInterface*  
-	- *server.storePassword*
+    - *server.storePassword*
     **https** is strongly recommended because passwords are insecurely transmitted form your browser/git client using Basic authentication!
     - *git.packedGitLimit* (set larger than the size of your largest repository)
     - *git.streamFileThreshold* (set larger than the size of your largest committed file)

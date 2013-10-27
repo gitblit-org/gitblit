@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import org.eclipse.jetty.ajp.Ajp13SocketConnector;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.bio.SocketConnector;
@@ -44,6 +46,7 @@ import org.eclipse.jetty.server.session.HashSessionManager;
 import org.eclipse.jetty.server.ssl.SslConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSocketConnector;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -213,6 +216,14 @@ public class GitBlitServer {
 			if (params.port < 1024 && !isWindows()) {
 				logger.warn("Gitblit needs to run with ROOT permissions for ports < 1024!");
 			}
+			if (params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) {
+				// redirect HTTP requests to HTTPS
+				if (httpConnector instanceof SelectChannelConnector) {
+					((SelectChannelConnector) httpConnector).setConfidentialPort(params.securePort);
+				} else {
+					((SocketConnector) httpConnector).setConfidentialPort(params.securePort);
+				}
+			}
 			connectors.add(httpConnector);
 		}
 
@@ -379,6 +390,24 @@ public class GitBlitServer {
 
 		// Set the server's contexts
 		server.setHandler(rootContext);
+
+		// redirect HTTP requests to HTTPS
+		if (params.port > 0 && params.securePort > 0 && settings.getBoolean(Keys.server.redirectToHttpsPort, true)) {
+			logger.info(String.format("Configuring automatic http(%1$s) -> https(%2$s) redirects", params.port, params.securePort));
+			// Create the internal mechanisms to handle secure connections and redirects
+			Constraint constraint = new Constraint();
+			constraint.setDataConstraint(Constraint.DC_CONFIDENTIAL);
+
+			ConstraintMapping cm = new ConstraintMapping();
+			cm.setConstraint(constraint);
+			cm.setPathSpec("/*");
+
+			ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
+			sh.setConstraintMappings(new ConstraintMapping[] { cm });
+
+			// Configure this context to use the Security Handler defined before
+			rootContext.setHandler(sh);
+		}
 
 		// Setup the GitBlit context
 		GitBlit gitblit = getGitBlitInstance();
