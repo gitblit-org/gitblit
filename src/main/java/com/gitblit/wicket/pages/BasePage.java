@@ -212,7 +212,8 @@ public abstract class BasePage extends SessionPage {
 			add(new Label("title", siteName));
 		}
 
-		ExternalLink rootLink = new ExternalLink("rootLink", urlFor(GitBlitWebApp.HOME_PAGE_CLASS, null).toString());
+		String rootLinkUrl = GitBlit.getString(Keys.web.rootLink, urlFor(GitBlitWebApp.HOME_PAGE_CLASS, null).toString());
+		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
 		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
 		add(rootLink);
 
