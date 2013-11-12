@@ -16,8 +16,6 @@
 package com.gitblit.wicket.pages;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +42,6 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.pegdown.LinkRenderer;
-import org.pegdown.ast.WikiLinkNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -645,47 +641,6 @@ public abstract class RepositoryPage extends RootPage {
 
 	public boolean isOwner() {
 		return isOwner;
-	}
-
-	/**
-	 * Returns a Pegdown/Markdown link renderer which renders WikiLinks.
-	 *
-	 * @return a link renderer
-	 */
-	protected LinkRenderer getMarkdownLinkRenderer() {
-		RevCommit head = JGitUtils.getCommit(r, "HEAD");
-		final String id = getBestCommitId(head);
-		LinkRenderer renderer = new LinkRenderer() {
-			@Override
-			public Rendering render(WikiLinkNode node) {
-				try {
-					String fsc = GitBlit.getString(Keys.web.forwardSlashCharacter, "/");
-					// adjust the request path
-					String path = node.getText().charAt(0) == '/' ? node.getText().substring(1) : node.getText();
-					path = URLEncoder.encode(path.replace(' ', '-'), "UTF-8").replace("%2F", fsc);
-
-					// extract document name
-					String name = node.getText().replace('_', ' ');
-					if (name.indexOf('/') > -1) {
-						name = name.substring(name.lastIndexOf('/') + 1);
-					}
-
-					// strip Markdown extension
-					for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
-						String x = "." + ext;
-						if (name.endsWith(x)) {
-							name = name.substring(0, name.length() - x.length());
-							break;
-						}
-					}
-					String url = urlFor(MarkdownPage.class, WicketUtils.newPathParameter(repositoryName, id, path)).toString();
-					return new Rendering(url, name);
-				} catch (UnsupportedEncodingException e) {
-					throw new IllegalStateException();
-				}
-			}
-		};
-		return renderer;
 	}
 
 	private class SearchForm extends SessionlessForm<Void> implements Serializable {

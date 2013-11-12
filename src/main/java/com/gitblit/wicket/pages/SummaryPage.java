@@ -43,15 +43,16 @@ import org.wicketstuff.googlecharts.ShapeMarker;
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
-import com.gitblit.models.PathModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.MarkupProcessor;
+import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
+import com.gitblit.wicket.MarkupProcessor.MarkupSyntax;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.charting.SecureChart;
 import com.gitblit.wicket.panels.BranchesPanel;
@@ -137,55 +138,17 @@ public class SummaryPage extends RepositoryPage {
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 
-		String htmlText = null;
-		String markdownText = null;
-		String readme = null;
-		boolean isMarkdown = false;
-		try {
-			RevCommit head = JGitUtils.getCommit(r, null);
-			List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-			List<PathModel> paths = JGitUtils.getFilesInPath(r, null, head);
-			for (PathModel path : paths) {
-				if (!path.isTree()) {
-					String name = path.name.toLowerCase();
-					if (name.equals("readme") || name.equals("readme.txt")) {
-						readme = path.name;
-						isMarkdown = false;
-					} else if (name.startsWith("readme")) {
-						if (name.indexOf('.') > -1) {
-							String ext = name.substring(name.lastIndexOf('.') + 1);
-							if (markdownExtensions.contains(ext)) {
-								readme = path.name;
-								isMarkdown = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			if (!StringUtils.isEmpty(readme)) {
-				String [] encodings = GitBlit.getEncodings();
-				markdownText = JGitUtils.getStringContent(r, head.getTree(), readme, encodings);
-				if (isMarkdown) {
-					htmlText = MarkdownUtils.transformMarkdown(markdownText, getMarkdownLinkRenderer());
-				} else {
-					htmlText = MarkdownUtils.transformPlainText(markdownText);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("failed to transform markdown", e);
-			markdownText = MessageFormat.format("<div class=\"alert alert-error\"><strong>{0}:</strong> {1}</div>{2}", getString("gb.error"), getString("gb.markdownFailure"), markdownText);
-			htmlText = MarkdownUtils.transformPlainText(markdownText);
-		}
-
-		if (StringUtils.isEmpty(htmlText)) {
+		RevCommit head = JGitUtils.getCommit(r, null);
+		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+		MarkupDocument markupDoc = processor.parseReadme(r, repositoryName, getBestCommitId(head));
+		if (markupDoc.markup == null) {
 			add(new Label("readme").setVisible(false));
 		} else {
-			Fragment fragment = new Fragment("readme", isMarkdown ? "markdownPanel" : "plaintextPanel", this);
-			fragment.add(new Label("readmeFile", readme));
+			Fragment fragment = new Fragment("readme", MarkupSyntax.PLAIN.equals(markupDoc.syntax) ? "plaintextPanel" : "markdownPanel", this);
+			fragment.add(new Label("readmeFile", markupDoc.documentPath));
 			// Add the html to the page
-			Component content = new Label("readmeContent", htmlText).setEscapeModelStrings(false);
-			fragment.add(content.setVisible(!StringUtils.isEmpty(htmlText)));
+			Component content = new Label("readmeContent", markupDoc.html).setEscapeModelStrings(false);
+			fragment.add(content.setVisible(!StringUtils.isEmpty(markupDoc.html)));
 			add(fragment);
 		}
 

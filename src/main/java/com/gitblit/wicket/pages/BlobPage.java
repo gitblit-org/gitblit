@@ -35,6 +35,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.ExternalImage;
+import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
@@ -73,10 +74,11 @@ public class BlobPage extends RepositoryPage {
 				extension = blobPath.substring(blobPath.lastIndexOf('.') + 1).toLowerCase();
 			}
 
-			// see if we should redirect to the markdown page
-			for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
+			// see if we should redirect to the doc page
+			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+			for (String ext : processor.getMarkupExtensions()) {
 				if (ext.equals(extension)) {
-					setResponsePage(MarkdownPage.class, params);
+					setResponsePage(DocPage.class, params);
 					return;
 				}
 			}

@@ -1540,6 +1540,29 @@ div.markdown a {
 	text-decoration: underline;	
 }
 
+div.markdown table {
+	max-width: 100%;
+	background-color: transparent;
+	border-collapse: collapse;
+	border-spacing: 0px;
+	font-size: inherit;
+	border-width: 0px 1px 1px 0px;
+    border-style: solid solid solid none;
+    border-color: rgb(221, 221, 221);
+    border-image: none;
+    border-collapse: separate;
+    margin: 10px 0px 20px;
+}
+
+div.markdown table td, div.markdown table th {
+	padding: 8px;
+	line-height: 20px;
+	text-align: left;
+	vertical-align: top;
+	border-top: 1px solid rgb(221, 221, 221);
+	border-left: 1px solid rgb(221, 221, 221);
+}
+
 div.markdown table.text th, div.markdown table.text td {
 	vertical-align: top;
 	border-top: 1px solid #ccc;

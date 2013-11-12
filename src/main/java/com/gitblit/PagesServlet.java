@@ -38,6 +38,8 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.wicket.MarkupProcessor;
+import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
 
 /**
  * Serves the content of a gh-pages branch.
@@ -142,21 +144,20 @@ public class PagesServlet extends HttpServlet {
 				return;
 			}
 
+			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
 			String [] encodings = GitBlit.getEncodings();
 
 			RevTree tree = commit.getTree();
 			byte[] content = null;
 			if (StringUtils.isEmpty(resource)) {
 				// find resource
-				List<String> markdownExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-				List<String> extensions = new ArrayList<String>(markdownExtensions.size() + 2);
+				List<String> extensions = new ArrayList<String>(processor.getMarkupExtensions());
 				extensions.add("html");
 				extensions.add("htm");
-				extensions.addAll(markdownExtensions);
-				for (String ext : extensions){
+				for (String ext : extensions) {
 					String file = "index." + ext;
 					String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
-					if(stringContent == null){
+					if (stringContent == null) {
 						continue;
 					}
 					content = stringContent.getBytes(Constants.ENCODING);
@@ -213,14 +214,13 @@ public class PagesServlet extends HttpServlet {
 				return;
 			}
 
-			// check to see if we should transform markdown files
-			for (String ext : GitBlit.getStrings(Keys.web.markdownExtensions)) {
-				if (resource.endsWith(ext)) {
-					String mkd = new String(content, Constants.ENCODING);
-					content = MarkdownUtils.transformMarkdown(mkd).getBytes(Constants.ENCODING);
-					response.setContentType("text/html; charset=" + Constants.ENCODING);
-					break;
-				}
+			// check to see if we should transform markup files
+			String ext = StringUtils.getFileExtension(resource);
+			if (processor.getMarkupExtensions().contains(ext)) {
+				String markup = new String(content, Constants.ENCODING);
+				MarkupDocument markupDoc = processor.parse(repository, commit.getName(), resource, markup);
+				content = markupDoc.html.getBytes("UTF-8");
+				response.setContentType("text/html; charset=" + Constants.ENCODING);
 			}
 
 			try {

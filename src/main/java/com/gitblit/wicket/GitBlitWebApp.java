@@ -39,6 +39,7 @@ import com.gitblit.wicket.pages.BranchesPage;
 import com.gitblit.wicket.pages.CommitDiffPage;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
+import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
@@ -49,7 +50,6 @@ import com.gitblit.wicket.pages.HistoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
-import com.gitblit.wicket.pages.MarkdownPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
 import com.gitblit.wicket.pages.OverviewPage;
@@ -121,9 +121,9 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/users", UsersPage.class);
 		mount("/logout", LogoutPage.class);
 
-		// setup the markdown urls
+		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");
-		mount("/markdown", MarkdownPage.class, "r", "h", "f");
+		mount("/doc", DocPage.class, "r", "h", "f");
 
 		// federation urls
 		mount("/proposal", ReviewProposalPage.class, "t");

@@ -30,14 +30,14 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.GitBlit;
-import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
-import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
+import com.gitblit.wicket.MarkupProcessor;
+import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -47,13 +47,15 @@ public class DocsPage extends RepositoryPage {
 	public DocsPage(PageParameters params) {
 		super(params);
 
+		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+
 		Repository r = getRepository();
 		RevCommit head = JGitUtils.getCommit(r, null);
-		List<String> extensions = GitBlit.getStrings(Keys.web.markdownExtensions);
+		List<String> extensions = processor.getMarkupExtensions();
 		List<PathModel> paths = JGitUtils.getDocuments(r, extensions);
 
 		String doc = null;
-		String markdown = null;
+		String markup = null;
 		String html = null;
 
 		List<String> roots = Arrays.asList("home");
@@ -61,9 +63,7 @@ public class DocsPage extends RepositoryPage {
 		// try to find a custom index/root page
 		for (PathModel path : paths) {
 			String name = path.name.toLowerCase();
-			if (name.indexOf('.') > -1) {
-				name = name.substring(0, name.lastIndexOf('.'));
-			}
+			name = StringUtils.stripFileExtension(name);
 			if (roots.contains(name)) {
 				doc = path.name;
 				break;
@@ -73,8 +73,11 @@ public class DocsPage extends RepositoryPage {
 		if (!StringUtils.isEmpty(doc)) {
 			// load the document
 			String [] encodings = GitBlit.getEncodings();
-			markdown = JGitUtils.getStringContent(r, head.getTree(), doc, encodings);
-			html = MarkdownUtils.transformMarkdown(markdown, getMarkdownLinkRenderer());
+			markup = JGitUtils.getStringContent(r, head.getTree(), doc, encodings);
+
+			// parse document
+			MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(head), doc, markup);
+			html = markupDoc.html;
 		}
 
 		Fragment fragment = null;
@@ -103,11 +106,11 @@ public class DocsPage extends RepositoryPage {
 				PathModel entry = item.getModelObject();
 				item.add(WicketUtils.newImage("docIcon", "file_world_16x16.png"));
 				item.add(new Label("docSize", byteFormat.format(entry.size)));
-				item.add(new LinkPanel("docName", "list", entry.name, MarkdownPage.class, WicketUtils
+				item.add(new LinkPanel("docName", "list", entry.name, DocPage.class, WicketUtils
 						.newPathParameter(repositoryName, id, entry.path)));
 
 				// links
-				item.add(new BookmarkablePageLink<Void>("view", MarkdownPage.class, WicketUtils
+				item.add(new BookmarkablePageLink<Void>("view", DocPage.class, WicketUtils
 						.newPathParameter(repositoryName, id, entry.path)));
 				item.add(new BookmarkablePageLink<Void>("raw", RawPage.class, WicketUtils
 						.newPathParameter(repositoryName, id, entry.path)));

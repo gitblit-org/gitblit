@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -190,11 +189,10 @@ public class WicketUtils {
 			return newImage(wicketId, "file_settings_16x16.png");
 		}
 
-		List<String> mdExtensions = GitBlit.getStrings(Keys.web.markdownExtensions);
-		for (String ext : mdExtensions) {
-			if (filename.endsWith('.' + ext.toLowerCase())) {
-				return newImage(wicketId, "file_world_16x16.png");
-			}
+		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+		String ext = StringUtils.getFileExtension(filename).toLowerCase();
+		if (processor.getMarkupExtensions().contains(ext)) {
+			return newImage(wicketId, "file_world_16x16.png");
 		}
 		return newImage(wicketId, "file_16x16.png");
 	}
