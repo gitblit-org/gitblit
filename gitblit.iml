@@ -273,6 +273,72 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="wikitext-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/wikitext-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/wikitext-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="twiki-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/twiki-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/twiki-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="textile-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/textile-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/textile-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="tracwiki-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/tracwiki-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/tracwiki-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="mediawiki-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/mediawiki-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/mediawiki-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="confluence-core-1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/confluence-core-1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/confluence-core-1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="org.eclipse.jgit-3.1.0.201310021548-r.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.1.0.201310021548-r.jar!/" />

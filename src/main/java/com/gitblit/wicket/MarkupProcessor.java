@@ -16,6 +16,7 @@
 package com.gitblit.wicket;
 
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
@@ -26,6 +27,15 @@ import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.mylyn.wikitext.confluence.core.ConfluenceLanguage;
+import org.eclipse.mylyn.wikitext.core.parser.Attributes;
+import org.eclipse.mylyn.wikitext.core.parser.MarkupParser;
+import org.eclipse.mylyn.wikitext.core.parser.builder.HtmlDocumentBuilder;
+import org.eclipse.mylyn.wikitext.core.parser.markup.MarkupLanguage;
+import org.eclipse.mylyn.wikitext.mediawiki.core.MediaWikiLanguage;
+import org.eclipse.mylyn.wikitext.textile.core.TextileLanguage;
+import org.eclipse.mylyn.wikitext.tracwiki.core.TracWikiLanguage;
+import org.eclipse.mylyn.wikitext.twiki.core.TWikiLanguage;
 import org.pegdown.LinkRenderer;
 import org.pegdown.ast.WikiLinkNode;
 import org.slf4j.Logger;
@@ -38,6 +48,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.DocPage;
+import com.gitblit.wicket.pages.RawPage;
 
 /**
  * Processes markup content and generates html with repository-relative page and
@@ -49,7 +60,7 @@ import com.gitblit.wicket.pages.DocPage;
 public class MarkupProcessor {
 
 	public enum MarkupSyntax {
-		PLAIN, MARKDOWN
+		PLAIN, MARKDOWN, TWIKI, TRACWIKI, TEXTILE, MEDIAWIKI, CONFLUENCE
 	}
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -62,7 +73,12 @@ public class MarkupProcessor {
 
 	public List<String> getMarkupExtensions() {
 		List<String> list = new ArrayList<String>();
+		list.addAll(settings.getStrings(Keys.web.confluenceExtensions));
 		list.addAll(settings.getStrings(Keys.web.markdownExtensions));
+		list.addAll(settings.getStrings(Keys.web.mediawikiExtensions));
+		list.addAll(settings.getStrings(Keys.web.textileExtensions));
+		list.addAll(settings.getStrings(Keys.web.tracwikiExtensions));
+		list.addAll(settings.getStrings(Keys.web.twikiExtensions));
 		return list;
 	}
 
@@ -72,8 +88,18 @@ public class MarkupProcessor {
 			return MarkupSyntax.PLAIN;
 		}
 
-		if (settings.getStrings(Keys.web.markdownExtensions).contains(ext)) {
+		if (settings.getStrings(Keys.web.confluenceExtensions).contains(ext)) {
+			return MarkupSyntax.CONFLUENCE;
+		} else if (settings.getStrings(Keys.web.markdownExtensions).contains(ext)) {
 			return MarkupSyntax.MARKDOWN;
+		} else if (settings.getStrings(Keys.web.mediawikiExtensions).contains(ext)) {
+			return MarkupSyntax.MEDIAWIKI;
+		} else if (settings.getStrings(Keys.web.textileExtensions).contains(ext)) {
+			return MarkupSyntax.TEXTILE;
+		} else if (settings.getStrings(Keys.web.tracwikiExtensions).contains(ext)) {
+			return MarkupSyntax.TRACWIKI;
+		} else if (settings.getStrings(Keys.web.twikiExtensions).contains(ext)) {
+			return MarkupSyntax.TWIKI;
 		}
 
 		return MarkupSyntax.PLAIN;
@@ -115,8 +141,23 @@ public class MarkupProcessor {
 		if (markupText != null) {
 			try {
 				switch (syntax){
+				case CONFLUENCE:
+					parse(doc, repositoryName, commitId, new ConfluenceLanguage());
+					break;
 				case MARKDOWN:
 					parse(doc, repositoryName, commitId);
+					break;
+				case MEDIAWIKI:
+					parse(doc, repositoryName, commitId, new MediaWikiLanguage());
+					break;
+				case TEXTILE:
+					parse(doc, repositoryName, commitId, new TextileLanguage());
+					break;
+				case TRACWIKI:
+					parse(doc, repositoryName, commitId, new TracWikiLanguage());
+					break;
+				case TWIKI:
+					parse(doc, repositoryName, commitId, new TWikiLanguage());
 					break;
 				default:
 					doc.html = MarkdownUtils.transformPlainText(markupText);
@@ -137,6 +178,61 @@ public class MarkupProcessor {
 		}
 
 		return doc;
+	}
+
+	/**
+	 * Parses the markup using the specified markup language
+	 *
+	 * @param doc
+	 * @param repositoryName
+	 * @param commitId
+	 * @param lang
+	 */
+	private void parse(final MarkupDocument doc, final String repositoryName, final String commitId, MarkupLanguage lang) {
+		StringWriter writer = new StringWriter();
+		HtmlDocumentBuilder builder = new HtmlDocumentBuilder(writer) {
+
+			@Override
+			public void image(Attributes attributes, String imagePath) {
+				String url;
+				if (imagePath.indexOf("://") == -1) {
+					// relative image
+					String path = doc.getRelativePath(imagePath);
+					url = getWicketUrl(RawPage.class, repositoryName, commitId, path);
+				} else {
+					// absolute image
+					url = imagePath;
+				}
+				super.image(attributes, url);
+			}
+
+			@Override
+			public void link(Attributes attributes, String hrefOrHashName, String text) {
+				String url;
+				if (hrefOrHashName.charAt(0) != '#') {
+					if (hrefOrHashName.indexOf("://") == -1) {
+						// relative link
+						String path = doc.getRelativePath(hrefOrHashName);
+						url = getWicketUrl(DocPage.class, repositoryName, commitId, path);
+					} else {
+						// absolute link
+						url = hrefOrHashName;
+					}
+				} else {
+					// page-relative hash link
+					url = hrefOrHashName;
+				}
+				super.link(attributes, url, text);
+			}
+		};
+
+		// avoid the <html> and <body> tags
+		builder.setEmitAsDocument(false);
+
+		MarkupParser parser = new MarkupParser(lang);
+		parser.setBuilder(builder);
+		parser.parse(doc.markup);
+		doc.html = writer.toString();
 	}
 
 	/**

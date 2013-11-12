@@ -15,7 +15,9 @@
 		<li><a data-toggle="tab" href="#pages"><wicket:message key="gb.pages">[pages]</wicket:message></a></li>
 	</ul>
 	<div class="tab-content">
-		<div id="home" wicket:id="index" class="tab-pane active"></div>
+		<div id="home" class="tab-pane active">
+			<div class="markdown" wicket:id="index"></div>
+		</div>
 		<div id="pages" wicket:id="documents" class="tab-pane"></div>
 	</div>
 </wicket:fragment>
