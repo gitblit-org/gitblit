@@ -27,6 +27,7 @@ r20: {
 	- Support plain text "readme" files
 	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
 	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.
+	- Removed docs indicator on the repositories page
     additions:
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)

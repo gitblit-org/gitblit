@@ -37,7 +37,6 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.DocsPage;
 import com.gitblit.wicket.pages.EditRepositoryPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.SummaryPage;
@@ -87,8 +86,6 @@ public class ProjectRepositoryPanel extends BasePanel {
 		} else {
 			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 		}
-
-		add(new BookmarkablePageLink<Void>("docs", DocsPage.class, pp).setVisible(entry.useDocs));
 
 		if (entry.isFrozen) {
 			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", parent)));
