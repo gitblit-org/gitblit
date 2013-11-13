@@ -87,6 +87,12 @@ public class ProjectRepositoryPanel extends BasePanel {
 			add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 		}
 
+		if (entry.isMirror) {
+			add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png", localizer.getString("gb.isMirror", parent)));
+		} else {
+			add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
+		}
+
 		if (entry.isFrozen) {
 			add(WicketUtils.newImage("frozenIcon", "cold_16x16.png", localizer.getString("gb.isFrozen", parent)));
 		} else {

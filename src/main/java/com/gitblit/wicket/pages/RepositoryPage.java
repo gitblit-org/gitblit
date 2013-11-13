@@ -260,7 +260,14 @@ public abstract class RepositoryPage extends RootPage {
 		// indicate origin repository
 		RepositoryModel model = getRepositoryModel();
 		if (StringUtils.isEmpty(model.originRepository)) {
-			add(new Label("originRepository").setVisible(false));
+			if (model.isMirror) {
+				Fragment mirrorFrag = new Fragment("originRepository", "mirrorFragment", this);
+				Label lbl = new Label("originRepository", MessageFormat.format(getString("gb.mirrorOf"), "<b>" + model.origin + "</b>"));
+				mirrorFrag.add(lbl.setEscapeModelStrings(false));
+				add(mirrorFrag);
+			} else {
+				add(new Label("originRepository").setVisible(false));
+			}
 		} else {
 			RepositoryModel origin = GitBlit.self().getRepositoryModel(model.originRepository);
 			if (origin == null) {

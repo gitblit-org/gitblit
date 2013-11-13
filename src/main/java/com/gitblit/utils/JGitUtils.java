@@ -2096,4 +2096,54 @@ public class JGitUtils {
 		}
 		return StringUtils.decodeString(content);
 	}
+
+	/**
+	 * Automatic repair of (some) invalid refspecs.  These are the result of a
+	 * bug in JGit cloning where a double forward-slash was injected.  :(
+	 *
+	 * @param repository
+	 * @return true, if the refspecs were repaired
+	 */
+	public static boolean repairFetchSpecs(Repository repository) {
+		StoredConfig rc = repository.getConfig();
+
+		// auto-repair broken fetch ref specs
+		for (String name : rc.getSubsections("remote")) {
+			int invalidSpecs = 0;
+			int repairedSpecs = 0;
+			List<String> specs = new ArrayList<String>();
+			for (String spec : rc.getStringList("remote", name, "fetch")) {
+				try {
+					RefSpec rs = new RefSpec(spec);
+					// valid spec
+					specs.add(spec);
+				} catch (IllegalArgumentException e) {
+					// invalid spec
+					invalidSpecs++;
+					if (spec.contains("//")) {
+						// auto-repair this known spec bug
+						spec = spec.replace("//", "/");
+						specs.add(spec);
+						repairedSpecs++;
+					}
+				}
+			}
+
+			if (invalidSpecs == repairedSpecs && repairedSpecs > 0) {
+				// the fetch specs were automatically repaired
+				rc.setStringList("remote", name, "fetch", specs);
+				try {
+					rc.save();
+					rc.load();
+					LOGGER.debug("repaired {} invalid fetch refspecs for {}", repairedSpecs, repository.getDirectory());
+					return true;
+				} catch (Exception e) {
+					LOGGER.error(null, e);
+				}
+			} else if (invalidSpecs > 0) {
+				LOGGER.error("mirror executor found {} invalid fetch refspecs for {}", invalidSpecs, repository.getDirectory());
+			}
+		}
+		return false;
+	}
 }

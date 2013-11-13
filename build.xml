@@ -451,6 +451,7 @@
 			<resource file="${project.resources.dir}/commit_merge_16x16.png" />
 			<resource file="${project.resources.dir}/commit_divide_16x16.png" />
 			<resource file="${project.resources.dir}/star_16x16.png" />
+			<resource file="${project.resources.dir}/mirror_16x16.png" />
 			<resource file="${project.resources.dir}/blank.png" />
 			<resource file="${project.src.dir}/log4j.properties" />
 			<resource>

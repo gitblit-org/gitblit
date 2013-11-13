@@ -292,7 +292,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 
 		// determine maximum permission for the repository
 		final AccessPermission maxPermission =
-				(repository.isFrozen || !repository.isBare) ?
+				(repository.isFrozen || !repository.isBare || repository.isMirror) ?
 						AccessPermission.CLONE : AccessPermission.REWIND;
 
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {

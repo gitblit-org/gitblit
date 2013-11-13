@@ -206,7 +206,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 		// determine maximum permission for the repository
 		final AccessPermission maxPermission =
-				(repository.isFrozen || !repository.isBare) ?
+				(repository.isFrozen || !repository.isBare || repository.isMirror) ?
 						AccessPermission.CLONE : AccessPermission.REWIND;
 
 		if (AccessRestrictionType.NONE.equals(repository.accessRestriction)) {

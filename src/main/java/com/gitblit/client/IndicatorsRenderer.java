@@ -56,6 +56,8 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 
 	private final ImageIcon sparkleshareIcon;
 
+	private final ImageIcon mirrorIcon;
+
 	public IndicatorsRenderer() {
 		super(new FlowLayout(FlowLayout.RIGHT, 1, 0));
 		blankIcon = new ImageIcon(getClass().getResource("/blank.png"));
@@ -67,6 +69,7 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 		federatedIcon = new ImageIcon(getClass().getResource("/federated_16x16.png"));
 		forkIcon = new ImageIcon(getClass().getResource("/commit_divide_16x16.png"));
 		sparkleshareIcon = new ImageIcon(getClass().getResource("/star_16x16.png"));
+		mirrorIcon = new ImageIcon(getClass().getResource("/mirror_16x16.png"));
 	}
 
 	@Override
@@ -83,6 +86,11 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 			if (model.isSparkleshared()) {
 				JLabel icon = new JLabel(sparkleshareIcon);
 				tooltip.append(Translation.get("gb.isSparkleshared")).append("<br/>");
+				add(icon);
+			}
+			if (model.isMirror) {
+				JLabel icon = new JLabel(mirrorIcon);
+				tooltip.append(Translation.get("gb.isMirror")).append("<br/>");
 				add(icon);
 			}
 			if (model.isFork()) {

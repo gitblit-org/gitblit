@@ -65,6 +65,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public boolean skipSummaryMetrics;
 	public String frequency;
 	public boolean isBare;
+	public boolean isMirror;
 	public String origin;
 	public String HEAD;
 	public List<String> availableRefs;

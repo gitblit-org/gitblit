@@ -120,6 +120,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	@Override
 	public void onPreReceive(ReceivePack rp, Collection<ReceiveCommand> commands) {
 
+		if (repository.isMirror) {
+			// repository is a mirror
+			for (ReceiveCommand cmd : commands) {
+				sendRejection(cmd, "Gitblit does not allow pushes to \"{0}\" because it is a mirror!", repository.name);
+			}
+			return;
+		}
+
 		if (repository.isFrozen) {
 			// repository is frozen/readonly
 			for (ReceiveCommand cmd : commands) {

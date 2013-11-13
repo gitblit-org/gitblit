@@ -2878,4 +2878,22 @@ public class PermissionsTest extends Assert {
 		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
 		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
 	}
+
+	@Test
+	public void testIsMirror() throws Exception {
+		RepositoryModel repo = new RepositoryModel("somerepo.git", null, null, new Date());
+		repo.authorizationControl = AuthorizationControl.NAMED;
+		repo.accessRestriction = AccessRestrictionType.NONE;
+
+		UserModel user = new UserModel("test");
+		TeamModel team = new TeamModel("team");
+
+		assertEquals("user has wrong permission!", AccessPermission.REWIND, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.REWIND, team.getRepositoryPermission(repo).permission);
+
+		// set repo to be a mirror, pushes prohibited
+		repo.isMirror = true;
+		assertEquals("user has wrong permission!", AccessPermission.CLONE, user.getRepositoryPermission(repo).permission);
+		assertEquals("team has wrong permission!", AccessPermission.CLONE, team.getRepositoryPermission(repo).permission);
+	}
 }

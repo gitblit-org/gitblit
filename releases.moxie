@@ -16,6 +16,7 @@ r20: {
 	- Fix error on generating activity page when there is no activity
 	- Fix raw page content type of binaries when running behind a reverse proxy
     changes:
+	- Gitblit now rejects pushes to mirror repositories (issue-5)
 	- Personal repository prefix (~) is now configurable (issue-265)
 	- Reversed line links in blob view (issue-309)
 	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
@@ -24,11 +25,12 @@ r20: {
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
 	- Removed "show readme" setting in favor of automatic detection
-	- Support plain text "readme" files
+	- Support plain text, markdown, confluence, mediawiki, textile, tracwiki, or twiki "readme" files
 	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
-	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.
+	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.	
 	- Removed docs indicator on the repositories page
     additions:
+	- Added an optional MirrorExecutor which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
 	- Added setting to control creating a repository as --shared on Unix servers (issue-263)
@@ -47,7 +49,9 @@ r20: {
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
+	- { name: 'git.enableMirroring', defaultValue: 'false' }
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
+	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
 	- { name: 'server.redirectToHttpsPort', defaultValue: 'true' }

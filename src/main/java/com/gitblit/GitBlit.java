@@ -164,7 +164,7 @@ public class GitBlit implements ServletContextListener {
 
 	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
-	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(5);
+	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(10);
 
 	private final List<FederationModel> federationRegistrations = Collections
 			.synchronizedList(new ArrayList<FederationModel>());
@@ -206,6 +206,8 @@ public class GitBlit implements ServletContextListener {
 	private LuceneExecutor luceneExecutor;
 
 	private GCExecutor gcExecutor;
+
+	private MirrorExecutor mirrorExecutor;
 
 	private TimeZone timezone;
 
@@ -2035,6 +2037,7 @@ public class GitBlit implements ServletContextListener {
 			model.origin = config.getString("remote", "origin", "url");
 			if (model.origin != null) {
 				model.origin = model.origin.replace('\\', '/');
+				model.isMirror = config.getBoolean("remote", "origin", "mirror", false);
 			}
 			model.preReceiveScripts = new ArrayList<String>(Arrays.asList(config.getStringList(
 					Constants.CONFIG_GITBLIT, null, "preReceiveScript")));
@@ -3505,6 +3508,7 @@ public class GitBlit implements ServletContextListener {
 		mailExecutor = new MailExecutor(settings);
 		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
 		gcExecutor = new GCExecutor(settings);
+		mirrorExecutor = new MirrorExecutor(settings);
 
 		// initialize utilities
 		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
@@ -3544,6 +3548,7 @@ public class GitBlit implements ServletContextListener {
 		configureMailExecutor();
 		configureLuceneIndexing();
 		configureGarbageCollector();
+		configureMirrorExecutor();
 		if (startFederation) {
 			configureFederation();
 		}
@@ -3592,6 +3597,19 @@ public class GitBlit implements ServletContextListener {
 			}
 			logger.info(MessageFormat.format("Next scheculed GC scan is in {0}", when));
 			scheduledExecutor.scheduleAtFixedRate(gcExecutor, delay, 60*24, TimeUnit.MINUTES);
+		}
+	}
+
+	protected void configureMirrorExecutor() {
+		if (mirrorExecutor.isReady()) {
+			int mins = TimeUtils.convertFrequencyToMinutes(settings.getString(Keys.git.mirrorPeriod, "30 mins"));
+			if (mins < 5) {
+				mins = 5;
+			}
+			int delay = 1;
+			scheduledExecutor.scheduleAtFixedRate(mirrorExecutor, delay, mins,  TimeUnit.MINUTES);
+			logger.info("Mirror executor is scheduled to fetch updates every {} minutes.", mins);
+			logger.info("Next scheduled mirror fetch is in {} minutes", delay);
 		}
 	}
 
@@ -3864,6 +3882,7 @@ public class GitBlit implements ServletContextListener {
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
 		gcExecutor.close();
+		mirrorExecutor.close();
 		if (fanoutService != null) {
 			fanoutService.stop();
 		}

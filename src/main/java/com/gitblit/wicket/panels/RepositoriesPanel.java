@@ -243,6 +243,13 @@ public class RepositoriesPanel extends BasePanel {
 					row.add(WicketUtils.newClearPixel("sparkleshareIcon").setVisible(false));
 				}
 
+				if (entry.isMirror) {
+					row.add(WicketUtils.newImage("mirrorIcon", "mirror_16x16.png",
+							getString("gb.isMirror")));
+				} else {
+					row.add(WicketUtils.newClearPixel("mirrorIcon").setVisible(false));
+				}
+
 				if (entry.isFork()) {
 					row.add(WicketUtils.newImage("forkIcon", "commit_divide_16x16.png",
 							getString("gb.isFork")));
