@@ -15,13 +15,14 @@
  */
 package com.gitblit.wicket.pages;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -38,6 +39,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
+import com.gitblit.wicket.MarkupProcessor.MarkupSyntax;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.LinkPanel;
 
@@ -51,45 +53,76 @@ public class DocsPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		RevCommit head = JGitUtils.getCommit(r, null);
-		List<String> extensions = processor.getMarkupExtensions();
+		final String commitId = getBestCommitId(head);
+		List<String> extensions = processor.getAllExtensions();
 		List<PathModel> paths = JGitUtils.getDocuments(r, extensions);
 
-		String doc = null;
-		String markup = null;
-		String html = null;
-
-		List<String> roots = Arrays.asList("home");
-
-		// try to find a custom index/root page
-		for (PathModel path : paths) {
-			String name = path.name.toLowerCase();
-			name = StringUtils.stripFileExtension(name);
-			if (roots.contains(name)) {
-				doc = path.name;
-				break;
-			}
-		}
-
-		if (!StringUtils.isEmpty(doc)) {
-			// load the document
-			String [] encodings = GitBlit.getEncodings();
-			markup = JGitUtils.getStringContent(r, head.getTree(), doc, encodings);
-
-			// parse document
-			MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(head), doc, markup);
-			html = markupDoc.html;
-		}
-
+		List<MarkupDocument> roots = processor.getRootDocs(r, repositoryName, commitId);
 		Fragment fragment = null;
-		if (StringUtils.isEmpty(html)) {
-			// no custom index/root, use the standard document list
+		if (roots.isEmpty()) {
+			// no identified root documents just show the standard document list
 			fragment = new Fragment("docs", "noIndexFragment", this);
-			fragment.add(new Label("header", getString("gb.docs")));
 		} else {
-			// custom index/root, use tabbed ui of index/root and document list
-			fragment = new Fragment("docs", "indexFragment", this);
-			Component content = new Label("index", html).setEscapeModelStrings(false);
-			fragment.add(content);
+			// root documents, use tabbed ui of index/root and document list
+			fragment = new Fragment("docs", "tabsFragment", this);
+			ListDataProvider<MarkupDocument> docDp = new ListDataProvider<MarkupDocument>(roots);
+
+			// tab titles
+			DataView<MarkupDocument> tabTitles = new DataView<MarkupDocument>("tabTitle", docDp) {
+				private static final long serialVersionUID = 1L;
+				int counter;
+
+				@Override
+				public void populateItem(final Item<MarkupDocument> item) {
+					MarkupDocument doc = item.getModelObject();
+					String file = StringUtils.getLastPathElement(doc.documentPath);
+					file = StringUtils.stripFileExtension(file);
+					String name = file.replace('_', ' ').replace('-',  ' ');
+
+					ExternalLink link = new ExternalLink("link", "#" + file);
+					link.add(new Label("label", name.toUpperCase()).setRenderBodyOnly(true));
+					item.add(link);
+					if (counter == 0) {
+						counter++;
+						item.add(new SimpleAttributeModifier("class", "active"));
+					}
+				}
+			};
+			fragment.add(tabTitles);
+
+			// tab content
+			DataView<MarkupDocument> tabsView = new DataView<MarkupDocument>("tabContent", docDp) {
+				private static final long serialVersionUID = 1L;
+				int counter;
+
+				@Override
+				public void populateItem(final Item<MarkupDocument> item) {
+					MarkupDocument doc = item.getModelObject();
+					// document page links
+					item.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
+							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
+					item.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+							WicketUtils.newPathParameter(repositoryName, commitId, doc.documentPath)));
+					item.add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
+							repositoryName, commitId, doc.documentPath)));
+
+					// document content
+					String file = StringUtils.getLastPathElement(doc.documentPath);
+					file = StringUtils.stripFileExtension(file);
+					Component content = new Label("content", doc.html)
+						.setEscapeModelStrings(false);
+					if (!MarkupSyntax.PLAIN.equals(doc.syntax)) {
+						content.add(new SimpleAttributeModifier("class", "markdown"));
+					}
+					item.add(content);
+					item.add(new SimpleAttributeModifier("id", file));
+					if (counter == 0) {
+						counter++;
+						item.add(new SimpleAttributeModifier("class", "tab-pane active"));
+					}
+				}
+			};
+			fragment.add(tabsView);
 		}
 
 		// document list

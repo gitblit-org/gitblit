@@ -43,6 +43,7 @@ r20: {
 	- Added setting to globally disable anonymous pushes in the receive pack
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
 	- Added GO setting to automatically redirect all http requests to the secure https connector
+	- Automatically display common repository root documents as tabs on the docs page
     dependencyChanges:
 	- updated to Jetty 7.6.13
 	- updated to JGit 3.1.0
@@ -55,6 +56,7 @@ r20: {
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
+	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
 	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
 	- { name: 'server.redirectToHttpsPort', defaultValue: 'true' }

@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -54,7 +53,7 @@ public class DocPage extends RepositoryPage {
 		if (StringUtils.isEmpty(markupText)) {
 			String name = StringUtils.stripFileExtension(path);
 
-			List<String> docExtensions = processor.getMarkupExtensions();
+			List<String> docExtensions = processor.getAllExtensions();
 			for (String ext : docExtensions) {
 				String checkName = name + "." + ext;
 				markupText = JGitUtils.getStringContent(r, commit.getTree(), checkName, encodings);
@@ -73,8 +72,6 @@ public class DocPage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
 		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
 				repositoryName, objectId, documentPath)));
-		add(new BookmarkablePageLink<Void>("headLink", DocPage.class,
-				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, documentPath)));
 
 		MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(commit), documentPath, markupText);
 		add(new Label("content", markupDoc.html).setEscapeModelStrings(false));

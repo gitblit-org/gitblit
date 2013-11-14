@@ -21,7 +21,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
@@ -82,6 +85,21 @@ public class MarkupProcessor {
 		return list;
 	}
 
+	public List<String> getAllExtensions() {
+		List<String> list = getMarkupExtensions();
+		list.add("txt");
+		list.add("TXT");
+		return list;
+	}
+
+	private List<String> getRoots() {
+		return settings.getStrings(Keys.web.documents);
+	}
+
+	private String [] getEncodings() {
+		return settings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
+	}
+
 	private MarkupSyntax determineSyntax(String documentPath) {
 		String ext = StringUtils.getFileExtension(documentPath).toLowerCase();
 		if (StringUtils.isEmpty(ext)) {
@@ -105,33 +123,67 @@ public class MarkupProcessor {
 		return MarkupSyntax.PLAIN;
 	}
 
-	public MarkupDocument parseReadme(Repository r, String repositoryName, String commitId) {
-		String readme = null;
-		RevCommit commit = JGitUtils.getCommit(r, commitId);
-		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, commit);
+	public boolean hasRootDocs(Repository r) {
+		List<String> roots = getRoots();
+		List<String> extensions = getAllExtensions();
+		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, null);
 		for (PathModel path : paths) {
 			if (!path.isTree()) {
-				String name = path.name.toLowerCase();
-				if (name.equals("readme") || name.equals("readme.txt")) {
-					readme = path.name;
-					break;
-				} else if (name.startsWith("readme.")) {
-					String ext = StringUtils.getFileExtension(name).toLowerCase();
-					if (getMarkupExtensions().contains(ext)) {
-						readme = path.name;
-						break;
+				String ext = StringUtils.getFileExtension(path.name).toLowerCase();
+				String name = StringUtils.stripFileExtension(path.name).toLowerCase();
+
+				if (roots.contains(name)) {
+					if (StringUtils.isEmpty(ext) || extensions.contains(ext)) {
+						return true;
 					}
 				}
 			}
 		}
+		return false;
+	}
 
-		if (!StringUtils.isEmpty(readme)) {
-			String [] encodings = settings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
-			String markup = JGitUtils.getStringContent(r, commit.getTree(), readme, encodings);
-			return parse(repositoryName, commitId, readme, markup);
+	public List<MarkupDocument> getRootDocs(Repository r, String repositoryName, String commitId) {
+		List<String> roots = getRoots();
+		List<MarkupDocument> list = getDocs(r, repositoryName, commitId, roots);
+		return list;
+	}
+
+	public MarkupDocument getReadme(Repository r, String repositoryName, String commitId) {
+		List<MarkupDocument> list = getDocs(r, repositoryName, commitId, Arrays.asList("readme"));
+		if (list.isEmpty()) {
+			return null;
 		}
+		return list.get(0);
+	}
 
-		return null;
+	private List<MarkupDocument> getDocs(Repository r, String repositoryName, String commitId, List<String> names) {
+		List<String> extensions = getAllExtensions();
+		String [] encodings = getEncodings();
+		Map<String, MarkupDocument> map = new HashMap<String, MarkupDocument>();
+		RevCommit commit = JGitUtils.getCommit(r, commitId);
+		List<PathModel> paths = JGitUtils.getFilesInPath(r, null, commit);
+		for (PathModel path : paths) {
+			if (!path.isTree()) {
+				String ext = StringUtils.getFileExtension(path.name).toLowerCase();
+				String name = StringUtils.stripFileExtension(path.name).toLowerCase();
+
+				if (names.contains(name)) {
+					if (StringUtils.isEmpty(ext) || extensions.contains(ext)) {
+						String markup = JGitUtils.getStringContent(r, commit.getTree(), path.name, encodings);
+						MarkupDocument doc = parse(repositoryName, commitId, path.name, markup);
+						map.put(name, doc);
+					}
+				}
+			}
+		}
+		// return document list in requested order
+		List<MarkupDocument> list = new ArrayList<MarkupDocument>();
+		for (String name : names) {
+			if (map.containsKey(name)) {
+				list.add(map.get(name));
+			}
+		}
+		return list;
 	}
 
 	public MarkupDocument parse(String repositoryName, String commitId, String documentPath, String markupText) {

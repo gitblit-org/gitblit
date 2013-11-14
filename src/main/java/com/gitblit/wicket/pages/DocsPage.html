@@ -7,23 +7,30 @@
 <body>
 <wicket:extend>
 
-<div wicket:id="docs"></div>
+<div class="docs" wicket:id="docs"></div>
 
-<wicket:fragment wicket:id="indexFragment">
+<wicket:fragment wicket:id="tabsFragment">
 	<ul class="nav nav-tabs">
-		<li class="active"><a data-toggle="tab" href="#home"><wicket:message key="gb.home">[home]</wicket:message></a></li>
+		<li wicket:id="tabTitle">
+			<a data-toggle="tab" wicket:id="link"><span wicket:id="label">[label]</span></a>
+		</li>
 		<li><a data-toggle="tab" href="#pages"><wicket:message key="gb.pages">[pages]</wicket:message></a></li>
 	</ul>
 	<div class="tab-content">
-		<div id="home" class="tab-pane active">
-			<div class="markdown" wicket:id="index"></div>
+		<div wicket:id="tabContent" class="tab-pane">
+			<!-- doc nav links -->	
+			<div style="float: right;" class="docnav">
+				<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
+			</div>
+			<div class="content" wicket:id="content"></div>
 		</div>
-		<div id="pages" wicket:id="documents" class="tab-pane"></div>
+		<div id="pages" class="tab-pane">
+			<div style="padding-top: 5px;" wicket:id="documents"></div>
+		</div>
 	</div>
 </wicket:fragment>
 
 <wicket:fragment wicket:id="noIndexFragment">
-	<div style="margin-top:5px;" class="header"><i class="icon-book" style="vertical-align: middle;"></i> <b><span wicket:id="header">[header]</span></b></div>
 	<div wicket:id="documents"></div>
 </wicket:fragment>
 

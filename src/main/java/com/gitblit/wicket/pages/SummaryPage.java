@@ -142,7 +142,7 @@ public class SummaryPage extends RepositoryPage {
 			// show a readme on the summary page
 			RevCommit head = JGitUtils.getCommit(r, null);
 			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
-			MarkupDocument markupDoc = processor.parseReadme(r, repositoryName, getBestCommitId(head));
+			MarkupDocument markupDoc = processor.getReadme(r, repositoryName, getBestCommitId(head));
 			if (markupDoc == null || markupDoc.markup == null) {
 				add(new Label("readme").setVisible(false));
 			} else {

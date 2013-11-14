@@ -103,6 +103,16 @@ hr {
 	margin-bottom: -1px;
 }
 
+ul.nav {
+	border-color: #ccc;
+}
+
+.nav-tabs > .active > a,
+.nav-tabs > .active > a:hover {
+  border: 1px solid #ccc;
+  border-bottom-color: transparent;
+}
+
 .navbar .active a {
 	background-color: transparent !important;
 	outline: 0;
@@ -1507,8 +1517,57 @@ li.L5,
 li.L7,
 li.L9 { background: #fafafa !important; }
 
-div.markdown {
-	max-width: 900px;
+div.docs {
+	max-width: 880px;
+}
+
+div.docs ul.nav {	
+	margin-bottom: 0px !important;
+}
+
+div.docs div.docnav {
+	display: inline-block;
+	padding: 6px 5px 6px 5px;	
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-radius: 0px 0px 3px 3px;	
+	background-color: #ECF1F4;
+	color: #666;
+	text-align: left;
+	margin-top: -10px;
+}
+
+div.docs .content {
+	margin-top: 10px;
+}
+
+div.docs div.markdown {
+	margin-top: 10px;
+}
+
+div.markdown {	
+	line-height: 1.4;
+}
+
+div.markdown h1 {
+	padding: 0px 0px 4px;
+	border-bottom: 1px solid rgb(221, 221, 221);
+	margin: 4px 0px 8px;
+}
+
+div.markdown h2 {
+	padding: 4px 0px;
+	border-bottom: 1px solid rgb(238, 238, 238);
+	margin: 4px 0px 8px;
+}
+
+div.markdown h3 {
+	padding: 8px 0px 4px;	
+}
+
+div.markdown li {
+	line-height: 1.4;
 }
 
 div.markdown pre {
@@ -1533,11 +1592,7 @@ div.markdown code {
 	background-color: rgb(250, 250, 250);
 	border: 1px solid rgb(221, 221, 221);
     border-radius: 3px;
-    padding: 0 0.2em;
-}
-
-div.markdown a {
-	text-decoration: underline;	
+    padding: 0 0.4em;
 }
 
 div.markdown table {
