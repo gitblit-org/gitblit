@@ -1,4 +1,4 @@
-<div ng-controller="${ngCtrl}" style="border: 1px solid #ddd;border-radius: 4px;margin-bottom: 20px;">
+<div ng-controller="${ngCtrl}" style="border: 1px solid #ddd;margin-bottom: 20px;">
 	<div class="header" style="padding: 5px;border: none;"><i class="icon-folder-close"></i> <span wicket:id="${ngList}Title"></span>
 		<div style="padding: 5px 0px 0px;">
 			<input type="text" ng-model="query.n" class="input-large" wicket:message="placeholder:gb.filter" style="border-radius: 14px; padding: 3px 14px;margin: 0px;"></input>
