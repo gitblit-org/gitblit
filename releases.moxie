@@ -25,6 +25,7 @@ r20: {
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
 	- Removed "show readme" setting in favor of automatic detection
+	- README files are not shown on the summary page by default, this can be changed with web.summaryShowReadme
 	- Support plain text, markdown, confluence, mediawiki, textile, tracwiki, or twiki "readme" files
 	- Determine best commit id (e.g. "master") for the tree and docs pages and use that in links
 	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.	
@@ -54,6 +55,7 @@ r20: {
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
+	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
 	- { name: 'server.redirectToHttpsPort', defaultValue: 'true' }
     contributors:
 	- James Moger

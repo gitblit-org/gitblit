@@ -138,18 +138,24 @@ public class SummaryPage extends RepositoryPage {
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 
-		RevCommit head = JGitUtils.getCommit(r, null);
-		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
-		MarkupDocument markupDoc = processor.parseReadme(r, repositoryName, getBestCommitId(head));
-		if (markupDoc.markup == null) {
-			add(new Label("readme").setVisible(false));
+		if (GitBlit.getBoolean(Keys.web.summaryShowReadme, false)) {
+			// show a readme on the summary page
+			RevCommit head = JGitUtils.getCommit(r, null);
+			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+			MarkupDocument markupDoc = processor.parseReadme(r, repositoryName, getBestCommitId(head));
+			if (markupDoc == null || markupDoc.markup == null) {
+				add(new Label("readme").setVisible(false));
+			} else {
+				Fragment fragment = new Fragment("readme", MarkupSyntax.PLAIN.equals(markupDoc.syntax) ? "plaintextPanel" : "markdownPanel", this);
+				fragment.add(new Label("readmeFile", markupDoc.documentPath));
+				// Add the html to the page
+				Component content = new Label("readmeContent", markupDoc.html).setEscapeModelStrings(false);
+				fragment.add(content.setVisible(!StringUtils.isEmpty(markupDoc.html)));
+				add(fragment);
+			}
 		} else {
-			Fragment fragment = new Fragment("readme", MarkupSyntax.PLAIN.equals(markupDoc.syntax) ? "plaintextPanel" : "markdownPanel", this);
-			fragment.add(new Label("readmeFile", markupDoc.documentPath));
-			// Add the html to the page
-			Component content = new Label("readmeContent", markupDoc.html).setEscapeModelStrings(false);
-			fragment.add(content.setVisible(!StringUtils.isEmpty(markupDoc.html)));
-			add(fragment);
+			// global, no readme on summary page
+			add(new Label("readme").setVisible(false));
 		}
 
 		// Display an activity line graph
