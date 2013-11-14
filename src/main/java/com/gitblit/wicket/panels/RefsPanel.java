@@ -122,11 +122,13 @@ public class RefsPanel extends Panel {
 					cssClass = "otherRef";
 				} else if (name.startsWith(Constants.R_PULL)) {
 					// Pull Request ref
-					name = "pull #" + name.substring(Constants.R_PULL.length());
-					if (name.endsWith("/head")) {
+					String num = name.substring(Constants.R_PULL.length());
+					if (num.endsWith("/head")) {
 						// strip pull request head from name
-						name = name.substring(0, name.length() - "/head".length());
+						num = num.substring(0, num.length() - "/head".length());
 					}
+					name = "pr #" + num;
+					tooltip = "pull request #" + num;
 					cssClass = "pullRef";
 				} else if (name.startsWith(Constants.R_REMOTES)) {
 					// remote branch
