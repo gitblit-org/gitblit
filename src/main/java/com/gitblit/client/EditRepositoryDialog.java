@@ -207,8 +207,6 @@ public class EditRepositoryDialog extends JDialog {
 
 		ownersPalette = new JPalette<String>(true);
 
-		useDocs = new JCheckBox(Translation.get("gb.useDocsDescription"),
-				anRepository.useDocs);
 		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
 				anRepository.useIncrementalPushTags);
 		showRemoteBranches = new JCheckBox(
@@ -558,7 +556,6 @@ public class EditRepositoryDialog extends JDialog {
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
 		repository.gcThreshold = gcThreshold.getText();
-		repository.useDocs = useDocs.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();

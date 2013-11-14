@@ -51,7 +51,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public String lastChangeAuthor;
 	public boolean hasCommits;
 	public boolean showRemoteBranches;
-	public boolean useDocs;
 	public boolean useIncrementalPushTags;
 	public String incrementalPushTagPrefix;
 	public AccessRestrictionType accessRestriction;
@@ -210,7 +209,6 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.federationStrategy = federationStrategy;
 		clone.showRemoteBranches = false;
 		clone.allowForks = false;
-		clone.useDocs = useDocs;
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;
 		clone.sparkleshareId = sparkleshareId;

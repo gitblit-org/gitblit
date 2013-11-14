@@ -33,16 +33,15 @@
 				<tr><th><wicket:message key="gb.gcPeriod"></wicket:message></th><td class="edit"><select class="span2" wicket:id="gcPeriod" tabindex="5" /> &nbsp;<span class="help-inline"><wicket:message key="gb.gcPeriodDescription"></wicket:message></span></td></tr>
 				<tr><th><wicket:message key="gb.gcThreshold"></wicket:message></th><td class="edit"><input class="span1" type="text" wicket:id="gcThreshold" tabindex="6" /> &nbsp;<span class="help-inline"><wicket:message key="gb.gcThresholdDescription"></wicket:message></span></td></tr>
 				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.enableDocs"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="useDocs" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.useDocsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.enableIncrementalPushTags"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="useIncrementalPushTags" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.useIncrementalPushTagsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.showRemoteBranches"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="showRemoteBranches" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.showRemoteBranchesDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.skipSizeCalculation"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSizeCalculation" tabindex="10" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSizeCalculationDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.skipSummaryMetrics"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSummaryMetrics" tabindex="11" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSummaryMetricsDescription"></wicket:message></span></label></td></tr>
-				<tr><th><wicket:message key="gb.maxActivityCommits"></wicket:message></th><td class="edit"><select class="span2" wicket:id="maxActivityCommits" tabindex="12" /> &nbsp;<span class="help-inline"><wicket:message key="gb.maxActivityCommitsDescription"></wicket:message></span></td></tr>
-				<tr><th><wicket:message key="gb.metricAuthorExclusions"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="metricAuthorExclusions" size="40" tabindex="13" /></td></tr>
-				<tr><th><wicket:message key="gb.commitMessageRenderer"></wicket:message></th><td class="edit"><select class="span2" wicket:id="commitMessageRenderer" tabindex="14" /></td></tr>
+				<tr><th><wicket:message key="gb.enableIncrementalPushTags"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="useIncrementalPushTags" tabindex="7" /> &nbsp;<span class="help-inline"><wicket:message key="gb.useIncrementalPushTagsDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.showRemoteBranches"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="showRemoteBranches" tabindex="8" /> &nbsp;<span class="help-inline"><wicket:message key="gb.showRemoteBranchesDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.skipSizeCalculation"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSizeCalculation" tabindex="9" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSizeCalculationDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.skipSummaryMetrics"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="skipSummaryMetrics" tabindex="10" /> &nbsp;<span class="help-inline"><wicket:message key="gb.skipSummaryMetricsDescription"></wicket:message></span></label></td></tr>
+				<tr><th><wicket:message key="gb.maxActivityCommits"></wicket:message></th><td class="edit"><select class="span2" wicket:id="maxActivityCommits" tabindex="11" /> &nbsp;<span class="help-inline"><wicket:message key="gb.maxActivityCommitsDescription"></wicket:message></span></td></tr>
+				<tr><th><wicket:message key="gb.metricAuthorExclusions"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="metricAuthorExclusions" size="40" tabindex="12" /></td></tr>
+				<tr><th><wicket:message key="gb.commitMessageRenderer"></wicket:message></th><td class="edit"><select class="span2" wicket:id="commitMessageRenderer" tabindex="13" /></td></tr>
 				<tr><th colspan="2"><hr/></th></tr>
-				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="mailingLists" size="40" tabindex="15" /></td></tr>
+				<tr><th><wicket:message key="gb.mailingLists"></wicket:message></th><td class="edit"><input class="span8" type="text" wicket:id="mailingLists" size="40" tabindex="14" /></td></tr>
 			</tbody>
 		</table>
 		</div>
@@ -51,15 +50,15 @@
 		<div class="tab-pane" id="permissions">
 			<table class="plain">
 				<tbody class="settings">
-					<tr><th><wicket:message key="gb.owners"></wicket:message></th><td class="edit"><span wicket:id="owners" tabindex="16" /> </td></tr>
+					<tr><th><wicket:message key="gb.owners"></wicket:message></th><td class="edit"><span wicket:id="owners" tabindex="15" /> </td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span4" wicket:id="accessRestriction" tabindex="17" /></td></tr>
+					<tr><th><wicket:message key="gb.accessRestriction"></wicket:message></th><td class="edit"><select class="span4" wicket:id="accessRestriction" tabindex="16" /></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
 					<tr><th><wicket:message key="gb.authorizationControl"></wicket:message></th><td style="padding:2px;"><span class="authorizationControl" wicket:id="authorizationControl"></span></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
-					<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="isFrozen" tabindex="18" /> &nbsp;<span class="help-inline"><wicket:message key="gb.isFrozenDescription"></wicket:message></span></label></td></tr>
-					<tr><th><wicket:message key="gb.allowForks"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="allowForks" tabindex="19" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowForksDescription"></wicket:message></span></label></td></tr>
-					<tr><th><wicket:message key="gb.verifyCommitter"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="verifyCommitter" tabindex="20" /> &nbsp;<span class="help-inline"><wicket:message key="gb.verifyCommitterDescription"></wicket:message></span><br/><span class="help-inline" style="padding-left:10px;"><wicket:message key="gb.verifyCommitterNote"></wicket:message></span></label></td></tr>
+					<tr><th><wicket:message key="gb.isFrozen"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="isFrozen" tabindex="17" /> &nbsp;<span class="help-inline"><wicket:message key="gb.isFrozenDescription"></wicket:message></span></label></td></tr>
+					<tr><th><wicket:message key="gb.allowForks"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="allowForks" tabindex="18" /> &nbsp;<span class="help-inline"><wicket:message key="gb.allowForksDescription"></wicket:message></span></label></td></tr>
+					<tr><th><wicket:message key="gb.verifyCommitter"></wicket:message></th><td class="edit"><label class="checkbox"><input type="checkbox" wicket:id="verifyCommitter" tabindex="19" /> &nbsp;<span class="help-inline"><wicket:message key="gb.verifyCommitterDescription"></wicket:message></span><br/><span class="help-inline" style="padding-left:10px;"><wicket:message key="gb.verifyCommitterNote"></wicket:message></span></label></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
 					<tr><th><wicket:message key="gb.userPermissions"></wicket:message></th><td style="padding:2px;"><span wicket:id="users"></span></td></tr>
 					<tr><th colspan="2"><hr/></th></tr>
@@ -72,7 +71,7 @@
 		<div class="tab-pane" id="federation">
 			<table class="plain">
 				<tbody class="settings">
-					<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span4" wicket:id="federationStrategy" tabindex="21" /></td></tr>
+					<tr><th><wicket:message key="gb.federationStrategy"></wicket:message></th><td class="edit"><select class="span4" wicket:id="federationStrategy" tabindex="20" /></td></tr>
 					<tr><th><wicket:message key="gb.federationSets"></wicket:message></th><td style="padding:2px;"><span wicket:id="federationSets"></span></td></tr>
 				</tbody>
 			</table>

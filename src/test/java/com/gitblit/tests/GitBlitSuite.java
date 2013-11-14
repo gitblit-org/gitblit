@@ -155,7 +155,6 @@ public class GitBlitSuite {
 			cloneOrFetch("test/ambition.git", "https://github.com/defunkt/ambition.git");
 			cloneOrFetch("test/gitective.git", "https://github.com/kevinsawicki/gitective.git");
 
-			enableDocs("ticgit.git");
 			showRemoteBranches("ticgit.git");
 			automaticallyTagBranchTips("ticgit.git");
 			showRemoteBranches("test/jgit.git");
@@ -176,16 +175,6 @@ public class GitBlitSuite {
 			System.out.println("Error: " + t.getMessage());
 		}
 		System.out.println("done.");
-	}
-
-	private static void enableDocs(String repositoryName) {
-		try {
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			model.useDocs = true;
-			GitBlit.self().updateRepositoryModel(model.name, model, false);
-		} catch (GitBlitException g) {
-			g.printStackTrace();
-		}
 	}
 
 	private static void showRemoteBranches(String repositoryName) {

@@ -98,11 +98,6 @@ public class IndicatorsRenderer extends JPanel implements TableCellRenderer, Ser
 				tooltip.append(Translation.get("gb.isFork")).append("<br/>");
 				add(icon);
 			}
-			if (model.useDocs) {
-				JLabel icon = new JLabel(doxIcon);
-				tooltip.append(Translation.get("gb.docs")).append("<br/>");
-				add(icon);
-			}
 			if (model.isFrozen) {
 				JLabel icon = new JLabel(frozenIcon);
 				tooltip.append(Translation.get("gb.isFrozen")).append("<br/>");
