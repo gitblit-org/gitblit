@@ -20,6 +20,8 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -33,8 +35,10 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.PathModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -148,29 +152,19 @@ public class PagesServlet extends HttpServlet {
 			String [] encodings = GitBlit.getEncodings();
 
 			RevTree tree = commit.getTree();
+
+			String res = resource;
+			if (res.endsWith("/")) {
+				res = res.substring(0, res.length() - 1);
+			}
+			Set<String> names = new TreeSet<String>();
+			for (PathModel entry : JGitUtils.getFilesInPath(r, res, commit)) {
+				names.add(entry.name);
+			}
+
 			byte[] content = null;
-			if (StringUtils.isEmpty(resource)) {
-				// find resource
-				List<String> extensions = new ArrayList<String>(processor.getMarkupExtensions());
-				extensions.add("html");
-				extensions.add("htm");
-				for (String ext : extensions) {
-					String file = "index." + ext;
-					String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
-					if (stringContent == null) {
-						continue;
-					}
-					content = stringContent.getBytes(Constants.ENCODING);
-					if (content != null) {
-						resource = file;
-						// assume text/html unless the servlet container
-						// overrides
-						response.setContentType("text/html; charset=" + Constants.ENCODING);
-						break;
-					}
-				}
-			} else {
-				// specific resource
+			if (names.isEmpty()) {
+				// not a path, a specific resource
 				try {
 					String contentType = context.getMimeType(resource);
 					if (contentType == null) {
@@ -185,31 +179,75 @@ public class PagesServlet extends HttpServlet {
 					response.setContentType(contentType);
 				} catch (Exception e) {
 				}
+			} else {
+				// path
+				List<String> extensions = new ArrayList<String>();
+				extensions.add("html");
+				extensions.add("htm");
+				extensions.addAll(processor.getMarkupExtensions());
+				for (String ext : extensions) {
+					String file = "index." + ext;
+
+					if (names.contains(file)) {
+						String stringContent = JGitUtils.getStringContent(r, tree, file, encodings);
+						if (stringContent == null) {
+							continue;
+						}
+						content = stringContent.getBytes(Constants.ENCODING);
+						if (content != null) {
+							resource = file;
+							// assume text/html unless the servlet container
+							// overrides
+							response.setContentType("text/html; charset=" + Constants.ENCODING);
+							break;
+						}
+					}
+				}
 			}
 
 			// no content, try custom 404 page
 			if (ArrayUtils.isEmpty(content)) {
-				String custom404 = JGitUtils.getStringContent(r, tree, "404.html", encodings);
-				if (!StringUtils.isEmpty(custom404)) {
-					content = custom404.getBytes(Constants.ENCODING);
-				}
+				String ext = StringUtils.getFileExtension(resource);
+				if (StringUtils.isEmpty(ext)) {
+					// document list
+					response.setContentType("text/html");
+					response.getWriter().append("<style>table th, table td { min-width: 150px; text-align: left; }</style>");
+					response.getWriter().append("<table>");
+					response.getWriter().append("<thead><tr><th>path</th><th>mode</th><th>size</th></tr>");
+					response.getWriter().append("</thead>");
+					response.getWriter().append("<tbody>");
+					String pattern = "<tr><td><a href=\"{0}\">{0}</a></td><td>{1}</td><td>{2}</td></tr>";
+					final ByteFormat byteFormat = new ByteFormat();
+					List<PathModel> entries = JGitUtils.getFilesInPath(r, resource, commit);
+					for (PathModel entry : entries) {
+						response.getWriter().append(MessageFormat.format(pattern, entry.name, JGitUtils.getPermissionsFromMode(entry.mode), byteFormat.format(entry.size)));
+					}
+					response.getWriter().append("</tbody>");
+					response.getWriter().append("</table>");
+				} else {
+					// 404
+					String custom404 = JGitUtils.getStringContent(r, tree, "404.html", encodings);
+					if (!StringUtils.isEmpty(custom404)) {
+						content = custom404.getBytes(Constants.ENCODING);
+					}
 
-				// still no content
-				if (ArrayUtils.isEmpty(content)) {
-					String str = MessageFormat.format(
-							"# Error\nSorry, the requested resource **{0}** was not found.",
-							resource);
-					content = MarkdownUtils.transformMarkdown(str).getBytes(Constants.ENCODING);
-				}
+					// still no content
+					if (ArrayUtils.isEmpty(content)) {
+						String str = MessageFormat.format(
+								"# Error\nSorry, the requested resource **{0}** was not found.",
+								resource);
+						content = MarkdownUtils.transformMarkdown(str).getBytes(Constants.ENCODING);
+					}
 
-				try {
-					// output the content
-					logger.warn("Pages 404: " + resource);
-					response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-					response.getOutputStream().write(content);
-					response.flushBuffer();
-				} catch (Throwable t) {
-					logger.error("Failed to write page to client", t);
+					try {
+						// output the content
+						logger.warn("Pages 404: " + resource);
+						response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+						response.getOutputStream().write(content);
+						response.flushBuffer();
+					} catch (Throwable t) {
+						logger.error("Failed to write page to client", t);
+					}
 				}
 				return;
 			}
