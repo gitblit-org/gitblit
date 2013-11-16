@@ -3554,8 +3554,6 @@ public class GitBlit implements ServletContextListener {
 		configureFanout();
 		configureGitDaemon();
 		configureCommitCache();
-
-		ContainerUtils.CVE_2007_0450.test();
 	}
 
 	protected void configureMailExecutor() {
@@ -3817,6 +3815,10 @@ public class GitBlit implements ServletContextListener {
 				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());
 				configureContext(settings, base, true);
 			}
+
+			// WAR or Express is likely to be running on a Tomcat.
+			// Test for the forward-slash/%2F issue and auto-adjust settings.
+			ContainerUtils.CVE_2007_0450.test(settings);
 		}
 
 		settingsModel = loadSettingModels();
