@@ -3772,6 +3772,10 @@ public class GitBlit implements ServletContextListener {
 					}
 				}
 
+				// disable Git daemon on Express - we can't bind 9418 and we
+				// can't port-forward to the daemon
+				webxmlSettings.overrideSetting(Keys.git.daemonPort, 0);
+
 				// configure context using the web.xml
 				configureContext(webxmlSettings, base, true);
 			} else {
