@@ -35,7 +35,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Constants;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
@@ -71,9 +70,9 @@ public class MyDashboardPage extends DashboardPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
-			String messageSource = GitBlit.getString(Keys.web.loginMessage, "gitblit");
+			String messageSource = app().settings().getString(Keys.web.loginMessage, "gitblit");
 			String message = readMarkdown(messageSource, "login.mkd");
 			Component repositoriesMessage = new Label("repositoriesMessage", message);
 			add(repositoriesMessage.setEscapeModelStrings(false));
@@ -83,7 +82,7 @@ public class MyDashboardPage extends DashboardPage {
 		}
 
 		// Load the markdown welcome message
-		String messageSource = GitBlit.getString(Keys.web.repositoriesMessage, "gitblit");
+		String messageSource = app().settings().getString(Keys.web.repositoriesMessage, "gitblit");
 		String message = readMarkdown(messageSource, "welcome.mkd");
 		Component repositoriesMessage = new Label("repositoriesMessage", message)
 				.setEscapeModelStrings(false).setVisible(message.length() > 0);
@@ -96,9 +95,9 @@ public class MyDashboardPage extends DashboardPage {
 
 		// parameters
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
-		int maxDaysBack = GitBlit.getInteger(Keys.web.activityDurationMaximum, 30);
+		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 		if (daysBack < 1) {
-			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		}
 		if (maxDaysBack > 0 && daysBack > maxDaysBack) {
 			daysBack = maxDaysBack;
@@ -168,7 +167,7 @@ public class MyDashboardPage extends DashboardPage {
 		add(repositoryTabs);
 
 		// projects list
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(getRepositoryModels(), false);
+		List<ProjectModel> projects = app().projects().getProjectModels(getRepositoryModels(), false);
 		repositoryTabs.add(new FilterableProjectList("projects", projects));
 
 		// active repository list
@@ -208,7 +207,7 @@ public class MyDashboardPage extends DashboardPage {
 		} else {
 			// Read user-supplied message
 			if (!StringUtils.isEmpty(messageSource)) {
-				File file = GitBlit.getFileOrFolder(messageSource);
+				File file = app().runtime().getFileOrFolder(messageSource);
 				if (file.exists()) {
 					try {
 						FileInputStream fis = new FileInputStream(file);

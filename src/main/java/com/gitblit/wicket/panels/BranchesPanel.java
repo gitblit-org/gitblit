@@ -37,7 +37,6 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -190,9 +189,9 @@ public class BranchesPanel extends BasePanel {
 
 			@Override
 			public void onClick() {
-				Repository r = GitBlit.self().getRepository(repositoryModel.name);
+				Repository r = app().repositories().getRepository(repositoryModel.name);
 				if (r == null) {
-					if (GitBlit.self().isCollectingGarbage(repositoryModel.name)) {
+					if (app().repositories().isCollectingGarbage(repositoryModel.name)) {
 						error(MessageFormat.format(getString("gb.busyCollectingGarbage"), repositoryModel.name));
 					} else {
 						error(MessageFormat.format("Failed to find repository {0}", repositoryModel.name));

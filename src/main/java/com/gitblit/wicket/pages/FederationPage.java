@@ -15,7 +15,6 @@
  */
 package com.gitblit.wicket.pages;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.wicket.panels.FederationProposalsPanel;
 import com.gitblit.wicket.panels.FederationRegistrationsPanel;
@@ -27,7 +26,7 @@ public class FederationPage extends RootPage {
 		super();
 		setupPage("", "");
 
-		boolean showFederation = showAdmin && GitBlit.canFederate();
+		boolean showFederation = showAdmin && app().federation().canFederate();
 		add(new FederationTokensPanel("federationTokensPanel", showFederation)
 				.setVisible(showFederation));
 		FederationProposalsPanel proposalsPanel = new FederationProposalsPanel(
@@ -38,7 +37,7 @@ public class FederationPage extends RootPage {
 			proposalsPanel.setVisible(false);
 		}
 
-		boolean showRegistrations = GitBlit.getBoolean(Keys.web.showFederationRegistrations, false);
+		boolean showRegistrations = app().settings().getBoolean(Keys.web.showFederationRegistrations, false);
 		FederationRegistrationsPanel registrationsPanel = new FederationRegistrationsPanel(
 				"federationRegistrationsPanel");
 		if (showAdmin || showRegistrations) {

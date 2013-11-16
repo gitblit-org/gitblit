@@ -18,24 +18,22 @@ package com.gitblit.wicket.panels;
 import java.util.List;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
 import com.gitblit.DownloadZipServlet;
 import com.gitblit.DownloadZipServlet.Format;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 
-public class CompressedDownloadsPanel extends Panel {
+public class CompressedDownloadsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
 	public CompressedDownloadsPanel(String id, final String baseUrl, final String repositoryName, final String objectId, final String path) {
 		super(id);
 
-		List<String> types = GitBlit.getStrings(Keys.web.compressedDownloads);
+		List<String> types = app().settings().getStrings(Keys.web.compressedDownloads);
 		if (types.isEmpty()) {
 			types.add(Format.zip.name());
 			types.add(Format.gz.name());
@@ -72,6 +70,6 @@ public class CompressedDownloadsPanel extends Panel {
 		};
 		add(refsView);
 
-		setVisible(GitBlit.getBoolean(Keys.web.allowZipDownloads, true));
+		setVisible(app().settings().getBoolean(Keys.web.allowZipDownloads, true));
 	}
 }

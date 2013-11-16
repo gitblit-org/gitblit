@@ -20,10 +20,8 @@ import java.text.MessageFormat;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.eclipse.jgit.lib.PersonIdent;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.ActivityUtils;
 import com.gitblit.utils.StringUtils;
@@ -37,7 +35,7 @@ import com.gitblit.wicket.pages.GravatarProfilePage;
  * @author James Moger
  *
  */
-public class GravatarImage extends Panel {
+public class GravatarImage extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,6 +77,6 @@ public class GravatarImage extends Panel {
 			WicketUtils.setHtmlTooltip(link, username);
 		}
 		add(link.setEnabled(linked));
-		setVisible(GitBlit.getBoolean(Keys.web.allowGravatar, true));
+		setVisible(app().settings().getBoolean(Keys.web.allowGravatar, true));
 	}
 }

@@ -30,7 +30,6 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.models.PathModel;
@@ -71,7 +70,7 @@ public class BlamePage extends RepositoryPage {
 
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, blobPath, objectId));
 
-		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
+		String format = app().settings().getString(Keys.web.datetimestampLongFormat,
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());

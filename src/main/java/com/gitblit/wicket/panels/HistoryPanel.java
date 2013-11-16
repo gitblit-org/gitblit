@@ -39,7 +39,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -66,7 +65,7 @@ public class HistoryPanel extends BasePanel {
 			final String path, Repository r, int limit, int pageOffset, boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -143,7 +142,7 @@ public class HistoryPanel extends BasePanel {
 		// breadcrumbs
 		add(new PathBreadcrumbsPanel("breadcrumbs", repositoryName, path, objectId));
 
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;
@@ -205,7 +204,7 @@ public class HistoryPanel extends BasePanel {
 					item.add(links);
 				} else if (isSubmodule) {
 					// submodule
-					Repository repository = GitBlit.self().getRepository(repositoryName);
+					Repository repository = app().repositories().getRepository(repositoryName);
 					String submoduleId = JGitUtils.getSubmoduleCommitId(repository, path, entry);
 					repository.close();
 					if (StringUtils.isEmpty(submoduleId)) {
@@ -288,7 +287,7 @@ public class HistoryPanel extends BasePanel {
 			return model;
 		} else {
 			// extract the repository name from the clone url
-			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
+			List<String> patterns = app().settings().getStrings(Keys.git.submoduleUrlPatterns);
 			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
 
 			// determine the current path for constructing paths relative
@@ -327,7 +326,7 @@ public class HistoryPanel extends BasePanel {
 			// create a unique, ordered set of candidate paths
 			Set<String> paths = new LinkedHashSet<String>(candidates);
 			for (String candidate : paths) {
-				if (GitBlit.self().hasRepository(candidate)) {
+				if (app().repositories().hasRepository(candidate)) {
 					model.hasSubmodule = true;
 					model.gitblitPath = candidate;
 					return model;

@@ -27,7 +27,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 
 import com.gitblit.Constants.FederationProposalResult;
-import com.gitblit.GitBlit;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FederationUtils;
@@ -57,7 +56,7 @@ public class SendProposalPage extends RootSubPage {
 		destinationUrl = "https://";
 
 		// temporary proposal
-		FederationProposal proposal = GitBlit.self().createFederationProposal(myUrl, token);
+		FederationProposal proposal = app().federation().createFederationProposal(myUrl, token);
 		if (proposal == null) {
 			error(getString("gb.couldNotCreateFederationProposal"), true);
 		}
@@ -81,7 +80,7 @@ public class SendProposalPage extends RootSubPage {
 				}
 
 				// build new proposal
-				FederationProposal proposal = GitBlit.self().createFederationProposal(myUrl, token);
+				FederationProposal proposal = app().federation().createFederationProposal(myUrl, token);
 				proposal.url = myUrl;
 				proposal.message = message;
 				try {

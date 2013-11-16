@@ -27,7 +27,6 @@ import java.util.Map;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
@@ -104,7 +103,7 @@ public class FilterableRepositoryList extends BasePanel {
 			panel.add(new Label(ngList + "Button").setVisible(false));
 		}
 
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
+		String format = app().settings().getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
 
@@ -123,7 +122,7 @@ public class FilterableRepositoryList extends BasePanel {
 			item.p = path;
 			item.r = repo.name;
 			item.i = repo.description;
-			item.s = GitBlit.self().getStarCount(repo);
+			item.s = app().repositories().getStarCount(repo);
 			item.t = getTimeUtils().timeAgo(repo.lastChange);
 			item.d = df.format(repo.lastChange);
 			item.c = StringUtils.getColor(StringUtils.stripDotGit(repo.name));

@@ -24,7 +24,6 @@ import org.apache.wicket.markup.html.basic.Label;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ModelUtils;
@@ -86,8 +85,8 @@ public abstract class RootSubPage extends RootPage {
 			}
 		}
 
-		for (String repo : GitBlit.self().getRepositoryList()) {
-			RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repo);
+		for (String repo : app().repositories().getRepositoryList()) {
+			RepositoryModel repositoryModel = app().repositories().getRepositoryModel(repo);
 			if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)
 					&& repositoryModel.authorizationControl.equals(AuthorizationControl.NAMED)) {
 				if (user != null &&

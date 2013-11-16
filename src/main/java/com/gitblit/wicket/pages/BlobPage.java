@@ -28,7 +28,6 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -50,7 +49,7 @@ public class BlobPage extends RepositoryPage {
 
 		Repository r = getRepository();
 		final String blobPath = WicketUtils.getPath(params);
-		String [] encodings = GitBlit.getEncodings();
+		String [] encodings = getEncodings();
 
 		if (StringUtils.isEmpty(blobPath)) {
 			// blob by objectid
@@ -75,7 +74,7 @@ public class BlobPage extends RepositoryPage {
 			}
 
 			// see if we should redirect to the doc page
-			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+			MarkupProcessor processor = new MarkupProcessor(app().settings());
 			for (String ext : processor.getMarkupExtensions()) {
 				if (ext.equals(extension)) {
 					setResponsePage(DocPage.class, params);
@@ -102,13 +101,13 @@ public class BlobPage extends RepositoryPage {
 
 			// Map the extensions to types
 			Map<String, Integer> map = new HashMap<String, Integer>();
-			for (String ext : GitBlit.getStrings(Keys.web.prettyPrintExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.prettyPrintExtensions)) {
 				map.put(ext.toLowerCase(), 1);
 			}
-			for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.imageExtensions)) {
 				map.put(ext.toLowerCase(), 2);
 			}
-			for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
+			for (String ext : app().settings().getStrings(Keys.web.binaryExtensions)) {
 				map.put(ext.toLowerCase(), 3);
 			}
 

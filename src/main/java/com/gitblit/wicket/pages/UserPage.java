@@ -28,7 +28,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.PersonIdent;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
@@ -67,7 +66,7 @@ public class UserPage extends RootPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
 			authenticationError("Please login");
 			return;
@@ -78,7 +77,7 @@ public class UserPage extends RootPage {
 			throw new GitblitRedirectException(GitBlitWebApp.get().getHomePage());
 		}
 
-		UserModel user = GitBlit.self().getUserModel(userName);
+		UserModel user = app().users().getUserModel(userName);
 		if (user == null) {
 			// construct a temporary user model
 			user = new UserModel(userName);
@@ -86,7 +85,7 @@ public class UserPage extends RootPage {
 
 		String projectName = user.getPersonalPath();
 
-		ProjectModel project = GitBlit.self().getProjectModel(projectName);
+		ProjectModel project = app().projects().getProjectModel(projectName);
 		if (project == null) {
 			project = new ProjectModel(projectName);
 		}
@@ -95,7 +94,7 @@ public class UserPage extends RootPage {
 		add(new Label("userUsername", user.username));
 		LinkPanel email = new LinkPanel("userEmail", null, user.emailAddress, "mailto:#");
 		email.setRenderBodyOnly(true);
-		add(email.setVisible(GitBlit.getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
+		add(email.setVisible(app().settings().getBoolean(Keys.web.showEmailAddresses, true) && !StringUtils.isEmpty(user.emailAddress)));
 
 		PersonIdent person = new PersonIdent(user.getDisplayName(), user.emailAddress == null ? user.getDisplayName() : user.emailAddress);
 		add(new GravatarImage("gravatar", person, 210));

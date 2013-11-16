@@ -29,7 +29,6 @@ import java.util.Map;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.utils.StringUtils;
@@ -93,7 +92,7 @@ public class FilterableProjectList extends BasePanel {
 			panel.add(icon);
 		}
 
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
+		String format = app().settings().getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		final DateFormat df = new SimpleDateFormat(format);
 		df.setTimeZone(getTimeZone());
 		Collections.sort(projects, new Comparator<ProjectModel>() {

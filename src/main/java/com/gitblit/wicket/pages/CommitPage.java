@@ -32,7 +32,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.SubmoduleModel;
@@ -136,7 +135,7 @@ public class CommitPage extends RepositoryPage {
 				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
-				item.add(new Label("noteContent", GitBlit.self().processPlainCommitMessage(repositoryName,
+				item.add(new Label("noteContent", messageProcessor().processPlainCommitMessage(repositoryName,
 						entry.content)).setEscapeModelStrings(false));
 			}
 		};

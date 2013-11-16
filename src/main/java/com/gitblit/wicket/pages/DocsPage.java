@@ -30,7 +30,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.PathModel;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.JGitUtils;
@@ -49,7 +48,7 @@ public class DocsPage extends RepositoryPage {
 	public DocsPage(PageParameters params) {
 		super(params);
 
-		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+		MarkupProcessor processor = new MarkupProcessor(app().settings());
 
 		Repository r = getRepository();
 		RevCommit head = JGitUtils.getCommit(r, null);

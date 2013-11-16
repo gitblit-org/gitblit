@@ -40,7 +40,6 @@ import org.wicketstuff.googlecharts.LineStyle;
 import org.wicketstuff.googlecharts.MarkerType;
 import org.wicketstuff.googlecharts.ShapeMarker;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
@@ -67,11 +66,11 @@ public class SummaryPage extends RepositoryPage {
 	public SummaryPage(PageParameters params) {
 		super(params);
 
-		int numberCommits = GitBlit.getInteger(Keys.web.summaryCommitCount, 20);
+		int numberCommits = app().settings().getInteger(Keys.web.summaryCommitCount, 20);
 		if (numberCommits <= 0) {
 			numberCommits = 20;
 		}
-		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, 5);
+		int numberRefs = app().settings().getInteger(Keys.web.summaryRefsCount, 5);
 
 		Repository r = getRepository();
 		final RepositoryModel model = getRepositoryModel();
@@ -82,8 +81,8 @@ public class SummaryPage extends RepositoryPage {
 
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
-		if (!model.skipSummaryMetrics && GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = GitBlit.self().getRepositoryDefaultMetrics(model, r);
+		if (!model.skipSummaryMetrics && app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+			metrics = app().repositories().getRepositoryDefaultMetrics(model, r);
 			metricsTotal = metrics.remove(0);
 		}
 
@@ -101,7 +100,7 @@ public class SummaryPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<String> item) {
 				String ownername = item.getModelObject();
-				UserModel ownerModel = GitBlit.self().getUserModel(ownername);
+				UserModel ownerModel = app().users().getUserModel(ownername);
 				if (ownerModel != null) {
 					item.add(new LinkPanel("owner", null, ownerModel.getDisplayName(), UserPage.class,
 							WicketUtils.newUsernameParameter(ownerModel.username)).setRenderBodyOnly(true));
@@ -138,10 +137,10 @@ public class SummaryPage extends RepositoryPage {
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
 		add(new BranchesPanel("branchesPanel", getRepositoryModel(), r, numberRefs, false).hideIfEmpty());
 
-		if (GitBlit.getBoolean(Keys.web.summaryShowReadme, false)) {
+		if (app().settings().getBoolean(Keys.web.summaryShowReadme, false)) {
 			// show a readme on the summary page
 			RevCommit head = JGitUtils.getCommit(r, null);
-			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+			MarkupProcessor processor = new MarkupProcessor(app().settings());
 			MarkupDocument markupDoc = processor.getReadme(r, repositoryName, getBestCommitId(head));
 			if (markupDoc == null || markupDoc.markup == null) {
 				add(new Label("readme").setVisible(false));
@@ -169,7 +168,7 @@ public class SummaryPage extends RepositoryPage {
 
 	private void insertActivityGraph(List<Metric> metrics) {
 		if ((metrics != null) && (metrics.size() > 0)
-				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			IChartData data = WicketUtils.getChartData(metrics);
 
 			ChartProvider provider = new ChartProvider(new Dimension(290, 100), ChartType.LINE,

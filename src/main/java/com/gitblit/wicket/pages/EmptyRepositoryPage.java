@@ -24,7 +24,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
@@ -41,7 +40,7 @@ public class EmptyRepositoryPage extends RootPage {
 		setVersioned(false);
 
 		String repositoryName = WicketUtils.getRepositoryName(params);
-		RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		RepositoryModel repository = app().repositories().getRepositoryModel(repositoryName);
 		if (repository == null) {
 			error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 		}
@@ -59,7 +58,7 @@ public class EmptyRepositoryPage extends RootPage {
 		}
 
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
-		List<RepositoryUrl> repositoryUrls = GitBlit.self().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> repositoryUrls = app().repositories().getRepositoryUrls(req, user, repository);
 		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 		String url = primaryUrl != null ? primaryUrl.url : "";
 

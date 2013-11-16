@@ -25,7 +25,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.RepositoryCommit;
@@ -53,7 +52,7 @@ public class ActivityPanel extends BasePanel {
 
 		Collections.sort(recentActivity);
 
-		final int shortHashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int shortHashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 		DataView<Activity> activityView = new DataView<Activity>("activity",
 				new ListDataProvider<Activity>(recentActivity)) {
 			private static final long serialVersionUID = 1L;

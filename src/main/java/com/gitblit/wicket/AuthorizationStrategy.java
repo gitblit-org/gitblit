@@ -21,7 +21,7 @@ import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListen
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
 import com.gitblit.wicket.pages.BasePage;
@@ -29,9 +29,11 @@ import com.gitblit.wicket.pages.BasePage;
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
 		IUnauthorizedComponentInstantiationListener {
 
+	IStoredSettings settings;
 	Class<? extends WebPage> homepageClass;
 
-	public AuthorizationStrategy(Class<? extends WebPage> homepageClass) {
+	public AuthorizationStrategy(IStoredSettings settings, Class<? extends WebPage> homepageClass) {
+		this.settings = settings;
 		this.homepageClass = homepageClass;
 	}
 
@@ -45,9 +47,9 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 		}
 
 		if (BasePage.class.isAssignableFrom(pageClass)) {
-			boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
-			boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+			boolean authenticateView = settings.getBoolean(Keys.web.authenticateViewPages, true);
+			boolean authenticateAdmin = settings.getBoolean(Keys.web.authenticateAdminPages, true);
+			boolean allowAdmin = settings.getBoolean(Keys.web.allowAdministration, true);
 
 			GitBlitWebSession session = GitBlitWebSession.get();
 			if (authenticateView && !session.isLoggedIn()) {

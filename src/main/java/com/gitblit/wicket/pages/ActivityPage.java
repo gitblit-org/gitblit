@@ -29,7 +29,6 @@ import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Activity;
 import com.gitblit.models.Metric;
@@ -66,7 +65,7 @@ public class ActivityPage extends RootPage {
 		// parameters
 		int daysBack = WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		}
 		String objectId = WicketUtils.getObject(params);
 
@@ -113,7 +112,7 @@ public class ActivityPage extends RootPage {
 					daysBack, totalCommits, totalAuthors)));
 
 			// create the activity charts
-			if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+			if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 				GoogleCharts charts = createCharts(recentActivity);
 				add(new HeaderContributor(charts));
 				add(new Fragment("chartsPanel", "chartsFragment", this));
@@ -137,7 +136,7 @@ public class ActivityPage extends RootPage {
 				ActivityPage.class);
 
 		PageParameters currentParameters = getPageParameters();
-		int daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+		int daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		if (currentParameters != null && !currentParameters.containsKey("db")) {
 			currentParameters.put("db", daysBack);
 		}

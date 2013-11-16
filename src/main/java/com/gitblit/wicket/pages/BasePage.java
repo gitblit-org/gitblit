@@ -52,7 +52,6 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.FederationStrategy;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.TeamModel;
@@ -83,7 +82,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	private void customizeHeader() {
-		if (GitBlit.getBoolean(Keys.web.useResponsiveLayout, true)) {
+		if (app().settings().getBoolean(Keys.web.useResponsiveLayout, true)) {
 			add(CSSPackageResource.getHeaderContribution("bootstrap/css/bootstrap-responsive.css"));
 		}
 	}
@@ -121,7 +120,7 @@ public abstract class BasePage extends SessionPage {
 
 	@Override
 	protected void onBeforeRender() {
-		if (GitBlit.isDebugMode()) {
+		if (app().isDebugMode()) {
 			// strip Wicket tags in debug mode for jQuery DOM traversal
 			Application.get().getMarkupSettings().setStripWicketTags(true);
 		}
@@ -130,7 +129,7 @@ public abstract class BasePage extends SessionPage {
 
 	@Override
 	protected void onAfterRender() {
-		if (GitBlit.isDebugMode()) {
+		if (app().isDebugMode()) {
 			// restore Wicket debug tags
 			Application.get().getMarkupSettings().setStripWicketTags(false);
 		}
@@ -141,8 +140,8 @@ public abstract class BasePage extends SessionPage {
 	protected void setHeaders(WebResponse response)	{
 		// set canonical link as http header for SEO (issue-304)
 		// https://support.google.com/webmasters/answer/139394?hl=en
-		response.setHeader("Link" ,MessageFormat.format("<{0}>; rel=\"canonical\"", getCanonicalUrl()));
-		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
+		response.setHeader("Link", MessageFormat.format("<{0}>; rel=\"canonical\"", getCanonicalUrl()));
+		int expires = app().settings().getInteger(Keys.web.pageCacheExpires, 0);
 		if (expires > 0) {
 			// pages are personalized for the authenticated user so they must be
 			// marked private to prohibit proxy servers from caching them
@@ -164,10 +163,10 @@ public abstract class BasePage extends SessionPage {
 			CacheControl cacheControl = getClass().getAnnotation(CacheControl.class);
 			switch (cacheControl.value()) {
 			case ACTIVITY:
-				setLastModified(GitBlit.getLastActivityDate());
+				setLastModified(app().getLastActivityDate());
 				break;
 			case BOOT:
-				setLastModified(GitBlit.getBootDate());
+				setLastModified(app().getBootDate());
 				break;
 			case NONE:
 				break;
@@ -188,21 +187,21 @@ public abstract class BasePage extends SessionPage {
 			return;
 		}
 
-		if (when.before(GitBlit.getBootDate())) {
+		if (when.before(app().getBootDate())) {
 			// last-modified can not be before the Gitblit boot date
 			// this helps ensure that pages are properly refreshed after a
 			// server config change
-			when = GitBlit.getBootDate();
+			when = app().getBootDate();
 		}
 
-		int expires = GitBlit.getInteger(Keys.web.pageCacheExpires, 0);
+		int expires = app().settings().getInteger(Keys.web.pageCacheExpires, 0);
 		WebResponse response = (WebResponse) getResponse();
 		response.setLastModifiedTime(Time.valueOf(when));
 		response.setDateHeader("Expires", System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds());
 	}
 
 	protected void setupPage(String repositoryName, String pageName) {
-		String siteName = GitBlit.getString(Keys.web.siteName, Constants.NAME);
+		String siteName = app().settings().getString(Keys.web.siteName, Constants.NAME);
 		if (StringUtils.isEmpty(siteName)) {
 			siteName = Constants.NAME;
 		}
@@ -212,16 +211,16 @@ public abstract class BasePage extends SessionPage {
 			add(new Label("title", siteName));
 		}
 
-		String rootLinkUrl = GitBlit.getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
+		String rootLinkUrl = app().settings().getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
 		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
-		WicketUtils.setHtmlTooltip(rootLink, GitBlit.getString(Keys.web.siteName, Constants.NAME));
+		WicketUtils.setHtmlTooltip(rootLink, app().settings().getString(Keys.web.siteName, Constants.NAME));
 		add(rootLink);
 
 		// Feedback panel for info, warning, and non-fatal error messages
 		add(new FeedbackPanel("feedback"));
 
 		add(new Label("gbVersion", "v" + Constants.getVersion()));
-		if (GitBlit.getBoolean(Keys.web.aggressiveHeapManagement, false)) {
+		if (app().settings().getBoolean(Keys.web.aggressiveHeapManagement, false)) {
 			System.gc();
 		}
 	}
@@ -314,8 +313,8 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	protected TimeZone getTimeZone() {
-		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : GitBlit.getTimezone();
+		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
+				.getTimezone() : app().getTimezone();
 	}
 
 	protected String getServerName() {
@@ -326,7 +325,7 @@ public abstract class BasePage extends SessionPage {
 
 	protected List<ProjectModel> getProjectModels() {
 		final UserModel user = GitBlitWebSession.get().getUser();
-		List<ProjectModel> projects = GitBlit.self().getProjectModels(user, true);
+		List<ProjectModel> projects = app().projects().getProjectModels(user, true);
 		return projects;
 	}
 
@@ -339,7 +338,7 @@ public abstract class BasePage extends SessionPage {
 		String regex = WicketUtils.getRegEx(params);
 		String team = WicketUtils.getTeam(params);
 		int daysBack = params.getInt("db", 0);
-		int maxDaysBack = GitBlit.getInteger(Keys.web.activityDurationMaximum, 30);
+		int maxDaysBack = app().settings().getInteger(Keys.web.activityDurationMaximum, 30);
 
 		List<ProjectModel> availableModels = getProjectModels();
 		Set<ProjectModel> models = new HashSet<ProjectModel>();
@@ -363,7 +362,7 @@ public abstract class BasePage extends SessionPage {
 			// need TeamModels first
 			List<TeamModel> teamModels = new ArrayList<TeamModel>();
 			for (String name : teams) {
-				TeamModel teamModel = GitBlit.self().getTeamModel(name);
+				TeamModel teamModel = app().users().getTeamModel(name);
 				if (teamModel != null) {
 					teamModels.add(teamModel);
 				}

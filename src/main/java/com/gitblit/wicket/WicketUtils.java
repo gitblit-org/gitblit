@@ -44,7 +44,6 @@ import org.wicketstuff.googlecharts.IChartData;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.Metric;
@@ -189,7 +188,7 @@ public class WicketUtils {
 			return newImage(wicketId, "file_settings_16x16.png");
 		}
 
-		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+		MarkupProcessor processor = new MarkupProcessor(GitBlitWebApp.get().settings());
 		String ext = StringUtils.getFileExtension(filename).toLowerCase();
 		if (processor.getMarkupExtensions().contains(ext)) {
 			return newImage(wicketId, "file_world_16x16.png");
@@ -510,10 +509,10 @@ public class WicketUtils {
 	}
 
 	public static Label createDateLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils, boolean setCss) {
-		String format = GitBlit.getString(Keys.web.datestampShortFormat, "MM/dd/yy");
+		String format = GitBlitWebApp.get().settings().getString(Keys.web.datestampShortFormat, "MM/dd/yy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
-			timeZone = GitBlit.getTimezone();
+			timeZone = GitBlitWebApp.get().getTimezone();
 		}
 		df.setTimeZone(timeZone);
 		String dateString;
@@ -543,10 +542,10 @@ public class WicketUtils {
 	}
 
 	public static Label createTimeLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
-		String format = GitBlit.getString(Keys.web.timeFormat, "HH:mm");
+		String format = GitBlitWebApp.get().settings().getString(Keys.web.timeFormat, "HH:mm");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
-			timeZone = GitBlit.getTimezone();
+			timeZone = GitBlitWebApp.get().getTimezone();
 		}
 		df.setTimeZone(timeZone);
 		String timeString;
@@ -564,10 +563,10 @@ public class WicketUtils {
 	}
 
 	public static Label createDatestampLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
-		String format = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
+		String format = GitBlitWebApp.get().settings().getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
-			timeZone = GitBlit.getTimezone();
+			timeZone = GitBlitWebApp.get().getTimezone();
 		}
 		df.setTimeZone(timeZone);
 		String dateString;
@@ -598,11 +597,11 @@ public class WicketUtils {
 	}
 
 	public static Label createTimestampLabel(String wicketId, Date date, TimeZone timeZone, TimeUtils timeUtils) {
-		String format = GitBlit.getString(Keys.web.datetimestampLongFormat,
+		String format = GitBlitWebApp.get().settings().getString(Keys.web.datetimestampLongFormat,
 				"EEEE, MMMM d, yyyy HH:mm Z");
 		DateFormat df = new SimpleDateFormat(format);
 		if (timeZone == null) {
-			timeZone = GitBlit.getTimezone();
+			timeZone = GitBlitWebApp.get().getTimezone();
 		}
 		df.setTimeZone(timeZone);
 		String dateString;

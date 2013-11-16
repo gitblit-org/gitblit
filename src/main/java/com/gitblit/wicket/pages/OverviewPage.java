@@ -28,7 +28,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.Repository;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RepositoryModel;
@@ -53,7 +52,7 @@ public class OverviewPage extends RepositoryPage {
 	public OverviewPage(PageParameters params) {
 		super(params);
 
-		int numberRefs = GitBlit.getInteger(Keys.web.summaryRefsCount, 5);
+		int numberRefs = app().settings().getInteger(Keys.web.summaryRefsCount, 5);
 
 		Repository r = getRepository();
 		final RepositoryModel model = getRepositoryModel();
@@ -64,8 +63,8 @@ public class OverviewPage extends RepositoryPage {
 
 		List<Metric> metrics = null;
 		Metric metricsTotal = null;
-		if (!model.skipSummaryMetrics && GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
-			metrics = GitBlit.self().getRepositoryDefaultMetrics(model, r);
+		if (!model.skipSummaryMetrics && app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
+			metrics = app().repositories().getRepositoryDefaultMetrics(model, r);
 			metricsTotal = metrics.remove(0);
 		}
 
@@ -83,7 +82,7 @@ public class OverviewPage extends RepositoryPage {
 			@Override
 			public void populateItem(final Item<String> item) {
 				String ownername = item.getModelObject();
-				UserModel ownerModel = GitBlit.self().getUserModel(ownername);
+				UserModel ownerModel = app().users().getUserModel(ownername);
 				if (ownerModel != null) {
 					item.add(new LinkPanel("owner", null, ownerModel.getDisplayName(), UserPage.class,
 							WicketUtils.newUsernameParameter(ownerModel.username)).setRenderBodyOnly(true));
@@ -117,7 +116,7 @@ public class OverviewPage extends RepositoryPage {
 
 		add(new RepositoryUrlPanel("repositoryUrlPanel", false, user, model));
 
-		int reflogCount = GitBlit.getInteger(Keys.web.overviewReflogCount, 5);
+		int reflogCount = app().settings().getInteger(Keys.web.overviewReflogCount, 5);
 		ReflogPanel reflog = new ReflogPanel("reflogPanel", getRepositoryModel(), r, reflogCount, 0);
 		add(reflog);
 		add(new TagsPanel("tagsPanel", repositoryName, r, numberRefs).hideIfEmpty());
@@ -134,7 +133,7 @@ public class OverviewPage extends RepositoryPage {
 
 	private void insertActivityGraph(List<Metric> metrics) {
 		if ((metrics != null) && (metrics.size() > 0)
-				&& GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+				&& app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 
 			// daily line chart
 			GoogleChart chart = new GoogleLineChart("chartDaily", "", "unit",

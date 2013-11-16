@@ -24,9 +24,9 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.TimeUtils;
+import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 
@@ -40,9 +40,13 @@ public abstract class BasePanel extends Panel {
 		super(wicketId);
 	}
 
+	protected GitBlitWebApp app() {
+		return GitBlitWebApp.get();
+	}
+
 	protected TimeZone getTimeZone() {
-		return GitBlit.getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
-				.getTimezone() : GitBlit.getTimezone();
+		return app().settings().getBoolean(Keys.web.useClientTimezone, false) ? GitBlitWebSession.get()
+				.getTimezone() : app().getTimezone();
 	}
 
 	protected TimeUtils getTimeUtils() {

@@ -36,7 +36,6 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.GitClientApplication;
 import com.gitblit.models.RepositoryModel;
@@ -81,7 +80,7 @@ public class RepositoryUrlPanel extends BasePanel {
 
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
 
-		List<RepositoryUrl> repositoryUrls = GitBlit.self().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> repositoryUrls = app().gitblit().getRepositoryUrls(req, user, repository);
 		// grab primary url from the top of the list
 		primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 
@@ -104,7 +103,7 @@ public class RepositoryUrlPanel extends BasePanel {
 			add(createRepositoryIndicators(repository));
 		}
 
-		boolean allowAppLinks = GitBlit.getBoolean(Keys.web.allowAppCloneLinks, true);
+		boolean allowAppLinks = app().settings().getBoolean(Keys.web.allowAppCloneLinks, true);
 		if (onlyUrls || !canClone || !allowAppLinks) {
 			// only display the url(s)
 			add(new Label("applicationMenusPanel").setVisible(false));
@@ -163,7 +162,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		}
 
 		// access restriction icon and tooltip
-		if (GitBlit.isServingRepositories()) {
+		if (app().runtime().isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
@@ -213,7 +212,7 @@ public class RepositoryUrlPanel extends BasePanel {
 		final String userAgent = ((WebClientInfo) GitBlitWebSession.get().getClientInfo()).getUserAgent();
 
 		if (user.canClone(repository)) {
-			for (GitClientApplication app : GitBlit.self().getClientApplications()) {
+			for (GitClientApplication app : app().gitblit().getClientApplications()) {
 				if (app.isActive && app.allowsPlatform(userAgent)) {
 					displayedApps.add(app);
 				}
@@ -345,7 +344,7 @@ public class RepositoryUrlPanel extends BasePanel {
 	}
 
 	protected Fragment createCopyFragment(String text) {
-		if (GitBlit.getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
+		if (app().settings().getBoolean(Keys.web.allowFlashCopyToClipboard, true)) {
 			// clippy: flash-based copy & paste
 			Fragment copyFragment = new Fragment("copyFunction", "clippyPanel", this);
 			String baseUrl = WicketUtils.getGitblitURL(getRequest());
@@ -450,12 +449,12 @@ public class RepositoryUrlPanel extends BasePanel {
 			fragment.add(wc);
 		}
 
-		boolean allowForking = GitBlit.getBoolean(Keys.web.allowForking, true);
+		boolean allowForking = app().settings().getBoolean(Keys.web.allowForking, true);
 		if (!allowForking || user == null || !user.isAuthenticated) {
 			// must be logged-in to fork, hide all fork controls
 			fragment.add(new Label("forksProhibitedIndicator").setVisible(false));
 		} else {
-			String fork = GitBlit.self().getFork(user.username, repository.name);
+			String fork = app().repositories().getFork(user.username, repository.name);
 			boolean hasFork = fork != null;
 			boolean canFork = user.canFork(repository);
 

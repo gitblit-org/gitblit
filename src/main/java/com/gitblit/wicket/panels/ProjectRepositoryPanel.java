@@ -28,7 +28,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
@@ -51,8 +50,8 @@ public class ProjectRepositoryPanel extends BasePanel {
 			final Map<AccessRestrictionType, String> accessRestrictions) {
 		super(wicketId);
 
-		final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
-		final boolean showSize = GitBlit.getBoolean(Keys.web.showRepositorySizes, true);
+		final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
+		final boolean showSize = app().settings().getBoolean(Keys.web.showRepositorySizes, true);
 
 		// repository swatch
 		Component swatch;
@@ -110,7 +109,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 		} else {
 			String owner = "";
 			for (String username : entry.owners) {
-				UserModel ownerModel = GitBlit.self().getUserModel(username);
+				UserModel ownerModel = app().users().getUserModel(username);
 
 				if (ownerModel != null) {
 					owner = ownerModel.getDisplayName();
@@ -146,7 +145,7 @@ public class ProjectRepositoryPanel extends BasePanel {
 
 					@Override
 					public void onClick() {
-						if (GitBlit.self().deleteRepositoryModel(entry)) {
+						if (app().repositories().deleteRepositoryModel(entry)) {
 							// redirect to the owning page
 							if (entry.isPersonalRepository()) {
 								setResponsePage(getPage().getClass(), WicketUtils.newUsernameParameter(entry.projectPath.substring(1)));

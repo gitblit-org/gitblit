@@ -27,7 +27,6 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.PersonIdent;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.RepositoryModel;
@@ -45,7 +44,7 @@ public class ForksPage extends RepositoryPage {
 
 		final RepositoryModel pageRepository = getRepositoryModel();
 
-		ForkModel root = GitBlit.self().getForkNetwork(pageRepository.name);
+		ForkModel root = app().repositories().getForkNetwork(pageRepository.name);
 		List<FlatFork> network = flatten(root);
 
 		ListDataProvider<FlatFork> forksDp = new ListDataProvider<FlatFork>(network);
@@ -58,7 +57,7 @@ public class ForksPage extends RepositoryPage {
 				RepositoryModel repository = fork.repository;
 
 				if (repository.isPersonalRepository()) {
-					UserModel user = GitBlit.self().getUserModel(repository.projectPath.substring(1));
+					UserModel user = app().users().getUserModel(repository.projectPath.substring(1));
 					if (user == null) {
 						// user account no longer exists
 						user = new UserModel(repository.projectPath.substring(1));
@@ -84,7 +83,7 @@ public class ForksPage extends RepositoryPage {
 					item.add(swatch);
 					String projectName = repository.projectPath;
 					if (StringUtils.isEmpty(projectName)) {
-						projectName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+						projectName = app().settings().getString(Keys.web.repositoryRootGroupName, "main");
 					}
 					if (pageRepository.equals(repository)) {
 						// do not link to self

@@ -34,7 +34,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.Metric;
@@ -83,7 +82,7 @@ public abstract class DashboardPage extends RootPage {
 				continue;
 			}
 			if (model.hasCommits && model.lastChange.after(minimumDate)) {
-				Repository repository = GitBlit.self().getRepository(model.name);
+				Repository repository = app().repositories().getRepository(model.name);
 				List<DailyLogEntry> entries = RefLogUtils.getDailyLogByRef(model.name, repository, minimumDate, timezone);
 				digests.addAll(entries);
 				repository.close();
@@ -123,7 +122,7 @@ public abstract class DashboardPage extends RootPage {
 		if (!ArrayUtils.isEmpty(digests)) {
 			// aggregate author exclusions
 			Set<String> authorExclusions = new TreeSet<String>();
-			for (String author : GitBlit.getStrings(Keys.web.metricAuthorExclusions)) {
+			for (String author : app().settings().getStrings(Keys.web.metricAuthorExclusions)) {
 				authorExclusions.add(author.toLowerCase());
 			}
 			for (RepositoryModel model : repositories) {
@@ -217,7 +216,7 @@ public abstract class DashboardPage extends RootPage {
 		frag.add(new Label("feedheader", MessageFormat.format(headerPattern,
 				daysBack, totalCommits, authorMetrics.size())));
 
-		if (GitBlit.getBoolean(Keys.web.generateActivityGraph, true)) {
+		if (app().settings().getBoolean(Keys.web.generateActivityGraph, true)) {
 			// build google charts
 			GoogleCharts charts = new GoogleCharts();
 

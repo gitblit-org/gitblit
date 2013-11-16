@@ -55,7 +55,6 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -86,9 +85,9 @@ public class EditRepositoryPage extends RootSubPage {
 		super();
 		isCreate = true;
 		RepositoryModel model = new RepositoryModel();
-		String restriction = GitBlit.getString(Keys.git.defaultAccessRestriction, "PUSH");
+		String restriction = app().settings().getString(Keys.git.defaultAccessRestriction, "PUSH");
 		model.accessRestriction = AccessRestrictionType.fromName(restriction);
-		String authorization = GitBlit.getString(Keys.git.defaultAuthorizationControl, null);
+		String authorization = app().settings().getString(Keys.git.defaultAuthorizationControl, null);
 		model.authorizationControl = AuthorizationControl.fromName(authorization);
 
 		GitBlitWebSession session = GitBlitWebSession.get();
@@ -113,7 +112,7 @@ public class EditRepositoryPage extends RootSubPage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getRepositoryName(params);
-		RepositoryModel model = GitBlit.self().getRepositoryModel(name);
+		RepositoryModel model = app().repositories().getRepositoryModel(name);
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -154,8 +153,8 @@ public class EditRepositoryPage extends RootSubPage {
 			}
 		} else {
 			super.setupPage(getString("gb.edit"), repositoryModel.name);
-			repositoryUsers.addAll(GitBlit.self().getUserAccessPermissions(repositoryModel));
-			repositoryTeams.addAll(GitBlit.self().getTeamAccessPermissions(repositoryModel));
+			repositoryUsers.addAll(app().repositories().getUserAccessPermissions(repositoryModel));
+			repositoryTeams.addAll(app().repositories().getTeamAccessPermissions(repositoryModel));
 			Collections.sort(repositoryUsers);
 			Collections.sort(repositoryTeams);
 
@@ -168,13 +167,13 @@ public class EditRepositoryPage extends RootSubPage {
 		final String oldName = repositoryModel.name;
 
 		final RegistrantPermissionsPanel usersPalette = new RegistrantPermissionsPanel("users",
-				RegistrantType.USER, GitBlit.self().getAllUsernames(), repositoryUsers, getAccessPermissions());
+				RegistrantType.USER, app().users().getAllUsernames(), repositoryUsers, getAccessPermissions());
 		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams",
-				RegistrantType.TEAM, GitBlit.self().getAllTeamnames(), repositoryTeams, getAccessPermissions());
+				RegistrantType.TEAM, app().users().getAllTeamnames(), repositoryTeams, getAccessPermissions());
 
 		// owners palette
 		List<String> owners = new ArrayList<String>(repositoryModel.owners);
-		List<String> persons = GitBlit.self().getAllUsernames();
+		List<String> persons = app().users().getAllUsernames();
 		final Palette<String> ownersPalette = new Palette<String>("owners", new ListModel<String>(owners), new CollectionModel<String>(
 		      persons), new StringChoiceRenderer(), 12, true);
 
@@ -182,14 +181,14 @@ public class EditRepositoryPage extends RootSubPage {
 		List<String> allLocalBranches = new ArrayList<String>();
 		allLocalBranches.add(Constants.DEFAULT_BRANCH);
 		allLocalBranches.addAll(repositoryModel.getLocalBranches());
-		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
+		boolean luceneEnabled = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
 		final Palette<String> indexedBranchesPalette = new Palette<String>("indexedBranches", new ListModel<String>(
 				indexedBranches), new CollectionModel<String>(allLocalBranches),
 				new StringChoiceRenderer(), 8, false);
 		indexedBranchesPalette.setEnabled(luceneEnabled);
 
 		// federation sets palette
-		List<String> sets = GitBlit.getStrings(Keys.federation.sets);
+		List<String> sets = app().settings().getStrings(Keys.federation.sets);
 		final Palette<String> federationSetsPalette = new Palette<String>("federationSets",
 				new ListModel<String>(federationSets), new CollectionModel<String>(sets),
 				new StringChoiceRenderer(), 8, false);
@@ -199,8 +198,8 @@ public class EditRepositoryPage extends RootSubPage {
 			preReceiveScripts.addAll(repositoryModel.preReceiveScripts);
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
-				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPreReceiveScriptsUnused(repositoryModel)),
+				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(app().repositories()
+						.getPreReceiveScriptsUnused(repositoryModel)),
 				new StringChoiceRenderer(), 12, true);
 
 		// post-receive palette
@@ -208,12 +207,12 @@ public class EditRepositoryPage extends RootSubPage {
 			postReceiveScripts.addAll(repositoryModel.postReceiveScripts);
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
-				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPostReceiveScriptsUnused(repositoryModel)),
+				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(app().repositories()
+						.getPostReceiveScriptsUnused(repositoryModel)),
 				new StringChoiceRenderer(), 12, true);
 
 		// custom fields
-		final Map<String, String> customFieldsMap = GitBlit.getMap(Keys.groovy.customFields);
+		final Map<String, String> customFieldsMap = app().settings().getMap(Keys.groovy.customFields);
 		List<String> customKeys = new ArrayList<String>(customFieldsMap.keySet());
 		final ListView<String> customFieldsListView = new ListView<String>("customFieldsListView", customKeys) {
 
@@ -393,12 +392,12 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 
 					// save the repository
-					GitBlit.self().updateRepositoryModel(oldName, repositoryModel, isCreate);
+					app().repositories().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
 					// repository access permissions
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-						GitBlit.self().setUserAccessPermissions(repositoryModel, repositoryUsers);
-						GitBlit.self().setTeamAccessPermissions(repositoryModel, repositoryTeams);
+						app().repositories().setUserAccessPermissions(repositoryModel, repositoryUsers);
+						app().repositories().setTeamAccessPermissions(repositoryModel, repositoryTeams);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
@@ -416,9 +415,9 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(new TextField<String>("name").setEnabled(allowEditName));
 		form.add(new TextField<String>("description"));
 		form.add(ownersPalette);
-		form.add(new CheckBox("allowForks").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
+		form.add(new CheckBox("allowForks").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		DropDownChoice<AccessRestrictionType> accessRestriction = new DropDownChoice<AccessRestrictionType>("accessRestriction",
-				AccessRestrictionType.choices(GitBlit.getBoolean(Keys.git.allowAnonymousPushes, false)), new AccessRestrictionRenderer());
+				AccessRestrictionType.choices(app().settings().getBoolean(Keys.git.allowAnonymousPushes, false)), new AccessRestrictionRenderer());
 		form.add(accessRestriction);
 		form.add(new CheckBox("isFrozen"));
 		// TODO enable origin definition
@@ -431,7 +430,7 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<String>("HEAD", availableRefs).setEnabled(availableRefs.size() > 0));
 
-		boolean gcEnabled = GitBlit.getBoolean(Keys.git.enableGarbageCollection, false);
+		boolean gcEnabled = app().settings().getBoolean(Keys.git.enableGarbageCollection, false);
 		List<Integer> gcPeriods = Arrays.asList(1, 2, 3, 4, 5, 7, 10, 14 );
 		form.add(new DropDownChoice<Integer>("gcPeriod", gcPeriods, new GCPeriodRenderer()).setEnabled(gcEnabled));
 		form.add(new TextField<String>("gcThreshold").setEnabled(gcEnabled));
@@ -474,15 +473,15 @@ public class EditRepositoryPage extends RootSubPage {
 		form.add(teamsPalette);
 		form.add(federationSetsPalette);
 		form.add(preReceivePalette);
-		form.add(new BulletListPanel("inheritedPreReceive", getString("gb.inherited"), GitBlit.self()
+		form.add(new BulletListPanel("inheritedPreReceive", getString("gb.inherited"), app().repositories()
 				.getPreReceiveScriptsInherited(repositoryModel)));
 		form.add(postReceivePalette);
-		form.add(new BulletListPanel("inheritedPostReceive", getString("gb.inherited"), GitBlit.self()
+		form.add(new BulletListPanel("inheritedPostReceive", getString("gb.inherited"), app().repositories()
 				.getPostReceiveScriptsInherited(repositoryModel)));
 
 		WebMarkupContainer customFieldsSection = new WebMarkupContainer("customFieldsSection");
 		customFieldsSection.add(customFieldsListView);
-		form.add(customFieldsSection.setVisible(!GitBlit.getString(Keys.groovy.customFields, "").isEmpty()));
+		form.add(customFieldsSection.setVisible(!app().settings().getString(Keys.groovy.customFields, "").isEmpty()));
 
 		// initial enable/disable of permission controls
 		if (repositoryModel.accessRestriction.equals(AccessRestrictionType.NONE)) {
@@ -579,8 +578,8 @@ public class EditRepositoryPage extends RootSubPage {
 	 * Repository Owners should be able to edit their repository.
 	 */
 	private void checkPermissions(RepositoryModel model) {
-		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
-		boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, true);
+		boolean authenticateAdmin = app().settings().getBoolean(Keys.web.authenticateAdminPages, true);
+		boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, true);
 
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();

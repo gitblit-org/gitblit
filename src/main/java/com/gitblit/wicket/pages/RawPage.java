@@ -31,7 +31,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -66,11 +65,11 @@ public class RawPage extends SessionPage {
 				final String repositoryName = WicketUtils.getRepositoryName(params);
 				final String objectId = WicketUtils.getObject(params);
 				final String blobPath = WicketUtils.getPath(params);
-				String[] encodings = GitBlit.getEncodings();
+				String[] encodings = getEncodings();
 				GitBlitWebSession session = GitBlitWebSession.get();
 				UserModel user = session.getUser();
 
-				RepositoryModel model = GitBlit.self().getRepositoryModel(user, repositoryName);
+				RepositoryModel model = app().repositories().getRepositoryModel(user, repositoryName);
 				if (model == null) {
 					// user does not have permission
 					error(getString("gb.canNotLoadRepository") + " " + repositoryName);
@@ -78,7 +77,7 @@ public class RawPage extends SessionPage {
 					return;
 				}
 
-				Repository r = GitBlit.self().getRepository(repositoryName);
+				Repository r = app().repositories().getRepository(repositoryName);
 				if (r == null) {
 					error(getString("gb.canNotLoadRepository") + " " + repositoryName);
 					redirectToInterceptPage(new RepositoriesPage());
@@ -112,10 +111,10 @@ public class RawPage extends SessionPage {
 
 					// Map the extensions to types
 					Map<String, Integer> map = new HashMap<String, Integer>();
-					for (String ext : GitBlit.getStrings(Keys.web.imageExtensions)) {
+					for (String ext : app().settings().getStrings(Keys.web.imageExtensions)) {
 						map.put(ext.toLowerCase(), 2);
 					}
-					for (String ext : GitBlit.getStrings(Keys.web.binaryExtensions)) {
+					for (String ext : app().settings().getStrings(Keys.web.binaryExtensions)) {
 						map.put(ext.toLowerCase(), 3);
 					}
 

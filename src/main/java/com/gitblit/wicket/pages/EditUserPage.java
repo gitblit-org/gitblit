@@ -35,7 +35,6 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -55,9 +54,9 @@ public class EditUserPage extends RootSubPage {
 	public EditUserPage() {
 		// create constructor
 		super();
-		if (!GitBlit.self().supportsAddUser()) {
+		if (!app().users().supportsAddUser()) {
 			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
-					GitBlit.getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
+					app().settings().getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
 		}
 		isCreate = true;
 		setupPage(new UserModel(""));
@@ -70,7 +69,7 @@ public class EditUserPage extends RootSubPage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getUsername(params);
-		UserModel model = GitBlit.self().getUserModel(name);
+		UserModel model = app().users().getUserModel(name);
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -107,10 +106,10 @@ public class EditUserPage extends RootSubPage {
 		Collections.sort(userTeams);
 
 		final String oldName = userModel.username;
-		final List<RegistrantAccessPermission> permissions = GitBlit.self().getUserAccessPermissions(userModel);
+		final List<RegistrantAccessPermission> permissions = app().repositories().getUserAccessPermissions(userModel);
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
-				new ArrayList<String>(userTeams)), new CollectionModel<String>(GitBlit.self()
+				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users()
 				.getAllTeamnames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
@@ -131,7 +130,7 @@ public class EditUserPage extends RootSubPage {
 				userModel.username = userModel.username.toLowerCase();
 				String username = userModel.username;
 				if (isCreate) {
-					UserModel model = GitBlit.self().getUserModel(username);
+					UserModel model = app().users().getUserModel(username);
 					if (model != null) {
 						error(MessageFormat.format(getString("gb.usernameUnavailable"), username));
 						return;
@@ -139,7 +138,7 @@ public class EditUserPage extends RootSubPage {
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
-				if (GitBlit.self().supportsCredentialChanges(userModel)) {
+				if (app().users().supportsCredentialChanges(userModel)) {
 					if (!userModel.password.equals(confirmPassword.getObject())) {
 						error(getString("gb.passwordsDoNotMatch"));
 						return;
@@ -149,7 +148,7 @@ public class EditUserPage extends RootSubPage {
 							&& !password.toUpperCase().startsWith(StringUtils.COMBINED_MD5_TYPE)) {
 						// This is a plain text password.
 						// Check length.
-						int minLength = GitBlit.getInteger(Keys.realm.minPasswordLength, 5);
+						int minLength = app().settings().getInteger(Keys.realm.minPasswordLength, 5);
 						if (minLength < 4) {
 							minLength = 4;
 						}
@@ -160,7 +159,7 @@ public class EditUserPage extends RootSubPage {
 						}
 
 						// Optionally store the password MD5 digest.
-						String type = GitBlit.getString(Keys.realm.passwordStorage, "md5");
+						String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
 						if (type.equalsIgnoreCase("md5")) {
 							// store MD5 digest of password
 							userModel.password = StringUtils.MD5_TYPE
@@ -185,7 +184,7 @@ public class EditUserPage extends RootSubPage {
 				Iterator<String> selectedTeams = teams.getSelectedChoices();
 				userModel.teams.clear();
 				while (selectedTeams.hasNext()) {
-					TeamModel team = GitBlit.self().getTeamModel(selectedTeams.next());
+					TeamModel team = app().users().getTeamModel(selectedTeams.next());
 					if (team == null) {
 						continue;
 					}
@@ -193,7 +192,7 @@ public class EditUserPage extends RootSubPage {
 				}
 
 				try {
-					GitBlit.self().updateUserModel(oldName, userModel, isCreate);
+					app().users().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;
@@ -215,16 +214,16 @@ public class EditUserPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// not all user services support manipulating username and password
-		boolean editCredentials = GitBlit.self().supportsCredentialChanges(userModel);
+		boolean editCredentials = app().users().supportsCredentialChanges(userModel);
 
 		// not all user services support manipulating display name
-		boolean editDisplayName = GitBlit.self().supportsDisplayNameChanges(userModel);
+		boolean editDisplayName = app().users().supportsDisplayNameChanges(userModel);
 
 		// not all user services support manipulating email address
-		boolean editEmailAddress = GitBlit.self().supportsEmailAddressChanges(userModel);
+		boolean editEmailAddress = app().users().supportsEmailAddressChanges(userModel);
 
 		// not all user services support manipulating team memberships
-		boolean editTeams = GitBlit.self().supportsTeamMembershipChanges(userModel);
+		boolean editTeams = app().users().supportsTeamMembershipChanges(userModel);
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));
@@ -238,7 +237,7 @@ public class EditUserPage extends RootSubPage {
 		form.add(new TextField<String>("displayName").setEnabled(editDisplayName));
 		form.add(new TextField<String>("emailAddress").setEnabled(editEmailAddress));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
+		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(new CheckBox("excludeFromFederation"));
 		form.add(new RegistrantPermissionsPanel("repositories",	RegistrantType.REPOSITORY, repos, permissions, getAccessPermissions()));

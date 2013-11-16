@@ -22,8 +22,9 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 
-import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
+import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 
 public abstract class SessionPage extends WebPage {
@@ -38,12 +39,20 @@ public abstract class SessionPage extends WebPage {
 		login();
 	}
 
+	protected String [] getEncodings() {
+		return app().settings().getStrings(Keys.web.blobEncodings).toArray(new String[0]);
+	}
+
+	protected GitBlitWebApp app() {
+		return GitBlitWebApp.get();
+	}
+
 	private void login() {
 		GitBlitWebSession session = GitBlitWebSession.get();
 		if (session.isLoggedIn() && !session.isSessionInvalidated()) {
 			// already have a session, refresh usermodel to pick up
 			// any changes to permissions or roles (issue-186)
-			UserModel user = GitBlit.self().getUserModel(session.getUser().username);
+			UserModel user = app().users().getUserModel(session.getUser().username);
 			session.setUser(user);
 			return;
 		}
@@ -51,7 +60,7 @@ public abstract class SessionPage extends WebPage {
 		// try to authenticate by servlet request
 		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest())
 				.getHttpServletRequest();
-		UserModel user = GitBlit.self().authenticate(httpRequest);
+		UserModel user = app().session().authenticate(httpRequest);
 
 		// Login the user
 		if (user != null) {
@@ -61,7 +70,7 @@ public abstract class SessionPage extends WebPage {
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			GitBlit.self().setCookie(response, user);
+			app().session().setCookie(response, user);
 
 			session.continueRequest();
 		}

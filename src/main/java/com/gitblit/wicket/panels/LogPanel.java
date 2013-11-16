@@ -34,7 +34,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.BranchGraphServlet;
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.JGitUtils;
@@ -57,7 +56,7 @@ public class LogPanel extends BasePanel {
 			Repository r, int limit, int pageOffset, boolean showRemoteRefs) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int itemsPerPage = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+		int itemsPerPage = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 		if (itemsPerPage <= 1) {
 			itemsPerPage = 50;
 		}
@@ -77,7 +76,7 @@ public class LogPanel extends BasePanel {
 		hasMore = commits.size() >= itemsPerPage;
 
 		final String baseUrl = WicketUtils.getGitblitURL(getRequest());
-		final boolean showGraph = GitBlit.getBoolean(Keys.web.showBranchGraph, true);
+		final boolean showGraph = app().settings().getBoolean(Keys.web.showBranchGraph, true);
 
 		MarkupContainer graph = new WebMarkupContainer("graph");
 		add(graph);
@@ -101,7 +100,7 @@ public class LogPanel extends BasePanel {
 					WicketUtils.newRepositoryParameter(repositoryName)));
 		}
 
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 		ListDataProvider<RevCommit> dp = new ListDataProvider<RevCommit>(commits);
 		DataView<RevCommit> logView = new DataView<RevCommit>("commit", dp) {
 			private static final long serialVersionUID = 1L;

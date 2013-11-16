@@ -21,9 +21,9 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitRedirectException;
 import com.gitblit.wicket.WicketUtils;
@@ -49,7 +49,7 @@ public class ForkPage extends RepositoryPage {
 			throw new GitblitRedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(repository.name));
 		}
 
-		String fork = GitBlit.self().getFork(user.username, repository.name);
+		String fork = app().repositories().getFork(user.username, repository.name);
 		if (fork != null) {
 			// redirect to user's fork
 			throw new GitblitRedirectException(SummaryPage.class, WicketUtils.newRepositoryParameter(fork));
@@ -62,7 +62,7 @@ public class ForkPage extends RepositoryPage {
 			session.isForking(true);
 
 			// fork it
-			ForkThread forker = new ForkThread(repository, session);
+			ForkThread forker = new ForkThread(app(), repository, session);
 			forker.start();
 		}
 	}
@@ -84,10 +84,12 @@ public class ForkPage extends RepositoryPage {
 	 */
 	private static class ForkThread extends Thread {
 
+		private final GitBlitWebApp app;
 		private final RepositoryModel repository;
 		private final GitBlitWebSession session;
 
-		public ForkThread(RepositoryModel repository, GitBlitWebSession session) {
+		public ForkThread(GitBlitWebApp app, RepositoryModel repository, GitBlitWebSession session) {
+			this.app = app;
 			this.repository = repository;
 			this.session = session;
 		}
@@ -96,7 +98,7 @@ public class ForkPage extends RepositoryPage {
 		public void run() {
 			UserModel user = session.getUser();
 			try {
-				GitBlit.self().fork(repository, user);
+				app.gitblit().fork(repository, user);
 			} catch (Exception e) {
 				LoggerFactory.getLogger(ForkPage.class).error(MessageFormat.format("Failed to fork {0} for {1}", repository.name, user.username), e);
 			} finally {

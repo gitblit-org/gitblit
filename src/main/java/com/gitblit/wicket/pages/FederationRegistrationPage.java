@@ -24,7 +24,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 
-import com.gitblit.GitBlit;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationModel.RepositoryStatus;
 import com.gitblit.wicket.WicketUtils;
@@ -39,7 +38,7 @@ public class FederationRegistrationPage extends RootSubPage {
 		String url = WicketUtils.getUrlParameter(params);
 		String name = WicketUtils.getNameParameter(params);
 
-		FederationModel registration = GitBlit.self().getFederationRegistration(url, name);
+		FederationModel registration = app().federation().getFederationRegistration(url, name);
 		if (registration == null) {
 			error(getString("gb.couldNotFindFederationRegistration"), true);
 		}

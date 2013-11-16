@@ -31,7 +31,6 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.eclipse.jgit.lib.PersonIdent;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.DailyLogEntry;
 import com.gitblit.models.RepositoryCommit;
@@ -56,9 +55,9 @@ public class DigestsPanel extends BasePanel {
 		super(wicketId);
 		hasChanges = digests.size() > 0;
 
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 
-		String dateFormat = GitBlit.getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
+		String dateFormat = app().settings().getString(Keys.web.datestampLongFormat, "EEEE, MMMM d, yyyy");
 		final TimeZone timezone = getTimeZone();
 		final DateFormat df = new SimpleDateFormat(dateFormat);
 		df.setTimeZone(timezone);
@@ -203,7 +202,7 @@ public class DigestsPanel extends BasePanel {
 					logItem.add(new LinkPanel("compareLink", null, compareLinkText, ComparePage.class, WicketUtils.newRangeParameter(change.repository, startRangeId, endRangeId)));
 				}
 
-				final boolean showSwatch = GitBlit.getBoolean(Keys.web.repositoryListSwatches, true);
+				final boolean showSwatch = app().settings().getBoolean(Keys.web.repositoryListSwatches, true);
 
 				ListDataProvider<RepositoryCommit> cdp = new ListDataProvider<RepositoryCommit>(commits);
 				DataView<RepositoryCommit> commitsView = new DataView<RepositoryCommit>("commit", cdp) {

@@ -24,7 +24,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -41,11 +40,11 @@ public class DocPage extends RepositoryPage {
 		super(params);
 
 		final String path = WicketUtils.getPath(params).replace("%2f", "/").replace("%2F", "/");
-		MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
+		MarkupProcessor processor = new MarkupProcessor(app().settings());
 
 		Repository r = getRepository();
 		RevCommit commit = JGitUtils.getCommit(r, objectId);
-		String [] encodings = GitBlit.getEncodings();
+		String [] encodings = getEncodings();
 
 		// Read raw markup content and transform it to html
 		String documentPath = path;

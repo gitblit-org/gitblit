@@ -15,9 +15,11 @@
  */
 package com.gitblit.wicket;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.wicket.Application;
 import org.apache.wicket.Request;
@@ -27,6 +29,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
@@ -71,26 +74,30 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 
+	private IStoredSettings settings;
+
 	@Override
 	public void init() {
 		super.init();
 
+		settings = GitBlit.getSettings();
+
 		// Setup page authorization mechanism
-		boolean useAuthentication = GitBlit.getBoolean(Keys.web.authenticateViewPages, false)
-				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, false);
+		boolean useAuthentication = settings.getBoolean(Keys.web.authenticateViewPages, false)
+				|| settings.getBoolean(Keys.web.authenticateAdminPages, false);
 		if (useAuthentication) {
-			AuthorizationStrategy authStrategy = new AuthorizationStrategy(homePageClass);
+			AuthorizationStrategy authStrategy = new AuthorizationStrategy(settings, homePageClass);
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
 		}
 
 		// Grab Browser info (like timezone, etc)
-		if (GitBlit.getBoolean(Keys.web.useClientTimezone, false)) {
+		if (settings.getBoolean(Keys.web.useClientTimezone, false)) {
 			getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		}
 
 		// configure the resource cache duration to 90 days for deployment
-		if (!GitBlit.isDebugMode()) {
+		if (!isDebugMode()) {
 			getResourceSettings().setDefaultCacheDuration(90 * 86400);
 		}
 
@@ -137,16 +144,17 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/fork", ForkPage.class, "r");
 		
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
+		super.init();
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {
 		if (parameters == null) {
 			parameters = new String[] {};
 		}
-		if (!GitBlit.getBoolean(Keys.web.mountParameters, true)) {
+		if (!settings.getBoolean(Keys.web.mountParameters, true)) {
 			parameters = new String[] {};
 		}
-		mount(new GitblitParamUrlCodingStrategy(location, clazz, parameters));
+		mount(new GitblitParamUrlCodingStrategy(settings, location, clazz, parameters));
 
 		// map the mount point to the cache control definition
 		if (clazz.isAnnotationPresent(CacheControl.class)) {
@@ -172,16 +180,77 @@ public class GitBlitWebApp extends WebApplication {
 	public final Session newSession(Request request, Response response) {
 		GitBlitWebSession gitBlitWebSession = new GitBlitWebSession(request);
 
-		String forcedLocale = GitBlit.getString(Keys.web.forceDefaultLocale, null);
+		String forcedLocale = settings.getString(Keys.web.forceDefaultLocale, null);
 		if (!StringUtils.isEmpty(forcedLocale)) {
 			gitBlitWebSession.setLocale(new Locale(forcedLocale));
 		}
 		return gitBlitWebSession;
 	}
 
+	public IStoredSettings settings() {
+		return settings;
+	}
+
+	/**
+	 * Is Gitblit running in debug mode?
+	 *
+	 * @return true if Gitblit is running in debug mode
+	 */
+	public boolean isDebugMode() {
+		return GitBlit.isDebugMode();
+	}
+
+	/*
+	 * These methods look strange... and they are... but they are the first
+	 * step towards modularization across multiple commits.
+	 */
+	public Date getBootDate() {
+		return GitBlit.getBootDate();
+	}
+
+	public Date getLastActivityDate() {
+		return GitBlit.getLastActivityDate();
+	}
+
+	public GitBlit runtime() {
+		return GitBlit.self();
+	}
+
+	public GitBlit mail() {
+		return GitBlit.self();
+	}
+
+	public GitBlit users() {
+		return GitBlit.self();
+	}
+
+	public GitBlit session() {
+		return GitBlit.self();
+	}
+
+	public GitBlit repositories() {
+		return GitBlit.self();
+	}
+
+	public GitBlit projects() {
+		return GitBlit.self();
+	}
+
+	public GitBlit federation() {
+		return GitBlit.self();
+	}
+
+	public GitBlit gitblit() {
+		return GitBlit.self();
+	}
+
+	public TimeZone getTimezone() {
+		return GitBlit.getTimezone();
+	}
+
 	@Override
 	public final String getConfigurationType() {
-		if (GitBlit.isDebugMode()) {
+		if (isDebugMode()) {
 			return Application.DEVELOPMENT;
 		}
 		return Application.DEPLOYMENT;

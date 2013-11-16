@@ -32,7 +32,6 @@ import org.apache.wicket.model.Model;
 import org.eclipse.jgit.lib.Constants;
 
 import com.gitblit.Constants.SearchType;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
@@ -65,7 +64,7 @@ public class LuceneSearchPage extends RootPage {
 		ArrayList<String> repositories = new ArrayList<String>();
 		String query = "";
 		int page = 1;
-		int pageSize = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+		int pageSize = app().settings().getInteger(Keys.web.itemsPerPage, 50);
 
 		if (params != null) {
 			String repository = WicketUtils.getRepositoryName(params);
@@ -100,12 +99,12 @@ public class LuceneSearchPage extends RootPage {
 		// display user-accessible selections
 		UserModel user = GitBlitWebSession.get().getUser();
 		List<String> availableRepositories = new ArrayList<String>();
-		for (RepositoryModel model : GitBlit.self().getRepositoryModels(user)) {
+		for (RepositoryModel model : app().repositories().getRepositoryModels(user)) {
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
 				availableRepositories.add(model.name);
 			}
 		}
-		boolean luceneEnabled = GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true);
+		boolean luceneEnabled = app().settings().getBoolean(Keys.web.allowLuceneIndexing, true);
 		if (luceneEnabled) {
 			if (availableRepositories.size() == 0) {
 				info(getString("gb.noIndexedRepositoriesWarning"));
@@ -158,7 +157,7 @@ public class LuceneSearchPage extends RootPage {
 		// execute search
 		final List<SearchResult> results = new ArrayList<SearchResult>();
 		if (!ArrayUtils.isEmpty(searchRepositories) && !StringUtils.isEmpty(query)) {
-			results.addAll(GitBlit.self().search(query, page, pageSize, searchRepositories));
+			results.addAll(app().repositories().search(query, page, pageSize, searchRepositories));
 		}
 
 		// results header

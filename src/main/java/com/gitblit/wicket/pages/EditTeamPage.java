@@ -37,7 +37,6 @@ import org.apache.wicket.model.util.CollectionModel;
 import org.apache.wicket.model.util.ListModel;
 
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -70,7 +69,7 @@ public class EditTeamPage extends RootSubPage {
 		super(params);
 		isCreate = false;
 		String name = WicketUtils.getTeamname(params);
-		TeamModel model = GitBlit.self().getTeamModel(name);
+		TeamModel model = app().users().getTeamModel(name);
 		setupPage(model);
 		setStatelessHint(false);
 		setOutputMarkupId(true);
@@ -107,7 +106,7 @@ public class EditTeamPage extends RootSubPage {
 
 		// users palette
 		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
-				new ArrayList<String>(teamUsers)), new CollectionModel<String>(GitBlit.self()
+				new ArrayList<String>(teamUsers)), new CollectionModel<String>(app().users()
 				.getAllUsernames()), new StringChoiceRenderer(), 10, false);
 
 		// pre-receive palette
@@ -115,8 +114,8 @@ public class EditTeamPage extends RootSubPage {
 			preReceiveScripts.addAll(teamModel.preReceiveScripts);
 		}
 		final Palette<String> preReceivePalette = new Palette<String>("preReceiveScripts",
-				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPreReceiveScriptsUnused(null)), new StringChoiceRenderer(),
+				new ListModel<String>(preReceiveScripts), new CollectionModel<String>(app().repositories()
+						.getPreReceiveScriptsUnused(null)), new StringChoiceRenderer(),
 						12, true);
 
 		// post-receive palette
@@ -124,8 +123,8 @@ public class EditTeamPage extends RootSubPage {
 			postReceiveScripts.addAll(teamModel.postReceiveScripts);
 		}
 		final Palette<String> postReceivePalette = new Palette<String>("postReceiveScripts",
-				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(GitBlit
-						.self().getPostReceiveScriptsUnused(null)), new StringChoiceRenderer(),
+				new ListModel<String>(postReceiveScripts), new CollectionModel<String>(app().repositories()
+						.getPostReceiveScriptsUnused(null)), new StringChoiceRenderer(),
 								12, true);
 
 		Form<TeamModel> form = new Form<TeamModel>("editForm", model) {
@@ -145,7 +144,7 @@ public class EditTeamPage extends RootSubPage {
 					return;
 				}
 				if (isCreate) {
-					TeamModel model = GitBlit.self().getTeamModel(teamname);
+					TeamModel model = app().users().getTeamModel(teamname);
 					if (model != null) {
 						error(MessageFormat.format(getString("gb.teamNameUnavailable"), teamname));
 						return;
@@ -197,7 +196,7 @@ public class EditTeamPage extends RootSubPage {
 				teamModel.postReceiveScripts.addAll(postReceiveScripts);
 
 				try {
-					GitBlit.self().updateTeamModel(oldName, teamModel, isCreate);
+					app().users().updateTeamModel(oldName, teamModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;
@@ -217,12 +216,12 @@ public class EditTeamPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// not all user services support manipulating team memberships
-		boolean editMemberships = GitBlit.self().supportsTeamMembershipChanges(null);
+		boolean editMemberships = app().users().supportsTeamMembershipChanges(null);
 
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));
 		form.add(new CheckBox("canAdmin"));
-		form.add(new CheckBox("canFork").setEnabled(GitBlit.getBoolean(Keys.web.allowForking, true)));
+		form.add(new CheckBox("canFork").setEnabled(app().settings().getBoolean(Keys.web.allowForking, true)));
 		form.add(new CheckBox("canCreate"));
 		form.add(users.setEnabled(editMemberships));
 		mailingLists = new Model<String>(teamModel.mailingLists == null ? ""
@@ -232,10 +231,10 @@ public class EditTeamPage extends RootSubPage {
 		form.add(new RegistrantPermissionsPanel("repositories", RegistrantType.REPOSITORY,
 				repos, permissions, getAccessPermissions()));
 		form.add(preReceivePalette);
-		form.add(new BulletListPanel("inheritedPreReceive", "inherited", GitBlit.self()
+		form.add(new BulletListPanel("inheritedPreReceive", "inherited", app().repositories()
 				.getPreReceiveScriptsInherited(null)));
 		form.add(postReceivePalette);
-		form.add(new BulletListPanel("inheritedPostReceive", "inherited", GitBlit.self()
+		form.add(new BulletListPanel("inheritedPostReceive", "inherited", app().repositories()
 				.getPostReceiveScriptsInherited(null)));
 
 		form.add(new Button("save"));

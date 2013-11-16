@@ -33,7 +33,6 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.transport.ReceiveCommand.Type;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryCommit;
@@ -61,7 +60,7 @@ public class ReflogPanel extends BasePanel {
 	public ReflogPanel(String wicketId, final RepositoryModel model, Repository r, int limit, int pageOffset) {
 		super(wicketId);
 		boolean pageResults = limit <= 0;
-		int changesPerPage = GitBlit.getInteger(Keys.web.reflogChangesPerPage, 10);
+		int changesPerPage = app().settings().getInteger(Keys.web.reflogChangesPerPage, 10);
 		if (changesPerPage <= 1) {
 			changesPerPage = 10;
 		}
@@ -111,9 +110,9 @@ public class ReflogPanel extends BasePanel {
 	}
 
 	protected void setup(List<RefLogEntry> changes) {
-		final int hashLen = GitBlit.getInteger(Keys.web.shortCommitIdLength, 6);
+		final int hashLen = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
 
-		String dateFormat = GitBlit.getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
+		String dateFormat = app().settings().getString(Keys.web.datetimestampLongFormat, "EEEE, MMMM d, yyyy HH:mm Z");
 		final TimeZone timezone = getTimeZone();
 		final DateFormat df = new SimpleDateFormat(dateFormat);
 		df.setTimeZone(timezone);

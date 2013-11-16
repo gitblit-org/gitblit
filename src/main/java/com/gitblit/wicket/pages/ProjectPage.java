@@ -25,7 +25,6 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
@@ -87,7 +86,7 @@ public class ProjectPage extends DashboardPage {
 	private void setup(PageParameters params) {
 		setupPage("", "");
 		// check to see if we should display a login message
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, true);
+		boolean authenticateView = app().settings().getBoolean(Keys.web.authenticateViewPages, true);
 		if (authenticateView && !GitBlitWebSession.get().isLoggedIn()) {
 			authenticationError("Please login");
 			return;
@@ -130,7 +129,7 @@ public class ProjectPage extends DashboardPage {
 		}
 		int daysBack = params == null ? 0 : WicketUtils.getDaysBack(params);
 		if (daysBack < 1) {
-			daysBack = GitBlit.getInteger(Keys.web.activityDuration, 7);
+			daysBack = app().settings().getInteger(Keys.web.activityDuration, 7);
 		}
 		// reset the daysback parameter so that we have a complete project
 		// repository list.  the recent activity will be built up by the
@@ -186,7 +185,7 @@ public class ProjectPage extends DashboardPage {
 	protected List<ProjectModel> getProjectModels() {
 		if (projectModels.isEmpty()) {
 			List<RepositoryModel> repositories = getRepositoryModels();
-			List<ProjectModel> projects = GitBlit.self().getProjectModels(repositories, false);
+			List<ProjectModel> projects = app().projects().getProjectModels(repositories, false);
 			projectModels.addAll(projects);
 		}
 		return projectModels;

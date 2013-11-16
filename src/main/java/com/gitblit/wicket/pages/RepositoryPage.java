@@ -46,7 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.PagesServlet;
@@ -60,6 +59,7 @@ import com.gitblit.models.UserRepositoryPreferences;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MessageProcessor;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
@@ -97,7 +97,7 @@ public abstract class RepositoryPage extends RootPage {
 		repositoryName = WicketUtils.getRepositoryName(params);
 		String root =StringUtils.getFirstPathElement(repositoryName);
 		if (StringUtils.isEmpty(root)) {
-			projectName = GitBlit.getString(Keys.web.repositoryRootGroupName, "main");
+			projectName = app().settings().getString(Keys.web.repositoryRootGroupName, "main");
 		} else {
 			projectName = root;
 		}
@@ -139,7 +139,7 @@ public abstract class RepositoryPage extends RootPage {
 				UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(getRepositoryModel().name);
 				prefs.starred = star;
 				try {
-					GitBlit.self().updateUserModel(user.username, user, false);
+					app().users().updateUserModel(user.username, user, false);
 				} catch (GitBlitException e) {
 					logger.error("Failed to update user " + user.username, e);
 					error(getString("gb.failedToUpdateUser"), false);
@@ -176,6 +176,10 @@ public abstract class RepositoryPage extends RootPage {
 		return getClass();
 	}
 
+	protected MessageProcessor messageProcessor() {
+		return new MessageProcessor(app().settings());
+	}
+
 	private Map<String, PageRegistration> registerPages() {
 		PageParameters params = null;
 		if (!StringUtils.isEmpty(repositoryName)) {
@@ -198,7 +202,7 @@ public abstract class RepositoryPage extends RootPage {
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
 		pages.put("docs", new PageRegistration("gb.docs", DocsPage.class, params, true));
 		pages.put("compare", new PageRegistration("gb.compare", ComparePage.class, params, true));
-		if (GitBlit.getBoolean(Keys.web.allowForking, true)) {
+		if (app().settings().getBoolean(Keys.web.allowForking, true)) {
 			pages.put("forks", new PageRegistration("gb.forks", ForksPage.class, params, true));
 		}
 
@@ -212,11 +216,11 @@ public abstract class RepositoryPage extends RootPage {
 
 		// Conditionally add edit link
 		showAdmin = false;
-		if (GitBlit.getBoolean(Keys.web.authenticateAdminPages, true)) {
-			boolean allowAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+		if (app().settings().getBoolean(Keys.web.authenticateAdminPages, true)) {
+			boolean allowAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
 			showAdmin = allowAdmin && GitBlitWebSession.get().canAdmin();
 		} else {
-			showAdmin = GitBlit.getBoolean(Keys.web.allowAdministration, false);
+			showAdmin = app().settings().getBoolean(Keys.web.allowAdministration, false);
 		}
 		isOwner = GitBlitWebSession.get().isLoggedIn()
 				&& (model.isOwner(GitBlitWebSession.get()
@@ -225,13 +229,13 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	protected boolean allowForkControls() {
-		return GitBlit.getBoolean(Keys.web.allowForking, true);
+		return app().settings().getBoolean(Keys.web.allowForking, true);
 	}
 
 	@Override
 	protected void setupPage(String repositoryName, String pageName) {
 		String projectName = StringUtils.getFirstPathElement(repositoryName);
-		ProjectModel project = GitBlit.self().getProjectModel(projectName);
+		ProjectModel project = app().projects().getProjectModel(projectName);
 		if (project.isUserProject()) {
 			// user-as-project
 			add(new LinkPanel("projectTitle", null, project.getDisplayName(),
@@ -267,7 +271,7 @@ public abstract class RepositoryPage extends RootPage {
 				add(new Label("originRepository").setVisible(false));
 			}
 		} else {
-			RepositoryModel origin = GitBlit.self().getRepositoryModel(model.originRepository);
+			RepositoryModel origin = app().repositories().getRepositoryModel(model.originRepository);
 			if (origin == null) {
 				// no origin repository
 				add(new Label("originRepository").setVisible(false));
@@ -311,7 +315,7 @@ public abstract class RepositoryPage extends RootPage {
 			add(new ExternalLink("forkLink", "").setVisible(false));
 			add(new ExternalLink("myForkLink", "").setVisible(false));
 		} else {
-			String fork = GitBlit.self().getFork(user.username, model.name);
+			String fork = app().repositories().getFork(user.username, model.name);
 			boolean hasFork = fork != null;
 			boolean canFork = user.canFork(model);
 
@@ -363,7 +367,7 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected Repository getRepository() {
 		if (r == null) {
-			Repository r = GitBlit.self().getRepository(repositoryName);
+			Repository r = app().repositories().getRepository(repositoryName);
 			if (r == null) {
 				error(getString("gb.canNotLoadRepository") + " " + repositoryName, true);
 				return null;
@@ -375,10 +379,10 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected RepositoryModel getRepositoryModel() {
 		if (m == null) {
-			RepositoryModel model = GitBlit.self().getRepositoryModel(
+			RepositoryModel model = app().repositories().getRepositoryModel(
 					GitBlitWebSession.get().getUser(), repositoryName);
 			if (model == null) {
-				if (GitBlit.self().hasRepository(repositoryName, true)) {
+				if (app().repositories().hasRepository(repositoryName, true)) {
 					// has repository, but unauthorized
 					authenticationError(getString("gb.unauthorizedAccessForRepository") + " " + repositoryName);
 				} else {
@@ -450,7 +454,7 @@ public abstract class RepositoryPage extends RootPage {
 			return model;
 		} else {
 			// extract the repository name from the clone url
-			List<String> patterns = GitBlit.getStrings(Keys.git.submoduleUrlPatterns);
+			List<String> patterns = app().settings().getStrings(Keys.git.submoduleUrlPatterns);
 			String submoduleName = StringUtils.extractRepositoryPath(model.url, patterns.toArray(new String[0]));
 
 			// determine the current path for constructing paths relative
@@ -489,7 +493,7 @@ public abstract class RepositoryPage extends RootPage {
 			// create a unique, ordered set of candidate paths
 			Set<String> paths = new LinkedHashSet<String>(candidates);
 			for (String candidate : paths) {
-				if (GitBlit.self().hasRepository(candidate)) {
+				if (app().repositories().hasRepository(candidate)) {
 					model.hasSubmodule = true;
 					model.gitblitPath = candidate;
 					return model;
@@ -503,7 +507,7 @@ public abstract class RepositoryPage extends RootPage {
 	}
 
 	protected String getShortObjectId(String objectId) {
-		return objectId.substring(0, GitBlit.getInteger(Keys.web.shortCommitIdLength, 6));
+		return objectId.substring(0, app().settings().getInteger(Keys.web.shortCommitIdLength, 6));
 	}
 
 	protected void addRefs(Repository r, RevCommit c) {
@@ -512,7 +516,7 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected void addFullText(String wicketId, String text) {
 		RepositoryModel model = getRepositoryModel();
-		String content = GitBlit.self().processCommitMessage(model, text);
+		String content = messageProcessor().processCommitMessage(model, text);
 		String html;
 		switch (model.commitMessageRenderer) {
 		case MARKDOWN:
@@ -533,7 +537,7 @@ public abstract class RepositoryPage extends RootPage {
 		String address = identity == null ? "" : identity.getEmailAddress();
 		name = StringUtils.removeNewlines(name);
 		address = StringUtils.removeNewlines(address);
-		boolean showEmail = GitBlit.getBoolean(Keys.web.showEmailAddresses, false);
+		boolean showEmail = app().settings().getBoolean(Keys.web.showEmailAddresses, false);
 		if (!showEmail || StringUtils.isEmpty(name) || StringUtils.isEmpty(address)) {
 			String value = name;
 			if (StringUtils.isEmpty(value)) {
@@ -664,7 +668,7 @@ public abstract class RepositoryPage extends RootPage {
 			DropDownChoice<Constants.SearchType> searchType = new DropDownChoice<Constants.SearchType>(
 					"searchType", Arrays.asList(Constants.SearchType.values()));
 			searchType.setModel(searchTypeModel);
-			add(searchType.setVisible(GitBlit.getBoolean(Keys.web.showSearchTypeSelection, false)));
+			add(searchType.setVisible(app().settings().getBoolean(Keys.web.showSearchTypeSelection, false)));
 			TextField<String> searchBox = new TextField<String>("searchBox", searchBoxModel);
 			add(searchBox);
 		}
@@ -695,8 +699,8 @@ public abstract class RepositoryPage extends RootPage {
 				}
 			}
 			Class<? extends BasePage> searchPageClass = GitSearchPage.class;
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
-			if (GitBlit.getBoolean(Keys.web.allowLuceneIndexing, true)
+			RepositoryModel model = app().repositories().getRepositoryModel(repositoryName);
+			if (app().settings().getBoolean(Keys.web.allowLuceneIndexing, true)
 					&& !ArrayUtils.isEmpty(model.indexedBranches)) {
 				// this repository is Lucene-indexed
 				searchPageClass = LuceneSearchPage.class;

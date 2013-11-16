@@ -25,7 +25,7 @@ import org.apache.wicket.request.target.coding.MixedParamUrlCodingStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 
 /**
@@ -42,6 +42,8 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 
 	private Logger logger = LoggerFactory.getLogger(GitblitParamUrlCodingStrategy.class);
 
+	private IStoredSettings settings;
+
 	/**
 	 * Construct.
 	 *
@@ -53,9 +55,13 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	 * @param parameterNames
 	 *            the parameter names (not null)
 	 */
-	public <C extends Page> GitblitParamUrlCodingStrategy(String mountPath,
+	public <C extends Page> GitblitParamUrlCodingStrategy(
+			IStoredSettings settings,
+			String mountPath,
 			Class<C> bookmarkablePageClass, String[] parameterNames) {
+
 		super(mountPath, bookmarkablePageClass, parameterNames);
+		this.settings = settings;
 	}
 
 	/**
@@ -67,7 +73,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	 */
 	@Override
 	protected String urlEncodePathComponent(String string) {
-		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
+		char altChar = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
 			string = string.replace('/', altChar);
 		}
@@ -83,7 +89,7 @@ public class GitblitParamUrlCodingStrategy extends MixedParamUrlCodingStrategy {
 	 */
 	@Override
 	protected String urlDecodePathComponent(String value) {
-		char altChar = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
+		char altChar = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 		if (altChar != '/') {
 			value = value.replace(altChar, '/');
 		}
