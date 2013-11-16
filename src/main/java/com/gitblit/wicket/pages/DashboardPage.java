@@ -146,7 +146,7 @@ public abstract class DashboardPage extends RootPage {
 		PageParameters params = getPageParameters();
 
 		DropDownMenuRegistration menu = new DropDownMenuRegistration("gb.filters",
-				GitBlitWebApp.HOME_PAGE_CLASS);
+				GitBlitWebApp.get().getHomePage());
 
 		// preserve repository filter option on time choices
 		menu.menuItems.addAll(getTimeFilterItems(params));

@@ -19,6 +19,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.authorization.IUnauthorizedComponentInstantiationListener;
 import org.apache.wicket.authorization.strategies.page.AbstractPageAuthorizationStrategy;
+import org.apache.wicket.markup.html.WebPage;
 
 import com.gitblit.GitBlit;
 import com.gitblit.Keys;
@@ -28,13 +29,16 @@ import com.gitblit.wicket.pages.BasePage;
 public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy implements
 		IUnauthorizedComponentInstantiationListener {
 
-	public AuthorizationStrategy() {
+	Class<? extends WebPage> homepageClass;
+
+	public AuthorizationStrategy(Class<? extends WebPage> homepageClass) {
+		this.homepageClass = homepageClass;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected boolean isPageAuthorized(Class pageClass) {
-		if (GitBlitWebApp.HOME_PAGE_CLASS.equals(pageClass)) {
+		if (homepageClass.equals(pageClass)) {
 			// allow all requests to get to the HomePage with its inline
 			// authentication form
 			return true;
@@ -79,7 +83,7 @@ public class AuthorizationStrategy extends AbstractPageAuthorizationStrategy imp
 	public void onUnauthorizedInstantiation(Component component) {
 
 		if (component instanceof BasePage) {
-			throw new RestartResponseException(GitBlitWebApp.HOME_PAGE_CLASS);
+			throw new RestartResponseException(homepageClass);
 		}
 	}
 }

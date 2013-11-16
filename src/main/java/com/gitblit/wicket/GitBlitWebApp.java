@@ -20,7 +20,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.Page;
 import org.apache.wicket.Request;
 import org.apache.wicket.Response;
 import org.apache.wicket.Session;
@@ -31,7 +30,6 @@ import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
-import com.gitblit.wicket.pages.BasePage;
 import com.gitblit.wicket.pages.BlamePage;
 import com.gitblit.wicket.pages.BlobDiffPage;
 import com.gitblit.wicket.pages.BlobPage;
@@ -69,7 +67,7 @@ import com.gitblit.wicket.pages.UsersPage;
 
 public class GitBlitWebApp extends WebApplication {
 
-	public final static Class<? extends BasePage> HOME_PAGE_CLASS = MyDashboardPage.class;
+	private final Class<? extends WebPage> homePageClass = MyDashboardPage.class;
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 
@@ -81,7 +79,7 @@ public class GitBlitWebApp extends WebApplication {
 		boolean useAuthentication = GitBlit.getBoolean(Keys.web.authenticateViewPages, false)
 				|| GitBlit.getBoolean(Keys.web.authenticateAdminPages, false);
 		if (useAuthentication) {
-			AuthorizationStrategy authStrategy = new AuthorizationStrategy();
+			AuthorizationStrategy authStrategy = new AuthorizationStrategy(homePageClass);
 			getSecuritySettings().setAuthorizationStrategy(authStrategy);
 			getSecuritySettings().setUnauthorizedComponentInstantiationListener(authStrategy);
 		}
@@ -158,8 +156,8 @@ public class GitBlitWebApp extends WebApplication {
 	}
 
 	@Override
-	public Class<? extends Page> getHomePage() {
-		return HOME_PAGE_CLASS;
+	public Class<? extends WebPage> getHomePage() {
+		return homePageClass;
 	}
 
 	public boolean isCacheablePage(String mountPoint) {
