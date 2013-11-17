@@ -110,7 +110,7 @@ public class EditUserPage extends RootSubPage {
 
 		final Palette<String> teams = new Palette<String>("teams", new ListModel<String>(
 				new ArrayList<String>(userTeams)), new CollectionModel<String>(app().users()
-				.getAllTeamnames()), new StringChoiceRenderer(), 10, false);
+				.getAllTeamNames()), new StringChoiceRenderer(), 10, false);
 		Form<UserModel> form = new Form<UserModel>("editForm", model) {
 
 			private static final long serialVersionUID = 1L;
@@ -192,7 +192,7 @@ public class EditUserPage extends RootSubPage {
 				}
 
 				try {
-					app().users().updateUserModel(oldName, userModel, isCreate);
+					app().gitblit().updateUserModel(oldName, userModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;

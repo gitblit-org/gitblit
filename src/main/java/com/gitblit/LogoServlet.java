@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IRuntimeManager;
+
 /**
  * Handles requests for logo.png
  *
@@ -45,7 +47,8 @@ public class LogoServlet extends HttpServlet {
 
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
-		File file = GitBlit.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		File file = runtimeManager.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
 		if (file.exists()) {
 			return Math.max(lastModified, file.lastModified());
 		} else {
@@ -59,7 +62,8 @@ public class LogoServlet extends HttpServlet {
 		InputStream is = null;
 		try {
 			String contentType = null;
-			File file = GitBlit.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
+			IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+			File file = runtimeManager.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
 			if (file.exists()) {
 				// custom logo
 				ServletContext context = request.getSession().getServletContext();
@@ -88,7 +92,7 @@ public class LogoServlet extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if(is != null) {
+			if (is != null) {
 				is.close();
 			}
 		}

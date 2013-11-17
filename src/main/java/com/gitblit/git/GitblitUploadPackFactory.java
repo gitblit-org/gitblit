@@ -24,6 +24,7 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
 import com.gitblit.GitBlit;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -40,12 +41,13 @@ public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 	public UploadPack create(X req, Repository db)
 			throws ServiceNotEnabledException, ServiceNotAuthorizedException {
 
+		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
 		UserModel user = UserModel.ANONYMOUS;
 		int timeout = 0;
 
 		if (req instanceof HttpServletRequest) {
 			// http/https request may or may not be authenticated
-			user = GitBlit.self().authenticate((HttpServletRequest) req);
+			user = sessionManager.authenticate((HttpServletRequest) req);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}

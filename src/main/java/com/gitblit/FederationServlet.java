@@ -28,6 +28,10 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.FederationRequest;
+import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.TeamModel;
@@ -65,6 +69,12 @@ public class FederationServlet extends JsonServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
+
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		IUserManager userManager = GitBlit.getManager(IUserManager.class);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		IFederationManager federationManager = GitBlit.getManager(IFederationManager.class);
+
 		FederationRequest reqType = FederationRequest.fromName(request.getParameter("req"));
 		logger.info(MessageFormat.format("Federation {0} request from {1}", reqType,
 				request.getRemoteAddr()));
@@ -75,13 +85,13 @@ public class FederationServlet extends JsonServlet {
 			return;
 		}
 
-		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
+		if (!settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			logger.warn(Keys.git.enableGitServlet + " must be set TRUE for federation requests.");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		String uuid = GitBlit.getString(Keys.federation.passphrase, "");
+		String uuid = settings.getString(Keys.federation.passphrase, "");
 		if (StringUtils.isEmpty(uuid)) {
 			logger.warn(Keys.federation.passphrase
 					+ " is not properly set!  Federation request denied.");
@@ -97,7 +107,7 @@ public class FederationServlet extends JsonServlet {
 			}
 
 			// reject proposal, if not receipt prohibited
-			if (!GitBlit.getBoolean(Keys.federation.allowProposals, false)) {
+			if (!settings.getBoolean(Keys.federation.allowProposals, false)) {
 				logger.error(MessageFormat.format("Rejected {0} federation proposal from {1}",
 						proposal.tokenType.name(), proposal.url));
 				response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
@@ -119,7 +129,7 @@ public class FederationServlet extends JsonServlet {
 			}
 
 			String url = HttpUtils.getGitblitURL(request);
-			GitBlit.self().submitFederationProposal(proposal, url);
+			federationManager.submitFederationProposal(proposal, url);
 			logger.info(MessageFormat.format(
 					"Submitted {0} federation proposal to pull {1} repositories from {2}",
 					proposal.tokenType.name(), proposal.repositories.size(), proposal.url));
@@ -145,7 +155,7 @@ public class FederationServlet extends JsonServlet {
 			results.nextPull = new Date(System.currentTimeMillis() + (mins * 60 * 1000L));
 
 			// acknowledge the receipt of status
-			GitBlit.self().acknowledgeFederationStatus(identification, results);
+			federationManager.acknowledgeFederationStatus(identification, results);
 			logger.info(MessageFormat.format(
 					"Received status of {0} federated repositories from {1}", results
 							.getStatusList().size(), identification));
@@ -155,7 +165,7 @@ public class FederationServlet extends JsonServlet {
 
 		// Determine the federation tokens for this gitblit instance
 		String token = request.getParameter("token");
-		List<String> tokens = GitBlit.self().getFederationTokens();
+		List<String> tokens = federationManager.getFederationTokens();
 		if (!tokens.contains(token)) {
 			logger.warn(MessageFormat.format(
 					"Received Federation token ''{0}'' does not match the server tokens", token));
@@ -166,11 +176,11 @@ public class FederationServlet extends JsonServlet {
 		Object result = null;
 		if (FederationRequest.PULL_REPOSITORIES.equals(reqType)) {
 			String gitblitUrl = HttpUtils.getGitblitURL(request);
-			result = GitBlit.self().getRepositories(gitblitUrl, token);
+			result = federationManager.getRepositories(gitblitUrl, token);
 		} else {
 			if (FederationRequest.PULL_SETTINGS.equals(reqType)) {
 				// pull settings
-				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+				if (!federationManager.validateFederationRequest(reqType, token)) {
 					// invalid token to pull users or settings
 					logger.warn(MessageFormat.format(
 							"Federation token from {0} not authorized to pull SETTINGS",
@@ -178,15 +188,15 @@ public class FederationServlet extends JsonServlet {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
 					return;
 				}
-				Map<String, String> settings = new HashMap<String, String>();
-				List<String> keys = GitBlit.getAllKeys(null);
+				Map<String, String> map = new HashMap<String, String>();
+				List<String> keys = settings.getAllKeys(null);
 				for (String key : keys) {
-					settings.put(key, GitBlit.getString(key, ""));
+					map.put(key, settings.getString(key, ""));
 				}
-				result = settings;
+				result = map;
 			} else if (FederationRequest.PULL_USERS.equals(reqType)) {
 				// pull users
-				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+				if (!federationManager.validateFederationRequest(reqType, token)) {
 					// invalid token to pull users or settings
 					logger.warn(MessageFormat.format(
 							"Federation token from {0} not authorized to pull USERS",
@@ -194,10 +204,10 @@ public class FederationServlet extends JsonServlet {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
 					return;
 				}
-				List<String> usernames = GitBlit.self().getAllUsernames();
+				List<String> usernames = userManager.getAllUsernames();
 				List<UserModel> users = new ArrayList<UserModel>();
 				for (String username : usernames) {
-					UserModel user = GitBlit.self().getUserModel(username);
+					UserModel user = userManager.getUserModel(username);
 					if (!user.excludeFromFederation) {
 						users.add(user);
 					}
@@ -205,7 +215,7 @@ public class FederationServlet extends JsonServlet {
 				result = users;
 			} else if (FederationRequest.PULL_TEAMS.equals(reqType)) {
 				// pull teams
-				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+				if (!federationManager.validateFederationRequest(reqType, token)) {
 					// invalid token to pull teams
 					logger.warn(MessageFormat.format(
 							"Federation token from {0} not authorized to pull TEAMS",
@@ -213,16 +223,16 @@ public class FederationServlet extends JsonServlet {
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);
 					return;
 				}
-				List<String> teamnames = GitBlit.self().getAllTeamnames();
+				List<String> teamnames = userManager.getAllTeamNames();
 				List<TeamModel> teams = new ArrayList<TeamModel>();
 				for (String teamname : teamnames) {
-					TeamModel user = GitBlit.self().getTeamModel(teamname);
+					TeamModel user = userManager.getTeamModel(teamname);
 					teams.add(user);
 				}
 				result = teams;
 			} else if (FederationRequest.PULL_SCRIPTS.equals(reqType)) {
 				// pull scripts
-				if (!GitBlit.self().validateFederationRequest(reqType, token)) {
+				if (!federationManager.validateFederationRequest(reqType, token)) {
 					// invalid token to pull script
 					logger.warn(MessageFormat.format(
 							"Federation token from {0} not authorized to pull SCRIPTS",
@@ -233,13 +243,13 @@ public class FederationServlet extends JsonServlet {
 				Map<String, String> scripts = new HashMap<String, String>();
 
 				Set<String> names = new HashSet<String>();
-				names.addAll(GitBlit.getStrings(Keys.groovy.preReceiveScripts));
-				names.addAll(GitBlit.getStrings(Keys.groovy.postReceiveScripts));
-				for (TeamModel team :  GitBlit.self().getAllTeams()) {
+				names.addAll(settings.getStrings(Keys.groovy.preReceiveScripts));
+				names.addAll(settings.getStrings(Keys.groovy.postReceiveScripts));
+				for (TeamModel team :  userManager.getAllTeams()) {
 					names.addAll(team.preReceiveScripts);
 					names.addAll(team.postReceiveScripts);
 				}
-				File scriptsFolder = GitBlit.getFileOrFolder(Keys.groovy.scriptsFolder, "groovy");
+				File scriptsFolder = repositoryManager.getHooksFolder();
 				for (String name : names) {
 					File file = new File(scriptsFolder, name);
 					if (!file.exists() && !file.getName().endsWith(".groovy")) {

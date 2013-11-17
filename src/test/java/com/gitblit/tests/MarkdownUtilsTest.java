@@ -15,13 +15,11 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 
 import com.gitblit.utils.MarkdownUtils;
 
-public class MarkdownUtilsTest {
+public class MarkdownUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testMarkdown() throws Exception {

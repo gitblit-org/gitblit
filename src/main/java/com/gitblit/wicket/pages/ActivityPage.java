@@ -71,8 +71,13 @@ public class ActivityPage extends RootPage {
 
 		// determine repositories to view and retrieve the activity
 		List<RepositoryModel> models = getRepositories(params);
-		List<Activity> recentActivity = ActivityUtils.getRecentActivity(models,
-				daysBack, objectId, getTimeZone());
+		List<Activity> recentActivity = ActivityUtils.getRecentActivity(
+				app().settings(),
+				app().repositories(),
+				models,
+				daysBack,
+				objectId,
+				getTimeZone());
 
 		String headerPattern;
 		if (daysBack == 1) {

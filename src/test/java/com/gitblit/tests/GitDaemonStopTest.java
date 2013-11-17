@@ -15,12 +15,11 @@
  */
 package com.gitblit.tests;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.gitblit.git.GitDaemon;
 
-public class GitDaemonStopTest extends Assert {
+public class GitDaemonStopTest extends GitblitUnitTest {
 
 	@Test
 	public void testGitDaemonStop() throws Exception {

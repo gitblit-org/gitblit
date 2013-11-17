@@ -16,8 +16,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.After;
@@ -27,10 +25,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants;
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 
-public class RepositoryModelTest {
+public class RepositoryModelTest extends GitblitUnitTest {
 
 	private static boolean wasStarted = false;
 
@@ -68,7 +65,7 @@ public class RepositoryModelTest {
 
 	@Test
 	public void testGetCustomProperty() throws Exception {
-		RepositoryModel model = GitBlit.self().getRepositoryModel(
+		RepositoryModel model = repositories().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));
@@ -77,16 +74,16 @@ public class RepositoryModelTest {
 
 	@Test
 	public void testSetCustomProperty() throws Exception {
-		RepositoryModel model = GitBlit.self().getRepositoryModel(
+		RepositoryModel model = repositories().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));
 		assertEquals("Hello", model.customFields.get("anotherProperty"));
 
 		assertEquals("Hello", model.customFields.put("anotherProperty", "GoodBye"));
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
-		model = GitBlit.self().getRepositoryModel(
+		model = repositories().getRepositoryModel(
 				GitBlitSuite.getHelloworldRepository().getDirectory().getName());
 
 		assertEquals("\\d", model.customFields.get("commitMessageRegEx"));

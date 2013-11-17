@@ -15,9 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
@@ -29,7 +26,7 @@ import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffOutputType;
 import com.gitblit.utils.JGitUtils;
 
-public class DiffUtilsTest {
+public class DiffUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testDiffOutputTypes() throws Exception {

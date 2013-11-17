@@ -85,6 +85,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.SearchObjectType;
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -160,17 +161,18 @@ public class LuceneExecutor implements Runnable {
 		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
 
-		if (GitBlit.self().isCollectingGarbage()) {
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		if (repositoryManager.isCollectingGarbage()) {
 			// busy collecting garbage, try again later
 			return;
 		}
 
-		for (String repositoryName: GitBlit.self().getRepositoryList()) {
-			RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+		for (String repositoryName: repositoryManager.getRepositoryList()) {
+			RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
 			if (model.hasCommits && !ArrayUtils.isEmpty(model.indexedBranches)) {
-				Repository repository = GitBlit.self().getRepository(model.name);
+				Repository repository = repositoryManager.getRepository(model.name);
 				if (repository == null) {
-					if (GitBlit.self().isCollectingGarbage(model.name)) {
+					if (repositoryManager.isCollectingGarbage(model.name)) {
 						logger.info(MessageFormat.format("Skipping Lucene index of {0}, busy garbage collecting", repositoryName));
 					}
 					continue;

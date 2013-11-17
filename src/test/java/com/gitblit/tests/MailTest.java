@@ -15,8 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertTrue;
-
 import javax.mail.Message;
 
 import org.junit.Test;
@@ -25,7 +23,7 @@ import com.gitblit.FileSettings;
 import com.gitblit.Keys;
 import com.gitblit.MailExecutor;
 
-public class MailTest {
+public class MailTest extends GitblitUnitTest {
 
 	@Test
 	public void testSendMail() throws Exception {

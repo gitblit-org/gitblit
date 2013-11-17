@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -31,7 +27,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
-public class UserServiceTest {
+public class UserServiceTest extends GitblitUnitTest {
 
 	@Test
 	public void testConfigUserService() throws IOException {

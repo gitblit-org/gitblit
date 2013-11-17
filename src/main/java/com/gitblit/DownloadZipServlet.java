@@ -29,6 +29,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.CompressionUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
@@ -101,7 +103,8 @@ public class DownloadZipServlet extends HttpServlet {
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-		if (!GitBlit.getBoolean(Keys.web.allowZipDownloads, true)) {
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		if (!settings.getBoolean(Keys.web.allowZipDownloads, true)) {
 			logger.warn("Zip downloads are disabled");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -130,9 +133,10 @@ public class DownloadZipServlet extends HttpServlet {
 				name += "-" + objectId;
 			}
 
-			Repository r = GitBlit.self().getRepository(repository);
+			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+			Repository r = repositoryManager.getRepository(repository);
 			if (r == null) {
-				if (GitBlit.self().isCollectingGarbage(repository)) {
+				if (repositoryManager.isCollectingGarbage(repository)) {
 					error(response, MessageFormat.format("# Error\nGitblit is busy collecting garbage in {0}", repository));
 					return;
 				} else {

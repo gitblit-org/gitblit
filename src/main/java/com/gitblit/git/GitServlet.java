@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.GitBlit;
+import com.gitblit.manager.IRepositoryManager;
 
 /**
  * The GitServlet provides http/https access to Git repositories.
@@ -34,7 +35,8 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(GitBlit.getRepositoriesFolder()));
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(repositoryManager.getRepositoriesFolder()));
 		setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>());
 		setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>());
 		super.init(config);

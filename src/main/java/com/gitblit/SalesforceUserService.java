@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -31,7 +32,8 @@ public class SalesforceUserService extends GitblitUserService {
 		String file = settings.getString(
 				Keys.realm.salesforce.backingUserService,
 				"${baseFolder}/users.conf");
-		File realmFile = GitBlit.getFileOrFolder(file);
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		File realmFile = runtimeManager.getFileOrFolder(file);
 
 		serviceImpl = createUserService(realmFile);
 

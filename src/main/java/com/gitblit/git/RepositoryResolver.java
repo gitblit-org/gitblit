@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -74,7 +76,9 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	 */
 	@Override
 	protected boolean isExportOk(X req, String repositoryName, Repository db) throws IOException {
-		RepositoryModel model = GitBlit.self().getRepositoryModel(repositoryName);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
+		RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
 
 		String scheme = null;
 		UserModel user = null;
@@ -92,7 +96,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 			HttpServletRequest httpRequest = (HttpServletRequest) req;
 			scheme = httpRequest.getScheme();
 			origin = httpRequest.getRemoteAddr();
-			user = GitBlit.self().authenticate(httpRequest);
+			user = sessionManager.authenticate(httpRequest);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}

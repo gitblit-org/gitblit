@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +39,7 @@ import com.gitblit.utils.JGitUtils;
  * @author James Moger
  *
  */
-public class LuceneExecutorTest {
+public class LuceneExecutorTest extends GitblitUnitTest {
 
 	LuceneExecutor lucene;
 

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
@@ -59,7 +60,8 @@ public class GitblitUserService implements IUserService {
 
 	@Override
 	public void setup(IStoredSettings settings) {
-		File realmFile = GitBlit.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 		serviceImpl = createUserService(realmFile);
 		logger.info("GUS delegating to " + serviceImpl.toString());
 	}

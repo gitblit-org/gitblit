@@ -16,11 +16,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +39,7 @@ import com.unboundid.ldif.LDIFReader;
  * @author jcrygier
  *
  */
-public class LdapUserServiceTest {
+public class LdapUserServiceTest extends GitblitUnitTest {
 
 	private LdapUserService ldapUserService;
 

@@ -333,6 +333,16 @@ public abstract class IStoredSettings {
 	}
 
 	/**
+	 * Override the specified key with the specified value.
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public void overrideSetting(String key, boolean value) {
+		overrides.put(key, "" + value);
+	}
+
+	/**
 	 * Updates the values for the specified keys and persists the entire
 	 * configuration file.
 	 *

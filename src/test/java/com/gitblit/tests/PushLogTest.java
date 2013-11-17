@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.utils.RefLogUtils;
 
-public class PushLogTest {
+public class PushLogTest extends GitblitUnitTest {
 
 	@Test
 	public void testPushLog() throws IOException {

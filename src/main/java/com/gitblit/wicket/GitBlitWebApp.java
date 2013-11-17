@@ -31,6 +31,14 @@ import org.apache.wicket.protocol.http.WebApplication;
 import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IProjectManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
@@ -80,7 +88,7 @@ public class GitBlitWebApp extends WebApplication {
 	public void init() {
 		super.init();
 
-		settings = GitBlit.getSettings();
+		settings = runtime().getSettings();
 
 		// Setup page authorization mechanism
 		boolean useAuthentication = settings.getBoolean(Keys.web.authenticateViewPages, false)
@@ -197,7 +205,7 @@ public class GitBlitWebApp extends WebApplication {
 	 * @return true if Gitblit is running in debug mode
 	 */
 	public boolean isDebugMode() {
-		return GitBlit.isDebugMode();
+		return runtime().isDebugMode();
 	}
 
 	/*
@@ -205,47 +213,47 @@ public class GitBlitWebApp extends WebApplication {
 	 * step towards modularization across multiple commits.
 	 */
 	public Date getBootDate() {
-		return GitBlit.getBootDate();
+		return runtime().getBootDate();
 	}
 
 	public Date getLastActivityDate() {
-		return GitBlit.getLastActivityDate();
+		return repositories().getLastActivityDate();
 	}
 
-	public GitBlit runtime() {
-		return GitBlit.self();
+	public IRuntimeManager runtime() {
+		return GitBlit.getManager(IRuntimeManager.class);
 	}
 
-	public GitBlit mail() {
-		return GitBlit.self();
+	public INotificationManager notifier() {
+		return GitBlit.getManager(INotificationManager.class);
 	}
 
-	public GitBlit users() {
-		return GitBlit.self();
+	public IUserManager users() {
+		return GitBlit.getManager(IUserManager.class);
 	}
 
-	public GitBlit session() {
-		return GitBlit.self();
+	public ISessionManager session() {
+		return GitBlit.getManager(ISessionManager.class);
 	}
 
-	public GitBlit repositories() {
-		return GitBlit.self();
+	public IRepositoryManager repositories() {
+		return GitBlit.getManager(IRepositoryManager.class);
 	}
 
-	public GitBlit projects() {
-		return GitBlit.self();
+	public IProjectManager projects() {
+		return GitBlit.getManager(IProjectManager.class);
 	}
 
-	public GitBlit federation() {
-		return GitBlit.self();
+	public IFederationManager federation() {
+		return GitBlit.getManager(IFederationManager.class);
 	}
 
-	public GitBlit gitblit() {
-		return GitBlit.self();
+	public IGitblitManager gitblit() {
+		return GitBlit.getManager(IGitblitManager.class);
 	}
 
 	public TimeZone getTimezone() {
-		return GitBlit.getTimezone();
+		return runtime().getTimezone();
 	}
 
 	@Override

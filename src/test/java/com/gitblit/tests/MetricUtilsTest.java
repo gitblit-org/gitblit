@@ -15,9 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.TimeZone;
 
@@ -27,7 +24,7 @@ import org.junit.Test;
 import com.gitblit.models.Metric;
 import com.gitblit.utils.MetricUtils;
 
-public class MetricUtilsTest {
+public class MetricUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testMetrics() throws Exception {

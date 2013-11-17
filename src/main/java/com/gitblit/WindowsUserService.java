@@ -29,6 +29,7 @@ import waffle.windows.auth.IWindowsIdentity;
 import waffle.windows.auth.impl.WindowsAuthProviderImpl;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -56,7 +57,8 @@ public class WindowsUserService extends GitblitUserService {
         this.settings = settings;
 
         String file = settings.getString(Keys.realm.windows.backingUserService, "${baseFolder}/users.conf");
-        File realmFile = GitBlit.getFileOrFolder(file);
+        IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+        File realmFile = runtimeManager.getFileOrFolder(file);
 
         serviceImpl = createUserService(realmFile);
         logger.info("Windows User Service backed by " + serviceImpl.toString());

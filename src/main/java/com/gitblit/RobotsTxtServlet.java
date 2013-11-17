@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.FileUtils;
 
 /**
@@ -54,7 +55,8 @@ public class RobotsTxtServlet extends HttpServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-		File file = GitBlit.getFileOrFolder(Keys.web.robots.txt, null);
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		File file = runtimeManager.getFileOrFolder(Keys.web.robots.txt, null);
 		String content = "";
 		if (file.exists()) {
 			content = FileUtils.readContent(file, "\n");

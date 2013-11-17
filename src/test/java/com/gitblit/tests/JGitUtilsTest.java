@@ -15,12 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -57,7 +51,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JnaUtils;
 import com.gitblit.utils.StringUtils;
 
-public class JGitUtilsTest {
+public class JGitUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testDisplayName() throws Exception {

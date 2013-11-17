@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -53,7 +49,6 @@ import org.junit.Test;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.models.RefLogEntry;
 import com.gitblit.models.RepositoryModel;
@@ -62,7 +57,7 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;
 
-public class GitServletTest {
+public class GitServletTest extends GitblitUnitTest {
 
 	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
 
@@ -87,8 +82,8 @@ public class GitServletTest {
 	}
 
 	private static void delete(UserModel user) {
-		if (GitBlit.self().getUserModel(user.username) != null) {
-			GitBlit.self().deleteUser(user.username);
+		if (users().getUserModel(user.username) != null) {
+			users().deleteUser(user.username);
 		}
 	}
 
@@ -148,9 +143,9 @@ public class GitServletTest {
 	@Test
 	public void testBogusLoginClone() throws Exception {
 		// restrict repository access
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.CLONE;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// delete any existing working folder
 		boolean cloned = false;
@@ -169,7 +164,7 @@ public class GitServletTest {
 
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		assertFalse("Bogus login cloned a repository?!", cloned);
 	}
@@ -177,13 +172,13 @@ public class GitServletTest {
 	@Test
 	public void testUnauthorizedLoginClone() throws Exception {
 		// restrict repository access
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
 		UserModel user = new UserModel("james");
 		user.password = "james";
-		GitBlit.self().updateUserModel(user.username, user, true);
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		gitblit().updateUserModel(user.username, user, true);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
 
@@ -208,7 +203,7 @@ public class GitServletTest {
 
 		// switch to authenticated
 		model.authorizationControl = AuthorizationControl.AUTHENTICATED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// try clone again
 		cloned = false;
@@ -228,7 +223,7 @@ public class GitServletTest {
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		delete(user);
 	}
@@ -240,9 +235,9 @@ public class GitServletTest {
 			FileUtils.delete(ticgitFolder, FileUtils.RECURSIVE | FileUtils.RETRY);
 		}
 
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.NONE;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -320,9 +315,9 @@ public class GitServletTest {
 		assertTrue(true);
 
 		// freeze repo
-		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("test/jgit.git");
 		model.isFrozen = true;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		Git git = Git.open(jgitFolder);
 		File file = new File(jgitFolder, "TODO");
@@ -342,7 +337,7 @@ public class GitServletTest {
 
 		// unfreeze repo
 		model.isFrozen = false;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		results = git.push().setPushAll().setCredentialsProvider(new UsernamePasswordCredentialsProvider(account, password)).call();
 		GitBlitSuite.close(git);
@@ -428,7 +423,7 @@ public class GitServletTest {
 		GitBlitSuite.close(clone.call());
 
 		// require push permissions and committer verification
-		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
+		RepositoryModel model = repositories().getRepositoryModel("refchecks/verify-committer.git");
 		model.authorizationControl = AuthorizationControl.NAMED;
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.verifyCommitter = true;
@@ -436,8 +431,8 @@ public class GitServletTest {
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
 
-		GitBlit.self().updateUserModel(user.username, user, true);
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		gitblit().updateUserModel(user.username, user, true);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
 		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-wc");
@@ -513,7 +508,7 @@ public class GitServletTest {
 		GitBlitSuite.close(clone.call());
 
 		// require push permissions and committer verification
-		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/verify-committer.git");
+		RepositoryModel model = repositories().getRepositoryModel("refchecks/verify-committer.git");
 		model.authorizationControl = AuthorizationControl.NAMED;
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.verifyCommitter = true;
@@ -521,8 +516,8 @@ public class GitServletTest {
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
 
-		GitBlit.self().updateUserModel(user.username, user, true);
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		gitblit().updateUserModel(user.username, user, true);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
 		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/verify-wc");
@@ -648,7 +643,7 @@ public class GitServletTest {
 		GitBlitSuite.close(clone.call());
 
 		// elevate repository to clone permission
-		RepositoryModel model = GitBlit.self().getRepositoryModel("refchecks/ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("refchecks/ticgit.git");
 		switch (permission) {
 			case VIEW:
 				model.accessRestriction = AccessRestrictionType.CLONE;
@@ -664,8 +659,8 @@ public class GitServletTest {
 		// grant user specified
 		user.setRepositoryPermission(model.name, permission);
 
-		GitBlit.self().updateUserModel(user.username, user, true);
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		gitblit().updateUserModel(user.username, user, true);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
 		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/ticgit-wc");
@@ -834,7 +829,7 @@ public class GitServletTest {
 		user.canCreate = canCreate;
 		user.canAdmin = canAdmin;
 
-		GitBlit.self().updateUserModel(user.username, user, true);
+		gitblit().updateUserModel(user.username, user, true);
 
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
 
@@ -885,7 +880,7 @@ public class GitServletTest {
 			assertTrue("User canAdmin:" + user.canAdmin + " canCreate:" + user.canCreate, user.canAdmin || user.canCreate);
 
 			// confirm default personal repository permissions
-			RepositoryModel model = GitBlit.self().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
+			RepositoryModel model = repositories().getRepositoryModel(MessageFormat.format("~{0}/ticgit.git", user.username));
 			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
 			assertEquals("Unexpected authorization control", AuthorizationControl.NAMED, model.authorizationControl);
 			assertEquals("Unexpected access restriction", AccessRestrictionType.VIEW, model.accessRestriction);
@@ -909,10 +904,10 @@ public class GitServletTest {
 			assertTrue("User canAdmin:" + user.canAdmin, user.canAdmin);
 
 			// confirm default project repository permissions
-			RepositoryModel model = GitBlit.self().getRepositoryModel("project/ticgit.git");
+			RepositoryModel model = repositories().getRepositoryModel("project/ticgit.git");
 			assertEquals("Unexpected owner", user.username, ArrayUtils.toString(model.owners));
-			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
-			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
+			assertEquals("Unexpected authorization control", AuthorizationControl.fromName(settings().getString(Keys.git.defaultAuthorizationControl, "NAMED")), model.authorizationControl);
+			assertEquals("Unexpected access restriction", AccessRestrictionType.fromName(settings().getString(Keys.git.defaultAccessRestriction, "NONE")), model.accessRestriction);
 
 		} catch (GitAPIException e) {
 			assertTrue(e.getMessage(), e.getMessage().contains("git-receive-pack not found"));

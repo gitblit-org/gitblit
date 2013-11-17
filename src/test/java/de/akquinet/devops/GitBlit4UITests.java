@@ -9,6 +9,7 @@ public class GitBlit4UITests extends GitBlit {
 	private boolean luceneIndexingEnabled;
 
 	public GitBlit4UITests(boolean luceneIndexingEnabled) {
+		super(null);
 		this.luceneIndexingEnabled = luceneIndexingEnabled;
 	}
 
@@ -21,5 +22,5 @@ public class GitBlit4UITests extends GitBlit {
 					.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
 		}
 	}
-	
+
 }

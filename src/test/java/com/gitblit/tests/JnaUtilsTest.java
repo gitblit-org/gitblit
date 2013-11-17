@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -36,7 +32,7 @@ import com.gitblit.utils.JnaUtils;
  *
  * @author Florian Zschocke
  */
-public class JnaUtilsTest {
+public class JnaUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testGetgid() {

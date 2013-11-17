@@ -15,10 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +38,7 @@ import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.RpcUtils;
 
-public class FederationTests {
+public class FederationTests extends GitblitUnitTest {
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;

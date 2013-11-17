@@ -1,10 +1,6 @@
 package com.gitblit.tests;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 
@@ -15,7 +11,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.utils.StringUtils;
 
-public class RedmineUserServiceTest {
+public class RedmineUserServiceTest extends GitblitUnitTest {
 
     private static final String JSON = "{\"user\":{\"created_on\":\"2011-03-28T00:41:29Z\",\"lastname\":\"foo\","
         + "\"last_login_on\":\"2012-09-06T23:59:26Z\",\"firstname\":\"baz\","

@@ -15,11 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 
 import org.eclipse.jgit.lib.Repository;
@@ -27,48 +22,47 @@ import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.FileSettings;
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
-public class GitBlitTest {
+public class GitBlitTest extends GitblitUnitTest {
 
 	@Test
 	public void testRepositoryModel() throws Exception {
-		List<String> repositories = GitBlit.self().getRepositoryList();
+		List<String> repositories = repositories().getRepositoryList();
 		assertTrue("Repository list is empty!", repositories.size() > 0);
 		assertTrue(
 				"Missing Helloworld repository!",
 				repositories.contains(GitBlitSuite.getHelloworldRepository().getDirectory()
 						.getName()));
 		Repository r = GitBlitSuite.getHelloworldRepository();
-		RepositoryModel model = GitBlit.self().getRepositoryModel(r.getDirectory().getName());
+		RepositoryModel model = repositories().getRepositoryModel(r.getDirectory().getName());
 		assertTrue("Helloworld model is null!", model != null);
 		assertEquals(GitBlitSuite.getHelloworldRepository().getDirectory().getName(), model.name);
-		assertTrue(GitBlit.self().updateLastChangeFields(r, model) > 22000L);
+		assertTrue(repositories().updateLastChangeFields(r, model) > 22000L);
 		r.close();
 	}
 
 	@Test
 	public void testUserModel() throws Exception {
-		List<String> users = GitBlit.self().getAllUsernames();
+		List<String> users = users().getAllUsernames();
 		assertTrue("No users found!", users.size() > 0);
 		assertTrue("Admin not found", users.contains("admin"));
-		UserModel user = GitBlit.self().getUserModel("admin");
+		UserModel user = users().getUserModel("admin");
 		assertEquals("admin", user.toString());
 		assertTrue("Admin missing #admin role!", user.canAdmin);
 		user.canAdmin = false;
 		assertFalse("Admin should not have #admin!", user.canAdmin);
 		String repository = GitBlitSuite.getHelloworldRepository().getDirectory().getName();
-		RepositoryModel repositoryModel = GitBlit.self().getRepositoryModel(repository);
+		RepositoryModel repositoryModel = repositories().getRepositoryModel(repository);
 		repositoryModel.accessRestriction = AccessRestrictionType.VIEW;
 		assertFalse("Admin can still access repository!",
 				user.canView(repositoryModel));
 		user.addRepositoryPermission(repository);
 		assertTrue("Admin can't access repository!", user.canView(repositoryModel));
-		assertEquals(GitBlit.self().getRepositoryModel(user, "pretend"), null);
-		assertNotNull(GitBlit.self().getRepositoryModel(user, repository));
-		assertTrue(GitBlit.self().getRepositoryModels(user).size() > 0);
+		assertEquals(repositories().getRepositoryModel(user, "pretend"), null);
+		assertNotNull(repositories().getRepositoryModel(user, repository));
+		assertTrue(repositories().getRepositoryModels(user).size() > 0);
 	}
 
 	@Test
@@ -156,34 +150,34 @@ public class GitBlitTest {
 	@Test
 	public void testGitblitSettings() throws Exception {
 		// These are already tested by above test method.
-		assertTrue(GitBlit.getBoolean("missing", true));
-		assertEquals("default", GitBlit.getString("missing", "default"));
-		assertEquals(10, GitBlit.getInteger("missing", 10));
-		assertEquals(5, GitBlit.getInteger("realm.userService", 5));
+		assertTrue(settings().getBoolean("missing", true));
+		assertEquals("default", settings().getString("missing", "default"));
+		assertEquals(10, settings().getInteger("missing", 10));
+		assertEquals(5, settings().getInteger("realm.userService", 5));
 
-		assertTrue(GitBlit.getBoolean("git.enableGitServlet", false));
-		assertEquals(GitBlitSuite.USERSCONF.getAbsolutePath(), GitBlit.getString("realm.userService", null));
-		assertEquals(5, GitBlit.getInteger("realm.minPasswordLength", 0));
-		List<String> mdExtensions = GitBlit.getStrings("web.markdownExtensions");
+		assertTrue(settings().getBoolean("git.enableGitServlet", false));
+		assertEquals(GitBlitSuite.USERSCONF.getAbsolutePath(), settings().getString("realm.userService", null));
+		assertEquals(5, settings().getInteger("realm.minPasswordLength", 0));
+		List<String> mdExtensions = settings().getStrings("web.markdownExtensions");
 		assertTrue(mdExtensions.size() > 0);
 		assertTrue(mdExtensions.contains("md"));
 
-		List<String> keys = GitBlit.getAllKeys("server");
+		List<String> keys = settings().getAllKeys("server");
 		assertTrue(keys.size() > 0);
 		assertTrue(keys.contains("server.httpsPort"));
 
-		assertTrue(GitBlit.getChar("web.forwardSlashCharacter", ' ') == '/');
-		assertFalse(GitBlit.isDebugMode());
+		assertTrue(settings().getChar("web.forwardSlashCharacter", ' ') == '/');
+		assertFalse(runtime().isDebugMode());
 	}
 
 	@Test
 	public void testAuthentication() throws Exception {
-		assertTrue(GitBlit.self().authenticate("admin", "admin".toCharArray()) != null);
+		assertTrue(session().authenticate("admin", "admin".toCharArray()) != null);
 	}
 
 	@Test
 	public void testRepositories() throws Exception {
-		assertTrue(GitBlit.self().getRepository("missing") == null);
-		assertTrue(GitBlit.self().getRepositoryModel("missing") == null);
+		assertTrue(repositories().getRepository("missing") == null);
+		assertTrue(repositories().getRepositoryModel("missing") == null);
 	}
 }

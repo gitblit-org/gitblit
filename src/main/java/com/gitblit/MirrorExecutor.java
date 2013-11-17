@@ -33,6 +33,7 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
@@ -83,25 +84,27 @@ public class MirrorExecutor implements Runnable {
 
 		running.set(true);
 
-		for (String repositoryName : GitBlit.self().getRepositoryList()) {
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
+		for (String repositoryName : repositoryManager.getRepositoryList()) {
 			if (forceClose.get()) {
 				break;
 			}
-			if (GitBlit.self().isCollectingGarbage(repositoryName)) {
+			if (repositoryManager.isCollectingGarbage(repositoryName)) {
 				logger.debug("mirror is skipping {} garbagecollection", repositoryName);
 				continue;
 			}
 			RepositoryModel model = null;
 			Repository repository = null;
 			try {
-				model = GitBlit.self().getRepositoryModel(repositoryName);
+				model = repositoryManager.getRepositoryModel(repositoryName);
 				if (!model.isMirror && !model.isBare) {
 					// repository must be a valid bare git mirror
 					logger.debug("mirror is skipping {} !mirror !bare", repositoryName);
 					continue;
 				}
 
-				repository = GitBlit.self().getRepository(repositoryName);
+				repository = repositoryManager.getRepository(repositoryName);
 				if (repository == null) {
 					logger.warn(MessageFormat.format("MirrorExecutor is missing repository {0}?!?", repositoryName));
 					continue;

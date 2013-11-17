@@ -34,8 +34,9 @@ import java.util.TreeSet;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.Repository;
 
-import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.Activity;
 import com.gitblit.models.GravatarProfile;
 import com.gitblit.models.RefModel;
@@ -55,6 +56,10 @@ public class ActivityUtils {
 	 * Gets the recent activity from the repositories for the last daysBack days
 	 * on the specified branch.
 	 *
+	 * @param settings
+	 *            the runtime settings
+	 * @param repositoryManager
+	 *            the repository manager
 	 * @param models
 	 *            the list of repositories to query
 	 * @param daysBack
@@ -66,8 +71,13 @@ public class ActivityUtils {
 	 *            the timezone for aggregating commits
 	 * @return
 	 */
-	public static List<Activity> getRecentActivity(List<RepositoryModel> models, int daysBack,
-			String objectId, TimeZone timezone) {
+	public static List<Activity> getRecentActivity(
+					IStoredSettings settings,
+					IRepositoryManager repositoryManager,
+					List<RepositoryModel> models,
+					int daysBack,
+					String objectId,
+					TimeZone timezone) {
 
 		// Activity panel shows last daysBack of activity across all
 		// repositories.
@@ -82,7 +92,7 @@ public class ActivityUtils {
 
 		// aggregate author exclusions
 		Set<String> authorExclusions = new TreeSet<String>();
-		authorExclusions.addAll(GitBlit.getStrings(Keys.web.metricAuthorExclusions));
+		authorExclusions.addAll(settings.getStrings(Keys.web.metricAuthorExclusions));
 		for (RepositoryModel model : models) {
 			if (!ArrayUtils.isEmpty(model.metricAuthorExclusions)) {
 				authorExclusions.addAll(model.metricAuthorExclusions);
@@ -99,8 +109,7 @@ public class ActivityUtils {
 				if (model.isCollectingGarbage) {
 					continue;
 				}
-				Repository repository = GitBlit.self()
-						.getRepository(model.name);
+				Repository repository = repositoryManager.getRepository(model.name);
 				List<String> branches = new ArrayList<String>();
 				if (StringUtils.isEmpty(objectId)) {
 					for (RefModel local : JGitUtils.getLocalBranches(

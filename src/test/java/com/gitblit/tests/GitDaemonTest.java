@@ -31,16 +31,14 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.RemoteRefUpdate.Status;
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
-import com.gitblit.GitBlit;
 import com.gitblit.models.RepositoryModel;
 
-public class GitDaemonTest extends Assert {
+public class GitDaemonTest extends GitblitUnitTest {
 
 	static File ticgitFolder = new File(GitBlitSuite.REPOSITORIES, "working/ticgit");
 
@@ -94,10 +92,10 @@ public class GitDaemonTest extends Assert {
 		}
 
 		// set push restriction
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -110,7 +108,7 @@ public class GitDaemonTest extends Assert {
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 	}
 
 	@Test
@@ -121,10 +119,10 @@ public class GitDaemonTest extends Assert {
 		}
 
 		// restrict repository access
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.CLONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		// delete any existing working folder
 		boolean cloned = false;
@@ -147,7 +145,7 @@ public class GitDaemonTest extends Assert {
 		// restore anonymous repository access
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 	}
 
 	@Test
@@ -158,10 +156,10 @@ public class GitDaemonTest extends Assert {
 		}
 
 		// restore anonymous repository access
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.NONE;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -196,10 +194,10 @@ public class GitDaemonTest extends Assert {
 		}
 
 		// restore anonymous repository access
-		RepositoryModel model = GitBlit.self().getRepositoryModel("ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("ticgit.git");
 		model.accessRestriction = AccessRestrictionType.PUSH;
 		model.authorizationControl = AuthorizationControl.NAMED;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		CloneCommand clone = Git.cloneRepository();
 		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
@@ -242,9 +240,9 @@ public class GitDaemonTest extends Assert {
 		assertTrue(true);
 
 		// freeze repo
-		RepositoryModel model = GitBlit.self().getRepositoryModel("test/jgit.git");
+		RepositoryModel model = repositories().getRepositoryModel("test/jgit.git");
 		model.isFrozen = true;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		Git git = Git.open(jgitFolder);
 		File file = new File(jgitFolder, "TODO");
@@ -264,7 +262,7 @@ public class GitDaemonTest extends Assert {
 
 		// unfreeze repo
 		model.isFrozen = false;
-		GitBlit.self().updateRepositoryModel(model.name, model, false);
+		repositories().updateRepositoryModel(model.name, model, false);
 
 		results = git.push().setPushAll().call();
 		GitBlitSuite.close(git);

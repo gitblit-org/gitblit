@@ -139,7 +139,7 @@ public abstract class RepositoryPage extends RootPage {
 				UserRepositoryPreferences prefs = user.getPreferences().getRepositoryPreferences(getRepositoryModel().name);
 				prefs.starred = star;
 				try {
-					app().users().updateUserModel(user.username, user, false);
+					app().gitblit().updateUserModel(user.username, user, false);
 				} catch (GitBlitException e) {
 					logger.error("Failed to update user " + user.username, e);
 					error(getString("gb.failedToUpdateUser"), false);

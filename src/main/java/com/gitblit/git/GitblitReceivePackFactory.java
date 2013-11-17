@@ -27,7 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
@@ -48,6 +52,10 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 	public ReceivePack create(X req, Repository db)
 			throws ServiceNotEnabledException, ServiceNotAuthorizedException {
 
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		IUserManager userManager = GitBlit.getManager(IUserManager.class);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
 		UserModel user = UserModel.ANONYMOUS;
 		String repositoryName = "";
 		String origin = "";
@@ -66,7 +74,7 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			// determine pushing user
 			String username = request.getRemoteUser();
 			if (!StringUtils.isEmpty(username)) {
-				UserModel u = GitBlit.self().getUserModel(username);
+				UserModel u = userManager.getUserModel(username);
 				if (u != null) {
 					user = u;
 				}
@@ -81,13 +89,13 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			timeout = client.getDaemon().getTimeout();
 		}
 
-		boolean allowAnonymousPushes = GitBlit.getBoolean(Keys.git.allowAnonymousPushes, false);
+		boolean allowAnonymousPushes = settings.getBoolean(Keys.git.allowAnonymousPushes, false);
 		if (!allowAnonymousPushes && UserModel.ANONYMOUS.equals(user)) {
 			// prohibit anonymous pushes
 			throw new ServiceNotEnabledException();
 		}
 
-		final RepositoryModel repository = GitBlit.self().getRepositoryModel(repositoryName);
+		final RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
 
 		final GitblitReceivePack rp = new GitblitReceivePack(db, repository, user);
 		rp.setGitblitUrl(gitblitUrl);

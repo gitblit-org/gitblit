@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
@@ -100,7 +101,8 @@ public abstract class AuthenticationFilter implements Filter {
 	 * @return user
 	 */
 	protected UserModel getUser(HttpServletRequest httpRequest) {
-		UserModel user = GitBlit.self().authenticate(httpRequest, requiresClientCertificate());
+		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
+		UserModel user = sessionManager.authenticate(httpRequest, requiresClientCertificate());
 		return user;
 	}
 

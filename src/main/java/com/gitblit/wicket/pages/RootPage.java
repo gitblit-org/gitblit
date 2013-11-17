@@ -252,7 +252,7 @@ public abstract class RootPage extends BasePage {
 			// Set Cookie
 			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 				WebResponse response = (WebResponse) getRequestCycle().getResponse();
-				app().session().setCookie(response, user);
+				app().session().setCookie(response.getHttpServletResponse(), user);
 			}
 
 			if (!session.continueRequest()) {

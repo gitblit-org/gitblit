@@ -26,7 +26,6 @@ import java.util.zip.ZipInputStream;
 
 import org.eclipse.jgit.util.FileUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +42,7 @@ import com.gitblit.utils.X509Utils.X509Metadata;
  * @author James Moger
  *
  */
-public class X509UtilsTest extends Assert {
+public class X509UtilsTest extends GitblitUnitTest {
 
 	// passwords are case-sensitive and may be length-limited
 	// based on the JCE policy files

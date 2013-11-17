@@ -17,7 +17,6 @@ package com.gitblit.tests;
 
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.gitblit.Constants.AccessPermission;
@@ -33,7 +32,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-public class PermissionsTest extends Assert {
+public class PermissionsTest extends GitblitUnitTest {
 
 	/**
 	 * Admin access rights/permissions

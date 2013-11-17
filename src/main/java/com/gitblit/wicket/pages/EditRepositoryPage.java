@@ -169,7 +169,7 @@ public class EditRepositoryPage extends RootSubPage {
 		final RegistrantPermissionsPanel usersPalette = new RegistrantPermissionsPanel("users",
 				RegistrantType.USER, app().users().getAllUsernames(), repositoryUsers, getAccessPermissions());
 		final RegistrantPermissionsPanel teamsPalette = new RegistrantPermissionsPanel("teams",
-				RegistrantType.TEAM, app().users().getAllTeamnames(), repositoryTeams, getAccessPermissions());
+				RegistrantType.TEAM, app().users().getAllTeamNames(), repositoryTeams, getAccessPermissions());
 
 		// owners palette
 		List<String> owners = new ArrayList<String>(repositoryModel.owners);

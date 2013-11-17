@@ -97,10 +97,10 @@ public class ChangePasswordPage extends RootSubPage {
 
 				user.password = password;
 				try {
-					app().users().updateUserModel(user.username, user, false);
+					app().gitblit().updateUserModel(user.username, user, false);
 					if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 						WebResponse response = (WebResponse) getRequestCycle().getResponse();
-						app().session().setCookie(response, user);
+						app().session().setCookie(response.getHttpServletResponse(), user);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());

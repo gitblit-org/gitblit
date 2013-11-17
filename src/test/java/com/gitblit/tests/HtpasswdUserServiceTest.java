@@ -15,12 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -40,7 +34,7 @@ import com.gitblit.utils.StringUtils;
  * Test the Htpasswd user service.
  *
  */
-public class HtpasswdUserServiceTest {
+public class HtpasswdUserServiceTest extends GitblitUnitTest {
 
     private static final String RESOURCE_DIR = "src/test/resources/htpasswdUSTest/";
     private static final String KEY_SUPPORT_PLAINTEXT_PWD = "realm.htpasswd.supportPlaintextPasswords";

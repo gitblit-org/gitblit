@@ -15,11 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +53,7 @@ import com.gitblit.utils.RpcUtils;
  * @author James Moger
  *
  */
-public class RpcTests {
+public class RpcTests extends GitblitUnitTest {
 
 	String url = GitBlitSuite.url;
 	String account = GitBlitSuite.account;

@@ -50,6 +50,8 @@ import org.eclipse.jgit.revplot.PlotLane;
 import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -102,9 +104,10 @@ public class BranchGraphServlet extends HttpServlet {
 	protected long getLastModified(HttpServletRequest req) {
 		String repository = req.getParameter("r");
 		String objectId = req.getParameter("h");
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 		Repository r = null;
 		try {
-			r = GitBlit.self().getRepository(repository);
+			r = repositoryManager.getRepository(repository);
 			if (StringUtils.isEmpty(objectId)) {
 				objectId = JGitUtils.getHEADRef(r);
 			}
@@ -128,7 +131,10 @@ public class BranchGraphServlet extends HttpServlet {
 			String objectId = request.getParameter("h");
 			String length = request.getParameter("l");
 
-			r = GitBlit.self().getRepository(repository);
+			IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
+			r = repositoryManager.getRepository(repository);
 
 			rw = new PlotWalk(r);
 			if (StringUtils.isEmpty(objectId)) {
@@ -138,7 +144,7 @@ public class BranchGraphServlet extends HttpServlet {
 			rw.markStart(rw.lookupCommit(r.resolve(objectId)));
 
 			// default to the items-per-page setting, unless specified
-			int maxCommits = GitBlit.getInteger(Keys.web.itemsPerPage, 50);
+			int maxCommits = settings.getInteger(Keys.web.itemsPerPage, 50);
 			int requestedCommits = maxCommits;
 			if (!StringUtils.isEmpty(length)) {
 				int l = Integer.parseInt(length);

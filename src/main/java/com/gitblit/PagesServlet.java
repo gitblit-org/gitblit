@@ -35,6 +35,8 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.ArrayUtils;
@@ -99,6 +101,9 @@ public class PagesServlet extends HttpServlet {
 			path = path.substring(1);
 		}
 
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
 		// determine repository and resource from url
 		String repository = "";
 		String resource = "";
@@ -111,7 +116,7 @@ public class PagesServlet extends HttpServlet {
 			} else {
 				repository = path.substring(0, slash);
 			}
-			r = GitBlit.self().getRepository(repository, false);
+			r = repositoryManager.getRepository(repository, false);
 			offset = slash + 1;
 			if (offset > 0) {
 				resource = path.substring(offset);
@@ -148,8 +153,8 @@ public class PagesServlet extends HttpServlet {
 				return;
 			}
 
-			MarkupProcessor processor = new MarkupProcessor(GitBlit.getSettings());
-			String [] encodings = GitBlit.getEncodings();
+			MarkupProcessor processor = new MarkupProcessor(settings);
+			String [] encodings = settings.getStrings(Keys.web.blobEncodings).toArray(new String[0]);
 
 			RevTree tree = commit.getTree();
 

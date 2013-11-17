@@ -23,6 +23,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -57,6 +61,11 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
 
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		IUserManager userManager = GitBlit.getManager(IUserManager.class);
+		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
 		// extract repo name from request
 		String repoUrl = request.getPathInfo().substring(1);
 
@@ -77,9 +86,9 @@ public class SparkleShareInviteServlet extends HttpServlet {
 		}
 		UserModel user;
 		if (StringUtils.isEmpty(username)) {
-			user = GitBlit.self().authenticate(request);
+			user = sessionManager.authenticate(request);
 		} else {
-			user = GitBlit.self().getUserModel(username);
+			user = userManager.getUserModel(username);
 		}
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
@@ -87,7 +96,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 		}
 
 		// ensure that the requested repository exists
-		RepositoryModel model = GitBlit.self().getRepositoryModel(path);
+		RepositoryModel model = repositoryManager.getRepositoryModel(path);
 		if (model == null) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			response.getWriter().append(MessageFormat.format("Repository \"{0}\" not found!", path));
@@ -99,9 +108,9 @@ public class SparkleShareInviteServlet extends HttpServlet {
 		sb.append("<sparkleshare><invite>\n");
 		sb.append(MessageFormat.format("<address>{0}</address>\n", host));
 		sb.append(MessageFormat.format("<remote_path>{0}{1}</remote_path>\n", servletPath, model.name));
-		if (GitBlit.getInteger(Keys.fanout.port, 0) > 0) {
+		if (settings.getInteger(Keys.fanout.port, 0) > 0) {
 			// Gitblit is running it's own fanout service for pubsub notifications
-			sb.append(MessageFormat.format("<announcements_url>tcp://{0}:{1}</announcements_url>\n", request.getServerName(), GitBlit.getString(Keys.fanout.port, "")));
+			sb.append(MessageFormat.format("<announcements_url>tcp://{0}:{1}</announcements_url>\n", request.getServerName(), settings.getString(Keys.fanout.port, "")));
 		}
 		sb.append("</invite></sparkleshare>\n");
 

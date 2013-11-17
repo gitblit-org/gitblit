@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -125,8 +126,9 @@ public class HtpasswdUserService extends GitblitUserService
         this.settings = settings;
 
         // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
+        IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
         String file = settings.getString(KEY_BACKING_US, DEFAULT_BACKING_US);
-        File realmFile = GitBlit.getFileOrFolder(file);
+        File realmFile = runtimeManager.getFileOrFolder(file);
         serviceImpl = createUserService(realmFile);
         logger.info("Htpasswd User Service backed by " + serviceImpl.toString());
 
@@ -291,7 +293,8 @@ public class HtpasswdUserService extends GitblitUserService
         if ( !file.equals(htpasswdFilePath) ) {
             // The htpasswd file setting changed. Rediscover the file.
             this.htpasswdFilePath = file;
-            this.htpasswdFile = GitBlit.getFileOrFolder(file);
+            IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+            this.htpasswdFile = runtimeManager.getFileOrFolder(file);
             this.htUsers.clear();
             this.forceReload = true;
         }

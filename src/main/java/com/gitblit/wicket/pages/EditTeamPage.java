@@ -196,7 +196,7 @@ public class EditTeamPage extends RootSubPage {
 				teamModel.postReceiveScripts.addAll(postReceiveScripts);
 
 				try {
-					app().users().updateTeamModel(oldName, teamModel, isCreate);
+					app().gitblit().updateTeamModel(oldName, teamModel, isCreate);
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;

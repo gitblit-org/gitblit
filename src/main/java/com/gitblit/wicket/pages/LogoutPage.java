@@ -27,8 +27,7 @@ public class LogoutPage extends BasePage {
 		super();
 		GitBlitWebSession session = GitBlitWebSession.get();
 		UserModel user = session.getUser();
-		app().session().setCookie((WebResponse) getResponse(), null);
-		app().session().logout(user);
+		app().session().logout(((WebResponse) getResponse()).getHttpServletResponse(), user);
 		session.invalidate();
 
 		/*

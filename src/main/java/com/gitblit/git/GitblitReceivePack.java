@@ -45,8 +45,11 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.GitBlit;
+import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.client.Translation;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -90,12 +93,15 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	public GitblitReceivePack(Repository db, RepositoryModel repository, UserModel user) {
 		super(db);
+
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
 		this.repository = repository;
 		this.user = user == null ? UserModel.ANONYMOUS : user;
-		this.groovyDir = GitBlit.getGroovyScriptsFolder();
+		this.groovyDir = repositoryManager.getHooksFolder();
 		try {
 			// set Grape root
-			File grapeRoot = GitBlit.getFileOrFolder(Keys.groovy.grapeFolder, "${baseFolder}/groovy/grape").getAbsoluteFile();
+			File grapeRoot = repositoryManager.getGrapesFolder();
 			grapeRoot.mkdirs();
 			System.setProperty("grape.root", grapeRoot.getAbsolutePath());
 			this.gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
@@ -233,8 +239,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 		Set<String> scripts = new LinkedHashSet<String>();
-		scripts.addAll(GitBlit.self().getPreReceiveScriptsInherited(repository));
+		scripts.addAll(repositoryManager.getPreReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
 			scripts.addAll(repository.preReceiveScripts);
 		}
@@ -258,6 +265,8 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			LOGGER.debug("skipping post-receive hooks, no refs created, updated, or removed");
 			return;
 		}
+
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
 
 		// log ref changes
 		for (ReceiveCommand cmd : commands) {
@@ -303,7 +312,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 					String msg = MessageFormat.format(template, branch);
 					String prefix;
 					if (StringUtils.isEmpty(repository.incrementalPushTagPrefix)) {
-						prefix = GitBlit.getString(Keys.git.defaultIncrementalPushTagPrefix, "r");
+						prefix = settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r");
 					} else {
 						prefix = repository.incrementalPushTagPrefix;
 					}
@@ -327,9 +336,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
 		}
 
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
 		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();
-		scripts.addAll(GitBlit.self().getPostReceiveScriptsInherited(repository));
+		scripts.addAll(repositoryManager.getPostReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
 			scripts.addAll(repository.postReceiveScripts);
 		}

@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -64,17 +65,20 @@ public class RpcFilter extends AuthenticationFilter {
 			return;
 		}
 
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		IStoredSettings settings = runtimeManager.getSettings();
+
 		boolean adminRequest = requestType.exceeds(RpcRequest.LIST_SETTINGS);
 
 		// conditionally reject all rpc requests
-		if (!GitBlit.getBoolean(Keys.web.enableRpcServlet, true)) {
+		if (!settings.getBoolean(Keys.web.enableRpcServlet, true)) {
 			logger.warn(Keys.web.enableRpcServlet + " must be set TRUE for rpc requests.");
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
-		boolean authenticateView = GitBlit.getBoolean(Keys.web.authenticateViewPages, false);
-		boolean authenticateAdmin = GitBlit.getBoolean(Keys.web.authenticateAdminPages, true);
+		boolean authenticateView = settings.getBoolean(Keys.web.authenticateViewPages, false);
+		boolean authenticateAdmin = settings.getBoolean(Keys.web.authenticateAdminPages, true);
 
 		// Wrap the HttpServletRequest with the RpcServletRequest which
 		// overrides the servlet container user principal methods.
@@ -85,7 +89,7 @@ public class RpcFilter extends AuthenticationFilter {
 		}
 
 		// conditionally reject rpc management/administration requests
-		if (adminRequest && !GitBlit.getBoolean(Keys.web.enableRpcManagement, false)) {
+		if (adminRequest && !settings.getBoolean(Keys.web.enableRpcManagement, false)) {
 			logger.warn(MessageFormat.format("{0} must be set TRUE for {1} rpc requests.",
 					Keys.web.enableRpcManagement, requestType.toString()));
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -96,7 +100,7 @@ public class RpcFilter extends AuthenticationFilter {
 		if ((adminRequest && authenticateAdmin) || (!adminRequest && authenticateView)) {
 			if (user == null) {
 				// challenge client to provide credentials. send 401.
-				if (GitBlit.isDebugMode()) {
+				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("RPC: CHALLENGE {0}", fullUrl));
 
 				}
@@ -115,7 +119,7 @@ public class RpcFilter extends AuthenticationFilter {
 					return;
 				}
 				// valid user, but not for requested access. send 403.
-				if (GitBlit.isDebugMode()) {
+				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("RPC: {0} forbidden to access {1}",
 							user.username, fullUrl));
 				}
@@ -124,7 +128,7 @@ public class RpcFilter extends AuthenticationFilter {
 			}
 		}
 
-		if (GitBlit.isDebugMode()) {
+		if (runtimeManager.isDebugMode()) {
 			logger.info(MessageFormat.format("RPC: {0} ({1}) unauthenticated", fullUrl,
 					HttpServletResponse.SC_CONTINUE));
 		}

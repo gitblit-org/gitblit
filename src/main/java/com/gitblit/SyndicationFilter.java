@@ -26,6 +26,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IProjectManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -70,12 +73,16 @@ public class SyndicationFilter extends AuthenticationFilter {
 		String fullUrl = getFullUrl(httpRequest);
 		String name = extractRequestedName(fullUrl);
 
-		ProjectModel project = GitBlit.self().getProjectModel(name);
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		IProjectManager projectManager = GitBlit.getManager(IProjectManager.class);
+
+		ProjectModel project = projectManager.getProjectModel(name);
 		RepositoryModel model = null;
 
 		if (project == null) {
 			// try loading a repository model
-			model = GitBlit.self().getRepositoryModel(name);
+			model = repositoryManager.getRepositoryModel(name);
 			if (model == null) {
 				// repository not found. send 404.
 				logger.info(MessageFormat.format("ARF: {0} ({1})", fullUrl,
@@ -105,7 +112,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 			if (model.accessRestriction.atLeast(AccessRestrictionType.VIEW)) {
 				if (user == null) {
 					// challenge client to provide credentials. send 401.
-					if (GitBlit.isDebugMode()) {
+					if (runtimeManager.isDebugMode()) {
 						logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
 					}
 					httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
@@ -123,7 +130,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 						return;
 					}
 					// valid user, but not for requested access. send 403.
-					if (GitBlit.isDebugMode()) {
+					if (runtimeManager.isDebugMode()) {
 						logger.info(MessageFormat.format("ARF: {0} forbidden to access {1}",
 								user.username, fullUrl));
 					}
@@ -133,7 +140,7 @@ public class SyndicationFilter extends AuthenticationFilter {
 			}
 		}
 
-		if (GitBlit.isDebugMode()) {
+		if (runtimeManager.isDebugMode()) {
 			logger.info(MessageFormat.format("ARF: {0} ({1}) unauthenticated", fullUrl,
 					HttpServletResponse.SC_CONTINUE));
 		}

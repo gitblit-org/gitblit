@@ -25,6 +25,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -126,7 +128,10 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
 
-		if (GitBlit.self().isCollectingGarbage(repository)) {
+		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
+		if (repositoryManager.isCollectingGarbage(repository)) {
 			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, busy collecting garbage!", repository));
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
@@ -139,12 +144,12 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		UserModel user = getUser(httpRequest);
 
 		// Load the repository model
-		RepositoryModel model = GitBlit.self().getRepositoryModel(repository);
+		RepositoryModel model = repositoryManager.getRepositoryModel(repository);
 		if (model == null) {
 			if (isCreationAllowed()) {
 				if (user == null) {
 					// challenge client to provide credentials for creation. send 401.
-					if (GitBlit.isDebugMode()) {
+					if (runtimeManager.isDebugMode()) {
 						logger.info(MessageFormat.format("ARF: CREATE CHALLENGE {0}", fullUrl));
 					}
 					httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
@@ -191,7 +196,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 		if (!StringUtils.isEmpty(urlRequestType) && requiresAuthentication(model, urlRequestType)) {
 			if (user == null) {
 				// challenge client to provide credentials. send 401.
-				if (GitBlit.isDebugMode()) {
+				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("ARF: CHALLENGE {0}", fullUrl));
 				}
 				httpResponse.setHeader("WWW-Authenticate", CHALLENGE);
@@ -209,7 +214,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 					return;
 				}
 				// valid user, but not for requested access. send 403.
-				if (GitBlit.isDebugMode()) {
+				if (runtimeManager.isDebugMode()) {
 					logger.info(MessageFormat.format("ARF: {0} forbidden to access {1}",
 							user.username, fullUrl));
 				}
@@ -218,7 +223,7 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 			}
 		}
 
-		if (GitBlit.isDebugMode()) {
+		if (runtimeManager.isDebugMode()) {
 			logger.info(MessageFormat.format("ARF: {0} ({1}) unauthenticated", fullUrl,
 					HttpServletResponse.SC_CONTINUE));
 		}

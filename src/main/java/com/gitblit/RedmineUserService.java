@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccountType;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ConnectionUtils;
@@ -63,7 +64,8 @@ public class RedmineUserService extends GitblitUserService {
         this.settings = settings;
 
         String file = settings.getString(Keys.realm.redmine.backingUserService, "${baseFolder}/users.conf");
-        File realmFile = GitBlit.getFileOrFolder(file);
+        IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+        File realmFile = runtimeManager.getFileOrFolder(file);
 
         serviceImpl = createUserService(realmFile);
         logger.info("Redmine User Service backed by " + serviceImpl.toString());

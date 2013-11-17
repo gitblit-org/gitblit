@@ -15,9 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +28,7 @@ import com.gitblit.Constants.SearchType;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.utils.SyndicationUtils;
 
-public class SyndicationUtilsTest {
+public class SyndicationUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testSyndication() throws Exception {

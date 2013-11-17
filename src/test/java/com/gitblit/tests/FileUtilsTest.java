@@ -15,16 +15,13 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 
 import org.junit.Test;
 
 import com.gitblit.utils.FileUtils;
 
-public class FileUtilsTest {
+public class FileUtilsTest extends GitblitUnitTest {
 
 	@Test
 	public void testReadContent() throws Exception {

@@ -15,8 +15,6 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import groovy.lang.Binding;
 import groovy.util.GroovyScriptEngine;
 
@@ -41,7 +39,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TeamModel;
@@ -54,7 +51,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class GroovyScriptTest {
+public class GroovyScriptTest extends GitblitUnitTest {
 
 	private static final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -83,7 +80,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.customFields = new HashMap<String,String>();
 		repository.customFields.put( "fogbugzUrl", "http://bugs.test.com" );
 		repository.customFields.put( "fogbugzRepositoryId", "1" );
@@ -105,7 +102,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
 
 		test("sendmail-html.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -130,7 +127,7 @@ public class GroovyScriptTest {
 				.fromString("c18877690322dfc6ae3e37bb7f7085a24e94e887"), ObjectId
 				.fromString("3fa7c46d11b11d61f1cbadc6888be5d0eae21969"), "refs/heads/master2"));
 
-		RepositoryModel repository = GitBlit.self().getRepositoryModel("helloworld.git");
+		RepositoryModel repository = repositories().getRepositoryModel("helloworld.git");
 		repository.mailingLists.add("list@helloworld.git");
 
 		test("sendmail.groovy", gitblit, logger, clientLogger, commands, repository);
@@ -270,7 +267,7 @@ public class GroovyScriptTest {
 
 		RepositoryModel repository = new RepositoryModel("ex@mple.git", "", "admin", new Date());
 
-		File groovyDir = GitBlit.getGroovyScriptsFolder();
+		File groovyDir = repositories().getHooksFolder();
 		File tempScript = File.createTempFile("testClientLogging", "groovy", groovyDir);
 		tempScript.deleteOnExit();
 
@@ -291,7 +288,7 @@ public class GroovyScriptTest {
 
 		String gitblitUrl = GitBlitSuite.url;
 
-		File groovyDir = GitBlit.getGroovyScriptsFolder();
+		File groovyDir = repositories().getHooksFolder();
 		GroovyScriptEngine gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
 
 		Binding binding = new Binding();

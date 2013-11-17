@@ -19,6 +19,8 @@ import java.text.MessageFormat;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -100,7 +102,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean isCreationAllowed() {
-		return GitBlit.getBoolean(Keys.git.allowCreateOnPush, true);
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		return settings.getBoolean(Keys.git.allowCreateOnPush, true);
 	}
 
 	/**
@@ -119,7 +122,8 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	@Override
 	protected boolean requiresClientCertificate() {
-		return GitBlit.getBoolean(Keys.git.requiresClientCertificate, false);
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		return settings.getBoolean(Keys.git.requiresClientCertificate, false);
 	}
 
 	/**
@@ -152,7 +156,8 @@ public class GitFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
-		if (!GitBlit.getBoolean(Keys.git.enableGitServlet, true)) {
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		if (!settings.getBoolean(Keys.git.enableGitServlet, true)) {
 			// Git Servlet disabled
 			return false;
 		}
@@ -223,15 +228,17 @@ public class GitFilter extends AccessRestrictionFilter {
 					model.accessRestriction = AccessRestrictionType.VIEW;
 				} else {
 					// common repository, user default server settings
-					model.authorizationControl = AuthorizationControl.fromName(GitBlit.getString(Keys.git.defaultAuthorizationControl, ""));
-					model.accessRestriction = AccessRestrictionType.fromName(GitBlit.getString(Keys.git.defaultAccessRestriction, "PUSH"));
+					IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+					model.authorizationControl = AuthorizationControl.fromName(settings.getString(Keys.git.defaultAuthorizationControl, ""));
+					model.accessRestriction = AccessRestrictionType.fromName(settings.getString(Keys.git.defaultAccessRestriction, "PUSH"));
 				}
 
 				// create the repository
 				try {
-					GitBlit.self().updateRepositoryModel(model.name, model, true);
+					IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+					repositoryManager.updateRepositoryModel(model.name, model, true);
 					logger.info(MessageFormat.format("{0} created {1} ON-PUSH", user.username, model.name));
-					return GitBlit.self().getRepositoryModel(model.name);
+					return repositoryManager.getRepositoryModel(model.name);
 				} catch (GitBlitException e) {
 					logger.error(MessageFormat.format("{0} failed to create repository {1} ON-PUSH!", user.username, model.name), e);
 				}

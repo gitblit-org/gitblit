@@ -31,6 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.AuthenticationFilter.AuthenticatedRequest;
+import com.gitblit.manager.IProjectManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RefModel;
@@ -38,6 +41,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.MessageProcessor;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
@@ -126,6 +130,10 @@ public class SyndicationServlet extends HttpServlet {
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
 
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		IProjectManager projectManager = GitBlit.getManager(IProjectManager.class);
+
 		String servletUrl = request.getContextPath() + request.getServletPath();
 		String url = request.getRequestURI().substring(servletUrl.length());
 		if (url.charAt(0) == '/' && url.length() > 1) {
@@ -143,7 +151,7 @@ public class SyndicationServlet extends HttpServlet {
 				searchType = type;
 			}
 		}
-		int length = GitBlit.getInteger(Keys.web.syndicationEntries, 25);
+		int length = settings.getInteger(Keys.web.syndicationEntries, 25);
 		if (StringUtils.isEmpty(objectId)) {
 			objectId = org.eclipse.jgit.lib.Constants.HEAD;
 		}
@@ -175,7 +183,7 @@ public class SyndicationServlet extends HttpServlet {
 			if (request instanceof AuthenticatedRequest) {
 				user = ((AuthenticatedRequest) request).getUser();
 			}
-			ProjectModel project = GitBlit.self().getProjectModel(repositoryName, user);
+			ProjectModel project = projectManager.getProjectModel(repositoryName, user);
 			if (project != null) {
 				isProjectFeed = true;
 				repositories = new ArrayList<String>(project.repositories);
@@ -193,7 +201,7 @@ public class SyndicationServlet extends HttpServlet {
 		}
 
 
-		boolean mountParameters = GitBlit.getBoolean(Keys.web.mountParameters, true);
+		boolean mountParameters = settings.getBoolean(Keys.web.mountParameters, true);
 		String urlPattern;
 		if (mountParameters) {
 			// mounted parameters
@@ -203,13 +211,13 @@ public class SyndicationServlet extends HttpServlet {
 			urlPattern = "{0}/commit/?r={1}&h={2}";
 		}
 		String gitblitUrl = HttpUtils.getGitblitURL(request);
-		char fsc = GitBlit.getChar(Keys.web.forwardSlashCharacter, '/');
+		char fsc = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 
 		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();
 
 		for (String name : repositories) {
-			Repository repository = GitBlit.self().getRepository(name);
-			RepositoryModel model = GitBlit.self().getRepositoryModel(name);
+			Repository repository = repositoryManager.getRepository(name);
+			RepositoryModel model = repositoryManager.getRepositoryModel(name);
 
 			if (repository == null) {
 				if (model.isCollectingGarbage) {
@@ -234,6 +242,7 @@ public class SyndicationServlet extends HttpServlet {
 						offset, length);
 			}
 			Map<ObjectId, List<RefModel>> allRefs = JGitUtils.getAllRefs(repository, model.showRemoteBranches);
+			MessageProcessor processor = new MessageProcessor(settings);
 
 			// convert RevCommit to SyndicatedEntryModel
 			for (RevCommit commit : commits) {
@@ -244,8 +253,7 @@ public class SyndicationServlet extends HttpServlet {
 						StringUtils.encodeURL(model.name.replace('/', fsc)), commit.getName());
 				entry.published = commit.getCommitterIdent().getWhen();
 				entry.contentType = "text/html";
-				String message = GitBlit.self().processCommitMessage(model,
-						commit.getFullMessage());
+				String message = processor.processCommitMessage(model, commit.getFullMessage());
 				entry.content = message;
 				entry.repository = model.name;
 				entry.branch = objectId;

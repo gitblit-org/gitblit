@@ -70,7 +70,7 @@ public abstract class SessionPage extends WebPage {
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			app().session().setCookie(response, user);
+			app().session().setCookie(response.getHttpServletResponse(), user);
 
 			session.continueRequest();
 		}

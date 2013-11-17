@@ -410,7 +410,7 @@ public class GitBlitServer {
 		}
 
 		// Setup the GitBlit context
-		GitBlit gitblit = getGitBlitInstance();
+		GitBlit gitblit = newGitblit(settings, baseFolder);
 		gitblit.configureContext(settings, baseFolder, true);
 		rootContext.addEventListener(gitblit);
 
@@ -430,8 +430,8 @@ public class GitBlitServer {
 		}
 	}
 
-	protected GitBlit getGitBlitInstance() {
-		return GitBlit.self();
+	protected GitBlit newGitblit(IStoredSettings settings, File baseFolder) {
+		return new GitBlit(settings, baseFolder);
 	}
 
 	/**

@@ -46,6 +46,11 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.INotificationManager;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -116,7 +121,8 @@ public class FederationPullExecutor implements Runnable {
 					if (registration.notifyOnError) {
 						String message = "Federation pull of " + registration.name + " @ "
 								+ registration.url + " is now at " + is.name();
-						GitBlit.self()
+						INotificationManager mailManager = GitBlit.getManager(INotificationManager.class);
+						mailManager
 								.sendMailToAdministrators(
 										"Pull Status of " + registration.name + " is " + is.name(),
 										message);
@@ -153,7 +159,8 @@ public class FederationPullExecutor implements Runnable {
 							c, registrationFolder, registration.name));
 			return;
 		}
-		File repositoriesFolder = GitBlit.getRepositoriesFolder();
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+		File repositoriesFolder = repositoryManager.getRepositoriesFolder();
 		File registrationFolderFile = new File(repositoriesFolder, registrationFolder);
 		registrationFolderFile.mkdirs();
 
@@ -193,9 +200,9 @@ public class FederationPullExecutor implements Runnable {
 			// confirm that the origin of any pre-existing repository matches
 			// the clone url
 			String fetchHead = null;
-			Repository existingRepository = GitBlit.self().getRepository(repositoryName);
+			Repository existingRepository = repositoryManager.getRepository(repositoryName);
 
-			if (existingRepository == null && GitBlit.self().isCollectingGarbage(repositoryName)) {
+			if (existingRepository == null && repositoryManager.isCollectingGarbage(repositoryName)) {
 				logger.warn(MessageFormat.format("Skipping local repository {0}, busy collecting garbage", repositoryName));
 				continue;
 			}
@@ -227,8 +234,8 @@ public class FederationPullExecutor implements Runnable {
 
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
 					cloneUrl, registration.bare, credentials);
-			Repository r = GitBlit.self().getRepository(repositoryName);
-			RepositoryModel rm = GitBlit.self().getRepositoryModel(repositoryName);
+			Repository r = repositoryManager.getRepository(repositoryName);
+			RepositoryModel rm = repositoryManager.getRepositoryModel(repositoryName);
 			repository.isFrozen = registration.mirror;
 			if (result.createdRepository) {
 				// default local settings
@@ -316,10 +323,12 @@ public class FederationPullExecutor implements Runnable {
 			// "federated" repositories.
 			repository.isFederated = cloneUrl.startsWith(registration.url);
 
-			GitBlit.self().updateConfiguration(r, repository);
+			repositoryManager.updateConfiguration(r, repository);
 			r.close();
 		}
 
+		IUserManager userManager = GitBlit.getManager(IUserManager.class);
+		IGitblitManager gitblitManager = GitBlit.getManager(IGitblitManager.class);
 		IUserService userService = null;
 
 		try {
@@ -359,10 +368,10 @@ public class FederationPullExecutor implements Runnable {
 						}
 
 						// insert new user or update local user
-						UserModel localUser = GitBlit.self().getUserModel(user.username);
+						UserModel localUser = userManager.getUserModel(user.username);
 						if (localUser == null) {
 							// create new local user
-							GitBlit.self().updateUserModel(user.username, user, true);
+							gitblitManager.updateUserModel(user.username, user, true);
 						} else {
 							// update repository permissions of local user
 							if (user.permissions != null) {
@@ -379,19 +388,19 @@ public class FederationPullExecutor implements Runnable {
 							}
 							localUser.password = user.password;
 							localUser.canAdmin = user.canAdmin;
-							GitBlit.self().updateUserModel(localUser.username, localUser, false);
+							gitblitManager.updateUserModel(localUser.username, localUser, false);
 						}
 
-						for (String teamname : GitBlit.self().getAllTeamnames()) {
-							TeamModel team = GitBlit.self().getTeamModel(teamname);
+						for (String teamname : userManager.getAllTeamNames()) {
+							TeamModel team = userManager.getTeamModel(teamname);
 							if (user.isTeamMember(teamname) && !team.hasUser(user.username)) {
 								// new team member
 								team.addUser(user.username);
-								GitBlit.self().updateTeamModel(teamname, team, false);
+								userManager.updateTeamModel(teamname, team);
 							} else if (!user.isTeamMember(teamname) && team.hasUser(user.username)) {
 								// remove team member
 								team.removeUser(user.username);
-								GitBlit.self().updateTeamModel(teamname, team, false);
+								userManager.updateTeamModel(teamname, team);
 							}
 
 							// update team repositories
@@ -402,11 +411,11 @@ public class FederationPullExecutor implements Runnable {
 									for (Map.Entry<String, AccessPermission> entry : remoteTeam.permissions.entrySet()){
 										team.setRepositoryPermission(entry.getKey(), entry.getValue());
 									}
-									GitBlit.self().updateTeamModel(teamname, team, false);
+									userManager.updateTeamModel(teamname, team);
 								} else if(!ArrayUtils.isEmpty(remoteTeam.repositories)) {
 									// pulling from <= 1.1
 									team.addRepositoryPermissions(remoteTeam.repositories);
-									GitBlit.self().updateTeamModel(teamname, team, false);
+									userManager.updateTeamModel(teamname, team);
 								}
 							}
 						}
@@ -497,7 +506,8 @@ public class FederationPullExecutor implements Runnable {
 			return;
 		}
 		InetAddress addr = InetAddress.getLocalHost();
-		String federationName = GitBlit.getString(Keys.federation.name, null);
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		String federationName = settings.getString(Keys.federation.name, null);
 		if (StringUtils.isEmpty(federationName)) {
 			federationName = addr.getHostName();
 		}

@@ -18,6 +18,7 @@ package com.gitblit;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -49,7 +50,8 @@ public class PagesFilter extends AccessRestrictionFilter {
 			} else {
 				repository = url.substring(0, slash);
 			}
-			r = GitBlit.self().getRepository(repository, false);
+			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+			r = repositoryManager.getRepository(repository, false);
 			if (r == null) {
 				// try again
 				offset = slash + 1;

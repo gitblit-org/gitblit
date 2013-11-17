@@ -15,16 +15,13 @@
  */
 package com.gitblit.tests;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 
 import org.junit.Test;
 
 import com.gitblit.utils.TimeUtils;
 
-public class TimeUtilsTest {
+public class TimeUtilsTest extends GitblitUnitTest {
 
 	private Date offset(long subtract) {
 		return new Date(System.currentTimeMillis() - subtract);

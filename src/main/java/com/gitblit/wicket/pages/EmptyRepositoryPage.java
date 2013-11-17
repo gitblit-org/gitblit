@@ -58,7 +58,7 @@ public class EmptyRepositoryPage extends RootPage {
 		}
 
 		HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
-		List<RepositoryUrl> repositoryUrls = app().repositories().getRepositoryUrls(req, user, repository);
+		List<RepositoryUrl> repositoryUrls = app().gitblit().getRepositoryUrls(req, user, repository);
 		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 		String url = primaryUrl != null ? primaryUrl.url : "";
 

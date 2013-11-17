@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FileUtils;
 
@@ -131,7 +132,9 @@ public class GCExecutor implements Runnable {
 		running.set(true);
 		Date now = new Date();
 
-		for (String repositoryName : GitBlit.self().getRepositoryList()) {
+		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+
+		for (String repositoryName : repositoryManager.getRepositoryList()) {
 			if (forceClose.get()) {
 				break;
 			}
@@ -143,8 +146,8 @@ public class GCExecutor implements Runnable {
 			RepositoryModel model = null;
 			Repository repository = null;
 			try {
-				model = GitBlit.self().getRepositoryModel(repositoryName);
-				repository = GitBlit.self().getRepository(repositoryName);
+				model = repositoryManager.getRepositoryModel(repositoryName);
+				repository = repositoryManager.getRepository(repositoryName);
 				if (repository == null) {
 					logger.warn(MessageFormat.format("GCExecutor is missing repository {0}?!?", repositoryName));
 					continue;
@@ -204,7 +207,7 @@ public class GCExecutor implements Runnable {
 					if (garbageCollected) {
 						// update the last GC date
 						model.lastGC = new Date();
-						GitBlit.self().updateConfiguration(repository, model);
+						repositoryManager.updateConfiguration(repository, model);
 					}
 
 					repository.close();

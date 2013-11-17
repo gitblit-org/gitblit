@@ -30,6 +30,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -49,9 +51,7 @@ public class EnforceAuthenticationFilter implements Filter {
 	 */
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		// nothing to be done
-
-	} //init
+	}
 
 
 	/*
@@ -62,32 +62,28 @@ public class EnforceAuthenticationFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-		/*
-		 * Determine whether to enforce the BASIC authentication:
-		 */
-		@SuppressWarnings("static-access")
-		Boolean mustForceAuth = GitBlit.self().getBoolean(Keys.web.authenticateViewPages, false)
-								&& GitBlit.self().getBoolean(Keys.web.enforceHttpBasicAuthentication, false);
+		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
+		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
+		Boolean mustForceAuth = settings.getBoolean(Keys.web.authenticateViewPages, false)
+								&& settings.getBoolean(Keys.web.enforceHttpBasicAuthentication, false);
 
-		HttpServletRequest  HttpRequest  = (HttpServletRequest)request;
-		HttpServletResponse HttpResponse = (HttpServletResponse)response;
-		UserModel user = GitBlit.self().authenticate(HttpRequest);
+		HttpServletRequest  httpRequest  = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		UserModel user = sessionManager.authenticate(httpRequest);
 
 		if (mustForceAuth && (user == null)) {
 			// not authenticated, enforce now:
 			logger.debug(MessageFormat.format("EnforceAuthFilter: user not authenticated for URL {0}!", request.toString()));
-			@SuppressWarnings("static-access")
-			String CHALLENGE = MessageFormat.format("Basic realm=\"{0}\"", GitBlit.self().getString("web.siteName",""));
-			HttpResponse.setHeader("WWW-Authenticate", CHALLENGE);
-			HttpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			String challenge = MessageFormat.format("Basic realm=\"{0}\"", settings.getString(Keys.web.siteName, ""));
+			httpResponse.setHeader("WWW-Authenticate", challenge);
+			httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 
 		} else {
 			// user is authenticated, or don't care, continue handling
-			chain.doFilter( request, response );
-
-		} // authenticated
-	} // doFilter
+			chain.doFilter(request, response);
+		}
+	}
 
 
 	/*
@@ -95,8 +91,5 @@ public class EnforceAuthenticationFilter implements Filter {
 	 */
 	@Override
 	public void destroy() {
-		// Nothing to be done
-
-	} // destroy
-
+	}
 }
