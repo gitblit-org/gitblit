@@ -137,6 +137,8 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/user", UserPage.class, "user");
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
+		
+		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
 	}
 
 	private void mount(String location, Class<? extends WebPage> clazz, String... parameters) {

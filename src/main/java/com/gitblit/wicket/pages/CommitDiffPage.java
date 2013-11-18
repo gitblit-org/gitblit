@@ -153,6 +153,7 @@ public class CommitDiffPage extends RepositoryPage {
 
 				// quick links
 				if (entry.isSubmodule()) {
+					item.add(new ExternalLink("raw", "").setEnabled(false));
 					// submodule
 					item.add(new ExternalLink("patch", "").setEnabled(false));
 					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
