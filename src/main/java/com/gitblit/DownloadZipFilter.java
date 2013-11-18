@@ -29,6 +29,9 @@ import com.gitblit.models.UserModel;
  */
 public class DownloadZipFilter extends AccessRestrictionFilter {
 
+	public DownloadZipFilter() {
+	}
+
 	/**
 	 * Extract the repository name from the url.
 	 *

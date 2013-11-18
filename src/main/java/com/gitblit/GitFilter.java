@@ -42,6 +42,9 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected static final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
 			"/objects" };
 
+	public GitFilter() {
+	}
+
 	/**
 	 * Extract the repository name from the url.
 	 *

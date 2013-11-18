@@ -43,6 +43,9 @@ import com.gitblit.models.UserModel;
  */
 public class SyndicationFilter extends AuthenticationFilter {
 
+	public SyndicationFilter() {
+	}
+
 	/**
 	 * Extract the repository name from the url.
 	 *

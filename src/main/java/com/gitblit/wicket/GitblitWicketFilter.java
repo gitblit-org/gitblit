@@ -19,6 +19,8 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.protocol.http.IWebApplicationFactory;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.util.string.Strings;
 import org.eclipse.jgit.lib.Repository;
@@ -45,6 +47,19 @@ import com.gitblit.utils.StringUtils;
  */
 public class GitblitWicketFilter extends WicketFilter {
 
+	public GitblitWicketFilter() {
+	}
+
+	@Override
+	protected IWebApplicationFactory getApplicationFactory() {
+		return new IWebApplicationFactory() {
+			@Override
+			public WebApplication createApplication(WicketFilter filter) {
+				return new GitBlitWebApp();
+			}
+		};
+	}
+
 	/**
 	 * Determines the last-modified date of the requested resource.
 	 *
@@ -54,8 +69,9 @@ public class GitblitWicketFilter extends WicketFilter {
 	@Override
 	protected long getLastModified(final HttpServletRequest servletRequest)	{
 		final String pathInfo = getRelativePath(servletRequest);
-		if (Strings.isEmpty(pathInfo))
+		if (Strings.isEmpty(pathInfo)) {
 			return -1;
+		}
 		long lastModified = super.getLastModified(servletRequest);
 		if (lastModified > -1) {
 			return lastModified;

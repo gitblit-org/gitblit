@@ -66,7 +66,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,7 +83,6 @@ import org.eclipse.jgit.storage.file.WindowCacheConfig;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.FileUtils;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
@@ -100,6 +99,7 @@ import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
+import com.gitblit.git.GitServlet;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.INotificationManager;
@@ -144,6 +144,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils.X509Metadata;
 import com.gitblit.wicket.GitBlitWebSession;
+import com.gitblit.wicket.GitblitWicketFilter;
 import com.gitblit.wicket.WicketUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -153,21 +154,18 @@ import com.google.gson.reflect.TypeToken;
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
  * the web ui and the servlets. This class is either directly instantiated by
- * the GitBlitServer class (Gitblit GO) or is reflectively instantiated from the
- * definition in the web.xml file (Gitblit WAR).
+ * the GitBlitServer class (Gitblit GO) or is reflectively instantiated by the
+ * servlet 3 container (Gitblit WAR or Express).
  *
  * This class is the central logic processor for Gitblit. All settings, user
  * object, and repository object operations pass through this class.
  *
- * Repository Resolution. There are two pathways for finding repositories. One
- * pathway, for web ui display and repository authentication & authorization, is
- * within this class. The other pathway is through the standard GitServlet.
- *
  * @author James Moger
  *
  */
-public class GitBlit implements ServletContextListener,
-								IRuntimeManager,
+@WebListener
+public class GitBlit extends InjectionContextListener
+					 implements IRuntimeManager,
 								INotificationManager,
 								IUserManager,
 								ISessionManager,
@@ -179,8 +177,6 @@ public class GitBlit implements ServletContextListener,
 	private static GitBlit gitblit;
 
 	private final IStoredSettings goSettings;
-
-	private final Logger logger = LoggerFactory.getLogger(GitBlit.class);
 
 	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(10);
 
@@ -204,8 +200,6 @@ public class GitBlit implements ServletContextListener,
 	private final ObjectCache<String> projectMarkdownCache = new ObjectCache<String>();
 
 	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
-
-	private ServletContext servletContext;
 
 	private File baseFolder;
 
@@ -3718,11 +3712,9 @@ public class GitBlit implements ServletContextListener,
 	 * @see ServletContextListener.contextInitialize(ServletContextEvent)
 	 */
 	@Override
-	public void contextInitialized(ServletContextEvent contextEvent) {
-		servletContext = contextEvent.getServletContext();
+	protected void beforeServletInjection(ServletContext context) {
 		if (settings == null) {
 			// Gitblit is running in a servlet container
-			ServletContext context = contextEvent.getServletContext();
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
 			String contextRealPath = context.getRealPath("/");
 			File contextFolder = (contextRealPath != null) ? new File(contextRealPath) : null;
@@ -3807,7 +3799,7 @@ public class GitBlit implements ServletContextListener,
 		}
 
 		settingsModel = loadSettingModels();
-		serverStatus.servletContainer = servletContext.getServerInfo();
+		serverStatus.servletContainer = context.getServerInfo();
 	}
 
 	protected void extractResources(ServletContext context, String path, File toDir) {
@@ -4058,5 +4050,36 @@ public class GitBlit implements ServletContextListener,
 	public void logout(HttpServletResponse response, UserModel user) {
 		setCookie(response,  null);
 		userService.logout(user);
+	}
+
+	/**
+	 * Instantiate and inject all filters and servlets into the container using
+	 * the servlet 3 specification.
+	 */
+	@Override
+	protected void injectServlets(ServletContext context) {
+		// access restricted servlets
+		serve(context, Constants.GIT_PATH, GitServlet.class, GitFilter.class);
+		serve(context, Constants.PAGES, PagesServlet.class, PagesFilter.class);
+		serve(context, Constants.RPC_PATH, RpcServlet.class, RpcFilter.class);
+		serve(context, Constants.ZIP_PATH, DownloadZipServlet.class, DownloadZipFilter.class);
+		serve(context, Constants.SYNDICATION_PATH, SyndicationServlet.class, SyndicationFilter.class);
+
+		// servlets
+		serve(context, Constants.FEDERATION_PATH, FederationServlet.class);
+		serve(context, Constants.SPARKLESHARE_INVITE_PATH, SparkleShareInviteServlet.class);
+		serve(context, Constants.BRANCH_GRAPH_PATH, BranchGraphServlet.class);
+		file(context, "/robots.txt", RobotsTxtServlet.class);
+		file(context, "/logo.png", LogoServlet.class);
+
+		// optional force basic authentication
+		filter(context, "/*", EnforceAuthenticationFilter.class, null);
+
+		// Wicket
+		String toIgnore = StringUtils.flattenStrings(getRegisteredPaths(), ",");
+		Map<String, String> params = new HashMap<String, String>();
+		params.put(GitblitWicketFilter.FILTER_MAPPING_PARAM, "/*");
+		params.put(GitblitWicketFilter.IGNORE_PATHS_PARAM, toIgnore);
+		filter(context, "/*", GitblitWicketFilter.class, params);
 	}
 }

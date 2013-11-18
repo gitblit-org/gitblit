@@ -33,6 +33,9 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	public GitServlet() {
+	}
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);

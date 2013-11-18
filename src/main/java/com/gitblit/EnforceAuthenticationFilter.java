@@ -46,6 +46,9 @@ public class EnforceAuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
+	public EnforceAuthenticationFilter() {
+	}
+
 	/*
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */

@@ -44,6 +44,9 @@ import com.gitblit.models.UserModel;
  */
 public class RpcFilter extends AuthenticationFilter {
 
+	public RpcFilter() {
+	}
+
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.

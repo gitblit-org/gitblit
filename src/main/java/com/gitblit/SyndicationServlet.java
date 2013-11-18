@@ -59,6 +59,9 @@ public class SyndicationServlet extends HttpServlet {
 
 	private transient Logger logger = LoggerFactory.getLogger(SyndicationServlet.class);
 
+	public SyndicationServlet() {
+	}
+
 	/**
 	 * Create a feed link for the specified repository and branch/tag/commit id.
 	 *

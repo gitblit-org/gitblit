@@ -31,6 +31,9 @@ import com.gitblit.models.UserModel;
  */
 public class PagesFilter extends AccessRestrictionFilter {
 
+	public PagesFilter() {
+	}
+
 	/**
 	 * Extract the repository name from the url.
 	 *
