@@ -57,6 +57,12 @@ public abstract class AuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
+	protected final ISessionManager sessionManager;
+
+	protected AuthenticationFilter(ISessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
 	/**
 	 * doFilter does the actual work of preprocessing the request to ensure that
 	 * the user may proceed.
@@ -101,7 +107,6 @@ public abstract class AuthenticationFilter implements Filter {
 	 * @return user
 	 */
 	protected UserModel getUser(HttpServletRequest httpRequest) {
-		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
 		UserModel user = sessionManager.authenticate(httpRequest, requiresClientCertificate());
 		return user;
 	}

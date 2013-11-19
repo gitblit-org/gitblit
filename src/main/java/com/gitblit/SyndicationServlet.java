@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -53,13 +55,29 @@ import com.gitblit.utils.SyndicationUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class SyndicationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(SyndicationServlet.class);
 
-	public SyndicationServlet() {
+	private final IStoredSettings settings;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IProjectManager projectManager;
+
+	@Inject
+	public SyndicationServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
 	}
 
 	/**
@@ -132,10 +150,6 @@ public class SyndicationServlet extends HttpServlet {
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		IProjectManager projectManager = GitBlit.getManager(IProjectManager.class);
 
 		String servletUrl = request.getContextPath() + request.getServletPath();
 		String url = request.getRequestURI().substring(servletUrl.length());

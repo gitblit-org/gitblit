@@ -36,6 +36,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -61,6 +63,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class BranchGraphServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -74,8 +77,18 @@ public class BranchGraphServlet extends HttpServlet {
 
 	private final Stroke[] strokeCache;
 
-	public BranchGraphServlet() {
+	private final IStoredSettings settings;
+
+	private final IRepositoryManager repositoryManager;
+
+	@Inject
+	public BranchGraphServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
 		super();
+		this.settings = runtimeManager.getSettings();
+		this.repositoryManager = repositoryManager;
 
 		strokeCache = new Stroke[4];
 		for (int i = 1; i < strokeCache.length; i++)
@@ -104,7 +117,6 @@ public class BranchGraphServlet extends HttpServlet {
 	protected long getLastModified(HttpServletRequest req) {
 		String repository = req.getParameter("r");
 		String objectId = req.getParameter("h");
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 		Repository r = null;
 		try {
 			r = repositoryManager.getRepository(repository);
@@ -130,9 +142,6 @@ public class BranchGraphServlet extends HttpServlet {
 			String repository = request.getParameter("r");
 			String objectId = request.getParameter("h");
 			String length = request.getParameter("l");
-
-			IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 			r = repositoryManager.getRepository(repository);
 

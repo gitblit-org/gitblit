@@ -23,7 +23,6 @@ import org.eclipse.jgit.transport.resolver.ServiceNotAuthorizedException;
 import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
 
@@ -37,11 +36,16 @@ import com.gitblit.models.UserModel;
  */
 public class GitblitUploadPackFactory<X> implements UploadPackFactory<X> {
 
+	private final ISessionManager sessionManager;
+
+	public GitblitUploadPackFactory(ISessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
 	@Override
 	public UploadPack create(X req, Repository db)
 			throws ServiceNotEnabledException, ServiceNotAuthorizedException {
 
-		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
 		UserModel user = UserModel.ANONYMOUS;
 		int timeout = 0;
 

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.FederationRequest;
@@ -48,12 +50,31 @@ import com.gitblit.utils.TimeUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class FederationServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public FederationServlet() {
+	private final IStoredSettings settings;
+
+	private final IUserManager userManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IFederationManager federationManager;
+
+	@Inject
+	public FederationServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager) {
+
 		super();
+		this.settings = runtimeManager.getSettings();
+		this.userManager = userManager;
+		this.repositoryManager = repositoryManager;
+		this.federationManager = federationManager;
 	}
 
 	/**
@@ -69,11 +90,6 @@ public class FederationServlet extends JsonServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		IUserManager userManager = GitBlit.getManager(IUserManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		IFederationManager federationManager = GitBlit.getManager(IFederationManager.class);
 
 		FederationRequest reqType = FederationRequest.fromName(request.getParameter("req"));
 		logger.info(MessageFormat.format("Federation {0} request from {1}", reqType,

@@ -28,7 +28,6 @@ import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IFederationManager;
@@ -82,13 +81,49 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final Map<String, CacheControl> cacheablePages = new HashMap<String, CacheControl>();
 
-	private IStoredSettings settings;
+	private final IStoredSettings settings;
+
+	private final IRuntimeManager runtimeManager;
+
+	private final INotificationManager notificationManager;
+
+	private final IUserManager userManager;
+
+	private final ISessionManager sessionManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IProjectManager projectManager;
+
+	private final IGitblitManager gitblitManager;
+
+	private final IFederationManager federationManager;
+
+	public GitBlitWebApp(
+			IRuntimeManager runtimeManager,
+			INotificationManager notificationManager,
+			IUserManager userManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager,
+			IGitblitManager gitblitManager,
+			IFederationManager federationManager) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.runtimeManager = runtimeManager;
+		this.notificationManager = notificationManager;
+		this.userManager = userManager;
+		this.sessionManager = sessionManager;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
+		this.gitblitManager = gitblitManager;
+		this.federationManager = federationManager;
+	}
 
 	@Override
 	public void init() {
 		super.init();
-
-		settings = runtime().getSettings();
 
 		// Setup page authorization mechanism
 		boolean useAuthentication = settings.getBoolean(Keys.web.authenticateViewPages, false)
@@ -205,7 +240,7 @@ public class GitBlitWebApp extends WebApplication {
 	 * @return true if Gitblit is running in debug mode
 	 */
 	public boolean isDebugMode() {
-		return runtime().isDebugMode();
+		return runtimeManager.isDebugMode();
 	}
 
 	/*
@@ -213,52 +248,52 @@ public class GitBlitWebApp extends WebApplication {
 	 * step towards modularization across multiple commits.
 	 */
 	public Date getBootDate() {
-		return runtime().getBootDate();
+		return runtimeManager.getBootDate();
 	}
 
 	public Date getLastActivityDate() {
-		return repositories().getLastActivityDate();
+		return repositoryManager.getLastActivityDate();
 	}
 
 	public IRuntimeManager runtime() {
-		return GitBlit.getManager(IRuntimeManager.class);
+		return runtimeManager;
 	}
 
 	public INotificationManager notifier() {
-		return GitBlit.getManager(INotificationManager.class);
+		return notificationManager;
 	}
 
 	public IUserManager users() {
-		return GitBlit.getManager(IUserManager.class);
+		return userManager;
 	}
 
 	public ISessionManager session() {
-		return GitBlit.getManager(ISessionManager.class);
+		return sessionManager;
 	}
 
 	public IRepositoryManager repositories() {
-		return GitBlit.getManager(IRepositoryManager.class);
+		return repositoryManager;
 	}
 
 	public IProjectManager projects() {
-		return GitBlit.getManager(IProjectManager.class);
+		return projectManager;
 	}
 
 	public IFederationManager federation() {
-		return GitBlit.getManager(IFederationManager.class);
+		return federationManager;
 	}
 
 	public IGitblitManager gitblit() {
-		return GitBlit.getManager(IGitblitManager.class);
+		return gitblitManager;
 	}
 
 	public TimeZone getTimezone() {
-		return runtime().getTimezone();
+		return runtimeManager.getTimezone();
 	}
 
 	@Override
 	public final String getConfigurationType() {
-		if (isDebugMode()) {
+		if (runtimeManager.isDebugMode()) {
 			return Application.DEVELOPMENT;
 		}
 		return Application.DEPLOYMENT;

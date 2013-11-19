@@ -15,7 +15,6 @@
  */
 package com.gitblit.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 
@@ -28,7 +27,6 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.RepositoryModel;
@@ -44,8 +42,17 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryResolver.class);
 
-	public RepositoryResolver(File repositoriesFolder) {
-		super(repositoriesFolder, true);
+	private final ISessionManager sessionManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	public RepositoryResolver(
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
+
+		super(repositoryManager.getRepositoriesFolder(), true);
+		this.sessionManager = sessionManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -76,8 +83,6 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	 */
 	@Override
 	protected boolean isExportOk(X req, String repositoryName, Repository db) throws IOException {
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
 		RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
 
 		String scheme = null;

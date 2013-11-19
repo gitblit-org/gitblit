@@ -20,6 +20,8 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
@@ -43,11 +45,16 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class DownloadZipServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(DownloadZipServlet.class);
+
+	private final IStoredSettings settings;
+
+	private final IRepositoryManager repositoryManager;
 
 	public static enum Format {
 		zip(".zip"), tar(".tar"), gz(".tar.gz"), xz(".tar.xz"), bzip2(".tar.bzip2");
@@ -68,8 +75,14 @@ public class DownloadZipServlet extends HttpServlet {
 		}
 	}
 
-	public DownloadZipServlet() {
+	@Inject
+	public DownloadZipServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
 		super();
+		this.settings = runtimeManager.getSettings();
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -103,7 +116,6 @@ public class DownloadZipServlet extends HttpServlet {
 	private void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
 		if (!settings.getBoolean(Keys.web.allowZipDownloads, true)) {
 			logger.warn("Zip downloads are disabled");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -133,7 +145,6 @@ public class DownloadZipServlet extends HttpServlet {
 				name += "-" + objectId;
 			}
 
-			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 			Repository r = repositoryManager.getRepository(repository);
 			if (r == null) {
 				if (repositoryManager.isCollectingGarbage(repository)) {

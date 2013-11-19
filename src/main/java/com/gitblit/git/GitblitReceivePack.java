@@ -91,11 +91,20 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	protected GroovyScriptEngine gse;
 
-	public GitblitReceivePack(Repository db, RepositoryModel repository, UserModel user) {
+	private final IStoredSettings settings;
+
+	private final IRepositoryManager repositoryManager;
+
+	public GitblitReceivePack(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager,
+			Repository db,
+			RepositoryModel repository,
+			UserModel user) {
+
 		super(db);
-
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-
+		this.settings = runtimeManager.getSettings();
+		this.repositoryManager = repositoryManager;
 		this.repository = repository;
 		this.user = user == null ? UserModel.ANONYMOUS : user;
 		this.groovyDir = repositoryManager.getHooksFolder();
@@ -239,7 +248,6 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 		Set<String> scripts = new LinkedHashSet<String>();
 		scripts.addAll(repositoryManager.getPreReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
@@ -265,8 +273,6 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			LOGGER.debug("skipping post-receive hooks, no refs created, updated, or removed");
 			return;
 		}
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
 
 		// log ref changes
 		for (ReceiveCommand cmd : commands) {
@@ -335,8 +341,6 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		} catch (Exception e) {
 			LOGGER.error(MessageFormat.format("Failed to update {0} pushlog", repository.name), e);
 		}
-
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();

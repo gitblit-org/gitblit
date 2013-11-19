@@ -16,6 +16,7 @@
  */
 package com.gitblit.tests.mock;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,6 +25,10 @@ import com.gitblit.IStoredSettings;
 public class MemorySettings extends IStoredSettings {
 
 	private Map<String, Object> backingMap;
+
+	public MemorySettings() {
+		this(new HashMap<String, Object>());
+	}
 
 	public MemorySettings(Map<String, Object> backingMap) {
 		super(MemorySettings.class);
@@ -38,8 +43,8 @@ public class MemorySettings extends IStoredSettings {
 		return props;
 	}
 
-	public void put(Object key, Object value) {
-		backingMap.put(key.toString(), value);
+	public void put(String key, Object value) {
+		backingMap.put(key, value);
 	}
 
 	@Override

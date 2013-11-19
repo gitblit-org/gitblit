@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -46,6 +47,19 @@ import com.gitblit.utils.StringUtils;
  *
  */
 public abstract class AccessRestrictionFilter extends AuthenticationFilter {
+
+	protected final IRuntimeManager runtimeManager;
+
+	protected final IRepositoryManager repositoryManager;
+
+	protected AccessRestrictionFilter(
+			IRuntimeManager runtimeManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
+		super(sessionManager);
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
+	}
 
 	/**
 	 * Extract the repository name from the url.
@@ -127,9 +141,6 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		String repository = extractRepositoryName(fullUrl);
-
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		if (repositoryManager.isCollectingGarbage(repository)) {
 			logger.info(MessageFormat.format("ARF: Rejecting request for {0}, busy collecting garbage!", repository));

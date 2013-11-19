@@ -43,7 +43,6 @@
  */
 package com.gitblit.git;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -68,6 +67,12 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -106,45 +111,28 @@ public class GitDaemon {
 
 	private ReceivePackFactory<GitDaemonClient> receivePackFactory;
 
-	/** Configure a daemon to listen on any available network port. */
-	public GitDaemon() {
-		this(null);
-	}
+	public GitDaemon(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
 
-	/**
-	 * Construct the Gitblit Git daemon.
-	 *
-	 * @param bindInterface
-	 *            the ip address of the interface to bind
-	 * @param port
-	 *            the port to serve on
-	 * @param folder
-	 *            the folder to serve from
-	 */
-	public GitDaemon(String bindInterface, int port, File folder) {
-		this(StringUtils.isEmpty(bindInterface) ? new InetSocketAddress(port)
-				: new InetSocketAddress(bindInterface, port));
+		IStoredSettings settings = runtimeManager.getSettings();
+		int port = settings.getInteger(Keys.git.daemonPort, 0);
+		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 
-		// set the repository resolver and pack factories
-		repositoryResolver = new RepositoryResolver<GitDaemonClient>(folder);
-	}
+		if (StringUtils.isEmpty(bindInterface)) {
+			myAddress = new InetSocketAddress(port);
+		} else {
+			myAddress = new InetSocketAddress(bindInterface, port);
+		}
 
-	/**
-	 * Configure a new daemon for the specified network address.
-	 *
-	 * @param addr
-	 *            address to listen for connections on. If null, any available
-	 *            port will be chosen on all network interfaces.
-	 */
-	public GitDaemon(final InetSocketAddress addr) {
-		myAddress = addr;
-		processors = new ThreadGroup("Git-Daemon");
+		repositoryResolver = new RepositoryResolver<GitDaemonClient>(sessionManager, repositoryManager);
+		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>(sessionManager);
+		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>(runtimeManager, userManager, repositoryManager);
 
 		run = new AtomicBoolean(false);
-		repositoryResolver = null;
-		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>();
-		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>();
-
+		processors = new ThreadGroup("Git-Daemon");
 		services = new GitDaemonService[] { new GitDaemonService("upload-pack", "uploadpack") {
 					{
 						setEnabled(true);

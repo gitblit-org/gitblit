@@ -15,7 +15,13 @@
  */
 package com.gitblit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -27,9 +33,16 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
+@Singleton
 public class DownloadZipFilter extends AccessRestrictionFilter {
 
-	public DownloadZipFilter() {
+	@Inject
+	public DownloadZipFilter(
+			IRuntimeManager runtimeManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
+
+		super(runtimeManager, sessionManager, repositoryManager);
 	}
 
 	/**

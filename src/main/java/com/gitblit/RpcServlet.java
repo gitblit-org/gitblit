@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,14 +55,41 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class RpcServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final int PROTOCOL_VERSION = 6;
 
-	public RpcServlet() {
+	private final IStoredSettings settings;
+
+	private final IRuntimeManager runtimeManager;
+
+	private final IUserManager userManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IFederationManager federationManager;
+
+	private final IGitblitManager gitblitManager;
+
+	@Inject
+	public RpcServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager,
+			IGitblitManager gitblitManager) {
+
 		super();
+
+		this.settings = runtimeManager.getSettings();
+		this.runtimeManager = runtimeManager;
+		this.userManager = userManager;
+		this.repositoryManager = repositoryManager;
+		this.federationManager = federationManager;
+		this.gitblitManager = gitblitManager;
 	}
 
 	/**
@@ -78,13 +107,6 @@ public class RpcServlet extends JsonServlet {
 		String objectName = request.getParameter("name");
 		logger.info(MessageFormat.format("Rpc {0} request from {1}", reqType,
 				request.getRemoteAddr()));
-
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
-		IUserManager userManager = GitBlit.getManager(IUserManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		IGitblitManager gitblitManager = GitBlit.getManager(IGitblitManager.class);
-		IFederationManager federationManager = GitBlit.getManager(IFederationManager.class);
-		IStoredSettings settings = runtimeManager.getSettings();
 
 		UserModel user = (UserModel) request.getUserPrincipal();
 

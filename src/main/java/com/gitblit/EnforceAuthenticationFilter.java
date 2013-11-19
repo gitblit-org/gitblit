@@ -18,6 +18,8 @@
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -42,11 +44,23 @@ import com.gitblit.models.UserModel;
  * @author Laurens Vrijnsen
  *
  */
+@Singleton
 public class EnforceAuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	public EnforceAuthenticationFilter() {
+	private final IStoredSettings settings;
+
+	private final ISessionManager sessionManager;
+
+	@Inject
+	public EnforceAuthenticationFilter(
+			IRuntimeManager runtimeManager,
+			ISessionManager sessionManager) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.sessionManager = sessionManager;
 	}
 
 	/*
@@ -56,7 +70,6 @@ public class EnforceAuthenticationFilter implements Filter {
 	public void init(FilterConfig filterConfig) throws ServletException {
 	}
 
-
 	/*
 	 * This does the actual filtering: is the user authenticated? If not, enforce HTTP authentication (401)
 	 *
@@ -65,8 +78,6 @@ public class EnforceAuthenticationFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
 		Boolean mustForceAuth = settings.getBoolean(Keys.web.authenticateViewPages, false)
 								&& settings.getBoolean(Keys.web.enforceHttpBasicAuthentication, false);
 

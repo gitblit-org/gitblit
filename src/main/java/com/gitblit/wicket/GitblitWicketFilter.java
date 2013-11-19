@@ -17,18 +17,17 @@ package com.gitblit.wicket;
 
 import java.util.Date;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.wicket.protocol.http.IWebApplicationFactory;
-import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.util.string.Strings;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerWicketFilter;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -45,19 +44,28 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class GitblitWicketFilter extends WicketFilter {
+@Singleton
+public class GitblitWicketFilter extends DaggerWicketFilter {
 
-	public GitblitWicketFilter() {
-	}
+	private final IStoredSettings settings;
 
-	@Override
-	protected IWebApplicationFactory getApplicationFactory() {
-		return new IWebApplicationFactory() {
-			@Override
-			public WebApplication createApplication(WicketFilter filter) {
-				return new GitBlitWebApp();
-			}
-		};
+	private final IRuntimeManager runtimeManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	private final IProjectManager projectManager;
+
+	@Inject
+	public GitblitWicketFilter(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
 	}
 
 	/**
@@ -96,11 +104,6 @@ public class GitblitWicketFilter extends WicketFilter {
 		if (!StringUtils.isEmpty(servletRequest.getParameter("h"))) {
 			commitId = servletRequest.getParameter("h");
 		}
-
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
-		IStoredSettings settings = runtimeManager.getSettings();
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		IProjectManager projectManager = GitBlit.getManager(IProjectManager.class);
 
 		repo = repo.replace("%2f", "/").replace("%2F", "/").replace(settings.getChar(Keys.web.forwardSlashCharacter, '/'), '/');
 

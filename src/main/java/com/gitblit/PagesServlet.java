@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -53,14 +55,25 @@ import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
  * @author James Moger
  *
  */
+@Singleton
 public class PagesServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(PagesServlet.class);
 
-	public PagesServlet() {
+	private final IStoredSettings settings;
+
+	private final IRepositoryManager repositoryManager;
+
+	@Inject
+	public PagesServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
 		super();
+		this.settings = runtimeManager.getSettings();
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -100,9 +113,6 @@ public class PagesServlet extends HttpServlet {
 			// strip leading /
 			path = path.substring(1);
 		}
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		// determine repository and resource from url
 		String repository = "";

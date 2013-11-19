@@ -18,6 +18,8 @@ package com.gitblit;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,12 +39,31 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class SparkleShareInviteServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public SparkleShareInviteServlet() {
+	private final IStoredSettings settings;
+
+	private final IUserManager userManager;
+
+	private final ISessionManager sessionManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	@Inject
+	public SparkleShareInviteServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
+
 		super();
+		this.settings = runtimeManager.getSettings();
+		this.userManager = userManager;
+		this.sessionManager = sessionManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	@Override
@@ -60,11 +81,6 @@ public class SparkleShareInviteServlet extends HttpServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		IUserManager userManager = GitBlit.getManager(IUserManager.class);
-		ISessionManager sessionManager = GitBlit.getManager(ISessionManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		// extract repo name from request
 		String repoUrl = request.getPathInfo().substring(1);

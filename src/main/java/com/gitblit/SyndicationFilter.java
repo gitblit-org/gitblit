@@ -18,6 +18,8 @@ package com.gitblit;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -29,6 +31,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -41,9 +44,24 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
+@Singleton
 public class SyndicationFilter extends AuthenticationFilter {
 
-	public SyndicationFilter() {
+	private final IRuntimeManager runtimeManager;
+	private final IRepositoryManager repositoryManager;
+	private final IProjectManager projectManager;
+
+	@Inject
+	public SyndicationFilter(
+			IRuntimeManager runtimeManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		super(sessionManager);
+		this.runtimeManager = runtimeManager;
+		this.repositoryManager = repositoryManager;
+		this.projectManager = projectManager;
 	}
 
 	/**
@@ -75,10 +93,6 @@ public class SyndicationFilter extends AuthenticationFilter {
 
 		String fullUrl = getFullUrl(httpRequest);
 		String name = extractRequestedName(fullUrl);
-
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		IProjectManager projectManager = GitBlit.getManager(IProjectManager.class);
 
 		ProjectModel project = projectManager.getProjectModel(name);
 		RepositoryModel model = null;

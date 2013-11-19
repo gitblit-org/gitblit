@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,19 +37,23 @@ import com.gitblit.manager.IRuntimeManager;
  * @author James Moger
  *
  */
+@Singleton
 public class LogoServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final long lastModified = System.currentTimeMillis();
 
-	public LogoServlet() {
+	private final IRuntimeManager runtimeManager;
+
+	@Inject
+	public LogoServlet(IRuntimeManager runtimeManager) {
 		super();
+		this.runtimeManager = runtimeManager;
 	}
 
 	@Override
 	protected long getLastModified(HttpServletRequest req) {
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
 		File file = runtimeManager.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
 		if (file.exists()) {
 			return Math.max(lastModified, file.lastModified());
@@ -62,7 +68,6 @@ public class LogoServlet extends HttpServlet {
 		InputStream is = null;
 		try {
 			String contentType = null;
-			IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
 			File file = runtimeManager.getFileOrFolder(Keys.web.headerLogo, "${baseFolder}/logo.png");
 			if (file.exists()) {
 				// custom logo

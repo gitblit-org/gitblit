@@ -52,14 +52,20 @@ public class MirrorExecutor implements Runnable {
 
 	private final IStoredSettings settings;
 
+	private final IRepositoryManager repositoryManager;
+
 	private AtomicBoolean running = new AtomicBoolean(false);
 
 	private AtomicBoolean forceClose = new AtomicBoolean(false);
 
 	private final UserModel gitblitUser;
 
-	public MirrorExecutor(IStoredSettings settings) {
+	public MirrorExecutor(
+			IStoredSettings settings,
+			IRepositoryManager repositoryManager) {
+
 		this.settings = settings;
+		this.repositoryManager = repositoryManager;
 		this.gitblitUser = new UserModel("gitblit");
 		this.gitblitUser.displayName = "Gitblit";
 	}
@@ -83,8 +89,6 @@ public class MirrorExecutor implements Runnable {
 		}
 
 		running.set(true);
-
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		for (String repositoryName : repositoryManager.getRepositoryList()) {
 			if (forceClose.get()) {

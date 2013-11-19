@@ -54,14 +54,20 @@ public class GCExecutor implements Runnable {
 
 	private final IStoredSettings settings;
 
+	private final IRepositoryManager repositoryManager;
+
 	private AtomicBoolean running = new AtomicBoolean(false);
 
 	private AtomicBoolean forceClose = new AtomicBoolean(false);
 
 	private final Map<String, GCStatus> gcCache = new ConcurrentHashMap<String, GCStatus>();
 
-	public GCExecutor(IStoredSettings settings) {
+	public GCExecutor(
+			IStoredSettings settings,
+			IRepositoryManager repositoryManager) {
+
 		this.settings = settings;
+		this.repositoryManager = repositoryManager;
 	}
 
 	/**
@@ -131,8 +137,6 @@ public class GCExecutor implements Runnable {
 
 		running.set(true);
 		Date now = new Date();
-
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		for (String repositoryName : repositoryManager.getRepositoryList()) {
 			if (forceClose.get()) {

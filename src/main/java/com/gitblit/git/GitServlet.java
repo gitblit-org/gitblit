@@ -15,12 +15,16 @@
  */
 package com.gitblit.git;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import com.gitblit.GitBlit;
 import com.gitblit.manager.IRepositoryManager;
+import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IUserManager;
 
 /**
  * The GitServlet provides http/https access to Git repositories.
@@ -29,19 +33,37 @@ import com.gitblit.manager.IRepositoryManager;
  * @author James Moger
  *
  */
+@Singleton
 public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public GitServlet() {
+	private final IRuntimeManager runtimeManager;
+
+	private final IUserManager userManager;
+
+	private final ISessionManager sessionManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	@Inject
+	public GitServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			ISessionManager sessionManager,
+			IRepositoryManager repositoryManager) {
+		super();
+		this.runtimeManager = runtimeManager;
+		this.userManager = userManager;
+		this.sessionManager = sessionManager;
+		this.repositoryManager = repositoryManager;
 	}
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(repositoryManager.getRepositoriesFolder()));
-		setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>());
-		setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>());
+		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(sessionManager, repositoryManager));
+		setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>(sessionManager));
+		setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>(runtimeManager, userManager, repositoryManager));
 		super.init(config);
 	}
 }

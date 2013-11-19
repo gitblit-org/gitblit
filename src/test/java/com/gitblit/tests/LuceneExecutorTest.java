@@ -16,15 +16,15 @@
 package com.gitblit.tests;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jgit.lib.Repository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.gitblit.GitBlit;
+import com.gitblit.Keys;
 import com.gitblit.LuceneExecutor;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -44,9 +44,10 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 	LuceneExecutor lucene;
 
 	private LuceneExecutor newLuceneExecutor() {
-		Map<String, Object> map = new HashMap<String, Object>();
-		MemorySettings settings = new MemorySettings(map);
-		return new LuceneExecutor(settings, GitBlitSuite.REPOSITORIES);
+		MemorySettings settings = new MemorySettings();
+		settings.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES);
+		GitBlit gitblit = new GitBlit(settings, GitBlitSuite.REPOSITORIES);
+		return new LuceneExecutor(settings, gitblit);
 	}
 
 	private RepositoryModel newRepositoryModel(Repository repository) {

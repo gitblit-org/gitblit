@@ -65,7 +65,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -95,6 +94,7 @@ import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
+import com.gitblit.dagger.DaggerContextListener;
 import com.gitblit.fanout.FanoutNioService;
 import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
@@ -164,7 +164,7 @@ import com.google.gson.reflect.TypeToken;
  *
  */
 @WebListener
-public class GitBlit extends InjectionContextListener
+public class GitBlit extends DaggerContextListener
 					 implements IRuntimeManager,
 								INotificationManager,
 								IUserManager,
@@ -3479,9 +3479,9 @@ public class GitBlit extends InjectionContextListener
 
 		// prepare service executors
 		mailExecutor = new MailExecutor(settings);
-		luceneExecutor = new LuceneExecutor(settings, repositoriesFolder);
-		gcExecutor = new GCExecutor(settings);
-		mirrorExecutor = new MirrorExecutor(settings);
+		luceneExecutor = new LuceneExecutor(settings, getManager(IRepositoryManager.class));
+		gcExecutor = new GCExecutor(settings, getManager(IRepositoryManager.class));
+		mirrorExecutor = new MirrorExecutor(settings, getManager(IRepositoryManager.class));
 
 		// initialize utilities
 		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
@@ -3641,7 +3641,7 @@ public class GitBlit extends InjectionContextListener
 		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 		if (port > 0) {
 			try {
-				gitDaemon = new GitDaemon(bindInterface, port, getRepositoriesFolder());
+				gitDaemon = new GitDaemon(this, this, this, this);
 				gitDaemon.start();
 			} catch (IOException e) {
 				gitDaemon = null;
@@ -3854,7 +3854,7 @@ public class GitBlit extends InjectionContextListener
 	 * shutting down or because the servlet container is re-deploying Gitblit.
 	 */
 	@Override
-	public void contextDestroyed(ServletContextEvent contextEvent) {
+	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
@@ -4050,6 +4050,11 @@ public class GitBlit extends InjectionContextListener
 	public void logout(HttpServletResponse response, UserModel user) {
 		setCookie(response,  null);
 		userService.logout(user);
+	}
+
+	@Override
+	protected Object [] getModules() {
+		return new Object [] { new DaggerModule(this) };
 	}
 
 	/**

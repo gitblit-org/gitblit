@@ -128,6 +128,7 @@ public class LuceneExecutor implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(LuceneExecutor.class);
 
 	private final IStoredSettings storedSettings;
+	private final IRepositoryManager repositoryManager;
 	private final File repositoriesFolder;
 
 	private final Map<String, IndexSearcher> searchers = new ConcurrentHashMap<String, IndexSearcher>();
@@ -136,9 +137,13 @@ public class LuceneExecutor implements Runnable {
 	private final String luceneIgnoreExtensions = "7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip";
 	private Set<String> excludedExtensions;
 
-	public LuceneExecutor(IStoredSettings settings, File repositoriesFolder) {
+	public LuceneExecutor(
+			IStoredSettings settings,
+			IRepositoryManager repositoryManager) {
+
 		this.storedSettings = settings;
-		this.repositoriesFolder = repositoriesFolder;
+		this.repositoryManager = repositoryManager;
+		this.repositoriesFolder = repositoryManager.getRepositoriesFolder();
 		String exts = luceneIgnoreExtensions;
 		if (settings != null) {
 			exts = settings.getString(Keys.web.luceneIgnoreExtensions, exts);
@@ -161,7 +166,6 @@ public class LuceneExecutor implements Runnable {
 		String exts = storedSettings.getString(Keys.web.luceneIgnoreExtensions, luceneIgnoreExtensions);
 		excludedExtensions = new TreeSet<String>(StringUtils.getStringsFromValue(exts));
 
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 		if (repositoryManager.isCollectingGarbage()) {
 			// busy collecting garbage, try again later
 			return;

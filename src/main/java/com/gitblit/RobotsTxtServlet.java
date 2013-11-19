@@ -18,6 +18,8 @@ package com.gitblit;
 import java.io.File;
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,12 +34,17 @@ import com.gitblit.utils.FileUtils;
  * @author James Moger
  *
  */
+@Singleton
 public class RobotsTxtServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	public RobotsTxtServlet() {
+	private final IRuntimeManager runtimeManager;
+
+	@Inject
+	public RobotsTxtServlet(IRuntimeManager runtimeManager) {
 		super();
+		this.runtimeManager = runtimeManager;
 	}
 
 	@Override
@@ -55,7 +62,6 @@ public class RobotsTxtServlet extends HttpServlet {
 	protected void processRequest(javax.servlet.http.HttpServletRequest request,
 			javax.servlet.http.HttpServletResponse response) throws javax.servlet.ServletException,
 			java.io.IOException {
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
 		File file = runtimeManager.getFileOrFolder(Keys.web.robots.txt, null);
 		String content = "";
 		if (file.exists()) {

@@ -26,7 +26,6 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
@@ -48,13 +47,30 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 	protected final Logger logger = LoggerFactory.getLogger(GitblitReceivePackFactory.class);
 
+	private final IStoredSettings settings;
+
+	private final IRuntimeManager runtimeManager;
+
+	private final IUserManager userManager;
+
+	private final IRepositoryManager repositoryManager;
+
+	public GitblitReceivePackFactory(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager) {
+
+		super();
+		this.settings = runtimeManager.getSettings();
+		this.runtimeManager = runtimeManager;
+		this.userManager = userManager;
+		this.repositoryManager = repositoryManager;
+
+	}
+
 	@Override
 	public ReceivePack create(X req, Repository db)
 			throws ServiceNotEnabledException, ServiceNotAuthorizedException {
-
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		IUserManager userManager = GitBlit.getManager(IUserManager.class);
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
 
 		UserModel user = UserModel.ANONYMOUS;
 		String repositoryName = "";
@@ -97,7 +113,7 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 		final RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
 
-		final GitblitReceivePack rp = new GitblitReceivePack(db, repository, user);
+		final GitblitReceivePack rp = new GitblitReceivePack(runtimeManager, repositoryManager, db, repository, user);
 		rp.setGitblitUrl(gitblitUrl);
 		rp.setRepositoryUrl(repositoryUrl);
 		rp.setRefLogIdent(new PersonIdent(user.username, user.username + "@" + origin));
