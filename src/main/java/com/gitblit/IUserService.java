@@ -18,6 +18,7 @@ package com.gitblit;
 import java.util.Collection;
 import java.util.List;
 
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
@@ -35,10 +36,10 @@ public interface IUserService {
 	 * retrieve settings from gitblit.properties or the web.xml file without
 	 * relying on the GitBlit static singleton.
 	 *
-	 * @param settings
-	 * @since 0.7.0
+	 * @param runtimeManager
+	 * @since 1.4.0
 	 */
-	void setup(IStoredSettings settings);
+	void setup(IRuntimeManager runtimeManager);
 
 	/**
 	 * Does the user service support changes to credentials?

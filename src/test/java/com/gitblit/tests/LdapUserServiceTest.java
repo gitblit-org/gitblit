@@ -26,6 +26,7 @@ import org.junit.Test;
 import com.gitblit.LdapUserService;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.tests.mock.MockRuntimeManager;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
@@ -60,7 +61,7 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 	@Before
 	public void createLdapUserService() {
 		ldapUserService = new LdapUserService();
-		ldapUserService.setup(getSettings());
+		ldapUserService.setup(new MockRuntimeManager(getSettings()));
 	}
 
 	private MemorySettings getSettings() {
@@ -118,7 +119,7 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 		MemorySettings ms = getSettings();
 		ms.put("realm.ldap.displayName", "${personalTitle}. ${givenName} ${surname}");
 		ldapUserService = new LdapUserService();
-		ldapUserService.setup(ms);
+		ldapUserService.setup(new MockRuntimeManager(ms));
 
 		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
@@ -135,7 +136,7 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 		MemorySettings ms = getSettings();
 		ms.put("realm.ldap.email", "${givenName}.${surname}@gitblit.com");
 		ldapUserService = new LdapUserService();
-		ldapUserService.setup(ms);
+		ldapUserService.setup(new MockRuntimeManager(ms));
 
 		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);

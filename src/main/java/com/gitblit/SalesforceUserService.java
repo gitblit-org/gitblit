@@ -27,12 +27,11 @@ public class SalesforceUserService extends GitblitUserService {
 	}
 
 	@Override
-	public void setup(IStoredSettings settings) {
-		this.settings = settings;
+	public void setup(IRuntimeManager runtimeManager) {
+		this.settings = runtimeManager.getSettings();
 		String file = settings.getString(
 				Keys.realm.salesforce.backingUserService,
 				"${baseFolder}/users.conf");
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
 		File realmFile = runtimeManager.getFileOrFolder(file);
 
 		serviceImpl = createUserService(realmFile);

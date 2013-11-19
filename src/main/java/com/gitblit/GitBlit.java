@@ -611,7 +611,7 @@ public class GitBlit extends DaggerContextListener
 	public void setUserService(IUserService userService) {
 		logger.info("Setting up user service " + userService.toString());
 		this.userService = userService;
-		this.userService.setup(settings);
+		this.userService.setup(getManager(IRuntimeManager.class));
 	}
 
 	@Override

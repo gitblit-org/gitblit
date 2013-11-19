@@ -59,8 +59,7 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
-	public void setup(IStoredSettings settings) {
-		IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
+	public void setup(IRuntimeManager runtimeManager) {
 		File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
 		serviceImpl = createUserService(realmFile);
 		logger.info("GUS delegating to " + serviceImpl.toString());

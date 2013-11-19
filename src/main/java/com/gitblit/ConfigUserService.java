@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.models.UserRepositoryPreferences;
@@ -115,11 +116,11 @@ public class ConfigUserService implements IUserService {
 	/**
 	 * Setup the user service.
 	 *
-	 * @param settings
-	 * @since 0.7.0
+	 * @param runtimeManager
+	 * @since 1.4.0
 	 */
 	@Override
-	public void setup(IStoredSettings settings) {
+	public void setup(IRuntimeManager runtimeManager) {
 	}
 
 	/**

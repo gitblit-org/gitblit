@@ -2,13 +2,11 @@ package com.gitblit.tests;
 
 import static org.hamcrest.CoreMatchers.is;
 
-import java.util.HashMap;
-
 import org.junit.Test;
 
 import com.gitblit.RedmineUserService;
 import com.gitblit.models.UserModel;
-import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.tests.mock.MockRuntimeManager;
 import com.gitblit.utils.StringUtils;
 
 public class RedmineUserServiceTest extends GitblitUnitTest {
@@ -24,7 +22,7 @@ public class RedmineUserServiceTest extends GitblitUnitTest {
     @Test
     public void testAuthenticate() throws Exception {
         RedmineUserService redmineUserService = new RedmineUserService();
-        redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
+        redmineUserService.setup(new MockRuntimeManager());
         redmineUserService.setTestingCurrentUserAsJson(JSON);
         UserModel userModel = redmineUserService.authenticate("RedmineAdminId", "RedmineAPIKey".toCharArray());
         assertThat(userModel.getName(), is("redmineadminid"));
@@ -37,7 +35,7 @@ public class RedmineUserServiceTest extends GitblitUnitTest {
     @Test
     public void testAuthenticateNotAdminUser() throws Exception {
         RedmineUserService redmineUserService = new RedmineUserService();
-        redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
+        redmineUserService.setup(new MockRuntimeManager());
         redmineUserService.setTestingCurrentUserAsJson(NOT_ADMIN_JSON);
         UserModel userModel = redmineUserService.authenticate("RedmineUserId", "RedmineAPIKey".toCharArray());
         assertThat(userModel.getName(), is("redmineuserid"));
@@ -50,7 +48,7 @@ public class RedmineUserServiceTest extends GitblitUnitTest {
     @Test
 	public void testLocalAccount() {
         RedmineUserService redmineUserService = new RedmineUserService();
-        redmineUserService.setup(new MemorySettings(new HashMap<String, Object>()));
+        redmineUserService.setup(new MockRuntimeManager());
 
 		UserModel localAccount = new UserModel("bruce");
 		localAccount.displayName = "Bruce Campbell";

@@ -28,6 +28,7 @@ import org.junit.Test;
 import com.gitblit.HtpasswdUserService;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
+import com.gitblit.tests.mock.MockRuntimeManager;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -72,13 +73,13 @@ public class HtpasswdUserServiceTest extends GitblitUnitTest {
     private void setupUS()
     {
         htpwdUserService = new HtpasswdUserService();
-        htpwdUserService.setup(getSettings());
+        htpwdUserService.setup(new MockRuntimeManager(getSettings()));
     }
 
     private void setupUS(boolean overrideLA)
     {
         htpwdUserService = new HtpasswdUserService();
-        htpwdUserService.setup(getSettings(overrideLA));
+        htpwdUserService.setup(new MockRuntimeManager(getSettings(overrideLA)));
     }
 
 

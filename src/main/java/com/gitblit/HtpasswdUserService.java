@@ -80,6 +80,7 @@ public class HtpasswdUserService extends GitblitUserService
 
     private final boolean SUPPORT_PLAINTEXT_PWD;
 
+    private IRuntimeManager runtimeManager;
     private IStoredSettings settings;
     private File htpasswdFile;
 
@@ -117,16 +118,16 @@ public class HtpasswdUserService extends GitblitUserService
      * In addition the setup tries to read and parse the htpasswd file to be used
      * for authentication.
      *
-     * @param settings
-     * @since 0.7.0
+     * @param runtimeManager
+     * @since 1.4.0
      */
     @Override
-    public void setup(IStoredSettings settings)
+    public void setup(IRuntimeManager runtimeManager)
     {
-        this.settings = settings;
+    	this.runtimeManager = runtimeManager;
+        this.settings = runtimeManager.getSettings();
 
         // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
-        IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
         String file = settings.getString(KEY_BACKING_US, DEFAULT_BACKING_US);
         File realmFile = runtimeManager.getFileOrFolder(file);
         serviceImpl = createUserService(realmFile);
@@ -293,7 +294,6 @@ public class HtpasswdUserService extends GitblitUserService
         if ( !file.equals(htpasswdFilePath) ) {
             // The htpasswd file setting changed. Rediscover the file.
             this.htpasswdFilePath = file;
-            IRuntimeManager runtimeManager = GitBlit.getManager(IRuntimeManager.class);
             this.htpasswdFile = runtimeManager.getFileOrFolder(file);
             this.htUsers.clear();
             this.forceReload = true;
