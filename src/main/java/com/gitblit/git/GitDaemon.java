@@ -67,12 +67,9 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Gitblit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
-import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -111,13 +108,9 @@ public class GitDaemon {
 
 	private ReceivePackFactory<GitDaemonClient> receivePackFactory;
 
-	public GitDaemon(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			ISessionManager sessionManager,
-			IRepositoryManager repositoryManager) {
+	public GitDaemon(Gitblit gitblit) {
 
-		IStoredSettings settings = runtimeManager.getSettings();
+		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.daemonPort, 0);
 		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 
@@ -127,9 +120,9 @@ public class GitDaemon {
 			myAddress = new InetSocketAddress(bindInterface, port);
 		}
 
-		repositoryResolver = new RepositoryResolver<GitDaemonClient>(sessionManager, repositoryManager);
-		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>(sessionManager);
-		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>(runtimeManager, userManager, repositoryManager);
+		repositoryResolver = new RepositoryResolver<GitDaemonClient>(gitblit);
+		uploadPackFactory = new GitblitUploadPackFactory<GitDaemonClient>(gitblit);
+		receivePackFactory = new GitblitReceivePackFactory<GitDaemonClient>(gitblit);
 
 		run = new AtomicBoolean(false);
 		processors = new ThreadGroup("Git-Daemon");

@@ -27,8 +27,7 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.Gitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -42,17 +41,11 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryResolver.class);
 
-	private final ISessionManager sessionManager;
+	private final Gitblit gitblit;
 
-	private final IRepositoryManager repositoryManager;
-
-	public RepositoryResolver(
-			ISessionManager sessionManager,
-			IRepositoryManager repositoryManager) {
-
-		super(repositoryManager.getRepositoriesFolder(), true);
-		this.sessionManager = sessionManager;
-		this.repositoryManager = repositoryManager;
+	public RepositoryResolver(Gitblit gitblit) {
+		super(gitblit.getRepositoriesFolder(), true);
+		this.gitblit = gitblit;
 	}
 
 	/**
@@ -83,7 +76,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 	 */
 	@Override
 	protected boolean isExportOk(X req, String repositoryName, Repository db) throws IOException {
-		RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
+		RepositoryModel model = gitblit.getRepositoryModel(repositoryName);
 
 		String scheme = null;
 		UserModel user = null;
@@ -101,7 +94,7 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 			HttpServletRequest httpRequest = (HttpServletRequest) req;
 			scheme = httpRequest.getScheme();
 			origin = httpRequest.getRemoteAddr();
-			user = sessionManager.authenticate(httpRequest);
+			user = gitblit.authenticate(httpRequest);
 			if (user == null) {
 				user = UserModel.ANONYMOUS;
 			}

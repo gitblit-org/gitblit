@@ -21,10 +21,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
-import com.gitblit.manager.IUserManager;
+import com.gitblit.Gitblit;
 
 /**
  * The GitServlet provides http/https access to Git repositories.
@@ -38,32 +35,19 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final IRuntimeManager runtimeManager;
-
-	private final IUserManager userManager;
-
-	private final ISessionManager sessionManager;
-
-	private final IRepositoryManager repositoryManager;
+	private final Gitblit gitblit;
 
 	@Inject
-	public GitServlet(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			ISessionManager sessionManager,
-			IRepositoryManager repositoryManager) {
+	public GitServlet(Gitblit gitblit) {
 		super();
-		this.runtimeManager = runtimeManager;
-		this.userManager = userManager;
-		this.sessionManager = sessionManager;
-		this.repositoryManager = repositoryManager;
+		this.gitblit = gitblit;
 	}
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
-		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(sessionManager, repositoryManager));
-		setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>(sessionManager));
-		setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>(runtimeManager, userManager, repositoryManager));
+		setRepositoryResolver(new RepositoryResolver<HttpServletRequest>(gitblit));
+		setUploadPackFactory(new GitblitUploadPackFactory<HttpServletRequest>(gitblit));
+		setReceivePackFactory(new GitblitReceivePackFactory<HttpServletRequest>(gitblit));
 		super.init(config);
 	}
 }

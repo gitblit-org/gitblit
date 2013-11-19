@@ -44,12 +44,10 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
+import com.gitblit.Gitblit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.client.Translation;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -93,24 +91,23 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	private final IStoredSettings settings;
 
-	private final IRepositoryManager repositoryManager;
+	private final Gitblit gitblit;
 
 	public GitblitReceivePack(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager,
+			Gitblit gitblit,
 			Repository db,
 			RepositoryModel repository,
 			UserModel user) {
 
 		super(db);
-		this.settings = runtimeManager.getSettings();
-		this.repositoryManager = repositoryManager;
+		this.settings = gitblit.getSettings();
+		this.gitblit = gitblit;
 		this.repository = repository;
 		this.user = user == null ? UserModel.ANONYMOUS : user;
-		this.groovyDir = repositoryManager.getHooksFolder();
+		this.groovyDir = gitblit.getHooksFolder();
 		try {
 			// set Grape root
-			File grapeRoot = repositoryManager.getGrapesFolder();
+			File grapeRoot = gitblit.getGrapesFolder();
 			grapeRoot.mkdirs();
 			System.setProperty("grape.root", grapeRoot.getAbsolutePath());
 			this.gse = new GroovyScriptEngine(groovyDir.getAbsolutePath());
@@ -249,7 +246,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		}
 
 		Set<String> scripts = new LinkedHashSet<String>();
-		scripts.addAll(repositoryManager.getPreReceiveScriptsInherited(repository));
+		scripts.addAll(gitblit.getPreReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.preReceiveScripts)) {
 			scripts.addAll(repository.preReceiveScripts);
 		}
@@ -344,7 +341,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 		// run Groovy hook scripts
 		Set<String> scripts = new LinkedHashSet<String>();
-		scripts.addAll(repositoryManager.getPostReceiveScriptsInherited(repository));
+		scripts.addAll(gitblit.getPostReceiveScriptsInherited(repository));
 		if (!ArrayUtils.isEmpty(repository.postReceiveScripts)) {
 			scripts.addAll(repository.postReceiveScripts);
 		}
@@ -459,7 +456,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		}
 
 		Binding binding = new Binding();
-		binding.setVariable("gitblit", GitBlit.self());
+		binding.setVariable("gitblit", gitblit);
 		binding.setVariable("repository", repository);
 		binding.setVariable("receivePack", this);
 		binding.setVariable("user", user);

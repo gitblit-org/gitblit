@@ -3641,7 +3641,9 @@ public class GitBlit extends DaggerContextListener
 		String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
 		if (port > 0) {
 			try {
-				gitDaemon = new GitDaemon(this, this, this, this);
+				// HACK temporary pending manager separation and injection
+				Gitblit gitblit = new Gitblit(this, this, this, this, this, this, this, this);
+				gitDaemon = new GitDaemon(gitblit);
 				gitDaemon.start();
 			} catch (IOException e) {
 				gitDaemon = null;

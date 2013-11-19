@@ -26,11 +26,9 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Gitblit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
@@ -49,23 +47,12 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 	private final IStoredSettings settings;
 
-	private final IRuntimeManager runtimeManager;
+	private final Gitblit gitblit;
 
-	private final IUserManager userManager;
-
-	private final IRepositoryManager repositoryManager;
-
-	public GitblitReceivePackFactory(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IRepositoryManager repositoryManager) {
-
+	public GitblitReceivePackFactory(Gitblit gitblit) {
 		super();
-		this.settings = runtimeManager.getSettings();
-		this.runtimeManager = runtimeManager;
-		this.userManager = userManager;
-		this.repositoryManager = repositoryManager;
-
+		this.settings = gitblit.getSettings();
+		this.gitblit = gitblit;
 	}
 
 	@Override
@@ -90,7 +77,7 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			// determine pushing user
 			String username = request.getRemoteUser();
 			if (!StringUtils.isEmpty(username)) {
-				UserModel u = userManager.getUserModel(username);
+				UserModel u = gitblit.getUserModel(username);
 				if (u != null) {
 					user = u;
 				}
@@ -111,9 +98,9 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			throw new ServiceNotEnabledException();
 		}
 
-		final RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
+		final RepositoryModel repository = gitblit.getRepositoryModel(repositoryName);
 
-		final GitblitReceivePack rp = new GitblitReceivePack(runtimeManager, repositoryManager, db, repository, user);
+		final GitblitReceivePack rp = new GitblitReceivePack(gitblit, db, repository, user);
 		rp.setGitblitUrl(gitblitUrl);
 		rp.setRepositoryUrl(repositoryUrl);
 		rp.setRefLogIdent(new PersonIdent(user.username, user.username + "@" + origin));
