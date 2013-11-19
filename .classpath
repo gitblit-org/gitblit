@@ -73,6 +73,6 @@
 	<classpathentry kind="lib" path="ext/httpcore-4.2.1.jar" sourcepath="ext/src/httpcore-4.2.1.jar" />
 	<classpathentry kind="lib" path="ext/commons-logging-1.1.1.jar" sourcepath="ext/src/commons-logging-1.1.1.jar" />
 	<classpathentry kind="lib" path="ext/commons-exec-1.1.jar" sourcepath="ext/src/commons-exec-1.1.jar" />
-	<classpathentry kind="output" path="bin/classes" />
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
+	<classpathentry kind="output" path="bin/classes" />
 </classpath>
