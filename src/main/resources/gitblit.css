@@ -1318,6 +1318,7 @@ table.gitnotes td.message {
 }
 
 table.annotated {
+	width: 100%;
 	border:1px solid #ddd;
 }
 
@@ -1332,6 +1333,24 @@ table.annotated tr.odd {
 table.annotated td {
 	padding: 0px;
 	border: 0;
+}
+
+table.annotated td.lineCommit {
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+table.annotated td.lineNumber {
+	border-right: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+	padding-left: 5px;
+	padding-right: 5px;
+	text-align: right;
+}
+
+table.annotated td.lineContent {
+	padding-left: 5px;
+	font: monospace;
 }
 
 table.activity {
@@ -1379,7 +1398,7 @@ td.date {
 	white-space: nowrap;
 }
 
-span.sha1, span.sha1 a, span.sha1 a span, .commit_message, span.shortsha1 {
+span.sha1, span.sha1 a, span.sha1 a span, .commit_message, span.shortsha1, td.sha1 {
 	font-family: consolas, monospace;
 	font-size: 13px;
 }

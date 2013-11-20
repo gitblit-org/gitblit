@@ -39,6 +39,7 @@ r20: {
 	- Revised committer verification to require a matching displayname or account name AND the email address
 	- Serve repositories on both /r and /git, displaying /r because it is shorter
     additions:
+	- Added color modes for the blame page (issue-2)
 	- Added an optional MirrorExecutor which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)
 	- Added option to render Markdown commit messages (issue-203)
@@ -82,6 +83,7 @@ r20: {
 	- Guenter Dressel
 	- fpeters.fae
 	- David Ostrovsky
+	- Alex Lewis
 }
 
 #

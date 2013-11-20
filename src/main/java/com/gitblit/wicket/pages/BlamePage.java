@@ -15,12 +15,21 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.awt.Color;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
@@ -33,6 +42,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Keys;
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.models.PathModel;
+import com.gitblit.utils.ColorFactory;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -46,10 +56,42 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 @CacheControl(LastModified.BOOT)
 public class BlamePage extends RepositoryPage {
 
+	/**
+	 * The different types of Blame visualizations.
+	 */
+	private enum BlameType {
+		COMMIT,
+
+		AUTHOR,
+
+		AGE;
+
+		private BlameType() {
+		}
+
+		public static BlameType get(String name) {
+			for (BlameType blameType : BlameType.values()) {
+				if (blameType.name().equalsIgnoreCase(name)) {
+					return blameType;
+				}
+			}
+			throw new IllegalArgumentException("Unknown Blame Type [" + name
+					+ "]");
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+	}
+
 	public BlamePage(PageParameters params) {
 		super(params);
 
 		final String blobPath = WicketUtils.getPath(params);
+
+		final String blameTypeParam = params.getString("blametype", BlameType.COMMIT.toString());
+		final BlameType activeBlameType = BlameType.get(blameTypeParam);
 
 		RevCommit commit = getCommit();
 
@@ -65,6 +107,26 @@ public class BlamePage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+
+		// "Blame by" links
+		for (BlameType type : BlameType.values()) {
+			String typeString = type.toString();
+			PageParameters blameTypePageParam =
+					WicketUtils.newBlameTypeParameter(repositoryName, commit.getName(),
+							WicketUtils.getPath(params), typeString);
+
+			String blameByLinkText = "blameBy"
+					+ Character.toUpperCase(typeString.charAt(0)) + typeString.substring(1)
+					+ "Link";
+			BookmarkablePageLink<Void> blameByPageLink =
+					new BookmarkablePageLink<Void>(blameByLinkText, BlamePage.class, blameTypePageParam);
+
+			if (activeBlameType == type) {
+				blameByPageLink.add(new SimpleAttributeModifier("style", "font-weight:bold;"));
+			}
+
+			add(blameByPageLink);
+		}
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -93,23 +155,21 @@ public class BlamePage extends RepositoryPage {
 		add(new Label("missingBlob").setVisible(false));
 
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
+		final Map<?, String> colorMap = initializeColors(activeBlameType, lines);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
-		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
+		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("blameView", blameDp) {
 			private static final long serialVersionUID = 1L;
-			private int count;
 			private String lastCommitId = "";
 			private boolean showInitials = true;
 			private String zeroId = ObjectId.zeroId().getName();
 
 			@Override
 			public void populateItem(final Item<AnnotatedLine> item) {
-				AnnotatedLine entry = item.getModelObject();
-				item.add(new Label("line", "" + entry.lineNumber));
-				item.add(new Label("data", StringUtils.escapeForHtml(entry.data, true))
-						.setEscapeModelStrings(false));
+				final AnnotatedLine entry = item.getModelObject();
+
+				// commit id and author
 				if (!lastCommitId.equals(entry.commitId)) {
 					lastCommitId = entry.commitId;
-					count++;
 					if (zeroId.equals(entry.commitId)) {
 						// unknown commit
 						item.add(new Label("commit", "<?>"));
@@ -122,6 +182,7 @@ public class BlamePage extends RepositoryPage {
 						WicketUtils.setHtmlTooltip(commitLink,
 								MessageFormat.format("{0}, {1}", entry.author, df.format(entry.when)));
 						item.add(commitLink);
+						WicketUtils.setCssStyle(item, "border-top: 1px solid #ddd;");
 						showInitials = true;
 					}
 				} else {
@@ -134,11 +195,26 @@ public class BlamePage extends RepositoryPage {
 						item.add(new Label("commit").setVisible(false));
 					}
 				}
-				if (count % 2 == 0) {
-					WicketUtils.setCssClass(item, "even");
-				} else {
-					WicketUtils.setCssClass(item, "odd");
+
+				// line number
+				item.add(new Label("line", "" + entry.lineNumber));
+
+				// line content
+				String color;
+				switch (activeBlameType) {
+				case AGE:
+					color = colorMap.get(entry.when);
+					break;
+				case AUTHOR:
+					color = colorMap.get(entry.author);
+					break;
+				default:
+					color = colorMap.get(entry.commitId);
+					break;
 				}
+				Component data = new Label("data", StringUtils.escapeForHtml(entry.data, true)).setEscapeModelStrings(false);
+				data.add(new SimpleAttributeModifier("style", "background-color: " + color + ";"));
+				item.add(data);
 			}
 		};
 		add(blameView);
@@ -170,5 +246,41 @@ public class BlamePage extends RepositoryPage {
 		sb.append(MessageFormat.format(pattern, blobPath, commit.getTree().getId().getName()));
 		sb.append("</div>");
 		return sb.toString();
+	}
+
+	private Map<?, String> initializeColors(BlameType blameType, List<AnnotatedLine> lines) {
+		ColorFactory colorFactory = new ColorFactory();
+		Map<?, String> colorMap;
+
+		if (BlameType.AGE == blameType) {
+			Set<Date> keys = new TreeSet<Date>(new Comparator<Date>() {
+				@Override
+				public int compare(Date o1, Date o2) {
+					// younger code has a brighter, older code lightens to white
+					return o1.compareTo(o2);
+				}
+			});
+
+			for (AnnotatedLine line : lines) {
+				keys.add(line.when);
+			}
+
+			// TODO consider making this a setting
+			colorMap = colorFactory.getGraduatedColorMap(keys, Color.decode("#FFA63A"));
+		} else {
+			Set<String> keys = new HashSet<String>();
+
+			for (AnnotatedLine line : lines) {
+				if (blameType == BlameType.AUTHOR) {
+					keys.add(line.author);
+				} else {
+					keys.add(line.commitId);
+				}
+			}
+
+			colorMap = colorFactory.getRandomColorMap(keys);
+		}
+
+		return colorMap;
 	}
 }

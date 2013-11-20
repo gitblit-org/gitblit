@@ -21,17 +21,19 @@
 	<div wicket:id="missingBlob">[missing blob]</div>
 		
 	<!--  blame content -->
-	<table class="annotated" style="margin-bottom:5px;">
+	<table class="annotated" style="margin-bottom:0px;">
 		<tbody>
 			<tr>
-				<th><wicket:message key="gb.commit">[commit]</wicket:message></th>
-				<th><wicket:message key="gb.line">[line]</wicket:message></th>
-				<th><wicket:message key="gb.content">[content]</wicket:message></th>
+				<td colspan="3" class="rightAlign" style="background-color:#fbfbfb;">
+					<span class="link" style="padding-right:10px;">
+						<a wicket:id="blameByCommitLink"><wicket:message key="gb.commit">[blamebycommit]</wicket:message></a> | <a wicket:id="blameByAuthorLink"><wicket:message key="gb.author">[blamebyauthor]</wicket:message></a> | <a wicket:id="blameByAgeLink"><wicket:message key="gb.age">[blamebyage]</wicket:message></a>
+					</span>
+				</td>
 			</tr>
-			<tr wicket:id="annotation">
-				<td><span class="sha1" wicket:id="commit"></span></td>
-				<td><span class="sha1" wicket:id="line"></span></td>
-				<td><span class="sha1" wicket:id="data"></span></td>
+			<tr wicket:id="blameView">
+				<td class="lineCommit"><span class="sha1" wicket:id="commit"></span></td>
+				<td class="lineNumber"><span class="sha1" wicket:id="line"></span></td>
+				<td class="lineContent sha1" wicket:id="data"></td>
 			</tr>
 		</tbody>
 	</table>
