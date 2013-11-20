@@ -434,6 +434,16 @@ public class WicketUtils {
 		parameterMap.put("pg", String.valueOf(pageNumber));
 		return new PageParameters(parameterMap);
 	}
+	
+	public static PageParameters newBlameTypeParameter(String repositoryName,
+			String commitId, String path, String blameType) {
+		Map<String, String> parameterMap = new HashMap<String, String>();
+		parameterMap.put("r", repositoryName);
+		parameterMap.put("h", commitId);
+		parameterMap.put("f", path);
+		parameterMap.put("blametype", blameType);
+		return new PageParameters(parameterMap);
+	}
 
 	public static String getProjectName(PageParameters params) {
 		return params.getString("p", "");
