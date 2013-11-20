@@ -22,6 +22,7 @@ import java.util.TimeZone;
 
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
+import com.gitblit.manager.IManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
@@ -48,7 +49,7 @@ public class MockRuntimeManager implements IRuntimeManager {
 	public MockRuntimeManager(IStoredSettings settings) {
 		this.settings = settings;
 
-		this.serverStatus = new ServerStatus(true);
+		this.serverStatus = new ServerStatus();
 		this.serverStatus.servletContainer = "MockServer";
 
 		this.serverSettings = new ServerSettings();
@@ -130,4 +131,13 @@ public class MockRuntimeManager implements IRuntimeManager {
 		return settings.saveSettings(updatedSettings);
 	}
 
+	@Override
+	public IManager stop() {
+		return this;
+	}
+
+	@Override
+	public IRuntimeManager setup() {
+		return this;
+	}
 }

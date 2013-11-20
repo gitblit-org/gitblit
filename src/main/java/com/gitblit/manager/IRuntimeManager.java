@@ -24,7 +24,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 
-public interface IRuntimeManager {
+public interface IRuntimeManager extends IManager {
 
 	void setBaseFolder(File folder);
 

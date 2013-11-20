@@ -28,6 +28,7 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.manager.RuntimeManager;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitblitWicketFilter;
 
@@ -42,6 +43,8 @@ import dagger.Provides;
  */
 @Module(
 	injects = {
+			IStoredSettings.class,
+
 			// core managers
 			IRuntimeManager.class,
 			INotificationManager.class,
@@ -84,8 +87,12 @@ public class DaggerModule {
 		this.gitblit = gitblit;
 	}
 
-	@Provides @Singleton IRuntimeManager provideRuntimeManager() {
-		return gitblit;
+	@Provides @Singleton IStoredSettings provideSettings() {
+		return new FileSettings();
+	}
+
+	@Provides @Singleton IRuntimeManager provideRuntimeManager(IStoredSettings settings) {
+		return new RuntimeManager(settings);
 	}
 
 	@Provides @Singleton INotificationManager provideNotificationManager() {

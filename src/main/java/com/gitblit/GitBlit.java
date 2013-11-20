@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -102,6 +101,7 @@ import com.gitblit.git.GitDaemon;
 import com.gitblit.git.GitServlet;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -121,7 +121,6 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.ServerSettings;
-import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -151,6 +150,8 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
+import dagger.ObjectGraph;
+
 /**
  * GitBlit is the servlet context listener singleton that acts as the core for
  * the web ui and the servlets. This class is either directly instantiated by
@@ -165,8 +166,7 @@ import com.google.gson.reflect.TypeToken;
  */
 @WebListener
 public class GitBlit extends DaggerContextListener
-					 implements IRuntimeManager,
-								INotificationManager,
+					 implements INotificationManager,
 								IUserManager,
 								ISessionManager,
 								IRepositoryManager,
@@ -177,6 +177,10 @@ public class GitBlit extends DaggerContextListener
 	private static GitBlit gitblit;
 
 	private final IStoredSettings goSettings;
+
+	private final File goBaseFolder;
+
+	private final List<IManager> managers = new ArrayList<IManager>();
 
 	private final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(10);
 
@@ -201,17 +205,11 @@ public class GitBlit extends DaggerContextListener
 
 	private final ObjectCache<String> projectRepositoriesMarkdownCache = new ObjectCache<String>();
 
-	private File baseFolder;
-
 	private File repositoriesFolder;
 
 	private IUserService userService;
 
 	private IStoredSettings settings;
-
-	private ServerSettings settingsModel;
-
-	private ServerStatus serverStatus;
 
 	private MailExecutor mailExecutor;
 
@@ -221,8 +219,6 @@ public class GitBlit extends DaggerContextListener
 
 	private MirrorExecutor mirrorExecutor;
 
-	private TimeZone timezone;
-
 	private FileBasedConfig projectConfigs;
 
 	private FanoutService fanoutService;
@@ -231,17 +227,19 @@ public class GitBlit extends DaggerContextListener
 
 	public GitBlit() {
 		this.goSettings = null;
+		this.goBaseFolder = null;
 	}
 
 	protected GitBlit(final IUserService userService) {
 		this.goSettings = null;
+		this.goBaseFolder = null;
 		this.userService = userService;
 		gitblit = this;
 	}
 
 	public GitBlit(IStoredSettings settings, File baseFolder) {
 		this.goSettings = settings;
-		this.baseFolder = baseFolder;
+		this.goBaseFolder = baseFolder;
 		gitblit = this;
 	}
 
@@ -259,27 +257,13 @@ public class GitBlit extends DaggerContextListener
 		if (managerClass.isAssignableFrom(GitBlit.class)) {
 			return (X) gitblit;
 		}
+
+		for (IManager manager : gitblit.managers) {
+			if (managerClass.isAssignableFrom(manager.getClass())) {
+				return (X) manager;
+			}
+		}
 		return null;
-	}
-
-	@Override
-	public File getBaseFolder() {
-		return baseFolder;
-	}
-
-	@Override
-	public void setBaseFolder(File folder) {
-		this.baseFolder = folder;
-	}
-
-	/**
-	 * Returns the boot date of the Gitblit server.
-	 *
-	 * @return the boot date of Gitblit
-	 */
-	@Override
-	public Date getBootDate() {
-		return serverStatus.bootDate;
 	}
 
 	/**
@@ -302,71 +286,6 @@ public class GitBlit extends DaggerContextListener
 	}
 
 	/**
-	 * Determine if this Gitblit instance is actively serving git repositories
-	 * or if it is merely a repository viewer.
-	 *
-	 * @return true if Gitblit is serving repositories
-	 */
-	@Override
-	public boolean isServingRepositories() {
-		return settings.getBoolean(Keys.git.enableGitServlet, true) || (settings.getInteger(Keys.git.daemonPort, 0) > 0);
-	}
-
-	/**
-	 * Returns the preferred timezone for the Gitblit instance.
-	 *
-	 * @return a timezone
-	 */
-	@Override
-	public TimeZone getTimezone() {
-		if (timezone == null) {
-			String tzid = settings.getString("web.timezone", null);
-			if (StringUtils.isEmpty(tzid)) {
-				timezone = TimeZone.getDefault();
-				return timezone;
-			}
-			timezone = TimeZone.getTimeZone(tzid);
-		}
-		return timezone;
-	}
-
-	/**
-	 * Is Gitblit running in debug mode?
-	 *
-	 * @return true if Gitblit is running in debug mode
-	 */
-	@Override
-	public boolean isDebugMode() {
-		return settings.getBoolean(Keys.web.debugMode, false);
-	}
-
-	/**
-	 * Returns the file object for the specified configuration key.
-	 *
-	 * @return the file
-	 */
-	@Override
-	public File getFileOrFolder(String key, String defaultFileOrFolder) {
-		String fileOrFolder = settings.getString(key, defaultFileOrFolder);
-		return getFileOrFolder(fileOrFolder);
-	}
-
-	/**
-	 * Returns the file object which may have it's base-path determined by
-	 * environment variables for running on a cloud hosting service. All Gitblit
-	 * file or folder retrievals are (at least initially) funneled through this
-	 * method so it is the correct point to globally override/alter filesystem
-	 * access based on environment or some other indicator.
-	 *
-	 * @return the file
-	 */
-	@Override
-	public File getFileOrFolder(String fileOrFolder) {
-		return com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$,
-				baseFolder, fileOrFolder);
-	}
-
-	/**
 	 * Returns the path of the repositories folder. This method checks to see if
 	 * Gitblit is running on a cloud service and may return an adjusted path.
 	 *
@@ -374,7 +293,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public File getRepositoriesFolder() {
-		return getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
+		return getManager(IRuntimeManager.class).getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
 	}
 
 	/**
@@ -385,7 +304,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public File getProposalsFolder() {
-		return getFileOrFolder(Keys.federation.proposalsFolder, "${baseFolder}/proposals");
+		return getManager(IRuntimeManager.class).getFileOrFolder(Keys.federation.proposalsFolder, "${baseFolder}/proposals");
 	}
 
 	/**
@@ -396,7 +315,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public File getHooksFolder() {
-		return getFileOrFolder(Keys.groovy.scriptsFolder, "${baseFolder}/groovy");
+		return getManager(IRuntimeManager.class).getFileOrFolder(Keys.groovy.scriptsFolder, "${baseFolder}/groovy");
 	}
 
 	/**
@@ -407,36 +326,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public File getGrapesFolder() {
-		return getFileOrFolder(Keys.groovy.grapeFolder, "${baseFolder}/groovy/grape");
-	}
-
-	/**
-	 * Returns the runtime settings.
-	 *
-	 * @return runtime settings
-	 */
-	@Override
-	public IStoredSettings getSettings() {
-		return settings;
-	}
-
-	/**
-	 * Updates the runtime settings.
-	 *
-	 * @param settings
-	 * @return true if the update succeeded
-	 */
-	@Override
-	public boolean updateSettings(Map<String, String> updatedSettings) {
-		return settings.saveSettings(updatedSettings);
-	}
-
-	@Override
-	public ServerStatus getStatus() {
-		// update heap memory status
-		serverStatus.heapAllocated = Runtime.getRuntime().totalMemory();
-		serverStatus.heapFree = Runtime.getRuntime().freeMemory();
-		return serverStatus;
+		return getManager(IRuntimeManager.class).getFileOrFolder(Keys.groovy.grapeFolder, "${baseFolder}/groovy/grape");
 	}
 
 	/**
@@ -548,7 +438,7 @@ public class GitBlit extends DaggerContextListener
 	@Override
 	public Collection<GitClientApplication> getClientApplications() {
 		// prefer user definitions, if they exist
-		File userDefs = new File(baseFolder, "clientapps.json");
+		File userDefs = new File(getManager(IRuntimeManager.class).getBaseFolder(), "clientapps.json");
 		if (userDefs.exists()) {
 			Date lastModified = new Date(userDefs.lastModified());
 			if (clientApplications.hasCurrent("user", lastModified)) {
@@ -1912,7 +1802,7 @@ public class GitBlit extends DaggerContextListener
 		}
 		RepositoryModel model = new RepositoryModel();
 		model.isBare = r.isBare();
-		File basePath = getFileOrFolder(Keys.git.repositoriesFolder, "${baseFolder}/git");
+		File basePath = getRepositoriesFolder();
 		if (model.isBare) {
 			model.name = com.gitblit.utils.FileUtils.getRelativePath(basePath, r.getDirectory());
 		} else {
@@ -2283,7 +2173,7 @@ public class GitBlit extends DaggerContextListener
 		if (repositoryMetricsCache.hasCurrent(model.name, model.lastChange)) {
 			return new ArrayList<Metric>(repositoryMetricsCache.getObject(model.name));
 		}
-		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null, getTimezone());
+		List<Metric> metrics = MetricUtils.getDateMetrics(repository, null, true, null, getManager(IRuntimeManager.class).getTimezone());
 		repositoryMetricsCache.updateObject(model.name, model.lastChange, metrics);
 		return new ArrayList<Metric>(metrics);
 	}
@@ -3370,36 +3260,13 @@ public class GitBlit extends DaggerContextListener
 	}
 
 	/**
-	 * Returns the descriptions/comments of the Gitblit config settings.
-	 *
-	 * @return SettingsModel
-	 */
-	@Override
-	public ServerSettings getSettingsModel() {
-		// ensure that the current values are updated in the setting models
-		for (String key : settings.getAllKeys(null)) {
-			SettingModel setting = settingsModel.get(key);
-			if (setting == null) {
-				// unreferenced setting, create a setting model
-				setting = new SettingModel();
-				setting.name = key;
-				settingsModel.add(setting);
-			}
-			setting.currentValue = settings.getString(key, "");
-		}
-		settingsModel.pushScripts = getAllScripts();
-		return settingsModel;
-	}
-
-	/**
 	 * Parse the properties file and aggregate all the comments by the setting
 	 * key. A setting model tracks the current value, the default value, the
 	 * description of the setting and and directives about the setting.
 	 *
 	 * @return Map<String, SettingModel>
 	 */
-	private ServerSettings loadSettingModels() {
-		ServerSettings settingsModel = new ServerSettings();
+	private ServerSettings loadSettingModels(ServerSettings settingsModel) {
 		settingsModel.supportsCredentialChanges = userService.supportsCredentialChanges();
 		settingsModel.supportsDisplayNameChanges = userService.supportsDisplayNameChanges();
 		settingsModel.supportsEmailAddressChanges = userService.supportsEmailAddressChanges();
@@ -3458,77 +3325,6 @@ public class GitBlit extends DaggerContextListener
 			logger.error("Failed to load resource copy of gitblit.properties");
 		}
 		return settingsModel;
-	}
-
-	/**
-	 * Configure the Gitblit singleton with the specified settings source. This
-	 * source may be file settings (Gitblit GO) or may be web.xml settings
-	 * (Gitblit WAR).
-	 *
-	 * @param settings
-	 */
-	public void configureContext(IStoredSettings settings, File folder, boolean startFederation) {
-		this.settings = settings;
-		this.baseFolder = folder;
-
-		repositoriesFolder = getRepositoriesFolder();
-
-		logger.info("Gitblit base folder     = " + folder.getAbsolutePath());
-		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
-		logger.info("Gitblit settings        = " + settings.toString());
-
-		// prepare service executors
-		mailExecutor = new MailExecutor(settings);
-		luceneExecutor = new LuceneExecutor(settings, getManager(IRepositoryManager.class));
-		gcExecutor = new GCExecutor(settings, getManager(IRepositoryManager.class));
-		mirrorExecutor = new MirrorExecutor(settings, getManager(IRepositoryManager.class));
-
-		// initialize utilities
-		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
-		ModelUtils.setUserRepoPrefix(prefix);
-
-		// calculate repository list settings checksum for future config changes
-		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());
-
-		// build initial repository list
-		if (settings.getBoolean(Keys.git.cacheRepositoryList,  true)) {
-			logger.info("Identifying available repositories...");
-			getRepositoryList();
-		}
-
-		logTimezone("JVM", TimeZone.getDefault());
-		logTimezone(Constants.NAME, getTimezone());
-
-		serverStatus = new ServerStatus(goSettings != null);
-
-		if (this.userService == null) {
-			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
-			IUserService loginService = null;
-			try {
-				// check to see if this "file" is a login service class
-				Class<?> realmClass = Class.forName(realm);
-				loginService = (IUserService) realmClass.newInstance();
-			} catch (Throwable t) {
-				loginService = new GitblitUserService();
-			}
-			setUserService(loginService);
-		}
-
-		// load and cache the project metadata
-		projectConfigs = new FileBasedConfig(getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
-		getProjectConfigs();
-
-		configureMailExecutor();
-		configureLuceneIndexing();
-		configureGarbageCollector();
-		configureMirrorExecutor();
-		if (startFederation) {
-			configureFederation();
-		}
-		configureJGit();
-		configureFanout();
-		configureGitDaemon();
-		configureCommitCache();
 	}
 
 	protected void configureMailExecutor() {
@@ -3642,7 +3438,15 @@ public class GitBlit extends DaggerContextListener
 		if (port > 0) {
 			try {
 				// HACK temporary pending manager separation and injection
-				Gitblit gitblit = new Gitblit(this, this, this, this, this, this, this, this);
+				Gitblit gitblit = new Gitblit(
+						getManager(IRuntimeManager.class),
+						this,
+						this,
+						this,
+						this,
+						this,
+						this,
+						this);
 				gitDaemon = new GitDaemon(gitblit);
 				gitDaemon.start();
 			} catch (IOException e) {
@@ -3700,13 +3504,6 @@ public class GitBlit extends DaggerContextListener
 		return luceneExecutor;
 	}
 
-	private void logTimezone(String type, TimeZone zone) {
-		SimpleDateFormat df = new SimpleDateFormat("z Z");
-		df.setTimeZone(zone);
-		String offset = df.format(new Date());
-		logger.info(type + " timezone is " + zone.getID() + " (" + offset + ")");
-	}
-
 	/**
 	 * Configure Gitblit from the web.xml, if no configuration has already been
 	 * specified.
@@ -3715,93 +3512,237 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	protected void beforeServletInjection(ServletContext context) {
-		if (settings == null) {
-			// Gitblit is running in a servlet container
+		ObjectGraph injector = getInjector(context);
+
+		// create the runtime settings object
+		IStoredSettings runtimeSettings = injector.get(IStoredSettings.class);
+		this.settings = runtimeSettings; // XXX remove me eventually
+		final File baseFolder;
+
+		if (goSettings != null) {
+			// Gitblit GO
+			logger.debug("configuring Gitblit GO");
+			baseFolder = configureGO(context, goSettings, goBaseFolder, runtimeSettings);
+		} else {
+			// servlet container
 			WebXmlSettings webxmlSettings = new WebXmlSettings(context);
 			String contextRealPath = context.getRealPath("/");
 			File contextFolder = (contextRealPath != null) ? new File(contextRealPath) : null;
-			String openShift = System.getenv("OPENSHIFT_DATA_DIR");
 
-			if (!StringUtils.isEmpty(openShift)) {
-				// Gitblit is running in OpenShift/JBoss
-				File base = new File(openShift);
-				logger.info("EXPRESS contextFolder is " + contextFolder.getAbsolutePath());
-
-				// gitblit.properties setting overrides
-				File overrideFile = new File(base, "gitblit.properties");
-				webxmlSettings.applyOverrides(overrideFile);
-
-				// Copy the included scripts to the configured groovy folder
-				String path = webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy");
-				File localScripts = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, path);
-				if (!localScripts.exists()) {
-					File warScripts = new File(contextFolder, "/WEB-INF/data/groovy");
-					if (!warScripts.equals(localScripts)) {
-						try {
-							com.gitblit.utils.FileUtils.copy(localScripts, warScripts.listFiles());
-						} catch (IOException e) {
-							logger.error(MessageFormat.format(
-									"Failed to copy included Groovy scripts from {0} to {1}",
-									warScripts, localScripts));
-						}
-					}
-				}
-
-				// disable Git daemon on Express - we can't bind 9418 and we
-				// can't port-forward to the daemon
-				webxmlSettings.overrideSetting(Keys.git.daemonPort, 0);
-
-				// configure context using the web.xml
-				configureContext(webxmlSettings, base, true);
+			if (!StringUtils.isEmpty(System.getenv("OPENSHIFT_DATA_DIR"))) {
+				// RedHat OpenShift
+				logger.debug("configuring Gitblit Express");
+				baseFolder = configureExpress(context, webxmlSettings, contextFolder, runtimeSettings);
 			} else {
-				// Gitblit is running in a standard servlet container
-				logger.info("WAR contextFolder is " + ((contextFolder != null) ? contextFolder.getAbsolutePath() : "<empty>"));
-
-				String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
-
-				if (path.contains(Constants.contextFolder$) && contextFolder == null) {
-					// warn about null contextFolder (issue-199)
-					logger.error("");
-					logger.error(MessageFormat.format("\"{0}\" depends on \"{1}\" but \"{2}\" is returning NULL for \"{1}\"!",
-							Constants.baseFolder, Constants.contextFolder$, context.getServerInfo()));
-					logger.error(MessageFormat.format("Please specify a non-parameterized path for <context-param> {0} in web.xml!!", Constants.baseFolder));
-					logger.error(MessageFormat.format("OR configure your servlet container to specify a \"{0}\" parameter in the context configuration!!", Constants.baseFolder));
-					logger.error("");
-				}
-
-				try {
-					// try to lookup JNDI env-entry for the baseFolder
-					InitialContext ic = new InitialContext();
-					Context env = (Context) ic.lookup("java:comp/env");
-					String val = (String) env.lookup("baseFolder");
-					if (!StringUtils.isEmpty(val)) {
-						path = val;
-					}
-				} catch (NamingException n) {
-					logger.error("Failed to get JNDI env-entry: " + n.getExplanation());
-				}
-
-				File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
-				base.mkdirs();
-
-				// try to extract the data folder resource to the baseFolder
-				File localSettings = new File(base, "gitblit.properties");
-				if (!localSettings.exists()) {
-					extractResources(context, "/WEB-INF/data/", base);
-				}
-
-				// delegate all config to baseFolder/gitblit.properties file
-				FileSettings settings = new FileSettings(localSettings.getAbsolutePath());
-				configureContext(settings, base, true);
+				// standard WAR
+				logger.debug("configuring Gitblit WAR");
+				baseFolder = configureWAR(context, webxmlSettings, contextFolder, runtimeSettings);
 			}
 
-			// WAR or Express is likely to be running on a Tomcat.
-			// Test for the forward-slash/%2F issue and auto-adjust settings.
-			ContainerUtils.CVE_2007_0450.test(settings);
+			// Test for Tomcat forward-slash/%2F issue and auto-adjust settings
+			ContainerUtils.CVE_2007_0450.test(runtimeSettings);
 		}
 
-		settingsModel = loadSettingModels();
-		serverStatus.servletContainer = context.getServerInfo();
+		// Runtime manager is a container for settings and other parameters
+		IRuntimeManager runtime = startManager(injector, IRuntimeManager.class);
+		runtime.setBaseFolder(baseFolder);
+		runtime.getStatus().isGO = goSettings != null;
+		runtime.getStatus().servletContainer = context.getServerInfo();
+
+		repositoriesFolder = getRepositoriesFolder();
+
+		logger.info("Gitblit base folder     = " + baseFolder.getAbsolutePath());
+		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
+
+		// prepare service executors
+		mailExecutor = new MailExecutor(runtimeSettings);
+		luceneExecutor = new LuceneExecutor(runtimeSettings, getManager(IRepositoryManager.class));
+		gcExecutor = new GCExecutor(runtimeSettings, getManager(IRepositoryManager.class));
+		mirrorExecutor = new MirrorExecutor(runtimeSettings, getManager(IRepositoryManager.class));
+
+		// initialize utilities
+		String prefix = runtimeSettings.getString(Keys.git.userRepositoryPrefix, "~");
+		ModelUtils.setUserRepoPrefix(prefix);
+
+		// calculate repository list settings checksum for future config changes
+		repositoryListSettingsChecksum.set(getRepositoryListSettingsChecksum());
+
+		// build initial repository list
+		if (runtimeSettings.getBoolean(Keys.git.cacheRepositoryList,  true)) {
+			logger.info("Identifying available repositories...");
+			getRepositoryList();
+		}
+
+		if (this.userService == null) {
+			String realm = runtimeSettings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
+			IUserService loginService = null;
+			try {
+				// check to see if this "file" is a login service class
+				Class<?> realmClass = Class.forName(realm);
+				loginService = (IUserService) realmClass.newInstance();
+			} catch (Throwable t) {
+				loginService = new GitblitUserService();
+			}
+			setUserService(loginService);
+		}
+
+		loadSettingModels(runtime.getSettingsModel());
+
+		// load and cache the project metadata
+		projectConfigs = new FileBasedConfig(runtime.getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
+		getProjectConfigs();
+
+		configureMailExecutor();
+		configureLuceneIndexing();
+		configureGarbageCollector();
+		configureMirrorExecutor();
+		if (true/*startFederation*/) {
+			configureFederation();
+		}
+		configureJGit();
+		configureFanout();
+		configureGitDaemon();
+		configureCommitCache();
+	}
+
+	/**
+	 * Configures Gitblit GO
+	 *
+	 * @param context
+	 * @param settings
+	 * @param baseFolder
+	 * @param runtimeSettings
+	 * @return the base folder
+	 */
+	protected File configureGO(
+			ServletContext context,
+			IStoredSettings goSettings,
+			File goBaseFolder,
+			IStoredSettings runtimeSettings) {
+
+		// merge the stored settings into the runtime settings
+		//
+		// if runtimeSettings is also a FileSettings w/o a specified target file,
+		// the target file for runtimeSettings is set to "localSettings".
+		runtimeSettings.merge(goSettings);
+		File base = goBaseFolder;
+		return base;
+	}
+
+
+	/**
+	 * Configures a standard WAR instance of Gitblit.
+	 *
+	 * @param context
+	 * @param webxmlSettings
+	 * @param contextFolder
+	 * @param runtimeSettings
+	 * @return the base folder
+	 */
+	protected File configureWAR(
+			ServletContext context,
+			WebXmlSettings webxmlSettings,
+			File contextFolder,
+			IStoredSettings runtimeSettings) {
+
+		// Gitblit is running in a standard servlet container
+		logger.info("WAR contextFolder is " + ((contextFolder != null) ? contextFolder.getAbsolutePath() : "<empty>"));
+
+		String path = webxmlSettings.getString(Constants.baseFolder, Constants.contextFolder$ + "/WEB-INF/data");
+
+		if (path.contains(Constants.contextFolder$) && contextFolder == null) {
+			// warn about null contextFolder (issue-199)
+			logger.error("");
+			logger.error(MessageFormat.format("\"{0}\" depends on \"{1}\" but \"{2}\" is returning NULL for \"{1}\"!",
+					Constants.baseFolder, Constants.contextFolder$, context.getServerInfo()));
+			logger.error(MessageFormat.format("Please specify a non-parameterized path for <context-param> {0} in web.xml!!", Constants.baseFolder));
+			logger.error(MessageFormat.format("OR configure your servlet container to specify a \"{0}\" parameter in the context configuration!!", Constants.baseFolder));
+			logger.error("");
+		}
+
+		try {
+			// try to lookup JNDI env-entry for the baseFolder
+			InitialContext ic = new InitialContext();
+			Context env = (Context) ic.lookup("java:comp/env");
+			String val = (String) env.lookup("baseFolder");
+			if (!StringUtils.isEmpty(val)) {
+				path = val;
+			}
+		} catch (NamingException n) {
+			logger.error("Failed to get JNDI env-entry: " + n.getExplanation());
+		}
+
+		File base = com.gitblit.utils.FileUtils.resolveParameter(Constants.contextFolder$, contextFolder, path);
+		base.mkdirs();
+
+		// try to extract the data folder resource to the baseFolder
+		File localSettings = new File(base, "gitblit.properties");
+		if (!localSettings.exists()) {
+			extractResources(context, "/WEB-INF/data/", base);
+		}
+
+		// delegate all config to baseFolder/gitblit.properties file
+		FileSettings fileSettings = new FileSettings(localSettings.getAbsolutePath());
+
+		// merge the stored settings into the runtime settings
+		//
+		// if runtimeSettings is also a FileSettings w/o a specified target file,
+		// the target file for runtimeSettings is set to "localSettings".
+		runtimeSettings.merge(fileSettings);
+
+		return base;
+	}
+
+	/**
+	 * Configures an OpenShift instance of Gitblit.
+	 *
+	 * @param context
+	 * @param webxmlSettings
+	 * @param contextFolder
+	 * @param runtimeSettings
+	 * @return the base folder
+	 */
+	private File configureExpress(
+			ServletContext context,
+			WebXmlSettings webxmlSettings,
+			File contextFolder,
+			IStoredSettings runtimeSettings) {
+
+		// Gitblit is running in OpenShift/JBoss
+		String openShift = System.getenv("OPENSHIFT_DATA_DIR");
+		File base = new File(openShift);
+		logger.info("EXPRESS contextFolder is " + contextFolder.getAbsolutePath());
+
+		// Copy the included scripts to the configured groovy folder
+		String path = webxmlSettings.getString(Keys.groovy.scriptsFolder, "groovy");
+		File localScripts = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, base, path);
+		if (!localScripts.exists()) {
+			File warScripts = new File(contextFolder, "/WEB-INF/data/groovy");
+			if (!warScripts.equals(localScripts)) {
+				try {
+					com.gitblit.utils.FileUtils.copy(localScripts, warScripts.listFiles());
+				} catch (IOException e) {
+					logger.error(MessageFormat.format(
+							"Failed to copy included Groovy scripts from {0} to {1}",
+							warScripts, localScripts));
+				}
+			}
+		}
+
+		// merge the WebXmlSettings into the runtime settings (for backwards-compatibilty)
+		runtimeSettings.merge(webxmlSettings);
+
+		// settings are to be stored in openshift/gitblit.properties
+		File localSettings = new File(base, "gitblit.properties");
+		FileSettings fileSettings = new FileSettings(localSettings.getAbsolutePath());
+
+		// merge the stored settings into the runtime settings
+		//
+		// if runtimeSettings is also a FileSettings w/o a specified target file,
+		// the target file for runtimeSettings is set to "localSettings".
+		runtimeSettings.merge(fileSettings);
+
+		return base;
 	}
 
 	protected void extractResources(ServletContext context, String path, File toDir) {
@@ -3858,6 +3799,11 @@ public class GitBlit extends DaggerContextListener
 	@Override
 	protected void destroyContext(ServletContext context) {
 		logger.info("Gitblit context destroyed by servlet container.");
+		for (IManager manager : managers) {
+			logger.debug("stopping {}", manager.getClass().getSimpleName());
+			manager.stop();
+		}
+
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
 		gcExecutor.close();
@@ -4057,6 +4003,14 @@ public class GitBlit extends DaggerContextListener
 	@Override
 	protected Object [] getModules() {
 		return new Object [] { new DaggerModule(this) };
+	}
+
+	protected <X extends IManager> X startManager(ObjectGraph injector, Class<X> clazz) {
+		logger.debug("injecting and starting {}", clazz.getSimpleName());
+		X x = injector.get(clazz);
+		x.setup();
+		managers.add(x);
+		return x;
 	}
 
 	/**

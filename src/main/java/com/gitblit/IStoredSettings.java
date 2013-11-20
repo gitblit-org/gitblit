@@ -351,4 +351,13 @@ public abstract class IStoredSettings {
 	 * @return true if successful
 	 */
 	public abstract boolean saveSettings(Map<String, String> updatedSettings);
+
+	/**
+	 * Merge all settings from the settings parameter into this instance.
+	 *
+	 * @param settings
+	 */
+	public void merge(IStoredSettings settings) {
+		getSettings().putAll(settings.getSettings());
+	}
 }

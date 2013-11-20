@@ -33,6 +33,7 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -109,6 +110,16 @@ public class Gitblit implements IRuntimeManager,
 		this.projectManager = projectManager;
 		this.federationManager = federationManager;
 		this.gitblitManager = gitblitManager;
+	}
+
+	@Override
+	public IManager setup() {
+		return this;
+	}
+
+	@Override
+	public IManager stop() {
+		return this;
 	}
 
 	/*

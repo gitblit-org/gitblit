@@ -409,9 +409,8 @@ public class GitBlitServer {
 			rootContext.setHandler(sh);
 		}
 
-		// Setup the GitBlit context
+		// Setup the Gitblit context
 		GitBlit gitblit = newGitblit(settings, baseFolder);
-		gitblit.configureContext(settings, baseFolder, true);
 		rootContext.addEventListener(gitblit);
 
 		try {

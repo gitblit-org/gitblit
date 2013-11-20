@@ -84,7 +84,7 @@ public class FederationClient {
 
 		// configure the Gitblit singleton for minimal, non-server operation
 		GitBlit gitblit = new GitBlit(settings, baseFolder);
-		gitblit.configureContext(settings, baseFolder, false);
+		gitblit.beforeServletInjection(null); // XXX broken
 		FederationPullExecutor executor = new FederationPullExecutor(registrations, params.isDaemon);
 		executor.run();
 		if (!params.isDaemon) {
