@@ -17,7 +17,7 @@ package com.gitblit.manager;
 
 import java.util.Collection;
 
-public interface INotificationManager {
+public interface INotificationManager extends IManager {
 
 	/**
 	 * Notify the administrators by email.

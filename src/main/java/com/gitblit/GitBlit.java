@@ -56,10 +56,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -166,8 +162,7 @@ import dagger.ObjectGraph;
  */
 @WebListener
 public class GitBlit extends DaggerContextListener
-					 implements INotificationManager,
-								IUserManager,
+					 implements IUserManager,
 								ISessionManager,
 								IRepositoryManager,
 								IProjectManager,
@@ -210,8 +205,6 @@ public class GitBlit extends DaggerContextListener
 	private IUserService userService;
 
 	private IStoredSettings settings;
-
-	private MailExecutor mailExecutor;
 
 	private LuceneExecutor luceneExecutor;
 
@@ -2860,7 +2853,7 @@ public class GitBlit extends DaggerContextListener
 		}
 
 		// send an email, if possible
-		sendMailToAdministrators("Federation proposal from " + proposal.url,
+		getManager(INotificationManager.class).sendMailToAdministrators("Federation proposal from " + proposal.url,
 				"Please review the proposal @ " + gitblitUrl + "/proposal/" + proposal.token);
 		return true;
 	}
@@ -3156,110 +3149,6 @@ public class GitBlit extends DaggerContextListener
 	}
 
 	/**
-	 * Notify the administrators by email.
-	 *
-	 * @param subject
-	 * @param message
-	 */
-	@Override
-	public void sendMailToAdministrators(String subject, String message) {
-		List<String> toAddresses = settings.getStrings(Keys.mail.adminAddresses);
-		sendMail(subject, message, toAddresses);
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendMail(String subject, String message, Collection<String> toAddresses) {
-		this.sendMail(subject, message, toAddresses.toArray(new String[0]));
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendMail(String subject, String message, String... toAddresses) {
-		if (toAddresses == null || toAddresses.length == 0) {
-			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
-			return;
-		}
-		try {
-			Message mail = mailExecutor.createMessage(toAddresses);
-			if (mail != null) {
-				mail.setSubject(subject);
-
-				MimeBodyPart messagePart = new MimeBodyPart();
-				messagePart.setText(message, "utf-8");
-				messagePart.setHeader("Content-Type", "text/plain; charset=\"utf-8\"");
-				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-
-				MimeMultipart multiPart = new MimeMultipart();
-				multiPart.addBodyPart(messagePart);
-				mail.setContent(multiPart);
-
-				mailExecutor.queue(mail);
-			}
-		} catch (MessagingException e) {
-			logger.error("Messaging error", e);
-		}
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
-		this.sendHtmlMail(subject, message, toAddresses.toArray(new String[0]));
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendHtmlMail(String subject, String message, String... toAddresses) {
-		if (toAddresses == null || toAddresses.length == 0) {
-			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
-			return;
-		}
-		try {
-			Message mail = mailExecutor.createMessage(toAddresses);
-			if (mail != null) {
-				mail.setSubject(subject);
-
-				MimeBodyPart messagePart = new MimeBodyPart();
-				messagePart.setText(message, "utf-8");
-				messagePart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
-				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-
-				MimeMultipart multiPart = new MimeMultipart();
-				multiPart.addBodyPart(messagePart);
-				mail.setContent(multiPart);
-
-				mailExecutor.queue(mail);
-			}
-		} catch (MessagingException e) {
-			logger.error("Messaging error", e);
-		}
-	}
-
-	/**
 	 * Parse the properties file and aggregate all the comments by the setting
 	 * key. A setting model tracks the current value, the default value, the
 	 * description of the setting and and directives about the setting.
@@ -3325,15 +3214,6 @@ public class GitBlit extends DaggerContextListener
 			logger.error("Failed to load resource copy of gitblit.properties");
 		}
 		return settingsModel;
-	}
-
-	protected void configureMailExecutor() {
-		if (mailExecutor.isReady()) {
-			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
-			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
-		} else {
-			logger.warn("Mail server is not properly configured.  Mail services disabled.");
-		}
 	}
 
 	protected void configureLuceneIndexing() {
@@ -3440,7 +3320,7 @@ public class GitBlit extends DaggerContextListener
 				// HACK temporary pending manager separation and injection
 				Gitblit gitblit = new Gitblit(
 						getManager(IRuntimeManager.class),
-						this,
+						getManager(INotificationManager.class),
 						this,
 						this,
 						this,
@@ -3549,13 +3429,14 @@ public class GitBlit extends DaggerContextListener
 		runtime.getStatus().isGO = goSettings != null;
 		runtime.getStatus().servletContainer = context.getServerInfo();
 
+		startManager(injector, INotificationManager.class);
+
 		repositoriesFolder = getRepositoriesFolder();
 
 		logger.info("Gitblit base folder     = " + baseFolder.getAbsolutePath());
 		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
 
 		// prepare service executors
-		mailExecutor = new MailExecutor(runtimeSettings);
 		luceneExecutor = new LuceneExecutor(runtimeSettings, getManager(IRepositoryManager.class));
 		gcExecutor = new GCExecutor(runtimeSettings, getManager(IRepositoryManager.class));
 		mirrorExecutor = new MirrorExecutor(runtimeSettings, getManager(IRepositoryManager.class));
@@ -3592,7 +3473,6 @@ public class GitBlit extends DaggerContextListener
 		projectConfigs = new FileBasedConfig(runtime.getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
 
-		configureMailExecutor();
 		configureLuceneIndexing();
 		configureGarbageCollector();
 		configureMirrorExecutor();
