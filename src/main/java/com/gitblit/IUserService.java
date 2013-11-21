@@ -18,6 +18,7 @@ package com.gitblit;
 import java.util.Collection;
 import java.util.List;
 
+import com.gitblit.Constants.AccountType;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -205,7 +206,7 @@ public interface IUserService {
 	 * @return list of all usernames that can bypass the access restriction
 	 * @since 0.8.0
 	 */
-	List<String> getTeamnamesForRepositoryRole(String role);
+	List<String> getTeamNamesForRepositoryRole(String role);
 
 	/**
 	 * Sets the list of all teams who are allowed to bypass the access
@@ -317,6 +318,14 @@ public interface IUserService {
 	 * @return true if successful
 	 */
 	boolean deleteRepositoryRole(String role);
+
+	/**
+	 * Returns the account type for the user models.
+	 *
+	 * @return the account type
+	 * @since 1.4.0
+	 */
+	AccountType getAccountType();
 
 	/**
 	 * @See java.lang.Object.toString();

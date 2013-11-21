@@ -275,7 +275,7 @@ public class HtpasswdUserService extends GitblitUserService
      * @return AccountType.HTPASSWD
      */
     @Override
-	protected AccountType getAccountType()
+	public AccountType getAccountType()
     {
         return AccountType.HTPASSWD;
     }

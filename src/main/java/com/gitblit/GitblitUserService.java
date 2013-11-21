@@ -126,6 +126,12 @@ public class GitblitUserService implements IUserService {
 		return serviceImpl.getCookie(model);
 	}
 
+	/**
+	 * Authenticate a user based on their cookie.
+	 *
+	 * @param cookie
+	 * @return a user object or null
+	 */
 	@Override
 	public UserModel authenticate(char[] cookie) {
 		UserModel user = serviceImpl.authenticate(cookie);
@@ -226,8 +232,8 @@ public class GitblitUserService implements IUserService {
 	}
 
 	@Override
-	public List<String> getTeamnamesForRepositoryRole(String role) {
-		return serviceImpl.getTeamnamesForRepositoryRole(role);
+	public List<String> getTeamNamesForRepositoryRole(String role) {
+		return serviceImpl.getTeamNamesForRepositoryRole(role);
 	}
 
 	@Override
@@ -312,7 +318,8 @@ public class GitblitUserService implements IUserService {
 		}
 	}
 
-	protected AccountType getAccountType() {
+	@Override
+	public AccountType getAccountType() {
 		return AccountType.LOCAL;
 	}
 }

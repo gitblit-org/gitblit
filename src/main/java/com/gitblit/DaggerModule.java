@@ -30,6 +30,7 @@ import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
 import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.UserManager;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitblitWicketFilter;
 
@@ -100,8 +101,8 @@ public class DaggerModule {
 		return new NotificationManager(settings);
 	}
 
-	@Provides @Singleton IUserManager provideUserManager() {
-		return gitblit;
+	@Provides @Singleton IUserManager provideUserManager(IRuntimeManager runtimeManager) {
+		return new UserManager(runtimeManager);
 	}
 
 	@Provides @Singleton ISessionManager provideSessionManager() {

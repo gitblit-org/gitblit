@@ -21,7 +21,7 @@ import java.util.List;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
-public interface IUserManager {
+public interface IUserManager extends IManager {
 
 	boolean supportsAddUser();
 
@@ -189,7 +189,7 @@ public interface IUserManager {
 	 * @return list of all usernames that can bypass the access restriction
 	 * @since 0.8.0
 	 */
-	List<String> getTeamnamesForRepositoryRole(String role);
+	List<String> getTeamNamesForRepositoryRole(String role);
 
 	/**
 	 * Retrieve the team object for the specified team name.

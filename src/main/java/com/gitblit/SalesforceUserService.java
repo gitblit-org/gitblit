@@ -22,7 +22,7 @@ public class SalesforceUserService extends GitblitUserService {
 	private IStoredSettings settings;
 
 	@Override
-	protected AccountType getAccountType() {
+	public AccountType getAccountType() {
 		return AccountType.SALESFORCE;
 	}
 

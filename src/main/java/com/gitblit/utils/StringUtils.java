@@ -747,4 +747,25 @@ public class StringUtils {
 		}
 		return input.replace('\n',' ').replace('\r',  ' ').trim();
 	}
+
+
+	/**
+	 * Encode the username for user in an url.
+	 *
+	 * @param name
+	 * @return the encoded name
+	 */
+	public static String encodeUsername(String name) {
+		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");
+	}
+
+	/**
+	 * Decode a username from an encoded url.
+	 *
+	 * @param name
+	 * @return the decoded name
+	 */
+	public static String decodeUsername(String name) {
+		return name.replace("%40", "@").replace("%20", " ").replace("%5C", "\\");
+	}
 }

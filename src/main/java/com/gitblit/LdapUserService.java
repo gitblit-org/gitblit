@@ -262,7 +262,7 @@ public class LdapUserService extends GitblitUserService {
 	}
 
 	@Override
-	protected AccountType getAccountType() {
+	public AccountType getAccountType() {
 		 return AccountType.LDAP;
 	}
 

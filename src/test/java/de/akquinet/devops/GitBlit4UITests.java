@@ -9,7 +9,7 @@ public class GitBlit4UITests extends GitBlit {
 	private boolean luceneIndexingEnabled;
 
 	public GitBlit4UITests(boolean luceneIndexingEnabled) {
-		super(null);
+		super();
 		this.luceneIndexingEnabled = luceneIndexingEnabled;
 	}
 

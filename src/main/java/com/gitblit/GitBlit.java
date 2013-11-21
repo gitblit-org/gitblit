@@ -80,7 +80,6 @@ import org.slf4j.Logger;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
@@ -162,8 +161,7 @@ import dagger.ObjectGraph;
  */
 @WebListener
 public class GitBlit extends DaggerContextListener
-					 implements IUserManager,
-								ISessionManager,
+					 implements ISessionManager,
 								IRepositoryManager,
 								IProjectManager,
 								IFederationManager,
@@ -202,8 +200,6 @@ public class GitBlit extends DaggerContextListener
 
 	private File repositoriesFolder;
 
-	private IUserService userService;
-
 	private IStoredSettings settings;
 
 	private LuceneExecutor luceneExecutor;
@@ -221,13 +217,6 @@ public class GitBlit extends DaggerContextListener
 	public GitBlit() {
 		this.goSettings = null;
 		this.goBaseFolder = null;
-	}
-
-	protected GitBlit(final IUserService userService) {
-		this.goSettings = null;
-		this.goBaseFolder = null;
-		this.userService = userService;
-		gitblit = this;
 	}
 
 	public GitBlit(IStoredSettings settings, File baseFolder) {
@@ -335,7 +324,7 @@ public class GitBlit extends DaggerContextListener
 		if (user == null) {
 			user = UserModel.ANONYMOUS;
 		}
-		String username = encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
+		String username = StringUtils.encodeUsername(UserModel.ANONYMOUS.equals(user) ? "" : user.username);
 
 		List<RepositoryUrl> list = new ArrayList<RepositoryUrl>();
 		// http/https url
@@ -486,75 +475,6 @@ public class GitBlit extends DaggerContextListener
 	}
 
 	/**
-	 * Set the user service. The user service authenticates all users and is
-	 * responsible for managing user permissions.
-	 *
-	 * @param userService
-	 */
-	public void setUserService(IUserService userService) {
-		logger.info("Setting up user service " + userService.toString());
-		this.userService = userService;
-		this.userService.setup(getManager(IRuntimeManager.class));
-	}
-
-	@Override
-	public boolean supportsAddUser() {
-		return supportsCredentialChanges(new UserModel(""));
-	}
-
-	/**
-	 * Returns true if the user's credentials can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports credential changes
-	 */
-	@Override
-	public boolean supportsCredentialChanges(UserModel user) {
-		if (user == null) {
-			return false;
-		} else if (AccountType.LOCAL.equals(user.accountType)) {
-			// local account, we can change credentials
-			return true;
-		} else {
-			// external account, ask user service
-			return userService.supportsCredentialChanges();
-		}
-	}
-
-	/**
-	 * Returns true if the user's display name can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports display name changes
-	 */
-	@Override
-	public boolean supportsDisplayNameChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsDisplayNameChanges();
-	}
-
-	/**
-	 * Returns true if the user's email address can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports email address changes
-	 */
-	@Override
-	public boolean supportsEmailAddressChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsEmailAddressChanges();
-	}
-
-	/**
-	 * Returns true if the user's team memberships can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports team membership changes
-	 */
-	@Override
-	public boolean supportsTeamMembershipChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsTeamMembershipChanges();
-	}
-
-	/**
 	 * Returns true if the username represents an internal account
 	 *
 	 * @param username
@@ -580,7 +500,7 @@ public class GitBlit extends DaggerContextListener
 			// can not authenticate empty username
 			return null;
 		}
-		String usernameDecoded = decodeUsername(username);
+		String usernameDecoded = StringUtils.decodeUsername(username);
 		String pw = new String(password);
 		if (StringUtils.isEmpty(pw)) {
 			// can not authenticate empty password
@@ -598,10 +518,7 @@ public class GitBlit extends DaggerContextListener
 		}
 
 		// delegate authentication to the user service
-		if (userService == null) {
-			return null;
-		}
-		return userService.authenticate(usernameDecoded, password);
+		return getManager(IUserManager.class).authenticate(usernameDecoded, password);
 	}
 
 	/**
@@ -611,15 +528,12 @@ public class GitBlit extends DaggerContextListener
 	 * @return a user object or null
 	 */
 	protected UserModel authenticate(Cookie[] cookies) {
-		if (userService == null) {
-			return null;
-		}
-		if (userService.supportsCookies()) {
+		if (getManager(IUserManager.class).supportsCookies()) {
 			if (cookies != null && cookies.length > 0) {
 				for (Cookie cookie : cookies) {
 					if (cookie.getName().equals(Constants.NAME)) {
 						String value = cookie.getValue();
-						return userService.authenticate(value.toCharArray());
+						return getManager(IUserManager.class).authenticate(value.toCharArray());
 					}
 				}
 			}
@@ -658,7 +572,7 @@ public class GitBlit extends DaggerContextListener
 		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
 		if (model != null) {
 			// grab real user model and preserve certificate serial number
-			UserModel user = getUserModel(model.username);
+			UserModel user = getManager(IUserManager.class).getUserModel(model.username);
 			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
 			if (user != null) {
 				flagWicketSession(AuthenticationType.CERTIFICATE);
@@ -682,7 +596,7 @@ public class GitBlit extends DaggerContextListener
 			String username = principal.getName();
 			if (!StringUtils.isEmpty(username)) {
 				boolean internalAccount = isInternalAccount(username);
-				UserModel user = getUserModel(username);
+				UserModel user = getManager(IUserManager.class).getUserModel(username);
 				if (user != null) {
 					// existing user
 					flagWicketSession(AuthenticationType.CONTAINER);
@@ -695,7 +609,7 @@ public class GitBlit extends DaggerContextListener
 					user = new UserModel(username.toLowerCase());
 					user.displayName = username;
 					user.password = Constants.EXTERNAL_ACCOUNT;
-					userService.updateUserModel(user);
+					getManager(IUserManager.class).updateUserModel(user);
 					flagWicketSession(AuthenticationType.CONTAINER);
 					logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
 							user.username, httpRequest.getRemoteAddr()));
@@ -708,7 +622,7 @@ public class GitBlit extends DaggerContextListener
 		}
 
 		// try to authenticate by cookie
-		if (supportsCookies()) {
+		if (getManager(IUserManager.class).supportsCookies()) {
 			UserModel user = authenticate(httpRequest.getCookies());
 			if (user != null) {
 				flagWicketSession(AuthenticationType.COOKIE);
@@ -726,7 +640,7 @@ public class GitBlit extends DaggerContextListener
 			String credentials = new String(Base64.decode(base64Credentials),
 					Charset.forName("UTF-8"));
 			// credentials = username:password
-			final String[] values = credentials.split(":",2);
+			final String[] values = credentials.split(":", 2);
 
 			if (values.length == 2) {
 				String username = values[0];
@@ -774,20 +688,17 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public void setCookie(HttpServletResponse response, UserModel user) {
-		if (userService == null) {
-			return;
-		}
 		GitBlitWebSession session = GitBlitWebSession.get();
 		boolean standardLogin = session.authenticationType.isStandard();
 
-		if (userService.supportsCookies() && standardLogin) {
+		if (getManager(IUserManager.class).supportsCookies() && standardLogin) {
 			Cookie userCookie;
 			if (user == null) {
 				// clear cookie for logout
 				userCookie = new Cookie(Constants.NAME, "");
 			} else {
 				// set cookie for login
-				String cookie = userService.getCookie(user);
+				String cookie = getManager(IUserManager.class).getCookie(user);
 				if (StringUtils.isEmpty(cookie)) {
 					// create empty cookie
 					userCookie = new Cookie(Constants.NAME, "");
@@ -802,102 +713,12 @@ public class GitBlit extends DaggerContextListener
 		}
 	}
 
-	/**
-	 * Logout a user.
-	 *
-	 * @param user
-	 */
-	@Override
-	public void logout(UserModel user) {
-		if (userService == null) {
-			return;
-		}
-		userService.logout(user);
-	}
-
-	/**
-	 * Encode the username for user in an url.
-	 *
-	 * @param name
-	 * @return the encoded name
-	 */
-	protected String encodeUsername(String name) {
-		return name.replace("@", "%40").replace(" ", "%20").replace("\\", "%5C");
-	}
-
-	/**
-	 * Decode a username from an encoded url.
-	 *
-	 * @param name
-	 * @return the decoded name
-	 */
-	protected String decodeUsername(String name) {
-		return name.replace("%40", "@").replace("%20", " ").replace("%5C", "\\");
-	}
-
-	/**
-	 * Returns the list of all users available to the login service.
-	 *
-	 * @see IUserService.getAllUsernames()
-	 * @return list of all usernames
-	 */
-	@Override
-	public List<String> getAllUsernames() {
-		List<String> names = new ArrayList<String>(userService.getAllUsernames());
-		return names;
-	}
-
-	/**
-	 * Returns the list of all users available to the login service.
-	 *
-	 * @see IUserService.getAllUsernames()
-	 * @return list of all usernames
-	 */
-	@Override
-	public List<UserModel> getAllUsers() {
-		List<UserModel> users = userService.getAllUsers();
-		return users;
-	}
-
-	/**
-	 * Delete the user object with the specified username
-	 *
-	 * @see IUserService.deleteUser(String)
-	 * @param username
-	 * @return true if successful
-	 */
-	@Override
-	public boolean deleteUser(String username) {
-		if (StringUtils.isEmpty(username)) {
-			return false;
-		}
-		String usernameDecoded = decodeUsername(username);
-		return userService.deleteUser(usernameDecoded);
-	}
-
 	@Override
 	public UserModel getFederationUser() {
 		// the federation user is an administrator
 		UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
 		federationUser.canAdmin = true;
 		return federationUser;
-	}
-
-	/**
-	 * Retrieve the user object for the specified username.
-	 *
-	 * @see IUserService.getUserModel(String)
-	 * @param username
-	 * @return a user object or null
-	 */
-	@Override
-	public UserModel getUserModel(String username) {
-		if (StringUtils.isEmpty(username)) {
-			return null;
-		}
-		String usernameDecoded = decodeUsername(username);
-		UserModel user = userService.getUserModel(usernameDecoded);
-		return user;
 	}
 
 	/**
@@ -965,7 +786,7 @@ public class GitBlit extends DaggerContextListener
 			return list;
 		}
 		// NAMED users and teams
-		for (UserModel user : userService.getAllUsers()) {
+		for (UserModel user : getManager(IUserManager.class).getAllUsers()) {
 			RegistrantAccessPermission ap = user.getRepositoryPermission(repository);
 			if (ap.permission.exceeds(AccessPermission.NONE)) {
 				list.add(ap);
@@ -987,12 +808,12 @@ public class GitBlit extends DaggerContextListener
 		for (RegistrantAccessPermission up : permissions) {
 			if (up.mutable) {
 				// only set editable defined permissions
-				UserModel user = userService.getUserModel(up.registrant);
+				UserModel user = getManager(IUserManager.class).getUserModel(up.registrant);
 				user.setRepositoryPermission(repository.name, up.permission);
 				users.add(user);
 			}
 		}
-		return userService.updateUserModels(users);
+		return getManager(IUserManager.class).updateUserModels(users);
 	}
 
 	/**
@@ -1005,7 +826,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public List<String> getRepositoryUsers(RepositoryModel repository) {
-		return userService.getUsernamesForRepositoryRole(repository.name);
+		return getManager(IUserManager.class).getUsernamesForRepositoryRole(repository.name);
 	}
 
 	/**
@@ -1038,7 +859,7 @@ public class GitBlit extends DaggerContextListener
 	public void updateUserModel(String username, UserModel user, boolean isCreate)
 			throws GitBlitException {
 		if (!username.equalsIgnoreCase(user.username)) {
-			if (userService.getUserModel(user.username) != null) {
+			if (getManager(IUserManager.class).getUserModel(user.username) != null) {
 				throw new GitBlitException(MessageFormat.format(
 						"Failed to rename ''{0}'' because ''{1}'' already exists.", username,
 						user.username));
@@ -1060,43 +881,9 @@ public class GitBlit extends DaggerContextListener
 				}
 			}
 		}
-		if (!userService.updateUserModel(username, user)) {
+		if (!getManager(IUserManager.class).updateUserModel(username, user)) {
 			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
 		}
-	}
-
-	/**
-	 * Returns the list of available teams that a user or repository may be
-	 * assigned to.
-	 *
-	 * @return the list of teams
-	 */
-	public List<String> getAllTeamnames() {
-		List<String> teams = new ArrayList<String>(userService.getAllTeamNames());
-		return teams;
-	}
-
-	/**
-	 * Returns the list of available teams that a user or repository may be
-	 * assigned to.
-	 *
-	 * @return the list of teams
-	 */
-	@Override
-	public List<TeamModel> getAllTeams() {
-		List<TeamModel> teams = userService.getAllTeams();
-		return teams;
-	}
-
-	/**
-	 * Returns the TeamModel object for the specified name.
-	 *
-	 * @param teamname
-	 * @return a TeamModel object or null
-	 */
-	@Override
-	public TeamModel getTeamModel(String teamname) {
-		return userService.getTeamModel(teamname);
 	}
 
 	/**
@@ -1110,7 +897,7 @@ public class GitBlit extends DaggerContextListener
 	@Override
 	public List<RegistrantAccessPermission> getTeamAccessPermissions(RepositoryModel repository) {
 		List<RegistrantAccessPermission> list = new ArrayList<RegistrantAccessPermission>();
-		for (TeamModel team : userService.getAllTeams()) {
+		for (TeamModel team : getManager(IUserManager.class).getAllTeams()) {
 			RegistrantAccessPermission ap = team.getRepositoryPermission(repository);
 			if (ap.permission.exceeds(AccessPermission.NONE)) {
 				list.add(ap);
@@ -1133,12 +920,12 @@ public class GitBlit extends DaggerContextListener
 		for (RegistrantAccessPermission tp : permissions) {
 			if (tp.mutable) {
 				// only set explicitly defined access permissions
-				TeamModel team = userService.getTeamModel(tp.registrant);
+				TeamModel team = getManager(IUserManager.class).getTeamModel(tp.registrant);
 				team.setRepositoryPermission(repository.name, tp.permission);
 				teams.add(team);
 			}
 		}
-		return userService.updateTeamModels(teams);
+		return getManager(IUserManager.class).updateTeamModels(teams);
 	}
 
 	/**
@@ -1151,7 +938,7 @@ public class GitBlit extends DaggerContextListener
 	 */
 	@Override
 	public List<String> getRepositoryTeams(RepositoryModel repository) {
-		return userService.getTeamnamesForRepositoryRole(repository.name);
+		return getManager(IUserManager.class).getTeamNamesForRepositoryRole(repository.name);
 	}
 
 	/**
@@ -1181,27 +968,15 @@ public class GitBlit extends DaggerContextListener
 	public void updateTeamModel(String teamname, TeamModel team, boolean isCreate)
 			throws GitBlitException {
 		if (!teamname.equalsIgnoreCase(team.name)) {
-			if (userService.getTeamModel(team.name) != null) {
+			if (getManager(IUserManager.class).getTeamModel(team.name) != null) {
 				throw new GitBlitException(MessageFormat.format(
 						"Failed to rename ''{0}'' because ''{1}'' already exists.", teamname,
 						team.name));
 			}
 		}
-		if (!userService.updateTeamModel(teamname, team)) {
+		if (!getManager(IUserManager.class).updateTeamModel(teamname, team)) {
 			throw new GitBlitException(isCreate ? "Failed to add team!" : "Failed to update team!");
 		}
-	}
-
-	/**
-	 * Delete the team object with the specified teamname
-	 *
-	 * @see IUserService.deleteTeam(String)
-	 * @param teamname
-	 * @return true if successful
-	 */
-	@Override
-	public boolean deleteTeam(String teamname) {
-		return userService.deleteTeam(teamname);
 	}
 
 	/**
@@ -1519,7 +1294,7 @@ public class GitBlit extends DaggerContextListener
 	@Override
 	public long getStarCount(RepositoryModel repository) {
 		long count = 0;
-		for (UserModel user : getAllUsers()) {
+		for (UserModel user : getManager(IUserManager.class).getAllUsers()) {
 			if (user.getPreferences().isStarredRepository(repository.name)) {
 				count++;
 			}
@@ -1680,7 +1455,7 @@ public class GitBlit extends DaggerContextListener
 		if (project == null) {
 			project = new ProjectModel(name);
 			if (ModelUtils.isPersonalRepository(name)) {
-				UserModel user = getUserModel(ModelUtils.getUserNameFromRepoPath(name));
+				UserModel user = getManager(IUserManager.class).getUserModel(ModelUtils.getUserNameFromRepoPath(name));
 				if (user != null) {
 					project.title = user.getDisplayName();
 					project.description = "personal repositories";
@@ -2297,7 +2072,7 @@ public class GitBlit extends DaggerContextListener
 							repository.name));
 				}
 				// rename the roles
-				if (!userService.renameRepositoryRole(repositoryName, repository.name)) {
+				if (!getManager(IUserManager.class).renameRepositoryRole(repositoryName, repository.name)) {
 					throw new GitBlitException(MessageFormat.format(
 							"Failed to rename repository permissions ''{0}'' to ''{1}''.",
 							repositoryName, repository.name));
@@ -2514,7 +2289,7 @@ public class GitBlit extends DaggerContextListener
 			File folder = new File(repositoriesFolder, repositoryName);
 			if (folder.exists() && folder.isDirectory()) {
 				FileUtils.delete(folder, FileUtils.RECURSIVE | FileUtils.RETRY);
-				if (userService.deleteRepositoryRole(repositoryName)) {
+				if (getManager(IUserManager.class).deleteRepositoryRole(repositoryName)) {
 					logger.info(MessageFormat.format("Repository \"{0}\" deleted", repositoryName));
 					return true;
 				}
@@ -3046,8 +2821,8 @@ public class GitBlit extends DaggerContextListener
 
 		// Team Scripts
 		if (repository != null) {
-			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
-				TeamModel team = userService.getTeamModel(teamname);
+			for (String teamname : getManager(IUserManager.class).getTeamNamesForRepositoryRole(repository.name)) {
+				TeamModel team = getManager(IUserManager.class).getTeamModel(teamname);
 				if (!ArrayUtils.isEmpty(team.preReceiveScripts)) {
 					scripts.addAll(team.preReceiveScripts);
 				}
@@ -3100,8 +2875,8 @@ public class GitBlit extends DaggerContextListener
 		}
 		// Team Scripts
 		if (repository != null) {
-			for (String teamname : userService.getTeamnamesForRepositoryRole(repository.name)) {
-				TeamModel team = userService.getTeamModel(teamname);
+			for (String teamname : getManager(IUserManager.class).getTeamNamesForRepositoryRole(repository.name)) {
+				TeamModel team = getManager(IUserManager.class).getTeamModel(teamname);
 				if (!ArrayUtils.isEmpty(team.postReceiveScripts)) {
 					scripts.addAll(team.postReceiveScripts);
 				}
@@ -3156,10 +2931,14 @@ public class GitBlit extends DaggerContextListener
 	 * @return Map<String, SettingModel>
 	 */
 	private ServerSettings loadSettingModels(ServerSettings settingsModel) {
-		settingsModel.supportsCredentialChanges = userService.supportsCredentialChanges();
-		settingsModel.supportsDisplayNameChanges = userService.supportsDisplayNameChanges();
-		settingsModel.supportsEmailAddressChanges = userService.supportsEmailAddressChanges();
-		settingsModel.supportsTeamMembershipChanges = userService.supportsTeamMembershipChanges();
+		// this entire "supports" concept will go away with user service refactoring
+		UserModel externalUser = new UserModel(Constants.EXTERNAL_ACCOUNT);
+		externalUser.password = Constants.EXTERNAL_ACCOUNT;
+		IUserManager userManager = getManager(IUserManager.class);
+		settingsModel.supportsCredentialChanges = userManager.supportsCredentialChanges(externalUser);
+		settingsModel.supportsDisplayNameChanges = userManager.supportsDisplayNameChanges(externalUser);
+		settingsModel.supportsEmailAddressChanges = userManager.supportsEmailAddressChanges(externalUser);
+		settingsModel.supportsTeamMembershipChanges = userManager.supportsTeamMembershipChanges(externalUser);
 		try {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting
@@ -3321,7 +3100,7 @@ public class GitBlit extends DaggerContextListener
 				Gitblit gitblit = new Gitblit(
 						getManager(IRuntimeManager.class),
 						getManager(INotificationManager.class),
-						this,
+						getManager(IUserManager.class),
 						this,
 						this,
 						this,
@@ -3430,6 +3209,7 @@ public class GitBlit extends DaggerContextListener
 		runtime.getStatus().servletContainer = context.getServerInfo();
 
 		startManager(injector, INotificationManager.class);
+		startManager(injector, IUserManager.class);
 
 		repositoriesFolder = getRepositoriesFolder();
 
@@ -3452,19 +3232,6 @@ public class GitBlit extends DaggerContextListener
 		if (runtimeSettings.getBoolean(Keys.git.cacheRepositoryList,  true)) {
 			logger.info("Identifying available repositories...");
 			getRepositoryList();
-		}
-
-		if (this.userService == null) {
-			String realm = runtimeSettings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
-			IUserService loginService = null;
-			try {
-				// check to see if this "file" is a login service class
-				Class<?> realmClass = Class.forName(realm);
-				loginService = (IUserService) realmClass.newInstance();
-			} catch (Throwable t) {
-				loginService = new GitblitUserService();
-			}
-			setUserService(loginService);
 		}
 
 		loadSettingModels(runtime.getSettingsModel());
@@ -3747,7 +3514,7 @@ public class GitBlit extends DaggerContextListener
 		// add the owner of the source repository to the clone's access list
 		if (!ArrayUtils.isEmpty(repository.owners)) {
 			for (String owner : repository.owners) {
-				UserModel originOwner = getUserModel(owner);
+				UserModel originOwner = getManager(IUserManager.class).getUserModel(owner);
 				if (originOwner != null) {
 					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 					updateUserModel(originOwner.username, originOwner, false);
@@ -3760,7 +3527,7 @@ public class GitBlit extends DaggerContextListener
 		List<UserModel> cloneUsers = new ArrayList<UserModel>();
 		for (String name : users) {
 			if (!name.equalsIgnoreCase(user.username)) {
-				UserModel cloneUser = getUserModel(name);
+				UserModel cloneUser = getManager(IUserManager.class).getUserModel(name);
 				if (cloneUser.canClone(repository)) {
 					// origin user can clone origin, grant clone access to fork
 					cloneUser.setRepositoryPermission(cloneName, AccessPermission.CLONE);
@@ -3768,116 +3535,30 @@ public class GitBlit extends DaggerContextListener
 				cloneUsers.add(cloneUser);
 			}
 		}
-		userService.updateUserModels(cloneUsers);
+		getManager(IUserManager.class).updateUserModels(cloneUsers);
 
 		// grant origin's team list clone permission to fork
 		List<String> teams = getRepositoryTeams(repository);
 		List<TeamModel> cloneTeams = new ArrayList<TeamModel>();
 		for (String name : teams) {
-			TeamModel cloneTeam = getTeamModel(name);
+			TeamModel cloneTeam = getManager(IUserManager.class).getTeamModel(name);
 			if (cloneTeam.canClone(repository)) {
 				// origin team can clone origin, grant clone access to fork
 				cloneTeam.setRepositoryPermission(cloneName, AccessPermission.CLONE);
 			}
 			cloneTeams.add(cloneTeam);
 		}
-		userService.updateTeamModels(cloneTeams);
+		getManager(IUserManager.class).updateTeamModels(cloneTeams);
 
 		// add this clone to the cached model
 		addToCachedRepositoryList(cloneModel);
 		return cloneModel;
 	}
 
-	/**
-	 * Allow to understand if GitBlit supports and is configured to allow
-	 * cookie-based authentication.
-	 *
-	 * @return status of Cookie authentication enablement.
-	 */
-	@Override
-	public boolean supportsCookies() {
-		return settings.getBoolean(Keys.web.allowCookieAuthentication, true) && userService.supportsCookies();
-	}
-
-	@Override
-	public String getCookie(UserModel model) {
-		return userService.getCookie(model);
-	}
-
-	@Override
-	public UserModel authenticate(char[] cookie) {
-		return userService.authenticate(cookie);
-	}
-
-	@Override
-	public boolean updateUserModel(UserModel model) {
-		return userService.updateUserModel(model);
-	}
-
-	@Override
-	public boolean updateUserModels(Collection<UserModel> models) {
-		return userService.updateUserModels(models);
-	}
-
-	@Override
-	public boolean updateUserModel(String username, UserModel model) {
-		return userService.updateUserModel(username, model);
-	}
-
-	@Override
-	public boolean deleteUserModel(UserModel model) {
-		return userService.deleteUserModel(model);
-	}
-
-	@Override
-	public List<String> getAllTeamNames() {
-		return userService.getAllTeamNames();
-	}
-
-	@Override
-	public List<String> getTeamnamesForRepositoryRole(String role) {
-		return userService.getTeamnamesForRepositoryRole(role);
-	}
-
-	@Override
-	public boolean updateTeamModel(TeamModel model) {
-		return userService.updateTeamModel(model);
-	}
-
-	@Override
-	public boolean updateTeamModels(Collection<TeamModel> models) {
-		return userService.updateTeamModels(models);
-	}
-
-	@Override
-	public boolean updateTeamModel(String teamname, TeamModel model) {
-		return userService.updateTeamModel(teamname, model);
-	}
-
-	@Override
-	public boolean deleteTeamModel(TeamModel model) {
-		return userService.deleteTeamModel(model);
-	}
-
-	@Override
-	public List<String> getUsernamesForRepositoryRole(String role) {
-		return userService.getUsernamesForRepositoryRole(role);
-	}
-
-	@Override
-	public boolean renameRepositoryRole(String oldRole, String newRole) {
-		return userService.renameRepositoryRole(oldRole, newRole);
-	}
-
-	@Override
-	public boolean deleteRepositoryRole(String role) {
-		return userService.deleteRepositoryRole(role);
-	}
-
 	@Override
 	public void logout(HttpServletResponse response, UserModel user) {
 		setCookie(response,  null);
-		userService.logout(user);
+		getManager(IUserManager.class).logout(user);
 	}
 
 	@Override

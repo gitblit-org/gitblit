@@ -348,8 +348,8 @@ public class Gitblit implements IRuntimeManager,
 	}
 
 	@Override
-	public List<String> getTeamnamesForRepositoryRole(String role) {
-		return userManager.getTeamnamesForRepositoryRole(role);
+	public List<String> getTeamNamesForRepositoryRole(String role) {
+		return userManager.getTeamNamesForRepositoryRole(role);
 	}
 
 	@Override

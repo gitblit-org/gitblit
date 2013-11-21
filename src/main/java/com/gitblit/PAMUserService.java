@@ -92,7 +92,7 @@ public class PAMUserService extends GitblitUserService {
     }
 
 	 @Override
-	protected AccountType getAccountType() {
+	public AccountType getAccountType() {
 		return AccountType.PAM;
 	}
 

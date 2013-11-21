@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
@@ -486,7 +487,7 @@ public class ConfigUserService implements IUserService {
 	 * @return list of all usernames that can bypass the access restriction
 	 */
 	@Override
-	public synchronized List<String> getTeamnamesForRepositoryRole(String role) {
+	public synchronized List<String> getTeamNamesForRepositoryRole(String role) {
 		List<String> list = new ArrayList<String>();
 		try {
 			read();
@@ -1110,5 +1111,10 @@ public class ConfigUserService implements IUserService {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "(" + realmFile.getAbsolutePath() + ")";
+	}
+
+	@Override
+	public AccountType getAccountType() {
+		return AccountType.LOCAL;
 	}
 }

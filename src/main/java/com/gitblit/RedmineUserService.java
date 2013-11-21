@@ -91,7 +91,7 @@ public class RedmineUserService extends GitblitUserService {
     }
 
 	 @Override
-	protected AccountType getAccountType() {
+	public AccountType getAccountType() {
 		return AccountType.REDMINE;
 	}
 
