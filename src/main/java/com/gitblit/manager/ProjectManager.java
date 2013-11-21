@@ -80,7 +80,7 @@ public class ProjectManager implements IProjectManager {
 	}
 
 	@Override
-	public IManager setup() {
+	public ProjectManager start() {
 		// load and cache the project metadata
 		projectConfigs = new FileBasedConfig(runtimeManager.getFileOrFolder(Keys.web.projectsFile, "${baseFolder}/projects.conf"), FS.detect());
 		getProjectConfigs();
@@ -89,7 +89,7 @@ public class ProjectManager implements IProjectManager {
 	}
 
 	@Override
-	public IManager stop() {
+	public ProjectManager stop() {
 		return this;
 	}
 

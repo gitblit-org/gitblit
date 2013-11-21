@@ -1,18 +1,3 @@
-/*
- * Copyright 2011 gitblit.com.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.gitblit;
 
 import static org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
@@ -32,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
@@ -46,11 +30,6 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
-import com.gitblit.manager.IGitblitManager;
-import com.gitblit.manager.INotificationManager;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IUserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -62,28 +41,24 @@ import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.CloneResult;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.utils.TimeUtils;
 
-/**
- * FederationPullExecutor pulls repository updates and, optionally, user
- * accounts and server settings from registered Gitblit instances.
- */
-public class FederationPullExecutor implements Runnable {
+public abstract class FederationPullExecutor implements Runnable {
 
-	private final Logger logger = LoggerFactory.getLogger(FederationPullExecutor.class);
+	Logger logger = LoggerFactory.getLogger(getClass());
+
+	Gitblit gitblit;
 
 	private final List<FederationModel> registrations;
-
-	private final boolean isDaemon;
 
 	/**
 	 * Constructor for specifying a single federation registration. This
 	 * constructor is used to schedule the next pull execution.
 	 *
+	 * @param provider
 	 * @param registration
 	 */
-	private FederationPullExecutor(FederationModel registration) {
-		this(Arrays.asList(registration), true);
+	public FederationPullExecutor(FederationModel registration) {
+		this(Arrays.asList(registration));
 	}
 
 	/**
@@ -91,15 +66,17 @@ public class FederationPullExecutor implements Runnable {
 	 * normally used at startup to pull and then schedule the next update based
 	 * on each registrations frequency setting.
 	 *
+	 * @param provider
 	 * @param registrations
 	 * @param isDaemon
 	 *            if true, registrations are rescheduled in perpetuity. if
 	 *            false, the federation pull operation is executed once.
 	 */
-	public FederationPullExecutor(List<FederationModel> registrations, boolean isDaemon) {
+	public FederationPullExecutor(List<FederationModel> registrations) {
 		this.registrations = registrations;
-		this.isDaemon = isDaemon;
 	}
+
+	public abstract void reschedule(FederationModel registration);
 
 	/**
 	 * Run method for this pull executor.
@@ -121,11 +98,9 @@ public class FederationPullExecutor implements Runnable {
 					if (registration.notifyOnError) {
 						String message = "Federation pull of " + registration.name + " @ "
 								+ registration.url + " is now at " + is.name();
-						INotificationManager mailManager = GitBlit.getManager(INotificationManager.class);
-						mailManager
-								.sendMailToAdministrators(
-										"Pull Status of " + registration.name + " is " + is.name(),
-										message);
+						gitblit.sendMailToAdministrators(
+								"Pull Status of " + registration.name + " is " + is.name(),
+								message);
 					}
 				}
 			} catch (Throwable t) {
@@ -133,9 +108,7 @@ public class FederationPullExecutor implements Runnable {
 						"Failed to pull from federated gitblit ({0} @ {1})", registration.name,
 						registration.url), t);
 			} finally {
-				if (isDaemon) {
-					schedule(registration);
-				}
+				reschedule(registration);
 			}
 		}
 	}
@@ -159,8 +132,7 @@ public class FederationPullExecutor implements Runnable {
 							c, registrationFolder, registration.name));
 			return;
 		}
-		IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
-		File repositoriesFolder = repositoryManager.getRepositoriesFolder();
+		File repositoriesFolder = gitblit.getRepositoriesFolder();
 		File registrationFolderFile = new File(repositoriesFolder, registrationFolder);
 		registrationFolderFile.mkdirs();
 
@@ -200,9 +172,9 @@ public class FederationPullExecutor implements Runnable {
 			// confirm that the origin of any pre-existing repository matches
 			// the clone url
 			String fetchHead = null;
-			Repository existingRepository = repositoryManager.getRepository(repositoryName);
+			Repository existingRepository = gitblit.getRepository(repositoryName);
 
-			if (existingRepository == null && repositoryManager.isCollectingGarbage(repositoryName)) {
+			if (existingRepository == null && gitblit.isCollectingGarbage(repositoryName)) {
 				logger.warn(MessageFormat.format("Skipping local repository {0}, busy collecting garbage", repositoryName));
 				continue;
 			}
@@ -234,8 +206,8 @@ public class FederationPullExecutor implements Runnable {
 
 			CloneResult result = JGitUtils.cloneRepository(registrationFolderFile, repository.name,
 					cloneUrl, registration.bare, credentials);
-			Repository r = repositoryManager.getRepository(repositoryName);
-			RepositoryModel rm = repositoryManager.getRepositoryModel(repositoryName);
+			Repository r = gitblit.getRepository(repositoryName);
+			RepositoryModel rm = gitblit.getRepositoryModel(repositoryName);
 			repository.isFrozen = registration.mirror;
 			if (result.createdRepository) {
 				// default local settings
@@ -323,12 +295,10 @@ public class FederationPullExecutor implements Runnable {
 			// "federated" repositories.
 			repository.isFederated = cloneUrl.startsWith(registration.url);
 
-			repositoryManager.updateConfiguration(r, repository);
+			gitblit.updateConfiguration(r, repository);
 			r.close();
 		}
 
-		IUserManager userManager = GitBlit.getManager(IUserManager.class);
-		IGitblitManager gitblitManager = GitBlit.getManager(IGitblitManager.class);
 		IUserService userService = null;
 
 		try {
@@ -368,10 +338,10 @@ public class FederationPullExecutor implements Runnable {
 						}
 
 						// insert new user or update local user
-						UserModel localUser = userManager.getUserModel(user.username);
+						UserModel localUser = gitblit.getUserModel(user.username);
 						if (localUser == null) {
 							// create new local user
-							gitblitManager.updateUserModel(user.username, user, true);
+							gitblit.updateUserModel(user.username, user, true);
 						} else {
 							// update repository permissions of local user
 							if (user.permissions != null) {
@@ -388,19 +358,19 @@ public class FederationPullExecutor implements Runnable {
 							}
 							localUser.password = user.password;
 							localUser.canAdmin = user.canAdmin;
-							gitblitManager.updateUserModel(localUser.username, localUser, false);
+							gitblit.updateUserModel(localUser.username, localUser, false);
 						}
 
-						for (String teamname : userManager.getAllTeamNames()) {
-							TeamModel team = userManager.getTeamModel(teamname);
+						for (String teamname : gitblit.getAllTeamNames()) {
+							TeamModel team = gitblit.getTeamModel(teamname);
 							if (user.isTeamMember(teamname) && !team.hasUser(user.username)) {
 								// new team member
 								team.addUser(user.username);
-								userManager.updateTeamModel(teamname, team);
+								gitblit.updateTeamModel(teamname, team);
 							} else if (!user.isTeamMember(teamname) && team.hasUser(user.username)) {
 								// remove team member
 								team.removeUser(user.username);
-								userManager.updateTeamModel(teamname, team);
+								gitblit.updateTeamModel(teamname, team);
 							}
 
 							// update team repositories
@@ -411,11 +381,11 @@ public class FederationPullExecutor implements Runnable {
 									for (Map.Entry<String, AccessPermission> entry : remoteTeam.permissions.entrySet()){
 										team.setRepositoryPermission(entry.getKey(), entry.getValue());
 									}
-									userManager.updateTeamModel(teamname, team);
-								} else if(!ArrayUtils.isEmpty(remoteTeam.repositories)) {
+									gitblit.updateTeamModel(teamname, team);
+								} else if (!ArrayUtils.isEmpty(remoteTeam.repositories)) {
 									// pulling from <= 1.1
 									team.addRepositoryPermissions(remoteTeam.repositories);
-									userManager.updateTeamModel(teamname, team);
+									gitblit.updateTeamModel(teamname, team);
 								}
 							}
 						}
@@ -506,28 +476,11 @@ public class FederationPullExecutor implements Runnable {
 			return;
 		}
 		InetAddress addr = InetAddress.getLocalHost();
-		IStoredSettings settings = GitBlit.getManager(IRuntimeManager.class).getSettings();
-		String federationName = settings.getString(Keys.federation.name, null);
+		String federationName = gitblit.getSettings().getString(Keys.federation.name, null);
 		if (StringUtils.isEmpty(federationName)) {
 			federationName = addr.getHostName();
 		}
 		FederationUtils.acknowledgeStatus(addr.getHostAddress(), registration);
 		logger.info(MessageFormat.format("Pull status sent to {0}", registration.url));
-	}
-
-	/**
-	 * Schedules the next check of the federated Gitblit instance.
-	 *
-	 * @param registration
-	 */
-	private void schedule(FederationModel registration) {
-		// schedule the next pull
-		int mins = TimeUtils.convertFrequencyToMinutes(registration.frequency);
-		registration.nextPull = new Date(System.currentTimeMillis() + (mins * 60 * 1000L));
-		GitBlit.self().executor()
-				.schedule(new FederationPullExecutor(registration), mins, TimeUnit.MINUTES);
-		logger.info(MessageFormat.format(
-				"Next pull of {0} @ {1} scheduled for {2,date,yyyy-MM-dd HH:mm}",
-				registration.name, registration.url, registration.nextPull));
 	}
 }

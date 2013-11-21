@@ -65,7 +65,7 @@ public class SessionManager implements ISessionManager {
 	}
 
 	@Override
-	public IManager setup() {
+	public SessionManager start() {
 		List<String> services = settings.getStrings("realm.authenticationServices");
 		for (String service : services) {
 			// TODO populate authentication services here
@@ -74,7 +74,7 @@ public class SessionManager implements ISessionManager {
 	}
 
 	@Override
-	public IManager stop() {
+	public SessionManager stop() {
 		return this;
 	}
 

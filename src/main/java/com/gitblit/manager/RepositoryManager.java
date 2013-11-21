@@ -135,8 +135,8 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	@Override
-	public IManager setup() {
-		logger.info("Git repositories folder = " + repositoriesFolder.getAbsolutePath());
+	public RepositoryManager start() {
+		logger.info("Repositories folder : {}", repositoriesFolder.getAbsolutePath());
 
 		// initialize utilities
 		String prefix = settings.getString(Keys.git.userRepositoryPrefix, "~");
@@ -147,7 +147,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 		// build initial repository list
 		if (settings.getBoolean(Keys.git.cacheRepositoryList,  true)) {
-			logger.info("Identifying available repositories...");
+			logger.info("Identifying repositories...");
 			getRepositoryList();
 		}
 
@@ -161,7 +161,7 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	@Override
-	public IManager stop() {
+	public RepositoryManager stop() {
 		scheduledExecutor.shutdownNow();
 		luceneExecutor.close();
 		gcExecutor.close();
@@ -1645,15 +1645,16 @@ public class RepositoryManager implements IRepositoryManager {
 
 	protected void configureLuceneIndexing() {
 		luceneExecutor = new LuceneExecutor(settings, this);
-		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, 2,  TimeUnit.MINUTES);
-		logger.info("Lucene executor is scheduled to process indexed branches every 2 minutes.");
+		int period = 2;
+		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, period,  TimeUnit.MINUTES);
+		logger.info("Lucene will process indexed branches every {} minutes.", period);
 	}
 
 	protected void configureGarbageCollector() {
 		// schedule gc engine
 		gcExecutor = new GCExecutor(settings, this);
 		if (gcExecutor.isReady()) {
-			logger.info("GC executor is scheduled to scan repositories every 24 hours.");
+			logger.info("Garbage Collector (GC) will scan repositories every 24 hours.");
 			Calendar c = Calendar.getInstance();
 			c.set(Calendar.HOUR_OF_DAY, settings.getInteger(Keys.git.garbageCollectionHour, 0));
 			c.set(Calendar.MINUTE, 0);
@@ -1673,6 +1674,8 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 			logger.info(MessageFormat.format("Next scheculed GC scan is in {0}", when));
 			scheduledExecutor.scheduleAtFixedRate(gcExecutor, delay, 60 * 24, TimeUnit.MINUTES);
+		} else {
+			logger.info("Garbage Collector (GC) is disabled.");
 		}
 	}
 
@@ -1685,8 +1688,10 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 			int delay = 1;
 			scheduledExecutor.scheduleAtFixedRate(mirrorExecutor, delay, mins,  TimeUnit.MINUTES);
-			logger.info("Mirror executor is scheduled to fetch updates every {} minutes.", mins);
+			logger.info("Mirror service will fetch updates every {} minutes.", mins);
 			logger.info("Next scheduled mirror fetch is in {} minutes", delay);
+		} else {
+			logger.info("Mirror service is disabled.");
 		}
 	}
 
@@ -1717,12 +1722,12 @@ public class RepositoryManager implements IRepositoryManager {
 	protected void configureCommitCache() {
 		int daysToCache = settings.getInteger(Keys.web.activityCacheDays, 14);
 		if (daysToCache <= 0) {
-			logger.info("commit cache disabled");
+			logger.info("Commit cache is disabled");
 		} else {
 			long start = System.nanoTime();
 			long repoCount = 0;
 			long commitCount = 0;
-			logger.info(MessageFormat.format("preparing {0} day commit cache. please wait...", daysToCache));
+			logger.info(MessageFormat.format("Preparing {0} day commit cache. please wait...", daysToCache));
 			CommitCache.instance().setCacheDays(daysToCache);
 			Date cutoff = CommitCache.instance().getCutoffDate();
 			for (String repositoryName : getRepositoryList()) {

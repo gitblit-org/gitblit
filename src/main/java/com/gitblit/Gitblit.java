@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +31,6 @@ import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
-import com.gitblit.manager.IManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -65,7 +62,6 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-@Singleton
 public class Gitblit implements IRuntimeManager,
 								INotificationManager,
 								IUserManager,
@@ -87,11 +83,10 @@ public class Gitblit implements IRuntimeManager,
 
 	private final IProjectManager projectManager;
 
-	private final IFederationManager federationManager;
-
 	private final IGitblitManager gitblitManager;
 
-	@Inject
+	private final IFederationManager federationManager;
+
 	public Gitblit(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
@@ -99,8 +94,8 @@ public class Gitblit implements IRuntimeManager,
 			ISessionManager sessionManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IFederationManager federationManager,
-			IGitblitManager gitblitManager) {
+			IGitblitManager gitblitManager,
+			IFederationManager federationManager) {
 
 		this.runtimeManager = runtimeManager;
 		this.notificationManager = notificationManager;
@@ -108,17 +103,17 @@ public class Gitblit implements IRuntimeManager,
 		this.sessionManager = sessionManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
-		this.federationManager = federationManager;
 		this.gitblitManager = gitblitManager;
+		this.federationManager = federationManager;
 	}
 
 	@Override
-	public IManager setup() {
+	public Gitblit start() {
 		return this;
 	}
 
 	@Override
-	public IManager stop() {
+	public Gitblit stop() {
 		return this;
 	}
 

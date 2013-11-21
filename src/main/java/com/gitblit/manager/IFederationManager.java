@@ -27,7 +27,7 @@ import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
-public interface IFederationManager {
+public interface IFederationManager extends IManager {
 
 	/**
 	 * Returns the path of the proposals folder. This method checks to see if

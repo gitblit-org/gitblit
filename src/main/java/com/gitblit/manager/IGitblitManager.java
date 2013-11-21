@@ -27,7 +27,7 @@ import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
-public interface IGitblitManager {
+public interface IGitblitManager extends IManager {
 
 	/**
 	 * Returns a list of repository URLs and the user access permission.

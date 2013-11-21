@@ -58,18 +58,19 @@ public class NotificationManager implements INotificationManager {
 	}
 
 	@Override
-	public IManager setup() {
+	public NotificationManager start() {
 		if (mailExecutor.isReady()) {
-			logger.info("Mail executor is scheduled to process the message queue every 2 minutes.");
-			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, 2, TimeUnit.MINUTES);
+			int period = 2;
+			logger.info("Mail service will process the queue every {} minutes.", period);
+			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, period, TimeUnit.MINUTES);
 		} else {
-			logger.warn("Mail server is not properly configured.  Mail services disabled.");
+			logger.warn("Mail service disabled.");
 		}
 		return this;
 	}
 
 	@Override
-	public IManager stop() {
+	public NotificationManager stop() {
 		scheduledExecutor.shutdownNow();
 		return this;
 	}

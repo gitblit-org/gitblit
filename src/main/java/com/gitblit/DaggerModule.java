@@ -20,18 +20,22 @@ import javax.inject.Singleton;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.git.GitServlet;
+import com.gitblit.manager.FederationManager;
+import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.SessionManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.wicket.GitBlitWebApp;
@@ -47,6 +51,7 @@ import dagger.Provides;
  *
  */
 @Module(
+	library = true,
 	injects = {
 			IStoredSettings.class,
 
@@ -59,6 +64,7 @@ import dagger.Provides;
 			IProjectManager.class,
 			IGitblitManager.class,
 			IFederationManager.class,
+			IServicesManager.class,
 
 			// the monolithic manager
 			Gitblit.class,
@@ -84,13 +90,6 @@ import dagger.Provides;
 	}
 )
 public class DaggerModule {
-
-	final GitBlit gitblit;
-
-	// HACK but necessary for now
-	public DaggerModule(GitBlit gitblit) {
-		this.gitblit = gitblit;
-	}
 
 	@Provides @Singleton IStoredSettings provideSettings() {
 		return new FileSettings();
@@ -137,12 +136,28 @@ public class DaggerModule {
 				repositoryManager);
 	}
 
-	@Provides @Singleton IGitblitManager provideGitblitManager() {
-		return gitblit;
+	@Provides @Singleton IFederationManager provideFederationManager(
+			IRuntimeManager runtimeManager,
+			INotificationManager notificationManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager) {
+
+		return new FederationManager(
+				runtimeManager,
+				notificationManager,
+				userManager,
+				repositoryManager);
 	}
 
-	@Provides @Singleton IFederationManager provideFederationManager() {
-		return gitblit;
+	@Provides @Singleton IGitblitManager provideGitblitManager(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager) {
+
+		return new GitblitManager(
+				runtimeManager,
+				userManager,
+				repositoryManager);
 	}
 
 	@Provides @Singleton Gitblit provideGitblit(
@@ -162,8 +177,12 @@ public class DaggerModule {
 				sessionManager,
 				repositoryManager,
 				projectManager,
-				federationManager,
-				gitblitManager);
+				gitblitManager,
+				federationManager);
+	}
+
+	@Provides @Singleton IServicesManager provideServicesManager(Gitblit gitblit) {
+		return new ServicesManager(gitblit);
 	}
 
 	@Provides @Singleton WebApplication provideWebApplication(

@@ -40,23 +40,29 @@ public class RuntimeManager implements IRuntimeManager {
 
 	private final ServerStatus serverStatus;
 
-	private TimeZone timezone;
+	private final ServerSettings settingsModel;
 
 	private File baseFolder;
 
-	private ServerSettings settingsModel;
+	private TimeZone timezone;
 
 	public RuntimeManager(IStoredSettings settings) {
+		this(settings, null);
+	}
+
+	public RuntimeManager(IStoredSettings settings, File baseFolder) {
 		this.settings = settings;
 		this.settingsModel = new ServerSettings();
 		this.serverStatus = new ServerStatus();
+		this.baseFolder = baseFolder == null ? new File("") : baseFolder;
 	}
 
 	@Override
-	public RuntimeManager setup() {
-		logger.info("Gitblit settings        = " + settings.toString());
-		logTimezone("JVM", TimeZone.getDefault());
-		logTimezone(Constants.NAME, getTimezone());
+	public RuntimeManager start() {
+		logger.info("Basefolder  : " + baseFolder.getAbsolutePath());
+		logger.info("Settings    : " + settings.toString());
+		logTimezone("JVM timezone: ", TimeZone.getDefault());
+		logTimezone("App timezone: ", getTimezone());
 		return this;
 	}
 
@@ -121,7 +127,7 @@ public class RuntimeManager implements IRuntimeManager {
 	@Override
 	public TimeZone getTimezone() {
 		if (timezone == null) {
-			String tzid = settings.getString("web.timezone", null);
+			String tzid = settings.getString(Keys.web.timezone, null);
 			if (StringUtils.isEmpty(tzid)) {
 				timezone = TimeZone.getDefault();
 				return timezone;
@@ -135,7 +141,7 @@ public class RuntimeManager implements IRuntimeManager {
 		SimpleDateFormat df = new SimpleDateFormat("z Z");
 		df.setTimeZone(zone);
 		String offset = df.format(new Date());
-		logger.info(type + " timezone is " + zone.getID() + " (" + offset + ")");
+		logger.info("{}{} ({})", new Object [] { type, zone.getID(), offset });
 	}
 
 	/**

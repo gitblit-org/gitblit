@@ -15,10 +15,7 @@
  */
 package com.gitblit.manager;
 
-public interface IManager {
 
-	IManager start();
-
-	IManager stop();
+public interface IServicesManager extends IManager {
 
 }

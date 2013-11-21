@@ -137,7 +137,7 @@ public class MockRuntimeManager implements IRuntimeManager {
 	}
 
 	@Override
-	public IRuntimeManager setup() {
+	public IRuntimeManager start() {
 		return this;
 	}
 }

@@ -23,6 +23,11 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.gitblit.manager.FederationManager;
+import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.RepositoryManager;
+import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.UserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.StringUtils;
@@ -53,7 +58,7 @@ public class FederationClient {
 		}
 
 		File regFile = com.gitblit.utils.FileUtils.resolveParameter(Constants.baseFolder$, baseFolder, params.registrationsFile);
-		IStoredSettings settings = new FileSettings(regFile.getAbsolutePath());
+		FileSettings settings = new FileSettings(regFile.getAbsolutePath());
 		List<FederationModel> registrations = new ArrayList<FederationModel>();
 		if (StringUtils.isEmpty(params.url)) {
 			registrations.addAll(FederationUtils.getFederationRegistrations(settings));
@@ -83,14 +88,23 @@ public class FederationClient {
 		}
 
 		// configure the Gitblit singleton for minimal, non-server operation
-		GitBlit gitblit = new GitBlit(settings, baseFolder);
-		gitblit.beforeServletInjection(null); // XXX broken
-		FederationPullExecutor executor = new FederationPullExecutor(registrations, params.isDaemon);
-		executor.run();
-		if (!params.isDaemon) {
-			System.out.println("Finished.");
-			System.exit(0);
-		}
+		RuntimeManager runtime = new RuntimeManager(settings);
+		runtime.setBaseFolder(baseFolder);
+		NotificationManager notifications = new NotificationManager(settings).start();
+		UserManager users = new UserManager(runtime).start();
+		RepositoryManager repositories = new RepositoryManager(runtime, users).start();
+		FederationManager federation = new FederationManager(runtime, notifications, users, repositories).start();
+
+		FederationPullExecutor puller = new FederationPullExecutor(federation.getFederationRegistrations()) {
+			@Override
+			public void reschedule(FederationModel registration) {
+				// NOOP
+			}
+		};
+		puller.run();
+
+		System.out.println("Finished.");
+		System.exit(0);
 	}
 
 	private static void usage(JCommander jc, ParameterException t) {
@@ -115,9 +129,6 @@ public class FederationClient {
 
 		@Parameter(names = { "--registrations" }, description = "Gitblit Federation Registrations File", required = false)
 		public String registrationsFile = "${baseFolder}/federation.properties";
-
-		@Parameter(names = { "--daemon" }, description = "Runs in daemon mode to schedule and pull repositories", required = false)
-		public boolean isDaemon;
 
 		@Parameter(names = { "--url" }, description = "URL of Gitblit instance to mirror from", required = false)
 		public String url;

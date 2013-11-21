@@ -64,13 +64,13 @@ public class UserManager implements IUserManager {
 	 * @param userService
 	 */
 	public void setUserService(IUserService userService) {
-		logger.info("Setting up user service " + userService.toString());
+		logger.info("UserService: " + userService.toString());
 		this.userService = userService;
 		this.userService.setup(runtimeManager);
 	}
 
 	@Override
-	public IManager setup() {
+	public UserManager start() {
 		if (this.userService == null) {
 			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
 			IUserService service = null;
@@ -114,7 +114,7 @@ public class UserManager implements IUserManager {
 	}
 
 	@Override
-	public IManager stop() {
+	public UserManager stop() {
 		return this;
 	}
 
