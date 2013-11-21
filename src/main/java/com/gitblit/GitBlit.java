@@ -29,8 +29,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.security.Principal;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,11 +59,8 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebListener;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.wicket.RequestCycle;
 import org.apache.wicket.resource.ContextRelativeResource;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.eclipse.jgit.lib.Repository;
@@ -80,7 +75,6 @@ import org.slf4j.Logger;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.Constants.AuthenticationType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationRequest;
@@ -120,7 +114,6 @@ import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.Base64;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.ContainerUtils;
@@ -136,8 +129,6 @@ import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.ObjectCache;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
-import com.gitblit.utils.X509Utils.X509Metadata;
-import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.GitblitWicketFilter;
 import com.gitblit.wicket.WicketUtils;
 import com.google.gson.Gson;
@@ -161,8 +152,7 @@ import dagger.ObjectGraph;
  */
 @WebListener
 public class GitBlit extends DaggerContextListener
-					 implements ISessionManager,
-								IRepositoryManager,
+					 implements IRepositoryManager,
 								IProjectManager,
 								IFederationManager,
 								IGitblitManager {
@@ -475,201 +465,6 @@ public class GitBlit extends DaggerContextListener
 	}
 
 	/**
-	 * Returns true if the username represents an internal account
-	 *
-	 * @param username
-	 * @return true if the specified username represents an internal account
-	 */
-	protected boolean isInternalAccount(String username) {
-		return !StringUtils.isEmpty(username)
-				&& (username.equalsIgnoreCase(Constants.FEDERATION_USER)
-						|| username.equalsIgnoreCase(UserModel.ANONYMOUS.username));
-	}
-
-	/**
-	 * Authenticate a user based on a username and password.
-	 *
-	 * @see IUserService.authenticate(String, char[])
-	 * @param username
-	 * @param password
-	 * @return a user object or null
-	 */
-	@Override
-	public UserModel authenticate(String username, char[] password) {
-		if (StringUtils.isEmpty(username)) {
-			// can not authenticate empty username
-			return null;
-		}
-		String usernameDecoded = StringUtils.decodeUsername(username);
-		String pw = new String(password);
-		if (StringUtils.isEmpty(pw)) {
-			// can not authenticate empty password
-			return null;
-		}
-
-		// check to see if this is the federation user
-		if (canFederate()) {
-			if (usernameDecoded.equalsIgnoreCase(Constants.FEDERATION_USER)) {
-				List<String> tokens = getFederationTokens();
-				if (tokens.contains(pw)) {
-					return getFederationUser();
-				}
-			}
-		}
-
-		// delegate authentication to the user service
-		return getManager(IUserManager.class).authenticate(usernameDecoded, password);
-	}
-
-	/**
-	 * Authenticate a user based on their cookie.
-	 *
-	 * @param cookies
-	 * @return a user object or null
-	 */
-	protected UserModel authenticate(Cookie[] cookies) {
-		if (getManager(IUserManager.class).supportsCookies()) {
-			if (cookies != null && cookies.length > 0) {
-				for (Cookie cookie : cookies) {
-					if (cookie.getName().equals(Constants.NAME)) {
-						String value = cookie.getValue();
-						return getManager(IUserManager.class).authenticate(value.toCharArray());
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Authenticate a user based on HTTP request parameters.
-	 *
-	 * Authentication by X509Certificate is tried first and then by cookie.
-	 *
-	 * @param httpRequest
-	 * @return a user object or null
-	 */
-	@Override
-	public UserModel authenticate(HttpServletRequest httpRequest) {
-		return authenticate(httpRequest, false);
-	}
-
-	/**
-	 * Authenticate a user based on HTTP request parameters.
-	 *
-	 * Authentication by X509Certificate, servlet container principal, cookie,
-	 * and BASIC header.
-	 *
-	 * @param httpRequest
-	 * @param requiresCertificate
-	 * @return a user object or null
-	 */
-	@Override
-	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
-		// try to authenticate by certificate
-		boolean checkValidity = settings.getBoolean(Keys.git.enforceCertificateValidity, true);
-		String [] oids = settings.getStrings(Keys.git.certificateUsernameOIDs).toArray(new String[0]);
-		UserModel model = HttpUtils.getUserModelFromCertificate(httpRequest, checkValidity, oids);
-		if (model != null) {
-			// grab real user model and preserve certificate serial number
-			UserModel user = getManager(IUserManager.class).getUserModel(model.username);
-			X509Metadata metadata = HttpUtils.getCertificateMetadata(httpRequest);
-			if (user != null) {
-				flagWicketSession(AuthenticationType.CERTIFICATE);
-				logger.debug(MessageFormat.format("{0} authenticated by client certificate {1} from {2}",
-						user.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
-				return user;
-			} else {
-				logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted client certificate ({1}) authentication from {2}",
-						model.username, metadata.serialNumber, httpRequest.getRemoteAddr()));
-			}
-		}
-
-		if (requiresCertificate) {
-			// caller requires client certificate authentication (e.g. git servlet)
-			return null;
-		}
-
-		// try to authenticate by servlet container principal
-		Principal principal = httpRequest.getUserPrincipal();
-		if (principal != null) {
-			String username = principal.getName();
-			if (!StringUtils.isEmpty(username)) {
-				boolean internalAccount = isInternalAccount(username);
-				UserModel user = getManager(IUserManager.class).getUserModel(username);
-				if (user != null) {
-					// existing user
-					flagWicketSession(AuthenticationType.CONTAINER);
-					logger.debug(MessageFormat.format("{0} authenticated by servlet container principal from {1}",
-							user.username, httpRequest.getRemoteAddr()));
-					return user;
-				} else if (settings.getBoolean(Keys.realm.container.autoCreateAccounts, false)
-						&& !internalAccount) {
-					// auto-create user from an authenticated container principal
-					user = new UserModel(username.toLowerCase());
-					user.displayName = username;
-					user.password = Constants.EXTERNAL_ACCOUNT;
-					getManager(IUserManager.class).updateUserModel(user);
-					flagWicketSession(AuthenticationType.CONTAINER);
-					logger.debug(MessageFormat.format("{0} authenticated and created by servlet container principal from {1}",
-							user.username, httpRequest.getRemoteAddr()));
-					return user;
-				} else if (!internalAccount) {
-					logger.warn(MessageFormat.format("Failed to find UserModel for {0}, attempted servlet container authentication from {1}",
-							principal.getName(), httpRequest.getRemoteAddr()));
-				}
-			}
-		}
-
-		// try to authenticate by cookie
-		if (getManager(IUserManager.class).supportsCookies()) {
-			UserModel user = authenticate(httpRequest.getCookies());
-			if (user != null) {
-				flagWicketSession(AuthenticationType.COOKIE);
-				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
-						user.username, httpRequest.getRemoteAddr()));
-				return user;
-			}
-		}
-
-		// try to authenticate by BASIC
-		final String authorization = httpRequest.getHeader("Authorization");
-		if (authorization != null && authorization.startsWith("Basic")) {
-			// Authorization: Basic base64credentials
-			String base64Credentials = authorization.substring("Basic".length()).trim();
-			String credentials = new String(Base64.decode(base64Credentials),
-					Charset.forName("UTF-8"));
-			// credentials = username:password
-			final String[] values = credentials.split(":", 2);
-
-			if (values.length == 2) {
-				String username = values[0];
-				char[] password = values[1].toCharArray();
-				UserModel user = authenticate(username, password);
-				if (user != null) {
-					flagWicketSession(AuthenticationType.CREDENTIALS);
-					logger.debug(MessageFormat.format("{0} authenticated by BASIC request header from {1}",
-							user.username, httpRequest.getRemoteAddr()));
-					return user;
-				} else {
-					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
-							username, httpRequest.getRemoteAddr()));
-				}
-			}
-		}
-		return null;
-	}
-
-	protected void flagWicketSession(AuthenticationType authenticationType) {
-		RequestCycle requestCycle = RequestCycle.get();
-		if (requestCycle != null) {
-			// flag the Wicket session, if this is a Wicket request
-			GitBlitWebSession session = GitBlitWebSession.get();
-			session.authenticationType = authenticationType;
-		}
-	}
-
-	/**
 	 * Open a file resource using the Servlet container.
 	 * @param file to open
 	 * @return InputStream of the opened file
@@ -678,39 +473,6 @@ public class GitBlit extends DaggerContextListener
 	public InputStream getResourceAsStream(String file) throws ResourceStreamNotFoundException {
 		ContextRelativeResource res = WicketUtils.getResource(file);
 		return res.getResourceStream().getInputStream();
-	}
-
-	/**
-	 * Sets a cookie for the specified user.
-	 *
-	 * @param response
-	 * @param user
-	 */
-	@Override
-	public void setCookie(HttpServletResponse response, UserModel user) {
-		GitBlitWebSession session = GitBlitWebSession.get();
-		boolean standardLogin = session.authenticationType.isStandard();
-
-		if (getManager(IUserManager.class).supportsCookies() && standardLogin) {
-			Cookie userCookie;
-			if (user == null) {
-				// clear cookie for logout
-				userCookie = new Cookie(Constants.NAME, "");
-			} else {
-				// set cookie for login
-				String cookie = getManager(IUserManager.class).getCookie(user);
-				if (StringUtils.isEmpty(cookie)) {
-					// create empty cookie
-					userCookie = new Cookie(Constants.NAME, "");
-				} else {
-					// create real cookie
-					userCookie = new Cookie(Constants.NAME, cookie);
-					userCookie.setMaxAge(Integer.MAX_VALUE);
-				}
-			}
-			userCookie.setPath("/");
-			response.addCookie(userCookie);
-		}
 	}
 
 	@Override
@@ -3101,7 +2863,7 @@ public class GitBlit extends DaggerContextListener
 						getManager(IRuntimeManager.class),
 						getManager(INotificationManager.class),
 						getManager(IUserManager.class),
-						this,
+						getManager(ISessionManager.class),
 						this,
 						this,
 						this,
@@ -3210,6 +2972,7 @@ public class GitBlit extends DaggerContextListener
 
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
+		startManager(injector, ISessionManager.class);
 
 		repositoriesFolder = getRepositoriesFolder();
 
@@ -3553,12 +3316,6 @@ public class GitBlit extends DaggerContextListener
 		// add this clone to the cached model
 		addToCachedRepositoryList(cloneModel);
 		return cloneModel;
-	}
-
-	@Override
-	public void logout(HttpServletResponse response, UserModel user) {
-		setCookie(response,  null);
-		getManager(IUserManager.class).logout(user);
 	}
 
 	@Override

@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.models.UserModel;
 
-public interface ISessionManager {
+public interface ISessionManager extends IManager {
 
 	/**
 	 * Authenticate a user based on HTTP request parameters.
@@ -44,6 +44,14 @@ public interface ISessionManager {
 	 */
 	UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate);
 
+	/**
+	 * Authenticate a user based on a username and password.
+	 *
+	 * @see IUserService.authenticate(String, char[])
+	 * @param username
+	 * @param password
+	 * @return a user object or null
+	 */
 	UserModel authenticate(String username, char[] password);
 
 	/**
