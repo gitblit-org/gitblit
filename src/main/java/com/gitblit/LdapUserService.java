@@ -43,6 +43,7 @@ import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import com.unboundid.ldap.sdk.SimpleBindRequest;
 import com.unboundid.ldap.sdk.extensions.StartTLSExtendedRequest;
 import com.unboundid.util.ssl.SSLUtil;
 import com.unboundid.util.ssl.TrustAllTrustManager;
@@ -161,46 +162,42 @@ public class LdapUserService extends GitblitUserService {
 
 	private LDAPConnection getLdapConnection() {
 		try {
+			
 			URI ldapUrl = new URI(settings.getRequiredString(Keys.realm.ldap.server));
+			String ldapHost = ldapUrl.getHost();
+			int ldapPort = ldapUrl.getPort();
 			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
-			int ldapPort = ldapUrl.getPort();
 
+			
+			LDAPConnection conn;
 			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {	// SSL
-				if (ldapPort == -1)	// Default Port
-					ldapPort = 636;
-
-				LDAPConnection conn;
 				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
-					 conn = new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort);
-				} else {
-					 conn = new LDAPConnection(sslUtil.createSSLSocketFactory(), ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
-				}
-				return conn;
+				conn = new LDAPConnection(sslUtil.createSSLSocketFactory());
+			} else if (ldapUrl.getScheme().equalsIgnoreCase("ldap") || ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {	// no encryption or StartTLS
+				conn = new LDAPConnection();
 			} else {
-				if (ldapPort == -1)	// Default Port
-					ldapPort = 389;
-
-				LDAPConnection conn;
-				if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
-					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort);
-				} else {
-					conn = new LDAPConnection(ldapUrl.getHost(), ldapPort, bindUserName, bindPassword);
-				}
-
-				if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
-					SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-
-					ExtendedResult extendedResult = conn.processExtendedOperation(
-						new StartTLSExtendedRequest(sslUtil.createSSLContext()));
-
-					if (extendedResult.getResultCode() != ResultCode.SUCCESS) {
-						throw new LDAPException(extendedResult.getResultCode());
-					}
-				}
-				return conn;
+				logger.error("Unsupported LDAP URL scheme: " + ldapUrl.getScheme());
+				return null;
 			}
+			
+			conn.connect(ldapHost, ldapPort);
+			
+			if (ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
+				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+				ExtendedResult extendedResult = conn.processExtendedOperation(
+						new StartTLSExtendedRequest(sslUtil.createSSLContext()));
+				if (extendedResult.getResultCode() != ResultCode.SUCCESS) {
+					throw new LDAPException(extendedResult.getResultCode());
+				}
+			}
+
+			if ( ! StringUtils.isEmpty(bindUserName) || ! StringUtils.isEmpty(bindPassword)) {
+				conn.bind(new SimpleBindRequest(bindUserName, bindPassword));
+			}
+			
+			return conn;
+
 		} catch (URISyntaxException e) {
 			logger.error("Bad LDAP URL, should be in the form: ldap(s|+tls)://<server>:<port>", e);
 		} catch (GeneralSecurityException e) {

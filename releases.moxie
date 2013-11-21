@@ -11,6 +11,7 @@ r20: {
     security: ~
     fixes:
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
+	- Bind LDAP connection after establishing TLS initialization (issue-343)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity
@@ -69,6 +70,7 @@ r20: {
 	- Chad Horohoe
 	- Domingo Oropeza
 	- Chris Graham
+	- Guenter Dressel
 }
 
 #
