@@ -15,7 +15,6 @@
  */
 package com.gitblit.tests;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
@@ -25,6 +24,7 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.servlet.GitblitContext;
 
 
 public class GitblitUnitTest extends org.junit.Assert {
@@ -34,34 +34,34 @@ public class GitblitUnitTest extends org.junit.Assert {
 	}
 
 	public static IRuntimeManager runtime() {
-		return GitBlit.getManager(IRuntimeManager.class);
+		return GitblitContext.getManager(IRuntimeManager.class);
 	}
 
 	public static INotificationManager notifier() {
-		return GitBlit.getManager(INotificationManager.class);
+		return GitblitContext.getManager(INotificationManager.class);
 	}
 
 	public static IUserManager users() {
-		return GitBlit.getManager(IUserManager.class);
+		return GitblitContext.getManager(IUserManager.class);
 	}
 
 	public static ISessionManager session() {
-		return GitBlit.getManager(ISessionManager.class);
+		return GitblitContext.getManager(ISessionManager.class);
 	}
 
 	public static IRepositoryManager repositories() {
-		return GitBlit.getManager(IRepositoryManager.class);
+		return GitblitContext.getManager(IRepositoryManager.class);
 	}
 
 	public static IProjectManager projects() {
-		return GitBlit.getManager(IProjectManager.class);
+		return GitblitContext.getManager(IProjectManager.class);
 	}
 
 	public static IFederationManager federation() {
-		return GitBlit.getManager(IFederationManager.class);
+		return GitblitContext.getManager(IFederationManager.class);
 	}
 
 	public static IGitblitManager gitblit() {
-		return GitBlit.getManager(IGitblitManager.class);
+		return GitblitContext.getManager(IGitblitManager.class);
 	}
 }

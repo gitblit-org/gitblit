@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,17 +37,19 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.utils.StringUtils;
 
 /**
- * The mail executor handles sending email messages asynchronously from queue.
+ * The mail service handles sending email messages asynchronously from a queue.
  *
  * @author James Moger
  *
  */
-public class MailExecutor implements Runnable {
+public class MailService implements Runnable {
 
-	private final Logger logger = LoggerFactory.getLogger(MailExecutor.class);
+	private final Logger logger = LoggerFactory.getLogger(MailService.class);
 
 	private final Queue<Message> queue = new ConcurrentLinkedQueue<Message>();
 
@@ -55,7 +57,7 @@ public class MailExecutor implements Runnable {
 
 	private final IStoredSettings settings;
 
-	public MailExecutor(IStoredSettings settings) {
+	public MailService(IStoredSettings settings) {
 		this.settings = settings;
 
 		final String mailUser = settings.getString(Keys.mail.username, null);

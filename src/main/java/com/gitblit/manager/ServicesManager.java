@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.FederationPullExecutor;
 import com.gitblit.Gitblit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
@@ -37,6 +36,7 @@ import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
 import com.gitblit.models.FederationModel;
+import com.gitblit.service.FederationPullService;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
@@ -163,7 +163,7 @@ public class ServicesManager implements IServicesManager {
 		}
 	}
 
-	private class FederationPuller extends FederationPullExecutor {
+	private class FederationPuller extends FederationPullService {
 
 		public FederationPuller(FederationModel registration) {
 			super(Arrays.asList(registration));

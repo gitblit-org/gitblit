@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.service;
 
 import static org.eclipse.jgit.treewalk.filter.TreeFilter.ANY_DIFF;
 
@@ -85,6 +85,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.SearchObjectType;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RefModel;
@@ -95,12 +97,12 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
- * The Lucene executor handles indexing and searching repositories.
+ * The Lucene service handles indexing and searching repositories.
  *
  * @author James Moger
  *
  */
-public class LuceneExecutor implements Runnable {
+public class LuceneService implements Runnable {
 
 
 	private static final int INDEX_VERSION = 5;
@@ -125,7 +127,7 @@ public class LuceneExecutor implements Runnable {
 
 	private static final Version LUCENE_VERSION = Version.LUCENE_35;
 
-	private final Logger logger = LoggerFactory.getLogger(LuceneExecutor.class);
+	private final Logger logger = LoggerFactory.getLogger(LuceneService.class);
 
 	private final IStoredSettings storedSettings;
 	private final IRepositoryManager repositoryManager;
@@ -137,7 +139,7 @@ public class LuceneExecutor implements Runnable {
 	private final String luceneIgnoreExtensions = "7z arc arj bin bmp dll doc docx exe gif gz jar jpg lib lzh odg odf odt pdf ppt png so swf xcf xls xlsx zip";
 	private Set<String> excludedExtensions;
 
-	public LuceneExecutor(
+	public LuceneService(
 			IStoredSettings settings,
 			IRepositoryManager repositoryManager) {
 

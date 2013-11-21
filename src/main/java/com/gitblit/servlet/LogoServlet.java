@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.Keys;
+import com.gitblit.Keys.web;
 import com.gitblit.manager.IRuntimeManager;
 
 /**

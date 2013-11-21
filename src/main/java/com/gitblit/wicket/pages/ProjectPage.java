@@ -26,10 +26,10 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
 import com.gitblit.Keys;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;

@@ -63,12 +63,9 @@ import com.gitblit.Constants.CommitMessageRenderer;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GCExecutor;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.LuceneExecutor;
-import com.gitblit.MirrorExecutor;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.Metric;
 import com.gitblit.models.RefModel;
@@ -77,6 +74,9 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.service.GarbageCollectorService;
+import com.gitblit.service.LuceneService;
+import com.gitblit.service.MirrorService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ByteFormat;
 import com.gitblit.utils.CommitCache;
@@ -118,11 +118,11 @@ public class RepositoryManager implements IRepositoryManager {
 
 	private final File repositoriesFolder;
 
-	private LuceneExecutor luceneExecutor;
+	private LuceneService luceneExecutor;
 
-	private GCExecutor gcExecutor;
+	private GarbageCollectorService gcExecutor;
 
-	private MirrorExecutor mirrorExecutor;
+	private MirrorService mirrorExecutor;
 
 	public RepositoryManager(
 			IRuntimeManager runtimeManager,
@@ -1644,7 +1644,7 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void configureLuceneIndexing() {
-		luceneExecutor = new LuceneExecutor(settings, this);
+		luceneExecutor = new LuceneService(settings, this);
 		int period = 2;
 		scheduledExecutor.scheduleAtFixedRate(luceneExecutor, 1, period,  TimeUnit.MINUTES);
 		logger.info("Lucene will process indexed branches every {} minutes.", period);
@@ -1652,7 +1652,7 @@ public class RepositoryManager implements IRepositoryManager {
 
 	protected void configureGarbageCollector() {
 		// schedule gc engine
-		gcExecutor = new GCExecutor(settings, this);
+		gcExecutor = new GarbageCollectorService(settings, this);
 		if (gcExecutor.isReady()) {
 			logger.info("Garbage Collector (GC) will scan repositories every 24 hours.");
 			Calendar c = Calendar.getInstance();
@@ -1680,7 +1680,7 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	protected void configureMirrorExecutor() {
-		mirrorExecutor = new MirrorExecutor(settings, this);
+		mirrorExecutor = new MirrorService(settings, this);
 		if (mirrorExecutor.isReady()) {
 			int mins = TimeUtils.convertFrequencyToMinutes(settings.getString(Keys.git.mirrorPeriod, "30 mins"));
 			if (mins < 5) {

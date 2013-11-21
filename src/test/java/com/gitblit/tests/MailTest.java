@@ -21,14 +21,14 @@ import org.junit.Test;
 
 import com.gitblit.FileSettings;
 import com.gitblit.Keys;
-import com.gitblit.MailExecutor;
+import com.gitblit.service.MailService;
 
 public class MailTest extends GitblitUnitTest {
 
 	@Test
 	public void testSendMail() throws Exception {
 		FileSettings settings = new FileSettings("mailtest.properties");
-		MailExecutor mail = new MailExecutor(settings);
+		MailService mail = new MailService(settings);
 		Message message = mail.createMessage(settings.getStrings(Keys.mail.adminAddresses));
 		message.setSubject("Test");
 		message.setText("﻿Lägger till andra stycket i ny fil. UTF-8 encoded");

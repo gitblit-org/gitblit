@@ -61,6 +61,7 @@ import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.authority.GitblitAuthority;
 import com.gitblit.authority.NewCertificateConfig;
+import com.gitblit.servlet.GitblitContext;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.utils.X509Utils;
@@ -410,7 +411,7 @@ public class GitBlitServer {
 		}
 
 		// Setup the Gitblit context
-		GitBlit gitblit = newGitblit(settings, baseFolder);
+		GitblitContext gitblit = newGitblit(settings, baseFolder);
 		rootContext.addEventListener(gitblit);
 
 		try {
@@ -429,8 +430,8 @@ public class GitBlitServer {
 		}
 	}
 
-	protected GitBlit newGitblit(IStoredSettings settings, File baseFolder) {
-		return new GitBlit(settings, baseFolder);
+	protected GitblitContext newGitblit(IStoredSettings settings, File baseFolder) {
+		return new GitblitContext(settings, baseFolder);
 	}
 
 	/**

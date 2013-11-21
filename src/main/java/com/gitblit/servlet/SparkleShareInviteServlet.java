@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -25,6 +25,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.Keys.fanout;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;

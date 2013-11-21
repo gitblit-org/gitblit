@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.service;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -33,20 +33,22 @@ import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.JGitUtils;
 
 /**
- * The Mirror executor handles periodic fetching of mirrored repositories.
+ * The Mirror service handles periodic fetching of mirrored repositories.
  *
  * @author James Moger
  *
  */
-public class MirrorExecutor implements Runnable {
+public class MirrorService implements Runnable {
 
-	private final Logger logger = LoggerFactory.getLogger(MirrorExecutor.class);
+	private final Logger logger = LoggerFactory.getLogger(MirrorService.class);
 
 	private final Set<String> repairAttempted = Collections.synchronizedSet(new HashSet<String>());
 
@@ -60,7 +62,7 @@ public class MirrorExecutor implements Runnable {
 
 	private final UserModel gitblitUser;
 
-	public MirrorExecutor(
+	public MirrorService(
 			IStoredSettings settings,
 			IRepositoryManager repositoryManager) {
 

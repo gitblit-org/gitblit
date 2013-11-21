@@ -6,10 +6,10 @@ import java.util.List;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitServer;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.servlet.GitblitContext;
 
 public class GitBlitServer4UITests extends GitBlitServer {
 
@@ -54,8 +54,8 @@ public class GitBlitServer4UITests extends GitBlitServer {
 	}
 
 	@Override
-	protected GitBlit newGitblit(IStoredSettings settings, File baseFolder) {
+	protected GitblitContext newGitblit(IStoredSettings settings, File baseFolder) {
 		settings.overrideSetting(Keys.web.allowLuceneIndexing, false);
-		return new GitBlit(settings, baseFolder);
+		return new GitblitContext(settings, baseFolder);
 	}
 }

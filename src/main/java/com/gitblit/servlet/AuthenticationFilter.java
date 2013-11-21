@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;

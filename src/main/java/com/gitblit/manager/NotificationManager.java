@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.MailExecutor;
+import com.gitblit.service.MailService;
 
 /**
  * The notification manager dispatches notifications.  Currently, email is the
@@ -50,11 +50,11 @@ public class NotificationManager implements INotificationManager {
 
 	private final IStoredSettings settings;
 
-	private final MailExecutor mailExecutor;
+	private final MailService mailExecutor;
 
 	public NotificationManager(IStoredSettings settings) {
 		this.settings = settings;
-		this.mailExecutor = new MailExecutor(settings);
+		this.mailExecutor = new MailService(settings);
 	}
 
 	@Override

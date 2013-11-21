@@ -32,10 +32,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import com.gitblit.BranchGraphServlet;
 import com.gitblit.Constants;
 import com.gitblit.Keys;
 import com.gitblit.models.RefModel;
+import com.gitblit.servlet.BranchGraphServlet;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.ExternalImage;

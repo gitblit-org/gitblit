@@ -395,7 +395,7 @@ public class Constants {
 	public static enum SearchObjectType {
 		commit, blob;
 
-		static SearchObjectType fromName(String name) {
+		public static SearchObjectType fromName(String name) {
 			for (SearchObjectType value : values()) {
 				if (value.name().equals(name)) {
 					return value;

@@ -33,11 +33,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException;
 import com.gitblit.GitBlitServer;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
+import com.gitblit.servlet.GitblitContext;
 import com.gitblit.utils.JGitUtils;
 
 /**
@@ -180,7 +180,7 @@ public class GitBlitSuite {
 
 	private static void showRemoteBranches(String repositoryName) {
 		try {
-			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+			IRepositoryManager repositoryManager = GitblitContext.getManager(IRepositoryManager.class);
 			RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
 			model.showRemoteBranches = true;
 			repositoryManager.updateRepositoryModel(model.name, model, false);
@@ -191,7 +191,7 @@ public class GitBlitSuite {
 
 	private static void automaticallyTagBranchTips(String repositoryName) {
 		try {
-			IRepositoryManager repositoryManager = GitBlit.getManager(IRepositoryManager.class);
+			IRepositoryManager repositoryManager = GitblitContext.getManager(IRepositoryManager.class);
 			RepositoryModel model = repositoryManager.getRepositoryModel(repositoryName);
 			model.useIncrementalPushTags = true;
 			repositoryManager.updateRepositoryModel(model.name, model, false);

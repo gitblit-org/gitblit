@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -52,6 +52,10 @@ import org.eclipse.jgit.revplot.PlotLane;
 import org.eclipse.jgit.revplot.PlotWalk;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.Keys.web;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.JGitUtils;

@@ -44,10 +44,10 @@ import org.apache.wicket.model.Model;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;

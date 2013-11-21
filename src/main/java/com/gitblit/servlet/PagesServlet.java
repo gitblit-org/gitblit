@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -37,6 +37,10 @@ import org.eclipse.jgit.revwalk.RevTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.Keys.web;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;

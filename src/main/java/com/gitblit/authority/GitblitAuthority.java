@@ -90,10 +90,10 @@ import com.gitblit.FileSettings;
 import com.gitblit.IStoredSettings;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
-import com.gitblit.MailExecutor;
 import com.gitblit.client.HeaderPanel;
 import com.gitblit.client.Translation;
 import com.gitblit.models.UserModel;
+import com.gitblit.service.MailService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.FileUtils;
 import com.gitblit.utils.StringUtils;
@@ -131,7 +131,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 
 	private TableRowSorter<UserCertificateTableModel> defaultSorter;
 
-	private MailExecutor mail;
+	private MailService mail;
 
 	private JButton certificateDefaultsButton;
 
@@ -258,7 +258,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 			return null;
 		}
 		gitblitSettings = new FileSettings(file.getAbsolutePath());
-		mail = new MailExecutor(gitblitSettings);
+		mail = new MailService(gitblitSettings);
 		String us = gitblitSettings.getString(Keys.realm.userService, "${baseFolder}/users.conf");
 		String ext = us.substring(us.lastIndexOf(".") + 1).toLowerCase();
 		IUserService service = null;

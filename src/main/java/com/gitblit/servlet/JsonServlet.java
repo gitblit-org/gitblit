@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
 

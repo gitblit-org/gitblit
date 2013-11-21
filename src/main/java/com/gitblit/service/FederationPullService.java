@@ -1,4 +1,4 @@
-package com.gitblit;
+package com.gitblit.service;
 
 import static org.eclipse.jgit.lib.Constants.DOT_GIT_EXT;
 
@@ -26,10 +26,15 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.ConfigUserService;
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
+import com.gitblit.Gitblit;
+import com.gitblit.IUserService;
+import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -42,7 +47,7 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.JGitUtils.CloneResult;
 import com.gitblit.utils.StringUtils;
 
-public abstract class FederationPullExecutor implements Runnable {
+public abstract class FederationPullService implements Runnable {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -57,7 +62,7 @@ public abstract class FederationPullExecutor implements Runnable {
 	 * @param provider
 	 * @param registration
 	 */
-	public FederationPullExecutor(FederationModel registration) {
+	public FederationPullService(FederationModel registration) {
 		this(Arrays.asList(registration));
 	}
 
@@ -72,14 +77,14 @@ public abstract class FederationPullExecutor implements Runnable {
 	 *            if true, registrations are rescheduled in perpetuity. if
 	 *            false, the federation pull operation is executed once.
 	 */
-	public FederationPullExecutor(List<FederationModel> registrations) {
+	public FederationPullService(List<FederationModel> registrations) {
 		this.registrations = registrations;
 	}
 
 	public abstract void reschedule(FederationModel registration);
 
 	/**
-	 * Run method for this pull executor.
+	 * Run method for this pull service.
 	 */
 	@Override
 	public void run() {

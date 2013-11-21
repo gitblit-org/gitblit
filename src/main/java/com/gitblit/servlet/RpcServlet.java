@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -31,7 +31,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jgit.lib.Repository;
 
+import com.gitblit.Constants;
+import com.gitblit.GitBlitException;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.Constants.RpcRequest;
+import com.gitblit.Keys.federation;
+import com.gitblit.Keys.realm;
+import com.gitblit.Keys.web;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.IRepositoryManager;

@@ -29,9 +29,9 @@ import org.apache.wicket.markup.html.panel.Fragment;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Keys;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 gitblit.com.
+ * Copyright 2011 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.manager.IRepositoryManager;
@@ -28,17 +26,19 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
 /**
- * The PagesFilter is an AccessRestrictionFilter which ensures the gh-pages
- * requests for a view-restricted repository are authenticated and authorized.
+ * The DownloadZipFilter is an AccessRestrictionFilter which ensures that zip
+ * requests for view-restricted repositories have proper authentication
+ * credentials and are authorized.
  *
  * @author James Moger
  *
  */
 @Singleton
-public class PagesFilter extends AccessRestrictionFilter {
+public class DownloadZipFilter extends AccessRestrictionFilter {
 
 	@Inject
-	public PagesFilter(IRuntimeManager runtimeManager,
+	public DownloadZipFilter(
+			IRuntimeManager runtimeManager,
 			ISessionManager sessionManager,
 			IRepositoryManager repositoryManager) {
 
@@ -53,29 +53,10 @@ public class PagesFilter extends AccessRestrictionFilter {
 	 */
 	@Override
 	protected String extractRepositoryName(String url) {
-		// get the repository name from the url by finding a known url suffix
-		String repository = "";
-		Repository r = null;
-		int offset = 0;
-		while (r == null) {
-			int slash = url.indexOf('/', offset);
-			if (slash == -1) {
-				repository = url;
-			} else {
-				repository = url.substring(0, slash);
-			}
-			r = repositoryManager.getRepository(repository, false);
-			if (r == null) {
-				// try again
-				offset = slash + 1;
-			} else {
-				// close the repo
-				r.close();
-			}
-			if (repository.equals(url)) {
-				// either only repository in url or no repository found
-				break;
-			}
+		int a = url.indexOf("r=");
+		String repository = url.substring(a + 2);
+		if (repository.indexOf('&') > -1) {
+			repository = repository.substring(0, repository.indexOf('&'));
 		}
 		return repository;
 	}
@@ -83,12 +64,12 @@ public class PagesFilter extends AccessRestrictionFilter {
 	/**
 	 * Analyze the url and returns the action of the request.
 	 *
-	 * @param cloneUrl
+	 * @param url
 	 * @return action of the request
 	 */
 	@Override
-	protected String getUrlRequestAction(String suffix) {
-		return "VIEW";
+	protected String getUrlRequestAction(String url) {
+		return "DOWNLOAD";
 	}
 
 	/**
@@ -138,4 +119,5 @@ public class PagesFilter extends AccessRestrictionFilter {
 	protected boolean canAccess(RepositoryModel repository, UserModel user, String action) {
 		return user.canView(repository);
 	}
+
 }

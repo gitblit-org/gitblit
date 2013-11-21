@@ -35,7 +35,6 @@ import com.gitblit.Constants.RegistrantType;
 import com.gitblit.GitBlitException.NotAllowedException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
-import com.gitblit.RpcServlet;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
@@ -45,6 +44,7 @@ import com.gitblit.models.ServerSettings;
 import com.gitblit.models.ServerStatus;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.RpcServlet;
 import com.gitblit.utils.RpcUtils;
 
 /**

@@ -18,7 +18,7 @@ package com.gitblit.dagger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
-import com.gitblit.InjectionContextListener;
+import com.gitblit.servlet.InjectionContextListener;
 
 import dagger.ObjectGraph;
 

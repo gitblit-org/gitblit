@@ -13,15 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import com.gitblit.Constants;
+import com.gitblit.GitBlitException;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
+import com.gitblit.Keys.git;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;

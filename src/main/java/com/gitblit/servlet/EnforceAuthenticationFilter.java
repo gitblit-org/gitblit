@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.gitblit;
+ */package com.gitblit.servlet;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -32,6 +32,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.Keys.web;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;

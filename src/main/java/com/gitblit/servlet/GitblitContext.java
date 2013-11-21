@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +33,12 @@ import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.annotation.WebListener;
 
+import com.gitblit.Constants;
+import com.gitblit.DaggerModule;
+import com.gitblit.FileSettings;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.WebXmlSettings;
 import com.gitblit.dagger.DaggerContextListener;
 import com.gitblit.git.GitServlet;
 import com.gitblit.manager.IFederationManager;
@@ -65,9 +71,9 @@ import dagger.ObjectGraph;
  *
  */
 @WebListener
-public class GitBlit extends DaggerContextListener {
+public class GitblitContext extends DaggerContextListener {
 
-	private static GitBlit gitblit;
+	private static GitblitContext gitblit;
 
 	private final List<IManager> managers = new ArrayList<IManager>();
 
@@ -78,7 +84,7 @@ public class GitBlit extends DaggerContextListener {
 	/**
 	 * Construct a Gitblit WAR/Express context.
 	 */
-	public GitBlit() {
+	public GitblitContext() {
 		this.goSettings = null;
 		this.goBaseFolder = null;
 		gitblit = this;
@@ -90,7 +96,7 @@ public class GitBlit extends DaggerContextListener {
 	 * @param settings
 	 * @param baseFolder
 	 */
-	public GitBlit(IStoredSettings settings, File baseFolder) {
+	public GitblitContext(IStoredSettings settings, File baseFolder) {
 		this.goSettings = settings;
 		this.goBaseFolder = baseFolder;
 		gitblit = this;

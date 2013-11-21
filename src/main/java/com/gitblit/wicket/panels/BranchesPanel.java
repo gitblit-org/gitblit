@@ -37,10 +37,10 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
-import com.gitblit.SyndicationServlet;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.SyndicationServlet;
 import com.gitblit.utils.CommitCache;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RefLogUtils;

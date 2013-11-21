@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.service;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
@@ -31,17 +31,20 @@ import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
+import com.gitblit.Keys.git;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FileUtils;
 
 /**
- * The GC executor handles periodic garbage collection in repositories.
+ * The Garbage Collector Service handles periodic garbage collection in repositories.
  *
  * @author James Moger
  *
  */
-public class GCExecutor implements Runnable {
+public class GarbageCollectorService implements Runnable {
 
 	public static enum GCStatus {
 		READY, COLLECTING;
@@ -50,7 +53,7 @@ public class GCExecutor implements Runnable {
 			return ordinal() > s.ordinal();
 		}
 	}
-	private final Logger logger = LoggerFactory.getLogger(GCExecutor.class);
+	private final Logger logger = LoggerFactory.getLogger(GarbageCollectorService.class);
 
 	private final IStoredSettings settings;
 
@@ -62,7 +65,7 @@ public class GCExecutor implements Runnable {
 
 	private final Map<String, GCStatus> gcCache = new ConcurrentHashMap<String, GCStatus>();
 
-	public GCExecutor(
+	public GarbageCollectorService(
 			IStoredSettings settings,
 			IRepositoryManager repositoryManager) {
 

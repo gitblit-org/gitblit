@@ -29,6 +29,7 @@ import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.FederationModel;
+import com.gitblit.service.FederationPullService;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -95,7 +96,7 @@ public class FederationClient {
 		RepositoryManager repositories = new RepositoryManager(runtime, users).start();
 		FederationManager federation = new FederationManager(runtime, notifications, users, repositories).start();
 
-		FederationPullExecutor puller = new FederationPullExecutor(federation.getFederationRegistrations()) {
+		FederationPullService puller = new FederationPullService(federation.getFederationRegistrations()) {
 			@Override
 			public void reschedule(FederationModel registration) {
 				// NOOP

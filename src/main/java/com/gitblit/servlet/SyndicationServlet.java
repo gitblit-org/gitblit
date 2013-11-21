@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.servlet;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -32,7 +32,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.AuthenticationFilter.AuthenticatedRequest;
+import com.gitblit.Constants;
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -41,6 +43,7 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.servlet.AuthenticationFilter.AuthenticatedRequest;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MessageProcessor;
