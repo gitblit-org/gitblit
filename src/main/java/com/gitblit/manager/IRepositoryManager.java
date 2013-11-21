@@ -30,7 +30,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
 import com.gitblit.models.UserModel;
 
-public interface IRepositoryManager {
+public interface IRepositoryManager extends IManager {
 
 	/**
 	 * Returns the path of the repositories folder. This method checks to see if

@@ -23,9 +23,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.gitblit.GitBlit;
 import com.gitblit.Keys;
 import com.gitblit.LuceneExecutor;
+import com.gitblit.manager.RepositoryManager;
+import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.UserManager;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SearchResult;
@@ -46,8 +48,10 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 	private LuceneExecutor newLuceneExecutor() {
 		MemorySettings settings = new MemorySettings();
 		settings.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES);
-		GitBlit gitblit = new GitBlit(settings, GitBlitSuite.REPOSITORIES);
-		return new LuceneExecutor(settings, gitblit);
+		RuntimeManager runtime = new RuntimeManager(settings);
+		UserManager users = new UserManager(runtime);
+		RepositoryManager repos = new RepositoryManager(runtime, users);
+		return new LuceneExecutor(settings, repos);
 	}
 
 	private RepositoryModel newRepositoryModel(Repository repository) {

@@ -29,6 +29,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.SessionManager;
 import com.gitblit.manager.UserManager;
@@ -115,8 +116,13 @@ public class DaggerModule {
 				userManager);
 	}
 
-	@Provides @Singleton IRepositoryManager provideRepositoryManager() {
-		return gitblit;
+	@Provides @Singleton IRepositoryManager provideRepositoryManager(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager) {
+
+		return new RepositoryManager(
+				runtimeManager,
+				userManager);
 	}
 
 	@Provides @Singleton IProjectManager provideProjectManager() {
