@@ -21,7 +21,7 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
-public interface IProjectManager {
+public interface IProjectManager extends IManager {
 
 	/**
 	 * Returns a list of project models for the user.
