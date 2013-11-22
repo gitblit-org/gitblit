@@ -461,6 +461,27 @@ public class LdapUserService extends GitblitUserService {
 		}
 	}
 	
+	private SearchResult doSearch(LDAPConnection ldapConnection, String base, boolean dereferenceAliases, String filter, List<String> attributes) {
+		try {
+			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, filter);
+			if ( dereferenceAliases ) {
+				searchRequest.setDerefPolicy(DereferencePolicy.SEARCHING);
+			}
+			if (attributes != null) {
+				searchRequest.setAttributes(attributes);
+			}
+			return ldapConnection.search(searchRequest);
+
+		} catch (LDAPSearchException e) {
+			logger.error("Problem Searching LDAP", e);
+
+			return null;
+		} catch (LDAPException e) {
+			logger.error("Problem creating LDAP search", e);
+			return null;
+		}
+	}
+	
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
 		try {
 			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
