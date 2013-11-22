@@ -32,6 +32,7 @@ r20: {
 	- By default GO will now bind to all interfaces for both http and https connectors.  This simplifies setup for first-time users.	
 	- Removed docs indicator on the repositories page
 	- Removed the repository setting to enable Markdown document enumeration, this is now automatic and expanded
+	- Retrieve LDAP groups with dereferencing aliases (pr-122)
     additions:
 	- Added an optional MirrorExecutor which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)

@@ -20,6 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +36,13 @@ import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
@@ -404,7 +407,7 @@ public class LdapUserService extends GitblitUserService {
 		for (Attribute userAttribute : loggingInUser.getAttributes())
 			groupMemberPattern = StringUtils.replace(groupMemberPattern, "${" + userAttribute.getName() + "}", escapeLDAPSearchFilter(userAttribute.getValue()));
 
-		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, groupMemberPattern);
+		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, true, groupMemberPattern, Arrays.asList("cn"));
 		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
 			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
@@ -436,7 +439,28 @@ public class LdapUserService extends GitblitUserService {
 			return null;
 		}
 	}
+	
+	private SearchResult doSearch(LDAPConnection ldapConnection, String base, boolean dereferenceAliases, String filter, List<String> attributes) {
+		try {
+			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, filter);
+			if ( dereferenceAliases ) {
+				searchRequest.setDerefPolicy(DereferencePolicy.SEARCHING);
+			}
+			if (attributes != null) {
+				searchRequest.setAttributes(attributes);
+			}
+			return ldapConnection.search(searchRequest);
 
+		} catch (LDAPSearchException e) {
+			logger.error("Problem Searching LDAP", e);
+
+			return null;
+		} catch (LDAPException e) {
+			logger.error("Problem creating LDAP search", e);
+			return null;
+		}
+	}
+	
 	private boolean isAuthenticated(LDAPConnection ldapConnection, String userDn, String password) {
 		try {
 			// Binding will stop any LDAP-Injection Attacks since the searched-for user needs to bind to that DN
