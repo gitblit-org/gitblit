@@ -167,8 +167,11 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH) && repository.verifyCommitter) {
 			// enforce committer verification
 			if (StringUtils.isEmpty(user.emailAddress)) {
-				// emit warning if user does not have an email address
-				LOGGER.warn(MessageFormat.format("Consider setting an email address for {0} ({1}) to improve committer verification.", user.getDisplayName(), user.username));
+				// reject the push because the pushing account does not have an email address
+				for (ReceiveCommand cmd : commands) {
+					sendRejection(cmd, "Sorry, the account \"{0}\" does not have an email address set for committer verification!", user.username);
+				}
+				return;
 			}
 
 			// Optionally enforce that the committer of first parent chain
@@ -201,16 +204,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 						PersonIdent committer = commit.getCommitterIdent();
 						if (!user.is(committer.getName(), committer.getEmailAddress())) {
-							String reason;
-							if (StringUtils.isEmpty(user.emailAddress)) {
-								// account does not have an email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4})",
-										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username);
-							} else {
-								// account has an email address
-								reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>",
-										commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
-							}
+							// verification failed
+							String reason = MessageFormat.format("{0} by {1} <{2}> was not committed by {3} ({4}) <{5}>",
+									commit.getId().name(), committer.getName(), StringUtils.isEmpty(committer.getEmailAddress()) ? "?":committer.getEmailAddress(), user.getDisplayName(), user.username, user.emailAddress);
 							LOGGER.warn(reason);
 							cmd.setResult(Result.REJECTED_OTHER_REASON, reason);
 							allRejected &= true;

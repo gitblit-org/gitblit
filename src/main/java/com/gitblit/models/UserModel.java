@@ -648,22 +648,19 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	 * @return true, if the name and email address match this account
 	 */
 	public boolean is(String name, String email) {
-		// at a minimum a usename or display name must be supplied
-		if (StringUtils.isEmpty(name)) {
+		// at a minimum a username or display name AND email address must be supplied
+		if (StringUtils.isEmpty(name) || StringUtils.isEmpty(email)) {
 			return false;
 		}
 		boolean nameVerified = name.equalsIgnoreCase(username) || name.equalsIgnoreCase(getDisplayName());
 		boolean emailVerified = false;
 		if (StringUtils.isEmpty(emailAddress)) {
 			// user account has not specified an email address
-			// rely on username/displayname verification
-			emailVerified = true;
+			// fail
+			emailVerified = false;
 		} else {
 			// user account has specified an email address
-			// require email address verification
-			if (!StringUtils.isEmpty(email)) {
-				emailVerified = email.equalsIgnoreCase(emailAddress);
-			}
+			emailVerified = email.equalsIgnoreCase(emailAddress);
 		}
 		return nameVerified && emailVerified;
 	}

@@ -380,27 +380,15 @@ public class GitServletTest extends GitblitUnitTest {
 	public void testCommitterVerification() throws Exception {
 		UserModel user = getUser();
 
-		// account only uses account name to verify
-		testCommitterVerification(user, user.username, null, true);
-		// committer email address is ignored because account does not specify email
-		testCommitterVerification(user, user.username, "something", true);
-		// completely different committer
 		testCommitterVerification(user, "joe", null, false);
+		testCommitterVerification(user, "joe", user.emailAddress, false);
+		testCommitterVerification(user, user.username, null, false);
+		testCommitterVerification(user, user.username, user.emailAddress, true);
 
-		// test display name verification
 		user.displayName = "James Moger";
-		testCommitterVerification(user, user.displayName, null, true);
-		testCommitterVerification(user, user.displayName, "something", true);
-		testCommitterVerification(user, "joe", null, false);
-
-		// test email address verification
-		user.emailAddress = "something";
 		testCommitterVerification(user, user.displayName, null, false);
-		testCommitterVerification(user, user.displayName, "somethingelse", false);
+		testCommitterVerification(user, user.displayName, "something", false);
 		testCommitterVerification(user, user.displayName, user.emailAddress, true);
-
-		// use same email address but with different committer
-		testCommitterVerification(user, "joe", "somethingelse", false);
 	}
 
 	private void testCommitterVerification(UserModel user, String displayName, String emailAddress, boolean expectedSuccess) throws Exception {
