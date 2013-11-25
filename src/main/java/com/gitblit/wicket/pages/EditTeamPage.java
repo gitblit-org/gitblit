@@ -216,7 +216,7 @@ public class EditTeamPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// not all user services support manipulating team memberships
-		boolean editMemberships = app().users().supportsTeamMembershipChanges(null);
+		boolean editMemberships = app().authentication().supportsTeamMembershipChanges(teamModel);
 
 		// field names reflective match TeamModel fields
 		form.add(new TextField<String>("name"));

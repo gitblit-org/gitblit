@@ -29,13 +29,13 @@ import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
@@ -65,7 +65,7 @@ import com.gitblit.models.UserModel;
 public class GitBlit implements IRuntimeManager,
 								INotificationManager,
 								IUserManager,
-								ISessionManager,
+								IAuthenticationManager,
 								IRepositoryManager,
 								IProjectManager,
 								IGitblitManager,
@@ -77,7 +77,7 @@ public class GitBlit implements IRuntimeManager,
 
 	private final IUserManager userManager;
 
-	private final ISessionManager sessionManager;
+	private final IAuthenticationManager authenticationManager;
 
 	private final IRepositoryManager repositoryManager;
 
@@ -91,7 +91,7 @@ public class GitBlit implements IRuntimeManager,
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IGitblitManager gitblitManager,
@@ -100,7 +100,7 @@ public class GitBlit implements IRuntimeManager,
 		this.runtimeManager = runtimeManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
-		this.sessionManager = sessionManager;
+		this.authenticationManager = authenticationManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.gitblitManager = gitblitManager;
@@ -239,26 +239,51 @@ public class GitBlit implements IRuntimeManager,
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		return sessionManager.authenticate(username, password);
+		return authenticationManager.authenticate(username, password);
 	}
 
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest) {
-		return sessionManager.authenticate(httpRequest, false);
+		return authenticationManager.authenticate(httpRequest, false);
 	}
 	@Override
 	public UserModel authenticate(HttpServletRequest httpRequest, boolean requiresCertificate) {
-		return sessionManager.authenticate(httpRequest, requiresCertificate);
+		return authenticationManager.authenticate(httpRequest, requiresCertificate);
 	}
 
 	@Override
 	public void setCookie(HttpServletResponse response, UserModel user) {
-		sessionManager.setCookie(response, user);
+		authenticationManager.setCookie(response, user);
 	}
 
 	@Override
 	public void logout(HttpServletResponse response, UserModel user) {
-		sessionManager.logout(response, user);
+		authenticationManager.logout(response, user);
+	}
+
+	@Override
+	public boolean supportsCredentialChanges(UserModel user) {
+		return authenticationManager.supportsCredentialChanges(user);
+	}
+
+	@Override
+	public boolean supportsDisplayNameChanges(UserModel user) {
+		return authenticationManager.supportsDisplayNameChanges(user);
+	}
+
+	@Override
+	public boolean supportsEmailAddressChanges(UserModel user) {
+		return authenticationManager.supportsEmailAddressChanges(user);
+	}
+
+	@Override
+	public boolean supportsTeamMembershipChanges(UserModel user) {
+		return authenticationManager.supportsTeamMembershipChanges(user);
+	}
+
+	@Override
+	public boolean supportsTeamMembershipChanges(TeamModel team) {
+		return authenticationManager.supportsTeamMembershipChanges(team);
 	}
 
 	/*
@@ -266,28 +291,7 @@ public class GitBlit implements IRuntimeManager,
 	 */
 
 	@Override
-	public boolean supportsAddUser() {
-		return userManager.supportsAddUser();
-	}
-
-	@Override
-	public boolean supportsCredentialChanges(UserModel user) {
-		return userManager.supportsCredentialChanges(user);
-	}
-
-	@Override
-	public boolean supportsDisplayNameChanges(UserModel user) {
-		return userManager.supportsDisplayNameChanges(user);
-	}
-
-	@Override
-	public boolean supportsEmailAddressChanges(UserModel user) {
-		return userManager.supportsEmailAddressChanges(user);
-	}
-
-	@Override
-	public boolean supportsTeamMembershipChanges(UserModel user) {
-		return userManager.supportsTeamMembershipChanges(user);
+	public void setup(IRuntimeManager runtimeManager) {
 	}
 
 	@Override
@@ -318,11 +322,6 @@ public class GitBlit implements IRuntimeManager,
 	@Override
 	public TeamModel getTeamModel(String teamname) {
 		return userManager.getTeamModel(teamname);
-	}
-
-	@Override
-	public boolean supportsCookies() {
-		return userManager.supportsCookies();
 	}
 
 	@Override

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit;
+package com.gitblit.auth;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,11 +29,11 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.Crypt;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.codec.digest.Md5Crypt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
-import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.Keys;
+import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -64,51 +64,24 @@ import com.gitblit.utils.StringUtils;
  * @author Florian Zschocke
  *
  */
-public class HtpasswdUserService extends GitblitUserService
-{
-
-    private static final String KEY_BACKING_US = Keys.realm.htpasswd.backingUserService;
-    private static final String DEFAULT_BACKING_US = "${baseFolder}/users.conf";
+public class HtpasswdAuthProvider extends UsernamePasswordAuthenticationProvider {
 
     private static final String KEY_HTPASSWD_FILE = Keys.realm.htpasswd.userfile;
     private static final String DEFAULT_HTPASSWD_FILE = "${baseFolder}/htpasswd";
 
-    private static final String KEY_OVERRIDE_LOCALAUTH = Keys.realm.htpasswd.overrideLocalAuthentication;
-    private static final boolean DEFAULT_OVERRIDE_LOCALAUTH = true;
-
     private static final String KEY_SUPPORT_PLAINTEXT_PWD = "realm.htpasswd.supportPlaintextPasswords";
 
-    private final boolean SUPPORT_PLAINTEXT_PWD;
+    private boolean supportPlainTextPwd;
 
-    private IRuntimeManager runtimeManager;
-    private IStoredSettings settings;
     private File htpasswdFile;
-
-
-    private final Logger logger = LoggerFactory.getLogger(HtpasswdUserService.class);
 
     private final Map<String, String> htUsers = new ConcurrentHashMap<String, String>();
 
     private volatile long lastModified;
 
-    private volatile boolean forceReload;
-
-
-
-    public HtpasswdUserService()
-    {
-        super();
-
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.startsWith("windows") || os.startsWith("netware")) {
-            SUPPORT_PLAINTEXT_PWD = true;
-        }
-        else {
-            SUPPORT_PLAINTEXT_PWD = false;
-        }
+    public HtpasswdAuthProvider() {
+        super("htpasswd");
     }
-
-
 
     /**
      * Setup the user service.
@@ -118,42 +91,40 @@ public class HtpasswdUserService extends GitblitUserService
      * In addition the setup tries to read and parse the htpasswd file to be used
      * for authentication.
      *
-     * @param runtimeManager
-     * @since 1.4.0
+     * @param settings
+     * @since 0.7.0
      */
     @Override
-    public void setup(IRuntimeManager runtimeManager)
-    {
-    	this.runtimeManager = runtimeManager;
-        this.settings = runtimeManager.getSettings();
-
-        // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
-        String file = settings.getString(KEY_BACKING_US, DEFAULT_BACKING_US);
-        File realmFile = runtimeManager.getFileOrFolder(file);
-        serviceImpl = createUserService(realmFile);
-        logger.info("Htpasswd User Service backed by " + serviceImpl.toString());
-
+    public void setup() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.startsWith("windows") || os.startsWith("netware")) {
+            supportPlainTextPwd = true;
+        } else {
+            supportPlainTextPwd = false;
+        }
         read();
-
         logger.debug("Read " + htUsers.size() + " users from htpasswd file: " + this.htpasswdFile);
     }
 
-
-
-    /**
-     * For now, credentials are defined in the htpasswd file and can not be manipulated
-     * from Gitblit.
-     *
-     * @return false
-     * @since 1.0.0
-     */
     @Override
-    public boolean supportsCredentialChanges()
-    {
+    public boolean supportsCredentialChanges() {
         return false;
     }
 
+    @Override
+    public boolean supportsDisplayNameChanges() {
+        return true;
+    }
 
+    @Override
+    public boolean supportsEmailAddressChanges() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsTeamMembershipChanges() {
+        return true;
+    }
 
     /**
      * Authenticate a user based on a username and password.
@@ -168,14 +139,7 @@ public class HtpasswdUserService extends GitblitUserService
      * @return a user object or null
      */
     @Override
-    public UserModel authenticate(String username, char[] password)
-    {
-        if (isLocalAccount(username)) {
-            // local account, bypass htpasswd authentication
-            return super.authenticate(username, password);
-        }
-
-
+    public UserModel authenticate(String username, char[] password) {
         read();
         String storedPwd = htUsers.get(username);
         if (storedPwd != null) {
@@ -183,27 +147,27 @@ public class HtpasswdUserService extends GitblitUserService
             final String passwd = new String(password);
 
             // test Apache MD5 variant encrypted password
-            if ( storedPwd.startsWith("$apr1$") ) {
-                if ( storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd)) ) {
+            if (storedPwd.startsWith("$apr1$")) {
+                if (storedPwd.equals(Md5Crypt.apr1Crypt(passwd, storedPwd))) {
                     logger.debug("Apache MD5 encoded password matched for user '" + username + "'");
                     authenticated = true;
                 }
             }
             // test unsalted SHA password
-            else if ( storedPwd.startsWith("{SHA}") ) {
+            else if (storedPwd.startsWith("{SHA}")) {
                 String passwd64 = Base64.encodeBase64String(DigestUtils.sha1(passwd));
-                if ( storedPwd.substring("{SHA}".length()).equals(passwd64) ) {
+                if (storedPwd.substring("{SHA}".length()).equals(passwd64)) {
                     logger.debug("Unsalted SHA-1 encoded password matched for user '" + username + "'");
                     authenticated = true;
                 }
             }
             // test libc crypt() encoded password
-            else if ( supportCryptPwd() && storedPwd.equals(Crypt.crypt(passwd, storedPwd)) ) {
+            else if (supportCryptPwd() && storedPwd.equals(Crypt.crypt(passwd, storedPwd))) {
                 logger.debug("Libc crypt encoded password matched for user '" + username + "'");
                 authenticated = true;
             }
             // test clear text
-            else if ( supportPlaintextPwd() && storedPwd.equals(passwd) ){
+            else if (supportPlaintextPwd() && storedPwd.equals(passwd)){
                 logger.debug("Clear text password matched for user '" + username + "'");
                 authenticated = true;
             }
@@ -212,10 +176,13 @@ public class HtpasswdUserService extends GitblitUserService
             if (authenticated) {
                 logger.debug("Htpasswd authenticated: " + username);
 
-                UserModel user = getUserModel(username);
-                if (user == null) {
+                UserModel curr = userManager.getUserModel(username);
+                UserModel user;
+                if (curr == null) {
                     // create user object for new authenticated user
                     user = new UserModel(username);
+                } else {
+                	user = curr;
                 }
 
                 // create a user cookie
@@ -228,7 +195,7 @@ public class HtpasswdUserService extends GitblitUserService
                 user.accountType = getAccountType();
 
                 // Push the looked up values to backing file
-                super.updateUserModel(user);
+               	updateUser(user);
 
                 return user;
             }
@@ -237,70 +204,29 @@ public class HtpasswdUserService extends GitblitUserService
         return null;
     }
 
-
-
-    /**
-     * Determine if the account is to be treated as a local account.
-     *
-     * This influences authentication. A local account will be authenticated
-     * by the backing user service while an external account will be handled
-     * by this user service.
-     * <br/>
-     * The decision also depends on the setting of the key
-     * realm.htpasswd.overrideLocalAuthentication.
-     * If it is set to true, then passwords will first be checked against the
-     * htpasswd store. If an account exists and is marked as local in the backing
-     * user service, that setting will be overwritten by the result. This
-     * means that an account that looks local to the backing user service will
-     * be turned into an external account upon valid login of a user that has
-     * an entry in the htpasswd file.
-     * If the key is set to false, then it is determined if the account is local
-     * according to the logic of the GitblitUserService.
-     */
-    @Override
-	protected boolean isLocalAccount(String username)
-    {
-        if ( settings.getBoolean(KEY_OVERRIDE_LOCALAUTH, DEFAULT_OVERRIDE_LOCALAUTH) ) {
-            read();
-            if ( htUsers.containsKey(username) ) return false;
-        }
-        return super.isLocalAccount(username);
-    }
-
-
-
     /**
      * Get the account type used for this user service.
      *
      * @return AccountType.HTPASSWD
      */
     @Override
-	public AccountType getAccountType()
-    {
+	public AccountType getAccountType() {
         return AccountType.HTPASSWD;
     }
 
-
-
-    private String htpasswdFilePath = null;
     /**
      * Reads the realm file and rebuilds the in-memory lookup tables.
      */
-    protected synchronized void read()
-    {
-
-        // This is done in two steps in order to avoid calling GitBlit.getFileOrFolder(String, String) which will segfault for unit tests.
-        String file = settings.getString(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
-        if ( !file.equals(htpasswdFilePath) ) {
-            // The htpasswd file setting changed. Rediscover the file.
-            this.htpasswdFilePath = file;
-            this.htpasswdFile = runtimeManager.getFileOrFolder(file);
+    protected synchronized void read() {
+    	boolean forceReload = false;
+    	File file = getFileOrFolder(KEY_HTPASSWD_FILE, DEFAULT_HTPASSWD_FILE);
+        if (!file.equals(htpasswdFile)) {
+            this.htpasswdFile = file;
             this.htUsers.clear();
-            this.forceReload = true;
+            forceReload = true;
         }
 
         if (htpasswdFile.exists() && (forceReload || (htpasswdFile.lastModified() != lastModified))) {
-            forceReload = false;
             lastModified = htpasswdFile.lastModified();
             htUsers.clear();
 
@@ -309,53 +235,42 @@ public class HtpasswdUserService extends GitblitUserService
             Scanner scanner = null;
             try {
                 scanner = new Scanner(new FileInputStream(htpasswdFile));
-                while( scanner.hasNextLine()) {
+                while (scanner.hasNextLine()) {
                     String line = scanner.nextLine().trim();
-                    if ( !line.isEmpty() &&  !line.startsWith("#") ) {
+                    if (!line.isEmpty() &&  !line.startsWith("#")) {
                         Matcher m = entry.matcher(line);
-                        if ( m.matches() ) {
+                        if (m.matches()) {
                             htUsers.put(m.group(1), m.group(2));
                         }
                     }
                 }
             } catch (Exception e) {
                 logger.error(MessageFormat.format("Failed to read {0}", htpasswdFile), e);
-            }
-            finally {
-                if (scanner != null) scanner.close();
+            } finally {
+                if (scanner != null) {
+                	scanner.close();
+                }
             }
         }
     }
 
-
-
-    private boolean supportPlaintextPwd()
-    {
-        return this.settings.getBoolean(KEY_SUPPORT_PLAINTEXT_PWD, SUPPORT_PLAINTEXT_PWD);
+    private boolean supportPlaintextPwd() {
+        return this.settings.getBoolean(KEY_SUPPORT_PLAINTEXT_PWD, supportPlainTextPwd);
     }
 
-
-    private boolean supportCryptPwd()
-    {
+    private boolean supportCryptPwd() {
         return !supportPlaintextPwd();
     }
-
-
-
-    @Override
-    public String toString()
-    {
-        return getClass().getSimpleName() + "(" + ((htpasswdFile != null) ? htpasswdFile.getAbsolutePath() : "null") + ")";
-    }
-
-
-
 
     /*
      * Method only used for unit tests. Return number of users read from htpasswd file.
      */
-    public int getNumberHtpasswdUsers()
-    {
+    public int getNumberHtpasswdUsers() {
         return this.htUsers.size();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + ((htpasswdFile != null) ? htpasswdFile.getAbsolutePath() : "null") + ")";
     }
 }

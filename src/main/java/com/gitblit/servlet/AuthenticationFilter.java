@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
@@ -58,10 +58,10 @@ public abstract class AuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	protected final ISessionManager sessionManager;
+	protected final IAuthenticationManager authenticationManager;
 
-	protected AuthenticationFilter(ISessionManager sessionManager) {
-		this.sessionManager = sessionManager;
+	protected AuthenticationFilter(IAuthenticationManager authenticationManager) {
+		this.authenticationManager = authenticationManager;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public abstract class AuthenticationFilter implements Filter {
 	 * @return user
 	 */
 	protected UserModel getUser(HttpServletRequest httpRequest) {
-		UserModel user = sessionManager.authenticate(httpRequest, requiresClientCertificate());
+		UserModel user = authenticationManager.authenticate(httpRequest, requiresClientCertificate());
 		return user;
 	}
 

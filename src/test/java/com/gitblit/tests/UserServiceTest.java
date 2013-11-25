@@ -85,14 +85,9 @@ public class UserServiceTest extends GitblitUnitTest {
 		assertTrue(newUser.hasRepositoryPermission("repo2"));
 		assertTrue(newUser.hasRepositoryPermission("sub/repo3"));
 
-		// confirm authentication of test user
-		UserModel testUser = service.authenticate("test", "testPassword".toCharArray());
-		assertEquals("test", testUser.username);
-		assertEquals("testPassword", testUser.password);
-
 		// delete a repository role and confirm role removal from test user
 		service.deleteRepositoryRole("repo2");
-		testUser = service.getUserModel("test");
+		UserModel testUser = service.getUserModel("test");
 		assertEquals(2, testUser.permissions.size());
 
 		// delete garbage user and confirm user count

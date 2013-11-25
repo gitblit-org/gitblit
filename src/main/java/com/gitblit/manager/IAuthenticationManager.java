@@ -18,9 +18,10 @@ package com.gitblit.manager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
-public interface ISessionManager extends IManager {
+public interface IAuthenticationManager extends IManager {
 
 	/**
 	 * Authenticate a user based on HTTP request parameters.
@@ -68,5 +69,45 @@ public interface ISessionManager extends IManager {
 	 * @param user
 	 */
 	void logout(HttpServletResponse response, UserModel user);
+
+	/**
+	 * Does the user service support changes to credentials?
+	 *
+	 * @return true or false
+	 * @since 1.0.0
+	 */
+	boolean supportsCredentialChanges(UserModel user);
+
+	/**
+	 * Returns true if the user's display name can be changed.
+	 *
+	 * @param user
+	 * @return true if the user service supports display name changes
+	 */
+	boolean supportsDisplayNameChanges(UserModel user);
+
+	/**
+	 * Returns true if the user's email address can be changed.
+	 *
+	 * @param user
+	 * @return true if the user service supports email address changes
+	 */
+	boolean supportsEmailAddressChanges(UserModel user);
+
+	/**
+	 * Returns true if the user's team memberships can be changed.
+	 *
+	 * @param user
+	 * @return true if the user service supports team membership changes
+	 */
+	boolean supportsTeamMembershipChanges(UserModel user);
+
+	/**
+	 * Returns true if the team memberships can be changed.
+	 *
+	 * @param user
+	 * @return true if the team memberships can be changed
+	 */
+	boolean supportsTeamMembershipChanges(TeamModel team);
 
 }

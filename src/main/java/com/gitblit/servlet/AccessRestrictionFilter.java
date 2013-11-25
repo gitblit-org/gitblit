@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -54,9 +54,9 @@ public abstract class AccessRestrictionFilter extends AuthenticationFilter {
 
 	protected AccessRestrictionFilter(
 			IRuntimeManager runtimeManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager) {
-		super(sessionManager);
+		super(authenticationManager);
 		this.runtimeManager = runtimeManager;
 		this.repositoryManager = repositoryManager;
 	}

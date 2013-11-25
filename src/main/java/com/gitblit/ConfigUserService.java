@@ -96,6 +96,8 @@ public class ConfigUserService implements IUserService {
 
 	private static final String LOCALE = "locale";
 
+	private static final String ACCOUNTTYPE = "accountType";
+
 	private final File realmFile;
 
 	private final Logger logger = LoggerFactory.getLogger(ConfigUserService.class);
@@ -125,60 +127,6 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
-	 * Does the user service support changes to credentials?
-	 *
-	 * @return true or false
-	 * @since 1.0.0
-	 */
-	@Override
-	public boolean supportsCredentialChanges() {
-		return true;
-	}
-
-	/**
-	 * Does the user service support changes to user display name?
-	 *
-	 * @return true or false
-	 * @since 1.0.0
-	 */
-	@Override
-	public boolean supportsDisplayNameChanges() {
-		return true;
-	}
-
-	/**
-	 * Does the user service support changes to user email address?
-	 *
-	 * @return true or false
-	 * @since 1.0.0
-	 */
-	@Override
-	public boolean supportsEmailAddressChanges() {
-		return true;
-	}
-
-	/**
-	 * Does the user service support changes to team memberships?
-	 *
-	 * @return true or false
-	 * @since 1.0.0
-	 */
-	@Override
-	public boolean supportsTeamMembershipChanges() {
-		return true;
-	}
-
-	/**
-	 * Does the user service support cookie authentication?
-	 *
-	 * @return true or false
-	 */
-	@Override
-	public boolean supportsCookies() {
-		return true;
-	}
-
-	/**
 	 * Returns the cookie value for the specified user.
 	 *
 	 * @param model
@@ -197,13 +145,13 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
-	 * Authenticate a user based on their cookie.
+	 * Gets the user object for the specified cookie.
 	 *
 	 * @param cookie
 	 * @return a user object or null
 	 */
 	@Override
-	public synchronized UserModel authenticate(char[] cookie) {
+	public synchronized UserModel getUserModel(char[] cookie) {
 		String hash = new String(cookie);
 		if (StringUtils.isEmpty(hash)) {
 			return null;
@@ -220,49 +168,6 @@ public class ConfigUserService implements IUserService {
 			model = DeepCopier.copy(model);
 		}
 		return model;
-	}
-
-	/**
-	 * Authenticate a user based on a username and password.
-	 *
-	 * @param username
-	 * @param password
-	 * @return a user object or null
-	 */
-	@Override
-	public UserModel authenticate(String username, char[] password) {
-		UserModel returnedUser = null;
-		UserModel user = getUserModel(username);
-		if (user == null) {
-			return null;
-		}
-		if (user.password.startsWith(StringUtils.MD5_TYPE)) {
-			// password digest
-			String md5 = StringUtils.MD5_TYPE + StringUtils.getMD5(new String(password));
-			if (user.password.equalsIgnoreCase(md5)) {
-				returnedUser = user;
-			}
-		} else if (user.password.startsWith(StringUtils.COMBINED_MD5_TYPE)) {
-			// username+password digest
-			String md5 = StringUtils.COMBINED_MD5_TYPE
-					+ StringUtils.getMD5(username.toLowerCase() + new String(password));
-			if (user.password.equalsIgnoreCase(md5)) {
-				returnedUser = user;
-			}
-		} else if (user.password.equals(new String(password))) {
-			// plain-text password
-			returnedUser = user;
-		}
-		return returnedUser;
-	}
-
-	/**
-	 * Logout a user.
-	 *
-	 * @param user
-	 */
-	@Override
-	public void logout(UserModel user) {
 	}
 
 	/**
@@ -357,6 +262,10 @@ public class ConfigUserService implements IUserService {
 	public synchronized boolean updateUserModel(String username, UserModel model) {
 		UserModel originalUser = null;
 		try {
+			if (!model.isLocalAccount()) {
+				// do not persist password
+				model.password = Constants.EXTERNAL_ACCOUNT;
+			}
 			read();
 			originalUser = users.remove(username.toLowerCase());
 			users.put(model.username.toLowerCase(), model);
@@ -502,45 +411,6 @@ public class ConfigUserService implements IUserService {
 		}
 		Collections.sort(list);
 		return list;
-	}
-
-	/**
-	 * Sets the list of all teams who are allowed to bypass the access
-	 * restriction placed on the specified repository.
-	 *
-	 * @param role
-	 *            the repository name
-	 * @param teamnames
-	 * @return true if successful
-	 */
-	@Override
-	public synchronized boolean setTeamnamesForRepositoryRole(String role, List<String> teamnames) {
-		try {
-			Set<String> specifiedTeams = new HashSet<String>();
-			for (String teamname : teamnames) {
-				specifiedTeams.add(teamname.toLowerCase());
-			}
-
-			read();
-
-			// identify teams which require add or remove role
-			for (TeamModel team : teams.values()) {
-				// team has role, check against revised team list
-				if (specifiedTeams.contains(team.name.toLowerCase())) {
-					team.addRepositoryPermission(role);
-				} else {
-					// remove role from team
-					team.removeRepositoryPermission(role);
-				}
-			}
-
-			// persist changes
-			write();
-			return true;
-		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to set teams for role {0}!", role), t);
-		}
-		return false;
 	}
 
 	/**
@@ -716,46 +586,6 @@ public class ConfigUserService implements IUserService {
 	}
 
 	/**
-	 * Sets the list of all uses who are allowed to bypass the access
-	 * restriction placed on the specified repository.
-	 *
-	 * @param role
-	 *            the repository name
-	 * @param usernames
-	 * @return true if successful
-	 */
-	@Override
-	@Deprecated
-	public synchronized boolean setUsernamesForRepositoryRole(String role, List<String> usernames) {
-		try {
-			Set<String> specifiedUsers = new HashSet<String>();
-			for (String username : usernames) {
-				specifiedUsers.add(username.toLowerCase());
-			}
-
-			read();
-
-			// identify users which require add or remove role
-			for (UserModel user : users.values()) {
-				// user has role, check against revised user list
-				if (specifiedUsers.contains(user.username.toLowerCase())) {
-					user.addRepositoryPermission(role);
-				} else {
-					// remove role from user
-					user.removeRepositoryPermission(role);
-				}
-			}
-
-			// persist changes
-			write();
-			return true;
-		} catch (Throwable t) {
-			logger.error(MessageFormat.format("Failed to set usernames for role {0}!", role), t);
-		}
-		return false;
-	}
-
-	/**
 	 * Renames a repository role.
 	 *
 	 * @param oldRole
@@ -846,6 +676,9 @@ public class ConfigUserService implements IUserService {
 			if (!StringUtils.isEmpty(model.emailAddress)) {
 				config.setString(USER, model.username, EMAILADDRESS, model.emailAddress);
 			}
+			if (model.accountType != null) {
+				config.setString(USER, model.username, ACCOUNTTYPE, model.accountType.name());
+			}
 			if (!StringUtils.isEmpty(model.organizationalUnit)) {
 				config.setString(USER, model.username, ORGANIZATIONALUNIT, model.organizationalUnit);
 			}
@@ -928,6 +761,9 @@ public class ConfigUserService implements IUserService {
 				roles.add(Constants.NO_ROLE);
 			}
 			config.setStringList(TEAM, model.name, ROLE, roles);
+			if (model.accountType != null) {
+				config.setString(TEAM, model.name, ACCOUNTTYPE, model.accountType.name());
+			}
 
 			if (!model.canAdmin) {
 				// write team permission for non-admin teams
@@ -1021,6 +857,10 @@ public class ConfigUserService implements IUserService {
 					user.password = config.getString(USER, username, PASSWORD);
 					user.displayName = config.getString(USER, username, DISPLAYNAME);
 					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
+					user.accountType = AccountType.fromString(config.getString(USER, username, ACCOUNTTYPE));
+					if (Constants.EXTERNAL_ACCOUNT.equals(user.password) && user.accountType.isLocal()) {
+						user.accountType = null;
+					}
 					user.organizationalUnit = config.getString(USER, username, ORGANIZATIONALUNIT);
 					user.organization = config.getString(USER, username, ORGANIZATION);
 					user.locality = config.getString(USER, username, LOCALITY);
@@ -1074,6 +914,7 @@ public class ConfigUserService implements IUserService {
 					team.canAdmin = roles.contains(Constants.ADMIN_ROLE);
 					team.canFork = roles.contains(Constants.FORK_ROLE);
 					team.canCreate = roles.contains(Constants.CREATE_ROLE);
+					team.accountType = AccountType.fromString(config.getString(TEAM, teamname, ACCOUNTTYPE));
 
 					if (!team.canAdmin) {
 						// non-admin team, read permissions
@@ -1111,10 +952,5 @@ public class ConfigUserService implements IUserService {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName() + "(" + realmFile.getAbsolutePath() + ")";
-	}
-
-	@Override
-	public AccountType getAccountType() {
-		return AccountType.LOCAL;
 	}
 }

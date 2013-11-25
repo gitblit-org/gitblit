@@ -31,7 +31,7 @@ import com.gitblit.Keys;
 import com.gitblit.Keys.fanout;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -52,7 +52,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 
 	private final IUserManager userManager;
 
-	private final ISessionManager sessionManager;
+	private final IAuthenticationManager authenticationManager;
 
 	private final IRepositoryManager repositoryManager;
 
@@ -60,13 +60,13 @@ public class SparkleShareInviteServlet extends HttpServlet {
 	public SparkleShareInviteServlet(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager) {
 
 		super();
 		this.settings = runtimeManager.getSettings();
 		this.userManager = userManager;
-		this.sessionManager = sessionManager;
+		this.authenticationManager = authenticationManager;
 		this.repositoryManager = repositoryManager;
 	}
 
@@ -106,7 +106,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 		}
 		UserModel user;
 		if (StringUtils.isEmpty(username)) {
-			user = sessionManager.authenticate(request);
+			user = authenticationManager.authenticate(request);
 		} else {
 			user = userManager.getUserModel(username);
 		}

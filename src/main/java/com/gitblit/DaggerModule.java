@@ -20,8 +20,10 @@ import javax.inject.Singleton;
 import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.git.GitServlet;
+import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
 import com.gitblit.manager.GitblitManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.INotificationManager;
@@ -29,14 +31,12 @@ import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IServicesManager;
-import com.gitblit.manager.ISessionManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.ServicesManager;
-import com.gitblit.manager.SessionManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.servlet.BranchGraphServlet;
 import com.gitblit.servlet.DownloadZipFilter;
@@ -74,7 +74,7 @@ import dagger.Provides;
 			IRuntimeManager.class,
 			INotificationManager.class,
 			IUserManager.class,
-			ISessionManager.class,
+			IAuthenticationManager.class,
 			IRepositoryManager.class,
 			IProjectManager.class,
 			IGitblitManager.class,
@@ -122,11 +122,11 @@ public class DaggerModule {
 		return new UserManager(runtimeManager);
 	}
 
-	@Provides @Singleton ISessionManager provideSessionManager(
+	@Provides @Singleton IAuthenticationManager provideAuthenticationManager(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager) {
 
-		return new SessionManager(
+		return new AuthenticationManager(
 				runtimeManager,
 				userManager);
 	}
@@ -179,7 +179,7 @@ public class DaggerModule {
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IGitblitManager gitblitManager,
@@ -189,7 +189,7 @@ public class DaggerModule {
 				runtimeManager,
 				notificationManager,
 				userManager,
-				sessionManager,
+				authenticationManager,
 				repositoryManager,
 				projectManager,
 				gitblitManager,
@@ -204,7 +204,7 @@ public class DaggerModule {
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IGitblitManager gitblitManager,
@@ -214,7 +214,7 @@ public class DaggerModule {
 				runtimeManager,
 				notificationManager,
 				userManager,
-				sessionManager,
+				authenticationManager,
 				repositoryManager,
 				projectManager,
 				gitblitManager,

@@ -51,7 +51,7 @@ public class ChangePasswordPage extends RootSubPage {
 		}
 
 		UserModel user = GitBlitWebSession.get().getUser();
-		if (!app().users().supportsCredentialChanges(user)) {
+		if (!app().authentication().supportsCredentialChanges(user)) {
 			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitPasswordChanges"),
 					app().settings().getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
 		}
@@ -100,7 +100,7 @@ public class ChangePasswordPage extends RootSubPage {
 					app().gitblit().updateUserModel(user.username, user, false);
 					if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 						WebResponse response = (WebResponse) getRequestCycle().getResponse();
-						app().session().setCookie(response.getHttpServletResponse(), user);
+						app().authentication().setCookie(response.getHttpServletResponse(), user);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());

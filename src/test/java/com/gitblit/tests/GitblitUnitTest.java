@@ -22,7 +22,7 @@ import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.servlet.GitblitContext;
 
@@ -45,8 +45,8 @@ public class GitblitUnitTest extends org.junit.Assert {
 		return GitblitContext.getManager(IUserManager.class);
 	}
 
-	public static ISessionManager session() {
-		return GitblitContext.getManager(ISessionManager.class);
+	public static IAuthenticationManager authentication() {
+		return GitblitContext.getManager(IAuthenticationManager.class);
 	}
 
 	public static IRepositoryManager repositories() {

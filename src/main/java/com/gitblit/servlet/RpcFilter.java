@@ -31,7 +31,7 @@ import com.gitblit.Constants.RpcRequest;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -57,9 +57,9 @@ public class RpcFilter extends AuthenticationFilter {
 	@Inject
 	public RpcFilter(
 			IRuntimeManager runtimeManager,
-			ISessionManager sessionManager) {
+			IAuthenticationManager authenticationManager) {
 
-		super(sessionManager);
+		super(authenticationManager);
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
 	}

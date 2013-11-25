@@ -49,7 +49,7 @@ import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IServicesManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
@@ -170,7 +170,7 @@ public class GitblitContext extends DaggerContextListener {
 		// start all other managers
 		startManager(injector, INotificationManager.class);
 		startManager(injector, IUserManager.class);
-		startManager(injector, ISessionManager.class);
+		startManager(injector, IAuthenticationManager.class);
 		startManager(injector, IRepositoryManager.class);
 		startManager(injector, IProjectManager.class);
 		startManager(injector, IGitblitManager.class);

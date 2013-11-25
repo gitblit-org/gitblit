@@ -21,7 +21,7 @@ import javax.inject.Singleton;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -39,10 +39,10 @@ public class DownloadZipFilter extends AccessRestrictionFilter {
 	@Inject
 	public DownloadZipFilter(
 			IRuntimeManager runtimeManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager) {
 
-		super(runtimeManager, sessionManager, repositoryManager);
+		super(runtimeManager, authenticationManager, repositoryManager);
 	}
 
 	/**

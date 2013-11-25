@@ -101,13 +101,6 @@ public class GitblitManager implements IGitblitManager {
 	 * @return Map<String, SettingModel>
 	 */
 	private void loadSettingModels(ServerSettings settingsModel) {
-		// this entire "supports" concept will go away with user service refactoring
-		UserModel externalUser = new UserModel(Constants.EXTERNAL_ACCOUNT);
-		externalUser.password = Constants.EXTERNAL_ACCOUNT;
-		settingsModel.supportsCredentialChanges = userManager.supportsCredentialChanges(externalUser);
-		settingsModel.supportsDisplayNameChanges = userManager.supportsDisplayNameChanges(externalUser);
-		settingsModel.supportsEmailAddressChanges = userManager.supportsEmailAddressChanges(externalUser);
-		settingsModel.supportsTeamMembershipChanges = userManager.supportsTeamMembershipChanges(externalUser);
 		try {
 			// Read bundled Gitblit properties to extract setting descriptions.
 			// This copy is pristine and only used for populating the setting

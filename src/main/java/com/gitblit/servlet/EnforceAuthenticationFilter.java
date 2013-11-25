@@ -36,7 +36,7 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.Keys.web;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -54,16 +54,16 @@ public class EnforceAuthenticationFilter implements Filter {
 
 	private final IStoredSettings settings;
 
-	private final ISessionManager sessionManager;
+	private final IAuthenticationManager authenticationManager;
 
 	@Inject
 	public EnforceAuthenticationFilter(
 			IRuntimeManager runtimeManager,
-			ISessionManager sessionManager) {
+			IAuthenticationManager authenticationManager) {
 
 		super();
 		this.settings = runtimeManager.getSettings();
-		this.sessionManager = sessionManager;
+		this.authenticationManager = authenticationManager;
 	}
 
 	/*
@@ -86,7 +86,7 @@ public class EnforceAuthenticationFilter implements Filter {
 
 		HttpServletRequest  httpRequest  = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		UserModel user = sessionManager.authenticate(httpRequest);
+		UserModel user = authenticationManager.authenticate(httpRequest);
 
 		if (mustForceAuth && (user == null)) {
 			// not authenticated, enforce now:

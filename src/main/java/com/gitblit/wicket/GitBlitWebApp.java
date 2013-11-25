@@ -36,7 +36,7 @@ import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.ISessionManager;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
@@ -89,7 +89,7 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final IUserManager userManager;
 
-	private final ISessionManager sessionManager;
+	private final IAuthenticationManager authenticationManager;
 
 	private final IRepositoryManager repositoryManager;
 
@@ -103,7 +103,7 @@ public class GitBlitWebApp extends WebApplication {
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
-			ISessionManager sessionManager,
+			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
 			IGitblitManager gitblitManager,
@@ -114,7 +114,7 @@ public class GitBlitWebApp extends WebApplication {
 		this.runtimeManager = runtimeManager;
 		this.notificationManager = notificationManager;
 		this.userManager = userManager;
-		this.sessionManager = sessionManager;
+		this.authenticationManager = authenticationManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
 		this.gitblitManager = gitblitManager;
@@ -267,8 +267,8 @@ public class GitBlitWebApp extends WebApplication {
 		return userManager;
 	}
 
-	public ISessionManager session() {
-		return sessionManager;
+	public IAuthenticationManager authentication() {
+		return authenticationManager;
 	}
 
 	public IRepositoryManager repositories() {

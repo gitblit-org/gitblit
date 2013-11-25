@@ -20,20 +20,19 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.ConfigUserService;
-import com.gitblit.Constants;
-import com.gitblit.Constants.AccountType;
 import com.gitblit.IStoredSettings;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.DeepCopier;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -50,37 +49,68 @@ public class UserManager implements IUserManager {
 
 	private final IRuntimeManager runtimeManager;
 
+	private final Map<String, String> legacyBackingServices;
+
 	private IUserService userService;
 
 	public UserManager(IRuntimeManager runtimeManager) {
 		this.settings = runtimeManager.getSettings();
 		this.runtimeManager = runtimeManager;
+
+		// map of legacy realm backing user services
+		legacyBackingServices = new HashMap<String, String>();
+		legacyBackingServices.put("com.gitblit.HtpasswdUserService", "realm.htpasswd.backingUserService");
+		legacyBackingServices.put("com.gitblit.LdapUserService", "realm.ldap.backingUserService");
+		legacyBackingServices.put("com.gitblit.PAMUserService", "realm.pam.backingUserService");
+		legacyBackingServices.put("com.gitblit.RedmineUserService", "realm.redmine.backingUserService");
+		legacyBackingServices.put("com.gitblit.SalesforceUserService", "realm.salesforce.backingUserService");
+		legacyBackingServices.put("com.gitblit.WindowsUserService", "realm.windows.backingUserService");
 	}
 
 	/**
-	 * Set the user service. The user service authenticates local users and is
-	 * responsible for persisting and retrieving users and teams.
+	 * Set the user service. The user service authenticates *local* users and is
+	 * responsible for persisting and retrieving all users and all teams.
 	 *
 	 * @param userService
 	 */
 	public void setUserService(IUserService userService) {
-		logger.info("UserService: " + userService.toString());
+		logger.info(userService.toString());
 		this.userService = userService;
 		this.userService.setup(runtimeManager);
 	}
 
 	@Override
+	public void setup(IRuntimeManager runtimeManager) {
+		// NOOP
+	}
+
+	@Override
 	public UserManager start() {
 		if (this.userService == null) {
-			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.properties");
+			String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.conf");
 			IUserService service = null;
-			try {
-				// check to see if this "file" is a login service class
-				Class<?> realmClass = Class.forName(realm);
-				service = (IUserService) realmClass.newInstance();
-			} catch (Throwable t) {
-				File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
+			if (legacyBackingServices.containsKey(realm)) {
+				// create the user service from the legacy config
+				String realmKey = legacyBackingServices.get(realm);
+				logger.warn("");
+				logger.warn("#################################################################");
+				logger.warn(" Key '{}' is obsolete!", realmKey);
+				logger.warn(" Please set '{}={}'", Keys.realm.userService, settings.getString(realmKey, "${baseFolder}/users.conf"));
+				logger.warn("#################################################################");
+				logger.warn("");
+				File realmFile = runtimeManager.getFileOrFolder(realmKey, "${baseFolder}/users.conf");
 				service = createUserService(realmFile);
+			} else {
+				// either a file path OR a custom user service
+				try {
+					// check to see if this "file" is a custom user service class
+					Class<?> realmClass = Class.forName(realm);
+					service = (IUserService) realmClass.newInstance();
+				} catch (Throwable t) {
+					// typical file path configuration
+					File realmFile = runtimeManager.getFileOrFolder(Keys.realm.userService, "${baseFolder}/users.conf");
+					service = createUserService(realmFile);
+				}
 			}
 			setUserService(service);
 		}
@@ -90,7 +120,7 @@ public class UserManager implements IUserManager {
 	protected IUserService createUserService(File realmFile) {
 		IUserService service = null;
 		if (realmFile.getName().toLowerCase().endsWith(".conf")) {
-			// v0.8.0+ config-based realm file
+			// config-based realm file
 			service = new ConfigUserService(realmFile);
 		}
 
@@ -118,74 +148,6 @@ public class UserManager implements IUserManager {
 		return this;
 	}
 
-	@Override
-	public boolean supportsAddUser() {
-		return supportsCredentialChanges(new UserModel(""));
-	}
-
-	/**
-	 * Returns true if the user's credentials can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports credential changes
-	 */
-	@Override
-	public boolean supportsCredentialChanges(UserModel user) {
-		if (user == null) {
-			return false;
-		} else if (AccountType.LOCAL.equals(user.accountType)) {
-			// local account, we can change credentials
-			return true;
-		} else {
-			// external account, ask user service
-			return userService.supportsCredentialChanges();
-		}
-	}
-
-	/**
-	 * Returns true if the user's display name can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports display name changes
-	 */
-	@Override
-	public boolean supportsDisplayNameChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsDisplayNameChanges();
-	}
-
-	/**
-	 * Returns true if the user's email address can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports email address changes
-	 */
-	@Override
-	public boolean supportsEmailAddressChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsEmailAddressChanges();
-	}
-
-	/**
-	 * Returns true if the user's team memberships can be changed.
-	 *
-	 * @param user
-	 * @return true if the user service supports team membership changes
-	 */
-	@Override
-	public boolean supportsTeamMembershipChanges(UserModel user) {
-		return (user != null && user.isLocalAccount()) || userService.supportsTeamMembershipChanges();
-	}
-
-	/**
-	 * Allow to understand if GitBlit supports and is configured to allow
-	 * cookie-based authentication.
-	 *
-	 * @return status of Cookie authentication enablement.
-	 */
-	@Override
-	public boolean supportsCookies() {
-		return settings.getBoolean(Keys.web.allowCookieAuthentication, true) && userService.supportsCookies();
-	}
-
 	/**
 	 * Returns the cookie value for the specified user.
 	 *
@@ -198,44 +160,15 @@ public class UserManager implements IUserManager {
 	}
 
 	/**
-	 * Authenticate a user based on a username and password.
-	 *
-	 * @param username
-	 * @param password
-	 * @return a user object or null
-	 */
-
-	@Override
-	public UserModel authenticate(String username, char[] password) {
-		UserModel user = userService.authenticate(username, password);
-		setAccountType(user);
-		return user;
-	}
-
-	/**
-	 * Authenticate a user based on their cookie.
+	 * Retrieve the user object for the specified cookie.
 	 *
 	 * @param cookie
 	 * @return a user object or null
 	 */
 	@Override
-	public UserModel authenticate(char[] cookie) {
-		UserModel user = userService.authenticate(cookie);
-		setAccountType(user);
+	public UserModel getUserModel(char[] cookie) {
+		UserModel user = userService.getUserModel(cookie);
 		return user;
-	}
-
-	/**
-	 * Logout a user.
-	 *
-	 * @param user
-	 */
-	@Override
-	public void logout(UserModel user) {
-		if (userService == null) {
-			return;
-		}
-		userService.logout(user);
 	}
 
 	/**
@@ -251,7 +184,6 @@ public class UserManager implements IUserManager {
 		}
 		String usernameDecoded = StringUtils.decodeUsername(username);
 		UserModel user = userService.getUserModel(usernameDecoded);
-		setAccountType(user);
 		return user;
 	}
 
@@ -290,32 +222,7 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateUserModel(String username, UserModel model) {
-		if (model.isLocalAccount() || userService.supportsCredentialChanges()) {
-			if (!model.isLocalAccount() && !userService.supportsTeamMembershipChanges()) {
-				//  teams are externally controlled - copy from original model
-				UserModel existingModel = getUserModel(username);
-
-				model = DeepCopier.copy(model);
-				model.teams.clear();
-				model.teams.addAll(existingModel.teams);
-			}
-			return userService.updateUserModel(username, model);
-		}
-		if (model.username.equals(username)) {
-			// passwords are not persisted by the backing user service
-			model.password = null;
-			if (!model.isLocalAccount() && !userService.supportsTeamMembershipChanges()) {
-				//  teams are externally controlled- copy from original model
-				UserModel existingModel = getUserModel(username);
-
-				model = DeepCopier.copy(model);
-				model.teams.clear();
-				model.teams.addAll(existingModel.teams);
-			}
-			return userService.updateUserModel(username, model);
-		}
-		logger.error("Users can not be renamed!");
-		return false;
+		return userService.updateUserModel(username, model);
 	}
 
 	/**
@@ -364,9 +271,6 @@ public class UserManager implements IUserManager {
 	@Override
 	public List<UserModel> getAllUsers() {
 		List<UserModel> users = userService.getAllUsers();
-    	for (UserModel user : users) {
-    		setAccountType(user);
-    	}
 		return users;
 	}
 
@@ -378,7 +282,8 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public List<String> getAllTeamNames() {
-		return userService.getAllTeamNames();
+		List<String> teams = userService.getAllTeamNames();
+		return teams;
 	}
 
 	/**
@@ -404,7 +309,8 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public List<String> getTeamNamesForRepositoryRole(String role) {
-		return userService.getTeamNamesForRepositoryRole(role);
+		List<String> teams = userService.getTeamNamesForRepositoryRole(role);
+		return teams;
 	}
 
 	/**
@@ -416,7 +322,8 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public TeamModel getTeamModel(String teamname) {
-		return userService.getTeamModel(teamname);
+		TeamModel team = userService.getTeamModel(teamname);
+		return team;
 	}
 
 	/**
@@ -456,14 +363,6 @@ public class UserManager implements IUserManager {
 	 */
 	@Override
 	public boolean updateTeamModel(String teamname, TeamModel model) {
-		if (!userService.supportsTeamMembershipChanges()) {
-			// teams are externally controlled - copy from original model
-			TeamModel existingModel = getTeamModel(teamname);
-
-			model = DeepCopier.copy(model);
-			model.users.clear();
-			model.users.addAll(existingModel.users);
-		}
 		return userService.updateTeamModel(teamname, model);
 	}
 
@@ -526,17 +425,5 @@ public class UserManager implements IUserManager {
 	@Override
 	public boolean deleteRepositoryRole(String role) {
 		return userService.deleteRepositoryRole(role);
-	}
-
-	protected void setAccountType(UserModel user) {
-		if (user != null) {
-			if (!StringUtils.isEmpty(user.password)
-					&& !Constants.EXTERNAL_ACCOUNT.equalsIgnoreCase(user.password)
-					&& !"StoredInLDAP".equalsIgnoreCase(user.password)) {
-				user.accountType = AccountType.LOCAL;
-			} else {
-				user.accountType = userService.getAccountType();
-			}
-		}
 	}
 }

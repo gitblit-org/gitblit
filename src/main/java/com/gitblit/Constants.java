@@ -499,7 +499,16 @@ public class Constants {
 	}
 
 	public static enum AccountType {
-		LOCAL, EXTERNAL, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD;
+		LOCAL, EXTERNAL, CONTAINER, LDAP, REDMINE, SALESFORCE, WINDOWS, PAM, HTPASSWD;
+
+		public static AccountType fromString(String value) {
+			for (AccountType type : AccountType.values()) {
+				if (type.name().equalsIgnoreCase(value)) {
+					return type;
+				}
+			}
+			return AccountType.LOCAL;
+		}
 
 		public boolean isLocal() {
 			return this == LOCAL;

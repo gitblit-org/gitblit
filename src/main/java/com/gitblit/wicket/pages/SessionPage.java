@@ -60,7 +60,7 @@ public abstract class SessionPage extends WebPage {
 		// try to authenticate by servlet request
 		HttpServletRequest httpRequest = ((WebRequest) getRequestCycle().getRequest())
 				.getHttpServletRequest();
-		UserModel user = app().session().authenticate(httpRequest);
+		UserModel user = app().authentication().authenticate(httpRequest);
 
 		// Login the user
 		if (user != null) {
@@ -70,7 +70,7 @@ public abstract class SessionPage extends WebPage {
 
 			// Set Cookie
 			WebResponse response = (WebResponse) getRequestCycle().getResponse();
-			app().session().setCookie(response.getHttpServletResponse(), user);
+			app().authentication().setCookie(response.getHttpServletResponse(), user);
 
 			session.continueRequest();
 		}

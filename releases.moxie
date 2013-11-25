@@ -20,6 +20,7 @@ r20: {
     changes:
 	- Gitblit now rejects pushes to mirror repositories (issue-5)
 	- Personal repository prefix (~) is now configurable (issue-265)
+	- Refactored user services and separated authentication into providers (issue-281)
 	- Reversed line links in blob view (issue-309)
 	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
 	- Do not log passwords on failed authentication attempts (issue-316)
@@ -58,11 +59,12 @@ r20: {
 	- { name: 'git.enableMirroring', defaultValue: 'false' }
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
+	- { name: 'realm.authenticationProviders', defaultValue: ' ' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
 	- { name: 'web.summaryShowReadme', defaultValue: 'false' }
-	- { name: 'server.redirectToHttpsPort', defaultValue: 'true' }
+	- { name: 'server.redirectToHttpsPort', defaultValue: 'false' }
     contributors:
 	- James Moger
 	- Robin Rosenberg

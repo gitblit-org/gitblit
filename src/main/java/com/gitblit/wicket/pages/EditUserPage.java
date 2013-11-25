@@ -54,10 +54,6 @@ public class EditUserPage extends RootSubPage {
 	public EditUserPage() {
 		// create constructor
 		super();
-		if (!app().users().supportsAddUser()) {
-			error(MessageFormat.format(getString("gb.userServiceDoesNotPermitAddUser"),
-					app().settings().getString(Keys.realm.userService, "${baseFolder}/users.conf")), true);
-		}
 		isCreate = true;
 		setupPage(new UserModel(""));
 		setStatelessHint(false);
@@ -138,7 +134,7 @@ public class EditUserPage extends RootSubPage {
 				}
 				boolean rename = !StringUtils.isEmpty(oldName)
 						&& !oldName.equalsIgnoreCase(username);
-				if (app().users().supportsCredentialChanges(userModel)) {
+				if (app().authentication().supportsCredentialChanges(userModel)) {
 					if (!userModel.password.equals(confirmPassword.getObject())) {
 						error(getString("gb.passwordsDoNotMatch"));
 						return;
@@ -214,16 +210,16 @@ public class EditUserPage extends RootSubPage {
 		form.add(new SimpleAttributeModifier("autocomplete", "off"));
 
 		// not all user services support manipulating username and password
-		boolean editCredentials = app().users().supportsCredentialChanges(userModel);
+		boolean editCredentials = app().authentication().supportsCredentialChanges(userModel);
 
 		// not all user services support manipulating display name
-		boolean editDisplayName = app().users().supportsDisplayNameChanges(userModel);
+		boolean editDisplayName = app().authentication().supportsDisplayNameChanges(userModel);
 
 		// not all user services support manipulating email address
-		boolean editEmailAddress = app().users().supportsEmailAddressChanges(userModel);
+		boolean editEmailAddress = app().authentication().supportsEmailAddressChanges(userModel);
 
 		// not all user services support manipulating team memberships
-		boolean editTeams = app().users().supportsTeamMembershipChanges(userModel);
+		boolean editTeams = app().authentication().supportsTeamMembershipChanges(userModel);
 
 		// field names reflective match UserModel fields
 		form.add(new TextField<String>("username").setEnabled(editCredentials));

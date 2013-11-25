@@ -252,7 +252,7 @@ public abstract class RootPage extends BasePage {
 			// Set Cookie
 			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 				WebResponse response = (WebResponse) getRequestCycle().getResponse();
-				app().session().setCookie(response.getHttpServletResponse(), user);
+				app().authentication().setCookie(response.getHttpServletResponse(), user);
 			}
 
 			if (!session.continueRequest()) {
@@ -536,7 +536,7 @@ public abstract class RootPage extends BasePage {
 					String username = RootPage.this.username.getObject();
 					char[] password = RootPage.this.password.getObject().toCharArray();
 
-					UserModel user = app().session().authenticate(username, password);
+					UserModel user = app().authentication().authenticate(username, password);
 					if (user == null) {
 						error(getString("gb.invalidUsernameOrPassword"));
 					} else if (user.username.equals(Constants.FEDERATION_USER)) {
@@ -572,7 +572,7 @@ public abstract class RootPage extends BasePage {
 
 			GitBlitWebSession session = GitBlitWebSession.get();
 			UserModel user = session.getUser();
-			boolean editCredentials = app().users().supportsCredentialChanges(user);
+			boolean editCredentials = app().authentication().supportsCredentialChanges(user);
 			boolean standardLogin = session.authenticationType.isStandard();
 
 			if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {

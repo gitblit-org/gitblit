@@ -56,12 +56,12 @@ import com.gitblit.utils.JGitUtils;
 @RunWith(Suite.class)
 @SuiteClasses({ ArrayUtilsTest.class, FileUtilsTest.class, TimeUtilsTest.class,
 		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
-		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapUserServiceTest.class,
+		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapAuthenticationTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
 		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
-		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdUserServiceTest.class,
+		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
 		ModelUtilsTest.class, JnaUtilsTest.class })
 public class GitBlitSuite {
 

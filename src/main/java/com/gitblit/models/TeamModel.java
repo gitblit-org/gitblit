@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
 import com.gitblit.Constants.Unused;
@@ -48,6 +49,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 	public boolean canAdmin;
 	public boolean canFork;
 	public boolean canCreate;
+	public AccountType accountType;
 	public final Set<String> users = new HashSet<String>();
 	// retained for backwards-compatibility with RPC clients
 	@Deprecated
@@ -59,6 +61,7 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 
 	public TeamModel(String name) {
 		this.name = name;
+		this.accountType = AccountType.LOCAL;
 	}
 
 	/**
@@ -356,6 +359,10 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		for (String address:addresses) {
 			mailingLists.add(address.toLowerCase());
 		}
+	}
+
+	public boolean isLocalTeam() {
+		return accountType.isLocal();
 	}
 
 	@Override

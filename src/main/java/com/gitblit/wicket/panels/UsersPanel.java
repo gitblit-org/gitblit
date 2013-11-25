@@ -39,8 +39,7 @@ public class UsersPanel extends BasePanel {
 		super(wicketId);
 
 		Fragment adminLinks = new Fragment("adminPanel", "adminLinks", this);
-		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class)
-				.setVisible(app().users().supportsAddUser()));
+		adminLinks.add(new BookmarkablePageLink<Void>("newUser", EditUserPage.class));
 		add(adminLinks.setVisible(showAdmin));
 
 		final List<UserModel> users = app().users().getAllUsers();

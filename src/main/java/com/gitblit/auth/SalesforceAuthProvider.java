@@ -1,12 +1,9 @@
-package com.gitblit;
+package com.gitblit.auth;
 
-import java.io.File;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
-import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.Keys;
+import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
@@ -16,10 +13,11 @@ import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 
-public class SalesforceUserService extends GitblitUserService {
+public class SalesforceAuthProvider extends UsernamePasswordAuthenticationProvider {
 
-	public static final Logger logger = LoggerFactory.getLogger(SalesforceUserService.class);
-	private IStoredSettings settings;
+	public SalesforceAuthProvider() {
+		super("salesforce");
+	}
 
 	@Override
 	public AccountType getAccountType() {
@@ -27,26 +25,11 @@ public class SalesforceUserService extends GitblitUserService {
 	}
 
 	@Override
-	public void setup(IRuntimeManager runtimeManager) {
-		this.settings = runtimeManager.getSettings();
-		String file = settings.getString(
-				Keys.realm.salesforce.backingUserService,
-				"${baseFolder}/users.conf");
-		File realmFile = runtimeManager.getFileOrFolder(file);
-
-		serviceImpl = createUserService(realmFile);
-
-		logger.info("Salesforce User Service backed by "
-				+ serviceImpl.toString());
+	public void setup() {
 	}
 
 	@Override
 	public UserModel authenticate(String username, char[] password) {
-		if (isLocalAccount(username)) {
-			// local account, bypass Salesforce authentication
-			return super.authenticate(username, password);
-		}
-
 		ConnectorConfig config = new ConnectorConfig();
 		config.setUsername(username);
 		config.setPassword(new String(password));
@@ -78,7 +61,7 @@ public class SalesforceUserService extends GitblitUserService {
 
 			UserModel user = null;
 			synchronized (this) {
-				user = getUserModel(simpleUsername);
+				user = userManager.getUserModel(simpleUsername);
 				if (user == null)
 					user = new UserModel(simpleUsername);
 
@@ -90,7 +73,7 @@ public class SalesforceUserService extends GitblitUserService {
 
 				setUserAttributes(user, info);
 
-				super.updateUserModel(user);
+				updateUser(user);
 			}
 
 			return user;
@@ -122,6 +105,7 @@ public class SalesforceUserService extends GitblitUserService {
 		return email.split("@")[0];
 	}
 
+
 	@Override
 	public boolean supportsCredentialChanges() {
 		return false;
@@ -135,5 +119,10 @@ public class SalesforceUserService extends GitblitUserService {
 	@Override
 	public boolean supportsEmailAddressChanges() {
 		return false;
+	}
+
+	@Override
+	public boolean supportsTeamMembershipChanges() {
+		return true;
 	}
 }

@@ -16,6 +16,7 @@
  */
 package com.gitblit.tests;
 
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,11 +24,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.gitblit.LdapUserService;
+import com.gitblit.IStoredSettings;
+import com.gitblit.auth.LdapAuthProvider;
+import com.gitblit.manager.RuntimeManager;
+import com.gitblit.manager.UserManager;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
-import com.gitblit.tests.mock.MockRuntimeManager;
-import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
@@ -40,9 +42,11 @@ import com.unboundid.ldif.LDIFReader;
  * @author jcrygier
  *
  */
-public class LdapUserServiceTest extends GitblitUnitTest {
+public class LdapAuthenticationTest extends GitblitUnitTest {
 
-	private LdapUserService ldapUserService;
+	private static final String RESOURCE_DIR = "src/test/resources/ldap/";
+
+	private LdapAuthProvider ldap;
 
 	static int ldapPort = 1389;
 
@@ -54,18 +58,26 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 		config.setSchema(null);
 
 		InMemoryDirectoryServer ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, new LDIFReader(LdapUserServiceTest.class.getResourceAsStream("resources/ldapUserServiceSampleData.ldif")));
+		ds.importFromLDIF(true, new LDIFReader(new FileInputStream(RESOURCE_DIR + "sampledata.ldif")));
 		ds.startListening();
 	}
 
 	@Before
-	public void createLdapUserService() {
-		ldapUserService = new LdapUserService();
-		ldapUserService.setup(new MockRuntimeManager(getSettings()));
+	public void newLdapAuthentication() {
+		ldap = newLdapAuthentication(getSettings());
+	}
+
+	public LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
+		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+		UserManager users = new UserManager(runtime).start();
+		LdapAuthProvider ldap = new LdapAuthProvider();
+		ldap.setup(runtime, users);
+		return ldap;
 	}
 
 	private MemorySettings getSettings() {
 		Map<String, Object> backingMap = new HashMap<String, Object>();
+		backingMap.put("realm.userService", RESOURCE_DIR + "users.conf");
 		backingMap.put("realm.ldap.server", "ldap://localhost:" + ldapPort);
 		backingMap.put("realm.ldap.domain", "");
 		backingMap.put("realm.ldap.username", "cn=Directory Manager");
@@ -86,23 +98,23 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 
 	@Test
 	public void testAuthenticate() {
-		UserModel userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		UserModel userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
 		assertNotNull(userOneModel.getTeam("git_admins"));
 		assertNotNull(userOneModel.getTeam("git_users"));
 		assertTrue(userOneModel.canAdmin);
 
-		UserModel userOneModelFailedAuth = ldapUserService.authenticate("UserOne", "userTwoPassword".toCharArray());
+		UserModel userOneModelFailedAuth = ldap.authenticate("UserOne", "userTwoPassword".toCharArray());
 		assertNull(userOneModelFailedAuth);
 
-		UserModel userTwoModel = ldapUserService.authenticate("UserTwo", "userTwoPassword".toCharArray());
+		UserModel userTwoModel = ldap.authenticate("UserTwo", "userTwoPassword".toCharArray());
 		assertNotNull(userTwoModel);
 		assertNotNull(userTwoModel.getTeam("git_users"));
 		assertNull(userTwoModel.getTeam("git_admins"));
 		assertNotNull(userTwoModel.getTeam("git admins"));
 		assertTrue(userTwoModel.canAdmin);
 
-		UserModel userThreeModel = ldapUserService.authenticate("UserThree", "userThreePassword".toCharArray());
+		UserModel userThreeModel = ldap.authenticate("UserThree", "userThreePassword".toCharArray());
 		assertNotNull(userThreeModel);
 		assertNotNull(userThreeModel.getTeam("git_users"));
 		assertNull(userThreeModel.getTeam("git_admins"));
@@ -111,34 +123,32 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 
 	@Test
 	public void testDisplayName() {
-		UserModel userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		UserModel userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
 		assertEquals("User One", userOneModel.displayName);
 
 		// Test more complicated scenarios - concat
 		MemorySettings ms = getSettings();
 		ms.put("realm.ldap.displayName", "${personalTitle}. ${givenName} ${surname}");
-		ldapUserService = new LdapUserService();
-		ldapUserService.setup(new MockRuntimeManager(ms));
+		ldap = newLdapAuthentication(ms);
 
-		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
 		assertEquals("Mr. User One", userOneModel.displayName);
 	}
 
 	@Test
 	public void testEmail() {
-		UserModel userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		UserModel userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
 		assertEquals("userone@gitblit.com", userOneModel.emailAddress);
 
 		// Test more complicated scenarios - concat
 		MemorySettings ms = getSettings();
 		ms.put("realm.ldap.email", "${givenName}.${surname}@gitblit.com");
-		ldapUserService = new LdapUserService();
-		ldapUserService.setup(new MockRuntimeManager(ms));
+		ldap = newLdapAuthentication(ms);
 
-		userOneModel = ldapUserService.authenticate("UserOne", "userOnePassword".toCharArray());
+		userOneModel = ldap.authenticate("UserOne", "userOnePassword".toCharArray());
 		assertNotNull(userOneModel);
 		assertEquals("User.One@gitblit.com", userOneModel.emailAddress);
 	}
@@ -148,23 +158,8 @@ public class LdapUserServiceTest extends GitblitUnitTest {
 		// Inject so "(&(objectClass=person)(sAMAccountName=${username}))" becomes "(&(objectClass=person)(sAMAccountName=*)(userPassword=userOnePassword))"
 		// Thus searching by password
 
-		UserModel userOneModel = ldapUserService.authenticate("*)(userPassword=userOnePassword", "userOnePassword".toCharArray());
+		UserModel userOneModel = ldap.authenticate("*)(userPassword=userOnePassword", "userOnePassword".toCharArray());
 		assertNull(userOneModel);
-	}
-
-	@Test
-	public void testLocalAccount() {
-		UserModel localAccount = new UserModel("bruce");
-		localAccount.displayName = "Bruce Campbell";
-		localAccount.password = StringUtils.MD5_TYPE + StringUtils.getMD5("gimmesomesugar");
-		ldapUserService.deleteUser(localAccount.username);
-		assertTrue("Failed to add local account",
-				ldapUserService.updateUserModel(localAccount));
-		assertEquals("Accounts are not equal!",
-				localAccount,
-				ldapUserService.authenticate(localAccount.username, "gimmesomesugar".toCharArray()));
-		assertTrue("Failed to delete local account!",
-				ldapUserService.deleteUser(localAccount.username));
 	}
 
 }

@@ -161,18 +161,9 @@ public class EditUserDialog extends JDialog {
 		countryCodeField = new JTextField(anUser.countryCode == null ? "" : anUser.countryCode, 15);
 
 		// credentials are optionally controlled by 3rd-party authentication
-		usernameField.setEnabled(settings.supportsCredentialChanges);
-		passwordField.setEnabled(settings.supportsCredentialChanges);
-		confirmPasswordField.setEnabled(settings.supportsCredentialChanges);
-
-		displayNameField.setEnabled(settings.supportsDisplayNameChanges);
-		emailAddressField.setEnabled(settings.supportsEmailAddressChanges);
-
-		organizationalUnitField.setEnabled(settings.supportsDisplayNameChanges);
-		organizationField.setEnabled(settings.supportsDisplayNameChanges);
-		localityField.setEnabled(settings.supportsDisplayNameChanges);
-		stateProvinceField.setEnabled(settings.supportsDisplayNameChanges);
-		countryCodeField.setEnabled(settings.supportsDisplayNameChanges);
+		usernameField.setEnabled(anUser.isLocalAccount());
+		passwordField.setEnabled(anUser.isLocalAccount());
+		confirmPasswordField.setEnabled(anUser.isLocalAccount());
 
 		JPanel fieldsPanel = new JPanel(new GridLayout(0, 1));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.username"), usernameField));
@@ -196,7 +187,6 @@ public class EditUserDialog extends JDialog {
 		final Insets _insets = new Insets(5, 5, 5, 5);
 		repositoryPalette = new RegistrantPermissionsPanel(RegistrantType.REPOSITORY);
 		teamsPalette = new JPalette<TeamModel>();
-		teamsPalette.setEnabled(settings.supportsTeamMembershipChanges);
 
 		JPanel fieldsPanelTop = new JPanel(new BorderLayout());
 		fieldsPanelTop.add(fieldsPanel, BorderLayout.NORTH);
