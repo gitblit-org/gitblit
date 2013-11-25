@@ -20,6 +20,7 @@ import java.util.List;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -30,6 +31,7 @@ import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
+import com.gitblit.wicket.MarkupProcessor.MarkupSyntax;
 import com.gitblit.wicket.WicketUtils;
 
 @CacheControl(LastModified.BOOT)
@@ -65,16 +67,24 @@ public class DocPage extends RepositoryPage {
 			}
 		}
 
+		Fragment fragment;
+		MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(commit), documentPath, markupText);
+		if (MarkupSyntax.PLAIN.equals(markupDoc.syntax)) {
+			fragment = new Fragment("doc", "plainContent", this);
+		} else {
+			fragment = new Fragment("doc", "markupContent", this);
+		}
+
 		// document page links
-		add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
+		fragment.add(new BookmarkablePageLink<Void>("blameLink", BlamePage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
-		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
+		fragment.add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, documentPath)));
-		add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
+		fragment.add(new BookmarkablePageLink<Void>("rawLink", RawPage.class, WicketUtils.newPathParameter(
 				repositoryName, objectId, documentPath)));
 
-		MarkupDocument markupDoc = processor.parse(repositoryName, getBestCommitId(commit), documentPath, markupText);
-		add(new Label("content", markupDoc.html).setEscapeModelStrings(false));
+		fragment.add(new Label("content", markupDoc.html).setEscapeModelStrings(false));
+		add(fragment);
 	}
 
 	@Override

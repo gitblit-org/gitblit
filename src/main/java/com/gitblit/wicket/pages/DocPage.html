@@ -6,13 +6,32 @@
 
 <body>
 <wicket:extend>
+<div wicket:id="doc"></div>
+
+<wicket:fragment wicket:id="markupContent">
+<div class="docs" style="margin-top: -10px;">
 		<!-- doc nav links -->	
-		<div style="float: right;" class="page_nav2">
+		<div style="float: right;" class="docnav">
 			<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
 		</div>	
 	
 		<!--  document content -->
-		<div class="markdown" style="padding-bottom:5px;" wicket:id="content">[content]</div>
+		<div class="markdown" wicket:id="content">[content]</div>
+</div>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="plainContent">
+<div class="docs">
+		<!-- doc nav links -->	
+		<div style="float: right;" class="docnav">
+			<a wicket:id="blameLink"><wicket:message key="gb.blame"></wicket:message></a>  | <a wicket:id="historyLink"><wicket:message key="gb.history"></wicket:message></a> | <a wicket:id="rawLink"><wicket:message key="gb.raw"></wicket:message></a>
+		</div>	
+	
+		<!--  document content -->
+		<div wicket:id="content">[content]</div>
+</div>
+</wicket:fragment>
+
 </wicket:extend>
 </body>
 </html>
