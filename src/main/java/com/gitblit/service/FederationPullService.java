@@ -32,7 +32,7 @@ import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
 import com.gitblit.GitBlitException.ForbiddenException;
-import com.gitblit.Gitblit;
+import com.gitblit.GitBlit;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
@@ -51,7 +51,7 @@ public abstract class FederationPullService implements Runnable {
 
 	Logger logger = LoggerFactory.getLogger(getClass());
 
-	Gitblit gitblit;
+	GitBlit gitblit;
 
 	private final List<FederationModel> registrations;
 

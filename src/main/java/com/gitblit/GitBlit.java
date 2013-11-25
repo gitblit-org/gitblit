@@ -54,7 +54,7 @@ import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 
 /**
- * Gitblit is an aggregate interface delegate.  It implements all the manager
+ * GitBlit is an aggregate interface delegate.  It implements all the manager
  * interfaces and delegates all methods calls to the actual manager implementations.
  * It's primary purpose is to provide complete management control to the git
  * upload and receive pack functions.
@@ -62,7 +62,7 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-public class Gitblit implements IRuntimeManager,
+public class GitBlit implements IRuntimeManager,
 								INotificationManager,
 								IUserManager,
 								ISessionManager,
@@ -87,7 +87,7 @@ public class Gitblit implements IRuntimeManager,
 
 	private final IFederationManager federationManager;
 
-	public Gitblit(
+	public GitBlit(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
@@ -108,13 +108,36 @@ public class Gitblit implements IRuntimeManager,
 	}
 
 	@Override
-	public Gitblit start() {
+	public GitBlit start() {
 		return this;
 	}
 
 	@Override
-	public Gitblit stop() {
+	public GitBlit stop() {
 		return this;
+	}
+
+	/*
+	 * ISTOREDSETTINGS
+	 *
+	 * these methods are necessary for (nearly) seamless Groovy hook operation
+	 * after the massive refactor.
+	 */
+
+	public boolean getBoolean(String key, boolean defaultValue) {
+		return runtimeManager.getSettings().getBoolean(key, defaultValue);
+	}
+
+	public String getString(String key, String defaultValue) {
+		return runtimeManager.getSettings().getString(key, defaultValue);
+	}
+
+	public int getInteger(String key, int defaultValue) {
+		return runtimeManager.getSettings().getInteger(key, defaultValue);
+	}
+
+	public List<String> getStrings(String key) {
+		return runtimeManager.getSettings().getStrings(key);
 	}
 
 	/*
@@ -268,11 +291,6 @@ public class Gitblit implements IRuntimeManager,
 	}
 
 	@Override
-	public void logout(UserModel user) {
-		userManager.logout(user);
-	}
-
-	@Override
 	public List<String> getAllUsernames() {
 		return userManager.getAllUsernames();
 	}
@@ -313,8 +331,8 @@ public class Gitblit implements IRuntimeManager,
 	}
 
 	@Override
-	public UserModel authenticate(char[] cookie) {
-		return userManager.authenticate(cookie);
+	public UserModel getUserModel(char[] cookie) {
+		return userManager.getUserModel(cookie);
 	}
 
 	@Override

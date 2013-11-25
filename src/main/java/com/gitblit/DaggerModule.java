@@ -82,7 +82,7 @@ import dagger.Provides;
 			IServicesManager.class,
 
 			// the monolithic manager
-			Gitblit.class,
+			GitBlit.class,
 
 			// filters & servlets
 			GitServlet.class,
@@ -175,7 +175,7 @@ public class DaggerModule {
 				repositoryManager);
 	}
 
-	@Provides @Singleton Gitblit provideGitblit(
+	@Provides @Singleton GitBlit provideGitblit(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
@@ -185,7 +185,7 @@ public class DaggerModule {
 			IGitblitManager gitblitManager,
 			IFederationManager federationManager) {
 
-		return new Gitblit(
+		return new GitBlit(
 				runtimeManager,
 				notificationManager,
 				userManager,
@@ -196,7 +196,7 @@ public class DaggerModule {
 				federationManager);
 	}
 
-	@Provides @Singleton IServicesManager provideServicesManager(Gitblit gitblit) {
+	@Provides @Singleton IServicesManager provideServicesManager(GitBlit gitblit) {
 		return new ServicesManager(gitblit);
 	}
 

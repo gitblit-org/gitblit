@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.Gitblit;
+import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.fanout.FanoutNioService;
@@ -56,13 +56,13 @@ public class ServicesManager implements IServicesManager {
 
 	private final IStoredSettings settings;
 
-	private final Gitblit gitblit;
+	private final GitBlit gitblit;
 
 	private FanoutService fanoutService;
 
 	private GitDaemon gitDaemon;
 
-	public ServicesManager(Gitblit gitblit) {
+	public ServicesManager(GitBlit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
 	}
