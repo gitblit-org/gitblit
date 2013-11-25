@@ -18,6 +18,7 @@ package com.gitblit.servlet;
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
@@ -25,8 +26,10 @@ import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -50,14 +53,22 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	private final IStoredSettings settings;
 
+	private final IUserManager userManager;
+
+	private final IFederationManager federationManager;
+
 	@Inject
 	public GitFilter(
 			IRuntimeManager runtimeManager,
+			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager) {
 
 		super(runtimeManager, authenticationManager, repositoryManager);
 		this.settings = runtimeManager.getSettings();
+		this.userManager = userManager;
+		this.federationManager = federationManager;
 	}
 
 	/**
@@ -111,6 +122,21 @@ public class GitFilter extends AccessRestrictionFilter {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the user making the request, if the user has authenticated.
+	 *
+	 * @param httpRequest
+	 * @return user
+	 */
+	@Override
+	protected UserModel getUser(HttpServletRequest httpRequest) {
+		UserModel user = authenticationManager.authenticate(httpRequest, requiresClientCertificate());
+		if (user == null) {
+			user = federationManager.authenticate(httpRequest);
+		}
+		return user;
 	}
 
 	/**

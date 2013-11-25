@@ -67,9 +67,9 @@ import org.eclipse.jgit.transport.resolver.UploadPackFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -108,7 +108,7 @@ public class GitDaemon {
 
 	private ReceivePackFactory<GitDaemonClient> receivePackFactory;
 
-	public GitDaemon(GitBlit gitblit) {
+	public GitDaemon(IGitblit gitblit) {
 
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.daemonPort, 0);

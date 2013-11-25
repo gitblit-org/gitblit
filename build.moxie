@@ -129,7 +129,7 @@ dependencies:
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-api:1.6.6' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-log4j12:1.6.6' :war :fedclient :authority
-- compile 'javax.mail:mail:1.4.3' :war :fedclient :authority
+- compile 'javax.mail:mail:1.4.3' :war :authority
 - compile 'javax.servlet:javax.servlet-api:3.0.1' :fedclient
 - compile 'org.eclipse.jetty.aggregate:jetty-webapp:${jetty.version}' @jar
 - compile 'org.eclipse.jetty:jetty-ajp:${jetty.version}' @jar
@@ -148,7 +148,7 @@ dependencies:
 - compile 'org.fusesource.wikitext:mediawiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:confluence-core:${wikitext.version}' :war
 - compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager :authority
-- compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :fedclient :manager :authority
+- compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :manager :authority
 - compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war :authority
 - compile 'org.bouncycastle:bcmail-jdk15on:${bouncycastle.version}' :war :authority
 - compile 'org.bouncycastle:bcpkix-jdk15on:${bouncycastle.version}' :war :authority

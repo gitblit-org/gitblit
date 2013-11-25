@@ -19,5 +19,12 @@ import com.gitblit.IUserService;
 
 public interface IUserManager extends IManager, IUserService {
 
+	/**
+	 * Returns true if the username represents an internal account
+	 *
+	 * @param username
+	 * @return true if the specified username represents an internal account
+	 */
+	boolean isInternalAccount(String username);
 
 }

@@ -183,7 +183,7 @@ public class AuthenticationManager implements IAuthenticationManager {
 			if (principal != null) {
 				String username = principal.getName();
 				if (!StringUtils.isEmpty(username)) {
-					boolean internalAccount = isInternalAccount(username);
+					boolean internalAccount = userManager.isInternalAccount(username);
 					UserModel user = userManager.getUserModel(username);
 					if (user != null) {
 						// existing user
@@ -322,15 +322,6 @@ public class AuthenticationManager implements IAuthenticationManager {
 			// can not authenticate empty password
 			return null;
 		}
-		// check to see if this is the federation user
-//		if (canFederate()) {
-//			if (usernameDecoded.equalsIgnoreCase(Constants.FEDERATION_USER)) {
-//				List<String> tokens = getFederationTokens();
-//				if (tokens.contains(pw)) {
-//					return getFederationUser();
-//				}
-//			}
-//		}
 
 		// try local authentication
 		UserModel user = userManager.getUserModel(usernameDecoded);
@@ -489,23 +480,4 @@ public class AuthenticationManager implements IAuthenticationManager {
 		}
 		return AuthenticationProvider.NULL_PROVIDER;
 	}
-
-	/**
-	 * Returns true if the username represents an internal account
-	 *
-	 * @param username
-	 * @return true if the specified username represents an internal account
-	 */
-	protected boolean isInternalAccount(String username) {
-		return !StringUtils.isEmpty(username)
-				&& (username.equalsIgnoreCase(Constants.FEDERATION_USER)
-						|| username.equalsIgnoreCase(UserModel.ANONYMOUS.username));
-	}
-
-//	protected UserModel getFederationUser() {
-//		// the federation user is an administrator
-//		UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
-//		federationUser.canAdmin = true;
-//		return federationUser;
-//	}
 }

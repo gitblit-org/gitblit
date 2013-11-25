@@ -31,10 +31,10 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
-import com.gitblit.GitBlit;
 import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.models.RepositoryModel;
@@ -49,9 +49,9 @@ import com.gitblit.utils.StringUtils;
 
 public abstract class FederationPullService implements Runnable {
 
-	Logger logger = LoggerFactory.getLogger(getClass());
+	final Logger logger = LoggerFactory.getLogger(getClass());
 
-	GitBlit gitblit;
+	final IGitblit gitblit;
 
 	private final List<FederationModel> registrations;
 
@@ -62,8 +62,8 @@ public abstract class FederationPullService implements Runnable {
 	 * @param provider
 	 * @param registration
 	 */
-	public FederationPullService(FederationModel registration) {
-		this(Arrays.asList(registration));
+	public FederationPullService(IGitblit gitblit, FederationModel registration) {
+		this(gitblit, Arrays.asList(registration));
 	}
 
 	/**
@@ -77,7 +77,8 @@ public abstract class FederationPullService implements Runnable {
 	 *            if true, registrations are rescheduled in perpetuity. if
 	 *            false, the federation pull operation is executed once.
 	 */
-	public FederationPullService(List<FederationModel> registrations) {
+	public FederationPullService(IGitblit gitblit, List<FederationModel> registrations) {
+		this.gitblit = gitblit;
 		this.registrations = registrations;
 	}
 

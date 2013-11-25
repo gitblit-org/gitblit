@@ -279,7 +279,8 @@
 		<!-- generate jar by traversing the class hierarchy of the specified
 			 classes, exclude any classes in classpath jars -->
 		<mx:genjar tag="" includeresources="false" excludeClasspathJars="true"
-			destfile="${project.targetDirectory}/fedclient.jar">
+			destfile="${project.targetDirectory}/fedclient.jar"
+			excludes="**/.class,**/*.java, **/Thumbs.db, **/*.mkd, com/gitblit/wicket/**">
 			<mainclass name="com.gitblit.FederationClient" />
 			<class name="com.gitblit.Keys" />
 			<launcher paths="ext" />

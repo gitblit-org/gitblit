@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.ConfigUserService;
+import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
@@ -146,6 +147,19 @@ public class UserManager implements IUserManager {
 	@Override
 	public UserManager stop() {
 		return this;
+	}
+
+	/**
+	 * Returns true if the username represents an internal account
+	 *
+	 * @param username
+	 * @return true if the specified username represents an internal account
+	 */
+	@Override
+	public boolean isInternalAccount(String username) {
+		return !StringUtils.isEmpty(username)
+				&& (username.equalsIgnoreCase(Constants.FEDERATION_USER)
+						|| username.equalsIgnoreCase(UserModel.ANONYMOUS.username));
 	}
 
 	/**

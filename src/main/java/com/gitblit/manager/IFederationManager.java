@@ -19,6 +19,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.gitblit.Constants.FederationRequest;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.models.FederationModel;
@@ -37,9 +39,22 @@ public interface IFederationManager extends IManager {
 	 */
 	File getProposalsFolder();
 
+	boolean canFederate();
+
+	/**
+	 * Returns the federation user account.
+	 *
+	 * @return the federation user account
+	 */
 	UserModel getFederationUser();
 
-	boolean canFederate();
+	/**
+	 * Try to authenticate request as the Federation user.
+	 *
+	 * @param httpRequest
+	 * @return the federation user, if authenticated
+	 */
+	UserModel authenticate(HttpServletRequest httpRequest);
 
 	/**
 	 * Returns the list of federated gitblit instances that this instance will

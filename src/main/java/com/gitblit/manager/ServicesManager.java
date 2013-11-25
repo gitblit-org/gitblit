@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationToken;
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.fanout.FanoutNioService;
@@ -62,13 +61,13 @@ public class ServicesManager implements IManager {
 
 	private final IStoredSettings settings;
 
-	private final GitBlit gitblit;
+	private final IGitblit gitblit;
 
 	private FanoutService fanoutService;
 
 	private GitDaemon gitDaemon;
 
-	public ServicesManager(GitBlit gitblit) {
+	public ServicesManager(IGitblit gitblit) {
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
 	}
@@ -209,11 +208,11 @@ public class ServicesManager implements IManager {
 	private class FederationPuller extends FederationPullService {
 
 		public FederationPuller(FederationModel registration) {
-			super(Arrays.asList(registration));
+			super(gitblit, Arrays.asList(registration));
 		}
 
 		public FederationPuller(List<FederationModel> registrations) {
-			super(registrations);
+			super(gitblit, registrations);
 		}
 
 		@Override

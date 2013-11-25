@@ -149,13 +149,11 @@ public class DaggerModule {
 	@Provides @Singleton IFederationManager provideFederationManager(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
-			IUserManager userManager,
 			IRepositoryManager repositoryManager) {
 
 		return new FederationManager(
 				runtimeManager,
 				notificationManager,
-				userManager,
 				repositoryManager);
 	}
 

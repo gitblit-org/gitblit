@@ -17,6 +17,7 @@ package com.gitblit.manager;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +41,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.Base64;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
@@ -69,7 +73,6 @@ public class FederationManager implements IFederationManager {
 	public FederationManager(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
-			IUserManager userManager,
 			IRepositoryManager repositoryManager) {
 
 		this.settings = runtimeManager.getSettings();
@@ -100,6 +103,17 @@ public class FederationManager implements IFederationManager {
 	}
 
 	@Override
+	public boolean canFederate() {
+		String passphrase = settings.getString(Keys.federation.passphrase, "");
+		return !StringUtils.isEmpty(passphrase);
+	}
+
+	/**
+	 * Returns the federation user account.
+	 *
+	 * @return the federation user account
+	 */
+	@Override
 	public UserModel getFederationUser() {
 		// the federation user is an administrator
 		UserModel federationUser = new UserModel(Constants.FEDERATION_USER);
@@ -108,9 +122,30 @@ public class FederationManager implements IFederationManager {
 	}
 
 	@Override
-	public boolean canFederate() {
-		String passphrase = settings.getString(Keys.federation.passphrase, "");
-		return !StringUtils.isEmpty(passphrase);
+	public UserModel authenticate(HttpServletRequest httpRequest) {
+		if (canFederate()) {
+			// try to authenticate federation user for cloning
+			final String authorization = httpRequest.getHeader("Authorization");
+			if (authorization != null && authorization.startsWith("Basic")) {
+				// Authorization: Basic base64credentials
+				String base64Credentials = authorization.substring("Basic".length()).trim();
+				String credentials = new String(Base64.decode(base64Credentials),
+						Charset.forName("UTF-8"));
+				// credentials = username:password
+				final String[] values = credentials.split(":", 2);
+				if (values.length == 2) {
+					String username = StringUtils.decodeUsername(values[0]);
+					String password = values[1];
+					if (username.equalsIgnoreCase(Constants.FEDERATION_USER)) {
+						List<String> tokens = getFederationTokens();
+						if (tokens.contains(password)) {
+							return getFederationUser();
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

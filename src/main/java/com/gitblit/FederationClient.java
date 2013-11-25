@@ -17,6 +17,7 @@ package com.gitblit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.beust.jcommander.JCommander;
@@ -24,7 +25,9 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.gitblit.manager.FederationManager;
-import com.gitblit.manager.NotificationManager;
+import com.gitblit.manager.GitblitManager;
+import com.gitblit.manager.IGitblit;
+import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
@@ -89,14 +92,14 @@ public class FederationClient {
 		}
 
 		// configure the Gitblit singleton for minimal, non-server operation
-		RuntimeManager runtime = new RuntimeManager(settings);
-		runtime.setBaseFolder(baseFolder);
-		NotificationManager notifications = new NotificationManager(settings).start();
+		RuntimeManager runtime = new RuntimeManager(settings, baseFolder).start();
+		NoopNotificationManager notifications = new NoopNotificationManager().start();
 		UserManager users = new UserManager(runtime).start();
 		RepositoryManager repositories = new RepositoryManager(runtime, users).start();
-		FederationManager federation = new FederationManager(runtime, notifications, users, repositories).start();
+		FederationManager federation = new FederationManager(runtime, notifications, repositories).start();
+		IGitblit gitblit = new GitblitManager(runtime, notifications, users, null, repositories, null, federation);
 
-		FederationPullService puller = new FederationPullService(federation.getFederationRegistrations()) {
+		FederationPullService puller = new FederationPullService(gitblit, federation.getFederationRegistrations()) {
 			@Override
 			public void reschedule(FederationModel registration) {
 				// NOOP
@@ -152,5 +155,38 @@ public class FederationClient {
 		@Parameter(names = { "--repositoriesFolder" }, description = "Destination folder for cloned repositories", required = false)
 		public String repositoriesFolder;
 
+	}
+
+	private static class NoopNotificationManager implements INotificationManager {
+
+		@Override
+		public NoopNotificationManager start() {
+			return this;
+		}
+
+		@Override
+		public NoopNotificationManager stop() {
+			return this;
+		}
+
+		@Override
+		public void sendMailToAdministrators(String subject, String message) {
+		}
+
+		@Override
+		public void sendMail(String subject, String message, Collection<String> toAddresses) {
+		}
+
+		@Override
+		public void sendMail(String subject, String message, String... toAddresses) {
+		}
+
+		@Override
+		public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
+		}
+
+		@Override
+		public void sendHtmlMail(String subject, String message, String... toAddresses) {
+		}
 	}
 }

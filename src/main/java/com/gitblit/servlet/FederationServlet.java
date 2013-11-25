@@ -29,13 +29,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 
-import com.gitblit.Constants;
+import com.gitblit.Constants.FederationRequest;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Constants.FederationRequest;
-import com.gitblit.Keys.federation;
-import com.gitblit.Keys.git;
-import com.gitblit.Keys.groovy;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
