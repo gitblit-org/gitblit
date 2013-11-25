@@ -516,7 +516,7 @@ public abstract class RepositoryPage extends RootPage {
 
 	protected void addFullText(String wicketId, String text) {
 		RepositoryModel model = getRepositoryModel();
-		String content = messageProcessor().processCommitMessage(model, text);
+		String content = messageProcessor().processCommitMessage(r, model, text);
 		String html;
 		switch (model.commitMessageRenderer) {
 		case MARKDOWN:

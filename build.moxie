@@ -57,8 +57,10 @@ mainclass: com.gitblit.GitBlitServer
 # a scope to each directory.
 sourceDirectories:
 - compile 'src/main/java'
+- compile 'src/main/bugtraq'
 - compile 'src/main/dagger' apt
 - test 'src/test/java'
+- test 'src/test/bugtraq'
 # Moxie supports one site-scoped directory for mx:doc
 - site 'src/site'
 
@@ -125,6 +127,7 @@ dependencies:
 - compile 'com.squareup.dagger:dagger:1.1.0' :war apt
 - compile 'com.squareup.dagger:dagger-compiler:1.1.0' :war optional apt
 # Standard dependencies
+- compile 'com.intellij:annotations:12.0' :war
 - compile 'com.beust:jcommander:1.17' :fedclient :authority
 - compile 'log4j:log4j:1.2.17' :war :fedclient :authority
 - compile 'org.slf4j:slf4j-api:1.6.6' :war :fedclient :authority

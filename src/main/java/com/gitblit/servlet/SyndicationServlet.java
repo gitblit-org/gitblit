@@ -273,7 +273,7 @@ public class SyndicationServlet extends HttpServlet {
 						StringUtils.encodeURL(model.name.replace('/', fsc)), commit.getName());
 				entry.published = commit.getCommitterIdent().getWhen();
 				entry.contentType = "text/html";
-				String message = processor.processCommitMessage(model, commit.getFullMessage());
+				String message = processor.processCommitMessage(repository, model, commit.getFullMessage());
 				entry.content = message;
 				entry.repository = model.name;
 				entry.branch = objectId;

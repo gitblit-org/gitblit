@@ -34,6 +34,10 @@ a.btn i {
 	vertical-align: text-bottom;
 }
 
+a.bugtraq {
+    font-weight: bold;
+}
+
 [class^="icon-"], [class*=" icon-"] i {
 	/* override for a links that look like bootstrap buttons */
 	vertical-align: text-bottom;

@@ -15,17 +15,24 @@
  */
 package com.gitblit.utils;
 
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jgit.errors.ConfigInvalidException;
+import org.eclipse.jgit.lib.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
+import com.syntevo.bugtraq.BugtraqConfig;
+import com.syntevo.bugtraq.BugtraqFormatter;
+import com.syntevo.bugtraq.BugtraqFormatter.OutputHandler;
 
 public class MessageProcessor {
 
@@ -44,14 +51,15 @@ public class MessageProcessor {
 	 * This method uses the preferred renderer to transform the commit message.
 	 *
 	 * @param repository
+	 * @param model
 	 * @param text
 	 * @return html version of the commit message
 	 */
-	public String processCommitMessage(RepositoryModel repository, String text) {
-		switch (repository.commitMessageRenderer) {
+	public String processCommitMessage(Repository repository, RepositoryModel model, String text) {
+		switch (model.commitMessageRenderer) {
 		case MARKDOWN:
 			try {
-				String prepared = processCommitMessageRegex(repository.name, text);
+				String prepared = processCommitMessageRegex(repository, model.name, text);
 				return MarkdownUtils.transformMarkdown(prepared);
 			} catch (Exception e) {
 				logger.error("Failed to render commit message as markdown", e);
@@ -62,7 +70,7 @@ public class MessageProcessor {
 			break;
 		}
 
-		return processPlainCommitMessage(repository.name, text);
+		return processPlainCommitMessage(repository, model.name, text);
 	}
 
 	/**
@@ -71,13 +79,14 @@ public class MessageProcessor {
 	 *
 	 * This method assumes the commit message is plain text.
 	 *
+	 * @param repository
 	 * @param repositoryName
 	 * @param text
 	 * @return html version of the commit message
 	 */
-	public String processPlainCommitMessage(String repositoryName, String text) {
+	public String processPlainCommitMessage(Repository repository, String repositoryName, String text) {
 		String html = StringUtils.escapeForHtml(text, false);
-		html = processCommitMessageRegex(repositoryName, html);
+		html = processCommitMessageRegex(repository, repositoryName, html);
 		return StringUtils.breakLinesForHtml(html);
 
 	}
@@ -86,11 +95,12 @@ public class MessageProcessor {
 	 * Apply globally or per-repository specified regex substitutions to the
 	 * commit message.
 	 *
+	 * @param repository
 	 * @param repositoryName
 	 * @param text
 	 * @return the processed commit message
 	 */
-	protected String processCommitMessageRegex(String repositoryName, String text) {
+	protected String processCommitMessageRegex(Repository repository, String repositoryName, String text) {
 		Map<String, String> map = new HashMap<String, String>();
 		// global regex keys
 		if (settings.getBoolean(Keys.regex.global, false)) {
@@ -121,6 +131,41 @@ public class MessageProcessor {
 						+ definition);
 			}
 		}
+
+		try {
+			// parse bugtraq repo config
+			BugtraqConfig config = BugtraqConfig.read(repository);
+			if (config != null) {
+				BugtraqFormatter formatter = new BugtraqFormatter(config);
+				StringBuilder sb = new StringBuilder();
+				formatter.formatLogMessage(text, new BugtraqOutputHandler(sb));
+				text = sb.toString();
+			}
+		} catch (IOException e) {
+			logger.error(MessageFormat.format("Bugtraq config for {0} is invalid!", repositoryName), e);
+		} catch (ConfigInvalidException e) {
+			logger.error(MessageFormat.format("Bugtraq config for {0} is invalid!", repositoryName), e);
+		}
+
 		return text;
+	}
+
+	private class BugtraqOutputHandler implements OutputHandler {
+
+		final StringBuilder sb;
+
+		BugtraqOutputHandler(StringBuilder sb) {
+			this.sb = sb;
+		}
+
+		@Override
+		public void appendText(String text) {
+			sb.append(text);
+		}
+
+		@Override
+		public void appendLink(String name, String target) {
+			sb.append(MessageFormat.format("<a class=\"bugtraq\" href=\"{1}\">{0}</a>", name, target));
+		}
 	}
 }

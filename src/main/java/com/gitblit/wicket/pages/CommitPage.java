@@ -135,7 +135,7 @@ public class CommitPage extends RepositoryPage {
 				item.add(new GravatarImage("noteAuthorAvatar", entry.notesRef.getAuthorIdent()));
 				item.add(WicketUtils.createTimestampLabel("authorDate", entry.notesRef
 						.getAuthorIdent().getWhen(), getTimeZone(), getTimeUtils()));
-				item.add(new Label("noteContent", messageProcessor().processPlainCommitMessage(repositoryName,
+				item.add(new Label("noteContent", messageProcessor().processPlainCommitMessage(getRepository(), repositoryName,
 						entry.content)).setEscapeModelStrings(false));
 			}
 		};
@@ -198,11 +198,11 @@ public class CommitPage extends RepositoryPage {
 									.newPathParameter(repositoryName, entry.commitId, path)));
 				}
 
-				
+
 				// quick links
 				if (entry.isSubmodule()) {
 					item.add(new ExternalLink("raw", "").setEnabled(false));
-					
+
 					// submodule
 					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
 							.newPathParameter(repositoryName, entry.commitId, entry.path))

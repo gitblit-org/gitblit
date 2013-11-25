@@ -53,6 +53,7 @@ r20: {
 	- Added a normalized diffstat display to the commit, commitdiff, and compare pages
 	- Added GO setting to automatically redirect all http requests to the secure https connector
 	- Automatically display common repository root documents as tabs on the docs page
+	- Support bugtraq configuration in collaboration with syntevo
     dependencyChanges:
 	- updated to Jetty 8.1.13
 	- updated to JGit 3.1.0
@@ -85,6 +86,7 @@ r20: {
 	- fpeters.fae
 	- David Ostrovsky
 	- Alex Lewis
+	- Marc Strapetz
 }
 
 #
