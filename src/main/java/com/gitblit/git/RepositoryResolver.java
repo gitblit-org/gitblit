@@ -27,7 +27,7 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -41,9 +41,9 @@ public class RepositoryResolver<X> extends FileResolver<X> {
 
 	private final Logger logger = LoggerFactory.getLogger(RepositoryResolver.class);
 
-	private final GitBlit gitblit;
+	private final IGitblit gitblit;
 
-	public RepositoryResolver(GitBlit gitblit) {
+	public RepositoryResolver(IGitblit gitblit) {
 		super(gitblit.getRepositoriesFolder(), true);
 		this.gitblit = gitblit;
 	}

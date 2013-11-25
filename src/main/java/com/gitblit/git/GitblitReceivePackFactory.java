@@ -26,9 +26,9 @@ import org.eclipse.jgit.transport.resolver.ServiceNotEnabledException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.HttpUtils;
@@ -47,9 +47,9 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 
 	private final IStoredSettings settings;
 
-	private final GitBlit gitblit;
+	private final IGitblit gitblit;
 
-	public GitblitReceivePackFactory(GitBlit gitblit) {
+	public GitblitReceivePackFactory(IGitblit gitblit) {
 		super();
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;

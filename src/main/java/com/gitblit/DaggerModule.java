@@ -22,21 +22,18 @@ import org.apache.wicket.protocol.http.WebApplication;
 import com.gitblit.git.GitServlet;
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
-import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
-import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IServicesManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.NotificationManager;
 import com.gitblit.manager.ProjectManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
-import com.gitblit.manager.ServicesManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.servlet.BranchGraphServlet;
 import com.gitblit.servlet.DownloadZipFilter;
@@ -77,12 +74,10 @@ import dagger.Provides;
 			IAuthenticationManager.class,
 			IRepositoryManager.class,
 			IProjectManager.class,
-			IGitblitManager.class,
 			IFederationManager.class,
-			IServicesManager.class,
 
 			// the monolithic manager
-			GitBlit.class,
+			IGitblit.class,
 
 			// filters & servlets
 			GitServlet.class,
@@ -164,25 +159,13 @@ public class DaggerModule {
 				repositoryManager);
 	}
 
-	@Provides @Singleton IGitblitManager provideGitblitManager(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IRepositoryManager repositoryManager) {
-
-		return new GitblitManager(
-				runtimeManager,
-				userManager,
-				repositoryManager);
-	}
-
-	@Provides @Singleton GitBlit provideGitblit(
+	@Provides @Singleton IGitblit provideGitblit(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IGitblitManager gitblitManager,
 			IFederationManager federationManager) {
 
 		return new GitBlit(
@@ -192,12 +175,7 @@ public class DaggerModule {
 				authenticationManager,
 				repositoryManager,
 				projectManager,
-				gitblitManager,
 				federationManager);
-	}
-
-	@Provides @Singleton IServicesManager provideServicesManager(GitBlit gitblit) {
-		return new ServicesManager(gitblit);
 	}
 
 	@Provides @Singleton WebApplication provideWebApplication(
@@ -207,8 +185,8 @@ public class DaggerModule {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IGitblitManager gitblitManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IGitblit gitblit) {
 
 		return new GitBlitWebApp(
 				runtimeManager,
@@ -217,7 +195,7 @@ public class DaggerModule {
 				authenticationManager,
 				repositoryManager,
 				projectManager,
-				gitblitManager,
-				federationManager);
+				federationManager,
+				gitblit);
 	}
 }

@@ -20,7 +20,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import com.gitblit.GitBlit;
+import com.gitblit.manager.IGitblit;
 
 /**
  * The GitServlet provides http/https access to Git repositories.
@@ -33,10 +33,10 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final GitBlit gitblit;
+	private final IGitblit gitblit;
 
 	@Inject
-	public GitServlet(GitBlit gitblit) {
+	public GitServlet(IGitblit gitblit) {
 		super();
 		this.gitblit = gitblit;
 	}

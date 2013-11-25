@@ -30,13 +30,13 @@ import org.apache.wicket.protocol.http.WebApplication;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
-import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
@@ -95,9 +95,9 @@ public class GitBlitWebApp extends WebApplication {
 
 	private final IProjectManager projectManager;
 
-	private final IGitblitManager gitblitManager;
-
 	private final IFederationManager federationManager;
+
+	private final IGitblit gitblit;
 
 	public GitBlitWebApp(
 			IRuntimeManager runtimeManager,
@@ -106,8 +106,8 @@ public class GitBlitWebApp extends WebApplication {
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager,
 			IProjectManager projectManager,
-			IGitblitManager gitblitManager,
-			IFederationManager federationManager) {
+			IFederationManager federationManager,
+			IGitblit gitblit) {
 
 		super();
 		this.settings = runtimeManager.getSettings();
@@ -117,8 +117,8 @@ public class GitBlitWebApp extends WebApplication {
 		this.authenticationManager = authenticationManager;
 		this.repositoryManager = repositoryManager;
 		this.projectManager = projectManager;
-		this.gitblitManager = gitblitManager;
 		this.federationManager = federationManager;
+		this.gitblit = gitblit;
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/user", UserPage.class, "user");
 		mount("/forks", ForksPage.class, "r");
 		mount("/fork", ForkPage.class, "r");
-		
+
 		getMarkupSettings().setDefaultMarkupEncoding("UTF-8");
 		super.init();
 	}
@@ -283,8 +283,8 @@ public class GitBlitWebApp extends WebApplication {
 		return federationManager;
 	}
 
-	public IGitblitManager gitblit() {
-		return gitblitManager;
+	public IGitblit gitblit() {
+		return gitblit;
 	}
 
 	public TimeZone getTimezone() {

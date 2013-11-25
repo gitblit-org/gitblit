@@ -24,9 +24,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.Constants.AccessPermission;
+import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.FederationToken;
 import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
@@ -36,6 +40,8 @@ import com.gitblit.fanout.FanoutService;
 import com.gitblit.fanout.FanoutSocketService;
 import com.gitblit.git.GitDaemon;
 import com.gitblit.models.FederationModel;
+import com.gitblit.models.RepositoryModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.service.FederationPullService;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -48,7 +54,7 @@ import com.gitblit.utils.TimeUtils;
  * @author James Moger
  *
  */
-public class ServicesManager implements IServicesManager {
+public class ServicesManager implements IManager {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -162,6 +168,43 @@ public class ServicesManager implements IServicesManager {
 			logger.info("Fanout PubSub service is disabled.");
 		}
 	}
+
+	public String getGitDaemonUrl(HttpServletRequest request, UserModel user, RepositoryModel repository) {
+		if (gitDaemon != null) {
+			String bindInterface = settings.getString(Keys.git.daemonBindInterface, "localhost");
+			if (bindInterface.equals("localhost")
+					&& (!request.getServerName().equals("localhost") && !request.getServerName().equals("127.0.0.1"))) {
+				// git daemon is bound to localhost and the request is from elsewhere
+				return null;
+			}
+			if (user.canClone(repository)) {
+				String servername = request.getServerName();
+				String url = gitDaemon.formatUrl(servername, repository.name);
+				return url;
+			}
+		}
+		return null;
+	}
+
+	public AccessPermission getGitDaemonAccessPermission(UserModel user, RepositoryModel repository) {
+		if (gitDaemon != null && user.canClone(repository)) {
+			AccessPermission gitDaemonPermission = user.getRepositoryPermission(repository).permission;
+			if (gitDaemonPermission.atLeast(AccessPermission.CLONE)) {
+				if (repository.accessRestriction.atLeast(AccessRestrictionType.CLONE)) {
+					// can not authenticate clone via anonymous git protocol
+					gitDaemonPermission = AccessPermission.NONE;
+				} else if (repository.accessRestriction.atLeast(AccessRestrictionType.PUSH)) {
+					// can not authenticate push via anonymous git protocol
+					gitDaemonPermission = AccessPermission.CLONE;
+				} else {
+					// normal user permission
+				}
+			}
+			return gitDaemonPermission;
+		}
+		return AccessPermission.NONE;
+	}
+
 
 	private class FederationPuller extends FederationPullService {
 

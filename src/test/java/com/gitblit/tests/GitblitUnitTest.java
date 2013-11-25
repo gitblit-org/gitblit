@@ -17,7 +17,7 @@ package com.gitblit.tests;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.manager.IFederationManager;
-import com.gitblit.manager.IGitblitManager;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -61,7 +61,7 @@ public class GitblitUnitTest extends org.junit.Assert {
 		return GitblitContext.getManager(IFederationManager.class);
 	}
 
-	public static IGitblitManager gitblit() {
-		return GitblitContext.getManager(IGitblitManager.class);
+	public static IGitblit gitblit() {
+		return GitblitContext.getManager(IGitblit.class);
 	}
 }

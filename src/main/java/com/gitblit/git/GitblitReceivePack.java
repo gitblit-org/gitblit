@@ -44,10 +44,10 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.GitBlit;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.client.Translation;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -91,10 +91,10 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	private final IStoredSettings settings;
 
-	private final GitBlit gitblit;
+	private final IGitblit gitblit;
 
 	public GitblitReceivePack(
-			GitBlit gitblit,
+			IGitblit gitblit,
 			Repository db,
 			RepositoryModel repository,
 			UserModel user) {
