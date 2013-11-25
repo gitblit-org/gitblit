@@ -218,7 +218,7 @@ public class RpcServlet extends JsonServlet {
 			// create user
 			UserModel model = deserialize(request, response, UserModel.class);
 			try {
-				gitblit.updateUserModel(model.username, model, true);
+				gitblit.addUser(model);
 			} catch (GitBlitException e) {
 				response.setStatus(failureCode);
 			}
@@ -231,7 +231,7 @@ public class RpcServlet extends JsonServlet {
 				username = model.username;
 			}
 			try {
-				gitblit.updateUserModel(username, model, false);
+				gitblit.reviseUser(username, model);
 			} catch (GitBlitException e) {
 				response.setStatus(failureCode);
 			}
@@ -245,7 +245,7 @@ public class RpcServlet extends JsonServlet {
 			// create team
 			TeamModel model = deserialize(request, response, TeamModel.class);
 			try {
-				gitblit.updateTeamModel(model.name, model, true);
+				gitblit.addTeam(model);
 			} catch (GitBlitException e) {
 				response.setStatus(failureCode);
 			}
@@ -258,7 +258,7 @@ public class RpcServlet extends JsonServlet {
 				teamname = model.name;
 			}
 			try {
-				gitblit.updateTeamModel(teamname, model, false);
+				gitblit.reviseTeam(teamname, model);
 			} catch (GitBlitException e) {
 				response.setStatus(failureCode);
 			}

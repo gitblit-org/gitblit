@@ -183,7 +183,7 @@ public class GitBlit implements IGitblit {
 				UserModel originOwner = userManager.getUserModel(owner);
 				if (originOwner != null) {
 					originOwner.setRepositoryPermission(cloneName, AccessPermission.CLONE);
-					updateUserModel(originOwner.username, originOwner, false);
+					reviseUser(originOwner.username, originOwner);
 				}
 			}
 		}
@@ -222,15 +222,25 @@ public class GitBlit implements IGitblit {
 	}
 
 	/**
+	 * Adds a TeamModel object.
+	 *
+	 * @param team
+	 */
+	@Override
+	public void addTeam(TeamModel team) throws GitBlitException {
+		if (!userManager.updateTeamModel(team)) {
+			throw new GitBlitException("Failed to add team!");
+		}
+	}
+
+	/**
 	 * Updates the TeamModel object for the specified name.
 	 *
 	 * @param teamname
 	 * @param team
-	 * @param isCreate
 	 */
 	@Override
-	public void updateTeamModel(String teamname, TeamModel team, boolean isCreate)
-			throws GitBlitException {
+	public void reviseTeam(String teamname, TeamModel team) throws GitBlitException {
 		if (!teamname.equalsIgnoreCase(team.name)) {
 			if (userManager.getTeamModel(team.name) != null) {
 				throw new GitBlitException(MessageFormat.format(
@@ -239,23 +249,33 @@ public class GitBlit implements IGitblit {
 			}
 		}
 		if (!userManager.updateTeamModel(teamname, team)) {
-			throw new GitBlitException(isCreate ? "Failed to add team!" : "Failed to update team!");
+			throw new GitBlitException("Failed to update team!");
 		}
 	}
 
 	/**
-	 * Adds/updates a complete user object keyed by username. This method allows
-	 * for renaming a user.
+	 * Adds a user object.
 	 *
-	 * @see IUserService.updateUserModel(String, UserModel)
-	 * @param username
 	 * @param user
-	 * @param isCreate
 	 * @throws GitBlitException
 	 */
 	@Override
-	public void updateUserModel(String username, UserModel user, boolean isCreate)
-			throws GitBlitException {
+	public void addUser(UserModel user) throws GitBlitException {
+		if (!userManager.updateUserModel(user)) {
+			throw new GitBlitException("Failed to add user!");
+		}
+	}
+
+	/**
+	 * Updates a user object keyed by username. This method allows
+	 * for renaming a user.
+	 *
+	 * @param username
+	 * @param user
+	 * @throws GitBlitException
+	 */
+	@Override
+	public void reviseUser(String username, UserModel user) throws GitBlitException {
 		if (!username.equalsIgnoreCase(user.username)) {
 			if (userManager.getUserModel(user.username) != null) {
 				throw new GitBlitException(MessageFormat.format(
@@ -280,7 +300,7 @@ public class GitBlit implements IGitblit {
 			}
 		}
 		if (!userManager.updateUserModel(username, user)) {
-			throw new GitBlitException(isCreate ? "Failed to add user!" : "Failed to update user!");
+			throw new GitBlitException("Failed to update user!");
 		}
 	}
 

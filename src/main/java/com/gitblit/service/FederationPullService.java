@@ -31,8 +31,8 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.FederationPullStatus;
 import com.gitblit.Constants.FederationStrategy;
-import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlit;
+import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.IUserService;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
@@ -346,7 +346,7 @@ public abstract class FederationPullService implements Runnable {
 						UserModel localUser = gitblit.getUserModel(user.username);
 						if (localUser == null) {
 							// create new local user
-							gitblit.updateUserModel(user.username, user, true);
+							gitblit.addUser(user);
 						} else {
 							// update repository permissions of local user
 							if (user.permissions != null) {
@@ -363,7 +363,7 @@ public abstract class FederationPullService implements Runnable {
 							}
 							localUser.password = user.password;
 							localUser.canAdmin = user.canAdmin;
-							gitblit.updateUserModel(localUser.username, localUser, false);
+							gitblit.reviseUser(localUser.username, localUser);
 						}
 
 						for (String teamname : gitblit.getAllTeamNames()) {

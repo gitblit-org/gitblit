@@ -188,7 +188,11 @@ public class EditUserPage extends RootSubPage {
 				}
 
 				try {
-					app().gitblit().updateUserModel(oldName, userModel, isCreate);
+					if (isCreate) {
+						app().gitblit().addUser(userModel);
+					} else {
+						app().gitblit().reviseUser(oldName, userModel);
+					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
 					return;

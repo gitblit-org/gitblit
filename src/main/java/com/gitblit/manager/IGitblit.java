@@ -47,25 +47,39 @@ public interface IGitblit extends IManager,
 	List<RepositoryUrl> getRepositoryUrls(HttpServletRequest request, UserModel user, RepositoryModel repository);
 
 	/**
-	 * Adds/updates a complete user object keyed by username. This method allows
-	 * for renaming a user.
+	 * Creates a complete user object.
 	 *
-	 * @see IUserService.updateUserModel(String, UserModel)
-	 * @param username
 	 * @param user
 	 * @param isCreate
 	 * @throws GitBlitException
 	 */
-	void updateUserModel(String username, UserModel user, boolean isCreate) throws GitBlitException;
+	void addUser(UserModel user) throws GitBlitException;
+
+	/**
+	 * Updates a complete user object keyed by username. This method allows
+	 * for renaming a user.
+	 *
+	 * @param username
+	 * @param user
+	 * @throws GitBlitException
+	 */
+	void reviseUser(String username, UserModel user) throws GitBlitException;
+
+	/**
+	 * Creates a TeamModel object.
+	 *
+	 * @param team
+	 * @param isCreate
+	 */
+	void addTeam(TeamModel team) throws GitBlitException;
 
 	/**
 	 * Updates the TeamModel object for the specified name.
 	 *
 	 * @param teamname
 	 * @param team
-	 * @param isCreate
 	 */
-	void updateTeamModel(String teamname, TeamModel team, boolean isCreate) throws GitBlitException;
+	void reviseTeam(String teamname, TeamModel team) throws GitBlitException;
 
 	/**
 	 * Creates a personal fork of the specified repository. The clone is view

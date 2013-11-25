@@ -177,7 +177,7 @@ public class GitServletTest extends GitblitUnitTest {
 		model.authorizationControl = AuthorizationControl.NAMED;
 		UserModel user = new UserModel("james");
 		user.password = "james";
-		gitblit().updateUserModel(user.username, user, true);
+		gitblit().addUser(user);
 		repositories().updateRepositoryModel(model.name, model, false);
 
 		FileUtils.delete(ticgit2Folder, FileUtils.RECURSIVE);
@@ -419,7 +419,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
 
-		gitblit().updateUserModel(user.username, user, true);
+		gitblit().addUser(user);
 		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
@@ -504,7 +504,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// grant user push permission
 		user.setRepositoryPermission(model.name, AccessPermission.PUSH);
 
-		gitblit().updateUserModel(user.username, user, true);
+		gitblit().addUser(user);
 		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
@@ -657,7 +657,7 @@ public class GitServletTest extends GitblitUnitTest {
 		// grant user specified
 		user.setRepositoryPermission(model.name, permission);
 
-		gitblit().updateUserModel(user.username, user, true);
+		gitblit().addUser(user);
 		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
@@ -827,7 +827,7 @@ public class GitServletTest extends GitblitUnitTest {
 		user.canCreate = canCreate;
 		user.canAdmin = canAdmin;
 
-		gitblit().updateUserModel(user.username, user, true);
+		gitblit().addUser(user);
 
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
 

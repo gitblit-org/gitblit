@@ -97,7 +97,7 @@ public class ChangePasswordPage extends RootSubPage {
 
 				user.password = password;
 				try {
-					app().gitblit().updateUserModel(user.username, user, false);
+					app().gitblit().reviseUser(user.username, user);
 					if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, false)) {
 						WebResponse response = (WebResponse) getRequestCycle().getResponse();
 						app().authentication().setCookie(response.getHttpServletResponse(), user);
