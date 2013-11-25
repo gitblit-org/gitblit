@@ -41,6 +41,7 @@ import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
 import com.gitblit.dagger.DaggerContextListener;
 import com.gitblit.git.GitServlet;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.IManager;
@@ -49,7 +50,6 @@ import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IServicesManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
@@ -202,6 +202,7 @@ public class GitblitContext extends DaggerContextListener {
 	@Override
 	protected void injectServlets(ServletContext context) {
 		// access restricted servlets
+		serve(context, Constants.R_PATH, GitServlet.class, GitFilter.class);
 		serve(context, Constants.GIT_PATH, GitServlet.class, GitFilter.class);
 		serve(context, Constants.PAGES, PagesServlet.class, PagesFilter.class);
 		serve(context, Constants.RPC_PATH, RpcServlet.class, RpcFilter.class);

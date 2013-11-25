@@ -357,7 +357,7 @@ public class FederationManager implements IFederationManager {
 		// Determine the Gitblit clone url
 		StringBuilder sb = new StringBuilder();
 		sb.append(gitblitUrl);
-		sb.append(Constants.GIT_PATH);
+		sb.append(Constants.R_PATH);
 		sb.append("{0}");
 		String cloneUrl = sb.toString();
 

@@ -18,18 +18,15 @@ package com.gitblit.servlet;
 import java.text.MessageFormat;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
-import com.gitblit.Constants;
+import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.Constants.AuthorizationControl;
-import com.gitblit.Keys.git;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
@@ -42,7 +39,6 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-@Singleton
 public class GitFilter extends AccessRestrictionFilter {
 
 	protected static final String gitReceivePack = "/git-receive-pack";

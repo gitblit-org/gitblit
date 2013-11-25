@@ -28,10 +28,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.fanout;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -94,7 +93,7 @@ public class SparkleShareInviteServlet extends HttpServlet {
 			repoUrl = repoUrl.substring(0, repoUrl.length() - 4);
 		}
 
-		String servletPath =  Constants.GIT_PATH;
+		String servletPath =  Constants.R_PATH;
 
 		int schemeIndex = repoUrl.indexOf("://") + 3;
 		String host = repoUrl.substring(0, repoUrl.indexOf('/', schemeIndex));

@@ -52,6 +52,8 @@ public class Constants {
 
 	public static final String DEFAULT_USER_REPOSITORY_PREFIX = "~";
 
+	public static final String R_PATH = "/r/";
+
 	public static final String GIT_PATH = "/git/";
 
 	public static final String ZIP_PATH = "/zip/";

@@ -32,13 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.RpcRequest;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Constants.RpcRequest;
-import com.gitblit.Keys.federation;
-import com.gitblit.Keys.realm;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblitManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -132,7 +129,7 @@ public class RpcServlet extends JsonServlet {
 			String gitblitUrl = HttpUtils.getGitblitURL(request);
 			StringBuilder sb = new StringBuilder();
 			sb.append(gitblitUrl);
-			sb.append(Constants.GIT_PATH);
+			sb.append(Constants.R_PATH);
 			sb.append("{0}");
 			String cloneUrl = sb.toString();
 

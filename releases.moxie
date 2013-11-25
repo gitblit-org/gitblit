@@ -36,6 +36,7 @@ r20: {
 	- Removed the repository setting to enable Markdown document enumeration, this is now automatic and expanded
 	- Retrieve LDAP groups with dereferencing aliases (pr-122)
 	- Revised committer verification to require a matching displayname or account name AND the email address
+	- Serve repositories on both /r and /git, displaying /r because it is shorter
     additions:
 	- Added an optional MirrorExecutor which will periodically fetch ref updates from source repositories for mirrors (issue-5).  Repositories must be manually cloned using native git and "--mirror".
 	- Added branch graph image servlet based on EGit's branch graph renderer (issue-194)

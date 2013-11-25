@@ -16,7 +16,6 @@
 package com.gitblit.git;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +29,6 @@ import com.gitblit.GitBlit;
  * @author James Moger
  *
  */
-@Singleton
 public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private static final long serialVersionUID = 1L;
