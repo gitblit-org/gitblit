@@ -48,8 +48,8 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 	private LuceneService newLuceneExecutor() {
 		MemorySettings settings = new MemorySettings();
 		settings.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES);
-		RuntimeManager runtime = new RuntimeManager(settings);
-		UserManager users = new UserManager(runtime);
+		RuntimeManager runtime = new RuntimeManager(settings, GitBlitSuite.BASEFOLDER).start();
+		UserManager users = new UserManager(runtime).start();
 		RepositoryManager repos = new RepositoryManager(runtime, users);
 		return new LuceneService(settings, repos);
 	}
@@ -78,7 +78,7 @@ public class LuceneExecutorTest extends GitblitUnitTest {
 	}
 
 	@Test
-	public void testIndex() throws Exception {
+	public void testIndex() {
 		// reindex helloworld
 		Repository repository = GitBlitSuite.getHelloworldRepository();
 		RepositoryModel model = newRepositoryModel(repository);

@@ -624,18 +624,28 @@ public class GitServletTest extends GitblitUnitTest {
 
 	private void testRefChange(AccessPermission permission, Status expectedCreate, Status expectedDelete, Status expectedRewind) throws Exception {
 
+		final String originName = "ticgit.git";
+		final String forkName = "refchecks/ticgit.git";
+		final String workingCopy = "refchecks/ticgit-wc";
+
+
+		// lower access restriction on origin repository
+		RepositoryModel origin = repositories().getRepositoryModel(originName);
+		origin.accessRestriction = AccessRestrictionType.NONE;
+		repositories().updateRepositoryModel(origin.name, origin, false);
+
 		UserModel user = getUser();
 		delete(user);
 
 		CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user.username, user.password);
 
 		// fork from original to a temporary bare repo
-		File refChecks = new File(GitBlitSuite.REPOSITORIES, "refchecks/ticgit.git");
+		File refChecks = new File(GitBlitSuite.REPOSITORIES, forkName);
 		if (refChecks.exists()) {
 			FileUtils.delete(refChecks, FileUtils.RECURSIVE);
 		}
 		CloneCommand clone = Git.cloneRepository();
-		clone.setURI(MessageFormat.format("{0}/ticgit.git", url));
+		clone.setURI(url + "/" + originName);
 		clone.setDirectory(refChecks);
 		clone.setBare(true);
 		clone.setCloneAllBranches(true);
@@ -643,7 +653,7 @@ public class GitServletTest extends GitblitUnitTest {
 		GitBlitSuite.close(clone.call());
 
 		// elevate repository to clone permission
-		RepositoryModel model = repositories().getRepositoryModel("refchecks/ticgit.git");
+		RepositoryModel model = repositories().getRepositoryModel(forkName);
 		switch (permission) {
 			case VIEW:
 				model.accessRestriction = AccessRestrictionType.CLONE;
@@ -663,7 +673,7 @@ public class GitServletTest extends GitblitUnitTest {
 		repositories().updateRepositoryModel(model.name, model, false);
 
 		// clone temp bare repo to working copy
-		File local = new File(GitBlitSuite.REPOSITORIES, "refchecks/ticgit-wc");
+		File local = new File(GitBlitSuite.REPOSITORIES, workingCopy);
 		if (local.exists()) {
 			FileUtils.delete(local, FileUtils.RECURSIVE);
 		}

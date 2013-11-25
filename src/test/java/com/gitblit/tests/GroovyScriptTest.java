@@ -338,6 +338,10 @@ public class GroovyScriptTest extends GitblitUnitTest {
 			return dv;
 		}
 
+		public int getInteger(String key, int defaultValue) {
+			return defaultValue;
+		}
+
 		public void sendMail(String subject, String message, Collection<String> toAddresses) {
 			messages.add(new MockMail(subject, message, toAddresses));
 		}

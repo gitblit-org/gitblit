@@ -32,7 +32,7 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.GitBlitException.NotAllowedException;
+import com.gitblit.GitBlitException.ForbiddenException;
 import com.gitblit.GitBlitException.UnauthorizedException;
 import com.gitblit.Keys;
 import com.gitblit.models.FederationModel;
@@ -104,7 +104,7 @@ public class RpcTests extends GitblitUnitTest {
 		UserModel user = null;
 		try {
 			user = RpcUtils.getUser("admin", url, null, null);
-		} catch (NotAllowedException e) {
+		} catch (ForbiddenException e) {
 		}
 		assertNull("Server allows anyone to get user!", user);
 

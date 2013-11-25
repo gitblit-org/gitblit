@@ -103,7 +103,7 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 		this.settings = gitblit.getSettings();
 		this.gitblit = gitblit;
 		this.repository = repository;
-		this.user = user == null ? UserModel.ANONYMOUS : user;
+		this.user = user;
 		this.groovyDir = gitblit.getHooksFolder();
 		try {
 			// set Grape root

@@ -27,11 +27,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.gitblit.Constants;
+import com.gitblit.Constants.RpcRequest;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Constants.RpcRequest;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.ISessionManager;
 import com.gitblit.models.UserModel;
@@ -138,10 +136,8 @@ public class RpcFilter extends AuthenticationFilter {
 					return;
 				}
 				// valid user, but not for requested access. send 403.
-				if (runtimeManager.isDebugMode()) {
-					logger.info(MessageFormat.format("RPC: {0} forbidden to access {1}",
+				logger.warn(MessageFormat.format("RPC: {0} forbidden to access {1}",
 							user.username, fullUrl));
-				}
 				httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
 				return;
 			}

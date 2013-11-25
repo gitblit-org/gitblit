@@ -65,6 +65,8 @@ import com.gitblit.utils.JGitUtils;
 		ModelUtilsTest.class, JnaUtilsTest.class })
 public class GitBlitSuite {
 
+	public static final File BASEFOLDER = new File("data");
+
 	public static final File REPOSITORIES = new File("data/git");
 
 	public static final File SETTINGS = new File("src/test/config/test-gitblit.properties");
@@ -83,30 +85,35 @@ public class GitBlitSuite {
 
 	private static AtomicBoolean started = new AtomicBoolean(false);
 
-	public static Repository getHelloworldRepository() throws Exception {
+	public static Repository getHelloworldRepository() {
 		return getRepository("helloworld.git");
 	}
 
-	public static Repository getTicgitRepository() throws Exception {
+	public static Repository getTicgitRepository() {
 		return getRepository("ticgit.git");
 	}
 
-	public static Repository getJGitRepository() throws Exception {
+	public static Repository getJGitRepository() {
 		return getRepository("test/jgit.git");
 	}
 
-	public static Repository getAmbitionRepository() throws Exception {
+	public static Repository getAmbitionRepository() {
 		return getRepository("test/ambition.git");
 	}
 
-	public static Repository getGitectiveRepository() throws Exception {
+	public static Repository getGitectiveRepository() {
 		return getRepository("test/gitective.git");
 	}
 
-	private static Repository getRepository(String name) throws Exception {
-		File gitDir = FileKey.resolve(new File(REPOSITORIES, name), FS.DETECTED);
-		Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
-		return repository;
+	private static Repository getRepository(String name) {
+		try {
+			File gitDir = FileKey.resolve(new File(REPOSITORIES, name), FS.DETECTED);
+			Repository repository = new FileRepositoryBuilder().setGitDir(gitDir).build();
+			return repository;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static boolean startGitblit() throws Exception {
