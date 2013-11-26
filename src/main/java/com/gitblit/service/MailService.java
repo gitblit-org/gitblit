@@ -114,7 +114,6 @@ public class MailService implements Runnable {
 		return session != null;
 	}
 
-
 	/**
 	 * Create a message.
 	 *
@@ -122,7 +121,7 @@ public class MailService implements Runnable {
 	 * @return a message
 	 */
 	public Message createMessage(String... toAddresses) {
-		return createMessage(Arrays.asList(toAddresses));
+		return createMessage(null, Arrays.asList(toAddresses));
 	}
 
 	/**
@@ -132,13 +131,35 @@ public class MailService implements Runnable {
 	 * @return a message
 	 */
 	public Message createMessage(List<String> toAddresses) {
+		return createMessage(null, toAddresses);
+	}
+
+	/**
+	 * Create a message.
+	 *
+	 * @param fromDisplayName
+	 * @param toAddresses
+	 * @return a message
+	 */
+	public Message createMessage(String fromDisplayName, String... toAddresses) {
+		return createMessage(fromDisplayName, Arrays.asList(toAddresses));
+	}
+
+	/**
+	 * Create a message.
+	 *
+	 * @param fromDisplayName
+	 * @param toAddresses
+	 * @return a message
+	 */
+	public Message createMessage(String fromDisplayName, List<String> toAddresses) {
 		MimeMessage message = new MimeMessage(session);
 		try {
 			String fromAddress = settings.getString(Keys.mail.fromAddress, null);
 			if (StringUtils.isEmpty(fromAddress)) {
 				fromAddress = "gitblit@gitblit.com";
 			}
-			InternetAddress from = new InternetAddress(fromAddress, "Gitblit");
+			InternetAddress from = new InternetAddress(fromAddress, fromDisplayName == null ? "Gitblit" : fromDisplayName);
 			message.setFrom(from);
 
 			// determine unique set of addresses

@@ -63,4 +63,24 @@ public interface INotificationManager extends IManager {
 	 */
 	void sendHtmlMail(String subject, String message, String... toAddresses);
 
+	/**
+	 * Notify users by email of something.
+	 *
+	 * @param from
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses);
+
+	/**
+	 * Notify users by email of something.
+	 *
+	 * @param from
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	void sendHtmlMail(String from, String subject, String message, String... toAddresses);
+
 }

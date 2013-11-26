@@ -593,6 +593,16 @@ public class GitblitManager implements IGitblit {
 		notificationManager.sendHtmlMail(subject, message, toAddresses);
 	}
 
+	@Override
+	public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
+		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
+	}
+
+	@Override
+	public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
+		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
+	}
+
 	/*
 	 * SESSION MANAGER
 	 */

@@ -188,5 +188,13 @@ public class FederationClient {
 		@Override
 		public void sendHtmlMail(String subject, String message, String... toAddresses) {
 		}
+
+		@Override
+		public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
+		}
+
+		@Override
+		public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
+		}
 	}
 }

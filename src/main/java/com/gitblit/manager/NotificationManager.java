@@ -142,7 +142,20 @@ public class NotificationManager implements INotificationManager {
 	 */
 	@Override
 	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
-		this.sendHtmlMail(subject, message, toAddresses.toArray(new String[0]));
+		this.sendHtmlMail(null, subject, message, toAddresses.toArray(new String[0]));
+	}
+
+	/**
+	 * Notify users by email of something.
+	 *
+	 * @param from
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	@Override
+	public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
+		this.sendHtmlMail(from, subject, message, toAddresses.toArray(new String[0]));
 	}
 
 	/**
@@ -154,12 +167,25 @@ public class NotificationManager implements INotificationManager {
 	 */
 	@Override
 	public void sendHtmlMail(String subject, String message, String... toAddresses) {
+		this.sendHtmlMail(null, message, toAddresses);
+	}
+
+	/**
+	 * Notify users by email of something.
+	 *
+	 * @param from
+	 * @param subject
+	 * @param message
+	 * @param toAddresses
+	 */
+	@Override
+	public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
 		if (toAddresses == null || toAddresses.length == 0) {
-			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
+			logger.debug("Dropping message {} because there are no recipients", subject);
 			return;
 		}
 		try {
-			Message mail = mailExecutor.createMessage(toAddresses);
+			Message mail = mailExecutor.createMessage(from, toAddresses);
 			if (mail != null) {
 				mail.setSubject(subject);
 

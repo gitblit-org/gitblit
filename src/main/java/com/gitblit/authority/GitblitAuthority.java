@@ -43,6 +43,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -853,7 +854,7 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		// send email
 		try {
 			if (mail.isReady()) {
-				Message message = mail.createMessage(user.emailAddress);
+				Message message = mail.createMessage(Arrays.asList(user.emailAddress));
 				message.setSubject("Your Gitblit client certificate for " + metadata.serverHostname);
 
 				// body of email
