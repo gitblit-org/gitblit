@@ -12,6 +12,7 @@ r20: {
     fixes:
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
 	- Bind LDAP connection after establishing TLS initialization (issue-343)
+	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity
@@ -72,6 +73,7 @@ r20: {
 	- Domingo Oropeza
 	- Chris Graham
 	- Guenter Dressel
+	- fpeters.fae
 }
 
 #

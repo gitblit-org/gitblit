@@ -261,6 +261,9 @@ public class RegistrantPermissionsPanel extends BasePanel {
 				if (rp.permission == null) {
 					return;
 				}
+				if (rp.registrant == null) {
+					return;
+				}
 				RegistrantAccessPermission copy = DeepCopier.copy(rp);
 				if (StringUtils.findInvalidCharacter(copy.registrant) != null) {
 					copy.permissionType = PermissionType.REGEX;
