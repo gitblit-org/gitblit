@@ -88,8 +88,6 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField descriptionField;
 
-	private JCheckBox useDocs;
-
 	private JCheckBox useIncrementalPushTags;
 
 	private JCheckBox showRemoteBranches;
@@ -300,8 +298,6 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
-		fieldsPanel
-				.add(newFieldPanel(Translation.get("gb.enableDocs"), useDocs));
 		fieldsPanel
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
