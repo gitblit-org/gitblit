@@ -19,10 +19,13 @@
 	<classpathentry kind="lib" path="ext/wicket-auth-roles-1.4.21.jar" sourcepath="ext/src/wicket-auth-roles-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/wicket-extensions-1.4.21.jar" sourcepath="ext/src/wicket-extensions-1.4.21.jar" />
 	<classpathentry kind="lib" path="ext/googlecharts-1.4.21.jar" sourcepath="ext/src/googlecharts-1.4.21.jar" />
-	<classpathentry kind="lib" path="ext/lucene-core-3.6.1.jar" sourcepath="ext/src/lucene-core-3.6.1.jar" />
-	<classpathentry kind="lib" path="ext/lucene-highlighter-3.6.1.jar" sourcepath="ext/src/lucene-highlighter-3.6.1.jar" />
-	<classpathentry kind="lib" path="ext/lucene-memory-3.6.1.jar" sourcepath="ext/src/lucene-memory-3.6.1.jar" />
-	<classpathentry kind="lib" path="ext/lucene-queries-3.6.1.jar" sourcepath="ext/src/lucene-queries-3.6.1.jar" />
+	<classpathentry kind="lib" path="ext/lucene-core-4.6.0.jar" sourcepath="ext/src/lucene-core-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-analyzers-common-4.6.0.jar" sourcepath="ext/src/lucene-analyzers-common-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-highlighter-4.6.0.jar" sourcepath="ext/src/lucene-highlighter-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-memory-4.6.0.jar" sourcepath="ext/src/lucene-memory-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queries-4.6.0.jar" sourcepath="ext/src/lucene-queries-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-queryparser-4.6.0.jar" sourcepath="ext/src/lucene-queryparser-4.6.0.jar" />
+	<classpathentry kind="lib" path="ext/lucene-sandbox-4.6.0.jar" sourcepath="ext/src/lucene-sandbox-4.6.0.jar" />
 	<classpathentry kind="lib" path="ext/jakarta-regexp-1.4.jar" />
 	<classpathentry kind="lib" path="ext/pegdown-1.4.1.jar" sourcepath="ext/src/pegdown-1.4.1.jar" />
 	<classpathentry kind="lib" path="ext/parboiled-java-1.1.5.jar" sourcepath="ext/src/parboiled-java-1.1.5.jar" />

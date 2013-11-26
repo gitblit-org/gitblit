@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -42,15 +41,16 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
@@ -125,7 +125,7 @@ public class LuceneService implements Runnable {
 	private static final String CONF_ALIAS = "aliases";
 	private static final String CONF_BRANCH = "branches";
 
-	private static final Version LUCENE_VERSION = Version.LUCENE_35;
+	private static final Version LUCENE_VERSION = Version.LUCENE_46;
 
 	private final Logger logger = LoggerFactory.getLogger(LuceneService.class);
 
@@ -552,13 +552,13 @@ public class LuceneService implements Runnable {
 								Resolution.MINUTE);
 
 						Document doc = new Document();
-						doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), Store.YES, Index.NOT_ANALYZED_NO_NORMS));
-						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_PATH, path, Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_DATE, blobDate, Store.YES, Index.NO));
-						doc.add(new Field(FIELD_AUTHOR, blobAuthor, Store.YES, Index.ANALYZED));
-						doc.add(new Field(FIELD_COMMITTER, blobCommitter, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), StringField.TYPE_STORED));
+						doc.add(new Field(FIELD_BRANCH, branchName, TextField.TYPE_STORED));
+						doc.add(new Field(FIELD_COMMIT, commit.getName(), TextField.TYPE_STORED));
+						doc.add(new Field(FIELD_PATH, path, TextField.TYPE_STORED));
+						doc.add(new Field(FIELD_DATE, blobDate, StringField.TYPE_STORED));
+						doc.add(new Field(FIELD_AUTHOR, blobAuthor, TextField.TYPE_STORED));
+						doc.add(new Field(FIELD_COMMITTER, blobCommitter, TextField.TYPE_STORED));
 
 						// determine extension to compare to the extension
 						// blacklist
@@ -579,7 +579,7 @@ public class LuceneService implements Runnable {
 							in.close();
 							byte[] content = os.toByteArray();
 							String str = StringUtils.decodeString(content, encodings);
-							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
+							doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
 							os.reset();
 						}
 
@@ -593,7 +593,7 @@ public class LuceneService implements Runnable {
 				// index the tip commit object
 				if (indexedCommits.add(tipId)) {
 					Document doc = createDocument(tip, tags.get(tipId));
-					doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
+					doc.add(new Field(FIELD_BRANCH, branchName, TextField.TYPE_STORED));
 					writer.addDocument(doc);
 					result.commitCount += 1;
 					result.branchCount += 1;
@@ -607,7 +607,7 @@ public class LuceneService implements Runnable {
 					String hash = rev.getId().getName();
 					if (indexedCommits.add(hash)) {
 						Document doc = createDocument(rev, tags.get(hash));
-						doc.add(new Field(FIELD_BRANCH, branchName, Store.YES, Index.ANALYZED));
+						doc.add(new Field(FIELD_BRANCH, branchName, TextField.TYPE_STORED));
 						writer.addDocument(doc);
 						result.commitCount += 1;
 					}
@@ -660,14 +660,13 @@ public class LuceneService implements Runnable {
 				if (!ChangeType.DELETE.equals(path.changeType)) {
 					result.blobCount++;
 					Document doc = new Document();
-					doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), Store.YES,
-							Index.NOT_ANALYZED));
-					doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_PATH, path.path, Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_DATE, revDate, Store.YES, Index.NO));
-					doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), Store.YES, Index.ANALYZED));
-					doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), Store.YES, Index.ANALYZED));
+					doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.blob.name(), StringField.TYPE_STORED));
+					doc.add(new Field(FIELD_BRANCH, branch, TextField.TYPE_STORED));
+					doc.add(new Field(FIELD_COMMIT, commit.getName(), TextField.TYPE_STORED));
+					doc.add(new Field(FIELD_PATH, path.path, TextField.TYPE_STORED));
+					doc.add(new Field(FIELD_DATE, revDate, StringField.TYPE_STORED));
+					doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), TextField.TYPE_STORED));
+					doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), TextField.TYPE_STORED));
 
 					// determine extension to compare to the extension
 					// blacklist
@@ -682,7 +681,7 @@ public class LuceneService implements Runnable {
 						String str = JGitUtils.getStringContent(repository, commit.getTree(),
 								path.path, encodings);
 						if (str != null) {
-							doc.add(new Field(FIELD_CONTENT, str, Store.YES, Index.ANALYZED));
+							doc.add(new Field(FIELD_CONTENT, str, TextField.TYPE_STORED));
 							writer.addDocument(doc);
 						}
 					}
@@ -700,7 +699,7 @@ public class LuceneService implements Runnable {
 
 			// create and write the Lucene document
 			Document doc = createDocument(commit, commitTags);
-			doc.add(new Field(FIELD_BRANCH, branch, Store.YES, Index.ANALYZED));
+			doc.add(new Field(FIELD_BRANCH, branch, TextField.TYPE_STORED));
 			result.commitCount++;
 			result.success = index(repositoryName, doc);
 		} catch (Exception e) {
@@ -880,17 +879,16 @@ public class LuceneService implements Runnable {
 	 */
 	private Document createDocument(RevCommit commit, List<String> tags) {
 		Document doc = new Document();
-		doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.commit.name(), Store.YES,
-				Index.NOT_ANALYZED));
-		doc.add(new Field(FIELD_COMMIT, commit.getName(), Store.YES, Index.ANALYZED));
+		doc.add(new Field(FIELD_OBJECT_TYPE, SearchObjectType.commit.name(), StringField.TYPE_STORED));
+		doc.add(new Field(FIELD_COMMIT, commit.getName(), TextField.TYPE_STORED));
 		doc.add(new Field(FIELD_DATE, DateTools.timeToString(commit.getCommitTime() * 1000L,
-				Resolution.MINUTE), Store.YES, Index.NO));
-		doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_SUMMARY, commit.getShortMessage(), Store.YES, Index.ANALYZED));
-		doc.add(new Field(FIELD_CONTENT, commit.getFullMessage(), Store.YES, Index.ANALYZED));
+				Resolution.MINUTE), StringField.TYPE_STORED));
+		doc.add(new Field(FIELD_AUTHOR, getAuthor(commit), TextField.TYPE_STORED));
+		doc.add(new Field(FIELD_COMMITTER, getCommitter(commit), TextField.TYPE_STORED));
+		doc.add(new Field(FIELD_SUMMARY, commit.getShortMessage(), TextField.TYPE_STORED));
+		doc.add(new Field(FIELD_CONTENT, commit.getFullMessage(), TextField.TYPE_STORED));
 		if (!ArrayUtils.isEmpty(tags)) {
-			doc.add(new Field(FIELD_TAG, StringUtils.flattenStrings(tags), Store.YES, Index.ANALYZED));
+			doc.add(new Field(FIELD_TAG, StringUtils.flattenStrings(tags), TextField.TYPE_STORED));
 		}
 		return doc;
 	}
@@ -952,7 +950,7 @@ public class LuceneService implements Runnable {
 		IndexSearcher searcher = searchers.get(repository);
 		if (searcher == null) {
 			IndexWriter writer = getIndexWriter(repository);
-			searcher = new IndexSearcher(IndexReader.open(writer, true));
+			searcher = new IndexSearcher(DirectoryReader.open(writer, true));
 			searchers.put(repository, searcher);
 		}
 		return searcher;
@@ -1226,25 +1224,14 @@ public class LuceneService implements Runnable {
 	 */
 	private class MultiSourceReader extends MultiReader {
 
-		final Method method;
-
-		MultiSourceReader(IndexReader[] subReaders) {
-			super(subReaders);
-			Method m = null;
-			try {
-				m = MultiReader.class.getDeclaredMethod("readerIndex", int.class);
-				m.setAccessible(true);
-			} catch (Exception e) {
-				logger.error("Error getting readerIndex method", e);
-			}
-			method = m;
+		MultiSourceReader(IndexReader [] readers) {
+			super(readers, false);
 		}
 
 		int getSourceIndex(int docId) {
 			int index = -1;
 			try {
-				Object o = method.invoke(this, docId);
-				index = (Integer) o;
+				index = super.readerIndex(docId);
 			} catch (Exception e) {
 				logger.error("Error getting source index", e);
 			}
