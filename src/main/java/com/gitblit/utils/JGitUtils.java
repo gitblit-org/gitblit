@@ -1470,23 +1470,6 @@ public class JGitUtils {
 		String target = null;
 		try {
 			target = repository.getFullBranch();
-			if (!target.startsWith(Constants.R_HEADS)) {
-				// refers to an actual commit, probably a tag
-				// find latest tag that matches the commit, if any
-				List<RefModel> tagModels = getTags(repository, true, -1);
-				if (tagModels.size() > 0) {
-					RefModel tag = null;
-					Date lastDate = new Date(0);
-					for (RefModel tagModel : tagModels) {
-						if (tagModel.getReferencedObjectId().getName().equals(target) &&
-								tagModel.getDate().after(lastDate)) {
-							tag = tagModel;
-							lastDate = tag.getDate();
-						}
-					}
-					target = tag.getName();
-				}
-			}
 		} catch (Throwable t) {
 			error(t, repository, "{0} failed to get symbolic HEAD target");
 		}
