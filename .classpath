@@ -74,10 +74,5 @@
 	<classpathentry kind="lib" path="ext/commons-logging-1.1.1.jar" sourcepath="ext/src/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="ext/commons-exec-1.1.jar" sourcepath="ext/src/commons-exec-1.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" />
-	<classpathentry kind="src" path="src/main/dagger">
-		<attributes>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="bin/classes" />
 </classpath>
