@@ -457,6 +457,8 @@ public class RepositoryManager implements IRepositoryManager {
 	public void resetRepositoryListCache() {
 		logger.info("Repository cache manually reset");
 		repositoryListCache.clear();
+		repositorySizeCache.clear();
+		repositoryMetricsCache.clear();
 	}
 
 	/**

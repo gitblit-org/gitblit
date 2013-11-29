@@ -13,6 +13,7 @@ r20: {
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
 	- Bind LDAP connection after establishing TLS initialization (issue-343)
 	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
+	- Invalidate all cached repository data on "clear cache" (issue-346)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity

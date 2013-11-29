@@ -54,6 +54,10 @@ public class ObjectCache<X> implements Serializable {
 		}
 	}
 
+	public void clear() {
+		cache.clear();
+	}
+
 	public boolean hasCurrent(String name, Date date) {
 		return cache.containsKey(name) && cache.get(name).date.compareTo(date) == 0;
 	}
