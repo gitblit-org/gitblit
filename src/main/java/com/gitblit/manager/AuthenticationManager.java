@@ -108,10 +108,10 @@ public class AuthenticationManager implements IAuthenticationManager {
 		String realm = settings.getString(Keys.realm.userService, "${baseFolder}/users.conf");
 		if (legacyRedirects.containsKey(realm)) {
 			logger.warn("");
-			logger.warn("#################################################################");
+			logger.warn(Constants.BORDER2);
 			logger.warn(" IUserService '{}' is obsolete!", realm);
 			logger.warn(" Please set '{}={}'", "realm.authenticationProviders", legacyRedirects.get(realm));
-			logger.warn("#################################################################");
+			logger.warn(Constants.BORDER2);
 			logger.warn("");
 
 			// conditionally override specified authentication providers

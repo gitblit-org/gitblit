@@ -94,10 +94,10 @@ public class UserManager implements IUserManager {
 				// create the user service from the legacy config
 				String realmKey = legacyBackingServices.get(realm);
 				logger.warn("");
-				logger.warn("#################################################################");
+				logger.warn(Constants.BORDER2);
 				logger.warn(" Key '{}' is obsolete!", realmKey);
 				logger.warn(" Please set '{}={}'", Keys.realm.userService, settings.getString(realmKey, "${baseFolder}/users.conf"));
-				logger.warn("#################################################################");
+				logger.warn(Constants.BORDER2);
 				logger.warn("");
 				File realmFile = runtimeManager.getFileOrFolder(realmKey, "${baseFolder}/users.conf");
 				service = createUserService(realmFile);

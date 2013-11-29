@@ -157,6 +157,8 @@ public class RepositoryManager implements IRepositoryManager {
 		configureJGit();
 		configureCommitCache();
 
+		confirmWriteAccess();
+
 		return this;
 	}
 
@@ -1754,6 +1756,22 @@ public class RepositoryManager implements IRepositoryManager {
 			}
 			logger.info(MessageFormat.format("built {0} day commit cache of {1} commits across {2} repositories in {3} msecs",
 					daysToCache, commitCount, repoCount, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)));
+		}
+	}
+
+	protected void confirmWriteAccess() {
+		if (runtimeManager.isServingRepositories()) {
+			try {
+				File file = File.createTempFile(".test-", ".txt", getRepositoriesFolder());
+				file.delete();
+			} catch (Exception e) {
+				logger.error("");
+				logger.error(Constants.BORDER2);
+				logger.error("Please check filesystem permissions!");
+				logger.error("FAILED TO WRITE TO REPOSITORIES FOLDER!!", e);
+				logger.error(Constants.BORDER2);
+				logger.error("");
+			}
 		}
 	}
 }

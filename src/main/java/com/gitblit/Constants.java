@@ -70,7 +70,9 @@ public class Constants {
 
 	public static final String BRANCH_GRAPH_PATH = "/graph/";
 
-	public static final String BORDER = "***********************************************************";
+	public static final String BORDER = "*****************************************************************";
+
+	public static final String BORDER2 = "#################################################################";
 
 	public static final String FEDERATION_USER = "$gitblit";
 
