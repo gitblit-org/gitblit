@@ -63,7 +63,6 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 		String repositoryName = "";
 		String origin = "";
 		String gitblitUrl = "";
-		String repositoryUrl = "";
 		int timeout = 0;
 
 		if (req instanceof HttpServletRequest) {
@@ -72,7 +71,6 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			repositoryName = request.getAttribute("gitblitRepositoryName").toString();
 			origin = request.getRemoteHost();
 			gitblitUrl = HttpUtils.getGitblitURL(request);
-			repositoryUrl = request.getRequestURI();
 
 			// determine pushing user
 			String username = request.getRemoteUser();
@@ -98,11 +96,15 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 			throw new ServiceNotEnabledException();
 		}
 
+		String url = settings.getString(Keys.web.canonicalUrl, null);
+		if (StringUtils.isEmpty(url)) {
+			url = gitblitUrl;
+		}
+		
 		final RepositoryModel repository = gitblit.getRepositoryModel(repositoryName);
 
 		final GitblitReceivePack rp = new GitblitReceivePack(gitblit, db, repository, user);
-		rp.setGitblitUrl(gitblitUrl);
-		rp.setRepositoryUrl(repositoryUrl);
+		rp.setGitblitUrl(url);
 		rp.setRefLogIdent(new PersonIdent(user.username, user.username + "@" + origin));
 		rp.setTimeout(timeout);
 

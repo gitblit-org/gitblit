@@ -85,8 +85,6 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	protected String gitblitUrl;
 
-	protected String repositoryUrl;
-
 	protected GroovyScriptEngine gse;
 
 	private final IStoredSettings settings;
@@ -388,10 +386,6 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	protected void setGitblitUrl(String url) {
 		this.gitblitUrl = url;
-	}
-
-	protected void setRepositoryUrl(String url) {
-		this.repositoryUrl = url;
 	}
 
 	protected void sendRejection(final ReceiveCommand cmd, final String why, Object... objects) {

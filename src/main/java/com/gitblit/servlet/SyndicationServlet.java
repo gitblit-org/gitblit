@@ -222,7 +222,10 @@ public class SyndicationServlet extends DaggerServlet {
 			// parameterized parameters
 			urlPattern = "{0}/commit/?r={1}&h={2}";
 		}
-		String gitblitUrl = HttpUtils.getGitblitURL(request);
+		String gitblitUrl = settings.getString(Keys.web.canonicalUrl, null);
+		if (StringUtils.isEmpty(gitblitUrl)) {
+			gitblitUrl = HttpUtils.getGitblitURL(request);
+		}
 		char fsc = settings.getChar(Keys.web.forwardSlashCharacter, '/');
 
 		List<FeedEntryModel> entries = new ArrayList<FeedEntryModel>();

@@ -337,8 +337,12 @@ public class GitblitManager implements IGitblit {
 	}
 
 	protected String getRepositoryUrl(HttpServletRequest request, String username, RepositoryModel repository) {
+		String gitblitUrl = settings.getString(Keys.web.canonicalUrl, null);
+		if (StringUtils.isEmpty(gitblitUrl)) {
+			gitblitUrl = HttpUtils.getGitblitURL(request);
+		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(HttpUtils.getGitblitURL(request));
+		sb.append(gitblitUrl);
 		sb.append(Constants.R_PATH);
 		sb.append(repository.name);
 

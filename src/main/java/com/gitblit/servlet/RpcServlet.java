@@ -101,7 +101,10 @@ public class RpcServlet extends JsonServlet {
 			result = PROTOCOL_VERSION;
 		} else if (RpcRequest.LIST_REPOSITORIES.equals(reqType)) {
 			// Determine the Gitblit clone url
-			String gitblitUrl = HttpUtils.getGitblitURL(request);
+			String gitblitUrl = settings.getString(Keys.web.canonicalUrl, null);
+			if (StringUtils.isEmpty(gitblitUrl)) {
+				gitblitUrl = HttpUtils.getGitblitURL(request);
+			}
 			StringBuilder sb = new StringBuilder();
 			sb.append(gitblitUrl);
 			sb.append(Constants.R_PATH);
@@ -320,7 +323,10 @@ public class RpcServlet extends JsonServlet {
 		} else if (RpcRequest.LIST_FEDERATION_SETS.equals(reqType)) {
 			// return the list of federation sets
 			if (allowAdmin && gitblit.canFederate()) {
-				String gitblitUrl = HttpUtils.getGitblitURL(request);
+				String gitblitUrl = settings.getString(Keys.web.canonicalUrl, null);
+				if (StringUtils.isEmpty(gitblitUrl)) {
+					gitblitUrl = HttpUtils.getGitblitURL(request);
+				}
 				result = gitblit.getFederationSets(gitblitUrl);
 			} else {
 				response.sendError(notAllowedCode);
