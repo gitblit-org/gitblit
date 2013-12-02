@@ -66,12 +66,12 @@ resourceDirectories:
 - compile 'src/main/resources'
 - site 'src/site/resources'
 
-# compile for Java 6 class format
+# compile for Java 7 class format
 tasks: {
 	'mx:javac' : {
-        source: 1.6
-        target: 1.6
-        compiler: javac1.6
+        source: 1.7
+        target: 1.7
+        compiler: javac1.7
         encoding: UTF-8
         # stop complaints about bootstrap classpath when compiling with Java 7
         compilerArgs: '-Xlint:-options'
