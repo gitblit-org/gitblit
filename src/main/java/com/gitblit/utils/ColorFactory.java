@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Factory for creating color maps.
@@ -68,7 +67,7 @@ public class ColorFactory {
 	}
 
 	private Color getRandomColor() {
-		Random random = ThreadLocalRandom.current();
+		Random random = new Random();
 
 		Color randomColor = new Color(random.nextInt(256), random.nextInt(256),
 				random.nextInt(256));
