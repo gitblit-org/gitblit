@@ -43,13 +43,13 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Keys;
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.models.PathModel;
+import com.gitblit.utils.ColorFactory;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.CacheControl;
 import com.gitblit.wicket.CacheControl.LastModified;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.pages.blame.ColorFactory;
 import com.gitblit.wicket.panels.CommitHeaderPanel;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
@@ -61,21 +61,18 @@ public class BlamePage extends RepositoryPage {
 	 * The different types of Blame visualizations.
 	 */
 	private enum BlameType {
-		COMMIT("commit"),
+		COMMIT,
 
-		AUTHOR("author"),
+		AUTHOR,
 
-		AGE("age");
+		AGE;
 
-		private String name;
-
-		private BlameType(String name) {
-			this.name = name;
+		private BlameType() {
 		}
 
 		public static BlameType get(String name) {
 			for (BlameType blameType : BlameType.values()) {
-				if (blameType.name.equalsIgnoreCase(name)) {
+				if (blameType.name().equalsIgnoreCase(name)) {
 					return blameType;
 				}
 			}
@@ -85,7 +82,7 @@ public class BlamePage extends RepositoryPage {
 
 		@Override
 		public String toString() {
-			return name;
+			return name().toLowerCase();
 		}
 	}
 
@@ -126,7 +123,7 @@ public class BlamePage extends RepositoryPage {
 					new BookmarkablePageLink<Void>(blameByLinkText, BlamePage.class, blameTypePageParam);
 
 			if (activeBlameType == type) {
-				blameByPageLink.add(new SimpleAttributeModifier("class", "active"));
+				blameByPageLink.add(new SimpleAttributeModifier("style", "font-weight:bold;"));
 			}
 
 			add(blameByPageLink);

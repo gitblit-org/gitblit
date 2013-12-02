@@ -1,4 +1,4 @@
-package com.gitblit.wicket.pages.blame;
+package com.gitblit.utils;
 
 import java.awt.Color;
 import java.util.HashMap;
