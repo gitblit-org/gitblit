@@ -18,14 +18,24 @@ package com.gitblit.wicket.pages;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -33,6 +43,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Keys;
 import com.gitblit.models.AnnotatedLine;
 import com.gitblit.models.PathModel;
+import com.gitblit.utils.ColorFactory;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -46,10 +57,42 @@ import com.gitblit.wicket.panels.PathBreadcrumbsPanel;
 @CacheControl(LastModified.BOOT)
 public class BlamePage extends RepositoryPage {
 
+	/**
+	 * The different types of Blame visualizations.
+	 */
+	private enum BlameType {
+		COMMIT,
+
+		AUTHOR,
+
+		AGE;
+
+		private BlameType() {
+		}
+
+		public static BlameType get(String name) {
+			for (BlameType blameType : BlameType.values()) {
+				if (blameType.name().equalsIgnoreCase(name)) {
+					return blameType;
+				}
+			}
+			throw new IllegalArgumentException("Unknown Blame Type [" + name
+					+ "]");
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase();
+		}
+	}
+
 	public BlamePage(PageParameters params) {
 		super(params);
 
 		final String blobPath = WicketUtils.getPath(params);
+
+		final String blameTypeParam = params.getString("blametype", BlameType.COMMIT.toString());
+		final BlameType activeBlameType = BlameType.get(blameTypeParam);
 
 		RevCommit commit = getCommit();
 
@@ -65,6 +108,26 @@ public class BlamePage extends RepositoryPage {
 				WicketUtils.newPathParameter(repositoryName, Constants.HEAD, blobPath)));
 		add(new BookmarkablePageLink<Void>("historyLink", HistoryPage.class,
 				WicketUtils.newPathParameter(repositoryName, objectId, blobPath)));
+
+		// "Blame by" links
+		for (BlameType type : BlameType.values()) {
+			String typeString = type.toString();
+			PageParameters blameTypePageParam =
+					WicketUtils.newBlameTypeParameter(repositoryName, commit.getName(),
+							WicketUtils.getPath(params), typeString);
+
+			String blameByLinkText = "blameBy"
+					+ Character.toUpperCase(typeString.charAt(0)) + typeString.substring(1)
+					+ "Link";
+			BookmarkablePageLink<Void> blameByPageLink =
+					new BookmarkablePageLink<Void>(blameByLinkText, BlamePage.class, blameTypePageParam);
+
+			if (activeBlameType == type) {
+				blameByPageLink.add(new SimpleAttributeModifier("style", "font-weight:bold;"));
+			}
+
+			add(blameByPageLink);
+		}
 
 		add(new CommitHeaderPanel("commitHeader", repositoryName, commit));
 
@@ -93,23 +156,44 @@ public class BlamePage extends RepositoryPage {
 		add(new Label("missingBlob").setVisible(false));
 
 		List<AnnotatedLine> lines = DiffUtils.blame(getRepository(), blobPath, objectId);
+		final Map<?, String> colorMap = initializeColors(activeBlameType, lines);
 		ListDataProvider<AnnotatedLine> blameDp = new ListDataProvider<AnnotatedLine>(lines);
-		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("annotation", blameDp) {
+		DataView<AnnotatedLine> blameView = new DataView<AnnotatedLine>("blameView", blameDp) {
 			private static final long serialVersionUID = 1L;
-			private int count;
 			private String lastCommitId = "";
 			private boolean showInitials = true;
 			private String zeroId = ObjectId.zeroId().getName();
 
 			@Override
 			public void populateItem(final Item<AnnotatedLine> item) {
-				AnnotatedLine entry = item.getModelObject();
+				final AnnotatedLine entry = item.getModelObject();
+
+				IModel<String> colorModel = new AbstractReadOnlyModel<String>() {
+					public String getObject() {
+						final String color;
+
+						switch (activeBlameType) {
+							case AGE:
+								color = colorMap.get(entry.when);
+								break;
+							case AUTHOR:
+								color = colorMap.get(entry.author);
+								break;
+							default:
+								color = colorMap.get(entry.commitId);
+								break;
+						}
+
+						return "background-color:" + color + ";";
+					}
+				};
+				item.add(new AttributeModifier("style", true, colorModel));
+
 				item.add(new Label("line", "" + entry.lineNumber));
 				item.add(new Label("data", StringUtils.escapeForHtml(entry.data, true))
 						.setEscapeModelStrings(false));
 				if (!lastCommitId.equals(entry.commitId)) {
 					lastCommitId = entry.commitId;
-					count++;
 					if (zeroId.equals(entry.commitId)) {
 						// unknown commit
 						item.add(new Label("commit", "<?>"));
@@ -133,11 +217,6 @@ public class BlamePage extends RepositoryPage {
 						// hide the commit link until the next block
 						item.add(new Label("commit").setVisible(false));
 					}
-				}
-				if (count % 2 == 0) {
-					WicketUtils.setCssClass(item, "even");
-				} else {
-					WicketUtils.setCssClass(item, "odd");
 				}
 			}
 		};
@@ -170,5 +249,40 @@ public class BlamePage extends RepositoryPage {
 		sb.append(MessageFormat.format(pattern, blobPath, commit.getTree().getId().getName()));
 		sb.append("</div>");
 		return sb.toString();
+	}
+
+	private Map<?, String> initializeColors(BlameType blameType, List<AnnotatedLine> lines) {
+		ColorFactory colorFactory = new ColorFactory();
+		Map<?, String> colorMap;
+
+		if (blameType == BlameType.AGE) {
+			Set<Date> keys = new TreeSet<Date>(new Comparator<Date>() {
+				@Override
+				public int compare(Date o1, Date o2) {
+					// Reverse date ordering.
+					return (o1.compareTo(o2) * -1);
+				}
+			});
+
+			for (AnnotatedLine line : lines) {
+				keys.add(line.when);
+			}
+
+			colorMap = colorFactory.getGraduatedColorMap(keys);
+		} else {
+			Set<String> keys = new HashSet<String>();
+
+			for (AnnotatedLine line : lines) {
+				if (blameType == BlameType.AUTHOR) {
+					keys.add(line.author);
+				} else {
+					keys.add(line.commitId);
+				}
+			}
+
+			colorMap = colorFactory.getRandomColorMap(keys);
+		}
+
+		return colorMap;
 	}
 }
