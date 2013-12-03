@@ -15,10 +15,8 @@
  */
 package com.gitblit.utils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -755,18 +753,8 @@ public class JGitUtils {
 				ObjectId entid = tw.getObjectId(0);
 				FileMode entmode = tw.getFileMode(0);
 				if (entmode != FileMode.GITLINK) {
-					RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
-					rw.parseBody(ro);
-					ByteArrayOutputStream os = new ByteArrayOutputStream();
-					ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
-					byte[] tmp = new byte[4096];
-					InputStream in = ldr.openStream();
-					int n;
-					while ((n = in.read(tmp)) > 0) {
-						os.write(tmp, 0, n);
-					}
-					in.close();
-					content = os.toByteArray();
+					ObjectLoader ldr = repository.open(entid, Constants.OBJ_BLOB);
+					content = ldr.getCachedBytes();
 				}
 			}
 		} catch (Throwable t) {
@@ -810,17 +798,8 @@ public class JGitUtils {
 		byte[] content = null;
 		try {
 			RevBlob blob = rw.lookupBlob(ObjectId.fromString(objectId));
-			rw.parseBody(blob);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			ObjectLoader ldr = repository.open(blob.getId(), Constants.OBJ_BLOB);
-			byte[] tmp = new byte[4096];
-			InputStream in = ldr.openStream();
-			int n;
-			while ((n = in.read(tmp)) > 0) {
-				os.write(tmp, 0, n);
-			}
-			in.close();
-			content = os.toByteArray();
+			content = ldr.getCachedBytes();
 		} catch (Throwable t) {
 			error(t, repository, "{0} can't find blob {1}", objectId);
 		} finally {
