@@ -29,10 +29,8 @@
  */
 package com.syntevo.bugtraq;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -46,9 +44,7 @@ import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevObject;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.storage.file.FileBasedConfig;
@@ -142,35 +138,21 @@ public final class BugtraqConfig {
 		if (repository.isBare()) {
 			// read bugtraq config directly from the repository
 			String content = null;
-			String head = repository.getFullBranch();
 			RevWalk rw = new RevWalk(repository);
 			TreeWalk tw = new TreeWalk(repository);
 			tw.setFilter(PathFilterGroup.createFromStrings(DOT_GIT_BUGTRAQ));
 			try {
-				ObjectId headId = repository.resolve(head);
+				ObjectId headId = repository.getRef(Constants.HEAD).getTarget().getObjectId();
 				RevCommit commit = rw.parseCommit(headId);
 				RevTree tree = commit.getTree();
 				tw.reset(tree);
 				while (tw.next()) {
-					if (tw.isSubtree()) {
-						tw.enterSubtree();
-						continue;
-					}
 					ObjectId entid = tw.getObjectId(0);
 					FileMode entmode = tw.getFileMode(0);
-					if (entmode == FileMode.REGULAR_FILE) {
-						RevObject ro = rw.lookupAny(entid, entmode.getObjectType());
-						rw.parseBody(ro);
-						ByteArrayOutputStream os = new ByteArrayOutputStream();
-						ObjectLoader ldr = repository.open(ro.getId(), Constants.OBJ_BLOB);
-						byte[] tmp = new byte[4096];
-						InputStream in = ldr.openStream();
-						int n;
-						while ((n = in.read(tmp)) > 0) {
-							os.write(tmp, 0, n);
-						}
-						in.close();
-						content = new String(os.toByteArray(), commit.getEncoding());
+					if (FileMode.REGULAR_FILE == entmode) {
+						ObjectLoader ldr = repository.open(entid, Constants.OBJ_BLOB);
+						content = new String(ldr.getCachedBytes(), commit.getEncoding());
+						break;
 					}
 				}
 			} finally {
@@ -181,21 +163,15 @@ public final class BugtraqConfig {
 			if (content == null) {
 				// config not found
 				baseConfig = null;
-			} else {
-				// parse the config
-				Config cfg = new Config();
-				cfg.fromText(content);
-				baseConfig = new StoredConfig(cfg) {
-					@Override
-					public void save() throws IOException {
-					}
-
-					@Override
-					public void load() throws IOException, ConfigInvalidException {
-					}
-				};
 			}
-		} else {
+			else {
+				// parse the config
+				Config config = new Config();
+				config.fromText(content);
+				baseConfig = config;
+			}
+		}
+		else {
 			// read bugtraq config from work tree
 			final File baseFile = new File(repository.getWorkTree(), DOT_GIT_BUGTRAQ);
 			if (baseFile.isFile()) {
