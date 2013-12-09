@@ -132,6 +132,10 @@ public class MarkdownUtils {
 		String mentionReplacement = String.format(" **<a href=\"%1s/user/$1\">@$1</a>**", canonicalUrl);
 		text = text.replaceAll("\\s@([A-Za-z0-9-_]+)", mentionReplacement);
 
+		// link ticket refs
+		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)$3", canonicalUrl, repositoryName);
+		text = text.replaceAll("([\\s,]+)#(\\d+)([\\s,:\\.\\n])", ticketReplacement);
+
 		// link commit shas
 		int shaLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
 		String commitPattern = MessageFormat.format("\\s([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);

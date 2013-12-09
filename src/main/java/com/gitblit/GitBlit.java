@@ -19,12 +19,14 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.manager.GitblitManager;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
+import com.gitblit.manager.IGitblit;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
@@ -34,7 +36,16 @@ import com.gitblit.manager.ServicesManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.BranchTicketService;
+import com.gitblit.tickets.FileTicketService;
+import com.gitblit.tickets.ITicketService;
+import com.gitblit.tickets.NullTicketService;
+import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.utils.StringUtils;
+
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 
 /**
  * GitBlit is the aggregate manager for the Gitblit webapp.  It provides all
@@ -45,7 +56,11 @@ import com.gitblit.utils.StringUtils;
  */
 public class GitBlit extends GitblitManager {
 
+	private final ObjectGraph injector;
+
 	private final ServicesManager servicesManager;
+
+	private ITicketService ticketService;
 
 	public GitBlit(
 			IRuntimeManager runtimeManager,
@@ -64,6 +79,8 @@ public class GitBlit extends GitblitManager {
 				projectManager,
 				federationManager);
 
+		this.injector = ObjectGraph.create(getModules());
+
 		this.servicesManager = new ServicesManager(this);
 	}
 
@@ -72,6 +89,7 @@ public class GitBlit extends GitblitManager {
 		super.start();
 		logger.info("Starting services manager...");
 		servicesManager.start();
+		configureTicketService();
 		return this;
 	}
 
@@ -79,7 +97,12 @@ public class GitBlit extends GitblitManager {
 	public GitBlit stop() {
 		super.stop();
 		servicesManager.stop();
+		ticketService.stop();
 		return this;
+	}
+
+	protected Object [] getModules() {
+		return new Object [] { new GitBlitModule()};
 	}
 
 	/**
@@ -130,5 +153,136 @@ public class GitBlit extends GitblitManager {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * Detect renames and reindex as appropriate.
+	 */
+	@Override
+	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
+			boolean isCreate) throws GitBlitException {
+		RepositoryModel oldModel = null;
+		boolean isRename = !isCreate && !repositoryName.equalsIgnoreCase(repository.name);
+		if (isRename) {
+			oldModel = repositoryManager.getRepositoryModel(repositoryName);
+		}
+
+		super.updateRepositoryModel(repositoryName, repository, isCreate);
+
+		if (isRename && ticketService != null) {
+			ticketService.rename(oldModel, repository);
+		}
+	}
+
+	/**
+	 * Delete the repository and all associated tickets.
+	 */
+	@Override
+	public boolean deleteRepository(String repositoryName) {
+		RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
+		boolean success = repositoryManager.deleteRepository(repositoryName);
+		if (success && ticketService != null) {
+			return ticketService.deleteAll(repository);
+		}
+		return success;
+	}
+
+	/**
+	 * Returns the configured ticket service.
+	 *
+	 * @return a ticket service
+	 */
+	@Override
+	public ITicketService getTicketService() {
+		return ticketService;
+	}
+
+	protected void configureTicketService() {
+		String clazz = settings.getString(Keys.tickets.service, NullTicketService.class.getName());
+		if (StringUtils.isEmpty(clazz)) {
+			clazz = NullTicketService.class.getName();
+		}
+		try {
+			Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz);
+			ticketService = injector.get(serviceClass).start();
+			if (ticketService.isReady()) {
+				logger.info("{} is ready.", ticketService);
+			} else {
+				logger.warn("{} is disabled.", ticketService);
+			}
+		} catch (Exception e) {
+			logger.error("failed to create ticket service " + clazz, e);
+			ticketService = injector.get(NullTicketService.class).start();
+		}
+	}
+
+	/**
+	 * A nested Dagger graph is used for constructor dependency injection of
+	 * complex classes.
+	 *
+	 * @author James Moger
+	 *
+	 */
+	@Module(
+			library = true,
+			injects = {
+					IStoredSettings.class,
+
+					// core managers
+					IRuntimeManager.class,
+					INotificationManager.class,
+					IUserManager.class,
+					IAuthenticationManager.class,
+					IRepositoryManager.class,
+					IProjectManager.class,
+					IFederationManager.class,
+
+					// the monolithic manager
+					IGitblit.class,
+
+					// ticket services
+					NullTicketService.class,
+					FileTicketService.class,
+					BranchTicketService.class,
+					RedisTicketService.class
+			}
+			)
+	class GitBlitModule {
+
+		@Provides @Singleton IStoredSettings provideSettings() {
+			return settings;
+		}
+
+		@Provides @Singleton IRuntimeManager provideRuntimeManager() {
+			return runtimeManager;
+		}
+
+		@Provides @Singleton INotificationManager provideNotificationManager() {
+			return notificationManager;
+		}
+
+		@Provides @Singleton IUserManager provideUserManager() {
+			return userManager;
+		}
+
+		@Provides @Singleton IAuthenticationManager provideAuthenticationManager() {
+			return authenticationManager;
+		}
+
+		@Provides @Singleton IRepositoryManager provideRepositoryManager() {
+			return repositoryManager;
+		}
+
+		@Provides @Singleton IProjectManager provideProjectManager() {
+			return projectManager;
+		}
+
+		@Provides @Singleton IFederationManager provideFederationManager() {
+			return federationManager;
+		}
+
+		@Provides @Singleton IGitblit provideGitblit() {
+			return GitBlit.this;
+		}
 	}
 }

@@ -1,0 +1,38 @@
+table {
+	border:1px solid #ddd;
+	margin: 15px 0px;
+}
+
+th {
+	font-weight: bold;
+	border-bottom: 1px solid #ddd;
+}
+
+td, th {
+	padding: 4px 8px;
+	vertical-align: top;
+}
+
+a {
+	color: #2F58A0;
+}
+
+a:hover {
+	color: #002060;
+}
+
+body {
+	color: black;
+}
+
+pre {
+	background-color: rgb(250, 250, 250);
+	border: 1px solid rgb(221, 221, 221);
+    border-radius: 4px 4px 4px 4px;
+    display: block;
+    font-size: 12px;
+    line-height: 18px;
+    margin: 9px 0;
+    padding: 8.5px;
+    white-space: pre-wrap;
+}
