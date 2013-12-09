@@ -46,6 +46,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 
@@ -127,12 +128,21 @@ public class ReflogPanel extends BasePanel {
 				final RefLogEntry change = changeItem.getModelObject();
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
+				String ticketId = null;
+				String patchset = null;
 				boolean isTag = false;
+				boolean isPatch = false;
 				if (shortRefName.startsWith(Constants.R_HEADS)) {
 					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
 				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
 					isTag = true;
+				} else if (shortRefName.startsWith(Constants.R_TICKETS_PATCHSETS)) {
+					int i = fullRefName.indexOf('/', Constants.R_TICKETS_PATCHSETS.length()) + 1;
+					ticketId = fullRefName.substring(i, fullRefName.indexOf('/', i));
+					patchset = fullRefName.substring(fullRefName.lastIndexOf('/') + 1);
+					shortRefName = shortRefName.substring(shortRefName.lastIndexOf('/') + 1);
+					isPatch = true;
 				}
 
 				String fuzzydate;
@@ -159,6 +169,8 @@ public class ReflogPanel extends BasePanel {
 					WicketUtils.setCssClass(changeIcon, "iconic-trash-stroke");
 				} else if (isTag) {
 					WicketUtils.setCssClass(changeIcon, "iconic-tag");
+				} else if (isPatch) {
+					WicketUtils.setCssClass(changeIcon, "iconic-share");
 				} else {
 					WicketUtils.setCssClass(changeIcon, "iconic-upload");
 				}
@@ -185,6 +197,10 @@ public class ReflogPanel extends BasePanel {
 					if (isTag) {
 						// new tag
 						what = getString("gb.pushedNewTag");
+					} else if (isPatch) {
+						// new patch
+						what = MessageFormat.format(getString("gb.uploadedPatchsetN"), patchset);
+						by = getString("gb.ticket") + " #" + ticketId;
 					} else {
 						// new branch
 						what = getString("gb.pushedNewBranch");
@@ -211,7 +227,14 @@ public class ReflogPanel extends BasePanel {
 					break;
 				}
 				changeItem.add(new Label("whatChanged", what));
-				changeItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
+
+				if (isPatch) {
+					// ticket link
+					changeItem.add(new LinkPanel("byAuthors", null, by,
+							TicketsPage.class, WicketUtils.newObjectParameter(change.repository, ticketId)));
+				} else {
+					changeItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
+				}
 
 				changeItem.add(new Label("refRewind", getString("gb.rewind")).setVisible(isRewind));
 
@@ -222,6 +245,10 @@ public class ReflogPanel extends BasePanel {
 					// link to tag
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
 							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+				} else if (isPatch) {
+					// link to patch
+					changeItem.add(new LinkPanel("refChanged", null, MessageFormat.format(getString("gb.patchsetN"), shortRefName),
+							CommitPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
 				} else {
 					// link to tree
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,

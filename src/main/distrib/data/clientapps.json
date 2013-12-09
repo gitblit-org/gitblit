@@ -10,6 +10,17 @@
 		"isActive": true
 	},
 	{
+		"name": "Barnum",
+		"title": "Barnum",
+		"description": "a command-line Git companion for Gitblit Tickets",
+		"legal": "released under the Apache 2.0 License",
+		"command": "pt clone ${repoUrl}",
+		"productUrl": "http://barnum.gitblit.com",
+		"transports": [ "ssh" ],
+		"icon": "barnum_32x32.png",
+		"isActive": false
+	},	
+	{
 		"name": "SmartGit/Hg",
 		"title": "syntevo SmartGit/Hg\u2122",
 		"description": "a Git client for Windows, Mac, & Linux",
@@ -73,6 +84,7 @@
 		"legal": "released under the GPLv3 open source license",
 		"cloneUrl": "sparkleshare://addProject/${baseUrl}/sparkleshare/${repoUrl}.xml",
 		"productUrl": "http://sparkleshare.org",
+		"transports": [ "ssh" ],
 		"platforms": [ "windows", "macintosh", "linux" ],
 		"icon": "sparkleshare_32x32.png",
 		"minimumPermission" : "RW+",

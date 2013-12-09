@@ -26,6 +26,7 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.ITicketService;
 
 public interface IGitblit extends IManager,
 									IRuntimeManager,
@@ -100,5 +101,12 @@ public interface IGitblit extends IManager,
 	 * @return a collection of client applications
 	 */
 	Collection<GitClientApplication> getClientApplications();
+
+	/**
+	 * Returns the ticket service.
+	 *
+	 * @return a ticket service
+	 */
+	ITicketService getTicketService();
 
 }
