@@ -87,9 +87,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 
 	protected GroovyScriptEngine gse;
 
-	private final IStoredSettings settings;
+	protected final IStoredSettings settings;
 
-	private final IGitblit gitblit;
+	protected final IGitblit gitblit;
 
 	public GitblitReceivePack(
 			IGitblit gitblit,
@@ -224,13 +224,13 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			}
 		}
 
-		// reset branch commit cache on REWIND and DELETE
 		for (ReceiveCommand cmd : commands) {
 			String ref = cmd.getRefName();
 			if (ref.startsWith(Constants.R_HEADS)) {
 				switch (cmd.getType()) {
 				case UPDATE_NONFASTFORWARD:
 				case DELETE:
+					// reset branch commit cache on REWIND and DELETE
 					CommitCache.instance().clear(repository.name, ref);
 					break;
 				default:
@@ -400,14 +400,14 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 	}
 
 	protected void sendHeader(String msg, Object... objects) {
-		sendMessage("--->", msg, objects);
+		sendInfo("--> ", msg, objects);
 	}
 
-	protected void sendMessage(String msg, Object... objects) {
-		sendMessage("    ", msg, objects);
+	protected void sendInfo(String msg, Object... objects) {
+		sendInfo("    ", msg, objects);
 	}
 
-	protected void sendMessage(String prefix, String msg, Object... objects) {
+	protected void sendInfo(String prefix, String msg, Object... objects) {
 		String text;
 		if (ArrayUtils.isEmpty(objects)) {
 			text = msg;
