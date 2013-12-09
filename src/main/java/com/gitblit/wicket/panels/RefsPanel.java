@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -39,8 +38,9 @@ import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.LogPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 
-public class RefsPanel extends Panel {
+public class RefsPanel extends BasePanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -88,6 +88,7 @@ public class RefsPanel extends Panel {
 			}
 		}
 		final boolean shouldBreak = remoteCount < refs.size();
+		final boolean hasTickets = app().tickets().hasTickets(repositoryName);
 
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {
@@ -113,13 +114,29 @@ public class RefsPanel extends Panel {
 					linkClass = LogPage.class;
 					cssClass = "headRef";
 				} else if (name.startsWith(Constants.R_CHANGES)) {
-					// Gerrit change ref
+					// Gerrit or Gitblit change ref
 					name = name.substring(Constants.R_CHANGES.length());
 					// strip leading nn/ from nn/#####nn/ps = #####nn-ps
 					name = name.substring(name.indexOf('/') + 1).replace('/', '-');
 					String [] values = name.split("-");
-					tooltip = MessageFormat.format(getString("gb.reviewPatchset"), values[0], values[1]);
+					if (hasTickets) {
+						// Gitblit ticket
+						tooltip = MessageFormat.format(getString("gb.ticketPatchset"), values[0], values[1]);
+						linkClass = TicketsPage.class;
+						objectid = values[0];
+					} else {
+						// Gerrit change
+						tooltip = MessageFormat.format(getString("gb.reviewPatchset"), values[0], values[1]);
+					}
 					cssClass = "otherRef";
+				} else if (name.startsWith(Constants.R_TICKETS)) {
+					// Gitblit ticket ref
+					name = name.substring(Constants.R_TICKETS.length());
+					name = getString("gb.ticket") + " " + name;
+					tooltip = name;
+					linkClass = TicketsPage.class;
+					objectid = name;
+					cssClass = "tagRef";
 				} else if (name.startsWith(Constants.R_PULL)) {
 					// Pull Request ref
 					String num = name.substring(Constants.R_PULL.length());

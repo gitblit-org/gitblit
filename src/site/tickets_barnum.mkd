@@ -1,0 +1,31 @@
+## Barnum Usage
+
+[Barnum](http://barnum.gitblit.com) is a command-line companion for your native Git client.  It's purpose is to cutdown on the ceremony (syntax) of the patch workflow.  Barnum also indicates patch revision relationships and automatically fetches Gitblit Tickets for local/offline viewing.
+
+Complete documentation for Barnum is available on it's site, but we'll go over enough syntax here to make you dangerous.
+
+Clone a Gitblit repository and configure it for patch workflow
+
+    pt clone --gitblit <url>
+
+Checkout the latest patch revision of ticket 9379 on a local branch
+
+    pt checkout 9379 -b symlinks
+
+Show the patch commit details, including it's dependencies on other patches
+
+    pt show
+
+Show the ticket details for the patch revision but hide the path revision events
+
+    pt ticket --norevs
+
+Show the patch revision history of ticket 9379
+
+    pt log 9379
+
+Integrate the patch revision 10 of ticket 9379 into your current branch
+
+    pt merge 9379/10
+    pt pick 9379/10
+

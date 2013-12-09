@@ -15,23 +15,19 @@
  */
 package com.gitblit.manager;
 
-import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.models.Mailing;
 import com.gitblit.service.MailService;
 
 /**
@@ -50,19 +46,19 @@ public class NotificationManager implements INotificationManager {
 
 	private final IStoredSettings settings;
 
-	private final MailService mailExecutor;
+	private final MailService mailService;
 
 	public NotificationManager(IStoredSettings settings) {
 		this.settings = settings;
-		this.mailExecutor = new MailService(settings);
+		this.mailService = new MailService(settings);
 	}
 
 	@Override
 	public NotificationManager start() {
-		if (mailExecutor.isReady()) {
+		if (mailService.isReady()) {
 			int period = 2;
 			logger.info("Mail service will process the queue every {} minutes.", period);
-			scheduledExecutor.scheduleAtFixedRate(mailExecutor, 1, period, TimeUnit.MINUTES);
+			scheduledExecutor.scheduleAtFixedRate(mailService, 1, period, TimeUnit.MINUTES);
 		} else {
 			logger.warn("Mail service disabled.");
 		}
@@ -83,8 +79,11 @@ public class NotificationManager implements INotificationManager {
 	 */
 	@Override
 	public void sendMailToAdministrators(String subject, String message) {
-		List<String> toAddresses = settings.getStrings(Keys.mail.adminAddresses);
-		sendMail(subject, message, toAddresses);
+		Mailing mail = Mailing.newPlain();
+		mail.subject = subject;
+		mail.content = message;
+		mail.setRecipients(settings.getStrings(Keys.mail.adminAddresses));
+		send(mail);
 	}
 
 	/**
@@ -96,41 +95,11 @@ public class NotificationManager implements INotificationManager {
 	 */
 	@Override
 	public void sendMail(String subject, String message, Collection<String> toAddresses) {
-		this.sendMail(subject, message, toAddresses.toArray(new String[0]));
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendMail(String subject, String message, String... toAddresses) {
-		if (toAddresses == null || toAddresses.length == 0) {
-			logger.debug(MessageFormat.format("Dropping message {0} because there are no recipients", subject));
-			return;
-		}
-		try {
-			Message mail = mailExecutor.createMessage(toAddresses);
-			if (mail != null) {
-				mail.setSubject(subject);
-
-				MimeBodyPart messagePart = new MimeBodyPart();
-				messagePart.setText(message, "utf-8");
-				messagePart.setHeader("Content-Type", "text/plain; charset=\"utf-8\"");
-				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-
-				MimeMultipart multiPart = new MimeMultipart();
-				multiPart.addBodyPart(messagePart);
-				mail.setContent(multiPart);
-
-				mailExecutor.queue(mail);
-			}
-		} catch (MessagingException e) {
-			logger.error("Messaging error", e);
-		}
+		Mailing mail = Mailing.newPlain();
+		mail.subject = subject;
+		mail.content = message;
+		mail.setRecipients(toAddresses);
+		send(mail);
 	}
 
 	/**
@@ -142,66 +111,26 @@ public class NotificationManager implements INotificationManager {
 	 */
 	@Override
 	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
-		this.sendHtmlMail(null, subject, message, toAddresses.toArray(new String[0]));
+		Mailing mail = Mailing.newHtml();
+		mail.content = message;
+		mail.setRecipients(toAddresses);
+		send(mail);
 	}
 
 	/**
 	 * Notify users by email of something.
 	 *
-	 * @param from
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
+	 * @param mailing
 	 */
 	@Override
-	public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
-		this.sendHtmlMail(from, subject, message, toAddresses.toArray(new String[0]));
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendHtmlMail(String subject, String message, String... toAddresses) {
-		this.sendHtmlMail(null, message, toAddresses);
-	}
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param from
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	@Override
-	public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
-		if (toAddresses == null || toAddresses.length == 0) {
-			logger.debug("Dropping message {} because there are no recipients", subject);
+	public void send(Mailing mailing) {
+		if (!mailing.hasRecipients()) {
+			logger.debug("Dropping message {} because there are no recipients", mailing.subject);
 			return;
 		}
-		try {
-			Message mail = mailExecutor.createMessage(from, toAddresses);
-			if (mail != null) {
-				mail.setSubject(subject);
-
-				MimeBodyPart messagePart = new MimeBodyPart();
-				messagePart.setText(message, "utf-8");
-				messagePart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
-				messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
-
-				MimeMultipart multiPart = new MimeMultipart();
-				multiPart.addBodyPart(messagePart);
-				mail.setContent(multiPart);
-
-				mailExecutor.queue(mail);
-			}
-		} catch (MessagingException e) {
-			logger.error("Messaging error", e);
+		Message msg = mailService.createMessage(mailing);
+		if (msg != null) {
+			mailService.queue(msg);
 		}
 	}
 

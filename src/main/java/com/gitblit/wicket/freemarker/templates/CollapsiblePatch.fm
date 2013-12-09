@@ -1,0 +1,68 @@
+<div class="accordion" id="accordion${accordianId}" style="margin: 0px;">
+<div class="patch-group">
+   	<div class="accordion-heading">
+		<div class="attribution-patch-pullright">
+			<div style="padding-bottom: 2px;"> 
+				<span class="attribution-date" wicket:id="changeDate">[patch date]</span>
+			</div>
+
+			<!-- Git commands menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet">
+				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+					Git<span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><a><span wicket:id="fetchLabel"></span> <span wicket:id="fetch"></span></a></li>
+					<li><a><span wicket:id="pullLabel"></span> <span wicket:id="pull"></span></a></li>
+				</ul>
+			</div>
+			<!-- Barnum commands menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
+				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+					Barnum<span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><a><span wicket:id="checkoutLabel"></span> <span wicket:id="checkout"></span></a></li>
+					<li><a><span wicket:id="branchLabel"></span> <span wicket:id="branch"></span></a></li>
+				</ul>
+			</div>
+			<!-- Compare Patches menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
+				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+					<wicket:message key="gb.compare"></wicket:message> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><span wicket:id="compareMergeBase"></span></li>
+					<li wicket:id="comparePatch"><span wicket:id="compareLink"></span></li>
+				</ul>
+			</div>
+
+		</div>
+		<div style="padding:8px 10px;">
+			<div>
+			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.uploadedPatchset">[uploaded patchset]</wicket:message></span> <span class="attribution-emphasize" wicket:id="patchId">[ref id]</span> <span wicket:id="forBranch"></span>
+			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordion${accordianId}" href="#body${accordianId}"><i class="fa fa-toggle-down"></i></a>			
+			</div>			
+		</div>
+	</div>
+				
+	<div id="body${accordianId}" class="accordion-body collapse">
+		<div class="accordion-inner">
+			<!-- changed paths -->
+			<table class="pretty" style="border: 0px;">
+				<tr wicket:id="changedPath">
+					<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
+					<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+					<td class="hidden-phone rightAlign">						
+						<span class="hidden-tablet" style="padding-right:20px;" wicket:id="diffStat"></span>
+						<span class="link" style="white-space: nowrap;">
+							<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a>
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+</div>
+<div wicket:id="mergePanel" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;"></div>

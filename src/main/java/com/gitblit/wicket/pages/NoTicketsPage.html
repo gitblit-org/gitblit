@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+	<!-- No tickets -->
+	<div class="featureWelcome">
+		<div class="row">
+			<div class="icon span2"><i class="fa fa-ticket"></i></div>
+			<div class="span9">		
+				<h1><wicket:message key="gb.tickets"></wicket:message></h1>
+				<wicket:message key="gb.ticketsWelcome"></wicket:message>
+				<p></p>
+				<a wicket:id="newticket" class="btn btn-appmenu"><wicket:message key="gb.createFirstTicket"></wicket:message></a>
+			</div>
+		</div>
+	</div>
+</wicket:extend>
+</html>

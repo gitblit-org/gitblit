@@ -346,6 +346,38 @@ public class DiffUtils {
 		return diff;
 	}
 
+	/**
+	 * Returns the diffstat between the two commits for the specified file or folder.
+	 *
+	 * @param repository
+	 * @param base
+	 *            if base commit is unspecified, the diffstat is generated against
+	 *            the primary parent of the specified tip.
+	 * @param tip
+	 * @param path
+	 *            if path is specified, the diffstat is generated only for the
+	 *            specified file or folder. if unspecified, the diffstat is
+	 *            generated for the entire diff between the two commits.
+	 * @return patch as a string
+	 */
+	public static DiffStat getDiffStat(Repository repository, String base, String tip) {
+		RevCommit baseCommit = null;
+		RevCommit tipCommit = null;
+		RevWalk revWalk = null;
+		try {
+			revWalk = new RevWalk(repository);
+			tipCommit = revWalk.parseCommit(repository.resolve(tip));
+			if (!StringUtils.isEmpty(base)) {
+				baseCommit = revWalk.parseCommit(repository.resolve(base));
+			}
+		} catch (Exception e) {
+			LOGGER.error("failed to generate diffstat!", e);
+		} finally {
+			revWalk.dispose();
+		}
+		return getDiffStat(repository, baseCommit, tipCommit, null);
+	}
+
 	public static DiffStat getDiffStat(Repository repository, RevCommit commit) {
 		return getDiffStat(repository, null, commit, null);
 	}

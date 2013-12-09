@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<wicket:extend>
+<body onload="document.getElementById('title').focus();">
+	
+<div class="container">
+	<!-- page header -->
+	<div class="title" style="font-size: 22px; color: rgb(0, 32, 96);padding: 3px 0px 7px;">
+		<span class="project"><wicket:message key="gb.newTicket"></wicket:message></span>
+	</div>
+
+	<form style="padding-top:5px;" wicket:id="editForm">
+	<div class="row">
+		<!-- New Ticket Table -->
+		<table class="summary">
+			<tr><th><wicket:message key="gb.type"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="type"></select></td></tr>
+			<tr><th><wicket:message key="gb.title"></wicket:message></th><td class="edit"><input class="input-xxlarge" type="text" wicket:id="title" id="title"></input></td></tr>
+			<tr><th><wicket:message key="gb.description"></wicket:message></th><td class="edit">
+				<ul class="nav nav-tabs">
+					<li class="active"><a tabindex="-1" href="#edit" data-toggle="tab"><wicket:message key="gb.edit">[edit]</wicket:message></a></li>
+					<li><a href="#preview" tabindex="-1" data-toggle="tab"><wicket:message key="gb.preview">[preview]</wicket:message></a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="edit">
+						<textarea class="input-xxlarge" wicket:id="description" id="description" rows="5"></textarea>
+					</div>
+					<div class="tab-pane" id="preview">
+						<div class="preview">
+							<div class="markdown" wicket:id="descriptionPreview"></div>
+						</div>						
+					</div>
+				</div>
+			</td></tr>
+			<tr wicket:id="assignedTo"></tr>
+			<tr wicket:id="milestone"></tr>
+		</table>
+	</div>	
+
+	<div class="row">
+		<div class="form-actions"><input class="btn btn-appmenu" type="submit" value="Create" wicket:message="value:gb.create" wicket:id="create" /> &nbsp; <input class="btn" type="submit" value="Cancel" wicket:message="value:gb.cancel" wicket:id="cancel" /></div>
+	</div>
+	</form>
+</div>
+</body>
+
+<wicket:fragment wicket:id="assignedToFragment">
+	<th><wicket:message key="gb.assignedTo"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="assignto"></select></td>
+</wicket:fragment>
+
+<wicket:fragment wicket:id="milestoneFragment">
+	<th><wicket:message key="gb.milestone"></wicket:message></th><td class="edit"><select class="input-large" wicket:id="milestone"></select></td>
+</wicket:fragment>
+
+</wicket:extend>
+</html>

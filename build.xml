@@ -553,6 +553,12 @@
 					<page name="lucene indexing" src="setup_lucene.mkd" />
 					<page name="reverse proxies" src="setup_proxy.mkd" />
 					<page name="client app menus" src="setup_clientmenus.mkd" />
+					<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+						<page name="overview" src="tickets_overview.mkd" />
+						<page name="barnum usage" src="tickets_barnum.mkd" />
+						<page name="git usage" src="tickets_git.mkd" />
+						<page name="eclipse usage" src="tickets_eclipse.mkd" />
+					</menu>					
 					<divider />
 					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 					<divider />
@@ -869,6 +875,12 @@
 						<page name="lucene indexing" src="setup_lucene.mkd" />
 						<page name="reverse proxies" src="setup_proxy.mkd" />
 						<page name="client app menus" src="setup_clientmenus.mkd" />
+						<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
+							<page name="overview" src="tickets_overview.mkd" />
+							<page name="barnum usage" src="tickets_barnum.mkd" />
+							<page name="git usage" src="tickets_git.mkd" />
+							<page name="eclipse usage" src="tickets_eclipse.mkd" />
+						</menu>					
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
 						<divider />

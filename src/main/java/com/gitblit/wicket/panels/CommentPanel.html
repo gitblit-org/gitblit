@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<wicket:panel>
+	<div class="richEditor">
+	
+		<ul class="nav nav-tabs">
+			<li class="active"><a href="#write" data-toggle="tab"><wicket:message key="gb.write">[write]</wicket:message></a></li>
+			<li><a href="#preview" data-toggle="tab"><wicket:message key="gb.preview">[preview]</wicket:message></a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="write">
+				<textarea class="span9" style="height:6em;" wicket:id="markdownEditor"></textarea>
+			</div>
+			<div class="tab-pane" id="preview">
+				<div class="preview" style="height:6em;">
+					<div class="markdown" wicket:id="markdownPreview"></div>
+				</div>
+			</div>
+		</div>
+				
+		<div>
+			<form wicket:id="editorForm" action="">
+				<input class="btn btn-appmenu" type="submit" wicket:id="submit" value="comment"></input>
+			</form>
+		</div>
+		
+	</div>
+</wicket:panel>
+</html>

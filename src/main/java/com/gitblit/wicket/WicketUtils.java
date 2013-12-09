@@ -434,7 +434,7 @@ public class WicketUtils {
 		parameterMap.put("pg", String.valueOf(pageNumber));
 		return new PageParameters(parameterMap);
 	}
-	
+
 	public static PageParameters newBlameTypeParameter(String repositoryName,
 			String commitId, String path, String blameType) {
 		Map<String, String> parameterMap = new HashMap<String, String>();
@@ -536,7 +536,7 @@ public class WicketUtils {
 			// past
 			title = timeUtils.timeAgo(date);
 		}
-		if ((System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
+		if (title != null && (System.currentTimeMillis() - date.getTime()) < 10 * 24 * 60 * 60 * 1000L) {
 			String tmp = dateString;
 			dateString = title;
 			title = tmp;

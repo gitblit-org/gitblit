@@ -15,30 +15,35 @@
  */
 package com.gitblit.service;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Queue;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.mail.Authenticator;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.models.Mailing;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -117,74 +122,108 @@ public class MailService implements Runnable {
 	/**
 	 * Create a message.
 	 *
-	 * @param toAddresses
+	 * @param mailing
 	 * @return a message
 	 */
-	public Message createMessage(String... toAddresses) {
-		return createMessage(null, Arrays.asList(toAddresses));
-	}
+	public Message createMessage(Mailing mailing) {
+		if (mailing.subject == null) {
+			mailing.subject = "";
+		}
 
-	/**
-	 * Create a message.
-	 *
-	 * @param toAddresses
-	 * @return a message
-	 */
-	public Message createMessage(List<String> toAddresses) {
-		return createMessage(null, toAddresses);
-	}
+		if (mailing.content == null) {
+			mailing.content = "";
+		}
 
-	/**
-	 * Create a message.
-	 *
-	 * @param fromDisplayName
-	 * @param toAddresses
-	 * @return a message
-	 */
-	public Message createMessage(String fromDisplayName, String... toAddresses) {
-		return createMessage(fromDisplayName, Arrays.asList(toAddresses));
-	}
-
-	/**
-	 * Create a message.
-	 *
-	 * @param fromDisplayName
-	 * @param toAddresses
-	 * @return a message
-	 */
-	public Message createMessage(String fromDisplayName, List<String> toAddresses) {
-		MimeMessage message = new MimeMessage(session);
+		Message message = new MailMessageImpl(session, mailing.id);
 		try {
 			String fromAddress = settings.getString(Keys.mail.fromAddress, null);
 			if (StringUtils.isEmpty(fromAddress)) {
 				fromAddress = "gitblit@gitblit.com";
 			}
-			InternetAddress from = new InternetAddress(fromAddress, fromDisplayName == null ? "Gitblit" : fromDisplayName);
+			InternetAddress from = new InternetAddress(fromAddress, mailing.from == null ? "Gitblit" : mailing.from);
 			message.setFrom(from);
-
-			// determine unique set of addresses
-			Set<String> uniques = new HashSet<String>();
-			for (String address : toAddresses) {
-				uniques.add(address.toLowerCase());
-			}
 
 			Pattern validEmail = Pattern
 					.compile("^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$");
-			List<InternetAddress> tos = new ArrayList<InternetAddress>();
-			for (String address : uniques) {
+
+			// validate & add TO recipients
+			List<InternetAddress> to = new ArrayList<InternetAddress>();
+			for (String address : mailing.toAddresses) {
 				if (StringUtils.isEmpty(address)) {
 					continue;
 				}
 				if (validEmail.matcher(address).find()) {
 					try {
-						tos.add(new InternetAddress(address));
+						to.add(new InternetAddress(address));
 					} catch (Throwable t) {
 					}
 				}
 			}
-			message.setRecipients(Message.RecipientType.BCC,
-					tos.toArray(new InternetAddress[tos.size()]));
+
+			// validate & add CC recipients
+			List<InternetAddress> cc = new ArrayList<InternetAddress>();
+			for (String address : mailing.ccAddresses) {
+				if (StringUtils.isEmpty(address)) {
+					continue;
+				}
+				if (validEmail.matcher(address).find()) {
+					try {
+						cc.add(new InternetAddress(address));
+					} catch (Throwable t) {
+					}
+				}
+			}
+
+			if (settings.getBoolean(Keys.web.showEmailAddresses, true)) {
+				// full disclosure of recipients
+				if (to.size() > 0) {
+					message.setRecipients(Message.RecipientType.TO,
+							to.toArray(new InternetAddress[to.size()]));
+				}
+				if (cc.size() > 0) {
+					message.setRecipients(Message.RecipientType.CC,
+							cc.toArray(new InternetAddress[cc.size()]));
+				}
+			} else {
+				// everyone is bcc'd
+				List<InternetAddress> bcc = new ArrayList<InternetAddress>();
+				bcc.addAll(to);
+				bcc.addAll(cc);
+				message.setRecipients(Message.RecipientType.BCC,
+						bcc.toArray(new InternetAddress[bcc.size()]));
+			}
+
 			message.setSentDate(new Date());
+			message.setSubject(mailing.subject);
+
+			MimeBodyPart messagePart = new MimeBodyPart();
+			messagePart.setText(mailing.content, "utf-8");
+			//messagePart.setHeader("Content-Transfer-Encoding", "quoted-printable");
+
+			if (Mailing.Type.html == mailing.type) {
+				messagePart.setHeader("Content-Type", "text/html; charset=\"utf-8\"");
+			} else {
+				messagePart.setHeader("Content-Type", "text/plain; charset=\"utf-8\"");
+			}
+
+			MimeMultipart multiPart = new MimeMultipart();
+			multiPart.addBodyPart(messagePart);
+
+			// handle attachments
+			if (mailing.hasAttachments()) {
+				for (File file : mailing.attachments) {
+					if (file.exists()) {
+						MimeBodyPart filePart = new MimeBodyPart();
+						FileDataSource fds = new FileDataSource(file);
+						filePart.setDataHandler(new DataHandler(fds));
+						filePart.setFileName(fds.getName());
+						multiPart.addBodyPart(filePart);
+					}
+				}
+			}
+
+			message.setContent(multiPart);
+
 		} catch (Exception e) {
 			logger.error("Failed to properly create message", e);
 		}
@@ -246,5 +285,27 @@ public class MailService implements Runnable {
 
 	public void sendNow(Message message) throws Exception {
 		Transport.send(message);
+	}
+
+	private static class MailMessageImpl extends MimeMessage {
+
+		final String id;
+
+		MailMessageImpl(Session session, String id) {
+			super(session);
+			this.id = id;
+		}
+
+		@Override
+		protected void updateMessageID() throws MessagingException {
+			if (!StringUtils.isEmpty(id)) {
+				String hostname = "gitblit.com";
+				String refid = "<" + id + "@" + hostname + ">";
+				String mid = "<" + UUID.randomUUID().toString() + "@" + hostname + ">";
+				setHeader("References", refid);
+				setHeader("In-Reply-To", refid);
+				setHeader("Message-Id", mid);
+			}
+		}
 	}
 }
