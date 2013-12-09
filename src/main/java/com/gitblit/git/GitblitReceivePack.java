@@ -237,6 +237,17 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 					break;
 				}
 			}
+
+			if (ref.startsWith(Constants.R_GITBLIT)) {
+				if (ref.equals("refs/gitblit/tickets")) {
+					// ensure pushing user is an administrator OR an owner
+					// i.e. prevent ticket tampering
+					boolean permitted = user.canAdmin() || repository.isOwner(user.username);
+					if (!permitted) {
+						sendRejection(cmd, "{0} is not permitted to push to {1}", user.username, ref);
+					}
+				}
+			}
 		}
 
 		Set<String> scripts = new LinkedHashSet<String>();
@@ -416,7 +427,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			text = MessageFormat.format(msg, objects);
 			super.sendMessage(prefix + text);
 		}
-		LOGGER.info(text + " (" + user.username + ")");
+		if (!StringUtils.isEmpty(msg)) {
+			LOGGER.info(text + " (" + user.username + ")");
+		}
 	}
 
 	protected void sendError(String msg, Object... objects) {
@@ -428,7 +441,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			text = MessageFormat.format(msg, objects);
 			super.sendError(text);
 		}
-		LOGGER.error(text + " (" + user.username + ")");
+		if (!StringUtils.isEmpty(msg)) {
+			LOGGER.error(text + " (" + user.username + ")");
+		}
 	}
 
 	/**

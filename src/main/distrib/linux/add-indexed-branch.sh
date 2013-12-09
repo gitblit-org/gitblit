@@ -15,7 +15,7 @@
 # Set BRANCH ("default" or fully qualified ref - i.e. refs/heads/master)
 # Set EXCLUSIONS for any repositories that you do not want to change
 # --------------------------------------------------------------------------
-SET FOLDER=git
-SET EXCLUSIONS=--skip test.git --skip group/test*
-SET BRANCH=default
-java -cp gitblit.jar;"%CD%\ext\*" com.gitblit.AddIndexedBranch --repositoriesFolder %FOLDER% --branch %BRANCH% %EXCLUSIONS%
+FOLDER=git
+EXCLUSIONS=--skip test.git --skip group/test*
+BRANCH=default
+java -cp gitblit.jar:./ext/* com.gitblit.AddIndexedBranch --repositoriesFolder $FOLDER --branch $BRANCH $EXCLUSIONS

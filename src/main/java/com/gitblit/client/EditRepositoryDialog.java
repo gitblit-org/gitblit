@@ -88,6 +88,10 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField descriptionField;
 
+	private JCheckBox acceptNewPatchsets;
+
+	private JCheckBox acceptNewTickets;
+
 	private JCheckBox useIncrementalPushTags;
 
 	private JCheckBox showRemoteBranches;
@@ -205,6 +209,10 @@ public class EditRepositoryDialog extends JDialog {
 
 		ownersPalette = new JPalette<String>(true);
 
+		acceptNewPatchsets = new JCheckBox(Translation.get("gb.acceptsNewPatchsetsDescription"),
+				anRepository.acceptNewPatchsets);
+		acceptNewTickets = new JCheckBox(Translation.get("gb.acceptsNewTicketsDescription"),
+				anRepository.acceptNewTickets);
 		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
 				anRepository.useIncrementalPushTags);
 		showRemoteBranches = new JCheckBox(
@@ -298,6 +306,10 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.acceptsNewPatchsets"),
+				acceptNewPatchsets));
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.acceptsNewTickets"),
+				acceptNewTickets));
 		fieldsPanel
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
@@ -552,6 +564,8 @@ public class EditRepositoryDialog extends JDialog {
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
 		repository.gcThreshold = gcThreshold.getText();
+		repository.acceptNewPatchsets = acceptNewPatchsets.isSelected();
+		repository.acceptNewTickets = acceptNewTickets.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();

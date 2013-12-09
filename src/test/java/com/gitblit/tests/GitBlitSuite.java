@@ -62,7 +62,8 @@ import com.gitblit.utils.JGitUtils;
 		GitBlitTest.class, FederationTests.class, RpcTests.class, GitServletTest.class, GitDaemonTest.class,
 		GroovyScriptTest.class, LuceneExecutorTest.class, RepositoryModelTest.class,
 		FanoutServiceTest.class, Issue0259Test.class, Issue0271Test.class, HtpasswdAuthenticationTest.class,
-		ModelUtilsTest.class, JnaUtilsTest.class })
+		ModelUtilsTest.class, JnaUtilsTest.class , FileTicketServiceTest.class, BranchTicketServiceTest.class,
+		RedisTicketServiceTest.class })
 public class GitBlitSuite {
 
 	public static final File BASEFOLDER = new File("data");
@@ -103,6 +104,11 @@ public class GitBlitSuite {
 
 	public static Repository getGitectiveRepository() {
 		return getRepository("test/gitective.git");
+	}
+
+	public static Repository getTicketsTestRepository() {
+		JGitUtils.createRepository(REPOSITORIES, "gb-tickets.git").close();
+		return getRepository("gb-tickets.git");
 	}
 
 	private static Repository getRepository(String name) {

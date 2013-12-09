@@ -32,6 +32,7 @@ import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
 import com.gitblit.models.FederationModel;
+import com.gitblit.models.Mailing;
 import com.gitblit.service.FederationPullService;
 import com.gitblit.utils.FederationUtils;
 import com.gitblit.utils.StringUtils;
@@ -178,23 +179,11 @@ public class FederationClient {
 		}
 
 		@Override
-		public void sendMail(String subject, String message, String... toAddresses) {
-		}
-
-		@Override
 		public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
 		}
 
 		@Override
-		public void sendHtmlMail(String subject, String message, String... toAddresses) {
-		}
-
-		@Override
-		public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
-		}
-
-		@Override
-		public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
+		public void send(Mailing mailing) {
 		}
 	}
 }
