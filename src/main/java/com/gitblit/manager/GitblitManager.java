@@ -62,6 +62,7 @@ import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -481,6 +482,15 @@ public class GitblitManager implements IGitblit {
 		} catch (IOException e) {
 			logger.error("Failed to load resource copy of gitblit.properties");
 		}
+	}
+
+	/**
+	 * Throws an exception if trying to get a ticket service.
+	 *
+	 */
+	@Override
+	public ITicketService getTicketService() {
+		throw new RuntimeException("This class does not have a ticket service!");
 	}
 
 	/*

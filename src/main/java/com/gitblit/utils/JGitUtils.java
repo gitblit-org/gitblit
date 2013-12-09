@@ -59,6 +59,8 @@ import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryCache.FileKey;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.lib.TreeFormatter;
+import org.eclipse.jgit.merge.MergeStrategy;
+import org.eclipse.jgit.merge.RecursiveMerger;
 import org.eclipse.jgit.revwalk.RevBlob;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevObject;
@@ -82,6 +84,7 @@ import org.eclipse.jgit.util.FS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.GitBlitException;
 import com.gitblit.models.GitNote;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.PathModel.PathChangeModel;
@@ -2144,5 +2147,209 @@ public class JGitUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Returns true if the commit identified by commitId is an ancestor or the
+	 * the commit identified by tipId.
+	 *
+	 * @param repository
+	 * @param commitId
+	 * @param tipId
+	 * @return true if there is the commit is an ancestor of the tip
+	 */
+	public static boolean isMergedInto(Repository repository, String commitId, String tipId) {
+		try {
+			return isMergedInto(repository, repository.resolve(commitId), repository.resolve(tipId));
+		} catch (Exception e) {
+			LOGGER.error("Failed to determine isMergedInto", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if the commit identified by commitId is an ancestor or the
+	 * the commit identified by tipId.
+	 *
+	 * @param repository
+	 * @param commitId
+	 * @param tipId
+	 * @return true if there is the commit is an ancestor of the tip
+	 */
+	public static boolean isMergedInto(Repository repository, ObjectId commitId, ObjectId tipCommitId) {
+		// traverse the revlog looking for a commit chain between the endpoints
+		RevWalk rw = new RevWalk(repository);
+		try {
+			// must re-lookup RevCommits to workaround undocumented RevWalk bug
+			RevCommit tip = rw.lookupCommit(tipCommitId);
+			RevCommit commit = rw.lookupCommit(commitId);
+			return rw.isMergedInto(commit, tip);
+		} catch (Exception e) {
+			LOGGER.error("Failed to determine isMergedInto", e);
+		} finally {
+			rw.dispose();
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the merge base of two commits or null if there is no common
+	 * ancestry.
+	 *
+	 * @param repository
+	 * @param commitIdA
+	 * @param commitIdB
+	 * @return the commit id of the merge base or null if there is no common base
+	 */
+	public static String getMergeBase(Repository repository, ObjectId commitIdA, ObjectId commitIdB) {
+		RevWalk rw = new RevWalk(repository);
+		try {
+			RevCommit a = rw.lookupCommit(commitIdA);
+			RevCommit b = rw.lookupCommit(commitIdB);
+
+			rw.setRevFilter(RevFilter.MERGE_BASE);
+			rw.markStart(a);
+			rw.markStart(b);
+			RevCommit mergeBase = rw.next();
+			if (mergeBase == null) {
+				return null;
+			}
+			return mergeBase.getName();
+		} catch (Exception e) {
+			LOGGER.error("Failed to determine merge base", e);
+		} finally {
+			rw.dispose();
+		}
+		return null;
+	}
+
+	public static enum MergeStatus {
+		NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
+	}
+
+	/**
+	 * Determines if we can cleanly merge one branch into another.  Returns true
+	 * if we can merge without conflict, otherwise returns false.
+	 *
+	 * @param repository
+	 * @param src
+	 * @param toBranch
+	 * @return true if we can merge without conflict
+	 */
+	public static MergeStatus canMerge(Repository repository, String src, String toBranch) {
+		RevWalk revWalk = null;
+		try {
+			revWalk = new RevWalk(repository);
+			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
+			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			if (revWalk.isMergedInto(srcTip, branchTip)) {
+				// already merged
+				return MergeStatus.ALREADY_MERGED;
+			} else if (revWalk.isMergedInto(branchTip, srcTip)) {
+				// fast-forward
+				return MergeStatus.MERGEABLE;
+			}
+			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
+			boolean canMerge = merger.merge(branchTip, srcTip);
+			if (canMerge) {
+				return MergeStatus.MERGEABLE;
+			}
+		} catch (IOException e) {
+			LOGGER.error("Failed to determine canMerge", e);
+		} finally {
+			revWalk.release();
+		}
+		return MergeStatus.NOT_MERGEABLE;
+	}
+
+
+	public static class MergeResult {
+		public final MergeStatus status;
+		public final String sha;
+
+		MergeResult(MergeStatus status, String sha) {
+			this.status = status;
+			this.sha = sha;
+		}
+	}
+
+	/**
+	 * Tries to merge a commit into a branch.  If there are conflicts, the merge
+	 * will fail.
+	 *
+	 * @param repository
+	 * @param src
+	 * @param toBranch
+	 * @param committer
+	 * @param message
+	 * @return the merge result
+	 */
+	public static MergeResult merge(Repository repository, String src, String toBranch,
+			PersonIdent committer, String message) {
+
+		if (!toBranch.startsWith(Constants.R_REFS)) {
+			// branch ref doesn't start with ref, assume this is a branch head
+			toBranch = Constants.R_HEADS + toBranch;
+		}
+
+		RevWalk revWalk = null;
+		try {
+			revWalk = new RevWalk(repository);
+			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
+			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			if (revWalk.isMergedInto(srcTip, branchTip)) {
+				// already merged
+				return new MergeResult(MergeStatus.ALREADY_MERGED, null);
+			}
+			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
+			boolean merged = merger.merge(branchTip, srcTip);
+			if (merged) {
+				// create a merge commit and a reference to track the merge commit
+				ObjectId treeId = merger.getResultTreeId();
+				ObjectInserter odi = repository.newObjectInserter();
+				try {
+					// Create a commit object
+					CommitBuilder commitBuilder = new CommitBuilder();
+					commitBuilder.setCommitter(committer);
+					commitBuilder.setAuthor(committer);
+					commitBuilder.setEncoding(Constants.CHARSET);
+					if (StringUtils.isEmpty(message)) {
+						message = MessageFormat.format("merge {0} into {1}", srcTip.getName(), branchTip.getName());
+					}
+					commitBuilder.setMessage(message);
+					commitBuilder.setParentIds(branchTip.getId(), srcTip.getId());
+					commitBuilder.setTreeId(treeId);
+
+					// Insert the merge commit into the repository
+					ObjectId mergeCommitId = odi.insert(commitBuilder);
+					odi.flush();
+
+					// set the merge ref to the merge commit
+					RevCommit mergeCommit = revWalk.parseCommit(mergeCommitId);
+					RefUpdate mergeRefUpdate = repository.updateRef(toBranch);
+					mergeRefUpdate.setNewObjectId(mergeCommitId);
+					mergeRefUpdate.setRefLogMessage("commit: " + mergeCommit.getShortMessage(), false);
+					RefUpdate.Result rc = mergeRefUpdate.forceUpdate();
+					switch (rc) {
+					case FAST_FORWARD:
+						// successful, clean merge
+						break;
+					default:
+						throw new GitBlitException(MessageFormat.format("Unexpected result \"{0}\" when merging commit {1} into {2} in {3}",
+								rc.name(), srcTip.getName(), branchTip.getName(), repository.getDirectory()));
+					}
+
+					// return the merge commit id
+					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
+				} finally {
+					odi.release();
+				}
+			}
+		} catch (IOException e) {
+			LOGGER.error("Failed to merge", e);
+		} finally {
+			revWalk.release();
+		}
+		return new MergeResult(MergeStatus.FAILED, null);
 	}
 }
