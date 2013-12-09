@@ -205,16 +205,20 @@ public abstract class BasePage extends SessionPage {
 		response.setDateHeader("Expires", System.currentTimeMillis() + Duration.minutes(expires).getMilliseconds());
 	}
 
-	protected void setupPage(String repositoryName, String pageName) {
+	protected String getPageTitle(String repositoryName) {
 		String siteName = app().settings().getString(Keys.web.siteName, Constants.NAME);
 		if (StringUtils.isEmpty(siteName)) {
 			siteName = Constants.NAME;
 		}
 		if (repositoryName != null && repositoryName.trim().length() > 0) {
-			add(new Label("title", repositoryName + " - " + siteName));
+			return repositoryName + " - " + siteName;
 		} else {
-			add(new Label("title", siteName));
+			return siteName;
 		}
+	}
+
+	protected void setupPage(String repositoryName, String pageName) {
+		add(new Label("title", getPageTitle(repositoryName)));
 
 		String rootLinkUrl = app().settings().getString(Keys.web.rootLink, urlFor(GitBlitWebApp.get().getHomePage(), null).toString());
 		ExternalLink rootLink = new ExternalLink("rootLink", rootLinkUrl);
