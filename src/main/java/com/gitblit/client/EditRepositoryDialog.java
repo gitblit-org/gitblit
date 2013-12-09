@@ -88,6 +88,8 @@ public class EditRepositoryDialog extends JDialog {
 
 	private JTextField descriptionField;
 
+	private JCheckBox acceptPatches;
+
 	private JCheckBox useIncrementalPushTags;
 
 	private JCheckBox showRemoteBranches;
@@ -205,6 +207,8 @@ public class EditRepositoryDialog extends JDialog {
 
 		ownersPalette = new JPalette<String>(true);
 
+		acceptPatches = new JCheckBox(Translation.get("gb.acceptsPatchesDescription"),
+				anRepository.acceptPatches);
 		useIncrementalPushTags = new JCheckBox(Translation.get("gb.useIncrementalPushTagsDescription"),
 				anRepository.useIncrementalPushTags);
 		showRemoteBranches = new JCheckBox(
@@ -298,6 +302,8 @@ public class EditRepositoryDialog extends JDialog {
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcPeriod"), gcPeriod));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.gcThreshold"), gcThreshold));
 
+		fieldsPanel.add(newFieldPanel(Translation.get("gb.acceptsPatches"),
+				acceptPatches));
 		fieldsPanel
 		.add(newFieldPanel(Translation.get("gb.enableIncrementalPushTags"), useIncrementalPushTags));
 		fieldsPanel.add(newFieldPanel(Translation.get("gb.showRemoteBranches"),
@@ -552,6 +558,7 @@ public class EditRepositoryDialog extends JDialog {
 				: headRefField.getSelectedItem().toString();
 		repository.gcPeriod = (Integer) gcPeriod.getSelectedItem();
 		repository.gcThreshold = gcThreshold.getText();
+		repository.acceptPatches = acceptPatches.isSelected();
 		repository.useIncrementalPushTags = useIncrementalPushTags.isSelected();
 		repository.showRemoteBranches = showRemoteBranches.isSelected();
 		repository.skipSizeCalculation = skipSizeCalculation.isSelected();

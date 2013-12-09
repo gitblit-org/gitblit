@@ -213,6 +213,21 @@ public class RefLogUtils {
 	 */
 	public static boolean updateRefLog(UserModel user, Repository repository,
 			Collection<ReceiveCommand> commands) {
+		
+		// ignore magic refs
+		List<ReceiveCommand> filteredCommands = new ArrayList<ReceiveCommand>();
+		for (ReceiveCommand cmd : commands) {
+			if (cmd.getRefName().startsWith(Constants.R_FOR)) {
+				continue;
+			}
+			filteredCommands.add(cmd);
+		}
+		
+		if (filteredCommands.isEmpty()) {
+			// nothing to log
+			return true;
+		}
+		
 		RefModel reflogBranch = getRefLogBranch(repository);
 		if (reflogBranch == null) {
 			JGitUtils.createOrphanBranch(repository, GB_REFLOG, null);

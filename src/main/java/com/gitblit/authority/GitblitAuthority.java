@@ -43,7 +43,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -51,12 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -93,6 +87,7 @@ import com.gitblit.IUserService;
 import com.gitblit.Keys;
 import com.gitblit.client.HeaderPanel;
 import com.gitblit.client.Translation;
+import com.gitblit.models.Mailing;
 import com.gitblit.models.UserModel;
 import com.gitblit.service.MailService;
 import com.gitblit.utils.ArrayUtils;
@@ -854,27 +849,17 @@ public class GitblitAuthority extends JFrame implements X509Log {
 		// send email
 		try {
 			if (mail.isReady()) {
-				Message message = mail.createMessage(Arrays.asList(user.emailAddress));
-				message.setSubject("Your Gitblit client certificate for " + metadata.serverHostname);
-
-				// body of email
+				Mailing mailing = Mailing.newPlain();
+				mailing.subject = "Your Gitblit client certificate for " + metadata.serverHostname;
+				mailing.setRecipients(user.emailAddress);
 				String body = X509Utils.processTemplate(new File(folder, X509Utils.CERTS + File.separator + "mail.tmpl"), metadata);
 				if (StringUtils.isEmpty(body)) {
 					body = MessageFormat.format("Hi {0}\n\nHere is your client certificate bundle.\nInside the zip file are installation instructions.", user.getDisplayName());
 				}
-				Multipart mp = new MimeMultipart();
-				MimeBodyPart messagePart = new MimeBodyPart();
-				messagePart.setText(body);
-				mp.addBodyPart(messagePart);
+				mailing.content = body;
+				mailing.addAttachment(zip);
 
-				// attach zip
-				MimeBodyPart filePart = new MimeBodyPart();
-				FileDataSource fds = new FileDataSource(zip);
-				filePart.setDataHandler(new DataHandler(fds));
-				filePart.setFileName(fds.getName());
-				mp.addBodyPart(filePart);
-
-				message.setContent(mp);
+				Message message = mail.createMessage(mailing);
 
 				mail.sendNow(message);
 				return true;

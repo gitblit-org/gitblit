@@ -108,11 +108,19 @@ public class Constants {
 
 	public static final String R_CHANGES = "refs/changes/";
 
-	public static final String R_PULL= "refs/pull/";
+	public static final String R_PULL = "refs/pull/";
 
 	public static final String R_TAGS = "refs/tags/";
 
 	public static final String R_REMOTES = "refs/remotes/";
+
+	public static final String R_FOR = "refs/for/";
+
+	public static final String R_TICKETS = "refs/tickets/";
+
+	public static final String CHANGE_ID = "Change-Id";
+
+	public static final String GITBLIT_TICKETS = "refs/gitblit/tickets";
 
 	public static String getVersion() {
 		String v = Constants.class.getPackage().getImplementationVersion();

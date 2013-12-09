@@ -1,0 +1,44 @@
+## Eclipse/EGit Usage
+
+Since Gitblit employ's Gerrit's design of *patchsets* and *magic branches*, some of EGit's Gerrit functionality is available to Gitblit repositories.  This does not include Mylyn integration.
+
+#### Creating a ticket by push OR Attaching a patch to an existing ticket that does not yet have a patch
+
+**Plan**
+
+1. Select Project->Right-click->Team->Switch To->New Branch
+2. Enter branch name
+3. Choose *rebase* pull strategy
+4. Make your changes
+5. Select Project->Right-click->Team->Commit
+6. Enter your commit message
+7. Add a *Change-Id* footer
+
+   If this commit is for an existing ticket, then append a *Change-Id: &lt;changeId&gt;* to your commit message and copy & paste the change-id from the ticket.
+
+   If there is no existing ticket then EGit can automatically create a *Change-Id* for you by clicking the *Compute Change-Id for Gerrit Code Review* button.  DO NOT WORRY when the injected footer has a zero-change-id (*Change-Id: I000*)
+8. Click *Commit*.  **DO NOT** CLICK *Commit and Push.*
+9. Select Project->Right-click->Team->Remote->Push to Gerrit...
+10. Select *refs/for* and enter the proposed integration branch name (e.g. *master*)
+11. Click *Finish*
+
+#### Revising a patch
+
+**Plan**
+
+1. Select Project->Right-click->Team->Remote->Fetch from Gerrit...
+2. Enter the ticket id and then type *ctrl-space* to force EGit to fetch the available change refs from Gitblit.  This will pop-up a list of matching patches and you may select the one you want to retrieve.
+3. Click *Finish* to create and checkout a local branch
+4. Make your changes
+5. Select Project->Right-click->Team->Commit
+6. **IMPORTANT:** Click the *Amend Previous Commit* button
+7. Modify the commit message as needed
+8. Click *Commit*.  **DO NOT** CLICK *Commit and Push.*
+9. Select Project->Right-click->Team->Remote->Push to Gerrit...
+10. Select *refs/for* and enter the proposed integration branch name (e.g. *master*)
+11. Click *Finish*
+
+#### Closing a ticket by merging a patch
+
+TODO
+

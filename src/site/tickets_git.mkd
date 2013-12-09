@@ -1,0 +1,92 @@
+### Command-Line Usage
+
+#### Creating a ticket by push OR Attaching a patch to an existing ticket that does not yet have a patch
+
+**NOTE**
+
+If you want to create a ticket from your commit you will have to use a commit hook which will amend your commit with a *change-id*.
+
+**Plan**
+
+1. git checkout -b &lt;localBranch&gt;
+2. &lt;revise/add code&gt;
+3. git add .
+4. git commit
+
+   *At the end of the commit message append a footer:*
+
+   Change-Id: &lt;changeId&gt;
+
+   where the *changeId* value is copied & pasted from an existing ticket
+5. git push &lt;remoteName&gt; HEAD:refs/for/&lt;integrationBranch&gt;/&lt;label1&gt;/&lt;label3&gt;/&lt;label3&gt;
+
+Here is an example where we push a new patch with the optional labels *lucene* and *indexer*:
+
+    git checkout -b newindexer
+    <revise/add code>
+    git add .
+    git commit
+    git push origin HEAD:refs/for/master/lucene/indexer
+
+#### Revising a patch
+
+**Plan**
+
+1. git fetch &lt;remoteName> &lt;changeRef&gt;
+2. git checkout FETCH_HEAD
+3. &lt;revise/add code&gt;
+4. git add .
+5. git commit --amend
+
+   *Do not alter the **Change-Id** footer!*
+6. git push &lt;remoteName> HEAD:refs/for/&lt;integrationBranch&gt;
+
+Here is an example:
+
+    git fetch origin refs/changes/213/9213/5
+    git checkout FETCH_HEAD
+    <revise/add code>
+    git add .
+    git commit --amend
+    git push origin HEAD:refs/for/master
+
+#### Closing a ticket by pushing a commit
+
+Tickets may be closed by pushing a commit with a referenced change-id to the integration branch.  Gitblit will identify the commit and will close the related ticket as *merged*.
+
+This commit may be:
+
+- an existing patch revision that you merged to the integration branch
+- an existing patch revision that you cherry-picked to the integration branch
+*(this will be identified as a new patch revision when you push)*
+- a completely new commit that has the appropriate change-id footer
+*(this will be identified as a new patch revision when you push)*
+
+**Merge Plan**
+
+1. git fetch &lt;remoteName&gt; &lt;changeRef&gt;
+2. git checkout &lt;integrationBranch&gt;
+3. git merge FETCH_HEAD &lt;integrationBranch&gt;
+4. git push &lt;remoteName&gt; &lt;integrationBranch&gt;
+
+Here is an example:
+
+    git fetch origin refs/changes/213/9213/5
+    git checkout master
+    git merge FETCH_HEAD
+    git push origin master
+
+**Cherry-Pick Plan**
+
+1. git fetch &lt;remoteName&gt; &lt;changeRef&gt;
+2. git checkout &lt;integrationBranch&gt;
+3. git cherry-pick FETCH_HEAD
+4. git push &lt;remoteName&gt; &lt;integrationBranch&gt;
+
+Here is an example:
+
+    git fetch origin refs/changes/213/9213/5
+    git checkout master
+    git cherry-pick FETCH_HEAD
+    git push origin master
+

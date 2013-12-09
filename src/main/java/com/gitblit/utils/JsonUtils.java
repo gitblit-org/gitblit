@@ -116,7 +116,7 @@ public class JsonUtils {
 	 * Reads a gson object from the specified url.
 	 *
 	 * @param url
-	 * @param type
+	 * @param source
 	 * @return the deserialized object
 	 * @throws {@link IOException}
 	 */

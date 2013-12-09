@@ -17,6 +17,8 @@ package com.gitblit.manager;
 
 import java.util.Collection;
 
+import com.gitblit.models.Mailing;
+
 public interface INotificationManager extends IManager {
 
 	/**
@@ -43,44 +45,14 @@ public interface INotificationManager extends IManager {
 	 * @param message
 	 * @param toAddresses
 	 */
-	void sendMail(String subject, String message, String... toAddresses);
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
 	void sendHtmlMail(String subject, String message, Collection<String> toAddresses);
 
 	/**
 	 * Notify users by email of something.
 	 *
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
+	 * @param mailing
+	 * @return the mail message object
 	 */
-	void sendHtmlMail(String subject, String message, String... toAddresses);
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param from
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses);
-
-	/**
-	 * Notify users by email of something.
-	 *
-	 * @param from
-	 * @param subject
-	 * @param message
-	 * @param toAddresses
-	 */
-	void sendHtmlMail(String from, String subject, String message, String... toAddresses);
+	void send(Mailing mailing);
 
 }
