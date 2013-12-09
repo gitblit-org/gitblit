@@ -50,6 +50,7 @@ import com.gitblit.client.Translation;
 import com.gitblit.manager.IGitblit;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.BranchTicketService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ClientLogger;
 import com.gitblit.utils.CommitCache;
@@ -236,6 +237,16 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 				default:
 					break;
 				}
+			} else if (ref.equals(BranchTicketService.BRANCH)) {
+				// ensure pushing user is an administrator OR an owner
+				// i.e. prevent ticket tampering
+				boolean permitted = user.canAdmin() || repository.isOwner(user.username);
+				if (!permitted) {
+					sendRejection(cmd, "{0} is not permitted to push to {1}", user.username, ref);
+				}
+			} else if (ref.startsWith(Constants.R_FOR)) {
+				// prevent accidental push to refs/for
+				sendRejection(cmd, "{0} is not configured to receive patchsets", repository.name);
 			}
 		}
 

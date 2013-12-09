@@ -46,6 +46,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.ReflogPage;
 import com.gitblit.wicket.pages.TagPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 
@@ -127,8 +128,15 @@ public class ReflogPanel extends BasePanel {
 				final RefLogEntry change = changeItem.getModelObject();
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
+				String ticketId = null;
+				String patchset = null;
 				boolean isTag = false;
-				if (shortRefName.startsWith(Constants.R_HEADS)) {
+				boolean isTicket = false;
+				if (shortRefName.startsWith(Constants.R_TICKET)) {
+					ticketId = fullRefName.substring(Constants.R_TICKET.length());
+					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
+					isTicket = true;
+				} else if (shortRefName.startsWith(Constants.R_HEADS)) {
 					shortRefName = shortRefName.substring(Constants.R_HEADS.length());
 				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
@@ -159,6 +167,8 @@ public class ReflogPanel extends BasePanel {
 					WicketUtils.setCssClass(changeIcon, "iconic-trash-stroke");
 				} else if (isTag) {
 					WicketUtils.setCssClass(changeIcon, "iconic-tag");
+				} else if (isTicket) {
+					WicketUtils.setCssClass(changeIcon, "fa fa-ticket");
 				} else {
 					WicketUtils.setCssClass(changeIcon, "iconic-upload");
 				}
@@ -211,7 +221,14 @@ public class ReflogPanel extends BasePanel {
 					break;
 				}
 				changeItem.add(new Label("whatChanged", what));
-				changeItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
+
+				if (isTicket) {
+					// ticket link
+					changeItem.add(new LinkPanel("byAuthors", null, by,
+							TicketsPage.class, WicketUtils.newObjectParameter(change.repository, ticketId)));
+				} else {
+					changeItem.add(new Label("byAuthors", by).setVisible(!StringUtils.isEmpty(by)));
+				}
 
 				changeItem.add(new Label("refRewind", getString("gb.rewind")).setVisible(isRewind));
 
@@ -222,6 +239,10 @@ public class ReflogPanel extends BasePanel {
 					// link to tag
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
 							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
+				} else if (isTicket) {
+					// link to ticket
+					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
+							TicketsPage.class, WicketUtils.newObjectParameter(change.repository, ticketId)));
 				} else {
 					// link to tree
 					changeItem.add(new LinkPanel("refChanged", null, shortRefName,
