@@ -410,12 +410,12 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 
 					// save the repository
-					app().repositories().updateRepositoryModel(oldName, repositoryModel, isCreate);
+					app().gitblit().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
 					// repository access permissions
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-						app().repositories().setUserAccessPermissions(repositoryModel, repositoryUsers);
-						app().repositories().setTeamAccessPermissions(repositoryModel, repositoryTeams);
+						app().gitblit().setUserAccessPermissions(repositoryModel, repositoryUsers);
+						app().gitblit().setTeamAccessPermissions(repositoryModel, repositoryTeams);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());
@@ -466,11 +466,14 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
 				new FederationTypeRenderer()));
+		form.add(new CheckBox("acceptNewPatchsets"));
+		form.add(new CheckBox("acceptNewTickets"));
+		form.add(new CheckBox("requireApproval"));
 		form.add(new CheckBox("useIncrementalPushTags"));
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("skipSizeCalculation"));
 		form.add(new CheckBox("skipSummaryMetrics"));
-		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500 );
+		List<Integer> maxActivityCommits  = Arrays.asList(-1, 0, 25, 50, 75, 100, 150, 200, 250, 500);
 		form.add(new DropDownChoice<Integer>("maxActivityCommits", maxActivityCommits, new MaxActivityCommitsRenderer()));
 
 		metricAuthorExclusions = new Model<String>(ArrayUtils.isEmpty(repositoryModel.metricAuthorExclusions) ? ""

@@ -446,6 +446,18 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return canAdmin() || model.isUsersPersonalRepository(username) || model.isOwner(username);
 	}
 
+	public boolean canReviewPatchset(RepositoryModel model) {
+		return isAuthenticated && canClone(model);
+	}
+
+	public boolean canApprovePatchset(RepositoryModel model) {
+		return isAuthenticated && canPush(model);
+	}
+
+	public boolean canVetoPatchset(RepositoryModel model) {
+		return isAuthenticated && canPush(model);
+	}
+
 	/**
 	 * This returns true if the user has fork privileges or the user has fork
 	 * privileges because of a team membership.

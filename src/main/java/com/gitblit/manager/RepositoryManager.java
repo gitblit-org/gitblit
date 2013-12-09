@@ -801,6 +801,9 @@ public class RepositoryManager implements IRepositoryManager {
 			model.description = getConfig(config, "description", "");
 			model.originRepository = getConfig(config, "originRepository", null);
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
+			model.acceptNewPatchsets = getConfig(config, "acceptNewPatchsets", true);
+			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
+			model.requireApproval = getConfig(config, "requireApproval", false);
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -1406,6 +1409,9 @@ public class RepositoryManager implements IRepositoryManager {
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
 		config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.originRepository);
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewPatchsets", repository.acceptNewPatchsets);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewTickets", repository.acceptNewTickets);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "requireApproval", repository.requireApproval);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||
 				repository.incrementalPushTagPrefix.equals(settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r"))) {

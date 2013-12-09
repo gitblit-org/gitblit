@@ -1,0 +1,578 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en"> 
+
+<body>
+<wicket:extend>
+
+<!-- HEADER -->
+<div style="padding: 10px 0px 15px;">
+	<div style="display:inline-block;" class="ticket-title"><span wicket:id="ticketTitle">[ticket title]</span></div>
+	<a style="padding-left:10px;" class="ticket-number" wicket:id="ticketNumber"></a>
+	<div style="display:inline-block;padding: 0px 10px;vertical-align:top;"><span wicket:id="headerStatus"></span></div>	
+	<div class="hidden-phone hidden-tablet pull-right"><div wicket:id="diffstat"></div></div>
+</div>
+
+<!-- TAB NAMES -->
+<ul class="nav nav-tabs">
+	<li class="active"><a data-toggle="tab" href="#discussion">
+		<i style="color:#888;"class="fa fa-comments"></i> <span class="hidden-phone"><wicket:message key="gb.discussion"></wicket:message></span> <span class="lwbadge" wicket:id="commentCount"></span></a>
+	</li>
+	<li><a data-toggle="tab" href="#commits">
+		<i style="color:#888;"class="fa fa-code"></i> <span class="hidden-phone"><wicket:message key="gb.commits"></wicket:message></span> <span class="lwbadge" wicket:id="commitCount"></span></a>
+	</li>
+	<li><a data-toggle="tab" href="#activity">
+		<i style="color:#888;"class="fa fa-clock-o"></i> <span class="hidden-phone"><wicket:message key="gb.activity"></wicket:message></span></a>
+	</li>
+</ul>
+	
+<!-- TABS -->
+<div class="tab-content">
+		
+	<!-- DISCUSSION TAB -->
+	<div class="tab-pane active" id="discussion">
+		<div class="row">
+				
+			<!-- LEFT SIDE -->
+			<div class="span8">		
+				<div class="ticket-meta-middle">
+					<!-- creator -->
+					<span class="attribution-emphasize" wicket:id="whoCreated">[someone]</span><span wicket:id="creationMessage" class="attribution-text" style="padding: 0px 3px;">[created this ticket]</span> <span class="attribution-emphasize" wicket:id="whenCreated">[when created]</span>
+				</div>
+				<div class="ticket-meta-bottom"">
+					<div class="ticket-text markdown" wicket:id="ticketDescription">[description]</div>
+				</div>
+				
+				<!-- COMMENTS and STATUS CHANGES (DISCUSSIONS TAB) -->
+				<div wicket:id="discussion"></div>
+		
+		
+				<!-- ADD COMMENT (DISCUSSIONS TAB) -->
+				<div id="addcomment" wicket:id="newComment"></div>
+			</div>
+
+			<!-- RIGHT SIDE -->	
+			<div class="span4 hidden-phone">
+				<div class="status-display" style="padding-bottom: 5px;">
+					<div wicket:id="ticketStatus" style="display:block;padding: 5px 10px 10px;">[ticket status]</div>
+				</div>		
+				<div wicket:id="labels" style="border-top: 1px solid #ccc;padding: 5px 0px;">
+					<span class="label ticketLabel" wicket:id="label">[label]</span>
+				</div>
+				
+				<div wicket:id="controls"></div>
+				
+				<div style="border: 1px solid #ccc;padding: 10px;margin: 5px 0px;">
+					<table class="summary" style="width: 100%">
+						<tr><th><wicket:message key="gb.type"></wicket:message></th><td><span wicket:id="ticketType">[type]</span></td></tr>
+						<tr><th><wicket:message key="gb.topic"></wicket:message></th><td><span wicket:id="ticketTopic">[topic]</span></td></tr>
+						<tr><th><wicket:message key="gb.responsible"></wicket:message></th><td><span wicket:id="responsible">[responsible]</span></td></tr>
+						<tr><th><wicket:message key="gb.milestone"></wicket:message></th><td><span wicket:id="milestone">[milestone]</span></td></tr>
+						<tr><th><wicket:message key="gb.votes"></wicket:message></th><td><span wicket:id="votes" class="badge">1</span> <a style="padding-left:5px" wicket:id="voteLink" href="#">vote</a></td></tr>
+						<tr><th><wicket:message key="gb.watchers"></wicket:message></th><td><span wicket:id="watchers" class="badge">1</span> <a style="padding-left:5px" wicket:id="watchLink" href="#">watch</a></td></tr>
+						<tr><th><wicket:message key="gb.export"></wicket:message></th><td><a rel="nofollow" target="_blank" wicket:id="exportJson"></a></td></tr>
+						
+					</table>
+				</div>
+				
+				<div>
+					<span class="attribution-text" wicket:id="participantsLabel"></span>
+					<span wicket:id="participants"><span style="padding: 0px 2px;" wicket:id="participant"></span></span>
+				</div>
+			</div>
+		</div>		
+		
+	</div>
+	
+	
+	<!-- COMMITS TAB -->
+	<div class="tab-pane" id="commits">
+		<div wicket:id="patchset"></div>
+	</div>
+	
+	
+	<!-- ACTIVITY TAB -->
+	<div class="tab-pane" id="activity">
+		<div wicket:id="activity"></div>	
+	</div>
+	
+</div> <!-- END TABS -->
+
+
+<!-- BARNUM DOWNLOAD MODAL -->
+<div id="ptModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="ptModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="ptModalLabel"><img src="barnum_32x32.png"></img> Barnum <small><wicket:message key="gb.ptDescription"></wicket:message></small></h3>
+  </div>
+  <div class="modal-body">
+    <p><wicket:message key="gb.ptDescription1"></wicket:message></p>
+    
+    <h4><wicket:message key="gb.ptSimplifiedCollaboration"></wicket:message></h4>
+    <pre class="gitcommand">
+pt checkout 123
+...
+git commit
+pt push</pre>
+    
+    <h4><wicket:message key="gb.ptSimplifiedMerge"></wicket:message></h4>
+    <pre class="gitcommand">pt pull 123</pre>    
+    <p><wicket:message key="gb.ptDescription2"></wicket:message></p>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-appmenu" href="/pt" ><wicket:message key="gb.download"></wicket:message></a>
+  </div>
+</div>
+
+
+<!-- MILESTONE PROGRESS FRAGMENT -->
+<wicket:fragment wicket:id="milestoneProgressFragment">
+	<div style="display:inline-block;padding-right: 10px" wicket:id="link"></div>
+	<div style="display:inline-block;margin-bottom: 0px;width: 100px;height:10px;" class="progress progress-success">
+		<div class="bar" wicket:id="progress"></div>
+	</div>	
+</wicket:fragment>
+
+
+<!-- TICKET CONTROLS FRAGMENT -->
+<wicket:fragment wicket:id="controlsFragment">
+	<div class="hidden-phone hidden-tablet">
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newStatus"><a wicket:id="link">[status]</a></li>    						
+			</ul>
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">	
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.responsible"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newResponsible"><a wicket:id="link">[responsible]</a></li>    						
+			</ul>
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.milestone"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newMilestone"><a wicket:id="link">[milestone]</a></li>    						
+			</ul>
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small" wicket:id="editLink"></a>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- STATUS INDICATOR FRAGMENT -->
+<wicket:fragment wicket:id="ticketStatusFragment">
+	<div style="font-size:2.5em;padding-bottom: 5px;">
+		<i wicket:id="ticketIcon">[ticket type]</i>
+	</div>
+	<div style="font-size:1.5em;" wicket:id="ticketStatus">[ticket status]</div>	
+</wicket:fragment>
+
+
+<!-- DISCUSSION FRAGMENT -->
+<wicket:fragment wicket:id="discussionFragment">
+	<h3 style="padding-top:10px;"><wicket:message key="gb.comments"></wicket:message></h3>
+	<div wicket:id="discussion">
+		<div style="padding: 10px 0px;" wicket:id="entry"></div>
+	</div>
+</wicket:fragment>
+
+<!-- NEW COMMENT FRAGMENT -->
+<wicket:fragment wicket:id="newCommentFragment">
+	<div class="row">
+		<div class="span8">
+			<hr/>
+		</div>
+	</div>
+	
+	<h3 style="padding:0px 0px 10px;"><wicket:message key="gb.addComment"></wicket:message></h3>
+	
+	<div class="row">
+		<div class="span1 hidden-phone" style="text-align:right;">
+			<span wicket:id="newCommentAvatar">[avatar]</span>
+		</div>
+		<div class="span7 attribution-border" style="background-color:#fbfbfb;">
+			<div class="hidden-phone attribution-triangle"></div>
+			<div wicket:id="commentPanel"></div>
+		</div>	
+	</div>
+</wicket:fragment>
+
+
+<!-- COMMENT FRAGMENT -->
+<wicket:fragment wicket:id="commentFragment">
+<div class="row">
+	<div class="span1 hidden-phone" style="text-align:right;">
+		<span wicket:id="changeAvatar">[avatar]</span>
+	</div>
+	<div class="span7 attribution-border">
+		<div class="hidden-phone attribution-triangle"></div>
+		<div class="attribution-header">
+			 <span class="indicator-large-dark"><i wicket:id="commentIcon"></i></span><span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span class="hidden-phone"><wicket:message key="gb.commented">[commented]</wicket:message></span></span><p class="attribution-header-pullright" ><span class="attribution-date" wicket:id="changeDate">[comment date]</span><a class="attribution-link" wicket:id="changeLink"><i class="iconic-link"></i></a></p>
+		</div>
+		<div class="markdown">
+			<div class="attribution-comment ticket-text" wicket:id="comment">[comment text]</div>
+		</div>
+	</div>
+</div>
+</wicket:fragment>
+
+
+<!-- STATUS CHANGE FRAGMENT -->
+<wicket:fragment wicket:id="statusFragment">
+<div class="row" style="opacity: 0.5;filter: alpha(opacity=50);">
+	<div class="span7 offset1">		
+		<div style="padding: 8px;border: 1px solid translucent;">
+			 <span class="indicator-large-dark"><i></i></span><span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span class="hidden-phone"><wicket:message key="gb.changedStatus">[changed status]</wicket:message></span></span> <span style="padding-left:10px;"><span wicket:id="statusChange"></span></span><p class="attribution-header-pullright" ><span class="attribution-date" wicket:id="changeDate">[comment date]</span><a class="attribution-link" wicket:id="changeLink"><i class="iconic-link"></i></a></p>
+		</div>
+	</div>		
+</div>
+</wicket:fragment>
+
+
+<!-- BOUNDARY FRAGMENT -->
+<wicket:fragment wicket:id="boundaryFragment">
+<div class="row" style="padding: 15px 0px 10px 0px;">
+	<div class="span7 offset1" style="border-top: 2px dotted #999;" />
+</div>
+</wicket:fragment>
+
+
+<!-- MERGE/CLOSE FRAGMENT -->
+<wicket:fragment wicket:id="mergeCloseFragment">
+<div wicket:id="merge" style="padding-top: 10px;"></div>	
+<div wicket:id="close"></div>
+<div wicket:id="boundary"></div>
+</wicket:fragment>
+
+
+<!-- MERGE FRAGMENT -->
+<wicket:fragment wicket:id="mergeFragment">
+<div class="row">
+	<div class="span7 offset1">
+		<span class="status-change aui-lozenge aui-lozenge-success"><wicket:message key="gb.merged"></wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.mergedPatchset">[merged patchset]</wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="commitLink">[commit]</span> <span style="padding-left:2px;" wicket:id="toBranch"></span>
+		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
+	</div>
+</div>
+</wicket:fragment>
+
+
+<!-- PROPOSE A PATCHSET FRAGMENT -->
+<wicket:fragment wicket:id="proposeFragment">
+	<div class="featureWelcome">
+		<div class="row">
+			<div class="icon span2 hidden-phone"><i class="fa fa-code"></i></div>
+			<div class="span9">		
+				<h1><wicket:message key="gb.proposePatchset"></wicket:message></h1>
+				<div class="markdown">
+					<p><wicket:message key="gb.proposePatchsetNote"></wicket:message></p>
+					<p><span wicket:id="proposeInstructions"></span></p>
+					<h4><span wicket:id="gitWorkflow"></span></h4>
+					<div wicket:id="gitWorkflowSteps"></div>
+					<h4><span wicket:id="ptWorkflow"></span> <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.download"></wicket:message></a>)</small></h4>
+					<div wicket:id="ptWorkflowSteps"></div>
+				</div>			
+			</div>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- PATCHSET FRAGMENT -->
+<wicket:fragment wicket:id="patchsetFragment">
+	<div class="row" style="padding: 0px 0px 20px;">
+ 		<div class="span12 attribution-border">
+			<div wicket:id="panel"></div>		
+		</div>
+	</div>
+	
+	<h3><span wicket:id="commitsInPatchset"></span></h3>
+	<div class="row">
+		<div class="span12">
+			<table class="table tickets">
+				<thead>
+					<tr>
+						<th class="hidden-phone"><wicket:message key="gb.author"></wicket:message></th>
+						<th ><wicket:message key="gb.commit"></wicket:message></th>						
+						<th colspan="2"><wicket:message key="gb.title"></wicket:message></th>		
+						<th style="text-align: right;"><wicket:message key="gb.date"></wicket:message></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr wicket:id="commit">
+						<td class="hidden-phone"><span wicket:id="authorAvatar">[avatar]</span> <span wicket:id="author">[author]</span></td>
+						<td><span class="shortsha1" wicket:id="commitId">[commit id]</span><span class="hidden-phone" style="padding-left: 20px;" wicket:id="diff">[diff]</span></td>						
+						<td><span class="attribution-text" wicket:id="title">[title]</span></td>
+						<td style="padding:8px 0px;text-align:right;"><span style="padding-right:40px;"><span wicket:id="commitDiffStat"></span></span></td>			
+						<td style="text-align:right;"><span class="attribution-date" wicket:id="commitDate">[commit date]</span></td>	
+					</tr>
+				</tbody>
+			</table>
+		</div>	
+	</div>
+</wicket:fragment>
+
+
+<!-- COLLAPSIBLE PATCHSET (temp) -->
+<wicket:fragment wicket:id="collapsiblePatchsetFragment">
+<div wicket:id="mergePanel" style="margin-bottom: 10px;"></div>
+<div class="accordion" id="accordionPatchset" style="clear:both;margin: 0px;">
+<div class="patch-group">
+   	<div class="accordion-heading">
+		<div class="attribution-patch-pullright">	
+			<div style="padding-bottom: 2px;"> 
+				<span class="attribution-date" wicket:id="changeDate">[patch date]</span>
+			</div>
+
+			<!-- Client commands menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet">
+				<a class="btn btn-mini btn-appmenu" data-toggle="collapse" data-parent="#accordionCheckout" href="#bodyCheckout"><wicket:message key="gb.checkout"></wicket:message> <span class="caret"></span></a>
+			</div>
+			
+			<!-- Compare Patchsets menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
+				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+					<wicket:message key="gb.compare"></wicket:message> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><span wicket:id="compareMergeBase"></span></li>
+					<li wicket:id="comparePatch"><span wicket:id="compareLink"></span></li>
+				</ul>
+			</div>
+
+		</div>
+		<div style="padding:8px 10px;">
+			<div>
+			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span wicket:id="uploadedWhat"></span></span>
+			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordionPatchset" href="#bodyPatchset"><i class="fa fa-toggle-down"></i></a>			
+			</div>
+			<div wicket:id="patchsetStat"></div>
+		</div>
+	</div>
+	
+	<div style="padding: 10px;color: #444;background:white;border-top:1px solid #ccc;">
+		<div class="pull-right" wicket:id="reviewControls"></div>
+		<span style="font-weight:bold;padding-right:10px;"><wicket:message key="gb.reviews"></wicket:message></span> <span wicket:id="reviews" style="padding-right:10px;"><i style="font-size:16px;" wicket:id="score"></i> <span wicket:id="reviewer"></span></span>
+	</div>  		
+				
+	<div id="bodyPatchset" class="accordion-body collapse" style="clear:both;">
+		<div class="accordion-inner">
+			<!-- changed paths -->
+			<table class="pretty" style="border: 0px;">
+				<tr wicket:id="changedPath">
+					<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
+					<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+					<td class="hidden-phone rightAlign">						
+						<span class="hidden-tablet" style="padding-right:20px;" wicket:id="diffStat"></span>
+						<span class="link" style="white-space: nowrap;">
+							<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a>
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+<div id="bodyCheckout" class="accordion-body collapse" style="background-color:#fbfbfb;clear:both;">
+  <div class="alert submit-info" style="padding:4px;">
+    <div class="merge-panel" style="border: 1px solid #F1CB82;">
+      <div class="ticket-text">  
+        <h4><wicket:message key="gb.checkoutViaCommandLine"></wicket:message></h4>
+        <p><wicket:message key="gb.checkoutViaCommandLineNote"></wicket:message></p>
+
+        <h4>Git</h4>
+        <p class="step">
+		  <b><span wicket:id="gitStep1"></span>:</b> <wicket:message key="gb.checkoutStep1"></wicket:message> <span wicket:id="gitCopyStep1"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep1" class="gitcommand"></pre>
+	    <p class="step">
+		  <b><span wicket:id="gitStep2"></span>:</b> <wicket:message key="gb.checkoutStep2"></wicket:message> <span wicket:id="gitCopyStep2"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep2" class="gitcommand"></pre>
+
+		<hr/>
+        <h4>Barnum <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.more"></wicket:message></a>)</small> </h4>
+        <p class="step">
+		  <wicket:message key="gb.ptCheckout"></wicket:message> <span wicket:id="ptCopyStep"></span>
+	    </p>
+	    <pre wicket:id="ptPreStep" class="gitcommand"></pre>
+	    
+     </div>
+   </div>
+ </div>
+</div>
+</div>
+</wicket:fragment>
+
+<!--ACTIVITY -->
+<wicket:fragment wicket:id="activityFragment">	
+	<table class="table tickets">
+		<thead>
+			<tr>
+				<th><wicket:message key="gb.author"></wicket:message></th>
+				<th colspan='3'><wicket:message key="gb.action"></wicket:message></th>		
+				<th style="text-align: right;"><wicket:message key="gb.date"></wicket:message></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr wicket:id="event">
+				<td><span class="hidden-phone" wicket:id="changeAvatar">[avatar]</span> <span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span></td>
+				<td>
+					<span class="attribution-txt"><span wicket:id="what">[what happened]</span></span>
+					<div wicket:id="fields"></div>
+				</td>
+				<td style="text-align:right;">
+					<span wicket:id="patchsetType">[revision type]</span>					
+				</td>
+				<td><span class="hidden-phone hidden-tablet aui-lozenge aui-lozenge-subtle" wicket:id="patchsetRevision">[R1]</span>
+					<span class="hidden-tablet hidden-phone" style="padding-left:15px;"><span wicket:id="patchsetDiffStat"></span></span>
+				</td>			
+				<td style="text-align:right;"><span class="attribution-date" wicket:id="changeDate">[patch date]</span></td>	
+			</tr>
+		</tbody>
+	</table>
+</wicket:fragment>
+
+
+<!-- REVIEW CONTROLS -->
+<wicket:fragment wicket:id="reviewControlsFragment">
+	<div class="btn-group pull-right hidden-phone hidden-tablet">
+		<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+			<wicket:message key="gb.review"></wicket:message> <span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu">
+			<li><span><a wicket:id="approveLink">approve</a></span></li>
+			<li><span><a wicket:id="looksGoodLink">looks good</a></span></li>
+			<li><span><a wicket:id="needsImprovementLink">needs improvement</a></span></li>
+			<li><span><a wicket:id="vetoLink">veto</a></span></li>
+		</ul>
+	</div>
+</wicket:fragment>
+
+
+<!-- MERGEABLE PATCHSET FRAGMENT -->
+<wicket:fragment wicket:id="mergeableFragment">
+	<div class="alert alert-success submit-info" style="padding:4px;">
+		<div class="merge-panel" style="border: 1px solid rgba(70, 136, 70, 0.5);">
+			<div class="pull-right" style="padding-top:5px;">
+				<a class="btn btn-success" wicket:id="mergeButton"></a>
+			</div>
+			<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+			<div wicket:id="mergeMore"></div>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- COMMAND LINE MERGE INSTRUCTIONS -->
+<wicket:fragment wicket:id="commandlineMergeFragment">
+	<div class="accordion" id="accordionInstructions" style="margin: 0px;">
+		<span wicket:id="instructions"></span>
+		<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordionInstructions" href="#bodyInstructions"><i class="fa fa-toggle-down"></i></a>
+	</div>
+
+	<div id="bodyInstructions" class="ticket-text accordion-body collapse" style="clear:both;">
+		<hr/>
+		<h4><wicket:message key="gb.mergingViaCommandLine"></wicket:message></h4>	
+		<p><wicket:message key="gb.mergingViaCommandLineNote"></wicket:message></p>
+		
+		<h4>Git</h4>
+		<p class="step">
+			<b><span wicket:id="mergeStep1"></span>:</b> <wicket:message key="gb.mergeStep1"></wicket:message> <span wicket:id="mergeCopyStep1"></span>
+		</p>
+		<pre wicket:id="mergePreStep1" class="gitcommand"></pre>
+		<p class="step">
+			<b><span wicket:id="mergeStep2"></span>:</b> <wicket:message key="gb.mergeStep2"></wicket:message> <span wicket:id="mergeCopyStep2"></span>
+		</p>
+		<pre wicket:id="mergePreStep2" class="gitcommand"></pre>
+		<p class="step">
+			<b><span wicket:id="mergeStep3"></span>:</b> <wicket:message key="gb.mergeStep3"></wicket:message> <span wicket:id="mergeCopyStep3"></span>
+		</p>
+		<pre wicket:id="mergePreStep3" class="gitcommand"></pre>
+		
+		<hr/>
+		<h4>Barnum <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.more"></wicket:message></a>)</small></h4>
+		<p class="step">
+		  <wicket:message key="gb.ptMerge"></wicket:message> <span wicket:id="ptMergeCopyStep"></span>
+	    </p>
+	    <pre wicket:id="ptMergeStep" class="gitcommand"></pre>		
+	</div>		
+</wicket:fragment>
+
+
+<!-- ALREADY MERGED FRAGMENT -->
+<wicket:fragment wicket:id="alreadyMergedFragment">
+	<div class="alert alert-success submit-info" style="padding:4px;">
+		<div class="merge-panel" style="border: 1px solid rgba(70, 136, 70, 0.5);">
+			<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- NOT-MERGEABLE FRAGMENT -->
+<wicket:fragment wicket:id="notMergeableFragment">
+	<div class="alert alert-error submit-info" style="padding:4px;">
+		<div class="merge-panel" style="border: 1px solid rgba(136, 70, 70, 0.5);">
+			<h4><i class="fa fa-exclamation-triangle"></i> <span wicket:id="mergeTitle"></span></h4>
+			<div wicket:id="mergeMore"></div>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- VETOED PATCHSET FRAGMENT -->
+<wicket:fragment wicket:id="vetoedFragment">
+	<div class="alert alert-error submit-info" style="padding:4px;">
+		<div class="merge-panel" style="border: 1px solid rgba(136, 70, 70, 0.5);">
+			<h4><i class="fa fa-exclamation-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+			<wicket:message key="gb.patchsetVetoedMore"></wicket:message>
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- NOT APPROVED PATCHSET FRAGMENT -->
+<wicket:fragment wicket:id="notApprovedFragment">
+	<div class="alert alert-info submit-info" style="padding:4px;">
+		<div class="merge-panel" style="border: 1px solid rgba(0, 70, 200, 0.5);">
+			<h4><i class="fa fa-minus-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+			<div wicket:id="mergeMore"></div>			
+		</div>
+	</div>
+</wicket:fragment>
+
+
+<!-- Plain JavaScript manual copy & paste -->
+<wicket:fragment wicket:id="jsPanel">
+  	<span style="vertical-align:baseline;">
+  		<img wicket:id="copyIcon" wicket:message="title:gb.copyToClipboard"></img>
+  	</span>
+</wicket:fragment>
+    
+
+<!-- flash-based button-press copy & paste -->
+<wicket:fragment wicket:id="clippyPanel">
+	<object wicket:message="title:gb.copyToClipboard" style="vertical-align:middle;"
+   			wicket:id="clippy"
+   			width="14" 
+   			height="14"
+   			bgcolor="#ffffff" 
+       		quality="high"
+       		wmode="transparent"
+       		scale="noscale"
+       		allowScriptAccess="always"></object>
+</wicket:fragment>
+	
+</wicket:extend>    
+</body>
+</html>

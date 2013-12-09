@@ -1,0 +1,159 @@
+## Using Tickets
+
+*PREVIEW 1.4.0*
+
+### Creating Standard Tickets
+
+Standard tickets can be created using the web ui.  These ticket types include *Bug*, *Enhancement*, *task*, and *Question*.
+
+### Creating a Proposal Ticket
+
+Proposal tickets are created by pushing a patchset to the magic ref.  They can not be created from the web ui.
+
+*Why should I create a proposal ticket?*
+
+Because you are too lazy to create a ticket in the web ui first.  The proposal ticket is a convenience mechanism.  It allows you to propose changes using Git, not your browser.
+
+*Who can create a proposal ticket?*
+
+Any authenticated user who can clone your repository.
+
+    git checkout -b mytopic
+    ...add a single commit...
+    git push origin HEAD:refs/for/new
+
+### Creating the first Patchset for an Existing Ticket
+
+If you have an existing ticket that does not yet have a proposed patchset you can push using the magic ref.
+
+*Who can create the first patchset for an existing ticket?*
+
+Any authenticated user who can clone your repository.
+
+    git checkout -b mytopic
+    ...add one or more commits...
+    git push origin HEAD:refs/for/{id}
+
+### Safely adding commits to a Patchset for an Existing Ticket
+
+*Who can add commits to an existing patchset?*
+
+1. The author of the ticket
+2. The author of the initial patchset
+3. Any user with write (RW) permissions to the repository
+
+
+    git fetch origin refs/tickets/{shard}/{id}/{patchset}
+    git checkout -b tickets/{id}/{patchset} FETCH_HEAD
+    ...add one or more commits...
+    git push origin HEAD:refs/tickets/{shard}/{id}/{patchset}
+
+*What is the {shard} and how do I determine it?*
+
+The shard is a necessity for scaling refs above the per-directory limitations of the filesystem.  The shard is the last two digits of the ticket id, prepended with 0 if the id < 10.  The shard is always 2 digits.
+
+*Why do I have to push using such a complex refspec?*
+
+Technically, you don't.
+
+You could always push to *refs/for/{id}* **BUT** that isn't always safe.  The magic ref will **always** allow rebases, amends, and squashes.  Gitblit can not detect an intentional non-fast-forward update from an unintentional non-fast-forward update.  That is why it is recommended to use the explicit patchset ref to add commits to an existing patchset.  Using the patchset ref allows your Git client to detect and reject unintentional non-fast-forward updates.
+
+*This refspec is ugly, can it be simplified?*
+
+The patchset refspec can't be simplified, but your tooling could be smarter.  Perhaps you should try [Barnum](tickets_barnum.html).
+
+### Rewriting a Patchset (amend, rebase, squash)
+
+*Who can rewrite a patchset?*
+
+See the above rules for who can add commits to a patchset. You do **not** need rewind (RW+) to the repository to push a non-fast-forward patchset.  Gitblit will detect the non-fast-forward update and create a new patchset ref.  This preserves the previous patchset.
+
+    git fetch origin refs/tickets/{shard}/{id}/{patchset}
+    git checkout -b tickets/{id}/{patchset} FETCH_HEAD
+    ..amend, rebase, squash..
+    git push origin HEAD:refs/for/{id}
+
+### Ticket RefSpecs
+
+Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
+
+#### to create a new proposal ticket
+
+| ref                  | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/new         | new proposal for the default branch          |
+| refs/for/default     | new proposal for the default branch          |
+| refs/for/{branch}    | new proposal for the specified branch        |
+
+#### to add a proposal patchset (first patchset) to an existing ticket
+
+| ref                  | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/{id}        | add new patchset to an existing ticket       |
+
+#### to add commits to an existing patchset
+
+| ref                                  | description                          |
+| :----------------------------------- | :----------------------------------- |
+| refs/tickets/{shard}/{id}/{patchset} | fast-forward an existing patchset    |
+
+
+#### to rewrite a patchset (amend, rebase, squash)
+
+| magic ref            | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/{id}        | add new patchset to an existing ticket       |
+
+### Ticket RefSpec Tricks
+
+Gitblit supports setting some ticket fields from the push refspec.
+
+    refs/for/master%topic=bug/42,r=james,m=1.4.1,cc=dave,cc=mark
+
+| parameter | description                                                     |
+| :-------- | :-------------------------------------------------------------- |
+| t         | assign a *topic* to the ticket (matched against bugtraq config) |
+| r         | set the *responsible* user                                      |
+| m         | set the *milestone* for patchset integration                    |
+| cc        | add this account to the *watch* list (multiple ccs allowed)     |
+
+#### examples
+
+Create a new patchset for ticket *12*, add *james* and *mark* to the watch list, and set the topic to *issue-123* which will be regex-matched against the repository bugtraq configuration.
+
+    git push origin HEAD:refs/for/12%cc=james,cc=mark,t=issue-123
+
+Add some commits to ticket *123* patchset *5*.  Set the milestone to *1.4.1*.
+
+    git push origin HEAD:refs/tickets/23/123/5%m=1.4.1
+
+### Merging Patchsets
+
+The Gitblit web ui offers a merge button which *should work* but is not fully tested.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.
+
+There are complicated merge scenarios for which it may be best to merge using your Git client.  There are several ways to do this, here is a safe merge strategy which pulls into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
+
+    git pull origin master
+    git checkout -b tickets/{id}/{patchset} master
+    git pull origin refs/tickets/{shard}/{id}/{patchset}
+    git checkout master
+    git merge tickets/{shard}/{id}
+    git push origin master
+
+### Closing Tickets on Push with a Completely New Patchset
+
+Gitblit will look for patchset references on pushes to normal branches.  If it finds a reference (like would be found in the previous merge instructions), the ticket is resolved as merged and everyone is notified.
+
+If you do not need to create a patchset for review, you can just push a commit to the integration branch that contains `fixes #1` or `closes #1` in the commit message.  Gitblit will identify the ticket, create a new patchset with that commit as the tip, and resolve the ticket as merged.  (And if the integration branch is not specified in the ticket - this is the case for a ticket without any existing patchsets - Gitblit will resolve the ticket as merged to the pushed branch).
+
+### Reopening Tickets with Patchsets
+
+Gitblit allows you to reopen a Ticket with a merged patchset.  Since Gitblit allows patchset rewrites and versions patchsets, this seems like a logical capability.  There is no need to create another ticket for a feature request or bug report if the merged commits did not actually resolve the ticket.
+
+This allows you to continue the discussion and create a new patchset that hopefully resolves the need.
+
+**NOTE:**  There is one caveat to this feature.  You can not push patchsets to a closed ticket; Gitblit will reject the push.  You must first reopen the ticket through the web ui before you may push your patchset update or new patchset.
+
+## Work Smarter, use Barnum
+
+Now that you've seen the more technical aspects of fetching, pushing, and merging patchsets let's skip using native Git directly and use Barnum instead.
