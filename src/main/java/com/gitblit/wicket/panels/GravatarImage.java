@@ -79,4 +79,8 @@ public class GravatarImage extends BasePanel {
 		add(link.setEnabled(linked));
 		setVisible(app().settings().getBoolean(Keys.web.allowGravatar, true));
 	}
+
+	public void setTooltip(String tooltip) {
+		WicketUtils.setHtmlTooltip(get("link"), tooltip);
+	}
 }
