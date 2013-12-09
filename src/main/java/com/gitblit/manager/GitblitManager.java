@@ -50,6 +50,7 @@ import com.gitblit.models.FederationProposal;
 import com.gitblit.models.FederationSet;
 import com.gitblit.models.ForkModel;
 import com.gitblit.models.GitClientApplication;
+import com.gitblit.models.Mailing;
 import com.gitblit.models.Metric;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RegistrantAccessPermission;
@@ -61,6 +62,7 @@ import com.gitblit.models.ServerStatus;
 import com.gitblit.models.SettingModel;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.JGitUtils;
@@ -481,6 +483,15 @@ public class GitblitManager implements IGitblit {
 		}
 	}
 
+	/**
+	 * Throws an exception if trying to get a ticket service.
+	 *
+	 */
+	@Override
+	public ITicketService getTicketService() {
+		throw new RuntimeException("This class does not have a ticket service!");
+	}
+
 	/*
 	 * ISTOREDSETTINGS
 	 *
@@ -583,28 +594,13 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
-	public void sendMail(String subject, String message, String... toAddresses) {
-		notificationManager.sendMail(subject, message, toAddresses);
-	}
-
-	@Override
 	public void sendHtmlMail(String subject, String message, Collection<String> toAddresses) {
 		notificationManager.sendHtmlMail(subject, message, toAddresses);
 	}
 
 	@Override
-	public void sendHtmlMail(String subject, String message, String... toAddresses) {
-		notificationManager.sendHtmlMail(subject, message, toAddresses);
-	}
-
-	@Override
-	public void sendHtmlMail(String from, String subject, String message, Collection<String> toAddresses) {
-		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
-	}
-
-	@Override
-	public void sendHtmlMail(String from, String subject, String message, String... toAddresses) {
-		notificationManager.sendHtmlMail(from, subject, message, toAddresses);
+	public void send(Mailing mail) {
+		notificationManager.send(mail);
 	}
 
 	/*
@@ -1111,5 +1107,20 @@ public class GitblitManager implements IGitblit {
 	@Override
 	public boolean deletePendingFederationProposal(FederationProposal proposal) {
 		return federationManager.deletePendingFederationProposal(proposal);
+	}
+
+	@Override
+	public void closeAll() {
+		repositoryManager.closeAll();
+	}
+
+	@Override
+	public void close(String repository) {
+		repositoryManager.close(repository);
+	}
+
+	@Override
+	public boolean isIdle(Repository repository) {
+		return repositoryManager.isIdle(repository);
 	}
 }

@@ -10,6 +10,16 @@
 		"isActive": true
 	},
 	{
+		"name": "Barnum",
+		"title": "Barnum",
+		"description": "a command-line Git companion for Gitblit Tickets",
+		"legal": "released under the Apache 2.0 License",
+		"command": "pt clone --gitblit ${repoUrl}",
+		"productUrl": "http://barnum.gitblit.com",
+		"icon": "barnum_32x32.png",
+		"isActive": true
+	},	
+	{
 		"name": "SmartGit/Hg",
 		"title": "syntevo SmartGit/Hg\u2122",
 		"description": "a Git client for Windows, Mac, & Linux",

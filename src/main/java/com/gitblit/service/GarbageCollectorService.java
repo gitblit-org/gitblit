@@ -15,7 +15,6 @@
  */
 package com.gitblit.service;
 
-import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.jgit.api.GarbageCollectCommand;
 import org.eclipse.jgit.api.Git;
@@ -33,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.git;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.FileUtils;
@@ -160,7 +157,7 @@ public class GarbageCollectorService implements Runnable {
 					continue;
 				}
 
-				if (!isRepositoryIdle(repository)) {
+				if (!repositoryManager.isIdle(repository)) {
 					logger.debug(MessageFormat.format("GCExecutor is skipping {0} because it is not idle", repositoryName));
 					continue;
 				}
@@ -227,23 +224,5 @@ public class GarbageCollectorService implements Runnable {
 		}
 
 		running.set(false);
-	}
-
-	private boolean isRepositoryIdle(Repository repository) {
-		try {
-			// Read the use count.
-			// An idle use count is 2:
-			// +1 for being in the cache
-			// +1 for the repository parameter in this method
-			Field useCnt = Repository.class.getDeclaredField("useCnt");
-			useCnt.setAccessible(true);
-			int useCount = ((AtomicInteger) useCnt.get(repository)).get();
-			return useCount == 2;
-		} catch (Exception e) {
-			logger.warn(MessageFormat
-					.format("Failed to reflectively determine use count for repository {0}",
-							repository.getDirectory().getPath()), e);
-		}
-		return false;
 	}
 }

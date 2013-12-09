@@ -191,15 +191,8 @@ public class GitFilter extends AccessRestrictionFilter {
 			return false;
 		}
 		if (action.equals(gitReceivePack)) {
-			// Push request
-			if (user.canPush(repository)) {
-				return true;
-			} else {
-				// user is unauthorized to push to this repository
-				logger.warn(MessageFormat.format("user {0} is not authorized to push to {1}",
-						user.username, repository));
-				return false;
-			}
+			// push permissions are enforced in the receive pack
+			return true;
 		} else if (action.equals(gitUploadPack)) {
 			// Clone request
 			if (user.canClone(repository)) {

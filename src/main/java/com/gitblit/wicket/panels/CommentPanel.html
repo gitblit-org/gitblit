@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+<wicket:panel>
+	<div style="border: 1px solid #ccc;">
+	
+		<ul class="nav nav-pills" style="margin: 2px 5px !important">
+			<li class="active"><a href="#write" data-toggle="tab"><wicket:message key="gb.write">[write]</wicket:message></a></li>
+			<li><a href="#preview" data-toggle="tab"><wicket:message key="gb.preview">[preview]</wicket:message></a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="write">
+				<textarea class="span7" style="height:7em;border-color:#ccc;border-right:0px;border-left:0px;border-radius:0px;box-shadow: none;" wicket:id="markdownEditor"></textarea>
+			</div>
+			<div class="tab-pane" id="preview">
+				<div class="preview" style="height:7em;border:1px solid #ccc;border-right:0px;border-left:0px;margin-bottom:9px;padding:4px;background-color:#ffffff;">
+					<div class="markdown" wicket:id="markdownPreview"></div>
+				</div>
+			</div>
+		</div>
+				
+		<div style="text-align:right;padding-right:5px;">
+			<form style="margin-bottom:9px;" wicket:id="editorForm" action="">
+				<input class="btn btn-appmenu" type="submit" wicket:id="submit" value="comment"></input>
+			</form>
+		</div>
+		
+	</div>
+</wicket:panel>
+</html>

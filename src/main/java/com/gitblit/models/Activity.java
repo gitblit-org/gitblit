@@ -112,7 +112,7 @@ public class Activity implements Serializable, Comparable<Activity> {
 	 *
 	 * @param repository
 	 * @param branch
-	 * @param commit
+	 * @param tip
 	 * @return a RepositoryCommit, if one was added. Null if this is duplicate
 	 *         commit
 	 */

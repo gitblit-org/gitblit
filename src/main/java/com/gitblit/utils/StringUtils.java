@@ -127,6 +127,8 @@ public class StringUtils {
 				retStr.append("%2F");
 			} else if (inStr.charAt(i) == ' ') {
 				retStr.append("%20");
+			} else if (inStr.charAt(i) == '&') {
+				retStr.append("%26");
 			} else {
 				retStr.append(inStr.charAt(i));
 			}
@@ -143,6 +145,18 @@ public class StringUtils {
 	 */
 	public static String flattenStrings(Collection<String> values) {
 		return flattenStrings(values, " ");
+	}
+
+	/**
+	 * Flatten the list of strings into a single string with the specified
+	 * separator.
+	 *
+	 * @param values
+	 * @param separator
+	 * @return flattened list
+	 */
+	public static String flattenStrings(String[]  values, String separator) {
+		return flattenStrings(Arrays.asList(values), separator);
 	}
 
 	/**
