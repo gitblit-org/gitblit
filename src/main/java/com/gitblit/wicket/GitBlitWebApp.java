@@ -38,6 +38,7 @@ import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.tickets.ITicketService;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.pages.ActivityPage;
 import com.gitblit.wicket.pages.BlamePage;
@@ -49,6 +50,8 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditTicketPage;
+import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
 import com.gitblit.wicket.pages.ForksPage;
@@ -60,6 +63,7 @@ import com.gitblit.wicket.pages.LogoutPage;
 import com.gitblit.wicket.pages.LuceneSearchPage;
 import com.gitblit.wicket.pages.MetricsPage;
 import com.gitblit.wicket.pages.MyDashboardPage;
+import com.gitblit.wicket.pages.NewTicketPage;
 import com.gitblit.wicket.pages.OverviewPage;
 import com.gitblit.wicket.pages.PatchPage;
 import com.gitblit.wicket.pages.ProjectPage;
@@ -71,6 +75,7 @@ import com.gitblit.wicket.pages.ReviewProposalPage;
 import com.gitblit.wicket.pages.SummaryPage;
 import com.gitblit.wicket.pages.TagPage;
 import com.gitblit.wicket.pages.TagsPage;
+import com.gitblit.wicket.pages.TicketsPage;
 import com.gitblit.wicket.pages.TreePage;
 import com.gitblit.wicket.pages.UserPage;
 import com.gitblit.wicket.pages.UsersPage;
@@ -168,6 +173,12 @@ public class GitBlitWebApp extends WebApplication {
 		mount("/blame", BlamePage.class, "r", "h", "f");
 		mount("/users", UsersPage.class);
 		mount("/logout", LogoutPage.class);
+
+		// setup ticket urls
+		mount("/tickets", TicketsPage.class, "r", "h");
+		mount("/tickets/new", NewTicketPage.class, "r");
+		mount("/tickets/edit", EditTicketPage.class, "r", "h");
+		mount("/tickets/export", ExportTicketPage.class, "r", "h");
 
 		// setup the markup document urls
 		mount("/docs", DocsPage.class, "r");
@@ -285,6 +296,10 @@ public class GitBlitWebApp extends WebApplication {
 
 	public IGitblit gitblit() {
 		return gitblit;
+	}
+
+	public ITicketService tickets() {
+		return gitblit.getTicketService();
 	}
 
 	public TimeZone getTimezone() {

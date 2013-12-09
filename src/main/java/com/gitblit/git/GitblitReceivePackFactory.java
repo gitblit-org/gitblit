@@ -100,10 +100,17 @@ public class GitblitReceivePackFactory<X> implements ReceivePackFactory<X> {
 		if (StringUtils.isEmpty(url)) {
 			url = gitblitUrl;
 		}
-		
+
 		final RepositoryModel repository = gitblit.getRepositoryModel(repositoryName);
 
-		final GitblitReceivePack rp = new GitblitReceivePack(gitblit, db, repository, user);
+		// Determine which receive pack to use for pushes
+		final GitblitReceivePack rp;
+		if (gitblit.getTicketService().isAcceptingNewPatchsets(repository)) {
+			rp = new PatchsetReceivePack(gitblit, db, repository, user);
+		} else {
+			rp = new GitblitReceivePack(gitblit, db, repository, user);
+		}
+
 		rp.setGitblitUrl(url);
 		rp.setRefLogIdent(new PersonIdent(user.username, user.username + "@" + origin));
 		rp.setTimeout(timeout);

@@ -15,6 +15,8 @@
  */
 package com.gitblit.wicket.pages;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,6 +33,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.wicket.Application;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
@@ -459,5 +462,27 @@ public abstract class BasePage extends SessionPage {
 			GitBlitWebSession.get().cacheRequest(getClass());
 		}
 		error(message, true);
+	}
+
+	protected String readResource(String resource) {
+		StringBuilder sb = new StringBuilder();
+		InputStream is = null;
+		try {
+			is = getClass().getResourceAsStream(resource);
+			List<String> lines = IOUtils.readLines(is);
+			for (String line : lines) {
+				sb.append(line).append('\n');
+			}
+		} catch (IOException e) {
+
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return sb.toString();
 	}
 }
