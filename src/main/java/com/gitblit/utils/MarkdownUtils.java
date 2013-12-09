@@ -21,10 +21,14 @@ import static org.pegdown.Extensions.SMARTYPANTS;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 
 import org.apache.commons.io.IOUtils;
 import org.pegdown.LinkRenderer;
 import org.pegdown.PegDownProcessor;
+
+import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 
 /**
  * Utility methods for transforming raw markdown text to html.
@@ -95,5 +99,49 @@ public class MarkdownUtils {
 				// IGNORE
 			}
 		}
+	}
+
+	/**
+	 * Transforms GFM (Github Flavored Markdown) to html.
+	 * Gitblit does not support the complete GFM specification.
+	 *
+	 * @param input
+	 * @param repositoryName
+	 * @return html
+	 */
+	public static String transformGFM(IStoredSettings settings, String input, String repositoryName) {
+		String text = input;
+
+		// strikethrough
+		text = text.replaceAll("~~(.*)~~", "<s>$1</s>");
+		text = text.replaceAll("\\{(?:-){2}(.*)(?:-){2}}", "<s>$1</s>");
+
+		// underline
+		text = text.replaceAll("\\{(?:\\+){2}(.*)(?:\\+){2}}", "<u>$1</u>");
+
+		// strikethrough, replacement
+		text = text.replaceAll("\\{~~(.*)~>(.*)~~}", "<s>$1</s><u>$2</u>");
+
+		// highlight
+		text = text.replaceAll("\\{==(.*)==}", "<span class='highlight'>$1</span>");
+
+		String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
+
+		// emphasize and link mentions
+		String mentionReplacement = String.format(" **<a href=\"%1s/user/$1\">@$1</a>**", canonicalUrl);
+		text = text.replaceAll("\\s@([A-Za-z0-9-_]+)", mentionReplacement);
+
+		// link ticket refs
+		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)$3", canonicalUrl, repositoryName);
+		text = text.replaceAll("([\\s,]+)#(\\d+)([\\s,:\\.\\n])", ticketReplacement);
+
+		// link commit shas
+		int shaLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
+		String commitPattern = MessageFormat.format("\\s([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
+		String commitReplacement = String.format(" <a class='commit' href='%1$s/commit?r=%2$s&h=$1$2'>$1</a>", canonicalUrl, repositoryName);
+		text = text.replaceAll(commitPattern, commitReplacement);
+
+		String html = transformMarkdown(text);
+		return html;
 	}
 }

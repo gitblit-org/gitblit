@@ -38,9 +38,46 @@ a.bugtraq {
     font-weight: bold;
 }
 
+.lwbadge {
+	color: #888;
+	font-size: 11px;
+	background-color: #e8e8e8;
+	padding: 1px 7px 2px;
+	-webkit-border-radius: 9px;
+	-moz-border-radius: 9px;
+	border-radius: 9px;
+	line-height: 14px;	
+	white-space: nowrap;
+	vertical-align: baseline;
+}
+
 [class^="icon-"], [class*=" icon-"] i {
 	/* override for a links that look like bootstrap buttons */
 	vertical-align: text-bottom;
+}
+
+.pagination-small, .pagination-small ul {
+	margin: 0px !important;	
+}
+
+.pagination-small ul {
+	border-right: 1px solid #ddd;
+}
+
+.pagination-small ul > li > a,
+.pagination-small ul > li > span {
+  padding: 2px 8px;
+  font-size: 13px;
+  line-height: 22px;
+  border: 1px solid #ddd;
+  border-right: 0px;
+  border-radius: 0px !important;
+  float: left;
+}
+
+.btn.disabled em, .pagination-small ul > li > span em {
+	font-style: normal;
+	color: #444;
 }
 
 hr {
@@ -137,7 +174,8 @@ navbar div>ul .menu-dropdown li a:hover,.nav .menu-dropdown li a:hover,.navbar d
 	color: #ffffff !important;
 }
 
-.nav-pills > .active > a, .nav-pills > .active > a:hover {
+.nav-pills > .active > a, .nav-pills > .active > a:hover,
+.nav-list > .active > a, .nav-list > .active > a:hover {
     color: #fff;
     background-color: #002060;
 }
@@ -520,6 +558,60 @@ th {
 	text-align: left;	
 }
 
+table.tickets {
+	border-bottom: 1px solid #ccc;	
+}
+
+table.tickets td.indicators {
+	width: 75px;
+	text-align: right;
+	padding-right: 5px;
+	color: #888;
+}
+
+.ticketLabel,
+table.tickets .label {
+	color: white;
+	font-weight: normal;
+	margin: 0px 2px;
+}
+
+div.featureWelcome {
+	padding: 15px;
+	background-color: #fbfbfb;
+	border: 1px solid #ccc;
+	border-radius: 5px;	
+}
+
+div.featureWelcome div.icon {
+	color: #ccc;
+	font-size: 144px;
+}
+
+li.dynamicQuery {
+	padding: 3px 0px;
+	margin: 1px 0px;
+	border-radius: 4px;
+}
+
+li.dynamicQuery i {
+	color: rgba(255, 255, 255, 0.5);
+	padding-right: 5px;
+}
+
+li.dynamicQuery a.active {
+	color: white;
+}
+
+div.milestoneOverview {
+	color:#888;
+	border: 1px solid #ddd;
+	padding: 2px 5px;
+	text-align: center;
+	font-size: 11px;
+	background-color: #fbfbfb;
+}
+
 div.sourceview {
 	overflow: hidden;
 }
@@ -607,6 +699,7 @@ pre.prettyprint ol {
 	border: 1px solid #ccc;
 	color: #ccc;
 	font-weight:bold;
+	display: inline-block;
 }
 
 .diffstat-inline {
@@ -637,6 +730,197 @@ pre.prettyprint ol {
 
 .diffstat-delete {
 	color: #B9583B; 
+}
+.patch-group {
+	margin-bottom: 0px;
+	border: 1px solid #ccc;
+	background-color: #fbfbfb;
+}
+
+.patch-group .accordion-inner {
+	padding: 0px;
+}
+
+.ticket-meta-top {
+	padding: 0px 10px 10px 10px;
+}
+
+.ticket-meta-middle {
+	border: 1px solid #ccc;
+	padding: 10px;
+	background-color: #fbfbfb;
+}
+
+.ticket-meta-bottom {
+	border: 1px solid #ccc;
+	border-top: 0px;
+	padding: 10px;
+}
+
+.ticket-title {
+	font-size: 18px;
+}
+
+.ticket-number {
+	color: #ccc;
+	font-size: 18px;
+	font-weight: normal;
+}
+
+.ticket-list-icon {
+	padding: 8px 0px 8px 8px !important;
+	width: 24px;
+	font-size: 24px;
+	vertical-align: middle !important;
+	color: #888;
+}
+
+td.ticket-list-state {
+	vertical-align: middle;
+}
+
+.ticket-list-details {
+	font-size: 11px;
+	color: #888;
+}
+
+div.ticket-text {
+	max-width: 600px;
+}
+
+.indicator-large-dark {
+	font-size: 20px;
+	color: #888;
+}
+
+.indicator-large-light {
+	font-size: 20px;
+	color: #bbb;
+}
+
+.indicator-huge-light {
+	font-size: 48px;
+	color: #bbb;
+}
+
+.attribution-emphasize {
+	font-weight: bold;
+}
+
+.attribution-text {
+	color: #888;
+}
+
+.attribution-border {	
+}
+
+.attribution-header {
+	background-color: #fbfbfb;
+	padding: 8px;
+	border: 1px solid #ccc;
+}
+
+.attribution-header-pullright {
+	float: right;
+	text-align: right;
+	padding-right: 1px;
+}
+
+.attribution-patch-pullright {
+	float: right;
+	text-align: right;
+	margin: 5px 10px;
+}
+
+.attribution-date {
+	color: #999;
+	font-size: smaller;
+}
+
+.attribution-link {
+	color: #999;
+	padding-left: 5px;
+}
+
+.attribution-pullright {
+	float: right;
+	text-align: right;
+	padding-right: 8px;
+}
+
+.attribution-triangle {
+	position: absolute;
+	margin-left: -23px;
+	margin-top: 11px;
+	height: 0px;
+	width: 0px;
+	border-image: none;
+	border: 10px solid transparent;
+	border-right: 13px solid #ddd;
+}
+
+.attribution-comment {
+	padding: 10px 10px 0px 10px;
+	border: 1px solid #ccc;
+	border-top: 0px;
+}
+
+.ticket-simple-event {
+	padding: 5px 0px;
+}
+
+.status-display {
+	text-align: center;
+	font-weight: bold;	
+}
+
+.status-change {
+	font-size: 1.0em;
+	text-shadow: none;
+	padding: 5px 10px !important;
+	font-weight: bold;
+	display: inline-block;
+	text-align: center;
+	width: 50px;
+	margin-right: 5px !important;
+}
+
+.submit-info {
+	margin-bottom: 0px;
+	border-radius: 0px;
+	border-bottom: 1px solid #ccc;
+}
+
+.merge-panel {
+	padding: 5px 7px;	
+	background-color: #fbfbfb;
+	border: 1px solid rgba(70, 136, 71, 0.5);
+	color: #444
+}
+
+.merge-panel p.step {
+	margin: 10px 0px 5px;
+}
+
+.gitcommand {
+	margin-top: 5px;
+	border: 1px solid #ccc;
+	background-color: #333 !important;
+	color: #ccc;
+	border-radius: 3px;
+	padding: 5px;
+	margin-bottom: 5px;
+	text-shadow: none;
+}
+
+a.commit {
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	background-color: #fbfbfb;
+	padding: 2px 4px;	
+	line-heihgt:99%;
+	font-size: 11px;
+	text-transform: lowercase;
 }
 
 h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
@@ -715,6 +999,12 @@ span.empty {
 	color: #008000;
 }
 
+span.highlight {
+	background-color: rgb(255, 255, 100);
+	color: black;
+	padding: 0px 2px;
+}
+
 span.link {
 	color: #888;
 }
@@ -763,9 +1053,15 @@ img.overview {
 
 img.gravatar {
     background-color: #ffffff;
-    border: 1px solid #ddd;
+    /*border: 1px solid #ddd;*/
     border-radius: 5px;
     padding: 2px;
+}
+
+img.gravatar-round {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 100%;    
 }
 
 img.navbarGravatar {
@@ -1650,4 +1946,106 @@ div.markdown table.text th, div.markdown table.text td {
 	vertical-align: top;
 	border-top: 1px solid #ccc;
 	padding:5px;
+}
+
+.resolution {
+	text-transform: uppercase;
+	font-weight: bold !important;
+	font-size: 11px;
+}
+.resolution-success, .resolution-success a {
+	color: #14892c !important;
+}
+.resolution-success a:hover {
+	color: white !important;
+}
+.resolution-error, .resolution-error a {
+	color: #d04437 !important;
+}
+.resolution-error a:hover {
+	color: white !important;
+}
+.resolution-complete, .resolution-complete a {
+	color: #4a6785 !important
+}
+.resolution-complete a:hover {
+	color: white !important;
+}
+.resolution-current, .resolution-current a {
+	color: #594300 !important;
+}
+.resolution-current, .resolution-current a:hover {
+	color: white;
+}
+
+/*! AUI Lozenge */
+.aui-lozenge {
+    background: #ccc;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    color: #333;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 99%; /* cross-browser compromise to make the line-height match the font-size */
+    margin: 0;
+    padding: 2px 5px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+.aui-lozenge.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}
+.aui-lozenge-success {
+    background-color: #14892c;
+    border-color: #14892c;
+    color: #fff;
+}
+.aui-lozenge-success.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #b2d8b9;
+    color: #14892c;
+}
+.aui-lozenge-error {
+    background-color: #d04437;
+    border-color: #d04437;
+    color: #fff;
+}
+.aui-lozenge-error.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #f8d3d1;
+    color: #d04437;
+}
+.aui-lozenge-current {
+    background-color: #ffd351;
+    border-color: #ffd351;
+    color: #594300;
+}
+.aui-lozenge-current.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ffe28c;
+    color: #594300;
+}
+.aui-lozenge-complete {
+    background-color: #4a6785;
+    border-color: #4a6785;
+    color: #fff;
+}
+.aui-lozenge-complete.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #e4e8ed;
+    color: #4a6785;
+}
+.aui-lozenge-moved {
+    background-color: #815b3a;
+    border-color: #815b3a;
+    color: #fff;
+}
+.aui-lozenge-moved.aui-lozenge-subtle {
+    background-color: #fff;
+    border-color: #ece7e2;
+    color: #815b3a;
 }

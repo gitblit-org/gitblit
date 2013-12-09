@@ -182,7 +182,7 @@ public class RefLogEntry implements Serializable, Comparable<RefLogEntry> {
 	 * Adds a a list of repository commits.  This is used to construct discrete
 	 * ref push log entries
 	 *
-	 * @param commits
+	 * @param tc
 	 */
 	public void addCommits(List<RepositoryCommit> list) {
 		commits.addAll(list);
