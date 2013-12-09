@@ -64,6 +64,7 @@ r20: {
 	- replaced MarkdownPapers with pegdown 1.4.2
 	- added Dagger 1.1.0
 	- added Eclipse WikiText libraries for processing confluence, mediawiki, textile, tracwiki, and twiki
+	- added FontAwesome 4.0.3
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }
     - { name: 'git.allowAnonymousPushes', defaultValue: 'false' }
