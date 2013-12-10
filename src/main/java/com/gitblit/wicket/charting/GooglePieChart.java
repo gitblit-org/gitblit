@@ -65,7 +65,7 @@ public class GooglePieChart extends GoogleChart {
 			if (i < values.size() - 1) {
 				colors.append(',');
 			}
-			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, ''{2}'');", dName, i,
+			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 0, \"{2}\");", dName, i,
 					value.name));
 			line(sb, MessageFormat.format("{0}.setValue({1,number,0}, 1, {2,number,0.0});", dName,
 					i, value.value));
