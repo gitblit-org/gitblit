@@ -161,22 +161,22 @@ public abstract class AuthenticationProvider {
 
 		@Override
 		public boolean supportsCredentialChanges() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean supportsDisplayNameChanges() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean supportsEmailAddressChanges() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean supportsTeamMembershipChanges() {
-			return false;
+			return true;
 		}
     }
 }
