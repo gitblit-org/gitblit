@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Keys;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IRuntimeManager;
 
 /**
@@ -39,7 +36,6 @@ import com.gitblit.manager.IRuntimeManager;
  * @author James Moger
  *
  */
-@Singleton
 public class LogoServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -48,7 +44,6 @@ public class LogoServlet extends HttpServlet {
 
 	private final IRuntimeManager runtimeManager;
 
-	@Inject
 	public LogoServlet(IRuntimeManager runtimeManager) {
 		super();
 		this.runtimeManager = runtimeManager;

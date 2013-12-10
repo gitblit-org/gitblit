@@ -17,17 +17,17 @@ package com.gitblit.wicket;
 
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.protocol.http.IWebApplicationFactory;
+import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.util.string.Strings;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.dagger.DaggerWicketFilter;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -44,8 +44,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-@Singleton
-public class GitblitWicketFilter extends DaggerWicketFilter {
+public class GitblitWicketFilter extends WicketFilter {
 
 	private final IStoredSettings settings;
 
@@ -55,17 +54,26 @@ public class GitblitWicketFilter extends DaggerWicketFilter {
 
 	private final IProjectManager projectManager;
 
-	@Inject
-	public GitblitWicketFilter(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager) {
+	private final GitBlitWebApp webapp;
+
+	public GitblitWicketFilter(GitBlitWebApp webapp) {
 
 		super();
-		this.settings = runtimeManager.getSettings();
-		this.runtimeManager = runtimeManager;
-		this.repositoryManager = repositoryManager;
-		this.projectManager = projectManager;
+		this.settings = webapp.settings();
+		this.runtimeManager = webapp.runtime();
+		this.repositoryManager = webapp.repositories();
+		this.projectManager = webapp.projects();
+		this.webapp = webapp;
+	}
+
+	@Override
+	protected IWebApplicationFactory getApplicationFactory() {
+		return new IWebApplicationFactory() {
+			@Override
+			public WebApplication createApplication(WicketFilter filter) {
+				return webapp;
+			}
+		};
 	}
 
 	/**

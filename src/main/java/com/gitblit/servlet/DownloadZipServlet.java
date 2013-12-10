@@ -20,8 +20,6 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.CompressionUtils;
@@ -49,7 +46,6 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-@Singleton
 public class DownloadZipServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -79,7 +75,6 @@ public class DownloadZipServlet extends HttpServlet {
 		}
 	}
 
-	@Inject
 	public DownloadZipServlet(
 			IRuntimeManager runtimeManager,
 			IRepositoryManager repositoryManager) {

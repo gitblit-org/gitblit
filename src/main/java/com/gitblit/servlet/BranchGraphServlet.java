@@ -36,8 +36,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -55,7 +53,6 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.JGitUtils;
@@ -67,7 +64,6 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-@Singleton
 public class BranchGraphServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -85,7 +81,6 @@ public class BranchGraphServlet extends HttpServlet {
 
 	private final IRepositoryManager repositoryManager;
 
-	@Inject
 	public BranchGraphServlet(
 			IRuntimeManager runtimeManager,
 			IRepositoryManager repositoryManager) {

@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.FederationRequest;
@@ -52,7 +50,6 @@ import com.gitblit.utils.TimeUtils;
  * @author James Moger
  *
  */
-@Singleton
 public class FederationServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -65,7 +62,6 @@ public class FederationServlet extends JsonServlet {
 
 	private final IFederationManager federationManager;
 
-	@Inject
 	public FederationServlet(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager,

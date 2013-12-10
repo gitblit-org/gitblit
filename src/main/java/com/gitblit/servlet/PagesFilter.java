@@ -15,15 +15,12 @@
  */
 package com.gitblit.servlet;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.eclipse.jgit.lib.Repository;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -34,10 +31,8 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-@Singleton
 public class PagesFilter extends AccessRestrictionFilter {
 
-	@Inject
 	public PagesFilter(IRuntimeManager runtimeManager,
 			IAuthenticationManager authenticationManager,
 			IRepositoryManager repositoryManager) {

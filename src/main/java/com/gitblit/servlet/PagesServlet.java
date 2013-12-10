@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.web;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
@@ -59,7 +57,6 @@ import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
  * @author James Moger
  *
  */
-@Singleton
 public class PagesServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -70,7 +67,6 @@ public class PagesServlet extends HttpServlet {
 
 	private final IRepositoryManager repositoryManager;
 
-	@Inject
 	public PagesServlet(
 			IRuntimeManager runtimeManager,
 			IRepositoryManager repositoryManager) {

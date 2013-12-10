@@ -18,8 +18,6 @@ package com.gitblit.servlet;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -30,8 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -47,14 +45,12 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-@Singleton
 public class RpcFilter extends AuthenticationFilter {
 
 	private final IStoredSettings settings;
 
 	private final IRuntimeManager runtimeManager;
 
-	@Inject
 	public RpcFilter(
 			IRuntimeManager runtimeManager,
 			IAuthenticationManager authenticationManager) {

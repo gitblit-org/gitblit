@@ -17,8 +17,6 @@ package com.gitblit;
 
 import javax.inject.Singleton;
 
-import org.apache.wicket.protocol.http.WebApplication;
-
 import com.gitblit.git.GitServlet;
 import com.gitblit.manager.AuthenticationManager;
 import com.gitblit.manager.FederationManager;
@@ -176,7 +174,7 @@ public class DaggerModule {
 				federationManager);
 	}
 
-	@Provides @Singleton WebApplication provideWebApplication(
+	@Provides @Singleton GitBlitWebApp provideWebApplication(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
@@ -195,5 +193,147 @@ public class DaggerModule {
 				projectManager,
 				federationManager,
 				gitblit);
+	}
+
+	@Provides @Singleton GitblitWicketFilter provideGitblitWicketFilter(GitBlitWebApp webapp) {
+		return new GitblitWicketFilter(webapp);
+	}
+
+	@Provides GitServlet provideGitServlet(IGitblit gitblit) {
+		return new GitServlet(gitblit);
+	}
+
+	@Provides GitFilter provideGitFilter(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager) {
+
+		return new GitFilter(
+				runtimeManager,
+				userManager,
+				authenticationManager,
+				repositoryManager,
+				federationManager);
+	}
+
+	@Provides @Singleton PagesServlet providePagesServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		return new PagesServlet(runtimeManager, repositoryManager);
+	}
+
+	@Provides @Singleton PagesFilter providePagesFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		return new PagesFilter(
+				runtimeManager,
+				authenticationManager,
+				repositoryManager);
+	}
+
+	@Provides @Singleton RpcServlet provideRpcServlet(IGitblit gitblit) {
+		return new RpcServlet(gitblit);
+	}
+
+	@Provides @Singleton RpcFilter provideRpcFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager) {
+
+		return new RpcFilter(runtimeManager, authenticationManager);
+	}
+
+	@Provides @Singleton DownloadZipServlet provideDownloadZipServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		return new DownloadZipServlet(runtimeManager, repositoryManager);
+	}
+
+	@Provides @Singleton DownloadZipFilter provideDownloadZipFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		return new DownloadZipFilter(
+				runtimeManager,
+				authenticationManager,
+				repositoryManager);
+	}
+
+	@Provides @Singleton SyndicationServlet provideSyndicationServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		return new SyndicationServlet(
+				runtimeManager,
+				repositoryManager,
+				projectManager);
+	}
+
+	@Provides @Singleton SyndicationFilter provideSyndicationFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager,
+			IProjectManager projectManager) {
+
+		return new SyndicationFilter(
+				runtimeManager,
+				authenticationManager,
+				repositoryManager,
+				projectManager);
+	}
+
+	@Provides @Singleton FederationServlet provideFederationServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IRepositoryManager repositoryManager,
+			IFederationManager federationManager) {
+
+		return new FederationServlet(
+				runtimeManager,
+				userManager,
+				repositoryManager,
+				federationManager);
+	}
+
+	@Provides @Singleton SparkleShareInviteServlet provideSparkleshareInviteServlet(
+			IRuntimeManager runtimeManager,
+			IUserManager userManager,
+			IAuthenticationManager authenticationManager,
+			IRepositoryManager repositoryManager) {
+
+		return new SparkleShareInviteServlet(
+				runtimeManager,
+				userManager,
+				authenticationManager,
+				repositoryManager);
+	}
+
+	@Provides @Singleton BranchGraphServlet provideBranchGraphServlet(
+			IRuntimeManager runtimeManager,
+			IRepositoryManager repositoryManager) {
+
+		return new BranchGraphServlet(runtimeManager, repositoryManager);
+	}
+
+	@Provides @Singleton RobotsTxtServlet provideRobotsTxtServlet(IRuntimeManager runtimeManager) {
+		return new RobotsTxtServlet(runtimeManager);
+	}
+
+	@Provides @Singleton LogoServlet provideLogoServlet(IRuntimeManager runtimeManager) {
+		return new LogoServlet(runtimeManager);
+	}
+
+	@Provides @Singleton EnforceAuthenticationFilter provideEnforceAuthenticationFilter(
+			IRuntimeManager runtimeManager,
+			IAuthenticationManager authenticationManager) {
+
+		return new EnforceAuthenticationFilter(runtimeManager, authenticationManager);
 	}
 }

@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.http.HttpServlet;
 
 import org.eclipse.jgit.lib.ObjectId;
@@ -58,7 +56,6 @@ import com.gitblit.utils.SyndicationUtils;
  * @author James Moger
  *
  */
-@Singleton
 public class SyndicationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
@@ -71,7 +68,6 @@ public class SyndicationServlet extends HttpServlet {
 
 	private final IProjectManager projectManager;
 
-	@Inject
 	public SyndicationServlet(
 			IRuntimeManager runtimeManager,
 			IRepositoryManager repositoryManager,

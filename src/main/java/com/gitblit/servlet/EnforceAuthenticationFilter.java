@@ -18,8 +18,6 @@
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -34,9 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.Keys.web;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IAuthenticationManager;
+import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
 
 /**
@@ -47,7 +44,6 @@ import com.gitblit.models.UserModel;
  * @author Laurens Vrijnsen
  *
  */
-@Singleton
 public class EnforceAuthenticationFilter implements Filter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -56,7 +52,6 @@ public class EnforceAuthenticationFilter implements Filter {
 
 	private final IAuthenticationManager authenticationManager;
 
-	@Inject
 	public EnforceAuthenticationFilter(
 			IRuntimeManager runtimeManager,
 			IAuthenticationManager authenticationManager) {

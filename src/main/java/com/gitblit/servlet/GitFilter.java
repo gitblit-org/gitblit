@@ -17,7 +17,6 @@ package com.gitblit.servlet;
 
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import com.gitblit.Constants.AccessRestrictionType;
@@ -57,7 +56,6 @@ public class GitFilter extends AccessRestrictionFilter {
 
 	private final IFederationManager federationManager;
 
-	@Inject
 	public GitFilter(
 			IRuntimeManager runtimeManager,
 			IUserManager userManager,

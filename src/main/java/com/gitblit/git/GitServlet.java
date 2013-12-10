@@ -15,7 +15,6 @@
  */
 package com.gitblit.git;
 
-import javax.inject.Inject;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +34,6 @@ public class GitServlet extends org.eclipse.jgit.http.server.GitServlet {
 
 	private final IGitblit gitblit;
 
-	@Inject
 	public GitServlet(IGitblit gitblit) {
 		super();
 		this.gitblit = gitblit;

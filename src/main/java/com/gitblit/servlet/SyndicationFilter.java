@@ -18,8 +18,6 @@ package com.gitblit.servlet;
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -28,10 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants.AccessRestrictionType;
+import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
@@ -44,14 +42,12 @@ import com.gitblit.models.UserModel;
  * @author James Moger
  *
  */
-@Singleton
 public class SyndicationFilter extends AuthenticationFilter {
 
 	private final IRuntimeManager runtimeManager;
 	private final IRepositoryManager repositoryManager;
 	private final IProjectManager projectManager;
 
-	@Inject
 	public SyndicationFilter(
 			IRuntimeManager runtimeManager,
 			IAuthenticationManager authenticationManager,
