@@ -162,15 +162,20 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			String bindUserName = settings.getString(Keys.realm.ldap.username, "");
 			String bindPassword = settings.getString(Keys.realm.ldap.password, "");
 
-
 			LDAPConnection conn;
 			if (ldapUrl.getScheme().equalsIgnoreCase("ldaps")) {
 				// SSL
 				SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
 				conn = new LDAPConnection(sslUtil.createSSLSocketFactory());
+				if (ldapPort == -1) {
+					ldapPort = 636;
+				}
 			} else if (ldapUrl.getScheme().equalsIgnoreCase("ldap") || ldapUrl.getScheme().equalsIgnoreCase("ldap+tls")) {
 				// no encryption or StartTLS
 				conn = new LDAPConnection();
+				 if (ldapPort == -1) {
+					 ldapPort = 389;
+				 }
 			} else {
 				logger.error("Unsupported LDAP URL scheme: " + ldapUrl.getScheme());
 				return null;
@@ -187,7 +192,11 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 			}
 
-			if (!StringUtils.isEmpty(bindUserName) || !StringUtils.isEmpty(bindPassword)) {
+			if (StringUtils.isEmpty(bindUserName) && StringUtils.isEmpty(bindPassword)) {
+				// anonymous bind
+				conn.bind(new SimpleBindRequest());
+			} else {
+				// authenticated bind
 				conn.bind(new SimpleBindRequest(bindUserName, bindPassword));
 			}
 
