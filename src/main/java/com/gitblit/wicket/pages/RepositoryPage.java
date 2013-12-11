@@ -252,7 +252,6 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		add(new LinkPanel("repositoryName", null, name, SummaryPage.class,
 				WicketUtils.newRepositoryParameter(repositoryName)));
-		add(new Label("pageName", pageName).setRenderBodyOnly(true));
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		if (user == null) {
