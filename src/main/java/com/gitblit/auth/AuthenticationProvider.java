@@ -26,6 +26,8 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.ArrayUtils;
+import com.gitblit.utils.StringUtils;
 
 public abstract class AuthenticationProvider {
 
@@ -66,6 +68,13 @@ public abstract class AuthenticationProvider {
 
 	public String getServiceName() {
 		return serviceName;
+	}
+
+	protected void setCookie(UserModel user, char [] password) {
+		// create a user cookie
+		if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
+			user.cookie = StringUtils.getSHA1(user.username + new String(password));
+		}
 	}
 
 	protected void updateUser(UserModel userModel) {

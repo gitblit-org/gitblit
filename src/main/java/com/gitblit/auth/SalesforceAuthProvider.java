@@ -5,8 +5,6 @@ import com.gitblit.Constants.AccountType;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.StringUtils;
 import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.GetUserInfoResult;
 import com.sforce.soap.partner.PartnerConnection;
@@ -62,15 +60,11 @@ public class SalesforceAuthProvider extends UsernamePasswordAuthenticationProvid
 			UserModel user = null;
 			synchronized (this) {
 				user = userManager.getUserModel(simpleUsername);
-				if (user == null)
+				if (user == null) {
 					user = new UserModel(simpleUsername);
-
-				if (StringUtils.isEmpty(user.cookie)
-						&& !ArrayUtils.isEmpty(password)) {
-					user.cookie = StringUtils.getSHA1(user.username
-							+ new String(password));
 				}
 
+				setCookie(user, password);
 				setUserAttributes(user, info);
 
 				updateUser(user);

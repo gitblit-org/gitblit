@@ -295,9 +295,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							}
 
 							// create a user cookie
-							if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-								user.cookie = StringUtils.getSHA1(user.username + new String(password));
-							}
+							setCookie(user, password);
 
 							if (!supportsTeamMembershipChanges()) {
 								getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);

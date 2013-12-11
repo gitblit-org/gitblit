@@ -26,7 +26,6 @@ import com.gitblit.Constants.AccountType;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ConnectionUtils;
 import com.gitblit.utils.StringUtils;
 import com.google.gson.Gson;
@@ -122,13 +121,13 @@ public class RedmineAuthProvider extends UsernamePasswordAuthenticationProvider 
         }
 
         UserModel user = userManager.getUserModel(username);
-        if (user == null)	// create user object for new authenticated user
+        if (user == null) {
+        	// create user object for new authenticated user
         	user = new UserModel(username.toLowerCase());
+        }
 
         // create a user cookie
-        if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-        	user.cookie = StringUtils.getSHA1(user.username + new String(password));
-        }
+        setCookie(user, password);
 
         // update user attributes from Redmine
         user.accountType = getAccountType();

@@ -35,8 +35,6 @@ import com.gitblit.Constants.AccountType;
 import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.UserModel;
-import com.gitblit.utils.ArrayUtils;
-import com.gitblit.utils.StringUtils;
 
 
 /**
@@ -186,9 +184,7 @@ public class HtpasswdAuthProvider extends UsernamePasswordAuthenticationProvider
                 }
 
                 // create a user cookie
-                if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
-                    user.cookie = StringUtils.getSHA1(user.username + passwd);
-                }
+                setCookie(user, password);
 
                 // Set user attributes, hide password from backing user service.
                 user.password = Constants.EXTERNAL_ACCOUNT;
