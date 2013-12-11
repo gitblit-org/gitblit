@@ -34,7 +34,6 @@ import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.Constants.Unused;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.ModelUtils;
 import com.gitblit.utils.StringUtils;
@@ -98,57 +97,6 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 		return !Constants.EXTERNAL_ACCOUNT.equals(password)
 				|| accountType == null
 				|| accountType.isLocal();
-	}
-
-	/**
-	 * This method does not take into consideration Ownership where the
-	 * administrator has not explicitly granted access to the owner.
-	 *
-	 * @param repositoryName
-	 * @return
-	 */
-	@Deprecated
-	public boolean canAccessRepository(String repositoryName) {
-		return canAdmin() || repositories.contains(repositoryName.toLowerCase())
-				|| hasTeamAccess(repositoryName);
-	}
-
-	@Deprecated
-	@Unused
-	public boolean canAccessRepository(RepositoryModel repository) {
-		boolean isOwner = repository.isOwner(username);
-		boolean allowAuthenticated = isAuthenticated && AuthorizationControl.AUTHENTICATED.equals(repository.authorizationControl);
-		return canAdmin() || isOwner || repositories.contains(repository.name.toLowerCase())
-				|| hasTeamAccess(repository.name) || allowAuthenticated;
-	}
-
-	@Deprecated
-	@Unused
-	public boolean hasTeamAccess(String repositoryName) {
-		for (TeamModel team : teams) {
-			if (team.hasRepositoryPermission(repositoryName)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Deprecated
-	@Unused
-	public boolean hasRepository(String name) {
-		return hasRepositoryPermission(name);
-	}
-
-	@Deprecated
-	@Unused
-	public void addRepository(String name) {
-		addRepositoryPermission(name);
-	}
-
-	@Deprecated
-	@Unused
-	public void removeRepository(String name) {
-		removeRepositoryPermission(name);
 	}
 
 	/**
@@ -666,12 +614,6 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 			emailVerified = email.equalsIgnoreCase(emailAddress);
 		}
 		return nameVerified && emailVerified;
-	}
-
-	@Deprecated
-	public boolean hasBranchPermission(String repositoryName, String branch) {
-		// Default UserModel doesn't implement branch-level security. Other Realms (i.e. Gerrit) may override this method.
-		return hasRepositoryPermission(repositoryName) || hasTeamRepositoryPermission(repositoryName);
 	}
 
 	public boolean isMyPersonalRepository(String repository) {

@@ -184,7 +184,7 @@ public abstract class AuthenticationFilter implements Filter {
 			// Gitblit does not currently use actual roles in the traditional
 			// servlet container sense.  That is the reason this is marked
 			// deprecated, but I may want to revisit this.
-			return user.canAccessRepository(role);
+			return user.hasRepositoryPermission(role);
 		}
 
 		@Override

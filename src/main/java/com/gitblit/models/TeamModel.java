@@ -30,7 +30,6 @@ import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AccountType;
 import com.gitblit.Constants.PermissionType;
 import com.gitblit.Constants.RegistrantType;
-import com.gitblit.Constants.Unused;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -63,36 +62,6 @@ public class TeamModel implements Serializable, Comparable<TeamModel> {
 		this.name = name;
 		this.accountType = AccountType.LOCAL;
 	}
-
-	/**
-	 * @use hasRepositoryPermission
-	 * @param name
-	 * @return
-	 */
-	@Deprecated
-	@Unused
-	public boolean hasRepository(String name) {
-		return hasRepositoryPermission(name);
-	}
-
-	@Deprecated
-	@Unused
-	public void addRepository(String name) {
-		addRepositoryPermission(name);
-	}
-
-	@Deprecated
-	@Unused
-	public void addRepositories(Collection<String> names) {
-		addRepositoryPermissions(names);
-	}
-
-	@Deprecated
-	@Unused
-	public void removeRepository(String name) {
-		removeRepositoryPermission(name);
-	}
-
 
 	/**
 	 * Returns a list of repository permissions for this team.
