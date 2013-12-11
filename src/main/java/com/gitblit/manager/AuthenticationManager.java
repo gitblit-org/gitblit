@@ -323,9 +323,10 @@ public class AuthenticationManager implements IAuthenticationManager {
 			return null;
 		}
 
-		// try local authentication
 		UserModel user = userManager.getUserModel(usernameDecoded);
-		if (user != null) {
+
+		// try local authentication
+		if (user != null && user.isLocalAccount()) {
 			UserModel returnedUser = null;
 			if (user.password.startsWith(StringUtils.MD5_TYPE)) {
 				// password digest

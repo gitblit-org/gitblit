@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Constants.AccessRestrictionType;
 import com.gitblit.Constants.AccountType;
@@ -94,7 +95,7 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean isLocalAccount() {
-		return accountType.isLocal();
+		return !Constants.EXTERNAL_ACCOUNT.equals(password) || accountType.isLocal();
 	}
 
 	/**

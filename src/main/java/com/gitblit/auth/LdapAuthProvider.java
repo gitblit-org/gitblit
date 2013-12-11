@@ -289,16 +289,19 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 						UserModel user = null;
 						synchronized (this) {
 							user = userManager.getUserModel(simpleUsername);
-							if (user == null)	// create user object for new authenticated user
+							if (user == null) {
+								// create user object for new authenticated user
 								user = new UserModel(simpleUsername);
+							}
 
 							// create a user cookie
 							if (StringUtils.isEmpty(user.cookie) && !ArrayUtils.isEmpty(password)) {
 								user.cookie = StringUtils.getSHA1(user.username + new String(password));
 							}
 
-							if (!supportsTeamMembershipChanges())
+							if (!supportsTeamMembershipChanges()) {
 								getTeamsFromLdap(ldapConnection, simpleUsername, loggingInUser, user);
+							}
 
 							// Get User Attributes
 							setUserAttributes(user, loggingInUser);
@@ -307,8 +310,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 							updateUser(user);
 
 							if (!supportsTeamMembershipChanges()) {
-								for (TeamModel userTeam : user.teams)
+								for (TeamModel userTeam : user.teams) {
 									updateTeam(userTeam);
+								}
 							}
 						}
 
@@ -337,12 +341,13 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 			if (!ArrayUtils.isEmpty(admins)) {
 				user.canAdmin = false;
 				for (String admin : admins) {
-					if (admin.startsWith("@")) { // Team
-						if (user.getTeam(admin.substring(1)) != null)
-							user.canAdmin = true;
-					} else
-						if (user.getName().equalsIgnoreCase(admin))
-							user.canAdmin = true;
+					if (admin.startsWith("@") && user.isTeamMember(admin.substring(1))) {
+						// admin team
+						user.canAdmin = true;
+					} else if (user.getName().equalsIgnoreCase(admin)) {
+						// admin user
+						user.canAdmin = true;
+					}
 				}
 			}
 		}
@@ -361,9 +366,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		if (!StringUtils.isEmpty(displayName)) {
 			// Replace embedded ${} with attributes
 			if (displayName.contains("${")) {
-				for (Attribute userAttribute : userEntry.getAttributes())
+				for (Attribute userAttribute : userEntry.getAttributes()) {
 					displayName = StringUtils.replace(displayName, "${" + userAttribute.getName() + "}", userAttribute.getValue());
-
+				}
 				user.displayName = displayName;
 			} else {
 				Attribute attribute = userEntry.getAttribute(displayName);
@@ -377,9 +382,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		String email = settings.getString(Keys.realm.ldap.email, "");
 		if (!StringUtils.isEmpty(email)) {
 			if (email.contains("${")) {
-				for (Attribute userAttribute : userEntry.getAttributes())
+				for (Attribute userAttribute : userEntry.getAttributes()) {
 					email = StringUtils.replace(email, "${" + userAttribute.getName() + "}", userAttribute.getValue());
-
+				}
 				user.emailAddress = email;
 			} else {
 				Attribute attribute = userEntry.getAttribute(email);
@@ -393,7 +398,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	private void getTeamsFromLdap(LDAPConnection ldapConnection, String simpleUsername, SearchResultEntry loggingInUser, UserModel user) {
 		String loggingInUserDN = loggingInUser.getDN();
 
-		user.teams.clear();		// Clear the users team memberships - we're going to get them from LDAP
+		// Clear the users team memberships - we're going to get them from LDAP
+		user.teams.clear();
+
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupMemberPattern, "(&(objectClass=group)(member=${dn}))");
 
