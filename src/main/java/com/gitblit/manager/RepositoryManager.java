@@ -979,7 +979,7 @@ public class RepositoryManager implements IRepositoryManager {
 					settings.getStrings(Keys.git.searchExclusions));
 			for (String repository : repositories) {
 				RepositoryModel model = getRepositoryModel(userProject + "/" + repository);
-				if (model.originRepository.equalsIgnoreCase(origin)) {
+				if (model.originRepository != null && model.originRepository.equalsIgnoreCase(origin)) {
 					// user has a fork
 					return model.name;
 				}
