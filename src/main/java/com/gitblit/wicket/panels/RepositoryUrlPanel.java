@@ -162,7 +162,10 @@ public class RepositoryUrlPanel extends BasePanel {
 		}
 
 		// access restriction icon and tooltip
-		if (app().runtime().isServingRepositories()) {
+		if (repository.isMirror) {
+			urlPanel.add(WicketUtils.newImage("accessRestrictionIcon", "mirror_16x16.png",
+					getString("gb.isMirror")));
+		} else if (app().runtime().isServingRepositories()) {
 			switch (repository.accessRestriction) {
 			case NONE:
 				urlPanel.add(WicketUtils.newClearPixel("accessRestrictionIcon").setVisible(false));
