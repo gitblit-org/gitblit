@@ -859,7 +859,7 @@ public class ConfigUserService implements IUserService {
 					user.emailAddress = config.getString(USER, username, EMAILADDRESS);
 					user.accountType = AccountType.fromString(config.getString(USER, username, ACCOUNTTYPE));
 					if (Constants.EXTERNAL_ACCOUNT.equals(user.password) && user.accountType.isLocal()) {
-						user.accountType = null;
+						user.accountType = AccountType.EXTERNAL;
 					}
 					user.organizationalUnit = config.getString(USER, username, ORGANIZATIONALUNIT);
 					user.organization = config.getString(USER, username, ORGANIZATION);

@@ -95,7 +95,9 @@ public class UserModel implements Principal, Serializable, Comparable<UserModel>
 	}
 
 	public boolean isLocalAccount() {
-		return !Constants.EXTERNAL_ACCOUNT.equals(password) || accountType.isLocal();
+		return !Constants.EXTERNAL_ACCOUNT.equals(password)
+				|| accountType == null
+				|| accountType.isLocal();
 	}
 
 	/**
