@@ -62,6 +62,7 @@ r20: {
 	- updated to Lucene 4.6.0
 	- updated to BouncyCastle 1.49
 	- replaced MarkdownPapers with pegdown 1.4.2
+	- added Dagger 1.1.0
 	- added Eclipse WikiText libraries for processing confluence, mediawiki, textile, tracwiki, and twiki
     settings:
     - { name: 'git.createRepositoriesShared', defaultValue: 'false' }

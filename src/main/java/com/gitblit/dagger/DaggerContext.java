@@ -17,8 +17,10 @@ package com.gitblit.dagger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
-import com.gitblit.servlet.InjectionContextListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dagger.ObjectGraph;
 
@@ -29,9 +31,11 @@ import dagger.ObjectGraph;
  * @author James Moger
  *
  */
-public abstract class DaggerContextListener extends InjectionContextListener {
+public abstract class DaggerContext implements ServletContextListener {
 
-	protected static final String INJECTOR_NAME = ObjectGraph.class.getName();
+	public static final String INJECTOR_NAME = ObjectGraph.class.getName();
+
+	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected abstract Object [] getModules();
 
@@ -52,23 +56,6 @@ public abstract class DaggerContextListener extends InjectionContextListener {
 			}
 		}
 		return (ObjectGraph) o;
-	}
-
-	/**
-	 * Instantiates an object.
-	 *
-	 * @param clazz
-	 * @return the object
-	 */
-	@Override
-	protected <X> X instantiate(ServletContext context, Class<X> clazz) {
-		try {
-			ObjectGraph injector = getInjector(context);
-			return injector.get(clazz);
-		} catch (Throwable t) {
-			logger.error(null, t);
-		}
-		return null;
 	}
 
 	@Override

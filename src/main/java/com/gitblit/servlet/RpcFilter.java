@@ -28,9 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 import com.gitblit.Constants.RpcRequest;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
+
+import dagger.ObjectGraph;
 
 /**
  * The RpcFilter is a servlet filter that secures the RpcServlet.
@@ -47,17 +48,15 @@ import com.gitblit.models.UserModel;
  */
 public class RpcFilter extends AuthenticationFilter {
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IRuntimeManager runtimeManager;
+	private IRuntimeManager runtimeManager;
 
-	public RpcFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager) {
-
-		super(authenticationManager);
-		this.settings = runtimeManager.getSettings();
-		this.runtimeManager = runtimeManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		super.inject(dagger);
+		this.settings = dagger.get(IStoredSettings.class);
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
 	}
 
 	/**

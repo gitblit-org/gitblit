@@ -19,20 +19,21 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+
+import dagger.ObjectGraph;
 
 /**
  * Handles requests for Sparkleshare Invites
@@ -40,29 +41,24 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class SparkleShareInviteServlet extends HttpServlet {
+public class SparkleShareInviteServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IUserManager userManager;
+	private IUserManager userManager;
 
-	private final IAuthenticationManager authenticationManager;
+	private IAuthenticationManager authenticationManager;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	public SparkleShareInviteServlet(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		super();
-		this.settings = runtimeManager.getSettings();
-		this.userManager = userManager;
-		this.authenticationManager = authenticationManager;
-		this.repositoryManager = repositoryManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.userManager = dagger.get(IUserManager.class);
+		this.authenticationManager = dagger.get(IAuthenticationManager.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
 	}
 
 	@Override

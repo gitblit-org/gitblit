@@ -28,6 +28,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerWicketFilter;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -35,6 +36,8 @@ import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
+
+import dagger.ObjectGraph;
 
 /**
  *
@@ -44,26 +47,25 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public class GitblitWicketFilter extends WicketFilter {
+public class GitblitWicketFilter extends DaggerWicketFilter {
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IRuntimeManager runtimeManager;
+	private IRuntimeManager runtimeManager;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	private final IProjectManager projectManager;
+	private IProjectManager projectManager;
 
-	private final GitBlitWebApp webapp;
+	private GitBlitWebApp webapp;
 
-	public GitblitWicketFilter(GitBlitWebApp webapp) {
-
-		super();
-		this.settings = webapp.settings();
-		this.runtimeManager = webapp.runtime();
-		this.repositoryManager = webapp.repositories();
-		this.projectManager = webapp.projects();
-		this.webapp = webapp;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
+		this.projectManager = dagger.get(IProjectManager.class);
+		this.webapp = dagger.get(GitBlitWebApp.class);
 	}
 
 	@Override

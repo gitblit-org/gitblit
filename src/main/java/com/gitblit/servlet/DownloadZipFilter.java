@@ -16,9 +16,6 @@
 package com.gitblit.servlet;
 
 import com.gitblit.Constants.AccessRestrictionType;
-import com.gitblit.manager.IAuthenticationManager;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 
@@ -31,14 +28,6 @@ import com.gitblit.models.UserModel;
  *
  */
 public class DownloadZipFilter extends AccessRestrictionFilter {
-
-	public DownloadZipFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager) {
-
-		super(runtimeManager, authenticationManager, repositoryManager);
-	}
 
 	/**
 	 * Extract the repository name from the url.

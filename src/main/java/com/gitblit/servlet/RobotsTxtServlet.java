@@ -19,13 +19,15 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.utils.FileUtils;
+
+import dagger.ObjectGraph;
 
 /**
  * Handles requests for robots.txt
@@ -33,15 +35,15 @@ import com.gitblit.utils.FileUtils;
  * @author James Moger
  *
  */
-public class RobotsTxtServlet extends HttpServlet {
+public class RobotsTxtServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final IRuntimeManager runtimeManager;
+	private IRuntimeManager runtimeManager;
 
-	public RobotsTxtServlet(IRuntimeManager runtimeManager) {
-		super();
-		this.runtimeManager = runtimeManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
 	}
 
 	@Override

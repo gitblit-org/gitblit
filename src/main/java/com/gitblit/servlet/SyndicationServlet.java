@@ -22,8 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServlet;
-
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -33,9 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IProjectManager;
 import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.FeedEntryModel;
 import com.gitblit.models.ProjectModel;
 import com.gitblit.models.RefModel;
@@ -48,6 +46,8 @@ import com.gitblit.utils.MessageProcessor;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.SyndicationUtils;
 
+import dagger.ObjectGraph;
+
 /**
  * SyndicationServlet generates RSS 2.0 feeds and feed links.
  *
@@ -56,27 +56,23 @@ import com.gitblit.utils.SyndicationUtils;
  * @author James Moger
  *
  */
-public class SyndicationServlet extends HttpServlet {
+public class SyndicationServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(SyndicationServlet.class);
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	private final IProjectManager projectManager;
+	private IProjectManager projectManager;
 
-	public SyndicationServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager,
-			IProjectManager projectManager) {
-
-		super();
-		this.settings = runtimeManager.getSettings();
-		this.repositoryManager = repositoryManager;
-		this.projectManager = projectManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
+		this.projectManager = dagger.get(IProjectManager.class);
 	}
 
 	/**

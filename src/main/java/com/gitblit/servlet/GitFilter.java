@@ -24,14 +24,12 @@ import com.gitblit.Constants.AuthorizationControl;
 import com.gitblit.GitBlitException;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IUserManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
+
+import dagger.ObjectGraph;
 
 /**
  * The GitFilter is an AccessRestrictionFilter which ensures that Git client
@@ -50,23 +48,15 @@ public class GitFilter extends AccessRestrictionFilter {
 	protected static final String[] suffixes = { gitReceivePack, gitUploadPack, "/info/refs", "/HEAD",
 			"/objects" };
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IUserManager userManager;
+	private IFederationManager federationManager;
 
-	private final IFederationManager federationManager;
-
-	public GitFilter(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IAuthenticationManager authenticationManager,
-			IRepositoryManager repositoryManager,
-			IFederationManager federationManager) {
-
-		super(runtimeManager, authenticationManager, repositoryManager);
-		this.settings = runtimeManager.getSettings();
-		this.userManager = userManager;
-		this.federationManager = federationManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		super.inject(dagger);
+		this.settings = dagger.get(IStoredSettings.class);
+		this.federationManager = dagger.get(IFederationManager.class);
 	}
 
 	/**

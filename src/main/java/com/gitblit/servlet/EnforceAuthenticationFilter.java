@@ -18,9 +18,7 @@
 import java.io.IOException;
 import java.text.MessageFormat;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -32,9 +30,11 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerFilter;
 import com.gitblit.manager.IAuthenticationManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.UserModel;
+
+import dagger.ObjectGraph;
 
 /**
  * This filter enforces authentication via HTTP Basic Authentication, if the settings indicate so.
@@ -44,28 +44,18 @@ import com.gitblit.models.UserModel;
  * @author Laurens Vrijnsen
  *
  */
-public class EnforceAuthenticationFilter implements Filter {
+public class EnforceAuthenticationFilter extends DaggerFilter {
 
 	protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IAuthenticationManager authenticationManager;
+	private IAuthenticationManager authenticationManager;
 
-	public EnforceAuthenticationFilter(
-			IRuntimeManager runtimeManager,
-			IAuthenticationManager authenticationManager) {
-
-		super();
-		this.settings = runtimeManager.getSettings();
-		this.authenticationManager = authenticationManager;
-	}
-
-	/*
-	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
-	 */
 	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.authenticationManager = dagger.get(IAuthenticationManager.class);
 	}
 
 	/*

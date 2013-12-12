@@ -32,7 +32,6 @@ import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.FederationModel;
 import com.gitblit.models.FederationProposal;
@@ -44,6 +43,8 @@ import com.gitblit.utils.HttpUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 
+import dagger.ObjectGraph;
+
 /**
  * Handles federation requests.
  *
@@ -54,25 +55,20 @@ public class FederationServlet extends JsonServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IUserManager userManager;
+	private IUserManager userManager;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	private final IFederationManager federationManager;
+	private IFederationManager federationManager;
 
-	public FederationServlet(
-			IRuntimeManager runtimeManager,
-			IUserManager userManager,
-			IRepositoryManager repositoryManager,
-			IFederationManager federationManager) {
-
-		super();
-		this.settings = runtimeManager.getSettings();
-		this.userManager = userManager;
-		this.repositoryManager = repositoryManager;
-		this.federationManager = federationManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.userManager = dagger.get(IUserManager.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
+		this.federationManager = dagger.get(IFederationManager.class);
 	}
 
 	/**

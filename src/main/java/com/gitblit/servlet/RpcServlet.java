@@ -47,6 +47,8 @@ import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.RpcUtils;
 import com.gitblit.utils.StringUtils;
 
+import dagger.ObjectGraph;
+
 /**
  * Handles remote procedure calls.
  *
@@ -59,16 +61,14 @@ public class RpcServlet extends JsonServlet {
 
 	public static final int PROTOCOL_VERSION = 6;
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IGitblit gitblit;
+	private IGitblit gitblit;
 
-	public RpcServlet(IGitblit gitblit) {
-
-		super();
-
-		this.settings = gitblit.getSettings();
-		this.gitblit = gitblit;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.gitblit = dagger.get(IGitblit.class);
 	}
 
 	/**

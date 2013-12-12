@@ -23,10 +23,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,8 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RefModel;
 import com.gitblit.utils.ArrayUtils;
@@ -51,29 +49,28 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.MarkupProcessor;
 import com.gitblit.wicket.MarkupProcessor.MarkupDocument;
 
+import dagger.ObjectGraph;
+
 /**
  * Serves the content of a gh-pages branch.
  *
  * @author James Moger
  *
  */
-public class PagesServlet extends HttpServlet {
+public class PagesServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private transient Logger logger = LoggerFactory.getLogger(PagesServlet.class);
 
-	private final IStoredSettings settings;
+	private IStoredSettings settings;
 
-	private final IRepositoryManager repositoryManager;
+	private IRepositoryManager repositoryManager;
 
-	public PagesServlet(
-			IRuntimeManager runtimeManager,
-			IRepositoryManager repositoryManager) {
-
-		super();
-		this.settings = runtimeManager.getSettings();
-		this.repositoryManager = repositoryManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.settings = dagger.get(IStoredSettings.class);
+		this.repositoryManager = dagger.get(IRepositoryManager.class);
 	}
 
 	/**

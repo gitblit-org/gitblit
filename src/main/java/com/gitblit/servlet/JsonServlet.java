@@ -21,7 +21,6 @@ import java.lang.reflect.Type;
 import java.text.MessageFormat;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -38,7 +38,7 @@ import com.gitblit.utils.StringUtils;
  * @author James Moger
  *
  */
-public abstract class JsonServlet extends HttpServlet {
+public abstract class JsonServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 

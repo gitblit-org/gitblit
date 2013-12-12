@@ -23,15 +23,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
-import javax.servlet.annotation.WebListener;
+import javax.servlet.ServletContextEvent;
 
 import com.gitblit.Constants;
 import com.gitblit.DaggerModule;
@@ -39,8 +37,7 @@ import com.gitblit.FileSettings;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
 import com.gitblit.WebXmlSettings;
-import com.gitblit.dagger.DaggerContextListener;
-import com.gitblit.git.GitServlet;
+import com.gitblit.dagger.DaggerContext;
 import com.gitblit.manager.IAuthenticationManager;
 import com.gitblit.manager.IFederationManager;
 import com.gitblit.manager.IGitblit;
@@ -52,25 +49,21 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.utils.ContainerUtils;
 import com.gitblit.utils.StringUtils;
-import com.gitblit.wicket.GitblitWicketFilter;
 
 import dagger.ObjectGraph;
 
 /**
  * This class is the main entry point for the entire webapp.  It is a singleton
  * created manually by Gitblit GO or dynamically by the WAR/Express servlet
- * container.  This class instantiates and starts all managers followed by
- * instantiating and registering all servlets and filters.
- *
- * Leveraging Servlet 3 and Dagger static dependency injection allows Gitblit to
- * be modular and completely code-driven rather then relying on the fragility of
- * a web.xml descriptor and the static & monolithic design previously used.
+ * container.  This class instantiates and starts all managers.  Servlets and
+ * filters are instantiated defined in web.xml and instantiated by the servlet
+ * container, but those servlets and filters use Dagger to manually inject their
+ * dependencies.
  *
  * @author James Moger
  *
  */
-@WebListener
-public class GitblitContext extends DaggerContextListener {
+public class GitblitContext extends DaggerContext {
 
 	private static GitblitContext gitblit;
 
@@ -126,10 +119,21 @@ public class GitblitContext extends DaggerContextListener {
 	}
 
 	/**
-	 * Prepare runtime settings and start all manager instances.
+	 * Configure Gitblit from the web.xml, if no configuration has already been
+	 * specified.
+	 *
+	 * @see ServletContextListener.contextInitialize(ServletContextEvent)
 	 */
 	@Override
-	protected void beforeServletInjection(ServletContext context) {
+	public final void contextInitialized(ServletContextEvent contextEvent) {
+		ServletContext context = contextEvent.getServletContext();
+		configureContext(context);
+	}
+
+	/**
+	 * Prepare runtime settings and start all manager instances.
+	 */
+	protected void configureContext(ServletContext context) {
 		ObjectGraph injector = getInjector(context);
 
 		// create the runtime settings object
@@ -191,38 +195,6 @@ public class GitblitContext extends DaggerContextListener {
 	protected void logManager(Class<? extends IManager> clazz) {
 		logger.info("");
 		logger.info("----[{}]----", clazz.getName());
-	}
-
-	/**
-	 * Instantiate and inject all filters and servlets into the container using
-	 * the servlet 3 specification.
-	 */
-	@Override
-	protected void injectServlets(ServletContext context) {
-		// access restricted servlets
-		serve(context, Constants.R_PATH, GitServlet.class, GitFilter.class);
-		serve(context, Constants.GIT_PATH, GitServlet.class, GitFilter.class);
-		serve(context, Constants.PAGES, PagesServlet.class, PagesFilter.class);
-		serve(context, Constants.RPC_PATH, RpcServlet.class, RpcFilter.class);
-		serve(context, Constants.ZIP_PATH, DownloadZipServlet.class, DownloadZipFilter.class);
-		serve(context, Constants.SYNDICATION_PATH, SyndicationServlet.class, SyndicationFilter.class);
-
-		// servlets
-		serve(context, Constants.FEDERATION_PATH, FederationServlet.class);
-		serve(context, Constants.SPARKLESHARE_INVITE_PATH, SparkleShareInviteServlet.class);
-		serve(context, Constants.BRANCH_GRAPH_PATH, BranchGraphServlet.class);
-		file(context, "/robots.txt", RobotsTxtServlet.class);
-		file(context, "/logo.png", LogoServlet.class);
-
-		// optional force basic authentication
-		filter(context, "/*", EnforceAuthenticationFilter.class, null);
-
-		// Wicket
-		String toIgnore = StringUtils.flattenStrings(getRegisteredPaths(), ",");
-		Map<String, String> params = new HashMap<String, String>();
-		params.put(GitblitWicketFilter.FILTER_MAPPING_PARAM, "/*");
-		params.put(GitblitWicketFilter.IGNORE_PATHS_PARAM, toIgnore);
-		filter(context, "/*", GitblitWicketFilter.class, params);
 	}
 
 	/**

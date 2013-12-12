@@ -23,12 +23,14 @@ import java.io.OutputStream;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.gitblit.Keys;
+import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRuntimeManager;
+
+import dagger.ObjectGraph;
 
 /**
  * Handles requests for logo.png
@@ -36,17 +38,17 @@ import com.gitblit.manager.IRuntimeManager;
  * @author James Moger
  *
  */
-public class LogoServlet extends HttpServlet {
+public class LogoServlet extends DaggerServlet {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final long lastModified = System.currentTimeMillis();
 
-	private final IRuntimeManager runtimeManager;
+	private IRuntimeManager runtimeManager;
 
-	public LogoServlet(IRuntimeManager runtimeManager) {
-		super();
-		this.runtimeManager = runtimeManager;
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
 	}
 
 	@Override
