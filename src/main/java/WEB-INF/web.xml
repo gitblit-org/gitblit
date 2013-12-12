@@ -203,6 +203,14 @@
 		<filter-name>GitFilter</filter-name>
 		<url-pattern>/git/*</url-pattern>
 	</filter-mapping>
+	<filter>
+		<filter-name>GitFilter2</filter-name>
+		<filter-class>com.gitblit.servlet.GitFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>GitFilter2</filter-name>
+		<url-pattern>/r/*</url-pattern>
+	</filter-mapping>
 	
 	
 	<!-- Syndication Restriction Filter
