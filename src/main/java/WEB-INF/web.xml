@@ -56,12 +56,8 @@
 		<servlet-name>GitServlet</servlet-name>		
 		<url-pattern>/git/*</url-pattern>
 	</servlet-mapping>
-	<servlet>
-		<servlet-name>GitServlet2</servlet-name>
-		<servlet-class>com.gitblit.servlet.GitServlet</servlet-class>
-	</servlet>
 	<servlet-mapping>
-		<servlet-name>GitServlet2</servlet-name>		
+		<servlet-name>GitServlet</servlet-name>		
 		<url-pattern>/r/*</url-pattern>
 	</servlet-mapping>
 
@@ -203,12 +199,8 @@
 		<filter-name>GitFilter</filter-name>
 		<url-pattern>/git/*</url-pattern>
 	</filter-mapping>
-	<filter>
-		<filter-name>GitFilter2</filter-name>
-		<filter-class>com.gitblit.servlet.GitFilter</filter-class>
-	</filter>
 	<filter-mapping>
-		<filter-name>GitFilter2</filter-name>
+		<filter-name>GitFilter</filter-name>
 		<url-pattern>/r/*</url-pattern>
 	</filter-mapping>
 	
