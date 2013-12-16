@@ -29,34 +29,42 @@
  */
 package com.syntevo.bugtraq;
 
-import junit.framework.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.*;
+import junit.framework.TestCase;
 
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BugtraqFormatterTest extends TestCase {
 
 	// Accessing ==============================================================
 
-	public void testSimple() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%BUGID%", "JRA-\\d+"));
+	public void testSimpleWithExtendedLink() throws BugtraqException {
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", null));
 		doTest(formatter, "JRA-7399: Email subject formatting", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(": Email subject formatting"));
 		doTest(formatter, " JRA-7399, JRA-7398: Email subject formatting", t(" "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", "), l("JRA-7398", "https://jira.atlassian.com/browse/JRA-7398"), t(": Email subject formatting"));
 		doTest(formatter, "Fixed JRA-7399", t("Fixed "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"));
 	}
 
+	public void testLinkText() throws BugtraqException {
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/JRA-%BUGID%", null, "JRA-\\d+", "\\d+", "JIRA-%BUGID%"));
+		doTest(formatter, " JRA-7399, JRA is text, JRA-7398: Email subject formatting", t(" "), l("JIRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", JRA is text, "), l("JIRA-7398", "https://jira.atlassian.com/browse/JRA-7398"), t(": Email subject formatting"));
+	}
+
 	public void testTwoNonIntersectingConfigurations() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%BUGID%", "JRA-\\d+"),
-		                                                   createEntry("https://issues.apache.org/jira/browse/%BUGID%", "VELOCITY-\\d+"));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://jira.atlassian.com/browse/%BUGID%", null, null, "JRA-\\d+", null),
+		                                                   createEntry("https://issues.apache.org/jira/browse/%BUGID%", null, null, "VELOCITY-\\d+", null));
 		doTest(formatter, "JRA-7399, VELOCITY-847: fix", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(", "), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"), t(": fix"));
 		doTest(formatter, " JRA-7399: fix/VELOCITY-847", t(" "), l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), t(": fix/"), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"));
 		doTest(formatter, "JRA-7399VELOCITY-847", l("JRA-7399", "https://jira.atlassian.com/browse/JRA-7399"), l("VELOCITY-847", "https://issues.apache.org/jira/browse/VELOCITY-847"));
 	}
 
 	public void testTwoIntersectingConfigurations() throws BugtraqException {
-		final BugtraqFormatter formatter = createFormatter(createEntry("https://host1/%BUGID%", "A[AB]"),
-		                                                   createEntry("https://host2/%BUGID%", "BA[A]?"));
+		final BugtraqFormatter formatter = createFormatter(createEntry("https://host1/%BUGID%", null, null, "A[AB]", null),
+		                                                   createEntry("https://host2/%BUGID%", null, null, "BA[A]?", null));
 		doTest(formatter, "AA: fix", l("AA", "https://host1/AA"), t(": fix"));
 		doTest(formatter, "AB: fix", l("AB", "https://host1/AB"), t(": fix"));
 		doTest(formatter, "BA: fix", l("BA", "https://host2/BA"), t(": fix"));
@@ -76,33 +84,36 @@ public class BugtraqFormatterTest extends TestCase {
 	private BugtraqFormatter createFormatter(BugtraqEntry ... entries) {
 		return new BugtraqFormatter(new BugtraqConfig(Arrays.asList(entries)));
 	}
-	
-	private BugtraqEntry createEntry(String url, String ... logRegexs) throws BugtraqException {
-		return new BugtraqEntry(url, Arrays.asList(logRegexs));
+
+	private BugtraqEntry createEntry(String url, @Nullable String filterRegex, @Nullable String linkRegex, @NotNull String idRegex, @Nullable String linkText) throws BugtraqException {
+		return new BugtraqEntry(url, idRegex, linkRegex, filterRegex, linkText);
 	}
-	
+
 	private Text t(String text) {
 		return new Text(text);
 	}
-	
+
 	private Link l(String text, String url) {
 		return new Link(text, url);
 	}
-	
+
 	private void doTest(BugtraqFormatter formatter, String message, Atom ... expectedAtoms) {
 		final List<Atom> actualAtoms = new ArrayList<Atom>();
+		final StringBuilder sb = new StringBuilder();
 		formatter.formatLogMessage(message, new BugtraqFormatter.OutputHandler() {
 			@Override
 			public void appendText(@NotNull String text) {
 				actualAtoms.add(t(text));
+				sb.append(text);
 			}
 
 			@Override
 			public void appendLink(@NotNull String name, @NotNull String target) {
 				actualAtoms.add(l(name, target));
+				sb.append(name);
 			}
 		});
-		
+
 		assertEquals(Arrays.asList(expectedAtoms), actualAtoms);
 	}
 
@@ -110,7 +121,7 @@ public class BugtraqFormatterTest extends TestCase {
 
 	private static interface Atom {
 	}
-	
+
 	private static class Text implements Atom {
 		private final String text;
 
@@ -133,11 +144,11 @@ public class BugtraqFormatterTest extends TestCase {
 			if (obj == null || obj.getClass() != getClass()) {
 				return false;
 			}
-			
+
 			return text.equals(((Text)obj).text);
 		}
 	}
-	
+
 	private static class Link implements Atom {
 		private final String text;
 		private final String url;
@@ -162,7 +173,7 @@ public class BugtraqFormatterTest extends TestCase {
 			if (obj == null || obj.getClass() != getClass()) {
 				return false;
 			}
-			
+
 			return text.equals(((Link)obj).text)
 					&& url.equals(((Link)obj).url);
 		}

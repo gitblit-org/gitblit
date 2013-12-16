@@ -33,79 +33,84 @@ import junit.framework.*;
 
 import java.util.*;
 
+import org.jetbrains.annotations.*;
+
 public class BugtraqParserTest extends TestCase {
 
 	// Accessing ==============================================================
 
 	public void testSimple1() throws BugtraqException {
-		final BugtraqParser parser = createParser("\\d");
-		assertNull(parser.parse(""));
+		final BugtraqParser parser = createParser(null, null, "\\d+");
+		doTest("", parser);
 		doTest("1", parser, id(0, 0, "1"));
 		doTest("1 2 3", parser, id(0, 0, "1"), id(2, 2, "2"), id(4, 4, "3"));
 	}
 
 	public void testSimple2() throws BugtraqException {
-		final BugtraqParser parser = createParser("(\\d)");
-		assertNull(parser.parse(""));
+		final BugtraqParser parser = createParser(null, null, "(\\d+)");
 		doTest("1", parser, id(0, 0, "1"));
 		doTest("1 2 3", parser, id(0, 0, "1"), id(2, 2, "2"), id(4, 4, "3"));
 	}
 
 	public void testSimple3() throws BugtraqException {
-		final BugtraqParser parser = createParser("(SG-\\d)");
-		assertNull(parser.parse(""));
+		final BugtraqParser parser = createParser(null, null, "(SG-\\d+)");
 		doTest("SG-1", parser, id(0, 3, "SG-1"));
 		doTest("SG-1 SG-2 SG-3", parser, id(0, 3, "SG-1"), id(5, 8, "SG-2"), id(10, 13, "SG-3"));
 	}
 
 	public void testSimple4() throws BugtraqException {
-		final BugtraqParser parser = createParser("SG-(\\d)");
-		assertNull(parser.parse(""));
+		final BugtraqParser parser = createParser(null, null, "SG-(\\d+)");
 		doTest("SG-1", parser, id(3, 3, "1"));
 		doTest("SG-1 SG-2 SG-3", parser, id(3, 3, "1"), id(8, 8, "2"), id(13, 13, "3"));
 	}
 
-	public void testTwoLevel1() throws BugtraqException {
-		final BugtraqParser parser = createParser("(SG-\\d)", "\\d");
+	public void testFilter1() throws BugtraqException {
+		final BugtraqParser parser = createParser("(SG-\\d+)", null, "\\d+");
 		doTest("SG-1", parser, id(3, 3, "1"));
 		doTest("SG-1 SG-2 SG-3", parser, id(3, 3, "1"), id(8, 8, "2"), id(13, 13, "3"));
 	}
 
-	public void testTwoLevel2() throws BugtraqException {
-		final BugtraqParser parser = createParser("xSG-\\dx", "\\d");
+	public void testFilter2() throws BugtraqException {
+		final BugtraqParser parser = createParser("xSG-\\d+x", null, "\\d+");
 		doTest("SG-1 xSG-2x SG-3", parser, id(9, 9, "2"));
 	}
 
-	public void testTwoLevel3() throws BugtraqException {
-		final BugtraqParser parser = createParser("[Ii]ssues?:?((\\s*(,|and)?\\s*#\\d+)+)", "\\d");
+	public void testFilter3() throws BugtraqException {
+		final BugtraqParser parser = createParser("[Ii]ssues?:?((\\s*(,|and)?\\s*#\\d+)+)", null, "\\d+");
 		doTest("Issues #3, #4 and #5: Git Bugtraq Configuration options (see #12)", parser, id(8, 8, "3"), id(12, 12, "4"), id(19, 19, "5"));
 	}
 
-	public void testThreeLevel() throws BugtraqException {
+	public void testLink() throws BugtraqException {
+		final BugtraqParser parser = createParser(null, "(SG-\\d+)", "\\d+");
+		doTest("SG-1", parser, id(0, 3, "1"));
+		doTest("SG-1 SG-2 SG-3", parser, id(0, 3, "1"), id(5, 8, "2"), id(10, 13, "3"));
+	}
+
+	public void testLinkAndFilter() throws BugtraqException {
 		final BugtraqParser parser = createParser("[ab]\\d[cd]", "a\\dc|b\\dd", "\\d");
-		doTest("a1c a2d b3c b4d", parser, id(1, 1, "1"), id(13, 13, "4"));
+		doTest("a1c a2d b3c b4d", parser, id(0, 2, "1"), id(12, 14, "4"));
 	}
 
 	public void testFogBugz() throws BugtraqException {
-		final BugtraqParser parser = createParser("(?:Bug[zs]?\\s*IDs?\\s*|Cases?)[#:; ]+((\\d+[ ,:;#]*)+)", "\\d");
-		doTest("Bug IDs: 3, 4, 5", parser, id(9, 9, "3"), id(12, 12, "4"), id(15, 15, "5"));
+		final BugtraqParser parser = createParser("(?:Bug[zs]?\\s*IDs?\\s*|Cases?)[#:; ]+((\\d+[ ,:;#]*)+)", "[#]?\\d+", "\\d+");
+		doTest("Bug IDs: 3, #4, 5", parser, id(9, 9, "3"), id(12, 13, "4"), id(16, 16, "5"));
 	}
 
 	public void testFogBugzInvalid() throws BugtraqException {
-		final BugtraqParser parser = createParser("Bug[zs]?\\s*IDs?\\s*|Cases?[#:; ]+((\\d+[ ,:;#]*)+)", "\\d");
+		final BugtraqParser parser = createParser("Bug[zs]?\\s*IDs?\\s*|Cases?[#:; ]+((\\d+[ ,:;#]*)+)", null, "\\d+");
 		doTest("Bug IDs: 3, 4, 5", parser);
 	}
 
 	// Utils ==================================================================
 
-	private BugtraqParser createParser(String ... regexs) throws BugtraqException {
-		return BugtraqParser.createInstance(Arrays.asList(regexs));
+	private BugtraqParser createParser(@Nullable String filterRegex, @Nullable String linkRegex, @NotNull String idRegex) throws BugtraqException {
+		return BugtraqParser.createInstance(idRegex, linkRegex, filterRegex);
 	}
 	
 	private BugtraqParserIssueId id(int from, int to, String id) {
 		return new BugtraqParserIssueId(from, to, id);
 	} 
-	
+
 	private void doTest(String message, BugtraqParser parser, BugtraqParserIssueId... expectedIds) {
 		final List<BugtraqParserIssueId> actualIds = parser.parse(message);
 		assertEquals(expectedIds.length, actualIds.size());

@@ -29,8 +29,6 @@
  */
 package com.syntevo.bugtraq;
 
-import java.util.*;
-
 import org.jetbrains.annotations.*;
 
 final class BugtraqEntry {
@@ -38,13 +36,15 @@ final class BugtraqEntry {
 	// Fields =================================================================
 
 	private final String url;
+	private final String logLinkText;
 	private final BugtraqParser parser;
 
 	// Setup ==================================================================
 
-	public BugtraqEntry(@NotNull String url, @NotNull List<String> logIdRegexs) throws BugtraqException {
+	public BugtraqEntry(@NotNull String url, @NotNull String logIdRegex, @Nullable String logLinkRegex, @Nullable String logFilterRegex, @Nullable String logLinkText) throws BugtraqException {
 		this.url = url;
-		this.parser = BugtraqParser.createInstance(logIdRegexs);
+		this.logLinkText = logLinkText;
+		this.parser = BugtraqParser.createInstance(logIdRegex, logLinkRegex, logFilterRegex);
 	}
 
 	// Accessing ==============================================================
@@ -52,6 +52,11 @@ final class BugtraqEntry {
 	@NotNull
 	public String getUrl() {
 		return url;
+	}
+
+	@Nullable
+	public String getLogLinkText() {
+		return logLinkText;
 	}
 
 	@NotNull

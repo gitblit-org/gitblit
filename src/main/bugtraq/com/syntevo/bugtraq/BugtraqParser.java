@@ -39,9 +39,9 @@ final class BugtraqParser {
 	// Static =================================================================
 
 	@NotNull
-	public static BugtraqParser createInstance(@NotNull List<String> regexs) throws BugtraqException {
+	public static BugtraqParser createInstance(@NotNull String idRegex, @Nullable String linkRegex, @Nullable String filterRegex) throws BugtraqException {
 		try {
-			return new BugtraqParser(regexs);
+			return new BugtraqParser(idRegex, linkRegex, filterRegex);
 		}
 		catch (PatternSyntaxException ex) {
 			throw new BugtraqException(ex);
@@ -50,16 +50,16 @@ final class BugtraqParser {
 
 	// Fields =================================================================
 
-	private final List<Pattern> patterns;
+	private final Pattern idPattern;
+	private final Pattern linkPattern;
+	private final Pattern filterPattern;
 
 	// Setup ==================================================================
 
-	private BugtraqParser(List<String> regexs) {
-		this.patterns = new ArrayList<Pattern>();
-
-		for (String regex : regexs) {
-			patterns.add(compilePatternSafe(regex));
-		}
+	private BugtraqParser(@NotNull String idRegex, @Nullable String linkRegex, @Nullable String filterRegex) {
+		idPattern = compilePatternSafe(idRegex);
+		linkPattern = linkRegex != null ? compilePatternSafe(linkRegex) : null;
+		filterPattern = filterRegex != null ? compilePatternSafe(filterRegex) : null;
 	}
 
 	// Accessing ==============================================================
@@ -69,49 +69,45 @@ final class BugtraqParser {
 		List<Part> parts = new ArrayList<Part>();
 		parts.add(new Part(message, 0, message.length() - 1));
 
-		boolean firstMatch = false;
-
-		for (Pattern pattern : patterns) {
-			final List<Part> newParts = new ArrayList<Part>();
-			for (Part part : parts) {
-				final Matcher matcher = pattern.matcher(part.text);
-				while (matcher.find()) {
-					firstMatch = true;
-					if (matcher.groupCount() == 0) {
-						addNewPart(part, matcher, 0, newParts);
-					}
-					else {
-						addNewPart(part, matcher, 1, newParts);
-					}
-				}
-			}
-
-			parts = newParts;
-			if (parts.isEmpty()) {
-				parts = null;
-				break;
-			}
+		if (filterPattern != null) {
+			parts = collectParts(parts, filterPattern);
 		}
 
-		if (!firstMatch) {
-			return null;
-		}
-
-		if (parts == null) {
-			parts = new ArrayList<Part>();
+		if (linkPattern != null) {
+			parts = collectParts(parts, linkPattern);
 		}
 
 		final List<BugtraqParserIssueId> ids = new ArrayList<BugtraqParserIssueId>();
-		for (Part part : parts) {
-			final BugtraqParserIssueId id = new BugtraqParserIssueId(part.from, part.to, part.text);
-			if (ids.size() > 0) {
-				final BugtraqParserIssueId lastId = ids.get(ids.size() - 1);
-				if (id.getFrom() <= lastId.getTo()) {
+		for (final Part part : parts) {
+			final Matcher matcher = idPattern.matcher(part.text);
+			while (matcher.find()) {
+				final Part subPart = createSubPart(part, matcher, matcher.groupCount() == 0 ? 0 : 1);
+				if (subPart == null) {
 					continue;
 				}
-			}
+				
+				final BugtraqParserIssueId id;
+				if (linkPattern == null) {
+					id = new BugtraqParserIssueId(subPart.from, subPart.to, subPart.text);
+				}
+				else {
+					if (matcher.find()) {
+						// If we are using links, the last pattern (link) must produce exactly one id.
+						continue;
+					}
+					
+					id = new BugtraqParserIssueId(part.from, part.to, subPart.text);
+				}
 
-			ids.add(id);
+				if (ids.size() > 0) {
+					final BugtraqParserIssueId lastId = ids.get(ids.size() - 1);
+					if (id.getFrom() <= lastId.getTo()) {
+						continue;
+					}
+				}
+				
+				ids.add(id);
+			}
 		}
 
 		return ids;
@@ -119,15 +115,30 @@ final class BugtraqParser {
 
 	// Utils ==================================================================
 
-	private static void addNewPart(Part part, Matcher matcher, int group, List<Part> newParts) {
+	private static List<Part> collectParts(@NotNull List<Part> mainParts, @NotNull Pattern pattern) {
+		final List<Part> subParts = new ArrayList<Part>();
+		for (final Part part : mainParts) {
+			final Matcher matcher = pattern.matcher(part.text);
+			while (matcher.find()) {
+				final Part newPart = createSubPart(part, matcher, matcher.groupCount() == 0 ? 0 : 1);
+				if (newPart != null) {
+					subParts.add(newPart);
+				}
+			}
+		}
+
+		return subParts;
+	}
+
+	@Nullable
+	private static Part createSubPart(Part part, Matcher matcher, int group) {
 		final int textStart = matcher.start(group) + part.from;
 		final int textEnd = matcher.end(group) - 1 + part.from;
 		if (textEnd < 0) {
-			return;
+			return null;
 		}
 
-		final Part newPart = new Part(matcher.group(group), textStart, textEnd);
-		newParts.add(newPart);
+		return new Part(matcher.group(group), textStart, textEnd);
 	}
 
 	private static Pattern compilePatternSafe(String pattern) throws PatternSyntaxException {

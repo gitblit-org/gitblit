@@ -59,10 +59,6 @@ public final class BugtraqFormatter {
 
 		for (BugtraqEntry entry : config.getEntries()) {
 			final List<BugtraqParserIssueId> ids = entry.getParser().parse(message);
-			if (ids == null) {
-				continue;
-			}
-
 			for (BugtraqParserIssueId id : ids) {
 				allIds.add(new IssueId(entry, id));
 			}
@@ -76,8 +72,15 @@ public final class BugtraqFormatter {
 			}
 
 			appendText(message.substring(lastIdEnd + 1, id.getFrom()), outputHandler);
+			final String logLinkText = issueId.entry.getLogLinkText();
+			final String linkText;
+			if (logLinkText != null) {
+				linkText = logLinkText.replace("%BUGID%", id.getId());
+			}
+			else {
+				linkText = message.substring(id.getFrom(), id.getTo() + 1);
+			}
 
-			final String linkText = message.substring(id.getFrom(), id.getTo() + 1);
 			final String target = issueId.entry.getUrl().replace("%BUGID%", id.getId());
 			outputHandler.appendLink(linkText, target);
 			lastIdEnd = id.getTo();
