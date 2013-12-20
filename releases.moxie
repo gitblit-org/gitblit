@@ -58,7 +58,7 @@ r20: {
 	- Support bugtraq configuration in collaboration with syntevo
     dependencyChanges:
 	- updated to Jetty 8.1.13
-	- updated to JGit 3.1.0
+	- updated to JGit 3.2.0
 	- updated to Lucene 4.6.0
 	- updated to BouncyCastle 1.49
 	- replaced MarkdownPapers with pegdown 1.4.2
