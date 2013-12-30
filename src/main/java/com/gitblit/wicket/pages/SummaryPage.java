@@ -139,9 +139,12 @@ public class SummaryPage extends RepositoryPage {
 
 		if (app().settings().getBoolean(Keys.web.summaryShowReadme, false)) {
 			// show a readme on the summary page
+			MarkupDocument markupDoc = null;
 			RevCommit head = JGitUtils.getCommit(r, null);
-			MarkupProcessor processor = new MarkupProcessor(app().settings());
-			MarkupDocument markupDoc = processor.getReadme(r, repositoryName, getBestCommitId(head));
+			if (head != null) {
+				MarkupProcessor processor = new MarkupProcessor(app().settings());
+				markupDoc = processor.getReadme(r, repositoryName, getBestCommitId(head));
+			}
 			if (markupDoc == null || markupDoc.markup == null) {
 				add(new Label("readme").setVisible(false));
 			} else {
