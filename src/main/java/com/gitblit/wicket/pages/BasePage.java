@@ -65,20 +65,25 @@ import com.gitblit.wicket.WicketUtils;
 
 public abstract class BasePage extends SessionPage {
 
-	private final Logger logger;
+	private transient Logger logger;
 
 	private transient TimeUtils timeUtils;
 
 	public BasePage() {
 		super();
-		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
 	}
 
 	public BasePage(PageParameters params) {
 		super(params);
-		logger = LoggerFactory.getLogger(getClass());
 		customizeHeader();
+	}
+
+	protected Logger logger() {
+		if (logger == null) {
+			logger = LoggerFactory.getLogger(getClass());
+		}
+		return logger;
 	}
 
 	private void customizeHeader() {
@@ -171,7 +176,7 @@ public abstract class BasePage extends SessionPage {
 			case NONE:
 				break;
 			default:
-				logger.warn(getClass().getSimpleName() + ": unhandled LastModified type " + cacheControl.value());
+				logger().warn(getClass().getSimpleName() + ": unhandled LastModified type " + cacheControl.value());
 				break;
 			}
 		}
@@ -411,7 +416,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	public void warn(String message, Throwable t) {
-		logger.warn(message, t);
+		logger().warn(message, t);
 	}
 
 	public void error(String message, boolean redirect) {
@@ -428,9 +433,9 @@ public abstract class BasePage extends SessionPage {
 
 	public void error(String message, Throwable t, Class<? extends Page> toPage, PageParameters params) {
 		if (t == null) {
-			logger.error(message  + " for " + GitBlitWebSession.get().getUsername());
+			logger().error(message  + " for " + GitBlitWebSession.get().getUsername());
 		} else {
-			logger.error(message  + " for " + GitBlitWebSession.get().getUsername(), t);
+			logger().error(message  + " for " + GitBlitWebSession.get().getUsername(), t);
 		}
 		if (toPage != null) {
 			GitBlitWebSession.get().cacheErrorMessage(message);
@@ -443,7 +448,7 @@ public abstract class BasePage extends SessionPage {
 	}
 
 	public void authenticationError(String message) {
-		logger.error(getRequest().getURL() + " for " + GitBlitWebSession.get().getUsername());
+		logger().error(getRequest().getURL() + " for " + GitBlitWebSession.get().getUsername());
 		if (!GitBlitWebSession.get().isLoggedIn()) {
 			// cache the request if we have not authenticated.
 			// the request will continue after authentication.
