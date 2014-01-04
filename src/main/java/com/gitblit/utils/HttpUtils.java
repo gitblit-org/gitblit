@@ -80,7 +80,7 @@ public class HttpUtils {
 
         String context = request.getContextPath();
         String forwardedContext = request.getHeader("X-Forwarded-Context");
-        if (forwardedContext != null) {
+        if (StringUtils.isEmpty(forwardedContext)) {
         	forwardedContext = request.getHeader("X_Forwarded_Context");
         }
         if (!StringUtils.isEmpty(forwardedContext)) {
