@@ -216,18 +216,22 @@ public class ConfigUserService implements IUserService {
 				// null check on "final" teams because JSON-sourced UserModel
 				// can have a null teams object
 				if (model.teams != null) {
+					Set<TeamModel> userTeams = new HashSet<TeamModel>();
 					for (TeamModel team : model.teams) {
 						TeamModel t = teams.get(team.name.toLowerCase());
 						if (t == null) {
 							// new team
-							team.addUser(model.username);
-							teams.put(team.name.toLowerCase(), team);
-						} else {
-							// do not clobber existing team definition
-							// maybe because this is a federated user
-							t.addUser(model.username);
+							t = team;
+							teams.put(team.name.toLowerCase(), t);
 						}
+						// do not clobber existing team definition
+						// maybe because this is a federated user
+						t.addUser(model.username);
+						userTeams.add(t);
 					}
+					// replace Team-Models in users by new ones.
+					model.teams.clear();
+					model.teams.addAll(userTeams);
 
 					// check for implicit team removal
 					if (originalUser != null) {
