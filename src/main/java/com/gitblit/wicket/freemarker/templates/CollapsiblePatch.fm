@@ -12,8 +12,8 @@
 					Git<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					<li><a><span wicket:id="fetchLabel"></span> <span wicket:id="fetch"></span></a></li>
-					<li><a><span wicket:id="pullLabel"></span> <span wicket:id="pull"></span></a></li>
+					<li><a><span wicket:id="gitFetchLabel"></span> <span wicket:id="gitFetch"></span></a></li>
+					<li><a><span wicket:id="gitReviewLabel"></span> <span wicket:id="gitReview"></span></a></li>
 				</ul>
 			</div>
 			<!-- Barnum commands menu -->
@@ -22,8 +22,8 @@
 					Barnum<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					<li><a><span wicket:id="checkoutLabel"></span> <span wicket:id="checkout"></span></a></li>
-					<li><a><span wicket:id="branchLabel"></span> <span wicket:id="branch"></span></a></li>
+					<li><a><span wicket:id="ptFetchLabel"></span> <span wicket:id="ptFetch"></span></a></li>
+					<li><a><span wicket:id="ptReviewLabel"></span> <span wicket:id="ptReview"></span></a></li>
 				</ul>
 			</div>
 			<!-- Compare Patches menu -->

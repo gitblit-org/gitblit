@@ -784,6 +784,10 @@ td.ticket-list-state {
 	color: #888;
 }
 
+div.ticket-text {
+	max-width: 600px;
+}
+
 .indicator-large-dark {
 	font-size: 20px;
 	color: #888;
@@ -888,12 +892,26 @@ td.ticket-list-state {
 	border-bottom: 1px solid #ccc;
 }
 
-.git {
+.merge-panel {
+	padding: 5px 7px;	
+	background-color: white;
+	border: 1px solid rgba(70, 136, 71, 0.5);
+	color: #444
+}
+
+.merge-panel p.step {
+	margin: 10px 0px 5px;
+}
+
+.gitcommand {
 	margin-top: 5px;
 	border: 1px solid #ccc;
-	background-color: #fbfbfb;
-	color: black;
+	background-color: #333 !important;
+	color: #ccc;
 	border-radius: 3px;
+	padding: 5px;
+	margin-bottom: 5px;
+	text-shadow: none;
 }
 
 a.commit {

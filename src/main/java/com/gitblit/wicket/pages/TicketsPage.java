@@ -107,7 +107,12 @@ public class TicketsPage extends TicketBasePage {
 		searchForm.setTranslatedAttributes();
 
 		// add new ticket button
-		searchForm.add(new BookmarkablePageLink<Void>("newticket", NewTicketPage.class, WicketUtils.newRepositoryParameter(repositoryName)).setVisible(isAuthenticated));
+		searchForm.add(new BookmarkablePageLink<Void>("newticket", NewTicketPage.class,
+				WicketUtils.newRepositoryParameter(repositoryName))
+				.setVisible(isAuthenticated
+						&& getRepositoryModel().isBare
+						&& !getRepositoryModel().isFrozen
+						&& !getRepositoryModel().isMirror));
 
 		final String activeQuery;
 		if (!StringUtils.isEmpty(searchParam)) {

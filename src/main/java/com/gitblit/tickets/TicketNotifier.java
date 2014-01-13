@@ -215,7 +215,7 @@ public class TicketNotifier {
 		} else if (lastChange.hasPatchset()) {
 			// patchset uploaded
 			Patchset patch = lastChange.patch;
-			String base;
+			String base = "";
 			// determine the changed paths
 			Repository repo = null;
 			try {
@@ -243,15 +243,17 @@ public class TicketNotifier {
 			pattern = "**{0}** uploaded patchset revision {1}.";
 			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patch.rev));
 			sb.append(SOFT_BRK);
-			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span class=\"insertions\">+{4} insertions</span>, <span class=\"deletions\">-{5} deletions</span> from merge base {6}.",
+			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span class=\"insertions\">+{4} insertions</span>, <span class=\"deletions\">-{5} deletions</span> from {6} {7}.",
 					commits.size(), commits.size() == 1 ? "commit" : "commits",
 					diffstat.paths.size(),
 					diffstat.paths.size() == 1 ? "file" : "files",
-					patch.insertions, patch.deletions, patch.base));
+					diffstat.getInsertions(),
+					diffstat.getDeletions(),
+					isFastForward ? "last patchset revision" : "merge base",
+					base));
 
-			// note commit additions
+			// note commit additions on a rebase,if any
 			switch (lastChange.patch.type) {
-			case FastForward:
 			case Rebase:
 				if (lastChange.patch.addedCommits > 0) {
 					sb.append(SOFT_BRK);
