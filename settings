@@ -1,3 +1,11 @@
 #
 # Ticket settings
 #
+[milestone "v1.4.0"]
+	status = Open
+	due = 2014-01-01
+	color = "#0000F0"
+[milestone "v1.5.0"]
+	status = Open
+	due = 2014-06-01
+	color = "#00f000"
