@@ -24,6 +24,8 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 
+import com.gitblit.Constants;
+import com.gitblit.Keys;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
@@ -61,11 +63,12 @@ public class EmptyRepositoryPage extends RootPage {
 		List<RepositoryUrl> repositoryUrls = app().gitblit().getRepositoryUrls(req, user, repository);
 		RepositoryUrl primaryUrl = repositoryUrls.size() == 0 ? null : repositoryUrls.get(0);
 		String url = primaryUrl != null ? primaryUrl.url : "";
+		String originName = app().settings().getString(Keys.web.defaultOrigin, Constants.DEFAULT_ORIGIN);
 
 		add(new Label("repository", repositoryName));
 		add(new RepositoryUrlPanel("pushurl", false, user, repository));
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", url)));
-		add(new Label("remoteSyntax", MessageFormat.format("git remote add gitblit {0}\ngit push gitblit master", url)));
+		add(new Label("remoteSyntax", MessageFormat.format("git remote add {1} {0}\ngit push {1} master", url, originName)));
 	}
 
 	@Override

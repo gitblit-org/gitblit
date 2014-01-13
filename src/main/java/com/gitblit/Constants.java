@@ -85,6 +85,8 @@ public class Constants {
 	public static final int LEN_SHORTLOG_REFS = 60;
 
 	public static final String DEFAULT_BRANCH = "default";
+	
+	public static final String DEFAULT_ORIGIN = "gitblit";
 
 	public static final String CONFIG_GITBLIT = "gitblit";
 
