@@ -282,9 +282,9 @@ public class RepositoryTicketService extends ITicketService {
 				Set<String> names = config.getSubsections(MILESTONE);
 				for (String name : names) {
 					TicketMilestone milestone = new TicketMilestone(name);
-					Status state = Status.fromObject(config.getString(MILESTONE, name, "state"));
-					if (state != null) {
-						milestone.state = state;
+					Status status = Status.fromObject(config.getString(MILESTONE, name, "status"));
+					if (status != null) {
+						milestone.status = status;
 					}
 					milestone.color = config.getString(MILESTONE, name, "color");
 					String due = config.getString(MILESTONE, name, "due");
@@ -325,7 +325,7 @@ public class RepositoryTicketService extends ITicketService {
 			String content = readTicketsFile(db, SETTINGS);
 			Config config = new Config();
 			config.fromText(content);
-			config.setString(MILESTONE, milestone, "state", ms.state.name());
+			config.setString(MILESTONE, milestone, "state", ms.status.name());
 			config.setString(MILESTONE, milestone, "color", ms.color);
 			content = config.toText();
 			writeTicketsFile(db, SETTINGS, content, createdBy, "created milestone " + milestone);
@@ -353,7 +353,7 @@ public class RepositoryTicketService extends ITicketService {
 			String content = readTicketsFile(db, SETTINGS);
 			Config config = new Config();
 			config.fromText(content);
-			config.setString(MILESTONE, milestone.name, "state", milestone.state.name());
+			config.setString(MILESTONE, milestone.name, "state", milestone.status.name());
 			config.setString(MILESTONE, milestone.name, "color", milestone.color);
 			if (milestone.due != null) {
 				config.setString(MILESTONE, milestone.name, "due",
@@ -392,7 +392,7 @@ public class RepositoryTicketService extends ITicketService {
 			Config config = new Config();
 			config.fromText(content);
 			config.unsetSection(MILESTONE, oldName);
-			config.setString(MILESTONE, newName, "state", milestone.state.name());
+			config.setString(MILESTONE, newName, "state", milestone.status.name());
 			config.setString(MILESTONE, newName, "color", milestone.color);
 			if (milestone.due != null) {
 				config.setString(MILESTONE, milestone.name, "due",
@@ -722,17 +722,22 @@ public class RepositoryTicketService extends ITicketService {
 					continue;
 				}
 				String json = readTicketsFile(db, path.path);
-				List<Change> changes = TicketSerializer.deserializeJournal(json);
-				TicketModel ticket = TicketModel.buildTicket(changes);
-				ticket.repository = repository;
+				try {
+					List<Change> changes = TicketSerializer.deserializeJournal(json);
+					TicketModel ticket = TicketModel.buildTicket(changes);
+					ticket.repository = repository;
 
-				// add the ticket, conditionally, to the list
-				if (filter == null) {
-					list.add(ticket);
-				} else {
-					if (filter.accept(ticket)) {
+					// add the ticket, conditionally, to the list
+					if (filter == null) {
 						list.add(ticket);
+					} else {
+						if (filter.accept(ticket)) {
+							list.add(ticket);
+						}
 					}
+				} catch (Exception e) {
+					log.error("failed to deserialize {}/{}\n{}",
+							new Object [] { repository, path.path, e.getMessage()});
 				}
 			}
 

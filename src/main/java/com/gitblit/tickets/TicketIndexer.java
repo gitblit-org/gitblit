@@ -525,7 +525,7 @@ public class TicketIndexer {
 		result.updatedAt = unpackDate(doc, Lucene.updated);
 		result.title = unpackString(doc, Lucene.title);
 		result.body = unpackString(doc, Lucene.body);
-		result.state = Status.fromObject(unpackString(doc, Lucene.status));
+		result.status = Status.fromObject(unpackString(doc, Lucene.status));
 		result.assignedTo = unpackString(doc, Lucene.assignedto);
 		result.milestone = unpackString(doc, Lucene.milestone);
 		result.topic = unpackString(doc, Lucene.topic);

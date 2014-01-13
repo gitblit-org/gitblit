@@ -50,6 +50,7 @@ import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.URIish;
 
 import com.gitblit.Constants;
 import com.gitblit.Keys;
@@ -134,7 +135,7 @@ public class TicketPage extends TicketBasePage {
 					UserPage.class, WicketUtils.newUsernameParameter(createdBy.username)));
 		}
 
-		if (ticket.isPullRequest()) {
+		if (ticket.isProposal()) {
 			// clearly indicate this is a change ticket
 			add(new Label("creationMessage", getString("gb.proposedThisChange")));
 		} else {
@@ -241,7 +242,7 @@ public class TicketPage extends TicketBasePage {
 		// status label injects an icon and the ticket state
 		Fragment ticketState = new Fragment("ticketState", "ticketStateFragment", this);
 		Label ticketIcon = new Label("ticketIcon");
-		if (ticket.isPullRequest()) {
+		if (ticket.isProposal()) {
 			WicketUtils.setCssClass(ticketIcon, "fa fa-code");
 		} else if (ticket.isBug()) {
 			WicketUtils.setCssClass(ticketIcon, "fa fa-bug");
@@ -476,9 +477,9 @@ public class TicketPage extends TicketBasePage {
 					item.add(new GravatarImage("authorAvatar", author.getName(), author.getEmailAddress(), null, 16, false, false));
 					item.add(new Label("author", commit.getAuthorIdent().getName()));
 					item.add(new LinkPanel("commitId", null, getShortObjectId(commit.getName()),
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName())));
+							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
 					item.add(new LinkPanel("diff", "link", getString("gb.diff"), CommitDiffPage.class,
-							WicketUtils.newObjectParameter(repositoryName, commit.getName())));
+							WicketUtils.newObjectParameter(repositoryName, commit.getName()), true));
 					item.add(new Label("title", StringUtils.trimString(commit.getShortMessage(), Constants.LEN_SHORTLOG_REFS)));
 					item.add(WicketUtils.createDateLabel("commitDate", JGitUtils.getCommitDate(commit), GitBlitWebSession
 							.get().getTimezone(), getTimeUtils(), false));
@@ -523,7 +524,7 @@ public class TicketPage extends TicketBasePage {
 					}
 					item.add(new Label("what", what));
 					item.add(new LinkPanel("patchsetRevision", "commit", getString("gb.revision") + " " + patch.rev,
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.tip)));
+							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.tip), true));
 					String typeCss;
 					switch (patch.type) {
 						case Rebase:
@@ -557,7 +558,7 @@ public class TicketPage extends TicketBasePage {
 										|| PatchsetType.Rebase_Squash == patch.type;
 
 					item.add(new LinkPanel("mergeBase", "link", getString("gb.mergeBase"),
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.base))
+							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.base), true)
 							.setVisible(showMergeBase));
 
 					if (ticket.isMerged() && patch.tip.equals(ticket.mergeSha)) {
@@ -588,7 +589,7 @@ public class TicketPage extends TicketBasePage {
 					String what;
 					switch (res) {
 					case New:
-						if (ticket.isPullRequest()) {
+						if (ticket.isProposal()) {
 							what = getString("gb.proposedThisChange");
 						} else {
 							what = getString("gb.createdThisTicket");
@@ -655,23 +656,21 @@ public class TicketPage extends TicketBasePage {
 		otherPatches.remove(entry);
 		Collections.reverse(otherPatches);
 
-		final Patchset patch = entry.patch;
+		final Patchset patchset = entry.patch;
 
 		Map<String, Object> pmap = new HashMap<String, Object>();
-		pmap.put("accordianId", "rev" + patch.rev);
+		pmap.put("accordianId", "rev" + patchset.rev);
 
 		FreemarkerPanel panel = new FreemarkerPanel(wicketId, "CollapsiblePatch.fm", pmap);
 		panel.setParseGeneratedMarkup(true);
 
 		// patch header
-		panel.add(new LinkPanel("patchId", null, getString("gb.revision") + " " + patch.rev,
-				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.tip)));
-		panel.add(new Label("forBranch", MessageFormat.format(getString("gb.forBranch"),
-				"<b>" + ticket.mergeTo + "</b>")).setEscapeModelStrings(false));
+		panel.add(new LinkPanel("patchId", null, getString("gb.revision") + " " + patchset.rev,
+				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patchset.tip), true));
 
 		// compare menu
 		panel.add(new LinkPanel("compareMergeBase", null, getString("gb.compareToMergeBase"),
-				ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patch.base, patch.tip), true));
+				ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patchset.base, patchset.tip), true));
 
 		ListDataProvider<Change> compareMenuDp = new ListDataProvider<Change>(otherPatches);
 		DataView<Change> compareMenu = new DataView<Change>("comparePatch", compareMenuDp) {
@@ -681,12 +680,12 @@ public class TicketPage extends TicketBasePage {
 				Patchset otherPatch = item.getModelObject().patch;
 				String startRef;
 				String endRef;
-				if (patch.rev < otherPatch.rev) {
-					startRef = patch.ref;
+				if (patchset.rev < otherPatch.rev) {
+					startRef = patchset.ref;
 					endRef = otherPatch.ref;
 				} else {
 					startRef = otherPatch.ref;
-					endRef = patch.ref;
+					endRef = patchset.ref;
 				}
 
 				item.add(new LinkPanel("compareLink", null,
@@ -709,23 +708,16 @@ public class TicketPage extends TicketBasePage {
 		panel.add(new Label("branchLabel", branch));
 
 		// git menu
-		String fetch = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD", primaryUrl.url, patch.ref);
+		String fetch = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD", primaryUrl.url, patchset.ref);
 		panel.add(createCopyFragment("fetch", fetch));
-		panel.add(new Label("fetchLabel", MessageFormat.format(getString("gb.fetchPatchset"), patch.rev)));
+		panel.add(new Label("fetchLabel", MessageFormat.format(getString("gb.fetchPatchset"), patchset.rev)));
 
-		String pull = MessageFormat.format("git pull {0} {1}", primaryUrl.url, patch.ref);
+		String pull = MessageFormat.format("git pull {0} {1}", primaryUrl.url, patchset.ref);
 		panel.add(createCopyFragment("pull", pull));
-		panel.add(new Label("pullLabel", MessageFormat.format(getString("gb.pullPatchset"), patch.rev)));
+		panel.add(new Label("pullLabel", MessageFormat.format(getString("gb.pullPatchset"), patchset.rev)));
 
 		// changed paths list
-		RevCommit c = JGitUtils.getCommit(getRepository(), patch.ref);
-		List<PathChangeModel> paths;
-		if (patch.base == null) {
-			paths = JGitUtils.getFilesInCommit(getRepository(), c);
-		} else {
-			paths = JGitUtils.getFilesInRange(getRepository(), patch.base, patch.tip);
-		}
-
+		List<PathChangeModel> paths = JGitUtils.getFilesInRange(getRepository(), patchset.base, patchset.tip);
 		ListDataProvider<PathChangeModel> pathsDp = new ListDataProvider<PathChangeModel>(paths);
 		DataView<PathChangeModel> pathsView = new DataView<PathChangeModel>("changedPath", pathsDp) {
 			private static final long serialVersionUID = 1L;
@@ -746,7 +738,7 @@ public class TicketPage extends TicketBasePage {
 					// tree
 					item.add(new LinkPanel("pathName", null, entry.path, TreePage.class,
 							WicketUtils
-									.newPathParameter(repositoryName, entry.commitId, entry.path), true));
+									.newPathParameter(repositoryName, patchset.tip, entry.path), true));
 					item.add(new Label("diffStat").setVisible(false));
 				} else if (entry.isSubmodule()) {
 					// submodule
@@ -764,40 +756,41 @@ public class TicketPage extends TicketBasePage {
 					String displayPath = entry.path;
 					String path = entry.path;
 					if (entry.isSymlink()) {
-						path = JGitUtils.getStringContent(getRepository(), getCommit().getTree(), path);
+						RevCommit commit = JGitUtils.getCommit(getRepository(), patchset.ref);
+						path = JGitUtils.getStringContent(getRepository(), commit.getTree(), path);
 						displayPath = entry.path + " -> " + path;
 					}
 
 					if (entry.changeType.equals(ChangeType.ADD)) {
 						// add show view
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId, path), true));
+								WicketUtils.newPathParameter(repositoryName, patchset.tip, path), true));
 					} else if (entry.changeType.equals(ChangeType.DELETE)) {
 						// delete, show label
 						item.add(new Label("pathName", displayPath));
 					} else {
 						// mod, show diff
 						item.add(new LinkPanel("pathName", "list", displayPath, BlobDiffPage.class,
-								WicketUtils.newPathParameter(repositoryName, entry.commitId, path), true));
+								WicketUtils.newPathParameter(repositoryName, patchset.tip, path), true));
 					}
 				}
 
 				// quick links
 				if (entry.isSubmodule()) {
 					// submodule
-					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
+					item.add(setNewTarget(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
+							.newPathParameter(repositoryName, entry.commitId, entry.path)))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)));
 					item.add(new BookmarkablePageLink<Void>("view", CommitPage.class, WicketUtils
 							.newObjectParameter(submodulePath, entry.objectId)).setEnabled(hasSubmodule));
 				} else {
 					// tree or blob
-					item.add(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
+					item.add(setNewTarget(new BookmarkablePageLink<Void>("diff", BlobDiffPage.class, WicketUtils
+							.newBlobDiffParameter(repositoryName, patchset.base, patchset.tip, entry.path)))
 							.setEnabled(!entry.changeType.equals(ChangeType.ADD)
 									&& !entry.changeType.equals(ChangeType.DELETE)));
-					item.add(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
-							.newPathParameter(repositoryName, entry.commitId, entry.path))
+					item.add(setNewTarget(new BookmarkablePageLink<Void>("view", BlobPage.class, WicketUtils
+							.newPathParameter(repositoryName, patchset.tip, entry.path)))
 							.setEnabled(!entry.changeType.equals(ChangeType.DELETE)));
 				}
 
@@ -807,9 +800,14 @@ public class TicketPage extends TicketBasePage {
 		};
 		panel.add(pathsView);
 
-		panel.add(createMergePanel(user, repository, ticket, patch));
+		panel.add(createMergePanel(user, repository, ticket, patchset));
 
 		return panel;
+	}
+
+	protected <X extends MarkupContainer> X setNewTarget(X x) {
+		x.add(new SimpleAttributeModifier("target", "_blank"));
+		return x;
 	}
 
 	/**
@@ -824,20 +822,42 @@ public class TicketPage extends TicketBasePage {
 	 */
 	protected Component createMergePanel(UserModel user, RepositoryModel repository, TicketModel ticket, Patchset patchset) {
 		boolean reviewRequired = false; // TODO allow reviews
-		boolean patchsetSubmittable = ticket.isOpen() && (!reviewRequired || (reviewRequired && ticket.isApproved(patchset)));
+		boolean patchsetMergeable = ticket.isOpen() && (!reviewRequired || (reviewRequired && ticket.isApproved(patchset)));
 		if (patchset == null) {
-			// no patch to merge
+			// no patchset to merge
 			return new Label("mergePanel");
-		} else if (user.canPush(repository) && patchsetSubmittable) {
-			// parent is merged
-			ArrayList<String> submitLinks = new ArrayList<String>();
+		} else if (patchsetMergeable) {
 			boolean canMerge = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
-			if (!canMerge) {
-				// commit can not be cleanly merged
-				return new Fragment("mergePanel", "notMergeableFragment", this);
-			} else {
-				// user can merge
+			if (canMerge) {
+				// patchset can be cleanly merged to integration branch
 				Fragment mergePanel = new Fragment("mergePanel", "mergeableFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetMergeable"), ticket.mergeTo)));
+				mergePanel.add(new ExternalLink("mergeButton", "#").setVisible(user.canPush(repository)));
+				if (user.canPush(repository)) {
+					Fragment cmd = new Fragment("mergeMore", "commandlineMergeFragment", this);
+					cmd.add(new Label("instructions", MessageFormat.format(getString("gb.patchsetMergeableMore"), ticket.mergeTo)));
+					HttpServletRequest req = ((WebRequest) getRequest()).getHttpServletRequest();
+					String primaryurl = app().gitblit().getRepositoryUrls(req, user, repository).get(0).url;
+					String url = primaryurl;
+					try {
+						url = new URIish(primaryurl).setUser(null).toString();
+					} catch (Exception e) {
+					}
+					String git = MessageFormat.format("git fetch {0} refs/tickets/{1,number,0} && git merge FETCH_HEAD",
+							url, ticket.number);
+					String html = StringUtils.breakLinesForHtml(git.replace(" && ", "\n"));
+					cmd.add(new Label("command", html).setEscapeModelStrings(false).setVisible(user.canPush(repository)));
+					cmd.add(createCopyFragment("copyCmd", git).setVisible(user.canPush(repository)));
+					mergePanel.add(cmd);
+				} else {
+					mergePanel.add(new Label("mergeMore").setVisible(false));
+				}
+				return mergePanel;
+			} else {
+				// patchset can not be cleanly merged
+				Fragment mergePanel = new Fragment("mergePanel", "notMergeableFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
+				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.patchsetNotMergeableMore"), ticket.mergeTo)));
 				return mergePanel;
 			}
 		} else {
@@ -846,9 +866,12 @@ public class TicketPage extends TicketBasePage {
 				return new Fragment("mergePanel", "vetoedFragment", this);
 			} else if (reviewRequired) {
 				// patchset has been not been approved for merge
-				return new Fragment("mergePanel", "notApprovedFragment", this);
+				Fragment mergePanel = new Fragment("mergePanel", "notApprovedFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotApproved"), ticket.mergeTo)));
+				mergePanel.add(new Label("mergeMore", MessageFormat.format(getString("gb.patchsetNotApprovedMore"), ticket.mergeTo)));
+				return mergePanel;
 			} else {
-				// user does not have merge permissions
+				// other case
 				return new Label("mergePanel");
 			}
 		}

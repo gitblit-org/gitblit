@@ -209,16 +209,16 @@ public abstract class ITicketService {
 	public abstract List<TicketMilestone> getMilestones(String repository);
 
 	/**
-	 * Returns the list of milestones for the repository that match the state.
+	 * Returns the list of milestones for the repository that match the status.
 	 *
 	 * @param repository
-	 * @param state
+	 * @param status
 	 * @return the list of milestones
 	 */
-	public List<TicketMilestone> getMilestones(String repository, Status state) {
+	public List<TicketMilestone> getMilestones(String repository, Status status) {
 		List<TicketMilestone> matches = new ArrayList<TicketMilestone>();
 		for (TicketMilestone milestone : getMilestones(repository)) {
-			if (state == milestone.state) {
+			if (status == milestone.status) {
 				matches.add(milestone);
 			}
 		}
