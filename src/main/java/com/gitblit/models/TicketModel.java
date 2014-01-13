@@ -157,7 +157,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return updatedAt == null ? createdAt : updatedAt;
 	}
 
-	public boolean hasPatches() {
+	public boolean hasPatchsets() {
 		return getPatchsets().size() > 0;
 	}
 

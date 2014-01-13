@@ -219,6 +219,25 @@ public class PatchsetCommand extends ReceiveCommand {
 			// user specified a (different) topic
 			change.setField(Field.topic, topic);
 		}
+
+		if (TicketModel.Type.Proposal == ticket.type
+				&& PatchsetType.Amend == patchset.type
+				&& patchset.totalCommits == 1) {
+
+			// Gerrit-style title and description updates from the commit message
+			 String title = getTitle();
+             String body = getBody();
+
+             if (!ticket.title.equals(title)) {
+                 // title changed
+                 change.setField(Field.title, title);
+             }
+
+             if (!ticket.body.equals(body)) {
+                 // description changed
+                 change.setField(Field.body, body);
+             }
+		}
 		return change;
 	}
 }

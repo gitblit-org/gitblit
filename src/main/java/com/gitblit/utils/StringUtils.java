@@ -127,6 +127,8 @@ public class StringUtils {
 				retStr.append("%2F");
 			} else if (inStr.charAt(i) == ' ') {
 				retStr.append("%20");
+			} else if (inStr.charAt(i) == '&') {
+				retStr.append("%26");
 			} else {
 				retStr.append(inStr.charAt(i));
 			}
