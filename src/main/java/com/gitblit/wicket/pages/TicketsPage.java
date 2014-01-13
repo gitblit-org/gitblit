@@ -449,7 +449,7 @@ public class TicketsPage extends TicketBasePage {
 			@Override
 			public void populateItem(final Item<QueryResult> item) {
 				final QueryResult ticket = item.getModelObject();
-				item.add(getStateIcon("state", ticket.type, ticket.state));
+				item.add(getStateIcon("state", ticket.type, ticket.status));
 				item.add(new Label("id", "" + ticket.number));
 				UserModel creator = app().users().getUserModel(ticket.createdBy);
 				if (creator != null) {
@@ -508,8 +508,8 @@ public class TicketsPage extends TicketBasePage {
 					item.add(avatar);
 				}
 
-				String css = getLozengeClass(ticket.state, true);
-				Label l = new Label("resolution", ticket.state.toString());
+				String css = getLozengeClass(ticket.status, true);
+				Label l = new Label("resolution", ticket.status.toString());
 				WicketUtils.setCssClass(l, css);
 				item.add(l);
 
@@ -595,7 +595,7 @@ public class TicketsPage extends TicketBasePage {
 			public void populateItem(final Item<TicketMilestone> item) {
 				final TicketMilestone tm = item.getModelObject();
 				item.add(new Label("milestoneName", tm.name));
-				item.add(new Label("milestoneState", tm.state.name()));
+				item.add(new Label("milestoneState", tm.status.name()));
 				item.add(new Label("milestoneDue", tm.due == null ? getString("gb.notSpecified") : tm.due.toString()));
 			}
 		};

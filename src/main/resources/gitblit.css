@@ -888,6 +888,14 @@ td.ticket-list-state {
 	border-bottom: 1px solid #ccc;
 }
 
+.git {
+	margin-top: 5px;
+	border: 1px solid #ccc;
+	background-color: #fbfbfb;
+	color: black;
+	border-radius: 3px;
+}
+
 a.commit {
 	border: 1px solid #ccc;
 	border-radius: 3px;

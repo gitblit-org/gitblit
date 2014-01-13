@@ -145,7 +145,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return isClosed() && !isEmpty(mergeSha);
 	}
 
-	public boolean isPullRequest() {
+	public boolean isProposal() {
 		return type != null && Type.Proposal == type;
 	}
 
@@ -317,6 +317,17 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		for (Change change : changes) {
 			if (change.patch != null) {
 				if (sha.equals(change.patch.tip)) {
+					return change.patch;
+				}
+			}
+		}
+		return null;
+	}
+
+	public Patchset getPatchset(int revision) {
+		for (Change change : changes) {
+			if (change.patch != null) {
+				if (revision == change.patch.rev) {
 					return change.patch;
 				}
 			}

@@ -45,9 +45,17 @@
 		
 				<div class="ticket-meta-middle">
 					<!-- ticket info -->
-					<table class="summary">
-						<tr><th><wicket:message key="gb.assignedTo"></wicket:message></th><td><span wicket:id="assignedTo">[assigned to]</span></td></tr>
-						<tr><th><wicket:message key="gb.milestone"></wicket:message></th><td><span wicket:id="milestone">[milestone]</span></td></tr>
+					<table class="summary" style="width: 100% !important;">
+						<tr>
+							<td style="text-align: left;">
+								<span style="color:#999; padding-right: 10px;"><wicket:message key="gb.assignedTo"></wicket:message></span>
+								<span wicket:id="assignedTo">[assigned to]</span>
+							</td>
+							<td style="text-align: right;padding-right: 20px;">
+								<span style="color:#999; padding-right: 10px;"><wicket:message key="gb.milestone"></wicket:message></span>
+								<span wicket:id="milestone">[milestone]</span>
+							</td>
+						</tr>
 					</table>
 				</div>
 				<div class="ticket-meta-bottom"><div class="markdown" wicket:id="ticketDescription">[description]</div></div>
@@ -215,10 +223,10 @@
 				<td><span wicket:id="changeAvatar">[avatar]</span> <span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span></td>
 				<td><span class="attribution-text"><span wicket:id="what">[what happened]</span></span></td>
 				<td><span wicket:id="patchsetRevision">[revision id]</span></td>
-				<td><span wicket:id="mergeBase">[merge base]</span></td>
+				<td><span class="hidden-tablet hidden-phone" wicket:id="mergeBase">[merge base]</span></td>
 				<td><span wicket:id="patchsetType"></span></td>
 				<td><span wicket:id="ticketState"></span></td>
-				<td><span class="hidden-phone" style="padding-left:20px;"><span wicket:id="ticketDiffStat"></span></span></td>			
+				<td><span class="hidden-tablet hidden-phone" style="padding-left:20px;"><span wicket:id="ticketDiffStat"></span></span></td>			
 				<td style="text-align:right;"><span class="attribution-date" wicket:id="changeDate">[patch date]</span></td>	
 			</tr>
 		</tbody>
@@ -281,21 +289,27 @@
 <wicket:fragment wicket:id="mergeableFragment">
 	<div class="alert alert-success submit-info" style="padding-right:14px;">
 		<div class="pull-right" style="padding-top:5px;">
-			<a class="btn btn-success"href="#">
+			<a class="btn btn-success" wicket:id="mergeButton">
 				<wicket:message key="gb.merge"></wicket:message>
 			</a>
 		</div>
-		<h4><wicket:message key="gb.patchsetMergeable"></wicket:message></h4>
-		<wicket:message key="gb.patchsetMergeableMore"></wicket:message>
+		<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+		<div wicket:id="mergeMore"></div>
 	</div>
 </wicket:fragment>
 
+<wicket:fragment wicket:id="commandlineMergeFragment">
+	<div wicket:id="instructions"></div>
+	<div class="git">
+		<span wicket:id="command" style="padding: 2px 5px;" class="sha1">git command</span> <span wicket:id="copyCmd"></span>
+	</div>
+</wicket:fragment>
 
 <!-- NOT-MERGEABLE FRAGMENT -->
 <wicket:fragment wicket:id="notMergeableFragment">
 	<div class="alert alert-error submit-info">
-		<h4><wicket:message key="gb.patchsetNotMergeable"></wicket:message></h4>
-		<wicket:message key="gb.patchsetNotMergeableMore"></wicket:message>
+		<h4><i class="fa fa-exclamation-triangle"></i> <span wicket:id="mergeTitle"></span></h4>
+		<div wicket:id="mergeMore"></div>
 	</div>
 </wicket:fragment>
 
@@ -303,7 +317,7 @@
 <!-- VETOED PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="vetoedFragment">
 	<div class="alert alert-error submit-info">
-		<h4><wicket:message key="gb.patchsetNotMergeable"></wicket:message></h4>
+		<h4><i class="fa fa-exclamation-circle"></i> <wicket:message key="gb.patchsetNotMergeable"></wicket:message></h4>
 		<wicket:message key="gb.patchsetVetoedMore"></wicket:message>
 	</div>
 </wicket:fragment>
@@ -312,7 +326,8 @@
 <!-- NOT APPROVED PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="notApprovedFragment">
 	<div class="alert alert-info submit-info">
-		<h4><wicket:message key="gb.patchsetNotApproved"></wicket:message></h4>
+		<h4><i class="fa fa-minus-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+		<div wicket:id="mergeMore"></div>
 		<wicket:message key="gb.patchsetNotApprovedMore"></wicket:message>
 	</div>
 </wicket:fragment>

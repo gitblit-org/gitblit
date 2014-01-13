@@ -46,7 +46,7 @@ public class QueryResult implements Serializable {
 	public String dependsOn;
 	public String title;
 	public String body;
-	public Status state;
+	public Status status;
 	public String assignedTo;
 	public String milestone;
 	public String topic;
@@ -72,7 +72,7 @@ public class QueryResult implements Serializable {
 	}
 
 	public boolean isMerged() {
-		return Status.Merged == state && !StringUtils.isEmpty(mergeSha);
+		return Status.Merged == status && !StringUtils.isEmpty(mergeSha);
 	}
 
 	public List<String> getLabels() {

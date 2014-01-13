@@ -30,7 +30,7 @@ public class TicketMilestone extends TicketLabel {
 
 	private static final long serialVersionUID = 1L;
 
-	public Status state;
+	public Status status;
 
 	public Date due;
 
@@ -38,7 +38,7 @@ public class TicketMilestone extends TicketLabel {
 
 	public TicketMilestone(String name) {
 		super(name);
-		state = Status.Open;
+		status = Status.Open;
 	}
 
 	public int getTotalTickets() {
@@ -49,7 +49,7 @@ public class TicketMilestone extends TicketLabel {
 		int cnt = 0;
 		if (tickets != null) {
 			for (QueryResult ticket : tickets) {
-				if (!ticket.state.isClosed()) {
+				if (!ticket.status.isClosed()) {
 					cnt++;
 				}
 			}
@@ -61,7 +61,7 @@ public class TicketMilestone extends TicketLabel {
 		int cnt = 0;
 		if (tickets != null) {
 			for (QueryResult ticket : tickets) {
-				if (ticket.state.isClosed()) {
+				if (ticket.status.isClosed()) {
 					cnt++;
 				}
 			}

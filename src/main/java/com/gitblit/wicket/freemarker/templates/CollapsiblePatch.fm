@@ -1,7 +1,7 @@
 <div class="accordion" id="accordion${accordianId}" style="margin: 0px;">
 <div class="patch-group">
    	<div class="accordion-heading">
-		<div class="attribution-patch-pullright">
+		<div class="attribution-patch-pullright">		
 			<div style="padding-bottom: 2px;"> 
 				<span class="attribution-date" wicket:id="changeDate">[patch date]</span>
 			</div>
@@ -40,13 +40,13 @@
 		</div>
 		<div style="padding:8px 10px;">
 			<div>
-			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.uploadedPatchset">[uploaded patchset]</wicket:message></span> <span class="attribution-emphasize" wicket:id="patchId">[ref id]</span> <span wicket:id="forBranch"></span>
+			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.uploadedPatchset">[uploaded patchset]</wicket:message></span> <span class="attribution-emphasize" wicket:id="patchId">[ref id]</span>
 			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordion${accordianId}" href="#body${accordianId}"><i class="fa fa-toggle-down"></i></a>			
 			</div>			
 		</div>
 	</div>
 				
-	<div id="body${accordianId}" class="accordion-body collapse">
+	<div id="body${accordianId}" class="accordion-body collapse" style="clear:both;">
 		<div class="accordion-inner">
 			<!-- changed paths -->
 			<table class="pretty" style="border: 0px;">

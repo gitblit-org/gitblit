@@ -1022,7 +1022,7 @@ public class JGitUtils {
 
 			List<DiffEntry> diffEntries = df.scan(startCommit.getTree(), endCommit.getTree());
 			for (DiffEntry diff : diffEntries) {
-				PathChangeModel pcm = PathChangeModel.from(diff,  null);
+				PathChangeModel pcm = PathChangeModel.from(diff,  endCommit.getName());
 				list.add(pcm);
 			}
 			Collections.sort(list);

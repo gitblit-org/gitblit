@@ -51,6 +51,7 @@ import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.FieldChange;
 import com.gitblit.models.TicketModel.Patchset;
+import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -163,6 +164,7 @@ public class TicketNotifier {
 
 		StringBuilder sb = new StringBuilder();
 		boolean newTicket = false;
+		boolean isFastForward = true;
 		List<RevCommit> commits = null;
 		DiffStat diffstat = null;
 
@@ -213,13 +215,24 @@ public class TicketNotifier {
 		} else if (lastChange.hasPatchset()) {
 			// patchset uploaded
 			Patchset patch = lastChange.patch;
-
+			String base;
 			// determine the changed paths
 			Repository repo = null;
 			try {
 				repo = repositoryManager.getRepository(ticket.repository);
-				diffstat = DiffUtils.getDiffStat(repo, patch.base, patch.tip);
-				commits = JGitUtils.getRevLog(repo, patch.base, patch.tip);
+				if (patch.rev > 1 && PatchsetType.FastForward == patch.type) {
+					// fast-forward update, just show the new data
+					isFastForward = true;
+					Patchset prev = ticket.getPatchset(patch.rev - 1);
+					base = prev.tip;
+				} else {
+					// proposal OR non-fast-forward update
+					isFastForward = false;
+					base = patch.base;
+				}
+
+				diffstat = DiffUtils.getDiffStat(repo, base, patch.tip);
+				commits = JGitUtils.getRevLog(repo, base, patch.tip);
 			} catch (Exception e) {
 				Logger.getLogger(getClass()).error("failed to get changed paths", e);
 			} finally {
@@ -253,6 +266,7 @@ public class TicketNotifier {
 			switch (lastChange.patch.type) {
 			case Proposal:
 			case FastForward:
+				sb.append("This revision is a FAST-FORWARD update.");
 				break;
 			case Rebase:
 				sb.append(SOFT_BRK);
@@ -339,7 +353,8 @@ public class TicketNotifier {
 		if (lastChange.hasPatchset() && ticket.isOpen()) {
 			if (commits != null && commits.size() > 0) {
 				// append the commit list
-				sb.append(MessageFormat.format("| Commits in patchset revision {0} ||\n", lastChange.patch.rev));
+				String title = isFastForward ? "Commits added since last patchset revision" : "All commits in patchset";
+				sb.append(MessageFormat.format("| {0} ||\n", title));
 				sb.append("| SHA | Author | Title |\n");
 				sb.append("| :-- | :----- | :---- |\n");
 				for (RevCommit commit : commits) {
@@ -352,7 +367,8 @@ public class TicketNotifier {
 
 			if (diffstat != null) {
 				// append the changed path list
-				sb.append(MessageFormat.format("| Files changed in patchset revision {0} |||\n", lastChange.patch.rev));
+				String title = isFastForward ? "Files changed since last patchset revision" : "All files changed in patchset";
+				sb.append(MessageFormat.format("| {0} |||\n", title));
 				sb.append("| T   | File |     |\n");
 				sb.append("| :-- | :----------- | :-- |\n");
 				for (PathChangeModel path : diffstat.paths) {
