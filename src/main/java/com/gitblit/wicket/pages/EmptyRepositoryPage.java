@@ -66,7 +66,7 @@ public class EmptyRepositoryPage extends RootPage {
 		add(new RepositoryUrlPanel("pushurl", false, user, repository));
 		add(new Label("cloneSyntax", MessageFormat.format("git clone {0}", url)));
 		add(new Label("remoteSyntax", MessageFormat.format("git remote add origin {0}\ngit push -u origin --all\ngit push -u origin --tags", url)));
-		add(new Label("upstreamSyntax", MessageFormat.format("git remote add upstream <upstream repository url>")));
+		add(new Label("upstreamSyntax", "git remote add upstream <upstream repository url>"));
 	}
 
 	@Override
