@@ -76,12 +76,12 @@ public abstract class TicketBasePage extends RepositoryPage {
 		}
 	}
 
-	protected String getLozengeClass(Status resolution, boolean subtle) {
-		if (resolution == null) {
-			resolution = Status.New;
+	protected String getLozengeClass(Status status, boolean subtle) {
+		if (status == null) {
+			status = Status.New;
 		}
 		String css = "";
-		switch (resolution) {
+		switch (status) {
 		case Declined:
 		case Duplicate:
 		case Invalid:
@@ -107,9 +107,9 @@ public abstract class TicketBasePage extends RepositoryPage {
 		return "aui-lozenge" + (subtle ? " aui-lozenge-subtle": "") + (css.isEmpty() ? "" : " ") + css;
 	}
 
-	protected String getStatusClass(Status resolution) {
+	protected String getStatusClass(Status status) {
 		String css = "";
-		switch (resolution) {
+		switch (status) {
 		case Declined:
 		case Duplicate:
 		case Invalid:

@@ -266,8 +266,8 @@ public class TicketNotifier {
 
 			// describe patchset type
 			switch (lastChange.patch.type) {
-			case Proposal:
 			case FastForward:
+				sb.append(SOFT_BRK);
 				sb.append("This revision is a FAST-FORWARD update.");
 				break;
 			case Rebase:
@@ -285,6 +285,8 @@ public class TicketNotifier {
 			case Amend:
 				sb.append(SOFT_BRK);
 				sb.append("This revision has been AMENDED.");
+				break;
+			default:
 				break;
 			}
 			sb.append(HARD_BRK);
@@ -356,7 +358,7 @@ public class TicketNotifier {
 			if (commits != null && commits.size() > 0) {
 				// append the commit list
 				String title = isFastForward ? "Commits added since last patchset revision" : "All commits in patchset";
-				sb.append(MessageFormat.format("| {0} ||\n", title));
+				sb.append(MessageFormat.format("| {0} |||\n", title));
 				sb.append("| SHA | Author | Title |\n");
 				sb.append("| :-- | :----- | :---- |\n");
 				for (RevCommit commit : commits) {

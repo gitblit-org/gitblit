@@ -19,6 +19,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -94,6 +95,7 @@ public class TicketPage extends TicketBasePage {
 		super(params);
 
 		final UserModel user = GitBlitWebSession.get().getUser() == null ? UserModel.ANONYMOUS : GitBlitWebSession.get().getUser();
+		final boolean isAuthenticated = !UserModel.ANONYMOUS.equals(user) && user.isAuthenticated;
 		final RepositoryModel repository = getRepositoryModel();
 		final String id = WicketUtils.getObject(params);
 		if (app().tickets().isValidChangeId(id)) {
@@ -309,6 +311,61 @@ public class TicketPage extends TicketBasePage {
 		ticketStatus.add(new Label("ticketStatus", ticket.status.toString()));
 		WicketUtils.setCssClass(ticketStatus, getLozengeClass(ticket.status, false));
 		add(ticketStatus);
+
+
+		/*
+		 * UPDATE FORM
+		 */
+		List<Status> choices = new ArrayList<Status>();
+		if (ticket.isProposal()) {
+			choices.addAll(Arrays.asList(TicketModel.Status.patchsetWorkflow));
+		} else {
+			choices.addAll(Arrays.asList(TicketModel.Status.ticketWorkflow));
+		}
+		choices.remove(ticket.status);
+
+		ListDataProvider<Status> workflowDp = new ListDataProvider<Status>(choices);
+		DataView<Status> workflowView = new DataView<Status>("workflow", workflowDp) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void populateItem(final Item<Status> item) {
+				final Status value = item.getModelObject();
+				ExternalLink link = new ExternalLink("link", "#", value.toString());
+				String css = getStatusClass(value);
+				WicketUtils.setCssClass(link, css);
+				item.add(link);
+			}
+		};
+		add(workflowView.setEnabled(ticket.isOpen()));
+
+
+		/*
+		 * VOTERS
+		 */
+		List<String> voters = ticket.getVoters();
+		Label votersCount = new Label("votes", "" + voters.size());
+		if (voters.size() == 0) {
+			WicketUtils.setCssClass(votersCount, "badge");
+		} else {
+			WicketUtils.setCssClass(votersCount, "badge badge-info");
+		}
+		add(votersCount);
+		add(new ExternalLink("voteLink", "#", "vote for this ticket").setVisible(isAuthenticated));
+
+
+		/*
+		 * WATCHERS
+		 */
+		List<String> watchers = ticket.getWatchers();
+		Label watchersCount = new Label("watchers", "" + watchers.size());
+		if (watchers.size() == 0) {
+			WicketUtils.setCssClass(watchersCount, "badge");
+		} else {
+			WicketUtils.setCssClass(watchersCount, "badge badge-info");
+		}
+		add(watchersCount);
+		add(new ExternalLink("watchLink", "#", "watch this ticket").setVisible(isAuthenticated));
 
 
 		/*
@@ -699,10 +756,11 @@ public class TicketPage extends TicketBasePage {
 					endRef = patchset.ref;
 				}
 
-				item.add(new LinkPanel("compareLink", null,
+				LinkPanel link = new LinkPanel("compareLink", null,
 						MessageFormat.format(getString("gb.compareToPatchsetN"), patchset.rev),
 						ComparePage.class, WicketUtils.newRangeParameter(getRepositoryModel().name,
-								startRef, endRef), true));
+								startRef, endRef), true);
+				item.add(link);
 
 			}
 		};
