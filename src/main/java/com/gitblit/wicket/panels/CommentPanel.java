@@ -15,6 +15,9 @@
  */
 package com.gitblit.wicket.panels;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
@@ -24,8 +27,10 @@ import org.apache.wicket.model.Model;
 
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
+import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 
@@ -73,7 +78,11 @@ public class CommentPanel extends BasePanel {
 					Change newComment = new Change(user.username);
 					newComment.comment(txt);
 					ITicketService service = app().tickets();
-					TicketModel updatedTicket = service.updateTicket(ticket.repository, ticket.changeId, newComment);
+					Set<String> watchers = new TreeSet<String>(service.getTicket(ticket.repository, ticket.number).getWatchers());
+					if (watchers.add(user.username)) {
+						newComment.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+					}
+					TicketModel updatedTicket = service.updateTicket(ticket.repository, ticket.number, newComment);
 					if (updatedTicket != null) {
 						service.createNotifier().sendMailing(updatedTicket);
 						setResponsePage(pageClass, WicketUtils.newObjectParameter(updatedTicket.repository, "" + ticket.number));

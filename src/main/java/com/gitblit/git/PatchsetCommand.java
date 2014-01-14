@@ -17,6 +17,8 @@ package com.gitblit.git;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -30,6 +32,7 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
+import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -174,6 +177,14 @@ public class PatchsetCommand extends ReceiveCommand {
 		change.setField(Field.type, TicketModel.Type.Proposal);
 		change.setField(Field.mergeTo, mergeTo);
 
+		Set<String> watchers = new TreeSet<String>();
+		watchers.add(username);
+		if (!ArrayUtils.isEmpty(ccs)) {
+			for (String cc : ccs) {
+				watchers.add(cc.toLowerCase());
+			}
+		}
+
 		if (!StringUtils.isEmpty(milestone)) {
 			// user provided milestone
 			change.setField(Field.milestone, milestone);
@@ -182,18 +193,31 @@ public class PatchsetCommand extends ReceiveCommand {
 		if (!StringUtils.isEmpty(assignedTo)) {
 			// user provided assigned to
 			change.setField(Field.assignedTo, assignedTo);
+			watchers.add(assignedTo);
 		}
 
 		if (!StringUtils.isEmpty(topic)) {
 			// user provided topic
 			change.setField(Field.topic, topic);
 		}
+
+		// set the watchers
+		change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+
 		return change;
 	}
 
 	public Change asUpdateChange(String username, TicketModel ticket) {
 		Change change = new Change(username);
 		change.patch = patchset;
+
+		Set<String> watchers = new TreeSet<String>(ticket.getWatchers());
+		watchers.add(username);
+		if (!ArrayUtils.isEmpty(ccs)) {
+			for (String cc : ccs) {
+				watchers.add(cc.toLowerCase());
+			}
+		}
 
 		if (ticket.isClosed()) {
 			// re-opening a closed ticket
@@ -213,6 +237,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		if (!StringUtils.isEmpty(assignedTo) && !assignedTo.equals(ticket.assignedTo)) {
 			// user specified a (different) assigned to
 			change.setField(Field.assignedTo, assignedTo);
+			watchers.add(assignedTo);
 		}
 
 		if (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic)) {
@@ -237,6 +262,11 @@ public class PatchsetCommand extends ReceiveCommand {
                  // description changed
                  change.setField(Field.body, body);
              }
+		}
+
+		if (watchers.size() != ticket.getWatchers().size()) {
+			// update the watchers
+			change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
 		}
 		return change;
 	}

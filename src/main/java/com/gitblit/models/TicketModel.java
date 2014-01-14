@@ -34,6 +34,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jgit.util.RelativeDateFormatter;
 
@@ -221,7 +222,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 		}
 		if (!isEmpty(labels)) {
-			list.addAll(Arrays.asList(labels.split(" ")));
+			Set<String> set = new TreeSet<String>(Arrays.asList(labels.split(" ")));
+			list.addAll(set);
 		}
 		return list;
 	}
@@ -247,7 +249,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 		}
 		if (!isEmpty(reviewers)) {
-			list.addAll(Arrays.asList(reviewers.split(" ")));
+			Set<String> set = new TreeSet<String>(Arrays.asList(reviewers.split(" ")));
+			list.addAll(set);
 		}
 		return list;
 	}
@@ -265,11 +268,31 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 		}
 		if (!isEmpty(watchers)) {
-			list.addAll(Arrays.asList(watchers.split(" ")));
+			Set<String> set = new TreeSet<String>(Arrays.asList(watchers.split(" ")));
+			list.addAll(set);
 		}
 		return list;
 	}
 
+
+	public boolean isVoter(String username) {
+		return getVoters().contains(username);
+	}
+
+	public List<String> getVoters() {
+		List<String> list = new ArrayList<String>();
+		String voters = null;
+		for (Change change : changes) {
+			if (change.hasField(Field.voters)) {
+				voters = change.getString(Field.voters);
+			}
+		}
+		if (!isEmpty(voters)) {
+			Set<String> set = new TreeSet<String>(Arrays.asList(voters.split(" ")));
+			list.addAll(set);
+		}
+		return list;
+	}
 
 	public Attachment getAttachment(String name) {
 		Attachment attachment = null;
@@ -955,7 +978,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		repository, number, changeId, title, body, createdBy, assignedTo, type,
-		status, milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers;
+		status, milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers,
+		voters;
 	}
 
 	public static enum Type {
@@ -1001,7 +1025,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public static Status [] ticketWorkflow = { Open, On_Hold, Resolved, Fixed, Wontfix, Duplicate, Invalid };
 
-		public static Status [] patchsetWorkflow = { On_Hold, Merged, Declined };
+		public static Status [] patchsetWorkflow = { On_Hold, Declined };
 
 		@Override
 		public String toString() {

@@ -34,7 +34,7 @@
 	<div class="tab-pane active" id="discussion">
 		<div class="row">
 			<!-- left side-->
-			<div class="span10">		
+			<div class="span9">		
 				<div class="ticket-meta-top">
 					<!-- creator -->
 					<div style="padding-bottom: 5px;">
@@ -67,7 +67,7 @@
 			</div>
 
 			<!-- right side -->	
-			<div class="span2 hidden-phone">
+			<div class="span3 hidden-phone">
 				<div class="status-display" style="padding-bottom: 5px;">
 					<div wicket:id="ticketStatus" style="display:block;padding: 5px 10px 10px;">[ticket status]</div>
 				</div>		
@@ -76,6 +76,26 @@
 				</div>
 				<div wicket:id="labels" style="border-top: 1px solid #ccc;padding: 5px 0px;">
 					<span class="label ticketLabel" wicket:id="label">[label]</span>
+				</div>
+				
+				<div>
+					<div class="btn-group" style="display:inline-block;">
+						<a class="btn disabled" href="#">resolve</a>
+						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">workflow <span class="caret"></span></a>
+  						<ul class="dropdown-menu">
+    						<li wicket:id="workflow"><a wicket:id="link">[status]</a></li>    						
+  						</ul>				
+					</div>
+					<div class="btn-group" style="display:inline-block;">
+						<a class="btn disabled">edit</a>
+					</div>
+				</div>
+				
+				<div style="border: 1px solid #ddd;border-radius: 3px;padding: 5px;margin: 10px 0px;">
+					<table class="summary" style="width: 100%">
+						<tr><th><wicket:message key="gb.votes"></wicket:message></th><td><span wicket:id="votes" class="badge">1</span> <a style="padding-left:5px" wicket:id="voteLink" href="#">vote</a></td></tr>
+						<tr><th><wicket:message key="gb.watchers"></wicket:message></th><td><span wicket:id="watchers" class="badge">1</span> <a style="padding-left:5px" wicket:id="watchLink" href="#">watch</a></td></tr>
+					</table>
 				</div>
 			</div>
 		</div>
