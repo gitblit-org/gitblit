@@ -10,6 +10,7 @@ r20: {
     text: ~
     security: ~
     fixes:
+	- Fixed incorrect tagger attribution in the dashboard (issue-276)
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)
 	- Bind LDAP connection after establishing TLS initialization (issue-343)
 	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
@@ -91,6 +92,7 @@ r20: {
 	- David Ostrovsky
 	- Alex Lewis
 	- Marc Strapetz
+	- Gareth Collins
 }
 
 #
