@@ -238,7 +238,7 @@ public class MyDashboardPage extends DashboardPage {
 		if (!StringUtils.isEmpty(lc)) {
 			if (!StringUtils.isEmpty(cc)) {
 				files.add(base + "_" + lc + "-" + cc + ext);
-				files.add(base + "_" + lc + "_" + cc + ext);
+				files.add(base + "_" + lc + "_" + cc.toUpperCase() + ext);
 			}
 			files.add(base + "_" + lc + ext);
 		}
