@@ -12,4 +12,6 @@
 {"id":"3c0e95b9888ee7e2b7c9d92d39ee346965b62359","createdAt":"2014-01-15T14:15:35Z","createdBy":"james","patch":{"rev":6,"tip":"9a53702f62346f8009c1b57235a9709a30797d92","base":"814e248354ed9b234c59e3470ef363f705bf711a","insertions":12504,"deletions":283,"totalCommits":6,"addedCommits":1,"type":"FastForward","ref":"refs/changes/01/1/6"}}
 ,
 {"id":"abf1d450f209f65b731dd9002124d31895466f98","createdAt":"2014-01-15T15:10:12Z","createdBy":"james","patch":{"rev":7,"tip":"c2e2004e917867d9768bfd6935d71af507107eeb","base":"814e248354ed9b234c59e3470ef363f705bf711a","insertions":12486,"deletions":283,"totalCommits":6,"addedCommits":0,"type":"Amend","ref":"refs/changes/01/1/7"}}
+,
+{"id":"379ce0ef4edc25c48f423206fcf647bf42f228a7","createdAt":"2014-01-15T15:43:03Z","createdBy":"james","patch":{"rev":8,"tip":"94d11fbb4a674d200a95231acad657ba0020fbc3","base":"814e248354ed9b234c59e3470ef363f705bf711a","insertions":12496,"deletions":283,"totalCommits":7,"addedCommits":1,"type":"FastForward","ref":"refs/changes/01/1/8"}}
 ]
