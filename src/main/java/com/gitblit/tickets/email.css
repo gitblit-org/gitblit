@@ -1,5 +1,6 @@
 table {
 	border:1px solid #ddd;
+	margin: 15px 0px;
 }
 
 th {
@@ -18,18 +19,6 @@ a {
 
 a:hover {
 	color: #002060;
-}
-
-span .note {
-	color: #888;
-}
-
-span .insertions {
-	color: #00f000;
-}
-
-span .deletions {
-	color: #f00000;
 }
 
 body {

@@ -7,38 +7,43 @@
 <body>
 <wicket:extend>
 
-	<div style="border: 1px solid #ddd;background-color:#fbfbfb;margin:0px 0px 10px;padding: 8px 10px;">
-		<a class="ticket-number" wicket:id="ticketNumber"></a>
-		<div style="display:inline-block;padding: 0px 10px;"><span wicket:id="headerStatus"></span></div>	
-		<div style="display:inline-block;" class="ticket-title"><span wicket:id="ticketTitle">[ticket title]</span></div>
-		<div class="hidden-phone hidden-tablet pull-right"><div wicket:id="diffstat"></div></div>
-	</div>
+<!-- HEADER -->
+<div style="border: 1px solid #ddd;background-color:#fbfbfb;margin:0px 0px 10px;padding: 8px 10px;">
+	<a class="ticket-number" wicket:id="ticketNumber"></a>
+	<div style="display:inline-block;padding: 0px 10px;"><span wicket:id="headerStatus"></span></div>	
+	<div style="display:inline-block;" class="ticket-title"><span wicket:id="ticketTitle">[ticket title]</span></div>
+	<div class="hidden-phone hidden-tablet pull-right"><div wicket:id="diffstat"></div></div>
+</div>
 
-	<!-- TAB NAMES -->
-	<ul class="nav nav-tabs hidden-phone">
-		<li class="active"><a data-toggle="tab" href="#discussion">
-			<i style="color:#888;"class="fa fa-comments"></i> <wicket:message key="gb.discussion"></wicket:message> <span class="lwbadge" wicket:id="commentCount"></span></a>
-		</li>
-		<li><a data-toggle="tab" href="#patchset">
-			<i style="color:#888;"class="fa fa-code"></i> <wicket:message key="gb.patchset"></wicket:message></a>
-		</li>
-		<li><a data-toggle="tab" href="#history">
-			<i style="color:#888;"class="fa fa-clock-o"></i> <wicket:message key="gb.history"></wicket:message></a>
-		</li>
-	</ul>
+<!-- TAB NAMES -->
+<ul class="nav nav-tabs hidden-phone">
+	<li class="active"><a data-toggle="tab" href="#overview">
+		<i style="color:#888;"class="fa fa-dashboard"></i> <wicket:message key="gb.overview"></wicket:message></a>
+	</li>
+	<li><a data-toggle="tab" href="#discussion">
+		<i style="color:#888;"class="fa fa-comments"></i> <wicket:message key="gb.discussion"></wicket:message> <span class="lwbadge" wicket:id="commentCount"></span></a>
+	</li>
+	<li><a data-toggle="tab" href="#commits">
+		<i style="color:#888;"class="fa fa-code"></i> <wicket:message key="gb.commits"></wicket:message> <span class="lwbadge" wicket:id="commitCount"></span></a>
+	</li>
+	<li><a data-toggle="tab" href="#history">
+		<i style="color:#888;"class="fa fa-clock-o"></i> <wicket:message key="gb.history"></wicket:message></a>
+	</li>
+</ul>
 	
-	<!-- TABS -->
-	<div class="tab-content">
-	
-	<!-- DISCUSSION TAB -->
-	<div class="tab-pane active" id="discussion">
+<!-- TABS -->
+<div class="tab-content">
+		
+	<!-- OVERVIEW TAB -->
+	<div class="tab-pane active" id="overview">
 		<div class="row">
-			<!-- left side-->
-			<div class="span9">		
+				
+			<!-- LEFT SIDE -->
+			<div class="span8">		
 				<div class="ticket-meta-top">
 					<!-- creator -->
 					<div style="padding-bottom: 5px;">
-						<p class="pull-right ticket-number"><a rel="nofollow" target="_blank" style="padding-right: 10px;font-weight:normal; font-size: 11px;color:inherit;" wicket:id="exportJson"></a></p>
+						<p class="hidden-tablet pull-right ticket-number"><a rel="nofollow" target="_blank" style="padding-right: 10px;font-weight:normal; font-size: 11px;color:inherit;" wicket:id="exportJson"></a></p>
 						<span class="attribution-emphasize" wicket:id="whoCreated">[someone]</span><span wicket:id="creationMessage" class="attribution-text" style="padding: 0px 3px;">[created this ticket]</span> <span class="attribution-emphasize" wicket:id="whenCreated">[when created]</span>
 					</div>
 				</div>
@@ -58,68 +63,64 @@
 						</tr>
 					</table>
 				</div>
-				<div class="ticket-meta-bottom"><div class="ticket-text markdown" wicket:id="ticketDescription">[description]</div></div>
-		
-				<div style="padding-top:10px">
-					<span class="attribution-text" wicket:id="participantsLabel"></span>
-					<span wicket:id="participants"><span style="padding: 0px 2px;" wicket:id="participant"></span></span>
-				</div>		
+				<div class="ticket-meta-bottom" style="min-height:110px;">
+					<div class="ticket-text markdown" wicket:id="ticketDescription">[description]</div>
+				</div>
 			</div>
 
-			<!-- right side -->	
-			<div class="span3 hidden-phone">
+			<!-- RIGHT SIDE -->	
+			<div class="span4 hidden-phone">
 				<div class="status-display" style="padding-bottom: 5px;">
 					<div wicket:id="ticketStatus" style="display:block;padding: 5px 10px 10px;">[ticket status]</div>
 				</div>		
-				<div style="text-align: right;">
-					<div style="padding-bottom: 5px;" wicket:id="ticketTopic"></div>			
-				</div>
 				<div wicket:id="labels" style="border-top: 1px solid #ccc;padding: 5px 0px;">
 					<span class="label ticketLabel" wicket:id="label">[label]</span>
 				</div>
 				
-				<div>
-					<div class="btn-group" style="display:inline-block;">
-						<a class="btn disabled" href="#">resolve</a>
-						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">workflow <span class="caret"></span></a>
-  						<ul class="dropdown-menu">
-    						<li wicket:id="workflow"><a wicket:id="link">[status]</a></li>    						
-  						</ul>				
-					</div>
-					<div class="btn-group" style="display:inline-block;">
-						<a class="btn disabled">edit</a>
-					</div>
-				</div>
+				<div wicket:id="controls"></div>
 				
 				<div style="border: 1px solid #ddd;border-radius: 3px;padding: 5px;margin: 10px 0px;">
 					<table class="summary" style="width: 100%">
+						<tr><th><wicket:message key="gb.type"></wicket:message></th><td><span wicket:id="ticketType">[type]</span></td></tr>
+						<tr><th><wicket:message key="gb.topic"></wicket:message></th><td><span wicket:id="ticketTopic">[topic]</span></td></tr>
 						<tr><th><wicket:message key="gb.votes"></wicket:message></th><td><span wicket:id="votes" class="badge">1</span> <a style="padding-left:5px" wicket:id="voteLink" href="#">vote</a></td></tr>
 						<tr><th><wicket:message key="gb.watchers"></wicket:message></th><td><span wicket:id="watchers" class="badge">1</span> <a style="padding-left:5px" wicket:id="watchLink" href="#">watch</a></td></tr>
 					</table>
 				</div>
+				
+				<div>
+					<span class="attribution-text" wicket:id="participantsLabel"></span>
+					<span wicket:id="participants"><span style="padding: 0px 2px;" wicket:id="participant"></span></span>
+				</div>	
 			</div>
 		</div>
-
-		<div style="padding-top:10px;">
-			<div wicket:id="discussion">
-				<div wicket:id="entry"></div>
-			</div>
+	</div>
+	
+	
+	<!-- DISCUSSION TAB -->
+	<div class="tab-pane" id="discussion">
+		<div wicket:id="discussion">
+			<div wicket:id="entry"></div>
 		</div>
-
-		<div wicket:id="newComment"></div>	
 	</div>
 
-	<!-- PATCHSET TAB -->
-	<div class="tab-pane" id="patchset">
+
+	<!-- COMMITS TAB -->
+	<div class="tab-pane" id="commits">
 		<div wicket:id="patchset"></div>
 	</div>
+	
 	
 	<!-- HISTORY TAB -->
 	<div class="tab-pane hidden-phone" id="history">
 		<div wicket:id="history"></div>	
 	</div>
 	
-	</div> <!-- END TABS -->
+</div> <!-- END TABS -->
+
+
+<!-- ADD COMMENT (always visible) -->
+<div wicket:id="newComment"></div>
 
 
 <!-- MILESTONE PROGRESS FRAGMENT -->
@@ -128,6 +129,23 @@
 	<div style="display:inline-block;margin-bottom: 0px;width: 100px;" class="progress progress-success">
 		<div class="bar" wicket:id="progress"></div>
 	</div>	
+</wicket:fragment>
+
+
+<!-- TICKET CONTROLS FRAGMENT -->
+<wicket:fragment wicket:id="controlsFragment">
+	<div>
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn disabled" href="#">resolve</a>
+			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">workflow <span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li wicket:id="workflow"><a wicket:id="link">[status]</a></li>    						
+				</ul>				
+		</div>
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn disabled">edit</a>
+		</div>
+	</div>
 </wicket:fragment>
 
 
@@ -168,7 +186,9 @@
 		<div class="attribution-header">
 			 <span class="indicator-large-dark"><i wicket:id="commentIcon"></i></span><span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span class="hidden-phone"><wicket:message key="gb.commented">[commented]</wicket:message></span></span><p class="attribution-header-pullright" ><span class="attribution-date" wicket:id="changeDate">[comment date]</span><a class="attribution-link" wicket:id="changeLink"><i class="iconic-link"></i></a></p>
 		</div>
-		<div class="ticket-text attribution-comment markdown" wicket:id="comment">[comment text]</div>
+		<div class="attribution-comment markdown">
+			<div class="ticket-text" wicket:id="comment">[comment text]</div>
+		</div>
 	</div>
 </div>
 </wicket:fragment>

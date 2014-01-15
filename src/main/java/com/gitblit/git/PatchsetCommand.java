@@ -53,7 +53,7 @@ public class PatchsetCommand extends ReceiveCommand {
 	String milestone;
 	String assignedTo;
 	String topic;
-	List<String> ccs;
+	List<String> watchers;
 
 	public static String getBaseRef(long ticketNumber) {
 		StringBuilder sb = new StringBuilder();
@@ -177,11 +177,11 @@ public class PatchsetCommand extends ReceiveCommand {
 		change.setField(Field.type, TicketModel.Type.Proposal);
 		change.setField(Field.mergeTo, mergeTo);
 
-		Set<String> watchers = new TreeSet<String>();
-		watchers.add(username);
-		if (!ArrayUtils.isEmpty(ccs)) {
-			for (String cc : ccs) {
-				watchers.add(cc.toLowerCase());
+		Set<String> watchSet = new TreeSet<String>();
+		watchSet.add(username);
+		if (!ArrayUtils.isEmpty(watchers)) {
+			for (String cc : watchers) {
+				watchSet.add(cc.toLowerCase());
 			}
 		}
 
@@ -193,7 +193,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		if (!StringUtils.isEmpty(assignedTo)) {
 			// user provided assigned to
 			change.setField(Field.assignedTo, assignedTo);
-			watchers.add(assignedTo);
+			watchSet.add(assignedTo);
 		}
 
 		if (!StringUtils.isEmpty(topic)) {
@@ -202,7 +202,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		}
 
 		// set the watchers
-		change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+		change.watch(watchSet.toArray(new String[watchSet.size()]));
 
 		return change;
 	}
@@ -211,11 +211,11 @@ public class PatchsetCommand extends ReceiveCommand {
 		Change change = new Change(username);
 		change.patch = patchset;
 
-		Set<String> watchers = new TreeSet<String>(ticket.getWatchers());
-		watchers.add(username);
-		if (!ArrayUtils.isEmpty(ccs)) {
-			for (String cc : ccs) {
-				watchers.add(cc.toLowerCase());
+		Set<String> watchSet = new TreeSet<String>();
+		watchSet.add(username);
+		if (!ArrayUtils.isEmpty(watchers)) {
+			for (String cc : watchers) {
+				watchSet.add(cc.toLowerCase());
 			}
 		}
 
@@ -237,7 +237,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		if (!StringUtils.isEmpty(assignedTo) && !assignedTo.equals(ticket.assignedTo)) {
 			// user specified a (different) assigned to
 			change.setField(Field.assignedTo, assignedTo);
-			watchers.add(assignedTo);
+			watchSet.add(assignedTo);
 		}
 
 		if (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic)) {
@@ -264,9 +264,10 @@ public class PatchsetCommand extends ReceiveCommand {
              }
 		}
 
-		if (watchers.size() != ticket.getWatchers().size()) {
-			// update the watchers
-			change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+		// update the watchers
+		watchSet.removeAll(ticket.getWatchers());
+		if (!watchSet.isEmpty()) {
+			change.watch(watchSet.toArray(new String[watchSet.size()]));
 		}
 		return change;
 	}

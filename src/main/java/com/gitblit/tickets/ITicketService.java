@@ -15,6 +15,7 @@
  */
 package com.gitblit.tickets;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gitblit.IStoredSettings;
+import com.gitblit.Keys;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -389,6 +391,19 @@ public abstract class ITicketService {
 	 * @return a ticket, if it exists, otherwise null
 	 */
 	public abstract TicketModel getTicket(String repository, String changeId);
+
+
+	/**
+	 * Get the ticket url
+	 *
+	 * @param ticket
+	 * @return the ticket url
+	 */
+	public String getTicketUrl(TicketModel ticket) {
+		final String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
+		final String hrefPattern = "{0}/tickets?r={1}&h={2,number,0}";
+		return MessageFormat.format(hrefPattern, canonicalUrl, ticket.repository, ticket.number);
+	}
 
 	/**
 	 * Returns true if attachments are supported.

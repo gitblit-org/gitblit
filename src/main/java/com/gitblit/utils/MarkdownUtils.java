@@ -131,19 +131,14 @@ public class MarkdownUtils {
 		String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 
 		// ticket refs
-		String ticketReplacement = MessageFormat.format("[#$1]({0}/tickets?r={1}&h=$1)", canonicalUrl, repositoryName);
-		text = text.replaceAll("#(\\d+)", ticketReplacement);
+		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)", canonicalUrl, repositoryName);
+		text = text.replaceAll("([\\s,]+)#(\\d+)", ticketReplacement);
 
 		// link commit shas
 		int shaLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
-		String commitPattern = MessageFormat.format("[^I]([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
+		String commitPattern = MessageFormat.format("[^I#]([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
 		String commitReplacement = String.format("<a class='commit' href='%1$s/commit?r=%2$s&h=$1$2'>$1</a>", canonicalUrl, repositoryName);
 		text = text.replaceAll(commitPattern, commitReplacement);
-
-		// link change-ids
-		String changeIdPattern = MessageFormat.format("I([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
-		String changeIdReplacement = String.format("<a class='ticket' href='%1$s/tickets?r=%2$s&h=I$1$2'>I$1$2</a>", canonicalUrl, repositoryName);
-		text = text.replaceAll(changeIdPattern, changeIdReplacement);
 
 		String html = transformMarkdown(text);
 		return html;
