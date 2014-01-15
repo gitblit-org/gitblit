@@ -101,7 +101,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	protected static final String ASSIGNEDTO = "r=";
 
-	protected static final String CC = "cc=";
+	protected static final String WATCH = "cc=";
 
 	protected static final String MILESTONE = "m=";
 
@@ -373,6 +373,19 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 						// milestone does not exist
 						sendRejection(cmd, "Sorry, \"{0}\" is not a valid milestone!", milestone);
 						continue;
+					}
+				}
+
+				// watcher verification
+				List<String> watchers = getOptions(cmd, WATCH);
+				if (!ArrayUtils.isEmpty(watchers)) {
+					for (String watcher : watchers) {
+						UserModel user = gitblit.getUserModel(watcher);
+						if (user == null) {
+							// watcher does not exist
+							sendRejection(cmd, "Sorry, \"{0}\" is not a valid username for the watch list!", watcher);
+							continue;
+						}
 					}
 				}
 
@@ -686,7 +699,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		psCmd.milestone = getSingleOption(cmd, MILESTONE);
 		psCmd.assignedTo = getSingleOption(cmd, ASSIGNEDTO);
 		psCmd.topic = getSingleOption(cmd, TOPIC);
-		psCmd.ccs = getOptions(cmd, CC);
+		psCmd.watchers = getOptions(cmd, WATCH);
 
 		return psCmd;
 	}
