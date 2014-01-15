@@ -152,6 +152,7 @@ public class TicketPage extends TicketBasePage {
 		 * TAB TITLES
 		 */
 		add(new Label("commentCount", "" + comments.size()).setVisible(!comments.isEmpty()));
+		add(new Label("commitCount", "" + (currentPatchset == null ? 0 : currentPatchset.totalCommits)).setVisible(currentPatchset != null));
 
 
 		/*
@@ -579,42 +580,23 @@ public class TicketPage extends TicketBasePage {
 				Change event = item.getModelObject();
 				if (event.hasPatchset()) {
 					// patchset
-					Patchset patch = event.patch;
+					Patchset patchset = event.patch;
 					String what = getString("gb.uploadedPatchset");
-					switch (patch.addedCommits) {
+					switch (patchset.addedCommits) {
 					case 1:
-						what += " (+" + patch.addedCommits + " " + getString("gb.commit") + ")";
+						what += " (+" + patchset.addedCommits + " " + getString("gb.commit") + ")";
 						break;
 					case 0:
 						break;
 					default:
-						what += " (+" + patch.addedCommits + " " + getString("gb.commits") + ")";
+						what += " (+" + patchset.addedCommits + " " + getString("gb.commits") + ")";
 						break;
 					}
 					item.add(new Label("what", what));
-					item.add(new LinkPanel("patchsetRevision", "commit", getString("gb.revision") + " " + patch.rev,
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.tip), true));
-					String typeCss;
-					switch (patch.type) {
-						case Rebase:
-							typeCss = getLozengeClass(Status.Merged, false);
-							break;
-						case Squash:
-						case Rebase_Squash:
-							typeCss = getLozengeClass(Status.Declined, false);
-							break;
-						case Amend:
-							typeCss = getLozengeClass(Status.On_Hold, false);
-							break;
-						case Proposal:
-							typeCss = getLozengeClass(Status.New, false);
-							break;
-						case FastForward:
-						default:
-							typeCss = null;
-						break;
-					}
-					Label typeLabel = new Label("patchsetType", patch.type.toString());
+					item.add(new LinkPanel("patchsetRevision", "commit", getString("gb.revision") + " " + patchset.rev,
+							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patchset.tip), true));
+					String typeCss = getPatchsetTypeCss(patchset.type);
+					Label typeLabel = new Label("patchsetType", patchset.type.toString());
 					if (typeCss == null) {
 						typeLabel.setVisible(false);
 					} else {
@@ -622,15 +604,15 @@ public class TicketPage extends TicketBasePage {
 					}
 					item.add(typeLabel);
 
-					boolean showMergeBase = PatchsetType.Proposal == patch.type
-										|| PatchsetType.Rebase == patch.type
-										|| PatchsetType.Rebase_Squash == patch.type;
+					boolean showMergeBase = PatchsetType.Proposal == patchset.type
+										|| PatchsetType.Rebase == patchset.type
+										|| PatchsetType.Rebase_Squash == patchset.type;
 
 					item.add(new LinkPanel("mergeBase", "link", getString("gb.mergeBase"),
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patch.base), true)
+							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patchset.base), true)
 							.setVisible(showMergeBase));
 
-					if (ticket.isMerged() && patch.tip.equals(ticket.mergeSha)) {
+					if (ticket.isMerged() && patchset.tip.equals(ticket.mergeSha)) {
 						// merged revision
 						Label status = new Label("revisedStatus", Status.Merged.toString());
 						String css = getLozengeClass(Status.Merged, true);
@@ -640,7 +622,7 @@ public class TicketPage extends TicketBasePage {
 						item.add(new Label("revisedStatus").setVisible(false));
 					}
 					// show commit diffstat
-					item.add(new DiffStatPanel("patchsetDiffStat", patch.insertions, patch.deletions, true));
+					item.add(new DiffStatPanel("patchsetDiffStat", patchset.insertions, patchset.deletions, true));
 				} else if (event.hasComment()) {
 					// comment
 					item.add(new Label("what", getString("gb.commented")));
@@ -720,11 +702,10 @@ public class TicketPage extends TicketBasePage {
 	}
 
 	protected FreemarkerPanel createPatchsetPanel(String wicketId, RepositoryModel repository, UserModel user) {
-		List<Patchset> patchsets = new ArrayList<Patchset>(ticket.getPatchsets());
-		patchsets.remove(ticket.getCurrentPatchset());
-		Collections.reverse(patchsets);
-
 		final Patchset currentPatchset = ticket.getCurrentPatchset();
+		List<Patchset> patchsets = new ArrayList<Patchset>(ticket.getPatchsets());
+		patchsets.remove(currentPatchset);
+		Collections.reverse(patchsets);
 
 		Map<String, Object> pmap = new HashMap<String, Object>();
 		pmap.put("accordianId", "rev" + currentPatchset.rev);
@@ -732,9 +713,26 @@ public class TicketPage extends TicketBasePage {
 		FreemarkerPanel panel = new FreemarkerPanel(wicketId, "CollapsiblePatch.fm", pmap);
 		panel.setParseGeneratedMarkup(true);
 
-		// patch header
+		// patchset header
 		panel.add(new LinkPanel("patchId", null, getString("gb.revision") + " " + currentPatchset.rev,
 				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, currentPatchset.tip), true));
+
+		// patchset type
+		String patchsetTypeCss = getPatchsetTypeCss(currentPatchset.type);
+		String typeSpan = MessageFormat.format("<span class=\"{0}\">{1}</span>",
+				patchsetTypeCss, currentPatchset.type.toString().toUpperCase());
+		String patchsetType = MessageFormat.format(getString("gb.thisRevisionIsA"), typeSpan);
+		panel.add(new Label("patchsetType", patchsetType).setEscapeModelStrings(false));
+		switch (currentPatchset.addedCommits) {
+			case 1:
+				panel.add(new Label("plusCommits", getString("gb.plusOneCommit")));
+				break;
+			default:
+				panel.add(new Label("plusCommits",
+						MessageFormat.format(getString("gb.plusNCommits"),
+								currentPatchset.addedCommits)).setVisible(currentPatchset.addedCommits > 0));
+				break;
+		}
 
 		// compare menu
 		panel.add(new LinkPanel("compareMergeBase", null, getString("gb.compareToMergeBase"),
@@ -1002,6 +1000,30 @@ public class TicketPage extends TicketBasePage {
 			logger().error("failed to determine ticket from ref", e);
 		}
 		return null;
+	}
+
+	protected String getPatchsetTypeCss(PatchsetType type) {
+		String typeCss;
+		switch (type) {
+			case Rebase:
+				typeCss = getLozengeClass(Status.Merged, false);
+				break;
+			case Squash:
+			case Rebase_Squash:
+				typeCss = getLozengeClass(Status.Declined, false);
+				break;
+			case Amend:
+				typeCss = getLozengeClass(Status.On_Hold, false);
+				break;
+			case Proposal:
+				typeCss = getLozengeClass(Status.New, false);
+				break;
+			case FastForward:
+			default:
+				typeCss = null;
+			break;
+		}
+		return typeCss;
 	}
 
 	@Override

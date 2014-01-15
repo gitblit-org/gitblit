@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 
@@ -160,7 +161,8 @@ public class TicketNotifier {
 
 		// define the fields we do NOT want to see in an email notification
 		Set<TicketModel.Field> fieldExclusions = new HashSet<TicketModel.Field>();
-		fieldExclusions.addAll(Arrays.asList(Field.number, Field.createdBy, Field.changeId, Field.type));
+		fieldExclusions.addAll(Arrays.asList(Field.number, Field.createdBy, Field.changeId,
+				Field.type, Field.watchers, Field.voters));
 
 		StringBuilder sb = new StringBuilder();
 		boolean newTicket = false;
@@ -243,7 +245,7 @@ public class TicketNotifier {
 			pattern = "**{0}** uploaded patchset revision {1}.";
 			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patch.rev));
 			sb.append(SOFT_BRK);
-			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span class=\"insertions\">+{4} insertions</span>, <span class=\"deletions\">-{5} deletions</span> from {6} {7}.",
+			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span style=\"color:#00a000;\">+{4} insertions</span>, <span style=\"color:#a00000;\">-{5} deletions</span> from {6} {7}.",
 					commits.size(), commits.size() == 1 ? "commit" : "commits",
 					diffstat.paths.size(),
 					diffstat.paths.size() == 1 ? "file" : "files",
@@ -272,19 +274,19 @@ public class TicketNotifier {
 				break;
 			case Rebase:
 				sb.append(SOFT_BRK);
-				sb.append("This revision has been REBASED.");
+				sb.append("This revision has been **REBASED**.");
 				break;
 			case Rebase_Squash:
 				sb.append(SOFT_BRK);
-				sb.append("This revision has been REBASED and SQUASHED.");
+				sb.append("This revision has been **REBASED and SQUASHED**.");
 				break;
 			case Squash:
 				sb.append(SOFT_BRK);
-				sb.append("This revision has been SQUASHED.");
+				sb.append("This revision has been **SQUASHED**.");
 				break;
 			case Amend:
 				sb.append(SOFT_BRK);
-				sb.append("This revision has been AMENDED.");
+				sb.append("This revision has been **AMENDED**.");
 				break;
 			default:
 				break;
@@ -306,7 +308,7 @@ public class TicketNotifier {
 
 			// ticket description, on state change
 			if (StringUtils.isEmpty(ticket.body)) {
-				sb.append("<span class='note'>no description entered</span>");
+				sb.append("<span style=\"color: #888;\">no description entered</span>");
 			} else {
 				sb.append(ticket.body);
 			}
@@ -376,8 +378,8 @@ public class TicketNotifier {
 				sb.append("| T   | File |     |\n");
 				sb.append("| :-- | :----------- | :-- |\n");
 				for (PathChangeModel path : diffstat.paths) {
-					sb.append(MessageFormat.format("| {0} | {1} | <span class=\"insertions\">+{2}</span>/<span class=\"deletions\">-{3}</span> |\n",
-							path.changeType.name().charAt(0), path.name, path.insertions, path.deletions));
+					sb.append(MessageFormat.format("| {0} | {1} | <span style=\"color:#00a000;\">+{2}</span>/<span style=\"color:#a00000;\">-{3}</span> |\n",
+							getChangeType(path.changeType), path.name, path.insertions, path.deletions));
 				}
 				sb.append(HARD_BRK);
 			}
@@ -386,6 +388,35 @@ public class TicketNotifier {
 		}
 
 		return sb.toString();
+	}
+
+	protected String getChangeType(ChangeType type) {
+		String style = null;
+		switch (type) {
+			case ADD:
+				style = "color:#00a000;";
+				break;
+			case COPY:
+				style = "";
+				break;
+			case DELETE:
+				style = "color:#a00000;";
+				break;
+			case MODIFY:
+				style = "";
+				break;
+			case RENAME:
+				style = "";
+				break;
+			default:
+				break;
+		}
+		String code = type.name().toUpperCase().substring(0, 1);
+		if (style == null) {
+			return code;
+		} else {
+			return MessageFormat.format("<strong><span style=\"{0}padding:2px;margin:2px;border:1px solid #ddd;\">{1}</span></strong>", style, code);
+		}
 	}
 
 	/**

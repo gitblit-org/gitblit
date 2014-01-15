@@ -59,6 +59,8 @@ public class QueryResult implements Serializable {
 	public Patchset patchset;
 	public int patchsetsCount;
 	public int commentsCount;
+	public int votesCount;
+	public int approvalsCount;
 
 	public int docId;
 	public int totalResults;

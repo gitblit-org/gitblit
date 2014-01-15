@@ -97,7 +97,8 @@ public class TicketIndexer {
 		comments(Type.INT),
 		mergesha(Type.STRING),
 		mergeto(Type.STRING),
-		patchsets(Type.INT);
+		patchsets(Type.INT),
+		votes(Type.INT);
 
 		final Type fieldType;
 
@@ -454,14 +455,15 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.type, ticket.type == null ? null : ticket.type.toString());
 		toDocField(doc, Lucene.mergesha, ticket.mergeSha);
 		toDocField(doc, Lucene.mergeto, ticket.mergeTo);
-		toDocField(doc, Lucene.labels, StringUtils.flattenStrings(ticket.getLabels(), " ").toLowerCase());
-		toDocField(doc, Lucene.participants, StringUtils.flattenStrings(ticket.getParticipants()).toLowerCase());
+		toDocField(doc, Lucene.labels, StringUtils.flattenStrings(ticket.getLabels(), ";").toLowerCase());
+		toDocField(doc, Lucene.participants, StringUtils.flattenStrings(ticket.getParticipants(), ";").toLowerCase());
+		toDocField(doc, Lucene.votes, ticket.getVoters().size());
 
 		List<String> attachments = new ArrayList<String>();
 		for (Attachment attachment : ticket.getAttachments()) {
 			attachments.add(attachment.name.toLowerCase());
 		}
-		toDocField(doc, Lucene.attachments, StringUtils.flattenStrings(attachments, " "));
+		toDocField(doc, Lucene.attachments, StringUtils.flattenStrings(attachments, ";"));
 
 		List<Patchset> patches = ticket.getPatchsets();
 		if (!patches.isEmpty()) {
@@ -534,6 +536,7 @@ public class TicketIndexer {
 		result.mergeTo = unpackString(doc, Lucene.mergeto);
 		result.commentsCount = unpackInt(doc, Lucene.comments);
 		result.patchsetsCount = unpackInt(doc, Lucene.patchsets);
+		result.votesCount = unpackInt(doc, Lucene.votes);
 		result.attachments = unpackStrings(doc, Lucene.attachments);
 		result.labels = unpackStrings(doc, Lucene.labels);
 		result.participants = unpackStrings(doc, Lucene.participants);
@@ -563,7 +566,7 @@ public class TicketIndexer {
 
 	private List<String> unpackStrings(Document doc, Lucene lucene) {
 		if (!StringUtils.isEmpty(doc.get(lucene.name()))) {
-			return StringUtils.getStringsFromValue(doc.get(lucene.name()));
+			return StringUtils.getStringsFromValue(doc.get(lucene.name()), ";");
 		}
 		return null;
 	}

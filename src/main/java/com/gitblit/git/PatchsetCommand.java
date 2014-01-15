@@ -202,7 +202,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		}
 
 		// set the watchers
-		change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+		change.watch(watchers.toArray(new String[watchers.size()]));
 
 		return change;
 	}
@@ -211,7 +211,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		Change change = new Change(username);
 		change.patch = patchset;
 
-		Set<String> watchers = new TreeSet<String>(ticket.getWatchers());
+		Set<String> watchers = new TreeSet<String>();
 		watchers.add(username);
 		if (!ArrayUtils.isEmpty(ccs)) {
 			for (String cc : ccs) {
@@ -264,9 +264,10 @@ public class PatchsetCommand extends ReceiveCommand {
              }
 		}
 
-		if (watchers.size() != ticket.getWatchers().size()) {
-			// update the watchers
-			change.setField(Field.watchers, StringUtils.flattenStrings(watchers));
+		// update the watchers
+		watchers.removeAll(ticket.getWatchers());
+		if (!watchers.isEmpty()) {
+			change.watch(watchers.toArray(new String[watchers.size()]));
 		}
 		return change;
 	}
