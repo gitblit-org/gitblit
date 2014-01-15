@@ -420,6 +420,8 @@ public class TicketsPage extends TicketBasePage {
 		sortChoices.add(new TicketSort(getString("gb.sortLeastComments"), Lucene.comments.name(), false));
 		sortChoices.add(new TicketSort(getString("gb.sortMostPatchsetRevisions"), Lucene.patchsets.name(), true));
 		sortChoices.add(new TicketSort(getString("gb.sortLeastPatchsetRevisions"), Lucene.patchsets.name(), false));
+		sortChoices.add(new TicketSort(getString("gb.sortMostVotes"), Lucene.votes.name(), true));
+		sortChoices.add(new TicketSort(getString("gb.sortLeastVotes"), Lucene.votes.name(), false));
 
 		TicketSort currentSort = sortChoices.get(0);
 		for (TicketSort ts : sortChoices) {
@@ -513,8 +515,14 @@ public class TicketsPage extends TicketBasePage {
 					item.add(avatar);
 				}
 
+				// votes indicator
+				Label v = new Label("votes", "" + ticket.votesCount);
+				WicketUtils.setHtmlTooltip(v, getString("gb.votes"));
+				item.add(v.setVisible(ticket.votesCount > 0));
+
+				// status indicator
 				String css = getLozengeClass(ticket.status, true);
-				Label l = new Label("resolution", ticket.status.toString());
+				Label l = new Label("status", ticket.status.toString());
 				WicketUtils.setCssClass(l, css);
 				item.add(l);
 

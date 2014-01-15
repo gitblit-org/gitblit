@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -147,7 +148,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public boolean isProposal() {
-		return type != null && Type.Proposal == type;
+		return Type.Proposal == type;
 	}
 
 	public boolean isBug() {
@@ -214,18 +215,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public List<String> getLabels() {
-		List<String> list = new ArrayList<String>();
-		String labels = null;
-		for (Change change : changes) {
-			if (change.hasField(Field.labels)) {
-				labels = change.getString(Field.labels);
-			}
-		}
-		if (!isEmpty(labels)) {
-			Set<String> set = new TreeSet<String>(Arrays.asList(labels.split(" ")));
-			list.addAll(set);
-		}
-		return list;
+		return getList(Field.labels);
 	}
 
 	public boolean isAssignedTo(String username) {
@@ -241,18 +231,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public List<String> getReviewers() {
-		List<String> list = new ArrayList<String>();
-		String reviewers = null;
-		for (Change change : changes) {
-			if (change.hasField(Field.reviewers)) {
-				reviewers = change.getString(Field.reviewers);
-			}
-		}
-		if (!isEmpty(reviewers)) {
-			Set<String> set = new TreeSet<String>(Arrays.asList(reviewers.split(" ")));
-			list.addAll(set);
-		}
-		return list;
+		return getList(Field.reviewers);
 	}
 
 	public boolean isWatching(String username) {
@@ -260,38 +239,40 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public List<String> getWatchers() {
-		List<String> list = new ArrayList<String>();
-		String watchers = null;
-		for (Change change : changes) {
-			if (change.hasField(Field.watchers)) {
-				watchers = change.getString(Field.watchers);
-			}
-		}
-		if (!isEmpty(watchers)) {
-			Set<String> set = new TreeSet<String>(Arrays.asList(watchers.split(" ")));
-			list.addAll(set);
-		}
-		return list;
+		return getList(Field.watchers);
 	}
-
 
 	public boolean isVoter(String username) {
 		return getVoters().contains(username);
 	}
 
 	public List<String> getVoters() {
-		List<String> list = new ArrayList<String>();
-		String voters = null;
+		return getList(Field.voters);
+	}
+
+	protected List<String> getList(Field field) {
+		Set<String> set = new TreeSet<String>();
 		for (Change change : changes) {
-			if (change.hasField(Field.voters)) {
-				voters = change.getString(Field.voters);
+			if (change.hasField(field)) {
+				String values = change.getString(field);
+				for (String value : values.split(",")) {
+					switch (value.charAt(0)) {
+					case '+':
+						set.add(value.substring(1));
+						break;
+					case '-':
+						set.remove(value.substring(1));
+						break;
+					default:
+						set.add(value);
+					}
+				}
 			}
 		}
-		if (!isEmpty(voters)) {
-			Set<String> set = new TreeSet<String>(Arrays.asList(voters.split(" ")));
-			list.addAll(set);
+		if (!set.isEmpty()) {
+			return new ArrayList<String>(set);
 		}
-		return list;
+		return Collections.emptyList();
 	}
 
 	public Attachment getAttachment(String name) {
@@ -370,11 +351,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return patchset;
 	}
 
-	public boolean isCurrent(Patchset patch) {
-		if (patch == null) {
+	public boolean isCurrent(Patchset patchset) {
+		if (patchset == null) {
 			return false;
 		}
-		int rev = patch.rev;
+		int rev = patchset.rev;
 		int latestRev = 0;
 		for (Change change : changes) {
 			if (change.hasPatchset()) {
@@ -388,11 +369,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 
-	public boolean isApproved(Patchset patch) {
-		if (patch == null) {
+	public boolean isApproved(Patchset patchset) {
+		if (patchset == null) {
 			return false;
 		}
-		int rev = patch.rev;
+		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
 				if (rev == change.review.revision) {
@@ -405,11 +386,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return false;
 	}
 
-	public boolean isVetoed(Patchset patch) {
-		if (patch == null) {
+	public boolean isVetoed(Patchset patchset) {
+		if (patchset == null) {
 			return false;
 		}
-		int rev = patch.rev;
+		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
 				if (rev == change.review.revision) {
@@ -701,6 +682,46 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			return value.toString();
 		}
 
+		public void watch(String... username) {
+			plusList(Field.watchers, username);
+		}
+
+		public void unwatch(String... username) {
+			minusList(Field.watchers, username);
+		}
+
+		public void vote(String... username) {
+			plusList(Field.watchers, username);
+		}
+
+		public void unvote(String... username) {
+			minusList(Field.watchers, username);
+		}
+
+		public void label(String... label) {
+			plusList(Field.labels, label);
+		}
+
+		public void unlabel(String... label) {
+			minusList(Field.labels, label);
+		}
+
+		protected void plusList(Field field, String... items) {
+			modList(field, "+", items);
+		}
+
+		protected void minusList(Field field, String... items) {
+			modList(field, "-", items);
+		}
+
+		private void modList(Field field, String prefix, String... items) {
+			List<String> list = new ArrayList<String>();
+			for (String item : items) {
+				list.add(prefix + item);
+			}
+			fields.add(new FieldChange(field, join(list, ",")));
+		}
+
 		@Override
 		public int compareTo(Change c) {
 			return createdAt.compareTo(c.createdAt);
@@ -821,6 +842,49 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Join the list of strings into a single string with a space separator.
+	 *
+	 * @param values
+	 * @return joined list
+	 */
+	static String join(Collection<String> values) {
+		return join(values, " ");
+	}
+
+	/**
+	 * Join the list of strings into a single string with the specified
+	 * separator.
+	 *
+	 * @param values
+	 * @param separator
+	 * @return joined list
+	 */
+	static String join(String[]  values, String separator) {
+		return join(Arrays.asList(values), separator);
+	}
+
+	/**
+	 * Join the list of strings into a single string with the specified
+	 * separator.
+	 *
+	 * @param values
+	 * @param separator
+	 * @return joined list
+	 */
+	static String join(Collection<String> values, String separator) {
+		StringBuilder sb = new StringBuilder();
+		for (String value : values) {
+			sb.append(value).append(separator);
+		}
+		if (sb.length() > 0) {
+			// truncate trailing separator
+			sb.setLength(sb.length() - separator.length());
+		}
+		return sb.toString().trim();
+	}
+
 
 	/**
 	 * Produce a deep copy of the given object. Serializes the entire object to

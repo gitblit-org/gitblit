@@ -42,7 +42,10 @@
 			<div>
 			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.uploadedPatchset">[uploaded patchset]</wicket:message></span> <span class="attribution-emphasize" wicket:id="patchId">[ref id]</span>
 			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordion${accordianId}" href="#body${accordianId}"><i class="fa fa-toggle-down"></i></a>			
-			</div>			
+			</div>
+			<div>
+				<span wicket:id="patchsetType"></span> <span style="color: #888;font-size: 0.9em;padding-left: 5px;" wicket:id="plusCommits"></span>
+			</div>	
 		</div>
 	</div>
 				
