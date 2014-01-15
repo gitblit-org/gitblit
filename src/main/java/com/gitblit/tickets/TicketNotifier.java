@@ -242,7 +242,7 @@ public class TicketNotifier {
 			}
 
 			// describe the patchset
-			pattern = "**{0}** uploaded patchset revision {1}. (*{2}*)";
+			pattern = "**{0}** uploaded patchset revision {1}. *({2})*";
 			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patch.rev, patch.type.toString().toUpperCase()));
 			sb.append(HARD_BRK);
 			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span style=\"color:#00a000;\">+{4} insertions</span>, <span style=\"color:#a00000;\">-{5} deletions</span> from {6} {7}.",

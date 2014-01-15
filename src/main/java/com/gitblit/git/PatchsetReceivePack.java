@@ -18,6 +18,7 @@ package com.gitblit.git;
 import static org.eclipse.jgit.transport.BasePackPushConnection.CAPABILITY_SIDE_BAND_64K;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -214,6 +215,12 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			LOGGER.error("failed to get change refs for " + repository.name, e);
 		}
 		return rev;
+	}
+
+	private String getTicketUrl(TicketModel ticket) {
+		final String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
+		final String hrefPattern = "{0}/tickets?r={1}&h={2,number,0}";
+		return MessageFormat.format(hrefPattern, canonicalUrl, ticket.repository, ticket.number);
 	}
 
 	/** Removes change ref receive commands */
@@ -432,8 +439,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			} else {
 				// all patchset commands were applied
 				patchsetRefCmd.setResult(Result.OK);
-				sendHeader("processing patchset");
-				TicketModel ticket = processPatch(patchsetCmd);
+				TicketModel ticket = processPatchset(patchsetCmd);
 				if (ticket != null) {
 					ticketNotifier.queueMailing(ticket);
 				}
@@ -448,7 +454,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		List<ReceiveCommand> refUpdates = excludePatchsetCommands(allUpdates);
 		List<ReceiveCommand> stdUpdates = excludeChangeCommands(refUpdates);
 		if (!stdUpdates.isEmpty()) {
-			sendHeader("identifying and processing ticket updates");
 			int ticketsProcessed = 0;
 			for (ReceiveCommand cmd : stdUpdates) {
 				switch (cmd.getType()) {
@@ -466,9 +471,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				}
 			}
 
-			if (ticketsProcessed == 0) {
-				sendInfo("no ticket updates required");
-			} else if (ticketsProcessed == 1) {
+			if (ticketsProcessed == 1) {
 				sendInfo("1 ticket updated");
 			} else {
 				sendInfo("{0} tickets updated", ticketsProcessed);
@@ -705,7 +708,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	}
 
 	/**
-	 * Creates or updates an ticket with the specified patch.
+	 * Creates or updates an ticket with the specified patchset.
 	 *
 	 * @param cmd
 	 * @param milestone
@@ -713,7 +716,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * @param topic
 	 * @return a ticket if the creation or update was successful
 	 */
-	private TicketModel processPatch(PatchsetCommand cmd) {
+	private TicketModel processPatchset(PatchsetCommand cmd) {
 		if (cmd.isNewTicket()) {
 			// create the ticket object
 			Change change = cmd.asNewChange(user.username);
@@ -722,7 +725,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			TicketModel ticket = ticketService.createTicket(change);
 			if (ticket != null) {
 
-				sendInfo("created ticket {0,number,0} from patchset ({1})", cmd.ticketNumber, ticket.title);
+				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
+				sendInfo("created proposal ticket from patchset", cmd.ticketNumber);
+				sendInfo(getTicketUrl(ticket));
+				sendInfo("");
 
 				// log the new patch ref
 				RefLogUtils.updateRefLog(user, getRepository(),
@@ -738,11 +744,12 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			Change change = cmd.asUpdateChange(user.username, ticket);
 
 			// update ticket with the patchset reference
-			String oldTitle = ticket.title;
 			ticket = ticketService.updateTicket(repository.name, cmd.ticketNumber, change);
 			if (ticket != null) {
-				sendInfo("uploaded patchset {0,number,0}/{1,number,0} ({2})",
-						cmd.ticketNumber, cmd.patchset.rev, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
+				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
+				sendInfo("uploaded patchset revision {0,number,0}", cmd.patchset.rev);
+				sendInfo(getTicketUrl(ticket));
+				sendInfo("");
 
 				// log the new patchset ref
 				RefLogUtils.updateRefLog(user, getRepository(),
@@ -751,8 +758,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// return the updated ticket
 				return ticket;
 			} else {
-				sendError("FAILED to upload patchset {0,number,0}/{1,number,0} ({2})",
-						cmd.ticketNumber, cmd.patchset.rev, StringUtils.trimString(oldTitle, Constants.LEN_SHORTLOG));
+				sendError("FAILED to upload patchset {0,number,0} for ticket {1,number,0}",
+						cmd.patchset.rev, cmd.ticketNumber);
 			}
 		}
 
@@ -840,7 +847,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				String shortid = StringUtils.trimString(c.getName(), settings.getInteger(Keys.web.shortCommitIdLength, 6));
 				ticket = ticketService.updateTicket(repository.name, ticket.changeId, change);
 				if (ticket != null) {
-					sendInfo("closed ticket {0,number,0} by push of {1} ({2})", ticket.number, shortid, commitRef);
+					sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
+					sendInfo("closed by push of {0} to {1} ({2})", shortid, ticket.mergeTo, commitRef);
+					sendInfo(getTicketUrl(ticket));
+					sendInfo("");
 					mergedTickets.put(ticket.number, ticket);
 				} else {
 					sendError("FAILED to close ticket {0,number,0} by push of {1} ({2})", ticketNumber, shortid, commitRef);
