@@ -1060,6 +1060,12 @@ img.gravatar {
     padding: 2px;
 }
 
+img.gravatar-round {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 100%;    
+}
+
 img.navbarGravatar {
 	border: 1px solid #fff;
 }

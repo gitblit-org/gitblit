@@ -157,7 +157,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * TICKET AUTHOR and DATE (OVERVIEW TAB)
+		 * TICKET AUTHOR and DATE (DISCUSSION TAB)
 		 */
 		UserModel createdBy = app().users().getUserModel(ticket.createdBy);
 		if (createdBy == null) {
@@ -210,7 +210,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * ASSIGNED TO (OVERVIEW TAB)
+		 * ASSIGNED TO (DISCUSSION TAB)
 		 */
 		if (StringUtils.isEmpty(ticket.assignedTo)) {
 			add(new Label("assignedTo"));
@@ -225,7 +225,7 @@ public class TicketPage extends TicketBasePage {
 		}
 
 		/*
-		 * MILESTONE PROGRESS (OVERVIEW TAB)
+		 * MILESTONE PROGRESS (DISCUSSION TAB)
 		 */
 		if (StringUtils.isEmpty(ticket.milestone)) {
 			add(new Label("milestone", getString("gb.notSpecified")));
@@ -255,7 +255,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * TICKET DESCRIPTION (OVERVIEW TAB)
+		 * TICKET DESCRIPTION (DISCUSSION TAB)
 		 */
 		String desc;
 		if (StringUtils.isEmpty(ticket.body)) {
@@ -267,7 +267,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * PARTICIPANTS (OVERVIEW TAB)
+		 * PARTICIPANTS (DISCUSSION TAB)
 		 */
 		if (app().settings().getBoolean(Keys.web.allowGravatar, true)) {
 			// gravatar allowed
@@ -298,7 +298,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * LARGE STATUS INDICATOR WITH ICON (OVERVIEW TAB->SIDE BAR)
+		 * LARGE STATUS INDICATOR WITH ICON (DISCUSSION TAB->SIDE BAR)
 		 */
 		Fragment ticketStatus = new Fragment("ticketStatus", "ticketStatusFragment", this);
 		Label ticketIcon = new Label("ticketIcon");
@@ -316,7 +316,7 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * UPDATE FORM (OVERVIEW TAB)
+		 * UPDATE FORM (DISCUSSION TAB)
 		 */
 		if (isAuthenticated) {
 			Fragment controls = new Fragment("controls", "controlsFragment", this);
@@ -523,6 +523,9 @@ public class TicketPage extends TicketBasePage {
 		} else {
 			// permit user to comment
 			Fragment newComment = new Fragment("newComment", "newCommentFragment", this);
+			GravatarImage img = new GravatarImage("newCommentAvatar", user.username, user.emailAddress,
+					"gravatar-round", avatarWidth, false, true);
+			newComment.add(img);
 			CommentPanel commentPanel = new CommentPanel("commentPanel", user, ticket, null, TicketsPage.class);
 			commentPanel.setRepository(repositoryName);
 			newComment.add(commentPanel);
@@ -696,7 +699,7 @@ public class TicketPage extends TicketBasePage {
 		} else {
 			// known user
 			container.add(new GravatarImage("changeAvatar", commenter.getDisplayName(),
-					commenter.emailAddress, avatarSize > 24 ? "gravatar" : null, avatarSize, false, true).setVisible(avatarSize > 0));
+					commenter.emailAddress, avatarSize > 24 ? "gravatar-round" : null, avatarSize, false, true).setVisible(avatarSize > 0));
 			container.add(new LinkPanel("changeAuthor", null, commenter.getDisplayName(),
 					UserPage.class, WicketUtils.newUsernameParameter(commenter.username)));
 		}

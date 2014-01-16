@@ -3,23 +3,23 @@
 <wicket:panel>
 	<div class="richEditor">
 	
-		<ul class="nav nav-tabs">
+		<ul class="nav nav-pills" style="margin: 2px 5px !important">
 			<li class="active"><a href="#write" data-toggle="tab"><wicket:message key="gb.write">[write]</wicket:message></a></li>
 			<li><a href="#preview" data-toggle="tab"><wicket:message key="gb.preview">[preview]</wicket:message></a></li>
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="write">
-				<textarea class="span9" style="height:6em;" wicket:id="markdownEditor"></textarea>
+				<textarea class="span8" style="height:6em;border-right: 0px;border-radius: 0px;border-left: 0px;border-color: #ddd;box-shadow: none;" wicket:id="markdownEditor"></textarea>
 			</div>
 			<div class="tab-pane" id="preview">
-				<div class="preview" style="height:6em;">
+				<div class="preview" style="margin-bottom:9px;padding:4px;border:1px solid #ddd;border-right:0px;border-left:0px;background-color:#ffffff;height:6em;">
 					<div class="markdown" wicket:id="markdownPreview"></div>
 				</div>
 			</div>
 		</div>
 				
-		<div>
-			<form wicket:id="editorForm" action="">
+		<div style="text-align:right;padding-right:5px;">
+			<form style="margin-bottom:9px;" wicket:id="editorForm" action="">
 				<input class="btn btn-appmenu" type="submit" wicket:id="submit" value="comment"></input>
 			</form>
 		</div>
