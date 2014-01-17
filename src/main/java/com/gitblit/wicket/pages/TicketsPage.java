@@ -286,8 +286,19 @@ public class TicketsPage extends TicketBasePage {
 							sortBy,
 							desc,
 							1)));
+
+			add(new BookmarkablePageLink<Void>("watchedQuery", TicketsPage.class,
+					queryParameters(
+							Lucene.watchedby.matches(user.username),
+							milestoneParam,
+							statiiParam,
+							assignedToParam,
+							sortBy,
+							desc,
+							1)));
 		} else {
 			add(new Label("createdQuery").setVisible(false));
+			add(new Label("watchedQuery").setVisible(false));
 		}
 
 		Set<TicketQuery> dynamicQueries = new TreeSet<TicketQuery>();
@@ -519,6 +530,9 @@ public class TicketsPage extends TicketBasePage {
 				Label v = new Label("votes", "" + ticket.votesCount);
 				WicketUtils.setHtmlTooltip(v, getString("gb.votes"));
 				item.add(v.setVisible(ticket.votesCount > 0));
+
+				// watching indicator
+				item.add(new Label("watching").setVisible(ticket.isWatching(GitBlitWebSession.get().getUsername())));
 
 				// status indicator
 				String css = getLozengeClass(ticket.status, true);

@@ -443,6 +443,7 @@ public abstract class ITicketService {
 		}
 
 		change.setField(Field.createdBy, change.createdBy);
+		change.watch(change.createdBy);
 
 		String changeId = (String) change.getField(Field.changeId);
 		if (StringUtils.isEmpty(changeId)) {

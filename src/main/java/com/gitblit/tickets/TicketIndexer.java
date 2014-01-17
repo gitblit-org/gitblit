@@ -91,6 +91,7 @@ public class TicketIndexer {
 		type(Type.STRING),
 		labels(Type.STRING),
 		participants(Type.STRING),
+		watchedby(Type.STRING),
 		attachments(Type.INT),
 		content(Type.STRING),
 		patchset(Type.STRING),
@@ -457,6 +458,7 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.mergeto, ticket.mergeTo);
 		toDocField(doc, Lucene.labels, StringUtils.flattenStrings(ticket.getLabels(), ";").toLowerCase());
 		toDocField(doc, Lucene.participants, StringUtils.flattenStrings(ticket.getParticipants(), ";").toLowerCase());
+		toDocField(doc, Lucene.watchedby, StringUtils.flattenStrings(ticket.getWatchers(), ";").toLowerCase());
 		toDocField(doc, Lucene.votes, ticket.getVoters().size());
 
 		List<String> attachments = new ArrayList<String>();
@@ -540,6 +542,7 @@ public class TicketIndexer {
 		result.attachments = unpackStrings(doc, Lucene.attachments);
 		result.labels = unpackStrings(doc, Lucene.labels);
 		result.participants = unpackStrings(doc, Lucene.participants);
+		result.watchedby = unpackStrings(doc, Lucene.watchedby);
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset

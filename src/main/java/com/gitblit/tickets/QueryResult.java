@@ -56,6 +56,7 @@ public class QueryResult implements Serializable {
 	public List<String> labels;
 	public List<String> attachments;
 	public List<String> participants;
+	public List<String> watchedby;
 	public Patchset patchset;
 	public int patchsetsCount;
 	public int commentsCount;
@@ -69,12 +70,16 @@ public class QueryResult implements Serializable {
 		return updatedAt == null ? createdAt : updatedAt;
 	}
 
-	public boolean isPullRequest() {
+	public boolean isProposal() {
 		return type != null && Type.Proposal == type;
 	}
 
 	public boolean isMerged() {
 		return Status.Merged == status && !StringUtils.isEmpty(mergeSha);
+	}
+
+	public boolean isWatching(String username) {
+		return watchedby != null && watchedby.contains(username);
 	}
 
 	public List<String> getLabels() {
