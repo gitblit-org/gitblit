@@ -555,7 +555,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		// ensure that the patchset can be cleanly merged right now
 		if (!JGitUtils.canMerge(getRepository(), tipCommit.getName(), forBranch)) {
-			sendError("Your patchset can not be cleanly merged into {0}. Please merge or rebase.", forBranch);
+			sendError("Your patchset can not be cleanly merged into {0}.", forBranch);
+			sendError("Please rebase your patchset and push again.");
+			sendError("NOTE: You should push your rebase to refs/for/{0,number,0}", number);
+			sendError("  git push origin HEAD:refs/for/{0,number,0}", number);
 			sendRejection(cmd, "Patchset not mergeable");
 			return null;
 		}
