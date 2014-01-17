@@ -427,7 +427,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			text = MessageFormat.format(msg, objects);
 			super.sendMessage(prefix + text);
 		}
-		LOGGER.info(text + " (" + user.username + ")");
+		if (!StringUtils.isEmpty(msg)) {
+			LOGGER.info(text + " (" + user.username + ")");
+		}
 	}
 
 	protected void sendError(String msg, Object... objects) {
@@ -439,7 +441,9 @@ public class GitblitReceivePack extends ReceivePack implements PreReceiveHook, P
 			text = MessageFormat.format(msg, objects);
 			super.sendError(text);
 		}
-		LOGGER.error(text + " (" + user.username + ")");
+		if (!StringUtils.isEmpty(msg)) {
+			LOGGER.error(text + " (" + user.username + ")");
+		}
 	}
 
 	/**

@@ -82,7 +82,6 @@ public class NewTicketPage extends RepositoryPage {
 			protected void onSubmit() {
 				String createdBy = GitBlitWebSession.get().getUsername();
 				Change change = new Change(createdBy);
-				change.setField(Field.repository, getRepositoryModel().name);
 				change.setField(Field.title, titleModel.getObject());
 				change.setField(Field.body, descriptionEditor.getText());
 
@@ -105,7 +104,7 @@ public class NewTicketPage extends RepositoryPage {
 					change.setField(Field.milestone, milestone.name);
 				}
 
-				TicketModel ticket = app().tickets().createTicket(change);
+				TicketModel ticket = app().tickets().createTicket(getRepositoryModel().name, change);
 				if (ticket != null) {
 					TicketNotifier notifier = app().tickets().createNotifier();
 					notifier.sendMailing(ticket);

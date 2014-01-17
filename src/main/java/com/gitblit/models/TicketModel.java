@@ -458,9 +458,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				case body:
 					body = toString(fieldChange.value);
 					break;
-				case createdBy:
-					createdBy = toString(fieldChange.value);
-					break;
 				case topic:
 					topic = toString(fieldChange.value);
 					break;
@@ -1041,9 +1038,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Field {
-		repository, number, changeId, title, body, createdBy, assignedTo, type,
-		status, milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers,
-		voters;
+		repository, number, changeId, title, body, assignedTo, type, status,
+		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters;
 	}
 
 	public static enum Type {

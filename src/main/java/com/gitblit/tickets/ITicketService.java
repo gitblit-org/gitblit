@@ -427,22 +427,23 @@ public abstract class ITicketService {
 	 * at a minimum. If your change does not have those minimum requirements a
 	 * RuntimeException will be thrown.
 	 *
+	 * @param repository
 	 * @param change
 	 * @return true if successful
 	 */
-	public TicketModel createTicket(Change change) {
+	public TicketModel createTicket(String repository, Change change) {
 
+		if (StringUtils.isEmpty(repository)) {
+			throw new RuntimeException("Must specify a repository!");
+		}
 		if (StringUtils.isEmpty(change.createdBy)) {
 			throw new RuntimeException("Must specify a change author!");
-		}
-		if (!change.hasField(Field.repository)) {
-			throw new RuntimeException("Must specify a repository!");
 		}
 		if (!change.hasField(Field.title)) {
 			throw new RuntimeException("Must specify a title!");
 		}
 
-		change.setField(Field.createdBy, change.createdBy);
+		change.setField(Field.repository, repository);
 		change.watch(change.createdBy);
 
 		String changeId = (String) change.getField(Field.changeId);
@@ -450,7 +451,6 @@ public abstract class ITicketService {
 			changeId = generateChangeId(change);
 		}
 
-		String repository = change.getString(Field.repository);
 		if (!change.hasField(Field.number)) {
 			long number = assignTicketId(repository, changeId);
 			change.setField(Field.number, number);

@@ -161,7 +161,7 @@ public class TicketNotifier {
 
 		// define the fields we do NOT want to see in an email notification
 		Set<TicketModel.Field> fieldExclusions = new HashSet<TicketModel.Field>();
-		fieldExclusions.addAll(Arrays.asList(Field.number, Field.createdBy, Field.changeId,
+		fieldExclusions.addAll(Arrays.asList(Field.number, Field.changeId,
 				Field.type, Field.watchers, Field.voters));
 
 		StringBuilder sb = new StringBuilder();

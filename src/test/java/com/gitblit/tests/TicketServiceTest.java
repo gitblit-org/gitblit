@@ -140,7 +140,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		// create and insert a ticket
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(c1);
+		TicketModel ticket = service.createTicket(name, c1);
 		assertNotNull(ticket.changeId);
 
 		// retrieve ticket and compare
@@ -152,7 +152,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C1: create the ticket
 		int changeCount = 0;
 		c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
-		ticket = service.createTicket(c1);
+		ticket = service.createTicket(name, c1);
 		assertNotNull(ticket.changeId);
 		changeCount++;
 
@@ -251,7 +251,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		// C1: create the ticket
 		Change c1 = newChange("testChangeComment() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(c1);
+		TicketModel ticket = service.createTicket(name, c1);
 		assertNotNull(ticket.changeId);
 		assertTrue(ticket.changes.get(0).hasComment());
 
@@ -271,7 +271,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		// C1: create the ticket
 		Change c1 = newChange("testDeleteComment() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(c1);
+		TicketModel ticket = service.createTicket(name, c1);
 		assertNotNull(ticket.changeId);
 		assertTrue(ticket.changes.get(0).hasComment());
 
@@ -334,7 +334,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		ITicketService service = getService(true);
 
-		TicketModel ticket = service.createTicket(kernel);
+		TicketModel ticket = service.createTicket(name, kernel);
 
 		Change merge = new Change("james");
 		merge.setField(Field.mergeSha, patchset.tip);

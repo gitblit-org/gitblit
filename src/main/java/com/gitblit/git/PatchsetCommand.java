@@ -87,17 +87,13 @@ public class PatchsetCommand extends ReceiveCommand {
 		return Long.parseLong(p);
 	}
 
-	public PatchsetCommand(String integrationBranch, RevCommit commit, String changeId) {
-		this(integrationBranch, commit, changeId, 0, 1);
-		this.patchset.type = PatchsetType.Proposal;
-	}
-
-	public PatchsetCommand(String integrationBranch, RevCommit commit, String changeId, long ticketNumber, int revision) {
+	public PatchsetCommand(String integrationBranch, RevCommit commit, String changeId, long ticketNumber, int revision, boolean isNew) {
 		super(ObjectId.zeroId(), commit.getId(), null);
+
 		this.mergeTo = integrationBranch;
 		this.tip = commit;
 		this.changeId = changeId;
-		this.isNew = ticketNumber == 0L;
+		this.isNew = isNew;
 		this.ticketNumber = ticketNumber;
 
 		this.patchset = new Patchset();
