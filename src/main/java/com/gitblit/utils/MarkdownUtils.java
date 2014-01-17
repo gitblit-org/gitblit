@@ -125,19 +125,20 @@ public class MarkdownUtils {
 		// highlight
 		text = text.replaceAll("\\{==(.*)==}", "<span class='highlight'>$1</span>");
 
-		// emphasize mentions
-		text = text.replaceAll("(?:^|\\s+)(@[A-Za-z0-9-_]+)", "**$1**");
-
 		String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 
-		// ticket refs
-		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)", canonicalUrl, repositoryName);
-		text = text.replaceAll("([\\s,]+)#(\\d+)", ticketReplacement);
+		// emphasize and link mentions
+		String mentionReplacement = String.format(" **<a href=\"%1s/user/$1\">@$1</a>**", canonicalUrl);
+		text = text.replaceAll("\\s@([A-Za-z0-9-_]+)", mentionReplacement);
+
+		// link ticket refs
+		String ticketReplacement = MessageFormat.format("$1[#$2]({0}/tickets?r={1}&h=$2)$3", canonicalUrl, repositoryName);
+		text = text.replaceAll("([\\s,]+)#(\\d+)([\\s,:\\.\\n])", ticketReplacement);
 
 		// link commit shas
 		int shaLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
-		String commitPattern = MessageFormat.format("[^I#]([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
-		String commitReplacement = String.format("<a class='commit' href='%1$s/commit?r=%2$s&h=$1$2'>$1</a>", canonicalUrl, repositoryName);
+		String commitPattern = MessageFormat.format("\\s([A-Fa-f0-9]'{'{0}'}')([A-Fa-f0-9]'{'{1}'}')", shaLen, 40 - shaLen);
+		String commitReplacement = String.format(" <a class='commit' href='%1$s/commit?r=%2$s&h=$1$2'>$1</a>", canonicalUrl, repositoryName);
 		text = text.replaceAll(commitPattern, commitReplacement);
 
 		String html = transformMarkdown(text);
