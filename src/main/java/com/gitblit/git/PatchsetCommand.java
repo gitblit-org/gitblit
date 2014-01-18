@@ -16,6 +16,7 @@
 package com.gitblit.git;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,23 +38,25 @@ import com.gitblit.utils.StringUtils;
 
 /**
  *
- * A subclass of ReceiveCommand with information about the patchset.
+ * A subclass of ReceiveCommand which constructs a ticket change based on a
+ * patchset and data derived from the push ref.
  *
  * @author James Moger
  *
  */
 public class PatchsetCommand extends ReceiveCommand {
 
-	final Patchset patchset;
-	final RevCommit tip;
-	final String mergeTo;
-	final String changeId;
-	final boolean isNew;
-	long ticketNumber;
-	String milestone;
-	String assignedTo;
-	String topic;
-	List<String> watchers;
+	public static final String TOPIC = "topic=";
+
+	public static final String ASSIGNEDTO = "r=";
+
+	public static final String WATCH = "cc=";
+
+	public static final String MILESTONE = "m=";
+
+	protected final Change change;
+
+	protected boolean isNew;
 
 	public static String getBaseRef(long ticketNumber) {
 		StringBuilder sb = new StringBuilder();
@@ -74,51 +77,197 @@ public class PatchsetCommand extends ReceiveCommand {
 	}
 
 	public static long getTicketNumber(String ref) {
-		if (!ref.startsWith(Constants.R_CHANGES)) {
-			return 0L;
+		if (ref.startsWith(Constants.R_TICKETS)) {
+			// current ticket head
+			String p = ref.substring(Constants.R_TICKETS.length());
+			return Long.parseLong(p);
 		}
-		// strip changes ref
-		String p = ref.substring(Constants.R_CHANGES.length());
-		// strip shard id
-		p = p.substring(p.indexOf('/') + 1);
-		// strip revision
-		p = p.substring(0, p.indexOf('/'));
-		// parse ticket number
-		return Long.parseLong(p);
+
+		if (ref.startsWith(Constants.R_CHANGES)) {
+			// patchset revision
+
+			// strip changes ref
+			String p = ref.substring(Constants.R_CHANGES.length());
+			// strip shard id
+			p = p.substring(p.indexOf('/') + 1);
+			// strip revision
+			p = p.substring(0, p.indexOf('/'));
+			// parse ticket number
+			return Long.parseLong(p);
+		}
+		return 0L;
 	}
 
-	public PatchsetCommand(String integrationBranch, RevCommit commit, String changeId, long ticketNumber, int revision, boolean isNew) {
-		super(ObjectId.zeroId(), commit.getId(), null);
+	public PatchsetCommand(String username, Patchset patchset) {
+		super(ObjectId.zeroId(), ObjectId.fromString(patchset.tip), null);
+		this.change = new Change(username);
+		this.change.patch = patchset;
+	}
 
-		this.mergeTo = integrationBranch;
-		this.tip = commit;
-		this.changeId = changeId;
-		this.isNew = isNew;
-		this.ticketNumber = ticketNumber;
+	public PatchsetType getPatchsetType() {
+		return change.patch.type;
+	}
 
-		this.patchset = new Patchset();
-		this.patchset.rev = revision;
-		this.patchset.tip = commit.getName();
+	public int getPatchsetRevision() {
+		return change.patch.rev;
 	}
 
 	public boolean isNewTicket() {
 		return isNew;
 	}
 
-	public void assignChangeRef() {
-		this.patchset.ref = getChangeRef(ticketNumber, patchset.rev);
+	public long getTicketNumber() {
+		return getTicketNumber(change.patch.ref);
+	}
+
+	public Change getChange() {
+		return change;
+	}
+
+	/**
+	 * Creates a "new ticket" change for the proposal.
+	 *
+	 * @param commit
+	 * @param mergeTo
+	 * @param ticketId
+	 * @parem pushRef
+	 */
+	public void newTicket(RevCommit commit, String mergeTo, long ticketId, String pushRef) {
+		isNew = true;
+		change.setField(Field.title, getTitle(commit));
+		change.setField(Field.body, getBody(commit));
+		change.setField(Field.number, ticketId);
+		change.setField(Field.changeId, "I" + commit.getName());
+		change.setField(Field.status, Status.New);
+		change.setField(Field.mergeTo, mergeTo);
+		change.setField(Field.type, TicketModel.Type.Proposal);
+
+		// assign the patchset change ref
+		change.patch.ref = getChangeRef(ticketId, change.patch.rev);
+
+		Set<String> watchSet = new TreeSet<String>();
+		watchSet.add(change.createdBy);
+
+		// identify parameters passed in the push ref
+		if (!StringUtils.isEmpty(pushRef)) {
+			List<String> watchers = getOptions(pushRef, WATCH);
+			if (!ArrayUtils.isEmpty(watchers)) {
+				for (String cc : watchers) {
+					watchSet.add(cc.toLowerCase());
+				}
+			}
+
+			String milestone = getSingleOption(pushRef, MILESTONE);
+			if (!StringUtils.isEmpty(milestone)) {
+				// user provided milestone
+				change.setField(Field.milestone, milestone);
+			}
+
+			String assignedTo = getSingleOption(pushRef, ASSIGNEDTO);
+			if (!StringUtils.isEmpty(assignedTo)) {
+				// user provided assigned to
+				change.setField(Field.assignedTo, assignedTo);
+				watchSet.add(assignedTo);
+			}
+
+			String topic = getSingleOption(pushRef, TOPIC);
+			if (!StringUtils.isEmpty(topic)) {
+				// user provided topic
+				change.setField(Field.topic, topic);
+			}
+		}
+
+		// set the watchers
+		change.watch(watchSet.toArray(new String[watchSet.size()]));
+	}
+
+	/**
+	 *
+	 * @param commit
+	 * @param mergeTo
+	 * @param ticket
+	 * @param pushRef
+	 */
+	public void updateTicket(RevCommit commit, String mergeTo, TicketModel ticket, String pushRef) {
+
+		// assign the patchset change ref
+		this.change.patch.ref = getChangeRef(ticket.number, change.patch.rev);
+
+		if (ticket.isClosed()) {
+			// re-opening a closed ticket
+			change.setField(Field.status, Status.Open);
+		}
+
+		// ticket may or may not already have an integration branch
+		if (StringUtils.isEmpty(ticket.mergeTo) || !ticket.mergeTo.equals(mergeTo)) {
+			change.setField(Field.mergeTo, mergeTo);
+		}
+
+		if (TicketModel.Type.Proposal == ticket.type && PatchsetType.Amend == change.patch.type
+				&& change.patch.totalCommits == 1) {
+
+			// Gerrit-style title and description updates from the commit
+			// message
+			String title = getTitle(commit);
+			String body = getBody(commit);
+
+			if (!ticket.title.equals(title)) {
+				// title changed
+				change.setField(Field.title, title);
+			}
+
+			if (!ticket.body.equals(body)) {
+				// description changed
+				change.setField(Field.body, body);
+			}
+		}
+
+		Set<String> watchSet = new TreeSet<String>();
+		watchSet.add(change.createdBy);
+
+		// update the patchset command metadata
+		if (!StringUtils.isEmpty(pushRef)) {
+			List<String> watchers = getOptions(pushRef, WATCH);
+			if (!ArrayUtils.isEmpty(watchers)) {
+				for (String cc : watchers) {
+					watchSet.add(cc.toLowerCase());
+				}
+			}
+
+			String milestone = getSingleOption(pushRef, MILESTONE);
+			if (!StringUtils.isEmpty(milestone) && !milestone.equals(ticket.milestone)) {
+				// user specified a (different) milestone
+				change.setField(Field.milestone, milestone);
+			}
+
+			String assignedTo = getSingleOption(pushRef, ASSIGNEDTO);
+			if (!StringUtils.isEmpty(assignedTo) && !assignedTo.equals(ticket.assignedTo)) {
+				// user specified a (different) assigned to
+				change.setField(Field.assignedTo, assignedTo);
+				watchSet.add(assignedTo);
+			}
+
+			String topic = getSingleOption(pushRef, TOPIC);
+			if (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic)) {
+				// user specified a (different) topic
+				change.setField(Field.topic, topic);
+			}
+		}
+
+		// update the watchers
+		watchSet.removeAll(ticket.getWatchers());
+		if (!watchSet.isEmpty()) {
+			change.watch(watchSet.toArray(new String[watchSet.size()]));
+		}
 	}
 
 	@Override
 	public String getRefName() {
-		if (patchset.ref == null) {
-			assignChangeRef();
-		}
-		return patchset.ref;
+		return change.patch.ref;
 	}
 
-	public String getTitle() {
-		String title = tip.getShortMessage();
+	private String getTitle(RevCommit commit) {
+		String title = commit.getShortMessage();
 		return title;
 	}
 
@@ -127,8 +276,8 @@ public class PatchsetCommand extends ReceiveCommand {
 	 *
 	 * @return
 	 */
-	public String getBody() {
-		final byte[] raw = tip.getRawBuffer();
+	private String getBody(RevCommit commit) {
+		final byte[] raw = commit.getRawBuffer();
 		int bodyEnd = raw.length - 1;
 		while (raw[bodyEnd] == '\n') {
 			// trim any trailing LFs, not interesting
@@ -162,109 +311,39 @@ public class PatchsetCommand extends ReceiveCommand {
 		return "";
 	}
 
-	public Change asNewChange(String username) {
-		Change change = new Change(username);
-		change.patch = patchset;
-		change.setField(Field.number, ticketNumber);
-		change.setField(Field.changeId, changeId);
-		change.setField(Field.title, getTitle());
-		change.setField(Field.body, getBody());
-		change.setField(Field.status, Status.New);
-		change.setField(Field.type, TicketModel.Type.Proposal);
-		change.setField(Field.mergeTo, mergeTo);
-
-		Set<String> watchSet = new TreeSet<String>();
-		watchSet.add(username);
-		if (!ArrayUtils.isEmpty(watchers)) {
-			for (String cc : watchers) {
-				watchSet.add(cc.toLowerCase());
+	/** Extracts a ticket field from the ref name */
+	private static List<String> getOptions(String refName, String token) {
+		if (refName.indexOf('%') > -1) {
+			List<String> list = new ArrayList<String>();
+			String [] strings = refName.substring(refName.indexOf('%') + 1).split(",");
+			for (String str : strings) {
+				if (str.toLowerCase().startsWith(token)) {
+					String val = str.substring(token.length());
+					list.add(val);
+				}
 			}
+			return list;
 		}
-
-		if (!StringUtils.isEmpty(milestone)) {
-			// user provided milestone
-			change.setField(Field.milestone, milestone);
-		}
-
-		if (!StringUtils.isEmpty(assignedTo)) {
-			// user provided assigned to
-			change.setField(Field.assignedTo, assignedTo);
-			watchSet.add(assignedTo);
-		}
-
-		if (!StringUtils.isEmpty(topic)) {
-			// user provided topic
-			change.setField(Field.topic, topic);
-		}
-
-		// set the watchers
-		change.watch(watchSet.toArray(new String[watchSet.size()]));
-
-		return change;
+		return null;
 	}
 
-	public Change asUpdateChange(String username, TicketModel ticket) {
-		Change change = new Change(username);
-		change.patch = patchset;
-
-		Set<String> watchSet = new TreeSet<String>();
-		watchSet.add(username);
-		if (!ArrayUtils.isEmpty(watchers)) {
-			for (String cc : watchers) {
-				watchSet.add(cc.toLowerCase());
-			}
+	/** Extracts a ticket field from the ref name */
+	private static String getSingleOption(String refName, String token) {
+		List<String> list = getOptions(refName, token);
+		if (list != null && list.size() > 0) {
+			return list.get(0);
 		}
-
-		if (ticket.isClosed()) {
-			// re-opening a closed ticket
-			change.setField(Field.status, Status.Open);
-		}
-
-		// ticket may or may not already have an integration branch
-		if (StringUtils.isEmpty(ticket.mergeTo) || !ticket.mergeTo.equals(mergeTo)) {
-			change.setField(Field.mergeTo, mergeTo);
-		}
-
-		if (!StringUtils.isEmpty(milestone) && !milestone.equals(ticket.milestone)) {
-			// user specified a (different) milestone
-			change.setField(Field.milestone, milestone);
-		}
-
-		if (!StringUtils.isEmpty(assignedTo) && !assignedTo.equals(ticket.assignedTo)) {
-			// user specified a (different) assigned to
-			change.setField(Field.assignedTo, assignedTo);
-			watchSet.add(assignedTo);
-		}
-
-		if (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic)) {
-			// user specified a (different) topic
-			change.setField(Field.topic, topic);
-		}
-
-		if (TicketModel.Type.Proposal == ticket.type
-				&& PatchsetType.Amend == patchset.type
-				&& patchset.totalCommits == 1) {
-
-			// Gerrit-style title and description updates from the commit message
-			 String title = getTitle();
-             String body = getBody();
-
-             if (!ticket.title.equals(title)) {
-                 // title changed
-                 change.setField(Field.title, title);
-             }
-
-             if (!ticket.body.equals(body)) {
-                 // description changed
-                 change.setField(Field.body, body);
-             }
-		}
-
-		// update the watchers
-		watchSet.removeAll(ticket.getWatchers());
-		if (!watchSet.isEmpty()) {
-			change.watch(watchSet.toArray(new String[watchSet.size()]));
-		}
-		return change;
+		return null;
 	}
+
+	/** Extracts a ticket field from the ref name */
+	public static String getSingleOption(ReceiveCommand cmd, String token) {
+		return getSingleOption(cmd.getRefName(), token);
+	}
+
+	/** Extracts a ticket field from the ref name */
+	public static List<String> getOptions(ReceiveCommand cmd, String token) {
+		return getOptions(cmd.getRefName(), token);
+	}
+
 }

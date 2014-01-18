@@ -18,6 +18,7 @@ package com.gitblit.git;
 import static org.eclipse.jgit.transport.BasePackPushConnection.CAPABILITY_SIDE_BAND_64K;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -98,14 +99,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	protected static final FooterKey CHANGE_ID = new FooterKey("Change-Id");
 
-	protected static final String TOPIC = "topic=";
-
-	protected static final String ASSIGNEDTO = "r=";
-
-	protected static final String WATCH = "cc=";
-
-	protected static final String MILESTONE = "m=";
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(PatchsetReceivePack.class);
 
 	protected final ITicketService ticketService;
@@ -148,32 +141,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		return branch;
 	}
 
-	/** Extracts a ticket field from the ref name */
-	private List<String> getOptions(ReceiveCommand cmd, String token) {
-		String refName = cmd.getRefName();
-		if (refName.indexOf('%') > -1) {
-			List<String> list = new ArrayList<String>();
-			String [] strings = refName.substring(refName.indexOf('%') + 1).split(",");
-			for (String str : strings) {
-				if (str.toLowerCase().startsWith(token)) {
-					String val = str.substring(token.length());
-					list.add(val);
-				}
-			}
-			return list;
-		}
-		return null;
-	}
-
-	/** Extracts a ticket field from the ref name */
-	private String getSingleOption(ReceiveCommand cmd, String token) {
-		List<String> list = getOptions(cmd, token);
-		if (list != null && list.size() > 0) {
-			return list.get(0);
-		}
-		return null;
-	}
-
 	/** Returns true if the ref namespace exists */
 	private boolean hasRefNamespace(String ref) {
 		Map<String, Ref> blockingFors;
@@ -198,7 +165,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 *
 	 * @return the current patchset revision for the ticketNumber
 	 */
-	private int getCurrentRevision(long ticketNumber) {
+	private int getCurrentRevisionRef(long ticketNumber) {
 		String refId = PatchsetCommand.getBaseRef(ticketNumber);
 		int rev = 0;
 		try {
@@ -351,7 +318,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				}
 
 				// assign to verification
-				String assignedTo = getSingleOption(cmd, ASSIGNEDTO);
+				String assignedTo = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.ASSIGNEDTO);
 				if (!StringUtils.isEmpty(assignedTo)) {
 					UserModel assignee = gitblit.getUserModel(assignedTo);
 					if (assignee == null) {
@@ -367,7 +334,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				}
 
 				// milestone verification
-				String milestone = getSingleOption(cmd, MILESTONE);
+				String milestone = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.MILESTONE);
 				if (!StringUtils.isEmpty(milestone)) {
 					TicketMilestone milestoneModel = ticketService.getMilestone(repository.name, milestone);
 					if (milestoneModel == null) {
@@ -378,7 +345,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				}
 
 				// watcher verification
-				List<String> watchers = getOptions(cmd, WATCH);
+				List<String> watchers = PatchsetCommand.getOptions(cmd, PatchsetCommand.WATCH);
 				if (!ArrayUtils.isEmpty(watchers)) {
 					for (String watcher : watchers) {
 						UserModel user = gitblit.getUserModel(watcher);
@@ -393,41 +360,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				patchsetRefCmd = cmd;
 				patchsetCmd = preparePatchset(cmd);
 				if (patchsetCmd != null) {
-					if (patchsetCmd.ticketNumber == 0) {
-						// new ticket, assign id
-						patchsetCmd.ticketNumber = ticketService.assignTicketId(repository.name, patchsetCmd.changeId);
-					}
-
-					// create/update the ticket ref (refs/tickets/n)
-					String ticketRef = Constants.R_TICKETS + patchsetCmd.ticketNumber;
-					ObjectId ticketRefId = ObjectId.zeroId();
-					try {
-						ticketRefId = getRepository().resolve(ticketRef);
-					} catch (Exception e) {
-						// ignore
-					}
-
-					try {
-						RefUpdate ru = getRepository().updateRef(ticketRef,  false);
-						ru.setRefLogIdent(getRefLogIdent());
-						ru.setForceUpdate(true);
-						ru.setExpectedOldObjectId(ticketRefId);
-						ru.setNewObjectId(patchsetCmd.getNewId());
-						RefUpdate.Result result = ru.update(getRevWalk());
-						if (result == RefUpdate.Result.LOCK_FAILURE) {
-							sendError("Failed to obtain lock when updating {0}:{1}", repository.name, ticketRef);
-							sendError("Perhaps an administrator should remove {0}/{1}.lock?", getRepository().getDirectory(), ticketRef);
-							sendRejection(cmd, result.name());
-							continue;
-						}
-					} catch (IOException e) {
-						LOGGER.error("failed to update ref " + ticketRef, e);
-						sendError("There was an error updating ref {0}:{1}", repository.name, ticketRef);
-						sendRejection(cmd, "IOException updating ref");
-						continue;
-					}
-
-					// add the patchset revision ref (refs/changes/xx/n)
+					// add the patchset revision change ref (refs/changes/xx/n)
 					batch.addCommand(patchsetCmd);
 				}
 				continue;
@@ -463,6 +396,13 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			} else {
 				// all patchset commands were applied
 				patchsetRefCmd.setResult(Result.OK);
+
+				if (!patchsetRefCmd.getRefName().startsWith(Constants.R_TICKETS)) {
+					// pushed using refs/for/n, reset the ticket head
+					String ticketRef = Constants.R_TICKETS + patchsetCmd.getTicketNumber();
+					updateRef(ticketRef, patchsetCmd.getNewId());
+				}
+
 				TicketModel ticket = processPatchset(patchsetCmd);
 				if (ticket != null) {
 					ticketNotifier.queueMailing(ticket);
@@ -561,9 +501,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		final int shortCommitIdLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
-		final String shortTipId = StringUtils.trimString(cmd.getNewId().getName(), shortCommitIdLen);
+		final String shortTipId = cmd.getNewId().getName().substring(0, shortCommitIdLen);
 		final RevCommit tipCommit = JGitUtils.getCommit(getRepository(), cmd.getNewId().getName());
-		final String forBranch = branch.equalsIgnoreCase("default") ? defaultBranch : branch;
+		final String forBranch = (branch.equalsIgnoreCase("default") || branch.equalsIgnoreCase("new")) ? defaultBranch : branch;
 		RevCommit mergeBase = null;
 		Ref forBranchRef = getAdvertisedRefs().get(Constants.R_HEADS + forBranch);
 		if (forBranchRef == null || forBranchRef.getObjectId() == null) {
@@ -575,8 +515,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			// determine the merge base for the patchset on the integration branch
 			String base = JGitUtils.getMergeBase(getRepository(), forBranchRef.getObjectId(), tipCommit.getId());
 			if (StringUtils.isEmpty(base)) {
+				sendError("");
 				sendError("There is no common ancestry between {0} and {1}.", forBranch, shortTipId);
 				sendError("Please reconsider your proposed integration branch, {0}.", forBranch);
+				sendError("");
 				sendRejection(cmd, "no merge base for patchset and {0}", forBranch);
 				return null;
 			}
@@ -598,28 +540,34 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		// check to see if this commit is already linked to a ticket
-		long id = getTicketNumber(tipCommit);
+		long id = identifyTicket(tipCommit);
 		if (id > 0) {
-			sendError("{0} has already been pushed to ticket {1,number,0).", shortTipId, id);
-			sendRejection(cmd, "nothing to do");
+			sendError("{0} has already been pushed to ticket {1,number,0}.", shortTipId, id);
+			sendRejection(cmd, "everything up-to-date");
 			return null;
 		}
-
-		int commitCount = countCommits(mergeBase.getName(), tipCommit.getName());
 
 		PatchsetCommand psCmd;
 		if (ticket == null) {
 			/*
 			 *  NEW TICKET
 			 */
+			Patchset patchset = newPatchset(null, mergeBase.getName(), tipCommit.getName());
+
 			int minLength = 10;
 			int maxLength = 100;
-			if (commitCount > 1) {
+			String minTitle = MessageFormat.format("  minimum length of a title is {0} characters.", minLength);
+			String maxTitle = MessageFormat.format("  maximum length of a title is {0} characters.", maxLength);
+
+			if (patchset.totalCommits > 1) {
+				sendError("");
 				sendError("To create a proposal ticket, please squash your commits and");
 				sendError("provide a meaningful commit message with a short title &");
 				sendError("an optional description/body.");
-				sendError("  minimum length of a title is {0} characters.", minLength);
-				sendError("  maximum length of a title is {0} characters.", maxLength);
+				sendError("");
+				sendError(minTitle);
+				sendError(maxTitle);
+				sendError("");
 				sendRejection(cmd, "please squash to one commit");
 				return null;
 			}
@@ -630,8 +578,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// reject, title too short
 				sendError("");
 				sendError("Please supply a longer title in your commit message!");
-				sendError("  minimum length of a title is {0} characters.", minLength);
-				sendError("  maximum length of a title is {0} characters.", maxLength);
+				sendError("");
+				sendError(minTitle);
+				sendError(maxTitle);
 				sendError("");
 				sendRejection(cmd, "ticket title is too short [{0}/{1}]", title.length(), maxLength);
 				return null;
@@ -640,56 +589,28 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// reject, title too long
 				sendError("");
 				sendError("Please supply a more concise title in your commit message!");
-				sendError("  minimum length of a title is {0} characters.", minLength);
-				sendError("  maximum length of a title is {0} characters.", maxLength);
+				sendError("");
+				sendError(minTitle);
+				sendError(maxTitle);
 				sendError("");
 				sendRejection(cmd, "ticket title is too long [{0}/{1}]", title.length(), maxLength);
 				return null;
 			}
 
-			// assign new ids
+			// assign new id
 			String changeId = "I" + tipCommit.getName();
 			long ticketId = ticketService.assignTicketId(repository.name, changeId);
 
 			// create the patchset command
-			psCmd = new PatchsetCommand(forBranch, tipCommit, changeId, ticketId, 1, true);
-			psCmd.patchset.type = PatchsetType.Proposal;
-
+			psCmd = new PatchsetCommand(user.username, patchset);
+			psCmd.newTicket(tipCommit, forBranch, ticketId, cmd.getRefName());
 		} else {
 			/*
 			 *  EXISTING TICKET
 			 */
-			int rev = getCurrentRevision(ticket.number);
-			psCmd = new PatchsetCommand(forBranch, tipCommit, ticket.changeId, ticket.number, rev + 1, false);
-			psCmd.patchset.type = getPatchsetType(ticket, mergeBase.getName(), tipCommit.getName());
-
-			// determine update type
-			Patchset curr = ticket.getCurrentPatchset();
-			if (curr != null) {
-				int added = commitCount - curr.totalCommits;
-				boolean ff = JGitUtils.isMergedInto(getRepository(), curr.tip, tipCommit.getName());
-				boolean squash = added < 0;
-				boolean rebase = !curr.base.equals(mergeBase.getName());
-
-				PatchsetType type;
-				if (ff) {
-					type = PatchsetType.FastForward;
-				} else if (rebase && squash) {
-					type = PatchsetType.Rebase_Squash;
-				} else if (squash) {
-					type = PatchsetType.Squash;
-				} else if (rebase) {
-					type = PatchsetType.Rebase;
-				} else {
-					// amend with or without added commits
-					type = PatchsetType.Amend;
-				}
-				psCmd.patchset.type = type;
-
-				if (added > 0) {
-					psCmd.patchset.addedCommits = added;
-				}
-			}
+			Patchset patchset = newPatchset(ticket, mergeBase.getName(), tipCommit.getName());
+			psCmd = new PatchsetCommand(user.username, patchset);
+			psCmd.updateTicket(tipCommit, forBranch, ticket, cmd.getRefName());
 		}
 
 		// confirm user can push the patchset
@@ -700,7 +621,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				|| ticket.isPatchsetAuthor(user.username)
 				|| user.canPush(repository);
 
-		switch (psCmd.patchset.type) {
+		switch (psCmd.getPatchsetType()) {
 		case Proposal:
 			// proposals (first patchset) are always acceptable
 			break;
@@ -723,26 +644,11 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			// non-fast-forward push
 			if (!pushPermitted) {
 				// reject
-				sendRejection(cmd, "non-fast-forward ({0})", psCmd.patchset.type);
+				sendRejection(cmd, "non-fast-forward ({0})", psCmd.getPatchsetType());
 				return null;
 			}
 			break;
 		}
-
-		// update the patchset command metadata
-		psCmd.patchset.base = mergeBase.getName();
-		psCmd.patchset.totalCommits = commitCount;
-
-		DiffStat diffstat = DiffUtils.getDiffStat(getRepository(), mergeBase, tipCommit, null);
-		psCmd.patchset.insertions = diffstat.getInsertions();
-		psCmd.patchset.deletions = diffstat.getDeletions();
-		psCmd.assignChangeRef();
-
-		psCmd.milestone = getSingleOption(cmd, MILESTONE);
-		psCmd.assignedTo = getSingleOption(cmd, ASSIGNEDTO);
-		psCmd.topic = getSingleOption(cmd, TOPIC);
-		psCmd.watchers = getOptions(cmd, WATCH);
-
 		return psCmd;
 	}
 
@@ -756,15 +662,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * @return a ticket if the creation or update was successful
 	 */
 	private TicketModel processPatchset(PatchsetCommand cmd) {
+		Change change = cmd.getChange();
+
 		if (cmd.isNewTicket()) {
 			// create the ticket object
-			Change change = cmd.asNewChange(user.username);
-
 			TicketModel ticket = ticketService.createTicket(repository.name, change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
-				sendInfo("created proposal ticket from patchset", cmd.ticketNumber);
+				sendInfo("created proposal ticket from patchset");
 				sendInfo(ticketService.getTicketUrl(ticket));
 				sendInfo("");
 
@@ -774,19 +680,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 				return ticket;
 			} else {
-				sendError("FAILED to create ticket {0,number,0}", cmd.ticketNumber);
+				sendError("FAILED to create ticket");
 			}
 		} else {
 			// update an existing ticket
-			TicketModel ticket = ticketService.getTicket(repository.name, cmd.ticketNumber);
-			Change change = cmd.asUpdateChange(user.username, ticket);
-
-			// update ticket with the patchset reference
-			ticket = ticketService.updateTicket(repository.name, cmd.ticketNumber, change);
+			TicketModel ticket = ticketService.updateTicket(repository.name, cmd.getTicketNumber(), change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
-				sendInfo("uploaded patchset revision {0,number,0} ({1})", cmd.patchset.rev, cmd.patchset.type.toString());
+				sendInfo("uploaded patchset revision {0,number,0} ({1})", cmd.getPatchsetRevision(), cmd.getPatchsetType().toString());
 				sendInfo(ticketService.getTicketUrl(ticket));
 				sendInfo("");
 
@@ -798,7 +700,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				return ticket;
 			} else {
 				sendError("FAILED to upload patchset {0,number,0} for ticket {1,number,0}",
-						cmd.patchset.rev, cmd.ticketNumber);
+						cmd.getPatchsetRevision(), cmd.getTicketNumber());
 			}
 		}
 
@@ -824,76 +726,97 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			RevCommit c;
 			while ((c = rw.next()) != null) {
 				rw.parseBody(c);
-				long ticketNumber = getTicketNumber(c);
+				long ticketNumber = identifyTicket(c);
 				if (ticketNumber == 0L || mergedTickets.containsKey(ticketNumber)) {
 					continue;
 				}
 
 				TicketModel ticket = ticketService.getTicket(repository.name, ticketNumber);
-				String integrationBranch = Constants.R_HEADS + ticket.mergeTo;
+				String integrationBranch;
+				if (StringUtils.isEmpty(ticket.mergeTo)) {
+					// unspecified integration branch
+					integrationBranch = null;
+				} else {
+					// specified integration branch
+					integrationBranch = Constants.R_HEADS + ticket.mergeTo;
+				}
 
-				// ticket must be open and the received ref must match the integration branch
-				if (ticket.isClosed() || !integrationBranch.equals(cmd.getRefName())) {
+				// ticket must be open and, if specified, the ref must match the integration branch
+				if (ticket.isClosed() || (integrationBranch != null && !integrationBranch.equals(cmd.getRefName()))) {
 					continue;
 				}
 
 				String baseRef = PatchsetCommand.getBaseRef(ticket.number);
-				String commitRef = null;
+				boolean knownPatchset = false;
 				Set<Ref> refs = getRepository().getAllRefsByPeeledObjectId().get(c.getId());
 				if (refs != null) {
 					for (Ref ref : refs) {
 						if (ref.getName().startsWith(baseRef)) {
-							commitRef = ref.getName();
+							knownPatchset = true;
 							break;
 						}
 					}
 				}
 
-				Change change = new Change(user.username);
+				String mergeSha = c.getName();
+				String mergeTo = Repository.shortenRefName(cmd.getRefName());
+				Change change;
+				Patchset patchset;
+				if (knownPatchset) {
+					// identify merged patchset by the patchset tip
+					patchset = null;
+					for (Patchset ps : ticket.getPatchsets()) {
+						if (ps.tip.equals(mergeSha)) {
+							patchset = ps;
+							break;
+						}
+					}
+
+					if (patchset == null) {
+						// should not happen - unless ticket has been hacked
+						sendError("Failed to find the patchset for {0} in ticket {1,number,0}?!",
+								mergeSha, ticket.number);
+						continue;
+					}
+
+					// create a new change
+					change = new Change(user.username);
+				} else {
+					// new patchset pushed by user
+					String base = cmd.getOldId().getName();
+					patchset = newPatchset(ticket, base, mergeSha);
+					PatchsetCommand psCmd = new PatchsetCommand(user.username, patchset);
+					psCmd.updateTicket(c, mergeTo, ticket, null);
+
+					// create a change ref and update the tickets/n ref
+					updateRef(psCmd.getRefName(), c.getId());
+					updateRef(Constants.R_TICKETS + ticket.number, c.getId());
+
+					// create a change from the patchset command
+					change = psCmd.getChange();
+				}
+
+				// set the common change data about the merge
 				change.setField(Field.status, Status.Merged);
-				change.setField(Field.mergeSha, c.getName());
+				change.setField(Field.mergeSha, mergeSha);
+				change.setField(Field.mergeTo, mergeTo);
+
 				if (StringUtils.isEmpty(ticket.assignedTo)) {
 					// unassigned tickets are assigned to the closer
 					change.setField(Field.assignedTo, user.username);
 				}
 
-				if (commitRef == null) {
-					// new patchset, create a patch
-					int rev = getCurrentRevision(ticket.number);
-					String newRef = PatchsetCommand.getChangeRef(ticket.number, rev + 1);
-					commitRef = newRef;
-
-					JGitUtils.setBranchRef(getRepository(), newRef, c.getName());
-
-					String tip = c.getName();
-					String base = cmd.getOldId().getName();
-					DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), c);
-					int tc = countCommits(base, tip);
-
-					Patchset patchset = new Patchset();
-					patchset.rev = rev + 1;
-					patchset.tip = tip;
-					patchset.base = base;
-					patchset.insertions = diffStat.getInsertions();
-					patchset.deletions = diffStat.getDeletions();
-					patchset.totalCommits = tc;
-					patchset.type = getPatchsetType(ticket, base, tip);
-					patchset.ref = newRef;
-
-					change.patch = patchset;
-				}
-
-				String shortid = StringUtils.trimString(c.getName(), settings.getInteger(Keys.web.shortCommitIdLength, 6));
-				ticket = ticketService.updateTicket(repository.name, ticket.changeId, change);
+				ticket = ticketService.updateTicket(repository.name, ticket.number, change);
 				if (ticket != null) {
 					sendInfo("");
 					sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
-					sendInfo("closed by push of {0} to {1} ({2})", shortid, ticket.mergeTo, commitRef);
+					sendInfo("closed by push of patchset revision {0,number,0} to {1}", patchset.rev, mergeTo);
 					sendInfo(ticketService.getTicketUrl(ticket));
 					sendInfo("");
 					mergedTickets.put(ticket.number, ticket);
 				} else {
-					sendError("FAILED to close ticket {0,number,0} by push of {1} ({2})", ticketNumber, shortid, commitRef);
+					String shortid = mergeSha.substring(0, settings.getInteger(Keys.web.shortCommitIdLength, 6));
+					sendError("FAILED to close ticket {0,number,0} by push of {1}", ticketNumber, shortid);
 				}
 			}
 		} catch (IOException e) {
@@ -905,7 +828,13 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		return mergedTickets.values();
 	}
 
-	private long getTicketNumber(RevCommit c) {
+	/**
+	 * Try to identify a ticket id from the commit.
+	 *
+	 * @param c
+	 * @return a ticket id or 0
+	 */
+	private long identifyTicket(RevCommit c) {
 		// try lookup by change ref
 		Map<AnyObjectId, Set<Ref>> map = getRepository().getAllRefsByPeeledObjectId();
 		Set<Ref> refs = map.get(c.getId());
@@ -961,15 +890,43 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		return count;
 	}
 
-	private PatchsetType getPatchsetType(TicketModel ticket, String newMergeBase, String newTip) {
-		// determine the patchset type
-		Patchset curr = ticket.getCurrentPatchset();
-		if (curr != null) {
-			int totalCommits = countCommits(newMergeBase, newTip);
-			int added = totalCommits - curr.totalCommits;
-			boolean ff = JGitUtils.isMergedInto(getRepository(), curr.tip, newTip);
+	/**
+	 * Creates a new patchset with metadata.
+	 *
+	 * @param ticket
+	 * @param newMergeBase
+	 * @param newTip
+	 */
+	private Patchset newPatchset(TicketModel ticket, String newMergeBase, String newTip) {
+		int totalCommits = countCommits(newMergeBase, newTip);
+		DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), newMergeBase, newTip);
+
+		Patchset newPatchset = new Patchset();
+		newPatchset.tip = newTip;
+		newPatchset.base = newMergeBase;
+		newPatchset.insertions = diffStat.getInsertions();
+		newPatchset.deletions = diffStat.getDeletions();
+		newPatchset.totalCommits = totalCommits;
+
+		Patchset currPatchset = ticket == null ? null : ticket.getCurrentPatchset();
+		if (currPatchset == null) {
+			// ticket had no patchsets
+			newPatchset.rev = 1;
+			newPatchset.type = PatchsetType.Proposal;
+		} else {
+			// ticket has patchsets
+			//
+			// ensure we use the highest rev for this ticket by
+			// checking both the change refs (in case they were deleted)
+			// and the ticket object (in case it's been manipulated)
+			int revRef = getCurrentRevisionRef(ticket.number);
+			int revTkt = currPatchset.rev;
+			newPatchset.rev = Math.max(revRef, revTkt) + 1;
+
+			int added = totalCommits - currPatchset.totalCommits;
+			boolean ff = JGitUtils.isMergedInto(getRepository(), currPatchset.tip, newTip);
 			boolean squash = added < 0;
-			boolean rebase = !curr.base.equals(newMergeBase);
+			boolean rebase = !currPatchset.base.equals(newMergeBase);
 
 			PatchsetType type;
 			if (ff) {
@@ -983,8 +940,41 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			} else {
 				type = PatchsetType.Amend;
 			}
-			return type;
+			newPatchset.type = type;
+
+			if (added > 0) {
+				// ignore squash (negative add)
+				newPatchset.addedCommits = added;
+			}
 		}
-		return PatchsetType.Proposal;
+		return newPatchset;
+	}
+
+	private boolean updateRef(String ref, ObjectId newId) {
+		ObjectId ticketRefId = ObjectId.zeroId();
+		try {
+			ticketRefId = getRepository().resolve(ref);
+		} catch (Exception e) {
+			// ignore
+		}
+
+		try {
+			RefUpdate ru = getRepository().updateRef(ref,  false);
+			ru.setRefLogIdent(getRefLogIdent());
+			ru.setForceUpdate(true);
+			ru.setExpectedOldObjectId(ticketRefId);
+			ru.setNewObjectId(newId);
+			RefUpdate.Result result = ru.update(getRevWalk());
+			if (result == RefUpdate.Result.LOCK_FAILURE) {
+				sendError("Failed to obtain lock when updating {0}:{1}", repository.name, ref);
+				sendError("Perhaps an administrator should remove {0}/{1}.lock?", getRepository().getDirectory(), ref);
+				return false;
+			}
+			return true;
+		} catch (IOException e) {
+			LOGGER.error("failed to update ref " + ref, e);
+			sendError("There was an error updating ref {0}:{1}", repository.name, ref);
+		}
+		return false;
 	}
 }

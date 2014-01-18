@@ -1039,7 +1039,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		repository, number, changeId, title, body, assignedTo, type, status,
-		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters;
+		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters,
+		createdBy;
 	}
 
 	public static enum Type {
