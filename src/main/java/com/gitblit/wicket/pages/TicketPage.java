@@ -116,7 +116,7 @@ public class TicketPage extends TicketBasePage {
 		List<Change> statusChanges = new ArrayList<Change>();
 		List<Change> discussion = new ArrayList<Change>();
 		for (Change change : ticket.changes) {
-			if (change.hasComment() || (change.isStatusChange() && !change.hasField(Field.number))) {
+			if (change.hasComment() || (change.isStatusChange() && (change.getStatus() != Status.New))) {
 				discussion.add(change);
 			}
 			if (change.hasComment()) {
