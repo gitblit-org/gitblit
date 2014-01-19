@@ -769,20 +769,10 @@ public class TicketPage extends TicketBasePage {
 			@Override
 			public void populateItem(final Item<Patchset> item) {
 				Patchset patchset = item.getModelObject();
-				String startRef;
-				String endRef;
-				if (patchset.rev < patchset.rev) {
-					startRef = patchset.ref;
-					endRef = patchset.ref;
-				} else {
-					startRef = patchset.ref;
-					endRef = patchset.ref;
-				}
-
 				LinkPanel link = new LinkPanel("compareLink", null,
 						MessageFormat.format(getString("gb.compareToPatchsetN"), patchset.rev),
 						ComparePage.class, WicketUtils.newRangeParameter(getRepositoryModel().name,
-								startRef, endRef), true);
+								patchset.tip, currentPatchset.tip), true);
 				item.add(link);
 
 			}
@@ -848,7 +838,7 @@ public class TicketPage extends TicketBasePage {
 					String displayPath = entry.path;
 					String path = entry.path;
 					if (entry.isSymlink()) {
-						RevCommit commit = JGitUtils.getCommit(getRepository(), currentPatchset.ref);
+						RevCommit commit = JGitUtils.getCommit(getRepository(), Constants.R_TICKETS + ticket.number);
 						path = JGitUtils.getStringContent(getRepository(), commit.getTree(), path);
 						displayPath = entry.path + " -> " + path;
 					}

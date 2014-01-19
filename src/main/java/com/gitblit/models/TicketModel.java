@@ -47,8 +47,6 @@ import org.eclipse.jgit.util.RelativeDateFormatter;
  */
 public class TicketModel implements Serializable, Comparable<TicketModel> {
 
-	public static final String R_CHANGES = "refs/changes/";
-
 	private static final long serialVersionUID = 1L;
 
 	public String repository;
@@ -376,7 +374,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
-				if (rev == change.review.revision) {
+				if (rev == change.review.rev) {
 					if (change.review.score > 1) {
 						return true;
 					}
@@ -393,7 +391,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
-				if (rev == change.review.revision) {
+				if (rev == change.review.rev) {
 					if (change.review.score < -1) {
 						return true;
 					}
@@ -1028,12 +1026,17 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private static final long serialVersionUID = 1L;
 
-		public final int revision;
+		public final int rev;
 
 		public int score;
 
 		public Review(int revision) {
-			this.revision = revision;
+			this.rev = revision;
+		}
+
+		@Override
+		public String toString() {
+			return "review " + rev + ":" + score;
 		}
 	}
 

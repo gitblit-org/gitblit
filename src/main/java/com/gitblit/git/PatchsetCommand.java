@@ -58,7 +58,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	protected boolean isNew;
 
-	public static String getBaseRef(long ticketNumber) {
+	public static String getBaseChangeRef(long ticketNumber) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Constants.R_CHANGES);
 		long m = ticketNumber % 100L;
@@ -70,10 +70,6 @@ public class PatchsetCommand extends ReceiveCommand {
 		sb.append(ticketNumber);
 		sb.append('/');
 		return sb.toString();
-	}
-
-	public static String getChangeRef(long ticketNumber, int revision) {
-		return getBaseRef(ticketNumber) + revision;
 	}
 
 	public static long getTicketNumber(String ref) {
@@ -143,7 +139,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		change.setField(Field.type, TicketModel.Type.Proposal);
 
 		// assign the patchset change ref
-		change.patchset.ref = getChangeRef(ticketId, change.patchset.rev);
+		change.patchset.ref = getBaseChangeRef(ticketId) + change.patchset.rev;
 
 		Set<String> watchSet = new TreeSet<String>();
 		watchSet.add(change.createdBy);
@@ -191,7 +187,7 @@ public class PatchsetCommand extends ReceiveCommand {
 	public void updateTicket(RevCommit commit, String mergeTo, TicketModel ticket, String pushRef) {
 
 		// assign the patchset change ref
-		this.change.patchset.ref = getChangeRef(ticket.number, change.patchset.rev);
+		change.patchset.ref = getBaseChangeRef(ticket.number) + change.patchset.rev;
 
 		if (ticket.isClosed()) {
 			// re-opening a closed ticket

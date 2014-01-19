@@ -166,7 +166,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * @return the current patchset revision for the ticketNumber
 	 */
 	private int getCurrentRevisionRef(long ticketNumber) {
-		String refId = PatchsetCommand.getBaseRef(ticketNumber);
+		String refId = PatchsetCommand.getBaseChangeRef(ticketNumber);
 		int rev = 0;
 		try {
 			for (Ref r : getRepository().getRefDatabase().getRefs(Constants.R_CHANGES).values()) {
@@ -746,7 +746,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
-				String baseRef = PatchsetCommand.getBaseRef(ticket.number);
+				String baseRef = PatchsetCommand.getBaseChangeRef(ticket.number);
 				boolean knownPatchset = false;
 				Set<Ref> refs = getRepository().getAllRefsByPeeledObjectId().get(c.getId());
 				if (refs != null) {
@@ -831,13 +831,13 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	/**
 	 * Try to identify a ticket id from the commit.
 	 *
-	 * @param c
+	 * @param commit
 	 * @return a ticket id or 0
 	 */
-	private long identifyTicket(RevCommit c) {
+	private long identifyTicket(RevCommit commit) {
 		// try lookup by change ref
 		Map<AnyObjectId, Set<Ref>> map = getRepository().getAllRefsByPeeledObjectId();
-		Set<Ref> refs = map.get(c.getId());
+		Set<Ref> refs = map.get(commit.getId());
 		if (!ArrayUtils.isEmpty(refs)) {
 			for (Ref ref : refs) {
 				long number = PatchsetCommand.getTicketNumber(ref.getName());
@@ -848,7 +848,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		// try lookup by change-id
-		List<String> changeIds = c.getFooterLines(CHANGE_ID);
+		List<String> changeIds = commit.getFooterLines(CHANGE_ID);
 		if (!ArrayUtils.isEmpty(changeIds)) {
 			for (String changeId : changeIds) {
 				if (ticketService.hasTicket(repository.name, changeId)) {
