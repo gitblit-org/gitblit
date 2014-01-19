@@ -540,7 +540,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		// check to see if this commit is already linked to a ticket
-		long id = identifyTicket(tipCommit);
+		long id = identifyTicket(tipCommit, false);
 		if (id > 0) {
 			sendError("{0} has already been pushed to ticket {1,number,0}.", shortTipId, id);
 			sendRejection(cmd, "everything up-to-date");
@@ -726,7 +726,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			RevCommit c;
 			while ((c = rw.next()) != null) {
 				rw.parseBody(c);
-				long ticketNumber = identifyTicket(c);
+				long ticketNumber = identifyTicket(c, true);
 				if (ticketNumber == 0L || mergedTickets.containsKey(ticketNumber)) {
 					continue;
 				}
@@ -832,9 +832,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * Try to identify a ticket id from the commit.
 	 *
 	 * @param commit
+	 * @param parseMessage
 	 * @return a ticket id or 0
 	 */
-	private long identifyTicket(RevCommit commit) {
+	private long identifyTicket(RevCommit commit, boolean parseMessage) {
 		// try lookup by change ref
 		Map<AnyObjectId, Set<Ref>> map = getRepository().getAllRefsByPeeledObjectId();
 		Set<Ref> refs = map.get(commit.getId());
@@ -847,17 +848,15 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 		}
 
-		// try lookup by change-id
-		List<String> changeIds = commit.getFooterLines(CHANGE_ID);
-		if (!ArrayUtils.isEmpty(changeIds)) {
-			for (String changeId : changeIds) {
-				if (ticketService.hasTicket(repository.name, changeId)) {
-					return ticketService.getTicketId(repository.name, changeId);
-				}
+		if (parseMessage) {
+			// parse commit message looking for fixes/closes #n
+			Pattern p = Pattern.compile("(?:fixes|closes)[\\s-]+#?(\\d+)", Pattern.CASE_INSENSITIVE);
+			Matcher m = p.matcher(commit.getFullMessage());
+			while (m.find()) {
+				String val = m.group();
+				return Long.parseLong(val);
 			}
 		}
-
-		// TODO parse commit message looking for fixes/closes #n
 		return 0L;
 	}
 
