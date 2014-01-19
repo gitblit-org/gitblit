@@ -437,7 +437,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 			if (ticketsProcessed == 1) {
 				sendInfo("1 ticket updated");
-			} else {
+			} else if (ticketsProcessed > 1) {
 				sendInfo("{0} tickets updated", ticketsProcessed);
 			}
 		}
