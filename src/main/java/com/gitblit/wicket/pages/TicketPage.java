@@ -431,8 +431,8 @@ public class TicketPage extends TicketBasePage {
 					// identify the merged patch, it is likely the last
 					Patchset mergedPatch = null;
 					for (Change c : revisions) {
-						if (c.patch.tip.equals(resolvedBy)) {
-							mergedPatch = c.patch;
+						if (c.patchset.tip.equals(resolvedBy)) {
+							mergedPatch = c.patchset;
 							break;
 						}
 					}
@@ -604,7 +604,7 @@ public class TicketPage extends TicketBasePage {
 				Change event = item.getModelObject();
 				if (event.hasPatchset()) {
 					// patchset
-					Patchset patchset = event.patch;
+					Patchset patchset = event.patchset;
 					String what = getString("gb.uploadedPatchset");
 					switch (patchset.addedCommits) {
 					case 1:

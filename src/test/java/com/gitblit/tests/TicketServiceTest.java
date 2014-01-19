@@ -330,7 +330,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		patchset.rev = 25;
 		patchset.ref = "refs/changes/01/1/25";
 		patchset.tip = "50f57913f816d04a16b7407134de5d8406421f37";
-		kernel.patch = patchset;
+		kernel.patchset = patchset;
 
 		ITicketService service = getService(true);
 

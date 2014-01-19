@@ -310,8 +310,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public List<Patchset> getPatchsets() {
 		List<Patchset> list = new ArrayList<Patchset>();
 		for (Change change : changes) {
-			if (change.patch != null) {
-				list.add(change.patch);
+			if (change.patchset != null) {
+				list.add(change.patchset);
 			}
 		}
 		return list;
@@ -319,9 +319,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public Patchset getPatchset(String sha) {
 		for (Change change : changes) {
-			if (change.patch != null) {
-				if (sha.equals(change.patch.tip)) {
-					return change.patch;
+			if (change.patchset != null) {
+				if (sha.equals(change.patchset.tip)) {
+					return change.patchset;
 				}
 			}
 		}
@@ -330,9 +330,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public Patchset getPatchset(int revision) {
 		for (Change change : changes) {
-			if (change.patch != null) {
-				if (revision == change.patch.rev) {
-					return change.patch;
+			if (change.patchset != null) {
+				if (revision == change.patchset.rev) {
+					return change.patchset;
 				}
 			}
 		}
@@ -342,9 +342,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public Patchset getCurrentPatchset() {
 		Patchset patchset = null;
 		for (Change change : changes) {
-			if (change.patch != null) {
-				if (patchset == null || change.patch.rev > patchset.rev) {
-					patchset = change.patch;
+			if (change.patchset != null) {
+				if (patchset == null || change.patchset.rev > patchset.rev) {
+					patchset = change.patchset;
 				}
 			}
 		}
@@ -359,7 +359,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		int latestRev = 0;
 		for (Change change : changes) {
 			if (change.hasPatchset()) {
-				int r = change.patch.rev;
+				int r = change.patchset.rev;
 				if (latestRev < r) {
 					latestRev = r;
 				}
@@ -562,7 +562,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public Set<Attachment> attachments;
 
-		public Patchset patch;
+		public Patchset patchset;
 
 		public Review review;
 
@@ -590,7 +590,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 
 		public boolean hasPatchset() {
-			return patch != null;
+			return patchset != null;
 		}
 
 		public boolean hasReview() {
@@ -748,7 +748,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 					sb.append(" commented on by ");
 				} else if (hasPatchset()) {
 					sb.append(MessageFormat.format(" patch revision {0,number,0} uploaded by ",
-							patch.rev));
+							patchset.rev));
 				} else {
 					sb.append(" changed by ");
 				}
@@ -1039,8 +1039,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		repository, number, changeId, title, body, assignedTo, type, status,
-		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters,
-		createdBy;
+		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters;
 	}
 
 	public static enum Type {

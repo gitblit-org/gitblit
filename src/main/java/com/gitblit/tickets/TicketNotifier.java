@@ -216,7 +216,7 @@ public class TicketNotifier {
 			sb.append(HARD_BRK);
 		} else if (lastChange.hasPatchset()) {
 			// patchset uploaded
-			Patchset patch = lastChange.patch;
+			Patchset patch = lastChange.patchset;
 			String base = "";
 			// determine the changed paths
 			Repository repo = null;
@@ -255,11 +255,11 @@ public class TicketNotifier {
 					base));
 
 			// note commit additions on a rebase,if any
-			switch (lastChange.patch.type) {
+			switch (lastChange.patchset.type) {
 			case Rebase:
-				if (lastChange.patch.addedCommits > 0) {
+				if (lastChange.patchset.addedCommits > 0) {
 					sb.append(SOFT_BRK);
-					sb.append(MessageFormat.format("{0} {1} added.", lastChange.patch.addedCommits, lastChange.patch.addedCommits == 1 ? "commit" : "commits"));
+					sb.append(MessageFormat.format("{0} {1} added.", lastChange.patchset.addedCommits, lastChange.patchset.addedCommits == 1 ? "commit" : "commits"));
 				}
 				break;
 			default:
@@ -374,7 +374,7 @@ public class TicketNotifier {
 				sb.append(HARD_BRK);
 			}
 
-			sb.append(formatPatchsetInstructions(ticket, lastChange.patch));
+			sb.append(formatPatchsetInstructions(ticket, lastChange.patchset));
 		}
 
 		return sb.toString();

@@ -101,15 +101,15 @@ public class PatchsetCommand extends ReceiveCommand {
 	public PatchsetCommand(String username, Patchset patchset) {
 		super(ObjectId.zeroId(), ObjectId.fromString(patchset.tip), null);
 		this.change = new Change(username);
-		this.change.patch = patchset;
+		this.change.patchset = patchset;
 	}
 
 	public PatchsetType getPatchsetType() {
-		return change.patch.type;
+		return change.patchset.type;
 	}
 
 	public int getPatchsetRevision() {
-		return change.patch.rev;
+		return change.patchset.rev;
 	}
 
 	public boolean isNewTicket() {
@@ -117,7 +117,7 @@ public class PatchsetCommand extends ReceiveCommand {
 	}
 
 	public long getTicketNumber() {
-		return getTicketNumber(change.patch.ref);
+		return getTicketNumber(change.patchset.ref);
 	}
 
 	public Change getChange() {
@@ -143,7 +143,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		change.setField(Field.type, TicketModel.Type.Proposal);
 
 		// assign the patchset change ref
-		change.patch.ref = getChangeRef(ticketId, change.patch.rev);
+		change.patchset.ref = getChangeRef(ticketId, change.patchset.rev);
 
 		Set<String> watchSet = new TreeSet<String>();
 		watchSet.add(change.createdBy);
@@ -191,7 +191,7 @@ public class PatchsetCommand extends ReceiveCommand {
 	public void updateTicket(RevCommit commit, String mergeTo, TicketModel ticket, String pushRef) {
 
 		// assign the patchset change ref
-		this.change.patch.ref = getChangeRef(ticket.number, change.patch.rev);
+		this.change.patchset.ref = getChangeRef(ticket.number, change.patchset.rev);
 
 		if (ticket.isClosed()) {
 			// re-opening a closed ticket
@@ -203,8 +203,8 @@ public class PatchsetCommand extends ReceiveCommand {
 			change.setField(Field.mergeTo, mergeTo);
 		}
 
-		if (TicketModel.Type.Proposal == ticket.type && PatchsetType.Amend == change.patch.type
-				&& change.patch.totalCommits == 1) {
+		if (TicketModel.Type.Proposal == ticket.type && PatchsetType.Amend == change.patchset.type
+				&& change.patchset.totalCommits == 1) {
 
 			// Gerrit-style title and description updates from the commit
 			// message
@@ -263,7 +263,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	@Override
 	public String getRefName() {
-		return change.patch.ref;
+		return change.patchset.ref;
 	}
 
 	private String getTitle(RevCommit commit) {
