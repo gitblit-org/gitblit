@@ -91,14 +91,13 @@ public class RepositoryTicketService extends ITicketService {
 
 	private static final String JOURNAL = "journal.json";
 
+	private static final String CID_PATH = "cid/";
+
 	private static final String LABEL = "label";
 
 	private static final String MILESTONE = "milestone";
 
 	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
-
-	@Deprecated
-	private static final String CHANGELOG = "changelog.json";
 
 	private final Map<String, Map<String, Long>> cid2number;
 
@@ -199,7 +198,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return the root path of the ticket content on the refs/gitblit/tickets branch
 	 */
 	private String toTicketPath(String changeId) {
-		return "cid/" + changeId.substring(1, 3) + "/" + changeId.substring(3);
+		return CID_PATH + changeId.substring(1, 3) + "/" + changeId.substring(3);
 	}
 
 	/**
@@ -718,14 +717,20 @@ public class RepositoryTicketService extends ITicketService {
 			// Deserialize each ticket and optionally filter out unwanted tickets
 			for (PathModel path : paths) {
 				String name = path.name.substring(path.name.lastIndexOf('/') + 1);
-				if (!JOURNAL.equals(name) && !CHANGELOG.equals(name)) {
+				if (!JOURNAL.equals(name)) {
 					continue;
 				}
 				String json = readTicketsFile(db, path.path);
 				try {
+					// Reconstruct changeid from the path
+					// cid/26/dba6c9e7067f62b702ac5ade4a401c252adda1/journal.json
+					String cid = path.path.substring(CID_PATH.length(), path.path.length() - JOURNAL.length() - 1);
+					String changeid = "I" + StringUtils.flattenStrings(cid.split("/"), "");
 					List<Change> changes = TicketSerializer.deserializeJournal(json);
 					TicketModel ticket = TicketModel.buildTicket(changes);
 					ticket.repository = repository;
+					ticket.changeId = changeid;
+					ticket.number = getTicketId(repository, changeid);
 
 					// add the ticket, conditionally, to the list
 					if (filter == null) {
@@ -769,12 +774,16 @@ public class RepositoryTicketService extends ITicketService {
 			TicketModel ticket = rts.getTicket(repository, changeId);
 			if (ticket != null) {
 				ticket.repository = repository;
+				ticket.number = ticketId;
+				ticket.changeId = changeId;
 				return ticket;
 			}
 
 			ticket = getTicket(db, changeId);
 			if (ticket != null) {
 				ticket.repository = repository;
+				ticket.number = ticketId;
+				ticket.changeId = changeId;
 				rts.store(ticket, null);
 			}
 			return ticket;
@@ -802,6 +811,8 @@ public class RepositoryTicketService extends ITicketService {
 		TicketModel ticket = rts.getTicket(repository, changeId);
 		if (ticket != null) {
 			ticket.repository = repository;
+			ticket.changeId = changeId;
+			ticket.number = getTicketId(repository, changeId);
 			return ticket;
 		}
 
@@ -810,6 +821,8 @@ public class RepositoryTicketService extends ITicketService {
 			ticket = getTicket(db, changeId);
 			if (ticket != null) {
 				ticket.repository = repository;
+				ticket.changeId = changeId;
+				ticket.number = getTicketId(repository, changeId);
 				rts.store(ticket, null);
 			}
 		} finally {
@@ -855,12 +868,7 @@ public class RepositoryTicketService extends ITicketService {
 		String journalPath = toTicketPath(changeId) + "/" + JOURNAL;
 		String json = readTicketsFile(db, journalPath);
 		if (json == null) {
-			// try older changelog path
-			String changelogPath = toTicketPath(changeId) + "/" + CHANGELOG;
-			json = readTicketsFile(db, changelogPath);
-			if (json == null) {
-				return new ArrayList<Change>();
-			}
+			return new ArrayList<Change>();
 		}
 		List<Change> list = TicketSerializer.deserializeJournal(json);
 		return list;
@@ -998,8 +1006,10 @@ public class RepositoryTicketService extends ITicketService {
 
 		Repository db = repositoryManager.getRepository(repository);
 		try {
-			// strip the repository field because it is implied
+			// strip the these fields because they are implied or stored elsewhere
 			change.remove(Field.repository);
+			change.remove(Field.number);
+			change.remove(Field.changeId);
 
 			long number = getTicketId(repository, changeId);
 			DirCache index = createIndex(db, changeId, change);
@@ -1044,16 +1054,11 @@ public class RepositoryTicketService extends ITicketService {
 			// create/update the journal
 			// exclude the attachment content
 			String journalPath = ticketPath + "/" + JOURNAL;
-			String changelogPath = ticketPath + "/" + CHANGELOG;
 
 			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
 			RevTree headTree = new RevWalk(db).parseTree(treeId);
 
 			String journal = JGitUtils.getStringContent(db, headTree, journalPath, Constants.ENCODING);
-			if (StringUtils.isEmpty(journal)) {
-				// try older changelog path
-				journal = JGitUtils.getStringContent(db, headTree, changelogPath, Constants.ENCODING);
-			}
 			String json = TicketSerializer.serialize(change);
 			if (StringUtils.isEmpty(journal)) {
 				// journal is an array of changes
@@ -1077,10 +1082,6 @@ public class RepositoryTicketService extends ITicketService {
 			// add journal to index
 			builder.add(journalEntry);
 			ignorePaths.add(journalEntry.getPathString());
-
-			// ignore (delete) legacy paths
-			ignorePaths.add(changelogPath);
-			ignorePaths.add(ticketPath + "/ticket.json");
 
 			// Add any attachments to the index
 			if (change.hasAttachments()) {
