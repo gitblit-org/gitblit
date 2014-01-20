@@ -30,4 +30,6 @@
 {"id":"df118a97b6cc516470ea1536c45524dea781c8df","createdAt":"2014-01-20T19:14:42Z","createdBy":"james","patchset":{"rev":15,"tip":"b6dcd76adbda409c5d1f795723a9c98428a104a3","base":"21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514","insertions":12849,"deletions":285,"totalCommits":21,"addedCommits":1,"type":"Amend","ref":"refs/changes/01/1/15"}}
 ,
 {"id":"6a07d10830197c4922f67f2e317612404f24ef7c","createdAt":"2014-01-20T22:09:29Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.5.0"},{"field":"watchers","value":"+admin"}]}
+,
+{"id":"753fdea9beb217e6b56a187fec1578036bea4f54","createdAt":"2014-01-20T22:09:34Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.4.0"}]}
 ]
