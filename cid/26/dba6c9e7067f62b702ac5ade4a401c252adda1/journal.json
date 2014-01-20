@@ -34,4 +34,6 @@
 {"id":"753fdea9beb217e6b56a187fec1578036bea4f54","createdAt":"2014-01-20T22:09:34Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.4.0"}]}
 ,
 {"id":"4fd32c5db0eb2f23b9505945a62077ce4e27f380","createdAt":"2014-01-20T22:32:23Z","createdBy":"admin","fields":[{"field":"responsible","value":"admin"}]}
+,
+{"id":"4a87053c03ca5d140a31a592640c2834b2457fb9","createdAt":"2014-01-20T22:36:04Z","createdBy":"admin","fields":[{"field":"responsible","value":"james"}]}
 ]
