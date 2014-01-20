@@ -17,6 +17,7 @@ package com.gitblit.wicket.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.wicket.PageParameters;
@@ -38,6 +39,7 @@ import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
+import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
@@ -50,7 +52,7 @@ public class NewTicketPage extends RepositoryPage {
 
 	private MarkdownTextArea descriptionEditor;
 
-	private IModel<UserModel> responsibleModel;
+	private IModel<TicketResponsible> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
 
@@ -93,7 +95,7 @@ public class NewTicketPage extends RepositoryPage {
 				change.setField(Field.type, type);
 
 				// responsible
-				UserModel responsible = responsibleModel == null ? null : responsibleModel.getObject();
+				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
 				if (responsible != null) {
 					change.setField(Field.responsible, responsible.username);
 				}
@@ -131,17 +133,18 @@ public class NewTicketPage extends RepositoryPage {
 
 		if (currentUser != null && currentUser.isAuthenticated && currentUser.canPush(getRepositoryModel())) {
 			// responsible
-			List<UserModel> responsibles = new ArrayList<UserModel>();
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
 			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
 					UserModel user = app().users().getUserModel(rp.registrant);
 					if (user != null) {
-						responsibles.add(user);
+						responsibles.add(new TicketResponsible(user));
 					}
 				}
 			}
+			Collections.sort(responsibles);
 			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
-			responsible.add(new DropDownChoice<UserModel>("responsible", responsibleModel, responsibles));
+			responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
 			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
 			// milestone

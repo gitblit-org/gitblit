@@ -316,7 +316,7 @@ public class TicketNotifier {
 				sb.append("| Field Changes               ||\n");
 				sb.append("| ------------: | :----------- |\n");
 				for (FieldChange fc : filtered) {
-					String value = fc.value == null ? "" : fc.value.toString().replace("\n", "<br/>");
+					String value = fc.value == null ? "" : fc.value.toString().replace("\n", "<br/>").replace("|", "&#124;");
 					sb.append(String.format("| **%1$s:** | %2$s |\n", fc.field.name(), value));
 				}
 				sb.append(HARD_BRK);
@@ -343,7 +343,7 @@ public class TicketNotifier {
 				for (RevCommit commit : commits) {
 					sb.append(MessageFormat.format("| {0} | {1} | {2} |\n",
 							commit.getName(), commit.getAuthorIdent().getName(),
-							StringUtils.trimString(commit.getShortMessage(), Constants.LEN_SHORTLOG)));
+							StringUtils.trimString(commit.getShortMessage(), Constants.LEN_SHORTLOG).replace("|", "&#124;")));
 				}
 				sb.append(HARD_BRK);
 			}

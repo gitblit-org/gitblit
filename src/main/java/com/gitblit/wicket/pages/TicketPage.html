@@ -117,17 +117,28 @@
 <wicket:fragment wicket:id="controlsFragment">
 	<div class="hidden-phone hidden-tablet">
 		<div class="btn-group" style="display:inline-block;">
-			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message> <span class="caret"></span></a>
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message> <span class="caret"></span></a>
 			<ul class="dropdown-menu">
 				<li wicket:id="newStatus"><a wicket:id="link">[status]</a></li>    						
 			</ul>
-			
-			<a class="btn" href="#"><wicket:message key="gb.responsible"></wicket:message> <span class="caret"></span></a>
-
-			<a class="btn" href="#"><wicket:message key="gb.milestone"></wicket:message> <span class="caret"></span></a>
-			
-			<a class="btn">edit</a>
-							
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">	
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.responsible"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newResponsible"><a wicket:id="link">[responsible]</a></li>    						
+			</ul>
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.milestone"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newMilestone"><a wicket:id="link">[milestone]</a></li>    						
+			</ul>
+		</div>
+		
+		<div class="btn-group" style="display:inline-block;">
+			<a class="btn btn-small">edit</a>
 		</div>
 	</div>
 </wicket:fragment>

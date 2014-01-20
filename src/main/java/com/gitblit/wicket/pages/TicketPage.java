@@ -58,8 +58,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.URIish;
 
 import com.gitblit.Constants;
+import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.models.PathModel.PathChangeModel;
+import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.SubmoduleModel;
 import com.gitblit.models.TicketModel;
@@ -73,6 +75,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
+import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -323,6 +326,10 @@ public class TicketPage extends TicketBasePage {
 		if (isAuthenticated) {
 			Fragment controls = new Fragment("controls", "controlsFragment", this);
 
+
+			/*
+			 * STATUS
+			 */
 			List<Status> choices = new ArrayList<Status>();
 			if (ticket.isProposal()) {
 				choices.addAll(Arrays.asList(TicketModel.Status.proposalWorkflow));
@@ -334,7 +341,7 @@ public class TicketPage extends TicketBasePage {
 			choices.remove(ticket.status);
 
 			ListDataProvider<Status> workflowDp = new ListDataProvider<Status>(choices);
-			DataView<Status> workflowView = new DataView<Status>("newStatus", workflowDp) {
+			DataView<Status> statusView = new DataView<Status>("newStatus", workflowDp) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -361,7 +368,96 @@ public class TicketPage extends TicketBasePage {
 					item.add(link);
 				}
 			};
-			controls.add(workflowView);
+			controls.add(statusView);
+
+			/*
+			 * RESPONSIBLE LIST
+			 */
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
+				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
+					if (!StringUtils.isEmpty(ticket.responsible) && ticket.responsible.equals(rp.registrant)) {
+						// exclude current responsible
+						continue;
+					}
+					UserModel u = app().users().getUserModel(rp.registrant);
+					if (u != null) {
+						responsibles.add(new TicketResponsible(u));
+					}
+				}
+			}
+			Collections.sort(responsibles);
+			ListDataProvider<TicketResponsible> responsibleDp = new ListDataProvider<TicketResponsible>(responsibles);
+			DataView<TicketResponsible> responsibleView = new DataView<TicketResponsible>("newResponsible", responsibleDp) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void populateItem(final Item<TicketResponsible> item) {
+					SimpleAjaxLink<TicketResponsible> link = new SimpleAjaxLink<TicketResponsible>("link", item.getModel()) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							TicketResponsible responsible = getModel().getObject();
+							Change change = new Change(user.username);
+							change.setField(Field.responsible, responsible.username);
+							if (!ticket.isWatching(responsible.username)) {
+								change.watch(responsible.username);
+							}
+							if (!ticket.isWatching(user.username)) {
+								change.watch(user.username);
+							}
+							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							app().tickets().createNotifier().sendMailing(update);
+							setResponsePage(TicketsPage.class, getPageParameters());
+						}
+					};
+					item.add(link);
+				}
+			};
+			controls.add(responsibleView);
+
+			/*
+			 * MILESTONE LIST
+			 */
+			List<TicketMilestone> milestones = app().tickets().getMilestones(repositoryName, Status.Open);
+			if (!StringUtils.isEmpty(ticket.milestone)) {
+				for (TicketMilestone milestone : milestones) {
+					if (milestone.name.equals(ticket.milestone)) {
+						milestones.remove(milestone);
+						break;
+					}
+				}
+			}
+			ListDataProvider<TicketMilestone> milestoneDp = new ListDataProvider<TicketMilestone>(milestones);
+			DataView<TicketMilestone> milestoneView = new DataView<TicketMilestone>("newMilestone", milestoneDp) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void populateItem(final Item<TicketMilestone> item) {
+					SimpleAjaxLink<TicketMilestone> link = new SimpleAjaxLink<TicketMilestone>("link", item.getModel()) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							TicketMilestone milestone = getModel().getObject();
+							Change change = new Change(user.username);
+							change.setField(Field.milestone, milestone.name);
+							if (!ticket.isWatching(user.username)) {
+								change.watch(user.username);
+							}
+							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							app().tickets().createNotifier().sendMailing(update);
+							setResponsePage(TicketsPage.class, getPageParameters());
+						}
+					};
+					item.add(link);
+				}
+			};
+			controls.add(milestoneView);
+
 			add(controls);
 		} else {
 			add(new Label("controls").setVisible(false));

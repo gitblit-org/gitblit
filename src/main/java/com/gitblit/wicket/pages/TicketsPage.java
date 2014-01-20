@@ -50,6 +50,7 @@ import com.gitblit.tickets.QueryResult;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
+import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
@@ -60,7 +61,7 @@ import com.gitblit.wicket.panels.LinkPanel;
 
 public class TicketsPage extends TicketBasePage {
 
-	final UserModel any;
+	final TicketResponsible any;
 
 	public static final String [] openStatii = new String [] { Status.New.name().toLowerCase(), Status.Open.name().toLowerCase() };
 
@@ -86,8 +87,7 @@ public class TicketsPage extends TicketBasePage {
 		// set stateless page preference
 		setStatelessHint(true);
 
-		any = new UserModel("[* TO *]");
-		any.displayName = "any";
+		any = new TicketResponsible("any", "[* TO *]", null);
 
 		UserModel user = GitBlitWebSession.get().getUser();
 		boolean isAuthenticated = user != null && user.isAuthenticated;
@@ -389,33 +389,34 @@ public class TicketsPage extends TicketBasePage {
 		add(statiiLinks);
 
 		// responsible filter
-		List<UserModel> responsibles = new ArrayList<UserModel>();
+		List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
 		for (RegistrantAccessPermission perm : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 			if (perm.permission.atLeast(AccessPermission.PUSH)) {
-				responsibles.add(app().users().getUserModel(perm.registrant));
+				UserModel u = app().users().getUserModel(perm.registrant);
+				responsibles.add(new TicketResponsible(u));
 			}
 		}
 		Collections.sort(responsibles);
 		responsibles.add(0, any);
 
-		UserModel currentResponsible = null;
-		for (UserModel u : responsibles) {
+		TicketResponsible currentResponsible = null;
+		for (TicketResponsible u : responsibles) {
 			if (u.username.equals(assignedToParam)) {
 				currentResponsible = u;
 				break;
 			}
 		}
 
-		add(new Label("currentResponsible", currentResponsible == null ? "" : currentResponsible.getDisplayName()));
-		ListDataProvider<UserModel> assignedToDp = new ListDataProvider<UserModel>(responsibles);
-		DataView<UserModel> responsibleMenu = new DataView<UserModel>("responsible", assignedToDp) {
+		add(new Label("currentResponsible", currentResponsible == null ? "" : currentResponsible.displayname));
+		ListDataProvider<TicketResponsible> responsibleDp = new ListDataProvider<TicketResponsible>(responsibles);
+		DataView<TicketResponsible> responsibleMenu = new DataView<TicketResponsible>("responsible", responsibleDp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void populateItem(final Item<UserModel> item) {
-				final UserModel u = item.getModelObject();
+			public void populateItem(final Item<TicketResponsible> item) {
+				final TicketResponsible u = item.getModelObject();
 				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, u.username, sortBy, desc, 1);
-				item.add(new LinkPanel("responsibleLink", null, u.getDisplayName(), TicketsPage.class, params).setRenderBodyOnly(true));
+				item.add(new LinkPanel("responsibleLink", null, u.displayname, TicketsPage.class, params).setRenderBodyOnly(true));
 			}
 		};
 		add(responsibleMenu);
