@@ -25,7 +25,6 @@ import org.apache.wicket.model.Model;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.UserModel;
-import com.gitblit.tickets.ITicketService;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.BasePage;
 
@@ -72,13 +71,12 @@ public class CommentPanel extends BasePanel {
 					// new comment
 					Change newComment = new Change(user.username);
 					newComment.comment(txt);
-					ITicketService service = app().tickets();
 					if (!ticket.isWatching(user.username)) {
 						newComment.watch(user.username);
 					}
-					TicketModel updatedTicket = service.updateTicket(ticket.repository, ticket.number, newComment);
+					TicketModel updatedTicket = app().tickets().updateTicket(ticket.repository, ticket.number, newComment);
 					if (updatedTicket != null) {
-						service.createNotifier().sendMailing(updatedTicket);
+						app().tickets().createNotifier().sendMailing(updatedTicket);
 						setResponsePage(pageClass, WicketUtils.newObjectParameter(updatedTicket.repository, "" + ticket.number));
 					} else {
 						error("Failed to add comment!");
