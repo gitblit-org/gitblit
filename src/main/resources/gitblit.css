@@ -811,8 +811,7 @@ div.ticket-text {
 	color: #888;
 }
 
-.attribution-border {
-	border: 2px solid #e8e8e8;
+.attribution-border {	
 }
 
 .attribution-header {
@@ -852,16 +851,16 @@ div.ticket-text {
 .attribution-triangle {
 	position: absolute;
 	margin-left: -23px;
-	margin-top:15px;
+	margin-top: 11px;
 	height: 0px;
 	width: 0px;
 	border-image: none;
 	border: 10px solid transparent;
-	border-right: 11px solid #e8e8e8;
+	border-right: 13px solid #ddd;
 }
 
 .attribution-comment {
-	padding: 10px;
+	padding: 10px 10px 0px 10px;
 	border: 1px solid #ccc;
 	border-top: 0px;
 }

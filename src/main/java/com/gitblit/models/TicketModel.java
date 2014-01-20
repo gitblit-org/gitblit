@@ -686,11 +686,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 
 		public void vote(String... username) {
-			plusList(Field.watchers, username);
+			plusList(Field.voters, username);
 		}
 
 		public void unvote(String... username) {
-			minusList(Field.watchers, username);
+			minusList(Field.voters, username);
 		}
 
 		public void label(String... label) {
@@ -1084,11 +1084,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Status {
-		New, Open, On_Hold, Resolved, Fixed, Merged, Wontfix, Duplicate, Invalid, Declined;
+		New, Open, Resolved, Fixed, Merged, Wontfix, Declined, Duplicate, Invalid, On_Hold;
 
-		public static Status [] ticketWorkflow = { Open, On_Hold, Resolved, Fixed, Wontfix, Duplicate, Invalid };
+		public static Status [] requestWorkflow = { Open, Resolved, Declined, Duplicate, Invalid, On_Hold };
 
-		public static Status [] patchsetWorkflow = { On_Hold, Declined };
+		public static Status [] bugWorkflow = { Open, Fixed, Wontfix, Duplicate, Invalid, On_Hold };
+
+		public static Status [] proposalWorkflow = { Open, Declined, On_Hold};
 
 		@Override
 		public String toString() {

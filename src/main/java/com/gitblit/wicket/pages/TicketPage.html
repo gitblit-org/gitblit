@@ -37,32 +37,23 @@
 				
 			<!-- LEFT SIDE -->
 			<div class="span8">		
-				<div class="ticket-meta-top">
-					<!-- creator -->
-					<div class="hidden-phone" style="padding-bottom: 5px;">
-						<p class="hidden-tablet pull-right ticket-number"><a rel="nofollow" target="_blank" style="padding-right: 10px;font-weight:normal; font-size: 11px;color:inherit;" wicket:id="exportJson"></a></p>
-						<span class="attribution-emphasize" wicket:id="whoCreated">[someone]</span><span wicket:id="creationMessage" class="attribution-text" style="padding: 0px 3px;">[created this ticket]</span> <span class="attribution-emphasize" wicket:id="whenCreated">[when created]</span>
-					</div>
-				</div>
-		
 				<div class="ticket-meta-middle">
-					<!-- ticket info -->
-					<table class="summary" style="width: 100% !important;">
-						<tr>
-							<td style="text-align: left;">
-								<span style="color:#999; padding-right: 10px;"><wicket:message key="gb.assignedTo"></wicket:message></span>
-								<span wicket:id="assignedTo">[assigned to]</span>
-							</td>
-							<td style="text-align: right;">
-								<span style="color:#999; padding-right: 10px;"><wicket:message key="gb.milestone"></wicket:message></span>
-								<span wicket:id="milestone">[milestone]</span>
-							</td>
-						</tr>
-					</table>
+					<!-- creator -->
+					<span class="attribution-emphasize" wicket:id="whoCreated">[someone]</span><span wicket:id="creationMessage" class="attribution-text" style="padding: 0px 3px;">[created this ticket]</span> <span class="attribution-emphasize" wicket:id="whenCreated">[when created]</span>
 				</div>
-				<div class="ticket-meta-bottom" style="min-height:110px;">
+				<div class="ticket-meta-bottom"">
 					<div class="ticket-text markdown" wicket:id="ticketDescription">[description]</div>
 				</div>
+				
+				<!-- COMMENTS and STATUS CHANGES (DISCUSSIONS TAB) -->
+				<h3 style="padding-top:10px;"><wicket:message key="gb.comments"></wicket:message></h3>
+				<div wicket:id="discussion">
+					<div style="padding: 10px 0px;" wicket:id="entry"></div>
+				</div>
+		
+		
+				<!-- ADD COMMENT (DISCUSSIONS TAB) -->
+				<div wicket:id="newComment"></div>
 			</div>
 
 			<!-- RIGHT SIDE -->	
@@ -80,28 +71,21 @@
 					<table class="summary" style="width: 100%">
 						<tr><th><wicket:message key="gb.type"></wicket:message></th><td><span wicket:id="ticketType">[type]</span></td></tr>
 						<tr><th><wicket:message key="gb.topic"></wicket:message></th><td><span wicket:id="ticketTopic">[topic]</span></td></tr>
+						<tr><th><wicket:message key="gb.assignedTo"></wicket:message></th><td><span wicket:id="assignedTo">[assigned to]</span></td></tr>
+						<tr><th><wicket:message key="gb.milestone"></wicket:message></th><td><span wicket:id="milestone">[milestone]</span></td></tr>
 						<tr><th><wicket:message key="gb.votes"></wicket:message></th><td><span wicket:id="votes" class="badge">1</span> <a style="padding-left:5px" wicket:id="voteLink" href="#">vote</a></td></tr>
 						<tr><th><wicket:message key="gb.watchers"></wicket:message></th><td><span wicket:id="watchers" class="badge">1</span> <a style="padding-left:5px" wicket:id="watchLink" href="#">watch</a></td></tr>
+						<tr><th><wicket:message key="gb.export"></wicket:message></th><td><a rel="nofollow" target="_blank" wicket:id="exportJson"></a></td></tr>
+						
 					</table>
 				</div>
 				
 				<div>
 					<span class="attribution-text" wicket:id="participantsLabel"></span>
 					<span wicket:id="participants"><span style="padding: 0px 2px;" wicket:id="participant"></span></span>
-				</div>	
+				</div>
 			</div>
-		</div>
-		
-		
-		<!-- COMMENTS and STATUS CHANGES (DISCUSSIONS TAB) -->
-		<h3 style="padding-top:10px;"><wicket:message key="gb.comments"></wicket:message></h3>
-		<div wicket:id="discussion">
-			<div wicket:id="entry"></div>
-		</div>
-		
-		
-		<!-- ADD COMMENT (DISCUSSIONS TAB) -->
-		<div wicket:id="newComment"></div>
+		</div>		
 		
 	</div>
 	
@@ -123,7 +107,7 @@
 <!-- MILESTONE PROGRESS FRAGMENT -->
 <wicket:fragment wicket:id="milestoneProgressFragment">
 	<div style="display:inline-block;padding-right: 10px" wicket:id="link"></div>
-	<div style="display:inline-block;margin-bottom: 0px;width: 100px;" class="progress progress-success">
+	<div style="display:inline-block;margin-bottom: 0px;width: 100px;height:10px;" class="progress progress-success">
 		<div class="bar" wicket:id="progress"></div>
 	</div>	
 </wicket:fragment>
@@ -131,22 +115,25 @@
 
 <!-- TICKET CONTROLS FRAGMENT -->
 <wicket:fragment wicket:id="controlsFragment">
-	<div>
+	<div class="hidden-phone hidden-tablet">
 		<div class="btn-group" style="display:inline-block;">
-			<a class="btn disabled" href="#">resolve</a>
-			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">workflow <span class="caret"></span></a>
-				<ul class="dropdown-menu">
-					<li wicket:id="workflow"><a wicket:id="link">[status]</a></li>    						
-				</ul>				
-		</div>
-		<div class="btn-group" style="display:inline-block;">
-			<a class="btn disabled">edit</a>
+			<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><wicket:message key="gb.status"></wicket:message> <span class="caret"></span></a>
+			<ul class="dropdown-menu">
+				<li wicket:id="newStatus"><a wicket:id="link">[status]</a></li>    						
+			</ul>
+			
+			<a class="btn" href="#"><wicket:message key="gb.assignedTo"></wicket:message> <span class="caret"></span></a>
+
+			<a class="btn" href="#"><wicket:message key="gb.milestone"></wicket:message> <span class="caret"></span></a>
+			
+			<a class="btn">edit</a>
+							
 		</div>
 	</div>
 </wicket:fragment>
 
 
-<!-- STATUS CHANGE FRAGMENT -->
+<!-- STATUS INDICATOR FRAGMENT -->
 <wicket:fragment wicket:id="ticketStatusFragment">
 	<div style="font-size:2.5em;padding-bottom: 5px;">
 		<i wicket:id="ticketIcon">[ticket type]</i>
@@ -158,7 +145,7 @@
 <!-- NEW COMMENT FRAGMENT -->
 <wicket:fragment wicket:id="newCommentFragment">
 	<div class="row">
-		<div class="span9">
+		<div class="span8">
 			<hr/>
 		</div>
 	</div>
@@ -169,7 +156,7 @@
 		<div class="span1 hidden-phone">
 			<span wicket:id="newCommentAvatar">[avatar]</span>
 		</div>
-		<div class="span8 attribution-border" style="background-color:#fbfbfb;">
+		<div class="span7 attribution-border" style="background-color:#fbfbfb;">
 			<div class="hidden-phone attribution-triangle"></div>
 			<div wicket:id="commentPanel"></div>
 		</div>	
@@ -179,19 +166,72 @@
 
 <!-- COMMENT FRAGMENT -->
 <wicket:fragment wicket:id="commentFragment">
-<div class="row" style="padding: 10px 0px;">
+<div class="row">
 	<div class="span1 hidden-phone" style="text-align:right;">
 		<span wicket:id="changeAvatar">[avatar]</span>
 	</div>
-	<div class="span8 attribution-border">
+	<div class="span7 attribution-border">
 		<div class="hidden-phone attribution-triangle"></div>
 		<div class="attribution-header">
 			 <span class="indicator-large-dark"><i wicket:id="commentIcon"></i></span><span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span class="hidden-phone"><wicket:message key="gb.commented">[commented]</wicket:message></span></span><p class="attribution-header-pullright" ><span class="attribution-date" wicket:id="changeDate">[comment date]</span><a class="attribution-link" wicket:id="changeLink"><i class="iconic-link"></i></a></p>
 		</div>
-		<div class="attribution-comment markdown">
-			<div class="ticket-text" wicket:id="comment">[comment text]</div>
+		<div class="markdown">
+			<div class="attribution-comment ticket-text" wicket:id="comment">[comment text]</div>
 		</div>
 	</div>
+</div>
+</wicket:fragment>
+
+
+<!-- STATUS CHANGE FRAGMENT -->
+<wicket:fragment wicket:id="statusFragment">
+<div class="row" style="opacity: 0.5;filter: alpha(opacity=50);">
+	<div class="span7 offset1">		
+		<div style="padding: 8px;border: 1px solid translucent;">
+			 <span class="indicator-large-dark"><i></i></span><span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span class="hidden-phone"><wicket:message key="gb.changedStatus">[changed status]</wicket:message></span></span> <span style="padding-left:10px;"><span wicket:id="statusChange"></span></span><p class="attribution-header-pullright" ><span class="attribution-date" wicket:id="changeDate">[comment date]</span><a class="attribution-link" wicket:id="changeLink"><i class="iconic-link"></i></a></p>
+		</div>
+	</div>		
+</div>
+</wicket:fragment>
+
+
+<!-- BOUNDARY FRAGMENT -->
+<wicket:fragment wicket:id="boundaryFragment">
+<div class="row" style="padding: 15px 0px 10px 0px;">
+	<div class="span7 offset1" style="border-top: 2px dotted #999;" />
+</div>
+</wicket:fragment>
+
+
+<!-- MERGE/CLOSE FRAGMENT -->
+<wicket:fragment wicket:id="mergeCloseFragment">
+<div wicket:id="merge" style="padding-top: 10px;"></div>	
+<div wicket:id="close"></div>
+<div wicket:id="boundary"></div>
+</wicket:fragment>
+
+
+<!-- MERGE FRAGMENT -->
+<wicket:fragment wicket:id="mergeFragment">
+<div class="row">
+	<div class="span7 offset1">
+		<span class="status-change aui-lozenge aui-lozenge-success"><wicket:message key="gb.merged"></wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.pushedPatchset">[pushed patchset]</wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="commitLink">[commit]</span> <span style="padding-left:2px;" wicket:id="toBranch"></span>
+		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
+	</div>
+</div>
+</wicket:fragment>
+
+
+<!-- CLOSE FRAGMENT -->
+<wicket:fragment wicket:id="closeFragment">
+<div class="row" style="padding-top:5px;">
+	<div class="span7 offset1">
+		<span class="status-change aui-lozenge"><wicket:message key="gb.closed"></wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.closedTicket">[closed ticket]</wicket:message></span>
+		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
+	</div>	
 </div>
 </wicket:fragment>
 
@@ -280,57 +320,6 @@
 			</tr>
 		</tbody>
 	</table>
-</wicket:fragment>
-
-<wicket:fragment wicket:id="statusFragment">
-<div class="row">
-	<div class="span8 offset1">
-		<span wicket:id="statusChange"></span>
-		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.changedStatus"></wicket:message></span>
-		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
-	</div>
-</div>
-</wicket:fragment>
-
-
-<!-- BOUNDARY FRAGMENT -->
-<wicket:fragment wicket:id="boundaryFragment">
-<div class="row" style="padding: 15px 0px 10px 0px;">
-	<div class="span8 offset1" style="border-top: 2px dotted #999;" />
-</div>
-</wicket:fragment>
-
-
-<!-- MERGE/CLOSE FRAGMENT -->
-<wicket:fragment wicket:id="mergeCloseFragment">
-<div wicket:id="merge" style="padding-top: 10px;"></div>	
-<div wicket:id="close"></div>
-<div wicket:id="boundary"></div>
-</wicket:fragment>
-
-
-<!-- MERGE FRAGMENT -->
-<wicket:fragment wicket:id="mergeFragment">
-<div class="row">
-	<div class="span8 offset1">
-		<span class="status-change aui-lozenge aui-lozenge-success"><wicket:message key="gb.merged"></wicket:message></span>
-		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.pushedPatchset">[pushed patchset]</wicket:message></span>
-		<span class="attribution-emphasize" wicket:id="commitLink">[commit]</span> <span style="padding-left:2px;" wicket:id="toBranch"></span>
-		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
-	</div>
-</div>
-</wicket:fragment>
-
-
-<!-- CLOSE FRAGMENT -->
-<wicket:fragment wicket:id="closeFragment">
-<div class="row" style="padding-top:5px;">
-	<div class="span8 offset1">
-		<span class="status-change aui-lozenge"><wicket:message key="gb.closed"></wicket:message></span>
-		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.closedTicket">[closed ticket]</wicket:message></span>
-		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
-	</div>	
-</div>
 </wicket:fragment>
 
 

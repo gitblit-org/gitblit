@@ -37,6 +37,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
@@ -85,10 +86,11 @@ import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.GravatarImage;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
+import com.gitblit.wicket.panels.SimpleAjaxLink;
 
 public class TicketPage extends TicketBasePage {
 
-	final int avatarWidth = 48;
+	final int avatarWidth = 40;
 
 	final TicketModel ticket;
 
@@ -228,7 +230,7 @@ public class TicketPage extends TicketBasePage {
 		 * MILESTONE PROGRESS (DISCUSSION TAB)
 		 */
 		if (StringUtils.isEmpty(ticket.milestone)) {
-			add(new Label("milestone", getString("gb.notSpecified")));
+			add(new Label("milestone"));
 		} else {
 			// link to milestone query
 			TicketMilestone milestone = app().tickets().getMilestone(repositoryName, ticket.milestone);
@@ -320,28 +322,46 @@ public class TicketPage extends TicketBasePage {
 		 */
 		if (isAuthenticated) {
 			Fragment controls = new Fragment("controls", "controlsFragment", this);
+
 			List<Status> choices = new ArrayList<Status>();
 			if (ticket.isProposal()) {
-				choices.addAll(Arrays.asList(TicketModel.Status.patchsetWorkflow));
+				choices.addAll(Arrays.asList(TicketModel.Status.proposalWorkflow));
+			} else if (ticket.isBug()) {
+				choices.addAll(Arrays.asList(TicketModel.Status.bugWorkflow));
 			} else {
-				choices.addAll(Arrays.asList(TicketModel.Status.ticketWorkflow));
+				choices.addAll(Arrays.asList(TicketModel.Status.requestWorkflow));
 			}
 			choices.remove(ticket.status);
 
 			ListDataProvider<Status> workflowDp = new ListDataProvider<Status>(choices);
-			DataView<Status> workflowView = new DataView<Status>("workflow", workflowDp) {
+			DataView<Status> workflowView = new DataView<Status>("newStatus", workflowDp) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				public void populateItem(final Item<Status> item) {
-					final Status value = item.getModelObject();
-					ExternalLink link = new ExternalLink("link", "#", value.toString());
-					String css = getStatusClass(value);
+					SimpleAjaxLink<Status> link = new SimpleAjaxLink<Status>("link", item.getModel()) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							Status status = getModel().getObject();
+							Change change = new Change(user.username);
+							change.setField(Field.status, status);
+							if (!ticket.isWatching(user.username)) {
+								change.watch(user.username);
+							}
+							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							app().tickets().createNotifier().sendMailing(update);
+							setResponsePage(TicketsPage.class, getPageParameters());
+						}
+					};
+					String css = getStatusClass(item.getModel().getObject());
 					WicketUtils.setCssClass(link, css);
 					item.add(link);
 				}
 			};
-			controls.add(workflowView.setEnabled(!ticket.isMerged()));
+			controls.add(workflowView);
 			add(controls);
 		} else {
 			add(new Label("controls").setVisible(false));
@@ -366,10 +386,32 @@ public class TicketPage extends TicketBasePage {
 			WicketUtils.setCssClass(votersCount, "badge badge-info");
 		}
 		add(votersCount);
-		if (ticket.isVoter(user.username)) {
-			add(new ExternalLink("voteLink", "#", getString("gb.removeVote")).setVisible(isAuthenticated));
+		if (user.isAuthenticated) {
+			Model<String> model;
+			if (ticket.isVoter(user.username)) {
+				model = Model.of(getString("gb.removeVote"));
+			} else {
+				model = Model.of(MessageFormat.format(getString("gb.vote"), ticket.type.toString()));
+			}
+			SimpleAjaxLink<String> link = new SimpleAjaxLink<String>("voteLink", model) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void onClick(AjaxRequestTarget target) {
+					Change change = new Change(user.username);
+					if (ticket.isVoter(user.username)) {
+						change.unvote(user.username);
+					} else {
+						change.vote(user.username);
+					}
+					app().tickets().updateTicket(repositoryName, ticket.number, change);
+					setResponsePage(TicketsPage.class, getPageParameters());
+				}
+			};
+			add(link);
 		} else {
-			add(new ExternalLink("voteLink", "#", getString("gb.vote")).setVisible(isAuthenticated));
+			add(new Label("voteLink").setVisible(false));
 		}
 
 
@@ -384,10 +426,32 @@ public class TicketPage extends TicketBasePage {
 			WicketUtils.setCssClass(watchersCount, "badge badge-info");
 		}
 		add(watchersCount);
-		if (ticket.isWatching(user.username)) {
-			add(new ExternalLink("watchLink", "#", getString("gb.stopWatching")).setVisible(isAuthenticated));
+		if (user.isAuthenticated) {
+			Model<String> model;
+			if (ticket.isWatching(user.username)) {
+				model = Model.of(getString("gb.stopWatching"));
+			} else {
+				model = Model.of(MessageFormat.format(getString("gb.watch"), ticket.type.toString()));
+			}
+			SimpleAjaxLink<String> link = new SimpleAjaxLink<String>("watchLink", model) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void onClick(AjaxRequestTarget target) {
+					Change change = new Change(user.username);
+					if (ticket.isWatching(user.username)) {
+						change.unwatch(user.username);
+					} else {
+						change.watch(user.username);
+					}
+					app().tickets().updateTicket(repositoryName, ticket.number, change);
+					setResponsePage(TicketsPage.class, getPageParameters());
+				}
+			};
+			add(link);
 		} else {
-			add(new ExternalLink("watchLink", "#", getString("gb.watch")).setVisible(isAuthenticated));
+			add(new Label("watchLink").setVisible(false));
 		}
 
 
@@ -470,7 +534,7 @@ public class TicketPage extends TicketBasePage {
 					 *  STATUS CHANGE
 					 */
 					Fragment frag = new Fragment("entry", "statusFragment", this);
-					Label status = new Label("statusChange", entry.getString(Field.status));
+					Label status = new Label("statusChange", entry.getStatus().toString());
 					String css = getLozengeClass(entry.getStatus(), false);
 					WicketUtils.setCssClass(status, css);
 					for (IBehavior b : status.getBehaviors()) {
@@ -483,7 +547,7 @@ public class TicketPage extends TicketBasePage {
 						}
 					}
 					frag.add(status);
-					addUserAttributions(frag, entry, 0);
+					addUserAttributions(frag, entry, avatarWidth);
 					addDateAttributions(frag, entry);
 					item.add(frag);
 				} else {

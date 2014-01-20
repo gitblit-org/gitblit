@@ -193,12 +193,9 @@ public class TicketNotifier {
 				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
 				break;
 			default:
-				if (StringUtils.isEmpty(ticket.mergeSha)) {
-					// closed by user
-					pattern = "**{0}** closed this ticket.";
-					sb.append(MessageFormat.format(pattern, user.getDisplayName()));
-				} else {
-					// closed by push
+				// some form of resolved
+				if (lastChange.hasField(Field.mergeSha)) {
+					// closed by push (merged patchset)
 					pattern = "**{0}** closed this ticket by pushing {1} to {2}.";
 
 					// identify patch that closed the ticket
@@ -210,6 +207,10 @@ public class TicketNotifier {
 						}
 					}
 					sb.append(MessageFormat.format(pattern, user.getDisplayName(), merged, ticket.mergeTo));
+				} else {
+					// workflow status change by user
+					pattern = "**{0}** changed the status of this ticket to **{1}**.";
+					sb.append(MessageFormat.format(pattern, user.getDisplayName(), lastChange.getStatus().toString().toUpperCase()));
 				}
 				break;
 			}
@@ -266,6 +267,10 @@ public class TicketNotifier {
 				break;
 			}
 			sb.append(HARD_BRK);
+		} else {
+			// general update
+			pattern = "**{0}** has updated this ticket.";
+			sb.append(MessageFormat.format(pattern, user.getDisplayName()));
 		}
 
 		// ticket link
