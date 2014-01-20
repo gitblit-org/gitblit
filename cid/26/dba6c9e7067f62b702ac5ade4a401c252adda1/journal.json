@@ -36,4 +36,6 @@
 {"id":"4fd32c5db0eb2f23b9505945a62077ce4e27f380","createdAt":"2014-01-20T22:32:23Z","createdBy":"admin","fields":[{"field":"responsible","value":"admin"}]}
 ,
 {"id":"4a87053c03ca5d140a31a592640c2834b2457fb9","createdAt":"2014-01-20T22:36:04Z","createdBy":"admin","fields":[{"field":"responsible","value":"james"}]}
+,
+{"id":"e5eb08d5ffea8175c6c76998b790931aa3a98434","createdAt":"2014-01-20T22:36:51Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.5.0"}]}
 ]
