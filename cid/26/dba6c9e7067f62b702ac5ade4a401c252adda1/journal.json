@@ -38,4 +38,6 @@
 {"id":"4a87053c03ca5d140a31a592640c2834b2457fb9","createdAt":"2014-01-20T22:36:04Z","createdBy":"admin","fields":[{"field":"responsible","value":"james"}]}
 ,
 {"id":"e5eb08d5ffea8175c6c76998b790931aa3a98434","createdAt":"2014-01-20T22:36:51Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.5.0"}]}
+,
+{"id":"1e498df96cce4f835bda2485eb83756c57c31c97","createdAt":"2014-01-20T22:36:55Z","createdBy":"admin","fields":[{"field":"milestone","value":"v1.4.0"}]}
 ]
