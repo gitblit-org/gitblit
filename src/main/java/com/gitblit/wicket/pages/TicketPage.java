@@ -212,17 +212,17 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * ASSIGNED TO (DISCUSSION TAB)
+		 * RESPONSIBLE (DISCUSSION TAB)
 		 */
-		if (StringUtils.isEmpty(ticket.assignedTo)) {
-			add(new Label("assignedTo"));
+		if (StringUtils.isEmpty(ticket.responsible)) {
+			add(new Label("responsible"));
 		} else {
-			UserModel assignee = app().users().getUserModel(ticket.assignedTo);
-			if (assignee == null) {
-				add(new Label("assignedTo", ticket.assignedTo));
+			UserModel responsible = app().users().getUserModel(ticket.responsible);
+			if (responsible == null) {
+				add(new Label("responsible", ticket.responsible));
 			} else {
-				add(new LinkPanel("assignedTo", null, assignee.getDisplayName(),
-						UserPage.class, WicketUtils.newUsernameParameter(assignee.username)));
+				add(new LinkPanel("responsible", null, responsible.getDisplayName(),
+						UserPage.class, WicketUtils.newUsernameParameter(responsible.username)));
 			}
 		}
 

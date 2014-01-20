@@ -163,11 +163,11 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C2: set owner
 		Change c2 = new Change("C2");
 		c2.comment("I'll fix this");
-		c2.setField(Field.assignedTo, c2.createdBy);
+		c2.setField(Field.responsible, c2.createdBy);
 		constructed = service.updateTicket(name, ticket.changeId, c2);
 		assertNotNull(constructed);
 		assertEquals(2, constructed.changes.size());
-		assertEquals(c2.createdBy, constructed.assignedTo);
+		assertEquals(c2.createdBy, constructed.responsible);
 		changeCount++;
 
 		// C3: add a note
@@ -305,7 +305,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 	private void compare(TicketModel ticket, TicketModel constructed) {
 		assertEquals(ticket.changeId, constructed.changeId);
 		assertEquals(ticket.createdBy, constructed.createdBy);
-		assertEquals(ticket.assignedTo, constructed.assignedTo);
+		assertEquals(ticket.responsible, constructed.responsible);
 		assertEquals(ticket.title, constructed.title);
 		assertEquals(ticket.body, constructed.body);
 		assertEquals(ticket.createdAt, constructed.createdAt);

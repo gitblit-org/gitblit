@@ -73,7 +73,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public Status status;
 
-	public String assignedTo;
+	public String responsible;
 
 	public String milestone;
 
@@ -202,8 +202,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		for (Change change : changes) {
 			set.add(change.createdBy);
 		}
-		if (assignedTo != null && assignedTo.length() > 0) {
-			set.add(assignedTo);
+		if (responsible != null && responsible.length() > 0) {
+			set.add(responsible);
 		}
 		return new ArrayList<String>(set);
 	}
@@ -216,8 +216,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return getList(Field.labels);
 	}
 
-	public boolean isAssignedTo(String username) {
-		return username.equals(assignedTo);
+	public boolean isResponsible(String username) {
+		return username.equals(responsible);
 	}
 
 	public boolean isAuthor(String username) {
@@ -426,8 +426,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		if (change.isMerge()) {
 			// identify merge patches
-			if (isEmpty(assignedTo)) {
-				assignedTo = change.createdBy;
+			if (isEmpty(responsible)) {
+				responsible = change.createdBy;
 			}
 			status = Status.Merged;
 		}
@@ -459,8 +459,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				case topic:
 					topic = toString(fieldChange.value);
 					break;
-				case assignedTo:
-					assignedTo = toString(fieldChange.value);
+				case responsible:
+					responsible = toString(fieldChange.value);
 					break;
 				case milestone:
 					milestone = toString(fieldChange.value);
@@ -1041,7 +1041,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Field {
-		repository, number, changeId, title, body, assignedTo, type, status,
+		repository, number, changeId, title, body, responsible, type, status,
 		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters;
 	}
 

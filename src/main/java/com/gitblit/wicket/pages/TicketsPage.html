@@ -58,11 +58,11 @@
 				</div>
 
 				<div class="btn-group hidden-phone">				
-  					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> <wicket:message key="gb.assignedTo"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentAssignedTo"></span> <span class="caret"></span></a>
+  					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><i class="fa fa-user"></i> <wicket:message key="gb.responsible"></wicket:message>: <span style="font-weight:bold;" wicket:id="currentResponsible"></span> <span class="caret"></span></a>
   					<ul class="dropdown-menu">
-    					<li wicket:id="assignedTo"><span wicket:id="assignedToLink"></span></li>
+    					<li wicket:id="responsible"><span wicket:id="responsibleLink"></span></li>
     					<li class="divider"></li>
-    					<li><a wicket:id="resetAssignedTo"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
+    					<li><a wicket:id="resetResponsible"><i class="fa fa-bolt"></i> <wicket:message key="gb.reset"></wicket:message></a></li>
   					</ul>
 				</div>
 
@@ -115,7 +115,7 @@
         			<div>        	 		        	 		
         	 			<b>#<span wicket:id="id">[id]</span></b>
         	 		</div>
-        			<div wicket:id="assignedTo"></div>
+        			<div wicket:id="responsible"></div>
         		</td>
        		</tr>
     		</tbody>

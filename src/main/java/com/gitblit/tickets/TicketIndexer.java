@@ -85,7 +85,7 @@ public class TicketIndexer {
 		createdby(Type.STRING),
 		updated(Type.LONG),
 		updatedby(Type.STRING),
-		assignedto(Type.STRING),
+		responsible(Type.STRING),
 		milestone(Type.STRING),
 		status(Type.STRING),
 		type(Type.STRING),
@@ -448,7 +448,7 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.createdby, ticket.createdBy);
 		toDocField(doc, Lucene.updated, ticket.updatedAt);
 		toDocField(doc, Lucene.updatedby, ticket.updatedBy);
-		toDocField(doc, Lucene.assignedto, ticket.assignedTo);
+		toDocField(doc, Lucene.responsible, ticket.responsible);
 		toDocField(doc, Lucene.milestone, ticket.milestone);
 		toDocField(doc, Lucene.topic, ticket.topic);
 		toDocField(doc, Lucene.status, ticket.status.toString());
@@ -530,7 +530,7 @@ public class TicketIndexer {
 		result.title = unpackString(doc, Lucene.title);
 		result.body = unpackString(doc, Lucene.body);
 		result.status = Status.fromObject(unpackString(doc, Lucene.status));
-		result.assignedTo = unpackString(doc, Lucene.assignedto);
+		result.responsible = unpackString(doc, Lucene.responsible);
 		result.milestone = unpackString(doc, Lucene.milestone);
 		result.topic = unpackString(doc, Lucene.topic);
 		result.type = TicketModel.Type.fromObject(unpackString(doc, Lucene.type));

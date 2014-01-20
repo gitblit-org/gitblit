@@ -317,13 +317,13 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
-				// assign to verification
-				String assignedTo = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.ASSIGNEDTO);
-				if (!StringUtils.isEmpty(assignedTo)) {
-					UserModel assignee = gitblit.getUserModel(assignedTo);
+				// responsible verification
+				String responsible = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.RESPONSIBLE);
+				if (!StringUtils.isEmpty(responsible)) {
+					UserModel assignee = gitblit.getUserModel(responsible);
 					if (assignee == null) {
 						// no account by this name
-						sendRejection(cmd, "{0} can not be assigned any tickets because there is no user account by that name", assignedTo);
+						sendRejection(cmd, "{0} can not be assigned any tickets because there is no user account by that name", responsible);
 						continue;
 					} else if (!assignee.canPush(repository)) {
 						// account does not have RW permissions
@@ -616,7 +616,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		// confirm user can push the patchset
 		boolean pushPermitted = ticket == null
 				|| ticket.isAuthor(user.username)
-				|| ticket.isAssignedTo(user.username)
+				|| ticket.isResponsible(user.username)
 				|| ticket.isReviewer(user.username)
 				|| ticket.isPatchsetAuthor(user.username)
 				|| user.canPush(repository);
@@ -656,9 +656,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * Creates or updates an ticket with the specified patchset.
 	 *
 	 * @param cmd
-	 * @param milestone
-	 * @param assignedTo
-	 * @param topic
 	 * @return a ticket if the creation or update was successful
 	 */
 	private TicketModel processPatchset(PatchsetCommand cmd) {
@@ -801,9 +798,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				change.setField(Field.mergeSha, mergeSha);
 				change.setField(Field.mergeTo, mergeTo);
 
-				if (StringUtils.isEmpty(ticket.assignedTo)) {
+				if (StringUtils.isEmpty(ticket.responsible)) {
 					// unassigned tickets are assigned to the closer
-					change.setField(Field.assignedTo, user.username);
+					change.setField(Field.responsible, user.username);
 				}
 
 				ticket = ticketService.updateTicket(repository.name, ticket.number, change);

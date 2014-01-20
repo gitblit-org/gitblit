@@ -93,7 +93,7 @@ public class TicketsPage extends TicketBasePage {
 		boolean isAuthenticated = user != null && user.isAuthenticated;
 
 		final String [] statiiParam = params.getStringArray(Lucene.status.name());
-		final String assignedToParam = params.getString(Lucene.assignedto.name(), null);
+		final String assignedToParam = params.getString(Lucene.responsible.name(), null);
 		final String milestoneParam = params.getString(Lucene.milestone.name(), null);
 		final String queryParam = params.getString("q", null);
 		final String searchParam = params.getString("s", null);
@@ -129,9 +129,9 @@ public class TicketsPage extends TicketBasePage {
 			// specify the repository
 			qb.and(Lucene.repository.matches("\"" + getRepositoryModel().name + "\""));
 		}
-		if (!qb.containsField(Lucene.assignedto.name())) {
-			// specify the assignedto
-			qb.and(Lucene.assignedto.matches(assignedToParam));
+		if (!qb.containsField(Lucene.responsible.name())) {
+			// specify the responsible
+			qb.and(Lucene.responsible.matches(assignedToParam));
 		}
 		if (!qb.containsField(Lucene.milestone.name())) {
 			// specify the milestone
@@ -388,39 +388,39 @@ public class TicketsPage extends TicketBasePage {
 		};
 		add(statiiLinks);
 
-		// assigned to filter
-		List<UserModel> assignedTos = new ArrayList<UserModel>();
+		// responsible filter
+		List<UserModel> responsibles = new ArrayList<UserModel>();
 		for (RegistrantAccessPermission perm : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 			if (perm.permission.atLeast(AccessPermission.PUSH)) {
-				assignedTos.add(app().users().getUserModel(perm.registrant));
+				responsibles.add(app().users().getUserModel(perm.registrant));
 			}
 		}
-		Collections.sort(assignedTos);
-		assignedTos.add(0, any);
+		Collections.sort(responsibles);
+		responsibles.add(0, any);
 
-		UserModel currentAssignedTo = null;
-		for (UserModel u : assignedTos) {
+		UserModel currentResponsible = null;
+		for (UserModel u : responsibles) {
 			if (u.username.equals(assignedToParam)) {
-				currentAssignedTo = u;
+				currentResponsible = u;
 				break;
 			}
 		}
 
-		add(new Label("currentAssignedTo", currentAssignedTo == null ? "" : currentAssignedTo.getDisplayName()));
-		ListDataProvider<UserModel> assignedToDp = new ListDataProvider<UserModel>(assignedTos);
-		DataView<UserModel> assignedToMenu = new DataView<UserModel>("assignedTo", assignedToDp) {
+		add(new Label("currentResponsible", currentResponsible == null ? "" : currentResponsible.getDisplayName()));
+		ListDataProvider<UserModel> assignedToDp = new ListDataProvider<UserModel>(responsibles);
+		DataView<UserModel> responsibleMenu = new DataView<UserModel>("responsible", assignedToDp) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void populateItem(final Item<UserModel> item) {
 				final UserModel u = item.getModelObject();
 				PageParameters params = queryParameters(queryParam, milestoneParam, statiiParam, u.username, sortBy, desc, 1);
-				item.add(new LinkPanel("assignedToLink", null, u.getDisplayName(), TicketsPage.class, params).setRenderBodyOnly(true));
+				item.add(new LinkPanel("responsibleLink", null, u.getDisplayName(), TicketsPage.class, params).setRenderBodyOnly(true));
 			}
 		};
-		add(assignedToMenu);
-		PageParameters resetAssignedToParams = queryParameters(queryParam, milestoneParam, statiiParam, null, sortBy, desc, 1);
-		add(new BookmarkablePageLink<Void>("resetAssignedTo", TicketsPage.class, resetAssignedToParams));
+		add(responsibleMenu);
+		PageParameters resetResponsibleParams = queryParameters(queryParam, milestoneParam, statiiParam, null, sortBy, desc, 1);
+		add(new BookmarkablePageLink<Void>("resetResponsible", TicketsPage.class, resetResponsibleParams));
 
 		List<TicketSort> sortChoices = new ArrayList<TicketSort>();
 		sortChoices.add(new TicketSort(getString("gb.sortNewest"), Lucene.created.name(), true));
@@ -513,16 +513,16 @@ public class TicketsPage extends TicketBasePage {
 				};
 				item.add(labelsView);
 
-				if (StringUtils.isEmpty(ticket.assignedTo)) {
-					item.add(new Label("assignedTo").setVisible(false));
+				if (StringUtils.isEmpty(ticket.responsible)) {
+					item.add(new Label("responsible").setVisible(false));
 				} else {
-					UserModel assignedTo = app().users().getUserModel(ticket.assignedTo);
-					if (assignedTo == null) {
-						assignedTo = new UserModel(ticket.assignedTo);
+					UserModel responsible = app().users().getUserModel(ticket.responsible);
+					if (responsible == null) {
+						responsible = new UserModel(ticket.responsible);
 					}
-					GravatarImage avatar = new GravatarImage("assignedTo", assignedTo.getDisplayName(),
-							assignedTo.emailAddress, null, 16, false, true);
-					avatar.setTooltip(getString("gb.assignedTo") + ": " + assignedTo.getDisplayName());
+					GravatarImage avatar = new GravatarImage("responsible", responsible.getDisplayName(),
+							responsible.emailAddress, null, 16, false, true);
+					avatar.setTooltip(getString("gb.responsible") + ": " + responsible.getDisplayName());
 					item.add(avatar);
 				}
 
@@ -651,7 +651,7 @@ public class TicketsPage extends TicketBasePage {
 			}
 		}
 		if (!StringUtils.isEmpty(assignedTo)) {
-			params.add(Lucene.assignedto.name(), assignedTo);
+			params.add(Lucene.responsible.name(), assignedTo);
 		}
 		if (!StringUtils.isEmpty(sort)) {
 			params.add("sort", sort);

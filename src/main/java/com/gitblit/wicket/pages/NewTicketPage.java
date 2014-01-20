@@ -50,7 +50,7 @@ public class NewTicketPage extends RepositoryPage {
 
 	private MarkdownTextArea descriptionEditor;
 
-	private IModel<UserModel> assigntoModel;
+	private IModel<UserModel> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
 
@@ -68,7 +68,7 @@ public class NewTicketPage extends RepositoryPage {
 
 		typeModel = Model.of(TicketModel.Type.Request);
 		titleModel = Model.of();
-		assigntoModel = Model.of();
+		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
 		setStatelessHint(false);
@@ -92,10 +92,10 @@ public class NewTicketPage extends RepositoryPage {
 				}
 				change.setField(Field.type, type);
 
-				// assigned to
-				UserModel assignedTo = assigntoModel == null ? null : assigntoModel.getObject();
-				if (assignedTo != null) {
-					change.setField(Field.assignedTo, assignedTo.username);
+				// responsible
+				UserModel responsible = responsibleModel == null ? null : responsibleModel.getObject();
+				if (responsible != null) {
+					change.setField(Field.responsible, responsible.username);
 				}
 
 				// milestone
@@ -130,19 +130,19 @@ public class NewTicketPage extends RepositoryPage {
 		form.add(descriptionEditor);
 
 		if (currentUser != null && currentUser.isAuthenticated && currentUser.canPush(getRepositoryModel())) {
-			// assigned to
-			List<UserModel> assignees = new ArrayList<UserModel>();
+			// responsible
+			List<UserModel> responsibles = new ArrayList<UserModel>();
 			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
 					UserModel user = app().users().getUserModel(rp.registrant);
 					if (user != null) {
-						assignees.add(user);
+						responsibles.add(user);
 					}
 				}
 			}
-			Fragment assignTo = new Fragment("assignedTo", "assignedToFragment", this);
-			assignTo.add(new DropDownChoice<UserModel>("assignto", assigntoModel, assignees));
-			form.add(assignTo.setVisible(!assignees.isEmpty()));
+			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
+			responsible.add(new DropDownChoice<UserModel>("responsible", responsibleModel, responsibles));
+			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
 			// milestone
 			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel().name, Status.Open);
@@ -150,8 +150,8 @@ public class NewTicketPage extends RepositoryPage {
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 		} else {
-			// user does not have permission to assign milestones or handlers
-			form.add(new Label("assignedTo").setVisible(false));
+			// user does not have permission to assign milestone or responsible
+			form.add(new Label("responsible").setVisible(false));
 			form.add(new Label("milestone").setVisible(false));
 		}
 

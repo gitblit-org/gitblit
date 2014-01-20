@@ -47,7 +47,7 @@ public class QueryResult implements Serializable {
 	public String title;
 	public String body;
 	public Status status;
-	public String assignedTo;
+	public String responsible;
 	public String milestone;
 	public String topic;
 	public Type type;

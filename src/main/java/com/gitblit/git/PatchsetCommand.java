@@ -48,7 +48,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	public static final String TOPIC = "topic=";
 
-	public static final String ASSIGNEDTO = "r=";
+	public static final String RESPONSIBLE = "r=";
 
 	public static final String WATCH = "cc=";
 
@@ -159,11 +159,11 @@ public class PatchsetCommand extends ReceiveCommand {
 				change.setField(Field.milestone, milestone);
 			}
 
-			String assignedTo = getSingleOption(pushRef, ASSIGNEDTO);
-			if (!StringUtils.isEmpty(assignedTo)) {
-				// user provided assigned to
-				change.setField(Field.assignedTo, assignedTo);
-				watchSet.add(assignedTo);
+			String responsible = getSingleOption(pushRef, RESPONSIBLE);
+			if (!StringUtils.isEmpty(responsible)) {
+				// user provided responsible
+				change.setField(Field.responsible, responsible);
+				watchSet.add(responsible);
 			}
 
 			String topic = getSingleOption(pushRef, TOPIC);
@@ -236,11 +236,11 @@ public class PatchsetCommand extends ReceiveCommand {
 				change.setField(Field.milestone, milestone);
 			}
 
-			String assignedTo = getSingleOption(pushRef, ASSIGNEDTO);
-			if (!StringUtils.isEmpty(assignedTo) && !assignedTo.equals(ticket.assignedTo)) {
-				// user specified a (different) assigned to
-				change.setField(Field.assignedTo, assignedTo);
-				watchSet.add(assignedTo);
+			String responsible = getSingleOption(pushRef, RESPONSIBLE);
+			if (!StringUtils.isEmpty(responsible) && !responsible.equals(ticket.responsible)) {
+				// user specified a (different) responsible
+				change.setField(Field.responsible, responsible);
+				watchSet.add(responsible);
 			}
 
 			String topic = getSingleOption(pushRef, TOPIC);
