@@ -16,6 +16,7 @@
 package com.gitblit.tickets;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.gitblit.utils.StringUtils;
 
@@ -33,9 +34,40 @@ public class TicketLabel implements Serializable {
 
 	public String color;
 
+	public List<QueryResult> tickets;
+
+
 	public TicketLabel(String name) {
 		this.name = name;
 		this.color = StringUtils.getColor(name);
+	}
+
+	public int getTotalTickets() {
+		return tickets == null ? 0 : tickets.size();
+	}
+
+	public int getOpenTickets() {
+		int cnt = 0;
+		if (tickets != null) {
+			for (QueryResult ticket : tickets) {
+				if (!ticket.status.isClosed()) {
+					cnt++;
+				}
+			}
+		}
+		return cnt;
+	}
+
+	public int getClosedTickets() {
+		int cnt = 0;
+		if (tickets != null) {
+			for (QueryResult ticket : tickets) {
+				if (ticket.status.isClosed()) {
+					cnt++;
+				}
+			}
+		}
+		return cnt;
 	}
 
 	@Override

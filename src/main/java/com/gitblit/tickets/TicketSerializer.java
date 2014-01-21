@@ -46,6 +46,14 @@ public class TicketSerializer {
 		return JsonUtils.fromJsonString(json, TicketModel.class);
 	}
 
+	public static TicketLabel deserializeLabel(String json) {
+		return JsonUtils.fromJsonString(json, TicketLabel.class);
+	}
+
+	public static TicketMilestone deserializeMilestone(String json) {
+		return JsonUtils.fromJsonString(json, TicketMilestone.class);
+	}
+
 	public static String serialize(TicketModel ticket) {
 		if (ticket == null) {
 			return null;
@@ -70,6 +78,32 @@ public class TicketSerializer {
 			Gson gson = JsonUtils.gson(
 					new ExcludeField("com.gitblit.models.TicketModel$Attachment.content"));
 			return gson.toJson(change);
+		} catch (Exception e) {
+			// won't happen
+		}
+		return null;
+	}
+
+	public static String serialize(TicketLabel label) {
+		if (label == null) {
+			return null;
+		}
+		try {
+			Gson gson = JsonUtils.gson();
+			return gson.toJson(label);
+		} catch (Exception e) {
+			// won't happen
+		}
+		return null;
+	}
+
+	public static String serialize(TicketMilestone milestone) {
+		if (milestone == null) {
+			return null;
+		}
+		try {
+			Gson gson = JsonUtils.gson();
+			return gson.toJson(milestone);
 		} catch (Exception e) {
 			// won't happen
 		}

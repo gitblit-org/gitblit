@@ -260,6 +260,136 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	/**
+	 * Creates a label.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @return the label
+	 */
+	@Override
+	public synchronized TicketLabel createLabel(String repository, String label, String createdBy) {
+		TicketLabel lb = new TicketMilestone(label);
+		Repository db = null;
+		try {
+			db = repositoryManager.getRepository(repository);
+			String content = readTicketsFile(db, SETTINGS);
+			Config config = new Config();
+			config.fromText(content);
+			config.setString(LABEL, label, "color", lb.color);
+			content = config.toText();
+			writeTicketsFile(db, SETTINGS, content, createdBy, "created label " + label);
+		} catch (ConfigInvalidException e) {
+			log.error("failed to create label " + label + " in " + repository, e);
+		} finally {
+			db.close();
+		}
+		return lb;
+	}
+
+	/**
+	 * Updates a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if the update was successful
+	 */
+	@Override
+	public synchronized boolean updateLabel(String repository, TicketLabel label, String createdBy) {
+		Repository db = null;
+		try {
+			db = repositoryManager.getRepository(repository);
+			String content = readTicketsFile(db, SETTINGS);
+			Config config = new Config();
+			config.fromText(content);
+			config.setString(LABEL, label.name, "color", label.color);
+			content = config.toText();
+			writeTicketsFile(db, SETTINGS, content, createdBy, "updated label " + label.name);
+			return true;
+		} catch (ConfigInvalidException e) {
+			log.error("failed to update label " + label + " in " + repository, e);
+		} finally {
+			db.close();
+		}
+		return false;
+	}
+
+	/**
+	 * Renames a label.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @return true if the rename was successful
+	 */
+	@Override
+	public synchronized boolean renameLabel(String repository, String oldName, String newName, String createdBy) {
+		if (StringUtils.isEmpty(newName)) {
+			throw new IllegalArgumentException("new label can not be empty!");
+		}
+		Repository db = null;
+		try {
+			db = repositoryManager.getRepository(repository);
+			TicketLabel label = getLabel(repository, oldName);
+			String content = readTicketsFile(db, SETTINGS);
+			Config config = new Config();
+			config.fromText(content);
+			config.unsetSection(LABEL, oldName);
+			config.setString(LABEL, newName, "color", label.color);
+			content = config.toText();
+			writeTicketsFile(db, SETTINGS, content, createdBy, "renamed label " + oldName + " => " + newName);
+
+			for (QueryResult qr : label.tickets) {
+				Change change = new Change(createdBy);
+				change.unlabel(oldName);
+				change.label(newName);
+				updateTicket(repository, qr.changeId, change);
+			}
+
+			return true;
+		} catch (ConfigInvalidException e) {
+			log.error("failed to rename label " + oldName + " in " + repository, e);
+		} finally {
+			db.close();
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if the delete was successful
+	 */
+	@Override
+	public synchronized boolean deleteLabel(String repository, String label, String createdBy) {
+		if (StringUtils.isEmpty(label)) {
+			throw new IllegalArgumentException("label can not be empty!");
+		}
+		Repository db = null;
+		try {
+			db = repositoryManager.getRepository(repository);
+			String content = readTicketsFile(db, SETTINGS);
+			Config config = new Config();
+			config.fromText(content);
+			config.unsetSection(LABEL, label);
+			content = config.toText();
+			writeTicketsFile(db, SETTINGS, content, createdBy, "deleted label " + label);
+
+			return true;
+		} catch (ConfigInvalidException e) {
+			log.error("failed to delete label " + label + " in " + repository, e);
+		} finally {
+			db.close();
+		}
+		return false;
+	}
+
+	/**
 	 * Returns the list of milestones for a repository.
 	 *
 	 * @param repository
@@ -362,7 +492,7 @@ public class RepositoryTicketService extends ITicketService {
 			writeTicketsFile(db, SETTINGS, content, createdBy, "updated milestone " + milestone.name);
 			return true;
 		} catch (ConfigInvalidException e) {
-			log.error("failed to create milestone " + milestone + " in " + repository, e);
+			log.error("failed to update milestone " + milestone + " in " + repository, e);
 		} finally {
 			db.close();
 		}
@@ -412,6 +542,38 @@ public class RepositoryTicketService extends ITicketService {
 			return true;
 		} catch (ConfigInvalidException e) {
 			log.error("failed to rename milestone " + oldName + " in " + repository, e);
+		} finally {
+			db.close();
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @return true if the delete was successful
+	 */
+	@Override
+	public synchronized boolean deleteMilestone(String repository, String milestone, String createdBy) {
+		if (StringUtils.isEmpty(milestone)) {
+			throw new IllegalArgumentException("milestone can not be empty!");
+		}
+		Repository db = null;
+		try {
+			db = repositoryManager.getRepository(repository);
+			String content = readTicketsFile(db, SETTINGS);
+			Config config = new Config();
+			config.fromText(content);
+			config.unsetSection(MILESTONE, milestone);
+			content = config.toText();
+			writeTicketsFile(db, SETTINGS, content, createdBy, "deleted milestone " + milestone);
+
+			return true;
+		} catch (ConfigInvalidException e) {
+			log.error("failed to delete milestone " + milestone + " in " + repository, e);
 		} finally {
 			db.close();
 		}
@@ -1022,6 +1184,8 @@ public class RepositoryTicketService extends ITicketService {
 				changes.add(change);
 				TicketModel ticket = TicketModel.buildTicket(changes);
 				ticket.repository = repository;
+				ticket.changeId = changeId;
+				ticket.number = number;
 				rts.store(ticket, null);
 			}
 		} catch (Throwable t) {

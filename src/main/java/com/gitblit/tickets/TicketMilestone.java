@@ -16,7 +16,6 @@
 package com.gitblit.tickets;
 
 import java.util.Date;
-import java.util.List;
 
 import com.gitblit.models.TicketModel.Status;
 
@@ -34,39 +33,9 @@ public class TicketMilestone extends TicketLabel {
 
 	public Date due;
 
-	public List<QueryResult> tickets;
-
 	public TicketMilestone(String name) {
 		super(name);
 		status = Status.Open;
-	}
-
-	public int getTotalTickets() {
-		return tickets == null ? 0 : tickets.size();
-	}
-
-	public int getOpenTickets() {
-		int cnt = 0;
-		if (tickets != null) {
-			for (QueryResult ticket : tickets) {
-				if (!ticket.status.isClosed()) {
-					cnt++;
-				}
-			}
-		}
-		return cnt;
-	}
-
-	public int getClosedTickets() {
-		int cnt = 0;
-		if (tickets != null) {
-			for (QueryResult ticket : tickets) {
-				if (ticket.status.isClosed()) {
-					cnt++;
-				}
-			}
-		}
-		return cnt;
 	}
 
 	public int getProgress() {

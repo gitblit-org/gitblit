@@ -28,6 +28,7 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.tickets.RepositoryTicketService;
 import com.gitblit.utils.StringUtils;
 
@@ -121,12 +122,31 @@ public class ReindexTickets {
 		settings.overrideSetting(Keys.web.allowLuceneIndexing, false);
 		settings.overrideSetting(Keys.git.enableGarbageCollection, false);
 		settings.overrideSetting(Keys.git.enableMirroring, false);
-		settings.overrideSetting(Keys.tickets.redisUrl, "");
 		settings.overrideSetting(Keys.web.activityCacheDays, 0);
 
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null).start();
-		ITicketService ticketService = new RepositoryTicketService(runtimeManager, null, null, repositoryManager).start();
+
+		String serviceName = settings.getString(Keys.tickets.service, RepositoryTicketService.class.getSimpleName());
+		ITicketService ticketService = null;
+		try {
+			Class<?> serviceClass = Class.forName(serviceName);
+			if (RedisTicketService.class.isAssignableFrom(serviceClass)) {
+				// Redis ticket service
+				ticketService = new RedisTicketService(runtimeManager, null, null, repositoryManager).start();
+			} else if (RepositoryTicketService.class.isAssignableFrom(serviceClass)) {
+				// Repository ticket service
+				settings.overrideSetting(Keys.tickets.redisUrl, "");
+				ticketService = new RepositoryTicketService(runtimeManager, null, null, repositoryManager).start();
+			} else {
+				System.err.println("Unknown ticket service " + serviceName);
+				System.exit(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
 		ticketService.reindex();
 		ticketService.stop();
 		repositoryManager.stop();

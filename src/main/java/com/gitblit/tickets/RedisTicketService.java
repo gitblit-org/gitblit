@@ -39,6 +39,7 @@ import com.gitblit.manager.IUserManager;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
+import com.gitblit.models.TicketModel.Field;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -53,12 +54,10 @@ import com.gitblit.utils.StringUtils;
  */
 public class RedisTicketService extends ITicketService {
 
-	private final String namespace = "gb:";
-
 	private final Jedis redis;
 
 	private enum KeyType {
-		index, journal, object
+		index, journal, object, milestone, label
 	}
 
 	@Inject
@@ -101,7 +100,6 @@ public class RedisTicketService extends ITicketService {
 	 */
 	private String key(KeyType key, String repository, String id) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(namespace);
 		sb.append(StringUtils.stripDotGit(repository)).append(':');
 		sb.append("ticket:");
 		sb.append(key.name());
@@ -141,10 +139,140 @@ public class RedisTicketService extends ITicketService {
 	public List<TicketLabel> getLabels(String repository) {
 		List<TicketLabel> list = new ArrayList<TicketLabel>();
 		if (redis == null) {
-			// TODO implement me
 			return list;
 		}
+		try {
+			Set<String> keys = redis.keys(key(KeyType.label, repository, "*"));
+			for (String key : keys) {
+				String json = redis.get(key);
+				TicketLabel label = TicketSerializer.deserializeLabel(json);
+				list.add(label);
+			}
+
+			log.debug("retrieved {} labels from in Redis @ {}", "" + list.size(), getUrl());
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to retrieve labels from Redis @ " + getUrl(), e);
+		}
 		return list;
+	}
+
+	/**
+	 * Creates a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return the label
+	 */
+	@Override
+	public TicketLabel createLabel(String repository, String label, String createdBy) {
+		if (redis == null) {
+			return null;
+		}
+		TicketLabel lb = new TicketLabel(label);
+		try {
+			String object = TicketSerializer.serialize(lb);
+			redis.set(key(KeyType.label, repository, label), object);
+
+			log.debug("created label {} in Redis @ {}", "" + label, getUrl());
+			return lb;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to create milestone in Redis @ " + getUrl(), e);
+		}
+		return lb;
+	}
+
+	/**
+	 * Updates a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	@Override
+	public boolean updateLabel(String repository, TicketLabel label, String createdBy) {
+		if (redis == null) {
+			return false;
+		}
+		try {
+			String object = TicketSerializer.serialize(label);
+			redis.set(key(KeyType.label, repository, label.name), object);
+
+			log.debug("updated label {} in Redis @ {}", "" + label, getUrl());
+			return true;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to update label in Redis @ " + getUrl(), e);
+		}
+		return false;
+	}
+
+	/**
+	 * Renames a label.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	@Override
+	public boolean renameLabel(String repository, String oldName, String newName, String createdBy) {
+		if (redis == null) {
+			return false;
+		}
+		try {
+			TicketLabel label = getLabel(repository, oldName);
+			redis.rename(key(KeyType.label, repository, oldName), key(KeyType.label, repository, newName));
+
+			log.debug("renamed label from {} to {} in Redis @ {}", new Object [] { oldName, newName, getUrl() });
+
+			for (QueryResult qr : label.tickets) {
+				Change change = new Change(createdBy);
+				change.unlabel(oldName);
+				change.label(newName);
+				updateTicket(repository, qr.changeId, change);
+			}
+
+			return true;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to rename milestone in Redis @ " + getUrl(), e);
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	@Override
+	public boolean deleteLabel(String repository, String label, String createdBy) {
+		if (redis == null) {
+			return false;
+		}
+		try {
+			long count = redis.del(key(KeyType.label, repository, label));
+
+			log.debug("deleted label {} from Redis @ {}", "" + label, getUrl());
+			return count == 1;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to delete label from Redis @ " + getUrl(), e);
+		}
+		return false;
 	}
 
 	/**
@@ -157,8 +285,21 @@ public class RedisTicketService extends ITicketService {
 	public List<TicketMilestone> getMilestones(String repository) {
 		List<TicketMilestone> list = new ArrayList<TicketMilestone>();
 		if (redis == null) {
-			// TODO implement me
 			return list;
+		}
+		try {
+			Set<String> keys = redis.keys(key(KeyType.milestone, repository, "*"));
+			for (String key : keys) {
+				String json = redis.get(key);
+				TicketMilestone milestone = TicketSerializer.deserializeMilestone(json);
+				list.add(milestone);
+			}
+
+			log.debug("retrieved {} milestones from in Redis @ {}", "" + list.size(), getUrl());
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to retrieve milestones from Redis @ " + getUrl(), e);
 		}
 		return list;
 	}
@@ -173,8 +314,21 @@ public class RedisTicketService extends ITicketService {
 	 */
 	@Override
 	public TicketMilestone createMilestone(String repository, String milestone, String createdBy) {
+		if (redis == null) {
+			return null;
+		}
 		TicketMilestone ms = new TicketMilestone(milestone);
-		// TODO implement me
+		try {
+			String object = TicketSerializer.serialize(ms);
+			redis.set(key(KeyType.milestone, repository, milestone), object);
+
+			log.debug("created milestone {} in Redis @ {}", "" + milestone, getUrl());
+			return ms;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to create milestone in Redis @ " + getUrl(), e);
+		}
 		return ms;
 	}
 
@@ -188,7 +342,20 @@ public class RedisTicketService extends ITicketService {
 	 */
 	@Override
 	public boolean updateMilestone(String repository, TicketMilestone milestone, String createdBy) {
-		// TODO implement me
+		if (redis == null) {
+			return false;
+		}
+		try {
+			String object = TicketSerializer.serialize(milestone);
+			redis.set(key(KeyType.milestone, repository, milestone.name), object);
+
+			log.debug("updated milestone {} in Redis @ {}", "" + milestone, getUrl());
+			return true;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to update milestone in Redis @ " + getUrl(), e);
+		}
 		return false;
 	}
 
@@ -203,7 +370,56 @@ public class RedisTicketService extends ITicketService {
 	 */
 	@Override
 	public boolean renameMilestone(String repository, String oldName, String newName, String createdBy) {
-		// TODO implement me
+		if (redis == null) {
+			return false;
+		}
+		try {
+			TicketMilestone milestone = getMilestone(repository, oldName);
+			redis.rename(key(KeyType.milestone, repository, oldName), key(KeyType.milestone, repository, newName));
+
+			log.debug("renamed milestone from {} to {} in Redis @ {}", new Object [] { oldName, newName, getUrl() });
+
+			TicketNotifier notifier = createNotifier();
+			for (QueryResult qr : milestone.tickets) {
+				Change change = new Change(createdBy);
+				change.setField(Field.milestone, newName);
+				TicketModel ticket = updateTicket(repository, qr.changeId, change);
+				notifier.queueMailing(ticket);
+			}
+			notifier.sendAll();
+
+			return true;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to rename milestone in Redis @ " + getUrl(), e);
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	@Override
+	public boolean deleteMilestone(String repository, String milestone, String createdBy) {
+		if (redis == null) {
+			return false;
+		}
+		try {
+			long count = redis.del(key(KeyType.milestone, repository, milestone));
+
+			log.debug("deleted milestone {} from Redis @ {}", "" + milestone, getUrl());
+			return count == 1;
+		} catch (JedisConnectionException e) {
+			log.error("failed to connect to Redis @ {}", getUrl());
+		} catch (JedisDataException e) {
+			log.error("failed to delete milestone from Redis @ " + getUrl(), e);
+		}
 		return false;
 	}
 
@@ -535,7 +751,7 @@ public class RedisTicketService extends ITicketService {
 
 		boolean success = false;
 		try {
-			Set<String> keys = redis.keys(namespace + "*:ticket:*");
+			Set<String> keys = redis.keys("*:ticket:*");
 			if (keys.size() > 0) {
 				Transaction t = redis.multi();
 				t.del(keys.toArray(new String[keys.size()]));

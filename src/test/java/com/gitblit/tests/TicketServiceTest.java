@@ -16,6 +16,7 @@
 package com.gitblit.tests;
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,8 @@ import com.gitblit.tickets.QueryResult;
 import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.tickets.RepositoryTicketService;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.tickets.TicketLabel;
+import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.utils.JGitUtils;
 
@@ -228,12 +231,12 @@ public class TicketServiceTest extends GitblitUnitTest {
 		service = getService(false);
 
 		// Lucene field query
-		List<QueryResult> results = service.queryFor(Lucene.status.matches("open"), 1, 10, Lucene.created.name(), true);
+		List<QueryResult> results = service.queryFor(Lucene.status.matches(Status.New.name()), 1, 10, Lucene.created.name(), true);
 		assertEquals(1, results.size());
 		assertTrue(results.get(0).title.startsWith("testCreation"));
 
 		// Lucene field query
-		results = service.queryFor(Lucene.status.matches("closed"), 1, 10, Lucene.created.name(), true);
+		results = service.queryFor(Lucene.status.matches(Status.Resolved.name()), 1, 10, Lucene.created.name(), true);
 		assertEquals(1, results.size());
 		assertTrue(results.get(0).title.startsWith("testUpdates"));
 
@@ -284,6 +287,64 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		service.stop();
 	}
+
+	@Test
+	public void testMilestones() throws Exception {
+		ITicketService service = getService(true);
+
+		service.createMilestone(name, "M1", "james");
+		service.createMilestone(name, "M2", "frank");
+		service.createMilestone(name, "M3", "joe");
+
+		List<TicketMilestone> milestones = service.getMilestones(name, Status.Open);
+		assertEquals("Unexpected open milestones count", 3, milestones.size());
+
+		for (TicketMilestone milestone : milestones) {
+			milestone.status = Status.Resolved;
+			milestone.due = new Date();
+			assertTrue("failed to update milestone " + milestone.name, service.updateMilestone(name, milestone, "ted"));
+		}
+
+		milestones = service.getMilestones(name, Status.Open);
+		assertEquals("Unexpected open milestones count", 0, milestones.size());
+
+		milestones = service.getMilestones(name, Status.Resolved);
+		assertEquals("Unexpected resolved milestones count", 3, milestones.size());
+
+		for (TicketMilestone milestone : milestones) {
+			assertTrue("failed to delete milestone " + milestone.name, service.deleteMilestone(name, milestone.name, "lucifer"));
+		}
+
+		service.stop();
+	}
+
+	@Test
+	public void testLabels() throws Exception {
+		ITicketService service = getService(true);
+
+		service.createLabel(name, "L1", "james");
+		service.createLabel(name, "L2", "frank");
+		service.createLabel(name, "L3", "joe");
+
+		List<TicketLabel> labels = service.getLabels(name);
+		assertEquals("Unexpected open labels count", 3, labels.size());
+
+		for (TicketLabel label : labels) {
+			label.color = "#ffff00";
+			assertTrue("failed to update label " + label.name, service.updateLabel(name, label, "ted"));
+		}
+
+		labels = service.getLabels(name);
+		assertEquals("Unexpected labels count", 3, labels.size());
+
+		for (TicketLabel label : labels) {
+			assertTrue("failed to delete label " + label.name, service.deleteLabel(name, label.name, "lucifer"));
+		}
+
+		service.stop();
+	}
+
+
 
 	private Change newChange(String summary) {
 		Change change = new Change("C1");

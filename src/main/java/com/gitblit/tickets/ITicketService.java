@@ -196,11 +196,54 @@ public abstract class ITicketService {
 	public TicketLabel getLabel(String repository, String label) {
 		for (TicketLabel tl : getLabels(repository)) {
 			if (tl.name.equalsIgnoreCase(label)) {
+				String q = QueryBuilder.q(Lucene.repository.matches(repository)).and(Lucene.labels.matches(label)).build();
+				tl.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
 				return tl;
 			}
 		}
 		return new TicketLabel(label);
 	}
+
+	/**
+	 * Creates a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return the label
+	 */
+	public abstract TicketLabel createLabel(String repository, String label, String createdBy);
+
+	/**
+	 * Updates a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	public abstract boolean updateLabel(String repository, TicketLabel label, String createdBy);
+
+	/**
+	 * Renames a label.
+	 *
+	 * @param repository
+	 * @param oldName
+	 * @param newName
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	public abstract boolean renameLabel(String repository, String oldName, String newName, String createdBy);
+
+	/**
+	 * Deletes a label.
+	 *
+	 * @param repository
+	 * @param label
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	public abstract boolean deleteLabel(String repository, String label, String createdBy);
 
 	/**
 	 * Returns the list of milestones for the repository.
@@ -275,6 +318,16 @@ public abstract class ITicketService {
 	 * @return true if successful
 	 */
 	public abstract boolean renameMilestone(String repository, String oldName, String newName, String createdBy);
+
+	/**
+	 * Deletes a milestone.
+	 *
+	 * @param repository
+	 * @param milestone
+	 * @param createdBy
+	 * @return true if successful
+	 */
+	public abstract boolean deleteMilestone(String repository, String milestone, String createdBy);
 
 	/**
 	 * Assigns a new long id for the change-id.
