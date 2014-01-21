@@ -1058,13 +1058,13 @@ public class RepositoryTicketService extends ITicketService {
 			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
 			RevTree headTree = new RevWalk(db).parseTree(treeId);
 
-			String journal = JGitUtils.getStringContent(db, headTree, journalPath, Constants.ENCODING).trim();
+			String journal = JGitUtils.getStringContent(db, headTree, journalPath, Constants.ENCODING);
 			String json = TicketSerializer.serialize(change).trim();
 			if (StringUtils.isEmpty(journal)) {
 				// journal is an array of changes
 				journal = "[\n" + json + "\n]";
 			} else {
-				StringBuilder sb = new StringBuilder(journal);
+				StringBuilder sb = new StringBuilder(journal.trim());
 				// trim out the end-array bracket
 				sb.setLength(journal.length() - 1);
 				sb.trimToSize();
