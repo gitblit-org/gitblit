@@ -451,9 +451,9 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.responsible, ticket.responsible);
 		toDocField(doc, Lucene.milestone, ticket.milestone);
 		toDocField(doc, Lucene.topic, ticket.topic);
-		toDocField(doc, Lucene.status, ticket.status.toString());
+		toDocField(doc, Lucene.status, ticket.status.name());
 		toDocField(doc, Lucene.comments, ticket.getComments().size());
-		toDocField(doc, Lucene.type, ticket.type == null ? null : ticket.type.toString());
+		toDocField(doc, Lucene.type, ticket.type == null ? null : ticket.type.name());
 		toDocField(doc, Lucene.mergesha, ticket.mergeSha);
 		toDocField(doc, Lucene.mergeto, ticket.mergeTo);
 		toDocField(doc, Lucene.labels, StringUtils.flattenStrings(ticket.getLabels(), ";").toLowerCase());
