@@ -814,44 +814,6 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	/**
-	 * Ensures that we have a ticket for this id.
-	 *
-	 * @param repository
-	 * @param ticketId
-	 * @return true if the ticket exists
-	 */
-	@Override
-	public boolean hasTicket(String repository, long ticketId) {
-		return !StringUtils.isEmpty(getChangeId(repository, ticketId));
-	}
-
-	/**
-	 * Ensures that this change-id maps to an existing ticket.
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @return true if the ticket exists
-	 */
-	@Override
-	public boolean hasTicket(String repository, String changeId) {
-		if (StringUtils.isEmpty(changeId)) {
-			return false;
-		}
-
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			if (getTicketsBranch(db) == null) {
-				return false;
-			}
-			String ticketPath = toTicketPath(changeId);
-			List<RevCommit> commits = JGitUtils.getRevLog(db, GITBLIT_TICKETS, ticketPath, 0, 1);
-			return !commits.isEmpty();
-		} finally {
-			db.close();
-		}
-	}
-
-	/**
 	 * Returns all the tickets in the repository. Querying tickets from the
 	 * repository requires deserializing all tickets. This is an  expensive
 	 * process and not recommended. Tickets should be indexed by Lucene and
@@ -1387,6 +1349,7 @@ public class RepositoryTicketService extends ITicketService {
 		try {
 			// TODO finish me
 			indexer.clear();
+			resetCaches();
 			return true;
 		} catch (Exception e) {
 			log.error(null, e);

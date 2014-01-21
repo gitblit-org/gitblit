@@ -345,7 +345,9 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @return true if the ticket exists
 	 */
-	public abstract boolean hasTicket(String repository, long ticketId);
+	public boolean hasTicket(String repository, long ticketId) {
+		return !StringUtils.isEmpty(getChangeId(repository, ticketId));
+	}
 
 	/**
 	 * Ensures that this change-id maps to an existing ticket.
@@ -354,7 +356,9 @@ public abstract class ITicketService {
 	 * @param changeId
 	 * @return true if the ticket exists
 	 */
-	public abstract boolean hasTicket(String repository, String changeId);
+	public boolean hasTicket(String repository, String changeId) {
+		return getTicketId(repository, changeId) > 0L;
+	}
 
 	/**
 	 * Returns the ticketId for the changeId
