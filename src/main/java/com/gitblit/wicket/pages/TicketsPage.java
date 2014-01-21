@@ -258,7 +258,8 @@ public class TicketsPage extends TicketBasePage {
 
 		add(new BookmarkablePageLink<Void>("requestsQuery", TicketsPage.class,
 				queryParameters(
-						Lucene.type.doesNotMatch(TicketModel.Type.Proposal.name()),
+						QueryBuilder.q(Lucene.type.doesNotMatch(TicketModel.Type.Proposal.name()))
+							.andNot(Lucene.type.matches(TicketModel.Type.Bug.name())).build(),
 						milestoneParam,
 						statiiParam,
 						assignedToParam,
