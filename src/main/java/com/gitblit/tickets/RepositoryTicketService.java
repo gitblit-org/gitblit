@@ -22,13 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -80,15 +77,9 @@ public class RepositoryTicketService extends ITicketService {
 
 	private static final String GITBLIT_TICKETS = "refs/gitblit/tickets";
 
-	private static final String INDEX = "index";
-
 	private static final String JOURNAL = "journal.json";
 
-	private static final String CID_PATH = "cid/";
-
-	private final Map<String, Map<String, Long>> cid2number;
-
-	private final Map<String, Map<Long, String>> number2cid;
+	private static final String ID_PATH = "id/";
 
 	@Inject
 	public RepositoryTicketService(
@@ -101,9 +92,6 @@ public class RepositoryTicketService extends ITicketService {
 				notificationManager,
 				userManager,
 				repositoryManager);
-
-		this.cid2number = new ConcurrentHashMap<String, Map<String, Long>>();
-		this.number2cid = new ConcurrentHashMap<String, Map<Long, String>>();
 	}
 
 	@Override
@@ -113,14 +101,10 @@ public class RepositoryTicketService extends ITicketService {
 
 	@Override
 	protected void resetCachesImpl() {
-		cid2number.clear();
-		number2cid.clear();
 	}
 
 	@Override
 	protected void resetCachesImpl(RepositoryModel repository) {
-		cid2number.remove(repository.name);
-		number2cid.remove(repository.name);
 	}
 
 	@Override
@@ -148,9 +132,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @param db
 	 */
 	private void createTicketsBranch(Repository db) {
-		if (JGitUtils.createOrphanBranch(db, GITBLIT_TICKETS, null)) {
-			insertResource(db, INDEX);
-		}
+		JGitUtils.createOrphanBranch(db, GITBLIT_TICKETS, null);
 	}
 
 	/**
@@ -170,22 +152,31 @@ public class RepositoryTicketService extends ITicketService {
 	 * store path where the first two characters of the hash id are the root
 	 * folder with the remaining characters as a subfolder within that folder.
 	 *
-	 * @param changeId
+	 * @param ticketId
 	 * @return the root path of the ticket content on the refs/gitblit/tickets branch
 	 */
-	private String toTicketPath(String changeId) {
-		return CID_PATH + changeId.substring(1, 3) + "/" + changeId.substring(3);
+	private String toTicketPath(long ticketId) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(ID_PATH);
+		long m = ticketId % 100L;
+		if (m < 10) {
+			sb.append('0');
+		}
+		sb.append(m);
+		sb.append('/');
+		sb.append(ticketId);
+		return sb.toString();
 	}
 
 	/**
 	 * Returns the path to the attachment for the specified ticket.
 	 *
-	 * @param changeId
+	 * @param ticketId
 	 * @param filename
 	 * @return the path to the specified attachment
 	 */
-	private String toAttachmentPath(String changeId, String filename) {
-		return toTicketPath(changeId) + "/attachments/" + filename;
+	private String toAttachmentPath(long ticketId, String filename) {
+		return toTicketPath(ticketId) + "/attachments/" + filename;
 	}
 
 	/**
@@ -276,40 +267,6 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	/**
-	 * Reads and caches the ticket index for the repository.
-	 *
-	 * @param repository
-	 */
-	private void readTicketIndex(RepositoryModel repository) {
-		String key = repository.name;
-		if (!cid2number.containsKey(key) || !number2cid.containsKey(key)) {
-			Repository db = repositoryManager.getRepository(repository.name);
-			RefModel ticketsBranch = getTicketsBranch(db);
-			if (ticketsBranch == null) {
-				return;
-			}
-
-			String idx = readTicketsFile(db, INDEX);
-			db.close();
-			if (StringUtils.isEmpty(idx)) {
-				return;
-			}
-
-			Map<String, Long> numberLookup = new ConcurrentHashMap<String, Long>();
-			Map<Long, String> changeidLookup = new ConcurrentHashMap<Long, String>();
-			for (String line : idx.split("\n")) {
-				String [] fields = line.split(" ");
-				long tid = Long.parseLong(fields[1]);
-				numberLookup.put(fields[0], tid);
-				changeidLookup.put(tid, fields[0]);
-			}
-
-			cid2number.put(key, numberLookup);
-			number2cid.put(key, changeidLookup);
-		}
-	}
-
-	/**
 	 * Ensures that we have a ticket for this ticket id.
 	 *
 	 * @param repository
@@ -318,12 +275,16 @@ public class RepositoryTicketService extends ITicketService {
 	 */
 	@Override
 	public boolean hasTicket(RepositoryModel repository, long ticketId) {
-		readTicketIndex(repository);
-		String key = repository.name;
-		if (number2cid.containsKey(key)) {
-			return number2cid.get(key).containsKey(ticketId);
+		boolean hasTicket = false;
+		Repository db = repositoryManager.getRepository(repository.name);
+		try {
+			String ticketPath = toTicketPath(ticketId);
+			RevCommit tip = JGitUtils.getCommit(db, GITBLIT_TICKETS);
+			hasTicket = !JGitUtils.getFilesInPath(db, ticketPath, tip).isEmpty();
+		} finally {
+			db.close();
 		}
-		return false;
+		return hasTicket;
 	}
 
 	/**
@@ -334,90 +295,39 @@ public class RepositoryTicketService extends ITicketService {
 	 */
 	@Override
 	public synchronized long assignNewId(RepositoryModel repository) {
+		long newId = 0L;
 		Repository db = repositoryManager.getRepository(repository.name);
-		String idx = readTicketsFile(db, INDEX);
-		if (StringUtils.isEmpty(idx)) {
-			idx = "";
-		}
-
-		// determine current highest assigned id
-		// this is almost certainly linear
-		long id = 0;
-		for (String line : idx.split("\n")) {
-			String [] fields = line.split(" ");
-			if (fields != null && fields.length > 1) {
-				String ns = fields[1];
-				long i = Long.parseLong(ns);
-				if (i > id) {
-					id = i;
+		try {
+			// identify current highest ticket id by scanning the paths in the tip tree
+			long currId = 0L;
+			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), GITBLIT_TICKETS);
+			for (PathModel path : paths) {
+				String name = path.name.substring(path.name.lastIndexOf('/') + 1);
+				if (!JOURNAL.equals(name)) {
+					continue;
+				}
+				String tid = path.path.split("/")[2];
+				long ticketId = Long.parseLong(tid);
+				if (ticketId > newId) {
+					currId = ticketId;
 				}
 			}
+
+			// assign the id and touch an empty journal to hold it's place
+			newId = currId + 1;
+			String journalPath = toTicketPath(newId) + "/" + JOURNAL;
+			writeTicketsFile(db, journalPath, "", "gitblit", "assigned id #" + newId);
+		} finally {
+			db.close();
 		}
-
-		id++;
-
-		// append the new ticket id to the index
-		String changeId = "I" + StringUtils.getSHA1(idx + new Date().toString());
-		idx += changeId + " " + id + "\n";
-
-		writeTicketsFile(db, INDEX, idx, "gitblit", id + " = " + changeId);
-		db.close();
-
-		// reset the ticket index cache
-		String key = repository.name;
-		cid2number.remove(key);
-		number2cid.remove(key);
-
-		return id;
-	}
-
-	/**
-	 * Returns the changeId for the ticketId
-	 *
-	 * @param db
-	 * @param repository
-	 * @param ticketId
-	 * @return changeId for the ticketId, or null if it does not exist
-	 */
-	private String getChangeId(Repository db, RepositoryModel repository, long ticketId) {
-		RefModel ticketsBranch = getTicketsBranch(db);
-		if (ticketsBranch == null) {
-			return null;
-		}
-		readTicketIndex(repository);
-		String key = repository.name;
-		if (number2cid.containsKey(key)) {
-			return number2cid.get(key).get(ticketId);
-		}
-		return number2cid.get(key).get(ticketId);
-	}
-
-	/**
-	 * Returns the ticketId for the changeId
-	 *
-	 * @param db
-	 * @param repository
-	 * @param changeId
-	 * @return ticketId for the changeId, or 0 if it does not exist
-	 */
-	private long getTicketId(Repository db, RepositoryModel repository, String changeId) {
-		RefModel ticketsBranch = getTicketsBranch(db);
-		if (ticketsBranch == null) {
-			return 0L;
-		}
-		readTicketIndex(repository);
-		String key = repository.name;
-		if (cid2number.containsKey(key)) {
-			return cid2number.get(key).get(changeId);
-		}
-		return cid2number.get(key).get(changeId);
+		return newId;
 	}
 
 	/**
 	 * Returns all the tickets in the repository. Querying tickets from the
 	 * repository requires deserializing all tickets. This is an  expensive
-	 * process and not recommended. Tickets should be indexed by Lucene and
-	 * queries should be executed against that index.
+	 * process and not recommended. Tickets are indexed by Lucene and queries
+	 * should be executed against that index.
 	 *
 	 * @param repository
 	 * @param filter
@@ -445,11 +355,15 @@ public class RepositoryTicketService extends ITicketService {
 					continue;
 				}
 				String json = readTicketsFile(db, path.path);
+				if (StringUtils.isEmpty(json)) {
+					// journal was touched but no changes were written
+					continue;
+				}
 				try {
-					// Reconstruct changeid from the path
-					// cid/26/dba6c9e7067f62b702ac5ade4a401c252adda1/journal.json
-					String cid = path.path.substring(CID_PATH.length(), path.path.length() - JOURNAL.length() - 1);
-					String changeid = "I" + StringUtils.flattenStrings(cid.split("/"), "");
+					// Reconstruct ticketId from the path
+					// id/26/326/journal.json
+					String tid = path.path.split("/")[2];
+					long ticketId = Long.parseLong(tid);
 					List<Change> changes = TicketSerializer.deserializeJournal(json);
 					if (ArrayUtils.isEmpty(changes)) {
 						log.warn("Empty journal for {}:{}", repository, path.path);
@@ -457,7 +371,7 @@ public class RepositoryTicketService extends ITicketService {
 					}
 					TicketModel ticket = TicketModel.buildTicket(changes);
 					ticket.repository = repository.name;
-					ticket.number = getTicketId(db, repository, changeid);
+					ticket.number = ticketId;
 
 					// add the ticket, conditionally, to the list
 					if (filter == null) {
@@ -494,12 +408,7 @@ public class RepositoryTicketService extends ITicketService {
 	protected TicketModel getTicketImpl(RepositoryModel repository, long ticketId) {
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, repository, ticketId);
-			if (StringUtils.isEmpty(changeId)) {
-				return null;
-			}
-
-			List<Change> changes = getJournal(db, changeId);
+			List<Change> changes = getJournal(db, ticketId);
 			if (ArrayUtils.isEmpty(changes)) {
 				log.warn("Empty journal for {}:{}", repository, ticketId);
 				return null;
@@ -519,22 +428,22 @@ public class RepositoryTicketService extends ITicketService {
 	 * Returns the journal for the specified ticket.
 	 *
 	 * @param db
-	 * @param changeId
+	 * @param ticketId
 	 * @return a list of changes
 	 */
-	private List<Change> getJournal(Repository db, String changeId) {
+	private List<Change> getJournal(Repository db, long ticketId) {
 		RefModel ticketsBranch = getTicketsBranch(db);
 		if (ticketsBranch == null) {
 			return new ArrayList<Change>();
 		}
 
-		if (StringUtils.isEmpty(changeId)) {
+		if (ticketId <= 0L) {
 			return new ArrayList<Change>();
 		}
 
-		String journalPath = toTicketPath(changeId) + "/" + JOURNAL;
+		String journalPath = toTicketPath(ticketId) + "/" + JOURNAL;
 		String json = readTicketsFile(db, journalPath);
-		if (json == null) {
+		if (StringUtils.isEmpty(json)) {
 			return new ArrayList<Change>();
 		}
 		List<Change> list = TicketSerializer.deserializeJournal(json);
@@ -572,8 +481,7 @@ public class RepositoryTicketService extends ITicketService {
 		// retrieve the attachment content
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, repository, ticketId);
-			String attachmentPath = toAttachmentPath(changeId, attachment.name);
+			String attachmentPath = toAttachmentPath(ticketId, attachment.name);
 			RevTree tree = JGitUtils.getCommit(db, GITBLIT_TICKETS).getTree();
 			byte[] content = JGitUtils.getByteContent(db, tree, attachmentPath, false);
 			attachment.content = content;
@@ -604,8 +512,7 @@ public class RepositoryTicketService extends ITicketService {
 			if (ticketsBranch == null) {
 				throw new RuntimeException(GITBLIT_TICKETS + " does not exist!");
 			}
-			String changeId = getChangeId(db, repository, ticket.number);
-			String ticketPath = toTicketPath(changeId);
+			String ticketPath = toTicketPath(ticket.number);
 
 			TreeWalk treeWalk = null;
 			try {
@@ -673,9 +580,8 @@ public class RepositoryTicketService extends ITicketService {
 
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, repository, ticketId);
-			DirCache index = createIndex(db, changeId, change);
-			success = commitIndex(db, index, change.createdBy, ticketId + " : " + changeId);
+			DirCache index = createIndex(db, ticketId, change);
+			success = commitIndex(db, index, change.createdBy, "#" + ticketId);
 
 		} catch (Throwable t) {
 			log.error(MessageFormat.format("Failed to commit ticket {0,number,0} to {1}",
@@ -694,10 +600,10 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return an in-memory index
 	 * @throws IOException
 	 */
-	private DirCache createIndex(Repository db, String changeId, Change change)
+	private DirCache createIndex(Repository db, long ticketId, Change change)
 			throws IOException, ClassNotFoundException, NoSuchFieldException {
 
-		String ticketPath = toTicketPath(changeId);
+		String ticketPath = toTicketPath(ticketId);
 		DirCache newIndex = DirCache.newInCore();
 		DirCacheBuilder builder = newIndex.builder();
 		ObjectInserter inserter = db.newObjectInserter();
@@ -741,7 +647,7 @@ public class RepositoryTicketService extends ITicketService {
 			if (change.hasAttachments()) {
 				for (Attachment attachment : change.attachments) {
 					// build a path name for the attachment and mark as ignored
-					String path = toAttachmentPath(changeId, attachment.name);
+					String path = toAttachmentPath(ticketId, attachment.name);
 					ignorePaths.add(path);
 
 					// create an index entry for this attachment
