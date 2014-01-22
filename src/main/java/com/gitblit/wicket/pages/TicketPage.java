@@ -105,7 +105,7 @@ public class TicketPage extends TicketBasePage {
 		final RepositoryModel repository = getRepositoryModel();
 		final String id = WicketUtils.getObject(params);
 		long ticketId = Long.parseLong(id);
-		ticket = app().tickets().getTicket(repository.name, ticketId);
+		ticket = app().tickets().getTicket(repository, ticketId);
 
 		if (ticket == null) {
 			// ticket not found
@@ -232,7 +232,7 @@ public class TicketPage extends TicketBasePage {
 			add(new Label("milestone"));
 		} else {
 			// link to milestone query
-			TicketMilestone milestone = app().tickets().getMilestone(repositoryName, ticket.milestone);
+			TicketMilestone milestone = app().tickets().getMilestone(repository, ticket.milestone);
 			PageParameters milestoneParameters = new PageParameters();
 			milestoneParameters.put("r", repositoryName);
 			milestoneParameters.put(Lucene.milestone.name(), ticket.milestone);
@@ -354,7 +354,7 @@ public class TicketPage extends TicketBasePage {
 							if (!ticket.isWatching(user.username)) {
 								change.watch(user.username);
 							}
-							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 							app().tickets().createNotifier().sendMailing(update);
 							setResponsePage(TicketsPage.class, getPageParameters());
 						}
@@ -404,7 +404,7 @@ public class TicketPage extends TicketBasePage {
 							if (!ticket.isWatching(user.username)) {
 								change.watch(user.username);
 							}
-							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 							app().tickets().createNotifier().sendMailing(update);
 							setResponsePage(TicketsPage.class, getPageParameters());
 						}
@@ -417,7 +417,7 @@ public class TicketPage extends TicketBasePage {
 			/*
 			 * MILESTONE LIST
 			 */
-			List<TicketMilestone> milestones = app().tickets().getMilestones(repositoryName, Status.Open);
+			List<TicketMilestone> milestones = app().tickets().getMilestones(repository, Status.Open);
 			if (!StringUtils.isEmpty(ticket.milestone)) {
 				for (TicketMilestone milestone : milestones) {
 					if (milestone.name.equals(ticket.milestone)) {
@@ -444,7 +444,7 @@ public class TicketPage extends TicketBasePage {
 							if (!ticket.isWatching(user.username)) {
 								change.watch(user.username);
 							}
-							TicketModel update = app().tickets().updateTicket(repositoryName, ticket.number, change);
+							TicketModel update = app().tickets().updateTicket(repository, ticket.number, change);
 							app().tickets().createNotifier().sendMailing(update);
 							setResponsePage(TicketsPage.class, getPageParameters());
 						}
@@ -497,7 +497,7 @@ public class TicketPage extends TicketBasePage {
 					} else {
 						change.vote(user.username);
 					}
-					app().tickets().updateTicket(repositoryName, ticket.number, change);
+					app().tickets().updateTicket(repository, ticket.number, change);
 					setResponsePage(TicketsPage.class, getPageParameters());
 				}
 			};
@@ -537,7 +537,7 @@ public class TicketPage extends TicketBasePage {
 					} else {
 						change.watch(user.username);
 					}
-					app().tickets().updateTicket(repositoryName, ticket.number, change);
+					app().tickets().updateTicket(repository, ticket.number, change);
 					setResponsePage(TicketsPage.class, getPageParameters());
 				}
 			};
@@ -558,7 +558,7 @@ public class TicketPage extends TicketBasePage {
 			public void populateItem(final Item<String> item) {
 				final String value = item.getModelObject();
 				Label label = new Label("label", value);
-				TicketLabel tLabel = app().tickets().getLabel(repositoryName, value);
+				TicketLabel tLabel = app().tickets().getLabel(repository, value);
 				String background = MessageFormat.format("background-color:{0};", tLabel.color);
 				label.add(new SimpleAttributeModifier("style", background));
 				item.add(label);
@@ -1166,7 +1166,7 @@ public class TicketPage extends TicketBasePage {
 					n = n.substring(n.indexOf('/') + 1);
 					n = n.substring(0, n.indexOf('/'));
 					long id = Long.parseLong(n);
-					TicketModel ticket = app().tickets().getTicket(repositoryName, id);
+					TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), id);
 					return ticket;
 				}
 			}

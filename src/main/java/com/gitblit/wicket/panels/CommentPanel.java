@@ -22,6 +22,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.UserModel;
@@ -74,7 +75,8 @@ public class CommentPanel extends BasePanel {
 					if (!ticket.isWatching(user.username)) {
 						newComment.watch(user.username);
 					}
-					TicketModel updatedTicket = app().tickets().updateTicket(ticket.repository, ticket.number, newComment);
+					RepositoryModel repository = app().repositories().getRepositoryModel(ticket.repository);
+					TicketModel updatedTicket = app().tickets().updateTicket(repository, ticket.number, newComment);
 					if (updatedTicket != null) {
 						app().tickets().createNotifier().sendMailing(updatedTicket);
 						setResponsePage(pageClass, WicketUtils.newObjectParameter(updatedTicket.repository, "" + ticket.number));

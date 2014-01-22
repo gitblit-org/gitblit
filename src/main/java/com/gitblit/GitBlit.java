@@ -154,6 +154,38 @@ public class GitBlit extends GitblitManager {
 	}
 
 	/**
+	 * Detect renames and reindex as appropriate.
+	 */
+	@Override
+	public void updateRepositoryModel(String repositoryName, RepositoryModel repository,
+			boolean isCreate) throws GitBlitException {
+		RepositoryModel oldModel = null;
+		boolean isRename = !isCreate && !repositoryName.equalsIgnoreCase(repository.name);
+		if (isRename) {
+			oldModel = repositoryManager.getRepositoryModel(repositoryName);
+		}
+
+		super.updateRepositoryModel(repositoryName, repository, isCreate);
+
+		if (isRename && ticketService != null) {
+			ticketService.rename(oldModel, repository);
+		}
+	}
+
+	/**
+	 * Delete the repository and all associated tickets.
+	 */
+	@Override
+	public boolean deleteRepository(String repositoryName) {
+		RepositoryModel repository = repositoryManager.getRepositoryModel(repositoryName);
+		boolean success = repositoryManager.deleteRepository(repositoryName);
+		if (success && ticketService != null) {
+			return ticketService.deleteAll(repository);
+		}
+		return success;
+	}
+
+	/**
 	 * Returns the configured ticket service.
 	 *
 	 * @return a ticket service

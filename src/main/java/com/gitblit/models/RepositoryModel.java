@@ -141,6 +141,10 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		displayName = null;
 	}
 
+	public String getRID() {
+		return StringUtils.getSHA1(name);
+	}
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();

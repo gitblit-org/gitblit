@@ -213,7 +213,7 @@ public class RefLogUtils {
 	 */
 	public static boolean updateRefLog(UserModel user, Repository repository,
 			Collection<ReceiveCommand> commands) {
-		
+
 		// ignore magic refs
 		List<ReceiveCommand> filteredCommands = new ArrayList<ReceiveCommand>();
 		for (ReceiveCommand cmd : commands) {
@@ -222,12 +222,12 @@ public class RefLogUtils {
 			}
 			filteredCommands.add(cmd);
 		}
-		
+
 		if (filteredCommands.isEmpty()) {
 			// nothing to log
 			return true;
 		}
-		
+
 		RefModel reflogBranch = getRefLogBranch(repository);
 		if (reflogBranch == null) {
 			JGitUtils.createOrphanBranch(repository, GB_REFLOG, null);
@@ -458,7 +458,15 @@ public class RefLogUtils {
 			Date date = push.getAuthorIdent().getWhen();
 
 			RefLogEntry log = new RefLogEntry(repositoryName, date, user);
-			List<PathChangeModel> changedRefs = JGitUtils.getFilesInCommit(repository, push);
+
+			// only report HEADS and TAGS for now
+			List<PathChangeModel> changedRefs = new ArrayList<PathChangeModel>();
+			for (PathChangeModel refChange : JGitUtils.getFilesInCommit(repository, push)) {
+				if (refChange.path.startsWith(Constants.R_HEADS)
+						|| refChange.path.startsWith(Constants.R_TAGS)) {
+					changedRefs.add(refChange);
+				}
+			}
 			if (changedRefs.isEmpty()) {
 				// skip empty commits
 				continue;

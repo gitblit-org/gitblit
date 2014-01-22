@@ -33,6 +33,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 import com.gitblit.Constants;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.pages.CommitPage;
@@ -88,7 +89,8 @@ public class RefsPanel extends BasePanel {
 			}
 		}
 		final boolean shouldBreak = remoteCount < refs.size();
-		final boolean hasTickets = app().tickets().hasTickets(repositoryName);
+		RepositoryModel repository = app().repositories().getRepositoryModel(repositoryName);
+		final boolean hasTickets = app().tickets().hasTickets(repository);
 
 		ListDataProvider<RefModel> refsDp = new ListDataProvider<RefModel>(refs);
 		DataView<RefModel> refsView = new DataView<RefModel>("ref", refsDp) {

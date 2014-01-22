@@ -392,12 +392,12 @@ public class EditRepositoryPage extends RootSubPage {
 					}
 
 					// save the repository
-					app().repositories().updateRepositoryModel(oldName, repositoryModel, isCreate);
+					app().gitblit().updateRepositoryModel(oldName, repositoryModel, isCreate);
 
 					// repository access permissions
 					if (repositoryModel.accessRestriction.exceeds(AccessRestrictionType.NONE)) {
-						app().repositories().setUserAccessPermissions(repositoryModel, repositoryUsers);
-						app().repositories().setTeamAccessPermissions(repositoryModel, repositoryTeams);
+						app().gitblit().setUserAccessPermissions(repositoryModel, repositoryUsers);
+						app().gitblit().setTeamAccessPermissions(repositoryModel, repositoryTeams);
 					}
 				} catch (GitBlitException e) {
 					error(e.getMessage());

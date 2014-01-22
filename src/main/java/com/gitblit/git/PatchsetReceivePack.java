@@ -60,7 +60,6 @@ import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.ITicketService;
-import com.gitblit.tickets.RepositoryTicketService;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.utils.ArrayUtils;
@@ -336,7 +335,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// milestone verification
 				String milestone = PatchsetCommand.getSingleOption(cmd, PatchsetCommand.MILESTONE);
 				if (!StringUtils.isEmpty(milestone)) {
-					TicketMilestone milestoneModel = ticketService.getMilestone(repository.name, milestone);
+					TicketMilestone milestoneModel = ticketService.getMilestone(repository, milestone);
 					if (milestoneModel == null) {
 						// milestone does not exist
 						sendRejection(cmd, "Sorry, \"{0}\" is not a valid milestone!", milestone);
@@ -364,11 +363,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					batch.addCommand(patchsetCmd);
 				}
 				continue;
-			}
-
-			// reset ticket service caches
-			if (ticketService != null && ticketService instanceof RepositoryTicketService) {
-				ticketService.resetCaches();
 			}
 
 			batch.addCommand(cmd);
@@ -441,6 +435,9 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				sendInfo("{0} tickets updated", ticketsProcessed);
 			}
 		}
+
+		// reset the ticket caches for the repository
+		ticketService.resetCaches(repository);
 	}
 
 	/**
@@ -466,8 +463,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		TicketModel ticket = null;
-		if (number > 0 && ticketService.hasTicket(repository.name, number)) {
-			ticket = ticketService.getTicket(repository.name, number);
+		if (number > 0 && ticketService.hasTicket(repository, number)) {
+			ticket = ticketService.getTicket(repository, number);
 		}
 
 		if (ticket == null) {
@@ -598,7 +595,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 
 			// assign new id
-			long ticketId = ticketService.assignNewId(repository.name);
+			long ticketId = ticketService.assignNewId(repository);
 
 			// create the patchset command
 			psCmd = new PatchsetCommand(user.username, patchset);
@@ -662,7 +659,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		if (cmd.isNewTicket()) {
 			// create the ticket object
-			TicketModel ticket = ticketService.createTicket(repository.name, change);
+			TicketModel ticket = ticketService.createTicket(repository, change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
@@ -680,7 +677,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 		} else {
 			// update an existing ticket
-			TicketModel ticket = ticketService.updateTicket(repository.name, cmd.getTicketNumber(), change);
+			TicketModel ticket = ticketService.updateTicket(repository, cmd.getTicketNumber(), change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
@@ -727,7 +724,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
-				TicketModel ticket = ticketService.getTicket(repository.name, ticketNumber);
+				TicketModel ticket = ticketService.getTicket(repository, ticketNumber);
 				String integrationBranch;
 				if (StringUtils.isEmpty(ticket.mergeTo)) {
 					// unspecified integration branch
@@ -802,7 +799,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					change.setField(Field.responsible, user.username);
 				}
 
-				ticket = ticketService.updateTicket(repository.name, ticket.number, change);
+				ticket = ticketService.updateTicket(repository, ticket.number, change);
 				if (ticket != null) {
 					sendInfo("");
 					sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));

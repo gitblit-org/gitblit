@@ -70,10 +70,10 @@ public class TicketsPage extends TicketBasePage {
 	public TicketsPage(PageParameters params) {
 		super(params);
 
-		if (!app().tickets().isReady(repositoryName)) {
+		if (!app().tickets().isReady(getRepositoryModel())) {
 			// tickets prohibited
 			setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName));
-		} else if (!app().tickets().hasTickets(repositoryName)) {
+		} else if (!app().tickets().hasTickets(getRepositoryModel())) {
 			// no tickets for this repository
 			setResponsePage(NoTicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		} else {
@@ -127,7 +127,7 @@ public class TicketsPage extends TicketBasePage {
 		QueryBuilder qb = new QueryBuilder(queryParam);
 		if (!qb.containsField(Lucene.rid.name())) {
 			// specify the repository
-			qb.and(Lucene.rid.matches(StringUtils.getSHA1(getRepositoryModel().name)));
+			qb.and(Lucene.rid.matches(getRepositoryModel().getRID()));
 		}
 		if (!qb.containsField(Lucene.responsible.name())) {
 			// specify the responsible
@@ -158,13 +158,13 @@ public class TicketsPage extends TicketBasePage {
 		final String luceneQuery = qb.build();
 
 		// open milestones
-		List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel().name, Status.Open);
+		List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
 		TicketMilestone currentMilestone = null;
 		if (!StringUtils.isEmpty(milestoneParam)) {
 			for (TicketMilestone tm : milestones) {
 				if (tm.name.equals(milestoneParam)) {
 					// get the milestone (queries the index)
-					currentMilestone = app().tickets().getMilestone(getRepositoryModel().name, milestoneParam);
+					currentMilestone = app().tickets().getMilestone(getRepositoryModel(), milestoneParam);
 					break;
 				}
 			}
@@ -231,7 +231,7 @@ public class TicketsPage extends TicketBasePage {
 		if (StringUtils.isEmpty(searchParam)) {
 			results = app().tickets().queryFor(luceneQuery, page, pageSize, sortBy, desc);
 		} else {
-			results = app().tickets().searchFor(repositoryName, searchParam, page, pageSize);
+			results = app().tickets().searchFor(getRepositoryModel(), searchParam, page, pageSize);
 		}
 		int totalResults = results.size() == 0 ? 0 : results.get(0).totalResults;
 
@@ -303,7 +303,7 @@ public class TicketsPage extends TicketBasePage {
 		}
 
 		Set<TicketQuery> dynamicQueries = new TreeSet<TicketQuery>();
-		for (TicketLabel label : app().tickets().getLabels(repositoryName)) {
+		for (TicketLabel label : app().tickets().getLabels(getRepositoryModel())) {
 			String q = QueryBuilder.q(Lucene.labels.matches(label.name)).build();
 			dynamicQueries.add(new TicketQuery(label.name, q).color(label.color));
 		}
@@ -507,7 +507,7 @@ public class TicketsPage extends TicketBasePage {
 					@Override
 					public void populateItem(final Item<String> labelItem) {
 						Label label = new Label("label", labelItem.getModelObject());
-						TicketLabel tLabel = app().tickets().getLabel(repositoryName, labelItem.getModelObject());
+						TicketLabel tLabel = app().tickets().getLabel(getRepositoryModel(), labelItem.getModelObject());
 						String background = MessageFormat.format("background-color:{0};", tLabel.color);
 						label.add(new SimpleAttributeModifier("style", background));
 						labelItem.add(label);

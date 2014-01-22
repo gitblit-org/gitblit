@@ -18,8 +18,6 @@ package com.gitblit.tickets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,10 +38,8 @@ import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.dircache.DirCacheBuilder;
 import org.eclipse.jgit.dircache.DirCacheEntry;
-import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.CommitBuilder;
-import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.lib.FileMode;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectInserter;
@@ -64,11 +60,10 @@ import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.models.PathModel;
 import com.gitblit.models.RefModel;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
-import com.gitblit.models.TicketModel.Field;
-import com.gitblit.models.TicketModel.Status;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.StringUtils;
@@ -87,25 +82,13 @@ public class RepositoryTicketService extends ITicketService {
 
 	private static final String INDEX = "index";
 
-	private static final String SETTINGS = "settings";
-
 	private static final String JOURNAL = "journal.json";
 
 	private static final String CID_PATH = "cid/";
 
-	private static final String LABEL = "label";
-
-	private static final String MILESTONE = "milestone";
-
-	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
-
 	private final Map<String, Map<String, Long>> cid2number;
 
 	private final Map<String, Map<Long, String>> number2cid;
-
-	private final Map<String, List<TicketLabel>> labelsCache;
-
-	private final Map<String, List<TicketMilestone>> milestonesCache;
 
 	@Inject
 	public RepositoryTicketService(
@@ -121,13 +104,23 @@ public class RepositoryTicketService extends ITicketService {
 
 		this.cid2number = new ConcurrentHashMap<String, Map<String, Long>>();
 		this.number2cid = new ConcurrentHashMap<String, Map<Long, String>>();
-		this.labelsCache = new ConcurrentHashMap<String, List<TicketLabel>>();
-		this.milestonesCache = new ConcurrentHashMap<String, List<TicketMilestone>>();
 	}
 
 	@Override
 	public RepositoryTicketService start() {
 		return this;
+	}
+
+	@Override
+	protected void resetCachesImpl() {
+		cid2number.clear();
+		number2cid.clear();
+	}
+
+	@Override
+	protected void resetCachesImpl(RepositoryModel repository) {
+		cid2number.remove(repository.name);
+		number2cid.remove(repository.name);
 	}
 
 	@Override
@@ -156,7 +149,6 @@ public class RepositoryTicketService extends ITicketService {
 	 */
 	private void createTicketsBranch(Repository db) {
 		if (JGitUtils.createOrphanBranch(db, GITBLIT_TICKETS, null)) {
-			insertResource(db, SETTINGS);
 			insertResource(db, INDEX);
 		}
 	}
@@ -194,373 +186,6 @@ public class RepositoryTicketService extends ITicketService {
 	 */
 	private String toAttachmentPath(String changeId, String filename) {
 		return toTicketPath(changeId) + "/attachments/" + filename;
-	}
-
-	/**
-	 * Reset any caches in the service.
-	 */
-	@Override
-	public synchronized void resetCaches() {
-		cid2number.clear();
-		number2cid.clear();
-		labelsCache.clear();
-		milestonesCache.clear();
-	}
-
-	/**
-	 * Returns the list of labels for a repository.
-	 *
-	 * @param repository
-	 * @return the list of labels
-	 */
-	@Override
-	public List<TicketLabel> getLabels(String repository) {
-		String key = repository.toLowerCase();
-		if (labelsCache.containsKey(key)) {
-			return labelsCache.get(key);
-		}
-		List<TicketLabel> list = new ArrayList<TicketLabel>();
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			String content = readTicketsFile(db, SETTINGS);
-			if (!StringUtils.isEmpty(content)) {
-				Config config = new Config();
-				config.fromText(content);
-				Set<String> names = config.getSubsections(LABEL);
-				for (String name : names) {
-					TicketLabel label = new TicketLabel(name);
-					label.color = config.getString(LABEL, name, "color");
-					list.add(label);
-				}
-				labelsCache.put(key,  Collections.unmodifiableList(list));
-			}
-		} catch (ConfigInvalidException e) {
-			log.error("invalid tickets settings for " + repository, e);
-		} finally {
-			db.close();
-		}
-		return list;
-	}
-
-	/**
-	 * Creates a label.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return the label
-	 */
-	@Override
-	public synchronized TicketLabel createLabel(String repository, String label, String createdBy) {
-		TicketLabel lb = new TicketMilestone(label);
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.setString(LABEL, label, "color", lb.color);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "created label " + label);
-		} catch (ConfigInvalidException e) {
-			log.error("failed to create label " + label + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return lb;
-	}
-
-	/**
-	 * Updates a label.
-	 *
-	 * @param repository
-	 * @param label
-	 * @param createdBy
-	 * @return true if the update was successful
-	 */
-	@Override
-	public synchronized boolean updateLabel(String repository, TicketLabel label, String createdBy) {
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.setString(LABEL, label.name, "color", label.color);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "updated label " + label.name);
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to update label " + label + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
-	}
-
-	/**
-	 * Renames a label.
-	 *
-	 * @param repository
-	 * @param oldName
-	 * @param newName
-	 * @param createdBy
-	 * @return true if the rename was successful
-	 */
-	@Override
-	public synchronized boolean renameLabel(String repository, String oldName, String newName, String createdBy) {
-		if (StringUtils.isEmpty(newName)) {
-			throw new IllegalArgumentException("new label can not be empty!");
-		}
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			TicketLabel label = getLabel(repository, oldName);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.unsetSection(LABEL, oldName);
-			config.setString(LABEL, newName, "color", label.color);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "renamed label " + oldName + " => " + newName);
-
-			for (QueryResult qr : label.tickets) {
-				Change change = new Change(createdBy);
-				change.unlabel(oldName);
-				change.label(newName);
-				updateTicket(repository, qr.number, change);
-			}
-
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to rename label " + oldName + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
-	}
-
-	/**
-	 * Deletes a label.
-	 *
-	 * @param repository
-	 * @param label
-	 * @param createdBy
-	 * @return true if the delete was successful
-	 */
-	@Override
-	public synchronized boolean deleteLabel(String repository, String label, String createdBy) {
-		if (StringUtils.isEmpty(label)) {
-			throw new IllegalArgumentException("label can not be empty!");
-		}
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.unsetSection(LABEL, label);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "deleted label " + label);
-
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to delete label " + label + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
-	}
-
-	/**
-	 * Returns the list of milestones for a repository.
-	 *
-	 * @param repository
-	 * @return the list of milestones
-	 */
-	@Override
-	public List<TicketMilestone> getMilestones(String repository) {
-		String key = repository.toLowerCase();
-		if (milestonesCache.containsKey(key)) {
-			return milestonesCache.get(key);
-		}
-		List<TicketMilestone> list = new ArrayList<TicketMilestone>();
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			String content = readTicketsFile(db, SETTINGS);
-			if (!StringUtils.isEmpty(content)) {
-				Config config = new Config();
-				config.fromText(content);
-				Set<String> names = config.getSubsections(MILESTONE);
-				for (String name : names) {
-					TicketMilestone milestone = new TicketMilestone(name);
-					Status status = Status.fromObject(config.getString(MILESTONE, name, "status"));
-					if (status != null) {
-						milestone.status = status;
-					}
-					milestone.color = config.getString(MILESTONE, name, "color");
-					String due = config.getString(MILESTONE, name, "due");
-					if (!StringUtils.isEmpty(due)) {
-						try {
-							milestone.due = new SimpleDateFormat(DUE_DATE_PATTERN).parse(due);
-						} catch (ParseException e) {
-							log.error("failed to parse {} milestone {} due date \"{}\"",
-									new Object [] { repository, name, due });
-						}
-					}
-					list.add(milestone);
-				}
-				milestonesCache.put(key, Collections.unmodifiableList(list));
-			}
-		} catch (ConfigInvalidException e) {
-			log.error("invalid tickets settings for " + repository, e);
-		} finally {
-			db.close();
-		}
-		return list;
-	}
-
-	/**
-	 * Creates a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return the milestone
-	 */
-	@Override
-	public synchronized TicketMilestone createMilestone(String repository, String milestone, String createdBy) {
-		TicketMilestone ms = new TicketMilestone(milestone);
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.setString(MILESTONE, milestone, "state", ms.status.name());
-			config.setString(MILESTONE, milestone, "color", ms.color);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "created milestone " + milestone);
-		} catch (ConfigInvalidException e) {
-			log.error("failed to create milestone " + milestone + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return ms;
-	}
-
-	/**
-	 * Updates a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return true if the update was successful
-	 */
-	@Override
-	public synchronized boolean updateMilestone(String repository, TicketMilestone milestone, String createdBy) {
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.setString(MILESTONE, milestone.name, "state", milestone.status.name());
-			config.setString(MILESTONE, milestone.name, "color", milestone.color);
-			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, "due",
-						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
-			}
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "updated milestone " + milestone.name);
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to update milestone " + milestone + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
-	}
-
-	/**
-	 * Renames a milestone.
-	 *
-	 * @param repository
-	 * @param oldName
-	 * @param newName
-	 * @param createdBy
-	 * @return true if the rename was successful
-	 */
-	@Override
-	public synchronized boolean renameMilestone(String repository, String oldName, String newName, String createdBy) {
-		if (StringUtils.isEmpty(newName)) {
-			throw new IllegalArgumentException("new milestone can not be empty!");
-		}
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			TicketMilestone milestone = getMilestone(repository, oldName);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.unsetSection(MILESTONE, oldName);
-			config.setString(MILESTONE, newName, "state", milestone.status.name());
-			config.setString(MILESTONE, newName, "color", milestone.color);
-			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, "due",
-						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
-			}
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "renamed milestone " + oldName + " => " + newName);
-
-			TicketNotifier notifier = createNotifier();
-			for (QueryResult qr : milestone.tickets) {
-				Change change = new Change(createdBy);
-				change.setField(Field.milestone, newName);
-				TicketModel ticket = updateTicket(repository, qr.number, change);
-				notifier.queueMailing(ticket);
-			}
-			notifier.sendAll();
-
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to rename milestone " + oldName + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
-	}
-
-	/**
-	 * Deletes a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return true if the delete was successful
-	 */
-	@Override
-	public synchronized boolean deleteMilestone(String repository, String milestone, String createdBy) {
-		if (StringUtils.isEmpty(milestone)) {
-			throw new IllegalArgumentException("milestone can not be empty!");
-		}
-		Repository db = null;
-		try {
-			db = repositoryManager.getRepository(repository);
-			String content = readTicketsFile(db, SETTINGS);
-			Config config = new Config();
-			config.fromText(content);
-			config.unsetSection(MILESTONE, milestone);
-			content = config.toText();
-			writeTicketsFile(db, SETTINGS, content, createdBy, "deleted milestone " + milestone);
-
-			return true;
-		} catch (ConfigInvalidException e) {
-			log.error("failed to delete milestone " + milestone + " in " + repository, e);
-		} finally {
-			db.close();
-		}
-		return false;
 	}
 
 	/**
@@ -655,15 +280,17 @@ public class RepositoryTicketService extends ITicketService {
 	 *
 	 * @param repository
 	 */
-	private void readTicketIndex(Repository db) {
-		String key = db.getDirectory().getAbsolutePath();
+	private void readTicketIndex(RepositoryModel repository) {
+		String key = repository.name;
 		if (!cid2number.containsKey(key) || !number2cid.containsKey(key)) {
+			Repository db = repositoryManager.getRepository(repository.name);
 			RefModel ticketsBranch = getTicketsBranch(db);
 			if (ticketsBranch == null) {
 				return;
 			}
 
 			String idx = readTicketsFile(db, INDEX);
+			db.close();
 			if (StringUtils.isEmpty(idx)) {
 				return;
 			}
@@ -690,11 +317,9 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return true if the ticket exists
 	 */
 	@Override
-	public boolean hasTicket(String repository, long ticketId) {
-		Repository db = repositoryManager.getRepository(repository);
-		readTicketIndex(db);
-		db.close();
-		String key = db.getDirectory().getAbsolutePath();
+	public boolean hasTicket(RepositoryModel repository, long ticketId) {
+		readTicketIndex(repository);
+		String key = repository.name;
 		if (number2cid.containsKey(key)) {
 			return number2cid.get(key).containsKey(ticketId);
 		}
@@ -708,8 +333,8 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return a new long id
 	 */
 	@Override
-	public synchronized long assignNewId(String repository) {
-		Repository db = repositoryManager.getRepository(repository);
+	public synchronized long assignNewId(RepositoryModel repository) {
+		Repository db = repositoryManager.getRepository(repository.name);
 		String idx = readTicketsFile(db, INDEX);
 		if (StringUtils.isEmpty(idx)) {
 			idx = "";
@@ -739,7 +364,7 @@ public class RepositoryTicketService extends ITicketService {
 		db.close();
 
 		// reset the ticket index cache
-		String key = db.getDirectory().getAbsolutePath();
+		String key = repository.name;
 		cid2number.remove(key);
 		number2cid.remove(key);
 
@@ -750,16 +375,17 @@ public class RepositoryTicketService extends ITicketService {
 	 * Returns the changeId for the ticketId
 	 *
 	 * @param db
+	 * @param repository
 	 * @param ticketId
 	 * @return changeId for the ticketId, or null if it does not exist
 	 */
-	private String getChangeId(Repository db, long ticketId) {
+	private String getChangeId(Repository db, RepositoryModel repository, long ticketId) {
 		RefModel ticketsBranch = getTicketsBranch(db);
 		if (ticketsBranch == null) {
 			return null;
 		}
-		readTicketIndex(db);
-		String key = db.getDirectory().getAbsolutePath();
+		readTicketIndex(repository);
+		String key = repository.name;
 		if (number2cid.containsKey(key)) {
 			return number2cid.get(key).get(ticketId);
 		}
@@ -770,16 +396,17 @@ public class RepositoryTicketService extends ITicketService {
 	 * Returns the ticketId for the changeId
 	 *
 	 * @param db
+	 * @param repository
 	 * @param changeId
 	 * @return ticketId for the changeId, or 0 if it does not exist
 	 */
-	private long getTicketId(Repository db, String changeId) {
+	private long getTicketId(Repository db, RepositoryModel repository, String changeId) {
 		RefModel ticketsBranch = getTicketsBranch(db);
 		if (ticketsBranch == null) {
 			return 0L;
 		}
-		readTicketIndex(db);
-		String key = db.getDirectory().getAbsolutePath();
+		readTicketIndex(repository);
+		String key = repository.name;
 		if (cid2number.containsKey(key)) {
 			return cid2number.get(key).get(changeId);
 		}
@@ -798,10 +425,10 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return a list of tickets
 	 */
 	@Override
-	public List<TicketModel> getTickets(String repository, TicketFilter filter) {
+	public List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter) {
 		List<TicketModel> list = new ArrayList<TicketModel>();
 
-		Repository db = repositoryManager.getRepository(repository);
+		Repository db = repositoryManager.getRepository(repository.name);
 		try {
 			RefModel ticketsBranch = getTicketsBranch(db);
 			if (ticketsBranch == null) {
@@ -824,9 +451,13 @@ public class RepositoryTicketService extends ITicketService {
 					String cid = path.path.substring(CID_PATH.length(), path.path.length() - JOURNAL.length() - 1);
 					String changeid = "I" + StringUtils.flattenStrings(cid.split("/"), "");
 					List<Change> changes = TicketSerializer.deserializeJournal(json);
+					if (ArrayUtils.isEmpty(changes)) {
+						log.warn("Empty journal for {}:{}", repository, path.path);
+						continue;
+					}
 					TicketModel ticket = TicketModel.buildTicket(changes);
-					ticket.repository = repository;
-					ticket.number = getTicketId(db, changeid);
+					ticket.repository = repository.name;
+					ticket.number = getTicketId(db, repository, changeid);
 
 					// add the ticket, conditionally, to the list
 					if (filter == null) {
@@ -860,40 +491,28 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return a ticket, if it exists, otherwise null
 	 */
 	@Override
-	protected TicketModel getTicketImpl(String repository, long ticketId) {
-		Repository db = repositoryManager.getRepository(repository);
+	protected TicketModel getTicketImpl(RepositoryModel repository, long ticketId) {
+		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, ticketId);
+			String changeId = getChangeId(db, repository, ticketId);
 			if (StringUtils.isEmpty(changeId)) {
 				return null;
 			}
 
-			TicketModel ticket = getTicket(db, changeId);
+			List<Change> changes = getJournal(db, changeId);
+			if (ArrayUtils.isEmpty(changes)) {
+				log.warn("Empty journal for {}:{}", repository, ticketId);
+				return null;
+			}
+			TicketModel ticket = TicketModel.buildTicket(changes);
 			if (ticket != null) {
-				ticket.repository = repository;
+				ticket.repository = repository.name;
 				ticket.number = ticketId;
 			}
 			return ticket;
 		} finally {
 			db.close();
 		}
-	}
-
-	/**
-	 * Retrieves the ticket from the repository by deserializing the journal
-	 * and building an effective ticket.
-	 *
-	 * @param db
-	 * @param changeId
-	 * @return a ticket, if it exists, otherwise null
-	 */
-	private TicketModel getTicket(Repository db, String changeId) {
-		List<Change> changes = getJournal(db, changeId);
-		if (ArrayUtils.isEmpty(changes)) {
-			return null;
-		}
-		TicketModel ticket = TicketModel.buildTicket(changes);
-		return ticket;
 	}
 
 	/**
@@ -936,7 +555,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return an attachment, if found, null otherwise
 	 */
 	@Override
-	public Attachment getAttachment(String repository, long ticketId, String filename) {
+	public Attachment getAttachment(RepositoryModel repository, long ticketId, String filename) {
 		if (ticketId <= 0L) {
 			return null;
 		}
@@ -951,9 +570,9 @@ public class RepositoryTicketService extends ITicketService {
 		}
 
 		// retrieve the attachment content
-		Repository db = repositoryManager.getRepository(repository);
+		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, ticketId);
+			String changeId = getChangeId(db, repository, ticketId);
 			String attachmentPath = toAttachmentPath(changeId, attachment.name);
 			RevTree tree = JGitUtils.getCommit(db, GITBLIT_TICKETS).getTree();
 			byte[] content = JGitUtils.getByteContent(db, tree, attachmentPath, false);
@@ -972,7 +591,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return true if successful
 	 */
 	@Override
-	protected synchronized boolean deleteTicket(TicketModel ticket, String deletedBy) {
+	protected synchronized boolean deleteTicketImpl(RepositoryModel repository, TicketModel ticket, String deletedBy) {
 		if (ticket == null) {
 			throw new RuntimeException("must specify a ticket!");
 		}
@@ -985,7 +604,7 @@ public class RepositoryTicketService extends ITicketService {
 			if (ticketsBranch == null) {
 				throw new RuntimeException(GITBLIT_TICKETS + " does not exist!");
 			}
-			String changeId = getChangeId(db, ticket.number);
+			String changeId = getChangeId(db, repository, ticket.number);
 			String ticketPath = toTicketPath(changeId);
 
 			TreeWalk treeWalk = null;
@@ -1049,12 +668,12 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return true, if the change was committed
 	 */
 	@Override
-	protected synchronized boolean commitChange(String repository, long ticketId, Change change) {
+	protected synchronized boolean commitChangeImpl(RepositoryModel repository, long ticketId, Change change) {
 		boolean success = false;
 
-		Repository db = repositoryManager.getRepository(repository);
+		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			String changeId = getChangeId(db, ticketId);
+			String changeId = getChangeId(db, repository, ticketId);
 			DirCache index = createIndex(db, changeId, change);
 			success = commitIndex(db, index, change.createdBy, ticketId + " : " + changeId);
 
@@ -1253,16 +872,25 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	@Override
-	public boolean deleteAll() {
+	protected boolean deleteAllImpl(RepositoryModel repository) {
+		Repository db = repositoryManager.getRepository(repository.name);
 		try {
-			// TODO finish me
-			indexer.clear();
-			resetCaches();
+			RefModel branch = getTicketsBranch(db);
+			if (branch != null) {
+				return JGitUtils.deleteBranchRef(db, GITBLIT_TICKETS);
+			}
 			return true;
 		} catch (Exception e) {
 			log.error(null, e);
+		} finally {
+			db.close();
 		}
 		return false;
+	}
+
+	@Override
+	protected boolean renameImpl(RepositoryModel oldRepository, RepositoryModel newRepository) {
+		return true;
 	}
 
 	@Override
@@ -1270,7 +898,7 @@ public class RepositoryTicketService extends ITicketService {
 		return getClass().getSimpleName();
 	}
 
-	protected String readResource(String resource) {
+	private String readResource(String resource) {
 		StringBuilder sb = new StringBuilder();
 		InputStream is = null;
 		try {

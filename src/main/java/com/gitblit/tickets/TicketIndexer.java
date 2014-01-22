@@ -31,7 +31,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -56,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.Keys;
 import com.gitblit.manager.IRuntimeManager;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Patchset;
@@ -181,11 +181,40 @@ public class TicketIndexer {
 	}
 
 	/**
-	 * Clears/resets the index.
+	 * Deletes the entire ticket index for all repositories.
 	 */
-	public void clear() {
+	public void deleteAll() {
 		close();
 		FileUtils.delete(luceneDir);
+	}
+
+	/**
+	 * Deletes all tickets for the the repository from the index.
+	 */
+	public boolean deleteAll(RepositoryModel repository) {
+		try {
+			IndexWriter writer = getWriter();
+			StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
+			QueryParser qp = new QueryParser(luceneVersion, Lucene.rid.name(), analyzer);
+			BooleanQuery query = new BooleanQuery();
+			query.add(qp.parse(repository.getRID()), Occur.MUST);
+
+			int numDocsBefore = writer.numDocs();
+			writer.deleteDocuments(query);
+			writer.commit();
+			closeSearcher();
+			int numDocsAfter = writer.numDocs();
+			if (numDocsBefore == numDocsAfter) {
+				log.debug(MessageFormat.format("no records found to delete in {0}", repository));
+				return false;
+			} else {
+				log.debug(MessageFormat.format("deleted {0} records in {1}", numDocsBefore - numDocsAfter, repository));
+				return true;
+			}
+		} catch (Exception e) {
+			log.error("error", e);
+		}
+		return false;
 	}
 
 	/**
@@ -276,8 +305,8 @@ public class TicketIndexer {
 	 * @param repository
 	 * @return true if there are indexed tickets
 	 */
-	public boolean hasTickets(String repository) {
-		return !queryFor(Lucene.rid.matches(StringUtils.getSHA1(repository)), 1, 0, null, true).isEmpty();
+	public boolean hasTickets(RepositoryModel repository) {
+		return !queryFor(Lucene.rid.matches(repository.getRID()), 1, 0, null, true).isEmpty();
 	}
 
 	/**
@@ -290,7 +319,7 @@ public class TicketIndexer {
 	 * @param pageSize
 	 * @return search results
 	 */
-	public List<QueryResult> searchFor(String repository, String text, int page, int pageSize) {
+	public List<QueryResult> searchFor(RepositoryModel repository, String text, int page, int pageSize) {
 		if (StringUtils.isEmpty(text)) {
 			return Collections.emptyList();
 		}
@@ -326,8 +355,8 @@ public class TicketIndexer {
 				int docId = hits[i].doc;
 				Document doc = searcher.doc(docId);
 				QueryResult result = docToQueryResult(doc);
-				if (!StringUtils.isEmpty(repository)) {
-					if (!result.repository.equalsIgnoreCase(repository)) {
+				if (repository != null) {
+					if (!result.repository.equalsIgnoreCase(repository.name)) {
 						continue;
 					}
 				}
@@ -531,13 +560,6 @@ public class TicketIndexer {
 			return;
 		}
 		doc.add(new org.apache.lucene.document.Field(lucene.name(), value, TextField.TYPE_STORED));
-	}
-
-	private void toDocStringField(Document doc, Lucene lucene, String value) {
-		if (StringUtils.isEmpty(value)) {
-			return;
-		}
-		doc.add(new StringField(lucene.name(), value, Store.YES));
 	}
 
 	/**

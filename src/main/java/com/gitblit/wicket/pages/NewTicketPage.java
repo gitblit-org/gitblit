@@ -61,7 +61,7 @@ public class NewTicketPage extends RepositoryPage {
 	public NewTicketPage(PageParameters params) {
 		super(params);
 
-		if (!app().tickets().isReady(repositoryName)) {
+		if (!app().tickets().isReady(getRepositoryModel())) {
 			// tickets prohibited
 			setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
@@ -106,7 +106,7 @@ public class NewTicketPage extends RepositoryPage {
 					change.setField(Field.milestone, milestone.name);
 				}
 
-				TicketModel ticket = app().tickets().createTicket(getRepositoryModel().name, change);
+				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), change);
 				if (ticket != null) {
 					TicketNotifier notifier = app().tickets().createNotifier();
 					notifier.sendMailing(ticket);
@@ -148,7 +148,7 @@ public class NewTicketPage extends RepositoryPage {
 			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
 			// milestone
-			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel().name, Status.Open);
+			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
 			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));

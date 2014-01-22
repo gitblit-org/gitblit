@@ -22,6 +22,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.utils.JsonUtils;
 import com.gitblit.utils.StringUtils;
@@ -51,12 +52,13 @@ public class ExportTicketPage extends SessionPage {
 				WebResponse response = (WebResponse) requestCycle.getResponse();
 
 				final String repositoryName = WicketUtils.getRepositoryName(params);
+				RepositoryModel repository = app().repositories().getRepositoryModel(repositoryName);
 				String objectId = WicketUtils.getObject(params).toLowerCase();
 				if (objectId.endsWith(".json")) {
 					objectId = objectId.substring(0, objectId.length() - ".json".length());
 				}
 				long id = Long.parseLong(objectId);
-				TicketModel ticket = app().tickets().getTicket(repositoryName, id);
+				TicketModel ticket = app().tickets().getTicket(repository, id);
 
 				String content = JsonUtils.toJsonString(ticket);
 				contentType = "application/json; charset=UTF-8";

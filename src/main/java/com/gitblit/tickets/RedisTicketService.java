@@ -37,10 +37,10 @@ import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.IUserManager;
+import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
-import com.gitblit.models.TicketModel.Field;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -58,7 +58,7 @@ public class RedisTicketService extends ITicketService {
 	private final JedisPool pool;
 
 	private enum KeyType {
-		journal, object, milestone, label, counter
+		journal, ticket, counter
 	}
 
 	@Inject
@@ -83,6 +83,14 @@ public class RedisTicketService extends ITicketService {
 	}
 
 	@Override
+	protected void resetCachesImpl() {
+	}
+
+	@Override
+	protected void resetCachesImpl(RepositoryModel repository) {
+	}
+
+	@Override
 	protected void close() {
 		pool.destroy();
 	}
@@ -100,10 +108,9 @@ public class RedisTicketService extends ITicketService {
 	 * @param id
 	 * @return a key
 	 */
-	private String key(KeyType key, String repository, String id) {
+	private String key(RepositoryModel repository, KeyType key, String id) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(StringUtils.stripDotGit(repository)).append(':');
-		sb.append("ticket:");
+		sb.append(repository.name).append(':');
 		sb.append(key.name());
 		if (!StringUtils.isEmpty(id)) {
 			sb.append(':');
@@ -120,15 +127,15 @@ public class RedisTicketService extends ITicketService {
 	 * @param id
 	 * @return a key
 	 */
-	private String key(KeyType key, String repository, long id) {
-		return key(key, repository, "" + id);
+	private String key(RepositoryModel repository, KeyType key, long id) {
+		return key(repository, key, "" + id);
 	}
 
 	private boolean isNull(String value) {
 		return value == null || "nil".equals(value);
 	}
 
-	public String getUrl() {
+	private String getUrl() {
 		Jedis jedis = pool.getResource();
 		try {
 			if (jedis != null) {
@@ -147,361 +154,6 @@ public class RedisTicketService extends ITicketService {
 	}
 
 	/**
-	 * Reset any caches in the service.
-	 */
-	@Override
-	public synchronized void resetCaches() {
-	}
-
-	/**
-	 * Returns the list of labels for a repository.
-	 *
-	 * @param repository
-	 * @return the list of labels
-	 */
-	@Override
-	public List<TicketLabel> getLabels(String repository) {
-		List<TicketLabel> list = new ArrayList<TicketLabel>();
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return list;
-		}
-		try {
-			Set<String> keys = jedis.keys(key(KeyType.label, repository, "*"));
-			for (String key : keys) {
-				String json = jedis.get(key);
-				if (!isNull(json)) {
-					TicketLabel label = TicketSerializer.deserializeLabel(json);
-					list.add(label);
-				}
-			}
-
-			log.debug("retrieved {} labels from in Redis @ {}", "" + list.size(), getUrl());
-		} catch (JedisException e) {
-			log.error("failed to retrieve labels from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return list;
-	}
-
-	/**
-	 * Creates a label.
-	 *
-	 * @param repository
-	 * @param label
-	 * @param createdBy
-	 * @return the label
-	 */
-	@Override
-	public TicketLabel createLabel(String repository, String label, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return null;
-		}
-		TicketLabel lb = new TicketLabel(label);
-		try {
-			String object = TicketSerializer.serialize(lb);
-			jedis.set(key(KeyType.label, repository, label), object);
-
-			log.debug("created label {} in Redis @ {}", "" + label, getUrl());
-			return lb;
-		} catch (JedisException e) {
-			log.error("failed to create milestone in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return lb;
-	}
-
-	/**
-	 * Updates a label.
-	 *
-	 * @param repository
-	 * @param label
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean updateLabel(String repository, TicketLabel label, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			String object = TicketSerializer.serialize(label);
-			jedis.set(key(KeyType.label, repository, label.name), object);
-
-			log.debug("updated label {} in Redis @ {}", "" + label, getUrl());
-			return true;
-		} catch (JedisException e) {
-			log.error("failed to update label in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Renames a label.
-	 *
-	 * @param repository
-	 * @param oldName
-	 * @param newName
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean renameLabel(String repository, String oldName, String newName, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			TicketLabel label = getLabel(repository, oldName);
-			jedis.rename(key(KeyType.label, repository, oldName), key(KeyType.label, repository, newName));
-
-			log.debug("renamed label from {} to {} in Redis @ {}", new Object [] { oldName, newName, getUrl() });
-
-			for (QueryResult qr : label.tickets) {
-				Change change = new Change(createdBy);
-				change.unlabel(oldName);
-				change.label(newName);
-				updateTicket(repository, qr.number, change);
-			}
-
-			return true;
-		} catch (JedisException e) {
-			log.error("failed to rename milestone in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Deletes a label.
-	 *
-	 * @param repository
-	 * @param label
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean deleteLabel(String repository, String label, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			long count = jedis.del(key(KeyType.label, repository, label));
-
-			log.debug("deleted label {} from Redis @ {}", "" + label, getUrl());
-			return count == 1;
-		} catch (JedisException e) {
-			log.error("failed to delete label from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Returns the list of milestones for a repository.
-	 *
-	 * @param repository
-	 * @return the list of milestones
-	 */
-	@Override
-	public List<TicketMilestone> getMilestones(String repository) {
-		List<TicketMilestone> list = new ArrayList<TicketMilestone>();
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return list;
-		}
-		try {
-			Set<String> keys = jedis.keys(key(KeyType.milestone, repository, "*"));
-			for (String key : keys) {
-				String json = jedis.get(key);
-				if (!isNull(json)) {
-					TicketMilestone milestone = TicketSerializer.deserializeMilestone(json);
-					list.add(milestone);
-				}
-			}
-
-			log.debug("retrieved {} milestones from in Redis @ {}", "" + list.size(), getUrl());
-		} catch (JedisException e) {
-			log.error("failed to retrieve milestones from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return list;
-	}
-
-	/**
-	 * Creates a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return the milestone
-	 */
-	@Override
-	public TicketMilestone createMilestone(String repository, String milestone, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return null;
-		}
-		TicketMilestone ms = new TicketMilestone(milestone);
-		try {
-			String object = TicketSerializer.serialize(ms);
-			jedis.set(key(KeyType.milestone, repository, milestone), object);
-
-			log.debug("created milestone {} in Redis @ {}", "" + milestone, getUrl());
-			return ms;
-		} catch (JedisException e) {
-			log.error("failed to create milestone in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return ms;
-	}
-
-	/**
-	 * Updates a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean updateMilestone(String repository, TicketMilestone milestone, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			String object = TicketSerializer.serialize(milestone);
-			jedis.set(key(KeyType.milestone, repository, milestone.name), object);
-
-			log.debug("updated milestone {} in Redis @ {}", "" + milestone, getUrl());
-			return true;
-		} catch (JedisException e) {
-			log.error("failed to update milestone in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Renames a milestone.
-	 *
-	 * @param repository
-	 * @param oldName
-	 * @param newName
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean renameMilestone(String repository, String oldName, String newName, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			TicketMilestone milestone = getMilestone(repository, oldName);
-			jedis.rename(key(KeyType.milestone, repository, oldName), key(KeyType.milestone, repository, newName));
-
-			log.debug("renamed milestone from {} to {} in Redis @ {}", new Object [] { oldName, newName, getUrl() });
-
-			TicketNotifier notifier = createNotifier();
-			for (QueryResult qr : milestone.tickets) {
-				Change change = new Change(createdBy);
-				change.setField(Field.milestone, newName);
-				TicketModel ticket = updateTicket(repository, qr.number, change);
-				notifier.queueMailing(ticket);
-			}
-			notifier.sendAll();
-
-			return true;
-		} catch (JedisException e) {
-			log.error("failed to rename milestone in Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Deletes a milestone.
-	 *
-	 * @param repository
-	 * @param milestone
-	 * @param createdBy
-	 * @return true if successful
-	 */
-	@Override
-	public boolean deleteMilestone(String repository, String milestone, String createdBy) {
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return false;
-		}
-		try {
-			long count = jedis.del(key(KeyType.milestone, repository, milestone));
-
-			log.debug("deleted milestone {} from Redis @ {}", "" + milestone, getUrl());
-			return count == 1;
-		} catch (JedisException e) {
-			log.error("failed to delete milestone from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Ensures that we have a ticket for this ticket id.
 	 *
 	 * @param repository
@@ -509,7 +161,7 @@ public class RedisTicketService extends ITicketService {
 	 * @return true if the ticket exists
 	 */
 	@Override
-	public boolean hasTicket(String repository, long ticketId) {
+	public boolean hasTicket(RepositoryModel repository, long ticketId) {
 		if (ticketId <= 0L) {
 			return false;
 		}
@@ -518,7 +170,7 @@ public class RedisTicketService extends ITicketService {
 			return false;
 		}
 		try {
-			Boolean exists = jedis.exists(key(KeyType.journal, repository, ticketId));
+			Boolean exists = jedis.exists(key(repository, KeyType.journal, ticketId));
 			return exists != null && !exists;
 		} catch (JedisException e) {
 			log.error("failed to check hasTicket from Redis @ " + getUrl(), e);
@@ -539,10 +191,10 @@ public class RedisTicketService extends ITicketService {
 	 * @return a new long ticket id
 	 */
 	@Override
-	public synchronized long assignNewId(String repository) {
+	public synchronized long assignNewId(RepositoryModel repository) {
 		Jedis jedis = pool.getResource();
 		try {
-			String key = key(KeyType.counter, repository, null);
+			String key = key(repository, KeyType.counter, null);
 			String val = jedis.get(key);
 			if (isNull(val)) {
 				jedis.set(key, "0");
@@ -573,19 +225,27 @@ public class RedisTicketService extends ITicketService {
 	 * @return a list of tickets
 	 */
 	@Override
-	public List<TicketModel> getTickets(String repository, TicketFilter filter) {
+	public List<TicketModel> getTickets(RepositoryModel repository, TicketFilter filter) {
 		Jedis jedis = pool.getResource();
 		List<TicketModel> list = new ArrayList<TicketModel>();
 		if (jedis == null) {
 			return list;
 		}
 		try {
-			// Deserialize each ticket and optionally filter out unwanted tickets
-			Set<String> keys = jedis.keys(key(KeyType.object, repository, "*"));
+			// Deserialize each journal, build the ticket, and optionally filter
+			Set<String> keys = jedis.keys(key(repository, KeyType.journal, "*"));
 			for (String key : keys) {
-				String json = jedis.get(key);
-				TicketModel ticket = TicketSerializer.deserializeTicket(json);
-				ticket.repository = repository;
+				// {repo}:journal:{id}
+				String id = key.split(":")[2];
+				long ticketId = Long.parseLong(id);
+				List<Change> changes = getJournal(jedis, repository, ticketId);
+				if (ArrayUtils.isEmpty(changes)) {
+					log.warn("Empty journal for {}:{}", repository, ticketId);
+					continue;
+				}
+				TicketModel ticket = TicketModel.buildTicket(changes);
+				ticket.repository = repository.name;
+				ticket.number = ticketId;
 
 				// add the ticket, conditionally, to the list
 				if (filter == null) {
@@ -620,31 +280,22 @@ public class RedisTicketService extends ITicketService {
 	 * @return a ticket, if it exists, otherwise null
 	 */
 	@Override
-	protected TicketModel getTicketImpl(String repository, long ticketId) {
+	protected TicketModel getTicketImpl(RepositoryModel repository, long ticketId) {
 		Jedis jedis = pool.getResource();
 		if (jedis == null) {
 			return null;
 		}
 
 		try {
-			String object = jedis.get(key(KeyType.object, repository, ticketId));
-			if (isNull(object)) {
-				List<Change> changes = getJournal(repository, ticketId);
-				if (ArrayUtils.isEmpty(changes)) {
-					return null;
-				}
-				TicketModel ticket = TicketModel.buildTicket(changes);
-				ticket.repository = repository;
-				ticket.number = ticketId;
-				log.debug("rebuilt ticket {} from Redis @ {}", ticketId, getUrl());
-				return ticket;
+			List<Change> changes = getJournal(jedis, repository, ticketId);
+			if (ArrayUtils.isEmpty(changes)) {
+				log.warn("Empty journal for {}:{}", repository, ticketId);
+				return null;
 			}
-
-			// build from json object
-			TicketModel ticket = TicketSerializer.deserializeTicket(object);
-			ticket.repository = repository;
+			TicketModel ticket = TicketModel.buildTicket(changes);
+			ticket.repository = repository.name;
 			ticket.number = ticketId;
-			log.debug("retrieved ticket {} from Redis @ {}", ticketId, getUrl());
+			log.debug("rebuilt ticket {} from Redis @ {}", ticketId, getUrl());
 			return ticket;
 		} catch (JedisException e) {
 			log.error("failed to retrieve ticket from Redis @ " + getUrl(), e);
@@ -665,37 +316,23 @@ public class RedisTicketService extends ITicketService {
 	 * @param ticketId
 	 * @return a list of changes
 	 */
-	private List<Change> getJournal(String repository, long ticketId) {
+	private List<Change> getJournal(Jedis jedis, RepositoryModel repository, long ticketId) throws JedisException {
 		if (ticketId <= 0L) {
 			return new ArrayList<Change>();
 		}
-		Jedis jedis = pool.getResource();
-		if (jedis == null) {
-			return new ArrayList<Change>();
-		}
-		try {
-			List<String> entries = jedis.lrange(key(KeyType.journal, repository, ticketId), 0, -1);
-			if (entries.size() > 0) {
-				// build a json array from the individual entries
-				StringBuilder sb = new StringBuilder();
-				sb.append("[");
-				for (String entry : entries) {
-					sb.append(entry).append(',');
-				}
-				sb.setLength(sb.length() - 1);
-				sb.append(']');
-				String journal = sb.toString();
+		List<String> entries = jedis.lrange(key(repository, KeyType.journal, ticketId), 0, -1);
+		if (entries.size() > 0) {
+			// build a json array from the individual entries
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (String entry : entries) {
+				sb.append(entry).append(',');
+			}
+			sb.setLength(sb.length() - 1);
+			sb.append(']');
+			String journal = sb.toString();
 
-				return TicketSerializer.deserializeJournal(journal);
-			}
-		} catch (JedisException e) {
-			log.error("failed to retrieve journal from Redis @ " + getUrl(), e);
-			pool.returnBrokenResource(jedis);
-			jedis = null;
-		} finally {
-			if (jedis != null) {
-				pool.returnResource(jedis);
-			}
+			return TicketSerializer.deserializeJournal(journal);
 		}
 		return new ArrayList<Change>();
 	}
@@ -714,7 +351,7 @@ public class RedisTicketService extends ITicketService {
 	 * @return an attachment, if found, null otherwise
 	 */
 	@Override
-	public Attachment getAttachment(String repository, long ticketId, String filename) {
+	public Attachment getAttachment(RepositoryModel repository, long ticketId, String filename) {
 		return null;
 	}
 
@@ -725,7 +362,7 @@ public class RedisTicketService extends ITicketService {
 	 * @return true if successful
 	 */
 	@Override
-	protected boolean deleteTicket(TicketModel ticket, String deletedBy) {
+	protected boolean deleteTicketImpl(RepositoryModel repository, TicketModel ticket, String deletedBy) {
 		boolean success = false;
 		if (ticket == null) {
 			throw new RuntimeException("must specify a ticket!");
@@ -739,8 +376,8 @@ public class RedisTicketService extends ITicketService {
 		try {
 			// atomically remove ticket
 			Transaction t = jedis.multi();
-			t.del(key(KeyType.object, ticket.repository, ticket.number));
-			t.del(key(KeyType.journal, ticket.repository, ticket.number));
+			t.del(key(repository, KeyType.ticket, ticket.number));
+			t.del(key(repository, KeyType.journal, ticket.number));
 			t.exec();
 
 			success = true;
@@ -767,13 +404,13 @@ public class RedisTicketService extends ITicketService {
 	 * @return true, if the change was committed
 	 */
 	@Override
-	protected boolean commitChange(String repository, long ticketId, Change change) {
+	protected boolean commitChangeImpl(RepositoryModel repository, long ticketId, Change change) {
 		Jedis jedis = pool.getResource();
 		if (jedis == null) {
 			return false;
 		}
 		try {
-			List<Change> changes = getJournal(repository, ticketId);
+			List<Change> changes = getJournal(jedis, repository, ticketId);
 			changes.add(change);
 			// build a new effective ticket from the changes
 			TicketModel ticket = TicketModel.buildTicket(changes);
@@ -783,8 +420,8 @@ public class RedisTicketService extends ITicketService {
 
 			// atomically store ticket
 			Transaction t = jedis.multi();
-			t.set(key(KeyType.object, repository, ticketId), object);
-			t.rpush(key(KeyType.journal, repository, ticketId), journal);
+			t.set(key(repository, KeyType.ticket, ticketId), object);
+			t.rpush(key(repository, KeyType.journal, ticketId), journal);
 			t.exec();
 
 			log.debug("updated ticket {} in Redis @ {}", "" + ticketId, getUrl());
@@ -802,11 +439,11 @@ public class RedisTicketService extends ITicketService {
 	}
 
 	/**
-	 *  Deletes all Tickets from the Redis key-value store.
+	 *  Deletes all Tickets for the rpeository from the Redis key-value store.
 	 *
 	 */
 	@Override
-	public boolean deleteAll() {
+	protected boolean deleteAllImpl(RepositoryModel repository) {
 		Jedis jedis = pool.getResource();
 		if (jedis == null) {
 			return false;
@@ -814,17 +451,44 @@ public class RedisTicketService extends ITicketService {
 
 		boolean success = false;
 		try {
-			Set<String> keys = jedis.keys("*:ticket:*");
+			Set<String> keys = jedis.keys(repository.name + ":*");
 			if (keys.size() > 0) {
 				Transaction t = jedis.multi();
 				t.del(keys.toArray(new String[keys.size()]));
 				t.exec();
 			}
-			indexer.clear();
-			resetCaches();
 			success = true;
 		} catch (JedisException e) {
 			log.error("failed to delete all tickets in Redis @ " + getUrl(), e);
+			pool.returnBrokenResource(jedis);
+			jedis = null;
+		} finally {
+			if (jedis != null) {
+				pool.returnResource(jedis);
+			}
+		}
+		return success;
+	}
+
+	@Override
+	protected boolean renameImpl(RepositoryModel oldRepository, RepositoryModel newRepository) {
+		Jedis jedis = pool.getResource();
+		if (jedis == null) {
+			return false;
+		}
+
+		boolean success = false;
+		try {
+			Set<String> oldKeys = jedis.keys(oldRepository.name + ":*");
+			Transaction t = jedis.multi();
+			for (String oldKey : oldKeys) {
+				String newKey = newRepository.name + oldKey.substring(oldKey.indexOf(':'));
+				t.rename(oldKey, newKey);
+			}
+			t.exec();
+			success = true;
+		} catch (JedisException e) {
+			log.error("failed to rename tickets in Redis @ " + getUrl(), e);
 			pool.returnBrokenResource(jedis);
 			jedis = null;
 		} finally {
