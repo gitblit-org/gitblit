@@ -697,8 +697,8 @@ public class TicketPage extends TicketBasePage {
 			String repoUrl = getRepositoryUrl(user, repository);
 			Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
 			changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
-			changeIdFrag.add(new Label("barnumWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
-			changeIdFrag.add(new Label("barnumWorkflowSteps", getWorkflow("propose_barnum.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+			changeIdFrag.add(new Label("barnumWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")).setVisible(false));
+			changeIdFrag.add(new Label("barnumWorkflowSteps", getWorkflow("propose_barnum.md", repoUrl, ticket.number)).setVisible(false).setEscapeModelStrings(false));
 			changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
 			changeIdFrag.add(new Label("gitWorkflowSteps", getWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
 			add(changeIdFrag);
@@ -937,15 +937,6 @@ public class TicketPage extends TicketBasePage {
 			}
 		};
 		panel.add(compareMenu);
-
-		// Barnum menu
-		String ptcheckout = MessageFormat.format("pt checkout {0,number,0}", ticket.number);
-		panel.add(createCopyFragment("ptFetch", "pt refresh && " + ptcheckout));
-		panel.add(new Label("ptFetchLabel", ptcheckout));
-
-		String ptreview = MessageFormat.format("pt checkout {0,number,0} -b ticket/{0,number,0}", ticket.number);
-		panel.add(createCopyFragment("ptReview", "pt refresh && " + ptreview));
-		panel.add(new Label("ptReviewLabel", ptreview));
 
 		// git menu
 		String repoUrl = getRepositoryUrl(user, repository);

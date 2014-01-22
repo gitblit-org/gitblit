@@ -1,13 +1,3 @@
-#### To review with Barnum
-
-on a detached HEAD...
-
-    pt refresh && pt checkout ${patchId}
-
-on a new branch...
-
-    pt refresh && pt checkout ${patchId} -b ${reviewBranch}
-
 #### To review with Git
 
 on a detached HEAD...

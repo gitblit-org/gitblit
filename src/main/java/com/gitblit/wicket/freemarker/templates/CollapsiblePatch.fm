@@ -16,17 +16,7 @@
 					<li><a><span wicket:id="gitReviewLabel"></span> <span wicket:id="gitReview"></span></a></li>
 				</ul>
 			</div>
-			<!-- Barnum commands menu -->
-			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
-				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
-					Barnum<span class="caret"></span>
-				</a>
-				<ul class="dropdown-menu">
-					<li><a><span wicket:id="ptFetchLabel"></span> <span wicket:id="ptFetch"></span></a></li>
-					<li><a><span wicket:id="ptReviewLabel"></span> <span wicket:id="ptReview"></span></a></li>
-				</ul>
-			</div>
-			<!-- Compare Patches menu -->
+			<!-- Compare Patchsets menu -->
 			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
 				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
 					<wicket:message key="gb.compare"></wicket:message> <span class="caret"></span>
