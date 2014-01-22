@@ -34,6 +34,6 @@
 {"createdAt":"2014-01-21T04:20:17Z","createdBy":"james","patchset":{"rev":17,"tip":"70e7d72b7db8f632d3a2569d8b0658d99e03e61b","base":"21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514","insertions":13564,"deletions":285,"totalCommits":27,"addedCommits":3,"type":"FastForward","ref":"refs/changes/01/1/17"}}
 ,
 {"createdAt":"2014-01-22T05:13:21Z","createdBy":"james","patchset":{"rev":18,"tip":"ba215db9e81e635b5eca47162b1890ee0365157b","base":"21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514","insertions":13468,"deletions":285,"totalCommits":29,"addedCommits":2,"type":"FastForward","ref":"refs/changes/01/1/18"}}
-],
+,
 {"createdAt":"2014-01-22T22:50:20Z","createdBy":"james","patchset":{"rev":19,"tip":"39389e873e97e28598e059729b1084f9db95476c","base":"21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514","insertions":13032,"deletions":289,"totalCommits":33,"addedCommits":4,"type":"FastForward","ref":"refs/changes/01/1/19"}}
 ]
