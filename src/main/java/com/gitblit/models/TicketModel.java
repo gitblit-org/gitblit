@@ -544,8 +544,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private static final long serialVersionUID = 1L;
 
-		public final String id;
-
 		public final Date createdAt;
 
 		public final String createdBy;
@@ -560,6 +558,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public Review review;
 
+		private transient String id;
+
 		public Change(String createdBy) {
 			this(createdBy, new Date());
 		}
@@ -567,7 +567,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public Change(String createdBy, Date created) {
 			this.createdAt = created;
 			this.createdBy = createdBy;
-			this.id = TicketModel.getSHA1(created.toString() + createdBy);
 		}
 
 		public boolean isStatusChange() {
@@ -713,6 +712,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			setField(field, join(list, ","));
 		}
 
+		public String getId() {
+			if (id == null) {
+				id = getSHA1(Long.toHexString(createdAt.getTime()) + createdBy);
+			}
+			return id;
+		}
+
 		@Override
 		public int compareTo(Change c) {
 			return createdAt.compareTo(c.createdAt);
@@ -720,13 +726,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		@Override
 		public int hashCode() {
-			return id.hashCode();
+			return getId().hashCode();
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof Change) {
-				return id.equals(((Change) o).id);
+				return getId().equals(((Change) o).getId());
 			}
 			return false;
 		}

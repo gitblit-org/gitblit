@@ -866,11 +866,14 @@ public class TicketPage extends TicketBasePage {
 				.get().getTimezone(), getTimeUtils(), false));
 
 		// set the id attribute
-		container.setOutputMarkupId(true);
-		container.add(new AttributeModifier("id", Model.of(entry.id)));
-
-		ExternalLink link = new ExternalLink("changeLink", "#" + entry.id);
-		container.add(link);
+		if (entry.hasComment()) {
+			container.setOutputMarkupId(true);
+			container.add(new AttributeModifier("id", Model.of(entry.getId())));
+			ExternalLink link = new ExternalLink("changeLink", "#" + entry.getId());
+			container.add(link);
+		} else {
+			container.add(new Label("changeLink").setVisible(false));
+		}
 	}
 
 	protected String getWorkflow(String resource, String url, long number) {
