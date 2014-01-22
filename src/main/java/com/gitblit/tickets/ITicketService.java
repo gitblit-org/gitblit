@@ -37,6 +37,8 @@ import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.utils.StringUtils;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 /**
  * Abstract parent class of a ticket service that stubs out required methods
@@ -52,7 +54,7 @@ public abstract class ITicketService {
 	 */
 	public interface TicketFilter {
 
-		boolean accept(TicketModel issue);
+		boolean accept(TicketModel ticket);
 	}
 
 	protected final Logger log;
@@ -68,6 +70,37 @@ public abstract class ITicketService {
 	protected final IRepositoryManager repositoryManager;
 
 	protected final TicketIndexer indexer;
+
+	private final Cache<TicketKey, TicketModel> ticketsCache;
+
+	private static class TicketKey {
+		final String repository;
+		final long ticketId;
+
+		TicketKey(String repository, long ticketId) {
+			this.repository = repository;
+			this.ticketId = ticketId;
+		}
+
+		@Override
+		public int hashCode() {
+			return (repository + ticketId).hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof TicketKey) {
+				return o.hashCode() == hashCode();
+			}
+			return false;
+		}
+
+		@Override
+		public String toString() {
+			return repository + ":" + ticketId;
+		}
+	}
+
 
 	/**
 	 * Creates a ticket service.
@@ -86,6 +119,12 @@ public abstract class ITicketService {
 		this.repositoryManager = repositoryManager;
 
 		this.indexer = new TicketIndexer(runtimeManager);
+
+		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
+		this.ticketsCache = cb
+				.maximumSize(1000)
+				.expireAfterAccess(10, TimeUnit.MINUTES)
+				.build();
 	}
 
 	/**
@@ -100,6 +139,7 @@ public abstract class ITicketService {
 	 */
 	public final ITicketService stop() {
 		indexer.close();
+		ticketsCache.invalidateAll();
 		close();
 		return this;
 	}
@@ -137,40 +177,13 @@ public abstract class ITicketService {
 	 * @return true if the repository has tickets
 	 */
 	public boolean hasTickets(String repository) {
-		return !indexer.queryFor(Lucene.repository.matches(repository), 1, 0, null, true).isEmpty();
+		return indexer.hasTickets(repository);
 	}
 
 	/**
 	 * Closes any open resources used by this service.
 	 */
 	protected abstract void close();
-
-	/**
-	 * Ensures the change-id is properly formed.
-	 *
-	 * @param idStr
-	 * @return true if the change-id conforms the the spec
-	 */
-	public boolean isValidChangeId(String idStr) {
-		return idStr.matches("^I[0-9a-fA-F]{40}$") && !idStr.matches("^I00*$");
-	}
-
-	/**
-	 * Generates and sets a changeId
-	 *
-	 * @param change
-	 * @return the change id
-	 */
-	public String generateChangeId(Change change) {
-		String changeId = "I"
-				+ StringUtils.getSHA1(change.createdAt.toString()
-				+ change.createdBy
-				+ change.getString(Field.repository)
-				+ change.getString(Field.title)
-				+ change.getField(Field.body));
-		change.setField(Field.changeId, changeId);
-		return changeId;
-	}
 
 	/**
 	 * Reset any caches in the service.
@@ -196,7 +209,7 @@ public abstract class ITicketService {
 	public TicketLabel getLabel(String repository, String label) {
 		for (TicketLabel tl : getLabels(repository)) {
 			if (tl.name.equalsIgnoreCase(label)) {
-				String q = QueryBuilder.q(Lucene.repository.matches(repository)).and(Lucene.labels.matches(label)).build();
+				String q = QueryBuilder.q(Lucene.rid.matches(StringUtils.getSHA1(repository))).and(Lucene.labels.matches(label)).build();
 				tl.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
 				return tl;
 			}
@@ -280,7 +293,7 @@ public abstract class ITicketService {
 	public TicketMilestone getMilestone(String repository, String milestone) {
 		for (TicketMilestone ms : getMilestones(repository)) {
 			if (ms.name.equalsIgnoreCase(milestone)) {
-				String q = QueryBuilder.q(Lucene.repository.matches(repository)).and(Lucene.milestone.matches(milestone)).build();
+				String q = QueryBuilder.q(Lucene.rid.matches(StringUtils.getSHA1(repository))).and(Lucene.milestone.matches(milestone)).build();
 				ms.tickets = indexer.queryFor(q, 1, 0, Lucene.number.name(), true);
 				return ms;
 			}
@@ -330,13 +343,12 @@ public abstract class ITicketService {
 	public abstract boolean deleteMilestone(String repository, String milestone, String createdBy);
 
 	/**
-	 * Assigns a new long id for the change-id.
+	 * Assigns a new ticket id.
 	 *
 	 * @param repository
-	 * @param changeId
-	 * @return a new long id for the change-id
+	 * @return a new ticket id
 	 */
-	public abstract long assignTicketId(String repository, String changeId);
+	public abstract long assignNewId(String repository);
 
 	/**
 	 * Ensures that we have a ticket for this ticket id.
@@ -345,38 +357,7 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @return true if the ticket exists
 	 */
-	public boolean hasTicket(String repository, long ticketId) {
-		return !StringUtils.isEmpty(getChangeId(repository, ticketId));
-	}
-
-	/**
-	 * Ensures that this change-id maps to an existing ticket.
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @return true if the ticket exists
-	 */
-	public boolean hasTicket(String repository, String changeId) {
-		return getTicketId(repository, changeId) > 0L;
-	}
-
-	/**
-	 * Returns the ticketId for the changeId
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @return ticket id for the changeId, or 0 if it does not exist
-	 */
-	public abstract long getTicketId(String repository, String changeId);
-
-	/**
-	 * Returns the changeId for the ticketId
-	 *
-	 * @param repository
-	 * @param ticketId
-	 * @return changeId for the ticketId, or null if it does not exist
-	 */
-	public abstract String getChangeId(String repository, long ticketId);
+	public abstract boolean hasTicket(String repository, long ticketId);
 
 	/**
 	 * Returns all tickets.  This is not a Lucene search!
@@ -389,40 +370,10 @@ public abstract class ITicketService {
 	}
 
 	/**
-	 * Returns all open tickets.  This is not a Lucene search!
-	 *
-	 * @param repository
-	 * @return all open tickets
-	 */
-	public List<TicketModel> getOpenTickets(String repository) {
-		return getTickets(repository, new TicketFilter() {
-			@Override
-			public boolean accept(TicketModel ticket) {
-				return ticket.isOpen();
-			}
-		});
-	}
-
-	/**
-	 * Returns all closed tickets.  This is not a Lucene search!
-	 *
-	 * @param repository
-	 * @return all closed tickets
-	 */
-	public List<TicketModel> getClosedTickets(String repository) {
-		return getTickets(repository, new TicketFilter() {
-			@Override
-			public boolean accept(TicketModel ticket) {
-				return ticket.isClosed();
-			}
-		});
-	}
-
-	/**
-	 * Returns all tickets that satisfy the filter. Querying tickets from the
-	 * repository requires deserializing all tickets. This is an  expensive
-	 * process and not recommended. Instead, the TicketIndexer should be used
-	 * via the queryFor method.
+	 * Returns all tickets that satisfy the filter. Retrieving tickets from the
+	 * service requires deserializing all journals and building ticket models.
+	 * This is an  expensive process and not recommended. Instead, the queryFor
+	 * method should be used which executes against the Lucene index.
 	 *
 	 * @param repository
 	 * @param filter
@@ -438,17 +389,28 @@ public abstract class ITicketService {
 	 * @param ticketId
 	 * @return a ticket, if it exists, otherwise null
 	 */
-	public abstract TicketModel getTicket(String repository, long ticketId);
+	public final TicketModel getTicket(String repository, long ticketId) {
+		TicketKey key = new TicketKey(repository, ticketId);
+		TicketModel ticket = ticketsCache.getIfPresent(key);
+
+		if (ticket == null) {
+			// load & cache ticket
+			ticket = getTicketImpl(repository, ticketId);
+			if (ticket != null) {
+				ticketsCache.put(key, ticket);
+			}
+		}
+		return ticket;
+	}
 
 	/**
 	 * Retrieves the ticket.
 	 *
 	 * @param repository
-	 * @param changeId
+	 * @param ticketId
 	 * @return a ticket, if it exists, otherwise null
 	 */
-	public abstract TicketModel getTicket(String repository, String changeId);
-
+	protected abstract TicketModel getTicketImpl(String repository, long ticketId);
 
 	/**
 	 * Get the ticket url
@@ -473,11 +435,11 @@ public abstract class ITicketService {
 	 * Retrieves the specified attachment from a ticket.
 	 *
 	 * @param repository
-	 * @param changeId
+	 * @param ticketId
 	 * @param filename
 	 * @return an attachment, if found, null otherwise
 	 */
-	public abstract Attachment getAttachment(String repository, String changeId, String filename);
+	public abstract Attachment getAttachment(String repository, long ticketId, String filename);
 
 	/**
 	 * Creates a ticket.  Your change must include a repository, author & title,
@@ -500,24 +462,21 @@ public abstract class ITicketService {
 			throw new RuntimeException("Must specify a title!");
 		}
 
-		change.setField(Field.repository, repository);
 		change.watch(change.createdBy);
 
-		String changeId = (String) change.getField(Field.changeId);
-		if (StringUtils.isEmpty(changeId)) {
-			changeId = generateChangeId(change);
-		}
-
-		if (!change.hasField(Field.number)) {
-			long number = assignTicketId(repository, changeId);
-			change.setField(Field.number, number);
+		long ticketId = 0L;
+		if (change.hasField(Field.number)) {
+			ticketId = Long.parseLong(change.getString(Field.number));
+			change.remove(Field.number);
+		} else {
+			ticketId = assignNewId(repository);
 		}
 
 		change.setField(Field.status, Status.New);
 
-		boolean success = commitChange(repository, changeId, change);
+		boolean success = commitChange(repository, ticketId, change);
 		if (success) {
-			TicketModel ticket = getTicket(repository, changeId);
+			TicketModel ticket = getTicket(repository, ticketId);
 			indexer.index(ticket);
 			return ticket;
 		}
@@ -532,21 +491,7 @@ public abstract class ITicketService {
 	 * @param change
 	 * @return the ticket model if successful
 	 */
-	public TicketModel updateTicket(String repository, long ticketId, Change change) {
-		String changeId = getChangeId(repository, ticketId);
-		return updateTicket(repository, changeId, change);
-	}
-
-	/**
-	 * Updates a ticket.
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @param change
-	 * @return the ticket model if successful
-	 */
-	public TicketModel updateTicket(String repository, String changeId, Change change) {
-
+	public final TicketModel updateTicket(String repository, long ticketId, Change change) {
 		if (change == null) {
 			throw new RuntimeException("change can not be null!");
 		}
@@ -555,12 +500,14 @@ public abstract class ITicketService {
 			throw new RuntimeException("must specify a change author!");
 		}
 
-		boolean success = commitChange(repository, changeId, change);
+		TicketKey key = new TicketKey(repository, ticketId);
+		ticketsCache.invalidate(key);
+
+		boolean success = commitChange(repository, ticketId, change);
 		if (success) {
-			TicketModel ticket = getTicket(repository, changeId);
-			if (indexer != null) {
-				indexer.index(ticket);
-			}
+			TicketModel ticket = getTicket(repository, ticketId);
+			ticketsCache.put(key, ticket);
+			indexer.index(ticket);
 			return ticket;
 		}
 		return null;
@@ -573,23 +520,6 @@ public abstract class ITicketService {
 	 */
 	public abstract boolean deleteAll();
 
-	/**
-	 * Deletes a ticket.
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @param deletedBy
-	 * @return true if successful
-	 */
-	public boolean deleteTicket(String repository, String changeId, String deletedBy) {
-		TicketModel ticket = getTicket(repository, changeId);
-		boolean success = deleteTicket(ticket, deletedBy);
-		if (success) {
-			indexer.delete(ticket);
-			return true;
-		}
-		return false;
-	}
 
 	/**
 	 * Deletes a ticket.
@@ -603,6 +533,7 @@ public abstract class ITicketService {
 		TicketModel ticket = getTicket(repository, ticketId);
 		boolean success = deleteTicket(ticket, deletedBy);
 		if (success) {
+			ticketsCache.invalidate(new TicketKey(repository, ticketId));
 			indexer.delete(ticket);
 			return true;
 		}
@@ -631,12 +562,12 @@ public abstract class ITicketService {
 	 *            the revised comment
 	 * @return the revised ticket if the change was successful
 	 */
-	public TicketModel updateComment(TicketModel ticket, String commentId,
+	public final TicketModel updateComment(TicketModel ticket, String commentId,
 			String updatedBy, String comment) {
 		Change revision = new Change(updatedBy);
 		revision.comment(comment);
 		revision.comment.id = commentId;
-		TicketModel revisedTicket = updateTicket(ticket.repository, ticket.changeId, revision);
+		TicketModel revisedTicket = updateTicket(ticket.repository, ticket.number, revision);
 		return revisedTicket;
 	}
 
@@ -650,12 +581,12 @@ public abstract class ITicketService {
 	 * 			the user deleting the comment
 	 * @return the revised ticket if the deletion was successful
 	 */
-	public TicketModel deleteComment(TicketModel ticket, String commentId, String deletedBy) {
+	public final TicketModel deleteComment(TicketModel ticket, String commentId, String deletedBy) {
 		Change deletion = new Change(deletedBy);
 		deletion.comment("");
 		deletion.comment.id = commentId;
 		deletion.comment.deleted = true;
-		TicketModel revisedTicket = updateTicket(ticket.repository, ticket.changeId, deletion);
+		TicketModel revisedTicket = updateTicket(ticket.repository, ticket.number, deletion);
 		return revisedTicket;
 	}
 
@@ -663,11 +594,11 @@ public abstract class ITicketService {
 	 * Commit a ticket change to the repository.
 	 *
 	 * @param repository
-	 * @param changeId
+	 * @param ticketId
 	 * @param change
 	 * @return true, if the change was committed
 	 */
-	protected abstract boolean commitChange(String repository, String changeId, Change change);
+	protected abstract boolean commitChange(String repository, long ticketId, Change change);
 
 
 	/**
@@ -682,7 +613,7 @@ public abstract class ITicketService {
 	 * @return a list of matching tickets
 	 */
 	public List<QueryResult> searchFor(String repository, String text, int page, int pageSize) {
-		return indexer.searchFor(text, page, pageSize);
+		return indexer.searchFor(repository, text, page, pageSize);
 	}
 
 	/**

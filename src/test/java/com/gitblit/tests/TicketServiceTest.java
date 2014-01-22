@@ -46,6 +46,7 @@ import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.TicketModel.Type;
 import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.tickets.ITicketService;
+import com.gitblit.tickets.ITicketService.TicketFilter;
 import com.gitblit.tickets.QueryResult;
 import com.gitblit.tickets.RedisTicketService;
 import com.gitblit.tickets.RepositoryTicketService;
@@ -144,10 +145,10 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// create and insert a ticket
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
 		TicketModel ticket = service.createTicket(name, c1);
-		assertNotNull(ticket.changeId);
+		assertTrue(ticket.number > 0);
 
 		// retrieve ticket and compare
-		TicketModel constructed = service.getTicket(name, ticket.changeId);
+		TicketModel constructed = service.getTicket(name, ticket.number);
 		compare(ticket, constructed);
 
 		assertEquals(1, constructed.changes.size());
@@ -156,10 +157,10 @@ public class TicketServiceTest extends GitblitUnitTest {
 		int changeCount = 0;
 		c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
 		ticket = service.createTicket(name, c1);
-		assertNotNull(ticket.changeId);
+		assertTrue(ticket.number > 0);
 		changeCount++;
 
-		constructed = service.getTicket(name, ticket.changeId);
+		constructed = service.getTicket(name, ticket.number);
 		compare(ticket, constructed);
 		assertEquals(1, constructed.changes.size());
 
@@ -167,7 +168,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		Change c2 = new Change("C2");
 		c2.comment("I'll fix this");
 		c2.setField(Field.responsible, c2.createdBy);
-		constructed = service.updateTicket(name, ticket.changeId, c2);
+		constructed = service.updateTicket(name, ticket.number, c2);
 		assertNotNull(constructed);
 		assertEquals(2, constructed.changes.size());
 		assertEquals(c2.createdBy, constructed.responsible);
@@ -176,7 +177,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C3: add a note
 		Change c3 = new Change("C3");
 		c3.comment("yeah, this is working");
-		constructed = service.updateTicket(name, ticket.changeId, c3);
+		constructed = service.updateTicket(name, ticket.number, c3);
 		assertNotNull(constructed);
 		assertEquals(3, constructed.changes.size());
 		changeCount++;
@@ -186,10 +187,10 @@ public class TicketServiceTest extends GitblitUnitTest {
 			Change c4 = new Change("C4");
 			Attachment a = newAttachment();
 			c4.addAttachment(a);
-			constructed = service.updateTicket(name, ticket.changeId, c4);
+			constructed = service.updateTicket(name, ticket.number, c4);
 			assertNotNull(constructed);
 			assertTrue(constructed.hasAttachments());
-			Attachment a1 = service.getAttachment(name, ticket.changeId, a.name);
+			Attachment a1 = service.getAttachment(name, ticket.number, a.name);
 			assertEquals(a.content.length, a1.content.length);
 			assertTrue(Arrays.areEqual(a.content, a1.content));
 			changeCount++;
@@ -199,15 +200,25 @@ public class TicketServiceTest extends GitblitUnitTest {
 		Change c5 = new Change("C5");
 		c5.comment("closing issue");
 		c5.setField(Field.status, Status.Resolved);
-		constructed = service.updateTicket(name, ticket.changeId, c5);
+		constructed = service.updateTicket(name, ticket.number, c5);
 		assertNotNull(constructed);
 		changeCount++;
 		assertTrue(constructed.isClosed());
 		assertEquals(changeCount, constructed.changes.size());
 
 		List<TicketModel> allTickets = service.getTickets(name);
-		List<TicketModel> openTickets = service.getOpenTickets(name);
-		List<TicketModel> closedTickets = service.getClosedTickets(name);
+		List<TicketModel> openTickets = service.getTickets(name, new TicketFilter() {
+			@Override
+			public boolean accept(TicketModel ticket) {
+				return ticket.isOpen();
+			}
+		});
+		List<TicketModel> closedTickets = service.getTickets(name, new TicketFilter() {
+			@Override
+			public boolean accept(TicketModel ticket) {
+				return ticket.isClosed();
+			}
+		});
 		assertTrue(allTickets.size() > 0);
 		assertEquals(1, openTickets.size());
 		assertEquals(1, closedTickets.size());
@@ -221,8 +232,8 @@ public class TicketServiceTest extends GitblitUnitTest {
 		ticket = allTickets.get(0);
 		Change change = new Change("reindex");
 		change.comment("this is a test of reindexing a ticket");
-		service.updateTicket(name, ticket.changeId, change);
-		ticket = service.getTicket(name, ticket.changeId);
+		service.updateTicket(name, ticket.number, change);
+		ticket = service.getTicket(name, ticket.number);
 
 		hits = service.searchFor(name, "reindexing", 1, 10);
 		assertEquals(1, hits.size());
@@ -242,7 +253,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		// delete all tickets
 		for (TicketModel aTicket : allTickets) {
-			assertTrue(service.deleteTicket(name, aTicket.changeId, "D"));
+			assertTrue(service.deleteTicket(name, aTicket.number, "D"));
 		}
 
 		service.stop();
@@ -255,7 +266,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C1: create the ticket
 		Change c1 = newChange("testChangeComment() " + Long.toHexString(System.currentTimeMillis()));
 		TicketModel ticket = service.createTicket(name, c1);
-		assertNotNull(ticket.changeId);
+		assertTrue(ticket.number > 0);
 		assertTrue(ticket.changes.get(0).hasComment());
 
 		ticket = service.updateComment(ticket, c1.comment.id, "E1", "I changed the comment");
@@ -263,7 +274,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertTrue(ticket.changes.get(0).hasComment());
 		assertEquals("I changed the comment", ticket.changes.get(0).comment.text);
 
-		assertTrue(service.deleteTicket(name, ticket.changeId, "D"));
+		assertTrue(service.deleteTicket(name, ticket.number, "D"));
 
 		service.stop();
 	}
@@ -275,7 +286,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C1: create the ticket
 		Change c1 = newChange("testDeleteComment() " + Long.toHexString(System.currentTimeMillis()));
 		TicketModel ticket = service.createTicket(name, c1);
-		assertNotNull(ticket.changeId);
+		assertTrue(ticket.number > 0);
 		assertTrue(ticket.changes.get(0).hasComment());
 
 		ticket = service.deleteComment(ticket, c1.comment.id, "D1");
@@ -283,7 +294,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertEquals(1, ticket.changes.size());
 		assertFalse(ticket.changes.get(0).hasComment());
 
-		assertTrue(service.deleteTicket(name, ticket.changeId, "D"));
+		assertTrue(service.deleteTicket(name, ticket.number, "D"));
 
 		service.stop();
 	}
@@ -364,7 +375,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 	}
 
 	private void compare(TicketModel ticket, TicketModel constructed) {
-		assertEquals(ticket.changeId, constructed.changeId);
+		assertEquals(ticket.number, constructed.number);
 		assertEquals(ticket.createdBy, constructed.createdBy);
 		assertEquals(ticket.responsible, constructed.responsible);
 		assertEquals(ticket.title, constructed.title);
@@ -402,7 +413,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		merge.setField(Field.mergeTo, "master");
 		merge.setField(Field.status, Status.Merged);
 
-		ticket = service.updateTicket(name, ticket.changeId, merge);
+		ticket = service.updateTicket(name, ticket.number, merge);
 
 		ticket.repository = "test.git";
 

@@ -53,8 +53,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public long number;
 
-	public String changeId;
-
 	public Date createdAt;
 
 	public String createdBy;
@@ -442,7 +440,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 					number = Double.valueOf(fieldChange.value.toString()).longValue();
 					break;
 				case changeId:
-					changeId = toString(fieldChange.value);
+					// TODO remove me
 					break;
 				case type:
 					type = TicketModel.Type.fromObject(fieldChange.value);
@@ -511,11 +509,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("ticket ");
+		sb.append("#");
 		sb.append(number);
-		sb.append(" ");
-		sb.append(changeId);
-		sb.append(" (" + title + ")\n");
+		sb.append(": " + title + "\n");
 		for (Change change : changes) {
 			sb.append(change);
 			sb.append('\n');
@@ -531,14 +527,14 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof TicketModel) {
-			return changeId.equals(((TicketModel) o).changeId);
+			return number == ((TicketModel) o).number;
 		}
 		return super.equals(o);
 	}
 
 	@Override
 	public int hashCode() {
-		return changeId.hashCode();
+		return (repository + number).hashCode();
 	}
 
 	/**

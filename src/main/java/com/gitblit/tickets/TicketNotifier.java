@@ -138,7 +138,7 @@ public class TicketNotifier {
 		mailing.from = getUserModel(ticket.updatedBy == null ? ticket.createdBy : ticket.updatedBy).getDisplayName();
 		mailing.subject = getSubject(ticket);
 		mailing.content = html.toString();
-		mailing.id = "ticket." + ticket.number + "." + ticket.changeId;
+		mailing.id = "ticket." + ticket.number + "." + StringUtils.getSHA1(ticket.repository + ticket.number);
 
 		setRecipients(ticket, mailing);
 		queue.put(ticket.number, mailing);

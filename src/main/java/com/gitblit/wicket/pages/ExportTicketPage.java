@@ -55,13 +55,8 @@ public class ExportTicketPage extends SessionPage {
 				if (objectId.endsWith(".json")) {
 					objectId = objectId.substring(0, objectId.length() - ".json".length());
 				}
-				TicketModel ticket;
-				if (app().tickets().isValidChangeId(objectId)) {
-					ticket = app().tickets().getTicket(repositoryName, objectId);
-				} else {
-					long id = Long.parseLong(objectId);
-					ticket = app().tickets().getTicket(repositoryName, id);
-				}
+				long id = Long.parseLong(objectId);
+				TicketModel ticket = app().tickets().getTicket(repositoryName, id);
 
 				String content = JsonUtils.toJsonString(ticket);
 				contentType = "application/json; charset=UTF-8";

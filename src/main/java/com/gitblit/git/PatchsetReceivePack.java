@@ -598,8 +598,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 
 			// assign new id
-			String changeId = "I" + tipCommit.getName();
-			long ticketId = ticketService.assignTicketId(repository.name, changeId);
+			long ticketId = ticketService.assignNewId(repository.name);
 
 			// create the patchset command
 			psCmd = new PatchsetCommand(user.username, patchset);

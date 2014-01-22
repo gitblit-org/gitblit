@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,7 @@ import com.gitblit.utils.StringUtils;
 /**
  * Implementation of a ticket service based on an orphan branch.  All tickets
  * are serialized as a list of JSON changes and persisted in a hashed directory
- * structure, similar to the standard git structure.  Tickets may optionally be
- * cached in a Redis server for performance or data sharing.
+ * structure, similar to the standard git structure.
  *
  * @author James Moger
  *
@@ -107,8 +107,6 @@ public class RepositoryTicketService extends ITicketService {
 
 	private final Map<String, List<TicketMilestone>> milestonesCache;
 
-	private RedisTicketService rts;
-
 	@Inject
 	public RepositoryTicketService(
 			IRuntimeManager runtimeManager,
@@ -129,25 +127,11 @@ public class RepositoryTicketService extends ITicketService {
 
 	@Override
 	public RepositoryTicketService start() {
-		// create a nested Redis ticket service which may be used for caching
-		// or for real-time data-sharing with other services/tools
-		rts = new RedisTicketService(
-				runtimeManager,
-				notificationManager,
-				userManager,
-				repositoryManager).start();
-
-		if (rts.isReady()) {
-			log.info("Redis is ready to cache tickets.");
-		} else {
-			log.warn("Redis ticket caching is disabled.");
-		}
 		return this;
 	}
 
 	@Override
 	protected void close() {
-		rts.stop();
 	}
 
 	/**
@@ -217,7 +201,6 @@ public class RepositoryTicketService extends ITicketService {
 	 */
 	@Override
 	public synchronized void resetCaches() {
-		rts.resetCaches();
 		cid2number.clear();
 		number2cid.clear();
 		labelsCache.clear();
@@ -345,7 +328,7 @@ public class RepositoryTicketService extends ITicketService {
 				Change change = new Change(createdBy);
 				change.unlabel(oldName);
 				change.label(newName);
-				updateTicket(repository, qr.changeId, change);
+				updateTicket(repository, qr.number, change);
 			}
 
 			return true;
@@ -534,7 +517,7 @@ public class RepositoryTicketService extends ITicketService {
 			for (QueryResult qr : milestone.tickets) {
 				Change change = new Change(createdBy);
 				change.setField(Field.milestone, newName);
-				TicketModel ticket = updateTicket(repository, qr.changeId, change);
+				TicketModel ticket = updateTicket(repository, qr.number, change);
 				notifier.queueMailing(ticket);
 			}
 			notifier.sendAll();
@@ -700,14 +683,32 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	/**
-	 * Assigns a new long id for the change-id.
+	 * Ensures that we have a ticket for this ticket id.
 	 *
 	 * @param repository
-	 * @param changeId
-	 * @return a new long id for the change-id
+	 * @param ticketId
+	 * @return true if the ticket exists
 	 */
 	@Override
-	public synchronized long assignTicketId(String repository, String changeId) {
+	public boolean hasTicket(String repository, long ticketId) {
+		Repository db = repositoryManager.getRepository(repository);
+		readTicketIndex(db);
+		db.close();
+		String key = db.getDirectory().getAbsolutePath();
+		if (number2cid.containsKey(key)) {
+			return number2cid.get(key).containsKey(ticketId);
+		}
+		return false;
+	}
+
+	/**
+	 * Assigns a new ticket id.
+	 *
+	 * @param repository
+	 * @return a new long id
+	 */
+	@Override
+	public synchronized long assignNewId(String repository) {
 		Repository db = repositoryManager.getRepository(repository);
 		String idx = readTicketsFile(db, INDEX);
 		if (StringUtils.isEmpty(idx)) {
@@ -730,7 +731,8 @@ public class RepositoryTicketService extends ITicketService {
 
 		id++;
 
-		// append the new ticket int id to the index
+		// append the new ticket id to the index
+		String changeId = "I" + StringUtils.getSHA1(idx + new Date().toString());
 		idx += changeId + " " + id + "\n";
 
 		writeTicketsFile(db, INDEX, idx, "gitblit", id + " = " + changeId);
@@ -742,55 +744,6 @@ public class RepositoryTicketService extends ITicketService {
 		number2cid.remove(key);
 
 		return id;
-	}
-
-	/**
-	 * Returns the ticketId for the changeId
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @return ticket id for the changeId, or 0 if it does not exist
-	 */
-	@Override
-	public long getTicketId(String repository, String changeId) {
-		if (StringUtils.isEmpty(changeId)) {
-			return 0;
-		}
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			readTicketIndex(db);
-		} finally {
-			db.close();
-		}
-		String key = db.getDirectory().getAbsolutePath();
-		if (cid2number.containsKey(key)) {
-			Long value = cid2number.get(key).get(changeId);
-			if (value != null) {
-				return value;
-			}
-		}
-		return 0;
-	}
-
-	/**
-	 * Returns the changeId for the ticketId
-	 *
-	 * @param repository
-	 * @param ticketId
-	 * @return changeId for the ticketId, or null if it does not exist
-	 */
-	@Override
-	public String getChangeId(String repository, long ticketId) {
-		if (ticketId <= 0) {
-			return null;
-		}
-
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			return getChangeId(db, ticketId);
-		} finally {
-			db.close();
-		}
 	}
 
 	/**
@@ -810,7 +763,27 @@ public class RepositoryTicketService extends ITicketService {
 		if (number2cid.containsKey(key)) {
 			return number2cid.get(key).get(ticketId);
 		}
-		return null;
+		return number2cid.get(key).get(ticketId);
+	}
+
+	/**
+	 * Returns the ticketId for the changeId
+	 *
+	 * @param db
+	 * @param changeId
+	 * @return ticketId for the changeId, or 0 if it does not exist
+	 */
+	private long getTicketId(Repository db, String changeId) {
+		RefModel ticketsBranch = getTicketsBranch(db);
+		if (ticketsBranch == null) {
+			return 0L;
+		}
+		readTicketIndex(db);
+		String key = db.getDirectory().getAbsolutePath();
+		if (cid2number.containsKey(key)) {
+			return cid2number.get(key).get(changeId);
+		}
+		return cid2number.get(key).get(changeId);
 	}
 
 	/**
@@ -853,8 +826,7 @@ public class RepositoryTicketService extends ITicketService {
 					List<Change> changes = TicketSerializer.deserializeJournal(json);
 					TicketModel ticket = TicketModel.buildTicket(changes);
 					ticket.repository = repository;
-					ticket.changeId = changeid;
-					ticket.number = getTicketId(repository, changeid);
+					ticket.number = getTicketId(db, changeid);
 
 					// add the ticket, conditionally, to the list
 					if (filter == null) {
@@ -867,6 +839,7 @@ public class RepositoryTicketService extends ITicketService {
 				} catch (Exception e) {
 					log.error("failed to deserialize {}/{}\n{}",
 							new Object [] { repository, path.path, e.getMessage()});
+					log.error(null, e);
 				}
 			}
 
@@ -887,7 +860,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @return a ticket, if it exists, otherwise null
 	 */
 	@Override
-	public TicketModel getTicket(String repository, long ticketId) {
+	protected TicketModel getTicketImpl(String repository, long ticketId) {
 		Repository db = repositoryManager.getRepository(repository);
 		try {
 			String changeId = getChangeId(db, ticketId);
@@ -895,64 +868,15 @@ public class RepositoryTicketService extends ITicketService {
 				return null;
 			}
 
-			TicketModel ticket = rts.getTicket(repository, changeId);
+			TicketModel ticket = getTicket(db, changeId);
 			if (ticket != null) {
 				ticket.repository = repository;
 				ticket.number = ticketId;
-				ticket.changeId = changeId;
-				return ticket;
-			}
-
-			ticket = getTicket(db, changeId);
-			if (ticket != null) {
-				ticket.repository = repository;
-				ticket.number = ticketId;
-				ticket.changeId = changeId;
-				rts.store(ticket, null);
 			}
 			return ticket;
 		} finally {
 			db.close();
 		}
-	}
-
-	/**
-	 * Retrieves the ticket from the repository by deserializing the journal
-	 * and building an effective ticket.  If Redis caching is enabled, we try to
-	 * deserialize a ticket object.
-	 *
-	 * @param repository
-	 * @param changeId
-	 * @return a ticket, if it exists, otherwise null
-	 */
-	@Override
-	public TicketModel getTicket(String repository, String changeId) {
-		// illegal changeid
-		if (StringUtils.isEmpty(changeId)) {
-			return null;
-		}
-
-		TicketModel ticket = rts.getTicket(repository, changeId);
-		if (ticket != null) {
-			ticket.repository = repository;
-			ticket.changeId = changeId;
-			ticket.number = getTicketId(repository, changeId);
-			return ticket;
-		}
-
-		Repository db = repositoryManager.getRepository(repository);
-		try {
-			ticket = getTicket(db, changeId);
-			if (ticket != null) {
-				ticket.repository = repository;
-				ticket.changeId = changeId;
-				ticket.number = getTicketId(repository, changeId);
-				rts.store(ticket, null);
-			}
-		} finally {
-			db.close();
-		}
-		return ticket;
 	}
 
 	/**
@@ -1007,18 +931,18 @@ public class RepositoryTicketService extends ITicketService {
 	 * Retrieves the specified attachment from a ticket.
 	 *
 	 * @param repository
-	 * @param changeId
+	 * @param ticketId
 	 * @param filename
 	 * @return an attachment, if found, null otherwise
 	 */
 	@Override
-	public Attachment getAttachment(String repository, String changeId, String filename) {
-		if (StringUtils.isEmpty(changeId)) {
+	public Attachment getAttachment(String repository, long ticketId, String filename) {
+		if (ticketId <= 0L) {
 			return null;
 		}
 
 		// deserialize the ticket model so that we have the attachment metadata
-		TicketModel ticket = getTicket(repository, changeId);
+		TicketModel ticket = getTicket(repository, ticketId);
 		Attachment attachment = ticket.getAttachment(filename);
 
 		// attachment not found
@@ -1029,6 +953,7 @@ public class RepositoryTicketService extends ITicketService {
 		// retrieve the attachment content
 		Repository db = repositoryManager.getRepository(repository);
 		try {
+			String changeId = getChangeId(db, ticketId);
 			String attachmentPath = toAttachmentPath(changeId, attachment.name);
 			RevTree tree = JGitUtils.getCommit(db, GITBLIT_TICKETS).getTree();
 			byte[] content = JGitUtils.getByteContent(db, tree, attachmentPath, false);
@@ -1060,8 +985,8 @@ public class RepositoryTicketService extends ITicketService {
 			if (ticketsBranch == null) {
 				throw new RuntimeException(GITBLIT_TICKETS + " does not exist!");
 			}
-
-			String ticketPath = toTicketPath(ticket.changeId);
+			String changeId = getChangeId(db, ticket.number);
+			String ticketPath = toTicketPath(changeId);
 
 			TreeWalk treeWalk = null;
 			try {
@@ -1100,9 +1025,8 @@ public class RepositoryTicketService extends ITicketService {
 				// finish temporary in-core index used for this commit
 				builder.finish();
 
-				success = commitIndex(db, index, deletedBy, "- " + ticket.changeId);
+				success = commitIndex(db, index, deletedBy, "- " + ticket.number);
 
-				rts.deleteTicket(ticket, deletedBy);
 			} catch (Throwable t) {
 				log.error(MessageFormat.format("Failed to delete ticket {0,number,0} from {1}",
 						ticket.number, db.getDirectory()), t);
@@ -1120,39 +1044,23 @@ public class RepositoryTicketService extends ITicketService {
 	 * Commit a ticket change to the repository.
 	 *
 	 * @param repository
-	 * @param changeId
+	 * @param ticketId
 	 * @param change
 	 * @return true, if the change was committed
 	 */
 	@Override
-	protected synchronized boolean commitChange(String repository, String changeId, Change change) {
+	protected synchronized boolean commitChange(String repository, long ticketId, Change change) {
 		boolean success = false;
 
 		Repository db = repositoryManager.getRepository(repository);
 		try {
-			// strip the these fields because they are implied or stored elsewhere
-			change.remove(Field.repository);
-			change.remove(Field.number);
-			change.remove(Field.changeId);
-
-			long number = getTicketId(repository, changeId);
+			String changeId = getChangeId(db, ticketId);
 			DirCache index = createIndex(db, changeId, change);
-			success = commitIndex(db, index, change.createdBy, number + " : " + changeId);
+			success = commitIndex(db, index, change.createdBy, ticketId + " : " + changeId);
 
-			// optionally cache the ticket in Redis
-			if (rts.isReady()) {
-				// build a new effective ticket from the changes
-				List<Change> changes = getJournal(db, changeId);
-				changes.add(change);
-				TicketModel ticket = TicketModel.buildTicket(changes);
-				ticket.repository = repository;
-				ticket.changeId = changeId;
-				ticket.number = number;
-				rts.store(ticket, null);
-			}
 		} catch (Throwable t) {
-			log.error(MessageFormat.format("Failed to commit ticket {0} to {1}",
-					changeId, db.getDirectory()), t);
+			log.error(MessageFormat.format("Failed to commit ticket {0,number,0} to {1}",
+					ticketId, db.getDirectory()), t);
 		} finally {
 			db.close();
 		}

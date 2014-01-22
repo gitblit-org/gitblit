@@ -38,7 +38,6 @@ public class QueryResult implements Serializable {
 
 	public String repository;
 	public long number;
-	public String changeId;
 	public String createdBy;
 	public Date createdAt;
 	public String updatedBy;
@@ -104,7 +103,7 @@ public class QueryResult implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return (repository + changeId).hashCode();
+		return (repository + number).hashCode();
 	}
 
 	@Override

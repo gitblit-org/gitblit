@@ -31,6 +31,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.LongField;
+import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
@@ -75,9 +76,10 @@ public class TicketIndexer {
 	 */
 	public static enum Lucene {
 
+		rid(Type.STRING),
+		did(Type.STRING),
 		repository(Type.STRING),
 		number(Type.LONG),
-		changeid(Type.STRING),
 		title(Type.STRING),
 		body(Type.STRING),
 		topic(Type.STRING),
@@ -213,7 +215,7 @@ public class TicketIndexer {
 	public void index(TicketModel ticket) {
 		try {
 			IndexWriter writer = getWriter();
-			delete(ticket.changeId, writer);
+			delete(ticket.repository, ticket.number, writer);
 			Document doc = ticketToDoc(ticket);
 			writer.addDocument(doc);
 			writer.commit();
@@ -233,7 +235,7 @@ public class TicketIndexer {
 	public boolean delete(TicketModel ticket) {
 		try {
 			IndexWriter writer = getWriter();
-			return delete(ticket.changeId, writer);
+			return delete(ticket.repository, ticket.number, writer);
 		} catch (Exception e) {
 			log.error("Failed to delete ticket " + ticket.number, e);
 		}
@@ -243,15 +245,16 @@ public class TicketIndexer {
 	/**
 	 * Delete a ticket from the Lucene index.
 	 *
-	 * @param changeId
+	 * @param repository
+	 * @param ticketId
 	 * @throws Exception
 	 * @return true, if deleted, false if no record was deleted
 	 */
-	private boolean delete(String changeId, IndexWriter writer) throws Exception {
+	private boolean delete(String repository, long ticketId, IndexWriter writer) throws Exception {
 		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
-		QueryParser qp = new QueryParser(luceneVersion, Lucene.changeid.name(), analyzer);
+		QueryParser qp = new QueryParser(luceneVersion, Lucene.did.name(), analyzer);
 		BooleanQuery query = new BooleanQuery();
-		query.add(qp.parse(changeId), Occur.MUST);
+		query.add(qp.parse(StringUtils.getSHA1(repository + ticketId)), Occur.MUST);
 
 		int numDocsBefore = writer.numDocs();
 		writer.deleteDocuments(query);
@@ -259,24 +262,35 @@ public class TicketIndexer {
 		closeSearcher();
 		int numDocsAfter = writer.numDocs();
 		if (numDocsBefore == numDocsAfter) {
-			log.debug(MessageFormat.format("no records found to delete {0}", query.toString()));
+			log.debug(MessageFormat.format("no records found to delete in {0}", repository));
 			return false;
 		} else {
-			log.debug(MessageFormat.format("deleted {0} records with {1}", numDocsBefore - numDocsAfter, query.toString()));
+			log.debug(MessageFormat.format("deleted {0} records in {1}", numDocsBefore - numDocsAfter, repository));
 			return true;
 		}
+	}
+
+	/**
+	 * Returns true if the repository has tickets in the index.
+	 *
+	 * @param repository
+	 * @return true if there are indexed tickets
+	 */
+	public boolean hasTickets(String repository) {
+		return !queryFor(Lucene.rid.matches(StringUtils.getSHA1(repository)), 1, 0, null, true).isEmpty();
 	}
 
 	/**
 	 * Search for tickets matching the query.  The returned tickets are
 	 * shadows of the real ticket, but suitable for a results list.
 	 *
+	 * @param repository
 	 * @param text
 	 * @param page
 	 * @param pageSize
 	 * @return search results
 	 */
-	public List<QueryResult> searchFor(String text, int page, int pageSize) {
+	public List<QueryResult> searchFor(String repository, String text, int page, int pageSize) {
 		if (StringUtils.isEmpty(text)) {
 			return Collections.emptyList();
 		}
@@ -286,6 +300,7 @@ public class TicketIndexer {
 			// search the title, description and content
 			BooleanQuery query = new BooleanQuery();
 			QueryParser qp;
+
 			qp = new QueryParser(luceneVersion, Lucene.title.name(), analyzer);
 			qp.setAllowLeadingWildcard(true);
 			query.add(qp.parse(text), Occur.SHOULD);
@@ -311,6 +326,11 @@ public class TicketIndexer {
 				int docId = hits[i].doc;
 				Document doc = searcher.doc(docId);
 				QueryResult result = docToQueryResult(doc);
+				if (!StringUtils.isEmpty(repository)) {
+					if (!result.repository.equalsIgnoreCase(repository)) {
+						continue;
+					}
+				}
 				results.add(result);
 			}
 		} catch (Exception e) {
@@ -334,6 +354,7 @@ public class TicketIndexer {
 		if (StringUtils.isEmpty(queryText)) {
 			return Collections.emptyList();
 		}
+
 		Set<QueryResult> results = new LinkedHashSet<QueryResult>();
 		StandardAnalyzer analyzer = new StandardAnalyzer(luceneVersion);
 		try {
@@ -439,9 +460,12 @@ public class TicketIndexer {
 	 */
 	private Document ticketToDoc(TicketModel ticket) {
 		Document doc = new Document();
+		// repository and document ids for Lucene querying
+		toDocField(doc, Lucene.rid, StringUtils.getSHA1(ticket.repository));
+		toDocField(doc, Lucene.did, StringUtils.getSHA1(ticket.repository + ticket.number));
+
 		toDocField(doc, Lucene.repository, ticket.repository);
 		toDocField(doc, Lucene.number, ticket.number);
-		toDocField(doc, Lucene.changeid, ticket.changeId);
 		toDocField(doc, Lucene.title, ticket.title);
 		toDocField(doc, Lucene.body, ticket.body);
 		toDocField(doc, Lucene.created, ticket.createdAt);
@@ -509,6 +533,13 @@ public class TicketIndexer {
 		doc.add(new org.apache.lucene.document.Field(lucene.name(), value, TextField.TYPE_STORED));
 	}
 
+	private void toDocStringField(Document doc, Lucene lucene, String value) {
+		if (StringUtils.isEmpty(value)) {
+			return;
+		}
+		doc.add(new StringField(lucene.name(), value, Store.YES));
+	}
+
 	/**
 	 * Creates a query result from the Lucene document.  This result is
 	 * not a high-fidelity representation of the real ticket, but it is
@@ -522,7 +553,6 @@ public class TicketIndexer {
 		QueryResult result = new QueryResult();
 		result.repository = unpackString(doc, Lucene.repository);
 		result.number = unpackLong(doc, Lucene.number);
-		result.changeId = unpackString(doc, Lucene.changeid);
 		result.createdBy = unpackString(doc, Lucene.createdby);
 		result.createdAt = unpackDate(doc, Lucene.created);
 		result.updatedBy = unpackString(doc, Lucene.updatedby);

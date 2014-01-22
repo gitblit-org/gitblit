@@ -125,9 +125,9 @@ public class TicketsPage extends TicketBasePage {
 
 		// build Lucene query from defaults and request parameters
 		QueryBuilder qb = new QueryBuilder(queryParam);
-		if (!qb.containsField(Lucene.repository.name())) {
+		if (!qb.containsField(Lucene.rid.name())) {
 			// specify the repository
-			qb.and(Lucene.repository.matches("\"" + getRepositoryModel().name + "\""));
+			qb.and(Lucene.rid.matches(StringUtils.getSHA1(getRepositoryModel().name)));
 		}
 		if (!qb.containsField(Lucene.responsible.name())) {
 			// specify the responsible

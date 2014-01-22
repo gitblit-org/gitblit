@@ -133,7 +133,6 @@ public class PatchsetCommand extends ReceiveCommand {
 		change.setField(Field.title, getTitle(commit));
 		change.setField(Field.body, getBody(commit));
 		change.setField(Field.number, ticketId);
-		change.setField(Field.changeId, "I" + commit.getName());
 		change.setField(Field.status, Status.New);
 		change.setField(Field.mergeTo, mergeTo);
 		change.setField(Field.type, TicketModel.Type.Proposal);

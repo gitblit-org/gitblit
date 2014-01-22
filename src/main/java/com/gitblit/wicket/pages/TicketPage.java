@@ -104,12 +104,8 @@ public class TicketPage extends TicketBasePage {
 		final boolean isAuthenticated = !UserModel.ANONYMOUS.equals(user) && user.isAuthenticated;
 		final RepositoryModel repository = getRepositoryModel();
 		final String id = WicketUtils.getObject(params);
-		if (app().tickets().isValidChangeId(id)) {
-			ticket = app().tickets().getTicket(repository.name, id);
-		} else {
-			int issueId = Integer.parseInt(id);
-			ticket = app().tickets().getTicket(repository.name, issueId);
-		}
+		long ticketId = Long.parseLong(id);
+		ticket = app().tickets().getTicket(repository.name, ticketId);
 
 		if (ticket == null) {
 			// ticket not found
