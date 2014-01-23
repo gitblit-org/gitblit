@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jgit.util.RelativeDateFormatter;
 
@@ -245,6 +247,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public List<String> getVoters() {
 		return getList(Field.voters);
+	}
+
+	public List<String> getMentions() {
+		return getList(Field.mentions);
 	}
 
 	protected List<String> getList(Field field) {
@@ -589,6 +595,17 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public Comment comment(String text) {
 			comment = new Comment(text);
 			comment.id = TicketModel.getSHA1(date.toString() + author + text);
+
+			try {
+				Pattern mentions = Pattern.compile("\\s@([A-Za-z0-9-_]+)");
+				Matcher m = mentions.matcher(text);
+				while (m.find()) {
+					String username = m.group(1);
+					plusList(Field.mentions, username);
+				}
+			} catch (Exception e) {
+				// ignore
+			}
 			return comment;
 		}
 

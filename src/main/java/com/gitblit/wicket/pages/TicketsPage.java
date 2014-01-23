@@ -278,6 +278,7 @@ public class TicketsPage extends TicketBasePage {
 						1)));
 
 		if (isAuthenticated) {
+			add(new Label("userDivider"));
 			add(new BookmarkablePageLink<Void>("createdQuery", TicketsPage.class,
 					queryParameters(
 							Lucene.createdby.matches(user.username),
@@ -297,9 +298,20 @@ public class TicketsPage extends TicketBasePage {
 							sortBy,
 							desc,
 							1)));
+			add(new BookmarkablePageLink<Void>("mentionsQuery", TicketsPage.class,
+					queryParameters(
+							Lucene.mentions.matches(user.username),
+							milestoneParam,
+							statiiParam,
+							assignedToParam,
+							sortBy,
+							desc,
+							1)));
 		} else {
+			add(new Label("userDivider").setVisible(false));
 			add(new Label("createdQuery").setVisible(false));
 			add(new Label("watchedQuery").setVisible(false));
+			add(new Label("mentionsQuery").setVisible(false));
 		}
 
 		Set<TicketQuery> dynamicQueries = new TreeSet<TicketQuery>();
