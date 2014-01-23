@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +50,6 @@ import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
-import com.gitblit.models.TicketModel.FieldChange;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
@@ -157,12 +156,11 @@ public class TicketNotifier {
 
 	protected String formatLastChange(TicketModel ticket) {
 		Change lastChange = ticket.changes.get(ticket.changes.size() - 1);
-		UserModel user = getUserModel(lastChange.createdBy);
+		UserModel user = getUserModel(lastChange.author);
 
 		// define the fields we do NOT want to see in an email notification
 		Set<TicketModel.Field> fieldExclusions = new HashSet<TicketModel.Field>();
-		fieldExclusions.addAll(Arrays.asList(Field.number, Field.changeId,
-				Field.type, Field.watchers, Field.voters));
+		fieldExclusions.addAll(Arrays.asList(Field.watchers, Field.voters));
 
 		StringBuilder sb = new StringBuilder();
 		boolean newTicket = false;
@@ -295,29 +293,25 @@ public class TicketNotifier {
 
 		// field changes
 		if (lastChange.hasFieldChanges()) {
-			List<FieldChange> filtered = new ArrayList<FieldChange>();
-			for (FieldChange fc : lastChange.fields) {
-				if (!fieldExclusions.contains(fc.field)) {
-					// field is excluded from this formatting
-					filtered.add(fc);
+			Map<Field, String> filtered = new HashMap<Field, String>();
+			for (Map.Entry<Field, String> fc : lastChange.fields.entrySet()) {
+				if (!fieldExclusions.contains(fc.getKey())) {
+					// field is included
+					filtered.put(fc.getKey(), fc.getValue());
 				}
 			}
 
 			// sort by field ordinal
-			Collections.sort(filtered, new Comparator<FieldChange>() {
-				@Override
-				public int compare(FieldChange o1, FieldChange o2) {
-					return o1.field.compareTo(o2.field);
-				}
-			});
+			List<Field> fields = new ArrayList<Field>(filtered.keySet());
+			Collections.sort(fields);
 
 			if (filtered.size() > 0) {
 				sb.append(HARD_BRK);
 				sb.append("| Field Changes               ||\n");
 				sb.append("| ------------: | :----------- |\n");
-				for (FieldChange fc : filtered) {
-					String value = fc.value == null ? "" : fc.value.toString().replace("\n", "<br/>").replace("|", "&#124;");
-					sb.append(String.format("| **%1$s:** | %2$s |\n", fc.field.name(), value));
+				for (Field field : fields) {
+					String value = filtered.get(field) == null ? "" : filtered.get(field).replace("\n", "<br/>").replace("|", "&#124;");
+					sb.append(String.format("| **%1$s:** | %2$s |\n", field.name(), value));
 				}
 				sb.append(HARD_BRK);
 			}
@@ -428,7 +422,7 @@ public class TicketNotifier {
 		String instructions = readResource("commands.md");
 		instructions = instructions.replace("${patchId}", barnumPatchId);
 		instructions = instructions.replace("${repositoryUrl}", repositoryUrl);
-		instructions = instructions.replace("${patchRef}", patch.ref);
+		instructions = instructions.replace("${patchRef}", Constants.R_TICKETS + ticket.number);
 		instructions = instructions.replace("${reviewBranch}", "ticket/" + ticket.number);
 
 		return instructions;

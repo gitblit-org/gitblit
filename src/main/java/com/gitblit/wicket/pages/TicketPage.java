@@ -187,7 +187,7 @@ public class TicketPage extends TicketBasePage {
 
 		String fuzzydate;
 		TimeUtils tu = getTimeUtils();
-		Date createdDate = ticket.createdAt;
+		Date createdDate = ticket.created;
 		if (TimeUtils.isToday(createdDate, timezone)) {
 			fuzzydate = tu.today();
 		} else if (TimeUtils.isYesterday(createdDate, timezone)) {
@@ -203,7 +203,7 @@ public class TicketPage extends TicketBasePage {
 			fuzzydate = getTimeUtils().timeAgo(createdDate);
 		}
 		Label when = new Label("whenCreated", fuzzydate + ", " + df.format(createdDate));
-		WicketUtils.setHtmlTooltip(when, tsf.format(ticket.createdAt));
+		WicketUtils.setHtmlTooltip(when, tsf.format(ticket.created));
 		add(when);
 
 		String exportHref = urlFor(ExportTicketPage.class, params).toString();
@@ -846,12 +846,12 @@ public class TicketPage extends TicketBasePage {
 	}
 
 	protected void addUserAttributions(MarkupContainer container, Change entry, int avatarSize) {
-		UserModel commenter = app().users().getUserModel(entry.createdBy);
+		UserModel commenter = app().users().getUserModel(entry.author);
 		if (commenter == null) {
 			// unknown user
-			container.add(new GravatarImage("changeAvatar", entry.createdBy,
-					entry.createdBy, null, avatarSize, false, false).setVisible(avatarSize > 0));
-			container.add(new Label("changeAuthor", entry.createdBy.toLowerCase()));
+			container.add(new GravatarImage("changeAvatar", entry.author,
+					entry.author, null, avatarSize, false, false).setVisible(avatarSize > 0));
+			container.add(new Label("changeAuthor", entry.author.toLowerCase()));
 		} else {
 			// known user
 			container.add(new GravatarImage("changeAvatar", commenter.getDisplayName(),
@@ -862,7 +862,7 @@ public class TicketPage extends TicketBasePage {
 	}
 
 	protected void addDateAttributions(MarkupContainer container, Change entry) {
-		container.add(WicketUtils.createDateLabel("changeDate", entry.createdAt, GitBlitWebSession
+		container.add(WicketUtils.createDateLabel("changeDate", entry.date, GitBlitWebSession
 				.get().getTimezone(), getTimeUtils(), false));
 
 		// set the id attribute
@@ -938,13 +938,15 @@ public class TicketPage extends TicketBasePage {
 		};
 		panel.add(compareMenu);
 
+		String ticketRef = Constants.R_TICKETS + ticket.number;
+
 		// git menu
 		String repoUrl = getRepositoryUrl(user, repository);
-		String fetch = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD", repoUrl, currentPatchset.ref);
+		String fetch = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD", repoUrl, ticketRef);
 		panel.add(createCopyFragment("gitFetch", fetch));
 		panel.add(new Label("gitFetchLabel", MessageFormat.format(getString("gb.fetchPatchset"), currentPatchset.rev)));
 
-		String review = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD -b ticket/{2,number,0}", repoUrl, currentPatchset.ref, ticket.number);
+		String review = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD -b ticket/{2,number,0}", repoUrl, ticketRef, ticket.number);
 		panel.add(createCopyFragment("gitReview", review));
 		panel.add(new Label("gitReviewLabel", MessageFormat.format(getString("gb.reviewPatchset"), currentPatchset.rev)));
 

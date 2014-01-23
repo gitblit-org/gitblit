@@ -393,7 +393,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 				if (!patchsetRefCmd.getRefName().startsWith(Constants.R_TICKETS)) {
 					// pushed using refs/for/n, reset the ticket head
-					String ticketRef = Constants.R_TICKETS + patchsetCmd.getTicketNumber();
+					String ticketRef = Constants.R_TICKETS + patchsetCmd.getTicketId();
 					updateRef(ticketRef, patchsetCmd.getNewId());
 				}
 
@@ -485,7 +485,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					}
 				}
 				sendError("Sorry, {0} already merged patchset revision {1} from ticket {2,number,0} to {3}!",
-						mergeChange.createdBy, mergeChange.patchset.rev, number, ticket.mergeTo);
+						mergeChange.author, mergeChange.patchset.rev, number, ticket.mergeTo);
 				sendRejection(cmd, "Ticket {0,number,0} already resolved", number);
 				return null;
 			} else if (!StringUtils.isEmpty(ticket.mergeTo)) {
@@ -659,7 +659,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		if (cmd.isNewTicket()) {
 			// create the ticket object
-			TicketModel ticket = ticketService.createTicket(repository, change);
+			TicketModel ticket = ticketService.createTicket(repository, cmd.getTicketId(), change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
@@ -677,7 +677,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			}
 		} else {
 			// update an existing ticket
-			TicketModel ticket = ticketService.updateTicket(repository, cmd.getTicketNumber(), change);
+			TicketModel ticket = ticketService.updateTicket(repository, cmd.getTicketId(), change);
 			if (ticket != null) {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
@@ -693,7 +693,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				return ticket;
 			} else {
 				sendError("FAILED to upload patchset {0,number,0} for ticket {1,number,0}",
-						cmd.getPatchsetRevision(), cmd.getTicketNumber());
+						cmd.getPatchsetRevision(), cmd.getTicketId());
 			}
 		}
 

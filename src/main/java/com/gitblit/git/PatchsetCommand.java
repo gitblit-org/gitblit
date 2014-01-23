@@ -58,6 +58,8 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	protected boolean isNew;
 
+	protected long ticketId;
+
 	public static String getBaseChangeRef(long ticketNumber) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Constants.R_CHANGES);
@@ -112,8 +114,8 @@ public class PatchsetCommand extends ReceiveCommand {
 		return isNew;
 	}
 
-	public long getTicketNumber() {
-		return getTicketNumber(change.patchset.ref);
+	public long getTicketId() {
+		return ticketId;
 	}
 
 	public Change getChange() {
@@ -129,19 +131,16 @@ public class PatchsetCommand extends ReceiveCommand {
 	 * @parem pushRef
 	 */
 	public void newTicket(RevCommit commit, String mergeTo, long ticketId, String pushRef) {
+		this.ticketId = ticketId;
 		isNew = true;
 		change.setField(Field.title, getTitle(commit));
 		change.setField(Field.body, getBody(commit));
-		change.setField(Field.number, ticketId);
 		change.setField(Field.status, Status.New);
 		change.setField(Field.mergeTo, mergeTo);
 		change.setField(Field.type, TicketModel.Type.Proposal);
 
-		// assign the patchset change ref
-		change.patchset.ref = getBaseChangeRef(ticketId) + change.patchset.rev;
-
 		Set<String> watchSet = new TreeSet<String>();
-		watchSet.add(change.createdBy);
+		watchSet.add(change.author);
 
 		// identify parameters passed in the push ref
 		if (!StringUtils.isEmpty(pushRef)) {
@@ -185,8 +184,7 @@ public class PatchsetCommand extends ReceiveCommand {
 	 */
 	public void updateTicket(RevCommit commit, String mergeTo, TicketModel ticket, String pushRef) {
 
-		// assign the patchset change ref
-		change.patchset.ref = getBaseChangeRef(ticket.number) + change.patchset.rev;
+		this.ticketId = ticket.number;
 
 		if (ticket.isClosed()) {
 			// re-opening a closed ticket
@@ -218,7 +216,7 @@ public class PatchsetCommand extends ReceiveCommand {
 		}
 
 		Set<String> watchSet = new TreeSet<String>();
-		watchSet.add(change.createdBy);
+		watchSet.add(change.author);
 
 		// update the patchset command metadata
 		if (!StringUtils.isEmpty(pushRef)) {
@@ -258,7 +256,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	@Override
 	public String getRefName() {
-		return change.patchset.ref;
+		return getBaseChangeRef(ticketId) + change.patchset.rev;
 	}
 
 	private String getTitle(RevCommit commit) {

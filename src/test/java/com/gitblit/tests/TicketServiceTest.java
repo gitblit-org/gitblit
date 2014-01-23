@@ -168,11 +168,11 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C2: set owner
 		Change c2 = new Change("C2");
 		c2.comment("I'll fix this");
-		c2.setField(Field.responsible, c2.createdBy);
+		c2.setField(Field.responsible, c2.author);
 		constructed = service.updateTicket(repository, ticket.number, c2);
 		assertNotNull(constructed);
 		assertEquals(2, constructed.changes.size());
-		assertEquals(c2.createdBy, constructed.responsible);
+		assertEquals(c2.author, constructed.responsible);
 		changeCount++;
 
 		// C3: add a note
@@ -360,7 +360,6 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 	private Change newChange(String summary) {
 		Change change = new Change("C1");
-		change.setField(Field.repository, repository);
 		change.setField(Field.title, summary);
 		change.setField(Field.body, "this is my description");
 		change.setField(Field.labels, "helpdesk");
@@ -381,7 +380,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertEquals(ticket.responsible, constructed.responsible);
 		assertEquals(ticket.title, constructed.title);
 		assertEquals(ticket.body, constructed.body);
-		assertEquals(ticket.createdAt, constructed.createdAt);
+		assertEquals(ticket.created, constructed.created);
 
 		assertTrue(ticket.hasLabel("helpdesk"));
 	}
@@ -389,7 +388,6 @@ public class TicketServiceTest extends GitblitUnitTest {
 	@Test
 	public void testNotifier() throws Exception {
 		Change kernel = new Change("james");
-		kernel.setField(Field.repository, repository);
 		kernel.setField(Field.title, "Sample ticket");
 		kernel.setField(Field.body, "this **is** my sample body\n\n- I hope\n- you really\n- *really* like it");
 		kernel.setField(Field.status, Status.New);
@@ -401,13 +399,12 @@ public class TicketServiceTest extends GitblitUnitTest {
 		patchset.insertions = 100;
 		patchset.deletions = 10;
 		patchset.rev = 25;
-		patchset.ref = "refs/changes/01/1/25";
 		patchset.tip = "50f57913f816d04a16b7407134de5d8406421f37";
 		kernel.patchset = patchset;
 
 		ITicketService service = getService(true);
 
-		TicketModel ticket = service.createTicket(repository, kernel);
+		TicketModel ticket = service.createTicket(repository, 0L, kernel);
 
 		Change merge = new Change("james");
 		merge.setField(Field.mergeSha, patchset.tip);

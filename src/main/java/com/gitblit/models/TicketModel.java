@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +54,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public long number;
 
-	public Date createdAt;
+	public Date created;
 
 	public String createdBy;
 
-	public Date updatedAt;
+	public Date updated;
 
 	public String updatedBy;
 
@@ -127,7 +128,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public TicketModel() {
 		// the first applied change set the date appropriately
-		createdAt = new Date(0);
+		created = new Date(0);
 		changes = new ArrayList<Change>();
 	}
 
@@ -152,7 +153,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public Date getLastUpdated() {
-		return updatedAt == null ? createdAt : updatedAt;
+		return updated == null ? created : updated;
 	}
 
 	public boolean hasPatchsets() {
@@ -168,7 +169,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	 */
 	public boolean hasDiscussion() {
 		for (Change change : getComments()) {
-			if (!change.createdBy.equals(createdBy)) {
+			if (!change.author.equals(createdBy)) {
 				return true;
 			}
 		}
@@ -198,7 +199,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public List<String> getParticipants() {
 		Set<String> set = new LinkedHashSet<String>();
 		for (Change change : changes) {
-			set.add(change.createdBy);
+			set.add(change.author);
 		}
 		if (responsible != null && responsible.length() > 0) {
 			set.add(responsible);
@@ -402,7 +403,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public boolean isPatchsetAuthor(String username) {
 		for (Change change : changes) {
 			if (change.hasPatchset()) {
-				if (change.createdBy.equals(username)) {
+				if (change.author.equals(username)) {
 					return true;
 				}
 			}
@@ -413,63 +414,54 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public void applyChange(Change change) {
 		if (changes.size() == 0) {
 			// first change created the ticket
-			createdAt = change.createdAt;
-			createdBy = change.createdBy;
+			created = change.date;
+			createdBy = change.author;
 			status = Status.New;
-		} else if (createdAt == null || change.createdAt.after(createdAt)) {
+		} else if (created == null || change.date.after(created)) {
 			// track last ticket update
-			updatedAt = change.createdAt;
-			updatedBy = change.createdBy;
+			updated = change.date;
+			updatedBy = change.author;
 		}
 
 		if (change.isMerge()) {
-			// identify merge patches
+			// identify merge patchsets
 			if (isEmpty(responsible)) {
-				responsible = change.createdBy;
+				responsible = change.author;
 			}
 			status = Status.Merged;
 		}
 
 		if (change.hasFieldChanges()) {
-			for (FieldChange fieldChange : change.fields) {
-				switch (fieldChange.field) {
-				case repository:
-					repository = toString(fieldChange.value);
-					break;
-				case number:
-					number = Double.valueOf(fieldChange.value.toString()).longValue();
-					break;
-				case changeId:
-					// TODO remove me
-					break;
+			for (Map.Entry<Field, String> entry : change.fields.entrySet()) {
+				Field field = entry.getKey();
+				Object value = entry.getValue();
+				switch (field) {
 				case type:
-					type = TicketModel.Type.fromObject(fieldChange.value);
+					type = TicketModel.Type.fromObject(value);
 					break;
 				case status:
-					status = TicketModel.Status.fromObject(fieldChange.value);
+					status = TicketModel.Status.fromObject(value);
 					break;
 				case title:
-					title = toString(fieldChange.value);
+					title = toString(value);
 					break;
 				case body:
-					body = toString(fieldChange.value);
+					body = toString(value);
 					break;
 				case topic:
-					topic = toString(fieldChange.value);
+					topic = toString(value);
 					break;
 				case responsible:
-					responsible = toString(fieldChange.value);
+					responsible = toString(value);
 					break;
 				case milestone:
-					milestone = toString(fieldChange.value);
+					milestone = toString(value);
 					break;
 				case mergeTo:
-					mergeTo = toString(fieldChange.value);
+					mergeTo = toString(value);
 					break;
 				case mergeSha:
-					mergeSha = toString(fieldChange.value);
-					break;
-				case labels:
+					mergeSha = toString(value);
 					break;
 				default:
 					// unknown
@@ -521,7 +513,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	@Override
 	public int compareTo(TicketModel o) {
-		return o.createdAt.compareTo(createdAt);
+		return o.created.compareTo(created);
 	}
 
 	@Override
@@ -544,13 +536,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private static final long serialVersionUID = 1L;
 
-		public final Date createdAt;
+		public final Date date;
 
-		public final String createdBy;
+		public final String author;
 
 		public Comment comment;
 
-		public Set<FieldChange> fields;
+		public Map<Field, String> fields;
 
 		public Set<Attachment> attachments;
 
@@ -560,13 +552,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private transient String id;
 
-		public Change(String createdBy) {
-			this(createdBy, new Date());
+		public Change(String author) {
+			this(author, new Date());
 		}
 
-		public Change(String createdBy, Date created) {
-			this.createdAt = created;
-			this.createdBy = createdBy;
+		public Change(String author, Date date) {
+			this.date = date;
+			this.author = author;
 		}
 
 		public boolean isStatusChange() {
@@ -596,7 +588,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public Comment comment(String text) {
 			comment = new Comment(text);
-			comment.id = TicketModel.getSHA1(createdAt.toString() + createdBy + text);
+			comment.id = TicketModel.getSHA1(date.toString() + author + text);
 			return comment;
 		}
 
@@ -630,46 +622,36 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			return !TicketModel.isEmpty(fields);
 		}
 
-		public Object getField(Field field) {
+		public String getField(Field field) {
 			if (fields != null) {
-				for (FieldChange fieldChange : fields) {
-					if (fieldChange.field == field) {
-						return fieldChange.value;
-					}
-				}
+				return fields.get(field);
 			}
 			return null;
 		}
 
 		public void setField(Field field, Object value) {
-			FieldChange fieldChange = new FieldChange(field, value);
 			if (fields == null) {
-				fields = new LinkedHashSet<FieldChange>();
+				fields = new LinkedHashMap<Field, String>();
 			}
-			fields.add(fieldChange);
+			if (Enum.class.isAssignableFrom(value.getClass())) {
+				fields.put(field, ((Enum<?>) value).name());
+			} else {
+				fields.put(field, value.toString());
+			}
 		}
 
 		public void remove(Field field) {
 			if (fields != null) {
-				FieldChange change = null;
-				for (FieldChange fc : fields) {
-					if (fc.field.equals(field)) {
-						change = fc;
-						break;
-					}
-				}
-				if (change != null) {
-					fields.remove(change);
-				}
+				fields.remove(field);
 			}
 		}
 
 		public String getString(Field field) {
-			Object value = getField(field);
+			String value = getField(field);
 			if (value == null) {
 				return null;
 			}
-			return value.toString();
+			return value;
 		}
 
 		public void watch(String... username) {
@@ -714,14 +696,14 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public String getId() {
 			if (id == null) {
-				id = getSHA1(Long.toHexString(createdAt.getTime()) + createdBy);
+				id = getSHA1(Long.toHexString(date.getTime()) + author);
 			}
 			return id;
 		}
 
 		@Override
 		public int compareTo(Change c) {
-			return createdAt.compareTo(c.createdAt);
+			return date.compareTo(c.date);
 		}
 
 		@Override
@@ -740,20 +722,16 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			sb.append(RelativeDateFormatter.format(createdAt));
-			if (hasField(Field.number)) {
-				sb.append(" created by ");
+			sb.append(RelativeDateFormatter.format(date));
+			if (hasComment()) {
+				sb.append(" commented on by ");
+			} else if (hasPatchset()) {
+				sb.append(MessageFormat.format(" patchset revision {0,number,0} uploaded by ",
+						patchset.rev));
 			} else {
-				if (hasComment()) {
-					sb.append(" commented on by ");
-				} else if (hasPatchset()) {
-					sb.append(MessageFormat.format(" patch revision {0,number,0} uploaded by ",
-							patchset.rev));
-				} else {
-					sb.append(" changed by ");
-				}
+				sb.append(" changed by ");
 			}
-			sb.append(createdBy).append(" - ");
+			sb.append(author).append(" - ");
 			if (hasComment()) {
 				if (comment.isDeleted()) {
 					sb.append("(deleted) ");
@@ -762,9 +740,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			}
 
 			if (hasFieldChanges()) {
-				for (FieldChange fieldChange : fields) {
+				for (Map.Entry<Field, String> entry : fields.entrySet()) {
 					sb.append("\n  ");
-					sb.append(fieldChange);
+					sb.append(entry.getKey().name());
+					sb.append(':');
+					sb.append(entry.getValue());
 				}
 			}
 			return sb.toString();
@@ -789,6 +769,16 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	 */
 	static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.size() == 0;
+	}
+
+	/**
+	 * Returns true if the map is null or empty
+	 *
+	 * @param map
+	 * @return
+	 */
+	static boolean isEmpty(Map<?, ?> map) {
+		return map == null || map.size() == 0;
 	}
 
 	/**
@@ -920,7 +910,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		public int totalCommits;
 		public int addedCommits;
 		public PatchsetType type;
-		public String ref;
 
 		@Override
 		public String toString() {
@@ -953,38 +942,6 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		@Override
 		public String toString() {
 			return text;
-		}
-	}
-
-	public static class FieldChange implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		public final Field field;
-
-		public final Object value;
-
-		public FieldChange(Field field, Object value) {
-			this.field = field;
-			this.value = value;
-		}
-
-		@Override
-		public int hashCode() {
-			return field.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (o instanceof FieldChange) {
-				return field.equals(((FieldChange) o).field);
-			}
-			return false;
-		}
-
-		@Override
-		public String toString() {
-			return field + ": " + value;
 		}
 	}
 
@@ -1043,8 +1000,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Field {
-		repository, number, changeId, title, body, responsible, type, status,
-		milestone, mergeSha, mergeTo, labels, topic, watchers, reviewers, voters;
+		title, body, responsible, type, status, milestone, mergeSha, mergeTo,
+		topic, labels, watchers, reviewers, voters;
 	}
 
 	public static enum Type {

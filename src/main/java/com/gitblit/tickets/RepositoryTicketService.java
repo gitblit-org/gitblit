@@ -16,7 +16,6 @@
 package com.gitblit.tickets;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +28,6 @@ import java.util.TreeSet;
 
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.dircache.DirCache;
@@ -136,18 +134,6 @@ public class RepositoryTicketService extends ITicketService {
 	}
 
 	/**
-	 * Inserts the classpath resource into the root of the tickets branch.
-	 * This is used for initializing a tickets branch with default settings.
-	 *
-	 * @param db
-	 * @param resource
-	 */
-	private void insertResource(Repository db, String resource) {
-		String content = readResource(resource);
-		writeTicketsFile(db, resource, content, "gitblit", "added \"" + resource + "\"");
-	}
-
-	/**
 	 * Returns the ticket path. This follows the same scheme as Git's object
 	 * store path where the first two characters of the hash id are the root
 	 * folder with the remaining characters as a subfolder within that folder.
@@ -189,10 +175,6 @@ public class RepositoryTicketService extends ITicketService {
 	private String readTicketsFile(Repository db, String file) {
 		RevWalk rw = null;
 		try {
-			if (getTicketsBranch(db) == null) {
-				createTicketsBranch(db);
-			}
-
 			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
 			if (treeId == null) {
 				return null;
@@ -278,6 +260,10 @@ public class RepositoryTicketService extends ITicketService {
 		boolean hasTicket = false;
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
+			RefModel ticketsBranch = getTicketsBranch(db);
+			if (ticketsBranch == null) {
+				return false;
+			}
 			String ticketPath = toTicketPath(ticketId);
 			RevCommit tip = JGitUtils.getCommit(db, GITBLIT_TICKETS);
 			hasTicket = !JGitUtils.getFilesInPath(db, ticketPath, tip).isEmpty();
@@ -298,6 +284,10 @@ public class RepositoryTicketService extends ITicketService {
 		long newId = 0L;
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
+			if (getTicketsBranch(db) == null) {
+				createTicketsBranch(db);
+			}
+
 			// identify current highest ticket id by scanning the paths in the tip tree
 			long currId = 0L;
 			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), GITBLIT_TICKETS);
@@ -581,7 +571,7 @@ public class RepositoryTicketService extends ITicketService {
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
 			DirCache index = createIndex(db, ticketId, change);
-			success = commitIndex(db, index, change.createdBy, "#" + ticketId);
+			success = commitIndex(db, index, change.author, "#" + ticketId);
 
 		} catch (Throwable t) {
 			log.error(MessageFormat.format("Failed to commit ticket {0,number,0} to {1}",
@@ -612,30 +602,15 @@ public class RepositoryTicketService extends ITicketService {
 		try {
 			// create/update the journal
 			// exclude the attachment content
-			String journalPath = ticketPath + "/" + JOURNAL;
-
-			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
-			RevTree headTree = new RevWalk(db).parseTree(treeId);
-
-			String journal = JGitUtils.getStringContent(db, headTree, journalPath, Constants.ENCODING);
-			String json = TicketSerializer.serialize(change).trim();
-			if (StringUtils.isEmpty(journal)) {
-				// journal is an array of changes
-				journal = "[\n" + json + "\n]";
-			} else {
-				StringBuilder sb = new StringBuilder(journal.trim());
-				// trim out the end-array bracket
-				sb.setLength(journal.length() - 1);
-				sb.trimToSize();
-				// append the new change and close the array
-				sb.append(",\n").append(json).append("\n]");
-				journal = sb.toString();
-			}
+			List<Change> changes = getJournal(db, ticketId);
+			changes.add(change);
+			String journal = TicketSerializer.serializeJournal(changes).trim();
 
 			byte [] journalBytes = journal.getBytes(Constants.ENCODING);
+			String journalPath = ticketPath + "/" + JOURNAL;
 			final DirCacheEntry journalEntry = new DirCacheEntry(journalPath);
 			journalEntry.setLength(journalBytes.length);
-			journalEntry.setLastModified(change.createdAt.getTime());
+			journalEntry.setLastModified(change.date.getTime());
 			journalEntry.setFileMode(FileMode.REGULAR_FILE);
 			journalEntry.setObjectId(inserter.insert(org.eclipse.jgit.lib.Constants.OBJ_BLOB, journalBytes));
 
@@ -653,7 +628,7 @@ public class RepositoryTicketService extends ITicketService {
 					// create an index entry for this attachment
 					final DirCacheEntry entry = new DirCacheEntry(path);
 					entry.setLength(attachment.content.length);
-					entry.setLastModified(change.createdAt.getTime());
+					entry.setLastModified(change.date.getTime());
 					entry.setFileMode(FileMode.REGULAR_FILE);
 
 					// insert object
@@ -802,27 +777,5 @@ public class RepositoryTicketService extends ITicketService {
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
-	}
-
-	private String readResource(String resource) {
-		StringBuilder sb = new StringBuilder();
-		InputStream is = null;
-		try {
-			is = getClass().getResourceAsStream(resource);
-			List<String> lines = IOUtils.readLines(is);
-			for (String line : lines) {
-				sb.append(line).append('\n');
-			}
-		} catch (IOException e) {
-
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-				}
-			}
-		}
-		return sb.toString();
 	}
 }

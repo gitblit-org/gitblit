@@ -106,7 +106,7 @@ public class NewTicketPage extends RepositoryPage {
 					change.setField(Field.milestone, milestone.name);
 				}
 
-				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), change);
+				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
 				if (ticket != null) {
 					TicketNotifier notifier = app().tickets().createNotifier();
 					notifier.sendMailing(ticket);

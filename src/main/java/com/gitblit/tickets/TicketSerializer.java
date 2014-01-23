@@ -54,6 +54,17 @@ public class TicketSerializer {
 		return JsonUtils.fromJsonString(json, TicketMilestone.class);
 	}
 
+
+	public static String serializeJournal(List<Change> changes) {
+		try {
+			Gson gson = JsonUtils.gson();
+			return gson.toJson(changes);
+		} catch (Exception e) {
+			// won't happen
+		}
+		return null;
+	}
+
 	public static String serialize(TicketModel ticket) {
 		if (ticket == null) {
 			return null;

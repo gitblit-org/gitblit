@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -497,9 +497,9 @@ public class TicketIndexer {
 		toDocField(doc, Lucene.number, ticket.number);
 		toDocField(doc, Lucene.title, ticket.title);
 		toDocField(doc, Lucene.body, ticket.body);
-		toDocField(doc, Lucene.created, ticket.createdAt);
+		toDocField(doc, Lucene.created, ticket.created);
 		toDocField(doc, Lucene.createdby, ticket.createdBy);
-		toDocField(doc, Lucene.updated, ticket.updatedAt);
+		toDocField(doc, Lucene.updated, ticket.updated);
 		toDocField(doc, Lucene.updatedby, ticket.updatedBy);
 		toDocField(doc, Lucene.responsible, ticket.responsible);
 		toDocField(doc, Lucene.milestone, ticket.milestone);
@@ -530,8 +530,7 @@ public class TicketIndexer {
 					patchset.base + ":" +
 					patchset.insertions + ":" +
 					patchset.deletions + ":" +
-					patchset.totalCommits + ":" +
-					patchset.ref;
+					patchset.totalCommits;
 			doc.add(new org.apache.lucene.document.Field(Lucene.patchset.name(), flat, TextField.TYPE_STORED));
 		}
 
@@ -598,7 +597,7 @@ public class TicketIndexer {
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset
-			String [] values = doc.get(Lucene.patchset.name()).split(":", 7);
+			String [] values = doc.get(Lucene.patchset.name()).split(":", 6);
 
 			Patchset patchset = new Patchset();
 			patchset.rev = Integer.parseInt(values[0]);
@@ -607,7 +606,6 @@ public class TicketIndexer {
 			patchset.insertions = Integer.parseInt(values[3]);
 			patchset.deletions = Integer.parseInt(values[4]);
 			patchset.totalCommits = Integer.parseInt(values[5]);
-			patchset.ref = values[6];
 
 			result.patchset = patchset;
 		}

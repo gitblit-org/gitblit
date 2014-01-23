@@ -723,24 +723,34 @@ public abstract class ITicketService {
 	 * @return true if successful
 	 */
 	public TicketModel createTicket(RepositoryModel repository, Change change) {
+		return createTicket(repository, 0L, change);
+	}
+
+	/**
+	 * Creates a ticket.  Your change must include a repository, author & title,
+	 * at a minimum. If your change does not have those minimum requirements a
+	 * RuntimeException will be thrown.
+	 *
+	 * @param repository
+	 * @param ticketId (if <=0 the ticket id will be assigned)
+	 * @param change
+	 * @return true if successful
+	 */
+	public TicketModel createTicket(RepositoryModel repository, long ticketId, Change change) {
 
 		if (repository == null) {
 			throw new RuntimeException("Must specify a repository!");
 		}
-		if (StringUtils.isEmpty(change.createdBy)) {
+		if (StringUtils.isEmpty(change.author)) {
 			throw new RuntimeException("Must specify a change author!");
 		}
 		if (!change.hasField(Field.title)) {
 			throw new RuntimeException("Must specify a title!");
 		}
 
-		change.watch(change.createdBy);
+		change.watch(change.author);
 
-		long ticketId = 0L;
-		if (change.hasField(Field.number)) {
-			ticketId = Long.parseLong(change.getString(Field.number));
-			change.remove(Field.number);
-		} else {
+		if (ticketId <= 0L) {
 			ticketId = assignNewId(repository);
 		}
 
@@ -768,7 +778,7 @@ public abstract class ITicketService {
 			throw new RuntimeException("change can not be null!");
 		}
 
-		if (StringUtils.isEmpty(change.createdBy)) {
+		if (StringUtils.isEmpty(change.author)) {
 			throw new RuntimeException("must specify a change author!");
 		}
 
@@ -963,11 +973,16 @@ public abstract class ITicketService {
 		indexer.deleteAll();
 		for (String name : repositoryManager.getRepositoryList()) {
 			RepositoryModel repository = repositoryManager.getRepositoryModel(name);
+			try {
 			List<TicketModel> tickets = getTickets(repository);
 			if (!tickets.isEmpty()) {
 				log.info("reindexing {} tickets from {} ...", tickets.size(), repository);
 				indexer.index(tickets);
 				System.gc();
+			}
+			} catch (Exception e) {
+				log.error("failed to reindex {}", repository.name);
+				log.error(null, e);
 			}
 		}
 		long end = System.nanoTime();
