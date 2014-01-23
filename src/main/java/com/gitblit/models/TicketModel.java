@@ -650,7 +650,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			if (fields == null) {
 				fields = new LinkedHashMap<Field, String>();
 			}
-			if (Enum.class.isAssignableFrom(value.getClass())) {
+			if (value == null) {
+				fields.put(field, null);
+			} else if (Enum.class.isAssignableFrom(value.getClass())) {
 				fields.put(field, ((Enum<?>) value).name());
 			} else {
 				fields.put(field, value.toString());
@@ -1018,7 +1020,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public static enum Field {
 		title, body, responsible, type, status, milestone, mergeSha, mergeTo,
-		topic, labels, watchers, reviewers, voters;
+		topic, labels, watchers, reviewers, voters, mentions;
 	}
 
 	public static enum Type {
