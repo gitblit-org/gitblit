@@ -697,6 +697,19 @@ public abstract class ITicketService {
 	}
 
 	/**
+	 * Get the compare url
+	 *
+	 * @param base
+	 * @param tip
+	 * @return the compare url
+	 */
+	public String getCompareUrl(TicketModel ticket, String base, String tip) {
+		final String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
+		final String hrefPattern = "{0}/compare?r={1}&h={2}..{3}";
+		return MessageFormat.format(hrefPattern, canonicalUrl, ticket.repository, base, tip);
+	}
+
+	/**
 	 * Returns true if attachments are supported.
 	 *
 	 * @return true if attachments are supported
