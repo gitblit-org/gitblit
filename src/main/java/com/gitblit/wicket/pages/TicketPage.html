@@ -351,20 +351,20 @@
 
 	<div id="bodyInstructions" class="ticket-text accordion-body collapse" style="clear:both;">
 		<hr/>
-		<h4><wicket:message key="gb.mergingViaCommandLine">Merging via command line</wicket:message></h4>	
-		<p><wicket:message key="gb.mergingViaCommandLineNote">If you do not want to use the merge button or an automatic merge cannot be performed, you can perform a manual merge on the command line.</wicket:message></p>
+		<h4><wicket:message key="gb.mergingViaCommandLine"></wicket:message></h4>	
+		<p><wicket:message key="gb.mergingViaCommandLineNote"></wicket:message></p>
 		<p class="step">
-			<b>Step 1:</b> <wicket:message key="gb.mergeStep1">Check out a new branch to test the changes — run this from your project directory</wicket:message> <span wicket:id="copyStep1"></span>
+			<b><span wicket:id="mergeStep1"></span>:</b> <wicket:message key="gb.mergeStep1"></wicket:message> <span wicket:id="mergeCopyStep1"></span>
 		</p>
-		<pre wicket:id="step1" class="gitcommand">step1</pre>
+		<pre wicket:id="mergePreStep1" class="gitcommand"></pre>
 		<p class="step">
-			<b>Step 2:</b> <wicket:message key="gb.mergeStep2">Bring in the proposed changes and test</wicket:message> <span wicket:id="copyStep2"></span>
+			<b><span wicket:id="mergeStep2"></span>:</b> <wicket:message key="gb.mergeStep2"></wicket:message> <span wicket:id="mergeCopyStep2"></span>
 		</p>
-		<pre wicket:id="step2" class="gitcommand">step2</pre>
+		<pre wicket:id="mergePreStep2" class="gitcommand"></pre>
 		<p class="step">
-			<b>Step 3:</b> <wicket:message key="gb.mergeStep3">Merge the changes and update the server</wicket:message> <span wicket:id="copyStep3"></span>
+			<b><span wicket:id="mergeStep3"></span>:</b> <wicket:message key="gb.mergeStep3"></wicket:message> <span wicket:id="mergeCopyStep3"></span>
 		</p>
-		<pre wicket:id="step3" class="gitcommand">step3</pre>
+		<pre wicket:id="mergePreStep3" class="gitcommand"></pre>
 	</div>		
 </wicket:fragment>
 

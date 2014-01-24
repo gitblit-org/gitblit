@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,12 @@ import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
 import com.gitblit.wicket.panels.SimpleAjaxLink;
 
+/**
+ * The ticket page handles viewing and updating a ticket.
+ *
+ * @author James Moger
+ *
+ */
 public class TicketPage extends TicketBasePage {
 
 	final int avatarWidth = 40;
@@ -1025,6 +1031,7 @@ public class TicketPage extends TicketBasePage {
 		};
 		panel.add(pathsView);
 
+		addGitReviewInstructions(user, repository, panel);
 		panel.add(createMergePanel(user, repository));
 
 		return panel;
@@ -1033,6 +1040,22 @@ public class TicketPage extends TicketBasePage {
 	protected <X extends MarkupContainer> X setNewTarget(X x) {
 		x.add(new SimpleAttributeModifier("target", "_blank"));
 		return x;
+	}
+
+	protected void addGitReviewInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
+		String repoUrl = getRepositoryUrl(user, repository);
+
+		panel.add(new Label("gitStep1", MessageFormat.format(getString("gb.stepN"), 1)));
+		panel.add(new Label("gitStep2", MessageFormat.format(getString("gb.stepN"), 2)));
+
+		String step1 = MessageFormat.format("git fetch {0} refs/tickets/{1,number,0}", repoUrl, ticket.number);
+		String step2 = MessageFormat.format("git checkout -b ticket/{0,number,0} FETCH_HEAD", ticket.number);
+
+		panel.add(new Label("gitPreStep1", step1));
+		panel.add(new Label("gitPreStep2", step2));
+
+		panel.add(createCopyFragment("gitCopyStep1", step1.replace("\n", " && ")));
+		panel.add(createCopyFragment("gitCopyStep2", step2.replace("\n", " && ")));
 	}
 
 	/**
@@ -1103,17 +1126,21 @@ public class TicketPage extends TicketBasePage {
 		cmd.add(new Label("instructions", MessageFormat.format(getString(infoKey), ticket.mergeTo)));
 		String repoUrl = getRepositoryUrl(user, repository);
 
+		cmd.add(new Label("mergeStep1", MessageFormat.format(getString("gb.stepN"), 1)));
+		cmd.add(new Label("mergeStep2", MessageFormat.format(getString("gb.stepN"), 2)));
+		cmd.add(new Label("mergeStep3", MessageFormat.format(getString("gb.stepN"), 3)));
+
 		String step1 = MessageFormat.format("git checkout -b ticket/{0,number,0} {1}", ticket.number, ticket.mergeTo);
 		String step2 = MessageFormat.format("git pull {0} refs/tickets/{1,number,0}", repoUrl, ticket.number);
 		String step3 = MessageFormat.format("git checkout {0}\ngit merge ticket/{1,number,0}\ngit push origin {0}", ticket.mergeTo, ticket.number);
 
-		cmd.add(new Label("step1", step1));
-		cmd.add(new Label("step2", step2));
-		cmd.add(new Label("step3", step3));
+		cmd.add(new Label("mergePreStep1", step1));
+		cmd.add(new Label("mergePreStep2", step2));
+		cmd.add(new Label("mergePreStep3", step3));
 
-		cmd.add(createCopyFragment("copyStep1", step1.replace("\n", " && ")));
-		cmd.add(createCopyFragment("copyStep2", step2.replace("\n", " && ")));
-		cmd.add(createCopyFragment("copyStep3", step3.replace("\n", " && ")));
+		cmd.add(createCopyFragment("mergeCopyStep1", step1.replace("\n", " && ")));
+		cmd.add(createCopyFragment("mergeCopyStep2", step2.replace("\n", " && ")));
+		cmd.add(createCopyFragment("mergeCopyStep3", step3.replace("\n", " && ")));
 		return cmd;
 	}
 
