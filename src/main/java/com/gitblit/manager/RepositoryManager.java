@@ -799,7 +799,8 @@ public class RepositoryManager implements IRepositoryManager {
 			model.description = getConfig(config, "description", "");
 			model.originRepository = getConfig(config, "originRepository", null);
 			model.addOwners(ArrayUtils.fromString(getConfig(config, "owner", "")));
-			model.acceptPatches = getConfig(config, "acceptPatches", true);
+			model.acceptNewPatchsets = getConfig(config, "acceptNewPatchsets", true);
+			model.acceptNewTickets = getConfig(config, "acceptNewTickets", true);
 			model.useIncrementalPushTags = getConfig(config, "useIncrementalPushTags", false);
 			model.incrementalPushTagPrefix = getConfig(config, "incrementalPushTagPrefix", null);
 			model.allowForks = getConfig(config, "allowForks", true);
@@ -1151,7 +1152,7 @@ public class RepositoryManager implements IRepositoryManager {
 							repositoryName), e);
 		}
 		if (uses > 0) {
-			logger.info(MessageFormat
+			logger.debug(MessageFormat
 					.format("{0}.useCnt={1}, calling close() {2} time(s) to close object and ref databases",
 							repositoryName, uses, uses));
 			for (int i = 0; i < uses; i++) {
@@ -1405,7 +1406,8 @@ public class RepositoryManager implements IRepositoryManager {
 		config.setString(Constants.CONFIG_GITBLIT, null, "description", repository.description);
 		config.setString(Constants.CONFIG_GITBLIT, null, "originRepository", repository.originRepository);
 		config.setString(Constants.CONFIG_GITBLIT, null, "owner", ArrayUtils.toString(repository.owners));
-		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptPatches", repository.acceptPatches);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewPatchsets", repository.acceptNewPatchsets);
+		config.setBoolean(Constants.CONFIG_GITBLIT, null, "acceptNewTickets", repository.acceptNewTickets);
 		config.setBoolean(Constants.CONFIG_GITBLIT, null, "useIncrementalPushTags", repository.useIncrementalPushTags);
 		if (StringUtils.isEmpty(repository.incrementalPushTagPrefix) ||
 				repository.incrementalPushTagPrefix.equals(settings.getString(Keys.git.defaultIncrementalPushTagPrefix, "r"))) {

@@ -444,7 +444,8 @@ public class EditRepositoryPage extends RootSubPage {
 		}
 		form.add(new DropDownChoice<FederationStrategy>("federationStrategy", federationStrategies,
 				new FederationTypeRenderer()));
-		form.add(new CheckBox("acceptPatches"));
+		form.add(new CheckBox("acceptNewPatchsets"));
+		form.add(new CheckBox("acceptNewTickets"));
 		form.add(new CheckBox("useIncrementalPushTags"));
 		form.add(new CheckBox("showRemoteBranches"));
 		form.add(new CheckBox("skipSizeCalculation"));

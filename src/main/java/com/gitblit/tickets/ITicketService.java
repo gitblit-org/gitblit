@@ -196,8 +196,35 @@ public abstract class ITicketService {
 		return true;
 	}
 
-	public boolean isReady(RepositoryModel repository) {
-		return isReady() && repository.acceptPatches;
+	/**
+	 * Returns true if the new patchsets can be accepted for this repository.
+	 *
+	 * @param repository
+	 * @return true if patchsets are being accepted
+	 */
+	public boolean isAcceptingNewPatchsets(RepositoryModel repository) {
+		return isReady()
+				&& settings.getBoolean(Keys.tickets.acceptNewPatchsets, true)
+				&& repository.acceptNewPatchsets
+				&& repository.isBare
+				&& !repository.isFrozen
+				&& !repository.isMirror;
+	}
+
+	/**
+	 * Returns true if new tickets can be manually created for this repository.
+	 * This is separate from accepting patchsets.
+	 *
+	 * @param repository
+	 * @return true if tickets are being accepted
+	 */
+	public boolean isAcceptingNewTickets(RepositoryModel repository) {
+		return isReady()
+				&& settings.getBoolean(Keys.tickets.acceptNewTickets, true)
+				&& repository.acceptNewTickets
+				&& repository.isBare
+				&& !repository.isFrozen
+				&& !repository.isMirror;
 	}
 
 	/**

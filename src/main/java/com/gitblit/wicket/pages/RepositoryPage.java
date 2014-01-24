@@ -201,7 +201,7 @@ public abstract class RepositoryPage extends RootPage {
 		}
 		pages.put("commits", new PageRegistration("gb.commits", LogPage.class, params));
 		pages.put("tree", new PageRegistration("gb.tree", TreePage.class, params));
-		if (app().tickets() != null) {
+		if (app().tickets().isReady() && (app().tickets().isAcceptingNewTickets(getRepositoryModel()) || app().tickets().hasTickets(getRepositoryModel()))) {
 			PageParameters tParams = new PageParameters(params);
 			for (String state : TicketsPage.openStatii) {
 				tParams.add(Lucene.status.name(), state);
@@ -294,6 +294,14 @@ public abstract class RepositoryPage extends RootPage {
 						SummaryPage.class, WicketUtils.newRepositoryParameter(model.originRepository)));
 				add(forkFrag);
 			}
+		}
+
+		// new ticket button
+		if (user.isAuthenticated && app().tickets().isAcceptingNewTickets(getRepositoryModel())) {
+			String newTicketUrl = getRequestCycle().urlFor(NewTicketPage.class, WicketUtils.newRepositoryParameter(repositoryName)).toString();
+			addToolbarButton("newTicketLink", "fa fa-ticket", getString("gb.new"), newTicketUrl);
+		} else {
+			add(new Label("newTicketLink").setVisible(false));
 		}
 
 		// (un)star link allows a user to star a repository

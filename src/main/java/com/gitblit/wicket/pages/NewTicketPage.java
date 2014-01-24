@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,12 @@ import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
 
+/**
+ * Page for creating a new ticket.
+ *
+ * @author James Moger
+ *
+ */
 public class NewTicketPage extends RepositoryPage {
 
 	private IModel<TicketModel.Type> typeModel;
@@ -61,12 +67,15 @@ public class NewTicketPage extends RepositoryPage {
 	public NewTicketPage(PageParameters params) {
 		super(params);
 
-		if (!app().tickets().isReady(getRepositoryModel())) {
-			// tickets prohibited
-			setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+		UserModel currentUser = GitBlitWebSession.get().getUser();
+		if (currentUser == null) {
+			currentUser = UserModel.ANONYMOUS;
 		}
 
-		UserModel currentUser = GitBlitWebSession.get().getUser();
+		if (!currentUser.isAuthenticated || !app().tickets().isAcceptingNewTickets(getRepositoryModel())) {
+			// tickets prohibited
+			setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+		}
 
 		typeModel = Model.of(TicketModel.Type.Enhancement);
 		titleModel = Model.of();

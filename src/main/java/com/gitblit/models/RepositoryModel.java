@@ -85,7 +85,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public int maxActivityCommits;
 	public List<String> metricAuthorExclusions;
 	public CommitMessageRenderer commitMessageRenderer;
-	public boolean acceptPatches;
+	public boolean acceptNewPatchsets;
+	public boolean acceptNewTickets;
 
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
@@ -214,7 +215,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		clone.federationStrategy = federationStrategy;
 		clone.showRemoteBranches = false;
 		clone.allowForks = false;
-		clone.acceptPatches = true;
+		clone.acceptNewPatchsets = false;
+		clone.acceptNewTickets = false;
 		clone.skipSizeCalculation = skipSizeCalculation;
 		clone.skipSummaryMetrics = skipSummaryMetrics;
 		clone.sparkleshareId = sparkleshareId;

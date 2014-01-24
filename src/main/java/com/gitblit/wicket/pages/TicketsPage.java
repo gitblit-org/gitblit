@@ -70,7 +70,7 @@ public class TicketsPage extends TicketBasePage {
 	public TicketsPage(PageParameters params) {
 		super(params);
 
-		if (!app().tickets().isReady(getRepositoryModel())) {
+		if (!app().tickets().isReady()) {
 			// tickets prohibited
 			setResponsePage(SummaryPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		} else if (!app().tickets().hasTickets(getRepositoryModel())) {
@@ -105,14 +105,6 @@ public class TicketsPage extends TicketBasePage {
 		TicketSearchForm searchForm = new TicketSearchForm("ticketSearchForm", repositoryName, searchParam);
 		add(searchForm);
 		searchForm.setTranslatedAttributes();
-
-		// add new ticket button
-		searchForm.add(new BookmarkablePageLink<Void>("newticket", NewTicketPage.class,
-				WicketUtils.newRepositoryParameter(repositoryName))
-				.setVisible(isAuthenticated
-						&& getRepositoryModel().isBare
-						&& !getRepositoryModel().isFrozen
-						&& !getRepositoryModel().isMirror));
 
 		final String activeQuery;
 		if (!StringUtils.isEmpty(searchParam)) {
