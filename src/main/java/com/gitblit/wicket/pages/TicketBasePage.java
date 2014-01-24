@@ -36,7 +36,7 @@ public abstract class TicketBasePage extends RepositoryPage {
 	protected Label getStateIcon(String wicketId, Type type, Status state) {
 		Label label = new Label(wicketId);
 		if (type == null) {
-			type = Type.Request;
+			type = Type.Enhancement;
 		}
 		switch (type) {
 		case Proposal:

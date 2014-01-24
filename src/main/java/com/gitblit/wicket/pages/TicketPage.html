@@ -16,15 +16,15 @@
 </div>
 
 <!-- TAB NAMES -->
-<ul class="nav nav-tabs hidden-phone">
+<ul class="nav nav-tabs">
 	<li class="active"><a data-toggle="tab" href="#discussion">
 		<i style="color:#888;"class="fa fa-comments"></i> <wicket:message key="gb.discussion"></wicket:message> <span class="lwbadge" wicket:id="commentCount"></span></a>
 	</li>
 	<li><a data-toggle="tab" href="#commits">
 		<i style="color:#888;"class="fa fa-code"></i> <wicket:message key="gb.commits"></wicket:message> <span class="lwbadge" wicket:id="commitCount"></span></a>
 	</li>
-	<li><a data-toggle="tab" href="#history">
-		<i style="color:#888;"class="fa fa-clock-o"></i> <wicket:message key="gb.history"></wicket:message></a>
+	<li><a data-toggle="tab" href="#activity">
+		<i style="color:#888;"class="fa fa-clock-o"></i> <wicket:message key="gb.activity"></wicket:message></a>
 	</li>
 </ul>
 	
@@ -96,9 +96,9 @@
 	</div>
 	
 	
-	<!-- HISTORY TAB -->
-	<div class="tab-pane hidden-phone" id="history">
-		<div wicket:id="history"></div>	
+	<!-- ACTIVITY TAB -->
+	<div class="tab-pane" id="activity">
+		<div wicket:id="activity"></div>	
 	</div>
 	
 </div> <!-- END TABS -->
@@ -227,7 +227,7 @@
 <div class="row">
 	<div class="span7 offset1">
 		<span class="status-change aui-lozenge aui-lozenge-success"><wicket:message key="gb.merged"></wicket:message></span>
-		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.pushedPatchset">[pushed patchset]</wicket:message></span>
+		<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.mergedPatchset">[merged patchset]</wicket:message></span>
 		<span class="attribution-emphasize" wicket:id="commitLink">[commit]</span> <span style="padding-left:2px;" wicket:id="toBranch"></span>
 		<p class="attribution-pullright"><span class="attribution-date" wicket:id="changeDate">[change date]</span></p>
 	</div>
@@ -308,25 +308,29 @@
 </wicket:fragment>
 
 
-<!--HISTORY -->
-<wicket:fragment wicket:id="historyFragment">	
+<!--ACTIVITY -->
+<wicket:fragment wicket:id="activityFragment">	
 	<table class="table tickets">
 		<thead>
 			<tr>
 				<th><wicket:message key="gb.author"></wicket:message></th>
-				<th colspan='6'><wicket:message key="gb.action"></wicket:message></th>		
+				<th colspan='3'><wicket:message key="gb.action"></wicket:message></th>		
 				<th style="text-align: right;"><wicket:message key="gb.date"></wicket:message></th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr wicket:id="event">
 				<td><span wicket:id="changeAvatar">[avatar]</span> <span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span></td>
-				<td><span class="attribution-text"><span wicket:id="what">[what happened]</span></span></td>
-				<td><span wicket:id="patchsetRevision">[revision id]</span></td>
-				<td><span class="hidden-tablet hidden-phone" wicket:id="mergeBase">[merge base]</span></td>
-				<td><span wicket:id="patchsetType"></span></td>
-				<td><span wicket:id="revisedStatus"></span></td>
-				<td><span class="hidden-tablet hidden-phone" style="padding-left:20px;"><span wicket:id="patchsetDiffStat"></span></span></td>			
+				<td>
+					<span class="attribution-txt"><span wicket:id="what">[what happened]</span></span>
+					<div wicket:id="fields"></div>
+				</td>
+				<td style="text-align:right;">
+					<span wicket:id="patchsetType">[revision type]</span>					
+				</td>
+				<td><span class="hidden-phone hidden-tablet" wicket:id="patchsetRevision">[revision compare link]</span>
+					<span class="hidden-tablet hidden-phone" style="padding-left:15px;"><span wicket:id="patchsetDiffStat"></span></span>
+				</td>			
 				<td style="text-align:right;"><span class="attribution-date" wicket:id="changeDate">[patch date]</span></td>	
 			</tr>
 		</tbody>

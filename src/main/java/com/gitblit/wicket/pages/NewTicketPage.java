@@ -88,7 +88,7 @@ public class NewTicketPage extends RepositoryPage {
 				change.setField(Field.body, descriptionEditor.getText());
 
 				// type
-				TicketModel.Type type = TicketModel.Type.Request;
+				TicketModel.Type type = TicketModel.Type.Enhancement;
 				if (typeModel.getObject() != null) {
 					type = typeModel.getObject();
 				}

@@ -24,10 +24,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
@@ -603,8 +601,7 @@ public class TicketPage extends TicketBasePage {
 						commitLink = getString("gb.revision") + " " + mergedPatch.rev;
 					}
 
-					Fragment mergeCloseFragment = new Fragment("entry", "mergeCloseFragment", this);
-					Fragment mergeFragment = new Fragment("merge", "mergeFragment", this);
+					Fragment mergeFragment = new Fragment("entry", "mergeFragment", this);
 					mergeFragment.add(new LinkPanel("commitLink", null, commitLink,
 							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, resolvedBy)));
 					mergeFragment.add(new Label("toBranch", MessageFormat.format(getString("gb.toBranch"),
@@ -612,15 +609,7 @@ public class TicketPage extends TicketBasePage {
 					addUserAttributions(mergeFragment, entry, 0);
 					addDateAttributions(mergeFragment, entry);
 
-					Fragment closeFragment = new Fragment("close", "closeFragment", this);
-					addUserAttributions(closeFragment, entry, 0);
-					addDateAttributions(closeFragment, entry);
-
-					mergeCloseFragment.add(mergeFragment);
-					mergeCloseFragment.add(closeFragment);
-					mergeCloseFragment.add(new Fragment("boundary", "boundaryFragment", this));
-
-					item.add(mergeCloseFragment);
+					item.add(mergeFragment);
 				} else if (entry.isStatusChange()) {
 					/*
 					 *  STATUS CHANGE
@@ -740,15 +729,10 @@ public class TicketPage extends TicketBasePage {
 
 
 		/*
-		 * HISTORY TAB
+		 * ACTIVITY TAB
 		 */
-		Fragment revisionHistory = new Fragment("history", "historyFragment", this);
-		Set<Change> set = new HashSet<Change>();
-		set.addAll(revisions);
-		set.addAll(statusChanges);
-		set.addAll(comments);
-
-		List<Change> events = new ArrayList<Change>(set);
+		Fragment revisionHistory = new Fragment("activity", "activityFragment", this);
+		List<Change> events = new ArrayList<Change>(ticket.changes);
 		Collections.sort(events);
 		Collections.reverse(events);
 		ListDataProvider<Change> eventsDp = new ListDataProvider<Change>(events);
@@ -758,23 +742,29 @@ public class TicketPage extends TicketBasePage {
 			@Override
 			public void populateItem(final Item<Change> item) {
 				Change event = item.getModelObject();
+
+				addUserAttributions(item, event, 16);
+
 				if (event.hasPatchset()) {
 					// patchset
 					Patchset patchset = event.patchset;
-					String what = getString("gb.uploadedPatchset");
+					String what = getString("gb.revisedPatchset");
 					switch (patchset.addedCommits) {
 					case 1:
-						what += " (+" + patchset.addedCommits + " " + getString("gb.commit") + ")";
+						what = getString("gb.addedOneCommit");
 						break;
 					case 0:
+						if (event.isStatusChange() && (Status.New == event.getStatus())) {
+							what = getString("gb.proposedThisChange");
+						}
 						break;
 					default:
-						what += " (+" + patchset.addedCommits + " " + getString("gb.commits") + ")";
+						what = MessageFormat.format(getString("gb.addedNCommits"), patchset.addedCommits);
 						break;
 					}
 					item.add(new Label("what", what));
 					item.add(new LinkPanel("patchsetRevision", "commit", getString("gb.revision") + " " + patchset.rev,
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patchset.tip), true));
+							ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patchset.base, patchset.tip), true));
 					String typeCss = getPatchsetTypeCss(patchset.type);
 					Label typeLabel = new Label("patchsetType", patchset.type.toString());
 					if (typeCss == null) {
@@ -784,41 +774,23 @@ public class TicketPage extends TicketBasePage {
 					}
 					item.add(typeLabel);
 
-					boolean showMergeBase = PatchsetType.Proposal == patchset.type
-										|| PatchsetType.Rebase == patchset.type
-										|| PatchsetType.Rebase_Squash == patchset.type;
-
-					item.add(new LinkPanel("mergeBase", "link", getString("gb.mergeBase"),
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, patchset.base), true)
-							.setVisible(showMergeBase));
-
-					if (ticket.isMerged() && patchset.tip.equals(ticket.mergeSha)) {
-						// merged revision
-						Label status = new Label("revisedStatus", Status.Merged.toString());
-						String css = getLozengeClass(Status.Merged, true);
-						WicketUtils.setCssClass(status, css);
-						item.add(status);
-					} else {
-						item.add(new Label("revisedStatus").setVisible(false));
-					}
 					// show commit diffstat
 					item.add(new DiffStatPanel("patchsetDiffStat", patchset.insertions, patchset.deletions, true));
 				} else if (event.hasComment()) {
 					// comment
 					item.add(new Label("what", getString("gb.commented")));
 					item.add(new Label("patchsetRevision").setVisible(false));
-					item.add(new Label("mergeBase").setVisible(false));
 					item.add(new Label("patchsetType").setVisible(false));
-					item.add(new Label("revisedStatus").setVisible(false));
 					item.add(new Label("patchsetDiffStat").setVisible(false));
 				} else {
-					// status change
+					// field change
 					item.add(new Label("patchsetRevision").setVisible(false));
-					item.add(new Label("mergeBase").setVisible(false));
 					item.add(new Label("patchsetType").setVisible(false));
-					Status res = event.getStatus();
-					String what;
-					switch (res) {
+					item.add(new Label("patchsetDiffStat").setVisible(false));
+
+					String what = "";
+					if (event.isStatusChange()) {
+					switch (event.getStatus()) {
 					case New:
 						if (ticket.isProposal()) {
 							what = getString("gb.proposedThisChange");
@@ -827,18 +799,44 @@ public class TicketPage extends TicketBasePage {
 						}
 						break;
 					default:
-						what = getString("gb.changedStatus");
 						break;
 					}
-					item.add(new Label("what", what));
-					Label status = new Label("revisedStatus", res.toString());
-					String css = getLozengeClass(res, true);
-					WicketUtils.setCssClass(status, css);
-					item.add(status);
-					item.add(new Label("patchsetDiffStat").setVisible(false));
+					}
+					item.add(new Label("what", what).setVisible(what.length() > 0));
 				}
-				addUserAttributions(item, event, 16);
+
 				addDateAttributions(item, event);
+
+				if (event.hasFieldChanges()) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("<table class=\"summary\"><tbody>");
+					for (Map.Entry<Field, String> entry : event.fields.entrySet()) {
+						String value;
+						switch (entry.getKey()) {
+							case body:
+								// ignore body changes
+								continue;
+							case status:
+								// special handling for status
+								Status status = event.getStatus();
+								String css = getLozengeClass(status, true);
+								value = String.format("<span class=\"%1$s\">%2$s</span>", css, status.toString());
+								break;
+							default:
+								value = entry.getValue() == null ? "<null>" : entry.getValue();
+								break;
+						}
+						sb.append("<tr><th style=\"width:70px;\">");
+						sb.append(entry.getKey().name());
+						sb.append("</th><td>");
+						sb.append(value);
+						sb.append("</td></tr>");
+					}
+					sb.append("</tbody></table>");
+					item.add(new Label("fields", sb.toString()).setEscapeModelStrings(false));
+				} else {
+					item.add(new Label("fields").setVisible(false));
+				}
 			}
 		};
 		revisionHistory.add(eventsView);
