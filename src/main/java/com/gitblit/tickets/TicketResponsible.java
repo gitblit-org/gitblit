@@ -17,6 +17,8 @@ package com.gitblit.tickets;
 
 import java.io.Serializable;
 
+import org.parboiled.common.StringUtils;
+
 import com.gitblit.models.UserModel;
 
 /**
@@ -47,7 +49,7 @@ public class TicketResponsible implements Serializable, Comparable<TicketRespons
 
 	@Override
 	public String toString() {
-		return displayname + " (" + username + ")";
+		return displayname + (StringUtils.isEmpty(username) ? "" : (" (" + username + ")"));
 	}
 
 	@Override

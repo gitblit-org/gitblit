@@ -97,6 +97,10 @@ import com.gitblit.wicket.panels.SimpleAjaxLink;
  */
 public class TicketPage extends TicketBasePage {
 
+	static final String NIL = "<nil>";
+
+	static final String ESC_NIL = StringUtils.escapeForHtml(NIL,  false);
+
 	final int avatarWidth = 40;
 
 	final TicketModel ticket;
@@ -380,6 +384,7 @@ public class TicketPage extends TicketBasePage {
 				}
 			}
 			Collections.sort(responsibles);
+			responsibles.add(new TicketResponsible(ESC_NIL, "", ""));
 			ListDataProvider<TicketResponsible> responsibleDp = new ListDataProvider<TicketResponsible>(responsibles);
 			DataView<TicketResponsible> responsibleView = new DataView<TicketResponsible>("newResponsible", responsibleDp) {
 				private static final long serialVersionUID = 1L;
@@ -395,8 +400,10 @@ public class TicketPage extends TicketBasePage {
 							TicketResponsible responsible = getModel().getObject();
 							Change change = new Change(user.username);
 							change.setField(Field.responsible, responsible.username);
-							if (!ticket.isWatching(responsible.username)) {
-								change.watch(responsible.username);
+							if (!StringUtils.isEmpty(responsible.username)) {
+								if (!ticket.isWatching(responsible.username)) {
+									change.watch(responsible.username);
+								}
 							}
 							if (!ticket.isWatching(user.username)) {
 								change.watch(user.username);
@@ -423,6 +430,7 @@ public class TicketPage extends TicketBasePage {
 					}
 				}
 			}
+			milestones.add(new TicketMilestone(ESC_NIL));
 			ListDataProvider<TicketMilestone> milestoneDp = new ListDataProvider<TicketMilestone>(milestones);
 			DataView<TicketMilestone> milestoneView = new DataView<TicketMilestone>("newMilestone", milestoneDp) {
 				private static final long serialVersionUID = 1L;
@@ -437,7 +445,11 @@ public class TicketPage extends TicketBasePage {
 						public void onClick(AjaxRequestTarget target) {
 							TicketMilestone milestone = getModel().getObject();
 							Change change = new Change(user.username);
-							change.setField(Field.milestone, milestone.name);
+							if (NIL.equals(milestone.name)) {
+								change.setField(Field.milestone, "");
+							} else {
+								change.setField(Field.milestone, milestone.name);
+							}
 							if (!ticket.isWatching(user.username)) {
 								change.watch(user.username);
 							}
@@ -822,7 +834,7 @@ public class TicketPage extends TicketBasePage {
 								value = String.format("<span class=\"%1$s\">%2$s</span>", css, status.toString());
 								break;
 							default:
-								value = entry.getValue() == null ? "<null>" : entry.getValue();
+								value = StringUtils.isEmpty(entry.getValue()) ? ("<i>" + ESC_NIL + "</i>") : StringUtils.escapeForHtml(entry.getValue(), false);
 								break;
 						}
 						sb.append("<tr><th style=\"width:70px;\">");
