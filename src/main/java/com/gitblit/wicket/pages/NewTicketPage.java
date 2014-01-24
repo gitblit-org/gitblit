@@ -68,7 +68,7 @@ public class NewTicketPage extends RepositoryPage {
 
 		UserModel currentUser = GitBlitWebSession.get().getUser();
 
-		typeModel = Model.of(TicketModel.Type.Request);
+		typeModel = Model.of(TicketModel.Type.Enhancement);
 		titleModel = Model.of();
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();

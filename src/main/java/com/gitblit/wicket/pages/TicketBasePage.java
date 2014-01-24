@@ -40,12 +40,16 @@ public abstract class TicketBasePage extends RepositoryPage {
 		}
 		switch (type) {
 		case Proposal:
-			// merge request
-			WicketUtils.setCssClass(label, "fa fa-code");
+			WicketUtils.setCssClass(label, "fa fa-code-fork");
 			break;
 		case Bug:
-			// bug ticket
 			WicketUtils.setCssClass(label, "fa fa-bug");
+			break;
+		case Enhancement:
+			WicketUtils.setCssClass(label, "fa fa-magic");
+			break;
+		case Question:
+			WicketUtils.setCssClass(label, "fa fa-question");
 			break;
 		default:
 			// standard ticket
@@ -56,24 +60,7 @@ public abstract class TicketBasePage extends RepositoryPage {
 	}
 
 	protected String getTypeState(Type type, Status state) {
-		if (Status.Merged == state) {
-			return Type.Proposal == type ? getString("gb.mergedChangeProposal") : getString("gb.merged");
-		}
-		if (Type.Proposal == type) {
-			// change proposal ticket
-			if (state.isClosed()) {
-				return getString("gb.closedChangeProposal");
-			} else {
-				return getString("gb.openChangeProposal");
-			}
-		} else {
-			// standard ticket
-			if (state.isClosed()) {
-				return getString("gb.closedTicket");
-			} else {
-				return getString("gb.openTicket");
-			}
-		}
+		return state.toString() + " " + type.toString();
 	}
 
 	protected String getLozengeClass(Status status, boolean subtle) {

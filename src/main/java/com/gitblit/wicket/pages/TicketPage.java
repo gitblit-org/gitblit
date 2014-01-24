@@ -300,14 +300,7 @@ public class TicketPage extends TicketBasePage {
 		 * LARGE STATUS INDICATOR WITH ICON (DISCUSSION TAB->SIDE BAR)
 		 */
 		Fragment ticketStatus = new Fragment("ticketStatus", "ticketStatusFragment", this);
-		Label ticketIcon = new Label("ticketIcon");
-		if (ticket.isProposal()) {
-			WicketUtils.setCssClass(ticketIcon, "fa fa-code");
-		} else if (ticket.isBug()) {
-			WicketUtils.setCssClass(ticketIcon, "fa fa-bug");
-		} else {
-			WicketUtils.setCssClass(ticketIcon, "fa fa-ticket");
-		}
+		Label ticketIcon = getStateIcon("ticketIcon", ticket);
 		ticketStatus.add(ticketIcon);
 		ticketStatus.add(new Label("ticketStatus", ticket.status.toString()));
 		WicketUtils.setCssClass(ticketStatus, getLozengeClass(ticket.status, false));
@@ -907,11 +900,11 @@ public class TicketPage extends TicketBasePage {
 		panel.add(new Label("patchsetType", patchsetType).setEscapeModelStrings(false));
 		switch (currentPatchset.addedCommits) {
 			case 1:
-				panel.add(new Label("plusCommits", getString("gb.plusOneCommit")));
+				panel.add(new Label("plusCommits", getString("gb.addedOneCommit")));
 				break;
 			default:
 				panel.add(new Label("plusCommits",
-						MessageFormat.format(getString("gb.plusNCommits"),
+						MessageFormat.format(getString("gb.addedNCommits"),
 								currentPatchset.addedCommits)).setVisible(currentPatchset.addedCommits > 0));
 				break;
 		}

@@ -256,10 +256,29 @@ public class TicketsPage extends TicketBasePage {
 						desc,
 						1)));
 
-		add(new BookmarkablePageLink<Void>("requestsQuery", TicketsPage.class,
+		add(new BookmarkablePageLink<Void>("enhancementsQuery", TicketsPage.class,
 				queryParameters(
-						QueryBuilder.q(Lucene.type.doesNotMatch(TicketModel.Type.Proposal.name()))
-							.andNot(Lucene.type.matches(TicketModel.Type.Bug.name())).build(),
+						Lucene.type.matches(TicketModel.Type.Enhancement.name()),
+						milestoneParam,
+						statiiParam,
+						assignedToParam,
+						sortBy,
+						desc,
+						1)));
+
+		add(new BookmarkablePageLink<Void>("tasksQuery", TicketsPage.class,
+				queryParameters(
+						Lucene.type.matches(TicketModel.Type.Task.name()),
+						milestoneParam,
+						statiiParam,
+						assignedToParam,
+						sortBy,
+						desc,
+						1)));
+
+		add(new BookmarkablePageLink<Void>("questionsQuery", TicketsPage.class,
+				queryParameters(
+						Lucene.type.matches(TicketModel.Type.Question.name()),
 						milestoneParam,
 						statiiParam,
 						assignedToParam,
@@ -588,10 +607,10 @@ public class TicketsPage extends TicketBasePage {
 
 				// patchset revisions
 				if (ticket.patchsetsCount > 0) {
-					int count = ticket.patchsetsCount;
-					String pattern = "gb.nPatchsetRevisions";
+					int count = ticket.patchset.totalCommits;
+					String pattern = "gb.nCommits";
 					if (count == 1) {
-						pattern = "gb.onePatchsetRevision";
+						pattern = "gb.oneCommit";
 					}
 					indicators.add(new Indicator("fa fa-code", count, pattern));
 				}

@@ -1024,10 +1024,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	}
 
 	public static enum Type {
-		Enhancement, Task, Bug, Request, Proposal;
+		Enhancement, Task, Bug, Proposal, Question;
 
 		public static Type [] choices() {
-			return new Type [] { Enhancement, Task, Bug };
+			return new Type [] { Enhancement, Task, Bug, Question };
 		}
 
 		@Override
