@@ -169,6 +169,7 @@ public class RepositoryManager implements IRepositoryManager {
 		gcExecutor.close();
 		mirrorExecutor.close();
 
+		closeAll();
 		return this;
 	}
 
@@ -1083,12 +1084,49 @@ public class RepositoryManager implements IRepositoryManager {
 	}
 
 	/**
+	 * Returns true if the repository is idle (not being accessed).
+	 *
+	 * @param repository
+	 * @return true if the repository is idle
+	 */
+	@Override
+	public boolean isIdle(Repository repository) {
+		try {
+			// Read the use count.
+			// An idle use count is 2:
+			// +1 for being in the cache
+			// +1 for the repository parameter in this method
+			Field useCnt = Repository.class.getDeclaredField("useCnt");
+			useCnt.setAccessible(true);
+			int useCount = ((AtomicInteger) useCnt.get(repository)).get();
+			return useCount == 2;
+		} catch (Exception e) {
+			logger.warn(MessageFormat
+					.format("Failed to reflectively determine use count for repository {0}",
+							repository.getDirectory().getPath()), e);
+		}
+		return false;
+	}
+
+	/**
+	 * Ensures that all cached repository are completely closed and their resources
+	 * are properly released.
+	 */
+	@Override
+	public void closeAll() {
+		for (String repository : getRepositoryList()) {
+			close(repository);
+		}
+	}
+
+	/**
 	 * Ensure that a cached repository is completely closed and its resources
 	 * are properly released.
 	 *
 	 * @param repositoryName
 	 */
-	private void closeRepository(String repositoryName) {
+	@Override
+	public void close(String repositoryName) {
 		Repository repository = getRepository(repositoryName);
 		if (repository == null) {
 			return;
@@ -1251,7 +1289,7 @@ public class RepositoryManager implements IRepositoryManager {
 							"Failed to rename ''{0}'' because ''{1}'' already exists.",
 							repositoryName, repository.name));
 				}
-				closeRepository(repositoryName);
+				close(repositoryName);
 				File folder = new File(repositoriesFolder, repositoryName);
 				File destFolder = new File(repositoriesFolder, repository.name);
 				if (destFolder.exists()) {
@@ -1477,7 +1515,7 @@ public class RepositoryManager implements IRepositoryManager {
 	@Override
 	public boolean deleteRepository(String repositoryName) {
 		try {
-			closeRepository(repositoryName);
+			close(repositoryName);
 			// clear the repository cache
 			clearRepositoryMetadataCache(repositoryName);
 

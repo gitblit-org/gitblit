@@ -63,6 +63,12 @@ public abstract class ITicketService {
 
 	private static final String MILESTONE = "milestone";
 
+	private static final String STATUS = "status";
+
+	private static final String COLOR = "color";
+
+	private static final String DUE = "due";
+
 	private static final String DUE_DATE_PATTERN = "yyyy-MM-dd";
 
 	/**
@@ -163,6 +169,7 @@ public abstract class ITicketService {
 	public final ITicketService stop() {
 		indexer.close();
 		ticketsCache.invalidateAll();
+		repositoryManager.closeAll();
 		close();
 		return this;
 	}
@@ -256,7 +263,7 @@ public abstract class ITicketService {
 			Set<String> names = config.getSubsections(LABEL);
 			for (String name : names) {
 				TicketLabel label = new TicketLabel(name);
-				label.color = config.getString(LABEL, name, "color");
+				label.color = config.getString(LABEL, name, COLOR);
 				list.add(label);
 			}
 			labelsCache.put(key,  Collections.unmodifiableList(list));
@@ -301,7 +308,7 @@ public abstract class ITicketService {
 		try {
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
-			config.setString(LABEL, label, "color", lb.color);
+			config.setString(LABEL, label, COLOR, lb.color);
 			config.save();
 		} catch (IOException e) {
 			log.error("failed to create label " + label + " in " + repository, e);
@@ -324,7 +331,7 @@ public abstract class ITicketService {
 		try {
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
-			config.setString(LABEL, label.name, "color", label.color);
+			config.setString(LABEL, label.name, COLOR, label.color);
 			config.save();
 
 			return true;
@@ -355,7 +362,7 @@ public abstract class ITicketService {
 			TicketLabel label = getLabel(repository, oldName);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(LABEL, oldName);
-			config.setString(LABEL, newName, "color", label.color);
+			config.setString(LABEL, newName, COLOR, label.color);
 			config.save();
 
 			for (QueryResult qr : label.tickets) {
@@ -420,12 +427,12 @@ public abstract class ITicketService {
 			Set<String> names = config.getSubsections(MILESTONE);
 			for (String name : names) {
 				TicketMilestone milestone = new TicketMilestone(name);
-				Status status = Status.fromObject(config.getString(MILESTONE, name, "status"));
+				Status status = Status.fromObject(config.getString(MILESTONE, name, STATUS));
 				if (status != null) {
 					milestone.status = status;
 				}
-				milestone.color = config.getString(MILESTONE, name, "color");
-				String due = config.getString(MILESTONE, name, "due");
+				milestone.color = config.getString(MILESTONE, name, COLOR);
+				String due = config.getString(MILESTONE, name, DUE);
 				if (!StringUtils.isEmpty(due)) {
 					try {
 						milestone.due = new SimpleDateFormat(DUE_DATE_PATTERN).parse(due);
@@ -494,8 +501,8 @@ public abstract class ITicketService {
 		try {
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
-			config.setString(MILESTONE, milestone, "state", ms.status.name());
-			config.setString(MILESTONE, milestone, "color", ms.color);
+			config.setString(MILESTONE, milestone, STATUS, ms.status.name());
+			config.setString(MILESTONE, milestone, COLOR, ms.color);
 			config.save();
 
 			milestonesCache.remove(repository.name);
@@ -520,10 +527,10 @@ public abstract class ITicketService {
 		try {
 			db = repositoryManager.getRepository(repository.name);
 			StoredConfig config = db.getConfig();
-			config.setString(MILESTONE, milestone.name, "state", milestone.status.name());
-			config.setString(MILESTONE, milestone.name, "color", milestone.color);
+			config.setString(MILESTONE, milestone.name, STATUS, milestone.status.name());
+			config.setString(MILESTONE, milestone.name, COLOR, milestone.color);
 			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, "due",
+				config.setString(MILESTONE, milestone.name, DUE,
 						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
 			}
 			config.save();
@@ -557,10 +564,10 @@ public abstract class ITicketService {
 			TicketMilestone milestone = getMilestone(repository, oldName);
 			StoredConfig config = db.getConfig();
 			config.unsetSection(MILESTONE, oldName);
-			config.setString(MILESTONE, newName, "state", milestone.status.name());
-			config.setString(MILESTONE, newName, "color", milestone.color);
+			config.setString(MILESTONE, newName, STATUS, milestone.status.name());
+			config.setString(MILESTONE, newName, COLOR, milestone.color);
 			if (milestone.due != null) {
-				config.setString(MILESTONE, milestone.name, "due",
+				config.setString(MILESTONE, milestone.name, DUE,
 						new SimpleDateFormat(DUE_DATE_PATTERN).format(milestone.due));
 			}
 			config.save();

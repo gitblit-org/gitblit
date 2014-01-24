@@ -73,7 +73,7 @@ public class RedisTicketService extends ITicketService {
 				userManager,
 				repositoryManager);
 
-		String redisUrl = settings.getString(Keys.tickets.redisUrl, "");
+		String redisUrl = settings.getString(Keys.tickets.redis.url, "");
 		this.pool = createPool(redisUrl);
 	}
 

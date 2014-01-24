@@ -36,9 +36,10 @@ import com.gitblit.manager.ServicesManager;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.RepositoryUrl;
 import com.gitblit.models.UserModel;
+import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.RedisTicketService;
-import com.gitblit.tickets.RepositoryTicketService;
+import com.gitblit.tickets.BranchTicketService;
 import com.gitblit.utils.StringUtils;
 
 import dagger.Module;
@@ -196,7 +197,7 @@ public class GitBlit extends GitblitManager {
 	}
 
 	protected void configureTicketService() {
-		String clazz = settings.getString(Keys.tickets.service, RepositoryTicketService.class.getName());
+		String clazz = settings.getString(Keys.tickets.service, BranchTicketService.class.getName());
 		if (!StringUtils.isEmpty(clazz)) {
 			try {
 				Class<? extends ITicketService> serviceClass = (Class<? extends ITicketService>) Class.forName(clazz);
@@ -237,7 +238,8 @@ public class GitBlit extends GitblitManager {
 					IGitblit.class,
 
 					// ticket services
-					RepositoryTicketService.class,
+					FileTicketService.class,
+					BranchTicketService.class,
 					RedisTicketService.class
 			}
 			)

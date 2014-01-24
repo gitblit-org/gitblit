@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.inject.Inject;
 
@@ -66,21 +69,23 @@ import com.gitblit.utils.StringUtils;
 /**
  * Implementation of a ticket service based on an orphan branch.  All tickets
  * are serialized as a list of JSON changes and persisted in a hashed directory
- * structure, similar to the standard git structure.
+ * structure, similar to the standard git loose object structure.
  *
  * @author James Moger
  *
  */
-public class RepositoryTicketService extends ITicketService {
+public class BranchTicketService extends ITicketService {
 
-	private static final String GITBLIT_TICKETS = "refs/gitblit/tickets";
+	private static final String BRANCH = "refs/gitblit/tickets";
 
 	private static final String JOURNAL = "journal.json";
 
 	private static final String ID_PATH = "id/";
 
+	private final Map<String, AtomicLong> lastAssignedId;
+
 	@Inject
-	public RepositoryTicketService(
+	public BranchTicketService(
 			IRuntimeManager runtimeManager,
 			INotificationManager notificationManager,
 			IUserManager userManager,
@@ -90,19 +95,25 @@ public class RepositoryTicketService extends ITicketService {
 				notificationManager,
 				userManager,
 				repositoryManager);
+
+		lastAssignedId = new ConcurrentHashMap<String, AtomicLong>();
 	}
 
 	@Override
-	public RepositoryTicketService start() {
+	public BranchTicketService start() {
 		return this;
 	}
 
 	@Override
 	protected void resetCachesImpl() {
+		lastAssignedId.clear();
 	}
 
 	@Override
 	protected void resetCachesImpl(RepositoryModel repository) {
+		if (lastAssignedId.containsKey(repository.name)) {
+			lastAssignedId.get(repository.name).set(0);
+		}
 	}
 
 	@Override
@@ -118,7 +129,7 @@ public class RepositoryTicketService extends ITicketService {
 	private RefModel getTicketsBranch(Repository db) {
 		List<RefModel> refs = JGitUtils.getRefs(db, Constants.R_GITBLIT);
 		for (RefModel ref : refs) {
-			if (ref.reference.getName().equals(GITBLIT_TICKETS)) {
+			if (ref.reference.getName().equals(BRANCH)) {
 				return ref;
 			}
 		}
@@ -130,7 +141,7 @@ public class RepositoryTicketService extends ITicketService {
 	 * @param db
 	 */
 	private void createTicketsBranch(Repository db) {
-		JGitUtils.createOrphanBranch(db, GITBLIT_TICKETS, null);
+		JGitUtils.createOrphanBranch(db, BRANCH, null);
 	}
 
 	/**
@@ -175,7 +186,7 @@ public class RepositoryTicketService extends ITicketService {
 	private String readTicketsFile(Repository db, String file) {
 		RevWalk rw = null;
 		try {
-			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
+			ObjectId treeId = db.resolve(BRANCH + "^{tree}");
 			if (treeId == null) {
 				return null;
 			}
@@ -265,7 +276,7 @@ public class RepositoryTicketService extends ITicketService {
 				return false;
 			}
 			String ticketPath = toTicketPath(ticketId);
-			RevCommit tip = JGitUtils.getCommit(db, GITBLIT_TICKETS);
+			RevCommit tip = JGitUtils.getCommit(db, BRANCH);
 			hasTicket = !JGitUtils.getFilesInPath(db, ticketPath, tip).isEmpty();
 		} finally {
 			db.close();
@@ -289,22 +300,27 @@ public class RepositoryTicketService extends ITicketService {
 			}
 
 			// identify current highest ticket id by scanning the paths in the tip tree
-			long currId = 0L;
-			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), GITBLIT_TICKETS);
-			for (PathModel path : paths) {
-				String name = path.name.substring(path.name.lastIndexOf('/') + 1);
-				if (!JOURNAL.equals(name)) {
-					continue;
-				}
-				String tid = path.path.split("/")[2];
-				long ticketId = Long.parseLong(tid);
-				if (ticketId > newId) {
-					currId = ticketId;
+			if (!lastAssignedId.containsKey(repository.name)) {
+				lastAssignedId.put(repository.name, new AtomicLong(0));
+			}
+			AtomicLong lastId = lastAssignedId.get(repository.name);
+			if (lastId.get() <= 0) {
+				List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
+				for (PathModel path : paths) {
+					String name = path.name.substring(path.name.lastIndexOf('/') + 1);
+					if (!JOURNAL.equals(name)) {
+						continue;
+					}
+					String tid = path.path.split("/")[2];
+					long ticketId = Long.parseLong(tid);
+					if (ticketId > lastId.get()) {
+						lastId.set(ticketId);
+					}
 				}
 			}
 
 			// assign the id and touch an empty journal to hold it's place
-			newId = currId + 1;
+			newId = lastId.incrementAndGet();
 			String journalPath = toTicketPath(newId) + "/" + JOURNAL;
 			writeTicketsFile(db, journalPath, "", "gitblit", "assigned id #" + newId);
 		} finally {
@@ -336,7 +352,7 @@ public class RepositoryTicketService extends ITicketService {
 			}
 
 			// Collect the set of all json files
-			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), GITBLIT_TICKETS);
+			List<PathModel> paths = JGitUtils.getDocuments(db, Arrays.asList("json"), BRANCH);
 
 			// Deserialize each ticket and optionally filter out unwanted tickets
 			for (PathModel path : paths) {
@@ -472,7 +488,7 @@ public class RepositoryTicketService extends ITicketService {
 		Repository db = repositoryManager.getRepository(repository.name);
 		try {
 			String attachmentPath = toAttachmentPath(ticketId, attachment.name);
-			RevTree tree = JGitUtils.getCommit(db, GITBLIT_TICKETS).getTree();
+			RevTree tree = JGitUtils.getCommit(db, BRANCH).getTree();
 			byte[] content = JGitUtils.getByteContent(db, tree, attachmentPath, false);
 			attachment.content = content;
 			attachment.size = content.length;
@@ -500,13 +516,13 @@ public class RepositoryTicketService extends ITicketService {
 			RefModel ticketsBranch = getTicketsBranch(db);
 
 			if (ticketsBranch == null) {
-				throw new RuntimeException(GITBLIT_TICKETS + " does not exist!");
+				throw new RuntimeException(BRANCH + " does not exist!");
 			}
 			String ticketPath = toTicketPath(ticket.number);
 
 			TreeWalk treeWalk = null;
 			try {
-				ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
+				ObjectId treeId = db.resolve(BRANCH + "^{tree}");
 
 				// Create the in-memory index of the new/updated ticket
 				DirCache index = DirCache.newInCore();
@@ -664,7 +680,7 @@ public class RepositoryTicketService extends ITicketService {
 		TreeWalk tw = null;
 		try {
 			tw = new TreeWalk(db);
-			ObjectId treeId = db.resolve(GITBLIT_TICKETS + "^{tree}");
+			ObjectId treeId = db.resolve(BRANCH + "^{tree}");
 			int hIdx = tw.addTree(treeId);
 			tw.setRecursive(true);
 
@@ -695,11 +711,11 @@ public class RepositoryTicketService extends ITicketService {
 	private boolean commitIndex(Repository db, DirCache index, String author, String message) throws IOException, ConcurrentRefUpdateException {
 		boolean success = false;
 
-		ObjectId headId = db.resolve(GITBLIT_TICKETS + "^{commit}");
+		ObjectId headId = db.resolve(BRANCH + "^{commit}");
 		if (headId == null) {
 			// create the branch
 			createTicketsBranch(db);
-			headId = db.resolve(GITBLIT_TICKETS + "^{commit}");
+			headId = db.resolve(BRANCH + "^{commit}");
 		}
 		ObjectInserter odi = db.newObjectInserter();
 		try {
@@ -723,7 +739,7 @@ public class RepositoryTicketService extends ITicketService {
 			RevWalk revWalk = new RevWalk(db);
 			try {
 				RevCommit revCommit = revWalk.parseCommit(commitId);
-				RefUpdate ru = db.updateRef(GITBLIT_TICKETS);
+				RefUpdate ru = db.updateRef(BRANCH);
 				ru.setNewObjectId(commitId);
 				ru.setExpectedOldObjectId(headId);
 				ru.setRefLogMessage("commit: " + revCommit.getShortMessage(), false);
@@ -740,7 +756,7 @@ public class RepositoryTicketService extends ITicketService {
 							ru.getRef(), rc);
 				default:
 					throw new JGitInternalException(MessageFormat.format(
-							JGitText.get().updatingRefFailed, GITBLIT_TICKETS, commitId.toString(),
+							JGitText.get().updatingRefFailed, BRANCH, commitId.toString(),
 							rc));
 				}
 			} finally {
@@ -758,7 +774,7 @@ public class RepositoryTicketService extends ITicketService {
 		try {
 			RefModel branch = getTicketsBranch(db);
 			if (branch != null) {
-				return JGitUtils.deleteBranchRef(db, GITBLIT_TICKETS);
+				return JGitUtils.deleteBranchRef(db, BRANCH);
 			}
 			return true;
 		} catch (Exception e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,12 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.util.Arrays;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
-import com.gitblit.manager.INotificationManager;
-import com.gitblit.manager.IRepositoryManager;
-import com.gitblit.manager.IRuntimeManager;
-import com.gitblit.manager.IUserManager;
-import com.gitblit.manager.NotificationManager;
-import com.gitblit.manager.RepositoryManager;
-import com.gitblit.manager.RuntimeManager;
-import com.gitblit.manager.UserManager;
 import com.gitblit.models.Mailing;
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
@@ -49,8 +42,6 @@ import com.gitblit.tests.mock.MemorySettings;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.ITicketService.TicketFilter;
 import com.gitblit.tickets.QueryResult;
-import com.gitblit.tickets.RedisTicketService;
-import com.gitblit.tickets.RepositoryTicketService;
 import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
@@ -63,93 +54,51 @@ import com.gitblit.utils.JGitUtils;
  * @author James Moger
  *
  */
-public class TicketServiceTest extends GitblitUnitTest {
+public abstract class TicketServiceTest extends GitblitUnitTest {
 
-	private final RepositoryModel repository = new RepositoryModel("gb-tickets.git", null, null, null);
+	private ITicketService service;
 
-	@BeforeClass
-	public static void prepare() {
-	}
+	protected abstract RepositoryModel getRepository();
 
-	private ITicketService getService(boolean deleteAll) throws Exception {
-		return getRepositoryService(deleteAll);
-	}
+	protected abstract ITicketService getService(boolean deleteAll) throws Exception;
 
-	private ITicketService getRedisService(boolean deleteAll) throws Exception {
-		File dir = new File(GitBlitSuite.REPOSITORIES, repository.name);
+	protected IStoredSettings getSettings(boolean deleteAll) throws Exception {
+		File dir = new File(GitBlitSuite.REPOSITORIES, getRepository().name);
 		if (deleteAll) {
 			FileUtils.deleteDirectory(dir);
-			JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repository.name).close();
+			JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, getRepository().name).close();
 		}
 
-		File luceneDir = new File(dir, "tickets");
+		File luceneDir = new File(dir, "tickets/lucene");
+		luceneDir.mkdirs();
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES.getAbsolutePath());
-		map.put(Keys.tickets.redisUrl, "redis://localhost:6379/1");
 		map.put(Keys.tickets.indexFolder, luceneDir.getAbsolutePath());
 
 		IStoredSettings settings = new MemorySettings(map);
-		IRuntimeManager runtimeManager = new RuntimeManager(settings).start();
-		INotificationManager notificationManager = new NotificationManager(settings).start();
-		IUserManager userManager = new UserManager(runtimeManager).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, userManager).start();
-
-		RedisTicketService service = new RedisTicketService(
-				runtimeManager,
-				notificationManager,
-				userManager,
-				repositoryManager).start();
-
-		if (deleteAll) {
-			service.deleteAll(repository);
-		}
-		return service;
+		return settings;
 	}
 
-	private ITicketService getRepositoryService(boolean deleteAll) throws Exception {
-		File dir = new File(GitBlitSuite.REPOSITORIES, repository.name);
-		if (deleteAll) {
-			FileUtils.deleteDirectory(dir);
-			JGitUtils.createRepository(GitBlitSuite.REPOSITORIES, repository.name).close();
-		}
+	@Before
+	public void setup() throws Exception {
+		service = getService(true);
+	}
 
-		File luceneDir = new File(dir, "tickets");
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(Keys.git.repositoriesFolder, GitBlitSuite.REPOSITORIES.getAbsolutePath());
-		map.put(Keys.tickets.redisUrl, "redis://localhost:6379/1");
-		map.put(Keys.tickets.indexFolder, luceneDir.getAbsolutePath());
-
-		IStoredSettings settings = new MemorySettings(map);
-		IRuntimeManager runtimeManager = new RuntimeManager(settings).start();
-		INotificationManager notificationManager = new NotificationManager(settings).start();
-		IUserManager userManager = new UserManager(runtimeManager).start();
-		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, userManager).start();
-
-		RepositoryTicketService service = new RepositoryTicketService(
-				runtimeManager,
-				notificationManager,
-				userManager,
-				repositoryManager).start();
-
-		if (deleteAll) {
-			service.deleteAll(repository);
-		}
-		return service;
+	@After
+	public void cleanup() {
+		service.stop();
 	}
 
 	@Test
 	public void testLifecycle() throws Exception {
-		ITicketService service = getService(true);
-
 		// create and insert a ticket
 		Change c1 = newChange("testCreation() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(repository, c1);
+		TicketModel ticket = service.createTicket(getRepository(), c1);
 		assertTrue(ticket.number > 0);
 
 		// retrieve ticket and compare
-		TicketModel constructed = service.getTicket(repository, ticket.number);
+		TicketModel constructed = service.getTicket(getRepository(), ticket.number);
 		compare(ticket, constructed);
 
 		assertEquals(1, constructed.changes.size());
@@ -157,11 +106,11 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C1: create the ticket
 		int changeCount = 0;
 		c1 = newChange("testUpdates() " + Long.toHexString(System.currentTimeMillis()));
-		ticket = service.createTicket(repository, c1);
+		ticket = service.createTicket(getRepository(), c1);
 		assertTrue(ticket.number > 0);
 		changeCount++;
 
-		constructed = service.getTicket(repository, ticket.number);
+		constructed = service.getTicket(getRepository(), ticket.number);
 		compare(ticket, constructed);
 		assertEquals(1, constructed.changes.size());
 
@@ -169,7 +118,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		Change c2 = new Change("C2");
 		c2.comment("I'll fix this");
 		c2.setField(Field.responsible, c2.author);
-		constructed = service.updateTicket(repository, ticket.number, c2);
+		constructed = service.updateTicket(getRepository(), ticket.number, c2);
 		assertNotNull(constructed);
 		assertEquals(2, constructed.changes.size());
 		assertEquals(c2.author, constructed.responsible);
@@ -178,7 +127,7 @@ public class TicketServiceTest extends GitblitUnitTest {
 		// C3: add a note
 		Change c3 = new Change("C3");
 		c3.comment("yeah, this is working");
-		constructed = service.updateTicket(repository, ticket.number, c3);
+		constructed = service.updateTicket(getRepository(), ticket.number, c3);
 		assertNotNull(constructed);
 		assertEquals(3, constructed.changes.size());
 		changeCount++;
@@ -188,10 +137,10 @@ public class TicketServiceTest extends GitblitUnitTest {
 			Change c4 = new Change("C4");
 			Attachment a = newAttachment();
 			c4.addAttachment(a);
-			constructed = service.updateTicket(repository, ticket.number, c4);
+			constructed = service.updateTicket(getRepository(), ticket.number, c4);
 			assertNotNull(constructed);
 			assertTrue(constructed.hasAttachments());
-			Attachment a1 = service.getAttachment(repository, ticket.number, a.name);
+			Attachment a1 = service.getAttachment(getRepository(), ticket.number, a.name);
 			assertEquals(a.content.length, a1.content.length);
 			assertTrue(Arrays.areEqual(a.content, a1.content));
 			changeCount++;
@@ -201,20 +150,20 @@ public class TicketServiceTest extends GitblitUnitTest {
 		Change c5 = new Change("C5");
 		c5.comment("closing issue");
 		c5.setField(Field.status, Status.Resolved);
-		constructed = service.updateTicket(repository, ticket.number, c5);
+		constructed = service.updateTicket(getRepository(), ticket.number, c5);
 		assertNotNull(constructed);
 		changeCount++;
 		assertTrue(constructed.isClosed());
 		assertEquals(changeCount, constructed.changes.size());
 
-		List<TicketModel> allTickets = service.getTickets(repository);
-		List<TicketModel> openTickets = service.getTickets(repository, new TicketFilter() {
+		List<TicketModel> allTickets = service.getTickets(getRepository());
+		List<TicketModel> openTickets = service.getTickets(getRepository(), new TicketFilter() {
 			@Override
 			public boolean accept(TicketModel ticket) {
 				return ticket.isOpen();
 			}
 		});
-		List<TicketModel> closedTickets = service.getTickets(repository, new TicketFilter() {
+		List<TicketModel> closedTickets = service.getTickets(getRepository(), new TicketFilter() {
 			@Override
 			public boolean accept(TicketModel ticket) {
 				return ticket.isClosed();
@@ -225,18 +174,18 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertEquals(1, closedTickets.size());
 
 		// build a new Lucene index
-		service.reindex(repository);
-		List<QueryResult> hits = service.searchFor(repository, "working", 1, 10);
+		service.reindex(getRepository());
+		List<QueryResult> hits = service.searchFor(getRepository(), "working", 1, 10);
 		assertEquals(1, hits.size());
 
 		// reindex a ticket
 		ticket = allTickets.get(0);
 		Change change = new Change("reindex");
 		change.comment("this is a test of reindexing a ticket");
-		service.updateTicket(repository, ticket.number, change);
-		ticket = service.getTicket(repository, ticket.number);
+		service.updateTicket(getRepository(), ticket.number, change);
+		ticket = service.getTicket(getRepository(), ticket.number);
 
-		hits = service.searchFor(repository, "reindexing", 1, 10);
+		hits = service.searchFor(getRepository(), "reindexing", 1, 10);
 		assertEquals(1, hits.size());
 
 		service.stop();
@@ -254,19 +203,15 @@ public class TicketServiceTest extends GitblitUnitTest {
 
 		// delete all tickets
 		for (TicketModel aTicket : allTickets) {
-			assertTrue(service.deleteTicket(repository, aTicket.number, "D"));
+			assertTrue(service.deleteTicket(getRepository(), aTicket.number, "D"));
 		}
-
-		service.stop();
 	}
 
 	@Test
 	public void testChangeComment() throws Exception {
-		ITicketService service = getService(true);
-
 		// C1: create the ticket
 		Change c1 = newChange("testChangeComment() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(repository, c1);
+		TicketModel ticket = service.createTicket(getRepository(), c1);
 		assertTrue(ticket.number > 0);
 		assertTrue(ticket.changes.get(0).hasComment());
 
@@ -275,18 +220,14 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertTrue(ticket.changes.get(0).hasComment());
 		assertEquals("I changed the comment", ticket.changes.get(0).comment.text);
 
-		assertTrue(service.deleteTicket(repository, ticket.number, "D"));
-
-		service.stop();
+		assertTrue(service.deleteTicket(getRepository(), ticket.number, "D"));
 	}
 
 	@Test
 	public void testDeleteComment() throws Exception {
-		ITicketService service = getService(true);
-
 		// C1: create the ticket
 		Change c1 = newChange("testDeleteComment() " + Long.toHexString(System.currentTimeMillis()));
-		TicketModel ticket = service.createTicket(repository, c1);
+		TicketModel ticket = service.createTicket(getRepository(), c1);
 		assertTrue(ticket.number > 0);
 		assertTrue(ticket.changes.get(0).hasComment());
 
@@ -295,65 +236,55 @@ public class TicketServiceTest extends GitblitUnitTest {
 		assertEquals(1, ticket.changes.size());
 		assertFalse(ticket.changes.get(0).hasComment());
 
-		assertTrue(service.deleteTicket(repository, ticket.number, "D"));
-
-		service.stop();
+		assertTrue(service.deleteTicket(getRepository(), ticket.number, "D"));
 	}
 
 	@Test
 	public void testMilestones() throws Exception {
-		ITicketService service = getService(true);
+		service.createMilestone(getRepository(), "M1", "james");
+		service.createMilestone(getRepository(), "M2", "frank");
+		service.createMilestone(getRepository(), "M3", "joe");
 
-		service.createMilestone(repository, "M1", "james");
-		service.createMilestone(repository, "M2", "frank");
-		service.createMilestone(repository, "M3", "joe");
-
-		List<TicketMilestone> milestones = service.getMilestones(repository, Status.Open);
+		List<TicketMilestone> milestones = service.getMilestones(getRepository(), Status.Open);
 		assertEquals("Unexpected open milestones count", 3, milestones.size());
 
 		for (TicketMilestone milestone : milestones) {
 			milestone.status = Status.Resolved;
 			milestone.due = new Date();
-			assertTrue("failed to update milestone " + milestone.name, service.updateMilestone(repository, milestone, "ted"));
+			assertTrue("failed to update milestone " + milestone.name, service.updateMilestone(getRepository(), milestone, "ted"));
 		}
 
-		milestones = service.getMilestones(repository, Status.Open);
+		milestones = service.getMilestones(getRepository(), Status.Open);
 		assertEquals("Unexpected open milestones count", 0, milestones.size());
 
-		milestones = service.getMilestones(repository, Status.Resolved);
+		milestones = service.getMilestones(getRepository(), Status.Resolved);
 		assertEquals("Unexpected resolved milestones count", 3, milestones.size());
 
 		for (TicketMilestone milestone : milestones) {
-			assertTrue("failed to delete milestone " + milestone.name, service.deleteMilestone(repository, milestone.name, "lucifer"));
+			assertTrue("failed to delete milestone " + milestone.name, service.deleteMilestone(getRepository(), milestone.name, "lucifer"));
 		}
-
-		service.stop();
 	}
 
 	@Test
 	public void testLabels() throws Exception {
-		ITicketService service = getService(true);
+		service.createLabel(getRepository(), "L1", "james");
+		service.createLabel(getRepository(), "L2", "frank");
+		service.createLabel(getRepository(), "L3", "joe");
 
-		service.createLabel(repository, "L1", "james");
-		service.createLabel(repository, "L2", "frank");
-		service.createLabel(repository, "L3", "joe");
-
-		List<TicketLabel> labels = service.getLabels(repository);
+		List<TicketLabel> labels = service.getLabels(getRepository());
 		assertEquals("Unexpected open labels count", 3, labels.size());
 
 		for (TicketLabel label : labels) {
 			label.color = "#ffff00";
-			assertTrue("failed to update label " + label.name, service.updateLabel(repository, label, "ted"));
+			assertTrue("failed to update label " + label.name, service.updateLabel(getRepository(), label, "ted"));
 		}
 
-		labels = service.getLabels(repository);
+		labels = service.getLabels(getRepository());
 		assertEquals("Unexpected labels count", 3, labels.size());
 
 		for (TicketLabel label : labels) {
-			assertTrue("failed to delete label " + label.name, service.deleteLabel(repository, label.name, "lucifer"));
+			assertTrue("failed to delete label " + label.name, service.deleteLabel(getRepository(), label.name, "lucifer"));
 		}
-
-		service.stop();
 	}
 
 
@@ -402,18 +333,15 @@ public class TicketServiceTest extends GitblitUnitTest {
 		patchset.tip = "50f57913f816d04a16b7407134de5d8406421f37";
 		kernel.patchset = patchset;
 
-		ITicketService service = getService(true);
-
-		TicketModel ticket = service.createTicket(repository, 0L, kernel);
+		TicketModel ticket = service.createTicket(getRepository(), 0L, kernel);
 
 		Change merge = new Change("james");
 		merge.setField(Field.mergeSha, patchset.tip);
 		merge.setField(Field.mergeTo, "master");
 		merge.setField(Field.status, Status.Merged);
 
-		ticket = service.updateTicket(repository, ticket.number, merge);
-
-		ticket.repository = "test.git";
+		ticket = service.updateTicket(getRepository(), ticket.number, merge);
+		ticket.repository = getRepository().name;
 
 		TicketNotifier notifier = service.createNotifier();
 		Mailing mailing = notifier.queueMailing(ticket);

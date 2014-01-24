@@ -393,4 +393,23 @@ public interface IRepositoryManager extends IManager {
 	 */
 	boolean isCollectingGarbage(String repositoryName);
 
+	/**
+	 * Ensures that all cached repositories are completely closed and their resources
+	 * are properly released.
+	 */
+	void closeAll();
+
+	/**
+	 * Ensures that a cached repository is completely closed and it's resources
+	 * are properly released.
+	 */
+	void close(String repository);
+
+	/**
+	 * Returns true if the repository is idle (not being accessed).
+	 *
+	 * @param repository
+	 * @return true if the repository is idle
+	 */
+	boolean isIdle(Repository repository);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,10 @@ import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
 import com.gitblit.manager.RepositoryManager;
 import com.gitblit.manager.RuntimeManager;
+import com.gitblit.tickets.BranchTicketService;
+import com.gitblit.tickets.FileTicketService;
 import com.gitblit.tickets.ITicketService;
 import com.gitblit.tickets.RedisTicketService;
-import com.gitblit.tickets.RepositoryTicketService;
 import com.gitblit.utils.StringUtils;
 
 /**
@@ -127,17 +128,19 @@ public class ReindexTickets {
 		IRuntimeManager runtimeManager = new RuntimeManager(settings, baseFolder).start();
 		IRepositoryManager repositoryManager = new RepositoryManager(runtimeManager, null).start();
 
-		String serviceName = settings.getString(Keys.tickets.service, RepositoryTicketService.class.getSimpleName());
+		String serviceName = settings.getString(Keys.tickets.service, BranchTicketService.class.getSimpleName());
 		ITicketService ticketService = null;
 		try {
 			Class<?> serviceClass = Class.forName(serviceName);
 			if (RedisTicketService.class.isAssignableFrom(serviceClass)) {
 				// Redis ticket service
 				ticketService = new RedisTicketService(runtimeManager, null, null, repositoryManager).start();
-			} else if (RepositoryTicketService.class.isAssignableFrom(serviceClass)) {
-				// Repository ticket service
-				settings.overrideSetting(Keys.tickets.redisUrl, "");
-				ticketService = new RepositoryTicketService(runtimeManager, null, null, repositoryManager).start();
+			} else if (BranchTicketService.class.isAssignableFrom(serviceClass)) {
+				// Branch ticket service
+				ticketService = new BranchTicketService(runtimeManager, null, null, repositoryManager).start();
+			} else if (FileTicketService.class.isAssignableFrom(serviceClass)) {
+				// File ticket service
+				ticketService = new FileTicketService(runtimeManager, null, null, repositoryManager).start();
 			} else {
 				System.err.println("Unknown ticket service " + serviceName);
 				System.exit(1);
