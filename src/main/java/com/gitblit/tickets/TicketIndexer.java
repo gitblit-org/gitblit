@@ -582,11 +582,11 @@ public class TicketIndexer {
 		result.updatedAt = unpackDate(doc, Lucene.updated);
 		result.title = unpackString(doc, Lucene.title);
 		result.body = unpackString(doc, Lucene.body);
-		result.status = Status.fromObject(unpackString(doc, Lucene.status));
+		result.status = Status.fromObject(unpackString(doc, Lucene.status), Status.New);
 		result.responsible = unpackString(doc, Lucene.responsible);
 		result.milestone = unpackString(doc, Lucene.milestone);
 		result.topic = unpackString(doc, Lucene.topic);
-		result.type = TicketModel.Type.fromObject(unpackString(doc, Lucene.type));
+		result.type = TicketModel.Type.fromObject(unpackString(doc, Lucene.type), TicketModel.Type.defaultType);
 		result.mergeSha = unpackString(doc, Lucene.mergesha);
 		result.mergeTo = unpackString(doc, Lucene.mergeto);
 		result.commentsCount = unpackInt(doc, Lucene.comments);

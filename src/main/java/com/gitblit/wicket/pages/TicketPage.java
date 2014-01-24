@@ -320,7 +320,7 @@ public class TicketPage extends TicketBasePage {
 		/*
 		 * UPDATE FORM (DISCUSSION TAB)
 		 */
-		if (isAuthenticated) {
+		if (isAuthenticated && app().tickets().isAcceptingTicketUpdates(repository)) {
 			Fragment controls = new Fragment("controls", "controlsFragment", this);
 
 

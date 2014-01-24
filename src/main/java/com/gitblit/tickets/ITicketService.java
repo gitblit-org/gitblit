@@ -206,9 +206,7 @@ public abstract class ITicketService {
 		return isReady()
 				&& settings.getBoolean(Keys.tickets.acceptNewPatchsets, true)
 				&& repository.acceptNewPatchsets
-				&& repository.isBare
-				&& !repository.isFrozen
-				&& !repository.isMirror;
+				&& isAcceptingTicketUpdates(repository);
 	}
 
 	/**
@@ -222,6 +220,17 @@ public abstract class ITicketService {
 		return isReady()
 				&& settings.getBoolean(Keys.tickets.acceptNewTickets, true)
 				&& repository.acceptNewTickets
+				&& isAcceptingTicketUpdates(repository);
+	}
+
+	/**
+	 * Returns true if ticket updates are allowed for this repository.
+	 *
+	 * @param repository
+	 * @return true if tickets are allowed to be updated
+	 */
+	public boolean isAcceptingTicketUpdates(RepositoryModel repository) {
+		return isReady()
 				&& repository.isBare
 				&& !repository.isFrozen
 				&& !repository.isMirror;
@@ -454,10 +463,7 @@ public abstract class ITicketService {
 			Set<String> names = config.getSubsections(MILESTONE);
 			for (String name : names) {
 				TicketMilestone milestone = new TicketMilestone(name);
-				Status status = Status.fromObject(config.getString(MILESTONE, name, STATUS));
-				if (status != null) {
-					milestone.status = status;
-				}
+				milestone.status = Status.fromObject(config.getString(MILESTONE, name, STATUS), milestone.status);
 				milestone.color = config.getString(MILESTONE, name, COLOR);
 				String due = config.getString(MILESTONE, name, DUE);
 				if (!StringUtils.isEmpty(due)) {

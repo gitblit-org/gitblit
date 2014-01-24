@@ -77,7 +77,7 @@ public class NewTicketPage extends RepositoryPage {
 			setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
 
-		typeModel = Model.of(TicketModel.Type.Enhancement);
+		typeModel = Model.of(TicketModel.Type.defaultType);
 		titleModel = Model.of();
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
@@ -97,7 +97,7 @@ public class NewTicketPage extends RepositoryPage {
 				change.setField(Field.body, descriptionEditor.getText());
 
 				// type
-				TicketModel.Type type = TicketModel.Type.Enhancement;
+				TicketModel.Type type = TicketModel.Type.defaultType;
 				if (typeModel.getObject() != null) {
 					type = typeModel.getObject();
 				}

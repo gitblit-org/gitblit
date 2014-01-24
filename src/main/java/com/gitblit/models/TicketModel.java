@@ -132,6 +132,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		// the first applied change set the date appropriately
 		created = new Date(0);
 		changes = new ArrayList<Change>();
+		status = Status.New;
+		type = Type.defaultType;
 	}
 
 	public boolean isOpen() {
@@ -443,10 +445,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				Object value = entry.getValue();
 				switch (field) {
 				case type:
-					type = TicketModel.Type.fromObject(value);
+					type = TicketModel.Type.fromObject(value, type);
 					break;
 				case status:
-					status = TicketModel.Status.fromObject(value);
+					status = TicketModel.Status.fromObject(value, status);
 					break;
 				case title:
 					title = toString(value);
@@ -572,7 +574,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		}
 
 		public Status getStatus() {
-			Status state = Status.fromObject(getField(Field.status));
+			Status state = Status.fromObject(getField(Field.status), null);
 			return state;
 		}
 
@@ -1026,6 +1028,8 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public static enum Type {
 		Enhancement, Task, Bug, Proposal, Question;
 
+		public static Type defaultType = Task;
+
 		public static Type [] choices() {
 			return new Type [] { Enhancement, Task, Bug, Question };
 		}
@@ -1035,7 +1039,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			return name().toLowerCase().replace('_', ' ');
 		}
 
-		public static Type fromObject(Object o) {
+		public static Type fromObject(Object o, Type defaultType) {
 			if (o instanceof Type) {
 				// cast and return
 				return (Type) o;
@@ -1056,8 +1060,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				}
 			}
 
-			// default to no specified type
-			return null;
+			return defaultType;
 		}
 	}
 
@@ -1075,7 +1078,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			return name().toLowerCase().replace('_', ' ');
 		}
 
-		public static Status fromObject(Object o) {
+		public static Status fromObject(Object o, Status defaultStatus) {
 			if (o instanceof Status) {
 				// cast and return
 				return (Status) o;
@@ -1096,7 +1099,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				}
 			}
 
-			return null;
+			return defaultStatus;
 		}
 
 		public boolean isClosed() {
