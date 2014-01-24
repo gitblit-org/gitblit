@@ -185,11 +185,6 @@ public class TicketNotifier {
 				}
 				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
 				break;
-			case Open:
-				// reopened ticket
-				pattern = "**{0}** re-opened this ticket.";
-				sb.append(MessageFormat.format(pattern, user.getDisplayName()));
-				break;
 			default:
 				// some form of resolved
 				if (lastChange.hasField(Field.mergeSha)) {
