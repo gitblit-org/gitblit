@@ -5,7 +5,7 @@
         "fields": {
             "title": "Support Mailmap",
             "body": "There was an [inquiry] on the mailing list about support for [mailmap].\r\n\r\n[inquiry]: https://groups.google.com/d/msg/gitblit/Od7QaaySkDw/JADJHhlI57kJ\r\n[mailmap]:https://www.kernel.org/pub/software/scm/git/docs/git-shortlog.html",
-            "type": "Request",
+            "type": "Enhancement",
             "watchers": "+james",
             "status": "New"
         }
