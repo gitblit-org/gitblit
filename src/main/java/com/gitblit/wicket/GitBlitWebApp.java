@@ -50,6 +50,7 @@ import com.gitblit.wicket.pages.CommitPage;
 import com.gitblit.wicket.pages.ComparePage;
 import com.gitblit.wicket.pages.DocPage;
 import com.gitblit.wicket.pages.DocsPage;
+import com.gitblit.wicket.pages.EditTicketPage;
 import com.gitblit.wicket.pages.ExportTicketPage;
 import com.gitblit.wicket.pages.FederationRegistrationPage;
 import com.gitblit.wicket.pages.ForkPage;
@@ -176,6 +177,7 @@ public class GitBlitWebApp extends WebApplication {
 		// setup ticket urls
 		mount("/tickets", TicketsPage.class, "r", "h");
 		mount("/tickets/new", NewTicketPage.class, "r");
+		mount("/tickets/edit", EditTicketPage.class, "r", "h");
 		mount("/tickets/export", ExportTicketPage.class, "r", "h");
 
 		// setup the markup document urls

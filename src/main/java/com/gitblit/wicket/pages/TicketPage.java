@@ -463,6 +463,9 @@ public class TicketPage extends TicketBasePage {
 			};
 			controls.add(milestoneView);
 
+			String editHref = urlFor(EditTicketPage.class, params).toString();
+			controls.add(new ExternalLink("editLink", editHref, getString("gb.edit")));
+
 			add(controls);
 		} else {
 			add(new Label("controls").setVisible(false));

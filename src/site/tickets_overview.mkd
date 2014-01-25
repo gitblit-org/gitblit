@@ -4,7 +4,7 @@
 
 ### Design
 
-The Tickets feature of Gitblit is designed around the concept of collaborative branches.  It mixes elements inspired from GitHub, BitBucket, and Gerrit.
+The Tickets feature of Gitblit is designed around the concept of collaborative branches and mixes elements inspired from GitHub, BitBucket, and Gerrit.
 
 Gitblit stores each ticket as a journal (list of changes).  A ticket journal is retrieved from the chosen persistence engine and an effective ticket is built by applying the ordered changes from the journal.  These changes are usually additive, but in some cases a change may represent a deletion.  Tickets are indexed by Lucene against which all ticket queries are executed.
 
@@ -14,7 +14,8 @@ The Tickets feature is fairly functional but there are several areas which need 
 
 #### What is working
 
-- Ticket creation and basic manipulations (status, responsible, milestone)
+- Ticket creation and editing
+- Ticket creation on patchset push
 - Comments with Markdown syntax support
 - Rich email notifications
 - Patchset handling
@@ -31,7 +32,6 @@ The Tickets feature is fairly functional but there are several areas which need 
 #### TODO (soon)
 
 - hook the Merge button to the already implemented server-side merge logic
-- need an Edit Ticket Details page
 - need a My Tickets page
 - web ui for adding, editing, and deleting miletones
 - continue cleanup of code and templates
@@ -41,7 +41,7 @@ The Tickets feature is fairly functional but there are several areas which need 
 - would be nice to edit a comment
 - would be nice to delete a comment
 - hook points on new/updated/closed ticket
-- REST API for tools
+- REST API for tooling
 - The ticket page is very stateful and depends on your Wicket session.  I'm not in love with this but it's acceptable for now.
 - Might be nice to process Markdown previews client-side rather than round-tripping to Gitblit (another stateful example).  Perhaps using AngularMarkdown?
 
@@ -62,7 +62,7 @@ Your ticket changes are persisted to a Redis data store.  *Make sure you configu
 
 #### Limitations
 
-- Ticket data is non-relational to user accounts.  If *james* comments on a ticket, *james* is preserved forever in the ticket data.  This is similar to git commits which are also non-relational.  This could be overcome by wrting a tool to deserialize all the journals and rewrite the authors, so it is not impossible to change, but to KISS - ticket data is non-relational to user accounts.
+- Ticket data is non-relational to user accounts.  If *james* comments on a ticket, *james* is preserved forever in the ticket data.  This is similar to git commits which are also non-relational.  This could be overcome by wrting a tool to deserialize all the journals and rewrite the authors, so it is not impossible to change, but following KISS - ticket data is non-relational to user accounts.
 - The *Branch Ticket Service* does not currently permit ticket journal pushes from clones.  This is an area of exploration and may be possible given that a ticket is constructed from an append-only journal of changes.
 - Gitblit does not currently offer commit nor line review features.
 

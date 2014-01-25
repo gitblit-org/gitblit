@@ -36,21 +36,27 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Status;
+import com.gitblit.models.TicketModel.Type;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.tickets.TicketResponsible;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
 
 /**
- * Page for creating a new ticket.
+ * Page for editing a ticket.
  *
  * @author James Moger
  *
  */
-public class NewTicketPage extends RepositoryPage {
+public class EditTicketPage extends RepositoryPage {
+
+	static final String NIL = "<nil>";
+
+	static final String ESC_NIL = StringUtils.escapeForHtml(NIL,  false);
 
 	private IModel<TicketModel.Type> typeModel;
 
@@ -64,7 +70,7 @@ public class NewTicketPage extends RepositoryPage {
 
 	private Label descriptionPreview;
 
-	public NewTicketPage(PageParameters params) {
+	public EditTicketPage(PageParameters params) {
 		super(params);
 
 		UserModel currentUser = GitBlitWebSession.get().getUser();
@@ -72,13 +78,26 @@ public class NewTicketPage extends RepositoryPage {
 			currentUser = UserModel.ANONYMOUS;
 		}
 
-		if (!currentUser.isAuthenticated || !app().tickets().isAcceptingNewTickets(getRepositoryModel())) {
+		if (!currentUser.isAuthenticated || !app().tickets().isAcceptingTicketUpdates(getRepositoryModel())) {
 			// tickets prohibited
 			setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
 		}
 
-		typeModel = Model.of(TicketModel.Type.defaultType);
-		titleModel = Model.of();
+		long ticketId = 0L;
+		try {
+			String h = WicketUtils.getObject(params);
+			ticketId = Long.parseLong(h);
+		} catch (Exception e) {
+			setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+		}
+
+		TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), ticketId);
+		if (ticket == null) {
+			setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+		}
+
+		typeModel = Model.of(ticket.type);
+		titleModel = Model.of(ticket.title);
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
@@ -91,43 +110,85 @@ public class NewTicketPage extends RepositoryPage {
 
 			@Override
 			protected void onSubmit() {
+				long ticketId = 0L;
+				try {
+					String h = WicketUtils.getObject(getPageParameters());
+					ticketId = Long.parseLong(h);
+				} catch (Exception e) {
+					setResponsePage(TicketsPage.class, WicketUtils.newRepositoryParameter(repositoryName));
+				}
+
+				TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), ticketId);
+
 				String createdBy = GitBlitWebSession.get().getUsername();
 				Change change = new Change(createdBy);
-				change.setField(Field.title, titleModel.getObject());
-				change.setField(Field.body, descriptionEditor.getText());
 
-				// type
-				TicketModel.Type type = TicketModel.Type.defaultType;
-				if (typeModel.getObject() != null) {
-					type = typeModel.getObject();
+				String title = titleModel.getObject();
+				if (!ticket.title.equals(title)) {
+					// title change
+					change.setField(Field.title, title);
 				}
-				change.setField(Field.type, type);
 
-				// responsible
+				String description = descriptionEditor.getText();
+				if (!ticket.body.equals(description)) {
+					// description change
+					change.setField(Field.body, description);
+				}
+
+				Type type = typeModel.getObject();
+				if (!ticket.type.equals(type)) {
+					// type change
+					change.setField(Field.type, type);
+				}
+
 				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
-				if (responsible != null) {
+				if (responsible != null && !responsible.username.equals(ticket.responsible)) {
+					// responsible change
 					change.setField(Field.responsible, responsible.username);
+					if (!StringUtils.isEmpty(responsible.username)) {
+						if (!ticket.isWatching(responsible.username)) {
+							change.watch(responsible.username);
+						}
+					}
 				}
 
-				// milestone
 				TicketMilestone milestone = milestoneModel == null ? null : milestoneModel.getObject();
-				if (milestone != null) {
-					change.setField(Field.milestone, milestone.name);
+				if (milestone != null && !milestone.name.equals(ticket.milestone)) {
+					// milestone change
+					if (NIL.equals(milestone.name)) {
+						change.setField(Field.milestone, "");
+					} else {
+						change.setField(Field.milestone, milestone.name);
+					}
 				}
 
-				TicketModel ticket = app().tickets().createTicket(getRepositoryModel(), 0L, change);
-				if (ticket != null) {
-					TicketNotifier notifier = app().tickets().createNotifier();
-					notifier.sendMailing(ticket);
-					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+				if (change.hasFieldChanges()) {
+					if (!ticket.isWatching(createdBy)) {
+						change.watch(createdBy);
+					}
+					ticket = app().tickets().updateTicket(getRepositoryModel(), ticket.number, change);
+					if (ticket != null) {
+						TicketNotifier notifier = app().tickets().createNotifier();
+						notifier.sendMailing(ticket);
+						setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
+					} else {
+						// TODO error
+					}
 				} else {
-					// TODO error
+					// nothing to change?!
+					setResponsePage(TicketsPage.class, WicketUtils.newObjectParameter(getRepositoryModel().name, "" + ticket.number));
 				}
 			}
 		};
 		add(form);
 
-		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, Arrays.asList(TicketModel.Type.choices())));
+		List<Type> typeChoices;
+		if (ticket.isProposal()) {
+			typeChoices = Arrays.asList(Type.Proposal);
+		} else {
+			typeChoices = Arrays.asList(TicketModel.Type.choices());
+		}
+		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, typeChoices));
 		form.add(new TextField<String>("title", titleModel));
 
 		final IModel<String> markdownPreviewModel = new Model<String>();
@@ -138,6 +199,7 @@ public class NewTicketPage extends RepositoryPage {
 
 		descriptionEditor = new MarkdownTextArea("description", markdownPreviewModel, descriptionPreview);
 		descriptionEditor.setRepository(repositoryName);
+		descriptionEditor.setText(ticket.body);
 		form.add(descriptionEditor);
 
 		if (currentUser != null && currentUser.isAuthenticated && currentUser.canPush(getRepositoryModel())) {
@@ -147,18 +209,34 @@ public class NewTicketPage extends RepositoryPage {
 				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
 					UserModel user = app().users().getUserModel(rp.registrant);
 					if (user != null) {
-						responsibles.add(new TicketResponsible(user));
+						TicketResponsible responsible = new TicketResponsible(user);
+						responsibles.add(responsible);
+						if (user.username.equals(ticket.responsible)) {
+							responsibleModel.setObject(responsible);
+						}
 					}
 				}
 			}
 			Collections.sort(responsibles);
+			responsibles.add(new TicketResponsible(NIL, "", ""));
 			Fragment responsible = new Fragment("responsible", "responsibleFragment", this);
 			responsible.add(new DropDownChoice<TicketResponsible>("responsible", responsibleModel, responsibles));
 			form.add(responsible.setVisible(!responsibles.isEmpty()));
 
 			// milestone
 			List<TicketMilestone> milestones = app().tickets().getMilestones(getRepositoryModel(), Status.Open);
+			for (TicketMilestone milestone : milestones) {
+				if (milestone.name.equals(ticket.milestone)) {
+					milestoneModel.setObject(milestone);
+					break;
+				}
+			}
+			if (!milestones.isEmpty()) {
+				milestones.add(new TicketMilestone(NIL));
+			}
+
 			Fragment milestone = new Fragment("milestone", "milestoneFragment", this);
+
 			milestone.add(new DropDownChoice<TicketMilestone>("milestone", milestoneModel, milestones));
 			form.add(milestone.setVisible(!milestones.isEmpty()));
 		} else {
@@ -167,7 +245,7 @@ public class NewTicketPage extends RepositoryPage {
 			form.add(new Label("milestone").setVisible(false));
 		}
 
-		form.add(new Button("create"));
+		form.add(new Button("update"));
 		Button cancel = new Button("cancel") {
 			private static final long serialVersionUID = 1L;
 
@@ -183,7 +261,7 @@ public class NewTicketPage extends RepositoryPage {
 
 	@Override
 	protected String getPageName() {
-		return getString("gb.newTicket");
+		return getString("gb.editTicket");
 	}
 
 	@Override
