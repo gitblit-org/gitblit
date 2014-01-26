@@ -369,7 +369,8 @@
         "date": "2014-01-24T18:39:13Z",
         "author": "james",
         "patchset": {
-            "rev": 24,
+            "number": 5,
+            "rev": 10,
             "tip": "4d50b6b32150d1ce8d003d06604a0119e1775b34",
             "base": "21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514",
             "insertions": 13913,
@@ -383,7 +384,8 @@
         "date": "2014-01-24T22:50:59Z",
         "author": "james",
         "patchset": {
-            "rev": 25,
+            "number": 5,
+            "rev": 11,
             "tip": "f64c417907fead36b8396771806eb59fc02f03b4",
             "base": "21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514",
             "insertions": 13844,
@@ -397,7 +399,8 @@
         "date": "2014-01-25T02:51:02Z",
         "author": "james",
         "patchset": {
-            "rev": 26,
+            "number": 5,
+            "rev": 12,
             "tip": "68c0e71adc74c0235eba9cc34c4dc769b5fbbc0f",
             "base": "21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514",
             "insertions": 13874,
@@ -411,7 +414,8 @@
         "date": "2014-01-25T02:59:07Z",
         "author": "james",
         "patchset": {
-            "rev": 27,
+            "number": 5,
+            "rev": 13,
             "tip": "e50590544ac4d35b74daab1e4da27f6d4033d204",
             "base": "21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514",
             "insertions": 13874,
@@ -425,7 +429,8 @@
         "date": "2014-01-25T20:58:55Z",
         "author": "james",
         "patchset": {
-            "rev": 28,
+            "number": 5,
+            "rev": 14,
             "tip": "5317dfa264ce3edbdc1b2052271f38d9cf694422",
             "base": "21ca9d90c6f3b29e4574fe143bbfa7e0ef0b0514",
             "insertions": 14212,
