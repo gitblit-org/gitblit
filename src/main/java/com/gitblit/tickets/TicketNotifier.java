@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jgit.diff.DiffEntry.ChangeType;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.slf4j.LoggerFactory;
 
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
@@ -446,6 +447,8 @@ public class TicketNotifier {
 	 * @param mailing
 	 */
 	protected void setRecipients(TicketModel ticket, Mailing mailing) {
+		RepositoryModel repository = repositoryManager.getRepositoryModel(ticket.repository);
+
 		//
 		// Direct TO recipients
 		//
@@ -454,7 +457,13 @@ public class TicketNotifier {
 			UserModel user = userManager.getUserModel(name);
 			if (user != null) {
 				if (!StringUtils.isEmpty(user.emailAddress)) {
-					toAddresses.add(user.emailAddress);
+					if (user.canView(repository)) {
+						toAddresses.add(user.emailAddress);
+					} else {
+						LoggerFactory.getLogger(getClass()).warn(
+								MessageFormat.format("ticket {0}-{1,number,0}: {2} can not receive notification",
+										repository.name, ticket.number, user.username));
+					}
 				}
 			}
 		}
@@ -486,15 +495,20 @@ public class TicketNotifier {
 			UserModel user = userManager.getUserModel(name);
 			if (user != null) {
 				if (!StringUtils.isEmpty(user.emailAddress)) {
-					ccAddresses.add(user.emailAddress);
+					if (user.canView(repository)) {
+						ccAddresses.add(user.emailAddress);
+					} else {
+						LoggerFactory.getLogger(getClass()).warn(
+								MessageFormat.format("ticket {0}-{1,number,0}: {2} can not receive notification",
+										repository.name, ticket.number, user.username));
+					}
 				}
 			}
 		}
 
 		// cc repository mailing list addresses
-		RepositoryModel model = repositoryManager.getRepositoryModel(ticket.repository);
-		if (!ArrayUtils.isEmpty(model.mailingLists)) {
-			ccAddresses.addAll(model.mailingLists);
+		if (!ArrayUtils.isEmpty(repository.mailingLists)) {
+			ccAddresses.addAll(repository.mailingLists);
 		}
 		ccAddresses.addAll(settings.getStrings(Keys.mail.mailingLists));
 
