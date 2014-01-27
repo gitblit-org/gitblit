@@ -14,7 +14,7 @@ The Tickets feature of Gitblit is designed around a few principles:
 4. Multiple contributors should be allowed to participate in developing the patchset for a ticket, not just the original patchset author
 5. Contributors should be able to rewrite commits attached to a ticket without losing history.  Contributors should be encouraged to polish, hone, and rewrite as needed to ensure that what eventually is merged is logical and concise.
 
-Gitblit takes inspiration from GitHub, BitBucket, Gerrit, and Gitorious.
+Gitblit takes inspiration from GitHub, BitBucket, and Gerrit.
 
 #### Ticket Model
 
@@ -34,7 +34,7 @@ The Tickets feature is highly functional but there are several areas which need 
 - Ticket creation on patchset push
 - Comments with Markdown syntax support
 - Rich email notifications
-- Fast-forward and rewrite patchset handling
+- Fast-forward patchset updates and patchset rewrites
 - Voting
 - Watching
 - Mentions
@@ -102,7 +102,7 @@ Gitblit's Ticket page ui is partially inspired by BitBucket.  Gitblit Tickets ha
 
 After working with this design for many months and dogfooding dozens of tickets with hundreds of amends, rebases, and squashes, I have concluded that this workflow doesn't work like I wanted it to for active, in-development code.  It is best suited for it's original intention: code-review.  It also introduces many, many refs.
 
-Gitblit has adopted Gerrit's *magic ref* design.
+Gitblit has adopted Gerrit's *magic ref* design and something similar to Gerrit *patchsets*.
 
 ### Nomenclature
 

@@ -152,7 +152,7 @@ public abstract class ITicketService {
 		CacheBuilder<Object, Object> cb = CacheBuilder.newBuilder();
 		this.ticketsCache = cb
 				.maximumSize(1000)
-				.expireAfterAccess(10, TimeUnit.MINUTES)
+				.expireAfterAccess(30, TimeUnit.MINUTES)
 				.build();
 
 		this.labelsCache = new ConcurrentHashMap<String, List<TicketLabel>>();

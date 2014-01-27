@@ -10,9 +10,13 @@ Standard tickets can be created using the web ui.  These ticket types include *B
 
 Proposal tickets are created by pushing a patchset to the magic ref.  They can not be created from the web ui.
 
-*Why should I create a proposal ticket?*  Because you are too lazy to create a ticket in the web ui first.  The proposal ticket is a convenience mechanism.  It allows you to propose changes using Git, not your browser.
+*Why should I create a proposal ticket?*
 
-*Who can create a proposal ticket?*  Any authenticated user who can clone your repository.
+Because you are too lazy to create a ticket in the web ui first.  The proposal ticket is a convenience mechanism.  It allows you to propose changes using Git, not your browser.
+
+*Who can create a proposal ticket?*
+
+Any authenticated user who can clone your repository.
 
     git checkout -b mytopic
     ...add a single commit...
@@ -22,7 +26,9 @@ Proposal tickets are created by pushing a patchset to the magic ref.  They can n
 
 If you have an existing ticket that does not yet have a proposed patchset you can push using the magic ref.
 
-*Who can create the first patchset for an existing ticket?*  Any authenticated user who can clone your repository.
+*Who can create the first patchset for an existing ticket?*
+
+Any authenticated user who can clone your repository.
 
     git checkout -b mytopic
     ...add one or more commits...
@@ -42,15 +48,25 @@ If you have an existing ticket that does not yet have a proposed patchset you ca
     ...add one or more commits...
     git push origin HEAD:refs/tickets/{shard}/{id}/{patchset}
 
-*What is the {shard} and how do I determine it?*  The shard is a necessity of scaling refs above the per-directory limitations of the filesystem.  The shard is the last two digits of the ticket id, prepended with 0 if the id < 10.  The shard is always 2 digits.
+*What is the {shard} and how do I determine it?*
 
-*Why do I have to push to such a complex refspec?*  Technically, you don't.
+The shard is a necessity for scaling refs above the per-directory limitations of the filesystem.  The shard is the last two digits of the ticket id, prepended with 0 if the id < 10.  The shard is always 2 digits.
 
-You could always push to *refs/for/{id}* **BUT** that isn't always safe.  The magic ref will **always** allow rebases, rewrites, and squashes.  Gitblit can not detect an intentional non-fast-forward update from an unintentional non-fast-forward update.  That is why it is recommended to use the explicit patchset ref to add commits to the patchset.  Using the patchset ref allows your Git client to detect and reject the non-fast-forward update.
+*Why do I have to push using such a complex refspec?*
+
+Technically, you don't.
+
+You could always push to *refs/for/{id}* **BUT** that isn't always safe.  The magic ref will **always** allow rebases, amends, and squashes.  Gitblit can not detect an intentional non-fast-forward update from an unintentional non-fast-forward update.  That is why it is recommended to use the explicit patchset ref to add commits to an existing patchset.  Using the patchset ref allows your Git client to detect and reject unintentional non-fast-forward updates.
+
+*This refspec is ugly, can it be simplified?*
+
+The patchset refspec can't be simplified, but your tooling could be smarter.  There is a companion client tool [Barnum](http://barnum.gitblit.com) that is currently very broken, but was written to address this need.  Alternately, you could write simple Bash, Python, etc scripts to wrap your Git commands which would make this much more elegant.  This is an area that needs improvement (patchsets welcome).
 
 ### Rewriting a Patchset (amend, rebase, squash)
 
-*Who can rewrite a patchset?*  See the above rules for who can add commits to a patchset. You do **not** need rewind (RW+) to the repository to push a non-fast-forward patchset.  Gitblit will detect the non-fast-forward update and create a new patchset series ref.  This preserves the previous patchset.
+*Who can rewrite a patchset?*
+
+See the above rules for who can add commits to a patchset. You do **not** need rewind (RW+) to the repository to push a non-fast-forward patchset.  Gitblit will detect the non-fast-forward update and create a new patchset ref.  This preserves the previous patchset.
 
     git fetch origin refs/tickets/{shard}/{id}/{patchset}
     git checkout -b tickets/{id}/{patchset} FETCH_HEAD
@@ -61,7 +77,7 @@ You could always push to *refs/for/{id}* **BUT** that isn't always safe.  The ma
 
 Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
 
-#### to create a proposal ticket
+#### to create a new proposal ticket
 
 | ref                  | description                                  |
 | :------------------- | :------------------------------------------- |
@@ -73,7 +89,7 @@ Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
 
 | ref                  | description                                  |
 | :------------------- | :------------------------------------------- |
-| refs/for/{id}        | non-fast-forward update for existing ticket  |
+| refs/for/{id}        | add new patchset to an existing ticket       |
 
 #### to add commits to an existing patchset
 
@@ -86,11 +102,11 @@ Gitblit supports two primary push ref specs: the magic ref and the patchset ref.
 
 | magic ref            | description                                  |
 | :------------------- | :------------------------------------------- |
-| refs/for/{id}        | creates new patchset for ticket              |
+| refs/for/{id}        | add new patchset to an existing ticket       |
 
 ### Ticket RefSpec Tricks
 
-Gitblit supports setting ticket fields embedded in the push refspec.
+Gitblit supports setting some ticket fields from the push refspec.
 
     refs/for/master%topic=bug/42,r=james,m=1.4.1,cc=dave,cc=mark
 
