@@ -129,6 +129,7 @@ public class ReflogPanel extends BasePanel {
 				String fullRefName = change.getChangedRefs().get(0);
 				String shortRefName = fullRefName;
 				String ticketId = null;
+				String patchset = null;
 				boolean isTag = false;
 				boolean isPatch = false;
 				if (shortRefName.startsWith(Constants.R_HEADS)) {
@@ -139,6 +140,7 @@ public class ReflogPanel extends BasePanel {
 				} else if (shortRefName.startsWith(Constants.R_CHANGES)) {
 					int i = fullRefName.indexOf('/', Constants.R_CHANGES.length()) + 1;
 					ticketId = fullRefName.substring(i, fullRefName.indexOf('/', i));
+					patchset = fullRefName.substring(fullRefName.lastIndexOf('/') + 1);
 					shortRefName = shortRefName.substring(shortRefName.lastIndexOf('/') + 1);
 					isPatch = true;
 				}
@@ -195,9 +197,9 @@ public class ReflogPanel extends BasePanel {
 					if (isTag) {
 						// new tag
 						what = getString("gb.pushedNewTag");
-					} else if(isPatch) {
+					} else if (isPatch) {
 						// new patch
-						what = getString("gb.uploadedPatchset");
+						what = MessageFormat.format(getString("gb.uploadedPatchsetN"), patchset);
 						by = getString("gb.ticket") + " #" + ticketId;
 					} else {
 						// new branch

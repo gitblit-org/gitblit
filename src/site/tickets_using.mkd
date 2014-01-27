@@ -1,0 +1,93 @@
+## Using Tickets
+
+*PREVIEW 1.4.0*
+
+### Creating Standard Tickets
+
+Standard tickets can be created using the web ui.  These ticket types include *Bug*, *Enhancement*, *task*, and *Question*.
+
+### Creating a Proposal Ticket
+
+Proposal tickets are created by pushing a patchset to one of the magic refs.  They can not be created from the web ui.
+
+*Who can create a proposal ticket?*  Any authenticated user who can clone your repository.
+
+    git checkout -b mytopic
+    ...add a single commit...
+    git push origin HEAD:refs/for/new
+
+### Creating a Patchset for an Existing Ticket
+
+*Who can create a patchset for an existing ticket?*  Any authenticated user who can clone your repository.
+
+    git checkout -b mytopic
+    ...add one or more commits...
+    git push origin HEAD:refs/for/{id}
+
+### Add to a Patchset for an Existing Ticket
+
+*Who can add commits to an existing patchset?*
+
+1. The author of the ticket
+2. The author of the initial patchset
+3. Any user with write (RW) permissions to the repository
+4. Any user specified as a Reviewer for the ticket (currently no way to set that)
+
+
+    git fetch origin refs/tickets/{id}
+    git checkout -b ticket/{id} FETCH_HEAD
+    ...add one or more commits...
+    git push origin HEAD:refs/tickets/{id}
+
+### Rewriting a Patchset (amend, rebase, squash)
+
+*Who can rewrite a patchset?*  See the above rules for who can add commits to a patchset. You do **not** need rewind (RW+) to the repository to push a non-fast-forward patchset.  Gitblit will detect the non-fast-forward update and create a new patchset series ref.  This preserves the previous patchset series.
+
+    git fetch origin refs/tickets/{id}
+    git checkout -b ticket/{id} FETCH_HEAD
+    ..amend, rebase, squash..
+    git push origin HEAD:refs/for/{id}
+
+### RefSpecs
+
+Gitblit supports several magic refs.
+
+#### to create a proposal ticket
+
+| magic ref            | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/new         | new proposal for the default branch          |
+| refs/for/default     | new proposal for the default branch          |
+| refs/for/{branch}    | new proposal for the specified branch        |
+
+#### to add a proposal patchset (first patchset) to an existing ticket
+
+| magic ref            | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/{id}        | non-fast-forward update for existing ticket  |
+
+#### to add commits to an existing patchset
+
+| magic ref            | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/tickets/{id}    | fast-forward update for existing patchset    |
+
+
+#### to rewrite a patchset (amend, rebase, squash)
+
+| magic ref            | description                                  |
+| :------------------- | :------------------------------------------- |
+| refs/for/{id}        | allows non-fast-forward update               |
+
+### RefSpec Tricks
+
+Gitblit supports setting ticket fields embedded in the patch push refspec.
+
+    refs/for/master%topic=bug/42,r=james,m=1.4.1,cc=dave,cc=mark
+
+| parameter | description                                                     |
+| :-------- | :-------------------------------------------------------------- |
+| topic     | assign a *topic* to the ticket                                  |
+| r         | set the *responsible* user                                      |
+| m         | set the *milestone* for patchset integration                    |
+| cc        | add this account to the *watch* list (multiple ccs allowed)     |

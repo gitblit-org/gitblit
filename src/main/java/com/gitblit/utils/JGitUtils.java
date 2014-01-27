@@ -2238,7 +2238,7 @@ public class JGitUtils {
 			revWalk = new RevWalk(repository);
 			RevCommit intoTip = revWalk.lookupCommit(repository.resolve(into));
 			RevCommit fromTip = revWalk.parseCommit(repository.resolve(from));
-			if (fromTip.getParent(0).getId().equals(intoTip.getId())) {
+			if (fromTip.getParent(0) == null || fromTip.getParent(0).getId().equals(intoTip.getId())) {
 				// pull commit is based on the branch head (fast-forward)
 				return true;
 			}

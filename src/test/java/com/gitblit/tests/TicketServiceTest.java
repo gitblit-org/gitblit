@@ -329,6 +329,7 @@ public abstract class TicketServiceTest extends GitblitUnitTest {
 		Patchset patchset = new Patchset();
 		patchset.insertions = 100;
 		patchset.deletions = 10;
+		patchset.number = 1;
 		patchset.rev = 25;
 		patchset.tip = "50f57913f816d04a16b7407134de5d8406421f37";
 		kernel.patchset = patchset;

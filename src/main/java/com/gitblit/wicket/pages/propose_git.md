@@ -3,4 +3,4 @@
     git checkout -b ticket/${number} ${integrationBranch}
     ...
     git commit
-    git push origin HEAD:refs/tickets/${number}
+    git push origin HEAD:refs/for/${number}

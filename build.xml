@@ -555,6 +555,7 @@
 					<page name="client app menus" src="setup_clientmenus.mkd" />
 					<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 						<page name="overview" src="tickets_overview.mkd" />
+						<page name="using" src="tickets_using.mkd" />
 					</menu>					
 					<divider />
 					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
@@ -874,6 +875,7 @@
 						<page name="client app menus" src="setup_clientmenus.mkd" />
 						<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="overview" src="tickets_overview.mkd" />
+							<page name="using" src="tickets_using.mkd" />
 						</menu>					
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />

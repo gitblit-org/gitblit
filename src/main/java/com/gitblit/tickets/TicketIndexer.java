@@ -527,12 +527,13 @@ public class TicketIndexer {
 			toDocField(doc, Lucene.patchsets, patches.size());
 			Patchset patchset = patches.get(patches.size() - 1);
 			String flat =
+					patchset.number + ":" +
 					patchset.rev + ":" +
 					patchset.tip + ":" +
 					patchset.base + ":" +
 					patchset.insertions + ":" +
 					patchset.deletions + ":" +
-					patchset.totalCommits;
+					patchset.commits;
 			doc.add(new org.apache.lucene.document.Field(Lucene.patchset.name(), flat, TextField.TYPE_STORED));
 		}
 
@@ -600,15 +601,16 @@ public class TicketIndexer {
 
 		if (!StringUtils.isEmpty(doc.get(Lucene.patchset.name()))) {
 			// unpack most recent patchset
-			String [] values = doc.get(Lucene.patchset.name()).split(":", 6);
+			String [] values = doc.get(Lucene.patchset.name()).split(":", 7);
 
 			Patchset patchset = new Patchset();
-			patchset.rev = Integer.parseInt(values[0]);
-			patchset.tip = values[1];
-			patchset.base = values[2];
-			patchset.insertions = Integer.parseInt(values[3]);
-			patchset.deletions = Integer.parseInt(values[4]);
-			patchset.totalCommits = Integer.parseInt(values[5]);
+			patchset.number = Integer.parseInt(values[0]);
+			patchset.rev = Integer.parseInt(values[1]);
+			patchset.tip = values[2];
+			patchset.base = values[3];
+			patchset.insertions = Integer.parseInt(values[4]);
+			patchset.deletions = Integer.parseInt(values[5]);
+			patchset.commits = Integer.parseInt(values[6]);
 
 			result.patchset = patchset;
 		}

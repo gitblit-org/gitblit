@@ -258,7 +258,7 @@
 
 <!-- PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="patchsetFragment">
-	<h3><wicket:message key="gb.currentRevision"></wicket:message></h3>
+	<h3><span wicket:id="patchsetN"></span></h3>
 	<div class="row" style="padding: 10px 0px 20px;">
 		<div class="span1 hidden-phone" style="text-align:right;">
 			<span wicket:id="changeAvatar">[avatar]</span>
@@ -269,7 +269,7 @@
 		</div>
 	</div>
 
-	<h3><wicket:message key="gb.commits"></wicket:message></h3>
+	<h3><span wicket:id="commitsInPatchset"></span></h3>
 	<div class="row">
 		<div class="span12">
 			<table class="table tickets">
@@ -316,7 +316,7 @@
 				<td style="text-align:right;">
 					<span wicket:id="patchsetType">[revision type]</span>					
 				</td>
-				<td><span class="hidden-phone hidden-tablet" wicket:id="patchsetRevision">[revision compare link]</span>
+				<td><span class="hidden-phone hidden-tablet aui-lozenge aui-lozenge-subtle" wicket:id="patchsetRevision">[R1]</span>
 					<span class="hidden-tablet hidden-phone" style="padding-left:15px;"><span wicket:id="patchsetDiffStat"></span></span>
 				</td>			
 				<td style="text-align:right;"><span class="attribution-date" wicket:id="changeDate">[patch date]</span></td>	

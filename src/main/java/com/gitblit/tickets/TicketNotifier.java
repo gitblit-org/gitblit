@@ -52,7 +52,6 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
-import com.gitblit.models.TicketModel.PatchsetType;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -194,9 +193,9 @@ public class TicketNotifier {
 
 					// identify patch that closed the ticket
 					String merged = ticket.mergeSha;
-					for (Patchset patch : ticket.getPatchsets()) {
-						if (patch.tip.equals(ticket.mergeSha)) {
-							merged = "patch revision " + patch.rev;
+					for (Patchset patchset : ticket.getPatchsets()) {
+						if (patchset.tip.equals(ticket.mergeSha)) {
+							merged = patchset.toString();
 							break;
 						}
 					}
@@ -211,25 +210,25 @@ public class TicketNotifier {
 			sb.append(HARD_BRK);
 		} else if (lastChange.hasPatchset()) {
 			// patchset uploaded
-			Patchset patch = lastChange.patchset;
+			Patchset patchset = lastChange.patchset;
 			String base = "";
 			// determine the changed paths
 			Repository repo = null;
 			try {
 				repo = repositoryManager.getRepository(ticket.repository);
-				if (patch.rev > 1 && PatchsetType.FastForward == patch.type) {
+				if (patchset.isFF() && (patchset.rev > 1)) {
 					// fast-forward update, just show the new data
 					isFastForward = true;
-					Patchset prev = ticket.getPatchset(patch.rev - 1);
+					Patchset prev = ticket.getPatchset(patchset.number, patchset.rev - 1);
 					base = prev.tip;
 				} else {
 					// proposal OR non-fast-forward update
 					isFastForward = false;
-					base = patch.base;
+					base = patchset.base;
 				}
 
-				diffstat = DiffUtils.getDiffStat(repo, base, patch.tip);
-				commits = JGitUtils.getRevLog(repo, base, patch.tip);
+				diffstat = DiffUtils.getDiffStat(repo, base, patchset.tip);
+				commits = JGitUtils.getRevLog(repo, base, patchset.tip);
 			} catch (Exception e) {
 				Logger.getLogger(getClass()).error("failed to get changed paths", e);
 			} finally {
@@ -237,9 +236,9 @@ public class TicketNotifier {
 			}
 
 			// describe the patchset
-			String compareUrl = ticketService.getCompareUrl(ticket, base, patch.tip);
-			pattern = "**{0}** uploaded patchset revision {1}. *({2})*";
-			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patch.rev, patch.type.toString().toUpperCase()));
+			String compareUrl = ticketService.getCompareUrl(ticket, base, patchset.tip);
+			pattern = "**{0}** uploaded {1}. *({2})*";
+			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset, patchset.type.toString().toUpperCase()));
 			sb.append(HARD_BRK);
 			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span style=\"color:darkgreen;\">+{4} insertions</span>, <span style=\"color:darkred;\">-{5} deletions</span> from {6}. [compare]({7})",
 					commits.size(), commits.size() == 1 ? "commit" : "commits",
@@ -247,15 +246,15 @@ public class TicketNotifier {
 					diffstat.paths.size() == 1 ? "file" : "files",
 					diffstat.getInsertions(),
 					diffstat.getDeletions(),
-					isFastForward ? "previous patchset revision" : "merge base",
+					isFastForward ? "previous revision" : "merge base",
 					compareUrl));
 
 			// note commit additions on a rebase,if any
 			switch (lastChange.patchset.type) {
 			case Rebase:
-				if (lastChange.patchset.addedCommits > 0) {
+				if (lastChange.patchset.added > 0) {
 					sb.append(SOFT_BRK);
-					sb.append(MessageFormat.format("{0} {1} added.", lastChange.patchset.addedCommits, lastChange.patchset.addedCommits == 1 ? "commit" : "commits"));
+					sb.append(MessageFormat.format("{0} {1} added.", lastChange.patchset.added, lastChange.patchset.added == 1 ? "commit" : "commits"));
 				}
 				break;
 			default:

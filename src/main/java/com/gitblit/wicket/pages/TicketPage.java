@@ -74,6 +74,8 @@ import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketResponsible;
+import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -154,7 +156,9 @@ public class TicketPage extends TicketBasePage {
 		if (currentPatchset == null) {
 			add(new Label("diffstat").setVisible(false));
 		} else {
-			add(new DiffStatPanel("diffstat", currentPatchset.insertions, currentPatchset.deletions));
+			// calculate the current diffstat of the patchset
+			DiffStat diffstat = DiffUtils.getDiffStat(getRepository(), currentPatchset.base, currentPatchset.tip);
+			add(new DiffStatPanel("diffstat", diffstat.getInsertions(), diffstat.getDeletions()));
 		}
 
 
@@ -162,7 +166,7 @@ public class TicketPage extends TicketBasePage {
 		 * TAB TITLES
 		 */
 		add(new Label("commentCount", "" + comments.size()).setVisible(!comments.isEmpty()));
-		add(new Label("commitCount", "" + (currentPatchset == null ? 0 : currentPatchset.totalCommits)).setVisible(currentPatchset != null));
+		add(new Label("commitCount", "" + (currentPatchset == null ? 0 : currentPatchset.commits)).setVisible(currentPatchset != null));
 
 
 		/*
@@ -612,7 +616,7 @@ public class TicketPage extends TicketBasePage {
 						commitLink = resolvedBy.substring(0, len);
 					} else {
 						// expected result
-						commitLink = getString("gb.revision") + " " + mergedPatch.rev;
+						commitLink = mergedPatch.toString();
 					}
 
 					Fragment mergeFragment = new Fragment("entry", "mergeFragment", this);
@@ -707,12 +711,14 @@ public class TicketPage extends TicketBasePage {
 			add(changeIdFrag);
 		} else {
 			// show current patchset
-			Fragment reviewFrag = new Fragment("patchset", "patchsetFragment", this);
+			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", this);
+			patchsetFrag.add(new Label("patchsetN", MessageFormat.format(getString("gb.patchsetN"), currentPatchset.number)));
+			patchsetFrag.add(new Label("commitsInPatchset", MessageFormat.format(getString("gb.commitsInPatchsetN"), currentPatchset.number)));
 
 			// current revision
 			MarkupContainer panel = createPatchsetPanel("panel", repository, user);
-			reviewFrag.add(panel);
-			addUserAttributions(reviewFrag, currentRevision, avatarWidth);
+			patchsetFrag.add(panel);
+			addUserAttributions(patchsetFrag, currentRevision, avatarWidth);
 			addUserAttributions(panel, currentRevision, 0);
 			addDateAttributions(panel, currentRevision);
 
@@ -737,8 +743,8 @@ public class TicketPage extends TicketBasePage {
 					item.add(new DiffStatPanel("commitDiffStat", 0, 0, true));
 				}
 			};
-			reviewFrag.add(commitsView);
-			add(reviewFrag);
+			patchsetFrag.add(commitsView);
+			add(patchsetFrag);
 		}
 
 
@@ -762,23 +768,24 @@ public class TicketPage extends TicketBasePage {
 				if (event.hasPatchset()) {
 					// patchset
 					Patchset patchset = event.patchset;
-					String what = getString("gb.revisedPatchset");
-					switch (patchset.addedCommits) {
-					case 1:
-						what = getString("gb.addedOneCommit");
-						break;
-					case 0:
-						if (event.isStatusChange() && (Status.New == event.getStatus())) {
-							what = getString("gb.proposedThisChange");
+					String what;
+					if (event.isStatusChange() && (Status.New == event.getStatus())) {
+						what = getString("gb.proposedThisChange");
+					} else if (patchset.rev == 1) {
+						what = MessageFormat.format(getString("gb.uploadedPatchsetN"), patchset.number);
+					} else {
+						if (patchset.added == 1) {
+							what = getString("gb.addedOneCommit");
+						} else {
+							what = MessageFormat.format(getString("gb.addedNCommits"), patchset.added);
 						}
-						break;
-					default:
-						what = MessageFormat.format(getString("gb.addedNCommits"), patchset.addedCommits);
-						break;
 					}
 					item.add(new Label("what", what));
-					item.add(new LinkPanel("patchsetRevision", "commit", getString("gb.revision") + " " + patchset.rev,
-							ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patchset.base, patchset.tip), true));
+
+					LinkPanel psr = new LinkPanel("patchsetRevision", null, patchset.number + "-" + patchset.rev,
+							ComparePage.class, WicketUtils.newRangeParameter(repositoryName, patchset.parent == null ? patchset.base : patchset.parent, patchset.tip), true);
+					WicketUtils.setHtmlTooltip(psr, patchset.toString());
+					item.add(psr);
 					String typeCss = getPatchsetTypeCss(patchset.type);
 					Label typeLabel = new Label("patchsetType", patchset.type.toString());
 					if (typeCss == null) {
@@ -789,7 +796,7 @@ public class TicketPage extends TicketBasePage {
 					item.add(typeLabel);
 
 					// show commit diffstat
-					item.add(new DiffStatPanel("patchsetDiffStat", patchset.insertions, patchset.deletions, true));
+					item.add(new DiffStatPanel("patchsetDiffStat", patchset.insertions, patchset.deletions, patchset.rev > 1));
 				} else if (event.hasComment()) {
 					// comment
 					item.add(new Label("what", getString("gb.commented")));
@@ -899,18 +906,18 @@ public class TicketPage extends TicketBasePage {
 
 	protected FreemarkerPanel createPatchsetPanel(String wicketId, RepositoryModel repository, UserModel user) {
 		final Patchset currentPatchset = ticket.getCurrentPatchset();
-		List<Patchset> patchsets = new ArrayList<Patchset>(ticket.getPatchsets());
+		List<Patchset> patchsets = new ArrayList<Patchset>(ticket.getPatchsetRevisions(currentPatchset.number));
 		patchsets.remove(currentPatchset);
 		Collections.reverse(patchsets);
 
 		Map<String, Object> pmap = new HashMap<String, Object>();
-		pmap.put("accordianId", "rev" + currentPatchset.rev);
+		pmap.put("accordianId", "ps" + currentPatchset.number);
 
 		FreemarkerPanel panel = new FreemarkerPanel(wicketId, "CollapsiblePatch.fm", pmap);
 		panel.setParseGeneratedMarkup(true);
 
 		// patchset header
-		panel.add(new LinkPanel("patchId", null, getString("gb.revision") + " " + currentPatchset.rev,
+		panel.add(new LinkPanel("patchId", null, currentPatchset.toString(),
 				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, currentPatchset.tip), true));
 
 		// patchset type
@@ -919,14 +926,14 @@ public class TicketPage extends TicketBasePage {
 				patchsetTypeCss, currentPatchset.type.toString().toUpperCase());
 		String patchsetType = MessageFormat.format(getString("gb.thisPatchsetRevisionTypeIs"), typeSpan);
 		panel.add(new Label("patchsetType", patchsetType).setEscapeModelStrings(false));
-		switch (currentPatchset.addedCommits) {
+		switch (currentPatchset.added) {
 			case 1:
 				panel.add(new Label("plusCommits", getString("gb.addedOneCommit")));
 				break;
 			default:
 				panel.add(new Label("plusCommits",
 						MessageFormat.format(getString("gb.addedNCommits"),
-								currentPatchset.addedCommits)).setVisible(currentPatchset.addedCommits > 0));
+								currentPatchset.added)).setVisible(currentPatchset.added > 0));
 				break;
 		}
 
@@ -941,7 +948,7 @@ public class TicketPage extends TicketBasePage {
 			public void populateItem(final Item<Patchset> item) {
 				Patchset patchset = item.getModelObject();
 				LinkPanel link = new LinkPanel("compareLink", null,
-						MessageFormat.format(getString("gb.compareToPatchsetN"), patchset.rev),
+						MessageFormat.format(getString("gb.compareToN"), patchset.number + "-" + patchset.rev),
 						ComparePage.class, WicketUtils.newRangeParameter(getRepositoryModel().name,
 								patchset.tip, currentPatchset.tip), true);
 				item.add(link);
@@ -949,18 +956,6 @@ public class TicketPage extends TicketBasePage {
 			}
 		};
 		panel.add(compareMenu);
-
-		String ticketRef = Constants.R_TICKETS + ticket.number;
-
-		// git menu
-		String repoUrl = getRepositoryUrl(user, repository);
-		String fetch = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD", repoUrl, ticketRef);
-		panel.add(createCopyFragment("gitFetch", fetch));
-		panel.add(new Label("gitFetchLabel", MessageFormat.format(getString("gb.fetchPatchset"), currentPatchset.rev)));
-
-		String review = MessageFormat.format("git fetch {0} {1} && git checkout FETCH_HEAD -b ticket/{2,number,0}", repoUrl, ticketRef, ticket.number);
-		panel.add(createCopyFragment("gitReview", review));
-		panel.add(new Label("gitReviewLabel", MessageFormat.format(getString("gb.reviewPatchset"), currentPatchset.rev)));
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInRange(getRepository(), currentPatchset.base, currentPatchset.tip);

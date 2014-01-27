@@ -97,17 +97,14 @@ public class PatchsetCommand extends ReceiveCommand {
 	}
 
 	public PatchsetCommand(String username, Patchset patchset) {
-		super(ObjectId.zeroId(), ObjectId.fromString(patchset.tip), null);
+		super(patchset.isFF() ? ObjectId.fromString(patchset.parent) : ObjectId.zeroId(),
+				ObjectId.fromString(patchset.tip), null);
 		this.change = new Change(username);
 		this.change.patchset = patchset;
 	}
 
 	public PatchsetType getPatchsetType() {
 		return change.patchset.type;
-	}
-
-	public int getPatchsetRevision() {
-		return change.patchset.rev;
 	}
 
 	public boolean isNewTicket() {
@@ -196,8 +193,8 @@ public class PatchsetCommand extends ReceiveCommand {
 			change.setField(Field.mergeTo, mergeTo);
 		}
 
-		if (TicketModel.Type.Proposal == ticket.type && PatchsetType.Amend == change.patchset.type
-				&& change.patchset.totalCommits == 1) {
+		if (ticket.isProposal() && PatchsetType.Amend == change.patchset.type
+				&& change.patchset.commits == 1) {
 
 			// Gerrit-style title and description updates from the commit
 			// message
@@ -256,7 +253,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	@Override
 	public String getRefName() {
-		return getBaseChangeRef(ticketId) + change.patchset.rev;
+		return getBaseChangeRef(ticketId) + change.patchset.number;
 	}
 
 	private String getTitle(RevCommit commit) {

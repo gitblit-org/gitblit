@@ -322,6 +322,18 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return list;
 	}
 
+	public List<Patchset> getPatchsetRevisions(int number) {
+		List<Patchset> list = new ArrayList<Patchset>();
+		for (Change change : changes) {
+			if (change.patchset != null) {
+				if (number == change.patchset.number) {
+					list.add(change.patchset);
+				}
+			}
+		}
+		return list;
+	}
+
 	public Patchset getPatchset(String sha) {
 		for (Change change : changes) {
 			if (change.patchset != null) {
@@ -333,10 +345,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return null;
 	}
 
-	public Patchset getPatchset(int revision) {
+	public Patchset getPatchset(int number, int rev) {
 		for (Change change : changes) {
 			if (change.patchset != null) {
-				if (revision == change.patchset.rev) {
+				if (number == change.patchset.number && rev == change.patchset.rev) {
 					return change.patchset;
 				}
 			}
@@ -348,7 +360,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		Patchset patchset = null;
 		for (Change change : changes) {
 			if (change.patchset != null) {
-				if (patchset == null || change.patchset.rev > patchset.rev) {
+				if (patchset == null) {
+					patchset = change.patchset;
+				} else if (patchset.compareTo(change.patchset) == 1) {
 					patchset = change.patchset;
 				}
 			}
@@ -360,17 +374,11 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		if (patchset == null) {
 			return false;
 		}
-		int rev = patchset.rev;
-		int latestRev = 0;
-		for (Change change : changes) {
-			if (change.hasPatchset()) {
-				int r = change.patchset.rev;
-				if (latestRev < r) {
-					latestRev = r;
-				}
-			}
+		Patchset curr = getCurrentPatchset();
+		if (curr == null) {
+			return false;
 		}
-		return rev == latestRev;
+		return curr.equals(patchset);
 	}
 
 
@@ -378,10 +386,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		if (patchset == null) {
 			return false;
 		}
-		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
-				if (rev == change.review.rev) {
+				if (change.review.isReviewOf(patchset)) {
 					if (change.review.score > 1) {
 						return true;
 					}
@@ -395,10 +402,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		if (patchset == null) {
 			return false;
 		}
-		int rev = patchset.rev;
 		for (Change change : changes) {
 			if (change.hasReview()) {
-				if (rev == change.review.rev) {
+				if (change.review.isReviewOf(patchset)) {
 					if (change.review.score < -1) {
 						return true;
 					}
@@ -747,8 +753,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 			if (hasComment()) {
 				sb.append(" commented on by ");
 			} else if (hasPatchset()) {
-				sb.append(MessageFormat.format(" patchset revision {0,number,0} uploaded by ",
-						patchset.rev));
+				sb.append(MessageFormat.format(" {0} uploaded by ", patchset));
 			} else {
 				sb.append(" changed by ");
 			}
@@ -919,22 +924,60 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return o;
 	}
 
-	public static class Patchset implements Serializable {
+	public static class Patchset implements Serializable, Comparable<Patchset> {
 
 		private static final long serialVersionUID = 1L;
 
+		public int number;
 		public int rev;
 		public String tip;
+		public String parent;
 		public String base;
 		public int insertions;
 		public int deletions;
-		public int totalCommits;
-		public int addedCommits;
+		public int commits;
+		public int added;
 		public PatchsetType type;
+
+		public boolean isFF() {
+			return PatchsetType.FastForward == type;
+		}
+
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof Patchset) {
+				return hashCode() == o.hashCode();
+			}
+			return false;
+		}
+
+		@Override
+		public int compareTo(Patchset p) {
+			if (number > p.number) {
+				return -1;
+			} else if (p.number > number) {
+				return 1;
+			} else {
+				// same patchset, different revision
+				if (rev > p.rev) {
+					return -1;
+				} else if (p.rev > rev) {
+					return 1;
+				} else {
+					// same patchset & revision
+					return 0;
+				}
+			}
+		}
 
 		@Override
 		public String toString() {
-			return "r" + rev;
+			return "patchset " + number + " rev " + rev;
 		}
 	}
 
@@ -1006,17 +1049,24 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		private static final long serialVersionUID = 1L;
 
+		public final int patchset;
+
 		public final int rev;
 
 		public int score;
 
-		public Review(int revision) {
+		public Review(int patchset, int revision) {
+			this.patchset = patchset;
 			this.rev = revision;
+		}
+
+		public boolean isReviewOf(Patchset p) {
+			return patchset == p.number && rev == p.rev;
 		}
 
 		@Override
 		public String toString() {
-			return "review " + rev + ":" + score;
+			return "review of patchset " + patchset + " rev " + rev + ":" + score;
 		}
 	}
 
