@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import com.gitblit.Constants;
 import com.gitblit.IStoredSettings;
 import com.gitblit.Keys;
+import com.gitblit.git.PatchsetCommand;
 import com.gitblit.manager.INotificationManager;
 import com.gitblit.manager.IRepositoryManager;
 import com.gitblit.manager.IRuntimeManager;
@@ -412,19 +413,18 @@ public class TicketNotifier {
 	/**
 	 * Generates patchset review instructions for command-line git
 	 *
-	 * @param patch
+	 * @param patchset
 	 * @return instructions
 	 */
-	protected String formatPatchsetInstructions(TicketModel ticket, Patchset patch) {
+	protected String formatPatchsetInstructions(TicketModel ticket, Patchset patchset) {
 		String canonicalUrl = settings.getString(Keys.web.canonicalUrl, "https://localhost:8443");
 		String repositoryUrl = canonicalUrl + Constants.R_PATH + ticket.repository;
-		String barnumPatchId = "" + ticket.number;
 
 		String instructions = readResource("commands.md");
-		instructions = instructions.replace("${patchId}", barnumPatchId);
+		instructions = instructions.replace("${ticketId}", "" + ticket.number);
 		instructions = instructions.replace("${repositoryUrl}", repositoryUrl);
-		instructions = instructions.replace("${patchRef}", Constants.R_TICKETS + ticket.number);
-		instructions = instructions.replace("${reviewBranch}", "ticket/" + ticket.number);
+		instructions = instructions.replace("${patchsetRef}", PatchsetCommand.getTicketRef(ticket.number, patchset.number));
+		instructions = instructions.replace("${reviewBranch}", "tickets/" + ticket.number + "/" + patchset.number);
 
 		return instructions;
 	}

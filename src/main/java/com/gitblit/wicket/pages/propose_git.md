@@ -1,5 +1,5 @@
     git clone ${url}
     cd ${repo}
-    git checkout -b ticket/${number} ${integrationBranch}
+    git checkout -b ${reviewBranch} ${integrationBranch}
     ...
-    git push origin HEAD:refs/for/${number}
+    git push origin HEAD:refs/for/${ticketId}

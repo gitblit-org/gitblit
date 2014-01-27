@@ -92,9 +92,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	protected static final List<String> MAGIC_REFS = Arrays.asList(Constants.R_FOR, Constants.R_TICKETS);
 
-	protected static final Pattern NEW_PATCH =
-		      Pattern.compile("^refs/changes/(?:[0-9a-zA-Z][0-9a-zA-Z]/)?([1-9][0-9]*)(?:/new)?$");
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(PatchsetReceivePack.class);
 
 	protected final ITicketService ticketService;
@@ -123,8 +120,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	}
 
 	/** Checks if the supplied ref name is a change ref */
-	private boolean isChangeRef(String refName) {
-		return refName.startsWith(Constants.R_CHANGES);
+	private boolean isTicketRef(String refName) {
+		return refName.startsWith(Constants.R_TICKETS);
 	}
 
 	/** Extracts the integration branch from the ref name */
@@ -132,9 +129,40 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		String patchsetRef = getPatchsetRef(refName);
 		String branch = refName.substring(patchsetRef.length());
 		if (branch.indexOf('%') > -1) {
-			return branch.substring(0, branch.indexOf('%'));
+			branch = branch.substring(0, branch.indexOf('%'));
+		}
+
+		String defaultBranch = "master";
+		try {
+			defaultBranch = getRepository().getBranch();
+		} catch (Exception e) {
+			LOGGER.error("failed to determine default branch for " + repository.name, e);
+		}
+
+		long ticketId = 0L;
+		try {
+			ticketId = Long.parseLong(branch);
+		} catch (Exception e) {
+			// not a number
+		}
+		if (ticketId > 0 || branch.equalsIgnoreCase("default") || branch.equalsIgnoreCase("new")) {
+			return defaultBranch;
 		}
 		return branch;
+	}
+
+	/** Extracts the ticket id from the ref name */
+	private long getTicketId(String refName) {
+		if (refName.startsWith(Constants.R_FOR)) {
+			try {
+				return Long.parseLong(refName.substring(Constants.R_FOR.length()));
+			} catch (Exception e) {
+				// not a number
+			}
+		} else if (refName.startsWith(Constants.R_TICKETS)) {
+			return PatchsetCommand.getTicketNumber(refName);
+		}
+		return 0L;
 	}
 
 	/** Returns true if the ref namespace exists */
@@ -156,11 +184,11 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	}
 
 	/** Removes change ref receive commands */
-	private List<ReceiveCommand> excludeChangeCommands(Collection<ReceiveCommand> commands) {
+	private List<ReceiveCommand> excludeTicketCommands(Collection<ReceiveCommand> commands) {
 		List<ReceiveCommand> filtered = new ArrayList<ReceiveCommand>();
 		for (ReceiveCommand cmd : commands) {
-			if (!isChangeRef(cmd.getRefName())) {
-				// this is not a change ref update
+			if (!isTicketRef(cmd.getRefName())) {
+				// this is not a ticket ref update
 				filtered.add(cmd);
 			}
 		}
@@ -268,13 +296,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
-				final Matcher m = NEW_PATCH.matcher(cmd.getRefName());
-				if (m.matches()) {
-					// prohibit pushing directly to a change ref
-					sendRejection(cmd, "You may not directly push patchsets to a change ref!");
-					continue;
-				}
-
 				if (hasRefNamespace(Constants.R_FOR)) {
 					// the refs/for/ namespace exists and it must not
 					LOGGER.error("{} already has refs in the {} namespace",
@@ -331,7 +352,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				patchsetRefCmd = cmd;
 				patchsetCmd = preparePatchset(cmd);
 				if (patchsetCmd != null) {
-					// add the patchset change ref (refs/changes/{ticket}/{patchset})
 					batch.addCommand(patchsetCmd);
 				}
 				continue;
@@ -363,12 +383,6 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				// all patchset commands were applied
 				patchsetRefCmd.setResult(Result.OK);
 
-				if (!patchsetRefCmd.getRefName().startsWith(Constants.R_TICKETS)) {
-					// pushed using refs/for/n, reset the ticket head
-					String ticketRef = Constants.R_TICKETS + patchsetCmd.getTicketId();
-					updateRef(ticketRef, patchsetCmd.getNewId());
-				}
-
 				TicketModel ticket = processPatchset(patchsetCmd);
 				if (ticket != null) {
 					ticketNotifier.queueMailing(ticket);
@@ -382,7 +396,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		//
 		List<ReceiveCommand> allUpdates = ReceiveCommand.filter(batch.getCommands(), Result.OK);
 		List<ReceiveCommand> refUpdates = excludePatchsetCommands(allUpdates);
-		List<ReceiveCommand> stdUpdates = excludeChangeCommands(refUpdates);
+		List<ReceiveCommand> stdUpdates = excludeTicketCommands(refUpdates);
 		if (!stdUpdates.isEmpty()) {
 			int ticketsProcessed = 0;
 			for (ReceiveCommand cmd : stdUpdates) {
@@ -420,19 +434,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 */
 	private PatchsetCommand preparePatchset(ReceiveCommand cmd) {
 		String branch = getIntegrationBranch(cmd.getRefName());
-		String defaultBranch = "master";
-		try {
-			defaultBranch = getRepository().getBranch();
-		} catch (Exception e) {
-			LOGGER.error("failed to determine default branch for " + repository.name, e);
-		}
-
-		// try to parse the branch spec as a ticket number
-		long number = 0;
-		try {
-			number = Long.parseLong(branch);
-		} catch (Exception e) {
-		}
+		long number = getTicketId(cmd.getRefName());
 
 		TicketModel ticket = null;
 		if (number > 0 && ticketService.hasTicket(repository, number)) {
@@ -463,16 +465,13 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			} else if (!StringUtils.isEmpty(ticket.mergeTo)) {
 				// ticket specifies integration branch
 				branch = ticket.mergeTo;
-			} else {
-				// use default branch
-				branch = defaultBranch;
 			}
 		}
 
 		final int shortCommitIdLen = settings.getInteger(Keys.web.shortCommitIdLength, 6);
 		final String shortTipId = cmd.getNewId().getName().substring(0, shortCommitIdLen);
 		final RevCommit tipCommit = JGitUtils.getCommit(getRepository(), cmd.getNewId().getName());
-		final String forBranch = (branch.equalsIgnoreCase("default") || branch.equalsIgnoreCase("new")) ? defaultBranch : branch;
+		final String forBranch = branch;
 		RevCommit mergeBase = null;
 		Ref forBranchRef = getAdvertisedRefs().get(Constants.R_HEADS + forBranch);
 		if (forBranchRef == null || forBranchRef.getObjectId() == null) {
@@ -583,10 +582,10 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 		// confirm user can push the patchset
 		boolean pushPermitted = ticket == null
+				|| !ticket.hasPatchsets()
 				|| ticket.isAuthor(user.username)
 				|| ticket.isPatchsetAuthor(user.username)
 				|| ticket.isResponsible(user.username)
-				|| ticket.isReviewer(user.username)
 				|| user.canPush(repository);
 
 		switch (psCmd.getPatchsetType()) {
@@ -720,7 +719,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					continue;
 				}
 
-				String baseRef = PatchsetCommand.getBaseChangeRef(ticket.number);
+				String baseRef = PatchsetCommand.getBaseTicketRef(ticket.number);
 				boolean knownPatchset = false;
 				Set<Ref> refs = getRepository().getAllRefsByPeeledObjectId().get(c.getId());
 				if (refs != null) {
@@ -762,9 +761,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 					PatchsetCommand psCmd = new PatchsetCommand(user.username, patchset);
 					psCmd.updateTicket(c, mergeTo, ticket, null);
 
-					// create a change ref and update the tickets/n ref
+					// create a ticket ref
 					updateRef(psCmd.getRefName(), c.getId());
-					updateRef(Constants.R_TICKETS + ticket.number, c.getId());
 
 					// create a change from the patchset command
 					change = psCmd.getChange();
@@ -867,15 +865,17 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	 * Creates a new patchset with metadata.
 	 *
 	 * @param ticket
-	 * @param newMergeBase
-	 * @param newTip
+	 * @param mergeBase
+	 * @param tip
 	 */
-	private Patchset newPatchset(TicketModel ticket, String newMergeBase, String newTip) {
-		int totalCommits = countCommits(newMergeBase, newTip);
+	private Patchset newPatchset(TicketModel ticket, String mergeBase, String tip) {
+		int totalCommits = countCommits(mergeBase, tip);
 
 		Patchset newPatchset = new Patchset();
+		newPatchset.tip = tip;
+		newPatchset.base = mergeBase;
+		newPatchset.commits = totalCommits;
 
-		DiffStat diffStat;
 		Patchset currPatchset = ticket == null ? null : ticket.getCurrentPatchset();
 		if (currPatchset == null) {
 			/*
@@ -885,72 +885,71 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			newPatchset.number = 1;
 			newPatchset.rev = 1;
 			newPatchset.type = PatchsetType.Proposal;
+
 			// diffstat from merge base
-			diffStat = DiffUtils.getDiffStat(getRepository(), newMergeBase, newTip);
+			DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), mergeBase, tip);
+			newPatchset.insertions = diffStat.getInsertions();
+			newPatchset.deletions = diffStat.getDeletions();
 		} else {
 			/*
 			 * PATCHSET UPDATE
 			 */
 			int added = totalCommits - currPatchset.commits;
-			boolean ff = JGitUtils.isMergedInto(getRepository(), currPatchset.tip, newTip);
+			boolean ff = JGitUtils.isMergedInto(getRepository(), currPatchset.tip, tip);
 			boolean squash = added < 0;
-			boolean rebase = !currPatchset.base.equals(newMergeBase);
+			boolean rebase = !currPatchset.base.equals(mergeBase);
 
 			// determine type, number and rev of the patchset
-			int patchsetNumber;
-			int patchsetRev;
-			PatchsetType type;
 			if (ff) {
 				/*
 				 * FAST-FORWARD
 				 * patchset number preserved, rev incremented
 				 */
-				type = PatchsetType.FastForward;
-				patchsetNumber = currPatchset.number;
-				patchsetRev = currPatchset.rev + 1;
+				newPatchset.type = PatchsetType.FastForward;
+				newPatchset.number = currPatchset.number;
+				newPatchset.rev = currPatchset.rev + 1;
 				newPatchset.parent = currPatchset.tip;
+
 				// diffstat from parent
-				diffStat = DiffUtils.getDiffStat(getRepository(), currPatchset.tip, newTip);
+				DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), currPatchset.tip, tip);
+				newPatchset.insertions = diffStat.getInsertions();
+				newPatchset.deletions = diffStat.getDeletions();
+
 			} else {
 				/*
 				 * NON-FAST-FORWARD
 				 * new patchset, rev 1
 				 */
 				if (rebase && squash) {
-					type = PatchsetType.Rebase_Squash;
-					patchsetNumber = currPatchset.number + 1;
-					patchsetRev = 1;
+					newPatchset.type = PatchsetType.Rebase_Squash;
+					newPatchset.number = currPatchset.number + 1;
+					newPatchset.rev = 1;
 				} else if (squash) {
-					type = PatchsetType.Squash;
-					patchsetNumber = currPatchset.number + 1;
-					patchsetRev = 1;
+					newPatchset.type = PatchsetType.Squash;
+					newPatchset.number = currPatchset.number + 1;
+					newPatchset.rev = 1;
 				} else if (rebase) {
-					type = PatchsetType.Rebase;
-					patchsetNumber = currPatchset.number + 1;
-					patchsetRev = 1;
+					newPatchset.type = PatchsetType.Rebase;
+					newPatchset.number = currPatchset.number + 1;
+					newPatchset.rev = 1;
 				} else {
-					type = PatchsetType.Amend;
-					patchsetNumber = currPatchset.number + 1;
-					patchsetRev = 1;
+					newPatchset.type = PatchsetType.Amend;
+					newPatchset.number = currPatchset.number + 1;
+					newPatchset.rev = 1;
 				}
-				// diffstat from merge base
-				diffStat = DiffUtils.getDiffStat(getRepository(), newMergeBase, newTip);
-			}
 
-			newPatchset.number = patchsetNumber;
-			newPatchset.rev = patchsetRev;
-			newPatchset.type = type;
-			newPatchset.tip = newTip;
-			newPatchset.base = newMergeBase;
-			newPatchset.commits = totalCommits;
-			newPatchset.insertions = diffStat.getInsertions();
-			newPatchset.deletions = diffStat.getDeletions();
+				// diffstat from merge base
+				DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), mergeBase, tip);
+				newPatchset.insertions = diffStat.getInsertions();
+				newPatchset.deletions = diffStat.getDeletions();
+			}
 
 			if (added > 0) {
 				// ignore squash (negative add)
 				newPatchset.added = added;
 			}
 		}
+
 		return newPatchset;
 	}
 

@@ -981,7 +981,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		@Override
 		public String toString() {
-			return "patchset " + number + " rev " + rev;
+			return "patchset " + number + " revision " + rev;
 		}
 	}
 

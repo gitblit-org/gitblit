@@ -137,8 +137,8 @@ public class ReflogPanel extends BasePanel {
 				} else if (shortRefName.startsWith(Constants.R_TAGS)) {
 					shortRefName = shortRefName.substring(Constants.R_TAGS.length());
 					isTag = true;
-				} else if (shortRefName.startsWith(Constants.R_CHANGES)) {
-					int i = fullRefName.indexOf('/', Constants.R_CHANGES.length()) + 1;
+				} else if (shortRefName.startsWith(Constants.R_TICKETS)) {
+					int i = fullRefName.indexOf('/', Constants.R_TICKETS.length()) + 1;
 					ticketId = fullRefName.substring(i, fullRefName.indexOf('/', i));
 					patchset = fullRefName.substring(fullRefName.lastIndexOf('/') + 1);
 					shortRefName = shortRefName.substring(shortRefName.lastIndexOf('/') + 1);

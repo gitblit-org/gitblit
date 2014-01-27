@@ -60,9 +60,9 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	protected long ticketId;
 
-	public static String getBaseChangeRef(long ticketNumber) {
+	public static String getBaseTicketRef(long ticketNumber) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(Constants.R_CHANGES);
+		sb.append(Constants.R_TICKETS);
 		long m = ticketNumber % 100L;
 		if (m < 10) {
 			sb.append('0');
@@ -74,18 +74,20 @@ public class PatchsetCommand extends ReceiveCommand {
 		return sb.toString();
 	}
 
+	public static String getTicketRef(long ticketId, long patchset) {
+		return getBaseTicketRef(ticketId) + patchset;
+	}
+
+	public static String getReviewBranch(long ticketId, long patchset) {
+		return "tickets/" + ticketId + "/" + patchset;
+	}
+
 	public static long getTicketNumber(String ref) {
 		if (ref.startsWith(Constants.R_TICKETS)) {
-			// current ticket head
-			String p = ref.substring(Constants.R_TICKETS.length());
-			return Long.parseLong(p);
-		}
-
-		if (ref.startsWith(Constants.R_CHANGES)) {
 			// patchset revision
 
 			// strip changes ref
-			String p = ref.substring(Constants.R_CHANGES.length());
+			String p = ref.substring(Constants.R_TICKETS.length());
 			// strip shard id
 			p = p.substring(p.indexOf('/') + 1);
 			// strip revision
@@ -253,7 +255,7 @@ public class PatchsetCommand extends ReceiveCommand {
 
 	@Override
 	public String getRefName() {
-		return getBaseChangeRef(ticketId) + change.patchset.number;
+		return getBaseTicketRef(ticketId) + change.patchset.number;
 	}
 
 	private String getTitle(RevCommit commit) {

@@ -2,9 +2,9 @@
 
 on a detached HEAD...
 
-    git fetch ${repositoryUrl} ${patchRef} && git checkout FETCH_HEAD
+    git fetch ${repositoryUrl} ${patchsetRef} && git checkout FETCH_HEAD
 
 on a new branch...
 
-    git fetch ${repositoryUrl} ${patchRef} && git checkout -b ${reviewBranch} FETCH_HEAD
+    git fetch ${repositoryUrl} ${patchsetRef} && git checkout -b ${reviewBranch} FETCH_HEAD
 

@@ -58,6 +58,7 @@ import org.eclipse.jgit.transport.URIish;
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
+import com.gitblit.git.PatchsetCommand;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -707,9 +708,9 @@ public class TicketPage extends TicketBasePage {
 			Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
 			changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
 			changeIdFrag.add(new Label("barnumWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")).setVisible(false));
-			changeIdFrag.add(new Label("barnumWorkflowSteps", getWorkflow("propose_barnum.md", repoUrl, ticket.number)).setVisible(false).setEscapeModelStrings(false));
+			changeIdFrag.add(new Label("barnumWorkflowSteps", getProposeWorkflow("propose_barnum.md", repoUrl, ticket.number)).setVisible(false).setEscapeModelStrings(false));
 			changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
-			changeIdFrag.add(new Label("gitWorkflowSteps", getWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
+			changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
 			add(changeIdFrag);
 		} else {
 			// show current patchset
@@ -897,11 +898,13 @@ public class TicketPage extends TicketBasePage {
 		}
 	}
 
-	protected String getWorkflow(String resource, String url, long number) {
+	protected String getProposeWorkflow(String resource, String url, long ticketId) {
 		String md = readResource(resource);
 		md = md.replace("${url}", url);
 		md = md.replace("${repo}", StringUtils.getLastPathElement(StringUtils.stripDotGit(repositoryName)));
-		md = md.replace("${number}", "" + number);
+		md = md.replace("${ticketId}", "" + ticketId);
+		md = md.replace("${patchset}", "" + 1);
+		md = md.replace("${reviewBranch}", PatchsetCommand.getReviewBranch(ticketId, 1));
 		md = md.replace("${integrationBranch}", Repository.shortenRefName(getRepositoryModel().HEAD));
 		return MarkdownUtils.transformMarkdown(md);
 	}
@@ -1055,8 +1058,9 @@ public class TicketPage extends TicketBasePage {
 		panel.add(new Label("gitStep1", MessageFormat.format(getString("gb.stepN"), 1)));
 		panel.add(new Label("gitStep2", MessageFormat.format(getString("gb.stepN"), 2)));
 
-		String step1 = MessageFormat.format("git fetch {0} refs/tickets/{1,number,0}", repoUrl, ticket.number);
-		String step2 = MessageFormat.format("git checkout -b ticket/{0,number,0} FETCH_HEAD", ticket.number);
+		Patchset patchset = ticket.getCurrentPatchset();
+		String step1 = MessageFormat.format("git fetch {0} {1}", repoUrl, PatchsetCommand.getTicketRef(ticket.number, patchset.number));
+		String step2 = MessageFormat.format("git checkout -b {0} FETCH_HEAD", PatchsetCommand.getReviewBranch(ticket.number, patchset.number));
 
 		panel.add(new Label("gitPreStep1", step1));
 		panel.add(new Label("gitPreStep2", step2));
@@ -1137,9 +1141,10 @@ public class TicketPage extends TicketBasePage {
 		cmd.add(new Label("mergeStep2", MessageFormat.format(getString("gb.stepN"), 2)));
 		cmd.add(new Label("mergeStep3", MessageFormat.format(getString("gb.stepN"), 3)));
 
-		String step1 = MessageFormat.format("git checkout -b ticket/{0,number,0} {1}", ticket.number, ticket.mergeTo);
-		String step2 = MessageFormat.format("git pull {0} refs/tickets/{1,number,0}", repoUrl, ticket.number);
-		String step3 = MessageFormat.format("git checkout {0}\ngit merge ticket/{1,number,0}\ngit push origin {0}", ticket.mergeTo, ticket.number);
+		Patchset patchset = ticket.getCurrentPatchset();
+		String step1 = MessageFormat.format("git checkout -b {0} {1}", PatchsetCommand.getReviewBranch(ticket.number, patchset.number), ticket.mergeTo);
+		String step2 = MessageFormat.format("git pull {0} {1}", repoUrl, PatchsetCommand.getTicketRef(ticket.number, patchset.number));
+		String step3 = MessageFormat.format("git checkout {0}\ngit merge {1}\ngit push origin {0}", ticket.mergeTo, PatchsetCommand.getReviewBranch(ticket.number, patchset.number));
 
 		cmd.add(new Label("mergePreStep1", step1));
 		cmd.add(new Label("mergePreStep2", step2));
@@ -1177,13 +1182,10 @@ public class TicketPage extends TicketBasePage {
 	 */
 	protected TicketModel getTicket(RevCommit commit) {
 		try {
-			Map<String, Ref> refs = getRepository().getRefDatabase().getRefs(Constants.R_CHANGES);
+			Map<String, Ref> refs = getRepository().getRefDatabase().getRefs(Constants.R_TICKETS);
 			for (Map.Entry<String, Ref> entry : refs.entrySet()) {
 				if (entry.getValue().getObjectId().equals(commit.getId())) {
-					String n = entry.getKey();
-					n = n.substring(n.indexOf('/') + 1);
-					n = n.substring(0, n.indexOf('/'));
-					long id = Long.parseLong(n);
+					long id = PatchsetCommand.getTicketNumber(entry.getKey());
 					TicketModel ticket = app().tickets().getTicket(getRepositoryModel(), id);
 					return ticket;
 				}
