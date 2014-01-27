@@ -18,13 +18,13 @@
 <!-- TAB NAMES -->
 <ul class="nav nav-tabs">
 	<li class="active"><a data-toggle="tab" href="#discussion">
-		<i style="color:#888;"class="fa fa-comments"></i> <wicket:message key="gb.discussion"></wicket:message> <span class="lwbadge" wicket:id="commentCount"></span></a>
+		<i style="color:#888;"class="fa fa-comments"></i> <span class="hidden-phone"><wicket:message key="gb.discussion"></wicket:message></span> <span class="lwbadge" wicket:id="commentCount"></span></a>
 	</li>
 	<li><a data-toggle="tab" href="#commits">
-		<i style="color:#888;"class="fa fa-code"></i> <wicket:message key="gb.commits"></wicket:message> <span class="lwbadge" wicket:id="commitCount"></span></a>
+		<i style="color:#888;"class="fa fa-code"></i> <span class="hidden-phone"><wicket:message key="gb.commits"></wicket:message></span> <span class="lwbadge" wicket:id="commitCount"></span></a>
 	</li>
 	<li><a data-toggle="tab" href="#activity">
-		<i style="color:#888;"class="fa fa-clock-o"></i> <wicket:message key="gb.activity"></wicket:message></a>
+		<i style="color:#888;"class="fa fa-clock-o"></i> <span class="hidden-phone"><wicket:message key="gb.activity"></wicket:message></span></a>
 	</li>
 </ul>
 	
@@ -276,7 +276,7 @@
 			<table class="table tickets">
 				<thead>
 					<tr>
-						<th><wicket:message key="gb.author"></wicket:message></th>
+						<th class="hidden-phone"><wicket:message key="gb.author"></wicket:message></th>
 						<th ><wicket:message key="gb.commit"></wicket:message></th>						
 						<th colspan="2"><wicket:message key="gb.title"></wicket:message></th>		
 						<th style="text-align: right;"><wicket:message key="gb.date"></wicket:message></th>
@@ -284,8 +284,8 @@
 				</thead>
 				<tbody>
 					<tr wicket:id="commit">
-						<td><span wicket:id="authorAvatar">[avatar]</span> <span wicket:id="author">[author]</span></td>
-						<td><span class="shortsha1" wicket:id="commitId">[commit id]</span><span style="padding-left: 20px;" wicket:id="diff">[diff]</span></td>						
+						<td class="hidden-phone"><span wicket:id="authorAvatar">[avatar]</span> <span wicket:id="author">[author]</span></td>
+						<td><span class="shortsha1" wicket:id="commitId">[commit id]</span><span class="hidden-phone" style="padding-left: 20px;" wicket:id="diff">[diff]</span></td>						
 						<td><span class="attribution-text" wicket:id="title">[title]</span></td>
 						<td style="padding:8px 0px;text-align:right;"><span style="padding-right:40px;"><span wicket:id="commitDiffStat"></span></span></td>			
 						<td style="text-align:right;"><span class="attribution-date" wicket:id="commitDate">[commit date]</span></td>	
@@ -309,7 +309,7 @@
 		</thead>
 		<tbody>
 			<tr wicket:id="event">
-				<td><span wicket:id="changeAvatar">[avatar]</span> <span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span></td>
+				<td><span class="hidden-phone" wicket:id="changeAvatar">[avatar]</span> <span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span></td>
 				<td>
 					<span class="attribution-txt"><span wicket:id="what">[what happened]</span></span>
 					<div wicket:id="fields"></div>
@@ -332,9 +332,7 @@
 	<div class="alert alert-success submit-info" style="padding:4px;">
 		<div class="merge-panel">
 			<div class="pull-right" style="padding-top:5px;">
-				<a class="btn btn-success" wicket:id="mergeButton">
-					<wicket:message key="gb.merge"></wicket:message>
-				</a>
+				<a class="btn btn-success" wicket:id="mergeButton"></a>
 			</div>
 			<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
 			<div wicket:id="mergeMore"></div>
@@ -367,6 +365,16 @@
 		</p>
 		<pre wicket:id="mergePreStep3" class="gitcommand"></pre>
 	</div>		
+</wicket:fragment>
+
+
+<!-- ALREADY MERGED FRAGMENT -->
+<wicket:fragment wicket:id="alreadyMergedFragment">
+	<div class="alert alert-success submit-info" style="padding:4px;">
+		<div class="merge-panel">
+			<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
+		</div>
+	</div>
 </wicket:fragment>
 
 

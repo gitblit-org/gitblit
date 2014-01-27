@@ -34,6 +34,7 @@ import org.eclipse.jgit.lib.AnyObjectId;
 import org.eclipse.jgit.lib.BatchRefUpdate;
 import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.RefUpdate;
@@ -65,6 +66,8 @@ import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.DiffUtils;
 import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.MergeResult;
+import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.RefLogUtils;
 import com.gitblit.utils.StringUtils;
 
@@ -494,7 +497,17 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		}
 
 		// ensure that the patchset can be cleanly merged right now
-		if (!JGitUtils.canMerge(getRepository(), tipCommit.getName(), forBranch)) {
+		MergeStatus status = JGitUtils.canMerge(getRepository(), tipCommit.getName(), forBranch);
+		switch (status) {
+		case ALREADY_MERGED:
+			sendError("");
+			sendError("You have already merged this patchset.", forBranch);
+			sendError("");
+			sendRejection(cmd, "everything up-to-date");
+			return null;
+		case MERGEABLE:
+			break;
+		default:
 			sendError("");
 			sendError("Your patchset can not be cleanly merged into {0}.", forBranch);
 			sendError("Please rebase your patchset and push again.");
@@ -905,16 +918,31 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				 * FAST-FORWARD
 				 * patchset number preserved, rev incremented
 				 */
-				newPatchset.type = PatchsetType.FastForward;
-				newPatchset.number = currPatchset.number;
-				newPatchset.rev = currPatchset.rev + 1;
-				newPatchset.parent = currPatchset.tip;
 
-				// diffstat from parent
-				DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), currPatchset.tip, tip);
-				newPatchset.insertions = diffStat.getInsertions();
-				newPatchset.deletions = diffStat.getDeletions();
+				boolean merged = JGitUtils.isMergedInto(getRepository(), currPatchset.tip, ticket.mergeTo);
+				if (merged) {
+					// current patchset was already merged
+					// new patchset, mark as rebase
+					newPatchset.type = PatchsetType.Rebase;
+					newPatchset.number = currPatchset.number + 1;
+					newPatchset.rev = 1;
 
+					// diffstat from parent
+					DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), mergeBase, tip);
+					newPatchset.insertions = diffStat.getInsertions();
+					newPatchset.deletions = diffStat.getDeletions();
+				} else {
+					// FF update to patchset
+					newPatchset.type = PatchsetType.FastForward;
+					newPatchset.number = currPatchset.number;
+					newPatchset.rev = currPatchset.rev + 1;
+					newPatchset.parent = currPatchset.tip;
+
+					// diffstat from parent
+					DiffStat diffStat = DiffUtils.getDiffStat(getRepository(), currPatchset.tip, tip);
+					newPatchset.insertions = diffStat.getInsertions();
+					newPatchset.deletions = diffStat.getDeletions();
+				}
 			} else {
 				/*
 				 * NON-FAST-FORWARD
@@ -979,5 +1007,52 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 			sendError("There was an error updating ref {0}:{1}", repository.name, ref);
 		}
 		return false;
+	}
+
+	/**
+	 * Merge the specified patchset to the integration branch.
+	 *
+	 * @param ticket
+	 * @param patchset
+	 * @return true, if successful
+	 */
+	public MergeStatus merge(TicketModel ticket) {
+		PersonIdent committer = new PersonIdent(user.getDisplayName(), StringUtils.isEmpty(user.emailAddress) ? (user.username + "@gitblit") : user.emailAddress);
+		Patchset patchset = ticket.getCurrentPatchset();
+		String message = MessageFormat.format("Merged ticket #{0,number,0} patchset {1}", ticket.number, patchset.number);
+		MergeResult mergeResult = JGitUtils.merge(
+				getRepository(),
+				patchset.tip,
+				ticket.mergeTo,
+				committer,
+				message);
+
+		if (StringUtils.isEmpty(mergeResult.sha)) {
+			LOGGER.error("FAILED to merge {} to {} ({})", new Object [] { patchset, ticket.mergeTo, mergeResult.status.name() });
+			return mergeResult.status;
+		}
+		Change change = new Change(user.username);
+		change.setField(Field.status, Status.Merged);
+		change.setField(Field.mergeSha, mergeResult.sha);
+		change.setField(Field.mergeTo, ticket.mergeTo);
+
+		if (StringUtils.isEmpty(ticket.responsible)) {
+			// unassigned tickets are assigned to the closer
+			change.setField(Field.responsible, user.username);
+		}
+
+		long ticketId = ticket.number;
+		ticket = ticketService.updateTicket(repository, ticket.number, change);
+		if (ticket != null) {
+			ticketNotifier.queueMailing(ticket);
+			return mergeResult.status;
+		} else {
+			LOGGER.error("FAILED to resolve ticket {} by merge from web ui", ticketId);
+		}
+		return mergeResult.status;
+	}
+
+	public void sendAll() {
+		ticketNotifier.sendAll();
 	}
 }

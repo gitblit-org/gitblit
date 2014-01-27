@@ -107,6 +107,8 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 		this.projectPath = StringUtils.getFirstPathElement(name);
 		this.owners = new ArrayList<String>();
 		this.isBare = true;
+		this.acceptNewTickets = true;
+		this.acceptNewPatchsets = true;
 
 		addOwner(owner);
 	}

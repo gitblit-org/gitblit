@@ -2223,68 +2223,86 @@ public class JGitUtils {
 		return null;
 	}
 
+	public static enum MergeStatus {
+		NOT_MERGEABLE, FAILED, ALREADY_MERGED, MERGEABLE, MERGED;
+	}
+
 	/**
 	 * Determines if we can cleanly merge one branch into another.  Returns true
 	 * if we can merge without conflict, otherwise returns false.
 	 *
 	 * @param repository
-	 * @param from
-	 * @param into
+	 * @param src
+	 * @param toBranch
 	 * @return true if we can merge without conflict
 	 */
-	public static boolean canMerge(Repository repository, String from, String into) {
+	public static MergeStatus canMerge(Repository repository, String src, String toBranch) {
 		RevWalk revWalk = null;
 		try {
 			revWalk = new RevWalk(repository);
-			RevCommit intoTip = revWalk.lookupCommit(repository.resolve(into));
-			RevCommit fromTip = revWalk.parseCommit(repository.resolve(from));
-			if (fromTip.getParent(0) == null || fromTip.getParent(0).getId().equals(intoTip.getId())) {
-				// pull commit is based on the branch head (fast-forward)
-				return true;
+			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
+			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			if (revWalk.isMergedInto(srcTip, branchTip)) {
+				// already merged
+				return MergeStatus.ALREADY_MERGED;
+			} else if (revWalk.isMergedInto(branchTip, srcTip)) {
+				// fast-forward
+				return MergeStatus.MERGEABLE;
 			}
 			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
-			boolean canMerge = merger.merge(intoTip, fromTip);
-			return canMerge;
+			boolean canMerge = merger.merge(branchTip, srcTip);
+			if (canMerge) {
+				return MergeStatus.MERGEABLE;
+			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to determine canMerge", e);
 		} finally {
 			revWalk.release();
 		}
-		return false;
+		return MergeStatus.NOT_MERGEABLE;
 	}
 
+
+	public static class MergeResult {
+		public final MergeStatus status;
+		public final String sha;
+
+		MergeResult(MergeStatus status, String sha) {
+			this.status = status;
+			this.sha = sha;
+		}
+	}
 
 	/**
 	 * Tries to merge a commit into a branch.  If there are conflicts, the merge
 	 * will fail.
 	 *
 	 * @param repository
-	 * @param from
-	 * @param into
-	 * @param mergeRef if null, into is used as the merge ref
-	 * @param who
+	 * @param src
+	 * @param toBranch
+	 * @param committer
 	 * @param message
-	 * @return the merge commit id
+	 * @return the merge result
 	 */
-	public static String merge(Repository repository, String from, String into,
-			String mergeRef, PersonIdent who, String message) {
+	public static MergeResult merge(Repository repository, String src, String toBranch,
+			PersonIdent committer, String message) {
 
-		if (StringUtils.isEmpty(mergeRef)) {
-			mergeRef = into;
-		}
-
-		if (!mergeRef.startsWith(Constants.R_REFS)) {
-			LOGGER.error("Unexpected merge ref " + mergeRef);
-			return null;
+		if (!toBranch.startsWith(Constants.R_REFS)) {
+			// branch ref doesn't start with ref, assume this is a branch head
+			toBranch = Constants.R_HEADS + toBranch;
 		}
 
 		RevWalk revWalk = null;
 		try {
 			revWalk = new RevWalk(repository);
-			RevCommit intoTip = revWalk.lookupCommit(repository.resolve(into));
-			RevCommit fromTip = revWalk.lookupCommit(repository.resolve(from));
+			RevCommit branchTip = revWalk.lookupCommit(repository.resolve(toBranch));
+			RevCommit srcTip = revWalk.lookupCommit(repository.resolve(src));
+			if (revWalk.isMergedInto(srcTip, branchTip)) {
+				// already merged
+				return new MergeResult(MergeStatus.ALREADY_MERGED, null);
+			}
 			RecursiveMerger merger = (RecursiveMerger) MergeStrategy.RECURSIVE.newMerger(repository, true);
-			boolean merged = merger.merge(intoTip, fromTip);
+			boolean merged = merger.merge(branchTip, srcTip);
 			if (merged) {
 				// create a merge commit and a reference to track the merge commit
 				ObjectId treeId = merger.getResultTreeId();
@@ -2292,14 +2310,14 @@ public class JGitUtils {
 				try {
 					// Create a commit object
 					CommitBuilder commitBuilder = new CommitBuilder();
-					commitBuilder.setAuthor(who);
-					commitBuilder.setCommitter(who);
+					commitBuilder.setCommitter(committer);
+					commitBuilder.setAuthor(committer);
 					commitBuilder.setEncoding(Constants.CHARSET);
 					if (StringUtils.isEmpty(message)) {
-						message = MessageFormat.format("merge {0} into {1}", fromTip.getName(), intoTip.getName());
+						message = MessageFormat.format("merge {0} into {1}", srcTip.getName(), branchTip.getName());
 					}
 					commitBuilder.setMessage(message);
-					commitBuilder.setParentIds(intoTip.getId(), fromTip.getId());
+					commitBuilder.setParentIds(branchTip.getId(), srcTip.getId());
 					commitBuilder.setTreeId(treeId);
 
 					// Insert the merge commit into the repository
@@ -2308,21 +2326,21 @@ public class JGitUtils {
 
 					// set the merge ref to the merge commit
 					RevCommit mergeCommit = revWalk.parseCommit(mergeCommitId);
-					RefUpdate mergeRefUpdate = repository.updateRef(mergeRef);
+					RefUpdate mergeRefUpdate = repository.updateRef(toBranch);
 					mergeRefUpdate.setNewObjectId(mergeCommitId);
 					mergeRefUpdate.setRefLogMessage("commit: " + mergeCommit.getShortMessage(), false);
 					RefUpdate.Result rc = mergeRefUpdate.forceUpdate();
 					switch (rc) {
-					case NEW:
+					case FAST_FORWARD:
 						// successful, clean merge
 						break;
 					default:
 						throw new GitBlitException(MessageFormat.format("Unexpected result \"{0}\" when merging commit {1} into {2} in {3}",
-								rc.name(), fromTip.getName(), intoTip.getName(), repository.getDirectory()));
+								rc.name(), srcTip.getName(), branchTip.getName(), repository.getDirectory()));
 					}
 
 					// return the merge commit id
-					return mergeCommitId.toString();
+					return new MergeResult(MergeStatus.MERGED, mergeCommitId.getName());
 				} finally {
 					odi.release();
 				}
@@ -2332,6 +2350,6 @@ public class JGitUtils {
 		} finally {
 			revWalk.release();
 		}
-		return null;
+		return new MergeResult(MergeStatus.FAILED, null);
 	}
 }

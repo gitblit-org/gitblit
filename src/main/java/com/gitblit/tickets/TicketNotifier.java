@@ -122,28 +122,32 @@ public class TicketNotifier {
 	 * @return a notification object used for testing
 	 */
 	public Mailing queueMailing(TicketModel ticket) {
+		try {
+			// format notification message
+			String markdown = formatLastChange(ticket);
 
-		// format notification message
-		String markdown = formatLastChange(ticket);
+			StringBuilder html = new StringBuilder();
+			html.append("<head>");
+			html.append(readStyle());
+			html.append("</head>");
+			html.append("<body>");
+			html.append(MarkdownUtils.transformGFM(settings, markdown, ticket.repository));
+			html.append("</body>");
 
-		StringBuilder html = new StringBuilder();
-		html.append("<head>");
-		html.append(readStyle());
-		html.append("</head>");
-		html.append("<body>");
-		html.append(MarkdownUtils.transformGFM(settings, markdown, ticket.repository));
-		html.append("</body>");
+			Mailing mailing = Mailing.newHtml();
+			mailing.from = getUserModel(ticket.updatedBy == null ? ticket.createdBy : ticket.updatedBy).getDisplayName();
+			mailing.subject = getSubject(ticket);
+			mailing.content = html.toString();
+			mailing.id = "ticket." + ticket.number + "." + StringUtils.getSHA1(ticket.repository + ticket.number);
 
-		Mailing mailing = Mailing.newHtml();
-		mailing.from = getUserModel(ticket.updatedBy == null ? ticket.createdBy : ticket.updatedBy).getDisplayName();
-		mailing.subject = getSubject(ticket);
-		mailing.content = html.toString();
-		mailing.id = "ticket." + ticket.number + "." + StringUtils.getSHA1(ticket.repository + ticket.number);
+			setRecipients(ticket, mailing);
+			queue.put(ticket.number, mailing);
 
-		setRecipients(ticket, mailing);
-		queue.put(ticket.number, mailing);
-
-		return mailing;
+			return mailing;
+		} catch (Exception e) {
+			Logger.getLogger(getClass()).error("failed to queue mailing for #" + ticket.number, e);
+		}
+		return null;
 	}
 
 	protected String getSubject(TicketModel ticket) {

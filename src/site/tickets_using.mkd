@@ -129,15 +129,16 @@ Add some commits to ticket *123* patchset *5*.  Set the milestone to *1.4.1*.
 
 ### Merging Patchsets
 
-The Gitblit web ui does not yet let you merge a patchset server-side.  This is very close to being implemented, but just not done yet.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.  It also has the necessary merge logic implemented.  What it needs is a simple locking mechanism to ensure that only one merge is attempted at a time - an important feature when dealing with http latencies, etc.
+The Gitblit web ui offers a merge button which *should work* but is not fully tested.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.
 
-So for now you'll have to merge client-side.  There are several ways to do this, here is a safe merge strategy which pulls (merges, actually) into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
+There are complicated merge scenarios for which it may be best to merge using your Git client.  There are several ways to do this, here is a safe merge strategy which pulls into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
 
-    git checkout -b tickets/{id}/{patchset} {targetbranch}
+    git pull origin master
+    git checkout -b tickets/{id}/{patchset} master
     git pull origin refs/tickets/{shard}/{id}/{patchset}
-    git checkout {targetbranch}
+    git checkout master
     git merge tickets/{shard}/{id}
-    git push origin {targetbranch}
+    git push origin master
 
 ### Closing Tickets on Push with a Completely New Patchset
 

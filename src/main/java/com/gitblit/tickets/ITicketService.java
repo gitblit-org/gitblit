@@ -1070,4 +1070,14 @@ public abstract class ITicketService {
 		long secs = TimeUnit.NANOSECONDS.toMillis(end - start);
 		log.info("reindexing completed in {} msecs.", secs);
 	}
+
+	/**
+	 * Synchronously executes the runnable. This is used for special processing
+	 * of ticket updates, namely merging from the web ui.
+	 *
+	 * @param runnable
+	 */
+	public synchronized void exec(Runnable runnable) {
+		runnable.run();
+	}
 }

@@ -59,6 +59,7 @@ import com.gitblit.Constants;
 import com.gitblit.Constants.AccessPermission;
 import com.gitblit.Keys;
 import com.gitblit.git.PatchsetCommand;
+import com.gitblit.git.PatchsetReceivePack;
 import com.gitblit.models.PathModel.PathChangeModel;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.RepositoryModel;
@@ -76,6 +77,7 @@ import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketResponsible;
 import com.gitblit.utils.JGitUtils;
+import com.gitblit.utils.JGitUtils.MergeStatus;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
@@ -1085,20 +1087,78 @@ public class TicketPage extends TicketBasePage {
 			// no patchset to merge
 			return new Label("mergePanel");
 		} else if (patchsetMergeable) {
-			boolean canMerge = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
-			if (canMerge) {
-				// patchset can be cleanly merged to integration branch
+			MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
+			if (MergeStatus.MERGEABLE == mergeStatus) {
+				// patchset can be cleanly merged to integration branch OR has already been merged
 				Fragment mergePanel = new Fragment("mergePanel", "mergeableFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetMergeable"), ticket.mergeTo)));
 				if (user.canPush(repository)) {
 					// user can merge locally
-					mergePanel.add(new ExternalLink("mergeButton", "#").setVisible(user.canPush(repository)));
+					SimpleAjaxLink<String> mergeButton = new SimpleAjaxLink<String>("mergeButton", Model.of(getString("gb.merge"))) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+
+							// ensure the patchset is still current AND not vetoed
+							Patchset patchset = ticket.getCurrentPatchset();
+							final TicketModel refreshedTicket = app().tickets().getTicket(getRepositoryModel(), ticket.number);
+							if (patchset.equals(refreshedTicket.getCurrentPatchset())) {
+								// patchset is current, check for recent veto
+								if (!refreshedTicket.isVetoed(patchset)) {
+									// patchset is not vetoed
+
+									// execute the merge using the ticket service
+									app().tickets().exec(new Runnable() {
+										@Override
+										public void run() {
+											PatchsetReceivePack rp = new PatchsetReceivePack(
+													app().gitblit(),
+													getRepository(),
+													getRepositoryModel(),
+													GitBlitWebSession.get().getUser());
+											MergeStatus result = rp.merge(refreshedTicket);
+											if (MergeStatus.MERGED == result) {
+												// notify participants and watchers
+												rp.sendAll();
+											} else {
+												// merge failure
+												String msg = MessageFormat.format("Failed to merge ticket {0,number,0}: {1}", ticket.number, result.name());
+												logger.error(msg);
+												GitBlitWebSession.get().cacheErrorMessage(msg);
+											}
+										}
+									});
+								} else {
+									// vetoed patchset
+									String msg = MessageFormat.format("Can not merge ticket {0,number,0}, patchset {1,number,0} has been vetoed!",
+											ticket.number, patchset.number);
+									GitBlitWebSession.get().cacheErrorMessage(msg);
+									logger.error(msg);
+								}
+							} else {
+								// not current patchset
+								String msg = MessageFormat.format("Can not merge ticket {0,number,0}, the patchset has been updated!", ticket.number);
+								GitBlitWebSession.get().cacheErrorMessage(msg);
+								logger.error(msg);
+							}
+
+							setResponsePage(TicketsPage.class, getPageParameters());
+						}
+					};
+					mergePanel.add(mergeButton);
 					Component instructions = getMergeInstructions(user, repository, "mergeMore", "gb.patchsetMergeableMore");
 					mergePanel.add(instructions);
 				} else {
 					mergePanel.add(new Label("mergeButton").setVisible(false));
 					mergePanel.add(new Label("mergeMore").setVisible(false));
 				}
+				return mergePanel;
+			} else if (MergeStatus.ALREADY_MERGED == mergeStatus) {
+				// patchset already merged
+				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
 				return mergePanel;
 			} else {
 				// patchset can not be cleanly merged
@@ -1200,12 +1260,10 @@ public class TicketPage extends TicketBasePage {
 		String typeCss;
 		switch (type) {
 			case Rebase:
-				typeCss = getLozengeClass(Status.Merged, false);
-				break;
-			case Squash:
 			case Rebase_Squash:
 				typeCss = getLozengeClass(Status.Declined, false);
 				break;
+			case Squash:
 			case Amend:
 				typeCss = getLozengeClass(Status.On_Hold, false);
 				break;

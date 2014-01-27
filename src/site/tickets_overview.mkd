@@ -127,10 +127,10 @@ The Tickets feature is highly functional but there are several areas which need 
 - Is Mergeable test on view ticket page load
 - Close-on-push of detected merge
 - Multiple backend choices
+- Server-side merge (testing)
 
 #### TODO (soon)
 
-- hook the all-important Merge button to the already implemented server-side merge logic (yeah, really, this is not coded)
 - need a My Tickets page
 - web ui for adding, editing, and deleting miletones
 - continue cleanup of code and templates
