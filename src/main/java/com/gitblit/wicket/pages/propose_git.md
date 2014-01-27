@@ -2,5 +2,4 @@
     cd ${repo}
     git checkout -b ticket/${number} ${integrationBranch}
     ...
-    git commit
     git push origin HEAD:refs/for/${number}

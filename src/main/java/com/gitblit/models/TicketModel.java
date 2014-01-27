@@ -84,6 +84,10 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 	public List<Change> changes;
 
+	public Integer insertions;
+
+	public Integer deletions;
+
 	/**
 	 * Builds an effective ticket from the collection of changes.  A change may
 	 * Add or Subtract information from a ticket, but the collection of changes

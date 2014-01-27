@@ -46,10 +46,7 @@
 				</div>
 				
 				<!-- COMMENTS and STATUS CHANGES (DISCUSSIONS TAB) -->
-				<h3 style="padding-top:10px;"><wicket:message key="gb.comments"></wicket:message></h3>
-				<div wicket:id="discussion">
-					<div style="padding: 10px 0px;" wicket:id="entry"></div>
-				</div>
+				<div wicket:id="discussion"></div>
 		
 		
 				<!-- ADD COMMENT (DISCUSSIONS TAB) -->
@@ -153,6 +150,14 @@
 </wicket:fragment>
 
 
+<!-- DISCUSSION FRAGMENT -->
+<wicket:fragment wicket:id="discussionFragment">
+	<h3 style="padding-top:10px;"><wicket:message key="gb.comments"></wicket:message></h3>
+	<div wicket:id="discussion">
+		<div style="padding: 10px 0px;" wicket:id="entry"></div>
+	</div>
+</wicket:fragment>
+
 <!-- NEW COMMENT FRAGMENT -->
 <wicket:fragment wicket:id="newCommentFragment">
 	<div class="row">
@@ -164,7 +169,7 @@
 	<h3 style="padding:0px 0px 10px;"><wicket:message key="gb.addComment"></wicket:message></h3>
 	
 	<div class="row">
-		<div class="span1 hidden-phone">
+		<div class="span1 hidden-phone" style="text-align:right;">
 			<span wicket:id="newCommentAvatar">[avatar]</span>
 		</div>
 		<div class="span7 attribution-border" style="background-color:#fbfbfb;">
@@ -260,11 +265,7 @@
 <wicket:fragment wicket:id="patchsetFragment">
 	<h3><span wicket:id="patchsetN"></span></h3>
 	<div class="row" style="padding: 10px 0px 20px;">
-		<div class="span1 hidden-phone" style="text-align:right;">
-			<span wicket:id="changeAvatar">[avatar]</span>
-		</div>
- 		<div class="span11 attribution-border" style="margin-left: 15px;">
-			<div class="hidden-phone attribution-triangle"></div>
+ 		<div class="span12 attribution-border">
 			<div wicket:id="panel"></div>		
 		</div>
 	</div>

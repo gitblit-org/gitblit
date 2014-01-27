@@ -247,7 +247,7 @@ public class ReflogPanel extends BasePanel {
 							TagPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
 				} else if (isPatch) {
 					// link to patch
-					changeItem.add(new LinkPanel("refChanged", null, getString("gb.revision") + " " + shortRefName,
+					changeItem.add(new LinkPanel("refChanged", null, MessageFormat.format(getString("gb.patchsetN"), shortRefName),
 							CommitPage.class, WicketUtils.newObjectParameter(change.repository, fullRefName)));
 				} else {
 					// link to tree

@@ -237,8 +237,13 @@ public class TicketNotifier {
 
 			// describe the patchset
 			String compareUrl = ticketService.getCompareUrl(ticket, base, patchset.tip);
-			pattern = "**{0}** uploaded {1}. *({2})*";
-			sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset, patchset.type.toString().toUpperCase()));
+			if (patchset.isFF()) {
+				pattern = "**{0}** added {1} {2} to patchset {3}.";
+				sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.added, patchset.added == 1 ? "commit" : "commits", patchset.number));
+			} else {
+				pattern = "**{0}** uploaded patchset {1}. *({2})*";
+				sb.append(MessageFormat.format(pattern, user.getDisplayName(), patchset.number, patchset.type.toString().toUpperCase()));
+			}
 			sb.append(HARD_BRK);
 			sb.append(MessageFormat.format("{0} {1}, {2} {3}, <span style=\"color:darkgreen;\">+{4} insertions</span>, <span style=\"color:darkred;\">-{5} deletions</span> from {6}. [compare]({7})",
 					commits.size(), commits.size() == 1 ? "commit" : "commits",

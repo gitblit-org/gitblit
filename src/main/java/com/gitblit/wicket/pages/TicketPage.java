@@ -74,8 +74,6 @@ import com.gitblit.tickets.TicketIndexer.Lucene;
 import com.gitblit.tickets.TicketLabel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketResponsible;
-import com.gitblit.utils.DiffUtils;
-import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.JGitUtils;
 import com.gitblit.utils.MarkdownUtils;
 import com.gitblit.utils.StringUtils;
@@ -157,8 +155,7 @@ public class TicketPage extends TicketBasePage {
 			add(new Label("diffstat").setVisible(false));
 		} else {
 			// calculate the current diffstat of the patchset
-			DiffStat diffstat = DiffUtils.getDiffStat(getRepository(), currentPatchset.base, currentPatchset.tip);
-			add(new DiffStatPanel("diffstat", diffstat.getInsertions(), diffstat.getDeletions()));
+			add(new DiffStatPanel("diffstat", ticket.insertions, ticket.deletions));
 		}
 
 
@@ -587,90 +584,95 @@ public class TicketPage extends TicketBasePage {
 		/*
 		 * COMMENTS & STATUS CHANGES (DISCUSSION TAB)
 		 */
-		ListDataProvider<Change> discussionDp = new ListDataProvider<Change>(discussion);
-		DataView<Change> discussionView = new DataView<Change>("discussion", discussionDp) {
-			private static final long serialVersionUID = 1L;
+		if (comments.size() == 0) {
+			add(new Label("discussion").setVisible(false));
+		} else {
+			Fragment discussionFragment = new Fragment("discussion", "discussionFragment", this);
+			ListDataProvider<Change> discussionDp = new ListDataProvider<Change>(discussion);
+			DataView<Change> discussionView = new DataView<Change>("discussion", discussionDp) {
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			public void populateItem(final Item<Change> item) {
-				final Change entry = item.getModelObject();
-				if (entry.isMerge()) {
-					/*
-					 * MERGE
-					 */
-					String resolvedBy = entry.getString(Field.mergeSha);
+				@Override
+				public void populateItem(final Item<Change> item) {
+					final Change entry = item.getModelObject();
+					if (entry.isMerge()) {
+						/*
+						 * MERGE
+						 */
+						String resolvedBy = entry.getString(Field.mergeSha);
 
-					// identify the merged patch, it is likely the last
-					Patchset mergedPatch = null;
-					for (Change c : revisions) {
-						if (c.patchset.tip.equals(resolvedBy)) {
-							mergedPatch = c.patchset;
-							break;
-						}
-					}
-
-					String commitLink;
-					if (mergedPatch == null) {
-						// shouldn't happen, but just-in-case
-						int len = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
-						commitLink = resolvedBy.substring(0, len);
-					} else {
-						// expected result
-						commitLink = mergedPatch.toString();
-					}
-
-					Fragment mergeFragment = new Fragment("entry", "mergeFragment", this);
-					mergeFragment.add(new LinkPanel("commitLink", null, commitLink,
-							CommitPage.class, WicketUtils.newObjectParameter(repositoryName, resolvedBy)));
-					mergeFragment.add(new Label("toBranch", MessageFormat.format(getString("gb.toBranch"),
-							"<b>" + ticket.mergeTo + "</b>")).setEscapeModelStrings(false));
-					addUserAttributions(mergeFragment, entry, 0);
-					addDateAttributions(mergeFragment, entry);
-
-					item.add(mergeFragment);
-				} else if (entry.isStatusChange()) {
-					/*
-					 *  STATUS CHANGE
-					 */
-					Fragment frag = new Fragment("entry", "statusFragment", this);
-					Label status = new Label("statusChange", entry.getStatus().toString());
-					String css = getLozengeClass(entry.getStatus(), false);
-					WicketUtils.setCssClass(status, css);
-					for (IBehavior b : status.getBehaviors()) {
-						if (b instanceof SimpleAttributeModifier) {
-							SimpleAttributeModifier sam = (SimpleAttributeModifier) b;
-							if ("class".equals(sam.getAttribute())) {
-								status.add(new SimpleAttributeModifier("class", "status-change " + sam.getValue()));
+						// identify the merged patch, it is likely the last
+						Patchset mergedPatch = null;
+						for (Change c : revisions) {
+							if (c.patchset.tip.equals(resolvedBy)) {
+								mergedPatch = c.patchset;
 								break;
 							}
 						}
-					}
-					frag.add(status);
-					addUserAttributions(frag, entry, avatarWidth);
-					addDateAttributions(frag, entry);
-					item.add(frag);
-				} else {
-					/*
-					 * COMMENT
-					 */
-					String comment = MarkdownUtils.transformGFM(app().settings(), entry.comment.text, repositoryName);
-					Fragment frag = new Fragment("entry", "commentFragment", this);
-					Label commentIcon = new Label("commentIcon");
-					if (entry.comment.src == CommentSource.Email) {
-						WicketUtils.setCssClass(commentIcon, "iconic-mail");
-					} else {
-						WicketUtils.setCssClass(commentIcon, "iconic-comment-alt2-stroke");
-					}
-					frag.add(commentIcon);
-					frag.add(new Label("comment", comment).setEscapeModelStrings(false));
-					addUserAttributions(frag, entry, avatarWidth);
-					addDateAttributions(frag, entry);
-					item.add(frag);
-				}
-			}
-		};
-		add(discussionView);
 
+						String commitLink;
+						if (mergedPatch == null) {
+							// shouldn't happen, but just-in-case
+							int len = app().settings().getInteger(Keys.web.shortCommitIdLength, 6);
+							commitLink = resolvedBy.substring(0, len);
+						} else {
+							// expected result
+							commitLink = mergedPatch.toString();
+						}
+
+						Fragment mergeFragment = new Fragment("entry", "mergeFragment", this);
+						mergeFragment.add(new LinkPanel("commitLink", null, commitLink,
+								CommitPage.class, WicketUtils.newObjectParameter(repositoryName, resolvedBy)));
+						mergeFragment.add(new Label("toBranch", MessageFormat.format(getString("gb.toBranch"),
+								"<b>" + ticket.mergeTo + "</b>")).setEscapeModelStrings(false));
+						addUserAttributions(mergeFragment, entry, 0);
+						addDateAttributions(mergeFragment, entry);
+
+						item.add(mergeFragment);
+					} else if (entry.isStatusChange()) {
+						/*
+						 *  STATUS CHANGE
+						 */
+						Fragment frag = new Fragment("entry", "statusFragment", this);
+						Label status = new Label("statusChange", entry.getStatus().toString());
+						String css = getLozengeClass(entry.getStatus(), false);
+						WicketUtils.setCssClass(status, css);
+						for (IBehavior b : status.getBehaviors()) {
+							if (b instanceof SimpleAttributeModifier) {
+								SimpleAttributeModifier sam = (SimpleAttributeModifier) b;
+								if ("class".equals(sam.getAttribute())) {
+									status.add(new SimpleAttributeModifier("class", "status-change " + sam.getValue()));
+									break;
+								}
+							}
+						}
+						frag.add(status);
+						addUserAttributions(frag, entry, avatarWidth);
+						addDateAttributions(frag, entry);
+						item.add(frag);
+					} else {
+						/*
+						 * COMMENT
+						 */
+						String comment = MarkdownUtils.transformGFM(app().settings(), entry.comment.text, repositoryName);
+						Fragment frag = new Fragment("entry", "commentFragment", this);
+						Label commentIcon = new Label("commentIcon");
+						if (entry.comment.src == CommentSource.Email) {
+							WicketUtils.setCssClass(commentIcon, "iconic-mail");
+						} else {
+							WicketUtils.setCssClass(commentIcon, "iconic-comment-alt2-stroke");
+						}
+						frag.add(commentIcon);
+						frag.add(new Label("comment", comment).setEscapeModelStrings(false));
+						addUserAttributions(frag, entry, avatarWidth);
+						addDateAttributions(frag, entry);
+						item.add(frag);
+					}
+				}
+			};
+			discussionFragment.add(discussionView);
+			add(discussionFragment);
+		}
 
 		/*
 		 * ADD COMMENT PANEL
@@ -917,25 +919,15 @@ public class TicketPage extends TicketBasePage {
 		panel.setParseGeneratedMarkup(true);
 
 		// patchset header
-		panel.add(new LinkPanel("patchId", null, currentPatchset.toString(),
-				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, currentPatchset.tip), true));
-
-		// patchset type
-		String patchsetTypeCss = getPatchsetTypeCss(currentPatchset.type);
-		String typeSpan = MessageFormat.format("<span class=\"{0}\">{1}</span>",
-				patchsetTypeCss, currentPatchset.type.toString().toUpperCase());
-		String patchsetType = MessageFormat.format(getString("gb.thisPatchsetRevisionTypeIs"), typeSpan);
-		panel.add(new Label("patchsetType", patchsetType).setEscapeModelStrings(false));
-		switch (currentPatchset.added) {
-			case 1:
-				panel.add(new Label("plusCommits", getString("gb.addedOneCommit")));
-				break;
-			default:
-				panel.add(new Label("plusCommits",
-						MessageFormat.format(getString("gb.addedNCommits"),
-								currentPatchset.added)).setVisible(currentPatchset.added > 0));
-				break;
+		String ps = "<b>" + currentPatchset.number + "</b>";
+		if (currentPatchset.rev == 1) {
+			panel.add(new Label("uploadedWhat", MessageFormat.format(getString("gb.uploadedPatchsetN"), ps)).setEscapeModelStrings(false));
+		} else {
+			String rev = "<b>" + currentPatchset.rev + "</b>";
+			panel.add(new Label("uploadedWhat", MessageFormat.format(getString("gb.uploadedPatchsetNRevisionN"), ps, rev)).setEscapeModelStrings(false));
 		}
+		panel.add(new LinkPanel("patchId", null, "rev " + currentPatchset.rev,
+				CommitPage.class, WicketUtils.newObjectParameter(repositoryName, currentPatchset.tip), true));
 
 		// compare menu
 		panel.add(new LinkPanel("compareMergeBase", null, getString("gb.compareToMergeBase"),
@@ -956,6 +948,11 @@ public class TicketPage extends TicketBasePage {
 			}
 		};
 		panel.add(compareMenu);
+
+		String insertions = MessageFormat.format("<span style=\"color:darkGreen;font-weight:bold;\">+{0}</span>", ticket.insertions);
+		String deletions = MessageFormat.format("<span style=\"color:darkRed;font-weight:bold;\">-{0}</span>", ticket.deletions);
+		panel.add(new Label("patchsetStat", MessageFormat.format(StringUtils.escapeForHtml(getString("gb.diffStat"), false),
+				insertions, deletions)).setEscapeModelStrings(false));
 
 		// changed paths list
 		List<PathChangeModel> paths = JGitUtils.getFilesInRange(getRepository(), currentPatchset.base, currentPatchset.tip);

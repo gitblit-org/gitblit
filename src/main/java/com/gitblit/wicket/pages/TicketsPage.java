@@ -598,7 +598,7 @@ public class TicketsPage extends TicketBasePage {
 				}
 
 				// patchset revisions
-				if (ticket.patchsetsCount > 0) {
+				if (ticket.patchset != null) {
 					int count = ticket.patchset.commits;
 					String pattern = "gb.nCommits";
 					if (count == 1) {

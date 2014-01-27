@@ -44,8 +44,11 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Attachment;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
+import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.tickets.TicketIndexer.Lucene;
+import com.gitblit.utils.DiffUtils;
+import com.gitblit.utils.DiffUtils.DiffStat;
 import com.gitblit.utils.StringUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -708,6 +711,17 @@ public abstract class ITicketService {
 		if (ticket == null) {
 			// load & cache ticket
 			ticket = getTicketImpl(repository, ticketId);
+			if (ticket.hasPatchsets()) {
+				Repository r = repositoryManager.getRepository(repository.name);
+				try {
+					Patchset patchset = ticket.getCurrentPatchset();
+					DiffStat diffStat = DiffUtils.getDiffStat(r, patchset.base, patchset.tip);
+					ticket.insertions = diffStat.getInsertions();
+					ticket.deletions = diffStat.getDeletions();
+				} finally {
+					r.close();
+				}
+			}
 			if (ticket != null) {
 				ticketsCache.put(key, ticket);
 			}

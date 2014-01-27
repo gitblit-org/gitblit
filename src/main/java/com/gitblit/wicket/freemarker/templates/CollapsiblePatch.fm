@@ -25,12 +25,10 @@
 		</div>
 		<div style="padding:8px 10px;">
 			<div>
-			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><wicket:message key="gb.uploaded">[uploaded]</wicket:message></span> <span class="attribution-emphasize" wicket:id="patchId">[ref id]</span>
+			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span wicket:id="uploadedWhat"></span></span>
 			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordion${accordianId}" href="#body${accordianId}"><i class="fa fa-toggle-down"></i></a>			
 			</div>
-			<div>
-				<span wicket:id="patchsetType"></span> <span style="color: #888;font-size: 0.9em;padding-left: 5px;" wicket:id="plusCommits"></span>
-			</div>	
+			<div wicket:id="patchsetStat"></div>
 		</div>
 	</div>
 				
