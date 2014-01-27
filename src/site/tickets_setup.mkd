@@ -1,0 +1,74 @@
+## Setting up Tickets
+
+*PREVIEW 1.4.0*
+
+By default, Gitblit is not configured for Tickets.  There are several reasons for this, but the most important one is that you must choose the persistence backend that works best for you.
+
+### tickets.service
+
+*RESTART REQUIRED*
+
+The hardest part of setting up Gitblit Tickets is deciding which backend to use.  Three implementations are provided, each with different strengths and weaknesses.
+
+#### File Ticket Service
+
+    tickets.service = com.gitblit.tickets.FileTicketService
+
+Your ticket journals are persisted to `tickets/{shard}/{id}/journal.json`.  These journals are stored on the filesystem within your .git directory.
+
+#### Branch Ticket Service
+
+    tickets.service = com.gitblit.tickets.BranchTicketService
+
+Your ticket journals are persisted to `id/{shard}/{id}/journal.json`.  These journals are stored on an orphan branch, `refs/gitblit/tickets`, within your repository.  This allows you to easily clone your entire ticket history to client working copies or to mirrors.
+
+There is a work-in-progress client-side tool to take advantage of these branch-stored tickets  ([Barnum](http://barnum.gitblit.com)) but it has not kept up with the December/January datamodel changes so it is currently very, very broken. (or in New Jersey terms, *fuhgetaboudit*)  Development of this tool will resume in the future.
+
+#### Redis Ticket Service
+
+    tickets.service = com.gitblit.tickets.RedisTicketService
+
+Your ticket journals are persisted to a Redis data store.  *Make sure you configure your Redis instance for durability!!*  This particular service is highly-scalable and very fast.  Plus you can use all of the power of Redis replication, should you want.
+
+The main drawback to this service is that Redis is primarily a Unix tool and works best on a Unix server.  While there is a Windows port, sort-of maintained by Microsoft, it hasn't seen much development in a while and lags behind the current Redis releases.
+
+    tickets.redis.url = redis://(:{password}@){hostname}:{port}(/{databaseId})
+
+**examples**
+
+    tickets.redis.url = redis://localhost:6379
+    tickets.redis.url = redis://:password@localhost:6379/2
+
+### Other Settings
+
+You should also review the following settings before using Gitblit Tickets to understand what controls are available.
+
+#### web.canonicalUrl
+
+    web.canonicalUrl = https://localhost:8443
+
+The Tickets feature sends rich email notifications to those who are participating or watching a ticket.  In order for the links in those emails to work properly, you really should set the canonical web url of your Gitblit install.  This url should be your public url used to browse and navigate the website.
+
+#### tickets.acceptNewTickets
+
+    tickets.acceptNewTickets = true
+
+This setting is used to globally disable manual creation of tickets through the web ui.  You may still create proposal tickets by pushing patchsets.
+
+You may decide to disable creation of new tickets at the repository level in the *Edit Repository* page, however if this global setting is false, it will trump the repository setting.
+
+#### tickets.acceptNewPatchsets
+
+    tickets.acceptNewPatchsets = true
+
+This settings is used to globally disable accepting new patchsets.  If this set false, you can not create proposal tickets BUT you can still create tickets through the web ui, assuming *tickets.acceptNewTickets=true*.
+
+You may decide to disable accepting new patchsets at the repository level in the *Edit Repository* page, however if this global setting is false it will trump the repository setting.
+
+#### tickets.indexFolder
+
+*RESTART REQUIRED*
+
+    tickets.indexFolder = ${baseFolder}/tickets/lucene
+
+This is the destination for the unified Lucene ticket index.  You probably won't need to change this, but it's configurable if the need arises.

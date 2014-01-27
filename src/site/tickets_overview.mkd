@@ -24,57 +24,13 @@ Gitblit stores each ticket as a journal (list of changes).  A ticket journal is 
 
 Gitblit uses a 3-repository workflow like Gerrit instead of a 4-repository workflow like GitHub.  This means that Gitblit cuts the *fork* repository out of the collaboration workflow: patchsets are pushed directly to the canonical repository, not to a fork.  You may also push to fork, if you want, but collaboration happens in the canonical repository, not your fork.
 
-### Status
-
-The Tickets feature is highly functional but there are several areas which need further refinements.
-
-#### What is working
-
-- Ticket creation and editing
-- Ticket creation on patchset push
-- Comments with Markdown syntax support
-- Rich email notifications
-- Fast-forward patchset updates and patchset rewrites
-- Voting
-- Watching
-- Mentions
-- Partial milestone support
-- Querying
-- Searching
-- Is Mergeable test on view ticket page load
-- Close-on-push of detected merge
-- Multiple backend choices
-
-#### TODO (soon)
-
-- hook the Merge button to the already implemented server-side merge logic
-- need a My Tickets page
-- web ui for adding, editing, and deleting miletones
-- continue cleanup of code and templates
-
-#### TODO (later)
-- would be nice to have a collapsible ticket description (e.g. AUI expander)
-- would be nice to edit a comment
-- would be nice to delete a comment
-- hook points on new/updated/closed ticket
-- REST API for tooling
-- The ticket page is very stateful and depends on your Wicket session.  I'm not in love with this but it's acceptable for now.
-- Might be nice to process Markdown previews client-side rather than round-tripping to Gitblit (another stateful example).  Perhaps using AngularMarkdown?
-
 #### Persistence Choices
 
 Gitblit's ticket data is based on a ridiculously simple concept: a ticket is the end result of applying a sequence of changes to an empty ticket.  Each change is serialized as JSON and stored in a journal.  The journal may be a simple text file (`journal.json`) or it may be a Redis LIST or some future persistence type.
 
 All ticket services inherit from the same base class which handles most of the high level logic for ticket management including caching, milestones (stored in .git/config), indexing, queries, and searches.
 
-**File Ticket Service**
-Your ticket changes are persisted to `{id}/journal.json`.  These journals are stored on the filesystem in a directory within your repository.
-
-**Branch Ticket Service**
-Your ticket changes are persisted to `{id}/journal.json`.  These journals are stored on an orphan branch within your repository.  This allows you to easily clone your tickets to client working copies or to mirrors.  There is a work-in-progress client-side tool to make this easy ([Barnum](http://barnum.gitblit.com)) but it has not kept up with the December/January datamodel changes so it is currently very, very broken. (or in New Jersey terms, *fuhgetaboudit*)
-
-**Redis Tickset Service**
-Your ticket changes are persisted to a Redis data store.  *Make sure you configure your Redis instance for durability!!*  This particular service is highly-scalable and very fast.  Plus you can use all of the power of Redis replication, should you want.  The main downside to this service is that Redis is primarily a Unix service.  While there is a Windows port partially maintained by Microsoft, it hasn't seen much love in a while.
+You can find descriptions of the available persistence services in the [setup][tickets_setup.mkd] page.
 
 #### Limitations
 
@@ -150,3 +106,42 @@ The Gitblit workflow eliminates the 4-repository design of a pull request (canon
 You might wonder: is it a good idea to allow users to push into the canonical repository?  And the answer is, it's no different than a pull request.  When you open a pull request from MyRepoA to RepoA, your code is already being pushed to a private branch in RepoA so effectively you are already pushing into RepoA - you are just using the web ui to do it.  This workflow just cuts out the extra repository and the extra step.
 
 Additionally, because the patchset is not linked to a user's personal fork it is possible to allow others to collaborate on development.
+
+## Status
+
+The Tickets feature is highly functional but there are several areas which need further refinements.
+
+#### What is working
+
+- Ticket creation and editing
+- Ticket creation on patchset push
+- Comments with Markdown syntax support
+- Rich email notifications
+- Fast-forward patchset updates and patchset rewrites
+- Voting
+- Watching
+- Mentions
+- Partial milestone support
+- Querying
+- Searching
+- Is Mergeable test on view ticket page load
+- Close-on-push of detected merge
+- Multiple backend choices
+
+#### TODO (soon)
+
+- hook the all-important Merge button to the already implemented server-side merge logic (yeah, really, this is not coded)
+- need a My Tickets page
+- web ui for adding, editing, and deleting miletones
+- continue cleanup of code and templates
+
+#### TODO (later)
+- the groundwork has been laid for patchset revision approvals.  reviewer selection, approvals, and vetoes will be added.
+- would be nice to have a collapsible ticket description (e.g. AUI expander)
+- would be nice to edit a comment
+- would be nice to delete a comment
+- Groovy hook points major ticket changes (new, close, patchset change)
+- REST API for tooling
+- The ticket page is stateful and depends on your Wicket session.  I'm not in love with this but it's acceptable for now.
+- Might be nice to process Markdown previews client-side rather than round-tripping to Gitblit (another stateful example).  Perhaps using AngularMarkdown?
+- Would be nice to have a tool to import/export journals between services.  All the journals are ultimately the same so this should be very straight-forward.

@@ -556,6 +556,7 @@
 					<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 						<page name="overview" src="tickets_overview.mkd" />
 						<page name="using" src="tickets_using.mkd" />
+						<page name="setup" src="tickets_setup.mkd" />
 					</menu>					
 					<divider />
 					<page name="Gitblit as a viewer" src="setup_viewer.mkd" />
@@ -876,6 +877,7 @@
 						<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="overview" src="tickets_overview.mkd" />
 							<page name="using" src="tickets_using.mkd" />
+							<page name="setup" src="tickets_setup.mkd" />
 						</menu>					
 						<divider />
 						<page name="Gitblit as a viewer" src="setup_viewer.mkd" />

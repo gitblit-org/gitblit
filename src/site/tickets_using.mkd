@@ -126,3 +126,29 @@ Create a new patchset for ticket *12* and add *james* and *mark* to the watch li
 Add some commits to ticket *123* patchset *5*.  Set the milestone to *1.4.1*.
 
     git push origin HEAD:refs/tickets/23/123/5%m=1.4.1
+
+### Merging Patchsets
+
+The Gitblit web ui does not yet let you merge a patchset server-side.  This is very close to being implemented, but just not done yet.  Gitblit does verify that you can cleanly merge a patchset to the integration branch.  It also has the necessary merge logic implemented.  What it needs is a simple locking mechanism to ensure that only one merge is attempted at a time - an important feature when dealing with http latencies, etc.
+
+So for now you'll have to merge client-side.  There are several ways to do this, here is a safe merge strategy which pulls (merges, actually) into a new branch and then fast-forwards your integration branch, assuming you were happy with the pull (merge).
+
+    git checkout -b tickets/{id}/{patchset} {targetbranch}
+    git pull origin refs/tickets/{shard}/{id}/{patchset}
+    git checkout {targetbranch}
+    git merge tickets/{shard}/{id}
+    git push origin {targetbranch}
+
+### Closing Tickets on Push with a Completely New Patchset
+
+Gitblit will look for patchset references on pushes to normal branches.  If it finds a reference (like would be found in the previous merge instructions), the ticket is resolved as merged and everyone is notified.
+
+If you do not need to create a patchset for review, you can just push a commit to the integration branch that contains `fixes #1` or `closes #1` in the commit message.  Gitblit will identify the ticket, create a new patchset with that commit as the tip, and resolve the ticket as merged.  (And if the integration branch is not specified in the ticket - this is the case for a ticket without any existing patchsets - Gitblit will resolve the ticket as merged to the pushed branch).
+
+### Reopening Tickets with Patchsets
+
+Gitblit allows you to reopen a Ticket with a merged patchset.  Since Gitblit allows patchset rewrites and versions patchsets, this seems like a logical capability.  There is no need to create another ticket for a feature request or bug report if the merged commits did not actually resolve the ticket.
+
+This allows you to continue the discussion and create a new patchset that hopefully resolves the need.
+
+**NOTE:**  There is one caveat to this feature.  You can not push patchsets to a closed ticket; Gitblit will reject the push.  You must first reopen the ticket through the web ui before you may push your patchset update or new patchset.
