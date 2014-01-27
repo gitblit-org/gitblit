@@ -642,7 +642,7 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 				// log the new patch ref
 				RefLogUtils.updateRefLog(user, getRepository(),
-						Arrays.asList(new ReceiveCommand(ObjectId.zeroId(), cmd.getNewId(), cmd.getRefName())));
+						Arrays.asList(new ReceiveCommand(cmd.getOldId(), cmd.getNewId(), cmd.getRefName())));
 
 				return ticket;
 			} else {
@@ -655,16 +655,21 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 				sendInfo("");
 				sendHeader("#{0,number,0}: {1}", ticket.number, StringUtils.trimString(ticket.title, Constants.LEN_SHORTLOG));
 				if (change.patchset.rev == 1) {
+					// new patchset
 					sendInfo("uploaded patchset {0} ({1})", change.patchset.number, change.patchset.type.toString());
 				} else {
-					sendInfo("added {0} to patchset {1}", change.patchset.added == 1 ? "1 commit":(change.patchset.added + " commits"), change.patchset.number);
+					// updated patchset
+					sendInfo("added {0} {1} to patchset {2}",
+							change.patchset.added,
+							change.patchset.added == 1 ? "commit" : "commits",
+							change.patchset.number);
 				}
 				sendInfo(ticketService.getTicketUrl(ticket));
 				sendInfo("");
 
 				// log the new patchset ref
 				RefLogUtils.updateRefLog(user, getRepository(),
-						Arrays.asList(new ReceiveCommand(ObjectId.zeroId(), cmd.getNewId(), cmd.getRefName())));
+					Arrays.asList(new ReceiveCommand(cmd.getOldId(), cmd.getNewId(), cmd.getRefName())));
 
 				// return the updated ticket
 				return ticket;
