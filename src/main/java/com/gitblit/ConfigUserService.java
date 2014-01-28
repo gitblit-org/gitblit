@@ -133,7 +133,7 @@ public class ConfigUserService implements IUserService {
 	 * @return cookie value
 	 */
 	@Override
-	public String getCookie(UserModel model) {
+	public synchronized String getCookie(UserModel model) {
 		if (!StringUtils.isEmpty(model.cookie)) {
 			return model.cookie;
 		}
@@ -195,7 +195,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if update is successful
 	 */
 	@Override
-	public boolean updateUserModel(UserModel model) {
+	public synchronized boolean updateUserModel(UserModel model) {
 		return updateUserModel(model.username, model);
 	}
 
@@ -325,7 +325,7 @@ public class ConfigUserService implements IUserService {
 	 * @return true if successful
 	 */
 	@Override
-	public boolean deleteUserModel(UserModel model) {
+	public synchronized boolean deleteUserModel(UserModel model) {
 		return deleteUser(model.username);
 	}
 
@@ -372,7 +372,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public List<String> getAllTeamNames() {
+	public synchronized List<String> getAllTeamNames() {
 		read();
 		List<String> list = new ArrayList<String>(teams.keySet());
 		Collections.sort(list);
@@ -447,7 +447,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public boolean updateTeamModel(TeamModel model) {
+	public synchronized boolean updateTeamModel(TeamModel model) {
 		return updateTeamModel(model.name, model);
 	}
 
@@ -459,7 +459,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 1.2.0
 	 */
 	@Override
-	public boolean updateTeamModels(Collection<TeamModel> models) {
+	public synchronized boolean updateTeamModels(Collection<TeamModel> models) {
 		try {
 			read();
 			for (TeamModel team : models) {
@@ -485,7 +485,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public boolean updateTeamModel(String teamname, TeamModel model) {
+	public synchronized boolean updateTeamModel(String teamname, TeamModel model) {
 		TeamModel original = null;
 		try {
 			read();
@@ -514,7 +514,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public boolean deleteTeamModel(TeamModel model) {
+	public synchronized boolean deleteTeamModel(TeamModel model) {
 		return deleteTeam(model.name);
 	}
 
@@ -526,7 +526,7 @@ public class ConfigUserService implements IUserService {
 	 * @since 0.8.0
 	 */
 	@Override
-	public boolean deleteTeam(String teamname) {
+	public synchronized boolean deleteTeam(String teamname) {
 		try {
 			// Read realm file
 			read();
@@ -545,7 +545,7 @@ public class ConfigUserService implements IUserService {
 	 * @return list of all usernames
 	 */
 	@Override
-	public List<String> getAllUsernames() {
+	public synchronized List<String> getAllUsernames() {
 		read();
 		List<String> list = new ArrayList<String>(users.keySet());
 		Collections.sort(list);
