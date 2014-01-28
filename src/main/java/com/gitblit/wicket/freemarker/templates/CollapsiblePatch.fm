@@ -8,7 +8,7 @@
 
 			<!-- Client commands menu -->
 			<div class="btn-group pull-right hidden-phone hidden-tablet">
-				<a href="#gitModal" role="button" class="btn btn-mini" data-toggle="modal">Git</a>
+				<a class="btn btn-mini" data-toggle="collapse" data-parent="#accordionGitReview" href="#bodyGitReview">Git</a>
 			</div>
 			
 			<!-- Compare Patchsets menu -->
@@ -51,26 +51,22 @@
 	</div>
 </div>
 </div>
-<div wicket:id="mergePanel" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;"></div>
-
-<!-- Git Review Modal Dialog -->
-<div id="gitModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="gitModalLabel" aria-hidden="true">
-  <div class="modal-header" style="background-color:#002060;color:white;">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="gitModalLabel"><wicket:message key="gb.reviewViaCommandLine"></wicket:message></h3>
-  </div>
-  <div class="modal-body" style="background-color:#fbfbfb;">
-	<p><wicket:message key="gb.reviewViaCommandLineNote"></wicket:message></p>
-	<p class="step">
-		<b><span wicket:id="gitStep1"></span>:</b> <wicket:message key="gb.reviewStep1"></wicket:message> <span wicket:id="gitCopyStep1"></span>
-	</p>
-	<pre wicket:id="gitPreStep1" class="gitcommand"></pre>
-	<p class="step">
-		<b><span wicket:id="gitStep2"></span>:</b> <wicket:message key="gb.reviewStep2"></wicket:message> <span wicket:id="gitCopyStep2"></span>
-	</p>
-	<pre wicket:id="gitPreStep2" class="gitcommand"></pre>
+<div id="bodyGitReview" class="accordion-body collapse" style="background-color:#fbfbfb;clear:both;border-left: 1px solid #ccc;border-right: 1px solid #ccc;">
+  <div class="alert submit-info" style="padding:4px;">
+    <div class="merge-panel" style="border-color: #F1CB82;">
+      <div class="ticket-text">  
+        <h4><wicket:message key="gb.reviewViaCommandLine"></wicket:message></h4>
+        <p><wicket:message key="gb.reviewViaCommandLineNote"></wicket:message></p>
+        <p class="step">
+		  <b><span wicket:id="gitStep1"></span>:</b> <wicket:message key="gb.reviewStep1"></wicket:message> <span wicket:id="gitCopyStep1"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep1" class="gitcommand"></pre>
+	    <p class="step">
+		  <b><span wicket:id="gitStep2"></span>:</b> <wicket:message key="gb.reviewStep2"></wicket:message> <span wicket:id="gitCopyStep2"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep2" class="gitcommand"></pre>
+     </div>
+   </div>
  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-  </div>
 </div>
+<div wicket:id="mergePanel" style="border-left: 1px solid #ccc;border-right: 1px solid #ccc;"></div>
