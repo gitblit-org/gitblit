@@ -154,6 +154,9 @@ public class EditUserPage extends RootSubPage {
 							return;
 						}
 
+						// change the cookie
+						userModel.cookie = StringUtils.getSHA1(userModel.username + password);
+
 						// Optionally store the password MD5 digest.
 						String type = app().settings().getString(Keys.realm.passwordStorage, "md5");
 						if (type.equalsIgnoreCase("md5")) {

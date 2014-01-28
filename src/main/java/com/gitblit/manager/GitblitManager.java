@@ -634,6 +634,11 @@ public class GitblitManager implements IGitblit {
 	}
 
 	@Override
+	public String getCookie(HttpServletRequest request) {
+		return authenticationManager.getCookie(request);
+	}
+
+	@Override
 	public void setCookie(HttpServletResponse response, UserModel user) {
 		authenticationManager.setCookie(response, user);
 	}

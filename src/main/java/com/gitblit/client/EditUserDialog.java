@@ -325,6 +325,9 @@ public class EditUserDialog extends JDialog {
 				return false;
 			}
 
+			// change the cookie
+			user.cookie = StringUtils.getSHA1(user.username + password);
+
 			String type = settings.get(Keys.realm.passwordStorage).getString("md5");
 			if (type.equalsIgnoreCase("md5")) {
 				// store MD5 digest of password

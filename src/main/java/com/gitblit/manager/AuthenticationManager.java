@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -235,13 +236,18 @@ public class AuthenticationManager implements IAuthenticationManager {
 			return null;
 		}
 
+		UserModel user = null;
+
 		// try to authenticate by cookie
-		UserModel user = authenticate(httpRequest.getCookies());
-		if (user != null) {
-			flagWicketSession(AuthenticationType.COOKIE);
-			logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
+		String cookie = getCookie(httpRequest);
+		if (!StringUtils.isEmpty(cookie)) {
+			user = userManager.getUserModel(cookie.toCharArray());
+			if (user != null) {
+				flagWicketSession(AuthenticationType.COOKIE);
+				logger.debug(MessageFormat.format("{0} authenticated by cookie from {1}",
 					user.username, httpRequest.getRemoteAddr()));
-			return user;
+				return user;
+			}
 		}
 
 		// try to authenticate by BASIC
@@ -266,26 +272,6 @@ public class AuthenticationManager implements IAuthenticationManager {
 				} else {
 					logger.warn(MessageFormat.format("Failed login attempt for {0}, invalid credentials from {1}",
 							username, httpRequest.getRemoteAddr()));
-				}
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Authenticate a user based on their cookie.
-	 *
-	 * @param cookies
-	 * @return a user object or null
-	 */
-	protected UserModel authenticate(Cookie[] cookies) {
-		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
-			if (cookies != null && cookies.length > 0) {
-				for (Cookie cookie : cookies) {
-					if (cookie.getName().equals(Constants.NAME)) {
-						String value = cookie.getValue();
-						return userManager.getUserModel(value.toCharArray());
-					}
 				}
 			}
 		}
@@ -365,6 +351,28 @@ public class AuthenticationManager implements IAuthenticationManager {
 	}
 
 	/**
+	 * Returns the Gitlbit cookie in the request.
+	 *
+	 * @param request
+	 * @return the Gitblit cookie for the request or null if not found
+	 */
+	@Override
+	public String getCookie(HttpServletRequest request) {
+		if (settings.getBoolean(Keys.web.allowCookieAuthentication, true)) {
+			Cookie[] cookies = request.getCookies();
+			if (cookies != null && cookies.length > 0) {
+				for (Cookie cookie : cookies) {
+					if (cookie.getName().equals(Constants.NAME)) {
+						String value = cookie.getValue();
+						return value;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Sets a cookie for the specified user.
 	 *
 	 * @param response
@@ -390,7 +398,8 @@ public class AuthenticationManager implements IAuthenticationManager {
 					} else {
 						// create real cookie
 						userCookie = new Cookie(Constants.NAME, cookie);
-						userCookie.setMaxAge(Integer.MAX_VALUE);
+						// expire the cookie in 7 days
+						userCookie.setMaxAge((int) TimeUnit.DAYS.toSeconds(7));
 					}
 				}
 				userCookie.setPath("/");

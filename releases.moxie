@@ -8,7 +8,12 @@ r20: {
     note: "The default access restriction has been elevated from NONE to PUSH and anonymous push access has been disabled."
     html: ~
     text: ~
-    security: ~
+    security:
+	- ''issue-361: Cookies were not reset on administrative password change of a user account.
+        This allowed accounts with changed passwords to continue authenticating.
+        Cookies are now reset on password changes, they are validated on each page request,
+        AND they will now expire 7 days after generation.
+        ''
     fixes:
 	- Fixed incorrect tagger attribution in the dashboard (issue-276)
 	- Fixed support for implied SSH urls in web.otherUrls (issue-311)

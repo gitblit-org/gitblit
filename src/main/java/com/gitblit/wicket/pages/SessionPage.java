@@ -16,6 +16,7 @@
 package com.gitblit.wicket.pages;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.WebPage;
@@ -24,6 +25,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 
 import com.gitblit.Keys;
 import com.gitblit.models.UserModel;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebApp;
 import com.gitblit.wicket.GitBlitWebSession;
 
@@ -53,6 +55,24 @@ public abstract class SessionPage extends WebPage {
 			// already have a session, refresh usermodel to pick up
 			// any changes to permissions or roles (issue-186)
 			UserModel user = app().users().getUserModel(session.getUser().username);
+
+			// validate cookie during session (issue-361)
+			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
+				HttpServletRequest request = ((WebRequest) getRequestCycle().getRequest())
+						.getHttpServletRequest();
+				String requestCookie = app().authentication().getCookie(request);
+				if (!StringUtils.isEmpty(requestCookie) && !StringUtils.isEmpty(user.cookie)) {
+					if (!requestCookie.equals(user.cookie)) {
+						// cookie was changed during our session
+						HttpServletResponse response = ((WebResponse) getRequestCycle().getResponse())
+								.getHttpServletResponse();
+						app().authentication().logout(response, user);
+						session.setUser(null);
+						session.invalidateNow();
+						return;
+					}
+				}
+			}
 			session.setUser(user);
 			return;
 		}

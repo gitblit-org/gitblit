@@ -56,6 +56,14 @@ public interface IAuthenticationManager extends IManager {
 	UserModel authenticate(String username, char[] password);
 
 	/**
+	 * Returns the Gitlbit cookie in the request.
+	 *
+	 * @param request
+	 * @return the Gitblit cookie for the request or null if not found
+	 */
+	String getCookie(HttpServletRequest request);
+
+	/**
 	 * Sets a cookie for the specified user.
 	 *
 	 * @param response

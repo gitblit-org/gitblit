@@ -272,6 +272,9 @@ public class ConfigUserService implements IUserService {
 			}
 			read();
 			originalUser = users.remove(username.toLowerCase());
+			if (originalUser != null) {
+				cookies.remove(originalUser.cookie);
+			}
 			users.put(model.username.toLowerCase(), model);
 			// null check on "final" teams because JSON-sourced UserModel
 			// can have a null teams object
