@@ -957,6 +957,7 @@
 					<include name="localclone.groovy" />
 					<include name="fogbugz.groovy" />
 					<include name="thebuggenie.groovy" />
+					<include name="fisheye.groovy" />
 				</fileset>
 			</copy>
       </sequential>
