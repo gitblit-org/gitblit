@@ -16,6 +16,7 @@ r20: {
 	- Fixed NPE when attempting to add a permission without a registrant (issue-344)
 	- Invalidate all cached repository data on "clear cache" (issue-346)
 	- Fix chart failures when an apostrophe is in a user display name (issue-350, pr-128)
+	- Fix support url decoding with non-ascii characters (pr-136)
 	- Fix potential NPE on removing uncached repository from cache
 	- Ignore the default contents of .git/description file
 	- Fix error on generating activity page when there is no activity
@@ -57,6 +58,7 @@ r20: {
 	- Added GO setting to automatically redirect all http requests to the secure https connector
 	- Automatically display common repository root documents as tabs on the docs page
 	- Support bugtraq configuration in collaboration with syntevo
+	- Added FishEye hook script (pr-137)
 	- Added Redmine Fetch hook script (issue-359)
     dependencyChanges:
 	- updated to Jetty 8.1.13
@@ -98,6 +100,8 @@ r20: {
 	- Gareth Collins
 	- Martijn van der Kleijn
 	- Berke Viktor
+	- Vitaly Litvak
+	- Matthias Cullman
 }
 
 #
