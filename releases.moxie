@@ -57,6 +57,7 @@ r20: {
 	- Added GO setting to automatically redirect all http requests to the secure https connector
 	- Automatically display common repository root documents as tabs on the docs page
 	- Support bugtraq configuration in collaboration with syntevo
+	- Added Redmine Fetch hook script (issue-359)
     dependencyChanges:
 	- updated to Jetty 8.1.13
 	- updated to JGit 3.2.0
@@ -96,6 +97,7 @@ r20: {
 	- Alfred Schmid
 	- Gareth Collins
 	- Martijn van der Kleijn
+	- Berke Viktor
 }
 
 #

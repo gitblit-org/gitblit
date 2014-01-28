@@ -958,6 +958,7 @@
 					<include name="fogbugz.groovy" />
 					<include name="thebuggenie.groovy" />
 					<include name="fisheye.groovy" />
+					<include name="redmine-fetch.groovy" />
 				</fileset>
 			</copy>
       </sequential>
