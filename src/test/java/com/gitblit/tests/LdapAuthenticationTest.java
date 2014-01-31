@@ -16,13 +16,17 @@
  */
 package com.gitblit.tests;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.gitblit.Constants.AccountType;
 import com.gitblit.IStoredSettings;
@@ -47,16 +51,22 @@ import com.unboundid.ldif.LDIFReader;
  *
  */
 public class LdapAuthenticationTest extends GitblitUnitTest {
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
 
 	private static final String RESOURCE_DIR = "src/test/resources/ldap/";
 
-	private LdapAuthProvider ldap;
+    private File usersConf;
+    
+    private LdapAuthProvider ldap;
 
 	static int ldapPort = 1389;
 
 	private static InMemoryDirectoryServer ds;
 
 	private IUserManager userManager;
+
+	private MemorySettings settings;
 
 	@BeforeClass
 	public static void createInMemoryLdapServer() throws Exception {
@@ -66,13 +76,17 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		config.setSchema(null);
 
 		ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, new LDIFReader(new FileInputStream(RESOURCE_DIR + "sampledata.ldif")));
 		ds.startListening();
 	}
 
 	@Before
-	public void newLdapAuthentication() {
-		ldap = newLdapAuthentication(getSettings());
+	public void init() throws Exception {
+		ds.clear();
+		ds.importFromLDIF(true, new LDIFReader(new FileInputStream(RESOURCE_DIR + "sampledata.ldif")));
+		usersConf = folder.newFile("users.conf");
+		FileUtils.copyFile(new File(RESOURCE_DIR + "users.conf"), usersConf);
+		settings = getSettings();
+		ldap = newLdapAuthentication(settings);
 	}
 
 	public LdapAuthProvider newLdapAuthentication(IStoredSettings settings) {
@@ -85,7 +99,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 
 	private MemorySettings getSettings() {
 		Map<String, Object> backingMap = new HashMap<String, Object>();
-		backingMap.put("realm.userService", RESOURCE_DIR + "users.conf");
+		backingMap.put("realm.userService", usersConf.getAbsolutePath());
 		backingMap.put("realm.ldap.server", "ldap://localhost:" + ldapPort);
 		backingMap.put("realm.ldap.domain", "");
 		backingMap.put("realm.ldap.username", "cn=Directory Manager");
@@ -99,9 +113,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		backingMap.put("realm.ldap.admins", "UserThree @Git_Admins \"@Git Admins\"");
 		backingMap.put("realm.ldap.displayName", "displayName");
 		backingMap.put("realm.ldap.email", "email");
-		backingMap.put("realm.ldap.synchronizeUsers.enable", "true");
 		backingMap.put("realm.ldap.uid", "sAMAccountName");
-		backingMap.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 
 		MemorySettings ms = new MemorySettings(backingMap);
 		return ms;
@@ -174,19 +186,26 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	}
 
 	@Test
-	public void checkIfSevenUsersLoadedFromLdap() throws Exception {
+	public void checkIfUsersConfContainsAllUsersFromSampleDataLdif() throws Exception {
 		SearchResult searchResult = ds.search("OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain", SearchScope.SUB, "objectClass=person");
 		assertEquals("Number of ldap users in gitblit user model", searchResult.getEntryCount(), countLdapUsersInUserManager());
 	}
 
 	@Test
-	public void addingUserInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
+	public void addingUserInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
+		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
-		for(String user : userManager.getAllUsernames()) {
-			System.out.println(user);
-		}
 		ldap.synchronizeWithLdapService();
 		assertEquals("Number of ldap users in gitblit user model", 5, countLdapUsersInUserManager());
+	}
+
+	@Test
+	public void addingUserInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
+		settings.put("realm.ldap.synchronizeUsers.enable", "true");
+		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
+		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
+		ldap.synchronizeWithLdapService();
+		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
 	}
 
 	private int countLdapUsersInUserManager() {
