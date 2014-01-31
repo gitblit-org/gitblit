@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,8 +34,10 @@ import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.service.LdapSyncService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
+import com.gitblit.utils.TimeUtils;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.DereferencePolicy;
 import com.unboundid.ldap.sdk.ExtendedResult;
@@ -57,7 +61,7 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
  */
 public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
-    private AtomicLong lastLdapUserSync = new AtomicLong(0L);
+    private final AtomicLong lastLdapUserSync = new AtomicLong(0L);
 
 	public LdapAuthProvider() {
 		super("ldap");
@@ -77,6 +81,11 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 	@Override
 	public void setup() {
+		synchronizeLdapUsers();
+		configureLdapSyncService();
+	}
+	
+	public void synchronizeWithLdapService() {
 		synchronizeLdapUsers();
 	}
 
@@ -519,4 +528,24 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 		return sb.toString();
 	}
+
+	private void configureLdapSyncService() {
+		logger.info("Start configuring ldap sync service");
+		LdapSyncService ldapSyncService = new LdapSyncService(settings, this);
+		if (ldapSyncService.isReady()) {
+			int mins = TimeUtils.convertFrequencyToMinutes(settings.getString(Keys.realm.ldap.synchronizeUsers.ldapSyncPeriod, "5 mins"));
+			if (mins < 5) {
+				mins = 5;
+			}
+			int delay = 1;
+			ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+			scheduledExecutorService.scheduleAtFixedRate(ldapSyncService, delay, mins,  TimeUnit.MINUTES);
+			logger.info("Ldap sync service will update user and groups every {} minutes.", mins);
+			logger.info("Next scheduled ldap sync is in {} minutes", delay);
+		} else {
+			logger.info("Ldap sync service is disabled.");
+		}
+		logger.info("Finished configuring ldap sync service");
+	}
+
 }
