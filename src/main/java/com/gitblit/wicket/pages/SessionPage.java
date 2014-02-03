@@ -57,7 +57,7 @@ public abstract class SessionPage extends WebPage {
 			UserModel user = app().users().getUserModel(session.getUser().username);
 
 			// validate cookie during session (issue-361)
-			if (app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
+			if (user != null && app().settings().getBoolean(Keys.web.allowCookieAuthentication, true)) {
 				HttpServletRequest request = ((WebRequest) getRequestCycle().getRequest())
 						.getHttpServletRequest();
 				String requestCookie = app().authentication().getCookie(request);
