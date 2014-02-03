@@ -23,7 +23,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.Client;
 import redis.clients.jedis.Jedis;
@@ -513,7 +513,7 @@ public class RedisTicketService extends ITicketService {
 					if (uri.getPath().indexOf('/') > -1) {
 						database = Integer.parseInt(uri.getPath().split("/", 2)[1]);
 					}
-					pool = new JedisPool(new Config(), uri.getHost(), uri.getPort(), Protocol.DEFAULT_TIMEOUT, password, database);
+					pool = new JedisPool(new GenericObjectPoolConfig(), uri.getHost(), uri.getPort(), Protocol.DEFAULT_TIMEOUT, password, database);
 				} else {
 					pool = new JedisPool(url);
 				}
