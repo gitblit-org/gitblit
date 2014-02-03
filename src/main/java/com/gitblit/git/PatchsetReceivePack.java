@@ -101,6 +101,8 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 
 	protected final TicketNotifier ticketNotifier;
 
+	private boolean requireCleanMerge;
+
 	public PatchsetReceivePack(IGitblit gitblit, Repository db, RepositoryModel repository, UserModel user) {
 		super(gitblit, db, repository, user);
 		this.ticketService = gitblit.getTicketService();
@@ -512,16 +514,18 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 		case MERGEABLE:
 			break;
 		default:
-			sendError("");
-			sendError("Your patchset can not be cleanly merged into {0}.", forBranch);
-			sendError("Please rebase your patchset and push again.");
-			sendError("NOTE:", number);
-			sendError("You should push your rebase to refs/for/{0,number,0}", number);
-			sendError("");
-			sendError("  git push origin HEAD:refs/for/{0,number,0}", number);
-			sendError("");
-			sendRejection(cmd, "patchset not mergeable");
-			return null;
+			if (ticket == null || requireCleanMerge) {
+				sendError("");
+				sendError("Your patchset can not be cleanly merged into {0}.", forBranch);
+				sendError("Please rebase your patchset and push again.");
+				sendError("NOTE:", number);
+				sendError("You should push your rebase to refs/for/{0,number,0}", number);
+				sendError("");
+				sendError("  git push origin HEAD:refs/for/{0,number,0}", number);
+				sendError("");
+				sendRejection(cmd, "patchset not mergeable");
+				return null;
+			}
 		}
 
 		// check to see if this commit is already linked to a ticket
