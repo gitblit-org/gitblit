@@ -8,7 +8,7 @@
 
 			<!-- Client commands menu -->
 			<div class="btn-group pull-right hidden-phone hidden-tablet">
-				<a class="btn btn-mini" data-toggle="collapse" data-parent="#accordionGitReview" href="#bodyGitReview">Git</a>
+				<a class="btn btn-mini" data-toggle="collapse" data-parent="#accordionGitReview" href="#bodyGitReview"><wicket:message key="gb.review"></wicket:message></a>
 			</div>
 			
 			<!-- Compare Patchsets menu -->
@@ -57,6 +57,8 @@
       <div class="ticket-text">  
         <h4><wicket:message key="gb.reviewViaCommandLine"></wicket:message></h4>
         <p><wicket:message key="gb.reviewViaCommandLineNote"></wicket:message></p>
+
+        <h4>Git</h4>
         <p class="step">
 		  <b><span wicket:id="gitStep1"></span>:</b> <wicket:message key="gb.reviewStep1"></wicket:message> <span wicket:id="gitCopyStep1"></span>
 	    </p>
@@ -65,6 +67,14 @@
 		  <b><span wicket:id="gitStep2"></span>:</b> <wicket:message key="gb.reviewStep2"></wicket:message> <span wicket:id="gitCopyStep2"></span>
 	    </p>
 	    <pre wicket:id="gitPreStep2" class="gitcommand"></pre>
+
+		<hr/>
+        <h4>Barnum <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.download"></wicket:message></a>)</small> </h4>
+        <p class="step">
+		  <wicket:message key="gb.ptReview"></wicket:message> <span wicket:id="ptCopyStep"></span>
+	    </p>
+	    <pre wicket:id="ptPreStep" class="gitcommand"></pre>
+	    
      </div>
    </div>
  </div>

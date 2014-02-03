@@ -709,8 +709,8 @@ public class TicketPage extends TicketBasePage {
 			String repoUrl = getRepositoryUrl(user, repository);
 			Fragment changeIdFrag = new Fragment("patchset", "proposeFragment", this);
 			changeIdFrag.add(new Label("proposeInstructions", MarkdownUtils.transformMarkdown(getString("gb.proposeInstructions"))).setEscapeModelStrings(false));
-			changeIdFrag.add(new Label("barnumWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")).setVisible(false));
-			changeIdFrag.add(new Label("barnumWorkflowSteps", getProposeWorkflow("propose_barnum.md", repoUrl, ticket.number)).setVisible(false).setEscapeModelStrings(false));
+			changeIdFrag.add(new Label("ptWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Barnum")));
+			changeIdFrag.add(new Label("ptWorkflowSteps", getProposeWorkflow("propose_pt.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
 			changeIdFrag.add(new Label("gitWorkflow", MessageFormat.format(getString("gb.proposeWith"), "Git")));
 			changeIdFrag.add(new Label("gitWorkflowSteps", getProposeWorkflow("propose_git.md", repoUrl, ticket.number)).setEscapeModelStrings(false));
 			add(changeIdFrag);
@@ -1043,6 +1043,7 @@ public class TicketPage extends TicketBasePage {
 		};
 		panel.add(pathsView);
 
+		addPtReviewInstructions(user, repository, panel);
 		addGitReviewInstructions(user, repository, panel);
 		panel.add(createMergePanel(user, repository));
 
@@ -1069,6 +1070,12 @@ public class TicketPage extends TicketBasePage {
 
 		panel.add(createCopyFragment("gitCopyStep1", step1.replace("\n", " && ")));
 		panel.add(createCopyFragment("gitCopyStep2", step2.replace("\n", " && ")));
+	}
+
+	protected void addPtReviewInstructions(UserModel user, RepositoryModel repository, MarkupContainer panel) {
+		String step1 = MessageFormat.format("pt checkout {0,number,0}", ticket.number);
+		panel.add(new Label("ptPreStep", step1));
+		panel.add(createCopyFragment("ptCopyStep", step1));
 	}
 
 	/**
@@ -1197,6 +1204,7 @@ public class TicketPage extends TicketBasePage {
 		cmd.add(new Label("instructions", MessageFormat.format(getString(infoKey), ticket.mergeTo)));
 		String repoUrl = getRepositoryUrl(user, repository);
 
+		// git instructions
 		cmd.add(new Label("mergeStep1", MessageFormat.format(getString("gb.stepN"), 1)));
 		cmd.add(new Label("mergeStep2", MessageFormat.format(getString("gb.stepN"), 2)));
 		cmd.add(new Label("mergeStep3", MessageFormat.format(getString("gb.stepN"), 3)));
@@ -1213,6 +1221,11 @@ public class TicketPage extends TicketBasePage {
 		cmd.add(createCopyFragment("mergeCopyStep1", step1.replace("\n", " && ")));
 		cmd.add(createCopyFragment("mergeCopyStep2", step2.replace("\n", " && ")));
 		cmd.add(createCopyFragment("mergeCopyStep3", step3.replace("\n", " && ")));
+
+		// pt instructions
+		String ptStep = MessageFormat.format("pt pull {0,number,0}", ticket.number);
+		cmd.add(new Label("ptMergeStep", ptStep));
+		cmd.add(createCopyFragment("ptMergeCopyStep", step1.replace("\n", " && ")));
 		return cmd;
 	}
 

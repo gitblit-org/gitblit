@@ -157,8 +157,12 @@ public class PatchsetReceivePack extends GitblitReceivePack {
 	/** Extracts the ticket id from the ref name */
 	private long getTicketId(String refName) {
 		if (refName.startsWith(Constants.R_FOR)) {
+			String ref = refName.substring(Constants.R_FOR.length());
+			if (ref.indexOf('%') > -1) {
+				ref = ref.substring(0, ref.indexOf('%'));
+			}
 			try {
-				return Long.parseLong(refName.substring(Constants.R_FOR.length()));
+				return Long.parseLong(ref);
 			} catch (Exception e) {
 				// not a number
 			}

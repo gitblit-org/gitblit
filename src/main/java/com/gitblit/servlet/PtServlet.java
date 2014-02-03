@@ -1,0 +1,117 @@
+/*
+ * Copyright 2014 gitblit.com.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.gitblit.servlet;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.gitblit.dagger.DaggerServlet;
+import com.gitblit.manager.IRuntimeManager;
+
+import dagger.ObjectGraph;
+
+/**
+ * Handles requests for the pt (patchset tool) Python script
+ *
+ * @author James Moger
+ *
+ */
+public class PtServlet extends DaggerServlet {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final long lastModified = System.currentTimeMillis();
+
+	private IRuntimeManager runtimeManager;
+
+	@Override
+	protected void inject(ObjectGraph dagger) {
+		this.runtimeManager = dagger.get(IRuntimeManager.class);
+	}
+
+	@Override
+	protected long getLastModified(HttpServletRequest req) {
+		File file = runtimeManager.getFileOrFolder("tickets.pt", "${baseFolder}/pt.py");
+		if (file.exists()) {
+			return Math.max(lastModified, file.lastModified());
+		} else {
+			return lastModified;
+		}
+	}
+
+	@Override
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		InputStream is = null;
+		try {
+			File file = runtimeManager.getFileOrFolder("tickets.pt", "${baseFolder}/pt.py");
+			if (file.exists()) {
+				// custom script
+				response.setContentLength((int) file.length());
+				response.setDateHeader("Last-Modified", Math.max(lastModified, file.lastModified()));
+				is = new FileInputStream(file);
+			} else {
+				// default script
+				response.setDateHeader("Last-Modified", lastModified);
+				is = getClass().getResourceAsStream("/pt.py");
+			}
+			String contentType = "application/octet-stream";
+
+			boolean windows = false;
+
+			if (windows) {
+				// windows: download as pt.py
+				response.setHeader("Content-Disposition", "attachment; filename=\"pt.py\"");
+				response.setContentType(contentType);
+				response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+				OutputStream os = response.getOutputStream();
+				byte[] buf = new byte[4096];
+				int bytesRead = is.read(buf);
+				while (bytesRead != -1) {
+					os.write(buf, 0, bytesRead);
+					bytesRead = is.read(buf);
+				}
+				os.flush();
+			} else {
+				// unix: download as pt
+				response.setHeader("Content-Disposition", "attachment; filename=\"pt\"");
+				response.setContentType(contentType);
+				response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+				OutputStream os = response.getOutputStream();
+				byte[] buf = new byte[4096];
+				int bytesRead = is.read(buf);
+				while (bytesRead != -1) {
+					os.write(buf, 0, bytesRead);
+					bytesRead = is.read(buf);
+				}
+				os.flush();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (is != null) {
+				is.close();
+			}
+		}
+	}
+}

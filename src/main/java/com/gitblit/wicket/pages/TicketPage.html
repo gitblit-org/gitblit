@@ -101,6 +101,22 @@
 </div> <!-- END TABS -->
 
 
+<!-- BARNUM DOWNLOAD MODAL -->
+<div id="ptModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="ptModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="ptModalLabel"><img src="barnum_32x32.png"></img> Barnum <small><wicket:message key="gb.ptDescription"></wicket:message></small></h3>
+  </div>
+  <div class="modal-body">
+    <p><wicket:message key="gb.ptDescription1"></wicket:message></p>
+    <p><wicket:message key="gb.ptDescription2"></wicket:message></p>
+  </div>
+  <div class="modal-footer">
+    <a class="btn btn-appmenu" href="/pt" ><wicket:message key="gb.download"></wicket:message></a>
+  </div>
+</div>
+
+
 <!-- MILESTONE PROGRESS FRAGMENT -->
 <wicket:fragment wicket:id="milestoneProgressFragment">
 	<div style="display:inline-block;padding-right: 10px" wicket:id="link"></div>
@@ -250,10 +266,10 @@
 				<div class="markdown">
 					<p><wicket:message key="gb.proposePatchsetNote"></wicket:message></p>
 					<p><span wicket:id="proposeInstructions"></span></p>
-					<b><span wicket:id="barnumWorkflow"></span></b>
-					<div wicket:id="barnumWorkflowSteps"></div>
-					<b><span wicket:id="gitWorkflow"></span></b>
+					<h4><span wicket:id="gitWorkflow"></span></h4>
 					<div wicket:id="gitWorkflowSteps"></div>
+					<h4><span wicket:id="ptWorkflow"></span> <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.download"></wicket:message></a>)</small></h4>
+					<div wicket:id="ptWorkflowSteps"></div>
 				</div>			
 			</div>
 		</div>
@@ -352,6 +368,8 @@
 		<hr/>
 		<h4><wicket:message key="gb.mergingViaCommandLine"></wicket:message></h4>	
 		<p><wicket:message key="gb.mergingViaCommandLineNote"></wicket:message></p>
+		
+		<h4>Git</h4>
 		<p class="step">
 			<b><span wicket:id="mergeStep1"></span>:</b> <wicket:message key="gb.mergeStep1"></wicket:message> <span wicket:id="mergeCopyStep1"></span>
 		</p>
@@ -364,6 +382,13 @@
 			<b><span wicket:id="mergeStep3"></span>:</b> <wicket:message key="gb.mergeStep3"></wicket:message> <span wicket:id="mergeCopyStep3"></span>
 		</p>
 		<pre wicket:id="mergePreStep3" class="gitcommand"></pre>
+		
+		<hr/>
+		<h4>Barnum <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.download"></wicket:message></a>)</small></h4>
+		<p class="step">
+		  <wicket:message key="gb.ptMerge"></wicket:message> <span wicket:id="ptMergeCopyStep"></span>
+	    </p>
+	    <pre wicket:id="ptMergeStep" class="gitcommand"></pre>		
 	</div>		
 </wicket:fragment>
 
