@@ -1,18 +1,8 @@
 #!/usr/bin/env python
 #
-# Patchset Tool (pt)
+# Barnum, a Patchset Tool (pt)
 #
-# A Git wrapper script to reduce the ceremony of working with Gitblit patchsets.
-#
-# Usage:
-#
-#    pt fetch <ticket_id> [-p,--patchset <n>]
-#    pt checkout <ticket_id> [-p,--patchset <n>] [--force]
-#    pt pull <ticket_id> [-p,--patchset <n>]
-#    pt push [<ticket_id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
-#    pt start <topic>
-#    pt propose [new | <branch> | <ticket_id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
-#    pt cleanup <ticket_id>
+# This Git wrapper script is designed to reduce the ceremony of working with Gitblit patchsets.
 #
 # Copyright 2014 gitblit.com.
 #
@@ -28,12 +18,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+#
+# Usage:
+#
+#    pt fetch <id> [-p,--patchset <n>]
+#    pt checkout <id> [-p,--patchset <n>] [--force]
+#    pt pull <id> [-p,--patchset <n>]
+#    pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+#    pt start <topic>
+#    pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+#    pt cleanup <id>
+#
 
 __author__ = 'James Moger'
 
 import subprocess
 import argparse
 import errno
+import sys
 
 
 def fetch(args):
@@ -236,7 +238,7 @@ def propose(args):
 
     ref_params = __get_pushref_params(args)
     ref_spec = 'HEAD:refs/for/{}{}'.format(push_ref, ref_params)
-
+    print(ref_spec)
     print("Pushing your proposal to the '{}' repository".format(args.remote))
     __call(['git', 'push', args.remote, ref_spec], echo=True)
 
@@ -571,7 +573,7 @@ push_parser.add_argument('id', nargs='?', help='the ticket id', type=int)
 push_parser.add_argument('-p', '--patchset', help='the patchset number', type=int)
 push_parser.set_defaults(func=push)
 
-propose_parser = commands.add_parser('propose', parents=[push_args], help='propose a new ticket or a first patchset')
+propose_parser = commands.add_parser('propose', parents=[push_args], help='propose a new ticket or the first patchset')
 propose_parser.add_argument('target', nargs='?', help="the ticket id, 'new', or the integration branch")
 propose_parser.set_defaults(func=propose)
 
@@ -585,5 +587,11 @@ start_parser.set_defaults(func=start)
 # parse the command-line arguments
 args = parser.parse_args()
 
-# exec the specified command
-args.func(args)
+if len(sys.argv) < 2:
+    parser.parse_args(['--help'])
+else:
+    # parse the command-line arguments
+    args = parser.parse_args()
+
+    # exec the specified command
+    args.func(args)
