@@ -34,6 +34,7 @@ import com.gitblit.auth.LdapAuthProvider;
 import com.gitblit.manager.IUserManager;
 import com.gitblit.manager.RuntimeManager;
 import com.gitblit.manager.UserManager;
+import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
 import com.gitblit.tests.mock.MemorySettings;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
@@ -208,10 +209,37 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
 	}
 
+	@Test
+	public void addingGroupsInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
+		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
+		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
+		ldap.synchronizeWithLdapService();
+		assertEquals("Number of ldap groups in gitblit team model", 0, countLdapTeamsInUserManager());
+	}
+
+	@Test
+	public void addingGroupsInLdapShouldUpdateGitBlitUsersAndGroups() throws Exception {
+		settings.put("realm.ldap.synchronizeUsers.enable", "true");
+		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
+		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
+		ldap.synchronizeWithLdapService();
+		assertEquals("Number of ldap groups in gitblit team model", 1, countLdapTeamsInUserManager());
+	}
+
 	private int countLdapUsersInUserManager() {
 		int ldapAccountCount = 0;
 		for (UserModel userModel : userManager.getAllUsers()) {
 			if (AccountType.LDAP.equals(userModel.accountType)) {
+				ldapAccountCount++;
+			}
+		}
+		return ldapAccountCount;
+	}
+
+	private int countLdapTeamsInUserManager() {
+		int ldapAccountCount = 0;
+		for (TeamModel teamModel : userManager.getAllTeams()) {
+			if (AccountType.LDAP.equals(teamModel.accountType)) {
 				ldapAccountCount++;
 			}
 		}
