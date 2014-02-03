@@ -480,7 +480,13 @@ public class TicketPage extends TicketBasePage {
 		 * TICKET METADATA
 		 */
 		add(new Label("ticketType", ticket.type.toString()));
-		add(new Label("ticketTopic", ticket.topic == null ? "" : ticket.topic));
+		if (StringUtils.isEmpty(ticket.topic)) {
+			add(new Label("ticketTopic").setVisible(false));
+		} else {
+			// process the topic using the bugtraq config to link things
+			String topic = messageProcessor().processPlainCommitMessage(getRepository(), repositoryName, ticket.topic);
+			add(new Label("ticketTopic", topic).setEscapeModelStrings(false));
+		}
 
 
 		/*

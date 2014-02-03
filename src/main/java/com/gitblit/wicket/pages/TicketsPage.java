@@ -529,7 +529,9 @@ public class TicketsPage extends TicketBasePage {
 
 					@Override
 					public void populateItem(final Item<String> labelItem) {
-						Label label = new Label("label", labelItem.getModelObject());
+						String content = messageProcessor().processPlainCommitMessage(getRepository(), repositoryName, labelItem.getModelObject());
+						Label label = new Label("label", content);
+						label.setEscapeModelStrings(false);
 						TicketLabel tLabel = app().tickets().getLabel(getRepositoryModel(), labelItem.getModelObject());
 						String background = MessageFormat.format("background-color:{0};", tLabel.color);
 						label.add(new SimpleAttributeModifier("style", background));
