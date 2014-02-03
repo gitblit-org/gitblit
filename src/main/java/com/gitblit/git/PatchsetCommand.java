@@ -46,7 +46,7 @@ import com.gitblit.utils.StringUtils;
  */
 public class PatchsetCommand extends ReceiveCommand {
 
-	public static final String TOPIC = "topic=";
+	public static final String TOPIC = "t=";
 
 	public static final String RESPONSIBLE = "r=";
 
