@@ -125,8 +125,9 @@ public class ComparePage extends RepositoryPage {
 //			comparison.add(new BookmarkablePageLink<Void>("patchLink", PatchPage.class,
 //					WicketUtils.newRangeParameter(repositoryName, fromCommitId.toString(), toCommitId.getObject())));
 
+
 			// display list of commits
-			comparison.add(new LogPanel("commitList", repositoryName, objectId, r, 0, 0, repository.showRemoteBranches));
+			comparison.add(new LogPanel("commitList", repositoryName, endId, r, 0, 0, repository.showRemoteBranches));
 
 			// changed paths list
 			comparison.add(new CommitLegendPanel("commitLegend", diff.stat.paths));
