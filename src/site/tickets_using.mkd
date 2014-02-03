@@ -112,16 +112,16 @@ Gitblit supports setting some ticket fields from the push refspec.
 
 | parameter | description                                                     |
 | :-------- | :-------------------------------------------------------------- |
-| topic     | assign a *topic* to the ticket                                  |
+| t         | assign a *topic* to the ticket (matched against bugtraq config) |
 | r         | set the *responsible* user                                      |
 | m         | set the *milestone* for patchset integration                    |
 | cc        | add this account to the *watch* list (multiple ccs allowed)     |
 
 #### examples
 
-Create a new patchset for ticket *12* and add *james* and *mark* to the watch list.
+Create a new patchset for ticket *12*, add *james* and *mark* to the watch list, and set the topic to *issue-123* which will be regex-matched against the repository bugtraq configuration.
 
-    git push origin HEAD:refs/for/12%cc=james,cc=mark
+    git push origin HEAD:refs/for/12%cc=james,cc=mark,t=issue-123
 
 Add some commits to ticket *123* patchset *5*.  Set the milestone to *1.4.1*.
 
@@ -153,3 +153,7 @@ Gitblit allows you to reopen a Ticket with a merged patchset.  Since Gitblit all
 This allows you to continue the discussion and create a new patchset that hopefully resolves the need.
 
 **NOTE:**  There is one caveat to this feature.  You can not push patchsets to a closed ticket; Gitblit will reject the push.  You must first reopen the ticket through the web ui before you may push your patchset update or new patchset.
+
+## Work Smarter, use Barnum
+
+Now that you've seen the more technical aspects of fetching, pushing, and merging patchsets let's skip using native Git directly and use Barnum instead.

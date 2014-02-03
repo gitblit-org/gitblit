@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Barnum, a Patchset Tool (pt)
 #
@@ -108,7 +108,11 @@ def pull(args):
     # pull the patchset from the remote repository
     print("Pulling ticket {} patchset {} from the '{}' repository".format(args.id, args.patchset, args.remote))
     patchset_ref = 'refs/tickets/{:02d}/{:d}/{:d}'.format(args.id % 100, args.id, args.patchset)
-    __call(['git', 'pull', args.remote, patchset_ref], echo=True)
+
+    if args.squash:
+        __call(['git', 'pull', '--squash', '--no-log', '--no-rebase', args.remote, patchset_ref], echo=True)
+    else:
+        __call(['git', 'pull', '--commit', '--no-ff', '--no-log', '--no-rebase', args.remote, patchset_ref], echo=True)
 
     return
 
@@ -252,7 +256,10 @@ def cleanup(args):
     Removes local branches for the ticket.
     """
 
-    branches = __call(['git', 'branch', '--list', 'tickets/{:d}/*'.format(args.id)])
+    if args.id is None:
+        branches = __call(['git', 'branch', '--list', 'tickets/*'])
+    else:
+        branches = __call(['git', 'branch', '--list', 'tickets/{:d}/*'.format(args.id)])
 
     if len(branches) == 0:
         print("No local branches found for ticket {}, cleanup skipped.".format(args.id))
@@ -562,13 +569,14 @@ commands = parser.add_subparsers(dest='command', title='commands')
 fetch_parser = commands.add_parser('fetch',  parents=[ticket_args], help='fetch a patchset')
 fetch_parser.set_defaults(func=fetch)
 
-checkout_parser = commands.add_parser('checkout', parents=[ticket_args, force_args], help='fetch & checkout a patchset to a branch')
+checkout_parser = commands.add_parser('checkout', aliases=['co'], parents=[ticket_args, force_args], help='fetch & checkout a patchset to a branch')
 checkout_parser.set_defaults(func=checkout)
 
 pull_parser = commands.add_parser('pull', parents=[ticket_args, force_args], help='fetch & merge a patchset into the current branch')
+pull_parser.add_argument('-s', '--squash', default=False, help='squash the pulled patchset into your working directory', action='store_true')
 pull_parser.set_defaults(func=pull)
 
-push_parser = commands.add_parser('push', parents=[push_args, force_args], help='upload your patchset changes')
+push_parser = commands.add_parser('push', aliases=['up'], parents=[push_args, force_args], help='upload your patchset changes')
 push_parser.add_argument('id', nargs='?', help='the ticket id', type=int)
 push_parser.add_argument('-p', '--patchset', help='the patchset number', type=int)
 push_parser.set_defaults(func=push)
@@ -577,11 +585,12 @@ propose_parser = commands.add_parser('propose', parents=[push_args], help='propo
 propose_parser.add_argument('target', nargs='?', help="the ticket id, 'new', or the integration branch")
 propose_parser.set_defaults(func=propose)
 
-cleanup_parser = commands.add_parser('cleanup', parents=[ticket_args, force_args], help='remove local ticket branches')
+cleanup_parser = commands.add_parser('cleanup', aliases=['rm'], parents=[force_args], help='remove local ticket branches')
+cleanup_parser.add_argument('id', nargs='?', help='the ticket id', type=int)
 cleanup_parser.set_defaults(func=cleanup)
 
-start_parser = commands.add_parser('start', help='start a new branch for the topic')
-start_parser.add_argument('topic', help="the topic")
+start_parser = commands.add_parser('start', help='start a new branch for the topic or ticket')
+start_parser.add_argument('topic', help="the topic or ticket id")
 start_parser.set_defaults(func=start)
 
 # parse the command-line arguments
