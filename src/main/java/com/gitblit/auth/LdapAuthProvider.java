@@ -152,6 +152,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
                                 userManager.updateTeamModels(userTeams.values());
                             }
                         }
+                        if (!supportsTeamMembershipChanges()) {
+                        	getEmptyTeamsFromLdap(ldapConnection);
+                        }
                         lastLdapUserSync.set(System.currentTimeMillis());
                     } finally {
                         ldapConnection.close();
@@ -431,6 +434,27 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 				user.teams.add(teamModel);
 				teamModel.addUser(user.getName());
+			}
+		}
+	}
+
+	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
+		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
+		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
+
+		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, true, groupMemberPattern, null);
+		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+				if (!teamEntry.hasAttribute("member")) {
+					String teamName = teamEntry.getAttribute("cn").getValue();
+	
+					TeamModel teamModel = userManager.getTeamModel(teamName);
+					if (teamModel == null) {
+						teamModel = createTeamFromLdap(teamEntry);
+						userManager.updateTeamModel(teamModel);
+					}
+				}
 			}
 		}
 	}
