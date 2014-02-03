@@ -236,9 +236,9 @@ def propose(args):
 
     ref_params = __get_pushref_params(args)
     ref_spec = 'HEAD:refs/for/{}{}'.format(push_ref, ref_params)
-    print(ref_spec)
+
     print("Pushing your proposal to the '{}' repository".format(args.remote))
-    #__call(['git', 'push', args.remote, ref_spec], echo=True)
+    __call(['git', 'push', args.remote, ref_spec], echo=True)
 
     return
 
