@@ -426,6 +426,7 @@ public class TicketNotifier {
 
 		String instructions = readResource("commands.md");
 		instructions = instructions.replace("${ticketId}", "" + ticket.number);
+		instructions = instructions.replace("${patchset}", "" + patchset.number);
 		instructions = instructions.replace("${repositoryUrl}", repositoryUrl);
 		instructions = instructions.replace("${patchsetRef}", PatchsetCommand.getTicketRef(ticket.number, patchset.number));
 		instructions = instructions.replace("${reviewBranch}", "tickets/" + ticket.number + "/" + patchset.number);

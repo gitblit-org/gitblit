@@ -60,7 +60,7 @@ You could always push to *refs/for/{id}* **BUT** that isn't always safe.  The ma
 
 *This refspec is ugly, can it be simplified?*
 
-The patchset refspec can't be simplified, but your tooling could be smarter.  There is a companion client tool [Barnum](http://barnum.gitblit.com) that is currently very broken, but was written to address this need.  Alternately, you could write simple Bash, Python, etc scripts to wrap your Git commands which would make this much more elegant.  This is an area that needs improvement (patchsets welcome).
+The patchset refspec can't be simplified, but your tooling could be smarter.  Perhaps you should try [Barnum](tickets_barnum.html).
 
 ### Rewriting a Patchset (amend, rebase, squash)
 

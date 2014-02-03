@@ -569,6 +569,7 @@
 					<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 					  <page name="overview" src="tickets_overview.mkd" />
 					  <page name="using" src="tickets_using.mkd" />
+					  <page name="barnum" src="tickets_barnum.mkd" />
 					  <page name="setup" src="tickets_setup.mkd" />
 					</menu>
 					<divider />
@@ -899,6 +900,7 @@
 						<menu name="tickets" pager="true" pagerPlacement="bottom" pagerLayout="justified">
 							<page name="overview" src="tickets_overview.mkd" />
 							<page name="using" src="tickets_using.mkd" />
+							<page name="barnum" src="tickets_barnum.mkd" />
 							<page name="setup" src="tickets_setup.mkd" />
 						</menu>
 						<divider />

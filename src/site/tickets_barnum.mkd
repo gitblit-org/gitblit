@@ -1,0 +1,60 @@
+## Barnum
+
+*PREVIEW 1.4.0*
+
+Barnum is a command-line companion for Git.  It's purpose is to simplify the syntax and ceremony for working with Gitblit Tickets and Patchsets.
+
+The current implementation is a Python script that wraps a native Git executable.  It requires either a Python 2 or a Python 3 interpreter and works equally well on Windows, Linux, and Mac OS X.
+
+### Fetch
+
+    pt fetch <id> [-p,--patchset <n>]
+
+The **fetch** command downloads the ticket patchset to the FETCH_HEAD ref.  If *patchset* is not specified, the current patchset will be resolved.
+
+### Checkout
+
+    pt checkout <id> [-p,--patchset <n>] [--force]
+
+The **checkout** command fetches and checks-out a branch for the ticket patchset.  The name of the branch is fixed at `tickets/{id}/{patchset}`.  If *patchset* is not specified, the current patchset will be resolved.
+
+This command is also used to update your local branch when someone else pushes a fast-forward update to the same patchset.  Checkout has logic to determine divergent branches and will only permit fast-forward merges with the upstream patchset.
+
+### Pull
+
+    pt pull <id> [-p,--patchset <n>]
+
+The **pull** command fetches and merges the ticket patchset into your current branch.
+
+### Push
+
+    pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+
+The **push** command allows you to update an existing patchset or rewrite an existing patchset.
+
+### Start
+
+    pt start <topic>
+    pt start <id>
+
+The **start** command is used to start development of a topic branch that will be pushed to a Ticket. 
+
+You must specify what you are starting.  If you specify a ticket id, the branch `topid/{id}` will be created.  If you specify a topic string, the branch `topic/{topic}` will be created.  The main difference will be how the **propose** command treats your branch name.
+
+### Propose
+
+    pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+
+The **propose** command pushes an initial patchset to an existing ticket OR allows you to create a new ticket from your patchset on push.
+
+If you created your topic branch with the **start** command and you specified an existing ticket id as what you were starting, then Barnum will identify the id from the branch name and assume that is the target ticket for your patchset.
+
+If you created your topic branch with the **start** command and you specified a topic string as what you were starting, Barnum will identify that and specify that as the *topic* push ref parameter, but will still require a proposal target: *new*, *branch*, or *id*.
+
+In order to create a ticket from your patchset, your patchset *must* contain only a *single* commit.  The first line of the commit message will specify the ticket title.  The remainder of the commit message will define the ticket description.  After the ticket is created from the single commit, you can push as many additional commits as you want.  It is just the first push with one commit that is special.
+
+### Cleanup
+
+    pt cleanup <id>
+
+The **cleanup** command is used to delete ticket branches from your local repository.
