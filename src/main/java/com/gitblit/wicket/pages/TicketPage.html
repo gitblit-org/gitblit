@@ -8,10 +8,10 @@
 <wicket:extend>
 
 <!-- HEADER -->
-<div style="border: 1px solid #ddd;background-color:#fbfbfb;margin:0px 0px 10px;padding: 8px 10px;">
-	<a class="ticket-number" wicket:id="ticketNumber"></a>
-	<div style="display:inline-block;padding: 0px 10px;"><span wicket:id="headerStatus"></span></div>	
+<div style="border-bottom: 1px solid #ddd;margin:0px 0px 10px;padding: 8px 0px;">
 	<div style="display:inline-block;" class="ticket-title"><span wicket:id="ticketTitle">[ticket title]</span></div>
+	<a style="padding-left:10px;" class="ticket-number" wicket:id="ticketNumber"></a>
+	<div style="display:inline-block;padding: 0px 10px;vertical-align:top;"><span wicket:id="headerStatus"></span></div>	
 	<div class="hidden-phone hidden-tablet pull-right"><div wicket:id="diffstat"></div></div>
 </div>
 
