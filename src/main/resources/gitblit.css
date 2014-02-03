@@ -38,6 +38,11 @@ a.bugtraq {
     font-weight: bold;
 }
 
+.label a.bugtraq {
+	font-weight: normal;
+	color: white;
+}
+
 .lwbadge {
 	color: #888;
 	font-size: 11px;

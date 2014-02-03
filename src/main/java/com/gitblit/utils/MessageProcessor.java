@@ -165,7 +165,7 @@ public class MessageProcessor {
 
 		@Override
 		public void appendLink(String name, String target) {
-			sb.append(MessageFormat.format("<a class=\"bugtraq\" href=\"{1}\">{0}</a>", name, target));
+			sb.append(MessageFormat.format("<a class=\"bugtraq\" href=\"{1}\" target=\"_blank\">{0}</a>", name, target));
 		}
 	}
 }
