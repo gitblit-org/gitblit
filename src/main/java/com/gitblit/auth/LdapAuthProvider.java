@@ -439,6 +439,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	}
 
 	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
+		logger.info("Start fetching empty teams form ldap.");
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
 
@@ -457,6 +458,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 			}
 		}
+		logger.info("Finished fetching empty teams form ldap.");
 	}
 
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
