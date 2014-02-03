@@ -25,13 +25,24 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.CompressorOutputStream;
+import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.wicket.util.io.ByteArrayOutputStream;
+import org.eclipse.jgit.lib.FileMode;
+
 import com.gitblit.dagger.DaggerServlet;
 import com.gitblit.manager.IRuntimeManager;
 
 import dagger.ObjectGraph;
 
 /**
- * Handles requests for the pt (patchset tool) Python script
+ * Handles requests for the Barnum pt (patchset tool).
+ *
+ * The user-agent determines the content and compression format.
  *
  * @author James Moger
  *
@@ -62,56 +73,129 @@ public class PtServlet extends DaggerServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		InputStream is = null;
 		try {
+			response.setContentType("application/octet-stream");
+			response.setDateHeader("Last-Modified", lastModified);
+			response.setHeader("Cache-Control", "none");
+			response.setHeader("Pragma", "no-cache");
+			response.setDateHeader("Expires", 0);
+
+			boolean windows = false;
+			try {
+				String useragent = request.getHeader("user-agent").toString();
+				windows = useragent.toLowerCase().contains("windows");
+			} catch (Exception e) {
+			}
+
+			byte[] pyBytes;
 			File file = runtimeManager.getFileOrFolder("tickets.pt", "${baseFolder}/pt.py");
 			if (file.exists()) {
 				// custom script
-				response.setContentLength((int) file.length());
-				response.setDateHeader("Last-Modified", Math.max(lastModified, file.lastModified()));
-				is = new FileInputStream(file);
+				pyBytes = readAll(new FileInputStream(file));
 			} else {
 				// default script
-				response.setDateHeader("Last-Modified", lastModified);
-				is = getClass().getResourceAsStream("/pt.py");
+				pyBytes = readAll(getClass().getResourceAsStream("/pt.py"));
 			}
-			String contentType = "application/octet-stream";
-
-			boolean windows = false;
 
 			if (windows) {
-				// windows: download as pt.py
-				response.setHeader("Content-Disposition", "attachment; filename=\"pt.py\"");
-				response.setContentType(contentType);
-				response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+				// windows: download zip file with pt.py and pt.cmd
+				response.setHeader("Content-Disposition", "attachment; filename=\"pt.zip\"");
+
 				OutputStream os = response.getOutputStream();
-				byte[] buf = new byte[4096];
-				int bytesRead = is.read(buf);
-				while (bytesRead != -1) {
-					os.write(buf, 0, bytesRead);
-					bytesRead = is.read(buf);
-				}
+				ZipArchiveOutputStream zos = new ZipArchiveOutputStream(os);
+
+				// add the Python script
+				ZipArchiveEntry pyEntry = new ZipArchiveEntry("pt.py");
+				pyEntry.setSize(pyBytes.length);
+				pyEntry.setUnixMode(FileMode.EXECUTABLE_FILE.getBits());
+				pyEntry.setTime(lastModified);
+				zos.putArchiveEntry(pyEntry);
+				zos.write(pyBytes);
+				zos.closeArchiveEntry();
+
+				// add a Python launch cmd file
+				byte [] cmdBytes = readAll(getClass().getResourceAsStream("/pt.cmd"));
+				ZipArchiveEntry cmdEntry = new ZipArchiveEntry("pt.cmd");
+				cmdEntry.setSize(cmdBytes.length);
+				cmdEntry.setUnixMode(FileMode.REGULAR_FILE.getBits());
+				cmdEntry.setTime(lastModified);
+				zos.putArchiveEntry(cmdEntry);
+				zos.write(cmdBytes);
+				zos.closeArchiveEntry();
+
+				// add a brief readme
+				byte [] txtBytes = readAll(getClass().getResourceAsStream("/pt.txt"));
+				ZipArchiveEntry txtEntry = new ZipArchiveEntry("readme.txt");
+				txtEntry.setSize(txtBytes.length);
+				txtEntry.setUnixMode(FileMode.REGULAR_FILE.getBits());
+				txtEntry.setTime(lastModified);
+				zos.putArchiveEntry(txtEntry);
+				zos.write(txtBytes);
+				zos.closeArchiveEntry();
+
+				// cleanup
+				zos.finish();
+				zos.close();
 				os.flush();
 			} else {
-				// unix: download as pt
-				response.setHeader("Content-Disposition", "attachment; filename=\"pt\"");
-				response.setContentType(contentType);
-				response.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+				// unix: download a tar.gz file with pt.py set with execute permissions
+				response.setHeader("Content-Disposition", "attachment; filename=\"pt.tar.gz\"");
+
 				OutputStream os = response.getOutputStream();
-				byte[] buf = new byte[4096];
-				int bytesRead = is.read(buf);
-				while (bytesRead != -1) {
-					os.write(buf, 0, bytesRead);
-					bytesRead = is.read(buf);
-				}
+				CompressorOutputStream cos = new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP, os);
+				TarArchiveOutputStream tos = new TarArchiveOutputStream(cos);
+				tos.setAddPaxHeadersForNonAsciiNames(true);
+				tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+
+				// add the Python script
+				TarArchiveEntry pyEntry = new TarArchiveEntry("pt");
+				pyEntry.setMode(FileMode.EXECUTABLE_FILE.getBits());
+				pyEntry.setModTime(lastModified);
+				pyEntry.setSize(pyBytes.length);
+				tos.putArchiveEntry(pyEntry);
+				tos.write(pyBytes);
+				tos.closeArchiveEntry();
+
+				// add a brief readme
+				byte [] txtBytes = readAll(getClass().getResourceAsStream("/pt.txt"));
+				TarArchiveEntry txtEntry = new TarArchiveEntry("README");
+				txtEntry.setMode(FileMode.REGULAR_FILE.getBits());
+				txtEntry.setModTime(lastModified);
+				txtEntry.setSize(txtBytes.length);
+				tos.putArchiveEntry(txtEntry);
+				tos.write(txtBytes);
+				tos.closeArchiveEntry();
+
+				// cleanup
+				tos.finish();
+				tos.close();
+				cos.close();
 				os.flush();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	byte [] readAll(InputStream is) {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		try {
+			byte [] buffer = new byte[4096];
+			int len = 0;
+			while ((len = is.read(buffer)) > -1) {
+				os.write(buffer, 0, len);
+			}
+			return os.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
-			if (is != null) {
+			try {
+				os.close();
 				is.close();
+			} catch (Exception e) {
+				// ignore
 			}
 		}
+		return new byte[0];
 	}
 }
