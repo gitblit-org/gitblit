@@ -77,7 +77,7 @@ def checkout(args):
     branch = 'tickets/{:d}/{:d}'.format(args.id, args.patchset)
 
     # ensure there are no local branch names that will interfere with branch creation
-    illegals = set(branches) & set(['tickets', 'tickets/{:d}'.format(args.id)])
+    illegals = set(branches) & {'tickets', 'tickets/{:d}'.format(args.id)}
     if len(illegals) > 0:
         print('')
         print('Sorry, can not complete the checkout of ticket {} patchset {}.'.format(args.id, args.patchset))
@@ -175,7 +175,7 @@ def start(args):
             branches.append(branch.strip())
 
     branch = 'topic/' + args.topic
-    illegals = set(branches) & set(['topic', branch])
+    illegals = set(branches) & {'topic', branch}
 
     # ensure there are no local branch names that will interfere with branch creation
     if len(illegals) > 0:
@@ -296,8 +296,8 @@ def __resolve_uncommitted_changes(args):
         if not args.force and line[0] != '?':
             print('Your local changes to the following files would be overwritten by {}:'.format(args.command))
             print('')
-            for line in status:
-                print(line)
+            for state in status:
+                print(state)
             print('')
             print("To discard your local changes, repeat the {} with '--force'.".format(args.command))
             print('NOTE: forcing a {} will HARD RESET your working directory!'.format(args.command))
@@ -324,23 +324,23 @@ def __resolve_remote(args):
     else:
         # multiple remotes, read .git/config
         output = __call(['git', 'config', '--local', 'patchsets.remote'], fail=False)
-        patchsets_remote = output[0] if len(output) > 0 else ''
+        preferred = output[0] if len(output) > 0 else ''
 
-        if len(patchsets_remote) == 0:
+        if len(preferred) == 0:
             print("You have multiple remote repositories and you have not configured 'patchsets.remote'.")
             print("")
-            print("Available remotes:")
+            print("Available remote repositories:")
             for remote in remotes:
                 print('  ' + remote)
             print("")
-            print("Please set the remote to use for patchsets.")
+            print("Please set the remote repository to use for patchsets.")
             print("  git config --local patchsets.remote <remote>")
             exit(errno.EINVAL)
         else:
             try:
-                remotes.index(patchsets_remote)
+                remotes.index(preferred)
             except ValueError:
-                print("The '{}' repository specified in 'patchsets.remote' is not a valid Git remote!".format(patchsets_remote))
+                print("The '{}' repository specified in 'patchsets.remote' is not configured!".format(preferred))
                 print("")
                 print("Available remotes:")
                 for remote in remotes:
@@ -350,7 +350,7 @@ def __resolve_remote(args):
                 print("  git config --local patchsets.remote <remote>")
                 exit(errno.EINVAL)
 
-            args.remote = patchsets_remote
+            args.remote = preferred
     return
 
 
@@ -566,41 +566,49 @@ push_args.add_argument('-cc', nargs='+', help='specify accounts to add to the wa
 parser = argparse.ArgumentParser(description='a Patchset Tool for Gitblit Tickets')
 commands = parser.add_subparsers(dest='command', title='commands')
 
-fetch_parser = commands.add_parser('fetch',  parents=[ticket_args], help='fetch a patchset')
+fetch_parser = commands.add_parser('fetch', help='fetch a patchset', parents=[ticket_args])
 fetch_parser.set_defaults(func=fetch)
 
-checkout_parser = commands.add_parser('checkout', aliases=['co'], parents=[ticket_args, force_args], help='fetch & checkout a patchset to a branch')
+checkout_parser = commands.add_parser('checkout', aliases=['co'],
+                                      help='fetch & checkout a patchset to a branch',
+                                      parents=[ticket_args, force_args])
 checkout_parser.set_defaults(func=checkout)
 
-pull_parser = commands.add_parser('pull', parents=[ticket_args, force_args], help='fetch & merge a patchset into the current branch')
-pull_parser.add_argument('-s', '--squash', default=False, help='squash the pulled patchset into your working directory', action='store_true')
+pull_parser = commands.add_parser('pull',
+                                  help='fetch & merge a patchset into the current branch',
+                                  parents=[ticket_args, force_args])
+pull_parser.add_argument('-s', '--squash',
+                         help='squash the pulled patchset into your working directory',
+                         default=False,
+                         action='store_true')
 pull_parser.set_defaults(func=pull)
 
-push_parser = commands.add_parser('push', aliases=['up'], parents=[push_args, force_args], help='upload your patchset changes')
-push_parser.add_argument('id', nargs='?', help='the ticket id', type=int)
+push_parser = commands.add_parser('push', aliases=['up'],
+                                  help='upload your patchset changes',
+                                  parents=[push_args, force_args])
+push_parser.add_argument('id', help='the ticket id', nargs='?', type=int)
 push_parser.add_argument('-p', '--patchset', help='the patchset number', type=int)
 push_parser.set_defaults(func=push)
 
-propose_parser = commands.add_parser('propose', parents=[push_args], help='propose a new ticket or the first patchset')
-propose_parser.add_argument('target', nargs='?', help="the ticket id, 'new', or the integration branch")
+propose_parser = commands.add_parser('propose', help='propose a new ticket or the first patchset', parents=[push_args])
+propose_parser.add_argument('target', help="the ticket id, 'new', or the integration branch", nargs='?')
 propose_parser.set_defaults(func=propose)
 
-cleanup_parser = commands.add_parser('cleanup', aliases=['rm'], parents=[force_args], help='remove local ticket branches')
-cleanup_parser.add_argument('id', nargs='?', help='the ticket id', type=int)
+cleanup_parser = commands.add_parser('cleanup', aliases=['rm'],
+                                     help='remove local ticket branches',
+                                     parents=[force_args])
+cleanup_parser.add_argument('id', help='the ticket id', nargs='?', type=int)
 cleanup_parser.set_defaults(func=cleanup)
 
 start_parser = commands.add_parser('start', help='start a new branch for the topic or ticket')
 start_parser.add_argument('topic', help="the topic or ticket id")
 start_parser.set_defaults(func=start)
 
-# parse the command-line arguments
-args = parser.parse_args()
-
 if len(sys.argv) < 2:
     parser.parse_args(['--help'])
 else:
     # parse the command-line arguments
-    args = parser.parse_args()
+    script_args = parser.parse_args()
 
     # exec the specified command
-    args.func(args)
+    script_args.func(script_args)
