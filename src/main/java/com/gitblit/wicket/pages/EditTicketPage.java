@@ -64,6 +64,8 @@ public class EditTicketPage extends RepositoryPage {
 
 	private MarkdownTextArea descriptionEditor;
 
+	private IModel<String> topicModel;
+
 	private IModel<TicketResponsible> responsibleModel;
 
 	private IModel<TicketMilestone> milestoneModel;
@@ -98,6 +100,7 @@ public class EditTicketPage extends RepositoryPage {
 
 		typeModel = Model.of(ticket.type);
 		titleModel = Model.of(ticket.title);
+		topicModel = Model.of(ticket.topic == null ? "" : ticket.topic);
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
@@ -139,6 +142,13 @@ public class EditTicketPage extends RepositoryPage {
 				if (!ticket.type.equals(type)) {
 					// type change
 					change.setField(Field.type, type);
+				}
+
+				String topic = topicModel.getObject();
+				if ((StringUtils.isEmpty(ticket.topic) && !StringUtils.isEmpty(topic))
+						|| (!StringUtils.isEmpty(topic) && !topic.equals(ticket.topic))) {
+					// topic change
+					change.setField(Field.topic, topic);
 				}
 
 				TicketResponsible responsible = responsibleModel == null ? null : responsibleModel.getObject();
@@ -190,6 +200,7 @@ public class EditTicketPage extends RepositoryPage {
 		}
 		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, typeChoices));
 		form.add(new TextField<String>("title", titleModel));
+		form.add(new TextField<String>("topic", topicModel));
 
 		final IModel<String> markdownPreviewModel = new Model<String>();
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);

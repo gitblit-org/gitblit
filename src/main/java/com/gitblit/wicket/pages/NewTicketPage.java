@@ -40,6 +40,7 @@ import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketMilestone;
 import com.gitblit.tickets.TicketNotifier;
 import com.gitblit.tickets.TicketResponsible;
+import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
 import com.gitblit.wicket.panels.MarkdownTextArea;
@@ -57,6 +58,8 @@ public class NewTicketPage extends RepositoryPage {
 	private IModel<String> titleModel;
 
 	private MarkdownTextArea descriptionEditor;
+
+	private IModel<String> topicModel;
 
 	private IModel<TicketResponsible> responsibleModel;
 
@@ -79,6 +82,7 @@ public class NewTicketPage extends RepositoryPage {
 
 		typeModel = Model.of(TicketModel.Type.defaultType);
 		titleModel = Model.of();
+		topicModel = Model.of();
 		responsibleModel = Model.of();
 		milestoneModel = Model.of();
 
@@ -95,6 +99,10 @@ public class NewTicketPage extends RepositoryPage {
 				Change change = new Change(createdBy);
 				change.setField(Field.title, titleModel.getObject());
 				change.setField(Field.body, descriptionEditor.getText());
+				String topic = topicModel.getObject();
+				if (!StringUtils.isEmpty(topic)) {
+					change.setField(Field.topic, topic);
+				}
 
 				// type
 				TicketModel.Type type = TicketModel.Type.defaultType;
@@ -129,6 +137,7 @@ public class NewTicketPage extends RepositoryPage {
 
 		form.add(new DropDownChoice<TicketModel.Type>("type", typeModel, Arrays.asList(TicketModel.Type.choices())));
 		form.add(new TextField<String>("title", titleModel));
+		form.add(new TextField<String>("topic", topicModel));
 
 		final IModel<String> markdownPreviewModel = new Model<String>();
 		descriptionPreview = new Label("descriptionPreview", markdownPreviewModel);
