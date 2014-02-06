@@ -716,8 +716,13 @@ public abstract class ITicketService {
 				try {
 					Patchset patchset = ticket.getCurrentPatchset();
 					DiffStat diffStat = DiffUtils.getDiffStat(r, patchset.base, patchset.tip);
-					ticket.insertions = diffStat.getInsertions();
-					ticket.deletions = diffStat.getDeletions();
+					// diffstat could be null if we have ticket data without the
+					// commit objects.  e.g. ticket replication without repo
+					// mirroring
+					if (diffStat != null) {
+						ticket.insertions = diffStat.getInsertions();
+						ticket.deletions = diffStat.getDeletions();
+					}
 				} finally {
 					r.close();
 				}
