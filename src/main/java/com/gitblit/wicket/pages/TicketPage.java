@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -70,6 +69,8 @@ import com.gitblit.models.TicketModel.CommentSource;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
 import com.gitblit.models.TicketModel.PatchsetType;
+import com.gitblit.models.TicketModel.Review;
+import com.gitblit.models.TicketModel.Score;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.tickets.TicketIndexer.Lucene;
@@ -83,11 +84,11 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.utils.TimeUtils;
 import com.gitblit.wicket.GitBlitWebSession;
 import com.gitblit.wicket.WicketUtils;
-import com.gitblit.wicket.freemarker.FreemarkerPanel;
 import com.gitblit.wicket.panels.BasePanel.JavascriptTextPrompt;
 import com.gitblit.wicket.panels.CommentPanel;
 import com.gitblit.wicket.panels.DiffStatPanel;
 import com.gitblit.wicket.panels.GravatarImage;
+import com.gitblit.wicket.panels.IconAjaxLink;
 import com.gitblit.wicket.panels.LinkPanel;
 import com.gitblit.wicket.panels.ShockWaveComponent;
 import com.gitblit.wicket.panels.SimpleAjaxLink;
@@ -723,7 +724,6 @@ public class TicketPage extends TicketBasePage {
 		} else {
 			// show current patchset
 			Fragment patchsetFrag = new Fragment("patchset", "patchsetFragment", this);
-			patchsetFrag.add(new Label("patchsetN", MessageFormat.format(getString("gb.patchsetN"), currentPatchset.number)));
 			patchsetFrag.add(new Label("commitsInPatchset", MessageFormat.format(getString("gb.commitsInPatchsetN"), currentPatchset.number)));
 
 			// current revision
@@ -733,6 +733,7 @@ public class TicketPage extends TicketBasePage {
 			addUserAttributions(panel, currentRevision, 0);
 			addDateAttributions(panel, currentRevision);
 
+			// commits
 			List<RevCommit> commits = JGitUtils.getRevLog(getRepository(), currentPatchset.base, currentPatchset.tip);
 			ListDataProvider<RevCommit> commitsDp = new ListDataProvider<RevCommit>(commits);
 			DataView<RevCommit> commitsView = new DataView<RevCommit>("commit", commitsDp) {
@@ -811,6 +812,26 @@ public class TicketPage extends TicketBasePage {
 				} else if (event.hasComment()) {
 					// comment
 					item.add(new Label("what", getString("gb.commented")));
+					item.add(new Label("patchsetRevision").setVisible(false));
+					item.add(new Label("patchsetType").setVisible(false));
+					item.add(new Label("patchsetDiffStat").setVisible(false));
+				} else if (event.hasReview()) {
+					// review
+					String score;
+					switch (event.review.score) {
+					case approved:
+						score = "<span style='color:darkGreen'>" + event.review.score + "</span>";
+						break;
+					case vetoed:
+						score = "<span style='color:darkRed'>" + event.review.score + "</span>";
+						break;
+					default:
+						score = "" + event.review.score;
+					}
+					item.add(new Label("what", MessageFormat.format(getString("gb.reviewedPatchsetRev"),
+							event.review.patchset, event.review.rev,
+							"<b>" + score + "</b>"))
+							.setEscapeModelStrings(false));
 					item.add(new Label("patchsetRevision").setVisible(false));
 					item.add(new Label("patchsetType").setVisible(false));
 					item.add(new Label("patchsetDiffStat").setVisible(false));
@@ -917,17 +938,13 @@ public class TicketPage extends TicketBasePage {
 		return MarkdownUtils.transformMarkdown(md);
 	}
 
-	protected FreemarkerPanel createPatchsetPanel(String wicketId, RepositoryModel repository, UserModel user) {
+	protected Fragment createPatchsetPanel(String wicketId, RepositoryModel repository, UserModel user) {
 		final Patchset currentPatchset = ticket.getCurrentPatchset();
 		List<Patchset> patchsets = new ArrayList<Patchset>(ticket.getPatchsetRevisions(currentPatchset.number));
 		patchsets.remove(currentPatchset);
 		Collections.reverse(patchsets);
 
-		Map<String, Object> pmap = new HashMap<String, Object>();
-		pmap.put("accordianId", "ps" + currentPatchset.number);
-
-		FreemarkerPanel panel = new FreemarkerPanel(wicketId, "CollapsiblePatch.fm", pmap);
-		panel.setParseGeneratedMarkup(true);
+		Fragment panel = new Fragment(wicketId, "collapsiblePatchsetFragment", this);
 
 		// patchset header
 		String ps = "<b>" + currentPatchset.number + "</b>";
@@ -959,6 +976,109 @@ public class TicketPage extends TicketBasePage {
 			}
 		};
 		panel.add(compareMenu);
+
+
+		// reviews
+		List<Change> reviews = ticket.getReviews(currentPatchset);
+		ListDataProvider<Change> reviewsDp = new ListDataProvider<Change>(reviews);
+		DataView<Change> reviewsView = new DataView<Change>("reviews", reviewsDp) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void populateItem(final Item<Change> item) {
+				Change change = item.getModelObject();
+				final String username = change.author;
+				UserModel user = app().users().getUserModel(username);
+				if (user == null) {
+					item.add(new Label("reviewer", username));
+				} else {
+					item.add(new LinkPanel("reviewer", null, user.getDisplayName(),
+							UserPage.class, WicketUtils.newUsernameParameter(username)));
+				}
+
+				// indicate review score
+				Review review = change.review;
+				Label scoreLabel = new Label("score");
+				String scoreClass;
+				String tooltip;
+				switch (review.score) {
+				case vetoed:
+					scoreClass = "fa fa-exclamation-circle";
+					tooltip = getString("gb.veto");
+					break;
+				case needs_improvement:
+					scoreClass = "fa fa-thumbs-o-down";
+					tooltip = getString("gb.needsImprovement");
+					break;
+				case looks_good:
+					scoreClass = "fa fa-thumbs-o-up";
+					tooltip = getString("gb.looksGood");
+					break;
+				case approved:
+					scoreClass = "fa fa-check-circle";
+					tooltip = getString("gb.approve");
+					break;
+				case not_reviewed:
+				default:
+					scoreClass = "fa fa-minus-circle";
+					tooltip = getString("gb.hasNotReviewed");
+					break;
+				}
+
+				WicketUtils.setCssClass(scoreLabel, scoreClass);
+				if (!StringUtils.isEmpty(tooltip)) {
+					WicketUtils.setHtmlTooltip(scoreLabel, tooltip);
+				}
+				item.add(scoreLabel);
+			}
+		};
+		panel.add(reviewsView);
+
+
+		if (ticket.isOpen() && user.canReviewPatchset(repository)) {
+			// can only review open tickets
+			Review myReview = null;
+			for (Change change : ticket.getReviews(currentPatchset)) {
+				if (change.author.equals(user.username)) {
+					myReview = change.review;
+				}
+			}
+
+			// user can review, add review controls
+			Fragment reviewControls = new Fragment("reviewControls", "reviewControlsFragment", this);
+
+			// show "approve" button if no review OR not current score
+			if (user.canApprovePatchset(repository) && (myReview == null || Score.approved != myReview.score)) {
+				reviewControls.add(createReviewLink("approveLink", Score.approved));
+			} else {
+				reviewControls.add(new Label("approveLink").setVisible(false));
+			}
+
+			// show "looks good" button if no review OR not current score
+			if (myReview == null || Score.looks_good != myReview.score) {
+				reviewControls.add(createReviewLink("looksGoodLink", Score.looks_good));
+			} else {
+				reviewControls.add(new Label("looksGoodLink").setVisible(false));
+			}
+
+			// show "needs improvement" button if no review OR not current score
+			if (myReview == null || Score.needs_improvement != myReview.score) {
+				reviewControls.add(createReviewLink("needsImprovementLink", Score.needs_improvement));
+			} else {
+				reviewControls.add(new Label("needsImprovementLink").setVisible(false));
+			}
+
+			// show "veto" button if no review OR not current score
+			if (user.canVetoPatchset(repository) && (myReview == null || Score.vetoed != myReview.score)) {
+				reviewControls.add(createReviewLink("vetoLink", Score.vetoed));
+			} else {
+				reviewControls.add(new Label("vetoLink").setVisible(false));
+			}
+			panel.add(reviewControls);
+		} else {
+			// user can not review
+			panel.add(new Label("reviewControls").setVisible(false));
+		}
 
 		String insertions = MessageFormat.format("<span style=\"color:darkGreen;font-weight:bold;\">+{0}</span>", ticket.insertions);
 		String deletions = MessageFormat.format("<span style=\"color:darkRed;font-weight:bold;\">-{0}</span>", ticket.deletions);
@@ -1056,6 +1176,63 @@ public class TicketPage extends TicketBasePage {
 		return panel;
 	}
 
+	protected IconAjaxLink<String> createReviewLink(String wicketId, final Score score) {
+		return new IconAjaxLink<String>(wicketId, getScoreClass(score), Model.of(getScoreDescription(score))) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				review(score);
+			}
+		};
+	}
+
+	protected String getScoreClass(Score score) {
+		switch (score) {
+		case vetoed:
+			return "fa fa-exclamation-circle";
+		case needs_improvement:
+			return "fa fa-thumbs-o-down";
+		case looks_good:
+			return "fa fa-thumbs-o-up";
+		case approved:
+			return "fa fa-check-circle";
+		case not_reviewed:
+		default:
+			return "fa fa-minus-circle";
+		}
+	}
+
+	protected String getScoreDescription(Score score) {
+		switch (score) {
+		case vetoed:
+			return getString("gb.veto");
+		case needs_improvement:
+			return getString("gb.needsImprovement");
+		case looks_good:
+			return getString("gb.looksGood");
+		case approved:
+			return getString("gb.approve");
+		case not_reviewed:
+		default:
+			return getString("gb.hasNotReviewed");
+		}
+	}
+
+	protected void review(Score score) {
+		UserModel user = GitBlitWebSession.get().getUser();
+		Patchset ps = ticket.getCurrentPatchset();
+		Change change = new Change(user.username);
+		change.review(ps, score, !ticket.isReviewer(user.username));
+		if (!ticket.isWatching(user.username)) {
+			change.watch(user.username);
+		}
+		TicketModel updatedTicket = app().tickets().updateTicket(getRepositoryModel(), ticket.number, change);
+		app().tickets().createNotifier().sendMailing(updatedTicket);
+		setResponsePage(TicketsPage.class, getPageParameters());
+	}
+
 	protected <X extends MarkupContainer> X setNewTarget(X x) {
 		x.add(new SimpleAttributeModifier("target", "_blank"));
 		return x;
@@ -1094,8 +1271,14 @@ public class TicketPage extends TicketBasePage {
 	 */
 	protected Component createMergePanel(UserModel user, RepositoryModel repository) {
 		Patchset patchset = ticket.getCurrentPatchset();
-		boolean reviewRequired = false; // TODO allow reviews
-		boolean patchsetMergeable = ticket.isOpen() && (!reviewRequired || (reviewRequired && ticket.isApproved(patchset)));
+		boolean patchsetMergeable;
+		if (repository.requireApproval) {
+			// rpeository requires approval
+			patchsetMergeable = ticket.isOpen() && ticket.isApproved(patchset);
+		} else {
+			// vetos are binding
+			patchsetMergeable = ticket.isOpen() && !ticket.isVetoed(patchset);
+		}
 		if (patchset == null) {
 			// no patchset to merge
 			return new Label("mergePanel");
@@ -1192,7 +1375,7 @@ public class TicketPage extends TicketBasePage {
 				Fragment mergePanel =  new Fragment("mergePanel", "vetoedFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
 				return mergePanel;
-			} else if (reviewRequired) {
+			} else if (repository.requireApproval) {
 				// patchset has been not been approved for merge
 				Fragment mergePanel = new Fragment("mergePanel", "notApprovedFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotApproved"), ticket.mergeTo)));

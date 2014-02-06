@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gitblit.models.RepositoryModel;
 import com.gitblit.models.TicketModel;
-import com.gitblit.utils.JsonUtils;
+import com.gitblit.tickets.TicketSerializer;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.WicketUtils;
 
@@ -60,7 +60,7 @@ public class ExportTicketPage extends SessionPage {
 				long id = Long.parseLong(objectId);
 				TicketModel ticket = app().tickets().getTicket(repository, id);
 
-				String content = JsonUtils.toJsonString(ticket);
+				String content = TicketSerializer.serialize(ticket);
 				contentType = "application/json; charset=UTF-8";
 				response.setContentType(contentType);
 				try {

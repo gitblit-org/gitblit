@@ -385,15 +385,53 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return curr.equals(patchset);
 	}
 
+	public List<Change> getReviews(Patchset patchset) {
+		if (patchset == null) {
+			return Collections.emptyList();
+		}
+		// collect the patchset reviews by author
+		// the last review by the author is the
+		// official review
+		Map<String, Change> reviews = new LinkedHashMap<String, TicketModel.Change>();
+		for (Change change : changes) {
+			if (change.hasReview()) {
+				if (change.review.isReviewOf(patchset)) {
+					reviews.put(change.author, change);
+				}
+			}
+		}
+		return new ArrayList<Change>(reviews.values());
+	}
+
 
 	public boolean isApproved(Patchset patchset) {
 		if (patchset == null) {
 			return false;
 		}
-		for (Change change : changes) {
+		boolean approved = false;
+		boolean vetoed = false;
+		for (Change change : getReviews(patchset)) {
 			if (change.hasReview()) {
 				if (change.review.isReviewOf(patchset)) {
-					if (change.review.score > 1) {
+					if (Score.approved == change.review.score) {
+						approved = true;
+					} else if (Score.vetoed == change.review.score) {
+						vetoed = true;
+					}
+				}
+			}
+		}
+		return approved && !vetoed;
+	}
+
+	public boolean isVetoed(Patchset patchset) {
+		if (patchset == null) {
+			return false;
+		}
+		for (Change change : getReviews(patchset)) {
+			if (change.hasReview()) {
+				if (change.review.isReviewOf(patchset)) {
+					if (Score.vetoed == change.review.score) {
 						return true;
 					}
 				}
@@ -402,20 +440,13 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		return false;
 	}
 
-	public boolean isVetoed(Patchset patchset) {
-		if (patchset == null) {
-			return false;
-		}
-		for (Change change : changes) {
-			if (change.hasReview()) {
-				if (change.review.isReviewOf(patchset)) {
-					if (change.review.score < -1) {
-						return true;
-					}
-				}
+	public Review getReviewBy(String username) {
+		for (Change change : getReviews(getCurrentPatchset())) {
+			if (change.author.equals(username)) {
+				return change.review;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	public boolean isPatchsetAuthor(String username) {
@@ -619,6 +650,15 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				// ignore
 			}
 			return comment;
+		}
+
+		public Review review(Patchset patchset, Score score, boolean addReviewer) {
+			if (addReviewer) {
+				plusList(Field.reviewers, author);
+			}
+			review = new Review(patchset.number, patchset.rev);
+			review.score = score;
+			return review;
 		}
 
 		public boolean hasAttachments() {
@@ -1057,7 +1097,7 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 
 		public final int rev;
 
-		public int score;
+		public Score score;
 
 		public Review(int patchset, int revision) {
 			this.patchset = patchset;
@@ -1071,6 +1111,25 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 		@Override
 		public String toString() {
 			return "review of patchset " + patchset + " rev " + rev + ":" + score;
+		}
+	}
+
+	public static enum Score {
+		approved(2), looks_good(1), not_reviewed(0), needs_improvement(-1), vetoed(-2);
+
+		final int value;
+
+		Score(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		@Override
+		public String toString() {
+			return name().toLowerCase().replace('_', ' ');
 		}
 	}
 

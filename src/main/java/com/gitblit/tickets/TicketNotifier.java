@@ -17,7 +17,9 @@ package com.gitblit.tickets;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,6 +55,7 @@ import com.gitblit.models.TicketModel;
 import com.gitblit.models.TicketModel.Change;
 import com.gitblit.models.TicketModel.Field;
 import com.gitblit.models.TicketModel.Patchset;
+import com.gitblit.models.TicketModel.Review;
 import com.gitblit.models.TicketModel.Status;
 import com.gitblit.models.UserModel;
 import com.gitblit.utils.ArrayUtils;
@@ -89,6 +92,9 @@ public class TicketNotifier {
 	private final IRepositoryManager repositoryManager;
 
 	private final ITicketService ticketService;
+
+	private final String addPattern = "<span style=\"color:darkgreen;\">+{0}</span>";
+	private final String delPattern = "<span style=\"color:darkred;\">-{0}</span>";
 
 	public TicketNotifier(
 			IRuntimeManager runtimeManager,
@@ -271,10 +277,46 @@ public class TicketNotifier {
 				break;
 			}
 			sb.append(HARD_BRK);
+		} else if (lastChange.hasReview()) {
+			// review
+			Review review = lastChange.review;
+			pattern = "**{0}** has reviewed patchset {1,number,0} revision {2,number,0}";
+			sb.append(MessageFormat.format(pattern, user.getDisplayName(), review.patchset, review.rev));
+			sb.append(HARD_BRK);
+
+			String d = settings.getString(Keys.web.datestampShortFormat, "yyyy-MM-dd");
+			String t = settings.getString(Keys.web.timeFormat, "HH:mm");
+			DateFormat df = new SimpleDateFormat(d + " " + t);
+			List<Change> reviews = ticket.getReviews(ticket.getPatchset(review.patchset, review.rev));
+			sb.append("| Date | Reviewer      | Score | Description  |\n");
+			sb.append("| :--- | :------------ | :---: | :----------- |\n");
+			for (Change change : reviews) {
+				String name = change.author;
+				UserModel u = userManager.getUserModel(change.author);
+				if (u != null) {
+					name = u.getName();
+				}
+				String score;
+				switch (change.review.score) {
+				case approved:
+					score = MessageFormat.format(addPattern, change.review.score.getValue());
+					break;
+				case vetoed:
+					score = MessageFormat.format(delPattern, Math.abs(change.review.score.getValue()));
+					break;
+				default:
+					score = "" + change.review.score.getValue();
+				}
+				String date = df.format(change.date);
+				sb.append(String.format("| %1$s | %2$s | %3$s | %4$s |\n",
+						date, name, score, change.review.score.toString()));
+			}
+			sb.append(HARD_BRK);
 		} else {
 			// general update
 			pattern = "**{0}** has updated this ticket.";
 			sb.append(MessageFormat.format(pattern, user.getDisplayName()));
+			sb.append(HARD_BRK);
 		}
 
 		// ticket link
@@ -353,8 +395,6 @@ public class TicketNotifier {
 				String title = isFastForward ? "Files changed since previous patchset revision" : "All files changed in patchset";
 				sb.append(MessageFormat.format("| {0} |||\n", title));
 				sb.append("| :-- | :----------- | :-: |\n");
-				String addPattern = "<span style=\"color:darkgreen;\">+{0}</span>";
-				String delPattern = "<span style=\"color:darkred;\">-{0}</span>";
 				for (PathChangeModel path : diffstat.paths) {
 					String add = MessageFormat.format(addPattern, path.insertions);
 					String del = MessageFormat.format(delPattern, path.deletions);

@@ -8,7 +8,7 @@
 <wicket:extend>
 
 <!-- HEADER -->
-<div style="border-bottom: 1px solid #ddd;margin:0px 0px 10px;padding: 8px 0px;">
+<div style="padding: 10px 0px 15px;">
 	<div style="display:inline-block;" class="ticket-title"><span wicket:id="ticketTitle">[ticket title]</span></div>
 	<a style="padding-left:10px;" class="ticket-number" wicket:id="ticketNumber"></a>
 	<div style="display:inline-block;padding: 0px 10px;vertical-align:top;"><span wicket:id="headerStatus"></span></div>	
@@ -289,13 +289,12 @@ pt push</pre>
 
 <!-- PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="patchsetFragment">
-	<h3><span wicket:id="patchsetN"></span></h3>
-	<div class="row" style="padding: 10px 0px 20px;">
+	<div class="row" style="padding: 0px 0px 20px;">
  		<div class="span12 attribution-border">
 			<div wicket:id="panel"></div>		
 		</div>
 	</div>
-
+	
 	<h3><span wicket:id="commitsInPatchset"></span></h3>
 	<div class="row">
 		<div class="span12">
@@ -322,6 +321,97 @@ pt push</pre>
 	</div>
 </wicket:fragment>
 
+
+<!-- COLLAPSIBLE PATCHSET (temp) -->
+<wicket:fragment wicket:id="collapsiblePatchsetFragment">
+<div wicket:id="mergePanel" style="margin-bottom: 10px;"></div>
+<div class="accordion" id="accordionPatchset" style="clear:both;margin: 0px;">
+<div class="patch-group">
+   	<div class="accordion-heading">
+		<div class="attribution-patch-pullright">	
+			<div style="padding-bottom: 2px;"> 
+				<span class="attribution-date" wicket:id="changeDate">[patch date]</span>
+			</div>
+
+			<!-- Client commands menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet">
+				<a class="btn btn-mini btn-appmenu" data-toggle="collapse" data-parent="#accordionCheckout" href="#bodyCheckout"><wicket:message key="gb.checkout"></wicket:message> <span class="caret"></span></a>
+			</div>
+			
+			<!-- Compare Patchsets menu -->
+			<div class="btn-group pull-right hidden-phone hidden-tablet" style="padding-right: 5px;">
+				<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+					<wicket:message key="gb.compare"></wicket:message> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+					<li><span wicket:id="compareMergeBase"></span></li>
+					<li wicket:id="comparePatch"><span wicket:id="compareLink"></span></li>
+				</ul>
+			</div>
+
+		</div>
+		<div style="padding:8px 10px;">
+			<div>
+			<span class="attribution-emphasize" wicket:id="changeAuthor">[author]</span> <span class="attribution-text"><span wicket:id="uploadedWhat"></span></span>
+			<a wicket:message="title:gb.showHideDetails" data-toggle="collapse" data-parent="#accordionPatchset" href="#bodyPatchset"><i class="fa fa-toggle-down"></i></a>			
+			</div>
+			<div wicket:id="patchsetStat"></div>
+		</div>
+	</div>
+	
+	<div style="padding: 10px;color: #444;background:white;border-top:1px solid #ccc;">
+		<div class="pull-right" wicket:id="reviewControls"></div>
+		<span style="font-weight:bold;padding-right:10px;"><wicket:message key="gb.reviews"></wicket:message></span> <span wicket:id="reviews" style="padding-right:10px;"><i style="font-size:16px;" wicket:id="score"></i> <span wicket:id="reviewer"></span></span>
+	</div>  		
+				
+	<div id="bodyPatchset" class="accordion-body collapse" style="clear:both;">
+		<div class="accordion-inner">
+			<!-- changed paths -->
+			<table class="pretty" style="border: 0px;">
+				<tr wicket:id="changedPath">
+					<td class="changeType"><span wicket:id="changeType">[change type]</span></td>
+					<td class="path"><span wicket:id="pathName">[commit path]</span></td>			
+					<td class="hidden-phone rightAlign">						
+						<span class="hidden-tablet" style="padding-right:20px;" wicket:id="diffStat"></span>
+						<span class="link" style="white-space: nowrap;">
+							<a wicket:id="diff"><wicket:message key="gb.diff"></wicket:message></a> | <a wicket:id="view"><wicket:message key="gb.view"></wicket:message></a>
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+<div id="bodyCheckout" class="accordion-body collapse" style="background-color:#fbfbfb;clear:both;">
+  <div class="alert submit-info" style="padding:4px;">
+    <div class="merge-panel" style="border: 1px solid #F1CB82;">
+      <div class="ticket-text">  
+        <h4><wicket:message key="gb.checkoutViaCommandLine"></wicket:message></h4>
+        <p><wicket:message key="gb.checkoutViaCommandLineNote"></wicket:message></p>
+
+        <h4>Git</h4>
+        <p class="step">
+		  <b><span wicket:id="gitStep1"></span>:</b> <wicket:message key="gb.checkoutStep1"></wicket:message> <span wicket:id="gitCopyStep1"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep1" class="gitcommand"></pre>
+	    <p class="step">
+		  <b><span wicket:id="gitStep2"></span>:</b> <wicket:message key="gb.checkoutStep2"></wicket:message> <span wicket:id="gitCopyStep2"></span>
+	    </p>
+	    <pre wicket:id="gitPreStep2" class="gitcommand"></pre>
+
+		<hr/>
+        <h4>Barnum <small><wicket:message key="gb.ptDescription"></wicket:message> (<a href="#ptModal" role="button" data-toggle="modal"><wicket:message key="gb.download"></wicket:message></a>)</small> </h4>
+        <p class="step">
+		  <wicket:message key="gb.ptCheckout"></wicket:message> <span wicket:id="ptCopyStep"></span>
+	    </p>
+	    <pre wicket:id="ptPreStep" class="gitcommand"></pre>
+	    
+     </div>
+   </div>
+ </div>
+</div>
+</div>
+</wicket:fragment>
 
 <!--ACTIVITY -->
 <wicket:fragment wicket:id="activityFragment">	
@@ -353,10 +443,26 @@ pt push</pre>
 </wicket:fragment>
 
 
+<!-- REVIEW CONTROLS -->
+<wicket:fragment wicket:id="reviewControlsFragment">
+	<div class="btn-group pull-right hidden-phone hidden-tablet">
+		<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown" href="#">
+			<wicket:message key="gb.review"></wicket:message> <span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu">
+			<li><span><a wicket:id="approveLink">approve</a></span></li>
+			<li><span><a wicket:id="looksGoodLink">looks good</a></span></li>
+			<li><span><a wicket:id="needsImprovementLink">needs improvement</a></span></li>
+			<li><span><a wicket:id="vetoLink">veto</a></span></li>
+		</ul>
+	</div>
+</wicket:fragment>
+
+
 <!-- MERGEABLE PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="mergeableFragment">
 	<div class="alert alert-success submit-info" style="padding:4px;">
-		<div class="merge-panel">
+		<div class="merge-panel" style="border: 1px solid rgba(70, 136, 70, 0.5);">
 			<div class="pull-right" style="padding-top:5px;">
 				<a class="btn btn-success" wicket:id="mergeButton"></a>
 			</div>
@@ -406,7 +512,7 @@ pt push</pre>
 <!-- ALREADY MERGED FRAGMENT -->
 <wicket:fragment wicket:id="alreadyMergedFragment">
 	<div class="alert alert-success submit-info" style="padding:4px;">
-		<div class="merge-panel">
+		<div class="merge-panel" style="border: 1px solid rgba(70, 136, 70, 0.5);">
 			<h4><i class="fa fa-check-circle"></i> <span wicket:id="mergeTitle"></span></h4>
 		</div>
 	</div>
@@ -416,7 +522,7 @@ pt push</pre>
 <!-- NOT-MERGEABLE FRAGMENT -->
 <wicket:fragment wicket:id="notMergeableFragment">
 	<div class="alert alert-error submit-info" style="padding:4px;">
-		<div class="merge-panel">
+		<div class="merge-panel" style="border: 1px solid rgba(136, 70, 70, 0.5);">
 			<h4><i class="fa fa-exclamation-triangle"></i> <span wicket:id="mergeTitle"></span></h4>
 			<div wicket:id="mergeMore"></div>
 		</div>
@@ -427,7 +533,7 @@ pt push</pre>
 <!-- VETOED PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="vetoedFragment">
 	<div class="alert alert-error submit-info" style="padding:4px;">
-		<div class="merge-panel">
+		<div class="merge-panel" style="border: 1px solid rgba(136, 70, 70, 0.5);">
 			<h4><i class="fa fa-exclamation-circle"></i> <span wicket:id="mergeTitle"></span></h4>
 			<wicket:message key="gb.patchsetVetoedMore"></wicket:message>
 		</div>
@@ -438,7 +544,7 @@ pt push</pre>
 <!-- NOT APPROVED PATCHSET FRAGMENT -->
 <wicket:fragment wicket:id="notApprovedFragment">
 	<div class="alert alert-info submit-info" style="padding:4px;">
-		<div class="merge-panel">
+		<div class="merge-panel" style="border: 1px solid rgba(0, 70, 200, 0.5);">
 			<h4><i class="fa fa-minus-circle"></i> <span wicket:id="mergeTitle"></span></h4>
 			<div wicket:id="mergeMore"></div>			
 		</div>
