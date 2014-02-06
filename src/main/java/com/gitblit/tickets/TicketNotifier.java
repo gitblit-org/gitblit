@@ -280,7 +280,7 @@ public class TicketNotifier {
 		} else if (lastChange.hasReview()) {
 			// review
 			Review review = lastChange.review;
-			pattern = "**{0}** has reviewed patchset {1,number,0} revision {2,number,0}";
+			pattern = "**{0}** has reviewed patchset {1,number,0} revision {2,number,0}.";
 			sb.append(MessageFormat.format(pattern, user.getDisplayName(), review.patchset, review.rev));
 			sb.append(HARD_BRK);
 
@@ -294,7 +294,7 @@ public class TicketNotifier {
 				String name = change.author;
 				UserModel u = userManager.getUserModel(change.author);
 				if (u != null) {
-					name = u.getName();
+					name = u.getDisplayName();
 				}
 				String score;
 				switch (change.review.score) {
