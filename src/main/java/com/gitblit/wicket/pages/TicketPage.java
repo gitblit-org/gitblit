@@ -820,17 +820,16 @@ public class TicketPage extends TicketBasePage {
 					String score;
 					switch (event.review.score) {
 					case approved:
-						score = "<span style='color:darkGreen'>" + event.review.score + "</span>";
+						score = "<span style='color:darkGreen'>" + getScoreDescription(event.review.score) + "</span>";
 						break;
 					case vetoed:
-						score = "<span style='color:darkRed'>" + event.review.score + "</span>";
+						score = "<span style='color:darkRed'>" + getScoreDescription(event.review.score) + "</span>";
 						break;
 					default:
-						score = "" + event.review.score;
+						score = getScoreDescription(event.review.score);
 					}
 					item.add(new Label("what", MessageFormat.format(getString("gb.reviewedPatchsetRev"),
-							event.review.patchset, event.review.rev,
-							"<b>" + score + "</b>"))
+							event.review.patchset, event.review.rev, score))
 							.setEscapeModelStrings(false));
 					item.add(new Label("patchsetRevision").setVisible(false));
 					item.add(new Label("patchsetType").setVisible(false));
@@ -999,32 +998,8 @@ public class TicketPage extends TicketBasePage {
 				// indicate review score
 				Review review = change.review;
 				Label scoreLabel = new Label("score");
-				String scoreClass;
-				String tooltip;
-				switch (review.score) {
-				case vetoed:
-					scoreClass = "fa fa-exclamation-circle";
-					tooltip = getString("gb.veto");
-					break;
-				case needs_improvement:
-					scoreClass = "fa fa-thumbs-o-down";
-					tooltip = getString("gb.needsImprovement");
-					break;
-				case looks_good:
-					scoreClass = "fa fa-thumbs-o-up";
-					tooltip = getString("gb.looksGood");
-					break;
-				case approved:
-					scoreClass = "fa fa-check-circle";
-					tooltip = getString("gb.approve");
-					break;
-				case not_reviewed:
-				default:
-					scoreClass = "fa fa-minus-circle";
-					tooltip = getString("gb.hasNotReviewed");
-					break;
-				}
-
+				String scoreClass = getScoreClass(review.score);
+				String tooltip = getScoreDescription(review.score);
 				WicketUtils.setCssClass(scoreLabel, scoreClass);
 				if (!StringUtils.isEmpty(tooltip)) {
 					WicketUtils.setHtmlTooltip(scoreLabel, tooltip);
@@ -1205,19 +1180,25 @@ public class TicketPage extends TicketBasePage {
 	}
 
 	protected String getScoreDescription(Score score) {
+		String description;
 		switch (score) {
 		case vetoed:
-			return getString("gb.veto");
+			description = getString("gb.veto");
+			break;
 		case needs_improvement:
-			return getString("gb.needsImprovement");
+			description = getString("gb.needsImprovement");
+			break;
 		case looks_good:
-			return getString("gb.looksGood");
+			description = getString("gb.looksGood");
+			break;
 		case approved:
-			return getString("gb.approve");
+			description = getString("gb.approve");
+			break;
 		case not_reviewed:
 		default:
-			return getString("gb.hasNotReviewed");
+			description = getString("gb.hasNotReviewed");
 		}
+		return String.format("%1$s (%2$+d)", description, score.getValue());
 	}
 
 	protected void review(Score score) {
