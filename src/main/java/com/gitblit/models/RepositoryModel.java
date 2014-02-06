@@ -87,6 +87,7 @@ public class RepositoryModel implements Serializable, Comparable<RepositoryModel
 	public CommitMessageRenderer commitMessageRenderer;
 	public boolean acceptNewPatchsets;
 	public boolean acceptNewTickets;
+	public boolean requireApproval;
 
 	public transient boolean isCollectingGarbage;
 	public Date lastGC;
