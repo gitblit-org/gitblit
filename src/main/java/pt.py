@@ -25,12 +25,13 @@
 #    pt checkout <id> [-p,--patchset <n>] [--force]
 #    pt pull <id> [-p,--patchset <n>]
 #    pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
-#    pt start <topic>
+#    pt start <topic> | <id>
 #    pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
-#    pt cleanup <id>
+#    pt cleanup [<id>]
 #
 
 __author__ = 'James Moger'
+__version__ = '1.0.0'
 
 import subprocess
 import argparse
@@ -503,7 +504,13 @@ def __get_pushref_params(args):
             if branch[0] == '*':
                 b = branch[1:].strip()
                 if b.startswith('topic/'):
-                    params.append('t=' + b[len('topic/'):])
+                    topic = b[len('topic/'):]
+                    try:
+                        # ignore ticket id topics
+                        int(topic)
+                    except:
+                        # topic is a string
+                        params.append('t=' + topic)
 
     if args.responsible is not None:
         params.append('r=' + args.responsible)

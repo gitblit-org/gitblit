@@ -38,10 +38,9 @@ Usage
 
     pt fetch <id> [-p,--patchset <n>]
     pt checkout <id> [-p,--patchset <n>] [--force]
-    pt pull <id> [-p,--patchset <n>] [-s,--squash]
+    pt pull <id> [-p,--patchset <n>]
     pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
     pt start <topic> | <id>
     pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
-    pt cleanup <id>
-
+    pt cleanup [<id>]
     
