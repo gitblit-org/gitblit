@@ -591,6 +591,7 @@ push_args.add_argument('-cc', nargs='+', help='specify accounts to add to the wa
 
 # the commands
 parser = argparse.ArgumentParser(description='a Patchset Tool for Gitblit Tickets')
+parser.add_argument('--version', action='version', version='%(prog)s {}'.format(__version__))
 commands = parser.add_subparsers(dest='command', title='commands')
 
 fetch_parser = commands.add_parser('fetch', help='fetch a patchset', parents=[ticket_args])
