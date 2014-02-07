@@ -37,10 +37,13 @@ Windows
 Usage
 
     pt fetch <id> [-p,--patchset <n>]
-    pt checkout <id> [-p,--patchset <n>] [--force]
+    pt checkout <id> [-p,--patchset <n>] [-f,--force]
     pt pull <id> [-p,--patchset <n>]
-    pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+    pt push [<id>] [-i,--ignore] [-f,--force] [-t,--topic <topic>]
+            [-m,--milestone <milestone>] [-cc <user> <user>]
     pt start <topic> | <id>
-    pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+    pt propose [new | <branch> | <id>] [-i,--ignore] [-t,--topic <topic>]
+               [-m,--milestone <milestone>] [-cc <user> <user>]
     pt cleanup [<id>]
+
     

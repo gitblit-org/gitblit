@@ -22,16 +22,16 @@
 # Usage:
 #
 #    pt fetch <id> [-p,--patchset <n>]
-#    pt checkout <id> [-p,--patchset <n>] [--force]
+#    pt checkout <id> [-p,--patchset <n>] [-f,--force]
 #    pt pull <id> [-p,--patchset <n>]
-#    pt push [<id>] [--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+#    pt push [<id>] [-i,--ignore] [-f,--force] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
 #    pt start <topic> | <id>
-#    pt propose [new | <branch> | <id>] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
+#    pt propose [new | <branch> | <id>] [-i,--ignore] [-m,--milestone <milestone>] [-t,--topic <topic>] [-cc <user> <user>]
 #    pt cleanup [<id>]
 #
 
 __author__ = 'James Moger'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 import subprocess
 import argparse
@@ -64,7 +64,7 @@ def checkout(args):
     Checkout the patchset on a named branch.
     """
 
-    __resolve_uncommitted_changes(args)
+    __resolve_uncommitted_changes_checkout(args)
     fetch(args)
 
     # collect local branch names
@@ -99,7 +99,7 @@ def pull(args):
     Pull (fetch & merge) a ticket patchset into the current branch.
     """
 
-    __resolve_uncommitted_changes(args)
+    __resolve_uncommitted_changes_checkout(args)
     __resolve_remote(args)
     __resolve_patchset(args)
 
@@ -140,7 +140,7 @@ def push(args):
         print('Please specify a ticket id for the push command.')
         exit(errno.EINVAL)
 
-    __resolve_uncommitted_changes(args)
+    __resolve_uncommitted_changes_push(args)
     __resolve_remote(args)
     __resolve_patchset(args)
 
@@ -198,7 +198,7 @@ def propose(args):
     Push a patchset to create a new proposal ticket or to attach a proposal patchset to an existing ticket.
     """
 
-    __resolve_uncommitted_changes(args)
+    __resolve_uncommitted_changes_push(args)
     __resolve_remote(args)
 
     push_ref = None
@@ -285,11 +285,11 @@ def cleanup(args):
     return
 
 
-def __resolve_uncommitted_changes(args):
+def __resolve_uncommitted_changes_checkout(args):
     """
-    __resolve_uncommitted_changes(args)
+    __resolve_uncommitted_changes_checkout(args)
 
-    Ensures the current checkout has no uncommitted changes.
+    Ensures the current checkout has no uncommitted changes that would be discarded by a checkout or pull.
     """
 
     status = __call(['git', 'status', '--porcelain'])
@@ -302,6 +302,25 @@ def __resolve_uncommitted_changes(args):
             print('')
             print("To discard your local changes, repeat the {} with '--force'.".format(args.command))
             print('NOTE: forcing a {} will HARD RESET your working directory!'.format(args.command))
+            exit(errno.EINVAL)
+
+
+def __resolve_uncommitted_changes_push(args):
+    """
+    __resolve_uncommitted_changes_push(args)
+
+    Ensures the current checkout has no uncommitted changes that should be part of a propose or push.
+    """
+
+    status = __call(['git', 'status', '--porcelain'])
+    for line in status:
+        if not args.ignore and line[0] != '?':
+            print('You have local changes that have not been committed:')
+            print('')
+            for state in status:
+                print(state)
+            print('')
+            print("To ignore these uncommitted changes, repeat the {} with '--ignore'.".format(args.command))
             exit(errno.EINVAL)
 
 
@@ -564,6 +583,7 @@ ticket_args.add_argument('-p', '--patchset', help='the patchset number', type=in
 
 # push refspec arguments
 push_args = argparse.ArgumentParser(add_help=False)
+push_args.add_argument('-i', '--ignore', default=False, help='ignore uncommitted changes', action='store_true')
 push_args.add_argument('-m', '--milestone', help='set the milestone')
 push_args.add_argument('-r', '--responsible', help='set the responsible user')
 push_args.add_argument('-t', '--topic', help='set the topic')
