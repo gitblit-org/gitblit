@@ -1252,19 +1252,22 @@ public class TicketPage extends TicketBasePage {
 	 */
 	protected Component createMergePanel(UserModel user, RepositoryModel repository) {
 		Patchset patchset = ticket.getCurrentPatchset();
-		boolean patchsetMergeable;
-		if (repository.requireApproval) {
-			// rpeository requires approval
-			patchsetMergeable = ticket.isOpen() && ticket.isApproved(patchset);
-		} else {
-			// vetos are binding
-			patchsetMergeable = ticket.isOpen() && !ticket.isVetoed(patchset);
-		}
 		if (patchset == null) {
 			// no patchset to merge
 			return new Label("mergePanel");
-		} else if (patchsetMergeable) {
-			MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
+		}
+
+		boolean allowMerge;
+		if (repository.requireApproval) {
+			// rpeository requires approval
+			allowMerge = ticket.isOpen() && ticket.isApproved(patchset);
+		} else {
+			// vetos are binding
+			allowMerge = ticket.isOpen() && !ticket.isVetoed(patchset);
+		}
+
+		MergeStatus mergeStatus = JGitUtils.canMerge(getRepository(), patchset.tip, ticket.mergeTo);
+		if (allowMerge) {
 			if (MergeStatus.MERGEABLE == mergeStatus) {
 				// patchset can be cleanly merged to integration branch OR has already been merged
 				Fragment mergePanel = new Fragment("mergePanel", "mergeableFragment", this);
@@ -1351,7 +1354,13 @@ public class TicketPage extends TicketBasePage {
 				return mergePanel;
 			}
 		} else {
-			if (ticket.isVetoed(patchset)) {
+			// merge not allowed
+			if (MergeStatus.ALREADY_MERGED == mergeStatus) {
+				// patchset already merged
+				Fragment mergePanel = new Fragment("mergePanel", "alreadyMergedFragment", this);
+				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetAlreadyMerged"), ticket.mergeTo)));
+				return mergePanel;
+			} else if (ticket.isVetoed(patchset)) {
 				// patchset has been vetoed
 				Fragment mergePanel =  new Fragment("mergePanel", "vetoedFragment", this);
 				mergePanel.add(new Label("mergeTitle", MessageFormat.format(getString("gb.patchsetNotMergeable"), ticket.mergeTo)));
