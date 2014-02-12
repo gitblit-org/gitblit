@@ -152,6 +152,7 @@ dependencies:
 - compile 'org.fusesource.wikitext:tracwiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:mediawiki-core:${wikitext.version}' :war
 - compile 'org.fusesource.wikitext:confluence-core:${wikitext.version}' :war
+- compile 'org.asciidoctor:asciidoctor-java-integration:0.1.4' :war
 - compile 'org.eclipse.jgit:org.eclipse.jgit:${jgit.version}' :war :fedclient :manager :authority
 - compile 'org.eclipse.jgit:org.eclipse.jgit.http.server:${jgit.version}' :war :manager :authority
 - compile 'org.bouncycastle:bcprov-jdk15on:${bouncycastle.version}' :war :authority
