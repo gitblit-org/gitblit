@@ -40,6 +40,9 @@
 	<classpathentry kind="lib" path="ext/tracwiki-core-1.4.jar" sourcepath="ext/src/tracwiki-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/mediawiki-core-1.4.jar" sourcepath="ext/src/mediawiki-core-1.4.jar" />
 	<classpathentry kind="lib" path="ext/confluence-core-1.4.jar" sourcepath="ext/src/confluence-core-1.4.jar" />
+	<classpathentry kind="lib" path="ext/asciidoctor-java-integration-0.1.4.jar" sourcepath="ext/src/asciidoctor-java-integration-0.1.4.jar" />
+	<classpathentry kind="lib" path="ext/jruby-complete-1.7.4.jar" sourcepath="ext/src/jruby-complete-1.7.4.jar" />
+	<classpathentry kind="lib" path="ext/jcommander-1.30.jar" sourcepath="ext/src/jcommander-1.30.jar" />
 	<classpathentry kind="lib" path="ext/org.eclipse.jgit-3.3.1.201403241930-r.jar" sourcepath="ext/src/org.eclipse.jgit-3.3.1.201403241930-r.jar" />
 	<classpathentry kind="lib" path="ext/jsch-0.1.50.jar" sourcepath="ext/src/jsch-0.1.50.jar" />
 	<classpathentry kind="lib" path="ext/JavaEWAH-0.7.9.jar" sourcepath="ext/src/JavaEWAH-0.7.9.jar" />

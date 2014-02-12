@@ -397,6 +397,39 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="asciidoctor-java-integration-0.1.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/asciidoctor-java-integration-0.1.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/asciidoctor-java-integration-0.1.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jruby-complete-1.7.4.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jruby-complete-1.7.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jruby-complete-1.7.4.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="jcommander-1.30.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/jcommander-1.30.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/jcommander-1.30.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="org.eclipse.jgit-3.3.1.201403241930-r.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/org.eclipse.jgit-3.3.1.201403241930-r.jar!/" />

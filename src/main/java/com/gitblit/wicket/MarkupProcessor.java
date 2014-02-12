@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.RequestCycle;
+import org.asciidoctor.Asciidoctor;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.mylyn.wikitext.confluence.core.ConfluenceLanguage;
@@ -73,7 +74,7 @@ import com.google.common.base.Joiner;
 public class MarkupProcessor {
 
 	public enum MarkupSyntax {
-		PLAIN, MARKDOWN, TWIKI, TRACWIKI, TEXTILE, MEDIAWIKI, CONFLUENCE
+		PLAIN, MARKDOWN, TWIKI, TRACWIKI, TEXTILE, MEDIAWIKI, CONFLUENCE, ASCIIDOC
 	}
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
@@ -86,6 +87,7 @@ public class MarkupProcessor {
 
 	public List<String> getMarkupExtensions() {
 		List<String> list = new ArrayList<String>();
+		list.addAll(settings.getStrings(Keys.web.asciidocExtensions));
 		list.addAll(settings.getStrings(Keys.web.confluenceExtensions));
 		list.addAll(settings.getStrings(Keys.web.markdownExtensions));
 		list.addAll(settings.getStrings(Keys.web.mediawikiExtensions));
@@ -116,7 +118,9 @@ public class MarkupProcessor {
 			return MarkupSyntax.PLAIN;
 		}
 
-		if (settings.getStrings(Keys.web.confluenceExtensions).contains(ext)) {
+		if (settings.getStrings(Keys.web.asciidocExtensions).contains(ext)) {
+			return MarkupSyntax.ASCIIDOC;
+		} else if (settings.getStrings(Keys.web.confluenceExtensions).contains(ext)) {
 			return MarkupSyntax.CONFLUENCE;
 		} else if (settings.getStrings(Keys.web.markdownExtensions).contains(ext)) {
 			return MarkupSyntax.MARKDOWN;
@@ -203,6 +207,9 @@ public class MarkupProcessor {
 		if (markupText != null) {
 			try {
 				switch (syntax){
+				case ASCIIDOC:
+					asciidoc(doc, repositoryName, commitId);
+					break;
 				case CONFLUENCE:
 					parse(doc, repositoryName, commitId, new ConfluenceLanguage());
 					break;
@@ -346,6 +353,18 @@ public class MarkupProcessor {
 			}
 		};
 		doc.html = MarkdownUtils.transformMarkdown(doc.markup, renderer);
+	}
+
+	/**
+	 * Parses the document as Asciidoc using Asciidoctor.
+	 *
+	 * @param doc
+	 * @param repositoryName
+	 * @param commitId
+	 */
+	private void asciidoc(final MarkupDocument doc, final String repositoryName, final String commitId) {
+		Asciidoctor asciidoctor = org.asciidoctor.Asciidoctor.Factory.create();
+		doc.html = asciidoctor.render(doc.markup, new HashMap<String, Object>());
 	}
 
 	private String getWicketUrl(Class<? extends Page> pageClass, final String repositoryName, final String commitId, final String document) {
