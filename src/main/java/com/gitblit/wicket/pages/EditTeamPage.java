@@ -18,6 +18,7 @@ package com.gitblit.wicket.pages;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +42,7 @@ import com.gitblit.GitBlitException;
 import com.gitblit.Keys;
 import com.gitblit.models.RegistrantAccessPermission;
 import com.gitblit.models.TeamModel;
+import com.gitblit.models.UserModel;
 import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
@@ -97,7 +99,6 @@ public class EditTeamPage extends RootSubPage {
 		List<String> repos = getAccessRestrictedRepositoryList(true, null);
 
 		List<String> teamUsers = new ArrayList<String>(teamModel.users);
-		Collections.sort(teamUsers);
 		List<String> preReceiveScripts = new ArrayList<String>();
 		List<String> postReceiveScripts = new ArrayList<String>();
 
@@ -105,9 +106,8 @@ public class EditTeamPage extends RootSubPage {
 		final List<RegistrantAccessPermission> permissions = teamModel.getRepositoryPermissions();
 
 		// users palette
-		final Palette<String> users = new Palette<String>("users", new ListModel<String>(
-				new ArrayList<String>(teamUsers)), new CollectionModel<String>(app().users()
-				.getAllUsernames()), new StringChoiceRenderer(), 10, false);
+		final Palette<UserModel> users = new Palette<UserModel>("users", new ListModel<UserModel>(
+				getTeamUsers(teamUsers)), new CollectionModel<UserModel>(sortByDisplayName(app().users().getAllUsers())), new UserChoiceRenderer(), 10, false);
 
 		// pre-receive palette
 		if (teamModel.preReceiveScripts != null) {
@@ -155,10 +155,10 @@ public class EditTeamPage extends RootSubPage {
 					teamModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
 				}
 
-				Iterator<String> selectedUsers = users.getSelectedChoices();
+				Iterator<UserModel> selectedUsers = users.getSelectedChoices();
 				List<String> members = new ArrayList<String>();
 				while (selectedUsers.hasNext()) {
-					members.add(selectedUsers.next().toLowerCase());
+					members.add(selectedUsers.next().getName().toLowerCase());
 				}
 				teamModel.users.clear();
 				teamModel.users.addAll(members);
@@ -254,5 +254,24 @@ public class EditTeamPage extends RootSubPage {
 		form.add(cancel);
 
 		add(form);
+	}
+
+	private List<UserModel> getTeamUsers(List<String> teamUserIds) {
+		List<UserModel> teamUsers = new ArrayList<UserModel>();
+		for (String teamUserId : teamUserIds) {
+			teamUsers.add(app().users().getUserModel(teamUserId));
+		}
+		return sortByDisplayName(teamUsers);
+	}
+
+	private List<UserModel> sortByDisplayName(List<UserModel> teamUsers) {
+		Collections.sort(teamUsers, new Comparator<UserModel>() {
+
+			@Override
+			public int compare(UserModel o1, UserModel o2) {
+				return o1.getDisplayName().compareTo(o2.getDisplayName());
+			}
+		});
+		return teamUsers;
 	}
 }
