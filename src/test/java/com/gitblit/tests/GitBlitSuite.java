@@ -56,6 +56,7 @@ import com.gitblit.utils.JGitUtils;
 @RunWith(Suite.class)
 @SuiteClasses({ ArrayUtilsTest.class, FileUtilsTest.class, TimeUtilsTest.class,
 		StringUtilsTest.class, Base64Test.class, JsonUtilsTest.class, ByteFormatTest.class,
+		UserModelTest.class, UserChoiceTest.class,
 		ObjectCacheTest.class, PermissionsTest.class, UserServiceTest.class, LdapAuthenticationTest.class,
 		MarkdownUtilsTest.class, JGitUtilsTest.class, SyndicationUtilsTest.class,
 		DiffUtilsTest.class, MetricUtilsTest.class, X509UtilsTest.class,

@@ -1291,6 +1291,11 @@ table.palette td.header {
 }
 table.palette td.pane {
 	padding: 0px;
+	width: 250px !important;
+}
+
+table.palette td.pane select {
+	width: 250px !important;
 }
 
 table.gitnotes {		
