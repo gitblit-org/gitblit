@@ -780,6 +780,17 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="args4j-2.0.26.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.26.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.26.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="jedis-2.3.1.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/jedis-2.3.1.jar!/" />
