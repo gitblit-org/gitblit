@@ -21,6 +21,10 @@ import java.net.InetSocketAddress;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.apache.sshd.server.Command;
 import org.apache.sshd.server.keyprovider.PEMGeneratorHostKeyProvider;
 import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.transport.resolver.ReceivePackFactory;
@@ -34,7 +38,14 @@ import com.gitblit.git.GitblitReceivePackFactory;
 import com.gitblit.git.GitblitUploadPackFactory;
 import com.gitblit.git.RepositoryResolver;
 import com.gitblit.manager.IGitblit;
+import com.gitblit.transport.ssh.commands.CreateRepository;
+import com.gitblit.transport.ssh.commands.VersionCommand;
+import com.gitblit.utils.IdGenerator;
 import com.gitblit.utils.StringUtils;
+
+import dagger.Module;
+import dagger.ObjectGraph;
+import dagger.Provides;
 
 /**
  * Manager for the ssh transport. Roughly analogous to the
@@ -62,11 +73,7 @@ public class SshDaemon {
 
 	private SshCommandServer sshd;
 
-	private RepositoryResolver<SshDaemonClient> repositoryResolver;
-
-	private UploadPackFactory<SshDaemonClient> uploadPackFactory;
-
-	private ReceivePackFactory<SshDaemonClient> receivePackFactory;
+	private IGitblit gitblit;
 
 	/**
 	 * Construct the Gitblit SSH daemon.
@@ -75,6 +82,7 @@ public class SshDaemon {
 	 */
 	public SshDaemon(IGitblit gitblit) {
 
+	    this.gitblit = gitblit;
 		IStoredSettings settings = gitblit.getSettings();
 		int port = settings.getInteger(Keys.git.sshPort, 0);
 		String bindInterface = settings.getString(Keys.git.sshBindInterface, "localhost");
@@ -85,7 +93,8 @@ public class SshDaemon {
 			myAddress = new InetSocketAddress(bindInterface, port);
 		}
 
-		sshd = new SshCommandServer();
+		ObjectGraph graph = ObjectGraph.create(new SshModule());
+		sshd = graph.get(SshCommandServer.class);
 		sshd.setPort(myAddress.getPort());
 		sshd.setHost(myAddress.getHostName());
 		sshd.setup();
@@ -93,15 +102,8 @@ public class SshDaemon {
 		sshd.setPublickeyAuthenticator(new SshKeyAuthenticator(gitblit));
 
 		run = new AtomicBoolean(false);
-		repositoryResolver = new RepositoryResolver<SshDaemonClient>(gitblit);
-		uploadPackFactory = new GitblitUploadPackFactory<SshDaemonClient>(gitblit);
-		receivePackFactory = new GitblitReceivePackFactory<SshDaemonClient>(gitblit);
-
-		sshd.setCommandFactory(new SshCommandFactory(
-				repositoryResolver,
-				uploadPackFactory,
-				receivePackFactory
-		));
+        SshCommandFactory f = graph.get(SshCommandFactory.class);
+		sshd.setCommandFactory(f);
 	}
 
 	public int getPort() {
@@ -155,5 +157,53 @@ public class SshDaemon {
 				logger.error("SSH Daemon stop interrupted", e);
 			}
 		}
+	}
+
+	@Module(library = true,
+	    injects = {
+        IGitblit.class,
+        SshCommandFactory.class,
+        SshCommandServer.class,
+	    })
+	public class SshModule {
+	  @Provides @Named("create-repository") Command provideCreateRepository() {
+	    return new CreateRepository();
+	  }
+
+	  @Provides @Named("version") Command provideVersion() {
+        return new VersionCommand();
+      }
+
+//	   @Provides(type=Type.SET) @Named("git") Command provideVersionCommand2() {
+//	        return new CreateRepository();
+//	   }
+
+//	  @Provides @Named("git") DispatchCommand providesGitCommand() {
+//	    return new DispatchCommand("git");
+//	  }
+
+//	  @Provides (type=Type.SET) Provider<Command> provideNonCommand() {
+//	      return new SshCommandFactory.NonCommand();
+//	  }
+
+	  @Provides @Singleton IdGenerator provideIdGenerator() {
+	     return new IdGenerator();
+	  }
+
+	  @Provides @Singleton RepositoryResolver<SshSession> provideRepositoryResolver() {
+	    return new RepositoryResolver<SshSession>(provideGitblit());
+	  }
+
+      @Provides @Singleton UploadPackFactory<SshSession> provideUploadPackFactory() {
+        return new GitblitUploadPackFactory<SshSession>(provideGitblit());
+      }
+
+      @Provides @Singleton ReceivePackFactory<SshSession> provideReceivePackFactory() {
+        return new GitblitReceivePackFactory<SshSession>(provideGitblit());
+      }
+
+	  @Provides @Singleton IGitblit provideGitblit() {
+	      return SshDaemon.this.gitblit;
+	  }
 	}
 }
