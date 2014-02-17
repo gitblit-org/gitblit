@@ -17,11 +17,14 @@ package com.gitblit.transport.ssh;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import org.apache.mina.core.future.IoFuture;
 import org.apache.mina.core.future.IoFutureListener;
@@ -69,6 +72,8 @@ import org.apache.sshd.server.session.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gitblit.utils.IdGenerator;
+
 /**
  *
  * @author Eric Myhre
@@ -78,7 +83,8 @@ public class SshCommandServer extends SshServer {
 
 	private static final Logger log = LoggerFactory.getLogger(SshCommandServer.class);
 
-	public SshCommandServer() {
+	@Inject
+	public SshCommandServer(final IdGenerator idGenerator) {
 		setSessionFactory(new SessionFactory() {
 			@Override
 			protected ServerSession createSession(final IoSession io) throws Exception {
@@ -90,7 +96,9 @@ public class SshCommandServer extends SshServer {
 				}
 
 				final ServerSession s = (ServerSession) super.createSession(io);
-				s.setAttribute(SshDaemonClient.ATTR_KEY, new SshDaemonClient());
+				SocketAddress peer = io.getRemoteAddress();
+				SshSession session = new SshSession(idGenerator.next(), peer);
+				s.setAttribute(SshSession.KEY, session);
 
 				io.getCloseFuture().addListener(new IoFutureListener<IoFuture>() {
 					@Override

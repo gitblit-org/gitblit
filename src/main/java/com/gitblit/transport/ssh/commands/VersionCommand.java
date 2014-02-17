@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.transport.ssh;
 
-import java.net.InetAddress;
+package com.gitblit.transport.ssh.commands;
 
-import org.apache.sshd.common.Session.AttributeKey;
+import org.kohsuke.args4j.Option;
 
-/**
- *
- * @author Eric Myrhe
- *
- */
-public class SshDaemonClient {
-	public static final AttributeKey<SshDaemonClient> ATTR_KEY = new AttributeKey<SshDaemonClient>();
+import com.gitblit.Constants;
+import com.gitblit.transport.ssh.CommandMetaData;
 
-	public InetAddress getRemoteAddress() {
-		return null;
-	}
+@CommandMetaData(name="version", description = "Print Gitblit version")
+public class VersionCommand extends SshCommand {
 
-	public String getRemoteUser() {
-		return null;
-	}
+  @Option(name = "--verbose", aliases = {"-v"},  metaVar = "VERBOSE", usage = "Print verbose versions")
+  private boolean verbose;
+
+  @Override
+  public void run() {
+    stdout.println(String.format("Version: %s", Constants.getGitBlitVersion(),
+        verbose));
+  }
 }
