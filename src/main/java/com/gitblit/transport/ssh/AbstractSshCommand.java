@@ -15,9 +15,12 @@
  */
 package com.gitblit.transport.ssh;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 
 import org.apache.sshd.server.Command;
 import org.apache.sshd.server.Environment;
@@ -25,12 +28,14 @@ import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.session.ServerSession;
 
+import com.google.common.base.Charsets;
+
 /**
  *
  * @author Eric Myrhe
  *
  */
-abstract class AbstractSshCommand implements Command, SessionAware {
+public abstract class AbstractSshCommand implements Command, SessionAware {
 
 	protected InputStream in;
 
@@ -69,6 +74,10 @@ abstract class AbstractSshCommand implements Command, SessionAware {
 
 	@Override
 	public void destroy() {}
+
+    protected static PrintWriter toPrintWriter(final OutputStream o) {
+        return new PrintWriter(new BufferedWriter(new OutputStreamWriter(o, Charsets.UTF_8)));
+    }
 
 	@Override
 	public abstract void start(Environment env) throws IOException;

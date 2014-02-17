@@ -736,6 +736,17 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library">
+      <library name="args4j-2.0.26.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/ext/args4j-2.0.26.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/ext/src/args4j-2.0.26.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
       <library name="commons-codec-1.7.jar">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/ext/commons-codec-1.7.jar!/" />
