@@ -29,6 +29,7 @@ import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -47,6 +48,7 @@ import com.gitblit.utils.StringUtils;
 import com.gitblit.wicket.RequiresAdminRole;
 import com.gitblit.wicket.StringChoiceRenderer;
 import com.gitblit.wicket.WicketUtils;
+import com.gitblit.wicket.dto.UserChoice;
 import com.gitblit.wicket.panels.BulletListPanel;
 import com.gitblit.wicket.panels.RegistrantPermissionsPanel;
 
@@ -106,8 +108,8 @@ public class EditTeamPage extends RootSubPage {
 		final List<RegistrantAccessPermission> permissions = teamModel.getRepositoryPermissions();
 
 		// users palette
-		final Palette<UserModel> users = new Palette<UserModel>("users", new ListModel<UserModel>(
-				getTeamUsers(teamUsers)), new CollectionModel<UserModel>(sortByDisplayName(app().users().getAllUsers())), new UserChoiceRenderer(), 10, false);
+		final Palette<UserChoice> users = new Palette<UserChoice>("users", new ListModel<UserChoice>(
+				getTeamUsers(teamUsers)), new CollectionModel<UserChoice>(sortByDisplayName(getTeamUsers(app().users().getAllUsernames()))), new ChoiceRenderer<UserChoice>(null, "userId"), 10, false);
 
 		// pre-receive palette
 		if (teamModel.preReceiveScripts != null) {
@@ -155,10 +157,10 @@ public class EditTeamPage extends RootSubPage {
 					teamModel.setRepositoryPermission(repositoryPermission.registrant, repositoryPermission.permission);
 				}
 
-				Iterator<UserModel> selectedUsers = users.getSelectedChoices();
+				Iterator<UserChoice> selectedUsers = users.getSelectedChoices();
 				List<String> members = new ArrayList<String>();
 				while (selectedUsers.hasNext()) {
-					members.add(selectedUsers.next().getName().toLowerCase());
+					members.add(selectedUsers.next().getUserId().toLowerCase());
 				}
 				teamModel.users.clear();
 				teamModel.users.addAll(members);
@@ -256,20 +258,23 @@ public class EditTeamPage extends RootSubPage {
 		add(form);
 	}
 
-	private List<UserModel> getTeamUsers(List<String> teamUserIds) {
-		List<UserModel> teamUsers = new ArrayList<UserModel>();
+	private List<UserChoice> getTeamUsers(List<String> teamUserIds) {
+		List<UserChoice> teamUsers = new ArrayList<UserChoice>();
 		for (String teamUserId : teamUserIds) {
-			teamUsers.add(app().users().getUserModel(teamUserId));
+			UserModel userModel = app().users().getUserModel(teamUserId);
+			if (userModel!=null) {
+				teamUsers.add(new UserChoice(userModel.displayName, userModel.username, userModel.emailAddress));
+			}
 		}
 		return sortByDisplayName(teamUsers);
 	}
 
-	private List<UserModel> sortByDisplayName(List<UserModel> teamUsers) {
-		Collections.sort(teamUsers, new Comparator<UserModel>() {
+	private List<UserChoice> sortByDisplayName(List<UserChoice> teamUsers) {
+		Collections.sort(teamUsers, new Comparator<UserChoice>() {
 
 			@Override
-			public int compare(UserModel o1, UserModel o2) {
-				return o1.getDisplayName().compareTo(o2.getDisplayName());
+			public int compare(UserChoice o1, UserChoice o2) {
+				return o1.getDisplayNameOrUserId().compareTo(o2.getDisplayNameOrUserId());
 			}
 		});
 		return teamUsers;
