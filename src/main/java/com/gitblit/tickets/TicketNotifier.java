@@ -312,6 +312,10 @@ public class TicketNotifier {
 						date, name, score, change.review.score.toString()));
 			}
 			sb.append(HARD_BRK);
+		} else if (lastChange.hasComment()) {
+			// comment update
+			sb.append(MessageFormat.format("**{0}** commented on this ticket.", user.getDisplayName()));
+			sb.append(HARD_BRK);
 		} else {
 			// general update
 			pattern = "**{0}** has updated this ticket.";
@@ -358,7 +362,12 @@ public class TicketNotifier {
 				sb.append("| Field Changes               ||\n");
 				sb.append("| ------------: | :----------- |\n");
 				for (Field field : fields) {
-					String value = filtered.get(field) == null ? "" : filtered.get(field).replace("\n", "<br/>").replace("|", "&#124;");
+					String value;
+					if (filtered.get(field) == null) {
+						value = "";
+					} else {
+						value = filtered.get(field).replace("\r\n", "<br/>").replace("\n", "<br/>").replace("|", "&#124;");
+					}
 					sb.append(String.format("| **%1$s:** | %2$s |\n", field.name(), value));
 				}
 				sb.append(HARD_BRK);
@@ -367,8 +376,6 @@ public class TicketNotifier {
 
 		// new comment
 		if (lastChange.hasComment()) {
-			sb.append(MessageFormat.format("**{0}** commented on this ticket.", user.getDisplayName()));
-			sb.append(HARD_BRK);
 			sb.append(HR);
 			sb.append(lastChange.comment.text);
 			sb.append(HARD_BRK);
