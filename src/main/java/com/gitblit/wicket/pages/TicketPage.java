@@ -872,8 +872,18 @@ public class TicketPage extends TicketBasePage {
 						String value;
 						switch (entry.getKey()) {
 							case body:
-								// ignore body changes
-								continue;
+								String body = entry.getValue();
+								if (event.isStatusChange() && Status.New == event.getStatus() && StringUtils.isEmpty(body)) {
+									// ignore initial empty description
+									continue;
+								}
+								// trim body changes
+								if (StringUtils.isEmpty(body)) {
+									value = "<i>" + ESC_NIL + "</i>";
+								} else {
+									value = "<i>" + StringUtils.trimString(body, Constants.LEN_SHORTLOG_REFS) + "</i>";
+								}
+								break;
 							case status:
 								// special handling for status
 								Status status = event.getStatus();
