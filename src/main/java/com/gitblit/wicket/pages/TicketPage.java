@@ -25,7 +25,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -375,17 +377,21 @@ public class TicketPage extends TicketBasePage {
 			/*
 			 * RESPONSIBLE LIST
 			 */
-			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
 			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-					if (!StringUtils.isEmpty(ticket.responsible) && ticket.responsible.equals(rp.registrant)) {
-						// exclude current responsible
-						continue;
-					}
-					UserModel u = app().users().getUserModel(rp.registrant);
-					if (u != null) {
-						responsibles.add(new TicketResponsible(u));
-					}
+					userlist.add(rp.registrant);
+				}
+			}
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			if (!StringUtils.isEmpty(ticket.responsible)) {
+				// exclude the current responsible
+				userlist.remove(ticket.responsible);
+			}
+			for (String username : userlist) {
+				UserModel u = app().users().getUserModel(username);
+				if (u != null) {
+					responsibles.add(new TicketResponsible(u));
 				}
 			}
 			Collections.sort(responsibles);

@@ -207,7 +207,9 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 	public List<String> getParticipants() {
 		Set<String> set = new LinkedHashSet<String>();
 		for (Change change : changes) {
-			set.add(change.author);
+			if (change.isParticipantChange()) {
+				set.add(change.author);
+			}
 		}
 		if (responsible != null && responsible.length() > 0) {
 			set.add(responsible);
@@ -681,6 +683,25 @@ public class TicketModel implements Serializable, Comparable<TicketModel> {
 				}
 			}
 			return null;
+		}
+
+		public boolean isParticipantChange() {
+			if (hasComment()
+					|| hasReview()
+					|| hasPatchset()
+					|| hasAttachments()) {
+				return true;
+			}
+
+			if (TicketModel.isEmpty(fields)) {
+				return false;
+			}
+
+			// identify real ticket field changes
+			Map<Field, String> map = new HashMap<Field, String>(fields);
+			map.remove(Field.watchers);
+			map.remove(Field.voters);
+			return !map.isEmpty();
 		}
 
 		public boolean hasField(Field field) {

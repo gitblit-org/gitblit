@@ -508,7 +508,7 @@ public class TicketsPage extends TicketBasePage {
 					item.add(new Label("updated").setVisible(false));
 				} else {
 					Fragment updated = new Fragment("updated", "updatedFragment", this);
-					UserModel updater = app().users().getUserModel(ticket.createdBy);
+					UserModel updater = app().users().getUserModel(ticket.updatedBy);
 					if (updater != null) {
 						updated.add(new LinkPanel("updatedBy", null, updater.getDisplayName(),
 								UserPage.class, WicketUtils.newUsernameParameter(ticket.updatedBy)));

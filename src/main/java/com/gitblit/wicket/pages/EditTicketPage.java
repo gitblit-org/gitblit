@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
@@ -215,16 +217,22 @@ public class EditTicketPage extends RepositoryPage {
 
 		if (currentUser != null && currentUser.isAuthenticated && currentUser.canPush(getRepositoryModel())) {
 			// responsible
-			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			Set<String> userlist = new TreeSet<String>(ticket.getParticipants());
+
 			for (RegistrantAccessPermission rp : app().repositories().getUserAccessPermissions(getRepositoryModel())) {
 				if (rp.permission.atLeast(AccessPermission.PUSH) && !rp.isTeam()) {
-					UserModel user = app().users().getUserModel(rp.registrant);
-					if (user != null) {
-						TicketResponsible responsible = new TicketResponsible(user);
-						responsibles.add(responsible);
-						if (user.username.equals(ticket.responsible)) {
-							responsibleModel.setObject(responsible);
-						}
+					userlist.add(rp.registrant);
+				}
+			}
+
+			List<TicketResponsible> responsibles = new ArrayList<TicketResponsible>();
+			for (String username : userlist) {
+				UserModel user = app().users().getUserModel(username);
+				if (user != null) {
+					TicketResponsible responsible = new TicketResponsible(user);
+					responsibles.add(responsible);
+					if (user.username.equals(ticket.responsible)) {
+						responsibleModel.setObject(responsible);
 					}
 				}
 			}
