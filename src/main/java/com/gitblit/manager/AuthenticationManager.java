@@ -150,6 +150,13 @@ public class AuthenticationManager implements IAuthenticationManager {
 
 	@Override
 	public AuthenticationManager stop() {
+		for (AuthenticationProvider provider : authenticationProviders) {
+			try {
+				provider.stop();
+			} catch (Exception e) {
+				logger.error("Failed to stop " + provider.getClass().getSimpleName(), e);
+			}
+		}
 		return this;
 	}
 

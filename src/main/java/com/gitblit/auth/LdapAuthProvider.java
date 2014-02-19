@@ -60,10 +60,15 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
  */
 public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
-    private final AtomicLong lastLdapUserSync = new AtomicLong(0L);
+    private final AtomicLong lastLdapUserSync;
+
+	private final ScheduledExecutorService scheduledExecutorService;
 
 	public LdapAuthProvider() {
 		super("ldap");
+
+		lastLdapUserSync = new AtomicLong(0L);
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 	}
 
  	private long getSynchronizationPeriodInMilliseconds(String name) {
@@ -80,15 +85,16 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
 	@Override
 	public void setup() {
-		synchronizeLdapUsers();
-		configureLdapSyncService();
-	}
-	
-	public void synchronizeWithLdapService() {
-		synchronizeLdapUsers();
+		sync();
+		configureSyncService();
 	}
 
-	protected synchronized void synchronizeLdapUsers() {
+	@Override
+	public void stop() {
+		scheduledExecutorService.shutdownNow();
+	}
+
+	public synchronized void sync() {
         final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
         if (enabled) {
             if (System.currentTimeMillis() > (lastLdapUserSync.get() + getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.ldapCachePeriod))) {
@@ -439,7 +445,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	}
 
 	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
-		logger.info("Start fetching empty teams form ldap.");
+		logger.info("Start fetching empty teams from ldap.");
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
 
@@ -449,7 +455,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
 				if (!teamEntry.hasAttribute("member")) {
 					String teamName = teamEntry.getAttribute("cn").getValue();
-	
+
 					TeamModel teamModel = userManager.getTeamModel(teamName);
 					if (teamModel == null) {
 						teamModel = createTeamFromLdap(teamEntry);
@@ -458,7 +464,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 			}
 		}
-		logger.info("Finished fetching empty teams form ldap.");
+		logger.info("Finished fetching empty teams from ldap.");
 	}
 
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
@@ -554,7 +560,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		return sb.toString();
 	}
 
-	private void configureLdapSyncService() {
+	private void configureSyncService() {
 		logger.info("Start configuring ldap sync service");
 		LdapSyncService ldapSyncService = new LdapSyncService(settings, this);
 		if (ldapSyncService.isReady()) {
@@ -564,7 +570,6 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				ldapSyncPeriod = ldapCachePeriod;
 			}
 			int delay = 1;
-			ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 			scheduledExecutorService.scheduleAtFixedRate(ldapSyncService, delay, ldapSyncPeriod,  TimeUnit.MILLISECONDS);
 			logger.info("Ldap sync service will update user and groups every {} minutes.", ldapSyncPeriod);
 			logger.info("Next scheduled ldap sync is in {} minutes", delay);

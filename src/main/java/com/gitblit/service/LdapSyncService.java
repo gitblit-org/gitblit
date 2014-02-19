@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 gitblit.com.
+ * Copyright 2014 gitblit.com.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.gitblit.auth.LdapAuthProvider;
 
 /**
  * @author Alfred Schmid
- * 
+ *
  */
 public final class LdapSyncService implements Runnable {
 
@@ -44,14 +44,14 @@ public final class LdapSyncService implements Runnable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
 		logger.info("Starting user and group sync with ldap service");
 		if (!running.getAndSet(true)) {
-			ldapAuthProvider.synchronizeWithLdapService();
+			ldapAuthProvider.sync();
 			running.getAndSet(false);
 		}
 		logger.info("Finished user and group sync with ldap service");

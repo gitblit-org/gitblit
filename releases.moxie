@@ -81,6 +81,7 @@ r20: {
 	- { name: 'git.defaultAccessRestriction', defaultValue: 'PUSH' }
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
 	- { name: 'realm.authenticationProviders', defaultValue: ' ' }
+	- { name: 'realm.ldap.groupEmptyMemberPattern', defaultValue: '(&(objectClass=group)(!(member=*)))' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
