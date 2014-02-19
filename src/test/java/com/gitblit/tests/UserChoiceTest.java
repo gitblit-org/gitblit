@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.dto;
-
-import static org.junit.Assert.*;
+package com.gitblit.tests;
 
 import org.junit.Test;
 
@@ -23,11 +21,11 @@ import com.gitblit.models.UserChoice;
 
 /**
  * Test behavior of UserChoice class.
- * 
+ *
  * @author Alfred Schmid
  *
  */
-public class UserChoiceTest {
+public class UserChoiceTest extends GitblitUnitTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void creatingUserChoiceWithNullAsUserIdIsImpossible() {

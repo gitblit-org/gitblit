@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.models;
-
-import static org.junit.Assert.assertEquals;
+package com.gitblit.tests;
 
 import org.junit.Test;
+
+import com.gitblit.models.UserModel;
 
 /**
  * @author Alfred Schmid
  *
  */
-public class UserModelTest {
+public class UserModelTest extends GitblitUnitTest {
 
 	@Test
 	public void whenDisplayNameIsEmptyUsernameIsUsed() {
@@ -43,7 +43,7 @@ public class UserModelTest {
 
 	@Test
 	public void whenDisplayNameIsNotEmptyDisplayNameIsUsed() {
-		String displayName = "Test User"; 
+		String displayName = "Test User";
 		UserModel userModel = new UserModel("test");
 		userModel.displayName = displayName;
 		assertEquals("When displayName is not empty its value has to be returnd from getDisplayName().", displayName, userModel.getDisplayName());
