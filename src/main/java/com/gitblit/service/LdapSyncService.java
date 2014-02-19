@@ -51,14 +51,19 @@ public final class LdapSyncService implements Runnable {
 	public void run() {
 		logger.info("Starting user and group sync with ldap service");
 		if (!running.getAndSet(true)) {
-			ldapAuthProvider.sync();
-			running.getAndSet(false);
+			try {
+				ldapAuthProvider.sync();
+			} catch (Exception e) {
+				logger.error("Failed to synchronize with ldap", e);
+			} finally {
+				running.getAndSet(false);
+			}
 		}
 		logger.info("Finished user and group sync with ldap service");
 	}
 
 	public boolean isReady() {
-		return settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
+		return settings.getBoolean(Keys.realm.ldap.synchronize, false);
 	}
 
 }

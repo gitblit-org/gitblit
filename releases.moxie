@@ -33,6 +33,7 @@ r20: {
 	- Reversed line links in blob view (issue-309)
 	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
 	- Do not log passwords on failed authentication attempts (issue-316)
+	- LDAP synchronization is now scheduled rather than on-demand (issue-336)
 	- Updated default binary and Lucene ignore extensions
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
@@ -82,6 +83,9 @@ r20: {
 	- { name: 'git.mirrorPeriod', defaultValue: '30 mins' }
 	- { name: 'realm.authenticationProviders', defaultValue: ' ' }
 	- { name: 'realm.ldap.groupEmptyMemberPattern', defaultValue: '(&(objectClass=group)(!(member=*)))' }
+	- { name: 'realm.ldap.synchronize', defaultValue: 'false' }
+	- { name: 'realm.ldap.syncPeriod', defaultValue: '5 MINUTES' }
+	- { name: 'realm.ldap.removeDeletedUsers', defaultValue: 'true' }
 	- { name: 'web.commitMessageRenderer', defaultValue: 'plain' }
 	- { name: 'web.documents', defaultValue: 'readme home index changelog contributing submitting_patches copying license notice authors' }
 	- { name: 'web.showBranchGraph', defaultValue: 'true' }
