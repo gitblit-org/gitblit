@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gitblit.wicket.dto;
+package com.gitblit.models;
 
 import java.io.Serializable;
 
@@ -22,20 +22,23 @@ import com.gitblit.utils.StringUtils;
 /**
  * @author Alfred Schmid
  * @author James Moger
- * 
+ *
  */
 public class UserChoice implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	private final String displayName;
 	private final String userId;
 	private final String email;
 
 	/**
 	 * Create a UserChoice without email and displayName.
-	 * 
+	 *
 	 * @param userId
 	 *            the unique id of the user (in most cases the unique username
 	 *            from user store). Can never be null or empty string.
-	 * 
+	 *
 	 */
 	public UserChoice(String userId) {
 		this(null, userId, null);
@@ -43,13 +46,13 @@ public class UserChoice implements Serializable {
 
 	/**
 	 * Create a UserChoice without email.
-	 * 
+	 *
 	 * @param displayName
 	 *            the display name for the user. Can be null or empty string.
 	 * @param userId
 	 *            the unique id of the user (in most cases the unique username
 	 *            from user store). Can never be null or empty string.
-	 * 
+	 *
 	 */
 	public UserChoice(String displayName, String userId) {
 		this(displayName, userId, null);
@@ -57,7 +60,7 @@ public class UserChoice implements Serializable {
 
 	/**
 	 * Create a UserChoice with email and displayName.
-	 * 
+	 *
 	 * @param displayName
 	 *            the display name for the user. Can be null or empty string.
 	 * @param userId
@@ -65,7 +68,7 @@ public class UserChoice implements Serializable {
 	 *            from user store). Can never be null or empty string.
 	 * @param email
 	 *            the email from the user. Can be null or empty string.
-	 * 
+	 *
 	 */
 	public UserChoice(String displayName, String userId, String email) {
 		if (userId == null) {
@@ -98,6 +101,7 @@ public class UserChoice implements Serializable {
 		return email;
 	}
 
+	@Override
 	public String toString() {
 		String dn = getDisplayNameOrUserId();
 		if (dn.equals(userId)) {

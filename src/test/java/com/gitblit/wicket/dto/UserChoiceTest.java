@@ -19,6 +19,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.gitblit.models.UserChoice;
+
 /**
  * Test behavior of UserChoice class.
  * 
