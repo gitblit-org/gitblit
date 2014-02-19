@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,6 +34,7 @@ import com.gitblit.Keys;
 import com.gitblit.auth.AuthenticationProvider.UsernamePasswordAuthenticationProvider;
 import com.gitblit.models.TeamModel;
 import com.gitblit.models.UserModel;
+import com.gitblit.service.LdapSyncService;
 import com.gitblit.utils.ArrayUtils;
 import com.gitblit.utils.StringUtils;
 import com.unboundid.ldap.sdk.Attribute;
@@ -57,33 +60,38 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
  */
 public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
-    private AtomicLong lastLdapUserSync = new AtomicLong(0L);
+    private final AtomicLong lastLdapUserSync = new AtomicLong(0L);
 
 	public LdapAuthProvider() {
 		super("ldap");
 	}
 
- 	private long getSynchronizationPeriod() {
-        final String cacheDuration = settings.getString(Keys.realm.ldap.ldapCachePeriod, "2 MINUTES");
+ 	private long getSynchronizationPeriodInMilliseconds(String name) {
+        final String cacheDuration = settings.getString(name, "2 MINUTES");
         try {
             final String[] s = cacheDuration.split(" ", 2);
-            long duration = Long.parseLong(s[0]);
+            long duration = Math.abs(Long.parseLong(s[0]));
             TimeUnit timeUnit = TimeUnit.valueOf(s[1]);
             return timeUnit.toMillis(duration);
         } catch (RuntimeException ex) {
-            throw new IllegalArgumentException(Keys.realm.ldap.ldapCachePeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
+            throw new IllegalArgumentException(name + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
         }
     }
 
 	@Override
 	public void setup() {
 		synchronizeLdapUsers();
+		configureLdapSyncService();
+	}
+	
+	public void synchronizeWithLdapService() {
+		synchronizeLdapUsers();
 	}
 
 	protected synchronized void synchronizeLdapUsers() {
         final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
         if (enabled) {
-            if (System.currentTimeMillis() > (lastLdapUserSync.get() + getSynchronizationPeriod())) {
+            if (System.currentTimeMillis() > (lastLdapUserSync.get() + getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.ldapCachePeriod))) {
             	logger.info("Synchronizing with LDAP @ " + settings.getRequiredString(Keys.realm.ldap.server));
                 final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
                 LDAPConnection ldapConnection = getLdapConnection();
@@ -143,6 +151,9 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
                                 }
                                 userManager.updateTeamModels(userTeams.values());
                             }
+                        }
+                        if (!supportsTeamMembershipChanges()) {
+                        	getEmptyTeamsFromLdap(ldapConnection);
                         }
                         lastLdapUserSync.set(System.currentTimeMillis());
                     } finally {
@@ -427,6 +438,29 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 	}
 
+	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
+		logger.info("Start fetching empty teams form ldap.");
+		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
+		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
+
+		SearchResult teamMembershipResult = doSearch(ldapConnection, groupBase, true, groupMemberPattern, null);
+		if (teamMembershipResult != null && teamMembershipResult.getEntryCount() > 0) {
+			for (int i = 0; i < teamMembershipResult.getEntryCount(); i++) {
+				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
+				if (!teamEntry.hasAttribute("member")) {
+					String teamName = teamEntry.getAttribute("cn").getValue();
+	
+					TeamModel teamModel = userManager.getTeamModel(teamName);
+					if (teamModel == null) {
+						teamModel = createTeamFromLdap(teamEntry);
+						userManager.updateTeamModel(teamModel);
+					}
+				}
+			}
+		}
+		logger.info("Finished fetching empty teams form ldap.");
+	}
+
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
 		TeamModel answer = new TeamModel(teamEntry.getAttributeValue("cn"));
 		answer.accountType = getAccountType();
@@ -519,4 +553,25 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		}
 		return sb.toString();
 	}
+
+	private void configureLdapSyncService() {
+		logger.info("Start configuring ldap sync service");
+		LdapSyncService ldapSyncService = new LdapSyncService(settings, this);
+		if (ldapSyncService.isReady()) {
+			long ldapSyncPeriod = getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.synchronizeUsers.ldapSyncPeriod);
+			long ldapCachePeriod = getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.synchronizeUsers.ldapSyncPeriod);
+			if (ldapSyncPeriod < ldapCachePeriod) {
+				ldapSyncPeriod = ldapCachePeriod;
+			}
+			int delay = 1;
+			ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+			scheduledExecutorService.scheduleAtFixedRate(ldapSyncService, delay, ldapSyncPeriod,  TimeUnit.MILLISECONDS);
+			logger.info("Ldap sync service will update user and groups every {} minutes.", ldapSyncPeriod);
+			logger.info("Next scheduled ldap sync is in {} minutes", delay);
+		} else {
+			logger.info("Ldap sync service is disabled.");
+		}
+		logger.info("Finished configuring ldap sync service");
+	}
+
 }

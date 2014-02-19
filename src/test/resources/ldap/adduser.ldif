@@ -1,0 +1,11 @@
+dn: CN=UserSix,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+objectClass: user
+objectClass: person
+sAMAccountName: UserSix
+userPassword: userSixPassword
+displayName: User Six
+givenName: User
+surname: Six
+personalTitle: Miss
+email: usersix@gitblit.com
+memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain

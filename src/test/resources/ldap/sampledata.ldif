@@ -106,3 +106,15 @@ surname: Four
 personalTitle: Miss
 email: userfour@gitblit.com
 memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
+
+dn: CN=UserFive,OU=Canada,OU=Users,OU=UserControl,OU=MyOrganization,DC=MyDomain
+objectClass: user
+objectClass: person
+sAMAccountName: UserFive
+userPassword: userFivePassword
+displayName: User Five
+givenName: User
+surname: Five
+personalTitle: Miss
+email: userfive@gitblit.com
+memberOf: CN=Git_Users,OU=Groups,OU=UserControl,OU=MyOrganization,DC=MyDomain
