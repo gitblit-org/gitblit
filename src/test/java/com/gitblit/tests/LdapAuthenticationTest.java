@@ -58,7 +58,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	private static final String RESOURCE_DIR = "src/test/resources/ldap/";
 
     private File usersConf;
-    
+
     private LdapAuthProvider ldap;
 
 	static int ldapPort = 1389;
@@ -196,7 +196,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	public void addingUserInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
 		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
-		ldap.synchronizeWithLdapService();
+		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 5, countLdapUsersInUserManager());
 	}
 
@@ -205,7 +205,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		settings.put("realm.ldap.synchronizeUsers.enable", "true");
 		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "adduser.ldif"));
-		ldap.synchronizeWithLdapService();
+		ldap.sync();
 		assertEquals("Number of ldap users in gitblit user model", 6, countLdapUsersInUserManager());
 	}
 
@@ -213,7 +213,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 	public void addingGroupsInLdapShouldNotUpdateGitBlitUsersAndGroups() throws Exception {
 		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
-		ldap.synchronizeWithLdapService();
+		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 0, countLdapTeamsInUserManager());
 	}
 
@@ -222,7 +222,7 @@ public class LdapAuthenticationTest extends GitblitUnitTest {
 		settings.put("realm.ldap.synchronizeUsers.enable", "true");
 		settings.put("realm.ldap.ldapCachePeriod", "0 MINUTES");
 		ds.addEntries(LDIFReader.readEntries(RESOURCE_DIR + "addgroup.ldif"));
-		ldap.synchronizeWithLdapService();
+		ldap.sync();
 		assertEquals("Number of ldap groups in gitblit team model", 1, countLdapTeamsInUserManager());
 	}
 

@@ -19,6 +19,7 @@ package com.gitblit.auth;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import com.gitblit.Constants;
 import com.gitblit.Constants.AccountType;
@@ -60,109 +60,119 @@ import com.unboundid.util.ssl.TrustAllTrustManager;
  */
 public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 
-    private final AtomicLong lastLdapUserSync = new AtomicLong(0L);
+	private final ScheduledExecutorService scheduledExecutorService;
 
 	public LdapAuthProvider() {
 		super("ldap");
+
+		scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 	}
 
- 	private long getSynchronizationPeriodInMilliseconds(String name) {
-        final String cacheDuration = settings.getString(name, "2 MINUTES");
+ 	private long getSynchronizationPeriodInMilliseconds() {
+ 		String period = settings.getString(Keys.realm.ldap.syncPeriod, null);
+ 		if (StringUtils.isEmpty(period)) {
+ 	 		period = settings.getString("realm.ldap.ldapCachePeriod", null);
+ 	 		if (StringUtils.isEmpty(period)) {
+ 	 			period = "5 MINUTES";
+ 	 		} else {
+ 	 			logger.warn("realm.ldap.ldapCachePeriod is obsolete!");
+ 	 			logger.warn(MessageFormat.format("Please set {0}={1} in gitblit.properties!", Keys.realm.ldap.syncPeriod, period));
+ 	 			settings.overrideSetting(Keys.realm.ldap.syncPeriod, period);
+ 	 		}
+ 		}
+
         try {
-            final String[] s = cacheDuration.split(" ", 2);
+            final String[] s = period.split(" ", 2);
             long duration = Math.abs(Long.parseLong(s[0]));
             TimeUnit timeUnit = TimeUnit.valueOf(s[1]);
             return timeUnit.toMillis(duration);
         } catch (RuntimeException ex) {
-            throw new IllegalArgumentException(name + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
+            throw new IllegalArgumentException(Keys.realm.ldap.syncPeriod + " must have format '<long> <TimeUnit>' where <TimeUnit> is one of 'MILLISECONDS', 'SECONDS', 'MINUTES', 'HOURS', 'DAYS'");
         }
     }
 
 	@Override
 	public void setup() {
-		synchronizeLdapUsers();
-		configureLdapSyncService();
-	}
-	
-	public void synchronizeWithLdapService() {
-		synchronizeLdapUsers();
+		configureSyncService();
 	}
 
-	protected synchronized void synchronizeLdapUsers() {
-        final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.enable, false);
-        if (enabled) {
-            if (System.currentTimeMillis() > (lastLdapUserSync.get() + getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.ldapCachePeriod))) {
-            	logger.info("Synchronizing with LDAP @ " + settings.getRequiredString(Keys.realm.ldap.server));
-                final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.synchronizeUsers.removeDeleted, true);
-                LDAPConnection ldapConnection = getLdapConnection();
-                if (ldapConnection != null) {
-                    try {
-                        String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
-                        String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
-                        String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
-                        accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
+	@Override
+	public void stop() {
+		scheduledExecutorService.shutdownNow();
+	}
 
-                        SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
-                        if (result != null && result.getEntryCount() > 0) {
-                            final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
+	public synchronized void sync() {
+		final boolean enabled = settings.getBoolean(Keys.realm.ldap.synchronize, false);
+		if (enabled) {
+			logger.info("Synchronizing with LDAP @ " + settings.getRequiredString(Keys.realm.ldap.server));
+			final boolean deleteRemovedLdapUsers = settings.getBoolean(Keys.realm.ldap.removeDeletedUsers, true);
+			LDAPConnection ldapConnection = getLdapConnection();
+			if (ldapConnection != null) {
+				try {
+					String accountBase = settings.getString(Keys.realm.ldap.accountBase, "");
+					String uidAttribute = settings.getString(Keys.realm.ldap.uid, "uid");
+					String accountPattern = settings.getString(Keys.realm.ldap.accountPattern, "(&(objectClass=person)(sAMAccountName=${username}))");
+					accountPattern = StringUtils.replace(accountPattern, "${username}", "*");
 
-                            for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
+					SearchResult result = doSearch(ldapConnection, accountBase, accountPattern);
+					if (result != null && result.getEntryCount() > 0) {
+						final Map<String, UserModel> ldapUsers = new HashMap<String, UserModel>();
 
-                                final String username = loggingInUser.getAttribute(uidAttribute).getValue();
-                                logger.debug("LDAP synchronizing: " + username);
+						for (SearchResultEntry loggingInUser : result.getSearchEntries()) {
 
-                                UserModel user = userManager.getUserModel(username);
-                                if (user == null) {
-                                    user = new UserModel(username);
-                                }
+							final String username = loggingInUser.getAttribute(uidAttribute).getValue();
+							logger.debug("LDAP synchronizing: " + username);
 
-                                if (!supportsTeamMembershipChanges()) {
-                                    getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
-                                }
+							UserModel user = userManager.getUserModel(username);
+							if (user == null) {
+								user = new UserModel(username);
+							}
 
-                                // Get User Attributes
-                                setUserAttributes(user, loggingInUser);
+							if (!supportsTeamMembershipChanges()) {
+								getTeamsFromLdap(ldapConnection, username, loggingInUser, user);
+							}
 
-                                // store in map
-                                ldapUsers.put(username.toLowerCase(), user);
-                            }
+							// Get User Attributes
+							setUserAttributes(user, loggingInUser);
 
-                            if (deleteRemovedLdapUsers) {
-                                logger.debug("detecting removed LDAP users...");
+							// store in map
+							ldapUsers.put(username.toLowerCase(), user);
+						}
 
-                                for (UserModel userModel : userManager.getAllUsers()) {
-                                    if (Constants.EXTERNAL_ACCOUNT.equals(userModel.password)) {
-                                        if (!ldapUsers.containsKey(userModel.username)) {
-                                            logger.info("deleting removed LDAP user " + userModel.username + " from user service");
-                                            userManager.deleteUser(userModel.username);
-                                        }
-                                    }
-                                }
-                            }
+						if (deleteRemovedLdapUsers) {
+							logger.debug("detecting removed LDAP users...");
 
-                            userManager.updateUserModels(ldapUsers.values());
+							for (UserModel userModel : userManager.getAllUsers()) {
+								if (AccountType.LDAP == userModel.accountType) {
+									if (!ldapUsers.containsKey(userModel.username)) {
+										logger.info("deleting removed LDAP user " + userModel.username + " from user service");
+										userManager.deleteUser(userModel.username);
+									}
+								}
+							}
+						}
 
-                            if (!supportsTeamMembershipChanges()) {
-                                final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
-                                for (UserModel user : ldapUsers.values()) {
-                                    for (TeamModel userTeam : user.teams) {
-                                        userTeams.put(userTeam.name, userTeam);
-                                    }
-                                }
-                                userManager.updateTeamModels(userTeams.values());
-                            }
-                        }
-                        if (!supportsTeamMembershipChanges()) {
-                        	getEmptyTeamsFromLdap(ldapConnection);
-                        }
-                        lastLdapUserSync.set(System.currentTimeMillis());
-                    } finally {
-                        ldapConnection.close();
-                    }
-                }
-            }
-        }
-    }
+						userManager.updateUserModels(ldapUsers.values());
+
+						if (!supportsTeamMembershipChanges()) {
+							final Map<String, TeamModel> userTeams = new HashMap<String, TeamModel>();
+							for (UserModel user : ldapUsers.values()) {
+								for (TeamModel userTeam : user.teams) {
+									userTeams.put(userTeam.name, userTeam);
+								}
+							}
+							userManager.updateTeamModels(userTeams.values());
+						}
+					}
+					if (!supportsTeamMembershipChanges()) {
+						getEmptyTeamsFromLdap(ldapConnection);
+					}
+				} finally {
+					ldapConnection.close();
+				}
+			}
+		}
+	}
 
 	private LDAPConnection getLdapConnection() {
 		try {
@@ -439,7 +449,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 	}
 
 	private void getEmptyTeamsFromLdap(LDAPConnection ldapConnection) {
-		logger.info("Start fetching empty teams form ldap.");
+		logger.info("Start fetching empty teams from ldap.");
 		String groupBase = settings.getString(Keys.realm.ldap.groupBase, "");
 		String groupMemberPattern = settings.getString(Keys.realm.ldap.groupEmptyMemberPattern, "(&(objectClass=group)(!(member=*)))");
 
@@ -449,7 +459,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				SearchResultEntry teamEntry = teamMembershipResult.getSearchEntries().get(i);
 				if (!teamEntry.hasAttribute("member")) {
 					String teamName = teamEntry.getAttribute("cn").getValue();
-	
+
 					TeamModel teamModel = userManager.getTeamModel(teamName);
 					if (teamModel == null) {
 						teamModel = createTeamFromLdap(teamEntry);
@@ -458,7 +468,7 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 				}
 			}
 		}
-		logger.info("Finished fetching empty teams form ldap.");
+		logger.info("Finished fetching empty teams from ldap.");
 	}
 
 	private TeamModel createTeamFromLdap(SearchResultEntry teamEntry) {
@@ -554,24 +564,16 @@ public class LdapAuthProvider extends UsernamePasswordAuthenticationProvider {
 		return sb.toString();
 	}
 
-	private void configureLdapSyncService() {
-		logger.info("Start configuring ldap sync service");
+	private void configureSyncService() {
 		LdapSyncService ldapSyncService = new LdapSyncService(settings, this);
 		if (ldapSyncService.isReady()) {
-			long ldapSyncPeriod = getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.synchronizeUsers.ldapSyncPeriod);
-			long ldapCachePeriod = getSynchronizationPeriodInMilliseconds(Keys.realm.ldap.synchronizeUsers.ldapSyncPeriod);
-			if (ldapSyncPeriod < ldapCachePeriod) {
-				ldapSyncPeriod = ldapCachePeriod;
-			}
+			long ldapSyncPeriod = getSynchronizationPeriodInMilliseconds();
 			int delay = 1;
-			ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+			logger.info("Ldap sync service will update users and groups every {} minutes.", ldapSyncPeriod);
 			scheduledExecutorService.scheduleAtFixedRate(ldapSyncService, delay, ldapSyncPeriod,  TimeUnit.MILLISECONDS);
-			logger.info("Ldap sync service will update user and groups every {} minutes.", ldapSyncPeriod);
-			logger.info("Next scheduled ldap sync is in {} minutes", delay);
 		} else {
 			logger.info("Ldap sync service is disabled.");
 		}
-		logger.info("Finished configuring ldap sync service");
 	}
 
 }

@@ -100,6 +100,8 @@ public abstract class AuthenticationProvider {
 
 	public abstract void setup();
 
+	public abstract void stop();
+
 	public abstract UserModel authenticate(String username, char[] password);
 
 	public abstract AccountType getAccountType();
@@ -145,6 +147,11 @@ public abstract class AuthenticationProvider {
     	protected UsernamePasswordAuthenticationProvider(String serviceName) {
     		super(serviceName);
     	}
+
+    	@Override
+		public void stop() {
+
+		}
     }
 
     public static class NullProvider extends AuthenticationProvider {
@@ -155,6 +162,11 @@ public abstract class AuthenticationProvider {
 
 		@Override
 		public void setup() {
+
+		}
+
+		@Override
+		public void stop() {
 
 		}
 
