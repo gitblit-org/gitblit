@@ -33,6 +33,7 @@ r20: {
 	- Reversed line links in blob view (issue-309)
 	- Dashboard and Activity pages now obey the web.generateActivityGraph setting (issue-310)
 	- Do not log passwords on failed authentication attempts (issue-316)
+	- Show displayname and username in palettes (issue-364)
 	- Updated default binary and Lucene ignore extensions
 	- Change the WAR baseFolder context parameter to a JNDI env-entry to improve enterprise deployments
 	- Removed internal Gitblit ref exclusions in the upload pack
